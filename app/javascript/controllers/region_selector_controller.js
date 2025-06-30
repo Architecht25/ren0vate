@@ -1,11 +1,34 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  select(event) {
-    const region = event.currentTarget.dataset.region
-    localStorage.setItem("region", region)
+  connect() {
+    console.log("✅ Controller region-selector bien connecté")
+  }
 
-    const section = document.querySelector('[data-user-type-target="section"]')
-    if (section) section.classList.remove("d-none")
+  select(event) {
+    const selectedRegion = event.target.dataset.region
+    console.log("➡️ Région sélectionnée :", selectedRegion)
+
+    // On récupère tous les blocs ciblés par le controller region-display
+    const regionDisplay = document.querySelector('[data-controller="region-display"]')
+
+    if (!regionDisplay) {
+      console.warn("❌ Aucun data-controller='region-display' trouvé.")
+      return
+    }
+
+    const allTargets = regionDisplay.querySelectorAll('[data-region-display-target]')
+
+    // On cache tous les blocs
+    allTargets.forEach(el => el.classList.add("d-none"))
+
+    // Puis on affiche celui correspondant à la région sélectionnée
+    const targetToShow = regionDisplay.querySelector(`[data-region-display-target="${selectedRegion}"]`)
+
+    if (targetToShow) {
+      targetToShow.classList.remove("d-none")
+    } else {
+      console.warn(`⚠️ Aucune cible trouvée pour la région : ${selectedRegion}`)
+    }
   }
 }

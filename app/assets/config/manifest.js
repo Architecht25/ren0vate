@@ -3,8 +3,11 @@
 //= link application.js
 //= link bootstrap.min.js
 //= link popper.js
+
 //= link controllers/region_selector_controller.js
 //= link controllers/user_type_controller.js
-  //= link turbo.min.js
-  //= link stimulus.min.js
-  //= link stimulus-loading.js
+//= link controllers/region_display_controller.js
+
+//= link turbo.min.js
+//= link stimulus.min.js
+//= link stimulus-loading.js
