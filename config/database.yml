@@ -13,5 +13,14 @@ test:
   database: ren0vate_test
 
 production:
-  <<: *default
-  database: ren0vate_production
+  primary:
+    <<: *default
+    url: <%= ENV["DATABASE_URL"] %>
+
+  queue:
+    <<: *default
+    url: <%= ENV["DATABASE_URL"] %>
+
+  cable:
+    <<: *default
+    url: <%= ENV["DATABASE_URL"] %>
