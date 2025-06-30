@@ -2,3 +2,27 @@
 <p>Bienvenue dans notre app, qui veut du bien à votre portefeuille</p>
 
  <strong><%= link_to "juste pour usage interne, voici un premier lien vers la liste des primes en flandre", primes_path %></strong>
+
+
+<div data-controller="region-selector" class="mt-3">
+  <h2>Dans quelle région se situe le bien à rénover ?</h2>
+  <div class="btn-group my-3" role="group">
+    <button type="button" class="btn btn-outline-primary" data-action="click->region-selector#select" data-region="flandre">Flandre</button>
+    <button type="button" class="btn btn-outline-primary" data-action="click->region-selector#select" data-region="wallonie">Wallonie</button>
+    <button type="button" class="btn btn-outline-primary" data-action="click->region-selector#select" data-region="bruxelles">Bruxelles</button>
+  </div>
+</div>
+
+<div data-controller="user-type" data-user-type-target="section" class="d-none">
+  <h2>Quel est votre profil ?</h2>
+  <div class="btn-group my-3" role="group">
+    <button type="button" class="btn btn-outline-success" data-action="click->user-type#select" data-user="prive">Particulier</button>
+    <button type="button" class="btn btn-outline-success" data-action="click->user-type#select" data-user="entreprise">Entreprise</button>
+    <button type="button" class="btn btn-outline-success" data-action="click->user-type#select" data-user="copropriete">Copropriété</button>
+  </div>
+</div>
+
+<div id="eligibility-test" data-controller="eligibility-test" class="d-none">
+  <h2>Test d’éligibilité</h2>
+  <!-- Ici, on injectera dynamiquement les questions -->
+</div>
