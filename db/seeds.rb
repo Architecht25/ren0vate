@@ -1,11 +1,9 @@
 puts "🌱 Lancement du seed principal..."
 
-%w[flandre wallonie bruxelles].each do |region|
-  path = Rails.root.join("db", "seeds", region, "primes.rb")
-  if File.exist?(path)
-    puts "🔹 Chargement de : #{path}"
-    load path
-  end
+path = Rails.root.join("db", "seeds", "flandre", "primes.rb")
+if File.exist?(path)
+  puts "🔹 Chargement de : #{path}"
+  load path
 end
 
 puts "✅ Seeds terminés"
