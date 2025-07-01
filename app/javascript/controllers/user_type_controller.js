@@ -2,6 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   select(event) {
+    console.log("✅ Controller user-type bien connecté")
     const userType = event.currentTarget.dataset.user
     localStorage.setItem("userType", userType)
 
