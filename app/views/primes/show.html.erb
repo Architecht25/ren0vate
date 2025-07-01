@@ -1,21 +1,43 @@
-<h1><%= @prime.titre %></h1>
+<div class="container my-5">
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <h1 class="card-title h3 mb-4"><i class="bi bi-award me-2"></i><%= @prime.titre %></h1>
 
-<p><strong>Slug :</strong> <%= @prime.slug %></p>
-<p><strong>Région :</strong> <%= @prime.region %></p>
-<p><strong>Unité :</strong> <%= @prime.unite %></p>
-<p><strong>Type de valeur :</strong> <%= @prime.type_de_valeur %></p>
+      <dl class="row mb-4">
+        <dt class="col-sm-4 text-muted">Slug</dt>
+        <dd class="col-sm-8"><%= @prime.slug %></dd>
 
-<h2>Conditions</h2>
-<p><%= @prime.condition %></p>
+        <dt class="col-sm-4 text-muted">Région</dt>
+        <dd class="col-sm-8"><%= @prime.region.capitalize %></dd>
 
-<h2>Conseils</h2>
-<p><%= @prime.conseil %></p>
+        <dt class="col-sm-4 text-muted">Unité</dt>
+        <dd class="col-sm-8"><%= @prime.unite %></dd>
 
-<h2>Documents requis</h2>
-<p><%= @prime.document %></p>
+        <dt class="col-sm-4 text-muted">Type de valeur</dt>
+        <dd class="col-sm-8"><%= @prime.type_de_valeur %></dd>
+      </dl>
 
-<% if @prime.image.present? %>
-  <img src="/<%= @prime.image %>" alt="<%= @prime.titre %>" class="img-fluid mt-3" />
-<% end %>
+      <hr>
 
-<%= link_to "Retour à la liste", primes_path, class: "btn btn-outline-secondary mt-4" %>
+      <h5 class="text-primary">Conditions</h5>
+      <p><%= @prime.condition %></p>
+
+      <h5 class="text-primary">Conseils</h5>
+      <p><%= @prime.conseil %></p>
+
+      <h5 class="text-primary">Documents requis</h5>
+      <p><%= @prime.document %></p>
+
+      <% if @prime.image.present? %>
+        <div class="text-center my-4">
+          <img src="/<%= @prime.image %>" alt="<%= @prime.titre %>" class="img-fluid rounded shadow-sm" />
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="d-flex justify-content-center gap-3 mt-4">
+    <%= link_to "← Retour à la liste", primes_path, class: "btn btn-outline-secondary" %>
+    <%= link_to "Accueil", root_path, class: "btn btn-outline-primary" %>
+  </div>
+</div>

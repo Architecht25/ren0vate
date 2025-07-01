@@ -1,14 +1,27 @@
-<h1>Liste des primes</h1>
+<div class="container my-5">
 
-<ul class="list-group">
-  <% @primes.each do |prime| %>
-    <li class="list-group-item">
-      <strong><%= link_to prime.titre, prime_path(prime) %></strong> –
-      <%= prime.region.capitalize %> –
-      <em><%= prime.slug %></em>
-    </li>
-  <% end %>
-</ul>
+  <div class="card shadow-sm">
+    <div class="card-header bg-light d-flex align-items-center">
+      <h2 class="h5 mb-0">
+        <i class="bi bi-stars me-2"></i> Liste des primes disponibles
+      </h2>
+    </div>
 
+    <ul class="list-group list-group-flush">
+      <% @primes.each do |prime| %>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <strong><%= link_to prime.titre, prime_path(prime), class: "text-decoration-none" %></strong><br>
+            <small class="text-muted"><%= prime.region.capitalize %> – <em><%= prime.slug %></em></small>
+          </div>
+          <i class="bi bi-chevron-right text-muted"></i>
+        </li>
+      <% end %>
+    </ul>
+  </div>
 
-<%= link_to "home page", root_path, class: "btn btn-outline-secondary mt-4" %>
+  <div class="text-center mt-4">
+    <%= link_to "← Retour à l'accueil", root_path, class: "btn btn-outline-secondary" %>
+  </div>
+
+</div>
