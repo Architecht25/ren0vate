@@ -142,7 +142,7 @@ export default class extends Controller {
     // Valeur par défaut
     if (!categorie) {
       categorie = 4;
-      message += " (Votre catégorie est comprise entre 1 et 4, à confirmer selon vos revenus)";
+      message += " (Votre catégorie est comprise entre 1 et 4, à confirmer selon vos revenus à l'étape suivante)";
     }
 
     // PEB
