@@ -1,146 +1,115 @@
-<div class="page-home">
-  <h1>Ren0vate</h1>
-  <p>Bienvenue dans notre app, qui veut du bien à votre portefeuille</p>
+<div class="container my-5">
 
-  <strong><%= link_to "Liste des primes en flandre", primes_path %></strong>
-
+  <div class="text-center mb-5">
+    <h1 class="display-4">Ren0vate</h1>
+    <p class="lead text-muted">Bienvenue dans notre app, qui veut du bien à votre portefeuille 🏡💶</p>
+    <%= link_to "Voir la liste des primes en Flandre", primes_path, class: "btn btn-outline-primary mt-3" %>
+  </div>
 
   <!-- Sélecteur de région -->
-  <div data-controller="region-selector" class="mt-3">
-    <h3>Dans quelle région se situe le bien à rénover ?</h3>
-    <div class="btn-group my-3" role="group">
-      <button type="button" class="btn btn-outline-primary"
-              data-action="click->region-selector#select"
-              data-region="flandre">Flandre</button>
-      <button type="button" class="btn btn-outline-primary"
-              data-action="click->region-selector#select"
-              data-region="wallonie">Wallonie</button>
-      <button type="button" class="btn btn-outline-primary"
-              data-action="click->region-selector#select"
-              data-region="bruxelles">Bruxelles</button>
+  <div class="card mb-4 shadow-sm" data-controller="region-selector">
+    <div class="card-body text-center">
+      <h3 class="card-title mb-3">Dans quelle région se situe le bien à rénover ?</h3>
+      <div class="btn-group" role="group">
+        <button type="button" class="btn btn-outline-primary" data-action="click->region-selector#select" data-region="flandre">Flandre</button>
+        <button type="button" class="btn btn-outline-primary" data-action="click->region-selector#select" data-region="wallonie">Wallonie</button>
+        <button type="button" class="btn btn-outline-primary" data-action="click->region-selector#select" data-region="bruxelles">Bruxelles</button>
+      </div>
     </div>
   </div>
 
-  <!-- Affichage des profils selon la région -->
+  <!-- Affichage des profils -->
   <div data-controller="region-display">
+    <%# Flandre %>
     <div data-region-display-target="flandre" class="d-none" data-controller="user-type">
-      <h3>Flandre – Quel est votre profil ?</h3>
-        <div class="btn-group my-3" role="group">
-          <button type="button" class="btn btn-outline-success" data-action="click->user-type#select" data-user="prive">Particulier</button>
-          <button type="button" class="btn btn-outline-success" data-action="click->user-type#select" data-user="entreprise">Entreprise</button>
-          <button type="button" class="btn btn-outline-success" data-action="click->user-type#select" data-user="syndic">Syndic de Copropriété</button>
-          <button type="button" class="btn btn-outline-success" data-action="click->user-type#select" data-user="bailleur">Bailleur social</button>
-          <button type="button" class="btn btn-outline-success" data-action="click->user-type#select" data-user="asbl">ASBL ou Coopérative</button>
+      <div class="card shadow-sm mb-4">
+        <div class="card-body text-center">
+          <h4 class="mb-3">Flandre – Quel est votre profil ?</h4>
+          <div class="btn-group flex-wrap" role="group">
+            <button class="btn btn-outline-success m-1" data-action="click->user-type#select" data-user="prive">Particulier</button>
+            <button class="btn btn-outline-success m-1" data-action="click->user-type#select" data-user="entreprise">Entreprise</button>
+            <button class="btn btn-outline-success m-1" data-action="click->user-type#select" data-user="syndic">Syndic de Copropriété</button>
+            <button class="btn btn-outline-success m-1" data-action="click->user-type#select" data-user="bailleur">Bailleur social</button>
+            <button class="btn btn-outline-success m-1" data-action="click->user-type#select" data-user="asbl">ASBL / Coopérative</button>
+          </div>
         </div>
+      </div>
     </div>
 
+    <%# Wallonie %>
     <div data-region-display-target="wallonie" class="d-none">
-      <h4>Wallonie – Quel est votre profil ?</h4>
-        <div class="btn-group my-3" role="group">
-          <button type="button" class="btn btn-outline-success" data-action="click->user-type#select" data-user="prive">Particulier</button>
-          <button type="button" class="btn btn-outline-success" data-action="click->user-type#select" data-user="entreprise">Entreprise</button>
+      <div class="card shadow-sm mb-4">
+        <div class="card-body text-center">
+          <h4 class="mb-3">Wallonie – Quel est votre profil ?</h4>
+          <div class="btn-group" role="group">
+            <button class="btn btn-outline-success m-1" data-action="click->user-type#select" data-user="prive">Particulier</button>
+            <button class="btn btn-outline-success m-1" data-action="click->user-type#select" data-user="entreprise">Entreprise</button>
+            <button class="btn btn-outline-success m-1" data-action="click->user-type#select" data-user="syndic">Syndic de Copropriété</button>
+          </div>
         </div>
+      </div>
     </div>
 
+    <%# Bruxelles %>
     <div data-region-display-target="bruxelles" class="d-none">
-      <h4>Bruxelles – Quel est votre profil ?</h4>
-        <div class="btn-group my-3" role="group">
-          <button type="button" class="btn btn-outline-success" data-action="click->user-type#select" data-user="prive">Particulier</button>
-          <button type="button" class="btn btn-outline-success" data-action="click->user-type#select" data-user="entreprise">Entreprise</button>
-          <button type="button" class="btn btn-outline-success" data-action="click->user-type#select" data-user="autres">Autres</button>
+      <div class="card shadow-sm mb-4">
+        <div class="card-body text-center">
+          <h4 class="mb-3">Bruxelles – Quel est votre profil ?</h4>
+          <div class="btn-group" role="group">
+            <button class="btn btn-outline-success m-1" data-action="click->user-type#select" data-user="prive">Particulier</button>
+            <button class="btn btn-outline-success m-1" data-action="click->user-type#select" data-user="entreprise">Entreprise</button>
+            <button class="btn btn-outline-success m-1" data-action="click->user-type#select" data-user="syndic">Syndic de Copropriété</button>
+            <button class="btn btn-outline-success m-1" data-action="click->user-type#select" data-user="ais">AIS</button>
+            <button class="btn btn-outline-success m-1" data-action="click->user-type#select" data-user="autres">Autres</button>
+          </div>
         </div>
+      </div>
     </div>
   </div>
 
+  <!-- Test d’éligibilité -->
   <div id="eligibility-test" data-controller="test-eligibilite" class="d-none">
-    <h3>Test d’éligibilité</h3>
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h3 class="mb-4">Test d’éligibilité</h3>
+        <form id="eligibilityForm" name="eligibilityForm" data-test-eligibilite-target="form">
+          <%# Répète cette structure pour chaque step %>
+          <% steps = {
+            "usage" => "Le bien est-il destiné à être habité ?",
+            "proprietaire" => "Êtes-vous propriétaire du bien ?",
+            "autre_bien" => "Possédez-vous un autre bien/appartement/terrain ?",
+            "annee" => "Le logement a-t-il été construit avant 2006 ?",
+            "type" => "Le logement est-il une maison?",
+            "peb" => "Le certificat PEB indique-t-il un label E ou F ?",
+            "domicile" => "Êtes-vous ou serez-vous domicilié dans ce logement ?",
+            "demolition" => "Le logement est-il un ancien bâtiment démoli avec TVA 6% ?",
+            "travaux" => "Prévoyez-vous des travaux d’isolation ou de chauffage ?",
+            "protege" => "Êtes-vous un client protégé ?"
+          } %>
 
-    <form id="eligibilityForm" name="eligibilityForm" data-test-eligibilite-target="form">
-      <!-- STEP 2 -->
-      <div class="form-card" data-test-eligibilite-target="formCard">
-        <h4>Le bien est-il destiné à être habité ?</h4>
-          <label><input type="radio" name="usage" value="habite" data-action="click->test-eligibilite#handleAnswer"> Oui</label>
-          <label><input type="radio" name="usage" value="non_habite" data-action="click->test-eligibilite#handleAnswer"> Non</label>
+          <% steps.each do |key, question| %>
+            <div class="form-card mb-4" data-test-eligibilite-target="formCard">
+              <h5><%= question %></h5>
+              <div class="form-check">
+                <input type="radio" class="form-check-input" name="<%= key %>" value="oui" data-action="click->test-eligibilite#handleAnswer" id="<%= key %>_oui">
+                <label class="form-check-label" for="<%= key %>_oui">Oui</label>
+              </div>
+              <div class="form-check">
+                <input type="radio" class="form-check-input" name="<%= key %>" value="non" data-action="click->test-eligibilite#handleAnswer" id="<%= key %>_non">
+                <label class="form-check-label" for="<%= key %>_non">Non</label>
+              </div>
+            </div>
+          <% end %>
+        </form>
+
+        <div id="result"
+          data-test-eligibilite-target="result"
+          class="alert alert-info mt-4"
+          style="display: none;">
       </div>
 
-      <!-- STEP 3 -->
-      <div class="form-card" data-test-eligibilite-target="formCard">
-        <h4>Êtes-vous propriétaire du bien ?</h4>
-          <label><input type="radio" name="proprietaire" value="oui" data-action="click->test-eligibilite#handleAnswer"> Oui</label>
-          <label><input type="radio" name="proprietaire" value="non" data-action="click->test-eligibilite#handleAnswer"> Non</label>
       </div>
-
-      <!-- STEP 4 -->
-      <div class="form-card" data-test-eligibilite-target="formCard">
-        <h4>Possédez-vous un autre bien/appartement/terrain en pleine propriété ?</h4>
-          <label><input type="radio" name="autre_bien" value="oui" data-action="click->test-eligibilite#handleAnswer"> Oui</label>
-          <label><input type="radio" name="autre_bien" value="non" data-action="click->test-eligibilite#handleAnswer"> Non</label>
-      </div>
-
-      <!-- STEP 5 -->
-      <div class="form-card" data-test-eligibilite-target="formCard">
-        <h4>Le logement a-t-il été construit et raccordé au réseau d'électricité avant le 1er janvier 2006 ?</h4>
-          <label><input type="radio" name="annee" value="avant" data-action="click->test-eligibilite#handleAnswer"> Oui</label>
-          <label><input type="radio" name="annee" value="apres" data-action="click->test-eligibilite#handleAnswer"> Non</label>
-      </div>
-
-      <!-- STEP 6 -->
-      <div class="form-card" data-test-eligibilite-target="formCard">
-        <h4>Quel est le type de bien ?</h4>
-          <label><input type="radio" name="type" value="maison" data-action="click->test-eligibilite#handleAnswer"> Maison</label>
-          <label><input type="radio" name="type" value="appartement" data-action="click->test-eligibilite#handleAnswer"> Appartement</label>
-      </div>
-
-      <!-- STEP 7 -->
-      <%# <div class="form-card" data-test-eligibilite-target="formCard">
-        <h4>Pour un appartement, souhaitez-vous faire la demande pour :</h4>
-          <label><input type="radio" name="copro" value="commune" data-action="click->test-eligibilite#handleAnswer"> Parties communes (via syndic)</label>
-          <label><input type="radio" name="copro" value="privee" data-action="click->test-eligibilite#handleAnswer"> Partie privative</label>
-      </div> %>
-
-      <!-- STEP 8 -->
-      <div class="form-card" data-test-eligibilite-target="formCard">
-        <h4>Le certificat PEB indique-t-il un label E ou F avant rénovation ?</h4>
-          <label><input type="radio" name="peb" value="ef" data-action="click->test-eligibilite#handleAnswer"> Oui</label>
-          <label><input type="radio" name="peb" value="autre" data-action="click->test-eligibilite#handleAnswer"> Non</label>
-      </div>
-
-      <!-- STEP 9 -->
-      <div class="form-card" data-test-eligibilite-target="formCard">
-        <h4>Êtes-vous ou serez-vous domicilié dans ce logement ?</h4>
-          <label><input type="radio" name="domicile" value="oui" data-action="click->test-eligibilite#handleAnswer"> Oui</label>
-          <label><input type="radio" name="domicile" value="non" data-action="click->test-eligibilite#handleAnswer"> Non</label>
-      </div>
-
-      <!-- STEP 10 -->
-      <div class="form-card" data-test-eligibilite-target="formCard">
-        <h4>Le logement est-il un ancien bâtiment démoli avec TVA à 6%?</h4>
-          <label><input type="radio" name="demolition" value="oui" data-action="click->test-eligibilite#handleAnswer"> Oui</label>
-          <label><input type="radio" name="demolition" value="non" data-action="click->test-eligibilite#handleAnswer"> Non</label>
-      </div>
-
-      <!-- STEP 11 -->
-      <div class="form-card" data-test-eligibilite-target="formCard">
-        <h4>Envisagez-vous de réaliser des travaux d'isolation ou de remplacement de châssis/chauffage ?</h4>
-          <label><input type="radio" name="travaux" value="oui" data-action="click->test-eligibilite#handleAnswer"> Oui</label>
-          <label><input type="radio" name="travaux" value="non" data-action="click->test-eligibilite#handleAnswer"> Non</label>
-      </div>
-
-      <!-- STEP 12 -->
-      <div class="form-card" data-test-eligibilite-target="formCard">
-        <h4>Êtes-vous un client protégé ?</h4>
-          <label><input type="radio" name="protege" value="oui" data-action="click->test-eligibilite#handleAnswer"> Oui</label>
-          <label><input type="radio" name="protege" value="non" data-action="click->test-eligibilite#handleAnswer"> Non</label>
-      </div>
-    </form>
-
-    <!-- Résultat final -->
-    <div id="result"
-        data-test-eligibilite-target="result"
-        class="alert alert-info mt-4"
-        style="display: none;">
     </div>
-
-
   </div>
+
 </div>
