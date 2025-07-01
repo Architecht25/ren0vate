@@ -7,21 +7,33 @@ export default class extends Controller {
 
     const region = localStorage.getItem("region")
     const testSection = document.getElementById("eligibility-test")
-    const allowedRegion = region === "flandre"
 
     console.log("🧪 Lancement du setTimeout...")
 
     setTimeout(() => {
-      console.log("⏳ Timeout enclenché")
       const testSection = document.getElementById("eligibility-test")
+      const region = localStorage.getItem("region")
+      const userType = localStorage.getItem("userType")  // ✅ fix ici
 
       console.log("📦 testSection trouvé :", testSection)
       console.log("📍 Région (localStorage):", region)
+      console.log("👤 userType:", userType)
 
-      if (testSection && region === "flandre") {
+      if (!testSection) {
+        console.warn("❌ testSection introuvable")
+        return
+      }
+
+      if (region === "flandre" && userType === "entreprise") {
+        alert("❌ Les entreprises ne sont pas éligibles aux primes.")
+        return
+      }
+
+      if (region === "flandre" && userType) {
         console.log("✅ Test affiché via setTimeout")
         testSection.classList.remove("d-none")
 
+        // (optionnel) Si tu utilises des étapes actives plus tard
         const allSteps = testSection.querySelectorAll(".form-card")
         allSteps.forEach(card => card.classList.remove("active"))
 
@@ -31,7 +43,6 @@ export default class extends Controller {
         console.log("❌ Conditions pas remplies – test non affiché")
       }
     }, 100)
-
 
     console.log("🔍 testSection:", testSection)
     console.log("🧠 région:", region)
