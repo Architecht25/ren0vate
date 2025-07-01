@@ -25,14 +25,19 @@ export default class extends Controller {
 
   // Inéligibilités immédiates
   if (userType === "entreprise") {
-    this.showResult("❌ Les entreprises ne sont pas éligibles.", false)
+    this.showResult("❌ Les entreprises ne sont pas éligibles aux primes à la rénovation.", false)
     return
   }
 
   const annee = form.querySelector('input[name="annee"]:checked')?.value
   if (annee === "apres") {
-    this.showResult("❌ Logement trop récent (après 2006).", false)
+    this.showResult("❌ Logement trop récent (après 1 janvier 2006).", false)
     return
+  }
+
+  const type = form.querySelector('input[name="type"]:checked')?.value
+  if (type === "appartement") {
+    this.showResult("❌ Pour un appartement, vous devrez passer obligatoirement par votre syndic pour la préparation et l'introduction de votre demande.", false)
   }
 
   const demolition = form.querySelector('input[name="demolition"]:checked')?.value
@@ -43,7 +48,7 @@ export default class extends Controller {
 
   const travaux = form.querySelector('input[name="travaux"]:checked')?.value
   if (travaux === "non") {
-    this.showResult("❌ Travaux obligatoires non prévus.", false)
+    this.showResult("❌ VOs devez prévoir des travaux éligibles pour bénéficier des primes.", false)
     return
   }
 
@@ -70,7 +75,7 @@ export default class extends Controller {
   calculateResult() {
     console.log("🧪 TEST DES VARIABLES DANS calculateResult()");
 
-    ["demandeur", "usage", "proprietaire", "autre_bien", "annee", "type", "copro", "peb", "domicile", "demolition", "travaux", "protege"]
+    ["userType", "usage", "proprietaire", "autre_bien", "annee", "type", "copro", "peb", "domicile", "demolition", "travaux", "protege"]
     .forEach(name => {
       const value = this.formTarget.querySelector(`[name="${name}"]:checked`)?.value;
       console.log(`➡️ ${name} =`, value);
@@ -122,13 +127,13 @@ export default class extends Controller {
       categorie = 1;
     }
     if (autre_bien === "oui") {
-      message += " (Propriétaire d’un autre bien → Catégorie 1)";
+      message += " (Propriétaire d un autre bien → Catégorie 1)";
       categorie = 1;
     }
-    if (copro === "privee") {
-      message += " (Parties privatives d'une copropriété → passer par le syndic)";
-      categorie = 1;
-    }
+    // if (copro === "privee") {
+    //   message += " (Parties privatives d'une copropriété → passer par le syndic)";
+    //   categorie = 1;
+    // }
     if (protege === "oui") {
       message += " (Client protégé → Catégorie 4)";
       categorie = 4;
@@ -148,12 +153,12 @@ export default class extends Controller {
         message += " (Catégorie 1 + carte PEB)";
       }
     } else {
-      message += " (Pas de carte PEB, mais éligibilité possible selon revenus)";
+      message += " (Pas de carte PEB)";
     }
 
-    if (type === "appartement" && copro === "commune") {
-      message += " (Parties communes = demande via syndic)";
-    }
+    // if (type === "appartement" && copro === "commune") {
+    //   message += " (Parties communes = demande via syndic)";
+    // }
 
     // Résumé visuel
     message += `<br><br><strong>Catégorie :</strong> ${categorie}`;
