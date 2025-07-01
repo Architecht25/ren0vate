@@ -8,7 +8,7 @@ export default class extends Controller {
   select(event) {
     const selectedRegion = event.target.dataset.region
     console.log("➡️ Région sélectionnée :", selectedRegion)
-    localStorage.setItem("region", region);
+    localStorage.setItem("region", selectedRegion);
 
     // On récupère tous les blocs ciblés par le controller region-display
     const regionDisplay = document.querySelector('[data-controller="region-display"]')
