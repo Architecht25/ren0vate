@@ -12,6 +12,9 @@ module Ren0vate
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.0
 
+    # ←–– Force Sprockets à utiliser le bon manifest (String) avant que Propshaft ne passe l'objet
+    config.assets.manifest = "public/assets"
+    
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.

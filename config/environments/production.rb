@@ -87,7 +87,13 @@ Rails.application.configure do
   #
   # Skip DNS rebinding protection for the default health check endpoint.
   # config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
-  config.assets.compile = false
-  config.assets.digest = true
 
+  # Empêche la compilation à la volée et active le fingerprinting
+  config.assets.compile = false
+  config.assets.digest  = true
+
+  # ←– après que Sprockets soit monté, on force le manifest avec un String
+  config.assets.configure do |env|
+    env.manifest = Sprockets::Manifest.new(env, Rails.root.join("public/assets").to_s)
+  end
 end

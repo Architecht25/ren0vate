@@ -10,6 +10,6 @@
   //= link controllers/test_eligibilite_controller.js
   //= link controllers/user_type_controller.js
 
-    //= link @hotwired--stimulus.js
+  //= link @hotwired--stimulus.js
   //= link @hotwired--turbo-rails.js
   //= link @hotwired--turbo.js
