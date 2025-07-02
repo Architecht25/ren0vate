@@ -130,23 +130,21 @@ export default class extends Controller {
       message += " (Propriétaire d un autre bien → Catégorie 1)";
       categorie = 1;
     }
-    // if (copro === "privee") {
-    //   message += " (Parties privatives d'une copropriété → passer par le syndic)";
-    //   categorie = 1;
-    // }
     if (protege === "oui") {
       message += " (Client protégé → Catégorie 4)";
       categorie = 4;
     }
+    // if (copro === "privee") {
+    //   message += " (Parties privatives d'une copropriété → passer par le syndic)";
+    //   categorie = 1;
+    // }
 
-    // Valeur par défaut
-    if (!categorie) {
-      categorie = 4;
-      message += " (Votre catégorie est comprise entre 1 et 4, à confirmer selon vos revenus à l'étape suivante)";
-    }
+    // if (type === "appartement" && copro === "commune") {
+    //   message += " (Parties communes = demande via syndic)";
+    // }
 
     // PEB
-    if (peb === "ef") {
+    if (peb === "oui") {
       if (domicile === "oui") {
         message += " (Accès à la carte PEB)";
       } else {
@@ -156,12 +154,31 @@ export default class extends Controller {
       message += " (Pas de carte PEB)";
     }
 
-    // if (type === "appartement" && copro === "commune") {
-    //   message += " (Parties communes = demande via syndic)";
-    // }
+    // Valeur par défaut
+    if (!categorie) {
+      categorie = 4;
+      // message += " (Votre catégorie est comprise entre 1 et 4, à confirmer selon vos revenus à l'étape suivante)";
+    }
+
+
 
     // Résumé visuel
-    message += `<br><br><strong>Catégorie :</strong> ${categorie}`;
+    let categorieAffichee;
+
+    if (categorie === 4) {
+      categorieAffichee = `<span class="badge bg-warning text-dark">entre 1 et 4</span> <small>(à confirmer selon vos revenus et votre ménage)</small>`;
+    } else {
+      categorieAffichee = `<span class="badge bg-primary">catégorie ${categorie}</span>`;
+    }
+
+    message += `<br><br><strong>Catégorie :</strong> ${categorieAffichee}`;
+
+    if (categorie === 4) {
+      const blocAffinage = document.getElementById("affinage-categorie")
+      if (blocAffinage) {
+        blocAffinage.style.display = "block"
+      }
+    }
 
     // Stocker dans localStorage
     const testData = {
