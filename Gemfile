@@ -16,7 +16,6 @@ gem "jbuilder"
 gem 'importmap-rails'
 gem "bootstrap", "~> 5.3"
 gem "simple_form"
-gem "sassc-rails"
 gem "font-awesome-sass", "~> 6.1"
 gem "autoprefixer-rails"
 gem "turbo-rails"
@@ -67,4 +66,3 @@ group :test do
   gem "capybara"
   gem "selenium-webdriver"
 end
-
