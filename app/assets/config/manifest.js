@@ -13,3 +13,6 @@
   //= link @hotwired--stimulus.js
   //= link @hotwired--turbo-rails.js
   //= link @hotwired--turbo.js
+
+    //= link controllers/application.js
+  //= link controllers/index.js
