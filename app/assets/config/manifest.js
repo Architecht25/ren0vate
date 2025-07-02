@@ -11,10 +11,5 @@
   //= link controllers/user_type_controller.js
 
     //= link @hotwired--stimulus.js
-  //= link stimulus-loading.js
-  //= link controllers/index.js
-
-    //= link stimulus_application.js
   //= link @hotwired--turbo-rails.js
   //= link @hotwired--turbo.js
-  //= link @rails--actioncable--src.js
