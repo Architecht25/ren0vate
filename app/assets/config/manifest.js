@@ -4,6 +4,9 @@
 //= link bootstrap.min.js
 //= link popper.js
 
+//= link_tree ../images
+
+
 //= link controllers/region_selector_controller.js
 //= link controllers/user_type_controller.js
 //= link controllers/region_display_controller.js
