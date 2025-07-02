@@ -8,7 +8,3 @@
 //= link controllers/user_type_controller.js
 //= link controllers/region_display_controller.js
 //= link controllers/test_eligibilite_controller.js
-
-//= link turbo.min.js
-//= link stimulus.min.js
-//= link stimulus-loading.js
