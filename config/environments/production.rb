@@ -92,8 +92,4 @@ Rails.application.configure do
   config.assets.compile = false
   config.assets.digest  = true
 
-  # ←– après que Sprockets soit monté, on force le manifest avec un String
-  config.assets.configure do |env|
-    env.manifest = Sprockets::Manifest.new(env, Rails.root.join("public/assets").to_s)
-  end
 end
