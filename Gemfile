@@ -20,6 +20,7 @@ gem "autoprefixer-rails"
 gem "turbo-rails"
 gem "dotenv-rails"
 gem "cloudinary"
+gem "cssbundling-rails"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
