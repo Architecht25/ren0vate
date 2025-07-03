@@ -4,17 +4,39 @@
       <h1 class="card-title h3 mb-4"><i class="bi bi-award me-2"></i><%= @prime.titre %></h1>
 
       <dl class="row mb-4">
-        <dt class="col-sm-4 text-muted">Slug</dt>
-        <dd class="col-sm-8"><%= @prime.slug %></dd>
-
         <dt class="col-sm-4 text-muted">Région</dt>
         <dd class="col-sm-8"><%= @prime.region.capitalize %></dd>
+
+        <dt class="col-sm-4 text-muted">Slug</dt>
+        <dd class="col-sm-8"><%= @prime.slug %></dd>
 
         <dt class="col-sm-4 text-muted">Unité</dt>
         <dd class="col-sm-8"><%= @prime.unite %></dd>
 
         <dt class="col-sm-4 text-muted">Type de valeur</dt>
         <dd class="col-sm-8"><%= @prime.type_de_valeur %></dd>
+
+        <dt class="col-sm-4 text-muted">Catégories d'éligibilité</dt>
+        <dd class="col-sm-8"><%= @prime.eligible_categories %></dd>
+
+        <dt class="col-sm-4 text-muted">Valeur par catégorie</dt>
+        <dd class="col-sm-8">
+
+              <% @prime.valeurs_par_categorie.each do |categorie_code, data| %>
+                <div class="mb-3">
+                  <div class="card mb-4 shadow-sm">
+                    <div class="card-body">
+                      <h6>Catégorie <%= categorie_code %></h6>
+                        <ul>
+                          <% data.each do |key, value| %>
+                            <li><strong><%= key.humanize %>:</strong> <%= value %></li>
+                          <% end %>
+                        </ul>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+        </dd>
       </dl>
 
       <hr>
@@ -27,6 +49,9 @@
 
       <h5 class="text-primary">Documents requis</h5>
       <p><%= @prime.document %></p>
+
+      <h5 class="text-primary">Informations spécifiques</h5>
+      <p><%= @prime.specifique %></p>
 
       <% if @prime.image.present? %>
         <div class="text-center my-4">
