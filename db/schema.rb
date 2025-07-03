@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_03_093931) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_03_102511) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -78,6 +78,58 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_03_093931) do
     t.index ["slug"], name: "index_primes_on_slug"
   end
 
+  create_table "properties", force: :cascade do |t|
+    t.string "titre"
+    t.string "adresse"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "simulation_prime_cards", force: :cascade do |t|
+    t.bigint "simulation_id", null: false
+    t.bigint "prime_id", null: false
+    t.decimal "montant_calcule"
+    t.string "categorie"
+    t.boolean "inactif"
+    t.text "explication_calculee"
+    t.jsonb "input_donnees"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["prime_id"], name: "index_simulation_prime_cards_on_prime_id"
+    t.index ["simulation_id"], name: "index_simulation_prime_cards_on_simulation_id"
+  end
+
+  create_table "simulations", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "property_id", null: false
+    t.string "titre"
+    t.string "status"
+    t.string "source"
+    t.string "region"
+    t.string "user_type"
+    t.text "note_interne"
+    t.boolean "last_active_simulation"
+    t.datetime "completed_at"
+    t.bigint "category_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id"], name: "index_simulations_on_category_id"
+    t.index ["property_id"], name: "index_simulations_on_property_id"
+    t.index ["user_id"], name: "index_simulations_on_user_id"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "nom"
+    t.string "email"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "simulation_prime_cards", "primes"
+  add_foreign_key "simulation_prime_cards", "simulations"
+  add_foreign_key "simulations", "categories"
+  add_foreign_key "simulations", "properties"
+  add_foreign_key "simulations", "users"
 end
