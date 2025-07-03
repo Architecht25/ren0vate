@@ -1,5 +1,6 @@
 import "@hotwired/turbo-rails"
 import "bootstrap"
+import * as bootstrap from "bootstrap"
 
 import { Application } from "@hotwired/stimulus"
 
@@ -19,4 +20,3 @@ window.Stimulus.register("region-display",       RegionDisplayController)
 window.Stimulus.register("user-type",            UserTypeController)
 window.Stimulus.register("test-eligibilite",     TestEligibiliteController)
 window.Stimulus.register("categorie-estimation", CategorieEstimationController)
-import * as bootstrap from "bootstrap"

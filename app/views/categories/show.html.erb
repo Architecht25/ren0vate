@@ -1,0 +1,45 @@
+<div class="container mt-5">
+  <h1 class="mb-3">Détails de la catégorie : <%= @category.description %></h1>
+
+  <table class="table table-bordered">
+    <tbody>
+      <tr>
+        <th scope="row">Code</th>
+        <td><%= @category.code %></td>
+      </tr>
+      <tr>
+        <th scope="row">Seuil seul</th>
+        <td><%= number_with_delimiter(@category.seuil_seul) %> €</td>
+      </tr>
+      <tr>
+        <th scope="row">Seuil seul avec charge</th>
+        <td><%= number_with_delimiter(@category.seuil_seul_avec_charge) %> €</td>
+      </tr>
+      <tr>
+        <th scope="row">Couple sans charge</th>
+        <td><%= number_with_delimiter(@category.couple_sans_charge) %> €</td>
+      </tr>
+      <tr>
+        <th scope="row">Par personne en plus</th>
+        <td><%= number_with_delimiter(@category.increment_par_personne) %> €</td>
+      </tr>
+      <tr>
+        <th scope="row">Autre bien autorisé ?</th>
+        <td><%= @category.autre_bien_interdit ? "Non" : "Oui" %></td>
+      </tr>
+      <tr>
+        <th scope="row">Location sociale autorisée ?</th>
+        <td><%= @category.location_sociale_autorisee ? "Oui" : "Non" %></td>
+      </tr>
+      <tr>
+        <th scope="row">Éligible à la Verbouwlening ?</th>
+        <td><%= @category.eligible_pour_verbouwlening ? "Oui" : "Non" %></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="d-flex justify-content-center gap-3 mt-4">
+  <%= link_to "← Retour à la liste", categories_path, class: "btn btn-secondary" %>
+  <%= link_to "Accueil", root_path, class: "btn btn-outline-primary" %>
+</div>
