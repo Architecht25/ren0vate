@@ -30,25 +30,25 @@ export default class extends Controller {
   }
 
   const annee = form.querySelector('input[name="annee"]:checked')?.value
-  if (annee === "apres") {
-    this.showResult("❌ Logement trop récent (après 1 janvier 2006).", false)
+  if (annee === "non") {
+    this.showResult("❌ Logement est trop récent pour pouvoir bénéficier des primes à la rénovation.", false)
     return
   }
 
   const type = form.querySelector('input[name="type"]:checked')?.value
-  if (type === "appartement") {
-    this.showResult("❌ Pour un appartement, vous devrez passer obligatoirement par votre syndic pour la préparation et l'introduction de votre demande.", false)
+  if (type === "non") {
+    this.showResult("❌ Si le logement n'est pas une maison, il s'agit alors d'un appartement. Dans ce cas, vous devrez passer obligatoirement par votre syndic pour la préparation et l'introduction de votre demande.", false)
   }
 
   const demolition = form.querySelector('input[name="demolition"]:checked')?.value
   if (demolition === "oui") {
-    this.showResult("❌ Les logements reconstruits avec TVA à 6% ne sont pas éligibles.", false)
+    this.showResult("❌ Les logements reconstruits et qui bénéficient d'une TVA à 6% ne sont pas éligibles.", false)
     return
   }
 
   const travaux = form.querySelector('input[name="travaux"]:checked')?.value
   if (travaux === "non") {
-    this.showResult("❌ VOs devez prévoir des travaux éligibles pour bénéficier des primes.", false)
+    this.showResult("❌ VOs devez prévoir des travaux éligibles pour bénéficier des primes actuelles.", false)
     return
   }
 
