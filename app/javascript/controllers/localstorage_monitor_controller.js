@@ -9,13 +9,11 @@ export default class extends Controller {
   }
 
   displayLocalStorageData() {
-    const localStorageData = [];
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
+    const order = ["region", "user-type", "eligibiliteRenovate", "categorie_estimee"];
+    const localStorageData = order.map(key => {
       const value = localStorage.getItem(key);
-      const type = typeof value;
-      localStorageData.push({ key, value, type });
-    }
+      return value ? { key, value } : null;
+    }).filter(data => data !== null);
 
     this.outputTarget.innerHTML = `
       <h2>Données du localStorage</h2>
@@ -24,7 +22,6 @@ export default class extends Controller {
           <tr>
             <th>Clé</th>
             <th>Valeur</th>
-            <th>Type</th>
           </tr>
         </thead>
         <tbody>
@@ -32,12 +29,12 @@ export default class extends Controller {
             <tr>
               <td>${data.key}</td>
               <td>${data.value}</td>
-              <td>${data.type}</td>
             </tr>
           `).join('')}
         </tbody>
       </table>
     `;
+    console.log("🔍 Vérification du outputTarget :", this.outputTarget);
   }
 
   clearLocalStorage() {
@@ -45,5 +42,34 @@ export default class extends Controller {
       localStorage.clear();
       this.displayLocalStorageData();
     }
+  }
+
+  sendLocalStorageToBackend() {
+    const localStorageData = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      const value = localStorage.getItem(key);
+      localStorageData[key] = value;
+    }
+
+    fetch('/api/save_localstorage', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(localStorageData),
+    })
+    .then(response => {
+      if (response.ok) {
+        console.log('✅ Données du localStorage envoyées au backend avec succès');
+        localStorage.clear();
+        this.displayLocalStorageData();
+      } else {
+        console.error('❌ Échec de l’envoi des données au backend');
+      }
+    })
+    .catch(error => {
+      console.error('❌ Erreur lors de l’envoi des données au backend :', error);
+    });
   }
 }

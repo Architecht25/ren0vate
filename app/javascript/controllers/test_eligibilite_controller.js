@@ -11,44 +11,37 @@ export default class extends Controller {
   }
 
   handleAnswer(event) {
-    console.log("🚀 handleAnswer déclenché", event.target.name, event.target.value)
+    console.log("🚀 handleAnswer déclenché", event.target.name, event.target.value);
 
-    const form = this.formTarget
-    const userType = localStorage.getItem("user-type")
-
-    const totalGroups = new Set([...form.querySelectorAll("input[type=radio]")].map(i => i.name)).size;
+    const form = this.formTarget;
     const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+
+    const testData = responses.reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    console.log("✅ Données enregistrées dans le localStorage :", testData);
+    localStorage.setItem("eligibiliteRenovate", JSON.stringify(testData));
+
+    // Vérification des groupes de réponses
+    const totalGroups = new Set([...form.querySelectorAll("input[type=radio]")].map(i => i.name)).size;
     const answeredGroups = new Set(responses.map(r => r.name));
 
-    console.log("🧮 totalGroups attendus :", totalGroups);
+    console.log("🧪 totalGroups attendus :", totalGroups);
     console.log("✅ Groupes de réponses cochées :", answeredGroups.size, [...answeredGroups]);
 
-    // Inéligibilités immédiates
-    // if (userType === "entreprise") {
-    //   this.showResult("❌ Les entreprises ne sont pas éligibles aux primes à la rénovation depuis le 1er juillet 2025.", false)
-    //   return
-    // }
-
-    // if (userType === "syndic") {
-    //   this.showResult("❌ Les syndicats de copropriété doivent passer par une EnergieHuis pour effectuer l'introduction des demandes.", false)
-    //   return
-    // }
-
-    // if (userType === "bailleur") {
-    //   this.showResult("❌ Les bailleurs sociaux doivent passer par une EnergieHuis pour effectuer l'introduction des demandes.", false)
-    //   return
-    // }
-
-    const usage = form.querySelector('input[name="usage"]:checked')?.value
+    // Logique d'inéligibilité (exemple)
+    const usage = testData["usage"];
     if (usage === "non") {
-      this.showResult("❌ Pour prétendre aux primes à la rénovation, votre bien doit être obligatoirement destiné au logement.", false)
-      return
+      this.showResult("❌ Pour prétendre aux primes à la rénovation, votre bien doit être obligatoirement destiné au logement.", false);
+      return;
     }
 
-    const proprietaire = form.querySelector('input[name="propriétaire"]:checked')?.value
+    const proprietaire = testData["propriétaire"];
     if (proprietaire === "non") {
-      this.showResult("❌ Si vous n'êtes pas propriétaire, donc ayant 0% de propriété, alors vous ne pouvez pas prétendre aux primes à la rénovation.", false)
-      return
+      this.showResult("❌ Si vous n'êtes pas propriétaire, donc ayant 0% de propriété, alors vous ne pouvez pas prétendre aux primes à la rénovation.", false);
+      return;
     }
 
     const annee = form.querySelector('input[name="annee"]:checked')?.value
@@ -218,6 +211,8 @@ export default class extends Controller {
       travaux, categorie
     };
     localStorage.setItem("eligibiliteRenovate", JSON.stringify(testData));
+
+    console.log("📋 Vérification des réponses enregistrées :", testData);
 
     // Log et affichage
     console.log("✅ Résultat final :", message);
