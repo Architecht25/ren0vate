@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2'
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
@@ -23,20 +24,29 @@ export default class extends Controller {
         return
       }
 
+
       if (region === "flandre" && userType === "entreprise") {
-        alert("❌ Les entreprises ne sont pas éligibles aux primes.")
-        return
+        Swal.fire({
+          icon: 'warning',
+          title: '⚠️ Attention',
+          text: 'Les entreprises ne sont pas éligibles aux primes',
+        })
       }
 
-        if (region === "flandre" && userType === "syndic") {
-        alert("❌ Les syndicats de copropriété doivent passer par une EnergieHuis pour effectuer l'introduction des demandes.")
-        return
+      if (region === "flandre" && userType === "syndic") {
+      Swal.fire({
+          icon: 'warning',
+          title: '⚠️ Attention',
+          text: 'Les syndicats de copropriété doivent passer par une EnergieHuis pour effectuer une introduction dedemandes.',
+        })
       }
 
-
-        if (region === "flandre" && userType === "bailleur") {
-        alert("❌ Les bailleurs sociaux doivent passer par une EnergieHuis pour effectuer l'introduction des demandes.")
-        return
+      if (region === "flandre" && userType === "bailleur") {
+      Swal.fire({
+        icon: 'warning',
+        title: '⚠️ Attention',
+        text: 'Les bailleurs sociaux doivent passer par une EnergieHuis pour effectuer une introduction de demandes.',
+        })
       }
 
       if (region === "flandre" && userType) {
