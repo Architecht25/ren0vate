@@ -1,24 +1,22 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
+
+  connect() {
+      console.log("👤 Controller user-type connecté et qui montre qu'il est bien connecté")
+    }
+
+
   select(event) {
-    console.log("✅ Controller user-type bien connecté")
     const userType = event.currentTarget.dataset.user
-    localStorage.setItem("userType", userType)
+    localStorage.setItem("user-type", userType)
 
     const region = localStorage.getItem("region")
     const testSection = document.getElementById("eligibility-test")
 
-    console.log("🧪 Lancement du setTimeout...")
-
     setTimeout(() => {
       const region = localStorage.getItem("region")
-      const userType = localStorage.getItem("userType")
-
-      console.log("⏳ Timeout enclenché")
-      console.log("📦 testSection trouvé :", testSection)
-      console.log("📍 Région (localStorage):", region)
-      console.log("👤 userType:", userType)
+      const userType = localStorage.getItem("user-type")
 
       if (!testSection) {
         console.warn("❌ testSection introuvable")
@@ -27,6 +25,17 @@ export default class extends Controller {
 
       if (region === "flandre" && userType === "entreprise") {
         alert("❌ Les entreprises ne sont pas éligibles aux primes.")
+        return
+      }
+
+        if (region === "flandre" && userType === "syndic") {
+        alert("❌ Les syndicats de copropriété doivent passer par une EnergieHuis pour effectuer l'introduction des demandes.")
+        return
+      }
+
+
+        if (region === "flandre" && userType === "bailleur") {
+        alert("❌ Les bailleurs sociaux doivent passer par une EnergieHuis pour effectuer l'introduction des demandes.")
         return
       }
 

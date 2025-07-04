@@ -24,20 +24,20 @@ export default class extends Controller {
     console.log("✅ Groupes de réponses cochées :", answeredGroups.size, [...answeredGroups]);
 
     // Inéligibilités immédiates
-    if (userType === "entreprise") {
-      this.showResult("❌ Les entreprises ne sont pas éligibles aux primes à la rénovation depuis le 1er juillet 2025.", false)
-      return
-    }
+    // if (userType === "entreprise") {
+    //   this.showResult("❌ Les entreprises ne sont pas éligibles aux primes à la rénovation depuis le 1er juillet 2025.", false)
+    //   return
+    // }
 
-    if (userType === "syndic") {
-      this.showResult("❌ Les syndicats de copropriété doivent passer par une EnergieHuis pour effectuer l'introduction des demandes.", false)
-      return
-    }
+    // if (userType === "syndic") {
+    //   this.showResult("❌ Les syndicats de copropriété doivent passer par une EnergieHuis pour effectuer l'introduction des demandes.", false)
+    //   return
+    // }
 
-    if (userType === "bailleur") {
-      this.showResult("❌ Les bailleurs sociaux doivent passer par une EnergieHuis pour effectuer l'introduction des demandes.", false)
-      return
-    }
+    // if (userType === "bailleur") {
+    //   this.showResult("❌ Les bailleurs sociaux doivent passer par une EnergieHuis pour effectuer l'introduction des demandes.", false)
+    //   return
+    // }
 
     const usage = form.querySelector('input[name="usage"]:checked')?.value
     if (usage === "non") {
