@@ -15,4 +15,6 @@ Rails.application.routes.draw do
 
   # config/routes.rb
   post "/calcul-categorie", to: "categories#calcul"
+  get '/admin/dashboard', to: 'admin#dashboard'
+  get '/localstorage', to: 'localstorage#index'
 end

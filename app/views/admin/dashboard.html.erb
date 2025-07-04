@@ -1,0 +1,34 @@
+<h1>Admin Dashboard</h1>
+
+<h2>Primes</h2>
+<ul>
+  <% @primes.each do |prime| %>
+    <li><%= prime.name %></li>
+  <% end %>
+</ul>
+
+<h2>Categories</h2>
+<ul>
+  <% @categories.each do |category| %>
+    <li><%= category.name %></li>
+  <% end %>
+</ul>
+
+<h2>Documents</h2>
+<ul>
+  <% @documents.each do |document| %>
+    <li><%= document.name %></li>
+  <% end %>
+</ul>
+
+<h2>LocalStorage Data</h2>
+<div id="local-storage-data"></div>
+
+<script>
+  const localStorageData = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    localStorageData[key] = localStorage.getItem(key);
+  }
+  document.getElementById('local-storage-data').textContent = JSON.stringify(localStorageData, null, 2);
+</script>
