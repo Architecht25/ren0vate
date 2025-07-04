@@ -118,7 +118,7 @@ export default class extends Controller {
       message += " (ASBL/coopérative → Catégorie 1)";
       categorie = 1;
     }
-    if (usage === "non_habite") {
+    if (usage === "non") {
       message += " (Usage non résidentiel → Catégorie 1)";
       categorie = 1;
     }
@@ -134,14 +134,6 @@ export default class extends Controller {
       message += " (Client protégé → Catégorie 4)";
       categorie = 4;
     }
-    // if (copro === "privee") {
-    //   message += " (Parties privatives d'une copropriété → passer par le syndic)";
-    //   categorie = 1;
-    // }
-
-    // if (type === "appartement" && copro === "commune") {
-    //   message += " (Parties communes = demande via syndic)";
-    // }
 
     // PEB
     if (peb === "oui") {
@@ -157,10 +149,7 @@ export default class extends Controller {
     // Valeur par défaut
     if (!categorie) {
       categorie = 4;
-      // message += " (Votre catégorie est comprise entre 1 et 4, à confirmer selon vos revenus à l'étape suivante)";
     }
-
-
 
     // Résumé visuel
     let categorieAffichee;

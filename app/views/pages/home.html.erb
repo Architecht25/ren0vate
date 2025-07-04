@@ -170,33 +170,36 @@
   </div>
 
   <!-- Simulation préalable des primes via les mini cartes primes -->
-  <div class="container my-5">
+  <div class="container my-5" data-controller="prime-simulation">
     <div class="row g-4">
       <% @primes.each do |prime| %>
         <div class="col-md-4">
           <div class="card shadow-sm border-0 h-100 p-3">
-            <div class="card-body d-flex align-items-center">
-              <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+            <div class="card-body d-flex align-items-center gap-3">
+              <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
                 <i class="bi bi-<%= prime.icon_name %> fs-3 text-success"></i>
               </div>
-              <h5 class="card-title"><%= prime.titre %></h5>
+              <h5 class="card-title mb-0"><%= prime.titre %></h5>
             </div>
 
             <div class="px-3 pb-3">
-              <div class="d-flex align-items-center gap-2">
+              <div class="input-group">
                 <input type="number"
-                  class="form-control prime-input w-50"
-                  data-slug=""
-                  name=""
-                  placeholder="Surface en m²">
-                <span class="input-group-text bg-success text-white flex-grow-1 text-end prime-result">
-                    0 €
+                      class="form-control prime-input"
+                      data-action="input->prime-simulation#calculer"
+                      data-prime-simulation-slug="<%= prime.slug %>"
+                      placeholder="Surface en m²">
+                <span class="input-group-text bg-success text-white prime-result" data-prime-simulation-target="result">
+                  0 €
                 </span>
               </div>
             </div>
           </div>
         </div>
       <% end %>
+    </div>
+    <div class="text-end mt-4 fw-bold fs-5">
+      Total estimé des primes : <span id="total-primes-affiche">0.00 €</span>
     </div>
   </div>
 
