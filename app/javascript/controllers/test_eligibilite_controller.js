@@ -11,71 +11,98 @@ export default class extends Controller {
   }
 
   handleAnswer(event) {
-  console.log("🚀 handleAnswer déclenché", event.target.name, event.target.value)
+    console.log("🚀 handleAnswer déclenché", event.target.name, event.target.value)
 
-  const form = this.formTarget
-  const userType = localStorage.getItem("userType")
+    const form = this.formTarget
+    const userType = localStorage.getItem("user-type")
 
-  const totalGroups = new Set([...form.querySelectorAll("input[type=radio]")].map(i => i.name)).size;
-  const responses = [...form.querySelectorAll("input[type=radio]:checked")];
-  const answeredGroups = new Set(responses.map(r => r.name));
+    const totalGroups = new Set([...form.querySelectorAll("input[type=radio]")].map(i => i.name)).size;
+    const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+    const answeredGroups = new Set(responses.map(r => r.name));
 
-  console.log("🧮 totalGroups attendus :", totalGroups);
-  console.log("✅ Groupes de réponses cochées :", answeredGroups.size, [...answeredGroups]);
+    console.log("🧮 totalGroups attendus :", totalGroups);
+    console.log("✅ Groupes de réponses cochées :", answeredGroups.size, [...answeredGroups]);
 
-  // Inéligibilités immédiates
-  if (userType === "entreprise") {
-    this.showResult("❌ Les entreprises ne sont pas éligibles aux primes à la rénovation.", false)
-    return
-  }
+    // Inéligibilités immédiates
+    if (userType === "entreprise") {
+      this.showResult("❌ Les entreprises ne sont pas éligibles aux primes à la rénovation depuis le 1er juillet 2025.", false)
+      return
+    }
 
-  const annee = form.querySelector('input[name="annee"]:checked')?.value
-  if (annee === "non") {
-    this.showResult("❌ Logement est trop récent pour pouvoir bénéficier des primes à la rénovation.", false)
-    return
-  }
+    if (userType === "syndic") {
+      this.showResult("❌ Les syndicats de copropriété doivent passer par une EnergieHuis pour effectuer l'introduction des demandes.", false)
+      return
+    }
 
-  const type = form.querySelector('input[name="type"]:checked')?.value
-  if (type === "non") {
-    this.showResult("❌ Si le logement n'est pas une maison, il s'agit alors d'un appartement. Dans ce cas, vous devrez passer obligatoirement par votre syndic pour la préparation et l'introduction de votre demande.", false)
-  }
+    if (userType === "bailleur") {
+      this.showResult("❌ Les bailleurs sociaux doivent passer par une EnergieHuis pour effectuer l'introduction des demandes.", false)
+      return
+    }
 
-  const demolition = form.querySelector('input[name="demolition"]:checked')?.value
-  if (demolition === "oui") {
-    this.showResult("❌ Les logements reconstruits et qui bénéficient d'une TVA à 6% ne sont pas éligibles.", false)
-    return
-  }
+    const usage = form.querySelector('input[name="usage"]:checked')?.value
+    if (usage === "non") {
+      this.showResult("❌ Pour prétendre aux primes à la rénovation, votre bien doit être obligatoirement destiné au logement.", false)
+      return
+    }
 
-  const travaux = form.querySelector('input[name="travaux"]:checked')?.value
-  if (travaux === "non") {
-    this.showResult("❌ VOs devez prévoir des travaux éligibles pour bénéficier des primes actuelles.", false)
-    return
-  }
+    const proprietaire = form.querySelector('input[name="propriétaire"]:checked')?.value
+    if (proprietaire === "non") {
+      this.showResult("❌ Si vous n'êtes pas propriétaire, donc ayant 0% de propriété, alors vous ne pouvez pas prétendre aux primes à la rénovation.", false)
+      return
+    }
 
-  // Vérifie que toutes les questions sont cochées
-  const radioGroups = Array.from(form.querySelectorAll("input[type='radio']"))
-  const réponsesParQuestion = radioGroups.reduce((acc, input) => {
-    if (!acc[input.name]) acc[input.name] = false
-    if (input.checked) acc[input.name] = true
-    return acc
-  }, {})
+    const annee = form.querySelector('input[name="annee"]:checked')?.value
+    if (annee === "non") {
+      this.showResult("❌ Logement est trop récent pour pouvoir bénéficier des primes à la rénovation.", false)
+      return
+    }
 
-  const toutRempli = Object.values(réponsesParQuestion).every(val => val)
+    const appartement_copro = form.querySelector('input[name="appartement-copro"]:checked')?.value
+    if (appartement_copro === "oui") {
+      this.showResult("❌ La demande de primes doit être gérer et introduite par votre syndic de copropriété.", false)
+    }
 
-  if (!toutRempli) {
-    console.log("⚠️ Toutes les questions ne sont pas encore répondues.")
-    return
-  }
+    // const type = form.querySelector('input[name="type"]:checked')?.value
+    // if (type === "non") {
+    //   this.showResult("❌ Si le logement n'est pas une maison, ni un appartement (vma ou non), il s'agit alors d'un autre type de bien non sousmis à primes.", false)
+    // }
 
-  // ✅ Appel du vrai calcul maintenant que tout est rempli
-  this.calculateResult()
+    const demolition = form.querySelector('input[name="demolition"]:checked')?.value
+    if (demolition === "oui") {
+      this.showResult("❌ Les logements reconstruits et qui bénéficient d'une TVA à 6% ne sont pas éligibles.", false)
+      return
+    }
+
+    const travaux = form.querySelector('input[name="travaux"]:checked')?.value
+    if (travaux === "non") {
+      this.showResult("❌ VOs devez prévoir des travaux éligibles pour bénéficier des primes actuelles.", false)
+      return
+    }
+
+    // Vérifie que toutes les questions sont cochées
+    const radioGroups = Array.from(form.querySelectorAll("input[type='radio']"))
+    const réponsesParQuestion = radioGroups.reduce((acc, input) => {
+      if (!acc[input.name]) acc[input.name] = false
+      if (input.checked) acc[input.name] = true
+      return acc
+    }, {})
+
+    const toutRempli = Object.values(réponsesParQuestion).every(val => val)
+
+    if (!toutRempli) {
+      console.log("⚠️ Toutes les questions ne sont pas encore répondues.")
+      return
+    }
+
+    // ✅ Appel du vrai calcul maintenant que tout est rempli
+    this.calculateResult()
   }
 
 
   calculateResult() {
     console.log("🧪 TEST DES VARIABLES DANS calculateResult()");
 
-    ["userType", "usage", "proprietaire", "autre_bien", "annee", "type", "copro", "peb", "domicile", "demolition", "travaux", "protege"]
+    ["userType", "usage", "appartement", "appartement-copro", "immeuble-appartements", "proprietaire", "autre_bien", "annee", "type", "copro", "peb", "domicile", "demolition", "travaux", "protege"]
     .forEach(name => {
       const value = this.formTarget.querySelector(`[name="${name}"]:checked`)?.value;
       console.log(`➡️ ${name} =`, value);
@@ -95,13 +122,16 @@ export default class extends Controller {
     const protege = get("protege");
     const annee = get("annee");
     const type = get("type");
+    const appartement = get("appartement");
+    const appartement_copro = get("appartement_copro");
+    const immeuble_appartements = get("immeuble-appartements");
     const peb = get("peb");
     const domicile = get("domicile");
     const demolition = get("demolition");
     const travaux = get("travaux");
 
     console.log("📋 Réponses récupérées :", {
-      userType, usage, proprietaire, autre_bien, copro, protege,
+      userType, usage, proprietaire, appartement, appartement_copro, immeuble_appartements, autre_bien, copro, protege,
       annee, type, peb, domicile, demolition, travaux
     });
 
@@ -122,10 +152,10 @@ export default class extends Controller {
       message += " (Usage non résidentiel → Catégorie 1)";
       categorie = 1;
     }
-    if (proprietaire === "non") {
-      message += " (Pas propriétaire → uniquement PAC/boiler)";
-      categorie = 1;
-    }
+    // if (proprietaire === "non") {
+    //   message += " (Pas propriétaire → uniquement PAC/boiler)";
+    //   categorie = 1;
+    // }
     if (autre_bien === "oui") {
       message += " (Propriétaire d un autre bien → Catégorie 1)";
       categorie = 1;
@@ -133,6 +163,18 @@ export default class extends Controller {
     if (protege === "oui") {
       message += " (Client protégé → Catégorie 4)";
       categorie = 4;
+    }
+    if (appartement === "oui" && proprietaire === "oui") {
+      message += " (Appartement → catégorie 1)";
+      categorie = 1;
+    }
+    if (appartement_copro === "oui") {
+      message += "(Appartement → catégorie 1)";
+      categorie = 1;
+    }
+    if (immeuble_appartements === "oui") {
+      message += "(Immeuble à appartements → catégorie 1)";
+      categorie = 1;
     }
 
     // PEB
@@ -171,7 +213,7 @@ export default class extends Controller {
 
     // Stocker dans localStorage
     const testData = {
-      userType, usage, proprietaire, autre_bien, annee,
+      userType, usage, proprietaire, appartement, immeuble_appartements, autre_bien, annee,
       type, copro, peb, domicile, demolition,
       travaux, categorie
     };
