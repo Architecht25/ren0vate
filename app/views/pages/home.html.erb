@@ -185,66 +185,106 @@
   </div>
 
   <!-- Simulation préalable des primes via les mini cartes primes -->
-<div class="container my-5" data-controller="prime-calcul">
-  <div class="row g-4">
-    <% @primes.each do |prime| %>
-      <% if prime.eligible_categories.include?(@categorie_id.to_s) %>
-        <div class="col-md-4" data-controller="prime-card" data-slug="<%= prime.slug %>">
-          <div class="card shadow-sm border-0 h-100 p-3">
-            <div class="card-body d-flex align-items-center gap-3">
-              <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
-                <i class="bi bi-<%= prime.icon_name %> fs-3 text-success"></i>
+  <div class="container my-5" data-controller="prime-calcul">
+    <div class="row g-4">
+      <% @primes.each do |prime| %>
+        <% if prime.eligible_categories.include?(@categorie_id.to_s) %>
+          <div class="col-md-4" data-controller="prime-card" data-slug="<%= prime.slug %>">
+            <div class="card shadow-sm border-0 h-100 p-3">
+              <div class="card-body d-flex align-items-center gap-3">
+                <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                  <i class="bi bi-<%= prime.icon_name %> fs-3 text-success"></i>
+                </div>
+                <h5 class="card-title mb-0"><%= prime.titre %></h5>
               </div>
-              <h5 class="card-title mb-0"><%= prime.titre %></h5>
-            </div>
 
-            <div class="px-3 pb-3">
-              <% if prime.slug == "warmtepomp" %>
-                <div class="d-flex justify-content-between align-items-center gap-2">
-                  <!-- Sélecteur -->
-                  <select class="form-select w-75"
-                          data-action="change->prime-card#update"
-                          data-prime-card-target="select">
-                    <option value="0">Choisissez le type de pompe</option>
-                    <option value="geothermique">geothermique</option>
-                    <option value="air_eau">air eau</option>
-                    <option value="air_air">air air</option>
-                    <option value="hybride">hybride</option>
-                  </select>
+              <div class="px-3 pb-3">
+                <% if prime.slug == "warmtepomp" %>
+                  <div class="d-flex justify-content-between align-items-center gap-2">
+                    <!-- Sélecteur -->
+                    <select class="form-select w-75"
+                            data-action="change->prime-card#update"
+                            data-prime-card-target="select">
+                      <option value="0">Choisissez le type de pompe</option>
+                      <option value="geothermique">geothermique</option>
+                      <option value="air_eau">air eau</option>
+                      <option value="air_air">air air</option>
+                      <option value="hybride">hybride</option>
+                    </select>
 
-                  <!-- Montant -->
-                  <span class="input-group-text bg-success text-white prime-result w-25 text-center"
-                        data-slug="<%= prime.slug %>">
-                    0 €
-                  </span>
-                </div>
+                    <!-- Montant -->
+                    <span class="input-group-text bg-success text-white prime-result w-25 text-center"
+                          data-slug="<%= prime.slug %>">
+                      0 €
+                    </span>
+                  </div>
 
-              <% else %>
-                <!-- Carte classique avec champ input -->
-                <div class="input-group">
-                  <% categorie_id = @categorie_id.to_s rescue "3" %>
-                  <% placeholder = ["4", "3"].include?(categorie_id) ? "Montant total de la facture (€)" : "Surface en m²" %>
+                <% else %>
+                  <!-- Carte classique avec champ input -->
+                  <div class="input-group">
+                    <% categorie_id = @categorie_id.to_s rescue "3" %>
+                    <% placeholder = ["4", "3"].include?(categorie_id) ? "Montant total de la facture (€)" : "Surface en m²" %>
 
-                  <input type="number"
-                        class="form-control prime-input"
-                        style="width: 70%;"
-                        data-prime-card-target="input"
-                        data-action="input->prime-card#update"
-                        placeholder="<%= placeholder %>">
-                  <span class="input-group-text bg-success text-white prime-result"
-                        data-slug="<%= prime.slug %>"
-                        style="width: 30%; text-align: center;">
-                    0 €
-                  </span>
-                </div>
-              <% end %>
+                    <input type="number"
+                          class="form-control prime-input"
+                          style="width: 70%;"
+                          data-prime-card-target="input"
+                          data-action="input->prime-card#update"
+                          placeholder="<%= placeholder %>">
+                    <span class="input-group-text bg-success text-white prime-result"
+                          data-slug="<%= prime.slug %>"
+                          style="width: 30%; text-align: center;">
+                      0 €
+                    </span>
+                  </div>
+                <% end %>
+              </div>
             </div>
           </div>
-        </div>
+        <% end %>
       <% end %>
-    <% end %>
+      <!-- Cartes statiques en bas -->
+  <div class="col-md-4">
+    <div class="card shadow-sm border-0 h-100 p-3 text-center">
+      <div class="card-body d-flex flex-column align-items-center gap-3">
+        <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+          <i class="bi bi-award fs-3 text-primary"></i>
+        </div>
+        <h5 class="card-title mb-2">Label PEB</h5>
+        <p class="mb-3">Bénéficiez d’aides pour la certification énergétique de votre logement. Connectez-vous pour accéder à plus de détails.</p>
+        <a href="<%= "#" %>" class="btn btn-outline-primary mt-auto">Se connecter</a>
+      </div>
+    </div>
   </div>
-</div>
+
+  <div class="col-md-4">
+    <div class="card shadow-sm border-0 h-100 p-3 text-center">
+      <div class="card-body d-flex flex-column align-items-center gap-3">
+        <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+          <i class="bi bi-building fs-3 text-warning"></i>
+        </div>
+        <h5 class="card-title mb-2">Primes communales</h5>
+        <p class="mb-3">Découvrez les aides spécifiques de votre commune. Connectez-vous pour voir si vous êtes éligible.</p>
+        <a href="<%= "#" %>" class="btn btn-outline-warning mt-auto">Se connecter</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card shadow-sm border-0 h-100 p-3 text-center">
+      <div class="card-body d-flex flex-column align-items-center gap-3">
+        <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+          <i class="bi bi-bank fs-3 text-info"></i>
+        </div>
+        <h5 class="card-title mb-2">Monuments & Sites</h5>
+        <p class="mb-3">Aides et subventions pour les bâtiments classés. Connectez-vous pour accéder à plus de détails.</p>
+        <a href="<%= "#" %>" class="btn btn-outline-info mt-auto">Se connecter</a>
+      </div>
+    </div>
+  </div>
+
+    </div>
+  </div>
 
 
     <div class="text-end mt-4 fw-bold fs-5">
