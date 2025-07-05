@@ -55,10 +55,23 @@ export default class extends Controller {
         const surfVar = Math.min(val, categorieData.surface_max || Infinity);
         montant = surfVar * montantM2 * (categorieData.plafond_pourcentage || 100) / 100;
         break;
-      case "forfait_et_plafond_facture":
+     case "forfait_et_plafond_facture":
+      if (slug === "warmtepompboiler") {
+        // Chauffe-eau thermodynamique
+        const facture = val || 0;
+        const forfait = categorieData.forfait || Infinity;
+        const plafondPourcentage = categorieData.plafond_pourcentage || 100;
+        montant = Math.min(facture * (plafondPourcentage / 100), forfait);
+      } else if (slug === "warmtepomp") {
+        // Pompe à chaleur
         const typePompe = type || "air_eau";
         montant = categorieData.forfaits?.[typePompe] || 0;
-        break;
+      } else {
+        montant = categorieData.forfait || 0;
+      }
+      break;
+
+
       case "forfait":
       case "montant":
         montant = categorieData.forfait || categorieData.valeur || 0;
