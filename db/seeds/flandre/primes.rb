@@ -14,6 +14,7 @@ Prime.find_or_initialize_by(slug: "isolation_toiture").update!(
   placeholder: JSON.parse('{"1": "Surface en m²", "2": "Surface en m²", "3": "Montant total de la facture", "4": "Montant total de la facture"}'),
   image: "images/isolation_toiture.webp",
   region: "flandre",
+  category_id: Category.find_by(code: "categorie_4").id
 )
 
 
@@ -32,6 +33,7 @@ Prime.find_or_initialize_by(slug: "isolation_murs_cat12").update!(
   placeholder: JSON.parse('{"1": "Surface en m²", "2": "Surface en m²"}'),
   image: "images/isolation_murs_ext.webp",
   region: "flandre",
+  category_id: Category.find_by(code: "categorie_2").id
 )
 
 
@@ -50,6 +52,7 @@ Prime.find_or_initialize_by(slug: "isolation_murs_cat34").update!(
   placeholder: JSON.parse('{"3": "Montant total de la facture", "4": "Montant total de la facture"}'),
   image: "images/isolation_murs_ext.webp",
   region: "flandre",
+  category_id: Category.find_by(code: "categorie_3").id
 )
 
 
@@ -67,6 +70,7 @@ Prime.find_or_initialize_by(slug: "isolation_sol").update!(
   placeholder: JSON.parse('{"1": "Surface en m²", "2": "Surface en m²", "3": "Montant total de la facture", "4": "Montant total de la facture"}'),
   image: "images/isolation_sol.webp",
   region: "flandre",
+  category_id: Category.find_by(code: "categorie_4").id
 )
 
 
@@ -84,6 +88,7 @@ Prime.find_or_initialize_by(slug: "ramen_deuren").update!(
   placeholder: JSON.parse('{"1": "Surface en m²", "2": "Surface en m²", "3": "Montant total de la facture", "4": "Montant total de la facture"}'),
   image: "images/remplacement_chassis.webp",
   region: "flandre",
+  category_id: Category.find_by(code: "categorie_4").id
 )
 
 
@@ -124,8 +129,7 @@ Prime.find_or_initialize_by(slug: "voorbereiding_isolatie").update!(
   placeholder: JSON.parse('{"1": "", "2": "", "3": "Montant total de la facture", "4": "Montant total de la facture"}'),
   image: "images/preparation_isolation.webp",
   region: "flandre",
-  categorie_limite: nil,
-  categorie_visible: nil
+  category_id: Category.find_by(code: "categorie_4").id
 )
 
 
@@ -144,6 +148,7 @@ Prime.find_or_initialize_by(slug: "voorbereiding_sanitair_elec").update!(
   placeholder: JSON.parse('{"1": "", "2": "", "3": "Montant total de la facture", "4": "Montant total de la facture"}'),
   image: "images/electricité.webp",
   region: "flandre",
+  category_id: Category.find_by(code: "categorie_4").id
 )
 
 
@@ -161,6 +166,7 @@ Prime.find_or_initialize_by(slug: "warmtepomp").update!(
   placeholder: JSON.parse('{"1": "Choisissez le type de pompe", "2": "Choisissez le type de pompe", "3": "Choisissez le type de pompe", "4": "Choisissez le type de pompe"}'),
   image: "images/pac_géothermique.webp",
   region: "flandre",
+  category_id: Category.find_by(code: "categorie_4").id
 )
 
 
@@ -178,6 +184,7 @@ Prime.find_or_initialize_by(slug: "warmtepompboiler").update!(
   placeholder: JSON.parse('{"1": "Montant total de la facture", "2": "Montant total de la facture", "3": "Montant total de la facture", "4": "Montant total de la facture"}'),
   image: "images/pac_hybride.webp",
   region: "flandre",
+  category_id: Category.find_by(code: "categorie_4").id
 )
 
 
@@ -196,6 +203,7 @@ Prime.find_or_initialize_by(slug: "renovation_toiture").update!(
   placeholder: JSON.parse('{"3": "Montant total des travaux toiture hors isolation", "4": "Montant total des travaux toiture hors isolation"}'),
   image: "images/renovation_toiture.webp",
   region: "flandre",
+  category_id: Category.find_by(code: "categorie_4").id
 )
 
 
@@ -214,6 +222,7 @@ Prime.find_or_initialize_by(slug: "renovation_murs").update!(
   placeholder: JSON.parse('{"3": "Montant total des travaux murs hors isolation", "4": "Montant total des travaux murs hors isolation"}'),
   image: "images/renovation_murs.webp",
   region: "flandre",
+  category_id: Category.find_by(code: "categorie_4").id
 )
 
 
@@ -232,4 +241,5 @@ Prime.find_or_initialize_by(slug: "renovation_sol").update!(
   placeholder: JSON.parse('{"3": "Montant total des travaux sols hors isolation", "4": "Montant total des travaux sols hors isolation"}'),
   image: "images/renovation_sol.webp",
   region: "flandre",
+  category_id: Category.find_by(code: "categorie_4").id
 )

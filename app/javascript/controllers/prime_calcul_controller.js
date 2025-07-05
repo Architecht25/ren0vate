@@ -1,79 +1,107 @@
 import { Controller } from "@hotwired/stimulus"
 
-// ✅ Contrôleur de calcul des primes, version Rails
 export default class extends Controller {
-  static targets = ["result"]
-
   connect() {
     console.log("📊 PrimeCalculController connecté");
-    this.categorie = 3; // Pour le moment, on fixe la catégorie à 3 (sera dynamique plus tard)
-    this.plafondsParCategorie = { "4": 5750, "3": 4025 };
-    this.groupesPlafond = {
-      toiture: ["isolation_toiture", "renovation_toiture"],
-      murs: ["isolation_murs_cat34", "renovation_murs"],
-      sol: ["isolation_sol", "renovation_sol"]
-    };
+
+    this.primes = window.primes || [];
+    this.categorie = window.categorieId || "3";
+    this.plafondsParCategorie = window.plafondsParCategorie || {};
+    this.groupesPlafond = window.groupesPlafond || {};
+
+    this.element.addEventListener("prime:input", this.calculer.bind(this));
+    console.log("👂 Écouteur prime:input activé");
   }
 
+
   calculer(event) {
-    const input = event.currentTarget;
-    const slug = input.dataset.slug;
-    const span = input.closest(".input-group").querySelector(".prime-result");
+    const { slug, valeur, type } = event.detail;
+    console.log("💡 Type sélectionné :", type);
+    const prime = this.primes.find(p => p.slug === slug);
+    if (!prime) return console.warn(`❌ Prime inconnue : ${slug}`);
 
-    if (!slug || !span) return;
+    const categorieData = prime.valeurs_par_categorie?.[this.categorie];
+    if (!categorieData) return console.warn(`❌ Catégorie ${this.categorie} non éligible pour ${slug}`);
 
-    const valeur = parseFloat(input.value || 0);
-    const prime = window.primes.find(p => p.slug === slug);
-    if (!prime || !prime.valeursParCategorie?.[this.categorie]) return;
-
-    const regle = prime.valeursParCategorie[this.categorie];
+    const val = parseFloat(valeur || 0);
     let montant = 0;
 
-    switch (regle.type) {
+    switch (categorieData.type) {
       case "pourcentage_et_plafond":
-        montant = Math.min(valeur * (regle.pourcentage / 100), regle.plafond);
+        montant = Math.min((val * (categorieData.pourcentage || 0)) / 100, categorieData.plafond || Infinity);
         break;
 
       case "montant_m2_et_limite":
-        montant = Math.min(valeur * regle.montant_m2, regle.surface_max * regle.montant_m2);
+        const surfaceMax = categorieData.surface_max || Infinity;
+        const surface = Math.min(val, surfaceMax);
+        const base = surface * (categorieData.montant_m2 || 0);
+        montant = base * (categorieData.plafond_pourcentage || 100) / 100;
+        break;
+
+      case "montant_variable_m2_et_limite":
+        // Par défaut : type "exterieur" tant qu’on n’a pas de select
+        const typeMur = "exterieur";
+        const montantM2 = categorieData.montants_m2?.[typeMur] || 0;
+        const surfVar = Math.min(val, categorieData.surface_max || Infinity);
+        montant = surfVar * montantM2;
+        montant = montant * (categorieData.plafond_pourcentage || 100) / 100;
         break;
 
       case "forfait_et_plafond_facture":
-        montant = regle.forfaits?.[valeur] || regle.forfait || 0;
-        if (regle.plafond_pourcentage && !isNaN(valeur)) {
-          montant = Math.min(montant, valeur * (regle.plafond_pourcentage / 100));
-        }
+        const typePompe = type || "air_eau"; // fallback
+        const forfait = categorieData.forfaits?.[typePompe] || 0;
+        montant = forfait;
+        break;
+
+      case "forfait":
+      case "montant":
+        montant = categorieData.forfait || categorieData.valeur || 0;
+        break;
+
+      case "prime_conditionnelle":
+        montant = 0;
         break;
 
       default:
-        montant = 0;
+        console.warn(`❌ Type de prime non pris en charge : ${categorieData.type}`);
     }
 
-    const { montant: montantPlafonne, resteDisponible } = this.appliquerPlafondGroupe(slug, montant);
-    span.textContent = `${montantPlafonne.toFixed(2)} €`;
-    span.title = montantPlafonne === resteDisponible ? "Plafond global atteint pour ce groupe (ex. toiture)" : "";
+    const plafonné = this.appliquerPlafondGroupe(slug, montant);
+    this.mettreAJourMontant(slug, plafonné.montant);
   }
 
   appliquerPlafondGroupe(slug, montantPropose) {
-    const groupeTrouve = Object.entries(this.groupesPlafond).find(([_, slugs]) => slugs.includes(slug));
-    if (!groupeTrouve) return { montant: montantPropose, resteDisponible: Infinity };
+    const groupe = Object.entries(this.groupesPlafond || {}).find(([_, slugs]) => Array.isArray(slugs) && slugs.includes(slug));
+    if (!groupe) return { montant: montantPropose, resteDisponible: Infinity };
 
-    const slugsDuGroupe = groupeTrouve[1];
-    const plafond = this.plafondsParCategorie[this.categorie];
-    if (!plafond) return { montant: montantPropose, resteDisponible: Infinity };
+    const slugs = groupe[1];
+    const plafond = this.plafondsParCategorie[this.categorie] || Infinity;
 
-    const montantGroupe = slugsDuGroupe.reduce((somme, s) => {
+    const totalGroupe = slugs.reduce((somme, s) => {
       const span = document.querySelector(`.prime-result[data-slug="${s}"]`);
-      if (!span) return somme;
-      const montantCarte = parseFloat(span.textContent.replace("€", "").replace(",", ".") || 0);
-      return somme + montantCarte;
+      const val = parseFloat(span?.textContent.replace("€", "").replace(",", ".") || 0);
+      return somme + (isNaN(val) ? 0 : val);
     }, 0);
 
-    const spanCourant = document.querySelector(`.prime-result[data-slug="${slug}"]`);
-    const montantActuel = parseFloat(spanCourant?.textContent.replace("€", "").replace(",", ".") || 0);
-    const resteDisponible = plafond - (montantGroupe - montantActuel);
+    const resteDisponible = plafond - totalGroupe;
     const montantFinal = Math.min(montantPropose, resteDisponible);
 
     return { montant: montantFinal, resteDisponible };
+  }
+
+  mettreAJourMontant(slug, montant) {
+    const carte = document.querySelector(`[data-slug="${slug}"]`);
+    const span = carte?.querySelector(".prime-result");
+
+    if (span) {
+      span.textContent = `${montant.toFixed(2)} €`;
+    }
+
+    const totalSpan = document.querySelector("#total-primes-affiche");
+    if (totalSpan) {
+      const total = Array.from(document.querySelectorAll(".prime-result"))
+        .reduce((sum, el) => sum + parseFloat(el.textContent.replace("€", "").replace(",", ".") || 0), 0);
+      totalSpan.textContent = `${total.toFixed(2)} €`;
+    }
   }
 }

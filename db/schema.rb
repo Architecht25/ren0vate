@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_04_090617) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_05_122000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -105,6 +105,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_04_090617) do
     t.string "categorie_limite"
     t.string "categorie_visible"
     t.string "icon_name"
+    t.decimal "plafond", precision: 10, scale: 2
+    t.bigint "category_id"
+    t.string "groupe"
     t.index ["slug"], name: "index_primes_on_slug"
   end
 
@@ -218,6 +221,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_04_090617) do
   add_foreign_key "documents", "simulations"
   add_foreign_key "documents", "users"
   add_foreign_key "notifications", "users"
+  add_foreign_key "primes", "categories"
   add_foreign_key "projects", "properties"
   add_foreign_key "referrals", "users"
   add_foreign_key "request_progresses", "primes"
