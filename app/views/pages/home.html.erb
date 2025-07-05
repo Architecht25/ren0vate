@@ -201,10 +201,10 @@
               <% if prime.slug == "warmtepomp" %>
                 <div class="d-flex justify-content-between align-items-center gap-2">
                   <!-- Sélecteur -->
-                  <select class="form-select w-50"
+                  <select class="form-select w-75"
                           data-action="change->prime-card#update"
                           data-prime-card-target="select">
-                    <option value="">Choisissez le type de pompe</option>
+                    <option value="0">Choisissez le type de pompe</option>
                     <option value="geothermique">geothermique</option>
                     <option value="air_eau">air eau</option>
                     <option value="air_air">air air</option>
@@ -212,7 +212,7 @@
                   </select>
 
                   <!-- Montant -->
-                  <span class="input-group-text bg-success text-white prime-result w-50 text-center"
+                  <span class="input-group-text bg-success text-white prime-result w-25 text-center"
                         data-slug="<%= prime.slug %>">
                     0 €
                   </span>
@@ -221,16 +221,18 @@
               <% else %>
                 <!-- Carte classique avec champ input -->
                 <div class="input-group">
+                  <% categorie_id = @categorie_id.to_s rescue "3" %>
+                  <% placeholder = ["4", "3"].include?(categorie_id) ? "Montant total de la facture (€)" : "Surface en m²" %>
+
                   <input type="number"
                         class="form-control prime-input"
-                        style="width: 50%;"
+                        style="width: 70%;"
                         data-prime-card-target="input"
                         data-action="input->prime-card#update"
-                        value="0"
-                        placeholder="<%= prime.placeholder[@categorie_id.to_s] %>">
+                        placeholder="<%= placeholder %>">
                   <span class="input-group-text bg-success text-white prime-result"
                         data-slug="<%= prime.slug %>"
-                        style="width: 50%; text-align: center;">
+                        style="width: 30%; text-align: center;">
                     0 €
                   </span>
                 </div>
