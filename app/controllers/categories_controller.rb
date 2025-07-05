@@ -7,7 +7,39 @@ class CategoriesController < ApplicationController
     @category = Category.find(params[:id])
   end
 
-   def calcul
+  def new
+    @category = Category.new
+  end
+
+  def create
+    @category = Category.new(category_params)
+    if @category.save
+      redirect_to @category, notice: 'Catégorie créée avec succès.'
+    else
+      render :new
+    end
+  end
+
+  def edit
+    @category = Category.find(params[:id])
+  end
+
+  def update
+    @category = Category.find(params[:id])
+    if @category.update(category_params)
+      redirect_to @category, notice: 'Catégorie mise à jour avec succès.'
+    else
+      render :edit
+    end
+  end
+
+  def destroy
+    @category = Category.find(params[:id])
+    @category.destroy
+    redirect_to categories_path, notice: 'Catégorie supprimée avec succès.'
+  end
+
+  def calcul
     profil = {
       revenu_annuel: params[:revenu_annuel].to_f,
       statut: params[:statut],
@@ -18,5 +50,11 @@ class CategoriesController < ApplicationController
 
     categorie = Categorie.calculer_depuis(profil)
     render json: categorie
+  end
+
+  private
+
+  def category_params
+    params.require(:category).permit(:name, :description, :slug)
   end
 end
