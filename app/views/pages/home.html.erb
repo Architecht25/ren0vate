@@ -1,3 +1,12 @@
+<script>
+  window.primes = <%= raw(@primes.to_json(
+    only: [:slug, :titre, :unite, :type_de_valeur, :valeurs_par_categorie, :placeholder, :condition, :conseil, :document, :eligible_categories]
+  )) %>;
+
+  window.categorieId = "<%= @categorie_id || '3' %>";
+</script>
+
+
 <div class="container my-5">
 
   <div class="text-center mb-5">
@@ -187,11 +196,7 @@
 
             <div class="px-3 pb-3">
               <div class="input-group">
-                <input type="number"
-                      class="form-control prime-input"
-                      data-action="input->prime-simulation#calculer"
-                      data-prime-simulation-slug="<%= prime.slug %>"
-                      placeholder="Surface en m²">
+                <%= render partial: "shared/primes/prime_card", locals: { prime: prime, context: :simulation, categorie_id: @categorie_id, mode: :mini  } %>
                 <span class="input-group-text bg-success text-white prime-result" data-prime-simulation-target="result">
                   0 €
                 </span>
@@ -201,6 +206,7 @@
         </div>
       <% end %>
     </div>
+
     <div class="text-end mt-4 fw-bold fs-5">
       Total estimé des primes : <span id="total-primes-affiche">0.00 €</span>
     </div>

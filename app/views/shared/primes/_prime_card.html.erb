@@ -1,0 +1,30 @@
+<div class="prime-card mb-4 border p-3 rounded shadow-sm"
+     data-controller="prime-card"
+     data-slug="<%= prime.slug %>">
+
+  <h5 class="mb-0"><%= prime.titre %></h5>
+
+  <div class="input-group mt-2">
+    <input type="number"
+           class="form-control prime-input"
+           placeholder="<%= prime.placeholder[categorie_id.to_s] %>"
+           data-action="input->prime-card#update"
+           data-slug="<%= prime.slug %>">
+    <span class="input-group-text bg-success text-white prime-result"
+          data-slug="<%= prime.slug %>">
+      0 €
+    </span>
+  </div>
+
+  <% unless mode == :mini %>
+    <% if prime.condition.present? %>
+      <p class="mt-2 text-muted"><strong>Condition :</strong> <%= prime.condition %></p>
+    <% end %>
+    <% if prime.conseil.present? %>
+      <p class="text-muted"><strong>Conseil :</strong> <%= prime.conseil %></p>
+    <% end %>
+    <% if prime.document.present? %>
+      <p class="text-muted"><strong>Document :</strong> <%= prime.document %></p>
+    <% end %>
+  <% end %>
+</div>
