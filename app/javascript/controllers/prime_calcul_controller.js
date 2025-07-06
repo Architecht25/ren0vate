@@ -43,18 +43,21 @@ export default class extends Controller {
       case "pourcentage_et_plafond":
         montant = Math.min((val * (categorieData.pourcentage || 0)) / 100, categorieData.plafond || Infinity);
         break;
+
       case "montant_m2_et_limite":
         const surfaceMax = categorieData.surface_max || Infinity;
         const surface = Math.min(val, surfaceMax);
         montant = surface * (categorieData.montant_m2 || 0);
-        montant *= (categorieData.plafond_pourcentage || 100) / 100;
+        // montant *= (categorieData.plafond_pourcentage || 100) / 100;
         break;
+
       case "montant_variable_m2_et_limite":
         const typeMur = "exterieur";
         const montantM2 = categorieData.montants_m2?.[typeMur] || 0;
         const surfVar = Math.min(val, categorieData.surface_max || Infinity);
-        montant = surfVar * montantM2 * (categorieData.plafond_pourcentage || 100) / 100;
+        montant = surfVar * montantM2;
         break;
+
      case "forfait_et_plafond_facture":
       if (slug === "warmtepompboiler") {
         // Chauffe-eau thermodynamique
@@ -73,9 +76,11 @@ export default class extends Controller {
 
 
       case "forfait":
+
       case "montant":
         montant = categorieData.forfait || categorieData.valeur || 0;
         break;
+
       case "prime_conditionnelle":
         montant = 0;
         break;

@@ -6,7 +6,7 @@ export default class extends Controller {
   connect() {
     console.log("🧮 PrimeCardController connecté pour", this.element.dataset.slug);
 
-    // ⏳ Attend que la catégorie globale soit disponible
+    // On attend un court instant pour que window.categorieId soit bien défini
     setTimeout(() => {
       this.update();
     }, 100);
@@ -18,16 +18,25 @@ export default class extends Controller {
     const type = this.hasSelectTarget ? this.selectTarget.value : null;
     const categorie = window.categorieId || "3";
 
-    console.log("🎯 Placeholder mis à jour avec catégorie :", categorie);
+    // 🎯 Recherche de la prime dans window.primes
+    const prime = window.primes.find(p => p.slug === slug);
 
-    // Placeholder dynamique
-    if (this.hasInputTarget) {
-      this.inputTarget.placeholder = ["4", "3"].includes(categorie)
-        ? "Montant total de la facture (€)"
-        : "Surface en m²";
+    if (prime && this.hasInputTarget) {
+      const placeholderTexte = prime.placeholder?.[categorie];
+
+      // Si un placeholder spécifique existe pour cette catégorie, on l'applique
+      if (placeholderTexte) {
+        this.inputTarget.placeholder = placeholderTexte;
+        console.log(`📌 Placeholder pour ${slug} (cat. ${categorie}) :`, placeholderTexte);
+      } else {
+        // Fallback générique si aucun placeholder spécifique
+        this.inputTarget.placeholder = ["4", "3"].includes(categorie)
+          ? "Montant total de la facture (€)"
+          : "Surface en m²";
+      }
     }
 
-    // Événement pour déclencher le calcul
+    // 🧮 Déclenchement du calcul de prime
     this.element.dispatchEvent(new CustomEvent("prime:input", {
       bubbles: true,
       detail: { slug, valeur, type }
