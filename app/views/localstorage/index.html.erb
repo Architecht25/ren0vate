@@ -1,19 +1,19 @@
-<h1>Surveillance du localStorage</h1>
+<h1 class="display-4 text-center mb-4">Surveillance du localStorage</h1>
 
-<div data-controller="localstorage-monitor">
-  <div data-localstorage-monitor-target="output" class="text-center mt-4">
+<div data-controller="localstorage-monitor" class="container text-center mt-4">
+  <div data-localstorage-monitor-target="output" class="table-responsive">
     <!-- Le tableau des données sera inséré ici par le contrôleur Stimulus -->
   </div>
+
+  <button class="btn btn-primary mt-3" data-action="click->localstorage-monitor#exportPDF">
+    📄 Exporter en PDF
+  </button>
+
+  <%= link_to "← Retour à l'accueil", root_path, class: "btn btn-secondary mt-3" %>
 </div>
 
-<div>
-  <button data-action="localstorage-monitor#clearLocalStorage" class="btn btn-success mt-3 mx-auto d-block">Vider le localStorage</button>
-</div>
+<footer class="text-center mt-5">
+  <p class="text-muted">© 2025 Surveillance du localStorage. Tous droits réservés.</p>
+</footer>
 
-<div class="text-center mt-4">
-  <%= link_to "← Retour à l'accueil", root_path, class: "btn btn-outline-secondary" %>
-</div>
-
-<div data-controller="test">
-  <p>Test de connexion du contrôleur Stimulus.</p>
-</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>

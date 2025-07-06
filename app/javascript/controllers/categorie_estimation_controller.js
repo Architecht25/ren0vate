@@ -1,5 +1,5 @@
 // ce fichier gère la calcul estimatif de la catégorie de prime sur la home page pour identifier rapidement si l'utilisateur es t en catégoire 1, 2, 3 ou 4.
-// il s'agit d'une estimation et non d'un calcul précis. c'est volontaire pour inviter l'utilisateur à se diriger vers le login. 
+// il s'agit d'une estimation et non d'un calcul précis. c'est volontaire pour inviter l'utilisateur à se diriger vers le login.
 
 import { Controller } from "@hotwired/stimulus"
 
@@ -49,6 +49,7 @@ export default class extends Controller {
 
     // Affichage dans le bloc resultAffinage
     const badge = `<span class="badge rounded-pill bg-dark">Catégorie ${categorieEstimee}</span>`
+    localStorage.setItem("categorie_badge", badge);
 
     this.resultAffinageTarget.innerHTML = `
       <p class="mt-2">

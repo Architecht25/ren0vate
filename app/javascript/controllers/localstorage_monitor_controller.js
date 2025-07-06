@@ -9,7 +9,7 @@ export default class extends Controller {
   }
 
   displayLocalStorageData() {
-    const order = ["region", "user-type", "eligibiliteRenovate", "categorie_estimee"];
+    const order = ["region", "user-type", "eligibiliteRenovate", "categorie_estimee", "statut_familial", "personnes_charge", "revenu_net", "categorie_badge"];
     const localStorageData = order.map(key => {
       const value = localStorage.getItem(key);
       return value ? { key, value } : null;
@@ -25,12 +25,30 @@ export default class extends Controller {
           </tr>
         </thead>
         <tbody>
-          ${localStorageData.map(data => `
-            <tr>
-              <td>${data.key}</td>
-              <td>${data.value}</td>
-            </tr>
-          `).join('')}
+          ${localStorageData.map(data => {
+            let valueHTML;
+
+            // Si c’est un JSON parsable (ex: eligibiliteRenovate)
+            try {
+              const parsed = JSON.parse(data.value);
+              if (typeof parsed === 'object' && parsed !== null) {
+                valueHTML = Object.entries(parsed).map(([k, v]) =>
+                  `<div><strong>${k}:</strong> ${v}</div>`
+                ).join('');
+              } else {
+                valueHTML = data.value;
+              }
+            } catch {
+              valueHTML = data.value; // Pas du JSON, affichage brut
+            }
+
+            return `
+              <tr>
+                <td><strong>${data.key}</strong></td>
+                <td>${valueHTML}</td>
+              </tr>
+            `;
+          }).join('')}
         </tbody>
       </table>
     `;
@@ -43,6 +61,22 @@ export default class extends Controller {
       this.displayLocalStorageData();
     }
   }
+
+  exportPDF() {
+    console.log("📄 exportPDF déclenché");
+    const element = this.outputTarget;
+
+    const opt = {
+      margin:       0.5,
+      filename:     'donnees-localStorage.pdf',
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2 },
+      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save();
+  }
+
 
   sendLocalStorageToBackend() {
     const localStorageData = {};
