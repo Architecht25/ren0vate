@@ -1,6 +1,4 @@
 import { Controller } from "@hotwired/stimulus";
-import * as html2pdf from "html2pdf";
-
 
 
 export default class extends Controller {
@@ -66,20 +64,20 @@ export default class extends Controller {
   }
 
   exportPDF() {
-    console.log("📄 exportPDF déclenché");
-    const element = this.outputTarget;
+  console.log("📄 exportPDF déclenché");
+  const element = this.outputTarget;
 
-    const opt = {
-      margin:       0.5,
-      filename:     'donnees-localStorage.pdf',
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2 },
-      jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-    };
+  const opt = {
+    margin:       10,
+    filename:     'donnees-localStorage.pdf',
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak:    { mode: ['css', 'legacy'], before: 'tr' }
+  };
 
-    html2pdf().set(opt).from(element).save();
-  }
-
+  html2pdf().from(element).set(opt).save();
+}
 
   sendLocalStorageToBackend() {
     const localStorageData = {};
