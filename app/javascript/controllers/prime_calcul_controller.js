@@ -55,7 +55,7 @@ export default class extends Controller {
         const typeMur = "exterieur";
         const montantM2 = categorieData.montants_m2?.[typeMur] || 0;
         const surfVar = Math.min(val, categorieData.surface_max || Infinity);
-        montant = surfVar * montantM2 * (categorieData.plafond_pourcentage || 100) / 100;
+        montant = surfVar * montantM2;
         break;
 
      case "forfait_et_plafond_facture":
