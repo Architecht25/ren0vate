@@ -7,4 +7,7 @@ class Prime < ApplicationRecord
 
   validates :slug, :titre, presence: true
   validates :slug, uniqueness: true
+
+  scope :par_ordre_affichage, -> { order(:ordre_affichage) }
+
 end

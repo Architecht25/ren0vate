@@ -2,6 +2,7 @@ Prime.where(region: "flandre").delete_all
 
 Prime.find_or_initialize_by(slug: "isolation_toiture").update!(
   titre: "Isolation de la toiture",
+  ordre_affichage: 1,
   icon_name: "house",
   unite: "€",
   type_de_valeur: "dynamique",
@@ -20,9 +21,10 @@ Prime.find_or_initialize_by(slug: "isolation_toiture").update!(
 
 Prime.find_or_initialize_by(slug: "isolation_murs_cat12").update!(
   titre: "Isolation des murs extérieurs (cat. 1-2)",
+  ordre_affichage: 2,
   icon_name: "bricks",
   unite: "m²",
-  type_de_valeur: "surface_et_type",
+  type_de_valeur: "montant_variable_m2_et_limite",
   categorie_limite: ["1", "2"],
   eligible_categories: ["1", "2"],
   valeurs_par_categorie: JSON.parse('{"2": {"type": "montant_variable_m2_et_limite", "montants_m2": {"mur_creux": 7.5, "interieur": 15, "exterieur": 22.5}, "surface_max": 100, "plafond_pourcentage": 25, "condition": "isolation seule"}, "1": {"type": "montant_variable_m2_et_limite", "montants_m2": {"mur_creux": 5, "interieur": 10, "exterieur": 15}, "surface_max": 100, "plafond_pourcentage": 20, "condition": "isolation seule"}}'),
@@ -39,6 +41,7 @@ Prime.find_or_initialize_by(slug: "isolation_murs_cat12").update!(
 
 Prime.find_or_initialize_by(slug: "isolation_murs_cat34").update!(
   titre: "Isolation des murs extérieurs (cat. 3-4)",
+  ordre_affichage: 3,
   icon_name: "bricks",
   unite: "€",
   type_de_valeur: "montant_facture",
@@ -58,6 +61,7 @@ Prime.find_or_initialize_by(slug: "isolation_murs_cat34").update!(
 
 Prime.find_or_initialize_by(slug: "isolation_sol").update!(
   titre: "Isolation du sol / plancher bas et sol cave",
+  ordre_affichage: 4,
   icon_name: "bounding-box",
   unite: "m²",
   type_de_valeur: "surface",
@@ -76,6 +80,7 @@ Prime.find_or_initialize_by(slug: "isolation_sol").update!(
 
 Prime.find_or_initialize_by(slug: "ramen_deuren").update!(
   titre: "Remplacement des châssis et portes extérieures",
+  ordre_affichage: 5,
   icon_name: "windows",
   unite: "m²",
   type_de_valeur: "surface",
@@ -94,6 +99,7 @@ Prime.find_or_initialize_by(slug: "ramen_deuren").update!(
 
 Prime.find_or_initialize_by(slug: "voorbereiding_isolatie").update!(
   titre: "Travaux préparatoires pour l isolation",
+  ordre_affichage: 6,
   icon_name: "tools",
   unite: "€",
   type_de_valeur: "facture",
@@ -136,6 +142,7 @@ Prime.find_or_initialize_by(slug: "voorbereiding_isolatie").update!(
 
 Prime.find_or_initialize_by(slug: "voorbereiding_sanitair_elec").update!(
   titre: "Travaux préparatoires sanitaires et électricité",
+  ordre_affichage: 7,
   icon_name: "plug",
   unite: "€",
   type_de_valeur: "facture",
@@ -154,6 +161,7 @@ Prime.find_or_initialize_by(slug: "voorbereiding_sanitair_elec").update!(
 
 Prime.find_or_initialize_by(slug: "warmtepomp").update!(
   titre: "Pompe à chaleur",
+  ordre_affichage: 8,
   icon_name: "wind",
   unite: "type_de_pompe",
   type_de_valeur: "forfait",
@@ -172,6 +180,7 @@ Prime.find_or_initialize_by(slug: "warmtepomp").update!(
 
 Prime.find_or_initialize_by(slug: "warmtepompboiler").update!(
   titre: "Chauffe-eau thermodynamique",
+  ordre_affichage: 9,
   icon_name: "droplet",
   unite: "forfait",
   type_de_valeur: "montant",
@@ -190,6 +199,7 @@ Prime.find_or_initialize_by(slug: "warmtepompboiler").update!(
 
 Prime.find_or_initialize_by(slug: "renovation_toiture").update!(
   titre: "Travaux de rénovation associés - Toiture",
+  ordre_affichage: 10,
   icon_name: "layers",
   unite: "€",
   type_de_valeur: "dynamique",
@@ -209,6 +219,7 @@ Prime.find_or_initialize_by(slug: "renovation_toiture").update!(
 
 Prime.find_or_initialize_by(slug: "renovation_murs").update!(
   titre: "Travaux de rénovation associés - Murs",
+  ordre_affichage: 11,
   icon_name: "columns",
   unite: "€",
   type_de_valeur: "dynamique",
@@ -228,6 +239,7 @@ Prime.find_or_initialize_by(slug: "renovation_murs").update!(
 
 Prime.find_or_initialize_by(slug: "renovation_sol").update!(
   titre: "Travaux de rénovation associés - Sol",
+  ordre_affichage: 12,
   icon_name: "gtid-3x3",
   unite: "€",
   type_de_valeur: "dynamique",

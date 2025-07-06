@@ -53,10 +53,15 @@ export default class extends Controller {
         break;
 
       case "montant_variable_m2_et_limite":
-        const typeMur = "exterieur";
+        const carteElement = document.querySelector(`.prime-card[data-slug="${slug}"]`);
+        const selectElement = carteElement?.querySelector(".select-type-mur");
+        const typeMur = selectElement?.value || "exterieur"; // par défaut
+
         const montantM2 = categorieData.montants_m2?.[typeMur] || 0;
         const surfVar = Math.min(val, categorieData.surface_max || Infinity);
         montant = surfVar * montantM2;
+
+        console.log(`[${slug}] type: ${typeMur} | surface: ${val} | montant/m²: ${montantM2} | total: ${montant}`);
         break;
 
      case "forfait_et_plafond_facture":

@@ -1,7 +1,14 @@
 class PagesController < ApplicationController
   def home
-    @primes = Prime.all
-    @categorie_id = 1 # ou toute logique que tu veux pour déterminer la catégorie en front
+    @categorie_id = 1
+
+    @categorie_id_str = @categorie_id.to_s
+
+    @primes = Prime.where(region: "flandre")
+               .where("eligible_categories @> ARRAY[?]::varchar[]", [@categorie_id_str])
+               .order(:ordre_affichage)
+
+
     @plafonds_par_categorie = Prime.group(:category_id).maximum(:plafond)
     @groupes_plafond = Prime.distinct.pluck(:groupe)
   end
