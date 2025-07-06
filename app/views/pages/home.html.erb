@@ -199,7 +199,37 @@
               </div>
 
               <div class="px-3 pb-3">
-                <% if prime.slug == "warmtepomp" %>
+
+                <% if prime.slug == "isolation_murs_cat12" %>
+                  <!-- Carte spéciale : isolation murs cat 1-2 -->
+                  <div class="d-flex justify-content-between align-items-center gap-2"
+                        data-controller="prime-card"
+                        data-slug="<%= prime.slug %>">
+                    <select class="form-select w-50 select-type-mur"
+                            data-prime-card-target="select"
+                            data-action="change->prime-card#update"
+                            data-slug="<%= prime.slug %>">
+                      <option value="0">Type de mur</option>
+                      <option value="mur_creux">mur creux</option>
+                      <option value="interieur">intérieur</option>
+                      <option value="exterieur">extérieur</option>
+                    </select>
+
+                    <input type="number"
+                            class="form-control w-25 prime-input"
+                            data-prime-card-target="input"
+                            data-action="input->prime-card#update"
+                            data-slug="<%= prime.slug %>"
+                            placeholder="Surface en m²">
+
+                    <span class="input-group-text bg-success text-white prime-result w-25 text-center"
+                          data-slug="<%= prime.slug %>">
+                      0 €
+                    </span>
+                  </div>
+
+                <% elsif prime.slug == "warmtepomp" %>
+
                   <div class="d-flex justify-content-between align-items-center gap-2">
                     <!-- Sélecteur -->
                     <select class="form-select w-75"
@@ -244,48 +274,46 @@
         <% end %>
       <% end %>
       <!-- Cartes statiques en bas -->
-  <div class="col-md-4">
-    <div class="card shadow-sm border-0 h-100 p-3 text-center">
-      <div class="card-body d-flex flex-column align-items-center gap-3">
-        <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
-          <i class="bi bi-award fs-3 text-primary"></i>
+      <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100 p-3 text-center">
+          <div class="card-body d-flex flex-column align-items-center gap-3">
+            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+              <i class="bi bi-award fs-3 text-primary"></i>
+            </div>
+            <h5 class="card-title mb-2">Label PEB</h5>
+            <p class="mb-3">Bénéficiez d’aides pour la certification énergétique de votre logement. Connectez-vous pour accéder à plus de détails.</p>
+            <a href="<%= "#" %>" class="btn btn-outline-primary mt-auto">Se connecter</a>
+          </div>
         </div>
-        <h5 class="card-title mb-2">Label PEB</h5>
-        <p class="mb-3">Bénéficiez d’aides pour la certification énergétique de votre logement. Connectez-vous pour accéder à plus de détails.</p>
-        <a href="<%= "#" %>" class="btn btn-outline-primary mt-auto">Se connecter</a>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100 p-3 text-center">
+          <div class="card-body d-flex flex-column align-items-center gap-3">
+            <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+              <i class="bi bi-building fs-3 text-warning"></i>
+            </div>
+            <h5 class="card-title mb-2">Primes communales</h5>
+            <p class="mb-3">Découvrez les aides spécifiques de votre commune. Connectez-vous pour voir si vous êtes éligible.</p>
+            <a href="<%= "#" %>" class="btn btn-outline-warning mt-auto">Se connecter</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card shadow-sm border-0 h-100 p-3 text-center">
+          <div class="card-body d-flex flex-column align-items-center gap-3">
+            <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+              <i class="bi bi-bank fs-3 text-info"></i>
+            </div>
+            <h5 class="card-title mb-2">Monuments & Sites</h5>
+            <p class="mb-3">Aides et subventions pour les bâtiments classés. Connectez-vous pour accéder à plus de détails.</p>
+            <a href="<%= "#" %>" class="btn btn-outline-info mt-auto">Se connecter</a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-
-  <div class="col-md-4">
-    <div class="card shadow-sm border-0 h-100 p-3 text-center">
-      <div class="card-body d-flex flex-column align-items-center gap-3">
-        <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
-          <i class="bi bi-building fs-3 text-warning"></i>
-        </div>
-        <h5 class="card-title mb-2">Primes communales</h5>
-        <p class="mb-3">Découvrez les aides spécifiques de votre commune. Connectez-vous pour voir si vous êtes éligible.</p>
-        <a href="<%= "#" %>" class="btn btn-outline-warning mt-auto">Se connecter</a>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-md-4">
-    <div class="card shadow-sm border-0 h-100 p-3 text-center">
-      <div class="card-body d-flex flex-column align-items-center gap-3">
-        <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
-          <i class="bi bi-bank fs-3 text-info"></i>
-        </div>
-        <h5 class="card-title mb-2">Monuments & Sites</h5>
-        <p class="mb-3">Aides et subventions pour les bâtiments classés. Connectez-vous pour accéder à plus de détails.</p>
-        <a href="<%= "#" %>" class="btn btn-outline-info mt-auto">Se connecter</a>
-      </div>
-    </div>
-  </div>
-
-    </div>
-  </div>
-
 
     <div class="text-end mt-4 fw-bold fs-5">
       Total estimé des primes : <span id="total-primes-affiche">0.00 €</span>

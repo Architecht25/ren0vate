@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_05_122000) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_06_143501) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -108,6 +108,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_05_122000) do
     t.decimal "plafond", precision: 10, scale: 2
     t.bigint "category_id"
     t.string "groupe"
+    t.integer "ordre_affichage"
     t.index ["slug"], name: "index_primes_on_slug"
   end
 
