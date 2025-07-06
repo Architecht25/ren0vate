@@ -1,4 +1,7 @@
 import { Controller } from "@hotwired/stimulus";
+import * as html2pdf from "html2pdf";
+
+
 
 export default class extends Controller {
   static targets = ["output"];
@@ -9,7 +12,7 @@ export default class extends Controller {
   }
 
   displayLocalStorageData() {
-    const order = ["region", "user-type", "eligibiliteRenovate", "categorie_estimee", "statut_familial", "personnes_charge", "revenu_net", "categorie_badge"];
+    const order = ["region", "user-type", "eligibiliteRenovate", "categorie_estimee", "statut_familial", "personnes_charge", "revenu_net", "categorie_badge","total_primes", "details_primes"];
     const localStorageData = order.map(key => {
       const value = localStorage.getItem(key);
       return value ? { key, value } : null;

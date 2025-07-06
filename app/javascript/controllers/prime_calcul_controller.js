@@ -1,4 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
+import { calculerTotalToutesCartes } from "logic/prime_total_logic";
 
 export default class extends Controller {
   connect() {
@@ -126,7 +127,7 @@ export default class extends Controller {
     return { montant: montantFinal, resteDisponible: plafondRestant };
   }
 
-  mettreAJourMontant(slug, montant) {
+    mettreAJourMontant(slug, montant) {
     const carte = document.querySelector(`[data-slug="${slug}"]`);
     const span = carte?.querySelector(".prime-result");
 
@@ -140,5 +141,9 @@ export default class extends Controller {
         .reduce((sum, el) => sum + parseFloat(el.textContent.replace("€", "").replace(",", ".") || 0), 0);
       totalSpan.textContent = `${total.toFixed(2)} €`;
     }
+
+    // 🔁 Mise à jour du localStorage
+    calculerTotalToutesCartes();
   }
+
 }

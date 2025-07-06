@@ -12,6 +12,8 @@ pin "logic/categorie_utilitaire_logic", to: "logic/categorie_utilitaire_logic.js
 pin "logic/prime_total_logic", to: "logic/prime_total_logic.js"
 
 pin "sweetalert2", to: "https://cdn.skypack.dev/sweetalert2"
+pin "html2pdf", to: "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+
 
 # pin "bootstrap", to: "bootstrap.min.js", preload: true
 # pin "@hotwired/stimulus-loading", to: "stimulus-loading.js"
