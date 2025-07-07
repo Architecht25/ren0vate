@@ -1,0 +1,34 @@
+<h2 class="text-center mb-4">Connexion</h2>
+
+<div class="container mt-5">
+  <%= simple_form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "form-horizontal" }) do |f| %>
+    <div class="form-group w-25 mx-auto">
+      <%= f.input :email,
+                  required: true,
+                  autofocus: true,
+                  input_html: { class: "form-control", autocomplete: "email" },
+                  label_html: { class: "form-label" } %>
+    </div>
+
+    <div class="form-group w-25 mx-auto">
+      <%= f.input :password,
+                  required: true,
+                  input_html: { class: "form-control", autocomplete: "current-password" },
+                  label_html: { class: "form-label" } %>
+    </div>
+
+    <% if devise_mapping.rememberable? %>
+      <div class="form-check w-25 mx-auto">
+        <%= f.input :remember_me, as: :boolean, label: "Se souvenir de moi", input_html: { class: "form-check-input" }, label_html: { class: "form-check-label" } %>
+      </div>
+    <% end %>
+
+    <div class="form-actions text-center mt-4">
+      <%= f.button :submit, "Se connecter", class: "btn btn-primary" %>
+    </div>
+  <% end %>
+
+  <div class="text-center mt-3">
+    <%= render "devise/shared/links" %>
+  </div>
+</div>

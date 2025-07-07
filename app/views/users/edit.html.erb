@@ -1,19 +1,51 @@
-<h1>Edit User</h1>
-<%= form_with model: @user, local: true do |form| %>
-  <p>
-    <%= form.label :name %><br>
-    <%= form.text_field :name %>
-  </p>
-  <p>
-    <%= form.label :email %><br>
-    <%= form.email_field :email %>
-  </p>
-  <p>
-    <%= form.label :password %><br>
-    <%= form.password_field :password %>
-  </p>
-  <p>
-    <%= form.submit %>
-  </p>
+<h1 class="text-center mb-4">Modifier le profil</h1>
+
+<%= form_with model: @user, url: user_path(@user), method: :patch, local: true do |form| %>
+  <div class="card shadow-sm p-4 mb-5 bg-white rounded mx-auto" style="max-width: 600px;">
+    <div class="form-section">
+      <h5 class="mb-3 text-primary">Informations personnelles</h5>
+      <div class="mb-3">
+        <%= form.label :last_name, 'Nom complet', class: 'form-label' %>
+        <%= form.text_field :last_name, class: 'form-control', placeholder: 'Nom complet' %>
+      </div>
+      <div class="mb-3">
+        <%= form.label :email, 'Email', class: 'form-label' %>
+        <%= form.email_field :email, class: 'form-control', placeholder: 'Email' %>
+      </div>
+      <div class="mb-3">
+        <%= form.label :phone, 'Téléphone', class: 'form-label' %>
+        <%= form.telephone_field :phone, class: 'form-control', placeholder: 'ex. 0471 23 45 67' %>
+      </div>
+      <div class="mb-3">
+        <%= form.label :street, 'Rue', class: 'form-label' %>
+        <%= form.text_field :street, class: 'form-control', placeholder: 'ex. Rue de l Énergie' %>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <%= form.label :number, 'Numéro', class: 'form-label' %>
+          <%= form.text_field :number, class: 'form-control', placeholder: 'ex. 24' %>
+        </div>
+        <div class="col-md-4">
+          <%= form.label :postal_code, 'Code postal', class: 'form-label' %>
+          <%= form.text_field :postal_code, class: 'form-control', placeholder: 'ex. 1190' %>
+        </div>
+        <div class="col-md-4">
+          <%= form.label :city, 'Commune', class: 'form-label' %>
+          <%= form.text_field :city, class: 'form-control', placeholder: 'ex. Forest' %>
+        </div>
+      </div>
+      <div class="mb-3">
+        <%= form.label :region, 'Région', class: 'form-label' %>
+        <%= form.select :region, [['Flandre', 'flandre'], ['Bruxelles-Capitale', 'bruxelles'], ['Wallonie', 'wallonie']], { prompt: '-- Sélectionnez une région --' }, class: 'form-select' %>
+      </div>
+
+      <div class="d-flex justify-content-center">
+        <%= form.submit 'Mettre à jour', class: 'btn btn-success btn-lg text-center mt-3' %>
+      </div>
+    </div>
+  </div>
 <% end %>
-<%= link_to 'Back', users_path %>
+
+<div class="text-center">
+  <%= link_to 'Retour', users_path, class: 'btn btn-secondary btn-lg' %>
+</div>

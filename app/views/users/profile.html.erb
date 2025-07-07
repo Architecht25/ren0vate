@@ -1,0 +1,55 @@
+<h1 class="text-center mb-4">Profil de l'utilisateur</h1>
+
+<!-- Formulaire dynamique basé sur la maquette -->
+<%= form_with model: current_user, url: user_path(current_user), method: :patch, local: true do |f| %>
+  <div id="section-formulaires" class="card shadow-sm p-4 mb-5 bg-white rounded mx-auto" style="max-width: 600px;">
+    <div id="form-prive" class="form-section">
+      <h5 class="mb-3 text-primary">Données relatives uniquement au propriétaire/demandeur des primes</h5>
+      <%= f.text_field :last_name, class: 'form-control mb-3', placeholder: 'Nom complet' %>
+      <%= f.text_field :first_name, class: 'form-control mb-3', placeholder: 'Prénom' %>
+      <%= f.email_field :email, class: 'form-control mb-3', placeholder: 'Email' %>
+      <%= f.telephone_field :phone, class: 'form-control mb-3', placeholder: 'ex. 0471 23 45 67' %>
+
+      <h5 class="mt-4 mb-3 text-primary">Compte bancaire</h5>
+      <%= f.text_field :iban, class: 'form-control mb-3', placeholder: 'IBAN du compte bancaire - BExx xxxx xxxx xxxx' %>
+
+      <h5 class="mt-4 mb-3 text-primary">Adresse de résidence</h5>
+      <div class="mb-3">
+        <%= f.label :street, 'Rue', class: 'form-label' %>
+        <%= f.text_field :street, class: 'form-control', placeholder: 'ex. Rue de l Énergie' %>
+      </div>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <%= f.label :number, 'Numéro', class: 'form-label' %>
+          <%= f.text_field :number, class: 'form-control', placeholder: 'ex. 24' %>
+        </div>
+        <div class="col-md-4">
+          <%= f.label :postal_code, 'Code postal', class: 'form-label' %>
+          <%= f.text_field :postal_code, class: 'form-control', placeholder: 'ex. 1190' %>
+        </div>
+        <div class="col-md-4">
+          <%= f.label :city, 'Commune', class: 'form-label' %>
+          <%= f.text_field :city, class: 'form-control', placeholder: 'ex. Forest' %>
+        </div>
+      </div>
+      <div class="mb-3 mt-3">
+        <%= f.label :region, 'Région', class: 'form-label' %>
+        <%= f.select :region, [['Flandre', 'flandre'], ['Bruxelles-Capitale', 'bruxelles'], ['Wallonie', 'wallonie']], { prompt: '-- Sélectionnez une région --' }, class: 'form-select' %>
+      </div>
+
+      <div class="mb-3 mt-3">
+        <h5 class="text-primary">Etes-vous un client protégé?</h5>
+        <%= f.radio_button :protected_client, 'oui' %> <%= f.label :protected_client_oui, 'Oui' %>
+        <%= f.radio_button :protected_client, 'non' %> <%= f.label :protected_client_non, 'Non' %>
+      </div>
+
+      <div class="d-flex justify-content-center">
+        <%= f.submit 'Enregistrer!', class: 'btn btn-success btn-lg text-center mt-3' %>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<div class="text-center mt-4">
+  <%= link_to 'Retour au menu principal', root_path, class: 'btn btn-secondary btn-lg' %>
+</div>
