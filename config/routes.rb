@@ -25,4 +25,10 @@ Rails.application.routes.draw do
   namespace :api do
     post 'save_localstorage', to: 'localstorage#save'
   end
+
+  get '/flandre', to: 'pages#flandre', as: :flandre
+  get '/wallonie', to: 'pages#wallonie', as: :wallonie
+  get '/bruxelles', to: 'pages#bruxelles', as: :bruxelles
+  get '/mentions-legales', to: 'pages#legal', as: :legal
+  get '/politique-de-confidentialite', to: 'pages#privacy', as: :privacy
 end
