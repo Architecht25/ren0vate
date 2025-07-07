@@ -1,21 +1,11 @@
 <h1 class="text-center mb-4">Profil de l'utilisateur</h1>
 
-<div class="profile-container card shadow-sm p-4 mb-5 bg-white rounded mx-auto" style="max-width: 600px;">
-  <p><strong>Nom :</strong> <%= current_user.last_name %></p>
-  <p><strong>Email :</strong> <%= current_user.email %></p>
-
-  <div class="d-flex justify-content-center gap-3 mt-3">
-    <%= link_to 'Modifier le profil', edit_user_path(current_user), class: 'btn btn-primary btn-lg' %>
-    <%= link_to 'Se déconnecter', destroy_user_session_path, method: :delete, data: { turbo: false }, class: 'btn btn-danger btn-lg' %>
-  </div>
-</div>
-
 <!-- Formulaire dynamique basé sur la maquette -->
 <%= form_with model: current_user, url: user_path(current_user), method: :patch, local: true do |f| %>
   <div id="section-formulaires" class="card shadow-sm p-4 mb-5 bg-white rounded mx-auto" style="max-width: 600px;">
     <div id="form-prive" class="form-section">
       <h5 class="mb-3 text-primary">Données relatives uniquement au propriétaire/demandeur des primes</h5>
-      <%= f.text_field :name, class: 'form-control mb-3', placeholder: 'Nom complet' %>
+      <%= f.text_field :last_name, class: 'form-control mb-3', placeholder: 'Nom complet' %>
       <%= f.text_field :first_name, class: 'form-control mb-3', placeholder: 'Prénom' %>
       <%= f.email_field :email, class: 'form-control mb-3', placeholder: 'Email' %>
       <%= f.telephone_field :phone, class: 'form-control mb-3', placeholder: 'ex. 0471 23 45 67' %>
@@ -59,3 +49,7 @@
     </div>
   </div>
 <% end %>
+
+<div class="text-center mt-4">
+  <%= link_to 'Retour au menu principal', root_path, class: 'btn btn-secondary btn-lg' %>
+</div>
