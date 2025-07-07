@@ -1,4 +1,10 @@
 class UsersController < ApplicationController
+    before_action :authenticate_user!
+
+  def profile
+    @user = current_user
+  end
+
   def index
     @users = User.all
   end
@@ -34,6 +40,8 @@ class UsersController < ApplicationController
   end
 
   def destroy
+    Rails.logger.info("Params received: ")
+    Rails.logger.info(params.inspect)
     @user = User.find(params[:id])
     @user.destroy
     redirect_to users_path

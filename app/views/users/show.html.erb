@@ -1,4 +1,16 @@
-<h1><%= @user.name %></h1>
-<p>Email: <%= @user.email %></p>
-<%= link_to 'Edit', edit_user_path(@user) %>
-<%= link_to 'Back', users_path %>
+<h1 class="text-center mb-4">Profil de l'utilisateur</h1>
+
+<div class="card shadow-sm p-4 mb-5 bg-white rounded mx-auto" style="max-width: 600px;">
+  <div class="profile-details">
+    <p><strong>Nom :</strong> <%= @user.first_name %></p>
+    <p><strong>Email :</strong> <%= @user.email %></p>
+    <p><strong>Téléphone :</strong> <%= @user.phone %></p>
+    <p><strong>Adresse :</strong> <%= @user.street %>, <%= @user.number %>, <%= @user.postal_code %> <%= @user.city %></p>
+    <p><strong>Région :</strong> <%= @user.region.present? ? @user.region.capitalize : 'Non spécifiée' %></p>
+  </div>
+
+  <div class="d-flex justify-content-center gap-3 mt-3">
+    <%= link_to 'Modifier', edit_user_path(@user), class: 'btn btn-primary btn-lg' %>
+    <%= link_to 'Retour', users_path, class: 'btn btn-secondary btn-lg' %>
+  </div>
+</div>

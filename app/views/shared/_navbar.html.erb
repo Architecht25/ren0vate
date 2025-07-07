@@ -1,31 +1,23 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-  <div class="container-fluid">
-    <%= link_to "Ren0vate", root_path, class: "navbar-brand fw-bold" %>
+<nav class="navbar navbar-expand-lg navbar-light bg-light px-4">
+  <a class="navbar-brand" href="/">Ren0vate</a>
 
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-        <% if user_signed_in? %>
-          <li class="nav-item">
-            <span class="nav-link disabled">
-              Bonjour <%= current_user.first_name || current_user.email %>
-            </span>
-          </li>
-          <li class="nav-item">
-            <%= link_to "Déconnexion", destroy_user_session_path, method: :delete, class: "nav-link text-danger" %>
-          </li>
-        <% else %>
-          <li class="nav-item">
-            <%= link_to "Se connecter", new_user_session_path, class: "nav-link" %>
-          </li>
-          <li class="nav-item">
-            <%= link_to "Créer un compte", new_user_registration_path, class: "nav-link" %>
-          </li>
-        <% end %>
-      </ul>
-    </div>
+  <div class="collapse navbar-collapse">
+    <ul class="navbar-nav ms-auto">
+      <% if user_signed_in? %>
+        <li class="nav-item">
+          <span class="nav-link">Bonjour <%= current_user.email %></span>
+        </li>
+        <li class="nav-item">
+          <%= link_to "Mon profil", profile_path, class: "nav-link" %>
+        </li>
+        <li class="nav-item">
+          <%= link_to "Déconnexion", destroy_user_session_path, method: :delete, data: { turbo_method: :delete }, class: "nav-link text-danger" %>
+        </li>
+      <% else %>
+        <li class="nav-item">
+          <%= link_to "Connexion", new_user_session_path, class: "nav-link" %>
+        </li>
+      <% end %>
+    </ul>
   </div>
 </nav>

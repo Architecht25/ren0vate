@@ -18,6 +18,7 @@ Rails.application.routes.draw do
   post "/calcul-categorie", to: "categories#calcul"
   get '/admin/dashboard', to: 'admin#dashboard'
   get '/localstorage', to: 'localstorage#index'
+  get "profile", to: "users#profile"
 
   namespace :api do
     post 'save_localstorage', to: 'localstorage#save'
