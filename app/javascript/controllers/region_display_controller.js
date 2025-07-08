@@ -4,8 +4,6 @@ export default class extends Controller {
   static targets = ["flandre", "bruxelles", "wallonie"]
 
   connect() {
-    console.log("✅ Controller region-display bien connecté")
-
     window.addEventListener("region:changed", () => this.update());
     this.update(); // au chargement
   }

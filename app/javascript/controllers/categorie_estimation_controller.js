@@ -7,13 +7,9 @@ export default class extends Controller {
   static targets = ["resultAffinage"]
 
   connect() {
-    console.log("🧠 Contrôleur estimation catégorie connecté")
-    // Tu peux décider ici d’afficher le bloc ou le laisser caché au début
-    // document.getElementById("affinage-categorie").style.display = "block"
   }
 
   estimerCategorie() {
-    console.log("🧮 Lancement du calcul de la catégorie estimée")
 
     const statut = document.getElementById("statut-familial").value
     const nbCharges = parseInt(document.getElementById("personnes-charge").value)

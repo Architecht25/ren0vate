@@ -3,8 +3,6 @@ import { calculerTotalToutesCartes } from "logic/prime_total_logic";
 
 export default class extends Controller {
   connect() {
-    console.log("📊 PrimeCalculController connecté");
-
     this.primes = window.primes || [];
     this.categorie = window.categorieId || "3";
 
@@ -21,11 +19,9 @@ export default class extends Controller {
     };
 
     this.element.addEventListener("prime:input", this.calculer.bind(this));
-    console.log("👂 Écouteur prime:input activé");
   }
 
   calculer(event) {
-    console.log("🔄 Calcul des primes en cours...");
 
     const { slug, valeur, type } = event.detail;
     const prime = this.primes.find(p => p.slug === slug);
@@ -35,8 +31,6 @@ export default class extends Controller {
     if (!categorieData) return console.warn(`❌ Catégorie ${this.categorie} non éligible pour ${slug}`);
 
     const val = parseFloat(valeur || 0);
-    console.log(`📥 [${slug}] valeur entrée : ${valeur}, valeur parsée : ${val}`);
-    console.log(`🔍 Type de prime détecté : ${categorieData.type}`);
 
     let montant = 0;
 
@@ -60,8 +54,6 @@ export default class extends Controller {
         const montantM2 = categorieData.montants_m2?.[typeMur] || 0;
         const surfVar = Math.min(val, categorieData.surface_max || Infinity);
         montant = surfVar * montantM2;
-
-        console.log(`[${slug}] type: ${typeMur} | surface: ${val} | montant/m²: ${montantM2} | total: ${montant}`);
         break;
 
      case "forfait_et_plafond_facture":
@@ -126,8 +118,6 @@ export default class extends Controller {
 
     const plafondRestant = plafond - totalDejaAffiche;
     const montantFinal = Math.min(montantPropose, plafondRestant);
-
-    console.log(`🧮 [${slug}] proposé=${montantPropose} €, déjà affiché=${totalDejaAffiche} €, plafond=${plafond} €, final=${montantFinal}`);
 
     return { montant: montantFinal, resteDisponible: plafondRestant };
   }

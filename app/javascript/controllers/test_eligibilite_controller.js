@@ -4,14 +4,12 @@ export default class extends Controller {
   static targets = ["form", "result", "formCard"]
 
   connect() {
-    console.log("✅ Contrôleur test-eligibilite connecté")
     if (this.hasResultTarget) {
     this.resultTarget.style.display = "none"
   }
   }
 
   handleAnswer(event) {
-    console.log("🚀 handleAnswer déclenché", event.target.name, event.target.value);
 
     const form = this.formTarget;
     const responses = [...form.querySelectorAll("input[type=radio]:checked")];
@@ -21,15 +19,11 @@ export default class extends Controller {
       return acc;
     }, {});
 
-    console.log("✅ Données enregistrées dans le localStorage :", testData);
     localStorage.setItem("eligibiliteRenovate", JSON.stringify(testData));
 
     // Vérification des groupes de réponses
     const totalGroups = new Set([...form.querySelectorAll("input[type=radio]")].map(i => i.name)).size;
     const answeredGroups = new Set(responses.map(r => r.name));
-
-    console.log("🧪 totalGroups attendus :", totalGroups);
-    console.log("✅ Groupes de réponses cochées :", answeredGroups.size, [...answeredGroups]);
 
     // Logique d'inéligibilité (exemple)
     const usage = testData["usage"];
@@ -93,12 +87,10 @@ export default class extends Controller {
 
 
   calculateResult() {
-    console.log("🧪 TEST DES VARIABLES DANS calculateResult()");
 
     ["userType", "usage", "appartement", "appartement-copro", "immeuble-appartements", "proprietaire", "autre_bien", "annee", "type", "copro", "peb", "domicile", "demolition", "travaux", "protege"]
     .forEach(name => {
       const value = this.formTarget.querySelector(`[name="${name}"]:checked`)?.value;
-      console.log(`➡️ ${name} =`, value);
     });
 
     const form = this.formTarget;
@@ -122,11 +114,6 @@ export default class extends Controller {
     const domicile = get("domicile");
     const demolition = get("demolition");
     const travaux = get("travaux");
-
-    console.log("📋 Réponses récupérées :", {
-      userType, usage, proprietaire, appartement, appartement_copro, immeuble_appartements, autre_bien, copro, protege,
-      annee, type, peb, domicile, demolition, travaux
-    });
 
     // Cas particuliers
     if (userType === "syndic") {
@@ -212,10 +199,7 @@ export default class extends Controller {
     };
     localStorage.setItem("eligibiliteRenovate", JSON.stringify(testData));
 
-    console.log("📋 Vérification des réponses enregistrées :", testData);
-
     // Log et affichage
-    console.log("✅ Résultat final :", message);
     this.showResult(message, true);
   }
 

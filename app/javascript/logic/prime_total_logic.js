@@ -17,9 +17,6 @@ export function calculerTotalToutesCartes() {
 
   localStorage.setItem("total_primes", total.toFixed(2));
   localStorage.setItem("details_primes", JSON.stringify(primes));
-  console.log("🧮 Fonction calculerTotalToutesCartes appelée");
-  console.log("✅ total:", total);
-  console.log("📦 détails:", primes);
 
   const totalElt = document.getElementById("total-primes-affiche");
   if (totalElt) {
