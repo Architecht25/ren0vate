@@ -69,5 +69,16 @@ export default class extends Controller {
     }
 
     localStorage.setItem("categorie_estimee", categorieEstimee)
+    localStorage.setItem("categorieEstimee", categorieEstimee);
+
+    const button = document.getElementById("go-simulateur");
+    if (button && (categorieEstimee || localStorage.getItem("categorie"))) {
+      button.style.display = "inline-block";
+      button.addEventListener("click", () => {
+        const cat = localStorage.getItem("categorie");
+        const catEstimee = localStorage.getItem("categorieEstimee");
+        window.location.href = `/flandre?categorie=${cat}&categorieEstimee=${catEstimee || ""}`;
+      });
+    }
   }
 }

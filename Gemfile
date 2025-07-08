@@ -15,12 +15,10 @@ gem "jbuilder"
 
 gem 'importmap-rails'
 gem "simple_form"
-gem "font-awesome-sass", "~> 6.1"
-gem "autoprefixer-rails"
+gem "sassc-rails"
 gem "turbo-rails"
 gem "dotenv-rails"
 gem "cloudinary"
-gem "cssbundling-rails"
 gem "devise"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]

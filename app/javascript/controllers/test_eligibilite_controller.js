@@ -198,6 +198,7 @@ export default class extends Controller {
       travaux, categorie
     };
     localStorage.setItem("eligibiliteRenovate", JSON.stringify(testData));
+    localStorage.setItem("categorie", categorie.toString());
 
     // Log et affichage
     this.showResult(message, true);
@@ -208,8 +209,7 @@ export default class extends Controller {
     this.resultTarget.innerHTML = `
       <p>${message}</p>
       <div class="btn-group mt-3">
-        <button type="button" class="btn btn-secondary" onclick="location.reload()">🔄 Recommencer</button>
-        ${isEligible ? `<a href="/simulation" class="btn btn-primary">🎯 Accéder au simulateur</a>` : ""}
+        <button type="button" class="btn btn-secondary" onclick="location.reload()">🔄 Recommencer</button>}
       </div>
     `
     this.resultTarget.style.display = "block"

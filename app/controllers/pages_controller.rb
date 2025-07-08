@@ -2,28 +2,27 @@ class PagesController < ApplicationController
   skip_before_action :authenticate_user!, only: [:home, :flandre, :wallonie, :bruxelles]
 
   def home
-    @categorie_id = 1
-
-    @categorie_id_str = @categorie_id.to_s
-
-    @primes = Prime.where(region: "flandre")
-               .where("eligible_categories @> ARRAY[?]::varchar[]", [@categorie_id_str])
-               .order(:ordre_affichage)
-
-
-    @plafonds_par_categorie = Prime.group(:category_id).maximum(:plafond)
-    @groupes_plafond = Prime.distinct.pluck(:groupe)
   end
 
   def flandre
-    @categorie_id = params[:categorie_id] || 1
-    @categorie_id_str = @categorie_id.to_s
+    categorie = params[:categorie].to_i
+    categorie_estimee = params[:categorieEstimee].to_i
+
+    @categorie_id =
+      if categorie == 1
+        1
+      elsif categorie == 4
+        categorie_estimee.in?(1..4) ? categorie_estimee : 1
+      else
+        1
+      end
 
     @primes = Prime.where(region: "flandre")
-                   .where("eligible_categories @> ARRAY[?]::varchar[]", [@categorie_id_str])
-                   .order(:ordre_affichage)
+                  .where("eligible_categories @> ARRAY[?]::varchar[]", [@categorie_id.to_s])
+                  .order(:ordre_affichage)
 
     @plafonds_par_categorie = Prime.group(:category_id).maximum(:plafond)
     @groupes_plafond = Prime.distinct.pluck(:groupe)
   end
+
 end
