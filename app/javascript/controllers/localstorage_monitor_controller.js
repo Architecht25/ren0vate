@@ -5,7 +5,6 @@ export default class extends Controller {
   static targets = ["output"];
 
   connect() {
-    console.log("📊 Contrôleur de surveillance du localStorage connecté");
     this.displayLocalStorageData();
   }
 
@@ -53,7 +52,6 @@ export default class extends Controller {
         </tbody>
       </table>
     `;
-    console.log("🔍 Vérification du outputTarget :", this.outputTarget);
   }
 
   clearLocalStorage() {
@@ -64,7 +62,6 @@ export default class extends Controller {
   }
 
   exportPDF() {
-  console.log("📄 exportPDF déclenché");
   const element = this.outputTarget;
 
   const opt = {
@@ -96,7 +93,6 @@ export default class extends Controller {
     })
     .then(response => {
       if (response.ok) {
-        console.log('✅ Données du localStorage envoyées au backend avec succès');
         localStorage.clear();
         this.displayLocalStorageData();
       } else {

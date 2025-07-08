@@ -2,12 +2,10 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   connect() {
-    console.log("✅ Controller region-selector bien connecté")
   }
 
   select(event) {
     const selectedRegion = event.target.dataset.region
-    console.log("➡️ Région sélectionnée :", selectedRegion)
     localStorage.setItem("region", selectedRegion);
 
     // On récupère tous les blocs ciblés par le controller region-display

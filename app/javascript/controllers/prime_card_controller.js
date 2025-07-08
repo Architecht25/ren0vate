@@ -4,8 +4,6 @@ export default class extends Controller {
   static targets = ["input", "select"]
 
   connect() {
-    console.log("🧮 PrimeCardController connecté pour", this.element.dataset.slug);
-
     // On attend un court instant pour que window.categorieId soit bien défini
     setTimeout(() => {
       this.update();
@@ -27,7 +25,6 @@ export default class extends Controller {
       // Si un placeholder spécifique existe pour cette catégorie, on l'applique
       if (placeholderTexte) {
         this.inputTarget.placeholder = placeholderTexte;
-        console.log(`📌 Placeholder pour ${slug} (cat. ${categorie}) :`, placeholderTexte);
       } else {
         // Fallback générique si aucun placeholder spécifique
         this.inputTarget.placeholder = ["4", "3"].includes(categorie)

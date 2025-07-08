@@ -4,7 +4,6 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
 
   connect() {
-      console.log("👤 Controller user-type connecté et qui montre qu'il est bien connecté")
     }
 
 
@@ -50,7 +49,6 @@ export default class extends Controller {
       }
 
       if (region === "flandre" && userType) {
-        console.log("✅ Test affiché via setTimeout")
         testSection.classList.remove("d-none")
       } else {
         console.log("❌ Conditions pas remplies – test non affiché")
