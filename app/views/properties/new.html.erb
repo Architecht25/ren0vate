@@ -1,19 +1,199 @@
-<h1>New Property</h1>
-<%= form_with model: @property, local: true do |form| %>
-  <p>
-    <%= form.label :name %><br>
-    <%= form.text_field :name %>
-  </p>
-  <p>
-    <%= form.label :location %><br>
-    <%= form.text_field :location %>
-  </p>
-  <p>
-    <%= form.label :price %><br>
-    <%= form.number_field :price %>
-  </p>
-  <p>
-    <%= form.submit %>
-  </p>
-<% end %>
-<%= link_to 'Back', properties_path %>
+<div class="container-fluid px-4 py-4">
+  <!-- Header épuré -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-house-door"></i>
+      </div>
+      <h1 class="h3 text-primary-custom mb-0 fw-normal">Nouveau Bien Immobilier</h1>
+    </div>
+    <%= link_to properties_path, class: "btn btn-outline-primary-custom px-4" do %>
+      <i class="bi bi-arrow-left me-2"></i>
+      Retour à la liste
+    <% end %>
+  </div>
+
+  <!-- Formulaire dans une card épurée -->
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card border-0 bg-light-custom">
+        <div class="card-body p-4">
+          <%= simple_form_for @property, local: true do |f| %>
+            <!-- Section Adresse -->
+            <div class="form-section mb-4">
+              <h5 class="text-primary-custom mb-3 fw-normal">
+                <i class="bi bi-geo-alt me-2"></i>
+                Adresse du bien
+              </h5>
+              
+              <%= f.input :rue,
+                  label: "Rue*",
+                  placeholder: "ex. Rue de l'Énergie",
+                  wrapper_html: { class: "mb-3" },
+                  input_html: { class: "form-control-custom" } %>
+
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <%= f.input :numero,
+                      label: "Numéro*",
+                      placeholder: "ex. 24",
+                      wrapper_html: { class: "mb-0" },
+                      input_html: { class: "form-control-custom" } %>
+                </div>
+                <div class="col-md-3">
+                  <%= f.input :code_postal,
+                      label: "Code postal*",
+                      placeholder: "ex. 1190",
+                      wrapper_html: { class: "mb-0" },
+                      input_html: { class: "form-control-custom" } %>
+                </div>
+                <div class="col-md-3">
+                  <%= f.input :commune,
+                      label: "Commune*",
+                      placeholder: "ex. Forest",
+                      wrapper_html: { class: "mb-0" },
+                      input_html: { class: "form-control-custom" } %>
+                </div>
+                <div class="col-md-3">
+                  <%= f.input :region,
+                      label: "Région*",
+                      placeholder: "Flandre",
+                      wrapper_html: { class: "mb-0" },
+                      input_html: { class: "form-control-custom" } %>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section Type de bien -->
+            <div class="form-section mb-4">
+              <h5 class="text-primary-custom mb-3 fw-normal">
+                <i class="bi bi-building me-2"></i>
+                Type de bien
+              </h5>
+              
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <%= f.input :type_propriete,
+                      label: "Type de propriété",
+                      as: :select,
+                      collection: [
+                        ["Propriétaire à 100%", "propriétaire complet"],
+                        ["Copropriétaire avec mon conjoint", "copropriétaire"],
+                        ["Nu propriétaire", "nu-propriétaire"],
+                        ["Usufruitier", "usufruitier"]
+                      ],
+                      prompt: "-- Sélectionnez --",
+                      wrapper_html: { class: "mb-0" },
+                      input_html: { class: "form-control-custom" } %>
+                </div>
+                <div class="col-md-4">
+                  <%= f.input :type,
+                      label: "Type de bien*",
+                      as: :select,
+                      collection: [
+                        ["Maison unifamiliale", "maison"],
+                        ["Appartement", "appartement"],
+                        ["Immeuble avec plusieurs unités", "immeuble de rapport"]
+                      ],
+                      prompt: "-- Sélectionnez --",
+                      wrapper_html: { class: "mb-0" },
+                      input_html: { class: "form-control-custom" } %>
+                </div>
+                <div class="col-md-4">
+                  <%= f.input :occupation,
+                      label: "Occupation*",
+                      as: :select,
+                      collection: [
+                        ["Résidence principale", "résidence principale"],
+                        ["Bien en location", "location"],
+                        ["Autre", "autre"]
+                      ],
+                      prompt: "-- Sélectionnez --",
+                      wrapper_html: { class: "mb-0" },
+                      input_html: { class: "form-control-custom" } %>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section Informations complémentaires -->
+            <div class="form-section mb-4">
+              <h5 class="text-primary-custom mb-3 fw-normal">
+                <i class="bi bi-info-circle me-2"></i>
+                Informations complémentaires
+              </h5>
+              
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <%= f.input :annee_construction,
+                      label: "Année de construction*",
+                      as: :integer,
+                      placeholder: "1930",
+                      wrapper_html: { class: "mb-0" },
+                      input_html: { class: "form-control-custom" } %>
+                </div>
+                <div class="col-md-6">
+                  <%= f.input :date_raccordement_electrique,
+                      label: "Date de raccordement électrique (RF)*",
+                      as: :integer,
+                      placeholder: "Attention: avant le 1er janvier 2006",
+                      wrapper_html: { class: "mb-0" },
+                      input_html: { class: "form-control-custom" } %>
+                </div>
+              </div>
+
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <%= f.input :numero_ean,
+                      label: "Numéro EAN*",
+                      placeholder: "5412345678901",
+                      wrapper_html: { class: "mb-0" },
+                      input_html: { class: "form-control-custom" } %>
+                </div>
+                <div class="col-md-6">
+                  <%= f.input :numero_cadastre,
+                      label: "Numéro de parcelle cadastrale (optionnel)",
+                      placeholder: "136E",
+                      wrapper_html: { class: "mb-0" },
+                      input_html: { class: "form-control-custom" } %>
+                </div>
+              </div>
+
+              <!-- Questions radio -->
+              <div class="question-group mb-3">
+                <p class="text-muted-custom mb-2 fw-medium">Possédez-vous un autre bien/appartement/terrain en pleine propriété ?</p>
+                <%= f.input :autre_bien,
+                    as: :radio_buttons,
+                    collection: [["Oui", "oui"], ["Non", "non"]],
+                    label: false,
+                    wrapper_html: { class: "d-flex gap-4" },
+                    item_wrapper_class: "form-check-custom" %>
+              </div>
+
+              <div class="question-group mb-3">
+                <p class="text-muted-custom mb-2 fw-medium">Le certificat PEB indique-t-il un label E ou F avant rénovation ?</p>
+                <%= f.input :peb,
+                    as: :radio_buttons,
+                    collection: [["Oui", "ef"], ["Non", "autre"]],
+                    label: false,
+                    wrapper_html: { class: "d-flex gap-4" },
+                    item_wrapper_class: "form-check-custom" %>
+              </div>
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+              <%= link_to properties_path, class: "btn btn-outline-primary-custom px-4" do %>
+                <i class="bi bi-arrow-left me-2"></i>
+                Annuler
+              <% end %>
+              <%= f.submit "Créer le bien", class: "btn btn-primary-custom px-4" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Utilise le fichier CSS externe properties.css -->
+<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>
