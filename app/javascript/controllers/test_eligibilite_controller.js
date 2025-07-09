@@ -294,18 +294,18 @@ export default class extends Controller {
 
   updatePrimesCards(categorie) {
     console.log('🔄 Mise à jour des cartes pour catégorie:', categorie);
-    
+
     // Trouver toutes les cartes de primes
     const allPrimeCards = document.querySelectorAll('[data-controller*="prime-card"]');
-    
+
     allPrimeCards.forEach(card => {
       const slug = card.dataset.slug;
       const prime = window.primes?.find(p => p.slug === slug);
-      
+
       if (prime) {
         // Vérifier si cette prime est éligible pour cette catégorie
         const isEligible = prime.eligible_categories?.includes(categorie.toString());
-        
+
         if (isEligible) {
           card.style.display = '';
           console.log(`✅ Carte ${slug} affichée pour catégorie ${categorie}`);
