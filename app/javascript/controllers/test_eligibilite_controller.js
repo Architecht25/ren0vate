@@ -4,6 +4,13 @@ export default class extends Controller {
   static targets = ["form", "result", "formCard", "validateButton"]
 
   connect() {
+    console.log('🎯 TestEligibilite controller connecté !');
+    console.log('Targets disponibles:', {
+      form: this.hasFormTarget,
+      result: this.hasResultTarget,
+      validateButton: this.hasValidateButtonTarget
+    });
+    
     if (this.hasResultTarget) {
       this.resultTarget.style.display = "none"
     }
@@ -13,6 +20,7 @@ export default class extends Controller {
   }
 
   handleAnswer(event) {
+    console.log('🎯 HandleAnswer déclenché !', event.target);
     const form = this.formTarget;
     const responses = [...form.querySelectorAll("input[type=radio]:checked")];
 

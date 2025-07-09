@@ -2,6 +2,7 @@
 
 pin "application"
 
+# Note: stimulus-loading supprimé - utilisation d'imports manuels dans application.js
 # Hotwired libs avec des CDN plus fiables
 pin "@hotwired/turbo-rails", to: "https://cdn.jsdelivr.net/npm/@hotwired/turbo-rails@8.0.5/app/assets/javascripts/turbo.min.js"
 pin "@hotwired/turbo", to: "https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.5/dist/turbo.es2017-esm.js"

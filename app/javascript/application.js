@@ -13,5 +13,5 @@ import TestEligibiliteController from "controllers/test_eligibilite_controller"
 
 // Enregistrement des contrôleurs
 window.Stimulus.register("user_type", UserTypeController)
-window.Stimulus.register("test_eligibilite", TestEligibiliteController)
+window.Stimulus.register("test-eligibilite", TestEligibiliteController)
 console.log('✅ Contrôleurs enregistrés')
