@@ -1,4 +1,8 @@
 <script>
+  // Initialisation automati  <!-- Test d'éligibilité -->
+  <div id="eligibility-test" data-controller="test-eligibilite" class="d-none">e de la région Flandre
+  localStorage.setItem("region", "flandre");
+
   window.primes = <%= raw(@primes.to_json(
     only: [:slug, :titre, :unite, :type_de_valeur, :valeurs_par_categorie, :placeholder, :condition, :conseil, :document, :eligible_categories]
   )) %>;
@@ -72,7 +76,7 @@
 
         <!-- Bouton de validation du test -->
         <div class="text-center mt-4">
-          <button type="button" 
+          <button type="button"
                   class="btn btn-success btn-lg"
                   data-action="click->test-eligibilite#validateTest"
                   data-test-eligibilite-target="validateButton"

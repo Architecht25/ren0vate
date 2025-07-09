@@ -75,11 +75,11 @@ export default class extends Controller {
 
   checkIfAllAnswered() {
     const form = this.formTarget;
-    
+
     // Obtenir tous les noms de questions uniques
     const radioInputs = Array.from(form.querySelectorAll("input[type='radio']"));
     const questionNames = [...new Set(radioInputs.map(input => input.name))];
-    
+
     // Vérifier que chaque question a une réponse cochée
     const allAnswered = questionNames.every(name => {
       return form.querySelector(`input[name="${name}"]:checked`) !== null;
@@ -224,11 +224,11 @@ export default class extends Controller {
     if (this.hasFormTarget) {
       this.formTarget.style.display = "none"
     }
-    
+
     if (this.hasValidateButtonTarget) {
       this.validateButtonTarget.style.display = "none"
     }
-    
+
     if (this.hasResultTarget) {
       this.resultTarget.innerHTML = `
         <p>${message}</p>
