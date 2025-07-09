@@ -9,6 +9,7 @@ pin "@hotwired/turbo", to: "https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0.5/d
 pin "@hotwired/stimulus", to: "https://cdn.jsdelivr.net/npm/@hotwired/stimulus@3.2.2/dist/stimulus.js"
 
 pin_all_from "app/javascript/controllers", under: "controllers"
+pin_all_from "app/javascript/logic", under: "logic"
 
 # Bootstrap via CDN
 pin "bootstrap", to: "https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
