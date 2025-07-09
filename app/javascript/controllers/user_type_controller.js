@@ -17,7 +17,6 @@ export default class extends Controller {
       const userType = localStorage.getItem("userType")
 
       if (!testSection) {
-        console.warn("❌ testSection introuvable")
         return
       }
 
