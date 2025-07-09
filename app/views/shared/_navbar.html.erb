@@ -11,7 +11,10 @@
           <%= link_to "Mon profil", profile_path, class: "nav-link" %>
         </li>
         <li class="nav-item">
-          <%= link_to "Déconnexion", destroy_user_session_path, method: :delete, data: { turbo_method: :delete }, class: "nav-link text-danger" %>
+          <%= button_to "Déconnexion", destroy_user_session_path, method: :delete, 
+              data: { turbo_confirm: "Êtes-vous sûr de vouloir vous déconnecter ?" }, 
+              class: "nav-link text-danger",
+              style: "background: none; border: none; font-family: inherit;" %>
         </li>
       <% else %>
         <li class="nav-item">
