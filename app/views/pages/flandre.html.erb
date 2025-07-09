@@ -1,7 +1,9 @@
 <script>
-  // Initialisation automati  <!-- Test d'éligibilité -->
-  <div id="eligibility-test" data-controller="test_eligibilite" class="d-none">e de la région Flandre
-  localStorage.setItem("region", "flandre");
+  // Initialisation automatique de la région Flandre dès que le DOM est prêt
+  document.addEventListener('DOMContentLoaded', function() {
+    localStorage.setItem("region", "flandre");
+    console.log('🌍 Région Flandre initialisée dans localStorage');
+  });
 
   window.primes = <%= raw(@primes.to_json(
     only: [:slug, :titre, :unite, :type_de_valeur, :valeurs_par_categorie, :placeholder, :condition, :conseil, :document, :eligible_categories]
