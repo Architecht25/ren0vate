@@ -4,13 +4,6 @@ export default class extends Controller {
   static targets = ["form", "result", "formCard", "validateButton"]
 
   connect() {
-    console.log('🎯 TestEligibilite controller connecté !');
-    console.log('Targets disponibles:', {
-      form: this.hasFormTarget,
-      result: this.hasResultTarget,
-      validateButton: this.hasValidateButtonTarget
-    });
-
     if (this.hasResultTarget) {
       this.resultTarget.style.display = "none"
     }
@@ -20,7 +13,6 @@ export default class extends Controller {
   }
 
   handleAnswer(event) {
-    console.log('🎯 HandleAnswer déclenché !', event.target);
     const form = this.formTarget;
     const responses = [...form.querySelectorAll("input[type=radio]:checked")];
 
@@ -29,55 +21,46 @@ export default class extends Controller {
       return acc;
     }, {});
 
-    console.log('Réponses actuelles:', testData);
-
     localStorage.setItem("eligibiliteRenovate", JSON.stringify(testData));
 
     // Vérification immédiate des cas d'inéligibilité
     const usage = testData["usage"];
     if (usage === "non") {
-      console.log('Exclusion: usage non résidentiel');
       this.showResult("❌ Pour prétendre aux primes à la rénovation, votre bien doit être obligatoirement destiné au logement.", false);
       return;
     }
 
     const proprietaire = testData["propriétaire"];
     if (proprietaire === "non") {
-      console.log('Exclusion: pas propriétaire');
       this.showResult("❌ Si vous n'êtes pas propriétaire, donc ayant 0% de propriété, alors vous ne pouvez pas prétendre aux primes à la rénovation.", false);
       return;
     }
 
     const annee = testData["annee"];
     if (annee === "non") {
-      console.log('Exclusion: logement trop récent');
       this.showResult("❌ Logement est trop récent pour pouvoir bénéficier des primes à la rénovation.", false);
       return;
     }
 
     const appartement_copro = testData["appartement-copro"];
     if (appartement_copro === "oui") {
-      console.log('Exclusion: appartement copropriété');
       this.showResult("❌ La demande de primes doit être gérée et introduite par votre syndic de copropriété.", false);
       return;
     }
 
     const demolition = testData["demolition"];
     if (demolition === "oui") {
-      console.log('Exclusion: démolition avec TVA 6%');
       this.showResult("❌ Les logements reconstruits et qui bénéficient d'une TVA à 6% ne sont pas éligibles.", false);
       return;
     }
 
     const travaux = testData["travaux"];
     if (travaux === "non") {
-      console.log('Exclusion: pas de travaux prévus');
       this.showResult("❌ Vous devez prévoir des travaux éligibles pour bénéficier des primes actuelles.", false);
       return;
     }
 
     // Vérifier si toutes les questions sont répondues
-    console.log('Pas d\'exclusion, vérification si toutes les questions sont répondues');
     this.checkIfAllAnswered();
   }
 
@@ -93,14 +76,9 @@ export default class extends Controller {
       return form.querySelector(`input[name="${name}"]:checked`) !== null;
     });
 
-    console.log('Questions détectées:', questionNames);
-    console.log('Toutes répondues:', allAnswered);
-
     if (allAnswered && this.hasValidateButtonTarget) {
-      console.log('Affichage du bouton de validation');
       this.validateButtonTarget.style.display = "block";
     } else if (this.hasValidateButtonTarget) {
-      console.log('Masquage du bouton de validation');
       this.validateButtonTarget.style.display = "none";
     }
   }
@@ -252,8 +230,6 @@ export default class extends Controller {
   }
 
   addViewPrimesButton(categorie) {
-    console.log('Ajout bouton voir primes pour catégorie:', categorie);
-
     // Ajouter le bouton dans la section résultat
     if (this.hasResultTarget) {
       const existingButton = this.resultTarget.querySelector('.btn-voir-primes');
@@ -265,7 +241,6 @@ export default class extends Controller {
           viewPrimesBtn.innerHTML = '🎯 Voir mes primes éligibles';
           viewPrimesBtn.addEventListener('click', () => {
             const cat = localStorage.getItem("categorie");
-            console.log('🎯 Affichage des primes pour catégorie:', cat);
 
             // Mettre à jour la catégorie globale
             window.categorieId = cat;
@@ -293,8 +268,6 @@ export default class extends Controller {
   }
 
   updatePrimesCards(categorie) {
-    console.log('🔄 Mise à jour des cartes pour catégorie:', categorie);
-    
     // Trouver toutes les cartes de primes
     const allPrimeCards = document.querySelectorAll('[data-controller*="prime-card"]');
     
@@ -308,10 +281,8 @@ export default class extends Controller {
         
         if (isEligible) {
           card.style.display = '';
-          console.log(`✅ Carte ${slug} affichée pour catégorie ${categorie}`);
         } else {
           card.style.display = 'none';
-          console.log(`❌ Carte ${slug} masquée pour catégorie ${categorie}`);
         }
       }
     });

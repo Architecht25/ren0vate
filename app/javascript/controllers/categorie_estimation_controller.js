@@ -1,4 +1,4 @@
-// ce fichier gère la calcul estimatif de la catégorie de prime sur la home page pour identifier rapidement si l'utilisateur es t en catégoire 1, 2, 3 ou 4.
+// ce fi  connect() {ier gère la calcul estimatif de la catégorie de prime sur la home page pour identifier rapidement si l'utilisateur es t en catégoire 1, 2, 3 ou 4.
 // il s'agit d'une estimation et non d'un calcul précis. c'est volontaire pour inviter l'utilisateur à se diriger vers le login.
 
 import { Controller } from "@hotwired/stimulus"
@@ -7,12 +7,9 @@ export default class extends Controller {
   static targets = ["resultAffinage"]
 
   connect() {
-    console.log('🎯 CategorieEstimation controller connecté !');
   }
 
   estimerCategorie() {
-    console.log('🎯 EstimerCategorie déclenché !');
-
     const statut = document.getElementById("statut-familial").value
     const nbCharges = parseInt(document.getElementById("personnes-charge").value)
     const revenu = document.getElementById("revenu-net").value
@@ -86,7 +83,6 @@ export default class extends Controller {
       newButton.addEventListener("click", () => {
         const cat = localStorage.getItem("categorie");
         const catEstimee = localStorage.getItem("categorieEstimee");
-        console.log('Redirection après affinage:', { cat, catEstimee });
 
         // Masquer le placeholder et afficher les cartes
         this.togglePrimesSection(true);

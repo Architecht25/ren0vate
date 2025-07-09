@@ -18,7 +18,6 @@ export default class extends Controller {
   }
 
   onCategoryChanged(event) {
-    console.log('🔄 Catégorie changée, mise à jour de la carte:', this.element.dataset.slug);
     // Mettre à jour le placeholder et recalculer
     this.update();
   }
