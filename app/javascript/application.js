@@ -19,7 +19,6 @@ import PrimeCardController from "controllers/prime_card_controller";
 import PrimeCalculController from "controllers/prime_calcul_controller"
 
 import LocalstorageMonitorController from "controllers/localstorage_monitor_controller";
-import TestController from "controllers/test_controller";
 
 // et on les enregistre
 window.Stimulus.register("region-selector", RegionSelectorController)
@@ -34,4 +33,3 @@ window.Stimulus.register("prime-card", PrimeCardController);
 window.Stimulus.register("prime-calcul", PrimeCalculController)
 
 window.Stimulus.register("localstorage-monitor", LocalstorageMonitorController);
-window.Stimulus.register("test", TestController);
