@@ -7,9 +7,11 @@ export default class extends Controller {
   static targets = ["resultAffinage"]
 
   connect() {
+    console.log('🎯 CategorieEstimation controller connecté !');
   }
 
   estimerCategorie() {
+    console.log('🎯 EstimerCategorie déclenché !');
 
     const statut = document.getElementById("statut-familial").value
     const nbCharges = parseInt(document.getElementById("personnes-charge").value)
