@@ -265,18 +265,61 @@ export default class extends Controller {
           viewPrimesBtn.innerHTML = '🎯 Voir mes primes éligibles';
           viewPrimesBtn.addEventListener('click', () => {
             const cat = localStorage.getItem("categorie");
-            const catEstimee = localStorage.getItem("categorieEstimee") || "";
-            console.log('Redirection vers primes:', { cat, catEstimee });
+            console.log('🎯 Affichage des primes pour catégorie:', cat);
+
+            // Mettre à jour la catégorie globale
+            window.categorieId = cat;
 
             // Masquer le placeholder et afficher les cartes
             this.togglePrimesSection(true);
 
-            window.location.href = `/flandre?categorie=${cat}&categorieEstimee=${catEstimee}`;
+            // Mettre à jour le titre de la section primes
+            this.updatePrimesSectionTitle(cat);
+
+            // Déclencher la mise à jour des cartes
+            this.updatePrimesCards(cat);
           });
           buttonContainer.appendChild(viewPrimesBtn);
         }
       }
     }
+  }
+
+  updatePrimesSectionTitle(categorie) {
+    const titleElement = document.querySelector('.primes-section h4');
+    if (titleElement) {
+      titleElement.textContent = `Vos primes éligibles - Catégorie ${categorie}`;
+    }
+  }
+
+  updatePrimesCards(categorie) {
+    console.log('🔄 Mise à jour des cartes pour catégorie:', categorie);
+    
+    // Trouver toutes les cartes de primes
+    const allPrimeCards = document.querySelectorAll('[data-controller*="prime-card"]');
+    
+    allPrimeCards.forEach(card => {
+      const slug = card.dataset.slug;
+      const prime = window.primes?.find(p => p.slug === slug);
+      
+      if (prime) {
+        // Vérifier si cette prime est éligible pour cette catégorie
+        const isEligible = prime.eligible_categories?.includes(categorie.toString());
+        
+        if (isEligible) {
+          card.style.display = '';
+          console.log(`✅ Carte ${slug} affichée pour catégorie ${categorie}`);
+        } else {
+          card.style.display = 'none';
+          console.log(`❌ Carte ${slug} masquée pour catégorie ${categorie}`);
+        }
+      }
+    });
+
+    // Déclencher un événement pour que les contrôleurs prime-card se mettent à jour
+    document.dispatchEvent(new CustomEvent('category:changed', {
+      detail: { categorie }
+    }));
   }
 
   togglePrimesSection(show = true) {

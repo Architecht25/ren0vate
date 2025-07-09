@@ -8,13 +8,26 @@ export default class extends Controller {
     setTimeout(() => {
       this.update();
     }, 100);
+
+    // Écouter les changements de catégorie
+    document.addEventListener('category:changed', this.onCategoryChanged.bind(this));
+  }
+
+  disconnect() {
+    document.removeEventListener('category:changed', this.onCategoryChanged.bind(this));
+  }
+
+  onCategoryChanged(event) {
+    console.log('🔄 Catégorie changée, mise à jour de la carte:', this.element.dataset.slug);
+    // Mettre à jour le placeholder et recalculer
+    this.update();
   }
 
   update(event) {
     const slug = this.element.dataset.slug;
     const valeur = this.hasInputTarget ? this.inputTarget.value : 0;
     const type = this.hasSelectTarget ? this.selectTarget.value : null;
-    const categorie = window.categorieId || "3";
+    const categorie = window.categorieId || "1";
 
     // 🎯 Recherche de la prime dans window.primes
     const prime = window.primes.find(p => p.slug === slug);
