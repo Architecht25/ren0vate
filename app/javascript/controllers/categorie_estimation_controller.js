@@ -7,9 +7,11 @@ export default class extends Controller {
   static targets = ["resultAffinage"]
 
   connect() {
+    console.log('🎯 CategorieEstimation controller connecté !');
   }
 
   estimerCategorie() {
+    console.log('🎯 EstimerCategorie déclenché !');
 
     const statut = document.getElementById("statut-familial").value
     const nbCharges = parseInt(document.getElementById("personnes-charge").value)
@@ -69,5 +71,43 @@ export default class extends Controller {
     }
 
     localStorage.setItem("categorie_estimee", categorieEstimee)
+    localStorage.setItem("categorieEstimee", categorieEstimee);
+
+    const button = document.getElementById("go-simulateur");
+    if (button && (categorieEstimee || localStorage.getItem("categorie"))) {
+      button.style.display = "inline-block";
+      button.className = "btn btn-success btn-lg mt-3";
+      button.innerHTML = "🎯 Voir mes primes personnalisées";
+
+      // Supprimer ancien event listener s'il existe
+      button.replaceWith(button.cloneNode(true));
+      const newButton = document.getElementById("go-simulateur");
+
+      newButton.addEventListener("click", () => {
+        const cat = localStorage.getItem("categorie");
+        const catEstimee = localStorage.getItem("categorieEstimee");
+        console.log('Redirection après affinage:', { cat, catEstimee });
+
+        // Masquer le placeholder et afficher les cartes
+        this.togglePrimesSection(true);
+
+        window.location.href = `/flandre?categorie=${cat}&categorieEstimee=${catEstimee || ""}`;
+      });
+    }
+  }
+
+  togglePrimesSection(show = true) {
+    const placeholder = document.getElementById("primes-placeholder");
+    const primesSection = document.querySelector(".primes-section");
+
+    if (placeholder && primesSection) {
+      if (show) {
+        placeholder.style.display = "none";
+        primesSection.style.display = "block";
+      } else {
+        placeholder.style.display = "block";
+        primesSection.style.display = "none";
+      }
+    }
   }
 }
