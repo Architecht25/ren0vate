@@ -1,33 +1,47 @@
 <script>
-  // Initialisation automatique  <!-- Test d'éligibilité -->
-  <div id="eligibility-test" data-controller="test-eligibilite" class="d-none">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <h3 class="mb-4">Test d'éligibilité</h3>a région Flandre dès que le DOM est prêt
+  // Initialisation automatique de la région Flandre dès que le DOM est prêt
   document.addEventListener('DOMContentLoaded', function() {
     localStorage.setItem("region", "flandre");
     console.log('🌍 Région Flandre initialisée dans localStorage');
+    
+    // Afficher les cartes par défaut pour la catégorie 1 si aucune catégorie n'est définie
+    const categorieId = "<%= @categorie_id %>" || "1";
+    console.log('📊 Catégorie affichée:', categorieId);
+    
+    // Afficher les cartes par défaut
+    const primesSection = document.querySelector('.primes-section');
+    const primesPlaceholder = document.querySelector('#primes-placeholder');
+    
+    if (primesSection && primesPlaceholder) {
+      primesSection.style.display = '';
+      primesPlaceholder.style.display = 'none';
+    }
   });
 
   window.primes = <%= raw(@primes.to_json(
     only: [:slug, :titre, :unite, :type_de_valeur, :valeurs_par_categorie, :placeholder, :condition, :conseil, :document, :eligible_categories]
   )) %>;
 
-  window.categorieId = "<%= @categorie_id || '3' %>";
+  window.categorieId = "<%= @categorie_id || '1' %>";
   window.plafondsParCategorie = <%= raw(@plafonds_par_categorie.to_json) %>;
   window.groupesPlafond = <%= raw(@groupes_plafond.to_json) %>;
 </script>
 
 
-<div class="container my-5">
+<div class="container-fluid my-5">
 
-  <div class="text-center mb-5">
+  <div class="text-center mb-4">
     <h1 class="display-4">Ren0vate</h1>
     <p class="lead text-muted">Commençons par le début et testez votre éligibilité ✏️</p>
   </div>
 
-  <!-- Affichage des profils -->
-  <div data-region-display-target="flandre" class="text-center" data-controller="user_type">
+  <div class="row">
+    <!-- COLONNE GAUCHE : Test d'éligibilité -->
+    <div class="col-lg-6" style="background-color: #ffffff; border-right: 1px solid #dee2e6;">
+      <div class="pe-lg-3">
+
+        <!-- Affichage des profils -->
+        <div data-region-display-target="flandre" class="text-center" data-controller="user_type">
     <div class="card shadow-sm mb-4">
       <div class="card-body text-center">
         <h4 class="mb-3">Flandre – Quel est votre profil ?</h4>
@@ -162,144 +176,162 @@
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Simulation préalable des primes via les mini cartes primes -->
-  <div class="container my-5" data-controller="prime-calcul">
-    <div class="row g-4">
-      <% @primes.each do |prime| %>
-        <% if prime.eligible_categories.include?(@categorie_id.to_s) %>
-          <div class="col-md-4" data-controller="prime-card" data-slug="<%= prime.slug %>">
-            <div class="card shadow-sm border-0 h-100 p-3">
-              <div class="card-body d-flex align-items-center gap-3">
-                <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
-                  <i class="bi bi-<%= prime.icon_name %> fs-3 text-success"></i>
-                </div>
-                <h5 class="card-title mb-0"><%= prime.titre %></h5>
-              </div>
+    </div> <!-- fin pe-lg-3 -->
+  </div> <!-- fin col-lg-6 colonne gauche -->
 
-              <div class="px-3 pb-3">
+  <!-- COLONNE DROITE : Cartes de primes -->
+  <div class="col-lg-6" style="background-color: #f8f9fa; min-height: 400px;">
+    <div class="ps-lg-4">
 
-                <% if prime.slug == "isolation_murs_cat12" %>
-                  <!-- Carte spéciale : isolation murs cat 1-2 -->
-                  <div class="d-flex justify-content-between align-items-center gap-2"
-                        data-controller="prime-card"
-                        data-slug="<%= prime.slug %>">
-                    <select class="form-select w-50 select-type-mur"
-                            data-prime-card-target="select"
-                            data-action="change->prime-card#update"
+      <!-- Message d'info initial -->
+      <div id="primes-placeholder" class="text-center py-5" style="display: none;">
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle fs-3 mb-3 d-block"></i>
+          <h5>Complétez le test d'éligibilité</h5>
+          <p class="mb-0">Vos primes personnalisées apparaîtront ici selon votre catégorie.</p>
+        </div>
+      </div>
+
+      <!-- Simulation préalable des primes via les mini cartes primes -->
+      <div class="primes-section" data-controller="prime-calcul" style="">
+        <h4 class="mb-4">Vos primes éligibles - Catégorie <%= @categorie_id || '1' %></h4>
+        <div class="row g-3">
+          <% @primes.each do |prime| %>
+            <% current_categorie = @categorie_id || '1' %>
+            <% if prime.eligible_categories.include?(current_categorie.to_s) %>
+              <div class="col-12" data-controller="prime-card" data-slug="<%= prime.slug %>">
+                <div class="card shadow-sm border-0 p-3 mb-3">
+                  <div class="card-body p-2">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                      <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-<%= prime.icon_name %> fs-5 text-success"></i>
+                      </div>
+                      <h6 class="card-title mb-0 flex-grow-1"><%= prime.titre %></h6>
+                    </div>
+
+                    <% if prime.slug == "isolation_murs_cat12" %>
+                      <!-- Carte spéciale : isolation murs cat 1-2 -->
+                      <div class="d-flex justify-content-between align-items-center gap-2"
+                            data-controller="prime-card"
                             data-slug="<%= prime.slug %>">
-                      <option value="0">Type de mur</option>
-                      <option value="mur_creux">mur creux</option>
-                      <option value="interieur">intérieur</option>
-                      <option value="exterieur">extérieur</option>
-                    </select>
+                        <select class="form-select w-50 select-type-mur"
+                                data-prime-card-target="select"
+                                data-action="change->prime-card#update"
+                                data-slug="<%= prime.slug %>">
+                          <option value="0">Choisissez</option>
+                          <option value="facades">façades</option>
+                          <option value="murs_creux">murs creux</option>
+                          <option value="murs_interieurs">murs intérieurs</option>
+                        </select>
+                        <input type="number"
+                                class="form-control w-25 prime-input"
+                                data-prime-card-target="input"
+                                data-action="input->prime-card#update"
+                                data-slug="<%= prime.slug %>"
+                                placeholder="<%= prime.placeholder %>">
+                        <span class="input-group-text bg-success text-white prime-result"
+                              data-slug="<%= prime.slug %>">
+                          0 €
+                        </span>
+                      </div>
 
-                    <input type="number"
-                            class="form-control w-25 prime-input"
-                            data-prime-card-target="input"
-                            data-action="input->prime-card#update"
-                            data-slug="<%= prime.slug %>"
-                            placeholder="Surface en m²">
+                    <% elsif prime.slug == "warmtepomp" %>
 
-                    <span class="input-group-text bg-success text-white prime-result w-25 text-center"
-                          data-slug="<%= prime.slug %>">
-                      0 €
-                    </span>
+                      <div class="d-flex justify-content-between align-items-center gap-2">
+                        <!-- Sélecteur -->
+                        <select class="form-select w-75"
+                                data-action="change->prime-card#update"
+                                data-prime-card-target="select">
+                          <option value="0">Choisissez le type de pompe</option>
+                          <option value="geothermique">geothermique</option>
+                          <option value="air_eau">air eau</option>
+                          <option value="air_air">air air</option>
+                          <option value="hybride">hybride</option>
+                        </select>
+
+                        <!-- Montant -->
+                        <span class="input-group-text bg-success text-white prime-result w-25 text-center"
+                              data-slug="<%= prime.slug %>">
+                          0 €
+                        </span>
+                      </div>
+
+                    <% else %>
+                      <!-- Logique générale pour les autres primes -->
+                      <div class="d-flex justify-content-between align-items-center gap-2">
+                        <input type="number"
+                               class="form-control w-75 prime-input"
+                               data-prime-card-target="input"
+                               data-action="input->prime-card#update"
+                               data-slug="<%= prime.slug %>"
+                               placeholder="<%= prime.placeholder %>">
+
+                        <span class="input-group-text bg-success text-white prime-result"
+                              data-slug="<%= prime.slug %>">
+                          0 €
+                        </span>
+                      </div>
+                    <% end %>
                   </div>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
 
-                <% elsif prime.slug == "warmtepomp" %>
-
-                  <div class="d-flex justify-content-between align-items-center gap-2">
-                    <!-- Sélecteur -->
-                    <select class="form-select w-75"
-                            data-action="change->prime-card#update"
-                            data-prime-card-target="select">
-                      <option value="0">Choisissez le type de pompe</option>
-                      <option value="geothermique">geothermique</option>
-                      <option value="air_eau">air eau</option>
-                      <option value="air_air">air air</option>
-                      <option value="hybride">hybride</option>
-                    </select>
-
-                    <!-- Montant -->
-                    <span class="input-group-text bg-success text-white prime-result w-25 text-center"
-                          data-slug="<%= prime.slug %>">
-                      0 €
-                    </span>
-                  </div>
-
-                <% else %>
-                  <!-- Carte classique avec champ input -->
-                  <div class="input-group">
-                    <% categorie_id = @categorie_id.to_s rescue "3" %>
-                    <% placeholder = ["4", "3"].include?(categorie_id) ? "Montant total de la facture (€)" : "Surface en m²" %>
-
-                    <input type="number"
-                          class="form-control prime-input"
-                          style="width: 70%;"
-                          data-prime-card-target="input"
-                          data-action="input->prime-card#update"
-                          placeholder="<%= placeholder %>">
-                    <span class="input-group-text bg-success text-white prime-result"
-                          data-slug="<%= prime.slug %>"
-                          style="width: 30%; text-align: center;">
-                      0 €
-                    </span>
-                  </div>
-                <% end %>
+          <!-- Cartes statiques en bas -->
+          <div class="col-12">
+            <div class="card shadow-sm border-0 p-3 text-center mb-3">
+              <div class="card-body d-flex flex-column align-items-center gap-3">
+                <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                  <i class="bi bi-award fs-3 text-primary"></i>
+                </div>
+                <h5 class="card-title mb-2">Label PEB</h5>
+                <p class="mb-3">Bénéficiez d’aides pour la certification énergétique de votre logement. Connectez-vous pour accéder à plus de détails.</p>
+                <a href="<%= "#" %>" class="btn btn-outline-primary mt-auto">Se connecter</a>
               </div>
             </div>
           </div>
-        <% end %>
-      <% end %>
 
-      <!-- Cartes statiques en bas -->
-      <div class="col-md-4">
-        <div class="card shadow-sm border-0 h-100 p-3 text-center">
-          <div class="card-body d-flex flex-column align-items-center gap-3">
-            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
-              <i class="bi bi-award fs-3 text-primary"></i>
+          <div class="col-12">
+            <div class="card shadow-sm border-0 p-3 text-center mb-3">
+              <div class="card-body d-flex flex-column align-items-center gap-3">
+                <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                  <i class="bi bi-building fs-5 text-warning"></i>
+                </div>
+                <h5 class="card-title mb-2">Primes communales</h5>
+                <p class="mb-3">Découvrez les aides spécifiques de votre commune. Connectez-vous pour voir si vous êtes éligible.</p>
+                <a href="<%= "#" %>" class="btn btn-outline-warning mt-auto">Se connecter</a>
+              </div>
             </div>
-            <h5 class="card-title mb-2">Label PEB</h5>
-            <p class="mb-3">Bénéficiez d’aides pour la certification énergétique de votre logement. Connectez-vous pour accéder à plus de détails.</p>
-            <a href="<%= "#" %>" class="btn btn-outline-primary mt-auto">Se connecter</a>
+          </div>
+
+          <div class="col-md-4">
+            <div class="card shadow-sm border-0 h-100 p-3 text-center">
+              <div class="card-body d-flex flex-column align-items-center gap-3">
+                <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
+                  <i class="bi bi-bank fs-3 text-info"></i>
+                </div>
+                <h5 class="card-title mb-2">Monuments & Sites</h5>
+                <p class="mb-3">Aides et subventions pour les bâtiments classés. Connectez-vous pour accéder à plus de détails.</p>
+                <a href="<%= "#" %>" class="btn btn-outline-info mt-auto">Se connecter</a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="col-md-4">
-        <div class="card shadow-sm border-0 h-100 p-3 text-center">
-          <div class="card-body d-flex flex-column align-items-center gap-3">
-            <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
-              <i class="bi bi-building fs-3 text-warning"></i>
-            </div>
-            <h5 class="card-title mb-2">Primes communales</h5>
-            <p class="mb-3">Découvrez les aides spécifiques de votre commune. Connectez-vous pour voir si vous êtes éligible.</p>
-            <a href="<%= "#" %>" class="btn btn-outline-warning mt-auto">Se connecter</a>
-          </div>
+        <div class="text-end mt-4 fw-bold fs-5">
+          Total estimé des primes : <span id="total-primes-affiche">0.00 €</span>
         </div>
       </div>
 
-      <div class="col-md-4">
-        <div class="card shadow-sm border-0 h-100 p-3 text-center">
-          <div class="card-body d-flex flex-column align-items-center gap-3">
-            <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 70px; height: 70px;">
-              <i class="bi bi-bank fs-3 text-info"></i>
-            </div>
-            <h5 class="card-title mb-2">Monuments & Sites</h5>
-            <p class="mb-3">Aides et subventions pour les bâtiments classés. Connectez-vous pour accéder à plus de détails.</p>
-            <a href="<%= "#" %>" class="btn btn-outline-info mt-auto">Se connecter</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+ 
 
-  <div class="text-end mt-4 fw-bold fs-5">
-    Total estimé des primes : <span id="total-primes-affiche">0.00 €</span>
-  </div>
+    </div> <!-- fin ps-lg-4 -->
+  </div> <!-- fin col-lg-6 colonne droite -->
 
+  </div> <!-- fin row -->
 
   <!-- lien vers la liste des primes en flandre -->
   <div class="text-center mb-5 d-flex flex-wrap justify-content-center gap-3">

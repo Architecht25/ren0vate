@@ -10,7 +10,7 @@ export default class extends Controller {
       result: this.hasResultTarget,
       validateButton: this.hasValidateButtonTarget
     });
-    
+
     if (this.hasResultTarget) {
       this.resultTarget.style.display = "none"
     }
@@ -226,6 +226,9 @@ export default class extends Controller {
 
     // Log et affichage
     this.showResult(message, true);
+
+    // Ajouter un bouton pour voir les primes correspondantes
+    this.addViewPrimesButton(categorie);
   }
 
   showResult(message, isEligible = true) {
@@ -245,6 +248,49 @@ export default class extends Controller {
         </div>
       `
       this.resultTarget.style.display = "block"
+    }
+  }
+
+  addViewPrimesButton(categorie) {
+    console.log('Ajout bouton voir primes pour catégorie:', categorie);
+
+    // Ajouter le bouton dans la section résultat
+    if (this.hasResultTarget) {
+      const existingButton = this.resultTarget.querySelector('.btn-voir-primes');
+      if (!existingButton) {
+        const buttonContainer = this.resultTarget.querySelector('.btn-group');
+        if (buttonContainer) {
+          const viewPrimesBtn = document.createElement('button');
+          viewPrimesBtn.className = 'btn btn-success btn-voir-primes';
+          viewPrimesBtn.innerHTML = '🎯 Voir mes primes éligibles';
+          viewPrimesBtn.addEventListener('click', () => {
+            const cat = localStorage.getItem("categorie");
+            const catEstimee = localStorage.getItem("categorieEstimee") || "";
+            console.log('Redirection vers primes:', { cat, catEstimee });
+
+            // Masquer le placeholder et afficher les cartes
+            this.togglePrimesSection(true);
+
+            window.location.href = `/flandre?categorie=${cat}&categorieEstimee=${catEstimee}`;
+          });
+          buttonContainer.appendChild(viewPrimesBtn);
+        }
+      }
+    }
+  }
+
+  togglePrimesSection(show = true) {
+    const placeholder = document.getElementById("primes-placeholder");
+    const primesSection = document.querySelector(".primes-section");
+
+    if (placeholder && primesSection) {
+      if (show) {
+        placeholder.style.display = "none";
+        primesSection.style.display = "block";
+      } else {
+        placeholder.style.display = "block";
+        primesSection.style.display = "none";
+      }
     }
   }
 }
