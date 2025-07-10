@@ -2,7 +2,7 @@ class PrimeSubmission < ApplicationRecord
   belongs_to :property
   belongs_to :user
 
-  enum status: {
+  enum :status, {
     draft: 0,
     submitted: 1,
     in_review: 2,
@@ -12,7 +12,7 @@ class PrimeSubmission < ApplicationRecord
     paid: 6
   }
 
-  enum region: {
+  enum :region, {
     flandre: 0,
     wallonie: 1,
     bruxelles: 2
