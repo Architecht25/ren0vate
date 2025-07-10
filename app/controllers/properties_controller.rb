@@ -83,7 +83,7 @@ class PropertiesController < ApplicationController
     @property = current_user.properties.find(params[:id])
     @documents_by_type = @property.documents_by_type
     @document_stats = Document.completion_stats_for_property(@property)
-    
+
     # Configuration des types de documents avec leurs informations
     @document_types_config = {
       'devis' => {
@@ -202,14 +202,14 @@ class PropertiesController < ApplicationController
 
   def formulaire_miroir
     @property = current_user.properties.find(params[:id])
-    
+
     # Vérifier la complétude avant d'accéder au formulaire miroir
     unless @property.ready_for_submission?
-      redirect_to property_dashboard_path(@property), 
+      redirect_to property_dashboard_path(@property),
                   alert: "Veuillez compléter toutes les informations avant d'accéder au formulaire miroir."
       return
     end
-    
+
     # Pré-remplir les données du formulaire à partir des informations de la propriété
     @form_data = build_formulaire_data(@property)
     @completion_stats = {
@@ -218,29 +218,29 @@ class PropertiesController < ApplicationController
       documents: @property.documents_completion_percentage,
       overall: @property.completion_percentage
     }
-    
+
     # Déterminer le template selon la région
     @template_region = @property.region || 'flandre'
   end
 
   def submit_prime
     @property = current_user.properties.find(params[:id])
-    
+
     # Vérifier les conditions de soumission
     unless @property.ready_for_submission? && current_user.can_submit?
-      redirect_to property_dashboard_path(@property), 
+      redirect_to property_dashboard_path(@property),
                   alert: "Conditions non remplies pour la soumission."
       return
     end
-    
+
     # Traitement de la soumission
     result = PrimeSubmissionService.new(@property, current_user, params).call
-    
+
     if result.success?
-      redirect_to property_dashboard_path(@property), 
+      redirect_to property_dashboard_path(@property),
                   notice: "Demande de prime soumise avec succès ! Numéro de dossier : #{result.dossier_number}"
     else
-      redirect_to formulaire_miroir_property_path(@property), 
+      redirect_to formulaire_miroir_property_path(@property),
                   alert: "Erreur lors de la soumission : #{result.error}"
     end
   end
@@ -270,7 +270,7 @@ class PropertiesController < ApplicationController
       email: current_user.email,
       telephone: current_user.phone,
       registre_national: current_user.national_number,
-      
+
       # Données du logement
       ean: property.numero_ean,
       adresse: "#{property.numero} #{property.rue}",
@@ -279,20 +279,20 @@ class PropertiesController < ApplicationController
       type_bien: property.type,
       usage: property.occupation,
       parcelle: property.numero_cadastre,
-      
+
       # Données techniques
       annee_construction: property.annee_construction,
       date_raccordement: property.date_raccordement_electrique,
       peb: property.peb,
       audit_energetique: property.audit_energetique,
-      
+
       # Travaux (à partir des simulations/demandes)
       travaux_toiture: property.has_travaux?('toiture'),
       travaux_murs: property.has_travaux?('murs'),
       travaux_vitrage: property.has_travaux?('vitrage'),
       travaux_sol: property.has_travaux?('sol'),
       travaux_chauffage: property.has_travaux?('chauffage'),
-      
+
       # Documents
       documents_count: property.documents.approved.count,
       documents_complete: property.documents_completion_percentage >= 80

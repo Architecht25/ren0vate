@@ -15,19 +15,19 @@ class PrimeSubmissionService
     begin
       # 1. Créer le dossier de soumission
       submission = create_submission_record
-      
+
       # 2. Générer le PDF du formulaire
       pdf_path = generate_form_pdf(submission)
-      
+
       # 3. Soumettre vers l'administration (selon la région)
       admin_response = submit_to_administration(submission, pdf_path)
-      
+
       # 4. Enregistrer la réponse
       update_submission_status(submission, admin_response)
-      
+
       # 5. Créer la notification pour l'utilisateur
       create_notification(submission)
-      
+
       success(submission.dossier_number)
     rescue StandardError => e
       Rails.logger.error "Erreur soumission: #{e.message}"

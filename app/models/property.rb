@@ -37,12 +37,12 @@ class Property < ApplicationRecord
     chantier_weight = 0.3
     primes_weight = 0.2
     documents_weight = 0.2
-    
+
     overall = (admin_completion_percentage * admin_weight +
                chantier_completion_percentage * chantier_weight +
                primes_completion_percentage * primes_weight +
                documents_completion_percentage * documents_weight)
-    
+
     overall.round
   end
 

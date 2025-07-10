@@ -90,11 +90,11 @@
             <span class="text-muted"><%= @document_stats[:percentage] %>%</span>
           </div>
           <div class="progress" style="height: 10px;">
-            <div class="progress-bar <%= @property.documents_completion_class %>" 
-                 role="progressbar" 
+            <div class="progress-bar <%= @property.documents_completion_class %>"
+                 role="progressbar"
                  style="width: <%= @document_stats[:percentage] %>%"
-                 aria-valuenow="<%= @document_stats[:percentage] %>" 
-                 aria-valuemin="0" 
+                 aria-valuenow="<%= @document_stats[:percentage] %>"
+                 aria-valuemin="0"
                  aria-valuemax="100">
             </div>
           </div>
@@ -108,13 +108,13 @@
           <% doc_count = documents_of_type.count %>
           <% completed_count = documents_of_type.select(&:completed?).count %>
           <% completion_percentage = doc_count > 0 ? (completed_count * 100.0 / doc_count).round : 0 %>
-          
+
           <div class="col-lg-4 col-md-6">
-            <div class="doc-card card h-100 border-0 shadow-sm position-relative 
+            <div class="doc-card card h-100 border-0 shadow-sm position-relative
                         <%= 'border-success' if completion_percentage >= 80 %>
                         <%= 'border-warning' if completion_percentage >= 50 && completion_percentage < 80 %>
                         <%= 'border-danger' if completion_percentage < 50 %>">
-              
+
               <!-- Badge de priorité -->
               <div class="position-absolute top-0 start-0 m-2">
                 <% case config[:priority] %>
@@ -170,11 +170,11 @@
                       <small class="fw-semibold"><%= completed_count %></small>
                     </div>
                     <div class="progress mb-2" style="height: 6px;">
-                      <div class="progress-bar 
+                      <div class="progress-bar
                                   <%= 'bg-success' if completion_percentage >= 80 %>
                                   <%= 'bg-warning' if completion_percentage >= 50 && completion_percentage < 80 %>
                                   <%= 'bg-danger' if completion_percentage < 50 %>"
-                           role="progressbar" 
+                           role="progressbar"
                            style="width: <%= completion_percentage %>%">
                       </div>
                     </div>
@@ -185,12 +185,12 @@
                 <!-- Actions -->
                 <div class="d-flex flex-column flex-sm-row gap-2 mt-auto">
                   <% if doc_count > 0 %>
-                    <%= link_to documents_path(type_document: type_key, property_id: @property.id), 
+                    <%= link_to documents_path(type_document: type_key, property_id: @property.id),
                                class: "btn btn-outline-secondary btn-sm" do %>
                       <i class="bi bi-folder2-open me-1"></i>Voir (<%= doc_count %>)
                     <% end %>
                   <% end %>
-                  <%= link_to new_document_path(type_document: type_key, property_id: @property.id), 
+                  <%= link_to new_document_path(type_document: type_key, property_id: @property.id),
                              class: "btn btn-primary btn-sm" do %>
                     <i class="bi bi-plus-circle me-1"></i>Ajouter
                   <% end %>

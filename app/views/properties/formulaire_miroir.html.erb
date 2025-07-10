@@ -89,9 +89,9 @@
   </div>
 
   <!-- Formulaire Miroir -->
-  <%= form_with url: submit_prime_property_path(@property), method: :post, 
+  <%= form_with url: submit_prime_property_path(@property), method: :post,
                local: true, class: "formulaire-miroir" do |form| %>
-    
+
     <!-- Section 0: Conditions préalables -->
     <section class="card border-0 shadow-sm mb-4">
       <div class="card-header bg-light">
@@ -103,11 +103,11 @@
       <div class="card-body">
         <p>Le dépôt de votre demande ne peut se faire que si vous êtes domicilié dans votre bien après travaux</p>
         <div class="form-check">
-          <%= form.check_box :domicile, 
+          <%= form.check_box :domicile,
                              { class: "form-check-input", required: true },
                              "true", "" %>
-          <%= form.label :domicile, 
-                        "Êtes-vous bien domicilié dans votre bien?", 
+          <%= form.label :domicile,
+                        "Êtes-vous bien domicilié dans votre bien?",
                         class: "form-check-label" %>
         </div>
       </div>
@@ -130,7 +130,7 @@
         <div class="row g-3">
           <div class="col-md-6">
             <%= form.label :type_demandeur, "Type de demandeur *", class: "form-label" %>
-            <%= form.select :type_demandeur, 
+            <%= form.select :type_demandeur,
                            options_for_select([
                              ['-- Sélectionnez --', ''],
                              ['Particulier', 'particulier'],
@@ -144,35 +144,35 @@
           </div>
           <div class="col-md-6">
             <%= form.label :registre_national, "Numéro de registre national ou BCE *", class: "form-label" %>
-            <%= form.text_field :registre_national, 
+            <%= form.text_field :registre_national,
                                value: @form_data[:registre_national],
                                class: "form-control",
                                required: true %>
           </div>
           <div class="col-md-6">
             <%= form.label :nom, "Nom du demandeur *", class: "form-label" %>
-            <%= form.text_field :nom, 
+            <%= form.text_field :nom,
                                value: @form_data[:nom],
                                class: "form-control",
                                required: true %>
           </div>
           <div class="col-md-6">
             <%= form.label :prenom, "Prénom du demandeur *", class: "form-label" %>
-            <%= form.text_field :prenom, 
+            <%= form.text_field :prenom,
                                value: @form_data[:prenom],
                                class: "form-control",
                                required: true %>
           </div>
           <div class="col-md-6">
             <%= form.label :telephone, "Téléphone *", class: "form-label" %>
-            <%= form.telephone_field :telephone, 
+            <%= form.telephone_field :telephone,
                                     value: @form_data[:telephone],
                                     class: "form-control",
                                     required: true %>
           </div>
           <div class="col-md-6">
             <%= form.label :email, "Adresse email *", class: "form-label" %>
-            <%= form.email_field :email, 
+            <%= form.email_field :email,
                                 value: @form_data[:email],
                                 class: "form-control",
                                 required: true %>
@@ -198,7 +198,7 @@
         <div class="row g-3">
           <div class="col-md-6">
             <%= form.label :ean, "Code EAN *", class: "form-label" %>
-            <%= form.text_field :ean, 
+            <%= form.text_field :ean,
                                value: @form_data[:ean],
                                class: "form-control",
                                placeholder: "Ex: 54144...",
@@ -206,34 +206,34 @@
           </div>
           <div class="col-md-6">
             <%= form.label :parcelle, "Numéro de parcelle (optionnel)", class: "form-label" %>
-            <%= form.text_field :parcelle, 
+            <%= form.text_field :parcelle,
                                value: @form_data[:parcelle],
                                class: "form-control" %>
           </div>
           <div class="col-md-8">
             <%= form.label :adresse, "Adresse du logement *", class: "form-label" %>
-            <%= form.text_field :adresse, 
+            <%= form.text_field :adresse,
                                value: @form_data[:adresse],
                                class: "form-control",
                                required: true %>
           </div>
           <div class="col-md-4">
             <%= form.label :code_postal, "Code postal *", class: "form-label" %>
-            <%= form.text_field :code_postal, 
+            <%= form.text_field :code_postal,
                                value: @form_data[:code_postal],
                                class: "form-control",
                                required: true %>
           </div>
           <div class="col-md-6">
             <%= form.label :commune, "Commune *", class: "form-label" %>
-            <%= form.text_field :commune, 
+            <%= form.text_field :commune,
                                value: @form_data[:commune],
                                class: "form-control",
                                required: true %>
           </div>
           <div class="col-md-6">
             <%= form.label :type_bien, "Type de bien *", class: "form-label" %>
-            <%= form.select :type_bien, 
+            <%= form.select :type_bien,
                            options_for_select([
                              ['-- Sélectionnez --', ''],
                              ['Maison unifamiliale', 'maison'],
@@ -245,7 +245,7 @@
           </div>
           <div class="col-md-6">
             <%= form.label :usage, "Usage du bien *", class: "form-label" %>
-            <%= form.select :usage, 
+            <%= form.select :usage,
                            options_for_select([
                              ['-- Sélectionnez --', ''],
                              ['Résidence principale', 'residence_principale'],
@@ -274,7 +274,7 @@
       </div>
       <div class="card-body">
         <p class="mb-4">Veuillez cocher les types de travaux envisagés et compléter les champs demandés.</p>
-        
+
         <!-- Travaux détaillés -->
         <%= render 'formulaire_miroir/travaux_section', form: form, form_data: @form_data %>
       </div>
@@ -295,7 +295,7 @@
       </div>
       <div class="card-body">
         <p class="mb-3">Récapitulatif des documents déjà fournis dans Ren0vate :</p>
-        
+
         <div class="row g-3 mb-4">
           <% @property.documents.group_by(&:type_document).each do |type, docs| %>
             <div class="col-md-6">
@@ -344,15 +344,15 @@
               </div>
             </div>
           </div>
-          
+
           <div class="mt-3">
             <div class="form-check">
-              <%= form.check_box :accept_success_fee, 
+              <%= form.check_box :accept_success_fee,
                                  { class: "form-check-input", required: true },
                                  "true", "" %>
               <%= form.label :accept_success_fee, class: "form-check-label fw-bold" do %>
-                J'accepte de payer <%= submission.success_fee_percentage %>% de commission 
-                (<%= number_to_currency(submission.success_fee_amount, unit: '€', delimiter: ' ') %>) 
+                J'accepte de payer <%= submission.success_fee_percentage %>% de commission
+                (<%= number_to_currency(submission.success_fee_amount, unit: '€', delimiter: ' ') %>)
                 uniquement si ma prime est accordée et versée.
               <% end %>
             </div>
@@ -371,31 +371,31 @@
       </div>
       <div class="card-body">
         <p class="mb-3">
-          Vous êtes sur le point de soumettre votre demande officielle vers l'administration flamande. 
+          Vous êtes sur le point de soumettre votre demande officielle vers l'administration flamande.
           Veuillez vérifier que toutes les informations sont correctes.
         </p>
 
         <div class="form-check my-3">
-          <%= form.check_box :confirmation_veracite, 
+          <%= form.check_box :confirmation_veracite,
                              { class: "form-check-input", required: true },
                              "true", "" %>
-          <%= form.label :confirmation_veracite, 
-                        "Je confirme que les informations fournies sont exactes et complètes à ma connaissance.", 
+          <%= form.label :confirmation_veracite,
+                        "Je confirme que les informations fournies sont exactes et complètes à ma connaissance.",
                         class: "form-check-label fw-bold" %>
         </div>
 
         <div class="form-check my-3">
-          <%= form.check_box :mentions_legales, 
+          <%= form.check_box :mentions_legales,
                              { class: "form-check-input", required: true },
                              "true", "" %>
-          <%= form.label :mentions_legales, 
-                        "J'accepte les conditions générales et les mentions légales de Ren0vate.", 
+          <%= form.label :mentions_legales,
+                        "J'accepte les conditions générales et les mentions légales de Ren0vate.",
                         class: "form-check-label" %>
         </div>
 
         <div class="mt-4">
           <% if @property.ready_for_submission? && current_user.can_submit? %>
-            <%= form.submit "🚀 Soumettre la demande officielle", 
+            <%= form.submit "🚀 Soumettre la demande officielle",
                            class: "btn btn-success btn-lg me-3",
                            data: { confirm: "Êtes-vous sûr de vouloir soumettre cette demande ? Cette action est irréversible." } %>
           <% else %>
@@ -403,7 +403,7 @@
               <i class="bi bi-lock me-2"></i>Soumission non disponible
             </button>
           <% end %>
-          
+
           <button type="button" class="btn btn-outline-primary btn-lg" onclick="window.print()">
             <i class="bi bi-printer me-2"></i>Imprimer le résumé
           </button>
