@@ -1,7 +1,107 @@
-<h1>Notifications</h1>
-<ul>
-  <% @notifications.each do |notification| %>
-    <li><%= link_to notification.title, notification_path(notification) %></li>
+<div class="container-fluid px-4 py-4">
+  <!-- Header épuré -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-bell"></i>
+      </div>
+      <h1 class="h3 text-primary-custom mb-0 fw-normal">Mes Notifications</h1>
+    </div>
+    <%= link_to new_notification_path, class: "btn btn-primary-custom px-4" do %>
+      <i class="bi bi-plus-lg me-2"></i>Créer une notification
+    <% end %>
+  </div>
+
+  <!-- Liste des notifications -->
+  <% if @notifications.any? %>
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body p-0">
+            <div class="list-group list-group-flush">
+              <% @notifications.each do |notification| %>
+                <%= link_to notification_path(notification), class: "list-group-item list-group-item-action border-start-0 border-end-0 py-3 px-4 d-flex align-items-center" do %>
+                  <% notification_type = notification.type.to_s.downcase rescue "info" %>
+                  <% 
+                    icon_class = case notification_type
+                      when "success" then "bi-check-circle-fill text-success"
+                      when "warning" then "bi-exclamation-triangle-fill text-warning"
+                      when "danger", "error" then "bi-x-circle-fill text-danger"
+                      else "bi-info-circle-fill text-primary-custom"
+                    end
+                  %>
+                  <div class="me-3 fs-4">
+                    <i class="bi <%= icon_class %>"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="d-flex w-100 justify-content-between">
+                      <h5 class="mb-1 fw-normal"><%= notification.title %></h5>
+                      <small class="text-muted-custom">
+                        <%= time_ago_in_words(notification.created_at) rescue "récemment" %> 
+                      </small>
+                    </div>
+                    <p class="mb-1 text-muted-custom small">
+                      <%= notification.message.truncate(120) if notification.respond_to?(:message) && notification.message.present? %>
+                    </p>
+                    <small class="text-primary-custom">
+                      <% if notification.read_at.present? %>
+                        <i class="bi bi-check-all me-1"></i>Lu
+                      <% else %>
+                        <span class="badge bg-primary-custom rounded-pill px-2">Non lu</span>
+                      <% end %>
+                    </small>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+        
+        <% if @notifications.respond_to?(:total_pages) %>
+          <div class="d-flex justify-content-center">
+            <%= paginate @notifications %>
+          </div>
+        <% end %>
+      </div>
+      
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body p-4">
+            <h5 class="card-title text-primary-custom mb-3">
+              <i class="bi bi-info-circle me-2"></i>Information
+            </h5>
+            <p class="text-muted-custom small mb-0">Vous recevez des notifications concernant vos biens, chantiers, simulations et demandes de prime. Consultez-les régulièrement pour rester informé de l'avancement de vos projets.</p>
+          </div>
+        </div>
+        
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body p-4">
+            <h5 class="card-title text-primary-custom mb-3">
+              <i class="bi bi-gear me-2"></i>Paramètres
+            </h5>
+            <div class="d-grid">
+              <%= link_to "#", class: "btn btn-outline-primary-custom mb-2" do %>
+                <i class="bi bi-envelope me-2"></i>Gérer mes alertes email
+              <% end %>
+              <%= link_to "#", class: "btn btn-outline-primary-custom" do %>
+                <i class="bi bi-bell-slash me-2"></i>Désactiver les notifications
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <!-- État vide minimaliste -->
+    <div class="text-center py-5 mt-5">
+      <div class="icon-circle-large mx-auto mb-4">
+        <i class="bi bi-bell"></i>
+      </div>
+      <h4 class="text-muted-custom mb-3 fw-normal">Aucune notification</h4>
+      <p class="text-muted-custom mb-4">Vous n'avez pas de nouvelles notifications pour le moment</p>
+    </div>
   <% end %>
-</ul>
-<%= link_to 'New Notification', new_notification_path %>
+</div>
+
+<!-- Utilise le fichier CSS externe properties.css -->
+<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>

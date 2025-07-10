@@ -1,0 +1,130 @@
+<%= simple_form_for @property, local: true do |f| %>
+  <!-- Champ caché pour la région -->
+  <%= f.hidden_field :region, value: "flandre" %>
+
+  <!-- Section Adresse -->
+  <div class="form-section mb-4">
+    <h5 class="text-primary-custom mb-3 fw-normal">
+      <i class="bi bi-geo-alt me-2"></i>
+      Adresse du bien
+    </h5>
+
+    <%= f.input :rue,
+        label: "Straat*",
+        placeholder: "bv. Energiestraat",
+        wrapper_html: { class: "mb-3" },
+        input_html: { class: "form-control-custom" } %>
+
+    <div class="row g-3">
+      <div class="col-md-3">
+        <%= f.input :numero,
+            label: "Nummer*",
+            placeholder: "bv. 24",
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-control-custom" } %>
+      </div>
+      <div class="col-md-3">
+        <%= f.input :code_postal,
+            label: "Postcode*",
+            placeholder: "bv. 9000",
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-control-custom" } %>
+      </div>
+      <div class="col-md-6">
+        <%= f.input :commune,
+            label: "Gemeente*",
+            placeholder: "bv. Gent",
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-control-custom" } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Type de bien -->
+  <div class="form-section mb-4">
+    <h5 class="text-primary-custom mb-3 fw-normal">
+      <i class="bi bi-building me-2"></i>
+      Type woning
+    </h5>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <%= f.input :type_propriete,
+            label: "Type eigendom",
+            as: :select,
+            collection: [
+              ["Volledig eigenaar", "propriétaire complet"],
+              ["Mede-eigenaar met echtgenoot", "copropriétaire"],
+              ["Naakte eigenaar", "nu-propriétaire"],
+              ["Vruchtgebruiker", "usufruitier"]
+            ],
+            prompt: "-- Selecteer --",
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-control-custom" } %>
+      </div>
+      <div class="col-md-6">
+        <%= f.input :type,
+            label: "Type woning*",
+            as: :select,
+            collection: [
+              ["Eengezinswoning", "maison"],
+              ["Appartement", "appartement"],
+              ["Gebouw met meerdere wooneenheden", "immeuble de rapport"]
+            ],
+            prompt: "-- Selecteer --",
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-control-custom" } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Caractéristiques spécifiques à la Flandre -->
+  <div class="form-section mb-4">
+    <h5 class="text-primary-custom mb-3 fw-normal">
+      <i class="bi bi-info-circle me-2"></i>
+      Vlaamse specifieke kenmerken
+    </h5>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <%= f.input :epc_score,
+            label: "EPC-score",
+            placeholder: "bv. 250",
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-control-custom" } %>
+      </div>
+      <div class="col-md-6">
+        <%= f.input :date_construction,
+            label: "Bouwjaar",
+            placeholder: "bv. 1985",
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-control-custom" } %>
+      </div>
+    </div>
+    
+    <div class="row g-3 mt-2">
+      <div class="col-md-6">
+        <%= f.input :has_vloerisolatie,
+            label: "Vloerisolatie",
+            as: :radio_buttons,
+            collection: [['Ja', true], ['Nee', false]],
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-check-input" } %>
+      </div>
+      <div class="col-md-6">
+        <%= f.input :has_dakisolatie,
+            label: "Dakisolatie",
+            as: :radio_buttons,
+            collection: [['Ja', true], ['Nee', false]],
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-check-input" } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Boutons d'action -->
+  <div class="d-flex justify-content-end mt-4">
+    <%= link_to "Annuleren", properties_path, class: "btn btn-outline-secondary me-2" %>
+    <%= f.submit "Eigendom toevoegen", class: "btn btn-primary-custom" %>
+  </div>
+<% end %>

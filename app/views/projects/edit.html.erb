@@ -1,19 +1,71 @@
-<h1>Edit Project</h1>
-<%= form_with model: @project, local: true do |form| %>
-  <p>
-    <%= form.label :name %><br>
-    <%= form.text_field :name %>
-  </p>
-  <p>
-    <%= form.label :description %><br>
-    <%= form.text_area :description %>
-  </p>
-  <p>
-    <%= form.label :deadline %><br>
-    <%= form.date_field :deadline %>
-  </p>
-  <p>
-    <%= form.submit %>
-  </p>
-<% end %>
-<%= link_to 'Back', projects_path %>
+<div class="container-fluid px-4 py-4">
+  <!-- Header avec actions -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-hammer"></i>
+      </div>
+      <h1 class="h3 text-primary-custom mb-0 fw-normal">Modifier un chantier</h1>
+    </div>
+    <div>
+      <%= link_to project_path(@project), class: "btn btn-outline-secondary" do %>
+        <i class="bi bi-arrow-left me-2"></i>Retour
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h5 class="card-title text-primary-custom mb-4">
+            <i class="bi bi-pencil-square me-2"></i>Informations du chantier
+          </h5>
+
+          <%= form_with model: @project, local: true do |form| %>
+            <div class="mb-3">
+              <%= form.label :nom, "Nom du chantier", class: "form-label" %>
+              <%= form.text_field :nom, class: "form-control", placeholder: "Ex: Rénovation cuisine" %>
+            </div>
+
+            <div class="mb-3">
+              <%= form.label :description, "Description", class: "form-label" %>
+              <%= form.text_area :description, rows: 4, class: "form-control", placeholder: "Décrivez le chantier et les travaux à réaliser..." %>
+            </div>
+
+            <div class="mb-3">
+              <%= form.label :deadline, "Date limite", class: "form-label" %>
+              <%= form.date_field :deadline, class: "form-control" %>
+            </div>
+
+            <% if @project.respond_to?(:property_id) && defined?(Property) %>
+              <div class="mb-3">
+                <%= form.label :property_id, "Bien associé", class: "form-label" %>
+                <%= form.collection_select :property_id, Property.all, :id, :name, { include_blank: "Sélectionner un bien..." }, class: "form-select" %>
+              </div>
+            <% end %>
+
+            <div class="d-flex justify-content-end mt-4">
+              <%= link_to "Annuler", project_path(@project), class: "btn btn-outline-secondary me-2" %>
+              <%= form.submit "Enregistrer les modifications", class: "btn btn-primary-custom" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h5 class="card-title text-primary-custom mb-3">
+            <i class="bi bi-info-circle me-2"></i>Aide
+          </h5>
+          <p class="text-muted-custom small mb-0">Un chantier vous permet d'organiser vos travaux de rénovation pour un bien immobilier. Vous pourrez y ajouter des travaux spécifiques, suivre leur avancement et gérer les documents associés.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Utilise le fichier CSS externe properties.css -->
+<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>

@@ -16,7 +16,8 @@ class PropertiesController < ApplicationController
     if @property.save
       redirect_to @property
     else
-      render :new
+      # Si la création échoue, garder le paramètre region pour ré-afficher le bon formulaire
+      render :new, status: :unprocessable_entity
     end
   end
 

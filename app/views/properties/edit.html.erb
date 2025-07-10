@@ -1,19 +1,64 @@
-<h1>Edit Property</h1>
-<%= form_with model: @property, local: true do |form| %>
-  <p>
-    <%= form.label :name %><br>
-    <%= form.text_field :name %>
-  </p>
-  <p>
-    <%= form.label :location %><br>
-    <%= form.text_field :location %>
-  </p>
-  <p>
-    <%= form.label :price %><br>
-    <%= form.number_field :price %>
-  </p>
-  <p>
-    <%= form.submit %>
-  </p>
-<% end %>
-<%= link_to 'Back', properties_path %>
+<div class="container-fluid px-4 py-4">
+  <!-- Header avec actions -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-house-door"></i>
+      </div>
+      <h1 class="h3 text-primary-custom mb-0 fw-normal">Modifier un bien</h1>
+    </div>
+    <div>
+      <%= link_to property_path(@property), class: "btn btn-outline-secondary" do %>
+        <i class="bi bi-arrow-left me-2"></i>Retour
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h5 class="card-title text-primary-custom mb-4">
+            <i class="bi bi-pencil-square me-2"></i>Informations du bien
+          </h5>
+
+          <%= form_with model: @property, local: true do |form| %>
+            <div class="mb-3">
+              <%= form.label :name, "Nom du bien", class: "form-label" %>
+              <%= form.text_field :name, class: "form-control", placeholder: "Ex: Appartement T3 Paris" %>
+            </div>
+
+            <div class="mb-3">
+              <%= form.label :location, "Adresse", class: "form-label" %>
+              <%= form.text_field :location, class: "form-control", placeholder: "Ex: 123 rue des Lilas, 75001 Paris" %>
+            </div>
+
+            <div class="mb-3">
+              <%= form.label :price, "Prix estimé (€)", class: "form-label" %>
+              <%= form.number_field :price, class: "form-control", placeholder: "Ex: 250000" %>
+            </div>
+
+            <div class="d-flex justify-content-end mt-4">
+              <%= link_to "Annuler", property_path(@property), class: "btn btn-outline-secondary me-2" %>
+              <%= form.submit "Enregistrer les modifications", class: "btn btn-primary-custom" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h5 class="card-title text-primary-custom mb-3">
+            <i class="bi bi-info-circle me-2"></i>Aide
+          </h5>
+          <p class="text-muted-custom small mb-0">Renseignez les informations de votre bien immobilier. Ces données sont utilisées pour les simulations de primes et pour organiser vos projets de rénovation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Utilise le fichier CSS externe properties.css -->
+<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>

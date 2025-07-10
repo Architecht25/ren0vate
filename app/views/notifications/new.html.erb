@@ -1,15 +1,125 @@
-<h1>New Notification</h1>
-<%= form_with model: @notification, local: true do |form| %>
-  <p>
-    <%= form.label :title %><br>
-    <%= form.text_field :title %>
-  </p>
-  <p>
-    <%= form.label :content %><br>
-    <%= form.text_area :content %>
-  </p>
-  <p>
-    <%= form.submit %>
-  </p>
-<% end %>
-<%= link_to 'Back', notifications_path %>
+<div class="container-fluid px-4 py-4">
+  <!-- Header avec actions -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-bell"></i>
+      </div>
+      <h1 class="h3 text-primary-custom mb-0 fw-normal">Nouvelle Notification</h1>
+    </div>
+    <div>
+      <%= link_to notifications_path, class: "btn btn-outline-secondary" do %>
+        <i class="bi bi-arrow-left me-2"></i>Retour
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h5 class="card-title text-primary-custom mb-4">
+            <i class="bi bi-pencil-square me-2"></i>Informations de la notification
+          </h5>
+          
+          <%= form_with model: @notification, local: true do |form| %>
+            <div class="mb-3">
+              <%= form.label :title, "Titre*", class: "form-label" %>
+              <%= form.text_field :title, class: "form-control", placeholder: "Titre court et explicite" %>
+            </div>
+            
+            <% if @notification.respond_to?(:message) %>
+              <div class="mb-3">
+                <%= form.label :message, "Message*", class: "form-label" %>
+                <%= form.text_area :message, rows: 5, class: "form-control", placeholder: "Contenu détaillé de la notification..." %>
+              </div>
+            <% elsif @notification.respond_to?(:content) %>
+              <div class="mb-3">
+                <%= form.label :content, "Contenu*", class: "form-label" %>
+                <%= form.text_area :content, rows: 5, class: "form-control", placeholder: "Contenu détaillé de la notification..." %>
+              </div>
+            <% end %>
+            
+            <% if @notification.respond_to?(:type) %>
+              <div class="mb-3">
+                <%= form.label :type, "Type", class: "form-label" %>
+                <%= form.select :type,
+                    [
+                      ["Information", "info"],
+                      ["Succès", "success"],
+                      ["Avertissement", "warning"],
+                      ["Erreur", "error"]
+                    ],
+                    { include_blank: "-- Sélectionnez un type --" },
+                    { class: "form-select" } %>
+              </div>
+            <% end %>
+            
+            <% if @notification.respond_to?(:category) %>
+              <div class="mb-3">
+                <%= form.label :category, "Catégorie", class: "form-label" %>
+                <%= form.select :category,
+                    [
+                      ["Système", "system"],
+                      ["Chantier", "project"],
+                      ["Bien immobilier", "property"],
+                      ["Simulation", "simulation"],
+                      ["Prime", "prime"]
+                    ],
+                    { include_blank: "-- Sélectionnez une catégorie --" },
+                    { class: "form-select" } %>
+              </div>
+            <% end %>
+            
+            <% if defined?(User) && User.any? %>
+              <div class="mb-3">
+                <%= form.label :user_id, "Destinataire*", class: "form-label" %>
+                <%= form.collection_select :user_id, User.all, :id, :email, { include_blank: "-- Sélectionner un utilisateur --" }, class: "form-select" %>
+              </div>
+            <% end %>
+            
+            <% if @notification.respond_to?(:link) %>
+              <div class="mb-3">
+                <%= form.label :link, "Lien (optionnel)", class: "form-label" %>
+                <%= form.text_field :link, class: "form-control", placeholder: "URL associée à la notification" %>
+              </div>
+            <% end %>
+            
+            <div class="d-flex justify-content-end mt-4">
+              <%= link_to "Annuler", notifications_path, class: "btn btn-outline-secondary me-2" %>
+              <%= form.submit "Créer la notification", class: "btn btn-primary-custom" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h5 class="card-title text-primary-custom mb-3">
+            <i class="bi bi-info-circle me-2"></i>Aide
+          </h5>
+          <p class="text-muted-custom small mb-0">Les notifications permettent d'informer les utilisateurs des événements importants liés à leurs biens, chantiers ou simulations. Choisissez un type adapté au contenu de votre message.</p>
+        </div>
+      </div>
+      
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h5 class="card-title text-primary-custom mb-3">
+            <i class="bi bi-lightbulb me-2"></i>Types de notifications
+          </h5>
+          <ul class="text-muted-custom small mb-0 ps-3">
+            <li class="mb-2"><strong class="text-primary-custom">Information</strong> : pour les messages neutres ou informatifs</li>
+            <li class="mb-2"><strong class="text-success">Succès</strong> : pour confirmer une action réussie</li>
+            <li class="mb-2"><strong class="text-warning">Avertissement</strong> : pour signaler une attention particulière</li>
+            <li><strong class="text-danger">Erreur</strong> : pour indiquer un problème à résoudre</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Utilise le fichier CSS externe properties.css -->
+<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>
