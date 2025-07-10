@@ -8,4 +8,7 @@ class Request < ApplicationRecord
   has_many :documents
 
   validates :status, presence: true
+
+  # Scope pour récupérer les demandes récentes
+  scope :recent, -> { order(created_at: :desc) }
 end

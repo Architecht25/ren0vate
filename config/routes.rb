@@ -2,11 +2,18 @@ Rails.application.routes.draw do
   devise_for :users
   root "pages#home"
 
+  # Dashboard routes
+  get '/dashboard', to: 'dashboard#index', as: :dashboard
+
   resources :primes
   resources :categories
   resources :documents
   resources :notifications
-  resources :properties
+  resources :properties do
+    member do
+      get :dashboard  # Dashboard spécifique pour un bien
+    end
+  end
   resources :projects
   resources :referrals
   resources :requests
@@ -31,4 +38,7 @@ Rails.application.routes.draw do
   get '/bruxelles', to: 'pages#bruxelles', as: :bruxelles
   get '/mentions-legales', to: 'pages#legal', as: :legal
   get '/politique-de-confidentialite', to: 'pages#privacy', as: :privacy
+
+  # Route de debug temporaire
+  get '/debug/properties', to: 'debug#properties' if Rails.env.development?
 end

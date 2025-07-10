@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_09_202750) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_10_130932) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -145,6 +145,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_09_202750) do
     t.integer "date_raccordement_electrique"
     t.string "numero_ean"
     t.string "numero_cadastre"
+    t.boolean "audit_energetique"
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_properties_on_user_id"
   end
 
   create_table "referrals", force: :cascade do |t|
@@ -254,6 +257,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_09_202750) do
   add_foreign_key "notifications", "users"
   add_foreign_key "primes", "categories"
   add_foreign_key "projects", "properties"
+  add_foreign_key "properties", "users"
   add_foreign_key "referrals", "users"
   add_foreign_key "request_progresses", "primes"
   add_foreign_key "request_progresses", "requests"

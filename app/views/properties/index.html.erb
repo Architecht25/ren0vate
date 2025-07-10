@@ -12,25 +12,33 @@
     <div class="row g-3">
       <% @properties.each do |property| %>
         <div class="col-md-6 col-lg-4">
-          <%= link_to property_path(property), class: "text-decoration-none" do %>
-            <div class="card border-0 bg-light-custom h-100 property-card">
-              <div class="card-body p-4">
-                <div class="d-flex align-items-center mb-3">
-                  <div class="icon-circle me-3">
-                    <i class="bi bi-house-door"></i>
-                  </div>
-                  <div class="flex-grow-1">
-                    <h5 class="card-title text-dark mb-1 fw-normal"><%= property.name %></h5>
-                    <% if property.respond_to?(:location) && property.location.present? %>
-                      <p class="text-muted-custom mb-0 small"><%= property.location %></p>
-                    <% else %>
-                      <p class="text-muted-custom mb-0 small">Adresse à renseigner</p>
-                    <% end %>
-                  </div>
+          <div class="card border-0 bg-light-custom h-100 property-card">
+            <div class="card-body p-4">
+              <div class="d-flex align-items-center mb-3">
+                <div class="icon-circle me-3">
+                  <i class="bi bi-house-door"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <h5 class="card-title text-dark mb-1 fw-normal"><%= property.name %></h5>
+                  <% if property.rue && property.numero && property.commune %>
+                    <p class="text-muted-custom mb-0 small"><%= property.rue %> <%= property.numero %>, <%= property.commune %></p>
+                  <% else %>
+                    <p class="text-muted-custom mb-0 small">Adresse à renseigner</p>
+                  <% end %>
                 </div>
               </div>
+              
+              <!-- Actions -->
+              <div class="d-flex gap-2 mt-3">
+                <%= link_to dashboard_property_path(property), class: "btn btn-primary-custom btn-sm flex-fill" do %>
+                  <i class="bi bi-speedometer2 me-1"></i>Dashboard
+                <% end %>
+                <%= link_to property_path(property), class: "btn btn-outline-primary-custom btn-sm flex-fill" do %>
+                  <i class="bi bi-eye me-1"></i>Détails
+                <% end %>
+              </div>
             </div>
-          <% end %>
+          </div>
         </div>
       <% end %>
     </div>
