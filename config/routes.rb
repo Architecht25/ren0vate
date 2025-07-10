@@ -12,6 +12,9 @@ Rails.application.routes.draw do
   resources :properties do
     member do
       get :dashboard  # Dashboard spécifique pour un bien
+      get :documents_dashboard  # Gestion des documents par bien
+      get :formulaire_miroir  # Formulaire miroir pré-rempli
+      post :submit_prime  # Soumission vers l'administration
     end
   end
   resources :projects
