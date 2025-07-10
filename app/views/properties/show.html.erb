@@ -30,7 +30,7 @@
         </span>
       </div>
       <div class="progress" style="height: 8px;">
-        <div class="progress-bar bg-<%= @property.completion_status %>" 
+        <div class="progress-bar bg-<%= @property.completion_status %>"
              style="width: <%= @completion_stats[:overall] %>%"></div>
       </div>
       <% if @actions_available[:missing_fields].any? %>
@@ -161,31 +161,31 @@
         <%= link_to simulations_path, class: "btn btn-outline-success" do %>
           <i class="bi bi-calculator me-2"></i>Calculer mes primes
         <% end %>
-        
+
         <% if @actions_available[:can_request] %>
           <%= link_to new_request_path, class: "btn btn-success" do %>
             <i class="bi bi-file-earmark-plus me-2"></i>Faire une demande
           <% end %>
         <% else %>
-          <%= link_to "#", class: "btn btn-outline-secondary", disabled: true, 
+          <%= link_to "#", class: "btn btn-outline-secondary", disabled: true,
               title: "Complétez les informations manquantes pour débloquer cette action" do %>
             <i class="bi bi-file-earmark-plus me-2"></i>Faire une demande
           <% end %>
         <% end %>
-        
+
         <%= link_to documents_path, class: "btn btn-outline-info" do %>
           <i class="bi bi-files me-2"></i>Mes documents
         <% end %>
-        
+
         <%= link_to projects_path, class: "btn btn-outline-primary" do %>
           <i class="bi bi-kanban me-2"></i>Mes projets
         <% end %>
       </div>
-      
+
       <% unless @actions_available[:can_request] %>
         <div class="alert alert-warning mt-3 mb-0">
           <i class="bi bi-exclamation-triangle me-2"></i>
-          <strong>Pour débloquer les demandes de primes :</strong> 
+          <strong>Pour débloquer les demandes de primes :</strong>
           Complétez au minimum 80% des informations requises (actuellement <%= @completion_stats[:overall] %>%).
         </div>
       <% end %>

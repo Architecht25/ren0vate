@@ -76,7 +76,7 @@ projects_data = [
 projects_data.each_with_index do |project_data, index|
   property = properties[index]
   next unless property
-  
+
   project = Project.find_or_create_by(
     nom: project_data[:nom],
     property: property
@@ -93,7 +93,7 @@ projects = Project.joins(:property).where(property: { user_id: user.id }).limit(
 projects.each_with_index do |project, index|
   simulation = user.simulations.where(property: project.property).first
   next unless simulation
-  
+
   request = user.requests.find_or_create_by(
     property: project.property,
     project: project,

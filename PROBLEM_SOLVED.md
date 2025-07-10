@@ -9,7 +9,7 @@
 **Utilisateur** : test@example.com / password123
 **Propriétés créées** :
 - Maison Bruxelles (ID: 3, Complétude: 100%)
-- Appartement Liège (ID: 4, Complétude: 100%)  
+- Appartement Liège (ID: 4, Complétude: 100%)
 - Maison Gand (ID: 5, Complétude: 100%)
 
 ## ✅ URLs fonctionnelles

@@ -21,7 +21,7 @@ if user
   user.properties.each do |property|
     puts "- ID: #{property.id}, Nom: #{property.name}, Adresse: #{property.full_address}"
   end
-  
+
   puts "\n=== URLs valides ==="
   user.properties.each do |property|
     puts "- Vue détaillée: http://localhost:3000/properties/#{property.id}"

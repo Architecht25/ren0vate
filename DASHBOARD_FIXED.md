@@ -12,7 +12,7 @@
 # app/models/notification.rb
 scope :recent, -> { order(created_at: :desc) }
 
-# app/models/request.rb  
+# app/models/request.rb
 scope :recent, -> { order(created_at: :desc) }
 
 # app/models/simulation.rb

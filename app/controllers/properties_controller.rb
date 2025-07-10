@@ -14,11 +14,11 @@ class PropertiesController < ApplicationController
       primes: @property.primes_completion_percentage,
       overall: @property.completion_percentage
     }
-    
+
     # Requests et simulations liées à ce bien
     @recent_requests = @property.requests.recent.limit(3) if @property.respond_to?(:requests)
     @recent_simulations = @property.simulations.recent.limit(3) if @property.respond_to?(:simulations)
-    
+
     # Actions disponibles
     @actions_available = {
       can_request: @property.ready_for_request?,
@@ -64,17 +64,17 @@ class PropertiesController < ApplicationController
       primes: @property.primes_completion_percentage,
       overall: @property.completion_percentage
     }
-    
+
     # Requests et simulations liées à ce bien
     @recent_requests = @property.requests.recent.limit(3) if @property.respond_to?(:requests)
     @recent_simulations = @property.simulations.recent.limit(3) if @property.respond_to?(:simulations)
-    
+
     # Actions disponibles
     @actions_available = {
       can_request: @property.ready_for_request?,
       missing_fields: @property.missing_required_fields
     }
-    
+
     # Notifications liées à ce bien
     @property_notifications = current_user.notifications.where(property: @property).recent.limit(5) if current_user.respond_to?(:notifications)
   end

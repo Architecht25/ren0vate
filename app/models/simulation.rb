@@ -8,7 +8,7 @@ class Simulation < ApplicationRecord
   has_one :request
 
   validates :region, :titre, :source, presence: true
-  
+
   # Scope pour récupérer les simulations récentes
   scope :recent, -> { order(created_at: :desc) }
 end

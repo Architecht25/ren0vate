@@ -7,7 +7,7 @@ class DashboardController < ApplicationController
     @total_requests = current_user.requests.count
     @active_requests = current_user.requests.where(status: ['pending', 'in_progress']).count
     @recent_notifications = current_user.notifications.recent.limit(3) if current_user.respond_to?(:notifications)
-    
+
     # Calculs pour les statistiques
     @completion_stats = calculate_completion_stats
   end

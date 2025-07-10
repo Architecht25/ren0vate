@@ -60,7 +60,7 @@ if user.properties.empty?
 
   puts "Propriétés créées:"
   puts "- #{property1.name} (ID: #{property1.id})"
-  puts "- #{property2.name} (ID: #{property2.id})"  
+  puts "- #{property2.name} (ID: #{property2.id})"
   puts "- #{property3.name} (ID: #{property3.id})"
 else
   puts "Propriétés existantes:"

@@ -44,7 +44,7 @@
   - `missing_required_fields` : Retourne les champs manquants
 
 ## Base de données
-- Migration réalisée pour ajouter le champ `audit_energetique` 
+- Migration réalisée pour ajouter le champ `audit_energetique`
 - Champ ajouté aux paramètres autorisés du contrôleur
 
 ## Statut final

@@ -1,6 +1,6 @@
 class Property < ApplicationRecord
   self.inheritance_column = nil  # Désactiver l'héritage STI pour la colonne 'type'
-  
+
   belongs_to :user
   has_many :simulations
   has_many :projects
