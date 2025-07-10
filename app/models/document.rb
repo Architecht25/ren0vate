@@ -25,9 +25,8 @@ class Document < ApplicationRecord
     certificat_protection: 'certificat_protection'
   }
 
-  enum :status, { pending: 0, approved: 1, rejected: 2 }
-  enum :stage, { before: 0, during: 1, after: 2 }
-  enum :priority, { optional: 0, recommended: 1, required: 2 }
+  # Status est une colonne string dans la DB, pas un enum integer
+  enum :status, { pending: 'pending', approved: 'approved', rejected: 'rejected' }
 
   scope :for_property, ->(property) { where(property: property) }
   scope :by_type, ->(type) { where(type_document: type) }
