@@ -22,7 +22,7 @@
               <% @notifications.each do |notification| %>
                 <%= link_to notification_path(notification), class: "list-group-item list-group-item-action border-start-0 border-end-0 py-3 px-4 d-flex align-items-center" do %>
                   <% notification_type = notification.type.to_s.downcase rescue "info" %>
-                  <% 
+                  <%
                     icon_class = case notification_type
                       when "success" then "bi-check-circle-fill text-success"
                       when "warning" then "bi-exclamation-triangle-fill text-warning"
@@ -37,7 +37,7 @@
                     <div class="d-flex w-100 justify-content-between">
                       <h5 class="mb-1 fw-normal"><%= notification.title %></h5>
                       <small class="text-muted-custom">
-                        <%= time_ago_in_words(notification.created_at) rescue "récemment" %> 
+                        <%= time_ago_in_words(notification.created_at) rescue "récemment" %>
                       </small>
                     </div>
                     <p class="mb-1 text-muted-custom small">
@@ -56,14 +56,14 @@
             </div>
           </div>
         </div>
-        
+
         <% if @notifications.respond_to?(:total_pages) %>
           <div class="d-flex justify-content-center">
             <%= paginate @notifications %>
           </div>
         <% end %>
       </div>
-      
+
       <div class="col-lg-4">
         <div class="card border-0 shadow-sm mb-4">
           <div class="card-body p-4">
@@ -73,7 +73,7 @@
             <p class="text-muted-custom small mb-0">Vous recevez des notifications concernant vos biens, chantiers, simulations et demandes de prime. Consultez-les régulièrement pour rester informé de l'avancement de vos projets.</p>
           </div>
         </div>
-        
+
         <div class="card border-0 shadow-sm mb-4">
           <div class="card-body p-4">
             <h5 class="card-title text-primary-custom mb-3">

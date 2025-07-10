@@ -21,34 +21,34 @@
           <h5 class="card-title text-primary-custom mb-4">
             <i class="bi bi-info-circle me-2"></i>Informations du chantier
           </h5>
-          
+
           <%= form_with model: @project, local: true do |form| %>
             <div class="mb-3">
               <%= form.label :nom, "Nom du chantier*", class: "form-label" %>
               <%= form.text_field :nom, class: "form-control", placeholder: "Ex: Rénovation complète appartement" %>
             </div>
-            
+
             <div class="mb-3">
               <%= form.label :description, "Description", class: "form-label" %>
               <%= form.text_area :description, rows: 4, class: "form-control", placeholder: "Décrivez le chantier et les travaux à réaliser..." %>
             </div>
-            
+
             <div class="mb-3">
               <%= form.label :deadline, "Date limite prévue", class: "form-label" %>
               <%= form.date_field :deadline, class: "form-control" %>
             </div>
-            
+
             <% if defined?(Property) && Property.any? %>
               <div class="mb-3">
                 <%= form.label :property_id, "Bien immobilier associé", class: "form-label" %>
                 <%= form.collection_select :property_id, Property.all, :id, :name, { include_blank: "-- Sélectionner un bien --" }, class: "form-select" %>
               </div>
             <% end %>
-            
+
             <% if defined?(User) && @project.respond_to?(:user_id) && !current_user.nil? %>
               <%= form.hidden_field :user_id, value: current_user.id %>
             <% end %>
-            
+
             <div class="d-flex justify-content-end mt-4">
               <%= link_to "Annuler", projects_path, class: "btn btn-outline-secondary me-2" %>
               <%= form.submit "Créer le chantier", class: "btn btn-primary-custom" %>
@@ -57,7 +57,7 @@
         </div>
       </div>
     </div>
-    
+
     <div class="col-lg-4">
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-4">
@@ -68,7 +68,7 @@
           <p class="text-muted-custom small mb-0">Associez votre chantier à un bien immobilier pour faciliter la gestion de vos projets et simuler les primes disponibles.</p>
         </div>
       </div>
-      
+
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-4">
           <h5 class="card-title text-primary-custom mb-3">
