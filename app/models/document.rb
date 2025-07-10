@@ -39,7 +39,7 @@ class Document < ApplicationRecord
   end
 
   def self.completion_stats_for_property(property)
-    total_types = type_document.values.count
+    total_types = type_documents.values.count
     completed_types = for_property(property).completed.distinct.count(:type_document)
     {
       total: total_types,
