@@ -34,6 +34,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     post 'save_localstorage', to: 'localstorage#save'
+    post 'send_results_email', to: 'localstorage#send_results_email'
   end
 
   get '/flandre', to: 'pages#flandre', as: :flandre
