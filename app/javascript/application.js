@@ -1,5 +1,6 @@
 import "@hotwired/turbo-rails"
 import "bootstrap"
+import "sweetalert2"
 
 import { Application } from "@hotwired/stimulus"
 
@@ -18,7 +19,7 @@ import PrimeCardController from "controllers/prime_card_controller"
 import PrimeCalculController from "controllers/prime_calcul_controller"
 
 application.register("localstorage-monitor", LocalstorageMonitorController)
-application.register("user-type", UserTypeController)
+application.register("user_type", UserTypeController)
 application.register("test-eligibilite", TestEligibiliteController)
 application.register("categorie-estimation", CategorieEstimationController)
 application.register("prime-card", PrimeCardController)
