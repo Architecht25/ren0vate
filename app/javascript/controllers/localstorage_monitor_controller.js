@@ -5,15 +5,21 @@ export default class extends Controller {
   static targets = ["output"];
 
   connect() {
+    console.log('🔗 LocalstorageMonitor controller connecté !');
+    console.log('📊 Élément trouvé:', this.element);
+    console.log('📊 Target output:', this.hasOutputTarget ? 'Trouvé' : 'Non trouvé');
     this.displayLocalStorageData();
   }
 
   displayLocalStorageData() {
+    console.log('📋 Début de displayLocalStorageData');
     const order = ["region", "user-type", "eligibiliteRenovate", "categorie_estimee", "statut_familial", "personnes_charge", "revenu_net", "categorie_badge","total_primes", "details_primes"];
     const localStorageData = order.map(key => {
       const value = localStorage.getItem(key);
       return value ? { key, value } : null;
     }).filter(data => data !== null);
+
+    console.log('📊 Données localStorage trouvées:', localStorageData);
 
     this.outputTarget.innerHTML = `
       <h2>Données du localStorage</h2>
