@@ -14,7 +14,6 @@ import LocalstorageMonitorController from "controllers/localstorage_monitor_cont
 import UserTypeController from "controllers/user_type_controller"
 import TestEligibiliteController from "controllers/test_eligibilite_controller"
 import CategorieEstimationController from "controllers/categorie_estimation_controller"
-import CategorieCalculController from "controllers/categorie_calcul_controller"
 import PrimeCardController from "controllers/prime_card_controller"
 import PrimeCalculController from "controllers/prime_calcul_controller"
 import RegionDisplayController from "controllers/region_display_controller"
@@ -24,7 +23,6 @@ application.register("localstorage-monitor", LocalstorageMonitorController)
 application.register("user-type", UserTypeController)
 application.register("test-eligibilite", TestEligibiliteController)
 application.register("categorie-estimation", CategorieEstimationController)
-application.register("categorie-calcul", CategorieCalculController)
 application.register("prime-card", PrimeCardController)
 application.register("prime-calcul", PrimeCalculController)
 application.register("region-display", RegionDisplayController)
