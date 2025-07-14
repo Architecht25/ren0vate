@@ -1,9 +1,177 @@
 class Property < ApplicationRecord
+  self.inheritance_column = nil  # Désactiver l'héritage STI pour la colonne 'type'
+
   belongs_to :user
   has_many :simulations
   has_many :projects
   has_many :requests
   has_many :documents
 
-  validates :address, :type_bien, presence: true
+  # Validations pour les champs obligatoires
+  validates :rue, :numero, :code_postal, :commune, :region, presence: true
+  validates :type, :occupation, presence: true
+  validates :annee_construction, :date_raccordement_electrique, :numero_ean, presence: true
+
+  # Validations pour les champs radio
+  validates :autre_bien, inclusion: { in: %w[oui non] }, allow_blank: true
+  validates :peb, inclusion: { in: %w[ef autre] }, allow_blank: true
+
+  # Méthode pour l'adresse complète
+  def full_address
+    "#{numero} #{rue}, #{code_postal} #{commune}"
+  end
+
+  # Méthode pour compatibilité avec les vues existantes
+  def address
+    full_address
+  end
+
+  def location
+    full_address
+  end
+
+  # Méthodes pour les dashboards et le suivi de complétude
+  def completion_percentage
+    # Calcul de complétude incluant les documents
+    admin_weight = 0.3
+    chantier_weight = 0.3
+    primes_weight = 0.2
+    documents_weight = 0.2
+
+    overall = (admin_completion_percentage * admin_weight +
+               chantier_completion_percentage * chantier_weight +
+               primes_completion_percentage * primes_weight +
+               documents_completion_percentage * documents_weight)
+
+    overall.round
+  end
+
+  def admin_completion_percentage
+    admin_fields = [:rue, :numero, :code_postal, :commune, :type, :region]
+    total = admin_fields.count
+    completed = admin_fields.count { |field| self[field].present? }
+    return 0 if total.zero?
+    (completed.to_f / total * 100).round
+  end
+
+  def chantier_completion_percentage
+    chantier_fields = [:annee_construction, :date_raccordement_electrique, :numero_ean, :autre_bien, :peb]
+    total = chantier_fields.count
+    completed = chantier_fields.count { |field| self[field].present? }
+    return 0 if total.zero?
+    (completed.to_f / total * 100).round
+  end
+
+  def primes_completion_percentage
+    # Pour l'instant, on se base sur la présence d'au moins une simulation
+    simulations.any? ? 100 : 0
+  end
+
+  def ready_for_request?
+    completion_percentage >= 80
+  end
+
+  def completion_status
+    percentage = completion_percentage
+    case percentage
+    when 0...30 then 'danger'
+    when 30...70 then 'warning'
+    when 70...90 then 'info'
+    else 'success'
+    end
+  end
+
+  def admin_completion_class
+    case admin_completion_percentage
+    when 0...50 then 'bg-danger'
+    when 50...80 then 'bg-warning'
+    else 'bg-success'
+    end
+  end
+
+  def chantier_completion_class
+    case chantier_completion_percentage
+    when 0...50 then 'bg-danger'
+    when 50...80 then 'bg-warning'
+    else 'bg-success'
+    end
+  end
+
+  def primes_completion_class
+    primes_completion_percentage > 0 ? 'bg-success' : 'bg-secondary'
+  end
+
+  def name
+    # Génère un nom basé sur le type et la localisation
+    "#{type&.capitalize || 'Bien'} #{commune || 'Sans adresse'}"
+  end
+
+  def missing_required_fields
+    required_fields.select { |field| self[field].blank? }
+  end
+
+  # Méthodes pour les documents
+  def documents_completion_percentage
+    stats = Document.completion_stats_for_property(self)
+    stats[:percentage]
+  end
+
+  def documents_completion_class
+    case documents_completion_percentage
+    when 0...50 then 'bg-danger'
+    when 50...80 then 'bg-warning'
+    else 'bg-success'
+    end
+  end
+
+  def completed_documents_count
+    stats = Document.completion_stats_for_property(self)
+    stats[:completed]
+  end
+
+  def total_required_documents
+    stats = Document.completion_stats_for_property(self)
+    stats[:total]
+  end
+
+  def documents_by_type
+    documents.group_by(&:type_document)
+  end
+
+  # Méthodes pour le formulaire miroir
+  def ready_for_submission?
+    admin_completion_percentage >= 80 &&
+    chantier_completion_percentage >= 60 &&
+    documents_completion_percentage >= 80
+  end
+
+  def missing_for_submission
+    missing = []
+    missing << "Informations administratives incomplètes" if admin_completion_percentage < 80
+    missing << "Informations chantier incomplètes" if chantier_completion_percentage < 60
+    missing << "Documents manquants" if documents_completion_percentage < 80
+    missing
+  end
+
+  def has_travaux?(type)
+    # À adapter selon votre logique de travaux
+    # Pour l'instant, retourne false - à implémenter avec vos données
+    false
+  end
+
+  def submission_readiness_class
+    if ready_for_submission?
+      'bg-success'
+    elsif completion_percentage >= 50
+      'bg-warning'
+    else
+      'bg-danger'
+    end
+  end
+
+  private
+
+  def required_fields
+    [:rue, :numero, :code_postal, :commune, :type, :region, :annee_construction, :date_raccordement_electrique, :numero_ean]
+  end
 end

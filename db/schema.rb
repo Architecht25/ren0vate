@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_07_132132) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_10_171841) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -86,6 +86,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_07_132132) do
     t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
+  create_table "prime_submissions", force: :cascade do |t|
+    t.bigint "property_id", null: false
+    t.bigint "user_id", null: false
+    t.string "dossier_number"
+    t.integer "region"
+    t.integer "status"
+    t.text "form_data"
+    t.string "admin_reference"
+    t.string "admin_status"
+    t.text "admin_response_data"
+    t.datetime "submitted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["property_id"], name: "index_prime_submissions_on_property_id"
+    t.index ["user_id"], name: "index_prime_submissions_on_user_id"
+  end
+
   create_table "primes", force: :cascade do |t|
     t.string "slug"
     t.string "titre"
@@ -131,6 +148,23 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_07_132132) do
     t.string "adresse"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "rue"
+    t.string "numero"
+    t.string "code_postal"
+    t.string "commune"
+    t.string "region"
+    t.string "type_propriete"
+    t.string "type"
+    t.string "occupation"
+    t.string "autre_bien"
+    t.string "peb"
+    t.integer "annee_construction"
+    t.integer "date_raccordement_electrique"
+    t.string "numero_ean"
+    t.string "numero_cadastre"
+    t.boolean "audit_energetique"
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_properties_on_user_id"
   end
 
   create_table "referrals", force: :cascade do |t|
@@ -238,8 +272,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_07_132132) do
   add_foreign_key "documents", "simulations"
   add_foreign_key "documents", "users"
   add_foreign_key "notifications", "users"
+  add_foreign_key "prime_submissions", "properties"
+  add_foreign_key "prime_submissions", "users"
   add_foreign_key "primes", "categories"
   add_foreign_key "projects", "properties"
+  add_foreign_key "properties", "users"
   add_foreign_key "referrals", "users"
   add_foreign_key "request_progresses", "primes"
   add_foreign_key "request_progresses", "requests"

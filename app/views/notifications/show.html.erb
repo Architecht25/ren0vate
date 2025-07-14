@@ -1,4 +1,134 @@
-<h1><%= @notification.title %></h1>
-<p><%= @notification.content %></p>
-<%= link_to 'Edit', edit_notification_path(@notification) %>
-<%= link_to 'Back', notifications_path %>
+<div class="container-fluid px-4 py-4">
+  <!-- Header avec actions -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-bell"></i>
+      </div>
+      <h1 class="h3 text-primary-custom mb-0 fw-normal">Détail de la notification</h1>
+    </div>
+    <div>
+      <%= link_to edit_notification_path(@notification), class: "btn btn-outline-primary-custom me-2" do %>
+        <i class="bi bi-pencil me-2"></i>Modifier
+      <% end %>
+      <%= link_to notifications_path, class: "btn btn-outline-secondary" do %>
+        <i class="bi bi-arrow-left me-2"></i>Retour
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <% notification_type = @notification.type.to_s.downcase rescue "info" %>
+          <%
+            icon_class = case notification_type
+              when "success" then "bi-check-circle-fill text-success"
+              when "warning" then "bi-exclamation-triangle-fill text-warning"
+              when "danger", "error" then "bi-x-circle-fill text-danger"
+              else "bi-info-circle-fill text-primary-custom"
+            end
+          %>
+
+          <div class="d-flex align-items-center mb-4">
+            <div class="me-3 fs-3">
+              <i class="bi <%= icon_class %>"></i>
+            </div>
+            <div>
+              <h4 class="mb-0 fw-normal"><%= @notification.title %></h4>
+              <p class="text-muted-custom small mb-0">
+                <i class="bi bi-clock me-1"></i>
+                <%= l(@notification.created_at, format: :long) rescue @notification.created_at.to_s %>
+              </p>
+            </div>
+          </div>
+
+          <div class="notification-content py-3">
+            <% if @notification.respond_to?(:message) && @notification.message.present? %>
+              <p><%= simple_format(@notification.message) %></p>
+            <% elsif @notification.respond_to?(:content) && @notification.content.present? %>
+              <p><%= simple_format(@notification.content) %></p>
+            <% end %>
+          </div>
+
+          <% if @notification.respond_to?(:link) && @notification.link.present? %>
+            <div class="mt-4">
+              <%= link_to @notification.link, class: "btn btn-primary-custom" do %>
+                <i class="bi bi-link-45deg me-2"></i>Voir les détails
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h5 class="card-title text-primary-custom mb-3">
+            <i class="bi bi-info-circle me-2"></i>Informations
+          </h5>
+
+          <div class="mb-3">
+            <label class="form-label text-muted-custom small">Statut</label>
+            <p class="mb-0">
+              <% if @notification.read_at.present? %>
+                <span class="badge bg-success rounded-pill px-3 py-2">Lu</span>
+              <% else %>
+                <span class="badge bg-primary-custom rounded-pill px-3 py-2">Non lu</span>
+              <% end %>
+            </p>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-muted-custom small">Date</label>
+            <p class="mb-0">
+              <%= l(@notification.created_at, format: :long) rescue @notification.created_at.to_s %>
+            </p>
+          </div>
+
+          <% if @notification.respond_to?(:category) && @notification.category.present? %>
+            <div class="mb-3">
+              <label class="form-label text-muted-custom small">Catégorie</label>
+              <p class="mb-0"><%= @notification.category %></p>
+            </div>
+          <% end %>
+
+          <% if @notification.user.present? %>
+            <div class="mb-3">
+              <label class="form-label text-muted-custom small">Destinataire</label>
+              <p class="mb-0"><%= @notification.user.email %></p>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h5 class="card-title text-primary-custom mb-3">
+            <i class="bi bi-bell me-2"></i>Actions
+          </h5>
+
+          <div class="d-grid gap-2">
+            <% unless @notification.read_at.present? %>
+              <%= link_to "#", class: "btn btn-outline-primary-custom" do %>
+                <i class="bi bi-check-all me-2"></i>Marquer comme lu
+              <% end %>
+            <% end %>
+
+            <%= link_to notification_path(@notification),
+                  method: :delete,
+                  data: { confirm: "Êtes-vous sûr de vouloir supprimer cette notification ?" },
+                  class: "btn btn-outline-danger" do %>
+              <i class="bi bi-trash me-2"></i>Supprimer
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Utilise le fichier CSS externe properties.css -->
+<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>

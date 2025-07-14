@@ -1,0 +1,241 @@
+<% content_for :title, "Documents - #{@property.name}" %>
+
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h1 class="h3 mb-1">
+            <i class="bi bi-folder-fill text-primary me-2"></i>
+            Documents - <%= @property.name %>
+          </h1>
+          <p class="text-muted mb-0">Gestion des documents pour votre demande de prime</p>
+        </div>
+        <%= link_to property_dashboard_path(@property), class: "btn btn-outline-secondary" do %>
+          <i class="bi bi-arrow-left me-2"></i>Retour au dashboard
+        <% end %>
+      </div>
+
+      <!-- Stats globales -->
+      <div class="row mb-4">
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                  <div class="bg-primary rounded-circle p-3">
+                    <i class="bi bi-file-earmark-check text-white"></i>
+                  </div>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <div class="fw-semibold">Documents complétés</div>
+                  <div class="h5 mb-0">
+                    <%= @document_stats[:completed] %>/<%= @document_stats[:total] %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                  <div class="bg-success rounded-circle p-3">
+                    <i class="bi bi-percent text-white"></i>
+                  </div>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <div class="fw-semibold">Complétude</div>
+                  <div class="h5 mb-0"><%= @document_stats[:percentage] %>%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body">
+              <div class="d-flex align-items-center">
+                <div class="flex-shrink-0">
+                  <div class="bg-warning rounded-circle p-3">
+                    <i class="bi bi-clock text-white"></i>
+                  </div>
+                </div>
+                <div class="flex-grow-1 ms-3">
+                  <div class="fw-semibold">Statut</div>
+                  <div class="h6 mb-0">
+                    <% if @document_stats[:percentage] >= 80 %>
+                      <span class="badge bg-success">Prêt</span>
+                    <% elsif @document_stats[:percentage] >= 50 %>
+                      <span class="badge bg-warning">En cours</span>
+                    <% else %>
+                      <span class="badge bg-danger">À compléter</span>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress bar globale -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-semibold">Progression globale</span>
+            <span class="text-muted"><%= @document_stats[:percentage] %>%</span>
+          </div>
+          <div class="progress" style="height: 10px;">
+            <div class="progress-bar <%= @property.documents_completion_class %>"
+                 role="progressbar"
+                 style="width: <%= @document_stats[:percentage] %>%"
+                 aria-valuenow="<%= @document_stats[:percentage] %>"
+                 aria-valuemin="0"
+                 aria-valuemax="100">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zone des cartes documents -->
+      <div id="zone-cartes-documents" class="row g-4">
+        <% @document_types_config.each do |type_key, config| %>
+          <% documents_of_type = @documents_by_type[type_key] || [] %>
+          <% doc_count = documents_of_type.count %>
+          <% completed_count = documents_of_type.select(&:completed?).count %>
+          <% completion_percentage = doc_count > 0 ? (completed_count * 100.0 / doc_count).round : 0 %>
+
+          <div class="col-lg-4 col-md-6">
+            <div class="doc-card card h-100 border-0 shadow-sm position-relative
+                        <%= 'border-success' if completion_percentage >= 80 %>
+                        <%= 'border-warning' if completion_percentage >= 50 && completion_percentage < 80 %>
+                        <%= 'border-danger' if completion_percentage < 50 %>">
+
+              <!-- Badge de priorité -->
+              <div class="position-absolute top-0 start-0 m-2">
+                <% case config[:priority] %>
+                <% when 'required' %>
+                  <span class="badge bg-danger">🔴 Obligatoire</span>
+                <% when 'recommended' %>
+                  <span class="badge bg-warning">🟡 Recommandé</span>
+                <% else %>
+                  <span class="badge bg-secondary">⚪ Optionnel</span>
+                <% end %>
+              </div>
+
+              <!-- Badge de statut -->
+              <div class="position-absolute top-0 end-0 m-2">
+                <% if completion_percentage >= 80 %>
+                  <span class="badge bg-success">✅ Complet</span>
+                <% elsif completion_percentage >= 50 %>
+                  <span class="badge bg-warning">⚠️ En cours</span>
+                <% elsif doc_count > 0 %>
+                  <span class="badge bg-info">📋 Partiel</span>
+                <% else %>
+                  <span class="badge bg-danger">❌ Manquant</span>
+                <% end %>
+              </div>
+
+              <div class="card-body d-flex flex-column">
+                <!-- Image (optionnelle) -->
+                <% if config[:image] %>
+                  <div class="text-center mb-3">
+                    <i class="bi bi-file-earmark-text display-4 text-muted"></i>
+                  </div>
+                <% end %>
+
+                <!-- Titre -->
+                <h5 class="card-title mb-3"><%= config[:title] %></h5>
+
+                <!-- Conditions -->
+                <ul class="list-unstyled small mb-3 text-muted">
+                  <% config[:conditions].each do |condition| %>
+                    <li><strong>•</strong> <%= condition %></li>
+                  <% end %>
+                </ul>
+
+                <!-- Statistiques -->
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <small class="text-muted">Documents</small>
+                    <small class="fw-semibold"><%= doc_count %></small>
+                  </div>
+                  <% if doc_count > 0 %>
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <small class="text-muted">Complétés</small>
+                      <small class="fw-semibold"><%= completed_count %></small>
+                    </div>
+                    <div class="progress mb-2" style="height: 6px;">
+                      <div class="progress-bar
+                                  <%= 'bg-success' if completion_percentage >= 80 %>
+                                  <%= 'bg-warning' if completion_percentage >= 50 && completion_percentage < 80 %>
+                                  <%= 'bg-danger' if completion_percentage < 50 %>"
+                           role="progressbar"
+                           style="width: <%= completion_percentage %>%">
+                      </div>
+                    </div>
+                    <small class="text-muted"><%= completion_percentage %>% complété</small>
+                  <% end %>
+                </div>
+
+                <!-- Actions -->
+                <div class="d-flex flex-column flex-sm-row gap-2 mt-auto">
+                  <% if doc_count > 0 %>
+                    <%= link_to documents_path(type_document: type_key, property_id: @property.id),
+                               class: "btn btn-outline-secondary btn-sm" do %>
+                      <i class="bi bi-folder2-open me-1"></i>Voir (<%= doc_count %>)
+                    <% end %>
+                  <% end %>
+                  <%= link_to new_document_path(type_document: type_key, property_id: @property.id),
+                             class: "btn btn-primary btn-sm" do %>
+                    <i class="bi bi-plus-circle me-1"></i>Ajouter
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.doc-card {
+  transition: all 0.3s ease;
+}
+
+.doc-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+}
+
+.doc-card.border-success {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.doc-card.border-warning {
+  background: linear-gradient(135deg, #fffbf0 0%, #feebcd 100%);
+}
+
+.doc-card.border-danger {
+  background: linear-gradient(135deg, #fff5f5 0%, #fed7d7 100%);
+}
+
+.badge {
+  font-size: 0.7rem;
+}
+
+.progress {
+  border-radius: 10px;
+  background-color: #f8f9fa;
+}
+
+.progress-bar {
+  border-radius: 10px;
+}
+</style>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nouveau Bien Immobilier - Démonstration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <style>
+        /* Styles personnalisés pour les pages properties */
+        :root {
+          --primary-custom: #2c5282;
+          --light-custom: #f8fafc;
+          --muted-custom: #718096;
+          --border-custom: #e2e8f0;
+        }
+
+        /* Couleurs personnalisées */
+        .text-primary-custom { color: var(--primary-custom) !important; }
+        .text-muted-custom { color: var(--muted-custom) !important; }
+        .bg-light-custom { background-color: var(--light-custom) !important; }
+
+        /* Boutons personnalisés */
+        .btn-primary-custom {
+          background-color: var(--primary-custom);
+          border-color: var(--primary-custom);
+          color: white;
+          border-radius: 6px;
+          font-weight: 500;
+          transition: all 0.2s ease;
+        }
+
+        .btn-primary-custom:hover {
+          background-color: #2a4e7c;
+          border-color: #2a4e7c;
+          color: white;
+          transform: translateY(-1px);
+        }
+
+        .btn-outline-primary-custom {
+          background-color: transparent;
+          border-color: var(--primary-custom);
+          color: var(--primary-custom);
+          border-radius: 6px;
+          font-weight: 500;
+          transition: all 0.2s ease;
+        }
+
+        .btn-outline-primary-custom:hover {
+          background-color: var(--primary-custom);
+          border-color: var(--primary-custom);
+          color: white;
+          transform: translateY(-1px);
+        }
+
+        /* Cards et composants */
+        .card {
+          border-radius: 8px;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Icônes */
+        .icon-circle {
+          width: 40px;
+          height: 40px;
+          background-color: var(--primary-custom);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-size: 18px;
+          flex-shrink: 0;
+        }
+
+        /* Formulaires */
+        .form-section {
+          border-radius: 8px;
+          padding: 1.5rem;
+          background-color: white;
+          margin-bottom: 1rem;
+          border: 1px solid var(--border-custom);
+        }
+
+        .form-control-custom {
+          border: 1px solid var(--border-custom);
+          border-radius: 6px;
+          padding: 0.75rem;
+          transition: border-color 0.2s ease;
+        }
+
+        .form-control-custom:focus {
+          border-color: var(--primary-custom);
+          box-shadow: 0 0 0 0.2rem rgba(44, 82, 130, 0.25);
+        }
+
+        .question-group {
+          background-color: var(--light-custom);
+          border-radius: 6px;
+          padding: 1rem;
+          border: 1px solid var(--border-custom);
+        }
+
+        body {
+          background-color: #f8fafc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid px-4 py-4">
+        <!-- Header épuré -->
+        <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+            <div class="d-flex align-items-center">
+                <div class="icon-circle me-3">
+                    <i class="bi bi-house-door"></i>
+                </div>
+                <h1 class="h3 text-primary-custom mb-0 fw-normal">Nouveau Bien Immobilier</h1>
+            </div>
+            <a href="#" class="btn btn-outline-primary-custom px-4">
+                <i class="bi bi-arrow-left me-2"></i>
+                Retour à la liste
+            </a>
+        </div>
+
+        <!-- Formulaire dans une card épurée -->
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card border-0 bg-light-custom">
+                    <div class="card-body p-4">
+                        <form>
+                            <!-- Section Adresse -->
+                            <div class="form-section mb-4">
+                                <h5 class="text-primary-custom mb-3 fw-normal">
+                                    <i class="bi bi-geo-alt me-2"></i>
+                                    Adresse du bien
+                                </h5>
+
+                                <div class="mb-3">
+                                    <label for="rue" class="form-label">Rue*</label>
+                                    <input type="text" class="form-control form-control-custom" id="rue" placeholder="ex. Rue de l'Énergie">
+                                </div>
+
+                                <div class="row g-3">
+                                    <div class="col-md-3">
+                                        <label for="numero" class="form-label">Numéro*</label>
+                                        <input type="text" class="form-control form-control-custom" id="numero" placeholder="ex. 24">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="code_postal" class="form-label">Code postal*</label>
+                                        <input type="text" class="form-control form-control-custom" id="code_postal" placeholder="ex. 1190">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="commune" class="form-label">Commune*</label>
+                                        <input type="text" class="form-control form-control-custom" id="commune" placeholder="ex. Forest">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="region" class="form-label">Région*</label>
+                                        <input type="text" class="form-control form-control-custom" id="region" placeholder="Flandre">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section Type de bien -->
+                            <div class="form-section mb-4">
+                                <h5 class="text-primary-custom mb-3 fw-normal">
+                                    <i class="bi bi-building me-2"></i>
+                                    Type de bien
+                                </h5>
+
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label for="type_propriete" class="form-label">Type de propriété</label>
+                                        <select class="form-select form-control-custom" id="type_propriete">
+                                            <option selected>-- Sélectionnez --</option>
+                                            <option value="propriétaire complet">Propriétaire à 100%</option>
+                                            <option value="copropriétaire">Copropriétaire avec mon conjoint</option>
+                                            <option value="nu-propriétaire">Nu propriétaire</option>
+                                            <option value="usufruitier">Usufruitier</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="type" class="form-label">Type de bien*</label>
+                                        <select class="form-select form-control-custom" id="type">
+                                            <option selected>-- Sélectionnez --</option>
+                                            <option value="maison">Maison unifamiliale</option>
+                                            <option value="appartement">Appartement</option>
+                                            <option value="immeuble de rapport">Immeuble avec plusieurs unités</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label for="occupation" class="form-label">Occupation*</label>
+                                        <select class="form-select form-control-custom" id="occupation">
+                                            <option selected>-- Sélectionnez --</option>
+                                            <option value="résidence principale">Résidence principale</option>
+                                            <option value="location">Bien en location</option>
+                                            <option value="autre">Autre</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Section Informations complémentaires -->
+                            <div class="form-section mb-4">
+                                <h5 class="text-primary-custom mb-3 fw-normal">
+                                    <i class="bi bi-info-circle me-2"></i>
+                                    Informations complémentaires
+                                </h5>
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label for="annee_construction" class="form-label">Année de construction*</label>
+                                        <input type="number" class="form-control form-control-custom" id="annee_construction" placeholder="1930">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="date_raccordement" class="form-label">Date de raccordement électrique (RF)*</label>
+                                        <input type="number" class="form-control form-control-custom" id="date_raccordement" placeholder="Attention: avant le 1er janvier 2006">
+                                    </div>
+                                </div>
+
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label for="numero_ean" class="form-label">Numéro EAN*</label>
+                                        <input type="text" class="form-control form-control-custom" id="numero_ean" placeholder="5412345678901">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label for="numero_cadastre" class="form-label">Numéro de parcelle cadastrale (optionnel)</label>
+                                        <input type="text" class="form-control form-control-custom" id="numero_cadastre" placeholder="136E">
+                                    </div>
+                                </div>
+
+                                <!-- Questions radio -->
+                                <div class="question-group mb-3">
+                                    <p class="text-muted-custom mb-2 fw-medium">Possédez-vous un autre bien/appartement/terrain en pleine propriété ?</p>
+                                    <div class="d-flex gap-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="autre_bien" id="autre_bien_oui" value="oui">
+                                            <label class="form-check-label" for="autre_bien_oui">Oui</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="autre_bien" id="autre_bien_non" value="non">
+                                            <label class="form-check-label" for="autre_bien_non">Non</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="question-group mb-3">
+                                    <p class="text-muted-custom mb-2 fw-medium">Le certificat PEB indique-t-il un label E ou F avant rénovation ?</p>
+                                    <div class="d-flex gap-4">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="peb" id="peb_oui" value="ef">
+                                            <label class="form-check-label" for="peb_oui">Oui</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="peb" id="peb_non" value="autre">
+                                            <label class="form-check-label" for="peb_non">Non</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Boutons d'action -->
+                            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                                <a href="#" class="btn btn-outline-primary-custom px-4">
+                                    <i class="bi bi-arrow-left me-2"></i>
+                                    Annuler
+                                </a>
+                                <button type="submit" class="btn btn-primary-custom px-4">
+                                    <i class="bi bi-check-lg me-2"></i>
+                                    Créer le bien
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

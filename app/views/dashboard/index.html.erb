@@ -1,0 +1,206 @@
+<div class="container-fluid px-4 py-4">
+  <!-- Header principal -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-house-door"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">
+          Bienvenue <%= current_user.first_name || current_user.email.split('@').first %>
+        </h1>
+        <small class="text-muted-custom">Tableau de bord - Vue d'ensemble de vos biens</small>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <%= link_to notifications_path, class: "btn btn-outline-primary-custom position-relative" do %>
+        <i class="bi bi-bell"></i>
+        <% if @recent_notifications&.any? %>
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            <%= @recent_notifications.count %>
+          </span>
+        <% end %>
+      <% end %>
+      <%= link_to new_property_path, class: "btn btn-primary-custom px-4" do %>
+        <i class="bi bi-plus-lg me-2"></i>Ajouter un bien
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Statistiques en un coup d'œil -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card border-0 bg-light-custom h-100">
+        <div class="card-body text-center p-4">
+          <div class="icon-circle-large mx-auto mb-3">
+            <i class="bi bi-house-door"></i>
+          </div>
+          <h3 class="text-primary-custom mb-1"><%= @total_properties %></h3>
+          <small class="text-muted-custom">Biens enregistrés</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 bg-light-custom h-100">
+        <div class="card-body text-center p-4">
+          <div class="icon-circle-large mx-auto mb-3">
+            <i class="bi bi-percent"></i>
+          </div>
+          <h3 class="text-primary-custom mb-1"><%= @completion_stats[:average] %>%</h3>
+          <small class="text-muted-custom">Complétude moyenne</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 bg-light-custom h-100">
+        <div class="card-body text-center p-4">
+          <div class="icon-circle-large mx-auto mb-3">
+            <i class="bi bi-file-earmark-text"></i>
+          </div>
+          <h3 class="text-primary-custom mb-1"><%= @active_requests %></h3>
+          <small class="text-muted-custom">Demandes en cours</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 bg-light-custom h-100">
+        <div class="card-body text-center p-4">
+          <div class="icon-circle-large mx-auto mb-3">
+            <i class="bi bi-check-circle"></i>
+          </div>
+          <h3 class="text-primary-custom mb-1"><%= @completion_stats[:completed] %></h3>
+          <small class="text-muted-custom">Biens prêts</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Liste des biens avec état de complétude -->
+  <% if @properties.any? %>
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-light-custom border-0 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-normal text-primary-custom">
+          <i class="bi bi-house-door me-2"></i>Mes biens récents
+        </h5>
+        <%= link_to properties_path, class: "btn btn-outline-primary-custom btn-sm" do %>
+          Voir tous →
+        <% end %>
+      </div>
+      <div class="card-body p-0">
+        <div class="list-group list-group-flush">
+          <% @properties.each do |property| %>
+            <%= link_to property_path(property), class: "list-group-item list-group-item-action border-0 py-3 px-4" do %>
+              <div class="d-flex align-items-center">
+                <div class="icon-circle me-3">
+                  <i class="bi bi-house-door"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="mb-0 fw-normal"><%= property.name %></h6>
+                    <small class="text-muted-custom">
+                      <i class="bi bi-geo-alt"></i>
+                      <%= property.commune %>
+                    </small>
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="flex-grow-1 me-3">
+                      <div class="progress" style="height: 6px;">
+                        <div class="progress-bar bg-<%= property.completion_status %>"
+                             style="width: <%= property.completion_percentage %>%"></div>
+                      </div>
+                    </div>
+                    <span class="badge bg-<%= property.completion_status %> rounded-pill">
+                      <%= property.completion_percentage %>%
+                    </span>
+                  </div>
+                  <small class="text-muted-custom">
+                    <%= property.ready_for_request? ? "✅ Prêt pour demande" : "⏳ En cours de complétude" %>
+                  </small>
+                </div>
+                <div class="ms-3">
+                  <i class="bi bi-chevron-right text-muted-custom"></i>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="card border-0 bg-light-custom">
+      <div class="card-body text-center p-4">
+        <h5 class="text-primary-custom mb-4 fw-normal">
+          <i class="bi bi-lightning me-2"></i>Actions rapides
+        </h5>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+          <%= link_to new_property_path, class: "btn btn-primary-custom px-4" do %>
+            <i class="bi bi-plus-lg me-2"></i>Ajouter un bien
+          <% end %>
+          <%= link_to simulations_path, class: "btn btn-outline-success px-4" do %>
+            <i class="bi bi-calculator me-2"></i>Calculer mes primes
+          <% end %>
+          <%= link_to requests_path, class: "btn btn-outline-info px-4" do %>
+            <i class="bi bi-file-earmark-text me-2"></i>Mes demandes
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+  <% else %>
+    <!-- État vide pour nouvel utilisateur -->
+    <div class="text-center py-5 mt-5">
+      <div class="icon-circle-large mx-auto mb-4">
+        <i class="bi bi-house-door"></i>
+      </div>
+      <h4 class="text-muted-custom mb-3 fw-normal">Aucun bien enregistré</h4>
+      <p class="text-muted-custom mb-4">Commencez par ajouter votre premier bien immobilier pour débloquer l'accès aux primes de rénovation</p>
+      <%= link_to new_property_path, class: "btn btn-primary-custom px-5 py-3" do %>
+        <i class="bi bi-plus-lg me-2"></i>Ajouter mon premier bien
+      <% end %>
+
+      <!-- Guide rapide pour nouveaux utilisateurs -->
+      <div class="row justify-content-center mt-5">
+        <div class="col-lg-8">
+          <div class="card border-0 bg-light-custom">
+            <div class="card-body p-4">
+              <h6 class="text-primary-custom mb-3">🚀 Pour bien commencer :</h6>
+              <div class="row g-3 text-start">
+                <div class="col-md-4">
+                  <div class="d-flex align-items-start">
+                    <span class="badge bg-primary-custom rounded-circle me-3 mt-1">1</span>
+                    <div>
+                      <strong>Ajoutez votre bien</strong>
+                      <br><small class="text-muted-custom">Renseignez l'adresse et les caractéristiques</small>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="d-flex align-items-start">
+                    <span class="badge bg-primary-custom rounded-circle me-3 mt-1">2</span>
+                    <div>
+                      <strong>Calculez vos primes</strong>
+                      <br><small class="text-muted-custom">Découvrez les aides disponibles</small>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="d-flex align-items-start">
+                    <span class="badge bg-primary-custom rounded-circle me-3 mt-1">3</span>
+                    <div>
+                      <strong>Faites votre demande</strong>
+                      <br><small class="text-muted-custom">Soumettez votre dossier complet</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<!-- Utilise le fichier CSS externe properties.css -->
+<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>

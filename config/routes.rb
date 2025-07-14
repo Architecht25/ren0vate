@@ -2,11 +2,21 @@ Rails.application.routes.draw do
   devise_for :users
   root "pages#home"
 
+  # Dashboard routes
+  get '/dashboard', to: 'dashboard#index', as: :dashboard
+
   resources :primes
   resources :categories
   resources :documents
   resources :notifications
-  resources :properties
+  resources :properties do
+    member do
+      get :dashboard  # Dashboard spécifique pour un bien
+      get :documents_dashboard  # Gestion des documents par bien
+      get :formulaire_miroir  # Formulaire miroir pré-rempli
+      post :submit_prime  # Soumission vers l'administration
+    end
+  end
   resources :projects
   resources :referrals
   resources :requests
@@ -24,6 +34,7 @@ Rails.application.routes.draw do
 
   namespace :api do
     post 'save_localstorage', to: 'localstorage#save'
+    post 'send_results_email', to: 'localstorage#send_results_email'
   end
 
   get '/flandre', to: 'pages#flandre', as: :flandre
@@ -31,4 +42,7 @@ Rails.application.routes.draw do
   get '/bruxelles', to: 'pages#bruxelles', as: :bruxelles
   get '/mentions-legales', to: 'pages#legal', as: :legal
   get '/politique-de-confidentialite', to: 'pages#privacy', as: :privacy
+
+  # Route de debug temporaire
+  get '/debug/properties', to: 'debug#properties' if Rails.env.development?
 end

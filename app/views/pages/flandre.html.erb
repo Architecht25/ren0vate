@@ -28,39 +28,87 @@
 </script>
 
 
-<div class="container-fluid my-5">
-
-  <div class="text-center mb-4">
-    <h1 class="display-4">Ren0vate</h1>
-    <p class="lead text-muted">Commençons par le début et testez votre éligibilité ✏️</p>
-  </div>
-
-  <div class="row">
-    <!-- COLONNE GAUCHE : Test d'éligibilité -->
-    <div class="col-lg-6 mb-4" style="background-color: #ffffff; border-right: 1px solid #dee2e6;">
-      <div class="pe-lg-3">
-
-      <!-- Affichage des profils -->
-      <div data-region-display-target="flandre" class="text-center" data-controller="user_type">
-        <div class="card shadow-sm mb-4">
-          <div class="card-body text-center">
-            <h4 class="mb-3">Flandre – Quel est votre profil ?</h4>
-              <div class="btn-group flex-wrap" role="group">
-                <button class="btn btn-outline-success m-1" data-action="click->user_type#select" data-user="prive">Particulier</button>
-                <button class="btn btn-outline-success m-1" data-action="click->user_type#select" data-user="entreprise">Entreprise</button>
-                <button class="btn btn-outline-success m-1" data-action="click->user_type#select" data-user="syndic">Syndic de Copropriété</button>
-                <button class="btn btn-outline-success m-1" data-action="click->user_type#select" data-user="bailleur">Bailleur social</button>
-                <button class="btn btn-outline-success m-1" data-action="click->user_type#select" data-user="asbl">ASBL / Coopérative</button>
+<div class="container-fluid py-4">
+  <!-- Header moderne et cohérent -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+              <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                <i class="bi bi-house-check text-primary fs-4"></i>
               </div>
+              <div>
+                <h1 class="h3 mb-1 text-primary">Flandre - Primes de Rénovation</h1>
+                <p class="text-muted mb-0">Testez votre éligibilité et découvrez vos primes</p>
+              </div>
+            </div>
+            <%= link_to root_path, class: "btn btn-outline-primary" do %>
+              <i class="bi bi-arrow-left me-2"></i>Retour à l'accueil
+            <% end %>
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- COLONNE GAUCHE : Test d'éligibilité -->
+    <div class="col-lg-6">
+      <div class="h-100">
+
+        <!-- Sélection du profil -->
+        <div data-region-display-target="flandre" data-controller="user_type" class="mb-4">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+              <h4 class="card-title mb-0">
+                <i class="bi bi-person-circle text-primary me-2"></i>
+                Quel est votre profil ?
+              </h4>
+            </div>
+            <div class="card-body">
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <button class="btn btn-outline-primary w-100" data-action="click->user_type#select" data-user="prive">
+                    <i class="bi bi-house me-2"></i>Particulier
+                  </button>
+                </div>
+                <div class="col-md-6">
+                  <button class="btn btn-outline-primary w-100" data-action="click->user_type#select" data-user="entreprise">
+                    <i class="bi bi-building me-2"></i>Entreprise
+                  </button>
+                </div>
+                <div class="col-md-6">
+                  <button class="btn btn-outline-primary w-100" data-action="click->user_type#select" data-user="syndic">
+                    <i class="bi bi-people me-2"></i>Syndic
+                  </button>
+                </div>
+                <div class="col-md-6">
+                  <button class="btn btn-outline-primary w-100" data-action="click->user_type#select" data-user="bailleur">
+                    <i class="bi bi-key me-2"></i>Bailleur social
+                  </button>
+                </div>
+                <div class="col-12">
+                  <button class="btn btn-outline-primary w-100" data-action="click->user_type#select" data-user="asbl">
+                    <i class="bi bi-shield-check me-2"></i>ASBL / Coopérative
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
       <!-- Test d’éligibilité -->
-      <div id="eligibility-test" data-controller="test-eligibilite" class="">
-        <div class="card shadow-sm">
+      <div id="eligibility-test" data-controller="test-eligibilite">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-light">
+            <h4 class="card-title mb-0">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              Test d'éligibilité
+            </h4>
+          </div>
           <div class="card-body">
-            <h3 class="mb-4">Test d’éligibilité</h3>
             <form id="eligibilityForm" name="eligibilityForm" data-test-eligibilite-target="form">
               <%# Répète cette structure pour chaque step %>
               <% steps = {
@@ -80,15 +128,21 @@
               } %>
 
               <% steps.each do |key, question| %>
-                <div class="form-card mb-4" data-test-eligibilite-target="formCard">
-                  <h5><%= question %></h5>
-                  <div class="form-check">
-                    <input type="radio" class="form-check-input" name="<%= key %>" value="oui" data-action="click->test-eligibilite#handleAnswer" id="<%= key %>_oui">
-                    <label class="form-check-label" for="<%= key %>_oui">Oui</label>
-                  </div>
-                  <div class="form-check">
-                    <input type="radio" class="form-check-input" name="<%= key %>" value="non" data-action="click->test-eligibilite#handleAnswer" id="<%= key %>_non">
-                    <label class="form-check-label" for="<%= key %>_non">Non</label>
+                <div class="mb-3 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+                  <h6 class="mb-3 text-dark"><%= question %></h6>
+                  <div class="d-flex gap-3">
+                    <div class="form-check">
+                      <input type="radio" class="form-check-input" name="<%= key %>" value="oui" data-action="click->test-eligibilite#handleAnswer" id="<%= key %>_oui">
+                      <label class="form-check-label" for="<%= key %>_oui">
+                        <i class="bi bi-check-circle text-success me-1"></i>Oui
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input type="radio" class="form-check-input" name="<%= key %>" value="non" data-action="click->test-eligibilite#handleAnswer" id="<%= key %>_non">
+                      <label class="form-check-label" for="<%= key %>_non">
+                        <i class="bi bi-x-circle text-danger me-1"></i>Non
+                      </label>
+                    </div>
                   </div>
                 </div>
               <% end %>
@@ -101,7 +155,7 @@
                       data-action="click->test-eligibilite#validateTest"
                       data-test-eligibilite-target="validateButton"
                       style="display: none;">
-                📝 Valider mon test d'éligibilité
+                <i class="bi bi-check2-circle me-2"></i>Valider mon test d'éligibilité
               </button>
             </div>
 
@@ -111,68 +165,76 @@
               style="display: none;">
             </div>
 
-            <!-- Bouton pour recalculer l'éligibilité -->
-            <div id="affinage-categorie" data-controller="categorie-estimation" class="mt-4 p-3 border rounded bg-light" style="display: none;">
-              <h5 class="mb-3">Affinez votre catégorie en précisant ces éléments :</h5>
+            <!-- Section d'affinage de catégorie améliorée -->
+            <div id="affinage-categorie" data-controller="categorie-estimation" class="mt-4" style="display: none;">
+              <div class="card border-warning">
+                <div class="card-header bg-warning bg-opacity-10">
+                  <h5 class="card-title mb-0">
+                    <i class="bi bi-gear text-warning me-2"></i>
+                    Affinez votre catégorie
+                  </h5>
+                </div>
+                <div class="card-body">
+                  <!-- Statut du ménage -->
+                  <div class="mb-3">
+                    <label for="statut-familial" class="form-label">Situation familiale</label>
+                    <select id="statut-familial" class="form-select" required>
+                      <option value="">Sélectionnez une option</option>
+                      <option value="isolé">Isolé / Célibataire</option>
+                      <option value="isolé-enfant">Isolé avec enfant à charge</option>
+                      <option value="couple">Couple sans enfants"</option>
+                      <option value="couple-enfant">Couple avec enfants à charge</option>
+                    </select>
+                  </div>
 
-              <!-- Statut du ménage -->
-              <div class="mb-3">
-                <label for="statut-familial" class="form-label">Situation familiale</label>
-                <select id="statut-familial" class="form-select" required>
-                  <option value="">Sélectionnez une option</option>
-                  <option value="isolé">Isolé / Célibataire</option>
-                  <option value="isolé-enfant">Isolé avec enfant à charge</option>
-                  <option value="couple">Couple sans enfants"</option>
-                  <option value="couple-enfant">Couple avec enfants à charge</option>
-                </select>
+                  <!-- Nombre de personnes à charge -->
+                  <div class="mb-3">
+                    <label for="personnes-charge" class="form-label">Nombre de personnes à charge</label>
+                    <select id="personnes-charge" class="form-select" required>
+                      <option value="">Sélectionnez</option>
+                      <option value="0">0</option>
+                      <option value="1">1</option>
+                      <option value="2">2</option>
+                      <option value="3">3</option>
+                      <option value="4">4</option>
+                    </select>
+                  </div>
+
+                  <!-- Revenu imposable net -->
+                  <div class="mb-3">
+                    <label for="revenu-net" class="form-label">Revenu imposable globablement du ménage</label>
+                    <select id="revenu-net" class="form-select" required>
+                      <option value="">Sélectionnez une tranche</option>
+                      <option value="-24320">Moins de 24.230 €</option>
+                      <option value="24231-42340">24.231 € – 42.340 €</option>
+                      <option value="42341-53880">42.341 € – 53.880 €</option>
+                      <option value="53881+">Plus de 53.881 €</option>
+                    </select>
+                    <p class="mt-3 text-muted small">
+                      💡 Pour un calcul précis basé sur vos documents fiscaux, créez un compte ou connectez-vous à votre espace personnel.
+                    </p>
+                  </div>
+
+                  <button id="valider-affinage"
+                          class="btn btn-success mt-2"
+                          data-action="click->categorie-estimation#estimerCategorie">
+                    Valider et recalculer ma catégorie
+                  </button>
+
+
+                  <!-- Résultat de l'estimation -->
+                  <div id="result-affinage"
+                      data-categorie-estimation-target="resultAffinage"
+                      class="alert alert-secondary mt-3 text-center"
+                      style="display: none;">
+                  </div>
+
+                  <button id="go-simulateur" style="display: none;" class="btn btn-primary mt-3">
+                    🎯 Accéder au simulateur
+                  </button>
+
+                </div>
               </div>
-
-              <!-- Nombre de personnes à charge -->
-              <div class="mb-3">
-                <label for="personnes-charge" class="form-label">Nombre de personnes à charge</label>
-                <select id="personnes-charge" class="form-select" required>
-                  <option value="">Sélectionnez</option>
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
-                </select>
-              </div>
-
-              <!-- Revenu imposable net -->
-              <div class="mb-3">
-                <label for="revenu-net" class="form-label">Revenu imposable globablement du ménage</label>
-                <select id="revenu-net" class="form-select" required>
-                  <option value="">Sélectionnez une tranche</option>
-                  <option value="-24320">Moins de 24.230 €</option>
-                  <option value="24231-42340">24.231 € – 42.340 €</option>
-                  <option value="42341-53880">42.341 € – 53.880 €</option>
-                  <option value="53881+">Plus de 53.881 €</option>
-                </select>
-                <p class="mt-3 text-muted small">
-                  💡 Pour un calcul précis basé sur vos documents fiscaux, créez un compte ou connectez-vous à votre espace personnel.
-                </p>
-              </div>
-
-              <button id="valider-affinage"
-                      class="btn btn-success mt-2"
-                      data-action="click->categorie-estimation#estimerCategorie">
-                Valider et recalculer ma catégorie
-              </button>
-
-
-              <!-- Résultat de l'estimation -->
-              <div id="result-affinage"
-                  data-categorie-estimation-target="resultAffinage"
-                  class="alert alert-secondary mt-3 text-center"
-                  style="display: none;">
-              </div>
-
-              <button id="go-simulateur" style="display: none;" class="btn btn-primary mt-3">
-                🎯 Accéder au simulateur
-              </button>
-
             </div>
           </div>
         </div>
@@ -180,23 +242,32 @@
       </div> <!-- fin pe-lg-3 -->
     </div> <!-- fin col-lg-6 colonne gauche -->
 
-    <!-- COLONNE DROITE : Cartes de primes -->
-    <div class="col-lg-6" style="background-color: #f8f9fa; min-height: 400px;">
-      <div class="ps-lg-4">
+    <!-- COLONNE DROITE : Primes et simulateur -->
+    <div class="col-lg-6">
+      <div class="h-100">
 
         <!-- Message d'info initial -->
-        <div id="primes-placeholder" class="text-center py-5" style="display: none;">
-          <div class="alert alert-info">
-            <i class="bi bi-info-circle fs-3 mb-3 d-block"></i>
-            <h5>Complétez le test d'éligibilité</h5>
-            <p class="mb-0">Vos primes personnalisées apparaîtront ici selon votre catégorie.</p>
+        <div id="primes-placeholder" class="card border-0 shadow-sm text-center" style="display: none;">
+          <div class="card-body py-5">
+            <div class="text-primary mb-3">
+              <i class="bi bi-info-circle fs-1"></i>
+            </div>
+            <h5 class="text-primary">Complétez le test d'éligibilité</h5>
+            <p class="text-muted mb-0">Vos primes personnalisées apparaîtront ici selon votre catégorie.</p>
           </div>
         </div>
 
-        <!-- Simulation préalable des primes via les mini cartes primes -->
-        <div class="primes-section" data-controller="prime-calcul" style="">
-          <h4 class="mb-4">Vos primes éligibles - Catégorie <%= @categorie_id || '1' %></h4>
-          <div class="row g-3">
+        <!-- Simulation des primes -->
+        <div class="primes-section" data-controller="prime-calcul">
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-light">
+              <h4 class="card-title mb-0">
+                <i class="bi bi-calculator text-success me-2"></i>
+                Vos primes éligibles - Catégorie <%= @categorie_id || '1' %>
+              </h4>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
             <% @primes.each do |prime| %>
               <% current_categorie = @categorie_id || '1' %>
               <% if prime.eligible_categories.include?(current_categorie.to_s) %>
@@ -278,13 +349,32 @@
                 </div>
               <% end %>
             <% end %>
+              </div>
+
+              <!-- Total estimé -->
+              <div class="mt-4 p-3 bg-success bg-opacity-10 rounded">
+                <div class="d-flex justify-content-between align-items-center">
+                  <h5 class="text-success mb-0">
+                    <i class="bi bi-calculator me-2"></i>
+                    Total estimé des primes :
+                  </h5>
+                  <span class="h4 text-success mb-0" id="total-primes-affiche">0.00 €</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Section séparée pour les cartes statiques -->
-        <div class="mt-4">
-          <h5 class="mb-3 text-muted">Autres aides disponibles</h5>
-          <div class="row g-3">
+        <!-- Autres aides disponibles -->
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-light">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-gift text-info me-2"></i>
+              Autres aides disponibles
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
             <div class="col-lg-4 col-md-4 col-12">
               <div class="card shadow-sm border-0 p-3 text-center mb-3 h-100">
                 <div class="card-body d-flex flex-column align-items-center gap-3">
@@ -322,25 +412,47 @@
                   <a href="<%= "#" %>" class="btn btn-outline-info btn-sm mt-auto">Se connecter</a>
                 </div>
               </div>
+            </div>              </div>
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
 
-          <div class="text-end mt-4 fw-bold fs-5">
-            Total estimé des primes : <span id="total-primes-affiche">0.00 €</span>
+  <!-- Actions et liens utiles -->
+  <div class="row mt-5">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="row g-3 align-items-center">
+            <div class="col-md-8">
+              <h5 class="mb-1">
+                <i class="bi bi-link-45deg text-primary me-2"></i>
+                Liens utiles
+              </h5>
+              <p class="text-muted mb-0">Accédez aux informations détaillées sur les primes en Flandre</p>
+            </div>
+            <div class="col-md-4">
+              <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                <%= link_to primes_path, class: "btn btn-outline-primary btn-sm" do %>
+                  <i class="bi bi-list-ul me-1"></i>Primes
+                <% end %>
+                <%= link_to categories_path, class: "btn btn-outline-secondary btn-sm" do %>
+                  <i class="bi bi-diagram-3 me-1"></i>Catégories
+                <% end %>
+                <%= link_to localstorage_path, class: "btn btn-outline-info btn-sm" do %>
+                  <i class="bi bi-code-square me-1"></i>Debug
+                <% end %>
+              </div>
+            </div>
           </div>
         </div>
-     <!-- fin col-lg-6 colonne droite -->
-      </div> <!-- fin ps-lg-4 -->
-
-  </div> <!-- fin row -->
-
-  <!-- lien vers la liste des primes en flandre -->
-  <div class="text-center mb-5 d-flex flex-wrap justify-content-center gap-3">
-    <%= link_to "Voir la liste des primes en Flandre", primes_path, class: "btn btn-outline-danger" %>
-    <%= link_to "Voir la liste des catégories de revenus en Flandre", categories_path, class: "btn btn-outline-danger" %>
-    <%= link_to "Retour à l'accueil", root_path, class: "btn btn-outline-secondary" %>
-    <%= link_to "Surveiller le localStorage", localstorage_path, class: "btn btn-outline-info" %>
+      </div>
+    </div>
   </div>
 
 </div>
+
+<!-- Utilise le fichier CSS externe properties.css -->
+<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>

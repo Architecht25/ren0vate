@@ -1,7 +1,67 @@
-<h1>Projects</h1>
-<ul>
-  <% @projects.each do |project| %>
-    <li><%= link_to project.name, project_path(project) %></li>
+<div class="container-fluid px-4 py-4">
+  <!-- Header épuré -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <h1 class="h3 text-primary-custom mb-0 fw-normal">Mes Chantiers de Rénovation</h1>
+    <%= link_to new_project_path, class: "btn btn-primary-custom px-4" do %>
+      <i class="bi bi-plus-lg me-2"></i>Ajouter un chantier
+    <% end %>
+  </div>
+
+  <!-- Liste des chantiers -->
+  <% if @projects.any? %>
+    <div class="row g-3">
+      <% @projects.each do |project| %>
+        <div class="col-md-6 col-lg-4">
+          <%= link_to project_path(project), class: "text-decoration-none" do %>
+            <div class="card border-0 bg-light-custom h-100 property-card">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                  <div class="icon-circle me-3">
+                    <i class="bi bi-hammer"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <h5 class="card-title text-dark mb-1 fw-normal"><%= project.nom %></h5>
+                    <% if project.property.present? %>
+                      <p class="text-muted-custom mb-0 small">
+                        <i class="bi bi-house-door me-1"></i>
+                        <%= project.property.respond_to?(:address) ? project.property.address : "#{project.property.rue} #{project.property.numero}" %>
+                      </p>
+                    <% else %>
+                      <p class="text-muted-custom mb-0 small">Bien non associé</p>
+                    <% end %>
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="badge bg-primary-custom rounded-pill px-3 py-2">
+                      <%= project.works.count %> travaux
+                    </span>
+                    <span class="text-muted-custom small">
+                      <i class="bi bi-calendar-check me-1"></i>
+                      <%= project.created_at.strftime("%d/%m/%Y") %>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <!-- État vide minimaliste -->
+    <div class="text-center py-5 mt-5">
+      <div class="icon-circle-large mx-auto mb-4">
+        <i class="bi bi-hammer"></i>
+      </div>
+      <h4 class="text-muted-custom mb-3 fw-normal">Aucun chantier enregistré</h4>
+      <p class="text-muted-custom mb-4">Commencez par ajouter votre premier chantier de rénovation</p>
+      <%= link_to new_project_path, class: "btn btn-primary-custom px-4" do %>
+        <i class="bi bi-plus-lg me-2"></i>Créer mon premier chantier
+      <% end %>
+    </div>
   <% end %>
-</ul>
-<%= link_to 'New Project', new_project_path %>
+</div>
+
+<!-- Utilise le fichier CSS externe properties.css -->
+<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>

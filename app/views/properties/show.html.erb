@@ -1,5 +1,197 @@
-<h1><%= @property.name %></h1>
-<p>Location: <%= @property.location %></p>
-<p>Price: <%= @property.price %></p>
-<%= link_to 'Edit', edit_property_path(@property) %>
-<%= link_to 'Back', properties_path %>
+<div class="container-fluid px-4 py-4">
+  <!-- Header épuré -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-house-door"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal"><%= @property.name %></h1>
+        <small class="text-muted-custom"><%= @property.full_address %></small>
+      </div>
+    </div>
+    <div>
+      <%= link_to dashboard_path, class: "btn btn-light me-2" do %>
+        <i class="bi bi-arrow-left me-1"></i>Retour dashboard
+      <% end %>
+      <%= link_to edit_property_path(@property), class: "btn btn-primary-custom px-4" do %>
+        <i class="bi bi-pencil me-1"></i>Modifier
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Barre de progression globale -->
+  <div class="card border-0 bg-light-custom shadow-sm mb-4">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <h6 class="mb-0 text-primary-custom">Complétude globale</h6>
+        <span class="badge bg-<%= @property.completion_status %> rounded-pill">
+          <%= @completion_stats[:overall] %>%
+        </span>
+      </div>
+      <div class="progress" style="height: 8px;">
+        <div class="progress-bar bg-<%= @property.completion_status %>"
+             style="width: <%= @completion_stats[:overall] %>%"></div>
+      </div>
+      <% if @actions_available[:missing_fields].any? %>
+        <small class="text-muted-custom mt-2 d-block">
+          Champs manquants : <%= @actions_available[:missing_fields].join(', ') %>
+        </small>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Sections de complétude -->
+  <div class="row g-4 mb-4">
+    <!-- Section Informations administratives -->
+    <div class="col-lg-4">
+      <div class="card h-100 border-0 shadow-sm">
+        <div class="card-header bg-light-custom border-0 d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <div class="icon-circle me-2">
+              <i class="bi bi-file-text"></i>
+            </div>
+            <h6 class="mb-0 fw-normal">Informations administratives</h6>
+          </div>
+          <span class="badge <%= @property.admin_completion_class %> rounded-pill">
+            <%= @completion_stats[:admin] %>%
+          </span>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled mb-3">
+            <li class="d-flex align-items-center mb-2">
+              <i class="bi bi-<%= @property.rue.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+              <span class="<%= @property.rue.present? ? 'text-dark' : 'text-muted' %>">Adresse complète</span>
+            </li>
+            <li class="d-flex align-items-center mb-2">
+              <i class="bi bi-<%= @property.type.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+              <span class="<%= @property.type.present? ? 'text-dark' : 'text-muted' %>">Type de bien</span>
+            </li>
+            <li class="d-flex align-items-center mb-2">
+              <i class="bi bi-<%= @property.region.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+              <span class="<%= @property.region.present? ? 'text-dark' : 'text-muted' %>">Région</span>
+            </li>
+          </ul>
+          <%= link_to edit_property_path(@property), class: "btn btn-outline-primary btn-sm" do %>
+            <i class="bi bi-pencil me-1"></i>Compléter
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Informations chantier -->
+    <div class="col-lg-4">
+      <div class="card h-100 border-0 shadow-sm">
+        <div class="card-header bg-light-custom border-0 d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <div class="icon-circle me-2">
+              <i class="bi bi-tools"></i>
+            </div>
+            <h6 class="mb-0 fw-normal">Informations chantier</h6>
+          </div>
+          <span class="badge <%= @property.chantier_completion_class %> rounded-pill">
+            <%= @completion_stats[:chantier] %>%
+          </span>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled mb-3">
+            <li class="d-flex align-items-center mb-2">
+              <i class="bi bi-<%= @property.annee_construction.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+              <span class="<%= @property.annee_construction.present? ? 'text-dark' : 'text-muted' %>">Année construction</span>
+            </li>
+            <li class="d-flex align-items-center mb-2">
+              <i class="bi bi-<%= @property.numero_ean.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+              <span class="<%= @property.numero_ean.present? ? 'text-dark' : 'text-muted' %>">Numéro EAN</span>
+            </li>
+            <li class="d-flex align-items-center mb-2">
+              <i class="bi bi-<%= @property.peb.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+              <span class="<%= @property.peb.present? ? 'text-dark' : 'text-muted' %>">Certificat PEB</span>
+            </li>
+          </ul>
+          <%= link_to edit_property_path(@property), class: "btn btn-outline-primary btn-sm" do %>
+            <i class="bi bi-tools me-1"></i>Compléter
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Éligibilité primes -->
+    <div class="col-lg-4">
+      <div class="card h-100 border-0 shadow-sm">
+        <div class="card-header bg-light-custom border-0 d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center">
+            <div class="icon-circle me-2">
+              <i class="bi bi-currency-euro"></i>
+            </div>
+            <h6 class="mb-0 fw-normal">Éligibilité primes</h6>
+          </div>
+          <span class="badge <%= @property.primes_completion_class %> rounded-pill">
+            <%= @completion_stats[:primes] %>%
+          </span>
+        </div>
+        <div class="card-body">
+          <% if @property.simulations.any? %>
+            <p class="text-success mb-3">
+              <i class="bi bi-check-circle-fill me-2"></i>
+              <%= pluralize(@property.simulations.count, 'simulation') %> réalisée(s)
+            </p>
+          <% else %>
+            <p class="text-muted mb-3">
+              <i class="bi bi-info-circle me-2"></i>
+              Aucune simulation réalisée
+            </p>
+          <% end %>
+          <%= link_to simulations_path, class: "btn btn-outline-success btn-sm" do %>
+            <i class="bi bi-calculator me-1"></i>Calculer primes
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions rapides -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-light-custom border-0">
+      <h6 class="mb-0 fw-normal text-primary-custom">
+        <i class="bi bi-lightning me-2"></i>Actions disponibles
+      </h6>
+    </div>
+    <div class="card-body">
+      <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <%= link_to simulations_path, class: "btn btn-outline-success" do %>
+          <i class="bi bi-calculator me-2"></i>Calculer mes primes
+        <% end %>
+
+        <% if @actions_available[:can_request] %>
+          <%= link_to new_request_path, class: "btn btn-success" do %>
+            <i class="bi bi-file-earmark-plus me-2"></i>Faire une demande
+          <% end %>
+        <% else %>
+          <%= link_to "#", class: "btn btn-outline-secondary", disabled: true,
+              title: "Complétez les informations manquantes pour débloquer cette action" do %>
+            <i class="bi bi-file-earmark-plus me-2"></i>Faire une demande
+          <% end %>
+        <% end %>
+
+        <%= link_to documents_path, class: "btn btn-outline-info" do %>
+          <i class="bi bi-files me-2"></i>Mes documents
+        <% end %>
+
+        <%= link_to projects_path, class: "btn btn-outline-primary" do %>
+          <i class="bi bi-kanban me-2"></i>Mes projets
+        <% end %>
+      </div>
+
+      <% unless @actions_available[:can_request] %>
+        <div class="alert alert-warning mt-3 mb-0">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          <strong>Pour débloquer les demandes de primes :</strong>
+          Complétez au minimum 80% des informations requises (actuellement <%= @completion_stats[:overall] %>%).
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Utilise le fichier CSS externe properties.css -->
+<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>

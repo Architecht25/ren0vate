@@ -1,0 +1,617 @@
+<div class="container-fluid px-4 py-4">
+  <!-- Header du dashboard du bien -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-house-door"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">
+          <%= @property.name || "Bien sans nom" %>
+        </h1>
+        <small class="text-muted-custom">
+          <%= @property.rue %> <%= @property.numero %>, <%= @property.code_postal %> <%= @property.commune %>
+        </small>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <%= link_to dashboard_path, class: "btn btn-outline-primary-custom" do %>
+        <i class="bi bi-arrow-left me-2"></i>Dashboard général
+      <% end %>
+      <%= link_to edit_property_path(@property), class: "btn btn-primary-custom px-4" do %>
+        <i class="bi bi-pencil me-2"></i>Modifier
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Alertes et statut -->
+  <% if @actions_available[:missing_fields].any? %>
+    <div class="alert alert-warning border-0 mb-4">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        <div>
+          <strong>Informations manquantes :</strong>
+          <ul class="mb-0 mt-1">
+            <% @actions_available[:missing_fields].each do |field| %>
+              <li><%= field.humanize %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @actions_available[:can_request] %>
+    <div class="alert alert-success border-0 mb-4">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+          <i class="bi bi-check-circle me-2"></i>
+          <span><strong>Prêt pour une demande !</strong> Toutes les informations nécessaires sont complètes.</span>
+        </div>
+        <%= link_to new_request_path(property_id: @property.id), class: "btn btn-success btn-sm" do %>
+          <i class="bi bi-plus-lg me-1"></i>Faire une demande
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Barres de progression -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card border-0 bg-light-custom h-100">
+        <div class="card-body text-center p-4">
+          <div class="icon-circle-large mx-auto mb-3">
+            <i class="bi bi-percent"></i>
+          </div>
+          <h3 class="text-primary-custom mb-1"><%= @completion_stats[:overall] %>%</h3>
+          <small class="text-muted-custom">Complétude générale</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 bg-light-custom h-100">
+        <div class="card-body text-center p-4">
+          <div class="icon-circle-large mx-auto mb-3">
+            <i class="bi bi-person-gear"></i>
+          </div>
+          <h3 class="text-primary-custom mb-1"><%= @completion_stats[:admin] %>%</h3>
+          <small class="text-muted-custom">Infos administratives</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 bg-light-custom h-100">
+        <div class="card-body text-center p-4">
+          <div class="icon-circle-large mx-auto mb-3">
+            <i class="bi bi-hammer"></i>
+          </div>
+          <h3 class="text-primary-custom mb-1"><%= @completion_stats[:chantier] %>%</h3>
+          <small class="text-muted-custom">Infos chantier</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 bg-light-custom h-100">
+        <div class="card-body text-center p-4">
+          <div class="icon-circle-large mx-auto mb-3">
+            <i class="bi bi-cash-coin"></i>
+          </div>
+          <h3 class="text-primary-custom mb-1"><%= @completion_stats[:primes] %>%</h3>
+          <small class="text-muted-custom">Infos primes</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 bg-light-custom h-100">
+        <div class="card-body text-center p-4">
+          <div class="icon-circle-large mx-auto mb-3">
+            <i class="bi bi-file-earmark-text"></i>
+          </div>
+          <h3 class="text-primary-custom mb-1"><%= @property.documents_completion_percentage %>%</h3>
+          <small class="text-muted-custom">Documents</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sections principales -->
+  <div class="row g-4">
+    <!-- Section Informations administratives -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-light-custom border-0 pb-0">
+          <div class="d-flex align-items-center justify-content-between">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-person-gear me-2"></i>
+              Informations administratives
+            </h5>
+            <div class="progress-circle-small">
+              <div class="progress-fill-<%= @completion_stats[:admin] %>"></div>
+              <span class="progress-text"><%= @completion_stats[:admin] %>%</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-body pt-3">
+          <div class="row g-2">
+            <div class="col-6">
+              <div class="info-item">
+                <small class="text-muted-custom">Rue</small>
+                <div class="fw-medium"><%= @property.rue || "Non renseigné" %></div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="info-item">
+                <small class="text-muted-custom">Numéro</small>
+                <div class="fw-medium"><%= @property.numero || "Non renseigné" %></div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="info-item">
+                <small class="text-muted-custom">Code postal</small>
+                <div class="fw-medium"><%= @property.code_postal || "Non renseigné" %></div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="info-item">
+                <small class="text-muted-custom">Commune</small>
+                <div class="fw-medium"><%= @property.commune || "Non renseigné" %></div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="info-item">
+                <small class="text-muted-custom">Région</small>
+                <div class="fw-medium">
+                  <% if @property.region %>
+                    <span class="badge bg-primary-custom"><%= @property.region.humanize %></span>
+                  <% else %>
+                    Non renseigné
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-3 pt-3 border-top">
+            <%= link_to edit_property_path(@property), class: "btn btn-outline-primary-custom btn-sm w-100" do %>
+              <i class="bi bi-pencil me-2"></i>Modifier les informations
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Chantier -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-light-custom border-0 pb-0">
+          <div class="d-flex align-items-center justify-content-between">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-hammer me-2"></i>
+              Informations chantier
+            </h5>
+            <div class="progress-circle-small">
+              <div class="progress-fill-<%= @completion_stats[:chantier] %>"></div>
+              <span class="progress-text"><%= @completion_stats[:chantier] %>%</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-body pt-3">
+          <div class="row g-2">
+            <div class="col-12">
+              <div class="info-item">
+                <small class="text-muted-custom">Type de propriété</small>
+                <div class="fw-medium"><%= @property.type_propriete || "Non renseigné" %></div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="info-item">
+                <small class="text-muted-custom">Occupation</small>
+                <div class="fw-medium"><%= @property.occupation || "Non renseigné" %></div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="info-item">
+                <small class="text-muted-custom">Année de construction</small>
+                <div class="fw-medium"><%= @property.annee_construction || "Non renseigné" %></div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="info-item">
+                <small class="text-muted-custom">PEB</small>
+                <div class="fw-medium">
+                  <% if @property.peb %>
+                    <span class="badge bg-secondary"><%= @property.peb %></span>
+                  <% else %>
+                    Non renseigné
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-3 pt-3 border-top">
+            <%= link_to edit_property_path(@property), class: "btn btn-outline-primary-custom btn-sm w-100" do %>
+              <i class="bi bi-hammer me-2"></i>Gérer le chantier
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Primes -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-light-custom border-0 pb-0">
+          <div class="d-flex align-items-center justify-content-between">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-cash-coin me-2"></i>
+              Primes et simulations
+            </h5>
+            <div class="progress-circle-small">
+              <div class="progress-fill-<%= @completion_stats[:primes] %>"></div>
+              <span class="progress-text"><%= @completion_stats[:primes] %>%</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-body pt-3">
+          <% if @recent_simulations&.any? %>
+            <div class="mb-3">
+              <small class="text-muted-custom">Simulations récentes</small>
+              <% @recent_simulations.each do |simulation| %>
+                <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+                  <div>
+                    <div class="fw-medium"><%= simulation.name || "Simulation #{simulation.id}" %></div>
+                    <small class="text-muted-custom"><%= simulation.created_at.strftime("%d/%m/%Y") %></small>
+                  </div>
+                  <span class="badge bg-success">Terminée</span>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="text-center py-4">
+              <i class="bi bi-calculator text-muted-custom mb-2" style="font-size: 2rem;"></i>
+              <p class="text-muted-custom mb-0">Aucune simulation encore</p>
+            </div>
+          <% end %>
+          <div class="mt-3 pt-3 border-top">
+            <%= link_to simulations_path, class: "btn btn-outline-primary-custom btn-sm w-100" do %>
+              <i class="bi bi-calculator me-2"></i>Gérer les simulations
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Documents -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-header bg-light-custom border-0 pb-0">
+          <div class="d-flex align-items-center justify-content-between">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-file-earmark-text me-2"></i>
+              Documents
+            </h5>
+            <div class="progress-circle-small">
+              <div class="progress-fill-<%= @property.documents_completion_percentage %>"></div>
+              <span class="progress-text"><%= @property.documents_completion_percentage %>%</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-body pt-3">
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <div class="info-item text-center">
+                <small class="text-muted-custom">Complétés</small>
+                <div class="fw-medium h5 mb-0 text-success"><%= @property.completed_documents_count %></div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="info-item text-center">
+                <small class="text-muted-custom">Total requis</small>
+                <div class="fw-medium h5 mb-0 text-primary"><%= @property.total_required_documents %></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="progress mb-3" style="height: 8px;">
+            <div class="progress-bar <%= @property.documents_completion_class %>"
+                 role="progressbar"
+                 style="width: <%= @property.documents_completion_percentage %>%">
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center">
+            <small class="text-muted-custom">Progression</small>
+            <small class="fw-semibold"><%= @property.documents_completion_percentage %>%</small>
+          </div>
+
+          <% if @property.documents_completion_percentage >= 80 %>
+            <div class="alert alert-success mt-3 mb-0 py-2">
+              <i class="bi bi-check-circle me-1"></i>
+              <small>Documents prêts pour soumission !</small>
+            </div>
+          <% elsif @property.documents_completion_percentage >= 50 %>
+            <div class="alert alert-warning mt-3 mb-0 py-2">
+              <i class="bi bi-exclamation-triangle me-1"></i>
+              <small>Quelques documents manquants</small>
+            </div>
+          <% else %>
+            <div class="alert alert-danger mt-3 mb-0 py-2">
+              <i class="bi bi-x-circle me-1"></i>
+              <small>Beaucoup de documents manquants</small>
+            </div>
+          <% end %>
+
+          <div class="mt-3 pt-3 border-top">
+            <%= link_to documents_dashboard_property_path(@property), class: "btn btn-outline-primary-custom btn-sm w-100" do %>
+              <i class="bi bi-file-earmark-text me-2"></i>Gérer les documents
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions rapides -->
+  <div class="row g-3 mt-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light-custom border-0">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-lightning me-2"></i>
+            Actions rapides
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-2">
+            <div class="col-md-2">
+              <%= link_to new_request_path(property_id: @property.id), class: "btn btn-primary-custom w-100" do %>
+                <i class="bi bi-plus-lg me-2"></i>Nouvelle demande
+              <% end %>
+            </div>
+            <div class="col-md-2">
+              <%= link_to simulations_path, class: "btn btn-outline-primary-custom w-100" do %>
+                <i class="bi bi-calculator me-2"></i>Simuler des primes
+              <% end %>
+            </div>
+            <div class="col-md-2">
+              <%= link_to documents_dashboard_property_path(@property), class: "btn btn-outline-primary-custom w-100" do %>
+                <i class="bi bi-file-earmark me-2"></i>Gérer les documents
+              <% end %>
+            </div>
+            <div class="col-md-2">
+              <% if @property.completion_percentage >= 80 %>
+                <%= link_to formulaire_miroir_property_path(@property), class: "btn btn-success w-100" do %>
+                  <i class="bi bi-file-text me-2"></i>Formulaire miroir
+                <% end %>
+              <% else %>
+                <button class="btn btn-outline-secondary w-100" disabled>
+                  <i class="bi bi-file-text me-2"></i>Formulaire miroir
+                </button>
+              <% end %>
+            </div>
+            <div class="col-md-2">
+              <%= link_to property_path(@property), class: "btn btn-outline-primary-custom w-100" do %>
+                <i class="bi bi-eye me-2"></i>Vue détaillée
+              <% end %>
+            </div>
+            <div class="col-md-2">
+              <%= link_to edit_property_path(@property), class: "btn btn-outline-primary-custom w-100" do %>
+                <i class="bi bi-pencil me-2"></i>Modifier
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notifications liées au bien -->
+  <% if @property_notifications&.any? %>
+    <div class="row g-3 mt-4">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-light-custom border-0">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-bell me-2"></i>
+              Notifications récentes
+            </h5>
+          </div>
+          <div class="card-body">
+            <% @property_notifications.each do |notification| %>
+              <div class="d-flex align-items-center py-2 border-bottom">
+                <div class="icon-circle-small me-3">
+                  <i class="bi bi-info-circle"></i>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="fw-medium"><%= notification.title %></div>
+                  <small class="text-muted-custom"><%= notification.created_at.strftime("%d/%m/%Y à %H:%M") %></small>
+                </div>
+                <% unless notification.read? %>
+                  <span class="badge bg-primary-custom">Nouveau</span>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Section Formulaire Miroir -->
+  <% if @property.completion_percentage >= 80 %>
+    <div class="row g-3 mt-4">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm border-success">
+          <div class="card-header bg-success text-white">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-file-text me-2"></i>
+              Formulaire Miroir - Prêt pour soumission !
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row align-items-center">
+              <div class="col-md-8">
+                <h6 class="mb-2">🎉 Votre dossier est complet !</h6>
+                <p class="mb-3 text-muted">
+                  Prévisualisez votre demande officielle avec notre formulaire miroir pré-rempli
+                  avant de la soumettre à l'administration <%= @property.region&.humanize || 'régionale' %>.
+                </p>
+                <div class="d-flex gap-2 flex-wrap">
+                  <%= link_to formulaire_miroir_property_path(@property),
+                             class: "btn btn-success" do %>
+                    <i class="bi bi-eye me-2"></i>Voir le formulaire miroir
+                  <% end %>
+                  <% if @property.ready_for_submission? && current_user.can_submit? %>
+                    <%= link_to formulaire_miroir_property_path(@property),
+                               class: "btn btn-outline-success" do %>
+                      <i class="bi bi-send me-2"></i>Soumettre la demande
+                    <% end %>
+                  <% else %>
+                    <button class="btn btn-outline-secondary" disabled>
+                      <i class="bi bi-lock me-2"></i>Soumission verrouillée
+                    </button>
+                  <% end %>
+                </div>
+              </div>
+              <div class="col-md-4 text-center">
+                <div class="display-1 text-success">📋</div>
+                <small class="text-muted">Formulaire miroir</small>
+              </div>
+            </div>
+
+            <% unless current_user.can_submit? %>
+              <div class="alert alert-info mt-3 mb-0">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong>Success Fee :</strong> La soumission officielle nécessite l'acceptation
+                de nos conditions (5-10% uniquement si prime accordée).
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% elsif @property.completion_percentage >= 50 %>
+    <div class="row g-3 mt-4">
+      <div class="col-12">
+        <div class="card border-0 shadow-sm border-warning">
+          <div class="card-header bg-warning text-dark">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-hourglass-split me-2"></i>
+              Formulaire Miroir - Bientôt disponible
+            </h5>
+          </div>
+          <div class="card-body">
+            <p class="mb-3">
+              Complétez votre dossier pour accéder au formulaire miroir et prévisualiser
+              votre demande officielle.
+            </p>
+            <div class="progress mb-3">
+              <div class="progress-bar bg-warning"
+                   role="progressbar"
+                   style="width: <%= @property.completion_percentage %>%">
+              </div>
+            </div>
+            <p class="mb-0">
+              <small class="text-muted">
+                Complétude actuelle : <%= @property.completion_percentage %>%
+                (minimum 80% requis)
+              </small>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<style>
+/* Styles spécifiques pour le dashboard */
+.icon-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: var(--primary-color, #007bff);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.icon-circle-large {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: var(--primary-color, #007bff);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.icon-circle-small {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: var(--primary-color, #007bff);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+}
+
+.progress-circle-small {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #f8f9fa;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.info-item {
+  margin-bottom: 0.75rem;
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+}
+
+.bg-light-custom {
+  background-color: #f8f9fa;
+}
+
+.text-primary-custom {
+  color: var(--primary-color, #007bff);
+}
+
+.text-muted-custom {
+  color: #6c757d;
+}
+
+.btn-primary-custom {
+  background-color: var(--primary-color, #007bff);
+  border-color: var(--primary-color, #007bff);
+  color: white;
+}
+
+.btn-outline-primary-custom {
+  border-color: var(--primary-color, #007bff);
+  color: var(--primary-color, #007bff);
+}
+
+.btn-outline-primary-custom:hover {
+  background-color: var(--primary-color, #007bff);
+  border-color: var(--primary-color, #007bff);
+  color: white;
+}
+
+.bg-primary-custom {
+  background-color: var(--primary-color, #007bff);
+}
+</style>
