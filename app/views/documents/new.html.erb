@@ -1,15 +1,151 @@
-<h1>New Document</h1>
-<%= form_with model: @document, local: true do |form| %>
-  <p>
-    <%= form.label :name %><br>
-    <%= form.text_field :name %>
-  </p>
-  <p>
-    <%= form.label :content %><br>
-    <%= form.text_area :content %>
-  </p>
-  <p>
-    <%= form.submit %>
-  </p>
-<% end %>
-<%= link_to 'Back', documents_path %>
+<div class="container-fluid py-4">
+  <!-- Header moderne -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+              <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                <i class="bi bi-file-earmark-plus text-success fs-4"></i>
+              </div>
+              <div>
+                <h1 class="h3 mb-1 text-success">Nouveau Document</h1>
+                <p class="text-muted mb-0">Créez un nouveau document pour votre organisation</p>
+              </div>
+            </div>
+            <%= link_to documents_path, class: "btn btn-outline-secondary" do %>
+              <i class="bi bi-arrow-left me-2"></i>Retour aux documents
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulaire de création -->
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+          <h4 class="card-title mb-0">
+            <i class="bi bi-file-earmark-text text-success me-2"></i>
+            Informations du Document
+          </h4>
+        </div>
+        <div class="card-body">
+          <%= form_with model: @document, local: true, class: "needs-validation", novalidate: true do |form| %>
+            <div class="row g-3">
+              <!-- Nom du document -->
+              <div class="col-12">
+                <div class="form-floating">
+                  <%= form.text_field :name, class: "form-control", placeholder: "Nom du document", required: true %>
+                  <%= form.label :name, "Nom du document", class: "form-label" %>
+                  <div class="invalid-feedback">
+                    Veuillez saisir un nom pour le document.
+                  </div>
+                </div>
+                <div class="form-text">
+                  <i class="bi bi-info-circle me-1"></i>
+                  Choisissez un nom descriptif pour votre document.
+                </div>
+              </div>
+
+              <!-- Contenu -->
+              <div class="col-12">
+                <div class="form-floating">
+                  <%= form.text_area :content, class: "form-control", placeholder: "Contenu du document", style: "height: 200px;" %>
+                  <%= form.label :content, "Contenu", class: "form-label" %>
+                </div>
+                <div class="form-text">
+                  <i class="bi bi-info-circle me-1"></i>
+                  Ajoutez le contenu principal de votre document ou des notes importantes.
+                </div>
+              </div>
+
+              <!-- Boutons d'action -->
+              <div class="col-12">
+                <div class="d-flex gap-3 justify-content-end">
+                  <%= link_to documents_path, class: "btn btn-outline-secondary" do %>
+                    <i class="bi bi-x-lg me-2"></i>Annuler
+                  <% end %>
+                  <%= form.submit "Créer le document", class: "btn btn-success" %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Conseils et astuces -->
+  <div class="row mt-4 justify-content-center">
+    <div class="col-lg-8 col-md-10">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-lightbulb text-warning me-2"></i>
+            Conseils pour organiser vos documents
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="d-flex align-items-start">
+                <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                  <i class="bi bi-tag text-primary"></i>
+                </div>
+                <div>
+                  <h6 class="mb-1">Nommage clair</h6>
+                  <p class="text-muted small mb-0">Utilisez des noms descriptifs et datés</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="d-flex align-items-start">
+                <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                  <i class="bi bi-folder2-open text-info"></i>
+                </div>
+                <div>
+                  <h6 class="mb-1">Organisation</h6>
+                  <p class="text-muted small mb-0">Regroupez par projet ou catégorie</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="d-flex align-items-start">
+                <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                  <i class="bi bi-shield-check text-success"></i>
+                </div>
+                <div>
+                  <h6 class="mb-1">Sauvegarde</h6>
+                  <p class="text-muted small mb-0">Vos documents sont automatiquement sauvegardés</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Validation Bootstrap
+  (function() {
+    'use strict';
+    window.addEventListener('load', function() {
+      var forms = document.getElementsByClassName('needs-validation');
+      var validation = Array.prototype.filter.call(forms, function(form) {
+        form.addEventListener('submit', function(event) {
+          if (form.checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+    }, false);
+  })();
+</script>
