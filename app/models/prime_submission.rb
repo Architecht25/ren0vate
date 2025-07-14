@@ -21,8 +21,8 @@ class PrimeSubmission < ApplicationRecord
   validates :dossier_number, presence: true, uniqueness: true
   validates :region, presence: true
 
-  serialize :form_data, JSON
-  serialize :admin_response_data, JSON
+  serialize :form_data, coder: JSON
+  serialize :admin_response_data, coder: JSON
 
   scope :recent, -> { order(created_at: :desc) }
   scope :pending, -> { where(status: [:submitted, :in_review, :additional_info_required]) }
