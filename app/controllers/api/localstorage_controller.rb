@@ -1,35 +1,4 @@
-class Api::LocalstorageController <      # Maintenant essayons d'écrire dans un fichier d'abord
-      if email.present? && localStorage_data.present?
-        Rails.logger.info "✅ Données basiques OK - écriture dans fichier..."
-
-        # Écrire dans un fichier pour tester
-        timestamp = Time.current.strftime("%Y%m%d_%H%M%S")
-        filename = Rails.root.join("tmp/mails/email_#{timestamp}_#{email.gsub('@', '_at_')}.txt")
-
-        content = <<~TEXT
-          Email destinataire: #{email}
-          Date: #{Time.current}
-
-          === Données localStorage ===
-          #{localStorage_data.map { |k, v| "#{k}: #{v}" }.join("\n")}
-
-          === Fin du rapport ===
-        TEXT
-
-        File.write(filename, content)
-
-        Rails.logger.info "✅ Fichier écrit: #{filename}"
-
-        render json: {
-          message: "Rapport généré avec succès",
-          email: email,
-          file: filename.basename.to_s,
-          data_keys: localStorage_data.keys.join(', ')
-        }, status: :ok
-      else
-        Rails.logger.error "❌ Données manquantes"
-        render json: { error: "Données manquantes" }, status: :bad_request
-      endoller
+class Api::LocalstorageController < ApplicationController
   skip_before_action :verify_authenticity_token
 
   def save
