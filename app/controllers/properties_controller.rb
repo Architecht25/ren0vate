@@ -256,7 +256,7 @@ class PropertiesController < ApplicationController
       :name, :location, :price,
       :rue, :numero, :code_postal, :commune, :region,
       :type_propriete, :type, :occupation,
-      :autre_bien, :peb, :audit_energetique,
+      :autre_bien, :peb, :audit_energetique, :reconstruit,
       :annee_construction, :date_raccordement_electrique,
       :numero_ean, :numero_cadastre
     )

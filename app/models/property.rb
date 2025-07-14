@@ -15,6 +15,7 @@ class Property < ApplicationRecord
   # Validations pour les champs radio
   validates :autre_bien, inclusion: { in: %w[oui non] }, allow_blank: true
   validates :peb, inclusion: { in: %w[ef autre] }, allow_blank: true
+  validates :reconstruit, inclusion: { in: %w[oui non] }, allow_blank: true
 
   # Méthode pour l'adresse complète
   def full_address

@@ -10,37 +10,40 @@
     </h5>
 
     <%= f.input :rue,
-        label: "Straat*",
-        placeholder: "bv. Energiestraat",
+        label: "Rue*",
+        placeholder: "ex. Rue de l'Énergie",
         wrapper_html: { class: "mb-3" },
         input_html: { class: "form-control-custom" } %>
 
     <div class="row g-3">
       <div class="col-md-3">
         <%= f.input :numero,
-            label: "Nummer*",
-            placeholder: "bv. 24",
+            label: "Numéro*",
+            placeholder: "ex. 24",
             wrapper_html: { class: "mb-0" },
             input_html: { class: "form-control-custom" } %>
       </div>
+
       <div class="col-md-3">
         <%= f.input :code_postal,
-            label: "Postcode*",
-            placeholder: "bv. 9000",
+            label: "Code postal*",
+            placeholder: "ex. 9000",
             wrapper_html: { class: "mb-0" },
             input_html: { class: "form-control-custom" } %>
       </div>
+
       <div class="col-md-3">
         <%= f.input :commune,
-            label: "Gemeente*",
-            placeholder: "bv. Gent",
+            label: "Commune*",
+            placeholder: "ex. Gand",
             wrapper_html: { class: "mb-0" },
             input_html: { class: "form-control-custom" } %>
       </div>
+
       <div class="col-md-3">
         <%= f.input :region,
-            label: "Regio*",
-            input_html: { class: "form-control-custom", value: "Vlaanderen", readonly: true } %>
+            label: "Région*",
+            input_html: { class: "form-control-custom", value: "Flandre", readonly: true } %>
       </div>
     </div>
   </div>
@@ -49,34 +52,34 @@
   <div class="form-section mb-4">
     <h5 class="text-primary-custom mb-3 fw-normal">
       <i class="bi bi-building me-2"></i>
-      Type woning
+      Type de logement
     </h5>
 
     <div class="row g-3">
       <div class="col-md-6">
         <%= f.input :type_propriete,
-            label: "Type eigendom",
+            label: "Type de propriété",
             as: :select,
             collection: [
-              ["Volledig eigenaar", "propriétaire complet"],
-              ["Mede-eigenaar met echtgenoot", "copropriétaire"],
-              ["Naakte eigenaar", "nu-propriétaire"],
-              ["Vruchtgebruiker", "usufruitier"]
+              ["Propriétaire complet", "propriétaire complet"],
+              ["Copropriétaire avec époux/épouse", "copropriétaire"],
+              ["Nu-propriétaire", "nu-propriétaire"],
+              ["Usufruitier", "usufruitier"], ["Non propriétaire", "non propriétaire"]
             ],
-            prompt: "-- Selecteer type eigendom --",
+            prompt: "-- Sélectionnez le type de propriété --",
             wrapper_html: { class: "mb-0" },
             input_html: { class: "form-control-custom" } %>
       </div>
       <div class="col-md-6">
         <%= f.input :type,
-            label: "Type woning*",
+            label: "Type de logement*",
             as: :select,
             collection: [
-              ["Eengezinswoning", "maison"],
-              ["Appartement", "appartement"],
-              ["Gebouw met meerdere wooneenheden", "immeuble de rapport"]
+              ["Maison unifamiliale", "maison"],
+              ["Appartement en copropriété", "appartement en copropriété"], ["Appartement non en copropriété", "appartement nonen copropriété"],
+              ["Immeuble à plusieurs unités d'habitation", "immeuble de rapport"], ["Non logement", "non logement"]
             ],
-            prompt: "-- Selecteer type woning --",
+            prompt: "-- Sélectionnez le type de logement --",
             wrapper_html: { class: "mb-0" },
             input_html: { class: "form-control-custom" } %>
       </div>
@@ -85,14 +88,14 @@
     <div class="row g-3 mt-2">
       <div class="col-md-12">
         <%= f.input :occupation,
-            label: "Bewoning*",
+            label: "Occupation*",
             as: :select,
             collection: [
-              ["Hoofdverblijfplaats", "résidence principale"],
-              ["Verhuurde woning", "location"],
-              ["Andere", "autre"]
+              ["Résidence principale", "résidence principale"],
+              ["Logement loué", "location"],
+              ["Autre", "autre"]
             ],
-            prompt: "-- Selecteer type bewoning --",
+            prompt: "-- Sélectionnez le type d'occupation --",
             wrapper_html: { class: "mb-0" },
             input_html: { class: "form-control-custom" } %>
       </div>
@@ -103,21 +106,21 @@
   <div class="form-section mb-4">
     <h5 class="text-primary-custom mb-3 fw-normal">
       <i class="bi bi-info-circle me-2"></i>
-      Vlaamse specifieke kenmerken
+      Caractéristiques spécifiques à la Flandre
     </h5>
 
     <div class="row g-3">
       <div class="col-md-6">
         <%= f.input :annee_construction,
-            label: "Bouwjaar*",
-            placeholder: "bv. 1985",
+            label: "Année de construction*",
+            placeholder: "ex. 1985",
             wrapper_html: { class: "mb-0" },
             input_html: { class: "form-control-custom", type: "number" } %>
       </div>
       <div class="col-md-6">
         <%= f.input :date_raccordement_electrique,
-            label: "Datum aansluiting elektriciteitsnet*",
-            placeholder: "Let op: datum vóór 1 januari 2006!!!",
+            label: "Date de raccordement au réseau électrique*",
+            placeholder: "Attention: date avant le 1er janvier 2006!!!",
             wrapper_html: { class: "mb-0" },
             input_html: { class: "form-control-custom", type: "number" } %>
       </div>
@@ -126,15 +129,15 @@
     <div class="row g-3 mt-2">
       <div class="col-md-6">
         <%= f.input :numero_ean,
-            label: "EAN-nummer*",
-            placeholder: "bv. 5412345678901",
+            label: "Numéro EAN*",
+            placeholder: "ex. 5412345678901",
             wrapper_html: { class: "mb-0" },
             input_html: { class: "form-control-custom" } %>
       </div>
       <div class="col-md-6">
         <%= f.input :numero_cadastre,
-            label: "Kadastraal perceelnummer (optioneel)",
-            placeholder: "bv. 136E",
+            label: "Numéro de parcelle cadastrale (optionnel)",
+            placeholder: "ex. 136E",
             wrapper_html: { class: "mb-0" },
             input_html: { class: "form-control-custom" } %>
       </div>
@@ -142,29 +145,41 @@
 
     <div class="row g-3 mt-3">
       <div class="col-md-6">
-        <h6 class="text-primary-custom mb-2 fw-normal">Bezit u nog een andere woning/appartement/terrein in volle eigendom?</h6>
+        <h6 class="text-primary-custom mb-2 fw-normal">Possédez-vous encore un autre logement/appartement/terrain en pleine propriété?</h6>
         <%= f.input :autre_bien,
             label: false,
             as: :radio_buttons,
-            collection: [['Ja', 'oui'], ['Nee', 'non']],
+            collection: [['Oui', 'oui'], ['Non', 'non']],
             wrapper_html: { class: "mb-0" },
             input_html: { class: "form-check-input" } %>
       </div>
+
       <div class="col-md-6">
-        <h6 class="text-primary-custom mb-2 fw-normal">Geeft het EPC-certificaat een label E of F aan vóór renovatie?</h6>
+        <h6 class="text-primary-custom mb-2 fw-normal">Le certificat PEB indique-t-il un label E ou F avant rénovation?</h6>
         <%= f.input :peb,
             label: false,
             as: :radio_buttons,
-            collection: [['Ja', 'ef'], ['Nee', 'autre']],
+            collection: [['Oui', 'ef'], ['Non', 'autre']],
             wrapper_html: { class: "mb-0" },
             input_html: { class: "form-check-input" } %>
       </div>
+
+        <div class="col-md-6">
+        <h6 class="text-primary-custom mb-2 fw-normal">Le logement est-il un bâtiment qui a été démoli mais en gardant des résidus pour bénéficier de la TVA à 6% ?</h6>
+        <%= f.input :reconstruit,
+            label: false,
+            as: :radio_buttons,
+            collection: [['Oui', 'oui'], ['Non', 'non']],
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-check-input" } %>
+      </div>
+
     </div>
   </div>
 
   <!-- Boutons d'action -->
   <div class="d-flex justify-content-end mt-4">
-    <%= link_to "Annuleren", properties_path, class: "btn btn-outline-secondary me-2" %>
-    <%= f.submit "Eigendom toevoegen", class: "btn btn-primary-custom" %>
+    <%= link_to "Annuler", properties_path, class: "btn btn-outline-secondary me-2" %>
+    <%= f.submit "Ajouter la propriété", class: "btn btn-primary-custom" %>
   </div>
 <% end %>
