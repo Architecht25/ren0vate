@@ -32,11 +32,6 @@ Rails.application.routes.draw do
   get    "/profil/edition",   to: "users#edit",    as: :edit_profile
   patch  "/profil",           to: "users#update"
 
-  namespace :api do
-    post 'save_localstorage', to: 'localstorage#save'
-    post 'send_results_email', to: 'localstorage#send_results_email'
-  end
-
   get '/flandre', to: 'pages#flandre', as: :flandre
   get '/wallonie', to: 'pages#wallonie', as: :wallonie
   get '/bruxelles', to: 'pages#bruxelles', as: :bruxelles
