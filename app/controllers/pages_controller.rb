@@ -21,6 +21,9 @@ class PagesController < ApplicationController
                   .where("eligible_categories @> ARRAY[?]::varchar[]", [@categorie_id.to_s])
                   .order(:ordre_affichage)
 
+    # Récupération spécifique de la prime PEB
+    @prime_peb = Prime.find_by(slug: "certificat_peb_apres_travaux", region: "flandre")
+
     @plafonds_par_categorie = Prime.group(:category_id).maximum(:plafond)
     @groupes_plafond = Prime.distinct.pluck(:groupe)
   end
