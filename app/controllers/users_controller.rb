@@ -25,7 +25,9 @@ private
   params.require(:user).permit(
     :first_name, :last_name, :email, :phone, :iban,
     :street, :number, :postal_code, :city, :region,
-    :protected_client
+    :protected_client,
+    :situation_familiale, :revenu_demandeur, :annee_revenus_demandeur,
+    :revenu_conjoint, :annee_revenus_conjoint, :nombre_enfants
     )
   end
 end

@@ -9,116 +9,217 @@
     </div>
   </div>
 
-  <!-- Formulaire avec style harmonisé -->
-  <%= form_with model: current_user, url: user_path(current_user), method: :patch, local: true do |f| %>
-    <div class="card border-0 bg-light-custom shadow-sm p-4 mb-4 rounded mx-auto" style="max-width: 800px;">
-      <div class="card-body">
-        <div class="mb-4">
-          <div class="d-flex align-items-center mb-3">
-            <div class="icon-circle me-3">
-              <i class="bi bi-person"></i>
+  <!-- Formulaire avec mise en page 2 colonnes étendue -->
+  <%= form_with model: current_user, url: profile_path, method: :patch, local: true do |f| %>
+    <div class="row g-4">
+      <!-- Colonne gauche: Informations personnelles et coordonnées -->
+      <div class="col-lg-6">
+        <!-- Données personnelles -->
+        <div class="card border-0 bg-light-custom shadow-sm mb-4 rounded">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+              <div class="icon-circle me-3">
+                <i class="bi bi-person"></i>
+              </div>
+              <h5 class="mb-0 fw-normal text-primary-custom">Données personnelles</h5>
             </div>
-            <h5 class="mb-0 fw-normal text-primary-custom">Données personnelles</h5>
-          </div>
-          <div class="row g-3">
-            <div class="col-md-6">
-              <%= f.label :last_name, 'Nom', class: 'form-label small text-muted-custom' %>
-              <%= f.text_field :last_name, class: 'form-control', placeholder: 'Nom complet' %>
-            </div>
-            <div class="col-md-6">
-              <%= f.label :first_name, 'Prénom', class: 'form-label small text-muted-custom' %>
-              <%= f.text_field :first_name, class: 'form-control', placeholder: 'Prénom' %>
-            </div>
-          </div>
-        </div>
-
-        <div class="mb-4">
-          <div class="d-flex align-items-center mb-3">
-            <div class="icon-circle me-3">
-              <i class="bi bi-envelope"></i>
-            </div>
-            <h5 class="mb-0 fw-normal text-primary-custom">Coordonnées</h5>
-          </div>
-          <div class="row g-3">
-            <div class="col-md-6">
-              <%= f.label :email, 'Email', class: 'form-label small text-muted-custom' %>
-              <%= f.email_field :email, class: 'form-control', placeholder: 'Email' %>
-            </div>
-            <div class="col-md-6">
-              <%= f.label :phone, 'Téléphone', class: 'form-label small text-muted-custom' %>
-              <%= f.telephone_field :phone, class: 'form-control', placeholder: 'ex. 0471 23 45 67' %>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <%= f.label :last_name, 'Nom', class: 'form-label small text-muted-custom' %>
+                <%= f.text_field :last_name, class: 'form-control', placeholder: 'Nom complet' %>
+              </div>
+              <div class="col-md-6">
+                <%= f.label :first_name, 'Prénom', class: 'form-label small text-muted-custom' %>
+                <%= f.text_field :first_name, class: 'form-control', placeholder: 'Prénom' %>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="mb-4">
-          <div class="d-flex align-items-center mb-3">
-            <div class="icon-circle me-3">
-              <i class="bi bi-credit-card"></i>
+        <!-- Coordonnées -->
+        <div class="card border-0 bg-light-custom shadow-sm mb-4 rounded">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+              <div class="icon-circle me-3">
+                <i class="bi bi-envelope"></i>
+              </div>
+              <h5 class="mb-0 fw-normal text-primary-custom">Coordonnées</h5>
             </div>
-            <h5 class="mb-0 fw-normal text-primary-custom">Compte bancaire</h5>
-          </div>
-          <%= f.label :iban, 'IBAN', class: 'form-label small text-muted-custom' %>
-          <%= f.text_field :iban, class: 'form-control', placeholder: 'IBAN du compte bancaire - BExx xxxx xxxx xxxx' %>
-        </div>
-
-        <div class="mb-4">
-          <div class="d-flex align-items-center mb-3">
-            <div class="icon-circle me-3">
-              <i class="bi bi-geo-alt"></i>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <%= f.label :email, 'Email', class: 'form-label small text-muted-custom' %>
+                <%= f.email_field :email, class: 'form-control', placeholder: 'Email' %>
+              </div>
+              <div class="col-md-6">
+                <%= f.label :phone, 'Téléphone', class: 'form-label small text-muted-custom' %>
+                <%= f.telephone_field :phone, class: 'form-control', placeholder: 'ex. 0471 23 45 67' %>
+              </div>
             </div>
-            <h5 class="mb-0 fw-normal text-primary-custom">Adresse de résidence</h5>
-          </div>
-          <div class="mb-3">
-            <%= f.label :street, 'Rue', class: 'form-label small text-muted-custom' %>
-            <%= f.text_field :street, class: 'form-control', placeholder: 'ex. Rue de l Énergie' %>
-          </div>
-          <div class="row g-3">
-            <div class="col-md-4">
-              <%= f.label :number, 'Numéro', class: 'form-label small text-muted-custom' %>
-              <%= f.text_field :number, class: 'form-control', placeholder: 'ex. 24' %>
-            </div>
-            <div class="col-md-4">
-              <%= f.label :postal_code, 'Code postal', class: 'form-label small text-muted-custom' %>
-              <%= f.text_field :postal_code, class: 'form-control', placeholder: 'ex. 1190' %>
-            </div>
-            <div class="col-md-4">
-              <%= f.label :city, 'Commune', class: 'form-label small text-muted-custom' %>
-              <%= f.text_field :city, class: 'form-control', placeholder: 'ex. Forest' %>
-            </div>
-          </div>
-          <div class="mb-3 mt-3">
-            <%= f.label :region, 'Région', class: 'form-label small text-muted-custom' %>
-            <%= f.select :region, [['Flandre', 'flandre'], ['Bruxelles-Capitale', 'bruxelles'], ['Wallonie', 'wallonie']], { prompt: '-- Sélectionnez une région --' }, class: 'form-select' %>
           </div>
         </div>
 
-        <div class="mb-4">
-          <div class="d-flex align-items-center mb-3">
-            <div class="icon-circle me-3">
-              <i class="bi bi-shield-check"></i>
+        <!-- Compte bancaire -->
+        <div class="card border-0 bg-light-custom shadow-sm mb-4 rounded">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+              <div class="icon-circle me-3">
+                <i class="bi bi-credit-card"></i>
+              </div>
+              <h5 class="mb-0 fw-normal text-primary-custom">Compte bancaire</h5>
             </div>
-            <h5 class="mb-0 fw-normal text-primary-custom">Statut client</h5>
-          </div>
-          <div class="form-check form-check-inline">
-            <%= f.radio_button :protected_client, 'oui', class: 'form-check-input' %>
-            <%= f.label :protected_client_oui, 'Client protégé', class: 'form-check-label' %>
-          </div>
-          <div class="form-check form-check-inline">
-            <%= f.radio_button :protected_client, 'non', class: 'form-check-input' %>
-            <%= f.label :protected_client_non, 'Client standard', class: 'form-check-label' %>
+            <%= f.label :iban, 'IBAN', class: 'form-label small text-muted-custom' %>
+            <%= f.text_field :iban, class: 'form-control', placeholder: 'IBAN du compte bancaire - BExx xxxx xxxx xxxx' %>
           </div>
         </div>
 
-        <div class="d-flex justify-content-end mt-4">
-          <%= link_to root_path, class: 'btn btn-light me-2' do %>
-            <i class="bi bi-arrow-left me-1"></i>Retour
-          <% end %>
-          <%= f.button type: 'submit', class: 'btn btn-primary-custom px-4' do %>
-            <i class="bi bi-check-lg me-1"></i>Enregistrer
-          <% end %>
+        <!-- Adresse de résidence -->
+        <div class="card border-0 bg-light-custom shadow-sm mb-4 rounded">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+              <div class="icon-circle me-3">
+                <i class="bi bi-geo-alt"></i>
+              </div>
+              <h5 class="mb-0 fw-normal text-primary-custom">Adresse de résidence</h5>
+            </div>
+            <div class="mb-3">
+              <%= f.label :street, 'Rue', class: 'form-label small text-muted-custom' %>
+              <%= f.text_field :street, class: 'form-control', placeholder: 'ex. Rue de l Énergie' %>
+            </div>
+            <div class="row g-3">
+              <div class="col-md-4">
+                <%= f.label :number, 'Numéro', class: 'form-label small text-muted-custom' %>
+                <%= f.text_field :number, class: 'form-control', placeholder: 'ex. 24' %>
+              </div>
+              <div class="col-md-4">
+                <%= f.label :postal_code, 'Code postal', class: 'form-label small text-muted-custom' %>
+                <%= f.text_field :postal_code, class: 'form-control', placeholder: 'ex. 1190' %>
+              </div>
+              <div class="col-md-4">
+                <%= f.label :city, 'Commune', class: 'form-label small text-muted-custom' %>
+                <%= f.text_field :city, class: 'form-control', placeholder: 'ex. Forest' %>
+              </div>
+            </div>
+            <div class="mt-3">
+              <%= f.label :region, 'Région', class: 'form-label small text-muted-custom' %>
+              <%= f.select :region, [['Flandre', 'flandre'], ['Bruxelles-Capitale', 'bruxelles'], ['Wallonie', 'wallonie']], { prompt: '-- Sélectionnez une région --' }, class: 'form-select' %>
+            </div>
+          </div>
         </div>
       </div>
+
+      <!-- Colonne droite: Situation familiale et revenus -->
+      <div class="col-lg-6">
+        <!-- Situation familiale -->
+        <div class="card border-0 bg-light-custom shadow-sm mb-4 rounded">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+              <div class="icon-circle me-3">
+                <i class="bi bi-people"></i>
+              </div>
+              <h5 class="mb-0 fw-normal text-primary-custom">Situation familiale</h5>
+            </div>
+            <div class="mb-3">
+              <%= f.label :situation_familiale, 'Situation familiale', class: 'form-label small text-muted-custom' %>
+              <%= f.select :situation_familiale, 
+                  [['Couple', 'couple'], ['Isolé', 'isole'], ['Isolé avec enfant à charge', 'isole_avec_enfant']], 
+                  { prompt: '-- Sélectionnez votre situation --' }, 
+                  class: 'form-select' %>
+            </div>
+            <div class="mb-3">
+              <%= f.label :nombre_enfants, 'Nombre de personnes fiscalement à charge', class: 'form-label small text-muted-custom' %>
+              <%= f.number_field :nombre_enfants, 
+                  class: 'form-control', 
+                  placeholder: '3',
+                  min: 0 %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Revenus et informations fiscales -->
+        <div class="card border-0 bg-light-custom shadow-sm mb-4 rounded">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+              <div class="icon-circle me-3">
+                <i class="bi bi-currency-euro"></i>
+              </div>
+              <h5 class="mb-0 fw-normal text-primary-custom">Revenus et informations fiscales</h5>
+            </div>
+            
+            <!-- Revenus demandeur -->
+            <div class="mb-3">
+              <%= f.label :revenu_demandeur, 'Vos "Revenus Imposables Globalement" personnels', class: 'form-label small text-muted-custom' %>
+              <div class="mb-2">
+                <a href="https://www.minfin.fgov.be/myminfin-web/pages/public" target="_blank" class="text-decoration-none small">
+                  <i class="bi bi-search me-1"></i>Rechercher ici votre AER
+                </a>
+              </div>
+              <div class="row g-3">
+                <div class="col-md-7">
+                  <%= f.number_field :revenu_demandeur, 
+                      class: 'form-control', 
+                      placeholder: 'ex. 21374',
+                      min: 0, 
+                      step: 100 %>
+                </div>
+                <div class="col-md-5">
+                  <%= f.select :annee_revenus_demandeur, 
+                      [['2023 (revenus 2022)', '2023'], ['2022 (revenus 2021)', '2022'], ['2021 (revenus 2020)', '2021']], 
+                      { prompt: '-- Année --' }, 
+                      class: 'form-select' %>
+                </div>
+              </div>
+            </div>
+
+            <!-- Revenus conjoint -->
+            <div class="mb-3">
+              <%= f.label :revenu_conjoint, 'Les "Revenus Imposables Globalement" de votre conjoint', class: 'form-label small text-muted-custom' %>
+              <div class="row g-3">
+                <div class="col-md-7">
+                  <%= f.number_field :revenu_conjoint, 
+                      class: 'form-control', 
+                      placeholder: 'ex. 19671' %>
+                </div>
+                <div class="col-md-5">
+                  <%= f.select :annee_revenus_conjoint, 
+                      [['2023 (revenus 2022)', '2023'], ['2022 (revenus 2021)', '2022'], ['2021 (revenus 2020)', '2021']], 
+                      { prompt: '-- Année --' }, 
+                      class: 'form-select' %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Statut client -->
+        <div class="card border-0 bg-light-custom shadow-sm mb-4 rounded">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+              <div class="icon-circle me-3">
+                <i class="bi bi-shield-check"></i>
+              </div>
+              <h5 class="mb-0 fw-normal text-primary-custom">Statut client</h5>
+            </div>
+            <div class="form-check form-check-inline">
+              <%= f.radio_button :protected_client, 'oui', class: 'form-check-input' %>
+              <%= f.label :protected_client_oui, 'Client protégé', class: 'form-check-label' %>
+            </div>
+            <div class="form-check form-check-inline">
+              <%= f.radio_button :protected_client, 'non', class: 'form-check-input' %>
+              <%= f.label :protected_client_non, 'Client standard', class: 'form-check-label' %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Boutons d'action -->
+    <div class="d-flex justify-content-end mt-4">
+      <%= link_to root_path, class: 'btn btn-light me-2' do %>
+        <i class="bi bi-arrow-left me-1"></i>Retour
+      <% end %>
+      <%= f.button type: 'submit', class: 'btn btn-primary-custom px-4' do %>
+        <i class="bi bi-check-lg me-1"></i>Enregistrer
+      <% end %>
     </div>
   <% end %>
 </div>
