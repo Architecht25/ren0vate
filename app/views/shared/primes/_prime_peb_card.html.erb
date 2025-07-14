@@ -2,9 +2,8 @@
 <div class="col-lg-4 col-md-4 col-12">
   <div class="card shadow-sm border-0 p-3 mb-3 h-100 prime-card-peb"
        data-controller="peb"
-       data-peb-categorie-value="<%= @categorie_id || '1' %>"
-       data-peb-valeurs-data-value="<%= raw(prime_peb&.valeurs_par_categorie&.to_json || '{}') %>">
-    
+       data-peb-categorie-value="<%= @categorie_id || '1' %>">
+
     <div class="card-body p-2">
       <!-- En-tête avec icône -->
       <div class="d-flex align-items-center gap-3 mb-3">
@@ -16,9 +15,22 @@
 
       <!-- Formulaire interactif -->
       <div class="prime-fields d-flex flex-column gap-2">
-        
+
+        <!-- Label initial -->
+        <select class="form-select"
+                data-peb-target="labelInitial"
+                data-action="change->peb#labelInitialChanged">
+          <option value="">Label initial (ex: F)</option>
+          <option value="F">F</option>
+          <option value="E">E</option>
+          <option value="D">D</option>
+          <option value="C">C</option>
+          <option value="B">B</option>
+          <option value="A">A</option>
+        </select>
+
         <!-- Type de logement -->
-        <select class="form-select" 
+        <select class="form-select"
                 data-peb-target="typeLogement"
                 data-action="change->peb#typeLogementChanged">
           <option value="">Type de logement</option>
@@ -26,16 +38,8 @@
           <option value="appartement">Appartement</option>
         </select>
 
-        <!-- Label final -->
-        <select class="form-select" 
-                data-peb-target="labelFinal"
-                data-action="change->peb#labelFinalChanged">
-          <option value="">Label final visé</option>
-          <!-- Options générées dynamiquement par le contrôleur -->
-        </select>
-
         <!-- Ventilation -->
-        <select class="form-select" 
+        <select class="form-select"
                 data-peb-target="ventilation"
                 data-action="change->peb#ventilationChanged">
           <option value="">Ventilation conforme ?</option>
@@ -43,8 +47,18 @@
           <option value="sans_ventilation">Non</option>
         </select>
 
+        <!-- Label final -->
+        <select class="form-select"
+                data-peb-target="labelFinal"
+                data-action="change->peb#labelFinalChanged">
+          <option value="">Label final visé</option>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+        </select>
+
         <!-- Résultat -->
-        <div class="resultat-prime mt-3 p-2 bg-light rounded d-none" 
+        <div class="resultat-prime mt-3 p-2 bg-light rounded d-none"
              data-peb-target="resultatContainer">
           <div class="d-flex justify-content-between align-items-center">
             <strong class="text-success">Prime estimée :</strong>
@@ -52,22 +66,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Conditions et conseils (mini version) -->
-      <div class="mt-3">
-        <p class="text-muted small mb-2">
-          <strong>Condition :</strong> Amélioration d'au moins 2 labels (E/F → A/B/C)
-        </p>
-        <p class="text-muted small mb-2">
-          <strong>Conseil :</strong> Certificat PEB avant et après travaux obligatoire
-        </p>
-        <p class="text-muted small mb-0">
-          <strong>Document :</strong> Certificats PEB initial et final
-        </p>
-      </div>
-
-      <!-- Détails du calcul (optionnel) -->
-      <div data-peb-target="detailsContainer" class="mt-2"></div>
     </div>
   </div>
 </div>

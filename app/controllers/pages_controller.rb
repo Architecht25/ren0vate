@@ -19,6 +19,7 @@ class PagesController < ApplicationController
 
     @primes = Prime.where(region: "flandre")
                   .where("eligible_categories @> ARRAY[?]::varchar[]", [@categorie_id.to_s])
+                  .where.not(slug: "certificat_peb_apres_travaux")  # Exclure la prime PEB des primes principales
                   .order(:ordre_affichage)
 
     # Récupération spécifique de la prime PEB
