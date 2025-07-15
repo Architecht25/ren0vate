@@ -54,6 +54,12 @@ export default class extends Controller {
       return;
     }
 
+    const facture_solde = testData["facture_solde"];
+    if (facture_solde === "oui") {
+      this.showResult("❌ La facture de solde de vos travaux doit dater de moins de 2 ans pour que les travaux soient éligibles aux primes.", false);
+      return;
+    }
+
     const travaux = testData["travaux"];
     if (travaux === "non") {
       this.showResult("❌ Vous devez prévoir des travaux éligibles pour bénéficier des primes actuelles.", false);
