@@ -27,7 +27,6 @@ Rails.application.routes.draw do
   # config/routes.rb
   post "/calcul-categorie", to: "categories#calcul"
   get '/admin/dashboard', to: 'admin#dashboard'
-  get '/localstorage', to: 'localstorage#index'
   get    "/profil",           to: "users#profile", as: :profile
   get    "/profile",          to: redirect("/profil")  # Redirection EN -> FR
   get    "/profil/edition",   to: "users#edit",    as: :edit_profile
