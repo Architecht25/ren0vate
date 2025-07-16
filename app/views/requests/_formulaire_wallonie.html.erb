@@ -1,0 +1,71 @@
+<%= simple_form_for @demande, url: primes_wallonie_path, method: :post do |f| %>
+
+  <!-- SECTION 1 – Identification -->
+  <h2>Identification du demandeur</h2>
+  <%= f.input :type_demandeur, collection: ['Particulier', 'Société', 'Copropriété'], prompt: "Sélectionnez", label: "Type de demandeur" %>
+  <%= f.input :nom, label: "Nom complet" %>
+  <%= f.input :prenom, label: "Prénom" %>
+  <%= f.input :email, label: "Adresse e-mail" %>
+  <%= f.input :telephone, label: "Numéro de téléphone" %>
+
+  <hr>
+
+  <!-- SECTION 2 – Adresse du logement -->
+  <h2>Adresse du logement concerné</h2>
+  <%= f.input :adresse, label: "Adresse" %>
+  <%= f.input :code_postal, label: "Code postal" %>
+  <%= f.input :localite, label: "Localité" %>
+  <%= f.input :commune, label: "Commune" %>
+  <%= f.input :region, input_html: { value: "Wallonie" }, label: "Région", disabled: true %>
+
+  <hr>
+
+  <!-- SECTION 3 – Type de prime demandée -->
+  <h2>Type de prime</h2>
+  <%= f.input :type_prime, collection: ['Audit énergétique', 'Travaux après audit', 'Travaux sans audit'], prompt: "Sélectionnez", label: "Type de prime" %>
+
+  <hr>
+
+  <!-- SECTION 4 – Revenus du ménage -->
+  <h2>Revenus du ménage</h2>
+  <%= f.input :revenu_imposable, label: "Revenu imposable net du ménage (N-2)", hint: "Comme mentionné dans l’avertissement-extrait de rôle" %>
+  <%= f.input :personnes_a_charge, label: "Nombre de personnes à charge" %>
+
+  <hr>
+
+  <!-- SECTION 5 – Travaux envisagés ou réalisés -->
+  <h2>Travaux</h2>
+  <%= f.input :travaux_types, as: :check_boxes, collection: [
+    'Isolation de la toiture',
+    'Isolation des murs extérieurs',
+    'Châssis / vitrage',
+    'Ventilation',
+    'Chauffage',
+    'Pompe à chaleur',
+    'Photovoltaïque'
+  ], label: "Travaux concernés" %>
+
+  <%= f.input :date_facture, as: :date, label: "Date de la facture (ou estimation si non réalisée)" %>
+  <%= f.input :montant_ttc, label: "Montant des travaux (TVAC)" %>
+
+  <hr>
+
+  <!-- SECTION 6 – Documents à joindre (liens ou pièces jointes dans Rails) -->
+  <h2>Documents à fournir</h2>
+  <p class="text-muted">Les documents seront demandés après validation de votre demande :</p>
+  <ul>
+    <li>Factures ou devis</li>
+    <li>Photos avant/après</li>
+    <li>Preuve de revenus (avertissement extrait de rôle)</li>
+    <li>Rapport d’audit énergétique (si applicable)</li>
+  </ul>
+
+  <hr>
+
+  <!-- SECTION 7 – Déclaration -->
+  <h2>Déclaration sur l'honneur</h2>
+  <%= f.input :accept_conditions, as: :boolean, label: "Je certifie l’exactitude des informations fournies et accepte les conditions d’octroi de la prime." %>
+
+  <%= f.button :submit, "Soumettre la demande", class: "btn btn-primary mt-4" %>
+
+<% end %>

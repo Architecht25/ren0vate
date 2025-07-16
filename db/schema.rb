@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_14_121735) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_16_063711) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -194,8 +194,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_14_121735) do
   create_table "requests", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "property_id", null: false
-    t.bigint "project_id", null: false
-    t.bigint "simulation_id", null: false
+    t.bigint "project_id"
+    t.bigint "simulation_id"
     t.float "montant_total"
     t.string "status"
     t.datetime "submitted_at"
@@ -203,6 +203,24 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_14_121735) do
     t.datetime "confirmation_offre_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "region"
+    t.string "title"
+    t.text "description"
+    t.integer "revenus_menage"
+    t.integer "nombre_personnes"
+    t.string "type_travaux"
+    t.decimal "surface_travaux", precision: 10, scale: 2
+    t.decimal "cout_estime", precision: 10, scale: 2
+    t.integer "revenus_reference"
+    t.string "composition_menage"
+    t.string "categories_travaux"
+    t.boolean "logement_principal"
+    t.decimal "montant_travaux", precision: 10, scale: 2
+    t.integer "inkomen_gezin"
+    t.string "gezinssamenstelling"
+    t.string "type_renovatie"
+    t.boolean "eigenaar_bewoner"
+    t.decimal "kostprijs_werken", precision: 10, scale: 2
     t.index ["project_id"], name: "index_requests_on_project_id"
     t.index ["property_id"], name: "index_requests_on_property_id"
     t.index ["simulation_id"], name: "index_requests_on_simulation_id"

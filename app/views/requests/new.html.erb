@@ -32,10 +32,48 @@
             </div>
 
             <div class="mb-3">
+              <%= form.label :region, "Région*", class: "form-label" %>
+              <%= form.select :region,
+                  [
+                    ["Bruxelles", "bruxelles"],
+                    ["Wallonie", "wallonie"],
+                    ["Flandre", "flandre"]
+                  ],
+                  { include_blank: "-- Sélectionnez votre région --" },
+                  { class: "form-select", required: true, id: "request_region" } %>
+              <div class="invalid-feedback">
+                Veuillez sélectionner une région.
+              </div>
+            </div>
+
+            <% if defined?(Property) && Property.any? %>
+              <div class="mb-3">
+                <%= form.label :property_id, "Bien immobilier concerné*", class: "form-label" %>
+                <%= form.collection_select :property_id, Property.all, :id, :name, { include_blank: "-- Sélectionner un bien --" }, { class: "form-select", required: true } %>
+                <div class="invalid-feedback">
+                  Veuillez sélectionner un bien immobilier.
+                </div>
+              </div>
+            <% end %>
+
+            <div class="mb-3">
               <%= form.label :description, "Description*", class: "form-label" %>
               <%= form.text_area :description, rows: 4, class: "form-control", placeholder: "Décrivez votre demande en détail...", required: true %>
               <div class="invalid-feedback">
                 Veuillez entrer une description pour votre demande.
+              </div>
+            </div>
+
+            <!-- Formulaires spécifiques par région -->
+            <div id="region-specific-form">
+              <div id="bruxelles-form" class="region-form d-none">
+                <%= render 'requests/region_forms/bruxelles', form: form %>
+              </div>
+              <div id="wallonie-form" class="region-form d-none">
+                <%= render 'requests/region_forms/wallonie', form: form %>
+              </div>
+              <div id="flandre-form" class="region-form d-none">
+                <%= render 'requests/region_forms/flandre', form: form %>
               </div>
             </div>
 
@@ -62,7 +100,7 @@
     </div>
 
     <div class="col-lg-4">
-      <div class="card border-0 bg-light-custom">
+      <div class="card border-0 bg-light-custom mb-4">
         <div class="card-body p-4">
           <h6 class="card-title text-primary-custom mb-3">
             <i class="bi bi-lightbulb me-2"></i>Conseils
@@ -74,12 +112,32 @@
             </li>
             <li class="mb-2">
               <i class="bi bi-check-circle text-success me-2"></i>
-              Détaillez votre demande
+              Sélectionnez votre région
             </li>
             <li class="mb-2">
               <i class="bi bi-check-circle text-success me-2"></i>
-              Sélectionnez le bon statut
+              Associez à un bien immobilier
             </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              Détaillez votre demande
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h6 class="card-title text-primary-custom mb-3">
+            <i class="bi bi-info-circle me-2"></i>Formulaires par région
+          </h6>
+          <p class="text-muted-custom small mb-3">
+            Chaque région a ses propres critères et formulaires pour les demandes de primes.
+          </p>
+          <ul class="list-unstyled text-muted-custom small">
+            <li class="mb-1">• Bruxelles : Formulaire spécifique RBC</li>
+            <li class="mb-1">• Wallonie : Formulaire SPW</li>
+            <li class="mb-1">• Flandre : Formulaire Vlaio</li>
           </ul>
         </div>
       </div>
@@ -103,6 +161,30 @@
       }, false);
     });
 })();
+
+// Gestion des formulaires spécifiques par région
+document.addEventListener('DOMContentLoaded', function() {
+  const regionSelect = document.getElementById('request_region');
+  const regionForms = document.querySelectorAll('.region-form');
+  
+  if (regionSelect) {
+    regionSelect.addEventListener('change', function() {
+      // Masquer tous les formulaires
+      regionForms.forEach(function(form) {
+        form.classList.add('d-none');
+      });
+      
+      // Afficher le formulaire correspondant à la région sélectionnée
+      const selectedRegion = this.value;
+      if (selectedRegion) {
+        const targetForm = document.getElementById(selectedRegion + '-form');
+        if (targetForm) {
+          targetForm.classList.remove('d-none');
+        }
+      }
+    });
+  }
+});
 </script>
 
 <!-- Utilise le fichier CSS externe properties.css -->

@@ -1,0 +1,78 @@
+<!-- Formulaire spécifique pour la Wallonie -->
+<div class="alert alert-info">
+  <i class="bi bi-info-circle me-2"></i>
+  <strong>Formulaire pour la Région Wallonne</strong>
+  <p class="mb-0 small">Primes disponibles : Prime Habitation, Prime Énergie, Prime Rénovation, Prime Logement</p>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="mb-3">
+      <%= form.label :revenus_reference, "Revenus de référence (€)*", class: "form-label" %>
+      <%= form.number_field :revenus_reference, class: "form-control", placeholder: "Ex: 42000", required: true %>
+      <div class="invalid-feedback">
+        Veuillez entrer le revenu de référence.
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="mb-3">
+      <%= form.label :composition_menage, "Composition du ménage*", class: "form-label" %>
+      <%= form.select :composition_menage,
+            options_for_select([
+              ['Isolé', 'isole'],
+              ['Couple sans enfant', 'couple_sans_enfant'],
+              ['Couple avec 1 enfant', 'couple_1_enfant'],
+              ['Couple avec 2 enfants', 'couple_2_enfants'],
+              ['Couple avec 3 enfants ou plus', 'couple_3_enfants_plus'],
+              ['Famille monoparentale', 'famille_monoparentale']
+            ]),
+            { include_blank: "-- Sélectionnez la composition --" },
+            { class: "form-select", required: true } %>
+      <div class="invalid-feedback">
+        Veuillez sélectionner la composition du ménage.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mb-3">
+  <%= form.label :categories_travaux, "Catégories de travaux*", class: "form-label" %>
+  <%= form.select :categories_travaux,
+        options_for_select([
+          ['Isolation thermique', 'isolation_thermique'],
+          ['Système de chauffage', 'systeme_chauffage'],
+          ['Système de production d\'eau chaude', 'systeme_eau_chaude'],
+          ['Ventilation', 'ventilation'],
+          ['Étanchéité à l\'air', 'etancheite_air'],
+          ['Audit énergétique', 'audit_energetique'],
+          ['Rénovation globale', 'renovation_globale']
+        ]),
+        { include_blank: "-- Sélectionnez la catégorie --" },
+        { class: "form-select", required: true } %>
+  <div class="invalid-feedback">
+    Veuillez sélectionner la catégorie de travaux.
+  </div>
+</div>
+
+<div class="mb-3">
+  <%= form.label :logement_principal, "Logement principal*", class: "form-label" %>
+  <%= form.select :logement_principal,
+        options_for_select([
+          ['Oui', true],
+          ['Non', false]
+        ]),
+        { include_blank: "-- Sélectionnez --" },
+        { class: "form-select", required: true } %>
+  <div class="invalid-feedback">
+    Veuillez indiquer si c'est votre logement principal.
+  </div>
+</div>
+
+<div class="mb-3">
+  <%= form.label :montant_travaux, "Montant des travaux (€)*", class: "form-label" %>
+  <%= form.number_field :montant_travaux, class: "form-control", placeholder: "Ex: 12000", required: true %>
+  <div class="invalid-feedback">
+    Veuillez entrer le montant des travaux.
+  </div>
+</div>

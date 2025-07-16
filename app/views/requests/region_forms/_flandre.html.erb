@@ -1,0 +1,79 @@
+<!-- Formulaire spécifique pour la Flandre -->
+<div class="alert alert-info">
+  <i class="bi bi-info-circle me-2"></i>
+  <strong>Formulaire pour la Région Flamande</strong>
+  <p class="mb-0 small">Primes disponibles : Vlaio, Mijn VerbouwPremie, Energiepremie</p>
+</div>
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="mb-3">
+      <%= form.label :inkomen_gezin, "Inkomen van het gezin (€)*", class: "form-label" %>
+      <%= form.number_field :inkomen_gezin, class: "form-control", placeholder: "Ex: 40000", required: true %>
+      <div class="invalid-feedback">
+        Gelieve het gezinsinkomen in te vullen.
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="mb-3">
+      <%= form.label :gezinssamenstelling, "Gezinssamenstelling*", class: "form-label" %>
+      <%= form.select :gezinssamenstelling,
+            options_for_select([
+              ['Alleenstaande', 'alleenstaande'],
+              ['Koppel zonder kinderen', 'koppel_zonder_kinderen'],
+              ['Koppel met 1 kind', 'koppel_1_kind'],
+              ['Koppel met 2 kinderen', 'koppel_2_kinderen'],
+              ['Koppel met 3 of meer kinderen', 'koppel_3_meer_kinderen'],
+              ['Eenouder gezin', 'eenouder_gezin']
+            ]),
+            { include_blank: "-- Selecteer samenstelling --" },
+            { class: "form-select", required: true } %>
+      <div class="invalid-feedback">
+        Gelieve de gezinssamenstelling te selecteren.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mb-3">
+  <%= form.label :type_renovatie, "Type renovatie*", class: "form-label" %>
+  <%= form.select :type_renovatie,
+        options_for_select([
+          ['Dakisolatie', 'dakisolatie'],
+          ['Gevelmuurisolatie', 'gevelmuurisolatie'],
+          ['Vloerisolatie', 'vloerisolatie'],
+          ['Ramen en deuren', 'ramen_deuren'],
+          ['Verwarmingssysteem', 'verwarmingssysteem'],
+          ['Ventilatie', 'ventilatie'],
+          ['Zonnepanelen', 'zonnepanelen'],
+          ['Energieaudit', 'energieaudit']
+        ]),
+        { include_blank: "-- Selecteer type renovatie --" },
+        { class: "form-select", required: true } %>
+  <div class="invalid-feedback">
+    Gelieve het type renovatie te selecteren.
+  </div>
+</div>
+
+<div class="mb-3">
+  <%= form.label :eigenaar_bewoner, "Eigenaar-bewoner*", class: "form-label" %>
+  <%= form.select :eigenaar_bewoner,
+        options_for_select([
+          ['Ja', true],
+          ['Nee', false]
+        ]),
+        { include_blank: "-- Selecteer --" },
+        { class: "form-select", required: true } %>
+  <div class="invalid-feedback">
+    Gelieve aan te geven of u eigenaar-bewoner bent.
+  </div>
+</div>
+
+<div class="mb-3">
+  <%= form.label :kostprijs_werken, "Kostprijs van de werken (€)*", class: "form-label" %>
+  <%= form.number_field :kostprijs_werken, class: "form-control", placeholder: "Ex: 18000", required: true %>
+  <div class="invalid-feedback">
+    Gelieve de kostprijs van de werken in te vullen.
+  </div>
+</div>
