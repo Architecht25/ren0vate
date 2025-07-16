@@ -45,7 +45,7 @@ class RequestsController < ApplicationController
     params.require(:request).permit(:title, :description, :status, :region, :property_id,
                                    # Paramètres Bruxelles
                                    :revenus_menage, :nombre_personnes, :type_travaux, :surface_travaux, :cout_estime,
-                                   # Paramètres Wallonie  
+                                   # Paramètres Wallonie
                                    :revenus_reference, :composition_menage, :categories_travaux, :logement_principal, :montant_travaux,
                                    # Paramètres Flandre
                                    :inkomen_gezin, :gezinssamenstelling, :type_renovatie, :eigenaar_bewoner, :kostprijs_werken)
