@@ -47,7 +47,18 @@ class RequestsController < ApplicationController
                                    :revenus_menage, :nombre_personnes, :type_travaux, :surface_travaux, :cout_estime,
                                    # Paramètres Wallonie
                                    :revenus_reference, :composition_menage, :categories_travaux, :logement_principal, :montant_travaux,
-                                   # Paramètres Flandre
-                                   :inkomen_gezin, :gezinssamenstelling, :type_renovatie, :eigenaar_bewoner, :kostprijs_werken)
+                                   # Paramètres Flandre originaux
+                                   :inkomen_gezin, :gezinssamenstelling, :type_renovatie, :eigenaar_bewoner, :kostprijs_werken,
+                                   # Nouveaux paramètres Flandre optimisés
+                                   :domicile, :type_demandeur, :registre_national, :nom, :prenom, :telephone, :email,
+                                   :ean, :parcelle, :adresse, :code_postal, :commune, :type_bien, :usage,
+                                   :chauffage_post_renovation, :travaux_toiture, :travaux_murs, :travaux_sol,
+                                   :travaux_vitrage, :travaux_chauffage, :travaux_complementaires, :travaux_ventilation,
+                                   :travaux_solaire, :revenus_annuels, :personnes_charge, :annee_aer, :compte_bancaire,
+                                   :email_contact, :telephone_contact, :confirmation_veracite, :acceptation_conditions,
+                                   # Support pour les fichiers
+                                   :document_devis, :document_factures, :document_aer, :document_peb,
+                                   :document_attestations, :document_photos, :document_autres,
+                                   document_devis: [], document_factures: [], document_attestations: [], document_photos: [], document_autres: [])
   end
 end

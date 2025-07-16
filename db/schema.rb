@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_16_103841) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_16_171636) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -223,6 +223,37 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_16_103841) do
     t.string "type_renovatie"
     t.boolean "eigenaar_bewoner"
     t.decimal "kostprijs_werken", precision: 10, scale: 2
+    t.boolean "domicile"
+    t.string "type_demandeur"
+    t.string "registre_national"
+    t.string "nom"
+    t.string "prenom"
+    t.string "telephone"
+    t.string "email"
+    t.string "ean"
+    t.string "parcelle"
+    t.string "adresse"
+    t.string "code_postal"
+    t.string "commune"
+    t.string "type_bien"
+    t.string "usage"
+    t.string "chauffage_post_renovation"
+    t.boolean "travaux_toiture"
+    t.boolean "travaux_murs"
+    t.boolean "travaux_sol"
+    t.boolean "travaux_vitrage"
+    t.boolean "travaux_chauffage"
+    t.boolean "travaux_complementaires"
+    t.boolean "travaux_ventilation"
+    t.boolean "travaux_solaire"
+    t.integer "revenus_annuels"
+    t.integer "personnes_charge"
+    t.string "annee_aer"
+    t.string "compte_bancaire"
+    t.string "email_contact"
+    t.string "telephone_contact"
+    t.boolean "confirmation_veracite"
+    t.boolean "acceptation_conditions"
     t.index ["project_id"], name: "index_requests_on_project_id"
     t.index ["property_id"], name: "index_requests_on_property_id"
     t.index ["simulation_id"], name: "index_requests_on_simulation_id"
