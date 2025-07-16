@@ -5,104 +5,159 @@
   <p class="mb-0 small">Primes disponibles : Vlaio, Mijn VerbouwPremie, Energiepremie</p>
 </div>
 
-<div class="flandre-specific-fields p-4">
+<div class="flandre-specific-fields">
 
-  <!-- dépôt ici des codes pour introduction des demandes de primes -->
-  <h1 class="mb-4 text-center w-100">Préavisualisation votre demande via votre formulaire Miroir et introduisez ensuite votre demande</h1>
+  <!-- Titre principal -->
+  <div class="text-center mb-4">
+    <h2 class="h4 text-primary-custom">Prévisualisation de votre demande via le formulaire Miroir</h2>
+    <p class="text-muted">Complétez les informations ci-dessous puis soumettez votre demande</p>
+  </div>
 
   <!-- Étape 0 : Condition préalable -->
-  <section id="section-condition" class="formulaire-prime mt-5">
-    <h3>0. Conditions préalables</h3>
-    <p>Le dépôt de votre demande ne peut se faire que si vous êtes domicilié dans votre bien après travaux</p>
-    <div class="form-check">
-      <input class="form-check-input" type="checkbox" id="domicile" name="domicile" value="domicile" required>
-      <label class="form-check-label" for="domicile">Etes-vous bien domicilié dans votre bien?</label>
+  <div class="card mb-4">
+    <div class="card-body">
+      <h3 class="card-title text-primary-custom">
+        <i class="bi bi-house-check me-2"></i>0. Conditions préalables
+      </h3>
+      <p class="card-text text-muted">Le dépôt de votre demande ne peut se faire que si vous êtes domicilié dans votre bien après travaux</p>
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="domicile" name="domicile" value="domicile" required>
+        <label class="form-check-label" for="domicile">
+          <strong>Êtes-vous bien domicilié dans votre bien?</strong>
+        </label>
+      </div>
     </div>
-  </section>
+  </div>
 
-  <!-- Étape 1 & 2: Profil du demandeur + Données du logement -->
-  <section id="section-profil" class="formulaire-prime mt-5">
-    <h3>1. Profil du demandeur</h3>
+  <!-- Étape 1 : Profil du demandeur -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <h3 class="card-title text-primary-custom">
+        <i class="bi bi-person me-2"></i>1. Profil du demandeur
+      </h3>
 
-    <label for="type-demandeur">Type de demandeur *</label>
-    <select id="type-demandeur" name="type_demandeur" required>
-      <option disabled selected value="">-- Sélectionnez --</option>
-      <option value="particulier">Particulier</option>
-      <option value="societe">Société</option>
-      <option value="syndic">Syndicat de copropriété</option>
-      <option value="bailleur_social">Bailleur social</option>
-      <option value="asbl_cooperative">ASBL ou Coopérative</option>
-    </select>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="type-demandeur" class="form-label">Type de demandeur *</label>
+          <select id="type-demandeur" name="type_demandeur" class="form-select" required>
+            <option disabled selected value="">-- Sélectionnez --</option>
+            <option value="particulier">Particulier</option>
+            <option value="societe">Société</option>
+            <option value="syndic">Syndicat de copropriété</option>
+            <option value="bailleur_social">Bailleur social</option>
+            <option value="asbl_cooperative">ASBL ou Coopérative</option>
+          </select>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="registre-national" class="form-label">Numéro de registre national ou BCE *</label>
+          <input type="text" id="registre-national" name="registre_national" class="form-control" required />
+        </div>
+      </div>
 
-    <label for="nom">Nom du demandeur *</label>
-    <input type="text" id="nom" name="nom" required />
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="nom" class="form-label">Nom du demandeur *</label>
+          <input type="text" id="nom" name="nom" class="form-control" required />
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="prenom" class="form-label">Prénom du demandeur *</label>
+          <input type="text" id="prenom" name="prenom" class="form-control" required />
+        </div>
+      </div>
 
-    <label for="prenom">Prénom du demandeur *</label>
-    <input type="text" id="prenom" name="prenom" required />
-
-    <label for="registre-national">Numéro de registre national ou BCE *</label>
-    <input type="text" id="registre-national" name="registre_national" required />
-
-    <label for="telephone">Téléphone *</label>
-    <input type="tel" id="telephone" name="telephone" required />
-
-    <label for="email">Adresse email *</label>
-    <input type="email" id="email" name="email" required />
-  </section>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="telephone" class="form-label">Téléphone *</label>
+          <input type="tel" id="telephone" name="telephone" class="form-control" required />
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="email" class="form-label">Adresse email *</label>
+          <input type="email" id="email" name="email" class="form-control" required />
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Étape 2 : Données du logement concerné -->
-  <section id="section-logement" class="formulaire-prime mt-5">
-    <h3 class="mt-4">2. Données du logement concerné</h3>
+  <div class="card mb-4">
+    <div class="card-body">
+      <h3 class="card-title text-primary-custom">
+        <i class="bi bi-house me-2"></i>2. Données du logement concerné
+      </h3>
 
-    <label for="adresse">Votre code EAN*</label>
-    <input type="text" id="ean" name="ean" placeholder="Ex: 54144..." />
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="ean" class="form-label">Votre code EAN</label>
+          <input type="text" id="ean" name="ean" class="form-control" placeholder="Ex: 54144..." />
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="parcelle" class="form-label">Numéro de parcelle (optionnel)</label>
+          <input type="text" id="parcelle" name="parcelle" class="form-control" />
+        </div>
+      </div>
 
-    <label for="adresse">Adresse du logement *</label>
-    <input type="text" id="adresse" name="adresse" required />
+      <div class="mb-3">
+        <label for="adresse" class="form-label">Adresse du logement *</label>
+        <input type="text" id="adresse" name="adresse" class="form-control" required />
+      </div>
 
-    <label for="code-postal">Code postal *</label>
-    <input type="text" id="code-postal" name="code_postal" required />
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="code-postal" class="form-label">Code postal *</label>
+          <input type="text" id="code-postal" name="code_postal" class="form-control" required />
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="commune" class="form-label">Commune *</label>
+          <input type="text" id="commune" name="commune" class="form-control" required />
+        </div>
+      </div>
 
-    <label for="commune">Commune *</label>
-    <input type="text" id="commune" name="commune" required />
-
-    <label for="type-bien">Type de bien *</label>
-    <select id="type-bien" name="type_bien" required>
-      <option disabled selected value="">-- Sélectionnez --</option>
-      <option value="maison">Maison unifamiliale</option>
-      <option value="appartement">Appartement</option>
-      <option value="immeuble">Immeuble avec plusieurs unités</option>
-    </select>
-
-    <label for="usage">Usage du bien *</label>
-    <select id="usage" name="usage" required>
-      <option disabled selected value="">-- Sélectionnez --</option>
-      <option value="residence_principale">Résidence principale</option>
-      <option value="location">Bien en location</option>
-      <option value="autre">Autre</option>
-    </select>
-
-    <label for="parcelle">Numéro de parcelle (optionnel)</label>
-    <input type="text" id="parcelle" name="parcelle" />
-  </section>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label for="type-bien" class="form-label">Type de bien *</label>
+          <select id="type-bien" name="type_bien" class="form-select" required>
+            <option disabled selected value="">-- Sélectionnez --</option>
+            <option value="maison">Maison unifamiliale</option>
+            <option value="appartement">Appartement</option>
+            <option value="immeuble">Immeuble avec plusieurs unités</option>
+          </select>
+        </div>
+        <div class="col-md-6 mb-3">
+          <label for="usage" class="form-label">Usage du bien *</label>
+          <select id="usage" name="usage" class="form-select" required>
+            <option disabled selected value="">-- Sélectionnez --</option>
+            <option value="residence_principale">Résidence principale</option>
+            <option value="location">Bien en location</option>
+            <option value="autre">Autre</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Étape 2.1 : Informations complémentaires -->
-  <section id="section-infos-complementaires" class="formulaire-prime mt-5">
-    <h3 class="mt-4">2.1 Informations complémentaires sur le système de chauffage</h3>
-    <label for="chauffage-post-renovation">Système de chauffage après rénovation *</label>
-      <select id="chauffage-post-renovation" name="chauffage_post_renovation" required>
-        <option disabled selected value="">-- Sélectionnez --</option>
-        <option value="gaz">Chauffage central au gaz (condensation)</option>
-        <option value="mazout">Chauffage au mazout</option>
-        <option value="electrique">Chauffage électrique direct</option>
-        <option value="pac-air-eau">Pompe à chaleur air/eau</option>
-        <option value="pac-geothermique">Pompe à chaleur géothermique</option>
-        <option value="reseau-chaleur">Réseau de chaleur</option>
-        <option value="bois">Poêle / insert bois / biomasse</option>
-        <option value="autre">Autre (à spécifier)</option>
-        <option value="ne_sais_pas">Je ne sais pas</option>
-      </select>
-  </section>
+  <div class="card mb-4">
+    <div class="card-body">
+      <h3 class="card-title text-primary-custom">
+        <i class="bi bi-thermometer-half me-2"></i>2.1 Informations complémentaires sur le système de chauffage
+      </h3>
+      <div class="mb-3">
+        <label for="chauffage-post-renovation" class="form-label">Système de chauffage après rénovation *</label>
+        <select id="chauffage-post-renovation" name="chauffage_post_renovation" class="form-select" required>
+          <option disabled selected value="">-- Sélectionnez --</option>
+          <option value="gaz">Chauffage central au gaz (condensation)</option>
+          <option value="mazout">Chauffage au mazout</option>
+          <option value="electrique">Chauffage électrique direct</option>
+          <option value="pac-air-eau">Pompe à chaleur air/eau</option>
+          <option value="pac-geothermique">Pompe à chaleur géothermique</option>
+          <option value="reseau-chaleur">Réseau de chaleur</option>
+          <option value="bois">Poêle / insert bois / biomasse</option>
+          <option value="autre">Autre (à spécifier)</option>
+          <option value="ne_sais_pas">Je ne sais pas</option>
+        </select>
+      </div>
+    </div>
+  </div>
 
   <!-- Étape 3 : Travaux à déclarer -->
   <section id="travaux-section" class="formulaire-prime mt-5">
@@ -289,45 +344,58 @@
   </section>
 
   <!-- Étape 6 : Soumission du formulaire -->
-  <section id="section-soumission" class="formulaire-prime mt-5">
-  <h3>6. Soumission de la demande</h3>
+  <div class="card mb-4">
+    <div class="card-body">
+      <h3 class="card-title text-primary-custom">
+        <i class="bi bi-send me-2"></i>6. Soumission de la demande
+      </h3>
 
-  <!-- Récapitulatif -->
-  <p class="mb-3">
-    Vous êtes sur le point de soumettre votre demande de primes. Veuillez vérifier que toutes les informations sont correctes et que les documents justificatifs ont bien été joints.
-  </p>
+      <!-- Récapitulatif -->
+      <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        <strong>Vérification finale</strong>
+        <p class="mb-0">Vous êtes sur le point de soumettre votre demande de primes. Veuillez vérifier que toutes les informations sont correctes et que les documents justificatifs ont bien été joints.</p>
+      </div>
 
-  <!-- Confirmation utilisateur -->
-  <div class="form-check my-3">
-    <input class="form-check-input" type="checkbox" id="confirmation-veracite" name="confirmation_veracite" required>
-    <label class="form-check-label fw-bold" for="confirmation-veracite">
-      Je confirme que les informations fournies sont exactes et complètes à ma connaissance.
-    </label>
+      <!-- Confirmation utilisateur -->
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" id="confirmation-veracite" name="confirmation_veracite" required>
+        <label class="form-check-label fw-bold" for="confirmation-veracite">
+          Je confirme que les informations fournies sont exactes et complètes à ma connaissance.
+        </label>
+      </div>
+
+      <!-- Email de contact -->
+      <div class="mb-3">
+        <label for="email-contact" class="form-label">
+          <i class="bi bi-envelope me-2"></i>Adresse email pour le suivi de la demande *
+        </label>
+        <input type="email" id="email-contact" name="email_contact" class="form-control" placeholder="Ex : nom@email.com" required>
+      </div>
+
+      <!-- Envoi -->
+      <div class="d-flex flex-column flex-md-row gap-3">
+        <a href="https://authenticatie.vlaanderen.be/stb/html/ssologin" target="_blank" class="btn btn-primary btn-lg">
+          <i class="bi bi-send me-2"></i>Soumettre la demande
+        </a>
+        <button type="button" class="btn btn-outline-secondary btn-lg" onclick="telechargerResume()">
+          <i class="bi bi-download me-2"></i>Télécharger le résumé PDF
+        </button>
+      </div>
+
+      <!-- Message de validation -->
+      <div id="message-soumission" class="mt-3 fw-bold text-success"></div>
+    </div>
   </div>
 
-  <!-- Email de contact -->
-  <label for="email-contact">📧 Adresse email pour le suivi de la demande *</label>
-  <input type="email" id="email-contact" name="email_contact" placeholder="Ex : nom@email.com" required>
-
-  <!-- Envoi -->
-  <div class="mt-4 d-flex flex-column flex-md-row gap-3">
-    <a href="https://authenticatie.vlaanderen.be/stb/html/ssologin" target="_blank" class="btn btn-primary">
-      📩 Soumettre la demande
+  <!-- Liens de navigation -->
+  <div class="d-flex justify-content-center gap-3 mt-4">
+    <a href="#" class="btn btn-outline-primary">
+      <i class="bi bi-graph-up me-2"></i>Suivez l'avancement de vos primes
     </a>
-    <button type="button" class="btn btn-secondary" onclick="telechargerResume()">
-      💾 Télécharger le résumé PDF
-    </button>
+    <a href="#" class="btn btn-outline-success">
+      <i class="bi bi-house me-2"></i>Retour au menu principal
+    </a>
   </div>
-
-  <!-- Message de validation -->
-  <div id="message-soumission" class="mt-4 fw-bold text-success"></div>
-  </section>
-
-  <a href="#" class="btn btn-primary text-center mt-3 ms-3" id="btn-next-admin">
-    Suivez l'avancement de vos primes >>
-  </a>
-  <a href="#" class="btn btn-success text-center mt-3 ms-3" id="btn-next-admin">
-    Retour au menu principal
-  </a>
 
 </div>
