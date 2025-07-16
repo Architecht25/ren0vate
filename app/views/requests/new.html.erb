@@ -66,14 +66,14 @@
 
             <!-- Formulaires spécifiques par région -->
             <div id="region-specific-form">
-              <div id="bruxelles-form" class="region-form d-none">
+              <div id="flandre-form" class="region-form" style="display: none;">
+                <%= render 'requests/region_forms/flandre', form: form %>
+              </div>
+              <div id="bruxelles-form" class="region-form" style="display: none;">
                 <%= render 'requests/region_forms/bruxelles', form: form %>
               </div>
-              <div id="wallonie-form" class="region-form d-none">
+              <div id="wallonie-form" class="region-form" style="display: none;">
                 <%= render 'requests/region_forms/wallonie', form: form %>
-              </div>
-              <div id="flandre-form" class="region-form d-none">
-                <%= render 'requests/region_forms/flandre', form: form %>
               </div>
             </div>
 
@@ -163,7 +163,7 @@
 })();
 
 // Gestion des formulaires spécifiques par région
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('turbo:load', function() {
   const regionSelect = document.getElementById('request_region');
   const regionForms = document.querySelectorAll('.region-form');
 
@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
     regionSelect.addEventListener('change', function() {
       // Masquer tous les formulaires
       regionForms.forEach(function(form) {
-        form.classList.add('d-none');
+        form.style.display = 'none';
       });
 
       // Afficher le formulaire correspondant à la région sélectionnée
@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (selectedRegion) {
         const targetForm = document.getElementById(selectedRegion + '-form');
         if (targetForm) {
-          targetForm.classList.remove('d-none');
+          targetForm.style.display = 'block';
         }
       }
     });

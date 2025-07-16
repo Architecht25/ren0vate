@@ -2,47 +2,356 @@
 <div class="alert alert-info">
   <i class="bi bi-info-circle me-2"></i>
   <strong>Formulaire pour la Région Wallonne</strong>
-  <p class="mb-0 small">Primes disponibles : Prime Habitation, Prime Énergie, Prime Rénovation, Prime Logement</p>
+  <p class="mb-0 small">Primes disponibles : Prime Habitation (logement + énergie)</p>
 </div>
 
 <div class="wallonie-specific-fields">
 
-  <!-- SECTION 4 – Revenus du ménage -->
-  <h2>Revenus du ménage</h2>
-  <div class="mb-3">
-    <label class="form-label">Revenu imposable net du ménage (N-2)</label>
-    <%= form.number_field :revenus_menage, placeholder: "Revenu imposable net du ménage (N-2)", class: "form-control" %>
-    <small class="form-text text-muted">Comme mentionné dans l'avertissement-extrait de rôle</small>
-  </div>
-  <div class="mb-3">
-    <label class="form-label">Nombre de personnes à charge</label>
-    <%= form.number_field :nombre_personnes, placeholder: "Nombre de personnes à charge", class: "form-control" %>
+
+  <!-- SECTION 0 – Informations AUDIT -->
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0"><i class="bi bi-clipboard-check me-2"></i>Informations sur l'Audit</h5>
+    </div>
+    <div class="card-body">
+      <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        Cette demande de prime doit nécessairement faire suite à un audit logement.
+      </div>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="mb-3">
+            <label class="form-label">Numéro d'audit</label>
+            <%= form.text_field :numero_audit, placeholder: "A20....", class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="mb-3">
+            <label class="form-label">Date de l'audit</label>
+            <%= form.date_field :date_audit, class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="mb-3">
+            <label class="form-label">Numéro d'agrément de l'auditeur</label>
+            <%= form.text_field :numero_agrement_auditeur, placeholder: "PAE2 - PX-XXXXX", class: "form-control" %>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <hr>
+  <!-- SECTION 1 – Identification -->
+  <div class="card mb-4">
+    <div class="card-header bg-success text-white">
+      <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i>Identification du demandeur</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Type de demandeur</label>
+            <%= form.select :type_demandeur, options_for_select([['Sélectionnez', ''], ['Particulier', 'Particulier'], ['Copropriété', 'Copropriété']]), {}, { class: "form-control" } %>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Qualité du demandeur</label>
+            <%= form.select :qualite_demandeur, options_for_select([["Sélectionnez", ""], ["Unique propriétaire", "Unique propriétaire"], ["Copropriétaire avec mon conjoint", "Copropriétaire avec mon conjoint"], ["Copropriétaire avec d'autres", "Copropriétaire avec d'autres"], ["Usufruitier", "Usufruitier"], ["Nu-propriétaire", "Nu-propriétaire"], ["Représentant d'une association de copropriétaires", "Représentant d'une association de copropriétaires"], ["Autres", "Autres"]]), {}, { class: "form-control" } %>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Nom complet</label>
+            <%= form.text_field :nom, placeholder: "Nom complet", class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Date de naissance</label>
+            <%= form.date_field :date_naissance, class: "form-control" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Numéro de registre national</label>
+            <%= form.text_field :numero_registre_national, placeholder: "Numéro de registre national", class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Compte bancaire du demandeur</label>
+            <%= form.text_field :compte_bancaire, placeholder: "IBAN BE...", class: "form-control" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Adresse e-mail</label>
+            <%= form.email_field :email, placeholder: "Adresse e-mail", class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Numéro de téléphone</label>
+            <%= form.phone_field :phone, placeholder: "Numéro de téléphone", class: "form-control" %>
+          </div>
+        </div>
+      </div>
+
+      <h6 class="text-muted mb-3">Adresse du demandeur</h6>
+      <div class="row">
+        <div class="col-md-8">
+          <div class="mb-3">
+            <label class="form-label">Adresse</label>
+            <%= form.text_field :adresse_demandeur, placeholder: "Adresse", class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="mb-3">
+            <label class="form-label">Code postal</label>
+            <%= form.text_field :code_postal_demandeur, placeholder: "Code postal", class: "form-control" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Commune</label>
+            <%= form.text_field :commune_demandeur, placeholder: "Commune", class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Région</label>
+            <%= form.text_field :region, value: "Wallonie", class: "form-control", disabled: true %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2 – Adresse du logement -->
+  <div class="card mb-4">
+    <div class="card-header bg-warning text-dark">
+      <h5 class="mb-0"><i class="bi bi-house-door me-2"></i>Adresse du logement concerné</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-8">
+          <div class="mb-3">
+            <label class="form-label">Adresse</label>
+            <%= form.text_field :adresse_logement, placeholder: "Adresse", class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="mb-3">
+            <label class="form-label">Code postal</label>
+            <%= form.text_field :code_postal_logement, placeholder: "Code postal", class: "form-control" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Commune</label>
+            <%= form.text_field :commune_logement, placeholder: "Commune", class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Région</label>
+            <%= form.text_field :region_logement, value: "Wallonie", class: "form-control", disabled: true %>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Type de bâtiment après travaux</label>
+            <%= form.select :type_batiment, options_for_select([['Sélectionnez', ''], ['Maison unifamiliale', 'Maison unifamiliale'], ['Appartement/studio', 'Appartement/studio'], ['immeuble avec plusieurs unités de logement', 'immeuble avec plusieurs unités de logement'], ['autres', 'autres']]), {}, { class: "form-control" } %>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3 – Type de prime demandée -->
+  <div class="card mb-4">
+    <div class="card-header bg-info text-white">
+      <h5 class="mb-0"><i class="bi bi-award me-2"></i>Type de prime demandée</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Des personnes handicapées font-elles partie de votre ménage ?</label>
+            <%= form.select :handicape, options_for_select([['Sélectionnez', ''], ['Oui', 'Oui'], ['Non', 'Non']]), {}, { class: "form-control" } %>
+            <label class="form-label">Des enfants font-ils partie de votre ménage ?</label>
+            <%= form.select :enfants, options_for_select([['Sélectionnez', ''], ['Oui', 'Oui'], ['Non', 'Non']]), {}, { class: "form-control" } %>
+            <label class="form-label">Des personnes de plus de 60 ans font-elles partie de votre ménage ?</label>
+            <%= form.select :plus_de_60_ans, options_for_select([['Sélectionnez', ''], ['Oui', 'Oui'], ['Non', 'Non']]), {}, { class: "form-control" } %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4 – Information relative au ménage-->
+  <div class="card mb-4">
+    <div class="card-header bg-success text-white">
+      <h5 class="mb-0"><i class="bi bi-award me-2"></i>Information relative au ménage</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Type de prime</label>
+            <%= form.select :type_prime, options_for_select([['Sélectionnez', ''], ['Audit énergétique', 'Audit énergétique'], ['Travaux après audit', 'Travaux après audit'], ['Travaux sans audit', 'Travaux sans audit']]), {}, { class: "form-control" } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- SECTION 5 – Travaux envisagés ou réalisés -->
-  <h2>Travaux</h2>
-  <div class="mb-3">
-    <label class="form-label">Type de travaux</label>
-    <%= form.text_field :type_travaux, placeholder: "Type de travaux", class: "form-control" %>
-  </div>
-
-  <div class="mb-3">
-    <label class="form-label">Montant des travaux (TVAC)</label>
-    <%= form.number_field :montant_travaux, placeholder: "Montant des travaux (TVAC)", class: "form-control", step: 0.01 %>
-  </div>
-
-  <hr>
+  <div class="card mb-4">
+    <div class="card-header bg-dark text-white">
+      <h5 class="mb-0"><i class="bi bi-tools me-2"></i>Travaux envisagés ou réalisés</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Type de travaux</label>
+              <ul class="form-text text-muted">
+                <li>Remplacement de la couverture de toiture</li>
+                <li>Réparation ou renforcement de la charpente</li>
+                <li>Remplacement ou installation des gouttières et descentes d’eau</li>
+                <li>Isolation de la toiture</li>
+                <li>Assèchement des murs par traitement contre les infiltrations</li>
+                <li>Assèchement des murs par traitement contre l’humidité ascensionnelle</li>
+                <li>Renforcement ou reconstruction de murs instables</li>
+                <li>Isolation des murs</li>
+                <li>Réfection ou remplacement des supports de circulation (escaliers, planchers, etc.)</li>
+                <li>Isolation thermique des sols</li>
+                <li>Mise en conformité de l’installation électrique</li>
+                <li>Mise en conformité de l’installation de gaz</li>
+                <li>Élimination de la mérule ou autres champignons lignivores</li>
+                <li>Élimination du radon</li>
+                <li>Remplacement des châssis et vitrages</li>
+                <li>Installation de pompe à chaleur pour chauffage</li>
+                <li>Installation de pompe à chaleur pour production d’eau chaude sanitaire</li>
+                <li>Installation de chaudière biomasse</li>
+                <li>Installation de poêle biomasse</li>
+                <li>Installation d’un chauffe-eau solaire</li>
+                <li>Installation ou remplacement d’un système de ventilation simple flux</li>
+                <li>Installation ou remplacement d’un système de ventilation double flux avec récupération de chaleur</li>
+                <li>Isolation des ballons de stockage de chauffage (< 500 l)</li>
+                <li>Isolation des ballons de stockage de chauffage (≥ 500 l)</li>
+                <li>Remplacement des ballons de chauffage (< 500 l)</li>
+                <li>Remplacement des ballons de chauffage (≥ 500 l)</li>
+                <li>Remplacement des ballons d’eau chaude sanitaire (< 500 l)</li>
+                <li>Remplacement des ballons d’eau chaude sanitaire (≥ 500 l)</li>
+                <li>Installation de circulateurs à vitesse variable (< 4 logements)</li>
+                <li>Installation de circulateurs à vitesse variable (≥ 4 logements)</li>
+                <li>Placement de vannes thermostatiques</li>
+                <li>Placement d’un thermostat d’ambiance</li>
+                <li>Isolation des conduites et accessoires pour chauffage</li>
+                <li>Isolation des conduites et accessoires pour eau chaude sanitaire</li>
+                <li>Isolation d’un échangeur externe ECS</li>
+              </ul>
+          </div>
+        </div>
+      </div>
+    </div>
 
   <!-- SECTION 6 – Documents à joindre -->
-  <h2>Documents à fournir</h2>
-  <p class="text-muted">Les documents seront demandés après validation de votre demande :</p>
-  <ul>
-    <li>Factures ou devis</li>
-    <li>Photos avant/après</li>
-    <li>Preuve de revenus (avertissement extrait de rôle)</li>
-    <li>Rapport d'audit énergétique (si applicable)</li>
-  </ul>
+  <div class="card mb-4">
+    <div class="card-header bg-light text-dark">
+      <h5 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>Documents à fournir</h5>
+    </div>
+    <div class="card-body">
+      <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        Les documents suivants seront demandés après validation de votre demande :
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <ul class="list-unstyled">
+            <li><i class="bi bi-check-circle text-success me-2"></i>Copie de toutes les factures relatives aux travaux visés par la demande de prime</li>
+            <li><i class="bi bi-check-circle text-success me-2"></i>Copie des devis relatifs aux travaux visés par la demande de prime</li>
+            <li><i class="bi bi-check-circle text-success me-2"></i>Attestation (annexe technique) complétée de l'entrepreneur </li>
+            <li><i class="bi bi-check-circle text-success me-2"></i>Le RIB delivré avec une signature de la banque</li>
+            <li><i class="bi bi-check-circle text-success me-2"></i>Des photos représentatives des travaux</li>
+          </ul>
+        </div>
+        <div class="col-md-6">
+          <ul class="list-unstyled">
+            <li><i class="bi bi-check-circle text-success me-2"></i>Copie du certificat de conformité électricité postérieur à la réalisation des travaux</li>
+            <li><i class="bi bi-check-circle text-success me-2"></i>Copie du certificat de conformité de l'installation de gaz</li>
+
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 7 : Soumission du formulaire -->
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0"><i class="bi bi-send me-2"></i>Soumission de la demande</h5>
+    </div>
+    <div class="card-body">
+      <!-- Récapitulatif -->
+      <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        <strong>Vérification finale</strong>
+        <p class="mb-0">Vous êtes sur le point de soumettre votre demande de prime habitation en Wallonie. Veuillez vérifier que toutes les informations sont correctes et que les documents justificatifs ont bien été joints.</p>
+      </div>
+
+      <!-- Confirmation utilisateur -->
+      <div class="form-check mb-3">
+        <%= form.check_box :confirmation_veracite, { class: "form-check-input", required: true }, "1", "0" %>
+        <label class="form-check-label fw-bold" for="<%= form.field_id(:confirmation_veracite) %>">
+          Je confirme que les informations fournies sont exactes et complètes à ma connaissance.
+        </label>
+      </div>
+
+      <!-- Email de contact -->
+      <div class="mb-3">
+        <label class="form-label">
+          <i class="bi bi-envelope me-2"></i>Adresse email pour le suivi de la demande *
+        </label>
+        <%= form.email_field :email_contact, class: "form-control", placeholder: "Ex : nom@email.com", required: true %>
+      </div>
+
+      <!-- Message de validation -->
+      <div id="message-soumission" class="mt-3 fw-bold text-success"></div>
+
+      <!-- Informations complémentaires -->
+      <div class="mt-4">
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle me-2"></i>
+          <strong>Après soumission :</strong>
+          <ul class="mb-0 mt-2">
+            <li>Vous recevrez un accusé de réception par email</li>
+            <li>Le traitement de votre demande peut prendre jusqu'à 4 mois</li>
+            <li>Vous serez contacté si des informations complémentaires sont nécessaires</li>
+            <li>Le paiement sera effectué sur le compte bancaire mentionné</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
 
 </div>
