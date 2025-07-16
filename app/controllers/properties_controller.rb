@@ -31,11 +31,21 @@ class PropertiesController < ApplicationController
   end
 
   def create
+    Rails.logger.info "=== PROPERTY CREATE DEBUG ==="
+    Rails.logger.info "Current user: #{current_user.id} (#{current_user.email})"
+    Rails.logger.info "Property params: #{property_params.inspect}"
+    
     @property = current_user.properties.new(property_params)
+    
+    Rails.logger.info "Property after build: #{@property.inspect}"
+    Rails.logger.info "Property valid?: #{@property.valid?}"
+    Rails.logger.info "Property errors: #{@property.errors.full_messages}" unless @property.valid?
 
     if @property.save
+      Rails.logger.info "Property saved successfully with ID: #{@property.id}"
       redirect_to @property
     else
+      Rails.logger.error "Property save failed: #{@property.errors.full_messages}"
       # Si la création échoue, garder le paramètre region pour ré-afficher le bon formulaire
       render :new, status: :unprocessable_entity
     end
@@ -253,7 +263,7 @@ class PropertiesController < ApplicationController
   end
 
   def property_params
-    params.require(:property).permit(
+    permitted_params = params.require(:property).permit(
       :rue, :numero, :code_postal, :commune, :region,
       :type_propriete, :type, :occupation,
       :autre_bien, :peb, :audit_energetique, :reconstruit,
@@ -261,6 +271,12 @@ class PropertiesController < ApplicationController
       :numero_ean, :numero_cadastre,
       :date_peb_avant_travaux, :date_peb_apres_travaux
     )
+    
+    Rails.logger.info "=== PROPERTY PARAMS DEBUG ==="
+    Rails.logger.info "Raw params: #{params[:property]&.inspect}"
+    Rails.logger.info "Permitted params: #{permitted_params.inspect}"
+    
+    permitted_params
   end
 
   def build_formulaire_data(property)
