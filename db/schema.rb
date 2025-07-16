@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_16_063711) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_16_103841) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -165,6 +165,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_16_063711) do
     t.boolean "audit_energetique"
     t.bigint "user_id", null: false
     t.string "reconstruit"
+    t.date "date_peb_avant_travaux"
+    t.date "date_peb_apres_travaux"
     t.index ["user_id"], name: "index_properties_on_user_id"
   end
 

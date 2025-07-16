@@ -258,7 +258,8 @@ class PropertiesController < ApplicationController
       :type_propriete, :type, :occupation,
       :autre_bien, :peb, :audit_energetique, :reconstruit,
       :annee_construction, :date_raccordement_electrique,
-      :numero_ean, :numero_cadastre
+      :numero_ean, :numero_cadastre,
+      :date_peb_avant_travaux, :date_peb_apres_travaux
     )
   end
 
