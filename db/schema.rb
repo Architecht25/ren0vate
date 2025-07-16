@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_16_171636) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_16_184624) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -83,6 +83,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_16_171636) do
     t.string "type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "property_id"
+    t.index ["property_id"], name: "index_notifications_on_property_id"
     t.index ["user_id"], name: "index_notifications_on_user_id"
   end
 
@@ -329,6 +331,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_16_171636) do
   add_foreign_key "documents", "requests"
   add_foreign_key "documents", "simulations"
   add_foreign_key "documents", "users"
+  add_foreign_key "notifications", "properties"
   add_foreign_key "notifications", "users"
   add_foreign_key "prime_submissions", "properties"
   add_foreign_key "prime_submissions", "users"
