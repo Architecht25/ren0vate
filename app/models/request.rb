@@ -42,10 +42,10 @@ class Request < ApplicationRecord
   validates :confirmation_veracite, acceptance: true, if: :flandre?
   validates :acceptation_conditions, acceptance: true, if: :flandre?
 
-  # Documents obligatoires pour Flandre
-  validates :document_devis, attached: true, if: :flandre?
-  validates :document_factures, attached: true, if: :flandre?
-  validates :document_aer, attached: true, if: :flandre?
+  # Documents obligatoires pour Flandre - validations personnalisées
+  validate :document_devis_must_be_attached, if: :flandre?
+  validate :document_factures_must_be_attached, if: :flandre?
+  validate :document_aer_must_be_attached, if: :flandre?
 
   # Scope pour récupérer les demandes récentes
   scope :recent, -> { order(created_at: :desc) }
@@ -54,5 +54,17 @@ class Request < ApplicationRecord
 
   def flandre?
     region == 'flandre'
+  end
+
+  def document_devis_must_be_attached
+    errors.add(:document_devis, "doit être joint") unless document_devis.attached?
+  end
+
+  def document_factures_must_be_attached
+    errors.add(:document_factures, "doit être joint") unless document_factures.attached?
+  end
+
+  def document_aer_must_be_attached
+    errors.add(:document_aer, "doit être joint") unless document_aer.attached?
   end
 end

@@ -32,6 +32,7 @@ class PropertiesController < ApplicationController
 
   def create
     @property = current_user.properties.new(property_params)
+
     if @property.save
       redirect_to @property
     else
@@ -253,7 +254,6 @@ class PropertiesController < ApplicationController
 
   def property_params
     params.require(:property).permit(
-      :name, :location, :price,
       :rue, :numero, :code_postal, :commune, :region,
       :type_propriete, :type, :occupation,
       :autre_bien, :peb, :audit_energetique, :reconstruit,

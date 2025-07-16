@@ -24,18 +24,37 @@
 
           <%= form_with model: @property, local: true do |form| %>
             <div class="mb-3">
-              <%= form.label :name, "Nom du bien", class: "form-label" %>
-              <%= form.text_field :name, class: "form-control", placeholder: "Ex: Appartement T3 Paris" %>
+              <%= form.label :rue, "Rue", class: "form-label" %>
+              <%= form.text_field :rue, class: "form-control", placeholder: "Ex: Rue de l'Énergie" %>
+            </div>
+
+            <div class="row">
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <%= form.label :numero, "Numéro", class: "form-label" %>
+                  <%= form.text_field :numero, class: "form-control", placeholder: "Ex: 24" %>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <%= form.label :code_postal, "Code postal", class: "form-label" %>
+                  <%= form.text_field :code_postal, class: "form-control", placeholder: "Ex: 5000" %>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="mb-3">
+                  <%= form.label :commune, "Commune", class: "form-label" %>
+                  <%= form.text_field :commune, class: "form-control", placeholder: "Ex: Namur" %>
+                </div>
+              </div>
             </div>
 
             <div class="mb-3">
-              <%= form.label :location, "Adresse", class: "form-label" %>
-              <%= form.text_field :location, class: "form-control", placeholder: "Ex: 123 rue des Lilas, 75001 Paris" %>
-            </div>
-
-            <div class="mb-3">
-              <%= form.label :price, "Prix estimé (€)", class: "form-label" %>
-              <%= form.number_field :price, class: "form-control", placeholder: "Ex: 250000" %>
+              <%= form.label :region, "Région", class: "form-label" %>
+              <%= form.select :region,
+                  [['Wallonie', 'wallonie'], ['Flandre', 'flandre'], ['Bruxelles', 'bruxelles']],
+                  { prompt: "Sélectionnez une région" },
+                  { class: "form-select" } %>
             </div>
 
             <div class="d-flex justify-content-end mt-4">
