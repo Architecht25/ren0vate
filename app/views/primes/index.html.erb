@@ -1,27 +1,70 @@
-<div class="container my-5">
-
-  <div class="card shadow-sm">
-    <div class="card-header bg-light d-flex align-items-center">
-      <h2 class="h5 mb-0">
-        <i class="bi bi-stars me-2"></i> Liste des primes disponibles
-      </h2>
+<div class="container-fluid px-4 py-4">
+  <!-- Header épuré -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-stars"></i>
+      </div>
+      <h1 class="h3 text-primary-custom mb-0 fw-normal">Primes disponibles</h1>
     </div>
-
-    <ul class="list-group list-group-flush">
-      <% @primes.each do |prime| %>
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          <div>
-            <strong><%= link_to prime.titre, prime_path(prime), class: "text-decoration-none" %></strong><br>
-            <small class="text-muted"><%= prime.region.capitalize %> – <em><%= prime.slug %></em></small>
-          </div>
-          <i class="bi bi-chevron-right text-muted"></i>
-        </li>
-      <% end %>
-    </ul>
+    <%= link_to root_path, class: "btn btn-outline-primary-custom px-4" do %>
+      <i class="bi bi-arrow-left me-2"></i>
+      Retour à l'accueil
+    <% end %>
   </div>
 
-  <div class="text-center mt-4">
-    <%= link_to "← Retour à l'accueil", root_path, class: "btn btn-outline-secondary" %>
-  </div>
-
+  <!-- Liste des primes -->
+  <% if @primes.any? %>
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="row g-3">
+          <% @primes.each do |prime| %>
+            <div class="col-md-6 col-lg-4">
+              <%= link_to prime_path(prime), class: "text-decoration-none" do %>
+                <div class="card border-0 bg-light-custom h-100 property-card">
+                  <div class="card-body p-3">
+                    <div class="d-flex align-items-center mb-2">
+                      <div class="icon-circle me-2" style="width: 35px; height: 35px;">
+                        <i class="bi bi-star"></i>
+                      </div>
+                      <div class="flex-grow-1">
+                        <h6 class="card-title text-dark mb-0 fw-normal"><%= prime.titre %></h6>
+                        <small class="text-muted-custom">
+                          <i class="bi bi-geo-alt me-1"></i>
+                          <%= prime.region.capitalize %>
+                        </small>
+                      </div>
+                    </div>
+                    <div class="mt-2">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-primary rounded-pill px-2 py-1 small">
+                          <%= prime.slug %>
+                        </span>
+                        <small class="text-muted-custom">
+                          <i class="bi bi-arrow-right me-1"></i>
+                          Détails
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <!-- État vide minimaliste -->
+    <div class="text-center py-5 mt-5">
+      <div class="icon-circle-large mx-auto mb-4">
+        <i class="bi bi-stars"></i>
+      </div>
+      <h3 class="text-muted-custom mb-3 fw-normal">Aucune prime disponible</h3>
+      <p class="text-muted-custom mb-4">Les primes disponibles apparaîtront ici.</p>
+    </div>
+  <% end %>
 </div>
+
+<!-- Utilise le fichier CSS externe properties.css -->
+<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>

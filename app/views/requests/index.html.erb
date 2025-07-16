@@ -1,7 +1,70 @@
-<h1>Requests</h1>
-<ul>
-  <% @requests.each do |request| %>
-    <li><%= link_to request.title, request_path(request) %></li>
+<div class="container-fluid px-4 py-4">
+  <!-- Header épuré -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <h1 class="h3 text-primary-custom mb-0 fw-normal">Mes Demandes</h1>
+    <%= link_to new_request_path, class: "btn btn-primary-custom px-4" do %>
+      <i class="bi bi-plus-lg me-2"></i>Nouvelle demande
+    <% end %>
+  </div>
+
+  <!-- Liste des demandes -->
+  <% if @requests.any? %>
+    <div class="row g-3">
+      <% @requests.each do |request| %>
+        <div class="col-md-6 col-lg-4">
+          <%= link_to request_path(request), class: "text-decoration-none" do %>
+            <div class="card border-0 bg-light-custom h-100 property-card">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-3">
+                  <div class="icon-circle me-3">
+                    <i class="bi bi-file-earmark-text"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <h5 class="card-title text-dark mb-1 fw-normal"><%= request.title %></h5>
+                    <p class="text-muted-custom mb-0 small">
+                      <i class="bi bi-calendar me-1"></i>
+                      <%= request.created_at.strftime("%d/%m/%Y") %>
+                    </p>
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <% status_class = case request.status
+                         when 'draft' then 'secondary'
+                         when 'pending' then 'warning'
+                         when 'in_progress' then 'info'
+                         when 'completed' then 'success'
+                         else 'secondary'
+                       end %>
+                    <span class="badge bg-<%= status_class %> rounded-pill px-3 py-2">
+                      <%= request.status&.humanize || 'Brouillon' %>
+                    </span>
+                    <small class="text-muted-custom">
+                      <i class="bi bi-clock me-1"></i>
+                      <%= time_ago_in_words(request.updated_at) %>
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <!-- État vide minimaliste -->
+    <div class="text-center py-5 mt-5">
+      <div class="icon-circle-large mx-auto mb-4">
+        <i class="bi bi-file-earmark-text"></i>
+      </div>
+      <h3 class="text-muted-custom mb-3 fw-normal">Aucune demande</h3>
+      <p class="text-muted-custom mb-4">Créez votre première demande pour commencer.</p>
+      <%= link_to new_request_path, class: "btn btn-primary-custom px-4" do %>
+        <i class="bi bi-plus-lg me-2"></i>Nouvelle demande
+      <% end %>
+    </div>
   <% end %>
-</ul>
-<%= link_to 'New Request', new_request_path %>
+</div>
+
+<!-- Utilise le fichier CSS externe properties.css -->
+<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>

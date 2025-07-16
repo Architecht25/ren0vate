@@ -1,68 +1,189 @@
-<div class="container my-5">
-  <div class="card shadow-sm">
-    <div class="card-body">
-      <h1 class="card-title h3 mb-4"><i class="bi bi-award me-2"></i><%= @prime.titre %></h1>
+<div class="container-fluid px-4 py-4">
+  <!-- Header épuré -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-award"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">Prime</h1>
+        <p class="text-muted mb-0"><%= @prime.titre %></p>
+      </div>
+    </div>
+    <%= link_to primes_path, class: "btn btn-outline-primary-custom px-4" do %>
+      <i class="bi bi-arrow-left me-2"></i>
+      Retour à la liste
+    <% end %>
+  </div>
 
-      <dl class="row mb-4">
-        <dt class="col-sm-4 text-muted">Région</dt>
-        <dd class="col-sm-8"><%= @prime.region.capitalize %></dd>
-
-        <dt class="col-sm-4 text-muted">Slug</dt>
-        <dd class="col-sm-8"><%= @prime.slug %></dd>
-
-        <dt class="col-sm-4 text-muted">Unité</dt>
-        <dd class="col-sm-8"><%= @prime.unite %></dd>
-
-        <dt class="col-sm-4 text-muted">Type de valeur</dt>
-        <dd class="col-sm-8"><%= @prime.type_de_valeur %></dd>
-
-        <dt class="col-sm-4 text-muted">Catégories d'éligibilité</dt>
-        <dd class="col-sm-8"><%= @prime.eligible_categories %></dd>
-
-        <dt class="col-sm-4 text-muted">Valeur par catégorie</dt>
-        <dd class="col-sm-8">
-
-              <% @prime.valeurs_par_categorie.each do |categorie_code, data| %>
-                <div class="mb-3">
-                  <div class="card mb-4 shadow-sm">
-                    <div class="card-body">
-                      <h6>Catégorie <%= categorie_code %></h6>
-                        <ul>
-                          <% data.each do |key, value| %>
-                            <li><strong><%= key.humanize %>:</strong> <%= value %></li>
-                          <% end %>
-                        </ul>
-                    </div>
+  <!-- Contenu principal -->
+  <div class="row justify-content-center">
+    <div class="col-lg-11">
+      <div class="row g-4">
+        <!-- Colonne de gauche - Informations générales et sections détaillées -->
+        <div class="col-lg-5">
+          <!-- Informations générales -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-3 text-center">
+              <div class="icon-circle mx-auto mb-3" style="width: 45px; height: 45px;">
+                <i class="bi bi-info-circle"></i>
+              </div>
+              <h6 class="card-title text-primary-custom mb-3">Informations générales</h6>
+              <div class="row g-2">
+                <div class="col-6">
+                  <div class="bg-light-custom rounded p-2">
+                    <small class="text-muted-custom d-block mb-1">Région</small>
+                    <strong class="text-dark small"><%= @prime.region.capitalize %></strong>
                   </div>
                 </div>
-              <% end %>
-        </dd>
-      </dl>
+                <div class="col-6">
+                  <div class="bg-light-custom rounded p-2">
+                    <small class="text-muted-custom d-block mb-1">Slug</small>
+                    <strong class="text-dark small"><%= @prime.slug %></strong>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="bg-light-custom rounded p-2">
+                    <small class="text-muted-custom d-block mb-1">Unité</small>
+                    <strong class="text-dark small"><%= @prime.unite %></strong>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="bg-light-custom rounded p-2">
+                    <small class="text-muted-custom d-block mb-1">Type</small>
+                    <strong class="text-dark small"><%= @prime.type_de_valeur %></strong>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-2">
+                <div class="bg-light-custom rounded p-2">
+                  <small class="text-muted-custom d-block mb-1">Catégories éligibles</small>
+                  <span class="text-dark small"><%= @prime.eligible_categories %></span>
+                </div>
+              </div>
+            </div>
+          </div>
 
-      <hr>
+          <!-- Sections détaillées empilées -->
+          <div class="row g-3">
+            <div class="col-12">
+              <div class="card border-0 bg-light-custom">
+                <div class="card-body p-3 text-center">
+                  <div class="icon-circle mx-auto mb-2" style="width: 35px; height: 35px;">
+                    <i class="bi bi-list-check"></i>
+                  </div>
+                  <h6 class="text-primary-custom mb-2 small">Conditions</h6>
+                  <p class="text-muted-custom mb-0" style="font-size: 0.85rem; line-height: 1.4;"><%= @prime.condition %></p>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="card border-0 bg-light-custom">
+                <div class="card-body p-3 text-center">
+                  <div class="icon-circle mx-auto mb-2" style="width: 35px; height: 35px;">
+                    <i class="bi bi-lightbulb"></i>
+                  </div>
+                  <h6 class="text-primary-custom mb-2 small">Conseils</h6>
+                  <p class="text-muted-custom mb-0" style="font-size: 0.85rem; line-height: 1.4;"><%= @prime.conseil %></p>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="card border-0 bg-light-custom">
+                <div class="card-body p-3 text-center">
+                  <div class="icon-circle mx-auto mb-2" style="width: 35px; height: 35px;">
+                    <i class="bi bi-file-earmark-text"></i>
+                  </div>
+                  <h6 class="text-primary-custom mb-2 small">Documents requis</h6>
+                  <p class="text-muted-custom mb-0" style="font-size: 0.85rem; line-height: 1.4;"><%= @prime.document %></p>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="card border-0 bg-light-custom">
+                <div class="card-body p-3 text-center">
+                  <div class="icon-circle mx-auto mb-2" style="width: 35px; height: 35px;">
+                    <i class="bi bi-gear"></i>
+                  </div>
+                  <h6 class="text-primary-custom mb-2 small">Informations spécifiques</h6>
+                  <p class="text-muted-custom mb-0" style="font-size: 0.85rem; line-height: 1.4;"><%= @prime.specifique %></p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
-      <h5 class="text-primary">Conditions</h5>
-      <p><%= @prime.condition %></p>
-
-      <h5 class="text-primary">Conseils</h5>
-      <p><%= @prime.conseil %></p>
-
-      <h5 class="text-primary">Documents requis</h5>
-      <p><%= @prime.document %></p>
-
-      <h5 class="text-primary">Informations spécifiques</h5>
-      <p><%= @prime.specifique %></p>
-
+        <!-- Colonne de droite - Valeurs par catégorie -->
+        <div class="col-lg-7">
+          <% if @prime.valeurs_par_categorie.present? %>
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-4">
+                  <div class="icon-circle me-3" style="width: 50px; height: 50px;">
+                    <i class="bi bi-calculator"></i>
+                  </div>
+                  <h5 class="card-title text-primary-custom mb-0">Valeurs par catégorie</h5>
+                </div>
+                
+                <div class="row g-3">
+                  <% @prime.valeurs_par_categorie.each do |categorie_code, data| %>
+                    <div class="col-md-6">
+                      <div class="card bg-light-custom border-0">
+                        <div class="card-header bg-primary text-white py-2">
+                          <h6 class="mb-0 text-center">
+                            <i class="bi bi-tag me-2"></i>Catégorie <%= categorie_code %>
+                          </h6>
+                        </div>
+                        <div class="card-body p-3">
+                          <% data.each do |key, value| %>
+                            <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                              <span class="text-muted-custom"><%= key.humanize %></span>
+                              <strong class="text-dark"><%= value %></strong>
+                            </div>
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% else %>
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body p-4 text-center">
+                <div class="icon-circle mx-auto mb-3" style="width: 50px; height: 50px;">
+                  <i class="bi bi-calculator"></i>
+                </div>
+                <h5 class="card-title text-primary-custom mb-3">Valeurs par catégorie</h5>
+                <p class="text-muted-custom">Aucune valeur spécifique par catégorie disponible.</p>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+      
+      <!-- Image si présente -->
       <% if @prime.image.present? %>
-        <div class="text-center my-4">
-          <img src="/<%= @prime.image %>" alt="<%= @prime.titre %>" class="img-fluid rounded shadow-sm" />
+        <div class="row mt-4">
+          <div class="col-12">
+            <div class="card border-0 shadow-sm">
+              <div class="card-body p-3 text-center">
+                <img src="/<%= @prime.image %>" alt="<%= @prime.titre %>" class="img-fluid rounded shadow-sm" style="max-height: 200px;" />
+              </div>
+            </div>
+          </div>
         </div>
       <% end %>
+      
+      <!-- Actions compactes -->
+      <div class="text-center mt-4">
+        <%= link_to root_path, class: "btn btn-primary-custom btn-sm px-4" do %>
+          <i class="bi bi-house me-2"></i>Retour à l'accueil
+        <% end %>
+      </div>
     </div>
   </div>
-
-  <div class="d-flex justify-content-center gap-3 mt-4">
-    <%= link_to "← Retour à la liste", primes_path, class: "btn btn-outline-secondary" %>
-    <%= link_to "Accueil", root_path, class: "btn btn-outline-primary" %>
-  </div>
 </div>
+
+<!-- Utilise le fichier CSS externe properties.css -->
+<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>

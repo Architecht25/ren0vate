@@ -1,53 +1,106 @@
-<div class="container-fluid py-4">
-  <!-- Header moderne -->
-  <div class="row mb-4">
-    <div class="col-12">
-      <div class="card border-0 shadow-sm">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center">
-              <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                <i class="bi bi-pencil-square text-warning fs-4"></i>
-              </div>
-              <div>
-                <h1 class="h3 mb-1 text-warning">Modifier le Document</h1>
-                <p class="text-muted mb-0">Mettez à jour les informations de votre document</p>
+<div class="container-fluid px-4 py-4">
+  <!-- Header épuré -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-pencil-square"></i>
+      </div>
+      <h1 class="h3 text-primary-custom mb-0 fw-normal">Modifier le Document</h1>
+    </div>
+    <%= link_to @document, class: "btn btn-outline-primary-custom px-4" do %>
+      <i class="bi bi-arrow-left me-2"></i>
+      Retour aux détails
+    <% end %>
+  </div>
+
+  <!-- Formulaire dans une card épurée -->
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h5 class="card-title text-primary-custom mb-4">
+            <i class="bi bi-info-circle me-2"></i>Informations du document
+          </h5>
+
+          <%= form_with model: @document, local: true, class: "needs-validation", novalidate: true do |form| %>
+            <div class="mb-3">
+              <%= form.label :type_document, "Type de document*", class: "form-label" %>
+              <%= form.text_field :type_document, class: "form-control", placeholder: "Ex: Facture, Devis, Certificat", required: true %>
+              <div class="invalid-feedback">
+                Veuillez entrer un type de document.
               </div>
             </div>
-            <%= link_to documents_path, class: "btn btn-outline-secondary" do %>
-              <i class="bi bi-arrow-left me-2"></i>Retour aux documents
+
+            <div class="mb-3">
+              <%= form.label :notes, "Notes", class: "form-label" %>
+              <%= form.text_area :notes, rows: 4, class: "form-control", placeholder: "Ajoutez des notes sur ce document..." %>
+            </div>
+
+            <div class="mb-4">
+              <%= form.label :status, "Statut", class: "form-label" %>
+              <%= form.select :status,
+                    options_for_select([
+                      ['En attente', 'pending'],
+                      ['Approuvé', 'approved'],
+                      ['Rejeté', 'rejected']
+                    ], @document.status),
+                    {},
+                    { class: "form-select" } %>
+            </div>
+
+            <div class="d-flex gap-2">
+              <%= form.submit "Mettre à jour", class: "btn btn-primary-custom px-4" %>
+              <%= link_to "Annuler", @document, class: "btn btn-outline-secondary px-4" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card border-0 bg-light-custom">
+        <div class="card-body p-4">
+          <h6 class="card-title text-primary-custom mb-3">
+            <i class="bi bi-info-circle me-2"></i>Informations
+          </h6>
+          <ul class="list-unstyled text-muted-custom small">
+            <li class="mb-2">
+              <i class="bi bi-calendar-plus me-2"></i>
+              Créé le <%= @document.created_at.strftime("%d/%m/%Y") %>
+            </li>
+            <% if @document.updated_at != @document.created_at %>
+              <li class="mb-2">
+                <i class="bi bi-pencil me-2"></i>
+                Modifié le <%= @document.updated_at.strftime("%d/%m/%Y") %>
+              </li>
             <% end %>
-          </div>
+          </ul>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Formulaire d'édition -->
-  <div class="row justify-content-center">
-    <div class="col-lg-8 col-md-10">
-      <div class="card border-0 shadow-sm">
-        <div class="card-header bg-light">
-          <h4 class="card-title mb-0">
-            <i class="bi bi-file-earmark-text text-warning me-2"></i>
-            Informations du Document
-          </h4>
-        </div>
-        <div class="card-body">
-          <%= form_with model: @document, local: true, class: "needs-validation", novalidate: true do |form| %>
-            <div class="row g-3">
-              <!-- Nom du document -->
-              <div class="col-12">
-                <div class="form-floating">
-                  <%= form.text_field :name, class: "form-control", placeholder: "Nom du document", required: true %>
-                  <%= form.label :name, "Nom du document", class: "form-label" %>
-                  <div class="invalid-feedback">
-                    Veuillez saisir un nom pour le document.
-                  </div>
-                </div>
-              </div>
+<script>
+// Validation Bootstrap
+(function() {
+  'use strict';
+  var forms = document.querySelectorAll('.needs-validation');
+  Array.prototype.slice.call(forms)
+    .forEach(function(form) {
+      form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+})();
+</script>
 
-              <!-- Contenu -->
+<!-- Utilise le fichier CSS externe properties.css -->
+<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>
               <div class="col-12">
                 <div class="form-floating">
                   <%= form.text_area :content, class: "form-control", placeholder: "Contenu du document", style: "height: 200px;" %>

@@ -1,53 +1,107 @@
-<div class="container-fluid py-4">
-  <!-- Header moderne -->
-  <div class="row mb-4">
-    <div class="col-12">
-      <div class="card border-0 shadow-sm">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center">
-              <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                <i class="bi bi-file-earmark-text text-primary fs-4"></i>
+<div class="container-fluid px-4 py-4">
+  <!-- Header épuré -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-file-earmark-text"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">Document</h1>
+        <p class="text-muted mb-0"><%= @document.type_document %></p>
+      </div>
+    </div>
+    <%= link_to documents_path, class: "btn btn-outline-primary-custom px-4" do %>
+      <i class="bi bi-arrow-left me-2"></i>
+      Retour aux documents
+    <% end %>
+  </div>
+
+  <!-- Contenu principal -->
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h5 class="card-title text-primary-custom mb-4">
+            <i class="bi bi-info-circle me-2"></i>Détails du document
+          </h5>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label text-muted-custom">Type de document</label>
+              <p class="mb-0"><%= @document.type_document %></p>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label text-muted-custom">Statut</label>
+              <p class="mb-0">
+                <% case @document.status %>
+                <% when 'pending' %>
+                  <span class="badge bg-warning text-dark">En attente</span>
+                <% when 'approved' %>
+                  <span class="badge bg-success">Approuvé</span>
+                <% when 'rejected' %>
+                  <span class="badge bg-danger">Rejeté</span>
+                <% else %>
+                  <span class="badge bg-secondary">Inconnu</span>
+                <% end %>
+              </p>
+            </div>
+          </div>
+
+          <% if @document.notes.present? %>
+            <div class="mb-3">
+              <label class="form-label text-muted-custom">Notes</label>
+              <div class="bg-light p-3 rounded">
+                <%= simple_format(@document.notes) %>
               </div>
-              <div>
-                <h1 class="h3 mb-1 text-primary"><%= @document.name %></h1>
-                <p class="text-muted mb-0">
-                  <i class="bi bi-calendar3 me-1"></i>
-                  Créé le <%= @document.created_at.strftime("%d/%m/%Y à %H:%M") if @document.created_at %>
+            </div>
+          <% end %>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label text-muted-custom">Créé le</label>
+              <p class="mb-0">
+                <i class="bi bi-calendar-plus me-2"></i>
+                <%= @document.created_at.strftime("%d/%m/%Y à %H:%M") if @document.created_at %>
+              </p>
+            </div>
+            <% if @document.updated_at != @document.created_at %>
+              <div class="col-md-6 mb-3">
+                <label class="form-label text-muted-custom">Modifié le</label>
+                <p class="mb-0">
+                  <i class="bi bi-pencil me-2"></i>
+                  <%= @document.updated_at.strftime("%d/%m/%Y à %H:%M") %>
                 </p>
               </div>
-            </div>
-            <div class="d-flex gap-2">
-              <%= link_to edit_document_path(@document), class: "btn btn-warning" do %>
-                <i class="bi bi-pencil me-2"></i>Modifier
-              <% end %>
-              <%= link_to documents_path, class: "btn btn-outline-secondary" do %>
-                <i class="bi bi-arrow-left me-2"></i>Retour
-              <% end %>
-            </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card border-0 bg-light-custom">
+        <div class="card-body p-4">
+          <h6 class="card-title text-primary-custom mb-3">
+            <i class="bi bi-tools me-2"></i>Actions
+          </h6>
+          <div class="d-grid gap-2">
+            <%= link_to edit_document_path(@document), class: "btn btn-primary-custom" do %>
+              <i class="bi bi-pencil me-2"></i>Modifier
+            <% end %>
+            <%= link_to document_path(@document), method: :delete,
+                confirm: "Êtes-vous sûr de vouloir supprimer ce document ?",
+                class: "btn btn-outline-danger" do %>
+              <i class="bi bi-trash me-2"></i>Supprimer
+            <% end %>
           </div>
         </div>
       </div>
     </div>
   </div>
+</div>
 
-  <!-- Contenu du document -->
-  <div class="row">
-    <div class="col-12">
-      <div class="card border-0 shadow-sm">
-        <div class="card-header bg-light">
-          <h4 class="card-title mb-0">
-            <i class="bi bi-file-text text-primary me-2"></i>
-            Contenu du Document
-          </h4>
-        </div>
-        <div class="card-body">
-          <% if @document.content.present? %>
-            <div class="document-content">
-              <%= simple_format(@document.content, {}, wrapper_tag: "div") %>
-            </div>
-          <% else %>
-            <div class="text-center py-5">
+<!-- Utilise le fichier CSS externe properties.css -->
+<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>
               <div class="text-muted mb-3">
                 <i class="bi bi-file-earmark fs-1"></i>
               </div>
