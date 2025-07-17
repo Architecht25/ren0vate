@@ -56,12 +56,12 @@ class DocumentsController < ApplicationController
     @document.request = @request if @request
     @document.simulation = @simulation if @simulation
 
-    # Générer file_url si fichier attaché
-    if @document.file.attached? && @document.file_url.blank?
-      @document.file_url = rails_blob_url(@document.file)
-    end
-
     if @document.save
+      # Générer file_url après la sauvegarde si fichier attaché
+      if @document.file.attached? && @document.file_url.blank?
+        @document.update(file_url: rails_blob_url(@document.file))
+      end
+
       # Si upload via AJAX
       if request.xhr?
         render json: {

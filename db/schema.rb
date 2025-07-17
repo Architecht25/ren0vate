@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_16_184624) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_17_100022) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -58,10 +58,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_16_184624) do
 
   create_table "documents", force: :cascade do |t|
     t.bigint "user_id", null: false
-    t.bigint "property_id", null: false
-    t.bigint "request_id", null: false
-    t.bigint "project_id", null: false
-    t.bigint "simulation_id", null: false
+    t.bigint "property_id"
+    t.bigint "request_id"
+    t.bigint "project_id"
+    t.bigint "simulation_id"
     t.string "type_document"
     t.string "file_url"
     t.string "status"
