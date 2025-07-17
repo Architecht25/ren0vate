@@ -2,16 +2,29 @@ class RegulatoryRequirementsController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @page_title = "Exigences Réglementaires"
+    # Si aucune région n'est spécifiée, rediriger vers la sélection de région
+    if params[:region].blank?
+      redirect_to region_selection_regulatory_requirements_path
+      return
+    end
+
+    @page_title = "Exigences Réglementaires - #{params[:region].humanize}"
     @active_tab = params[:tab] || 'overview'
+    @region = params[:region]
+  end
+
+  def region_selection
+    @page_title = "Sélection de région - Exigences Réglementaires"
   end
 
   def ventilation_guide
     @page_title = "Guide Ventilation - Mijn VerbouwPremie"
+    @region = params[:region] || 'flandre' # Par défaut sur flandre si pas spécifié
   end
 
   def ventilation_calculator
     @page_title = "Calculateur Ventilation"
+    @region = params[:region] || 'flandre' # Par défaut sur flandre si pas spécifié
     @room_type = params[:room_type]
     @room_area = params[:room_area].to_f if params[:room_area]
     @window_width = params[:window_width].to_f if params[:window_width]

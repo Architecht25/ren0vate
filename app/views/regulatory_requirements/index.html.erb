@@ -6,51 +6,72 @@
         <i class="bi bi-shield-check"></i>
       </div>
       <div>
-        <h1 class="h3 text-primary-custom mb-0 fw-normal">Exigences Réglementaires</h1>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">
+          Exigences Réglementaires - <%= @region.humanize %>
+        </h1>
         <small class="text-muted">Guide des conditions et règles pour vos primes de rénovation</small>
       </div>
     </div>
+    <div class="d-flex gap-2">
+      <%= link_to region_selection_regulatory_requirements_path, class: "btn btn-outline-primary-custom" do %>
+        <i class="bi bi-geo-alt me-2"></i>Changer de région
+      <% end %>
+      <%= link_to dashboard_path, class: "btn btn-outline-primary-custom" do %>
+        <i class="bi bi-arrow-left me-2"></i>Dashboard
+      <% end %>
+    </div>
   </div>
 
-  <!-- Navigation par onglets -->
-  <ul class="nav nav-tabs mb-4" id="regulatoryTabs" role="tablist">
-    <li class="nav-item" role="presentation">
-      <%= link_to regulatory_requirements_path(tab: 'overview'),
-          class: "nav-link #{'active' if @active_tab == 'overview'}" do %>
-        <i class="bi bi-house-gear me-2"></i>Vue d'ensemble
-      <% end %>
-    </li>
-    <li class="nav-item" role="presentation">
-      <%= link_to regulatory_requirements_path(tab: 'ventilation'),
-          class: "nav-link #{'active' if @active_tab == 'ventilation'}" do %>
-        <i class="bi bi-wind me-2"></i>Ventilation
-      <% end %>
-    </li>
-    <li class="nav-item" role="presentation">
-      <%= link_to regulatory_requirements_path(tab: 'isolation'),
-          class: "nav-link #{'active' if @active_tab == 'isolation'}" do %>
-        <i class="bi bi-thermometer-half me-2"></i>Isolation
-      <% end %>
-    </li>
-    <li class="nav-item" role="presentation">
-      <%= link_to regulatory_requirements_path(tab: 'energy'),
-          class: "nav-link #{'active' if @active_tab == 'energy'}" do %>
-        <i class="bi bi-lightning-charge me-2"></i>Énergie
-      <% end %>
-    </li>
-  </ul>
+  <!-- Navigation par onglets (seulement pour la Flandre) -->
+  <% if @region == 'flandre' %>
+    <ul class="nav nav-tabs mb-4" id="regulatoryTabs" role="tablist">
+      <li class="nav-item" role="presentation">
+        <%= link_to regulatory_requirements_path(tab: 'overview', region: @region),
+            class: "nav-link #{'active' if @active_tab == 'overview'}" do %>
+          <i class="bi bi-house-gear me-2"></i>Vue d'ensemble
+        <% end %>
+      </li>
+      <li class="nav-item" role="presentation">
+        <%= link_to regulatory_requirements_path(tab: 'ventilation', region: @region),
+            class: "nav-link #{'active' if @active_tab == 'ventilation'}" do %>
+          <i class="bi bi-wind me-2"></i>Ventilation
+        <% end %>
+      </li>
+      <li class="nav-item" role="presentation">
+        <%= link_to regulatory_requirements_path(tab: 'isolation', region: @region),
+            class: "nav-link #{'active' if @active_tab == 'isolation'}" do %>
+          <i class="bi bi-thermometer-half me-2"></i>Isolation
+        <% end %>
+      </li>
+      <li class="nav-item" role="presentation">
+        <%= link_to regulatory_requirements_path(tab: 'energy', region: @region),
+            class: "nav-link #{'active' if @active_tab == 'energy'}" do %>
+          <i class="bi bi-lightning-charge me-2"></i>Énergie
+        <% end %>
+      </li>
+    </ul>
+  <% end %>
 
-  <!-- Contenu selon l'onglet -->
+  <!-- Contenu selon l'onglet et la région -->
   <div class="tab-content">
-    <% case @active_tab %>
-    <% when 'overview' %>
-      <%= render 'overview_tab' %>
-    <% when 'ventilation' %>
-      <%= render 'ventilation_tab' %>
-    <% when 'isolation' %>
-      <%= render 'isolation_tab' %>
-    <% when 'energy' %>
-      <%= render 'energy_tab' %>
+    <% if @region == 'flandre' %>
+      <!-- Contenu complet pour la Flandre -->
+      <% case @active_tab %>
+      <% when 'overview' %>
+        <%= render 'overview_tab' %>
+      <% when 'ventilation' %>
+        <%= render 'ventilation_tab' %>
+      <% when 'isolation' %>
+        <%= render 'isolation_tab' %>
+      <% when 'energy' %>
+        <%= render 'energy_tab' %>
+      <% end %>
+    <% elsif @region == 'bruxelles' %>
+      <!-- Message d'attente pour Bruxelles -->
+      <%= render 'coming_soon_bruxelles' %>
+    <% elsif @region == 'wallonie' %>
+      <!-- Message d'attente pour Wallonie -->
+      <%= render 'coming_soon_wallonie' %>
     <% end %>
   </div>
 </div>

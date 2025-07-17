@@ -10,6 +10,7 @@ Rails.application.routes.draw do
     collection do
       get :ventilation_guide
       get :ventilation_calculator
+      get :region_selection  # Page de sélection de région
     end
   end
 
