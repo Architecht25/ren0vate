@@ -5,6 +5,14 @@ Rails.application.routes.draw do
   # Dashboard routes
   get '/dashboard', to: 'dashboard#index', as: :dashboard
 
+  # Regulatory Requirements - Base de connaissance réglementaire
+  resources :regulatory_requirements, only: [:index] do
+    collection do
+      get :ventilation_guide
+      get :ventilation_calculator
+    end
+  end
+
   resources :primes
   resources :categories
 
