@@ -67,23 +67,49 @@
       </div>
     </div>
     <div class="col-md-3">
-      <div class="card border-0 bg-light-custom h-100">
+      <div class="card border-0 h-100" style="background: linear-gradient(135deg, 
+        <%= case @property.admin_completion_percentage
+            when 0...50 then '#ffebee, #ffcdd2'
+            when 50...80 then '#fff3e0, #ffe0b2'  
+            else '#e8f5e8, #c8e6c9'
+            end %>);">
         <div class="card-body text-center p-4">
-          <div class="icon-circle-large mx-auto mb-3">
-            <i class="bi bi-person-gear"></i>
+          <div class="icon-circle-large mx-auto mb-3" style="background: <%= case @property.admin_completion_percentage
+                                                                              when 0...50 then '#f44336'
+                                                                              when 50...80 then '#ff9800'
+                                                                              else '#4caf50'
+                                                                              end %>;">
+            <i class="bi bi-person-gear text-white"></i>
           </div>
-          <h3 class="text-primary-custom mb-1"><%= @completion_stats[:admin] %>%</h3>
+          <h3 class="mb-1" style="color: <%= case @property.admin_completion_percentage
+                                            when 0...50 then '#f44336'
+                                            when 50...80 then '#f57c00'
+                                            else '#2e7d32'
+                                            end %>;"><%= @completion_stats[:admin] %>%</h3>
           <small class="text-muted-custom">Infos administratives</small>
         </div>
       </div>
     </div>
     <div class="col-md-3">
-      <div class="card border-0 bg-light-custom h-100">
+      <div class="card border-0 h-100" style="background: linear-gradient(135deg, 
+        <%= case @property.chantier_completion_percentage
+            when 0...50 then '#ffebee, #ffcdd2'
+            when 50...80 then '#fff3e0, #ffe0b2'  
+            else '#e8f5e8, #c8e6c9'
+            end %>);">
         <div class="card-body text-center p-4">
-          <div class="icon-circle-large mx-auto mb-3">
-            <i class="bi bi-hammer"></i>
+          <div class="icon-circle-large mx-auto mb-3" style="background: <%= case @property.chantier_completion_percentage
+                                                                              when 0...50 then '#f44336'
+                                                                              when 50...80 then '#ff9800'
+                                                                              else '#4caf50'
+                                                                              end %>;">
+            <i class="bi bi-hammer text-white"></i>
           </div>
-          <h3 class="text-primary-custom mb-1"><%= @completion_stats[:chantier] %>%</h3>
+          <h3 class="mb-1" style="color: <%= case @property.chantier_completion_percentage
+                                            when 0...50 then '#f44336'
+                                            when 50...80 then '#f57c00'
+                                            else '#2e7d32'
+                                            end %>;"><%= @completion_stats[:chantier] %>%</h3>
           <small class="text-muted-custom">Infos chantier</small>
         </div>
       </div>
@@ -105,15 +131,28 @@
   <div class="row g-4">
     <!-- Section Informations administratives -->
     <div class="col-lg-6">
-      <div class="card border-0 bg-light-custom h-100">
+      <div class="card border-0 h-100" style="background: linear-gradient(135deg, 
+        <%= case @property.admin_completion_percentage
+            when 0...50 then '#ffebee, #ffcdd2'
+            when 50...80 then '#fff3e0, #ffe0b2'  
+            else '#e8f5e8, #c8e6c9'
+            end %>);">
         <div class="card-body p-4">
           <div class="d-flex align-items-center mb-3">
-            <div class="icon-circle me-3">
-              <i class="bi bi-person-gear"></i>
+            <div class="icon-circle me-3" style="background: <%= case @property.admin_completion_percentage
+                                                                when 0...50 then '#f44336'
+                                                                when 50...80 then '#ff9800'
+                                                                else '#4caf50'
+                                                                end %>;">
+              <i class="bi bi-person-gear text-white"></i>
             </div>
             <div>
               <h5 class="card-title mb-0 fw-normal">Informations administratives</h5>
-              <small class="text-muted-custom"><%= @completion_stats[:admin] %>% complété</small>
+              <small class="text-muted-custom">
+                <span class="badge <%= @property.admin_completion_class %> rounded-pill">
+                  <%= @completion_stats[:admin] %>% complété
+                </span>
+              </small>
             </div>
           </div>
 
@@ -246,36 +285,95 @@
       </div>
     </div>
 
-    <!-- Section Actions rapides -->
+    <!-- Section Informations chantier -->
     <div class="col-lg-6">
-      <div class="card border-0 bg-light-custom h-100">
+      <div class="card border-0 h-100" style="background: linear-gradient(135deg, 
+        <%= case @property.chantier_completion_percentage
+            when 0...50 then '#ffebee, #ffcdd2'
+            when 50...80 then '#fff3e0, #ffe0b2'  
+            else '#e8f5e8, #c8e6c9'
+            end %>);">
         <div class="card-body p-4">
           <div class="d-flex align-items-center mb-3">
-            <div class="icon-circle me-3">
-              <i class="bi bi-lightning"></i>
+            <div class="icon-circle me-3" style="background: <%= case @property.chantier_completion_percentage
+                                                                when 0...50 then '#f44336'
+                                                                when 50...80 then '#ff9800'
+                                                                else '#4caf50'
+                                                                end %>;">
+              <i class="bi bi-hammer text-white"></i>
             </div>
             <div>
-              <h5 class="card-title mb-0 fw-normal">Actions rapides</h5>
-              <small class="text-muted-custom">Gestion de votre bien</small>
+              <h5 class="card-title mb-0 fw-normal">Informations chantier</h5>
+              <small class="text-muted-custom">
+                <span class="badge <%= @property.chantier_completion_class %> rounded-pill">
+                  <%= @completion_stats[:chantier] %>% complété
+                </span>
+              </small>
             </div>
           </div>
 
-          <div class="d-grid gap-2">
-            <%= link_to new_request_path(property_id: @property.id), class: "btn btn-primary-custom text-start" do %>
-              <i class="bi bi-plus-lg me-2"></i>Faire une demande de prime
+          <!-- Affichage des informations chantier selon la région -->
+          <div class="row g-3">
+            <% if @property.annee_construction.present? %>
+              <div class="col-6">
+                <div class="info-item">
+                  <small class="text-muted-custom">Année de construction</small>
+                  <div class="fw-medium"><%= @property.annee_construction %></div>
+                </div>
+              </div>
             <% end %>
+            
+            <% if @property.region == 'wallonie' %>
+              <% if @property.surface_habitable_wallonie.present? %>
+                <div class="col-6">
+                  <div class="info-item">
+                    <small class="text-muted-custom">Surface habitable</small>
+                    <div class="fw-medium"><%= @property.surface_habitable_wallonie %> m²</div>
+                  </div>
+                </div>
+              <% end %>
+              <% if @property.mode_chauffage_wallonie.present? %>
+                <div class="col-12">
+                  <div class="info-item">
+                    <small class="text-muted-custom">Mode de chauffage</small>
+                    <div class="fw-medium"><%= @property.mode_chauffage_wallonie.humanize %></div>
+                  </div>
+                </div>
+              <% end %>
+            <% elsif @property.region == 'flandre' %>
+              <% if @property.chauffage_post_renovation_flandre.present? %>
+                <div class="col-12">
+                  <div class="info-item">
+                    <small class="text-muted-custom">Chauffage après rénovation</small>
+                    <div class="fw-medium"><%= @property.chauffage_post_renovation_flandre.humanize %></div>
+                  </div>
+                </div>
+              <% end %>
+              <% if @property.parcelle_flandre.present? %>
+                <div class="col-6">
+                  <div class="info-item">
+                    <small class="text-muted-custom">Parcelle</small>
+                    <div class="fw-medium"><%= @property.parcelle_flandre %></div>
+                  </div>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
 
-            <%= link_to documents_dashboard_property_path(@property), class: "btn btn-outline-primary-custom text-start" do %>
-              <i class="bi bi-file-earmark-text me-2"></i>Gérer les documents
-            <% end %>
+          <div class="mt-4 pt-3 border-top">
+            <div class="d-grid gap-2">
+              <%= link_to edit_property_path(@property), class: "btn btn-outline-primary-custom text-start" do %>
+                <i class="bi bi-pencil me-2"></i>Modifier les informations
+              <% end %>
 
-            <%= link_to new_property_simulation_path(@property), class: "btn btn-outline-primary-custom text-start" do %>
-              <i class="bi bi-calculator me-2"></i>Nouvelle simulation
-            <% end %>
+              <%= link_to new_request_path(property_id: @property.id), class: "btn btn-primary-custom text-start" do %>
+                <i class="bi bi-plus-lg me-2"></i>Faire une demande de prime
+              <% end %>
 
-            <%= link_to property_path(@property), class: "btn btn-outline-primary-custom text-start" do %>
-              <i class="bi bi-eye me-2"></i>Voir les détails
-            <% end %>
+              <%= link_to documents_dashboard_property_path(@property), class: "btn btn-outline-primary-custom text-start" do %>
+                <i class="bi bi-file-earmark-text me-2"></i>Gérer les documents
+              <% end %>
+            </div>
           </div>
         </div>
       </div>
