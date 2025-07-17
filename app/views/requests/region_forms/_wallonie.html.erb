@@ -354,4 +354,56 @@
     </div>
   </div>
 
+  <!-- Section de soumission Wallonie -->
+  <div class="card mb-4">
+    <div class="card-header bg-success text-white">
+      <h5 class="mb-0"><i class="bi bi-check-circle me-2"></i>Soumission de la demande</h5>
+    </div>
+    <div class="card-body">
+
+      <div class="mb-4">
+        <%= form.label :status, "Statut de la demande", class: "form-label" %>
+        <%= form.select :status,
+              options_for_select([
+                ['Brouillon', 'draft'],
+                ['En attente', 'pending'],
+                ['En cours', 'in_progress'],
+                ['Terminée', 'completed']
+              ], @request.status || 'draft'),
+              {},
+              { class: "form-select" } %>
+      </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="text-muted">
+          <small>
+            <i class="bi bi-shield-check me-1"></i>
+            Vos données sont traitées de manière sécurisée
+          </small>
+        </div>
+        <div>
+          <a href="https://www.wallonie.be/fr/demarches/demander-des-primes-habitat"
+             target="_blank"
+             rel="noopener noreferrer"
+             class="btn btn-outline-info btn-sm">
+            <i class="bi bi-link-45deg me-1"></i>
+            Site officiel Wallonie
+          </a>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2">
+        <%= form.submit "Sauvegarder en brouillon", class: "btn btn-outline-primary px-4" %>
+        <a href="https://www.wallonie.be/fr/demarches/demander-des-primes-habitat"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="btn btn-primary-custom px-4">
+          <i class="bi bi-box-arrow-up-right me-2"></i>
+          Continuer sur le site Wallonie
+        </a>
+        <%= link_to "Annuler", requests_path, class: "btn btn-outline-secondary px-4" %>
+      </div>
+    </div>
+  </div>
+
 </div>

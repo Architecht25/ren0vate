@@ -418,7 +418,21 @@
         <%= form.label :acceptation_conditions, "J'accepte les conditions générales et autorise le traitement de mes données personnelles.", class: "form-check-label" %>
       </div>
 
-      <div class="d-flex justify-content-between align-items-center">
+      <!-- Statut et soumission spécifique Flandre -->
+      <div class="mb-4">
+        <%= form.label :status, "Statut de la demande", class: "form-label" %>
+        <%= form.select :status,
+              options_for_select([
+                ['Brouillon', 'draft'],
+                ['En attente', 'pending'],
+                ['En cours', 'in_progress'],
+                ['Terminée', 'completed']
+              ], @request.status || 'draft'),
+              {},
+              { class: "form-select" } %>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mb-4">
         <div class="text-muted">
           <small>
             <i class="bi bi-shield-check me-1"></i>
@@ -426,11 +440,28 @@
           </small>
         </div>
         <div>
-          <%= form.submit "📩 Soumettre la demande", class: "btn btn-success btn-lg px-4" %>
+          <a href="https://www.vlaanderen.be/bouwen-wonen-en-energie/premies-voor-verbouwing-en-renovatie"
+             target="_blank"
+             rel="noopener noreferrer"
+             class="btn btn-outline-info btn-sm">
+            <i class="bi bi-link-45deg me-1"></i>
+            Site officiel Vlaanderen
+          </a>
         </div>
       </div>
 
-      <div id="message-soumission" class="mt-3 fw-bold text-success"></div>
+      <div class="d-flex gap-2">
+        <%= form.submit "Sauvegarder en brouillon", class: "btn btn-outline-primary px-4" %>
+        <a href="https://www.vlaanderen.be/bouwen-wonen-en-energie/premies-voor-verbouwing-en-renovatie"
+           target="_blank"
+           rel="noopener noreferrer"
+           class="btn btn-primary-custom px-4">
+          <i class="bi bi-box-arrow-up-right me-2"></i>
+          Continuer sur le site Vlaanderen
+        </a>
+        <%= link_to "Annuler", requests_path, class: "btn btn-outline-secondary px-4" %>
+      </div>      <div id="message-soumission" class="mt-3 fw-bold text-success"></div>
     </div>
   </div>
+
 </div>
