@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_17_100022) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_17_161459) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -169,6 +169,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_17_100022) do
     t.string "reconstruit"
     t.date "date_peb_avant_travaux"
     t.date "date_peb_apres_travaux"
+    t.string "type_propriete_wallonie"
+    t.string "certificat_peb_wallonie"
+    t.integer "surface_habitable_wallonie"
+    t.string "mode_chauffage_wallonie"
+    t.string "type_bien_flandre"
+    t.string "usage_flandre"
+    t.string "chauffage_post_renovation_flandre"
+    t.string "ean_flandre"
+    t.string "parcelle_flandre"
+    t.string "certificat_peb_flandre"
+    t.string "type_bien_bruxelles"
+    t.string "certificat_peb_bruxelles"
+    t.integer "surface_habitable"
+    t.string "mode_chauffage_principal"
     t.index ["user_id"], name: "index_properties_on_user_id"
   end
 

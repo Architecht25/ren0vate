@@ -1,0 +1,297 @@
+<!-- Formulaire d'édition adaptatif par région -->
+<%= form_with model: property, local: true, html: { class: "needs-validation", novalidate: true } do |form| %>
+  
+  <!-- Champs communs à toutes les régions -->
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0"><i class="bi bi-geo-alt me-2"></i>Informations de base</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :rue, "Rue *", class: "form-label" %>
+            <%= form.text_field :rue, class: "form-control", required: true %>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :numero, "Numéro *", class: "form-label" %>
+            <%= form.text_field :numero, class: "form-control", required: true %>
+          </div>
+        </div>
+      </div>
+      
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :code_postal, "Code postal *", class: "form-label" %>
+            <%= form.text_field :code_postal, class: "form-control", required: true %>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :commune, "Commune *", class: "form-label" %>
+            <%= form.text_field :commune, class: "form-control", required: true %>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :region, "Région *", class: "form-label" %>
+            <%= form.select :region, 
+                options_for_select([
+                  ['Wallonie', 'wallonie'],
+                  ['Flandre', 'flandre'],
+                  ['Bruxelles', 'bruxelles']
+                ], property.region),
+                { prompt: "-- Sélectionnez une région --" },
+                { class: "form-select", required: true, id: "property_region_select" } %>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :annee_construction, "Année de construction", class: "form-label" %>
+            <%= form.number_field :annee_construction, class: "form-control", min: 1800, max: Date.current.year %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Champs spécifiques à la Wallonie -->
+  <div id="wallonie-specific" class="region-specific-fields" style="display: <%= property.region == 'wallonie' ? 'block' : 'none' %>;">
+    <div class="card mb-4">
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0"><i class="bi bi-house-heart me-2"></i>Caractéristiques Wallonie</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :type_propriete_wallonie, "Type de propriété", class: "form-label" %>
+              <%= form.select :type_propriete_wallonie,
+                  options_for_select([
+                    ['Maison individuelle', 'maison_individuelle'],
+                    ['Maison mitoyenne', 'maison_mitoyenne'],
+                    ['Appartement', 'appartement'],
+                    ['Immeuble de rapport', 'immeuble_rapport']
+                  ], property.type_propriete_wallonie),
+                  { prompt: "-- Sélectionnez --" },
+                  { class: "form-select" } %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :certificat_peb_wallonie, "Certificat PEB", class: "form-label" %>
+              <%= form.select :certificat_peb_wallonie,
+                  options_for_select([
+                    ['A+', 'A+'], ['A', 'A'], ['B', 'B'], ['C', 'C'], 
+                    ['D', 'D'], ['E', 'E'], ['F', 'F'], ['G', 'G'],
+                    ['Non certifié', 'non_certifie']
+                  ], property.certificat_peb_wallonie),
+                  { prompt: "-- Sélectionnez --" },
+                  { class: "form-select" } %>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :surface_habitable_wallonie, "Surface habitable (m²)", class: "form-label" %>
+              <%= form.number_field :surface_habitable_wallonie, class: "form-control", min: 0 %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :mode_chauffage_wallonie, "Mode de chauffage principal", class: "form-label" %>
+              <%= form.select :mode_chauffage_wallonie,
+                  options_for_select([
+                    ['Gaz naturel', 'gaz_naturel'],
+                    ['Mazout', 'mazout'],
+                    ['Électrique', 'electrique'],
+                    ['Pompe à chaleur', 'pompe_chaleur'],
+                    ['Bois/Biomasse', 'bois_biomasse'],
+                    ['Autre', 'autre']
+                  ], property.mode_chauffage_wallonie),
+                  { prompt: "-- Sélectionnez --" },
+                  { class: "form-select" } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Champs spécifiques à la Flandre -->
+  <div id="flandre-specific" class="region-specific-fields" style="display: <%= property.region == 'flandre' ? 'block' : 'none' %>;">
+    <div class="card mb-4">
+      <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0"><i class="bi bi-house-gear me-2"></i>Caractéristiques Flandre</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :type_bien_flandre, "Type de bien *", class: "form-label" %>
+              <%= form.select :type_bien_flandre,
+                  options_for_select([
+                    ['Maison unifamiliale', 'maison'],
+                    ['Appartement', 'appartement'],
+                    ['Immeuble avec plusieurs unités', 'immeuble']
+                  ], property.type_bien_flandre),
+                  { prompt: "-- Sélectionnez --" },
+                  { class: "form-select" } %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :usage_flandre, "Usage du bien", class: "form-label" %>
+              <%= form.select :usage_flandre,
+                  options_for_select([
+                    ['Résidence principale', 'residence_principale'],
+                    ['Bien en location', 'location'],
+                    ['Autre', 'autre']
+                  ], property.usage_flandre),
+                  { prompt: "-- Sélectionnez --" },
+                  { class: "form-select" } %>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :chauffage_post_renovation_flandre, "Système de chauffage après rénovation", class: "form-label" %>
+              <%= form.select :chauffage_post_renovation_flandre,
+                  options_for_select([
+                    ['Chauffage central au gaz (condensation)', 'gaz'],
+                    ['Chauffage au mazout', 'mazout'],
+                    ['Chauffage électrique direct', 'electrique'],
+                    ['Pompe à chaleur air/eau', 'pac-air-eau'],
+                    ['Pompe à chaleur géothermique', 'pac-geothermique'],
+                    ['Réseau de chaleur', 'reseau-chaleur'],
+                    ['Poêle / insert bois / biomasse', 'bois'],
+                    ['Autre (à spécifier)', 'autre'],
+                    ['Je ne sais pas', 'ne_sais_pas']
+                  ], property.chauffage_post_renovation_flandre),
+                  { prompt: "-- Sélectionnez --" },
+                  { class: "form-select" } %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :ean_flandre, "Code EAN", class: "form-label" %>
+              <%= form.text_field :ean_flandre, class: "form-control", placeholder: "Ex: 54144..." %>
+              <div class="form-text">Code EAN de votre compteur électrique</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :parcelle_flandre, "Numéro de parcelle", class: "form-label" %>
+              <%= form.text_field :parcelle_flandre, class: "form-control", placeholder: "Ex: 12345/02A" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :certificat_peb_flandre, "Certificat PEB", class: "form-label" %>
+              <%= form.select :certificat_peb_flandre,
+                  options_for_select([
+                    ['A++', 'A++'], ['A+', 'A+'], ['A', 'A'], ['B', 'B'], 
+                    ['C', 'C'], ['D', 'D'], ['E', 'E'], ['F', 'F'],
+                    ['Non disponible', 'non_disponible']
+                  ], property.certificat_peb_flandre),
+                  { prompt: "-- Sélectionnez --" },
+                  { class: "form-select" } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Champs spécifiques à Bruxelles -->
+  <div id="bruxelles-specific" class="region-specific-fields" style="display: <%= property.region == 'bruxelles' ? 'block' : 'none' %>;">
+    <div class="card mb-4">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0"><i class="bi bi-building me-2"></i>Caractéristiques Bruxelles</h5>
+      </div>
+      <div class="card-body">
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle me-2"></i>
+          Les caractéristiques spécifiques pour Bruxelles seront disponibles prochainement.
+        </div>
+        
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :type_bien_bruxelles, "Type de bien", class: "form-label" %>
+              <%= form.select :type_bien_bruxelles,
+                  options_for_select([
+                    ['Maison unifamiliale', 'maison'],
+                    ['Appartement', 'appartement'],
+                    ['Immeuble mixte', 'immeuble_mixte']
+                  ], property.type_bien_bruxelles),
+                  { prompt: "-- Sélectionnez --" },
+                  { class: "form-select" } %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :certificat_peb_bruxelles, "Certificat PEB", class: "form-label" %>
+              <%= form.select :certificat_peb_bruxelles,
+                  options_for_select([
+                    ['A+', 'A+'], ['A', 'A'], ['B', 'B'], ['C', 'C'], 
+                    ['D', 'D'], ['E', 'E'], ['F', 'F'], ['G', 'G'],
+                    ['Non certifié', 'non_certifie']
+                  ], property.certificat_peb_bruxelles),
+                  { prompt: "-- Sélectionnez --" },
+                  { class: "form-select" } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Boutons d'action -->
+  <div class="d-flex gap-2 mt-4">
+    <%= form.submit "Sauvegarder les modifications", class: "btn btn-primary-custom px-4" %>
+    <%= link_to "Annuler", property_path(property), class: "btn btn-outline-secondary px-4" %>
+  </div>
+
+<% end %>
+
+<!-- JavaScript pour l'affichage conditionnel -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const regionSelect = document.getElementById('property_region_select');
+  const regionFields = document.querySelectorAll('.region-specific-fields');
+  
+  function toggleRegionFields() {
+    const selectedRegion = regionSelect.value;
+    
+    regionFields.forEach(field => {
+      field.style.display = 'none';
+    });
+    
+    if (selectedRegion) {
+      const targetField = document.getElementById(selectedRegion + '-specific');
+      if (targetField) {
+        targetField.style.display = 'block';
+      }
+    }
+  }
+  
+  regionSelect.addEventListener('change', toggleRegionFields);
+  
+  // Affichage initial
+  toggleRegionFields();
+});
+</script>

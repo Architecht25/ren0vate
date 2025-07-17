@@ -9,6 +9,11 @@ class Property < ApplicationRecord
 
   # Validations pour les champs obligatoires essentiels
   validates :rue, :numero, :code_postal, :commune, :region, presence: true
+  
+  # Validations régionales conditionnelles
+  validates :type_bien_flandre, presence: true, if: -> { region == 'flandre' }
+  validates :type_propriete_wallonie, presence: true, if: -> { region == 'wallonie' }
+  
   # Validations optionnelles - à réactiver plus tard selon les besoins
   # validates :type, :occupation, presence: true
   # validates :annee_construction, :date_raccordement_electrique, :numero_ean, presence: true, if: :strict_validation_required?
@@ -50,6 +55,16 @@ class Property < ApplicationRecord
 
   def admin_completion_percentage
     admin_fields = [:rue, :numero, :code_postal, :commune, :type, :region]
+    # Ajout des champs régionaux selon la région
+    case region
+    when 'wallonie'
+      admin_fields += [:type_propriete_wallonie, :certificat_peb_wallonie]
+    when 'flandre' 
+      admin_fields += [:type_bien_flandre, :usage_flandre, :certificat_peb_flandre]
+    when 'bruxelles'
+      admin_fields += [:type_bien_bruxelles, :certificat_peb_bruxelles]
+    end
+    
     total = admin_fields.count
     completed = admin_fields.count { |field| self[field].present? }
     return 0 if total.zero?
@@ -57,7 +72,23 @@ class Property < ApplicationRecord
   end
 
   def chantier_completion_percentage
-    chantier_fields = [:annee_construction, :date_raccordement_electrique, :numero_ean, :autre_bien, :peb]
+    # Champs de base communs
+    chantier_fields = [:annee_construction]
+    
+    # Ajout des champs régionaux selon la région
+    case region
+    when 'wallonie'
+      chantier_fields += [:surface_habitable_wallonie, :mode_chauffage_wallonie]
+    when 'flandre' 
+      chantier_fields += [:chauffage_post_renovation_flandre, :ean_flandre, :parcelle_flandre]
+    when 'bruxelles'
+      # Champs spécifiques Bruxelles à définir
+      chantier_fields += []
+    else
+      # Fallback vers les anciens champs si pas de région définie
+      chantier_fields += [:date_raccordement_electrique, :numero_ean, :autre_bien, :peb]
+    end
+    
     total = chantier_fields.count
     completed = chantier_fields.count { |field| self[field].present? }
     return 0 if total.zero?
@@ -104,8 +135,18 @@ class Property < ApplicationRecord
   end
 
   def name
-    # Génère un nom basé sur le type et la localisation
-    "#{type&.capitalize || 'Bien'} #{commune || 'Sans adresse'}"
+    # Génère un nom basé sur le type et la localisation selon la région
+    type_display = case region
+                   when 'wallonie'
+                     type_propriete_wallonie&.humanize || 'Bien'
+                   when 'flandre'
+                     type_bien_flandre&.humanize || 'Bien'
+                   when 'bruxelles'
+                     type_bien_bruxelles&.humanize || 'Bien'
+                   else
+                     type&.humanize || 'Bien'
+                   end
+    "#{type_display} #{commune || 'Sans adresse'}"
   end
 
   def missing_required_fields
@@ -175,7 +216,19 @@ class Property < ApplicationRecord
 
   def required_fields
     # Champs minimum requis pour l'enregistrement
-    [:rue, :numero, :code_postal, :commune, :region]
+    fields = [:rue, :numero, :code_postal, :commune, :region]
+    
+    # Ajout des champs régionaux requis selon la région
+    case region
+    when 'wallonie'
+      fields += [:type_propriete_wallonie]
+    when 'flandre' 
+      fields += [:type_bien_flandre]
+    when 'bruxelles'
+      fields += [:type_bien_bruxelles]
+    end
+    
+    fields
   end
 
   def strict_validation_required?

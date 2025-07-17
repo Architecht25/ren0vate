@@ -154,6 +154,87 @@
                 </div>
               </div>
             </div>
+            
+            <!-- Affichage conditionnel selon la région -->
+            <% if @property.region == 'wallonie' %>
+              <div class="col-6">
+                <div class="info-item">
+                  <small class="text-muted-custom">Type de propriété</small>
+                  <div class="fw-medium"><%= @property.type_propriete_wallonie&.humanize || "Non renseigné" %></div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="info-item">
+                  <small class="text-muted-custom">Certificat PEB</small>
+                  <div class="fw-medium">
+                    <% if @property.certificat_peb_wallonie.present? %>
+                      <span class="badge bg-info"><%= @property.certificat_peb_wallonie %></span>
+                    <% else %>
+                      Non renseigné
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% elsif @property.region == 'flandre' %>
+              <div class="col-6">
+                <div class="info-item">
+                  <small class="text-muted-custom">Type de bien</small>
+                  <div class="fw-medium"><%= @property.type_bien_flandre&.humanize || "Non renseigné" %></div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="info-item">
+                  <small class="text-muted-custom">Usage</small>
+                  <div class="fw-medium"><%= @property.usage_flandre&.humanize || "Non renseigné" %></div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="info-item">
+                  <small class="text-muted-custom">Certificat PEB</small>
+                  <div class="fw-medium">
+                    <% if @property.certificat_peb_flandre.present? %>
+                      <span class="badge bg-info"><%= @property.certificat_peb_flandre %></span>
+                    <% else %>
+                      Non renseigné
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="info-item">
+                  <small class="text-muted-custom">Code EAN</small>
+                  <div class="fw-medium"><%= @property.ean_flandre || "Non renseigné" %></div>
+                </div>
+              </div>
+            <% elsif @property.region == 'bruxelles' %>
+              <div class="col-6">
+                <div class="info-item">
+                  <small class="text-muted-custom">Type de bien</small>
+                  <div class="fw-medium"><%= @property.type_bien_bruxelles&.humanize || "Non renseigné" %></div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="info-item">
+                  <small class="text-muted-custom">Certificat PEB</small>
+                  <div class="fw-medium">
+                    <% if @property.certificat_peb_bruxelles.present? %>
+                      <span class="badge bg-info"><%= @property.certificat_peb_bruxelles %></span>
+                    <% else %>
+                      Non renseigné
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+            
+            <% if @property.annee_construction.present? %>
+              <div class="col-6">
+                <div class="info-item">
+                  <small class="text-muted-custom">Année de construction</small>
+                  <div class="fw-medium"><%= @property.annee_construction %></div>
+                </div>
+              </div>
+            <% end %>
           </div>
 
           <div class="mt-4 pt-3 border-top">
