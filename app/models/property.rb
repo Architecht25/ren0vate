@@ -9,11 +9,11 @@ class Property < ApplicationRecord
 
   # Validations pour les champs obligatoires essentiels
   validates :rue, :numero, :code_postal, :commune, :region, presence: true
-  
+
   # Validations régionales conditionnelles
   validates :type_bien_flandre, presence: true, if: -> { region == 'flandre' }
   validates :type_propriete_wallonie, presence: true, if: -> { region == 'wallonie' }
-  
+
   # Validations optionnelles - à réactiver plus tard selon les besoins
   # validates :type, :occupation, presence: true
   # validates :annee_construction, :date_raccordement_electrique, :numero_ean, presence: true, if: :strict_validation_required?
@@ -204,12 +204,12 @@ class Property < ApplicationRecord
   def admin_fields_for_region
     # Champs de base communs à toutes les régions
     fields = [:rue, :numero, :code_postal, :commune, :region]
-    
+
     # Ajout des champs régionaux selon la région
     case region
     when 'wallonie'
       fields += [:type_propriete_wallonie, :certificat_peb_wallonie]
-    when 'flandre' 
+    when 'flandre'
       fields += [:type_bien_flandre, :usage_flandre, :certificat_peb_flandre]
     when 'bruxelles'
       fields += [:type_bien_bruxelles, :certificat_peb_bruxelles]
@@ -217,20 +217,20 @@ class Property < ApplicationRecord
       # Fallback vers l'ancien champ générique si pas de région définie
       fields += [:type] if respond_to?(:type)
     end
-    
+
     fields
   end
 
   def chantier_fields_for_region
     # Champs de base communs à toutes les régions
     fields = [:annee_construction]
-    
+
     # Ajout des champs régionaux spécifiques selon la région
     case region
     when 'wallonie'
       # Pour la Wallonie : surface habitable et mode de chauffage
       fields += [:surface_habitable_wallonie, :mode_chauffage_wallonie]
-    when 'flandre' 
+    when 'flandre'
       # Pour la Flandre : système chauffage, EAN et parcelle spécifiques Flandre
       fields += [:chauffage_post_renovation_flandre, :ean_flandre, :parcelle_flandre]
     when 'bruxelles'
@@ -240,24 +240,24 @@ class Property < ApplicationRecord
       # Fallback vers les anciens champs génériques si pas de région définie
       fields += [:date_raccordement_electrique, :numero_ean, :autre_bien, :peb]
     end
-    
+
     fields
   end
 
   def required_fields
     # Champs minimum requis pour l'enregistrement
     fields = [:rue, :numero, :code_postal, :commune, :region]
-    
+
     # Ajout des champs régionaux requis selon la région
     case region
     when 'wallonie'
       fields += [:type_propriete_wallonie]
-    when 'flandre' 
+    when 'flandre'
       fields += [:type_bien_flandre]
     when 'bruxelles'
       fields += [:type_bien_bruxelles]
     end
-    
+
     fields
   end
 

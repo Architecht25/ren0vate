@@ -1,6 +1,6 @@
 <!-- Formulaire d'édition adaptatif par région -->
 <%= form_with model: property, local: true, html: { class: "needs-validation", novalidate: true } do |form| %>
-  
+
   <!-- Champs communs à toutes les régions -->
   <div class="card mb-4">
     <div class="card-header bg-primary text-white">
@@ -21,7 +21,7 @@
           </div>
         </div>
       </div>
-      
+
       <div class="row">
         <div class="col-md-6">
           <div class="mb-3">
@@ -41,7 +41,7 @@
         <div class="col-md-6">
           <div class="mb-3">
             <%= form.label :region, "Région *", class: "form-label" %>
-            <%= form.select :region, 
+            <%= form.select :region,
                 options_for_select([
                   ['Wallonie', 'wallonie'],
                   ['Flandre', 'flandre'],
@@ -88,7 +88,7 @@
               <%= form.label :certificat_peb_wallonie, "Certificat PEB", class: "form-label" %>
               <%= form.select :certificat_peb_wallonie,
                   options_for_select([
-                    ['A+', 'A+'], ['A', 'A'], ['B', 'B'], ['C', 'C'], 
+                    ['A+', 'A+'], ['A', 'A'], ['B', 'B'], ['C', 'C'],
                     ['D', 'D'], ['E', 'E'], ['F', 'F'], ['G', 'G'],
                     ['Non certifié', 'non_certifie']
                   ], property.certificat_peb_wallonie),
@@ -97,7 +97,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="row">
           <div class="col-md-6">
             <div class="mb-3">
@@ -161,7 +161,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="row">
           <div class="col-md-6">
             <div class="mb-3">
@@ -190,7 +190,7 @@
             </div>
           </div>
         </div>
-        
+
         <div class="row">
           <div class="col-md-6">
             <div class="mb-3">
@@ -203,7 +203,7 @@
               <%= form.label :certificat_peb_flandre, "Certificat PEB", class: "form-label" %>
               <%= form.select :certificat_peb_flandre,
                   options_for_select([
-                    ['A++', 'A++'], ['A+', 'A+'], ['A', 'A'], ['B', 'B'], 
+                    ['A++', 'A++'], ['A+', 'A+'], ['A', 'A'], ['B', 'B'],
                     ['C', 'C'], ['D', 'D'], ['E', 'E'], ['F', 'F'],
                     ['Non disponible', 'non_disponible']
                   ], property.certificat_peb_flandre),
@@ -227,7 +227,7 @@
           <i class="bi bi-info-circle me-2"></i>
           Les caractéristiques spécifiques pour Bruxelles seront disponibles prochainement.
         </div>
-        
+
         <div class="row">
           <div class="col-md-6">
             <div class="mb-3">
@@ -247,7 +247,7 @@
               <%= form.label :certificat_peb_bruxelles, "Certificat PEB", class: "form-label" %>
               <%= form.select :certificat_peb_bruxelles,
                   options_for_select([
-                    ['A+', 'A+'], ['A', 'A'], ['B', 'B'], ['C', 'C'], 
+                    ['A+', 'A+'], ['A', 'A'], ['B', 'B'], ['C', 'C'],
                     ['D', 'D'], ['E', 'E'], ['F', 'F'], ['G', 'G'],
                     ['Non certifié', 'non_certifie']
                   ], property.certificat_peb_bruxelles),
@@ -273,14 +273,14 @@
 document.addEventListener('DOMContentLoaded', function() {
   const regionSelect = document.getElementById('property_region_select');
   const regionFields = document.querySelectorAll('.region-specific-fields');
-  
+
   function toggleRegionFields() {
     const selectedRegion = regionSelect.value;
-    
+
     regionFields.forEach(field => {
       field.style.display = 'none';
     });
-    
+
     if (selectedRegion) {
       const targetField = document.getElementById(selectedRegion + '-specific');
       if (targetField) {
@@ -288,9 +288,9 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   }
-  
+
   regionSelect.addEventListener('change', toggleRegionFields);
-  
+
   // Affichage initial
   toggleRegionFields();
 });

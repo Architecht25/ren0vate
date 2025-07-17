@@ -57,8 +57,15 @@
           <div class="icon-circle-large mx-auto mb-3">
             <i class="bi bi-file-earmark-text"></i>
           </div>
-          <h3 class="text-primary-custom mb-1"><%= @active_requests %></h3>
+          <h3 class="text-primary-custom mb-1"><%= @request_stats[:pending] + @request_stats[:in_progress] + @request_stats[:submitted] %></h3>
           <small class="text-muted-custom">Demandes en cours</small>
+          <% if @request_stats[:estimated_amount] > 0 %>
+            <div class="mt-2">
+              <small class="text-success fw-semibold">
+                <%= number_to_currency(@request_stats[:estimated_amount], unit: "€", separator: ",", delimiter: " ") %>
+              </small>
+            </div>
+          <% end %>
         </div>
       </div>
     </div>
@@ -69,11 +76,79 @@
             <i class="bi bi-check-circle"></i>
           </div>
           <h3 class="text-primary-custom mb-1"><%= @completion_stats[:completed] %></h3>
-          <small class="text-muted-custom">Biens prêts</small>
+          <small class="text-muted-custom">Biens finalisés (≥80%)</small>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- Détail des demandes en cours -->
+  <% if @request_stats[:total] > 0 %>
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-light-custom border-0 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-normal text-primary-custom">
+          <i class="bi bi-file-earmark-text me-2"></i>État des demandes de primes
+        </h5>
+        <%= link_to requests_path, class: "btn btn-outline-primary-custom btn-sm" do %>
+          Voir toutes →
+        <% end %>
+      </div>
+      <div class="card-body">
+        <div class="row g-3">
+          <% if @request_stats[:pending] > 0 %>
+            <div class="col-md-3">
+              <div class="text-center p-3 bg-warning bg-opacity-10 rounded">
+                <div class="h4 text-warning mb-1"><%= @request_stats[:pending] %></div>
+                <small class="text-muted">En attente</small>
+              </div>
+            </div>
+          <% end %>
+
+          <% if @request_stats[:in_progress] > 0 %>
+            <div class="col-md-3">
+              <div class="text-center p-3 bg-info bg-opacity-10 rounded">
+                <div class="h4 text-info mb-1"><%= @request_stats[:in_progress] %></div>
+                <small class="text-muted">En traitement</small>
+              </div>
+            </div>
+          <% end %>
+
+          <% if @request_stats[:submitted] > 0 %>
+            <div class="col-md-3">
+              <div class="text-center p-3 bg-primary bg-opacity-10 rounded">
+                <div class="h4 text-primary mb-1"><%= @request_stats[:submitted] %></div>
+                <small class="text-muted">Soumises</small>
+              </div>
+            </div>
+          <% end %>
+
+          <% if @request_stats[:validated] > 0 %>
+            <div class="col-md-3">
+              <div class="text-center p-3 bg-success bg-opacity-10 rounded">
+                <div class="h4 text-success mb-1"><%= @request_stats[:validated] %></div>
+                <small class="text-muted">Validées</small>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <% if @request_stats[:estimated_amount] > 0 %>
+          <div class="mt-3 pt-3 border-top">
+            <div class="row">
+              <div class="col-md-6">
+                <small class="text-muted">Montant estimé des demandes en cours :</small>
+              </div>
+              <div class="col-md-6 text-end">
+                <span class="h5 text-success mb-0">
+                  <%= number_to_currency(@request_stats[:estimated_amount], unit: "€", separator: ",", delimiter: " ") %>
+                </span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
 
   <!-- Liste des biens avec état de complétude -->
   <% if @properties.any? %>
@@ -122,26 +197,6 @@
                 </div>
               </div>
             <% end %>
-          <% end %>
-        </div>
-      </div>
-    </div>
-
-    <!-- Actions rapides -->
-    <div class="card border-0 bg-light-custom">
-      <div class="card-body text-center p-4">
-        <h5 class="text-primary-custom mb-4 fw-normal">
-          <i class="bi bi-lightning me-2"></i>Actions rapides
-        </h5>
-        <div class="d-flex justify-content-center gap-3 flex-wrap">
-          <%= link_to new_property_path, class: "btn btn-primary-custom px-4" do %>
-            <i class="bi bi-plus-lg me-2"></i>Ajouter un bien
-          <% end %>
-          <%= link_to simulations_path, class: "btn btn-outline-success px-4" do %>
-            <i class="bi bi-calculator me-2"></i>Calculer mes primes
-          <% end %>
-          <%= link_to requests_path, class: "btn btn-outline-info px-4" do %>
-            <i class="bi bi-file-earmark-text me-2"></i>Mes demandes
           <% end %>
         </div>
       </div>

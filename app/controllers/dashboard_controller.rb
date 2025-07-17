@@ -10,18 +10,43 @@ class DashboardController < ApplicationController
 
     # Calculs pour les statistiques
     @completion_stats = calculate_completion_stats
+    @request_stats = calculate_request_stats
   end
 
   private
 
   def calculate_completion_stats
-    return { average: 0, completed: 0, in_progress: 0 } if @properties.empty?
+    return { average: 0, completed: 0, eligible: 0, in_progress: 0 } if @properties.empty?
 
     completions = @properties.map(&:completion_percentage)
     {
       average: (completions.sum.to_f / completions.size).round,
-      completed: @properties.count { |p| p.completion_percentage >= 90 },
-      in_progress: @properties.count { |p| p.completion_percentage < 90 }
+      completed: @properties.count { |p| p.completion_percentage >= 80 },
+      eligible: @properties.count { |p| p.completion_percentage >= 80 },
+      in_progress: @properties.count { |p| p.completion_percentage < 80 }
     }
+  end
+
+  def calculate_request_stats
+    user_requests = current_user.requests
+
+    {
+      total: user_requests.count,
+      pending: user_requests.where(status: 'pending').count,
+      in_progress: user_requests.where(status: 'in_progress').count,
+      submitted: user_requests.where(status: 'submitted').count,
+      validated: user_requests.where(status: 'validated').count,
+      estimated_amount: calculate_estimated_amount(user_requests.where(status: ['pending', 'in_progress', 'submitted']))
+    }
+  end
+
+  def calculate_estimated_amount(requests)
+    # Utilise montant_travaux en priorité, puis cout_estime, puis montant_total
+    total = 0
+    requests.each do |request|
+      amount = request.montant_travaux || request.cout_estime || request.montant_total || 0
+      total += amount.to_f
+    end
+    total.round(2)
   end
 end

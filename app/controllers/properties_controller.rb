@@ -266,18 +266,18 @@ class PropertiesController < ApplicationController
       :annee_construction, :date_raccordement_electrique,
       :numero_ean, :numero_cadastre,
       :date_peb_avant_travaux, :date_peb_apres_travaux,
-      
+
       # Champs communs améliorés
       :surface_habitable, :mode_chauffage_principal,
-      
+
       # Champs spécifiques Wallonie
-      :type_propriete_wallonie, :certificat_peb_wallonie, 
+      :type_propriete_wallonie, :certificat_peb_wallonie,
       :surface_habitable_wallonie, :mode_chauffage_wallonie,
-      
+
       # Champs spécifiques Flandre
       :type_bien_flandre, :usage_flandre, :chauffage_post_renovation_flandre,
       :ean_flandre, :parcelle_flandre, :certificat_peb_flandre,
-      
+
       # Champs spécifiques Bruxelles
       :type_bien_bruxelles, :certificat_peb_bruxelles
     )
