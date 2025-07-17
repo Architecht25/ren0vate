@@ -64,13 +64,44 @@
               <span class="<%= @property.rue.present? ? 'text-dark' : 'text-muted' %>">Adresse complète</span>
             </li>
             <li class="d-flex align-items-center mb-2">
-              <i class="bi bi-<%= @property.type.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
-              <span class="<%= @property.type.present? ? 'text-dark' : 'text-muted' %>">Type de bien</span>
+              <% type_completed = case @property.region
+                                  when 'wallonie'
+                                    @property.type_propriete_wallonie.present?
+                                  when 'flandre'
+                                    @property.type_bien_flandre.present?
+                                  when 'bruxelles'
+                                    @property.type_bien_bruxelles.present?
+                                  else
+                                    @property.type.present?
+                                  end %>
+              <i class="bi bi-<%= type_completed ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+              <span class="<%= type_completed ? 'text-dark' : 'text-muted' %>">Type de bien</span>
             </li>
             <li class="d-flex align-items-center mb-2">
               <i class="bi bi-<%= @property.region.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
               <span class="<%= @property.region.present? ? 'text-dark' : 'text-muted' %>">Région</span>
             </li>
+            <% case @property.region
+               when 'wallonie' %>
+              <li class="d-flex align-items-center mb-2">
+                <i class="bi bi-<%= @property.certificat_peb_wallonie.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+                <span class="<%= @property.certificat_peb_wallonie.present? ? 'text-dark' : 'text-muted' %>">Certificat PEB</span>
+              </li>
+            <% when 'flandre' %>
+              <li class="d-flex align-items-center mb-2">
+                <i class="bi bi-<%= @property.usage_flandre.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+                <span class="<%= @property.usage_flandre.present? ? 'text-dark' : 'text-muted' %>">Usage du bien</span>
+              </li>
+              <li class="d-flex align-items-center mb-2">
+                <i class="bi bi-<%= @property.certificat_peb_flandre.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+                <span class="<%= @property.certificat_peb_flandre.present? ? 'text-dark' : 'text-muted' %>">Certificat PEB</span>
+              </li>
+            <% when 'bruxelles' %>
+              <li class="d-flex align-items-center mb-2">
+                <i class="bi bi-<%= @property.certificat_peb_bruxelles.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+                <span class="<%= @property.certificat_peb_bruxelles.present? ? 'text-dark' : 'text-muted' %>">Certificat PEB</span>
+              </li>
+            <% end %>
           </ul>
           <%= link_to edit_property_path(@property), class: "btn btn-outline-primary btn-sm" do %>
             <i class="bi bi-pencil me-1"></i>Compléter
@@ -99,14 +130,42 @@
               <i class="bi bi-<%= @property.annee_construction.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
               <span class="<%= @property.annee_construction.present? ? 'text-dark' : 'text-muted' %>">Année construction</span>
             </li>
-            <li class="d-flex align-items-center mb-2">
-              <i class="bi bi-<%= @property.numero_ean.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
-              <span class="<%= @property.numero_ean.present? ? 'text-dark' : 'text-muted' %>">Numéro EAN</span>
-            </li>
-            <li class="d-flex align-items-center mb-2">
-              <i class="bi bi-<%= @property.peb.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
-              <span class="<%= @property.peb.present? ? 'text-dark' : 'text-muted' %>">Certificat PEB</span>
-            </li>
+            <% case @property.region
+               when 'wallonie' %>
+              <li class="d-flex align-items-center mb-2">
+                <i class="bi bi-<%= @property.surface_habitable_wallonie.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+                <span class="<%= @property.surface_habitable_wallonie.present? ? 'text-dark' : 'text-muted' %>">Surface habitable</span>
+              </li>
+              <li class="d-flex align-items-center mb-2">
+                <i class="bi bi-<%= @property.mode_chauffage_wallonie.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+                <span class="<%= @property.mode_chauffage_wallonie.present? ? 'text-dark' : 'text-muted' %>">Mode de chauffage</span>
+              </li>
+            <% when 'flandre' %>
+              <li class="d-flex align-items-center mb-2">
+                <i class="bi bi-<%= @property.ean_flandre.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+                <span class="<%= @property.ean_flandre.present? ? 'text-dark' : 'text-muted' %>">Code EAN</span>
+              </li>
+              <li class="d-flex align-items-center mb-2">
+                <i class="bi bi-<%= @property.chauffage_post_renovation_flandre.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+                <span class="<%= @property.chauffage_post_renovation_flandre.present? ? 'text-dark' : 'text-muted' %>">Système chauffage</span>
+              </li>
+              <li class="d-flex align-items-center mb-2">
+                <i class="bi bi-<%= @property.parcelle_flandre.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+                <span class="<%= @property.parcelle_flandre.present? ? 'text-dark' : 'text-muted' %>">Numéro parcelle</span>
+              </li>
+            <% when 'bruxelles' %>
+              <!-- Champs spécifiques Bruxelles à définir -->
+            <% else %>
+              <!-- Fallback vers anciens champs génériques -->
+              <li class="d-flex align-items-center mb-2">
+                <i class="bi bi-<%= @property.numero_ean.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+                <span class="<%= @property.numero_ean.present? ? 'text-dark' : 'text-muted' %>">Numéro EAN</span>
+              </li>
+              <li class="d-flex align-items-center mb-2">
+                <i class="bi bi-<%= @property.peb.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+                <span class="<%= @property.peb.present? ? 'text-dark' : 'text-muted' %>">Certificat PEB</span>
+              </li>
+            <% end %>
           </ul>
           <%= link_to edit_property_path(@property), class: "btn btn-outline-primary btn-sm" do %>
             <i class="bi bi-tools me-1"></i>Compléter
