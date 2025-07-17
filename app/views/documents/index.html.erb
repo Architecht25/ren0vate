@@ -1,69 +1,417 @@
 <div class="container-fluid px-4 py-4">
-  <!-- Header épuré -->
+  <!-- Header avec statistiques -->
   <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-    <h1 class="h3 text-primary-custom mb-0 fw-normal">Mes Documents</h1>
-    <%= link_to new_document_path, class: "btn btn-primary-custom px-4" do %>
-      <i class="bi bi-plus-lg me-2"></i>Nouveau document
-    <% end %>
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-folder2-open"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">Documents</h1>
+        <small class="text-muted">Gestion de vos documents de chantiers</small>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2">
+      <%= link_to new_document_path, class: "btn btn-primary-custom px-4" do %>
+        <i class="bi bi-plus-circle me-2"></i>
+        Nouveau Document
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Statistiques rapides -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card border-0 bg-primary-subtle h-100">
+        <div class="card-body text-center">
+          <i class="bi bi-files display-6 text-primary-custom mb-2"></i>
+          <h4 class="fw-bold text-primary-custom"><%= @documents.count %></h4>
+          <small class="text-muted">Total Documents</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card border-0 bg-success-subtle h-100">
+        <div class="card-body text-center">
+          <i class="bi bi-check-circle display-6 text-success mb-2"></i>
+          <h4 class="fw-bold text-success"><%= @documents.where(status: 'approved').count %></h4>
+          <small class="text-muted">Approuvés</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card border-0 bg-warning-subtle h-100">
+        <div class="card-body text-center">
+          <i class="bi bi-clock display-6 text-warning mb-2"></i>
+          <h4 class="fw-bold text-warning"><%= @documents.where(status: 'pending').count %></h4>
+          <small class="text-muted">En attente</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card border-0 bg-info-subtle h-100">
+        <div class="card-body text-center">
+          <i class="bi bi-calendar-week display-6 text-info mb-2"></i>
+          <h4 class="fw-bold text-info"><%= @documents.where('created_at >= ?', 7.days.ago).count %></h4>
+          <small class="text-muted">Cette semaine</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres et recherche -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-4">
+      <%= form_with url: documents_path, method: :get, local: true, class: "row g-3 align-items-end" do |form| %>
+        <div class="col-md-3">
+          <%= form.label :search, "Recherche", class: "form-label" %>
+          <%= form.text_field :search,
+              value: params[:search],
+              class: "form-control",
+              placeholder: "Nom de fichier, notes..." %>
+        </div>
+
+        <div class="col-md-2">
+          <%= form.label :type_filter, "Type", class: "form-label" %>
+          <%= form.select :type_filter,
+              options_from_collection_for_select(Document.type_documents, :first, :first, params[:type_filter]),
+              { include_blank: "Tous types" },
+              { class: "form-select" } %>
+        </div>
+
+        <div class="col-md-2">
+          <%= form.label :status_filter, "Statut", class: "form-label" %>
+          <%= form.select :status_filter,
+              options_from_collection_for_select(Document.statuses, :first, :first, params[:status_filter]),
+              { include_blank: "Tous statuts" },
+              { class: "form-select" } %>
+        </div>
+
+        <div class="col-md-2">
+          <%= form.label :context_filter, "Contexte", class: "form-label" %>
+          <%= form.select :context_filter,
+              [
+                ['Propriétés', 'property'],
+                ['Projets', 'project'],
+                ['Demandes', 'request'],
+                ['Simulations', 'simulation']
+              ],
+              { include_blank: "Tous contextes", selected: params[:context_filter] },
+              { class: "form-select" } %>
+        </div>
+
+        <div class="col-md-3">
+          <div class="d-flex gap-2">
+            <%= form.submit "Filtrer", class: "btn btn-outline-primary-custom" %>
+            <%= link_to "Reset", documents_path, class: "btn btn-outline-secondary" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
   </div>
 
   <!-- Liste des documents -->
   <% if @documents.any? %>
-    <div class="row g-3">
-      <% @documents.each do |document| %>
-        <div class="col-md-6 col-lg-4">
-          <%= link_to document_path(document), class: "text-decoration-none" do %>
-            <div class="card border-0 bg-light-custom h-100 property-card">
-              <div class="card-body p-4">
-                <div class="d-flex align-items-center mb-3">
-                  <div class="icon-circle me-3">
-                    <i class="bi bi-file-earmark-text"></i>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="border-0 ps-4">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-file-earmark me-2"></i>
+                    Document
                   </div>
-                  <div class="flex-grow-1">
-                    <h5 class="card-title text-dark mb-1 fw-normal"><%= document.type_document || "Document" %></h5>
-                    <p class="text-muted-custom mb-0 small">
-                      <i class="bi bi-calendar me-1"></i>
-                      <%= document.created_at.strftime("%d/%m/%Y") %>
-                    </p>
-                  </div>
-                </div>
-                <div class="mt-3">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <% status_class = case document.status
-                         when 'pending' then 'warning'
-                         when 'approved' then 'success'
-                         when 'rejected' then 'danger'
-                         else 'secondary'
-                       end %>
-                    <span class="badge bg-<%= status_class %> rounded-pill px-3 py-2">
-                      <%= document.status&.humanize || 'En attente' %>
+                </th>
+                <th class="border-0">Type</th>
+                <th class="border-0">Contexte</th>
+                <th class="border-0">Statut</th>
+                <th class="border-0">Taille</th>
+                <th class="border-0">Uploadé le</th>
+                <th class="border-0 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @documents.each do |document| %>
+                <tr class="document-row" data-document-id="<%= document.id %>">
+                  <td class="ps-4">
+                    <div class="d-flex align-items-center">
+                      <div class="file-icon me-3">
+                        <% if document.file.attached? %>
+                          <% case document.file.content_type %>
+                          <% when /image/ %>
+                            <i class="bi bi-file-earmark-image text-success"></i>
+                          <% when 'application/pdf' %>
+                            <i class="bi bi-file-earmark-pdf text-danger"></i>
+                          <% when /word/ %>
+                            <i class="bi bi-file-earmark-word text-primary"></i>
+                          <% when /excel|sheet/ %>
+                            <i class="bi bi-file-earmark-excel text-success"></i>
+                          <% else %>
+                            <i class="bi bi-file-earmark text-muted"></i>
+                          <% end %>
+                        <% else %>
+                          <i class="bi bi-file-earmark text-muted"></i>
+                        <% end %>
+                      </div>
+                      <div>
+                        <div class="fw-medium">
+                          <% if document.file.attached? %>
+                            <%= document.file.filename %>
+                          <% else %>
+                            Document sans fichier
+                          <% end %>
+                        </div>
+                        <% if document.notes.present? %>
+                          <small class="text-muted d-block">
+                            <%= truncate(document.notes, length: 50) %>
+                          </small>
+                        <% end %>
+                      </div>
+                    </div>
+                  </td>
+
+                  <td>
+                    <span class="badge bg-secondary-subtle text-secondary-emphasis">
+                      <%= document.type_document&.humanize %>
                     </span>
-                    <small class="text-muted-custom">
-                      <i class="bi bi-clock me-1"></i>
-                      <%= time_ago_in_words(document.updated_at) %>
+                  </td>
+
+                  <td>
+                    <% if document.property %>
+                      <div class="d-flex align-items-center">
+                        <i class="bi bi-house-door me-1 text-primary"></i>
+                        <small><%= link_to document.property.name, property_path(document.property), class: "text-decoration-none" %></small>
+                      </div>
+                    <% elsif document.project %>
+                      <div class="d-flex align-items-center">
+                        <i class="bi bi-tools me-1 text-warning"></i>
+                        <small><%= link_to document.project.nom, project_path(document.project), class: "text-decoration-none" %></small>
+                      </div>
+                    <% elsif document.request %>
+                      <div class="d-flex align-items-center">
+                        <i class="bi bi-clipboard me-1 text-info"></i>
+                        <small><%= link_to "Demande ##{document.request.id}", request_path(document.request), class: "text-decoration-none" %></small>
+                      </div>
+                    <% elsif document.simulation %>
+                      <div class="d-flex align-items-center">
+                        <i class="bi bi-calculator me-1 text-success"></i>
+                        <small><%= link_to "Simulation ##{document.simulation.id}", simulation_path(document.simulation), class: "text-decoration-none" %></small>
+                      </div>
+                    <% else %>
+                      <span class="text-muted">-</span>
+                    <% end %>
+                  </td>
+
+                  <td>
+                    <% case document.status %>
+                    <% when 'approved' %>
+                      <span class="badge bg-success-subtle text-success-emphasis">
+                        <i class="bi bi-check-circle me-1"></i>Approuvé
+                      </span>
+                    <% when 'pending' %>
+                      <span class="badge bg-warning-subtle text-warning-emphasis">
+                        <i class="bi bi-clock me-1"></i>En attente
+                      </span>
+                    <% when 'rejected' %>
+                      <span class="badge bg-danger-subtle text-danger-emphasis">
+                        <i class="bi bi-x-circle me-1"></i>Rejeté
+                      </span>
+                    <% else %>
+                      <span class="badge bg-secondary-subtle text-secondary-emphasis">
+                        <%= document.status&.humanize %>
+                      </span>
+                    <% end %>
+                  </td>
+
+                  <td>
+                    <% if document.file.attached? %>
+                      <small class="text-muted">
+                        <%= number_to_human_size(document.file.byte_size) %>
+                      </small>
+                    <% else %>
+                      <small class="text-muted">-</small>
+                    <% end %>
+                  </td>
+
+                  <td>
+                    <small class="text-muted">
+                      <%= document.created_at.strftime("%d/%m/%Y") %>
+                      <div class="text-muted-light">
+                        <%= document.created_at.strftime("%H:%M") %>
+                      </div>
                     </small>
-                  </div>
-                </div>
-              </div>
-            </div>
-          <% end %>
+                  </td>
+
+                  <td class="text-center">
+                    <div class="dropdown">
+                      <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                              type="button"
+                              data-bs-toggle="dropdown">
+                        Actions
+                      </button>
+                      <ul class="dropdown-menu">
+                        <% if document.file.attached? %>
+                          <li>
+                            <%= link_to download_document_path(document),
+                                class: "dropdown-item",
+                                target: "_blank" do %>
+                              <i class="bi bi-download me-2"></i>Télécharger
+                            <% end %>
+                          </li>
+
+                          <% if document.previewable? %>
+                            <li>
+                              <%= link_to preview_document_path(document),
+                                  class: "dropdown-item",
+                                  target: "_blank" do %>
+                                <i class="bi bi-eye me-2"></i>Prévisualiser
+                              <% end %>
+                            </li>
+                          <% end %>
+                        <% end %>
+
+                        <li>
+                          <%= link_to edit_document_path(document),
+                              class: "dropdown-item" do %>
+                            <i class="bi bi-pencil me-2"></i>Modifier
+                          <% end %>
+                        </li>
+
+                        <li><hr class="dropdown-divider"></li>
+
+                        <li>
+                          <%= link_to document_path(document),
+                              class: "dropdown-item text-danger",
+                              method: :delete,
+                              confirm: "Êtes-vous sûr de vouloir supprimer ce document ?" do %>
+                            <i class="bi bi-trash me-2"></i>Supprimer
+                          <% end %>
+                        </li>
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
         </div>
-      <% end %>
-    </div>
-  <% else %>
-    <!-- État vide minimaliste -->
-    <div class="text-center py-5 mt-5">
-      <div class="icon-circle-large mx-auto mb-4">
-        <i class="bi bi-file-earmark-text"></i>
       </div>
-      <h3 class="text-muted-custom mb-3 fw-normal">Aucun document</h3>
-      <p class="text-muted-custom mb-4">Ajoutez votre premier document pour commencer.</p>
-      <%= link_to new_document_path, class: "btn btn-primary-custom px-4" do %>
-        <i class="bi bi-plus-lg me-2"></i>Nouveau document
-      <% end %>
+    </div>
+
+    <!-- Pagination si nécessaire -->
+    <% if @documents.respond_to?(:total_pages) %>
+      <div class="d-flex justify-content-center mt-4">
+        <%= paginate @documents, theme: 'twitter-bootstrap-4' %>
+      </div>
+    <% end %>
+
+  <% else %>
+    <!-- État vide -->
+    <div class="card border-0 shadow-sm">
+      <div class="card-body text-center py-5">
+        <div class="empty-state">
+          <i class="bi bi-folder2-open display-1 text-muted mb-3"></i>
+          <h5 class="text-muted mb-3">Aucun document trouvé</h5>
+          <p class="text-muted mb-4">
+            <% if params[:search].present? || params[:type_filter].present? || params[:status_filter].present? %>
+              Aucun document ne correspond aux critères de recherche.
+            <% else %>
+              Commencez par uploader votre premier document.
+            <% end %>
+          </p>
+          <div class="d-flex justify-content-center gap-2">
+            <% if params[:search].present? || params[:type_filter].present? || params[:status_filter].present? %>
+              <%= link_to "Effacer les filtres", documents_path, class: "btn btn-outline-secondary" %>
+            <% end %>
+            <%= link_to new_document_path, class: "btn btn-primary-custom" do %>
+              <i class="bi bi-plus-circle me-2"></i>
+              Nouveau Document
+            <% end %>
+          </div>
+        </div>
+      </div>
     </div>
   <% end %>
 </div>
+
+<style>
+/* Styles personnalisés pour la liste des documents */
+.icon-circle {
+  width: 48px;
+  height: 48px;
+  background: rgba(var(--bs-primary-rgb), 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: var(--bs-primary);
+}
+
+.file-icon {
+  font-size: 1.5rem;
+}
+
+.document-row {
+  transition: all 0.2s ease;
+}
+
+.document-row:hover {
+  background-color: rgba(var(--bs-primary-rgb), 0.02);
+}
+
+.empty-state {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.table td {
+  vertical-align: middle;
+  padding: 1rem 0.75rem;
+}
+
+.table th {
+  font-weight: 600;
+  color: var(--bs-gray-700);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 1rem 0.75rem;
+}
+
+.badge {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .table-responsive {
+    font-size: 0.875rem;
+  }
+
+  .table td, .table th {
+    padding: 0.75rem 0.5rem;
+  }
+
+  .icon-circle {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+}
+
+/* Animation pour les statistiques */
+.card:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease;
+}
+</style>
 
 <!-- Utilise le fichier CSS externe properties.css -->
 <%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>

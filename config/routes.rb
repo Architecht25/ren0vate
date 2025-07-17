@@ -7,7 +7,15 @@ Rails.application.routes.draw do
 
   resources :primes
   resources :categories
-  resources :documents
+
+  # Documents avec routes spéciales pour download et contexte
+  resources :documents do
+    member do
+      get :download
+      get :preview
+    end
+  end
+
   resources :notifications
   resources :properties do
     member do
@@ -16,11 +24,27 @@ Rails.application.routes.draw do
       get :formulaire_miroir  # Formulaire miroir pré-rempli
       post :submit_prime  # Soumission vers l'administration
     end
+    # Documents liés à une propriété
+    resources :documents, shallow: true
   end
-  resources :projects
+
+  resources :projects do
+    # Documents liés à un chantier
+    resources :documents, shallow: true
+  end
+
   resources :referrals
-  resources :requests
-  resources :simulations
+
+  resources :requests do
+    # Documents liés à une demande
+    resources :documents, shallow: true
+  end
+
+  resources :simulations do
+    # Documents liés à une simulation
+    resources :documents, shallow: true
+  end
+
   resources :users
   resources :work
 

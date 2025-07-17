@@ -3,87 +3,363 @@
   <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
     <div class="d-flex align-items-center">
       <div class="icon-circle me-3">
-        <i class="bi bi-file-earmark-plus"></i>
+        <i class="bi bi-cloud-upload"></i>
       </div>
-      <h1 class="h3 text-primary-custom mb-0 fw-normal">Nouveau Document</h1>
+      <h1 class="h3 text-primary-custom mb-0 fw-normal">Upload Document</h1>
     </div>
     <%= link_to documents_path, class: "btn btn-outline-primary-custom px-4" do %>
       <i class="bi bi-arrow-left me-2"></i>
-      Retour à la liste
+      Retour aux documents
     <% end %>
   </div>
 
-  <!-- Formulaire dans une card épurée -->
   <div class="row">
+    <!-- Formulaire d'upload principal -->
     <div class="col-lg-8">
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-4">
           <h5 class="card-title text-primary-custom mb-4">
-            <i class="bi bi-info-circle me-2"></i>Informations du document
+            <i class="bi bi-file-earmark-plus me-2"></i>Nouveau Document
           </h5>
 
-          <%= form_with model: @document, local: true, class: "needs-validation", novalidate: true do |form| %>
-            <div class="mb-3">
+          <%= form_with model: @document, local: true, multipart: true,
+                        class: "needs-validation upload-form",
+                        novalidate: true,
+                        data: { turbo: false } do |form| %>
+
+            <!-- Type de document -->
+            <div class="mb-4">
               <%= form.label :type_document, "Type de document*", class: "form-label" %>
-              <%= form.text_field :type_document, class: "form-control", placeholder: "Ex: Facture, Devis, Certificat", required: true %>
+              <%= form.select :type_document,
+                  options_from_collection_for_select(Document.type_documents, :first, :first, @document.type_document),
+                  { include_blank: "-- Sélectionnez le type --" },
+                  { class: "form-select", required: true } %>
               <div class="invalid-feedback">
-                Veuillez entrer un type de document.
+                Veuillez sélectionner un type de document.
               </div>
             </div>
 
-            <div class="mb-3">
-              <%= form.label :notes, "Notes", class: "form-label" %>
-              <%= form.text_area :notes, rows: 4, class: "form-control", placeholder: "Ajoutez des notes sur ce document..." %>
+            <!-- Contexte (si fourni) -->
+            <% if @property %>
+              <%= form.hidden_field :property_id, value: @property.id %>
+              <div class="alert alert-info mb-4">
+                <i class="bi bi-house-door me-2"></i>
+                Document associé au bien : <strong><%= @property.name %></strong>
+              </div>
+            <% end %>
+
+            <% if @project %>
+              <%= form.hidden_field :project_id, value: @project.id %>
+              <div class="alert alert-info mb-4">
+                <i class="bi bi-tools me-2"></i>
+                Document associé au chantier : <strong><%= @project.nom %></strong>
+              </div>
+            <% end %>
+
+            <!-- Zone de drag & drop -->
+            <div class="mb-4">
+              <%= form.label :file, "Fichier*", class: "form-label" %>
+              <div class="upload-zone" id="upload-zone">
+                <div class="upload-content">
+                  <i class="bi bi-cloud-upload upload-icon"></i>
+                  <h6 class="upload-title">Glissez-déposez votre fichier ici</h6>
+                  <p class="upload-text text-muted">ou cliquez pour sélectionner</p>
+                  <div class="upload-formats">
+                    <small class="text-muted">
+                      Formats acceptés: PDF, Images (JPEG, PNG, GIF, WebP), Word, Excel
+                      <br>Taille max: 10 MB
+                    </small>
+                  </div>
+                </div>
+                <%= form.file_field :file,
+                    class: "upload-input",
+                    accept: ".pdf,.jpg,.jpeg,.png,.gif,.webp,.doc,.docx,.xls,.xlsx",
+                    required: true %>
+                <div class="invalid-feedback">
+                  Veuillez sélectionner un fichier.
+                </div>
+              </div>
+
+              <!-- Prévisualisation du fichier -->
+              <div class="file-preview" id="file-preview" style="display: none;">
+                <div class="d-flex align-items-center p-3 bg-light rounded">
+                  <i class="bi bi-file-earmark me-3 text-primary-custom"></i>
+                  <div class="flex-grow-1">
+                    <div class="file-name fw-medium"></div>
+                    <div class="file-size text-muted small"></div>
+                  </div>
+                  <button type="button" class="btn btn-sm btn-outline-danger" id="remove-file">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </div>
+              </div>
             </div>
 
+            <!-- Notes optionnelles -->
+            <div class="mb-4">
+              <%= form.label :notes, "Notes (optionnel)", class: "form-label" %>
+              <%= form.text_area :notes,
+                  class: "form-control",
+                  rows: 3,
+                  placeholder: "Ajoutez des notes ou commentaires sur ce document..." %>
+            </div>
+
+            <!-- Status -->
             <div class="mb-4">
               <%= form.label :status, "Statut", class: "form-label" %>
               <%= form.select :status,
-                    options_for_select([
-                      ['En attente', 'pending'],
-                      ['Approuvé', 'approved'],
-                      ['Rejeté', 'rejected']
-                    ], @document.status || 'pending'),
-                    {},
-                    { class: "form-select" } %>
+                  options_from_collection_for_select(Document.statuses, :first, :first, 'pending'),
+                  {},
+                  { class: "form-select" } %>
             </div>
 
-            <div class="d-flex gap-2">
-              <%= form.submit "Créer le document", class: "btn btn-primary-custom px-4" %>
-              <%= link_to "Annuler", documents_path, class: "btn btn-outline-secondary px-4" %>
+            <!-- Boutons d'action -->
+            <div class="d-flex justify-content-end gap-2">
+              <%= link_to "Annuler", documents_path, class: "btn btn-outline-secondary" %>
+              <%= form.submit "Uploader le document",
+                  class: "btn btn-primary-custom",
+                  data: { disable_with: "Upload en cours..." } %>
             </div>
           <% end %>
         </div>
       </div>
     </div>
 
+    <!-- Sidebar avec informations -->
     <div class="col-lg-4">
-      <div class="card border-0 bg-light-custom">
+      <!-- Types de documents -->
+      <div class="card border-0 bg-light-custom mb-4">
         <div class="card-body p-4">
           <h6 class="card-title text-primary-custom mb-3">
-            <i class="bi bi-lightbulb me-2"></i>Conseils
+            <i class="bi bi-info-circle me-2"></i>Types de documents
+          </h6>
+          <div class="document-types-list">
+            <% Document.type_documents.each do |key, value| %>
+              <div class="d-flex align-items-center mb-2">
+                <i class="bi bi-file-earmark text-muted me-2"></i>
+                <small class="text-capitalize"><%= key.humanize %></small>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conseils d'upload -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h6 class="card-title text-primary-custom mb-3">
+            <i class="bi bi-lightbulb me-2"></i>Conseils d'upload
           </h6>
           <ul class="list-unstyled text-muted-custom small">
             <li class="mb-2">
               <i class="bi bi-check-circle text-success me-2"></i>
-              Utilisez un nom descriptif
+              Nommez vos fichiers clairement
             </li>
             <li class="mb-2">
               <i class="bi bi-check-circle text-success me-2"></i>
-              Ajoutez des notes utiles
+              Vérifiez la qualité des images
             </li>
             <li class="mb-2">
               <i class="bi bi-check-circle text-success me-2"></i>
-              Choisissez le bon statut
+              Utilisez le format PDF quand possible
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              Ajoutez des notes explicatives
             </li>
           </ul>
+        </div>
+      </div>
+
+      <!-- Sécurité -->
+      <div class="card border-0 bg-warning-subtle mb-4">
+        <div class="card-body p-4">
+          <h6 class="card-title text-warning-emphasis mb-3">
+            <i class="bi bi-shield-check me-2"></i>Sécurité & Confidentialité
+          </h6>
+          <p class="text-warning-emphasis small mb-0">
+            Vos documents sont stockés de manière sécurisée et ne sont accessibles qu'à vous et aux personnes autorisées.
+          </p>
         </div>
       </div>
     </div>
   </div>
 </div>
 
+<style>
+/* Styles pour l'upload zone */
+.upload-zone {
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  padding: 3rem 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  position: relative;
+  background: #f8f9fa;
+  cursor: pointer;
+}
+
+.upload-zone:hover,
+.upload-zone.dragover {
+  border-color: var(--bs-primary);
+  background: rgba(var(--bs-primary-rgb), 0.05);
+}
+
+.upload-zone.dragover {
+  transform: scale(1.02);
+}
+
+.upload-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.upload-icon {
+  font-size: 3rem;
+  color: var(--bs-primary);
+  margin-bottom: 1rem;
+}
+
+.upload-title {
+  color: var(--bs-primary);
+  margin-bottom: 0.5rem;
+}
+
+.upload-text {
+  margin-bottom: 1rem;
+}
+
+.upload-formats {
+  border-top: 1px solid #dee2e6;
+  padding-top: 1rem;
+}
+
+.file-preview {
+  margin-top: 1rem;
+}
+
+/* Animation de loading */
+.btn[data-disable-with] {
+  position: relative;
+}
+
+.btn[disabled] {
+  pointer-events: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .upload-zone {
+    padding: 2rem 1rem;
+  }
+
+  .upload-icon {
+    font-size: 2rem;
+  }
+}
+</style>
+
 <script>
+document.addEventListener('turbo:load', function() {
+  const uploadZone = document.getElementById('upload-zone');
+  const fileInput = document.querySelector('.upload-input');
+  const filePreview = document.getElementById('file-preview');
+  const removeFileBtn = document.getElementById('remove-file');
+
+  if (!uploadZone || !fileInput) return;
+
+  // Drag & Drop handlers
+  uploadZone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    uploadZone.classList.add('dragover');
+  });
+
+  uploadZone.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+  });
+
+  uploadZone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      fileInput.files = files;
+      handleFileSelect(files[0]);
+    }
+  });
+
+  // Click handler
+  uploadZone.addEventListener('click', function() {
+    fileInput.click();
+  });
+
+  // File selection handler
+  fileInput.addEventListener('change', function(e) {
+    if (e.target.files.length > 0) {
+      handleFileSelect(e.target.files[0]);
+    }
+  });
+
+  // Remove file handler
+  if (removeFileBtn) {
+    removeFileBtn.addEventListener('click', function() {
+      fileInput.value = '';
+      filePreview.style.display = 'none';
+      uploadZone.style.display = 'block';
+    });
+  }
+
+  function handleFileSelect(file) {
+    // Validation côté client
+    const maxSize = 10 * 1024 * 1024; // 10 MB
+    const allowedTypes = [
+      'application/pdf',
+      'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+      'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ];
+
+    if (file.size > maxSize) {
+      alert('Le fichier est trop volumineux. Taille maximum: 10 MB');
+      return;
+    }
+
+    if (!allowedTypes.includes(file.type)) {
+      alert('Format de fichier non autorisé. Veuillez utiliser: PDF, images, documents Word/Excel');
+      return;
+    }
+
+    // Afficher la prévisualisation
+    displayFilePreview(file);
+  }
+
+  function displayFilePreview(file) {
+    const fileName = filePreview.querySelector('.file-name');
+    const fileSize = filePreview.querySelector('.file-size');
+
+    fileName.textContent = file.name;
+    fileSize.textContent = formatFileSize(file.size);
+
+    uploadZone.style.display = 'none';
+    filePreview.style.display = 'block';
+  }
+
+  function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+});
+
 // Validation Bootstrap
 (function() {
   'use strict';
