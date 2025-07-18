@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_18_055448) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_18_071233) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -284,6 +284,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_18_055448) do
     t.decimal "montant_simule"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "calcul_details"
     t.index ["prime_id"], name: "index_simulation_prime_cards_on_prime_id"
     t.index ["simulation_id"], name: "index_simulation_prime_cards_on_simulation_id"
   end
@@ -295,6 +296,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_18_055448) do
     t.decimal "total_simule"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "eligible"
+    t.string "category"
+    t.text "category_description"
+    t.text "ineligibility_reason"
     t.index ["property_id"], name: "index_simulations_on_property_id"
     t.index ["user_id"], name: "index_simulations_on_user_id"
   end

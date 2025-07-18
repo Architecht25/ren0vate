@@ -20,7 +20,208 @@
   <div class="row">
     <!-- Colonne principale -->
     <div class="col-lg-8">
-      <!-- Récapitulatif simulation -->
+      <!-- Indicateur de progression -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h5 class="card-title text-primary-custom mb-3">
+            <i class="bi bi-list-check me-2"></i>Progression de la simulation
+          </h5>
+
+          <div class="progress mb-3" style="height: 10px;">
+            <% progress_percent = [@simulation.processing_step * 25, 100].min %>
+            <div class="progress-bar bg-primary-custom" style="width: <%= progress_percent %>%"></div>
+          </div>
+
+          <div class="row text-center">
+            <div class="col-3">
+              <div class="d-flex flex-column align-items-center">
+                <div class="icon-circle mb-2 <%= @simulation.processing_step >= 1 ? 'bg-primary-custom text-white' : 'bg-light-custom' %>">
+                  <i class="bi bi-shield-check"></i>
+                </div>
+                <small class="<%= @simulation.processing_step >= 1 ? 'text-primary-custom fw-bold' : 'text-muted' %>">Éligibilité</small>
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="d-flex flex-column align-items-center">
+                <div class="icon-circle mb-2 <%= @simulation.processing_step >= 2 ? 'bg-primary-custom text-white' : 'bg-light-custom' %>">
+                  <i class="bi bi-tag"></i>
+                </div>
+                <small class="<%= @simulation.processing_step >= 2 ? 'text-primary-custom fw-bold' : 'text-muted' %>">Catégorie</small>
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="d-flex flex-column align-items-center">
+                <div class="icon-circle mb-2 <%= @simulation.processing_step >= 3 ? 'bg-primary-custom text-white' : 'bg-light-custom' %>">
+                  <i class="bi bi-calculator"></i>
+                </div>
+                <small class="<%= @simulation.processing_step >= 3 ? 'text-primary-custom fw-bold' : 'text-muted' %>">Calcul</small>
+              </div>
+            </div>
+            <div class="col-3">
+              <div class="d-flex flex-column align-items-center">
+                <div class="icon-circle mb-2 <%= @simulation.processing_step >= 4 ? 'bg-success text-white' : 'bg-light-custom' %>">
+                  <i class="bi bi-check-circle"></i>
+                </div>
+                <small class="<%= @simulation.processing_step >= 4 ? 'text-success fw-bold' : 'text-muted' %>">Terminé</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center mt-3">
+            <p class="text-muted-custom small mb-0">
+              Étape actuelle : <strong><%= @simulation.step_name %></strong>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ÉTAPE 1: Test d'éligibilité -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h5 class="card-title text-primary-custom mb-3">
+            <i class="bi bi-shield-check me-2"></i>Étape 1 : Test d'éligibilité
+          </h5>
+
+          <% if @simulation.respond_to?(:eligible) %>
+            <% if @simulation.eligible %>
+              <div class="alert alert-success d-flex align-items-center" role="alert">
+                <i class="bi bi-check-circle-fill me-3 fs-4"></i>
+                <div>
+                  <h6 class="alert-heading mb-1">✅ Votre demande est éligible !</h6>
+                  <p class="mb-0">Vous remplissez les conditions pour bénéficier des primes de rénovation dans votre région.</p>
+                </div>
+              </div>
+            <% else %>
+              <div class="alert alert-danger d-flex align-items-center" role="alert">
+                <i class="bi bi-x-circle-fill me-3 fs-4"></i>
+                <div>
+                  <h6 class="alert-heading mb-1">❌ Votre demande n'est pas éligible</h6>
+                  <p class="mb-0">Certaines conditions ne sont pas remplies pour cette simulation.</p>
+                  <% if @simulation.respond_to?(:ineligibility_reason) && @simulation.ineligibility_reason.present? %>
+                    <small class="text-muted">Raison : <%= @simulation.ineligibility_reason %></small>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="alert alert-info d-flex align-items-center" role="alert">
+              <i class="bi bi-hourglass-split me-3 fs-4"></i>
+              <div>
+                <h6 class="alert-heading mb-1">🔄 Test d'éligibilité en cours...</h6>
+                <p class="mb-0">L'éligibilité de votre demande est en cours de vérification.</p>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- ÉTAPE 2: Catégorie (seulement si éligible) -->
+      <% if @simulation.respond_to?(:eligible) && @simulation.eligible %>
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body p-4">
+            <h5 class="card-title text-primary-custom mb-3">
+              <i class="bi bi-tag me-2"></i>Étape 2 : Catégorie de primes
+            </h5>
+
+            <% if @simulation.respond_to?(:category) && @simulation.category.present? %>
+              <div class="bg-light-custom p-3 rounded mb-3">
+                <div class="d-flex align-items-center">
+                  <div class="icon-circle me-3 bg-primary-custom text-white">
+                    <i class="bi bi-bookmark-fill"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-1">Catégorie : <%= @simulation.category %></h6>
+                    <% if @simulation.respond_to?(:category_description) && @simulation.category_description.present? %>
+                      <p class="text-muted-custom small mb-0"><%= @simulation.category_description %></p>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% else %>
+              <div class="alert alert-warning d-flex align-items-center" role="alert">
+                <i class="bi bi-exclamation-triangle me-3"></i>
+                <div>
+                  <h6 class="alert-heading mb-1">⚠️ Catégorie en cours de détermination</h6>
+                  <p class="mb-0">La catégorie de primes applicable est en cours d'analyse.</p>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- ÉTAPE 3: Cartes primes (seulement si catégorie définie) -->
+        <% if @simulation.respond_to?(:category) && @simulation.category.present? %>
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+              <h5 class="card-title text-primary-custom mb-3">
+                <i class="bi bi-credit-card me-2"></i>Étape 3 : Primes disponibles
+              </h5>
+
+              <% if @simulation.simulation_prime_cards.any? %>
+                <div class="row g-3 mb-4">
+                  <% @simulation.simulation_prime_cards.each_with_index do |prime_card, index| %>
+                    <div class="col-md-6">
+                      <div class="card h-100 border-primary-custom">
+                        <div class="card-header bg-primary-custom text-white d-flex justify-content-between align-items-center">
+                          <h6 class="mb-0">
+                            <i class="bi bi-cash-coin me-2"></i>Prime <%= index + 1 %>
+                          </h6>
+                          <span class="badge bg-white text-primary-custom">
+                            <%= number_to_currency(prime_card.montant, unit: "€", separator: ",", delimiter: " ", format: "%n %u") if prime_card.respond_to?(:montant) %>
+                          </span>
+                        </div>
+                        <div class="card-body">
+                          <h6 class="card-title"><%= prime_card.prime.nom if prime_card.prime.respond_to?(:nom) %></h6>
+                          <p class="card-text text-muted-custom small"><%= prime_card.prime.description if prime_card.prime.respond_to?(:description) %></p>
+
+                          <% if prime_card.respond_to?(:calcul_details) && prime_card.calcul_details.present? %>
+                            <div class="mt-3">
+                              <h6 class="small text-primary-custom">Détail du calcul :</h6>
+                              <p class="small text-muted mb-0"><%= prime_card.calcul_details %></p>
+                            </div>
+                          <% end %>
+
+                          <% if prime_card.prime.respond_to?(:conditions) && prime_card.prime.conditions.present? %>
+                            <div class="mt-3 pt-2 border-top">
+                              <p class="small mb-0"><i class="bi bi-info-circle me-2"></i><%= prime_card.prime.conditions %></p>
+                            </div>
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+
+                <!-- Récapitulatif total -->
+                <div class="bg-success bg-opacity-10 border border-success rounded p-4">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h5 class="text-success mb-1">
+                        <i class="bi bi-calculator me-2"></i>Total des primes
+                      </h5>
+                      <p class="text-muted-custom small mb-0">Montant total estimé pour vos travaux</p>
+                    </div>
+                    <% total = @simulation.simulation_prime_cards.sum(&:montant) rescue 0 %>
+                    <h3 class="text-success mb-0">
+                      <%= number_to_currency(total, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
+                    </h3>
+                  </div>
+                </div>
+              <% else %>
+                <div class="text-center py-5">
+                  <div class="icon-circle mx-auto mb-3 bg-light-custom">
+                    <i class="bi bi-hourglass-split text-muted"></i>
+                  </div>
+                  <h6 class="text-muted">Calcul des primes en cours...</h6>
+                  <p class="text-muted-custom small mb-0">Les cartes primes sont en cours de génération pour votre catégorie.</p>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+
+      <!-- Récapitulatif simulation (section existante simplifiée) -->
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-4">
           <h5 class="card-title text-primary-custom mb-3">
@@ -63,64 +264,10 @@
             </div>
           <% end %>
 
-          <% if @simulation.result.present? %>
-            <div class="mb-3">
-              <label class="form-label text-muted-custom small">Résultat</label>
-              <p class="mb-0"><%= @simulation.result %></p>
-            </div>
-          <% end %>
-
           <% if @simulation.source.present? %>
             <div class="mb-3">
               <label class="form-label text-muted-custom small">Source</label>
               <p class="mb-0"><%= @simulation.source %></p>
-            </div>
-          <% end %>
-        </div>
-      </div>
-
-      <!-- Liste des primes -->
-      <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body p-4">
-          <h5 class="card-title text-primary-custom mb-3">
-            <i class="bi bi-cash-coin me-2"></i>Primes éligibles
-          </h5>
-
-          <% if @simulation.simulation_prime_cards.any? %>
-            <div class="list-group mb-3">
-              <% @simulation.simulation_prime_cards.each do |prime_card| %>
-                <div class="list-group-item border-0 bg-light-custom mb-3 rounded">
-                  <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                      <h6 class="mb-1"><%= prime_card.prime.nom if prime_card.prime.respond_to?(:nom) %></h6>
-                      <p class="text-muted-custom mb-2 small"><%= prime_card.prime.description if prime_card.prime.respond_to?(:description) %></p>
-                    </div>
-                    <span class="badge bg-primary-custom rounded-pill px-3 py-2 fs-6">
-                      <%= number_to_currency(prime_card.montant, unit: "€", separator: ",", delimiter: " ", format: "%n %u") if prime_card.respond_to?(:montant) %>
-                    </span>
-                  </div>
-                  <% if prime_card.prime.respond_to?(:conditions) && prime_card.prime.conditions.present? %>
-                    <div class="mt-2 pt-2 border-top">
-                      <p class="mb-0 small"><i class="bi bi-info-circle me-2"></i><%= prime_card.prime.conditions %></p>
-                    </div>
-                  <% end %>
-                </div>
-              <% end %>
-            </div>
-
-            <!-- Total -->
-            <div class="bg-light-custom p-3 rounded">
-              <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Total des primes</h5>
-                <% total = @simulation.simulation_prime_cards.sum(&:montant) rescue 0 %>
-                <h4 class="text-primary-custom mb-0">
-                  <%= number_to_currency(total, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
-                </h4>
-              </div>
-            </div>
-          <% else %>
-            <div class="text-center py-4">
-              <p class="text-muted-custom mb-0">Aucune prime calculée pour cette simulation</p>
             </div>
           <% end %>
         </div>

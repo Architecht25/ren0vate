@@ -47,23 +47,31 @@
               </div>
             <% end %>
 
-            <% if defined?(Property) && Property.any? %>
+            <% if defined?(Property) && current_user.properties.any? %>
               <div class="mb-3">
                 <%= form.label :property_id, "Bien immobilier concerné", class: "form-label" %>
-                <%= form.collection_select :property_id, Property.all, :id, :name, { include_blank: "-- Sélectionner un bien --" }, class: "form-select" %>
+                <%= form.collection_select :property_id, current_user.properties, :id, :full_address,
+                    {
+                      include_blank: "-- Sélectionner un bien --",
+                      selected: (@simulation.property_id if @simulation.property.present?)
+                    },
+                    class: "form-select" %>
               </div>
             <% end %>
 
-            <% if defined?(Project) && Project.any? %>
-              <div class="mb-3">
-                <%= form.label :project_id, "Chantier associé (optionnel)", class: "form-label" %>
-                <%= form.collection_select :project_id, Project.all, :id, :nom, { include_blank: "-- Sélectionner un chantier --" }, class: "form-select" %>
-              </div>
-            <% end %>
+            <%= form.hidden_field :user_id, value: current_user.id %>
 
-            <% if defined?(User) && @simulation.respond_to?(:user_id) && !current_user.nil? %>
-              <%= form.hidden_field :user_id, value: current_user.id %>
-            <% end %>
+            <div class="mb-3">
+              <%= form.label :source, "Source des données*", class: "form-label" %>
+              <%= form.select :source,
+                  [
+                    ["Manuel", "manual"],
+                    ["Automatique", "automatic"],
+                    ["Import", "import"]
+                  ],
+                  { include_blank: "-- Sélectionnez la source --" },
+                  { class: "form-select" } %>
+            </div>
 
             <div class="d-flex justify-content-end mt-4">
               <%= link_to "Annuler", simulations_path, class: "btn btn-outline-secondary me-2" %>
