@@ -54,7 +54,7 @@ class SimulationsController < ApplicationController
   private
 
   def simulation_params
-    params.require(:simulation).permit(:titre, :region, :parameters, :property_id, :user_id,
+    params.require(:simulation).permit(:titre, :region, :parameters, :source, :property_id, :user_id,
                                        :eligible, :category, :category_description, :ineligibility_reason)
   end
 
@@ -135,7 +135,7 @@ class SimulationsController < ApplicationController
       prime1 = Prime.first
       simulation.simulation_prime_cards.create!(
         prime: prime1,
-        montant: 1500,
+        montant_simule: 1500,
         calcul_details: "Surface isolation: 50m² × 30€/m² = 1500€"
       )
     end

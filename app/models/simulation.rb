@@ -14,7 +14,7 @@ class Simulation < ApplicationRecord
 
   # Méthodes utiles pour l'interface
   def total_primes_amount
-    simulation_prime_cards.sum(:montant)
+    simulation_prime_cards.sum(:montant_simule)
   end
 
   def eligibility_status

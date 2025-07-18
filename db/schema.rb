@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_18_071233) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_18_075408) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -300,6 +300,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_18_071233) do
     t.string "category"
     t.text "category_description"
     t.text "ineligibility_reason"
+    t.string "titre"
+    t.string "region"
+    t.text "parameters"
+    t.string "source"
     t.index ["property_id"], name: "index_simulations_on_property_id"
     t.index ["user_id"], name: "index_simulations_on_user_id"
   end
