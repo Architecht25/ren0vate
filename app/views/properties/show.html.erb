@@ -10,12 +10,21 @@
         <small class="text-muted-custom"><%= @property.full_address %></small>
       </div>
     </div>
-    <div>
-      <%= link_to dashboard_path, class: "btn btn-light me-2" do %>
+    <div class="d-flex gap-2">
+      <%= link_to dashboard_path, class: "btn btn-light" do %>
         <i class="bi bi-arrow-left me-1"></i>Retour dashboard
       <% end %>
-      <%= link_to edit_property_path(@property), class: "btn btn-primary-custom px-4" do %>
+      <%= link_to edit_property_path(@property), class: "btn btn-primary-custom" do %>
         <i class="bi bi-pencil me-1"></i>Modifier
+      <% end %>
+      <%= link_to property_path(@property), 
+          method: :delete,
+          class: "btn btn-outline-danger",
+          data: { 
+            confirm: "Êtes-vous sûr de vouloir supprimer ce bien ? Cette action supprimera également tous les documents, simulations et demandes liés. Cette action est irréversible.",
+            turbo_method: :delete
+          } do %>
+        <i class="bi bi-trash me-1"></i>Supprimer
       <% end %>
     </div>
   </div>

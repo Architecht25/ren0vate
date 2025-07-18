@@ -53,8 +53,13 @@ class PropertiesController < ApplicationController
   end
 
   def destroy
-    @property.destroy
-    redirect_to properties_path
+    property_name = @property.name
+    
+    if @property.destroy
+      redirect_to properties_path, notice: "Le bien \"#{property_name}\" a été supprimé avec succès."
+    else
+      redirect_to @property, alert: "Impossible de supprimer ce bien. Veuillez réessayer."
+    end
   end
 
   def dashboard

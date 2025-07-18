@@ -33,6 +33,7 @@ Rails.application.routes.draw do
       get :documents_dashboard  # Gestion des documents par bien
       get :formulaire_miroir  # Formulaire miroir pré-rempli
       post :submit_prime  # Soumission vers l'administration
+      delete :destroy  # Route de suppression explicite
     end
     # Documents liés à une propriété
     resources :documents, shallow: true

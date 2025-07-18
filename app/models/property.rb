@@ -2,10 +2,10 @@ class Property < ApplicationRecord
   self.inheritance_column = nil  # Désactiver l'héritage STI pour la colonne 'type'
 
   belongs_to :user
-  has_many :simulations
-  has_many :projects
-  has_many :requests
-  has_many :documents
+  has_many :simulations, dependent: :destroy
+  has_many :projects, dependent: :destroy
+  has_many :requests, dependent: :destroy
+  has_many :documents, dependent: :destroy
 
   # Validations pour les champs obligatoires essentiels
   validates :rue, :numero, :code_postal, :commune, :region, presence: true
