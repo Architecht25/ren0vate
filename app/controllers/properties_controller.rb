@@ -34,7 +34,7 @@ class PropertiesController < ApplicationController
 
   def create
     @property = current_user.properties.new(property_params)
-    
+
     Rails.logger.info "Creating property with params: #{property_params.inspect}"
     Rails.logger.info "Property region: #{@property.region}"
     Rails.logger.info "Property valid?: #{@property.valid?}"
@@ -62,7 +62,7 @@ class PropertiesController < ApplicationController
 
   def destroy
     property_name = @property.name
-    
+
     if @property.destroy
       redirect_to properties_path, notice: "Le bien \"#{property_name}\" a été supprimé avec succès."
     else
