@@ -2,7 +2,7 @@ class DashboardController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @properties = current_user.properties.includes(:requests, :simulations).limit(6)
+    @properties = current_user.properties.includes(:requests, :simulations).limit(10)
     @total_properties = current_user.properties.count
     @total_requests = current_user.requests.count
     @active_requests = current_user.requests.where(status: ['pending', 'in_progress']).count
@@ -11,6 +11,18 @@ class DashboardController < ApplicationController
     # Calculs pour les statistiques
     @completion_stats = calculate_completion_stats
     @request_stats = calculate_request_stats
+    
+    # Log pour débogage en production
+    Rails.logger.info "Dashboard - User #{current_user.id}: #{@total_properties} properties total, #{@properties.count} displayed"
+    @properties.each { |p| Rails.logger.info "Property #{p.id}: #{p.region} - #{p.name rescue p.commune}" }
+  rescue => e
+    Rails.logger.error "Dashboard error: #{e.message}"
+    @properties = []
+    @total_properties = 0
+    @total_requests = 0
+    @active_requests = 0
+    @completion_stats = { average: 0, completed: 0, eligible: 0, in_progress: 0 }
+    @request_stats = { total: 0, pending: 0, in_progress: 0, submitted: 0, validated: 0, estimated_amount: 0 }
   end
 
   private

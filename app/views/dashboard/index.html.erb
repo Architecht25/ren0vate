@@ -163,31 +163,47 @@
       </div>
       <div class="card-body p-0">
         <div class="list-group list-group-flush">
-          <% @properties.each do |property| %>
-            <%= link_to property_path(property), class: "list-group-item list-group-item-action border-0 py-3 px-4" do %>
-              <div class="d-flex align-items-center">
-                <div class="icon-circle me-3">
-                  <i class="bi bi-house-door"></i>
-                </div>
-                <div class="flex-grow-1">
-                  <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h6 class="mb-0 fw-normal"><%= property.name %></h6>
-                    <small class="text-muted-custom">
-                      <i class="bi bi-geo-alt"></i>
-                      <%= property.commune %>
-                    </small>
+          <% if @properties.present? %>
+            <% @properties.each do |property| %>
+              <%= link_to property_path(property), class: "list-group-item list-group-item-action border-0 py-3 px-4" do %>
+                <div class="d-flex align-items-center">
+                  <div class="icon-circle me-3">
+                    <i class="bi bi-house-door"></i>
                   </div>
-                  <div class="d-flex justify-content-between align-items-center">
-                    <div class="flex-grow-1 me-3">
-                      <div class="progress" style="height: 6px;">
-                        <div class="progress-bar bg-<%= property.completion_status %>"
-                             style="width: <%= property.completion_percentage %>%"></div>
-                      </div>
+                  <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <h6 class="mb-0 fw-normal">
+                        <%= property.name rescue "Bien #{property.commune || property.id}" %>
+                      </h6>
+                      <small class="text-muted-custom">
+                        <i class="bi bi-geo-alt"></i>
+                        <%= property.commune || 'Commune inconnue' %>
+                      </small>
                     </div>
-                    <span class="badge bg-<%= property.completion_status %> rounded-pill">
-                      <%= property.completion_percentage %>%
-                    </span>
+                    <div class="d-flex justify-content-between align-items-center">
+                      <div class="flex-grow-1 me-3">
+                        <div class="progress" style="height: 6px;">
+                          <div class="progress-bar bg-<%= property.completion_status rescue 'secondary' %>"
+                               style="width: <%= property.completion_percentage rescue 0 %>%"></div>
+                        </div>
+                      </div>
+                      <span class="badge bg-<%= property.completion_status rescue 'secondary' %> rounded-pill">
+                        <%= property.completion_percentage rescue 0 %>%
+                      </span>
+                    </div>
                   </div>
+                </div>
+              <% end %>
+            <% end %>
+          <% else %>
+            <div class="text-center py-4">
+              <i class="bi bi-house-door text-muted display-6"></i>
+              <p class="text-muted mt-2">Aucun bien enregistré pour le moment</p>
+              <%= link_to new_property_path, class: "btn btn-primary-custom" do %>
+                <i class="bi bi-plus-lg me-2"></i>Ajouter votre premier bien
+              <% end %>
+            </div>
+          <% end %>
                   <small class="text-muted-custom">
                     <%= property.ready_for_request? ? "✅ Prêt pour demande" : "⏳ En cours de complétude" %>
                   </small>

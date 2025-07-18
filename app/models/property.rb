@@ -110,17 +110,23 @@ class Property < ApplicationRecord
 
   def name
     # Génère un nom basé sur le type et la localisation selon la région
-    type_display = case region
-                   when 'wallonie'
-                     type_propriete_wallonie&.humanize || 'Bien'
-                   when 'flandre'
-                     type_bien_flandre&.humanize || 'Bien'
-                   when 'bruxelles'
-                     type_bien_bruxelles&.humanize || 'Bien'
-                   else
-                     type&.humanize || 'Bien'
-                   end
-    "#{type_display} #{commune || 'Sans adresse'}"
+    begin
+      type_display = case region&.downcase
+                     when 'wallonie'
+                       type_propriete_wallonie&.humanize || 'Bien'
+                     when 'flandre'
+                       type_bien_flandre&.humanize || 'Bien'
+                     when 'bruxelles'
+                       type_bien_bruxelles&.humanize || 'Bien'
+                     else
+                       type&.humanize || 'Bien'
+                     end
+      location_name = commune.present? ? commune : 'Sans adresse'
+      "#{type_display} #{location_name}"
+    rescue => e
+      Rails.logger.error "Property#name error for property #{id}: #{e.message}"
+      "Bien #{commune || id}"
+    end
   end
 
   def missing_required_fields
