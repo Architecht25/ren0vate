@@ -12,6 +12,8 @@ class Property < ApplicationRecord
 
   # Validations régionales conditionnelles
   validates :type_bien_flandre, presence: true, if: -> { region == 'flandre' }
+  validates :usage_flandre, presence: true, if: -> { region == 'flandre' }
+  validates :ean_flandre, presence: true, if: -> { region == 'flandre' }
   validates :type_propriete_wallonie, presence: true, if: -> { region == 'wallonie' }
 
   # Validations optionnelles - à réactiver plus tard selon les besoins

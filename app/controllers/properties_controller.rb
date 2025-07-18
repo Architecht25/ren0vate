@@ -28,15 +28,23 @@ class PropertiesController < ApplicationController
 
   def new
     @property = current_user.properties.new
+    # Préserver le paramètre région s'il est passé
+    @property.region = params[:region] if params[:region].present?
   end
 
   def create
     @property = current_user.properties.new(property_params)
+    
+    Rails.logger.info "Creating property with params: #{property_params.inspect}"
+    Rails.logger.info "Property region: #{@property.region}"
+    Rails.logger.info "Property valid?: #{@property.valid?}"
+    Rails.logger.info "Property errors: #{@property.errors.full_messages}" unless @property.valid?
 
     if @property.save
-      redirect_to @property
+      redirect_to @property, notice: "Le bien a été créé avec succès."
     else
-      # Si la création échoue, garder le paramètre region pour ré-afficher le bon formulaire
+      # Préserver le paramètre région lors du rendu d'erreur
+      flash.now[:alert] = "Veuillez corriger les erreurs ci-dessous."
       render :new, status: :unprocessable_entity
     end
   end
