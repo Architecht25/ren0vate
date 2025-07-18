@@ -11,7 +11,7 @@ class DashboardController < ApplicationController
     # Calculs pour les statistiques
     @completion_stats = calculate_completion_stats
     @request_stats = calculate_request_stats
-    
+
     # Log pour débogage en production
     Rails.logger.info "Dashboard - User #{current_user.id}: #{@total_properties} properties total, #{@properties.count} displayed"
     @properties.each { |p| Rails.logger.info "Property #{p.id}: #{p.region} - #{p.name rescue p.commune}" }
