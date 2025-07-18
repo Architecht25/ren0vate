@@ -7,51 +7,106 @@
     <% end %>
   </div>
 
-  <!-- Liste minimaliste -->
+  <!-- Liste améliorée -->
   <% if @properties.any? %>
-    <div class="row g-3">
+    <div class="row g-4">
       <% @properties.each do |property| %>
-        <div class="col-md-6 col-lg-4">
-          <div class="card border-0 bg-light-custom h-100 property-card">
+        <div class="col-xl-4 col-lg-6 col-md-6">
+          <div class="card border-0 shadow-sm h-100 property-card-enhanced">
             <div class="card-body p-4">
-              <div class="d-flex align-items-center mb-3">
-                <div class="icon-circle me-3">
-                  <i class="bi bi-house-door"></i>
+              <!-- En-tête de la carte -->
+              <div class="d-flex align-items-start justify-content-between mb-3">
+                <div class="d-flex align-items-center flex-grow-1">
+                  <div class="property-icon me-3">
+                    <i class="bi bi-house-door fs-4 text-primary-custom"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <h5 class="card-title text-dark mb-1 fw-semibold"><%= property.name || "Bien sans nom" %></h5>
+                    <% if property.region %>
+                      <span class="badge bg-<%= property.region == 'wallonie' ? 'warning' : property.region == 'flandre' ? 'success' : 'info' %> bg-opacity-10 text-<%= property.region == 'wallonie' ? 'warning' : property.region == 'flandre' ? 'success' : 'info' %> mb-2">
+                        <%= property.region.humanize %>
+                      </span>
+                    <% end %>
+                  </div>
                 </div>
-                <div class="flex-grow-1">
-                  <h5 class="card-title text-dark mb-1 fw-normal"><%= property.name %></h5>
-                  <% if property.rue && property.numero && property.commune %>
-                    <p class="text-muted-custom mb-0 small"><%= property.rue %> <%= property.numero %>, <%= property.commune %></p>
-                  <% else %>
-                    <p class="text-muted-custom mb-0 small">Adresse à renseigner</p>
+                <!-- Indicateur de complétude -->
+                <div class="completion-indicator">
+                  <div class="progress-circle-small">
+                    <svg class="progress-ring" width="40" height="40">
+                      <circle class="progress-ring-circle progress-ring-bg" stroke="#e9ecef" stroke-width="3" fill="transparent" r="16" cx="20" cy="20"/>
+                      <circle class="progress-ring-circle progress-ring-fill" stroke="#0d6efd" stroke-width="3" fill="transparent" r="16" cx="20" cy="20"
+                              style="stroke-dasharray: 100.531; stroke-dashoffset: <%= 100.531 - (100.531 * (property.completion_percentage || 0) / 100) %>;"/>
+                    </svg>
+                    <span class="progress-text"><%= property.completion_percentage || 0 %>%</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Adresse -->
+              <div class="address-section mb-3">
+                <% if property.rue && property.numero && property.commune %>
+                  <p class="text-muted mb-1 small d-flex align-items-center">
+                    <i class="bi bi-geo-alt me-2 text-muted"></i>
+                    <%= property.rue %> <%= property.numero %>
+                  </p>
+                  <p class="text-muted mb-0 small">
+                    <%= property.code_postal %> <%= property.commune %>
+                  </p>
+                <% else %>
+                  <p class="text-warning mb-0 small d-flex align-items-center">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Adresse incomplète
+                  </p>
+                <% end %>
+              </div>
+
+              <!-- Statistiques rapides -->
+              <div class="stats-section mb-3">
+                <div class="row g-2 text-center">
+                  <div class="col-4">
+                    <div class="stat-item">
+                      <div class="stat-number text-primary-custom fw-bold"><%= property.projects.count %></div>
+                      <div class="stat-label text-muted small">Projets</div>
+                    </div>
+                  </div>
+                  <div class="col-4">
+                    <div class="stat-item">
+                      <div class="stat-number text-success fw-bold"><%= property.simulations.count %></div>
+                      <div class="stat-label text-muted small">Simulations</div>
+                    </div>
+                  </div>
+                  <div class="col-4">
+                    <div class="stat-item">
+                      <div class="stat-number text-info fw-bold"><%= property.documents.count %></div>
+                      <div class="stat-label text-muted small">Documents</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Actions principales -->
+              <div class="actions-section mt-auto">
+                <div class="d-flex gap-2">
+                  <%= link_to dashboard_property_path(property), class: "btn btn-primary-custom btn-sm flex-fill" do %>
+                    <i class="bi bi-speedometer2 me-1"></i>
+                    <span class="d-none d-md-inline">Dashboard</span>
+                    <span class="d-md-none">Tableau</span>
+                  <% end %>
+                  <%= link_to edit_property_path(property), class: "btn btn-outline-secondary btn-sm flex-fill" do %>
+                    <i class="bi bi-pencil me-1"></i>
+                    <span class="d-none d-sm-inline">Modifier</span>
+                  <% end %>
+                  <%= link_to property_path(property),
+                      method: :delete,
+                      class: "btn btn-outline-danger btn-sm flex-fill",
+                      data: {
+                        confirm: "Êtes-vous sûr de vouloir supprimer ce bien ? Cette action est irréversible.",
+                        turbo_method: :delete
+                      } do %>
+                    <i class="bi bi-trash me-1"></i>
+                    <span class="d-none d-sm-inline">Supprimer</span>
                   <% end %>
                 </div>
-              </div>
-
-              <!-- Actions -->
-              <div class="d-flex gap-2 mt-3">
-                <%= link_to dashboard_property_path(property), class: "btn btn-primary-custom btn-sm flex-fill" do %>
-                  <i class="bi bi-speedometer2 me-1"></i>Dashboard
-                <% end %>
-                <%= link_to property_path(property), class: "btn btn-outline-primary-custom btn-sm flex-fill" do %>
-                  <i class="bi bi-eye me-1"></i>Détails
-                <% end %>
-              </div>
-
-              <!-- Actions secondaires -->
-              <div class="d-flex gap-2 mt-2">
-                <%= link_to edit_property_path(property), class: "btn btn-outline-secondary btn-sm flex-fill" do %>
-                  <i class="bi bi-pencil me-1"></i>Modifier
-                <% end %>
-                <%= link_to property_path(property),
-                    method: :delete,
-                    class: "btn btn-outline-danger btn-sm flex-fill",
-                    data: {
-                      confirm: "Êtes-vous sûr de vouloir supprimer ce bien ? Cette action est irréversible.",
-                      turbo_method: :delete
-                    } do %>
-                  <i class="bi bi-trash me-1"></i>Supprimer
-                <% end %>
               </div>
             </div>
           </div>
