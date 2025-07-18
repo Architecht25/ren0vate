@@ -9,6 +9,13 @@ class SimulationsController < ApplicationController
 
   def new
     @simulation = Simulation.new
+
+    # Si un project_id est passé, pré-remplir la simulation avec les données du projet
+    if params[:project_id].present?
+      @project = Project.find(params[:project_id])
+      @simulation.property = @project.property if @project.property.present?
+      # Ajouter d'autres pré-remplissages si nécessaire
+    end
   end
 
   def create

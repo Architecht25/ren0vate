@@ -39,6 +39,7 @@ Rails.application.routes.draw do
     resources :documents, shallow: true
   end
 
+  # Routes simples pour tous les projets/chantiers
   resources :projects do
     # Documents liés à un chantier
     resources :documents, shallow: true

@@ -62,10 +62,55 @@
             </div>
           <% end %>
 
-          <% if @project.deadline.present? %>
+          <!-- Dates du projet -->
+          <% if @project.date_début.present? || @project.date_fin.present? %>
+            <div class="row">
+              <% if @project.date_début.present? %>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label text-muted-custom small">Date de début</label>
+                    <p class="mb-0">
+                      <i class="bi bi-calendar-event text-success me-2"></i>
+                      <%= @project.date_début.strftime("%d/%m/%Y") %>
+                    </p>
+                  </div>
+                </div>
+              <% end %>
+
+              <% if @project.date_fin.present? %>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label text-muted-custom small">Date de fin prévue</label>
+                    <p class="mb-0">
+                      <i class="bi bi-calendar-check text-primary me-2"></i>
+                      <%= @project.date_fin.strftime("%d/%m/%Y") %>
+                    </p>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+
+          <!-- Statut du projet -->
+          <% if @project.statut.present? %>
             <div class="mb-3">
-              <label class="form-label text-muted-custom small">Date limite</label>
-              <p class="mb-0"><%= @project.deadline.strftime("%d/%m/%Y") %></p>
+              <label class="form-label text-muted-custom small">Statut</label>
+              <p class="mb-0">
+                <% case @project.statut %>
+                <% when 'preparation' %>
+                  <span class="badge bg-secondary"><i class="bi bi-clock me-1"></i>En préparation</span>
+                <% when 'en_cours' %>
+                  <span class="badge bg-primary"><i class="bi bi-play me-1"></i>En cours</span>
+                <% when 'pause' %>
+                  <span class="badge bg-warning"><i class="bi bi-pause me-1"></i>En pause</span>
+                <% when 'termine' %>
+                  <span class="badge bg-success"><i class="bi bi-check2 me-1"></i>Terminé</span>
+                <% when 'annule' %>
+                  <span class="badge bg-danger"><i class="bi bi-x me-1"></i>Annulé</span>
+                <% else %>
+                  <span class="badge bg-light text-dark"><%= @project.statut.humanize %></span>
+                <% end %>
+              </p>
             </div>
           <% end %>
         </div>
@@ -145,7 +190,7 @@
             <i class="bi bi-lightning-charge me-2"></i>Actions rapides
           </h5>
           <div class="d-grid gap-2">
-            <%= link_to projects_path, class: "btn btn-outline-primary-custom mb-2" do %>
+            <%= link_to new_simulation_path(project_id: @project.id), class: "btn btn-outline-primary-custom mb-2" do %>
               <i class="bi bi-calculator me-2"></i>Simuler les primes
             <% end %>
             <%= link_to projects_path, class: "btn btn-outline-primary-custom mb-2" do %>

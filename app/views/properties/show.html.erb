@@ -176,9 +176,43 @@
               </li>
             <% end %>
           </ul>
-          <%= link_to edit_property_path(@property), class: "btn btn-outline-primary btn-sm" do %>
-            <i class="bi bi-tools me-1"></i>Compléter
-          <% end %>
+
+          <!-- Section projets/chantiers -->
+          <div class="border-top pt-3 mt-3">
+            <h6 class="mb-2 fw-normal">
+              <i class="bi bi-kanban me-1"></i>Projets actifs
+              <span class="badge bg-primary rounded-pill ms-2"><%= @property.projects.count %></span>
+            </h6>
+            <% if @property.projects.any? %>
+              <% @property.projects.limit(3).each do |project| %>
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <small class="text-muted"><%= truncate(project.nom, length: 20) %></small>
+                  <span class="badge bg-<%= case project.statut
+                                           when 'preparation' then 'secondary'
+                                           when 'en_cours' then 'warning'
+                                           when 'termine' then 'success'
+                                           else 'secondary'
+                                           end %> rounded-pill text-white">
+                    <%= project.statut.humanize %>
+                  </span>
+                </div>
+              <% end %>
+              <% if @property.projects.count > 3 %>
+                <small class="text-muted">et <%= @property.projects.count - 3 %> autre(s)...</small>
+              <% end %>
+            <% else %>
+              <small class="text-muted">Aucun projet créé</small>
+            <% end %>
+          </div>
+
+          <div class="d-grid gap-2 mt-3">
+            <%= link_to edit_property_path(@property), class: "btn btn-outline-primary btn-sm" do %>
+              <i class="bi bi-tools me-1"></i>Compléter infos
+            <% end %>
+            <%= link_to property_projects_path(@property), class: "btn btn-primary btn-sm" do %>
+              <i class="bi bi-kanban me-1"></i>Gérer projets
+            <% end %>
+          </div>
         </div>
       </div>
     </div>

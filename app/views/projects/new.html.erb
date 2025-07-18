@@ -5,7 +5,9 @@
       <div class="icon-circle me-3">
         <i class="bi bi-hammer"></i>
       </div>
-      <h1 class="h3 text-primary-custom mb-0 fw-normal">Nouveau Chantier de Rénovation</h1>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">Nouveau Chantier de Rénovation</h1>
+      </div>
     </div>
     <%= link_to projects_path, class: "btn btn-outline-primary-custom px-4" do %>
       <i class="bi bi-arrow-left me-2"></i>
@@ -33,20 +35,41 @@
               <%= form.text_area :description, rows: 4, class: "form-control", placeholder: "Décrivez le chantier et les travaux à réaliser..." %>
             </div>
 
-            <div class="mb-3">
-              <%= form.label :deadline, "Date limite prévue", class: "form-label" %>
-              <%= form.date_field :deadline, class: "form-control" %>
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :date_début, "Date de début prévue", class: "form-label" %>
+                  <%= form.date_field :date_début, class: "form-control" %>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :date_fin, "Date de fin prévue", class: "form-label" %>
+                  <%= form.date_field :date_fin, class: "form-control" %>
+                </div>
+              </div>
             </div>
 
-            <% if defined?(Property) && Property.any? %>
+            <div class="mb-3">
+              <%= form.label :statut, "Statut du chantier", class: "form-label" %>
+              <%= form.select :statut,
+                  options_for_select([
+                    ['En préparation', 'preparation'],
+                    ['En cours', 'en_cours'],
+                    ['En pause', 'pause'],
+                    ['Terminé', 'termine'],
+                    ['Annulé', 'annule']
+                  ], 'preparation'),
+                  { include_blank: false },
+                  { class: "form-select" } %>
+            </div>
+
+            <% if defined?(Property) && current_user.properties.any? %>
+              <!-- Sélection de propriété -->
               <div class="mb-3">
                 <%= form.label :property_id, "Bien immobilier associé", class: "form-label" %>
-                <%= form.collection_select :property_id, Property.all, :id, :name, { include_blank: "-- Sélectionner un bien --" }, class: "form-select" %>
+                <%= form.collection_select :property_id, current_user.properties, :id, :full_address, { include_blank: "-- Sélectionner un bien --" }, class: "form-select" %>
               </div>
-            <% end %>
-
-            <% if defined?(User) && @project.respond_to?(:user_id) && !current_user.nil? %>
-              <%= form.hidden_field :user_id, value: current_user.id %>
             <% end %>
 
             <div class="d-flex justify-content-end mt-4">

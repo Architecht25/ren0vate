@@ -56,16 +56,16 @@ class PropertiesController < ApplicationController
     Rails.logger.info "[PROPERTY UPDATE] 🔄 Tentative de mise à jour pour propriété ID: #{@property.id}"
     Rails.logger.info "[PROPERTY UPDATE] 📊 Paramètres reçus: #{property_params.inspect}"
     Rails.logger.info "[PROPERTY UPDATE] 🌍 Région actuelle: #{@property.region}"
-    
+
     if @property.update(property_params)
       Rails.logger.info "[PROPERTY UPDATE] ✅ Mise à jour réussie pour propriété ID: #{@property.id}"
       Rails.logger.info "[PROPERTY UPDATE] 🔧 Nouvelles valeurs: region=#{@property.region}, ean_flandre=#{@property.ean_flandre}, certificat_peb_flandre=#{@property.certificat_peb_flandre}"
-      
+
       redirect_to @property, notice: "Le bien a été mis à jour avec succès."
     else
       Rails.logger.error "[PROPERTY UPDATE] ❌ Échec de la mise à jour pour propriété ID: #{@property.id}"
       Rails.logger.error "[PROPERTY UPDATE] 🚨 Erreurs: #{@property.errors.full_messages.join(', ')}"
-      
+
       flash.now[:alert] = "Erreur lors de la mise à jour : #{@property.errors.full_messages.join(', ')}"
       render :edit, status: :unprocessable_entity
     end

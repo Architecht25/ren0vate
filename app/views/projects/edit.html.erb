@@ -33,9 +33,33 @@
               <%= form.text_area :description, rows: 4, class: "form-control", placeholder: "Décrivez le chantier et les travaux à réaliser..." %>
             </div>
 
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :date_début, "Date de début prévue", class: "form-label" %>
+                  <%= form.date_field :date_début, class: "form-control" %>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :date_fin, "Date de fin prévue", class: "form-label" %>
+                  <%= form.date_field :date_fin, class: "form-control" %>
+                </div>
+              </div>
+            </div>
+
             <div class="mb-3">
-              <%= form.label :deadline, "Date limite", class: "form-label" %>
-              <%= form.date_field :deadline, class: "form-control" %>
+              <%= form.label :statut, "Statut du chantier", class: "form-label" %>
+              <%= form.select :statut,
+                  options_for_select([
+                    ['En préparation', 'preparation'],
+                    ['En cours', 'en_cours'],
+                    ['En pause', 'pause'],
+                    ['Terminé', 'termine'],
+                    ['Annulé', 'annule']
+                  ], @project.statut),
+                  { include_blank: false },
+                  { class: "form-select" } %>
             </div>
 
             <% if @project.respond_to?(:property_id) && defined?(Property) %>
