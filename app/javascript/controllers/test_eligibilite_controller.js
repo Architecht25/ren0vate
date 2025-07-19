@@ -404,13 +404,57 @@ export default class extends Controller {
     if (revenus === "non") {
       // Revenus <= 114.400€
       if (travaux_toiture === "oui") {
-        this.showResult("✅ Éligible aux primes Wallonie - Catégorie R1-R4 (toiture uniquement)", true);
+        this.showResultWallonie("✅ Éligible aux primes Wallonie - Catégorie R1-R4 (toiture uniquement)", true);
       } else {
-        this.showResult("✅ Éligible aux primes Wallonie - Catégorie R1-R4 (tous travaux)", true);
+        this.showResultWallonie("✅ Éligible aux primes Wallonie - Catégorie R1-R4 (tous travaux)", true);
       }
     } else {
       // Revenus > 114.400€
-      this.showResult("✅ Éligible aux primes Wallonie - Catégorie R5", true);
+      this.showResultWallonie("✅ Éligible aux primes Wallonie - Catégorie R5", true);
+    }
+  }
+
+  showResultWallonie(message, isEligible = true) {
+    if (this.hasFormTarget) {
+      this.formTarget.style.display = "none"
+    }
+
+    if (this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "none"
+    }
+
+    if (this.hasResultTarget) {
+      this.resultTarget.innerHTML = `
+        <div class="alert alert-success">
+          <h5 class="alert-heading">
+            <i class="bi bi-check-circle me-2"></i>
+            Résultat du test d'éligibilité
+          </h5>
+          <p class="mb-0">${message}</p>
+        </div>
+        <div class="btn-group mt-3">
+          <button type="button" class="btn btn-secondary" onclick="location.reload()">🔄 Recommencer</button>
+        </div>
+      `
+      this.resultTarget.style.display = "block"
+
+      // Si éligible, afficher le formulaire d'affinage de catégorie
+      if (isEligible) {
+        this.showAffinageWallonie()
+      }
+    }
+  }
+
+  showAffinageWallonie() {
+    // Afficher le bloc d'affinage de catégorie Wallonie
+    const affinageBloc = document.getElementById("affinage-categorie-wallonie")
+    if (affinageBloc) {
+      affinageBloc.style.display = "block"
+      
+      // Scroll smooth vers le bloc d'affinage
+      setTimeout(() => {
+        affinageBloc.scrollIntoView({ behavior: 'smooth' })
+      }, 500)
     }
   }
 }

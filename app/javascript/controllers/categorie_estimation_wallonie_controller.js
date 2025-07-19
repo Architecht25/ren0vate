@@ -1,0 +1,168 @@
+// Contrôleur pour l'estimation des catégories R1-R5 en Wallonie
+// Calcul basé sur les tranches de revenus et la composition du ménage wallonnes
+
+import { Controller } from "@hotwired/stimulus"
+
+export default class extends Controller {
+  static targets = ["resultAffinage"]
+
+  connect() {
+    console.log("🎯 Contrôleur estimation catégorie Wallonie connecté")
+  }
+
+  estimerCategorieWallonie(event) {
+    // Empêcher la soumission du formulaire
+    event.preventDefault()
+
+    const statut = document.getElementById("category_estimation_wallonie_statut_familial")?.value
+    const enfantsCharge = parseInt(document.getElementById("category_estimation_wallonie_enfants_charge")?.value || "0")
+    const personnesAgeesCharge = parseInt(document.getElementById("category_estimation_wallonie_personnes_agees_charge")?.value || "0")
+    const revenuTranche = document.getElementById("category_estimation_wallonie_revenu_net")?.value
+
+    if (!statut || !revenuTranche) {
+      alert("Veuillez remplir tous les champs obligatoires pour estimer votre catégorie.")
+      return
+    }
+
+    // Stocker dans localStorage pour Wallonie
+    localStorage.setItem("wallonie_statut_familial", statut)
+    localStorage.setItem("wallonie_enfants_charge", enfantsCharge)
+    localStorage.setItem("wallonie_personnes_agees_charge", personnesAgeesCharge)
+    localStorage.setItem("wallonie_revenu_tranche", revenuTranche)
+
+    // Détermination de la catégorie basée sur le revenu
+    let categorieWallonie = "R5" // Par défaut
+
+    switch (revenuTranche) {
+      case "r1":
+        categorieWallonie = "R1"
+        break
+      case "r2":
+        categorieWallonie = "R2"
+        break
+      case "r3":
+        categorieWallonie = "R3"
+        break
+      case "r4":
+        categorieWallonie = "R4"
+        break
+      case "r5":
+        categorieWallonie = "R5"
+        break
+    }
+
+    // Affichage du résultat
+    const badge = `<span class="badge rounded-pill bg-success">Catégorie ${categorieWallonie}</span>`
+    localStorage.setItem("wallonie_categorie_badge", badge)
+    localStorage.setItem("wallonie_categorie", categorieWallonie)
+
+    if (this.hasResultAffinageTarget) {
+      this.resultAffinageTarget.innerHTML = `
+        <div class="alert alert-success">
+          <h6 class="alert-heading">
+            <i class="bi bi-check-circle me-2"></i>
+            Catégorie déterminée
+          </h6>
+          <p class="mb-2">
+            ✅ Selon vos revenus, vous êtes en ${badge} pour les primes Wallonie.
+          </p>
+          <p class="text-muted small mb-0">
+            Cette catégorie détermine vos montants de primes éligibles.
+          </p>
+        </div>
+      `
+      this.resultAffinageTarget.style.display = "block"
+    }
+
+    // Déclencher l'affichage des primes correspondantes
+    this.afficherPrimesWallonie(categorieWallonie)
+  }
+
+  afficherPrimesWallonie(categorie) {
+    // Masquer le placeholder et afficher les cartes
+    this.togglePrimesSection(true)
+
+    // Mettre à jour le titre de la section primes
+    this.updatePrimesSectionTitle(categorie)
+
+    // Déclencher la mise à jour des cartes avec la catégorie Wallonie
+    this.updatePrimesCards(categorie)
+
+    // Afficher un bouton pour voir toutes les primes
+    this.addViewPrimesButton(categorie)
+  }
+
+  updatePrimesSectionTitle(categorie) {
+    const titleElement = document.querySelector('.primes-section h4')
+    if (titleElement) {
+      titleElement.textContent = `Vos primes éligibles Wallonie - Catégorie ${categorie}`
+    }
+  }
+
+  updatePrimesCards(categorie) {
+    // Trouver toutes les cartes de primes Wallonie
+    const allPrimeCards = document.querySelectorAll('[data-controller*="prime-card"]')
+
+    allPrimeCards.forEach(card => {
+      const slug = card.dataset.slug
+      const prime = window.primes?.find(p => p.slug === slug)
+
+      if (prime) {
+        // Vérifier si cette prime est éligible pour cette catégorie R1-R5
+        const isEligible = prime.eligible_categories?.includes(categorie)
+
+        if (isEligible) {
+          card.style.display = ''
+          card.classList.remove('d-none')
+        } else {
+          card.style.display = 'none'
+          card.classList.add('d-none')
+        }
+      }
+    })
+
+    // Déclencher un événement pour que les contrôleurs prime-card se mettent à jour
+    document.dispatchEvent(new CustomEvent('wallonie:category:changed', {
+      detail: { categorie }
+    }))
+  }
+
+  addViewPrimesButton(categorie) {
+    const button = document.getElementById("go-simulateur-wallonie")
+    if (button) {
+      button.style.display = "inline-block"
+      button.className = "btn btn-success btn-lg mt-3"
+      button.innerHTML = `🎯 Voir mes primes Wallonie (${categorie})`
+
+      // Supprimer ancien event listener s'il existe
+      button.replaceWith(button.cloneNode(true))
+      const newButton = document.getElementById("go-simulateur-wallonie")
+
+      newButton.addEventListener("click", () => {
+        // Scroll vers les primes
+        const primesSection = document.querySelector('.primes-section')
+        if (primesSection) {
+          primesSection.scrollIntoView({ behavior: 'smooth' })
+        }
+
+        // Masquer le placeholder et afficher les cartes
+        this.togglePrimesSection(true)
+      })
+    }
+  }
+
+  togglePrimesSection(show = true) {
+    const placeholder = document.getElementById("primes-placeholder")
+    const primesSection = document.querySelector(".primes-section")
+
+    if (placeholder && primesSection) {
+      if (show) {
+        placeholder.style.display = "none"
+        primesSection.style.display = "block"
+      } else {
+        placeholder.style.display = "block"
+        primesSection.style.display = "none"
+      }
+    }
+  }
+}

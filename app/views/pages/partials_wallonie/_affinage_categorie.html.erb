@@ -1,9 +1,9 @@
 <!-- Affinage de catégorie - Version Rails-first -->
-<div class="card border-warning mt-4">
+<div class="card border-warning mt-4" data-controller="categorie-estimation-wallonie">
   <div class="card-header bg-warning bg-opacity-10">
     <h5 class="card-title mb-0">
       <i class="bi bi-gear text-warning me-2"></i>
-      Affinez votre catégorie
+      Affinez votre catégorie R1-R5
     </h5>
   </div>
   <div class="card-body">
@@ -70,8 +70,23 @@
       <div class="text-center">
         <%= f.submit "Valider et recalculer ma catégorie",
             class: "btn btn-success",
-            data: { disable_with: "Calcul en cours..." } %>
+            data: { 
+              disable_with: "Calcul en cours...",
+              action: "click->categorie-estimation-wallonie#estimerCategorieWallonie"
+            } %>
       </div>
     <% end %>
+
+    <!-- Résultat de l'affinage -->
+    <div data-categorie-estimation-wallonie-target="resultAffinage" style="display: none;" class="mt-3">
+      <!-- Le résultat apparaîtra ici -->
+    </div>
+
+    <!-- Bouton pour voir les primes -->
+    <div class="text-center mt-3">
+      <button id="go-simulateur-wallonie" class="btn btn-success btn-lg" style="display: none;">
+        🎯 Voir mes primes Wallonie
+      </button>
+    </div>
   </div>
 </div>
