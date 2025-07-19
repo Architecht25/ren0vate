@@ -45,8 +45,6 @@ Rails.application.routes.draw do
     resources :documents, shallow: true
   end
 
-  resources :referrals
-
   resources :requests do
     # Documents liés à une demande
     resources :documents, shallow: true

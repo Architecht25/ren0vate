@@ -7,7 +7,6 @@ class User < ApplicationRecord
   has_many :properties, dependent: :destroy
   has_many :projects, through: :properties, dependent: :destroy
   has_many :requests, dependent: :destroy
-  has_many :referrals, dependent: :destroy
   has_many :notifications, dependent: :destroy
   has_many :documents, dependent: :destroy
 

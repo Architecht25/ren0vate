@@ -7,7 +7,6 @@ class AdminController < ApplicationController
     @notifications = Notification.all
     @properties = Property.all
     @projects = Project.all
-    @referrals = Referral.all
     @requests = Request.all
     @simulations = Simulation.all
     @users = User.all
