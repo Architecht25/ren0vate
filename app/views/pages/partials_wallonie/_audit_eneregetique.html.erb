@@ -1,0 +1,226 @@
+<div class="col-lg-4 col-md-4 col-12">
+  <div class="card shadow-sm border-0 p-3 text-center mb-3 h-100">
+    <div class="card-body d-flex flex-column align-items-center gap-3">
+      <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+        <i class="bi bi-graph-up fs-5 text-success"></i>
+      </div>
+      <h6 class="card-title mb-2">Pré-test Audit Énergétique</h6>
+      <p class="text-muted small text-center mb-3">
+        Évaluez le potentiel de votre logement avant audit officiel
+      </p>
+
+      <!-- Progression -->
+      <div class="w-100 mb-3">
+        <div class="progress mb-2" style="height: 0.5rem;">
+          <div class="progress-bar bg-success" role="progressbar" style="width: 0%;" id="progressBar"></div>
+        </div>
+        <small class="text-muted" id="progressText">Étape 0 sur 7</small>
+      </div>
+
+      <!-- Formulaire du pré-test -->
+      <form id="auditForm" class="w-100">
+        <!-- Étape 1 : Informations générales -->
+        <div class="step" id="step-1" style="display: block;">
+          <h6 class="fw-bold mb-3">1. Informations générales</h6>
+
+          <div class="mb-2">
+            <label for="commune" class="form-label small">Commune</label>
+            <input type="text" class="form-control form-control-sm" id="commune" name="commune" placeholder="Ex: Namur" required>
+          </div>
+
+          <div class="mb-2">
+            <label for="typeLogement" class="form-label small">Type de logement</label>
+            <select class="form-select form-select-sm" id="typeLogement" name="typeLogement" required>
+              <option value="">-- Choisir --</option>
+              <option value="maison">Maison unifamiliale</option>
+              <option value="appartement">Appartement</option>
+              <option value="immeuble">Immeuble à appartements</option>
+            </select>
+          </div>
+
+          <div class="mb-2">
+            <label for="anneeConstruction" class="form-label small">Année de construction</label>
+            <input type="number" class="form-control form-control-sm" id="anneeConstruction" name="anneeConstruction" min="1800" max="2025" required>
+          </div>
+
+          <div class="mb-3">
+            <label for="surface" class="form-label small">Surface habitable (m²)</label>
+            <input type="number" class="form-control form-control-sm" id="surface" name="surface" required>
+          </div>
+        </div>
+
+        <!-- Étape 2 : Isolation -->
+        <div class="step d-none" id="step-2">
+          <h6 class="fw-bold mb-3">2. Isolation</h6>
+
+          <div class="mb-2">
+            <label class="form-label small">Toiture isolée ?</label>
+            <select class="form-select form-select-sm" name="toiture">
+              <option value="">-- Choisir --</option>
+              <option value="oui">Oui</option>
+              <option value="non">Non</option>
+              <option value="partiellement">Partiellement</option>
+            </select>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label small">Murs isolés ?</label>
+            <select class="form-select form-select-sm" name="murs">
+              <option value="">-- Choisir --</option>
+              <option value="oui_ext">Oui (par l'extérieur)</option>
+              <option value="oui_int">Oui (par l'intérieur)</option>
+              <option value="non">Non</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small">Sol/plancher isolé ?</label>
+            <select class="form-select form-select-sm" name="sol">
+              <option value="">-- Choisir --</option>
+              <option value="oui">Oui</option>
+              <option value="non">Non</option>
+              <option value="inconnu">Je ne sais pas</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Étape 3 : Châssis et vitrages -->
+        <div class="step d-none" id="step-3">
+          <h6 class="fw-bold mb-3">3. Châssis et vitrages</h6>
+
+          <div class="mb-2">
+            <label class="form-label small">Matériau des châssis</label>
+            <select class="form-select form-select-sm" name="chassis">
+              <option value="">-- Choisir --</option>
+              <option value="pvc">PVC</option>
+              <option value="bois">Bois</option>
+              <option value="alu">Aluminium</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small">Type de vitrage</label>
+            <select class="form-select form-select-sm" name="vitrage">
+              <option value="">-- Choisir --</option>
+              <option value="simple">Simple</option>
+              <option value="double">Double</option>
+              <option value="triple">Triple</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Étape 4 : Chauffage & ECS -->
+        <div class="step d-none" id="step-4">
+          <h6 class="fw-bold mb-3">4. Chauffage & eau chaude</h6>
+
+          <div class="mb-2">
+            <label class="form-label small">Type de chauffage</label>
+            <select class="form-select form-select-sm" name="chauffage">
+              <option value="">-- Choisir --</option>
+              <option value="gaz">Gaz</option>
+              <option value="mazout">Mazout</option>
+              <option value="electrique">Électrique</option>
+              <option value="pac">Pompe à chaleur</option>
+            </select>
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label small">Année d'installation</label>
+            <input type="number" class="form-control form-control-sm" name="annee_chauffage" min="1980" max="2025">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small">Production d'eau chaude (ECS)</label>
+            <select class="form-select form-select-sm" name="ecs">
+              <option value="">-- Choisir --</option>
+              <option value="chaudiere">Chaudière</option>
+              <option value="boiler">Boiler électrique</option>
+              <option value="solaire">Solaire thermique</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Étape 5 : Énergies renouvelables -->
+        <div class="step d-none" id="step-5">
+          <h6 class="fw-bold mb-3">5. Énergies renouvelables</h6>
+
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="pv" id="pv">
+            <label class="form-check-label small" for="pv">Panneaux photovoltaïques</label>
+          </div>
+
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" name="solaire" id="solaire">
+            <label class="form-check-label small" for="solaire">Chauffe-eau solaire</label>
+          </div>
+
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" name="batterie" id="batterie">
+            <label class="form-check-label small" for="batterie">Batterie de stockage</label>
+          </div>
+        </div>
+
+        <!-- Étape 6 : Comportement & consommation -->
+        <div class="step d-none" id="step-6">
+          <h6 class="fw-bold mb-3">6. Comportement & consommation</h6>
+
+          <div class="mb-2">
+            <label class="form-label small">Consommation électrique annuelle (kWh)</label>
+            <input type="number" class="form-control form-control-sm" name="conso_elec" placeholder="Ex: 3500">
+          </div>
+
+          <div class="mb-2">
+            <label class="form-label small">Nombre d'occupants</label>
+            <input type="number" class="form-control form-control-sm" name="occupants" min="1" max="10">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label small">Usage du bien</label>
+            <select class="form-select form-select-sm" name="usage">
+              <option value="">-- Choisir --</option>
+              <option value="residence">Résidence principale</option>
+              <option value="location">Bien loué</option>
+              <option value="autre">Autre</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Étape 7 : Résultat indicatif -->
+        <div class="step d-none" id="step-7">
+          <h6 class="fw-bold mb-3">7. Résultat estimé</h6>
+
+          <div class="alert alert-light small text-start mb-3">
+            <p class="mb-2">Ce pré-test donne une estimation indicative basée sur vos réponses.</p>
+
+            <ul class="mb-2 small">
+              <li><strong>Score énergétique estimé :</strong> <span id="score-estime">À calculer</span></li>
+              <li><strong>Travaux prioritaires :</strong> <span id="travaux-prioritaires">À déterminer</span></li>
+              <li><strong>Primes possibles :</strong> <span id="primes-possibles">À estimer</span></li>
+            </ul>
+          </div>
+
+          <div class="alert alert-info small">
+            <i class="bi bi-info-circle me-1"></i>
+            Pour aller plus loin, réservez un audit officiel PAE2 ou simulez vos primes avec notre outil complet.
+          </div>
+        </div>
+
+        <!-- Boutons de navigation -->
+        <div class="d-flex justify-content-between mt-3">
+          <button type="button" class="btn btn-outline-secondary btn-sm" id="prevBtn" style="display: none;">
+            <i class="bi bi-arrow-left me-1"></i>Précédent
+          </button>
+          <button type="button" class="btn btn-success btn-sm" id="nextBtn">
+            Suivant<i class="bi bi-arrow-right ms-1"></i>
+          </button>
+        </div>
+      </form>
+
+      <!-- Note finale -->
+      <small class="text-muted mt-3 text-center">
+        <i class="bi bi-lightbulb text-warning me-1"></i>
+        Pré-test indicatif pour la Wallonie
+      </small>
+    </div>
+  </div>
+</div>

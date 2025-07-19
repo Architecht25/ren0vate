@@ -1,0 +1,136 @@
+<!-- Test d'éligibilité -->
+<div id="eligibility-test" data-controller="test-eligibilite">
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-light">
+      <h4 class="card-title mb-0">
+        <i class="bi bi-check-circle text-success me-2"></i>
+        Test d'éligibilité
+      </h4>
+    </div>
+    <div class="card-body">
+      <form id="eligibilityForm" name="eligibilityForm" data-test-eligibilite-target="form">
+        <%# Répète cette structure pour chaque step %>
+        <% steps = {
+          "localisation" => "Le logement est-il situé en Wallonie (hors Communauté germanophone) ?",
+          "destination" => "Le bien est-il destiné à être habité à min 50% ?",
+          "propriete" => "Êtes-vous propriétaire du logement (plein propriétaire, nu-propriétaire ou usufruitier ou co-propriétaire) ?",
+          "residence_principale" => "Le logement sera-t-il occupé à titre de résidence principale dans les 24 mois suivant l'introduction de la demande des primes travaux ?",
+          "age_logement" => "Le logement a-t-il été construit il y a plus de 15 ans (par rapport à la date de la demande) ?",
+          "audit" => "Avez-vous effectué un audit (/!\) pas un PEB par un auditeur agréé ou prévoyez-vous d'en faire un ?",
+          "entrepreneur" => "L'entrepreneur chargé des travaux est-il inscrit à la Banque Carrefour des Entreprises ?",
+          "revenus" => "Après déduction de 5.000 € par enfant à charge, grossesse en cours ou personne de plus de 60 ans figurant sur les compositions de ménage concernées, le total des revenus imposables cumulés (y compris ceux des copropriétaires éventuels) dépasse-t-il 114.400 € ?",
+          "factures_anciennes" => "Les travaux pour lesquels vous sollicitez une prime ont-ils des factures de solde émises il y a deux ans ou plus ?",
+          "travaux_toiture" => "Prévoyez-vous uniquement de réaliser des travaux liés à l'isolation de votre toiture ?"
+        } %>
+
+        <% steps.each do |key, question| %>
+          <div class="mb-3 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+            <h6 class="mb-3 text-dark"><%= question %></h6>
+            <div class="d-flex gap-3">
+              <div class="form-check">
+                <input type="radio" class="form-check-input" name="<%= key %>" value="oui" data-action="click->test-eligibilite#handleAnswer" id="<%= key %>_oui">
+                <label class="form-check-label" for="<%= key %>_oui">
+                  <i class="bi bi-check-circle text-success me-1"></i>Oui
+                </label>
+              </div>
+              <div class="form-check">
+                <input type="radio" class="form-check-input" name="<%= key %>" value="non" data-action="click->test-eligibilite#handleAnswer" id="<%= key %>_non">
+                <label class="form-check-label" for="<%= key %>_non">
+                  <i class="bi bi-x-circle text-danger me-1"></i>Non
+                </label>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </form>
+
+      <!-- Bouton de validation du test -->
+      <div class="text-center mt-4">
+        <button type="button"
+                class="btn btn-success btn-lg"
+                data-action="click->test-eligibilite#validateTest"
+                data-test-eligibilite-target="validateButton"
+                style="display: none;">
+          <i class="bi bi-check2-circle me-2"></i>Valider mon test d'éligibilité
+        </button>
+      </div>
+
+      <div id="result"
+        data-test-eligibilite-target="result"
+        class="alert alert-info mt-4 text-center"
+        style="display: none;">
+      </div>
+
+      <!-- Section d'affinage de catégorie améliorée -->
+      <div id="affinage-categorie" data-controller="categorie-estimation" class="mt-4" style="display: none;">
+        <div class="card border-warning">
+          <div class="card-header bg-warning bg-opacity-10">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-gear text-warning me-2"></i>
+              Affinez votre catégorie
+            </h5>
+          </div>
+          <div class="card-body">
+            <!-- Statut du ménage -->
+            <div class="mb-3">
+              <label for="statut-familial" class="form-label">Situation familiale</label>
+              <select id="statut-familial" class="form-select" required>
+                <option value="">Sélectionnez une option</option>
+                <option value="isolé">Isolé / Célibataire</option>
+                <option value="isolé-enfant">Isolé avec enfant à charge</option>
+                <option value="couple">Couple sans enfants"</option>
+                <option value="couple-enfant">Couple avec enfants à charge</option>
+              </select>
+            </div>
+
+            <!-- Nombre de personnes à charge -->
+            <div class="mb-3">
+              <label for="personnes-charge" class="form-label">Nombre de personnes à charge</label>
+              <select id="personnes-charge" class="form-select" required>
+                <option value="">Sélectionnez</option>
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+              </select>
+            </div>
+
+            <!-- Revenu imposable net -->
+            <div class="mb-3">
+              <label for="revenu-net" class="form-label">Revenu imposable globablement du ménage</label>
+              <select id="revenu-net" class="form-select" required>
+                <option value="">Sélectionnez une tranche</option>
+                <option value="-24320">Moins de 24.230 €</option>
+                <option value="24231-42340">24.231 € – 42.340 €</option>
+                <option value="42341-53880">42.341 € – 53.880 €</option>
+                <option value="53881+">Plus de 53.881 €</option>
+              </select>
+              <p class="mt-3 text-muted small">
+                💡 Pour un calcul précis basé sur vos documents fiscaux, créez un compte ou connectez-vous à votre espace personnel.
+              </p>
+            </div>
+
+            <button id="valider-affinage"
+                    class="btn btn-success mt-2"
+                    data-action="click->categorie-estimation#estimerCategorie">
+              Valider et recalculer ma catégorie
+            </button>
+
+            <!-- Résultat de l'estimation -->
+            <div id="result-affinage"
+                data-categorie-estimation-target="resultAffinage"
+                class="alert alert-secondary mt-3 text-center"
+                style="display: none;">
+            </div>
+
+            <button id="go-simulateur" style="display: none;" class="btn btn-primary mt-3">
+              🎯 Accéder au simulateur
+            </button>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> <!-- fin test-eligibilite controller -->
