@@ -33,54 +33,6 @@
                 <h6 class="card-title mb-0 flex-grow-1"><%= prime.titre %></h6>
               </div>
 
-              <% if prime.slug == "isolation_murs_wallonie" %>
-                <!-- Carte spéciale : isolation murs Wallonie -->
-                <div class="d-flex justify-content-between align-items-center gap-2"
-                      data-controller="prime-card"
-                      data-slug="<%= prime.slug %>">
-                  <select class="form-select w-50 select-type-mur"
-                          data-prime-card-target="select"
-                          data-action="change->prime-card#update"
-                          data-slug="<%= prime.slug %>">
-                    <option value="0">Choisissez</option>
-                    <option value="facades">façades</option>
-                    <option value="murs_creux">murs creux</option>
-                    <option value="murs_interieurs">murs intérieurs</option>
-                  </select>
-                  <input type="number"
-                          class="form-control w-25 prime-input"
-                          data-prime-card-target="input"
-                          data-action="input->prime-card#update"
-                          data-slug="<%= prime.slug %>"
-                          placeholder="<%= prime.placeholder %>">
-                  <span class="input-group-text bg-success text-white prime-result"
-                        data-slug="<%= prime.slug %>">
-                    0 €
-                  </span>
-                </div>
-
-              <% elsif prime.slug == "pompe_chaleur_wallonie" %>
-
-                <div class="d-flex justify-content-between align-items-center gap-2">
-                  <!-- Sélecteur -->
-                  <select class="form-select w-75"
-                          data-action="change->prime-card#update"
-                          data-prime-card-target="select">
-                    <option value="0">Choisissez le type de pompe</option>
-                    <option value="geothermique">géothermique</option>
-                    <option value="air_eau">air eau</option>
-                    <option value="air_air">air air</option>
-                    <option value="hybride">hybride</option>
-                  </select>
-
-                  <!-- Montant -->
-                  <span class="input-group-text bg-success text-white prime-result w-25 text-center"
-                        data-slug="<%= prime.slug %>">
-                    0 €
-                  </span>
-                </div>
-
-              <% else %>
                 <!-- Logique générale pour les autres primes -->
                 <div class="d-flex justify-content-between align-items-center gap-2">
                   <input type="number"
@@ -127,18 +79,10 @@
   </div>
   <div class="card-body">
     <div class="row g-3">
-    <!-- Carte PEB Interactive -->
-    <% if defined?(@prime_peb) %>
-      <%= render 'shared/primes/prime_peb_card', prime_peb: @prime_peb %>
-    <% else %>
-      <%= render 'shared/primes/prime_peb_card', prime_peb: nil %>
-    <% end %>
-
-    <%= render 'pages/partials_wallonie/primes_communales_card' %>
-
-    <%= render 'pages/partials_wallonie/monuments_et_sites' %>
-
-    <%= render 'pages/partials_wallonie/audit_eneregetique' %>    </div>
+      <%= render 'pages/partials_wallonie/primes_communales_card' %>
+      <%= render 'pages/partials_wallonie/monuments_et_sites' %>
+      <%= render 'pages/partials_wallonie/audit_eneregetique' %>
+    </div>
     </div>
   </div>
 </div>
