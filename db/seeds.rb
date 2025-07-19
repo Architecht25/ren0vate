@@ -1,17 +1,37 @@
 puts "🌱 Lancement du seed principal..."
 
-# ➤ Primes - Flandre
-flandre_path = Rails.root.join("db", "seeds", "flandre", "primes.rb")
-if File.exist?(flandre_path)
-  puts "🔹 Chargement de : #{flandre_path}"
-  load flandre_path
+# ➤ FLANDRE - Chargement des seeds
+puts "\n🇳🇱 === FLANDRE ==="
+flandre_categories_path = Rails.root.join("db", "seeds", "flandre", "categories.rb")
+if File.exist?(flandre_categories_path)
+  puts "🔹 Chargement de : #{flandre_categories_path}"
+  load flandre_categories_path
 end
 
-# ➤ Catégories
-categories_path = Rails.root.join("db", "seeds", "flandre", "categories.rb")
-if File.exist?(categories_path)
-  puts "🔹 Chargement de : #{categories_path}"
-  load categories_path
+flandre_primes_path = Rails.root.join("db", "seeds", "flandre", "primes.rb")
+if File.exist?(flandre_primes_path)
+  puts "🔹 Chargement de : #{flandre_primes_path}"
+  load flandre_primes_path
+end
+
+# ➤ WALLONIE - Chargement des seeds
+puts "\n🏴󠁢󠁥󠁷󠁡󠁬󠁿 === WALLONIE ==="
+wallonie_categories_path = Rails.root.join("db", "seeds", "wallonie", "categories.rb")
+if File.exist?(wallonie_categories_path)
+  puts "🔹 Chargement de : #{wallonie_categories_path}"
+  load wallonie_categories_path
+end
+
+wallonie_primes_path = Rails.root.join("db", "seeds", "wallonie", "primes.rb")
+if File.exist?(wallonie_primes_path)
+  puts "🔹 Chargement de : #{wallonie_primes_path}"
+  load wallonie_primes_path
+end
+
+wallonie_audit_path = Rails.root.join("db", "seeds", "wallonie", "audit.rb")
+if File.exist?(wallonie_audit_path)
+  puts "🔹 Chargement de : #{wallonie_audit_path}"
+  load wallonie_audit_path
 end
 
 # ➤ Propriétés de test
