@@ -1,6 +1,6 @@
 class PropertiesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_property, only: [:show, :dashboard, :edit, :update, :destroy, :debug_completion, :documents_dashboard]
+  before_action :set_property, only: [:show, :dashboard, :edit, :update, :destroy, :documents_dashboard]
 
   def index
     @properties = current_user.properties
@@ -102,11 +102,6 @@ class PropertiesController < ApplicationController
 
     # Notifications liées à ce bien
     @property_notifications = current_user.notifications.where(property: @property).recent.limit(5) if current_user.respond_to?(:notifications)
-  end
-
-  def debug_completion
-    @debug_info = @property.completion_debug_info
-    render json: @debug_info, status: :ok
   end
 
   def documents_dashboard
