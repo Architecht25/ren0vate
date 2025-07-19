@@ -1,10 +1,10 @@
-class RegulatoryRequirementsController < ApplicationController
+class RegulationsController < ApplicationController
   before_action :authenticate_user!
 
   def index
     # Si aucune région n'est spécifiée, rediriger vers la sélection de région
     if params[:region].blank?
-      redirect_to region_selection_regulatory_requirements_path
+      redirect_to region_selection_regulations_path
       return
     end
 
