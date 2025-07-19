@@ -450,7 +450,7 @@ export default class extends Controller {
     const affinageBloc = document.getElementById("affinage-categorie-wallonie")
     if (affinageBloc) {
       affinageBloc.style.display = "block"
-      
+
       // Scroll smooth vers le bloc d'affinage
       setTimeout(() => {
         affinageBloc.scrollIntoView({ behavior: 'smooth' })

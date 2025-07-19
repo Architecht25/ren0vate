@@ -182,7 +182,7 @@ export default class extends Controller {
 
   afficherPrimesWallonie(categorie) {
     console.log("🚀 Affichage primes Wallonie pour catégorie:", categorie)
-    
+
     // Masquer le placeholder et afficher les cartes
     this.togglePrimesSection(true)
 
