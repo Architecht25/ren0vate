@@ -73,7 +73,4 @@ Rails.application.routes.draw do
   get '/bruxelles', to: 'pages#bruxelles', as: :bruxelles
   get '/mentions-legales', to: 'pages#legal', as: :legal
   get '/politique-de-confidentialite', to: 'pages#privacy', as: :privacy
-
-  # Route de debug temporaire
-  get '/debug/properties', to: 'debug#properties' if Rails.env.development?
 end
