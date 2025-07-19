@@ -4,7 +4,7 @@ puts "🏴󠁢󠁥󠁷󠁡󠁬󠁿 Création des catégories Wallonie..."
 # Basées sur le système R1 à R5 des primes wallonnes
 
 Category.find_or_create_by!(
-  code: "R1",
+  code: "wallonie_r1",
   description: "Revenus très faibles",
   seuil_seul: 26900,
   couple_sans_charge: 26900,
@@ -12,7 +12,7 @@ Category.find_or_create_by!(
 )
 
 Category.find_or_create_by!(
-  code: "R2",
+  code: "wallonie_r2",
   description: "Revenus faibles",
   seuil_seul: 38300,
   couple_sans_charge: 38300,
@@ -20,7 +20,7 @@ Category.find_or_create_by!(
 )
 
 Category.find_or_create_by!(
-  code: "R3",
+  code: "wallonie_r3",
   description: "Revenus moyens",
   seuil_seul: 50600,
   couple_sans_charge: 50600,
@@ -28,7 +28,7 @@ Category.find_or_create_by!(
 )
 
 Category.find_or_create_by!(
-  code: "R4",
+  code: "wallonie_r4",
   description: "Revenus élevés",
   seuil_seul: 114400,
   couple_sans_charge: 114400,
@@ -36,7 +36,7 @@ Category.find_or_create_by!(
 )
 
 Category.find_or_create_by!(
-  code: "R5",
+  code: "wallonie_r5",
   description: "Revenus très élevés",
   seuil_seul: 999999,    # Pas de limite supérieure (Infinity)
   couple_sans_charge: 999999,
