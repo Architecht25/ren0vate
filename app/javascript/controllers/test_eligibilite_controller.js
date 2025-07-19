@@ -313,4 +313,104 @@ export default class extends Controller {
       }
     }
   }
+
+  // ========== MÉTHODES WALLONIE ==========
+
+  handleAnswerWallonie(event) {
+    console.log("🎯 Test Eligibilité Wallonie - Réponse:", event.target.name, "=", event.target.value);
+
+    const form = this.formTarget;
+    const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+
+    const testData = responses.reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    localStorage.setItem("eligibiliteWallonie", JSON.stringify(testData));
+
+    // Vérification immédiate des cas d'inéligibilité Wallonie
+    const localisation = testData["localisation"];
+    if (localisation === "non") {
+      this.showResult("❌ Le logement doit être situé en Wallonie", false);
+      return;
+    }
+
+    const destination = testData["destination"];
+    if (destination === "non") {
+      this.showResult("❌ Le bien doit être destiné à être habité à au moins 50%", false);
+      return;
+    }
+
+    const propriete = testData["propriete"];
+    if (propriete === "non") {
+      this.showResult("❌ Vous devez être propriétaire du logement", false);
+      return;
+    }
+
+    const residence_principale = testData["residence_principale"];
+    if (residence_principale === "non") {
+      this.showResult("❌ Le logement doit être occupé comme résidence principale dans les 24 mois", false);
+      return;
+    }
+
+    const age_logement = testData["age_logement"];
+    if (age_logement === "non") {
+      this.showResult("❌ Le logement doit avoir plus de 15 ans", false);
+      return;
+    }
+
+    const audit = testData["audit"];
+    if (audit === "non") {
+      this.showResult("❌ Un audit énergétique par un auditeur agréé est obligatoire", false);
+      return;
+    }
+
+    const entrepreneur = testData["entrepreneur"];
+    if (entrepreneur === "non") {
+      this.showResult("❌ L'entrepreneur doit être inscrit à la Banque Carrefour des Entreprises", false);
+      return;
+    }
+
+    const factures_anciennes = testData["factures_anciennes"];
+    if (factures_anciennes === "oui") {
+      this.showResult("❌ Les factures de solde ne peuvent pas dater de plus de 2 ans", false);
+      return;
+    }
+
+    // Si on arrive ici, vérifier si toutes les questions sont répondues
+    this.checkAllAnsweredWallonie(testData);
+  }
+
+  checkAllAnsweredWallonie(testData) {
+    const requiredQuestions = ["localisation", "destination", "propriete", "residence_principale", "age_logement", "audit", "entrepreneur", "revenus", "factures_anciennes", "travaux_toiture"];
+
+    const allAnswered = requiredQuestions.every(question => testData[question] !== undefined);
+
+    if (allAnswered && this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "block";
+    }
+  }
+
+  validateTestWallonie() {
+    console.log("🚀 Validation finale du test Wallonie");
+
+    const testData = JSON.parse(localStorage.getItem("eligibiliteWallonie") || "{}");
+
+    // Déterminer la catégorie R1-R5 selon les revenus
+    const revenus = testData["revenus"];
+    const travaux_toiture = testData["travaux_toiture"];
+
+    if (revenus === "non") {
+      // Revenus <= 114.400€
+      if (travaux_toiture === "oui") {
+        this.showResult("✅ Éligible aux primes Wallonie - Catégorie R1-R4 (toiture uniquement)", true);
+      } else {
+        this.showResult("✅ Éligible aux primes Wallonie - Catégorie R1-R4 (tous travaux)", true);
+      }
+    } else {
+      // Revenus > 114.400€
+      this.showResult("✅ Éligible aux primes Wallonie - Catégorie R5", true);
+    }
+  }
 }

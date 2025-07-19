@@ -1,0 +1,49 @@
+<!-- Résultat éligibilité positif -->
+<div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+  <h5 class="alert-heading">
+    <i class="bi bi-check-circle me-2"></i>✅ Vous êtes éligible aux primes !
+  </h5>
+
+  <% if defined?(category) && category.present? %>
+    <p class="mb-3">
+      Sur base de vos réponses, vous êtes en <strong>catégorie <%= category %></strong>.
+    </p>
+
+    <% if category == "R4" %>
+      <p class="mb-3">
+        <i class="bi bi-info-circle me-1"></i>
+        Votre catégorie pourrait être affinée selon vos revenus précis et votre composition de ménage.
+      </p>
+    <% end %>
+  <% else %>
+    <p class="mb-3">
+      Votre catégorie sera déterminée selon vos revenus et votre composition de ménage.
+    </p>
+  <% end %>
+
+  <div class="d-flex gap-2 flex-wrap">
+    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="location.reload()">
+      <i class="bi bi-arrow-clockwise me-1"></i>Recommencer
+    </button>
+
+    <% if defined?(show_refine) && show_refine %>
+      <button type="button" class="btn btn-warning btn-sm" onclick="document.getElementById('category-refinement').style.display='block'">
+        <i class="bi bi-gear me-1"></i>Affiner ma catégorie
+      </button>
+    <% end %>
+
+    <% if defined?(category) && category.present? && category != "R4" %>
+      <a href="#primes-section" class="btn btn-success btn-sm">
+        <i class="bi bi-gift me-1"></i>Voir mes primes
+      </a>
+    <% end %>
+  </div>
+
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+</div>
+
+<% if defined?(show_refine) && show_refine %>
+  <div id="category-refinement" style="display: none;">
+    <%= render "pages/partials_wallonie/affinage_categorie" %>
+  </div>
+<% end %>

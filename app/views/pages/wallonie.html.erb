@@ -1,55 +1,88 @@
-<div class="container-fluid px-4 py-4">
-  <!-- Header épuré -->
-  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-    <div class="d-flex align-items-center">
-      <div class="icon-circle me-3">
-        <i class="bi bi-tools"></i>
+<script>
+  // Initialisation automatique de la région Wallonie dès que le DOM est prêt
+  document.addEventListener('DOMContentLoaded', function() {
+    localStorage.setItem("region", "wallonie");
+    console.log('🌍 Région Wallonie initialisée dans localStorage');
+  });
+
+  // Données des primes Wallonie
+  window.primes = <%= raw(@primes.to_json(
+    only: [:slug, :titre, :unite, :type_de_valeur, :valeurs_par_categorie, :placeholder, :condition, :conseil, :document, :eligible_categories]
+  )) if @primes %>;
+</script>
+
+<div class="container-fluid py-4">
+  <!-- Header moderne et cohérent -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+              <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                <i class="bi bi-house-check text-primary fs-4"></i>
+              </div>
+              <div>
+                <h1 class="h3 mb-1 text-primary">Wallonie - Primes de Rénovation</h1>
+                <p class="text-muted mb-0">Testez votre éligibilité et découvrez vos primes</p>
+              </div>
+            </div>
+            <%= link_to root_path, class: "btn btn-outline-primary" do %>
+              <i class="bi bi-arrow-left me-2"></i>Retour à l'accueil
+            <% end %>
+          </div>
+        </div>
       </div>
-      <h1 class="h3 text-primary-custom mb-0 fw-normal">Wallonie - En construction</h1>
     </div>
-    <%= link_to root_path, class: "btn btn-primary-custom px-4" do %>
-      <i class="bi bi-house-door me-2"></i>Retour à l'accueil
-    <% end %>
   </div>
 
-  <!-- Contenu principal -->
-  <div class="row justify-content-center">
-    <div class="col-lg-8">
-      <div class="card border-0 bg-light-custom shadow-sm mb-4">
-        <div class="card-body p-4 text-center">
-          <div class="icon-circle-large mx-auto mb-4">
-            <i class="bi bi-tools"></i>
-          </div>
-          <h2 class="h4 text-primary-custom mb-3 fw-normal">Page en construction</h2>
-          <p class="text-muted-custom mb-4">Nous travaillons activement pour vous offrir une expérience exceptionnelle pour la région wallonne.</p>
+  <div class="row g-4">
+    <!-- COLONNE GAUCHE : Test d'éligibilité -->
+    <div class="col-lg-6">
+      <div class="h-100">
 
-          <!-- Compteur -->
-          <div class="mb-4">
-            <h3 class="h5 text-primary-custom mb-3 fw-normal">Disponible le 31 juillet 2025</h3>
-            <div id="countdown" class="d-flex justify-content-center gap-3 flex-wrap">
-              <div class="text-center">
-                <div class="card border-0 bg-white shadow-sm p-3" style="min-width: 80px;">
-                  <span id="days" class="h4 fw-bold text-primary-custom mb-0">0</span>
-                  <small class="text-muted-custom">Jours</small>
-                </div>
-              </div>
-              <div class="text-center">
-                <div class="card border-0 bg-white shadow-sm p-3" style="min-width: 80px;">
-                  <span id="hours" class="h4 fw-bold text-primary-custom mb-0">0</span>
-                  <small class="text-muted-custom">Heures</small>
-                </div>
-              </div>
-              <div class="text-center">
-                <div class="card border-0 bg-white shadow-sm p-3" style="min-width: 80px;">
-                  <span id="minutes" class="h4 fw-bold text-primary-custom mb-0">0</span>
-                  <small class="text-muted-custom">Minutes</small>
-                </div>
-              </div>
-              <div class="text-center">
-                <div class="card border-0 bg-white shadow-sm p-3" style="min-width: 80px;">
-                  <span id="seconds" class="h4 fw-bold text-primary-custom mb-0">0</span>
-                  <small class="text-muted-custom">Secondes</small>
-                </div>
+        <%= render 'pages/partials_wallonie/selection_profil' %>
+
+        <!-- Contenu dynamique pour l'éligibilité -->
+        <%= turbo_frame_tag "eligibility_content" do %>
+          <div class="text-center text-muted mt-4">
+            <i class="bi bi-arrow-up fs-1 mb-2 d-block"></i>
+            <p>Sélectionnez votre type de profil ci-dessus pour commencer</p>
+          </div>
+        <% end %>
+      </div>
+    </div> <!-- fin col-lg-6 colonne gauche -->
+
+    <!-- COLONNE DROITE : Primes et simulateur -->
+    <div class="col-lg-6">
+      <div class="h-100">
+
+        <%= render 'pages/partials_wallonie/cartes_primes' %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions et liens utiles -->
+  <div class="row mt-5">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="row g-3 align-items-center">
+            <div class="col-md-8">
+              <h5 class="mb-1">
+                <i class="bi bi-link-45deg text-primary me-2"></i>
+                Liens utiles
+              </h5>
+              <p class="text-muted mb-0">Accédez aux informations détaillées sur les primes en Wallonie</p>
+            </div>
+            <div class="col-md-4">
+              <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                <%= link_to primes_path, class: "btn btn-outline-primary btn-sm" do %>
+                  <i class="bi bi-list-ul me-1"></i>Primes
+                <% end %>
+                <%= link_to categories_path, class: "btn btn-outline-secondary btn-sm" do %>
+                  <i class="bi bi-diagram-3 me-1"></i>Catégories
+                <% end %>
               </div>
             </div>
           </div>
@@ -57,33 +90,8 @@
       </div>
     </div>
   </div>
+
 </div>
-
-<script>
-  const countdownDate = new Date("2025-07-31T23:59:59").getTime();
-
-  const updateCountdown = () => {
-    const now = new Date().getTime();
-    const distance = countdownDate - now;
-
-    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-    document.getElementById("days").textContent = days;
-    document.getElementById("hours").textContent = hours;
-    document.getElementById("minutes").textContent = minutes;
-    document.getElementById("seconds").textContent = seconds;
-
-    if (distance < 0) {
-      clearInterval(interval);
-      document.getElementById("countdown").innerHTML = "<h2 class='text-success'>La page est maintenant disponible !</h2>";
-    }
-  };
-
-  const interval = setInterval(updateCountdown, 1000);
-</script>
 
 <!-- Utilise le fichier CSS externe properties.css -->
 <%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>

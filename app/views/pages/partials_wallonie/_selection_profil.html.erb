@@ -1,40 +1,54 @@
-<!-- Sélection du profil -->
-<div data-region-display-target="flandre" data-controller="user_type" class="mb-4">
-  <div class="card border-0 shadow-sm">
-    <div class="card-header bg-light">
-      <h4 class="card-title mb-0">
-        <i class="bi bi-person-circle text-primary me-2"></i>
-        Quel est votre profil ?
-      </h4>
-    </div>
-    <div class="card-body">
-      <div class="row g-2">
-        <div class="col-md-6">
-          <button class="btn btn-outline-primary w-100" data-action="click->user_type#select" data-user="prive">
-            <i class="bi bi-house me-2"></i>Particulier
-          </button>
-        </div>
-        <div class="col-md-6">
-          <button class="btn btn-outline-primary w-100" data-action="click->user_type#select" data-user="entreprise">
-            <i class="bi bi-building me-2"></i>Entreprise
-          </button>
-        </div>
-        <div class="col-md-6">
-          <button class="btn btn-outline-primary w-100" data-action="click->user_type#select" data-user="syndic">
-            <i class="bi bi-people me-2"></i>Syndic
-          </button>
-        </div>
-        <div class="col-md-6">
-          <button class="btn btn-outline-primary w-100" data-action="click->user_type#select" data-user="bailleur">
-            <i class="bi bi-key me-2"></i>Bailleur social
-          </button>
-        </div>
-        <div class="col-12">
-          <button class="btn btn-outline-primary w-100" data-action="click->user_type#select" data-user="asbl">
-            <i class="bi bi-shield-check me-2"></i>ASBL / Coopérative
-          </button>
+<!-- Sélection du profil - Version Rails-first -->
+<div class="mb-4">
+  <%= form_with url: select_profile_wallonie_path, method: :post, local: false,
+      data: { turbo_frame: "eligibility_content" }, class: "profile-selection-form" do |f| %>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-light">
+        <h4 class="card-title mb-0">
+          <i class="bi bi-person-circle text-primary me-2"></i>
+          Quel est votre profil ?
+        </h4>
+      </div>
+      <div class="card-body">
+        <div class="row g-2">
+          <div class="col-md-6">
+            <%= f.submit class: "btn btn-outline-primary w-100",
+                name: "profile_type", value: "prive",
+                data: { disable_with: "Sélection..." } do %>
+              <i class="bi bi-house me-2"></i>Particulier
+            <% end %>
+          </div>
+          <div class="col-md-6">
+            <%= f.submit class: "btn btn-outline-primary w-100",
+                name: "profile_type", value: "entreprise",
+                data: { disable_with: "Sélection..." } do %>
+              <i class="bi bi-building me-2"></i>Entreprise
+            <% end %>
+          </div>
+          <div class="col-md-6">
+            <%= f.submit class: "btn btn-outline-primary w-100",
+                name: "profile_type", value: "syndic",
+                data: { disable_with: "Sélection..." } do %>
+              <i class="bi bi-people me-2"></i>Syndic
+            <% end %>
+          </div>
+          <div class="col-md-6">
+            <%= f.submit class: "btn btn-outline-primary w-100",
+                name: "profile_type", value: "bailleur",
+                data: { disable_with: "Sélection..." } do %>
+              <i class="bi bi-key me-2"></i>Bailleur social
+            <% end %>
+          </div>
+          <div class="col-12">
+            <%= f.submit class: "btn btn-outline-primary w-100",
+                name: "profile_type", value: "asbl",
+                data: { disable_with: "Sélection..." } do %>
+              <i class="bi bi-shield-check me-2"></i>ASBL / Coopérative
+            <% end %>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  <% end %>
 </div>

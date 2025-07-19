@@ -1,0 +1,77 @@
+<!-- Affinage de catégorie - Version Rails-first -->
+<div class="card border-warning mt-4">
+  <div class="card-header bg-warning bg-opacity-10">
+    <h5 class="card-title mb-0">
+      <i class="bi bi-gear text-warning me-2"></i>
+      Affinez votre catégorie
+    </h5>
+  </div>
+  <div class="card-body">
+    <%= form_with url: estimate_category_wallonie_path, method: :post, local: false,
+        data: { turbo_frame: "eligibility_content" }, class: "category-estimation-form" do |f| %>
+
+      <!-- Statut du ménage -->
+      <div class="mb-3">
+        <%= f.label :statut_familial, "Situation familiale", class: "form-label" %>
+        <%= f.select :statut_familial,
+            options_for_select([
+              ["Sélectionnez une option", ""],
+              ["Isolé / Célibataire", "isole"],
+              ["Couple", "couple"]
+            ]),
+            {},
+            { class: "form-select", required: true } %>
+      </div>
+
+      <!-- Nombre d'enfants à charge -->
+      <div class="mb-3">
+        <%= f.label :enfants_charge, "Nombre d'enfants de moins de 18 ans à charge", class: "form-label" %>
+        <%= f.select :enfants_charge,
+            options_for_select([
+              ["Sélectionnez", ""],
+              ["0", "0"], ["1", "1"], ["2", "2"], ["3", "3"],
+              ["4", "4"], ["5", "5"], ["6", "6"], ["7", "7"]
+            ]),
+            {},
+            { class: "form-select", required: true } %>
+      </div>
+
+      <!-- Nombre de personnes âgées à charge -->
+      <div class="mb-3">
+        <%= f.label :personnes_agees_charge, "Nombre de personnes âgées à charge", class: "form-label" %>
+        <%= f.select :personnes_agees_charge,
+            options_for_select([
+              ["Sélectionnez", ""],
+              ["0", "0"], ["1", "1"], ["2", "2"]
+            ]),
+            {},
+            { class: "form-select", required: true } %>
+      </div>
+
+      <!-- Revenu imposable net -->
+      <div class="mb-3">
+        <%= f.label :revenu_net, "Revenu imposable globalement du ménage", class: "form-label" %>
+        <%= f.select :revenu_net,
+            options_for_select([
+              ["Sélectionnez une tranche", ""],
+              ["Moins de 26 900 €", "r1"],
+              ["26 901 € – 38 300 €", "r2"],
+              ["38 301 € – 50 600 €", "r3"],
+              ["50 601 € – 114 400 €", "r4"],
+              ["Plus de 114 401 €", "r5"]
+            ]),
+            {},
+            { class: "form-select", required: true } %>
+        <p class="mt-3 text-muted small">
+          💡 Pour un calcul précis basé sur vos documents fiscaux, créez un compte ou connectez-vous à votre espace personnel.
+        </p>
+      </div>
+
+      <div class="text-center">
+        <%= f.submit "Valider et recalculer ma catégorie",
+            class: "btn btn-success",
+            data: { disable_with: "Calcul en cours..." } %>
+      </div>
+    <% end %>
+  </div>
+</div>

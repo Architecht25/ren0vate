@@ -20,39 +20,47 @@
     </div>
     <div class="card-body">
       <div class="row g-3">
-    <% @primes.each do |prime| %>
-      <% current_categorie = @categorie_id || '1' %>
-      <% if prime.eligible_categories.include?(current_categorie.to_s) %>
-        <div class="col-lg-4 col-md-6 col-12" data-controller="prime-card" data-slug="<%= prime.slug %>">
-          <div class="card shadow-sm border-0 p-3 mb-3 h-100">
-            <div class="card-body p-2">
-              <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                  <i class="bi bi-<%= prime.icon_name %> fs-5 text-success"></i>
+        <% if @primes&.any? %>
+          <% @primes.each do |prime| %>
+            <% current_categorie = @categorie_id || '1' %>
+            <% if prime.eligible_categories.include?(current_categorie.to_s) %>
+              <div class="col-lg-4 col-md-6 col-12" data-controller="prime-card" data-slug="<%= prime.slug %>">
+                <div class="card shadow-sm border-0 p-3 mb-3 h-100">
+                  <div class="card-body p-2">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                      <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                        <i class="bi bi-<%= prime.icon_name || 'house-check' %> fs-5 text-success"></i>
+                      </div>
+                      <h6 class="card-title mb-0 flex-grow-1"><%= prime.titre %></h6>
+                    </div>
+
+                    <!-- Logique générale pour les autres primes -->
+                    <div class="d-flex justify-content-between align-items-center gap-2">
+                      <input type="number"
+                            class="form-control w-75 prime-input"
+                            data-prime-card-target="input"
+                            data-action="input->prime-card#update"
+                            data-slug="<%= prime.slug %>"
+                            placeholder="<%= prime.placeholder %>">
+
+                      <span class="input-group-text bg-success text-white prime-result"
+                            data-slug="<%= prime.slug %>">
+                        0 €
+                      </span>
+                    </div>
+                  </div>
                 </div>
-                <h6 class="card-title mb-0 flex-grow-1"><%= prime.titre %></h6>
               </div>
-
-                <!-- Logique générale pour les autres primes -->
-                <div class="d-flex justify-content-between align-items-center gap-2">
-                  <input type="number"
-                        class="form-control w-75 prime-input"
-                        data-prime-card-target="input"
-                        data-action="input->prime-card#update"
-                        data-slug="<%= prime.slug %>"
-                        placeholder="<%= prime.placeholder %>">
-
-                  <span class="input-group-text bg-success text-white prime-result"
-                        data-slug="<%= prime.slug %>">
-                    0 €
-                  </span>
-                </div>
-              <% end %>
+            <% end %>
+          <% end %>
+        <% else %>
+          <div class="col-12">
+            <div class="text-center text-muted py-4">
+              <i class="bi bi-info-circle fs-1 mb-3 d-block"></i>
+              <p>Aucune prime disponible pour le moment.</p>
             </div>
           </div>
-        </div>
-      <% end %>
-    <% end %>
+        <% end %>
       </div>
 
       <!-- Total estimé -->
@@ -82,7 +90,6 @@
       <%= render 'pages/partials_wallonie/primes_communales_card' %>
       <%= render 'pages/partials_wallonie/monuments_et_sites' %>
       <%= render 'pages/partials_wallonie/audit_eneregetique' %>
-    </div>
     </div>
   </div>
 </div>
