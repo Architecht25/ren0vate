@@ -1,4 +1,4 @@
-class RegulatoryRequirementsController < ApplicationController
+class RegulatoryController < ApplicationController
   def index
     # Vue principale des exigences réglementaires
   end
