@@ -1,11 +1,11 @@
 <div class="container-fluid px-4 py-4">
-  <!-- Header épuré -->
+  <!-- Header avec titre -->
   <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
     <div class="d-flex align-items-center">
       <div class="icon-circle me-3">
         <i class="bi bi-stars"></i>
       </div>
-      <h1 class="h3 text-primary-custom mb-0 fw-normal">Primes disponibles</h1>
+      <h1 class="h3 text-primary-custom mb-0 fw-normal">Primes disponibles par région</h1>
     </div>
     <%= link_to root_path, class: "btn btn-outline-primary-custom px-4" do %>
       <i class="bi bi-arrow-left me-2"></i>
@@ -13,58 +13,55 @@
     <% end %>
   </div>
 
-  <!-- Liste des primes -->
-  <% if @primes.any? %>
-    <div class="row justify-content-center">
-      <div class="col-lg-10">
-        <div class="row g-3">
-          <% @primes.each do |prime| %>
-            <div class="col-md-6 col-lg-4">
-              <%= link_to prime_path(prime), class: "text-decoration-none" do %>
-                <div class="card border-0 bg-light-custom h-100 property-card">
-                  <div class="card-body p-3">
-                    <div class="d-flex align-items-center mb-2">
-                      <div class="icon-circle me-2" style="width: 35px; height: 35px;">
-                        <i class="bi bi-star"></i>
-                      </div>
-                      <div class="flex-grow-1">
-                        <h6 class="card-title text-dark mb-0 fw-normal"><%= prime.titre %></h6>
-                        <small class="text-muted-custom">
-                          <i class="bi bi-geo-alt me-1"></i>
-                          <%= prime.region.capitalize %>
-                        </small>
-                      </div>
-                    </div>
-                    <div class="mt-2">
-                      <div class="d-flex justify-content-between align-items-center">
-                        <span class="badge bg-primary rounded-pill px-2 py-1 small">
-                          <%= prime.slug %>
-                        </span>
-                        <small class="text-muted-custom">
-                          <i class="bi bi-arrow-right me-1"></i>
-                          Détails
-                        </small>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              <% end %>
-            </div>
-          <% end %>
-        </div>
-      </div>
-    </div>
-  <% else %>
-    <!-- État vide minimaliste -->
-    <div class="text-center py-5 mt-5">
-      <div class="icon-circle-large mx-auto mb-4">
-        <i class="bi bi-stars"></i>
-      </div>
-      <h3 class="text-muted-custom mb-3 fw-normal">Aucune prime disponible</h3>
-      <p class="text-muted-custom mb-4">Les primes disponibles apparaîtront ici.</p>
-    </div>
-  <% end %>
-</div>
+  <!-- Onglets régionaux -->
+  <ul class="nav nav-pills justify-content-center mb-4" id="regionTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="flandre-tab" data-bs-toggle="pill" data-bs-target="#flandre" type="button" role="tab" aria-controls="flandre" aria-selected="true">
+        🇳🇱 Flandre
+        <span class="badge bg-white text-primary ms-2"><%= @primes_by_region[:flandre]&.count || 0 %></span>
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="wallonie-tab" data-bs-toggle="pill" data-bs-target="#wallonie" type="button" role="tab" aria-controls="wallonie" aria-selected="false">
+        🏴󠁢󠁥󠁷󠁡󠁬󠁿 Wallonie
+        <span class="badge bg-white text-primary ms-2"><%= @primes_by_region[:wallonie]&.count || 0 %></span>
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="bruxelles-tab" data-bs-toggle="pill" data-bs-target="#bruxelles" type="button" role="tab" aria-controls="bruxelles" aria-selected="false">
+        🏢 Bruxelles
+        <span class="badge bg-white text-primary ms-2"><%= @primes_by_region[:bruxelles]&.count || 0 %></span>
+      </button>
+    </li>
+  </ul>
 
-<!-- Utilise le fichier CSS externe properties.css -->
-<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>
+  <!-- Contenu des onglets -->
+  <div class="tab-content" id="regionTabsContent">
+    <!-- Onglet Flandre -->
+    <div class="tab-pane fade show active" id="flandre" role="tabpanel" aria-labelledby="flandre-tab">
+      <%= render 'region_primes',
+          primes: @primes_by_region[:flandre] || [],
+          region: 'flandre',
+          region_name: 'Flandre',
+          color_class: 'primary' %>
+    </div>
+
+    <!-- Onglet Wallonie -->
+    <div class="tab-pane fade" id="wallonie" role="tabpanel" aria-labelledby="wallonie-tab">
+      <%= render 'region_primes',
+          primes: @primes_by_region[:wallonie] || [],
+          region: 'wallonie',
+          region_name: 'Wallonie',
+          color_class: 'success' %>
+    </div>
+
+    <!-- Onglet Bruxelles -->
+    <div class="tab-pane fade" id="bruxelles" role="tabpanel" aria-labelledby="bruxelles-tab">
+      <%= render 'region_primes',
+          primes: @primes_by_region[:bruxelles] || [],
+          region: 'bruxelles',
+          region_name: 'Bruxelles',
+          color_class: 'warning' %>
+    </div>
+  </div>
+</div>

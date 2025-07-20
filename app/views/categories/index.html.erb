@@ -13,68 +13,57 @@
     <% end %>
   </div>
 
-  <!-- Liste des catégories -->
+  <!-- Liste des catégories avec style primes -->
   <% if @categories.any? %>
-    <div class="row justify-content-center">
-      <div class="col-lg-8">
-        <div class="row g-3">
-          <% @categories.each do |category| %>
-            <div class="col-md-6">
-              <%= link_to category_path(category), class: "text-decoration-none" do %>
-                <div class="card border-0 bg-light-custom h-100 property-card">
-                  <div class="card-body p-3">
-                    <div class="d-flex align-items-center mb-2">
-                      <div class="icon-circle me-2" style="width: 35px; height: 35px;">
-                        <i class="bi bi-tag"></i>
-                      </div>
-                      <div class="flex-grow-1">
-                        <h6 class="card-title text-dark mb-0 fw-normal"><%= category.description %></h6>
-                        <small class="text-muted-custom">Code: <%= category.code %></small>
-                      </div>
-                    </div>
+    <div class="row g-4 justify-content-center">
+      <% @categories.each do |category| %>
+        <div class="col-lg-4 col-md-6">
+          <%= link_to category_path(category), class: "text-decoration-none" do %>
+            <div class="bg-light p-4 rounded text-center h-100">
+              <!-- Icône circulaire avec couleur selon le code -->
+              <div class="icon-circle mx-auto mb-3" style="width: 50px; height: 50px; background-color: <%=
+                case category.code.to_s
+                when /flandre|flamand|vlaam/i then '#2c5282'  # Bleu pour Flandre
+                when /wallonie|wallon|region_wallonne/i then '#38a169'  # Vert pour Wallonie
+                when /bruxelles|brussels|region_bruxelles/i then '#d69e2e'  # Orange pour Bruxelles
+                else
+                  case category.code.to_s.downcase
+                  when 'cat1', 'cat2', 'cat3', 'cat4' then '#2c5282'  # Bleu par défaut pour cat1-4
+                  when 'cat5', 'cat6', 'cat7', 'cat8' then '#38a169'  # Vert pour cat5-8
+                  else '#d69e2e'  # Orange pour le reste
+                  end
+                end %>; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                <i class="bi bi-tag" style="color: white; font-size: 20px;"></i>
+              </div>
 
-                    <div class="mt-2">
-                      <div class="row g-1 text-center">
-                        <div class="col-6">
-                          <div class="bg-white rounded p-2 border-end">
-                            <small class="text-muted-custom d-block mb-1">Seul</small>
-                            <strong class="text-primary-custom small"><%= number_with_delimiter(category.seuil_seul) %>€</strong>
-                          </div>
-                        </div>
-                        <div class="col-6">
-                          <div class="bg-white rounded p-2">
-                            <small class="text-muted-custom d-block mb-1">Avec charge</small>
-                            <strong class="text-primary-custom small"><%= number_with_delimiter(category.seuil_seul_avec_charge) %>€</strong>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div class="mt-2 text-center">
-                        <div class="bg-white rounded p-2">
-                          <small class="text-muted-custom d-block mb-1">Par personne +</small>
-                          <strong class="text-success small">+<%= number_with_delimiter(category.increment_par_personne) %>€</strong>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              <% end %>
+              <!-- Titre de la catégorie -->
+              <h6 class="mb-0 fw-bold" style="color: <%=
+                case category.code.to_s
+                when /flandre|flamand|vlaam/i then '#2c5282'  # Bleu pour Flandre
+                when /wallonie|wallon|region_wallonne/i then '#38a169'  # Vert pour Wallonie
+                when /bruxelles|brussels|region_bruxelles/i then '#d69e2e'  # Orange pour Bruxelles
+                else
+                  case category.code.to_s.downcase
+                  when 'cat1', 'cat2', 'cat3', 'cat4' then '#2c5282'  # Bleu par défaut pour cat1-4
+                  when 'cat5', 'cat6', 'cat7', 'cat8' then '#38a169'  # Vert pour cat5-8
+                  else '#d69e2e'  # Orange pour le reste
+                  end
+                end %>;">
+                <%= category.description %>
+              </h6>
             </div>
           <% end %>
         </div>
-      </div>
+      <% end %>
     </div>
   <% else %>
-    <!-- État vide minimaliste -->
-    <div class="text-center py-5 mt-5">
-      <div class="icon-circle-large mx-auto mb-4">
-        <i class="bi bi-tags"></i>
+    <!-- État vide simplifié -->
+    <div class="text-center py-5">
+      <div class="icon-circle mx-auto mb-3" style="width: 60px; height: 60px; background-color: #2c5282; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+        <i class="bi bi-tags" style="color: white; font-size: 24px;"></i>
       </div>
-      <h3 class="text-muted-custom mb-3 fw-normal">Aucune catégorie</h3>
-      <p class="text-muted-custom mb-4">Les catégories de revenus apparaîtront ici.</p>
+      <h5 class="text-muted">Aucune catégorie disponible</h5>
+      <p class="text-muted small">Les catégories apparaîtront ici une fois configurées.</p>
     </div>
   <% end %>
 </div>
-
-<!-- Utilise le fichier CSS externe properties.css -->
-<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>

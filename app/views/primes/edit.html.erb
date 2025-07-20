@@ -1,0 +1,238 @@
+<div class="container-fluid px-4 py-4">
+  <!-- Header épuré -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3" style="background-color: <%=
+        case @prime.region.to_s.downcase
+        when 'flandre' then '#2c5282'  # Bleu pour Flandre
+        when 'wallonie' then '#38a169'  # Vert pour Wallonie
+        when 'bruxelles' then '#d69e2e'  # Orange pour Bruxelles
+        else '#2c5282'  # Bleu par défaut
+        end %>;">
+        <i class="bi bi-pencil" style="color: white;"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">Modifier la prime</h1>
+        <p class="text-muted mb-0"><%= @prime.titre %> - <%= @prime.region.capitalize %></p>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <%= link_to @prime, class: "btn btn-outline-secondary px-4" do %>
+        <i class="bi bi-eye me-2"></i>
+        Voir la prime
+      <% end %>
+      <%= link_to primes_path, class: "btn btn-outline-primary-custom px-4" do %>
+        <i class="bi bi-arrow-left me-2"></i>
+        Retour à la liste
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Formulaire d'édition -->
+  <div class="row justify-content-center">
+    <div class="col-xl-8 col-lg-10">
+      <%= form_with model: @prime, local: true, class: "needs-validation", novalidate: true do |form| %>
+        <% if @prime.errors.any? %>
+          <div class="alert alert-danger mb-4">
+            <div class="d-flex align-items-start">
+              <i class="bi bi-exclamation-triangle me-2 mt-1"></i>
+              <div>
+                <h6 class="alert-heading">Erreurs de validation :</h6>
+                <ul class="mb-0">
+                  <% @prime.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Informations générales -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-light border-0 py-3">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-info-circle me-2 text-primary-custom"></i>
+              Informations générales
+            </h5>
+          </div>
+          <div class="card-body p-4">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <%= form.label :titre, class: "form-label fw-semibold" %>
+                <%= form.text_field :titre, class: "form-control", required: true %>
+                <div class="invalid-feedback">
+                  Veuillez saisir un titre.
+                </div>
+              </div>
+              <div class="col-md-6">
+                <%= form.label :slug, class: "form-label fw-semibold" %>
+                <%= form.text_field :slug, class: "form-control", required: true %>
+                <div class="invalid-feedback">
+                  Veuillez saisir un slug.
+                </div>
+              </div>
+              <div class="col-md-4">
+                <%= form.label :region, class: "form-label fw-semibold" %>
+                <%= form.select :region,
+                    options_for_select([
+                      ['Flandre', 'flandre'],
+                      ['Wallonie', 'wallonie'],
+                      ['Bruxelles', 'bruxelles']
+                    ], @prime.region),
+                    { prompt: 'Sélectionnez une région' },
+                    { class: "form-select", required: true } %>
+                <div class="invalid-feedback">
+                  Veuillez sélectionner une région.
+                </div>
+              </div>
+              <div class="col-md-4">
+                <%= form.label :ordre_affichage, class: "form-label fw-semibold" %>
+                <%= form.number_field :ordre_affichage, class: "form-control", min: 1 %>
+              </div>
+              <div class="col-md-4">
+                <%= form.label :icon_name, class: "form-label fw-semibold" %>
+                <%= form.text_field :icon_name, class: "form-control", placeholder: "ex: house, wind, droplet..." %>
+                <div class="form-text">Nom de l'icône Bootstrap (sans 'bi-')</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Configuration technique -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-light border-0 py-3">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-gear me-2 text-primary-custom"></i>
+              Configuration technique
+            </h5>
+          </div>
+          <div class="card-body p-4">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <%= form.label :unite, class: "form-label fw-semibold" %>
+                <%= form.text_field :unite, class: "form-control", placeholder: "ex: €, m², forfait..." %>
+              </div>
+              <div class="col-md-6">
+                <%= form.label :type_de_valeur, class: "form-label fw-semibold" %>
+                <%= form.select :type_de_valeur,
+                    options_for_select([
+                      ['Dynamique', 'dynamique'],
+                      ['Surface', 'surface'],
+                      ['Facture', 'facture'],
+                      ['Forfait', 'forfait'],
+                      ['Montant variable m²', 'montant_variable_m2_et_limite']
+                    ], @prime.type_de_valeur),
+                    { prompt: 'Sélectionnez un type' },
+                    { class: "form-select" } %>
+              </div>
+              <div class="col-12">
+                <%= form.label :eligible_categories, class: "form-label fw-semibold" %>
+                <%= form.text_field :eligible_categories,
+                    value: @prime.eligible_categories&.join(', '),
+                    class: "form-control",
+                    placeholder: "ex: 1, 2, 3, 4" %>
+                <div class="form-text">Catégories éligibles séparées par des virgules</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contenu descriptif -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-light border-0 py-3">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-file-text me-2 text-primary-custom"></i>
+              Contenu descriptif
+            </h5>
+          </div>
+          <div class="card-body p-4">
+            <div class="row g-3">
+              <div class="col-12">
+                <%= form.label :condition, class: "form-label fw-semibold" %>
+                <%= form.text_area :condition, class: "form-control", rows: 3 %>
+              </div>
+              <div class="col-12">
+                <%= form.label :conseil, class: "form-label fw-semibold" %>
+                <%= form.text_area :conseil, class: "form-control", rows: 3 %>
+              </div>
+              <div class="col-12">
+                <%= form.label :document, class: "form-label fw-semibold" %>
+                <%= form.text_area :document, class: "form-control", rows: 2 %>
+              </div>
+              <div class="col-md-6">
+                <%= form.label :specifique, class: "form-label fw-semibold" %>
+                <%= form.text_area :specifique, class: "form-control", rows: 2 %>
+              </div>
+              <div class="col-md-6">
+                <%= form.label :image, class: "form-label fw-semibold" %>
+                <%= form.text_field :image, class: "form-control", placeholder: "ex: images/isolation_toiture.webp" %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Données JSON complexes -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-light border-0 py-3">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-code-slash me-2 text-primary-custom"></i>
+              Configuration avancée
+            </h5>
+          </div>
+          <div class="card-body p-4">
+            <div class="row g-3">
+              <div class="col-12">
+                <%= form.label :valeurs_par_categorie, class: "form-label fw-semibold" %>
+                <%= form.text_area :valeurs_par_categorie,
+                    value: @prime.valeurs_par_categorie.present? ? JSON.pretty_generate(@prime.valeurs_par_categorie) : '',
+                    class: "form-control font-monospace",
+                    rows: 8 %>
+                <div class="form-text">Format JSON pour les valeurs par catégorie</div>
+              </div>
+              <div class="col-12">
+                <%= form.label :placeholder, class: "form-label fw-semibold" %>
+                <%= form.text_area :placeholder,
+                    value: @prime.placeholder.present? ? JSON.pretty_generate(@prime.placeholder) : '',
+                    class: "form-control font-monospace",
+                    rows: 4 %>
+                <div class="form-text">Format JSON pour les placeholders</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="d-flex justify-content-between align-items-center pt-3">
+          <div class="d-flex gap-2">
+            <%= link_to @prime, class: "btn btn-outline-secondary" do %>
+              <i class="bi bi-x-lg me-2"></i>Annuler
+            <% end %>
+          </div>
+          <div class="d-flex gap-2">
+            <%= form.submit "Enregistrer les modifications", class: "btn btn-primary-custom px-4" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript pour la validation Bootstrap -->
+<script>
+(function() {
+  'use strict';
+  window.addEventListener('load', function() {
+    var forms = document.getElementsByClassName('needs-validation');
+    var validation = Array.prototype.filter.call(forms, function(form) {
+      form.addEventListener('submit', function(event) {
+        if (form.checkValidity() === false) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  }, false);
+})();
+</script>

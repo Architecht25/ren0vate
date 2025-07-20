@@ -1,6 +1,13 @@
 class PrimesController < ApplicationController
   def index
-    @primes = Prime.all
+    @primes_by_region = {
+      flandre: Prime.where(region: 'flandre').order(:ordre_affichage, :titre),
+      wallonie: Prime.where(region: 'wallonie').order(:ordre_affichage, :titre),
+      bruxelles: Prime.where(region: 'bruxelles').order(:ordre_affichage, :titre)
+    }
+
+    # Pour la compatibilité avec l'ancien code
+    @primes = Prime.all.order(:ordre_affichage, :titre)
   end
 
   def show
@@ -26,7 +33,28 @@ class PrimesController < ApplicationController
 
   def update
     @prime = Prime.find(params[:id])
-    if @prime.update(prime_params)
+
+    # Traitement spécial pour les champs JSON et arrays
+    processed_params = prime_params.dup
+
+    # Convertir eligible_categories string en array
+    if processed_params[:eligible_categories].present?
+      processed_params[:eligible_categories] = processed_params[:eligible_categories].split(',').map(&:strip)
+    end
+
+    # Convertir les champs JSON string en hash
+    [:valeurs_par_categorie, :placeholder].each do |field|
+      if processed_params[field].present?
+        begin
+          processed_params[field] = JSON.parse(processed_params[field])
+        rescue JSON::ParserError
+          @prime.errors.add(field, "Format JSON invalide")
+          render :edit and return
+        end
+      end
+    end
+
+    if @prime.update(processed_params)
       redirect_to @prime, notice: 'Prime mise à jour avec succès.'
     else
       render :edit
@@ -42,6 +70,10 @@ class PrimesController < ApplicationController
   private
 
   def prime_params
-    params.require(:prime).permit(:name, :category_id, :value, :description, :slug)
+    params.require(:prime).permit(
+      :titre, :slug, :region, :ordre_affichage, :icon_name, :unite, :type_de_valeur,
+      :condition, :conseil, :document, :specifique, :image, :category_id,
+      :valeurs_par_categorie, :placeholder, eligible_categories: []
+    )
   end
 end

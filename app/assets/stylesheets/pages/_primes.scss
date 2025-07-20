@@ -1,0 +1,320 @@
+/* Styles pour la page des primes - harmonisé avec le design system */
+
+/* Variables héritées du système principal */
+:root {
+  --primary-custom: #2c5282;
+  --success-custom: #38a169;
+  --warning-custom: #d69e2e;
+  --light-custom: #f8fafc;
+  --muted-custom: #718096;
+  --border-custom: #e2e8f0;
+  --shadow-light: rgba(44, 82, 130, 0.1);
+  --shadow-medium: rgba(44, 82, 130, 0.15);
+}
+
+/* === ONGLETS RÉGIONAUX === */
+.nav-pills .nav-link {
+  border-radius: 50px;
+  margin: 0 0.25rem;
+  transition: all 0.3s ease;
+  background: rgba(var(--bs-primary-rgb), 0.08);
+  border: 1px solid transparent;
+  color: var(--primary-custom);
+  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+}
+
+.nav-pills .nav-link:hover {
+  background: rgba(var(--bs-primary-rgb), 0.15);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--shadow-light);
+}
+
+.nav-pills .nav-link.active {
+  background: var(--primary-custom);
+  border-color: var(--primary-custom);
+  color: white;
+  box-shadow: 0 6px 20px var(--shadow-medium);
+  transform: translateY(-2px);
+}
+
+.nav-pills .nav-link .badge {
+  transition: all 0.3s ease;
+}
+
+.nav-pills .nav-link:hover .badge,
+.nav-pills .nav-link.active .badge {
+  transform: scale(1.1);
+}
+
+/* === HEADERS DE RÉGION === */
+.region-header {
+  border-radius: 15px;
+  border-left: 4px solid var(--primary-custom);
+  background: linear-gradient(135deg,
+    rgba(44, 82, 130, 0.08),
+    rgba(44, 82, 130, 0.03));
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.region-header:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px var(--shadow-light);
+}
+
+.region-header.bg-success-region {
+  border-left-color: var(--success-custom);
+  background: linear-gradient(135deg,
+    rgba(56, 161, 105, 0.08),
+    rgba(56, 161, 105, 0.03));
+}
+
+.region-header.bg-warning-region {
+  border-left-color: var(--warning-custom);
+  background: linear-gradient(135deg,
+    rgba(214, 158, 46, 0.08),
+    rgba(214, 158, 46, 0.03));
+}
+
+/* === CARTES PRIMES - Style aligné avec l'app === */
+.prime-card {
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    border-color: var(--primary-custom) !important;
+  }
+
+  .card-body {
+    position: relative;
+    z-index: 1;
+  }
+
+  .card-title {
+    line-height: 1.3;
+    font-weight: 600;
+  }
+}
+
+.prime-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(var(--bs-primary-rgb), 0.1);
+  flex-shrink: 0;
+
+  i {
+    font-size: 18px;
+  }
+}
+
+/* === ICÔNES PRIMES === */
+.icon-circle {
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  flex-shrink: 0;
+  font-size: 14px;
+}
+
+/* Styles spécifiques selon la taille déjà définie inline */
+
+/* === BADGES ET ÉTIQUETTES === */
+.badge-region {
+  font-size: 11px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.badge-region::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.3),
+    rgba(255, 255, 255, 0.1));
+  border-radius: inherit;
+}
+
+.badge-region.bg-primary {
+  background: var(--primary-custom);
+  box-shadow: 0 4px 12px rgba(44, 82, 130, 0.3);
+}
+
+.badge-region.bg-success {
+  background: var(--success-custom);
+  box-shadow: 0 4px 12px rgba(56, 161, 105, 0.3);
+}
+
+.badge-region.bg-warning {
+  background: var(--warning-custom);
+  box-shadow: 0 4px 12px rgba(214, 158, 46, 0.3);
+}
+
+/* === TEXTE ET TYPOGRAPHIE === */
+/* Les styles de texte sont déjà gérés par Bootstrap et le design system existant */
+
+/* === ÉTATS VIDES === */
+.empty-state {
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+.empty-state-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  font-size: 36px;
+  opacity: 0.6;
+}
+
+.empty-state-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #4a5568;
+  margin-bottom: 0.75rem;
+}
+
+.empty-state-description {
+  color: var(--muted-custom);
+  max-width: 400px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* === ANIMATIONS === */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.prime-card {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.prime-card:nth-child(1) { animation-delay: 0.1s; }
+.prime-card:nth-child(2) { animation-delay: 0.2s; }
+.prime-card:nth-child(3) { animation-delay: 0.3s; }
+.prime-card:nth-child(4) { animation-delay: 0.4s; }
+.prime-card:nth-child(5) { animation-delay: 0.5s; }
+.prime-card:nth-child(6) { animation-delay: 0.6s; }
+
+/* === RESPONSIVE === */
+@media (max-width: 768px) {
+  .nav-pills .nav-link {
+    margin: 0 0.125rem;
+    padding: 0.5rem 1rem;
+    font-size: 14px;
+  }
+
+  .region-header {
+    padding: 1.5rem !important;
+    margin-bottom: 2rem !important;
+  }
+
+  .prime-card .card-body {
+    padding: 1.25rem;
+  }
+
+  .prime-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+
+  .empty-state {
+    padding: 3rem 1rem;
+  }
+
+  .empty-state-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 576px) {
+  .nav-pills {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .nav-pills .nav-link {
+    margin: 0;
+    text-align: center;
+  }
+
+  .col-md-6.col-lg-4 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+/* === EFFETS SPÉCIAUX === */
+.prime-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg,
+    rgba(255, 255, 255, 0.1),
+    rgba(255, 255, 255, 0.05));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.prime-card:hover::before {
+  opacity: 1;
+}
+
+/* === FOCUS ET ACCESSIBILITÉ === */
+.nav-pills .nav-link:focus,
+.prime-card:focus-within {
+  outline: 2px solid var(--primary-custom);
+  outline-offset: 2px;
+}
+
+/* === PRINT STYLES === */
+@media print {
+  .nav-pills,
+  .region-header {
+    background: white !important;
+    box-shadow: none !important;
+  }
+
+  .prime-card {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+}

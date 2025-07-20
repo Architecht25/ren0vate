@@ -1,0 +1,202 @@
+<div class="container-fluid px-4 py-4">
+  <!-- Header épuré -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3" style="background-color: <%=
+        case @category.code.to_s
+        when /flandre|flamand|vlaam/i then '#2c5282'  # Bleu pour Flandre
+        when /wallonie|wallon|region_wallonne/i then '#38a169'  # Vert pour Wallonie
+        when /bruxelles|brussels|region_bruxelles/i then '#d69e2e'  # Orange pour Bruxelles
+        else
+          case @category.code.to_s.downcase
+          when 'categorie_1', 'categorie_2', 'categorie_3', 'categorie_4' then '#2c5282'  # Bleu par défaut pour cat1-4
+          when /wallonie_r/ then '#38a169'  # Vert pour Wallonie
+          when /bruxelles_cat/ then '#d69e2e'  # Orange pour Bruxelles
+          else '#2c5282'  # Bleu par défaut
+          end
+        end %>;">
+        <i class="bi bi-pencil" style="color: white;"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">Modifier la catégorie</h1>
+        <p class="text-muted mb-0"><%= @category.description %> (<%= @category.code %>)</p>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <%= link_to @category, class: "btn btn-outline-secondary px-4" do %>
+        <i class="bi bi-eye me-2"></i>
+        Voir la catégorie
+      <% end %>
+      <%= link_to categories_path, class: "btn btn-outline-primary-custom px-4" do %>
+        <i class="bi bi-arrow-left me-2"></i>
+        Retour à la liste
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Formulaire d'édition -->
+  <div class="row justify-content-center">
+    <div class="col-xl-8 col-lg-10">
+      <%= form_with model: @category, local: true, class: "needs-validation", novalidate: true do |form| %>
+        <% if @category.errors.any? %>
+          <div class="alert alert-danger mb-4">
+            <div class="d-flex align-items-start">
+              <i class="bi bi-exclamation-triangle me-2 mt-1"></i>
+              <div>
+                <h6 class="alert-heading">Erreurs de validation :</h6>
+                <ul class="mb-0">
+                  <% @category.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Informations générales -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-light border-0 py-3">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-info-circle me-2 text-primary-custom"></i>
+              Informations générales
+            </h5>
+          </div>
+          <div class="card-body p-4">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <%= form.label :code, class: "form-label fw-semibold" %>
+                <%= form.text_field :code, class: "form-control", required: true %>
+                <div class="invalid-feedback">
+                  Veuillez saisir un code.
+                </div>
+                <div class="form-text">Code unique d'identification (ex: categorie_1, wallonie_r1, bruxelles_cat1)</div>
+              </div>
+              <div class="col-md-6">
+                <%= form.label :description, class: "form-label fw-semibold" %>
+                <%= form.text_field :description, class: "form-control", required: true %>
+                <div class="invalid-feedback">
+                  Veuillez saisir une description.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seuils de revenus -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-light border-0 py-3">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-calculator me-2 text-primary-custom"></i>
+              Seuils de revenus (en €)
+            </h5>
+          </div>
+          <div class="card-body p-4">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <%= form.label :seuil_seul, "Personne seule", class: "form-label fw-semibold" %>
+                <%= form.number_field :seuil_seul, class: "form-control", step: 0.01, min: 0 %>
+              </div>
+              <div class="col-md-6">
+                <%= form.label :seuil_seul_avec_charge, "Personne seule avec charge", class: "form-label fw-semibold" %>
+                <%= form.number_field :seuil_seul_avec_charge, class: "form-control", step: 0.01, min: 0 %>
+              </div>
+              <div class="col-md-6">
+                <%= form.label :couple_sans_charge, "Couple sans charge", class: "form-label fw-semibold" %>
+                <%= form.number_field :couple_sans_charge, class: "form-control", step: 0.01, min: 0 %>
+              </div>
+              <div class="col-md-6">
+                <%= form.label :increment_par_personne, "Incrément par personne supplémentaire", class: "form-label fw-semibold" %>
+                <%= form.number_field :increment_par_personne, class: "form-control", step: 0.01, min: 0 %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Conditions d'éligibilité -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-light border-0 py-3">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-gear me-2 text-primary-custom"></i>
+              Conditions d'éligibilité
+            </h5>
+          </div>
+          <div class="card-body p-4">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="form-check form-switch">
+                  <%= form.check_box :autre_bien_interdit, class: "form-check-input", role: "switch" %>
+                  <%= form.label :autre_bien_interdit, "Autre bien interdit", class: "form-check-label fw-semibold" %>
+                </div>
+                <div class="form-text">Cochez si la possession d'un autre bien immobilier est interdite</div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check form-switch">
+                  <%= form.check_box :location_sociale_autorisee, class: "form-check-input", role: "switch" %>
+                  <%= form.label :location_sociale_autorisee, "Location sociale autorisée", class: "form-check-label fw-semibold" %>
+                </div>
+                <div class="form-text">Cochez si la location sociale est autorisée pour cette catégorie</div>
+              </div>
+              <div class="col-md-4">
+                <div class="form-check form-switch">
+                  <%= form.check_box :eligible_pour_verbouwlening, class: "form-check-input", role: "switch" %>
+                  <%= form.label :eligible_pour_verbouwlening, "Éligible pour Verbouwlening", class: "form-check-label fw-semibold" %>
+                </div>
+                <div class="form-text">Cochez si cette catégorie est éligible pour le prêt rénovation</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Informations complémentaires -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-light border-0 py-3">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-file-text me-2 text-primary-custom"></i>
+              Informations complémentaires
+            </h5>
+          </div>
+          <div class="card-body p-4">
+            <div class="row g-3">
+              <div class="col-12">
+                <%= form.label :notes, class: "form-label fw-semibold" %>
+                <%= form.text_area :notes, class: "form-control", rows: 4, placeholder: "Notes internes ou informations complémentaires..." %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="d-flex justify-content-between align-items-center pt-3">
+          <div class="d-flex gap-2">
+            <%= link_to @category, class: "btn btn-outline-secondary" do %>
+              <i class="bi bi-x-lg me-2"></i>Annuler
+            <% end %>
+          </div>
+          <div class="d-flex gap-2">
+            <%= form.submit "Enregistrer les modifications", class: "btn btn-primary-custom px-4" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript pour la validation Bootstrap -->
+<script>
+(function() {
+  'use strict';
+  window.addEventListener('load', function() {
+    var forms = document.getElementsByClassName('needs-validation');
+    var validation = Array.prototype.filter.call(forms, function(form) {
+      form.addEventListener('submit', function(event) {
+        if (form.checkValidity() === false) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  }, false);
+})();
+</script>

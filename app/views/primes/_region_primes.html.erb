@@ -1,0 +1,31 @@
+<% if primes.any? %>
+  <div class="row g-4 justify-content-center">
+    <% primes.each do |prime| %>
+      <div class="col-lg-4 col-md-6">
+        <%= link_to prime_path(prime), class: "text-decoration-none" do %>
+          <div class="bg-light p-4 rounded text-center h-100">
+            <!-- Icône circulaire centrée avec couleur régionale -->
+            <div class="icon-circle mx-auto mb-3" style="width: 50px; height: 50px; background-color: <%= case color_class when 'primary' then '#2c5282' when 'success' then '#38a169' when 'warning' then '#d69e2e' else '#2c5282' end %>; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+              <% if prime.icon_name.present? %>
+                <i class="bi bi-<%= prime.icon_name %>" style="color: white; font-size: 20px;"></i>
+              <% else %>
+                <i class="bi bi-award" style="color: white; font-size: 20px;"></i>
+              <% end %>
+            </div>
+
+            <!-- Titre centré avec couleur régionale -->
+            <h6 class="text-<%= color_class %> mb-0 fw-bold"><%= prime.titre %></h6>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="text-center py-5">
+    <div class="icon-circle mx-auto mb-3" style="width: 60px; height: 60px;">
+      <i class="bi bi-stars text-muted"></i>
+    </div>
+    <h5 class="text-muted">Aucune prime disponible en <%= region_name %></h5>
+    <p class="text-muted small">Les primes apparaîtront ici une fois configurées.</p>
+  </div>
+<% end %>
