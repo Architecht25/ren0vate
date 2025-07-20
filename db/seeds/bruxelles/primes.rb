@@ -33,7 +33,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_audit_energetique_maison").update!(
   }'),
   image: "images/audit_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_audit_energetique_batiment").update!(
@@ -59,7 +59,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_audit_energetique_batiment").update
   }'),
   image: "images/audit_batiment_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_etude_materiaux").update!(
@@ -85,7 +85,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_etude_materiaux").update!(
   }'),
   image: "images/etude_materiaux_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 # =====================================================
@@ -115,7 +115,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_protection_echafaudages").update!(
   }'),
   image: "images/echafaudage_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 # =====================================================
@@ -145,7 +145,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_recuperation_eau_pluie").update!(
   }'),
   image: "images/eau_pluie_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_demolition_permeabilisation").update!(
@@ -171,7 +171,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_demolition_permeabilisation").updat
   }'),
   image: "images/demolition_permeabilisation_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 # =====================================================
@@ -201,7 +201,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_toiture_etancheite").upda
   }'),
   image: "images/isolation_toiture_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_isolation_thermique_toiture").update!(
@@ -227,7 +227,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_thermique_toiture").updat
   }'),
   image: "images/isolation_thermique_toiture_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_toiture_vegetale").update!(
@@ -253,7 +253,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_toiture_vegetale").update!(
   }'),
   image: "images/toiture_vegetale_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 # =====================================================
@@ -283,7 +283,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_interieure_facade").updat
   }'),
   image: "images/isolation_interieure_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_isolation_exterieure_facade").update!(
@@ -309,7 +309,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_exterieure_facade").updat
   }'),
   image: "images/isolation_exterieure_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_isolation_coulisse").update!(
@@ -335,7 +335,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_coulisse").update!(
   }'),
   image: "images/isolation_coulisse_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_embellissement_facade_avant").update!(
@@ -361,7 +361,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_embellissement_facade_avant").updat
   }'),
   image: "images/embellissement_facade_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_facades_arriere_laterales").update!(
@@ -387,7 +387,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_facades_arriere_laterales").update!
   }'),
   image: "images/facades_arriere_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 # =====================================================
@@ -417,7 +417,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_remplacement_fenetres_bois").update
   }'),
   image: "images/fenetres_bois_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_remplacement_fenetres_pvc_alu").update!(
@@ -443,7 +443,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_remplacement_fenetres_pvc_alu").upd
   }'),
   image: "images/fenetres_pvc_alu_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_reparation_fenetres").update!(
@@ -469,7 +469,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_reparation_fenetres").update!(
   }'),
   image: "images/reparation_fenetres_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_reparation_portes").update!(
@@ -495,7 +495,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_reparation_portes").update!(
   }'),
   image: "images/reparation_portes_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 # =====================================================
@@ -525,7 +525,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_thermique_sols").update!(
   }'),
   image: "images/isolation_sols_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_isolation_acoustique_sols").update!(
@@ -551,7 +551,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_acoustique_sols").update!
   }'),
   image: "images/isolation_acoustique_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 # =====================================================
@@ -581,7 +581,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_escaliers").update!(
   }'),
   image: "images/escaliers_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_emplacement_velo").update!(
@@ -607,7 +607,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_emplacement_velo").update!(
   }'),
   image: "images/emplacement_velo_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_amenagement_pmr").update!(
@@ -633,7 +633,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_amenagement_pmr").update!(
   }'),
   image: "images/amenagement_pmr_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 # =====================================================
@@ -663,7 +663,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_chaudiere_100kw").update!(
   }'),
   image: "images/chaudiere_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_controle_chaudiere").update!(
@@ -689,7 +689,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_controle_chaudiere").update!(
   }'),
   image: "images/controle_chaudiere_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 # =====================================================
@@ -719,7 +719,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_appareil_sanitaire").update!(
   }'),
   image: "images/sanitaire_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 # =====================================================
@@ -749,7 +749,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_mise_normes_electricite_gaz").updat
   }'),
   image: "images/electricite_gaz_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 # =====================================================
@@ -779,7 +779,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_ventilation_systeme_c").update!(
   }'),
   image: "images/ventilation_c_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_ventilation_systeme_d").update!(
@@ -805,7 +805,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_ventilation_systeme_d").update!(
   }'),
   image: "images/vmc_double_flux_bruxelles.webp",
   region: "bruxelles",
-  category_id: Category.find_by(code: "bruxelles_cat1")&.id
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")Category.find_by(code: "bruxelles_cat1")&.id.id
 )
 
 puts "✅ #{Prime.where(region: 'bruxelles').count} primes Bruxelles RENOLUTION créées avec succès"

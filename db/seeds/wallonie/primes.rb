@@ -32,7 +32,7 @@ Prime.find_or_initialize_by(slug: "wallonie_realisation_audit_logement").update!
   }'),
   image: "images/audit_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")&.id
 )
 
 # === TOITURE ===
@@ -64,7 +64,7 @@ Prime.find_or_initialize_by(slug: "wallonie_toiture_remplacement_couverture").up
   }'),
   image: "images/remplacement_toiture_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_toiture_appropriation_charpente").update!(
@@ -94,7 +94,7 @@ Prime.find_or_initialize_by(slug: "wallonie_toiture_appropriation_charpente").up
   }'),
   image: "images/charpente_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_toiture_evacuation_eaux_pluviales").update!(
@@ -124,7 +124,7 @@ Prime.find_or_initialize_by(slug: "wallonie_toiture_evacuation_eaux_pluviales").
   }'),
   image: "images/gouttiere_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_toiture_isolation_thermique").update!(
@@ -154,7 +154,7 @@ Prime.find_or_initialize_by(slug: "wallonie_toiture_isolation_thermique").update
   }'),
   image: "images/isolation_toiture_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_toiture_isolation_biosource").update!(
@@ -184,7 +184,7 @@ Prime.find_or_initialize_by(slug: "wallonie_toiture_isolation_biosource").update
   }'),
   image: "images/isolation_biosource_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 # === MURS ===
 
@@ -215,7 +215,7 @@ Prime.find_or_initialize_by(slug: "wallonie_assechement_murs_infiltration").upda
   }'),
   image: "images/assechement_murs_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_assechement_murs_humidite").update!(
@@ -245,7 +245,7 @@ Prime.find_or_initialize_by(slug: "wallonie_assechement_murs_humidite").update!(
   }'),
   image: "images/humidite_murs_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_renforcement_murs").update!(
@@ -275,7 +275,7 @@ Prime.find_or_initialize_by(slug: "wallonie_renforcement_murs").update!(
   }'),
   image: "images/renforcement_murs_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_elimination_merule").update!(
@@ -305,7 +305,7 @@ Prime.find_or_initialize_by(slug: "wallonie_elimination_merule").update!(
   }'),
   image: "images/merule_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_elimination_radon").update!(
@@ -335,7 +335,7 @@ Prime.find_or_initialize_by(slug: "wallonie_elimination_radon").update!(
   }'),
   image: "images/radon_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_isolation_murs").update!(
@@ -365,7 +365,7 @@ Prime.find_or_initialize_by(slug: "wallonie_isolation_murs").update!(
   }'),
   image: "images/isolation_murs_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_isolation_murs_biosource").update!(
@@ -395,7 +395,7 @@ Prime.find_or_initialize_by(slug: "wallonie_isolation_murs_biosource").update!(
   }'),
   image: "images/isolation_murs_biosource_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 # === SOLS ===
@@ -427,7 +427,7 @@ Prime.find_or_initialize_by(slug: "wallonie_remplacement_supports_circulation").
   }'),
   image: "images/plancher_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_isolation_sols").update!(
@@ -457,7 +457,7 @@ Prime.find_or_initialize_by(slug: "wallonie_isolation_sols").update!(
   }'),
   image: "images/isolation_sols_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_isolation_sols_biosource").update!(
@@ -487,7 +487,7 @@ Prime.find_or_initialize_by(slug: "wallonie_isolation_sols_biosource").update!(
   }'),
   image: "images/isolation_sols_biosource_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_isolation_finition_planchers").update!(
@@ -517,7 +517,7 @@ Prime.find_or_initialize_by(slug: "wallonie_isolation_finition_planchers").updat
   }'),
   image: "images/finition_plancher_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 # === MENUISERIES ===
@@ -549,7 +549,7 @@ Prime.find_or_initialize_by(slug: "wallonie_menuiseries_vitrages").update!(
   }'),
   image: "images/menuiseries_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 # === INSTALLATIONS ===
@@ -581,7 +581,7 @@ Prime.find_or_initialize_by(slug: "wallonie_installation_electrique").update!(
   }'),
   image: "images/electricite_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_installation_gaz").update!(
@@ -611,7 +611,7 @@ Prime.find_or_initialize_by(slug: "wallonie_installation_gaz").update!(
   }'),
   image: "images/gaz_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 # === CHAUFFAGE ===
@@ -643,7 +643,7 @@ Prime.find_or_initialize_by(slug: "wallonie_pac_eau_chaude").update!(
   }'),
   image: "images/cet_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_pac_chauffage").update!(
@@ -673,7 +673,7 @@ Prime.find_or_initialize_by(slug: "wallonie_pac_chauffage").update!(
   }'),
   image: "images/pac_air_eau_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_chaudiere_biomasse").update!(
@@ -703,7 +703,7 @@ Prime.find_or_initialize_by(slug: "wallonie_chaudiere_biomasse").update!(
   }'),
   image: "images/chaudiere_biomasse_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_chauffe_eau_solaire").update!(
@@ -733,7 +733,7 @@ Prime.find_or_initialize_by(slug: "wallonie_chauffe_eau_solaire").update!(
   }'),
   image: "images/ces_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_poele_biomasse").update!(
@@ -763,7 +763,7 @@ Prime.find_or_initialize_by(slug: "wallonie_poele_biomasse").update!(
   }'),
   image: "images/poele_biomasse_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 # === VENTILATION ===
@@ -794,7 +794,7 @@ Prime.find_or_initialize_by(slug: "wallonie_vmc_simple").update!(
   }'),
   image: "images/vsf_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_vmc_double").update!(
@@ -824,7 +824,7 @@ Prime.find_or_initialize_by(slug: "wallonie_vmc_double").update!(
   }'),
   image: "images/vdf_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_vmc_simple_partielle").update!(
@@ -854,7 +854,7 @@ Prime.find_or_initialize_by(slug: "wallonie_vmc_simple_partielle").update!(
   }'),
   image: "images/vsf_partielle_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_vmc_double_partielle").update!(
@@ -884,7 +884,7 @@ Prime.find_or_initialize_by(slug: "wallonie_vmc_double_partielle").update!(
   }'),
   image: "images/vdf_partielle_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 # === AMÉLIORATIONS CHAUFFAGE ===
@@ -915,7 +915,7 @@ Prime.find_or_initialize_by(slug: "wallonie_chauffage_isol_conduites").update!(
   }'),
   image: "images/isolation_conduites_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_chauffage_isol_ballon_500").update!(
@@ -945,7 +945,7 @@ Prime.find_or_initialize_by(slug: "wallonie_chauffage_isol_ballon_500").update!(
   }'),
   image: "images/ballon_chauffage_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_chauffage_isol_ballon_sup").update!(
@@ -975,7 +975,7 @@ Prime.find_or_initialize_by(slug: "wallonie_chauffage_isol_ballon_sup").update!(
   }'),
   image: "images/ballon_chauffage_sup_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_chauffage_circ_3logt").update!(
@@ -1005,7 +1005,7 @@ Prime.find_or_initialize_by(slug: "wallonie_chauffage_circ_3logt").update!(
   }'),
   image: "images/circulateur_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_chauffage_circ_4logt").update!(
@@ -1035,7 +1035,7 @@ Prime.find_or_initialize_by(slug: "wallonie_chauffage_circ_4logt").update!(
   }'),
   image: "images/circulateur_collectif_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_chauffage_ballon_500").update!(
@@ -1065,7 +1065,7 @@ Prime.find_or_initialize_by(slug: "wallonie_chauffage_ballon_500").update!(
   }'),
   image: "images/remplacement_ballon_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_chauffage_ballon_sup").update!(
@@ -1095,7 +1095,7 @@ Prime.find_or_initialize_by(slug: "wallonie_chauffage_ballon_sup").update!(
   }'),
   image: "images/remplacement_ballon_sup_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_chauffage_vannes_base").update!(
@@ -1125,7 +1125,7 @@ Prime.find_or_initialize_by(slug: "wallonie_chauffage_vannes_base").update!(
   }'),
   image: "images/vannes_thermostatiques_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_chauffage_vannes_sup").update!(
@@ -1155,7 +1155,7 @@ Prime.find_or_initialize_by(slug: "wallonie_chauffage_vannes_sup").update!(
   }'),
   image: "images/vannes_sup_wallonie.webp",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 # === ECS (EAU CHAUDE SANITAIRE) ===
@@ -1187,7 +1187,7 @@ Prime.find_or_initialize_by(slug: "wallonie_chauffage_thermostat").update!(
   }'),
   image: "images/chauffage.jpg",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_ecs_ballon_500").update!(
@@ -1217,7 +1217,7 @@ Prime.find_or_initialize_by(slug: "wallonie_ecs_ballon_500").update!(
   }'),
   image: "images/chauffage.jpg",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_ecs_ballon_sup").update!(
@@ -1247,7 +1247,7 @@ Prime.find_or_initialize_by(slug: "wallonie_ecs_ballon_sup").update!(
   }'),
   image: "images/chauffage.jpg",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_ecs_conduites_coll").update!(
@@ -1277,7 +1277,7 @@ Prime.find_or_initialize_by(slug: "wallonie_ecs_conduites_coll").update!(
   }'),
   image: "images/chauffage.jpg",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_ecs_echangeur").update!(
@@ -1307,7 +1307,7 @@ Prime.find_or_initialize_by(slug: "wallonie_ecs_echangeur").update!(
   }'),
   image: "images/chauffage.jpg",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_ecs_isol_ballon_500").update!(
@@ -1337,7 +1337,7 @@ Prime.find_or_initialize_by(slug: "wallonie_ecs_isol_ballon_500").update!(
   }'),
   image: "images/chauffage.jpg",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 Prime.find_or_initialize_by(slug: "wallonie_ecs_isol_ballon_sup").update!(
@@ -1367,7 +1367,7 @@ Prime.find_or_initialize_by(slug: "wallonie_ecs_isol_ballon_sup").update!(
   }'),
   image: "images/chauffage.jpg",
   region: "wallonie",
-  category_id: Category.find_by(code: "wallonie_r1")&.id
+  category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")Category.find_by(code: "wallonie_r1")&.id.id
 )
 
 puts "✅ #{Prime.where(region: 'wallonie').count} primes Wallonie créées avec succès"

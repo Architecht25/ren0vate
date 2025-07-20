@@ -17,6 +17,21 @@ Rails.application.routes.draw do
   resources :primes
   resources :categories
 
+  # Routes de test pour la nouvelle architecture de calculs
+  get '/test/wallonie', to: 'calculations#test_wallonie'
+  get '/test/bruxelles', to: 'calculations#test_bruxelles'
+
+  # API pour calculs de primes
+  namespace :api do
+    namespace :v1 do
+      namespace :wallonie do
+        post 'check_eligibility', to: 'calculations#check_eligibility'
+        post 'calculate_primes', to: 'calculations#calculate_primes'
+        post 'get_category', to: 'calculations#get_category'
+      end
+    end
+  end
+
   # Documents avec routes spéciales pour download et contexte
   resources :documents do
     member do

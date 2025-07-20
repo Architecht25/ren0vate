@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_18_075408) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_20_200612) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -54,6 +54,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_18_075408) do
     t.boolean "eligible_pour_verbouwlening"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "region"
+    t.index ["region", "code"], name: "index_categories_on_region_and_code", unique: true
+    t.index ["region"], name: "index_categories_on_region"
   end
 
   create_table "documents", force: :cascade do |t|
