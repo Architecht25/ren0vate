@@ -34,6 +34,20 @@ if File.exist?(wallonie_audit_path)
   load wallonie_audit_path
 end
 
+# ➤ BRUXELLES - Chargement des seeds
+puts "\n🏢 === BRUXELLES ==="
+bruxelles_categories_path = Rails.root.join("db", "seeds", "bruxelles", "categories.rb")
+if File.exist?(bruxelles_categories_path)
+  puts "🔹 Chargement de : #{bruxelles_categories_path}"
+  load bruxelles_categories_path
+end
+
+bruxelles_primes_path = Rails.root.join("db", "seeds", "bruxelles", "primes.rb")
+if File.exist?(bruxelles_primes_path)
+  puts "🔹 Chargement de : #{bruxelles_primes_path}"
+  load bruxelles_primes_path
+end
+
 # ➤ Propriétés de test
 puts "🏠 Création de propriétés de test..."
 user = User.first

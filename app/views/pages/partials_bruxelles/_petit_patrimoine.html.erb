@@ -1,0 +1,133 @@
+<div class="col-lg-4 col-md-4 col-12">
+  <div class="card shadow-sm border-0 p-3 text-center mb-3 h-100" data-controller="petit-patrimoine-bruxelles">
+    <div class="card-body d-flex flex-column align-items-center gap-3">
+      <div class="bg-purple bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+        <i class="bi bi-palette fs-5 text-purple"></i>
+      </div>
+      <h6 class="card-title mb-2">Petit Patrimoine</h6>
+
+      <!-- Formulaire de vérification -->
+      <div class="w-100" style="max-width: 350px;">
+
+        <!-- Sélection du type d'élément -->
+        <div class="mb-3">
+          <label for="element_type_patrimoine" class="form-label text-start w-100 small">Type d'élément</label>
+          <select class="form-select form-select-sm"
+                  id="element_type_patrimoine"
+                  data-action="change->petit-patrimoine-bruxelles#updateElement">
+            <option value="">Choisir un élément...</option>
+            <optgroup label="Décor de façade">
+              <option value="sgraffites">Sgraffites</option>
+              <option value="ceramique">Carreaux de céramique</option>
+              <option value="mosaiques">Panneaux de mosaïques</option>
+              <option value="vitraux">Vitraux</option>
+              <option value="corniches">Corniches ornementales</option>
+            </optgroup>
+            <optgroup label="Ferronneries">
+              <option value="balustrades">Balustrades</option>
+              <option value="balcons">Balcons</option>
+              <option value="grilles">Grilles</option>
+              <option value="portails">Portails</option>
+              <option value="jardinieres">Jardinières métalliques</option>
+            </optgroup>
+            <optgroup label="Serrurerie & Menuiserie">
+              <option value="boites_lettres">Boîtes aux lettres</option>
+              <option value="sonnettes">Sonnettes</option>
+              <option value="portes">Portes</option>
+              <option value="chassis">Châssis</option>
+              <option value="bow_windows">Bow-windows</option>
+            </optgroup>
+            <optgroup label="Extérieurs">
+              <option value="clotures">Clôtures</option>
+              <option value="jardinets">Jardinets en bordure de rue</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <!-- Type de demandeur -->
+        <div class="mb-3">
+          <label class="form-label text-start w-100 small">Statut du demandeur</label>
+          <div class="d-flex gap-2">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="statut_demandeur" value="prive"
+                     id="statut_prive" data-action="change->petit-patrimoine-bruxelles#updateStatut">
+              <label class="form-check-label small" for="statut_prive">Privé</label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="statut_demandeur" value="public"
+                     id="statut_public" data-action="change->petit-patrimoine-bruxelles#updateStatut">
+              <label class="form-check-label small" for="statut_public">Public</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Revenus (si privé) -->
+        <div class="mb-3" id="revenus_section" style="display: none;">
+          <label class="form-label text-start w-100 small">Revenus annuels</label>
+          <div class="d-flex gap-2">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="revenus" value="bas"
+                     id="revenus_bas" data-action="change->petit-patrimoine-bruxelles#updateRevenus">
+              <label class="form-check-label small" for="revenus_bas">< 40 000€</label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="revenus" value="haut"
+                     id="revenus_haut" data-action="change->petit-patrimoine-bruxelles#updateRevenus">
+              <label class="form-check-label small" for="revenus_haut">> 40 000€</label>
+            </div>
+          </div>
+          <small class="text-muted">+2 500€ par personne à charge</small>
+        </div>
+
+        <!-- Zone de revitalisation -->
+        <div class="mb-3" id="revitalisation_section" style="display: none;">
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="zone_revitalisation"
+                   data-action="change->petit-patrimoine-bruxelles#updateZone">
+            <label class="form-check-label small" for="zone_revitalisation">
+              Situé en zone de revitalisation urbaine
+            </label>
+          </div>
+        </div>
+
+        <!-- Champ montant travaux -->
+        <div class="mb-3" id="montant_section_patrimoine" style="display: none;">
+          <label for="montant_travaux_patrimoine" class="form-label text-start w-100 small">
+            Montant des travaux (HTVA) (€)
+          </label>
+          <input type="number"
+                 class="form-control form-control-sm"
+                 id="montant_travaux_patrimoine"
+                 placeholder="0"
+                 min="0"
+                 step="0.01"
+                 data-action="input->petit-patrimoine-bruxelles#calculatePrime">
+        </div>
+
+        <!-- Informations sur le calcul -->
+        <div class="mb-3" id="info_calcul" style="display: none;">
+          <div class="alert alert-info alert-sm">
+            <small>
+              <strong>Taux appliqué :</strong> <span id="taux_affiche">50%</span><br>
+              <strong>Plafond :</strong> <span id="plafond_affiche">10 000€</span><br>
+              <small class="text-muted">Sur une période de 5 ans</small>
+            </small>
+          </div>
+        </div>
+
+        <!-- Résultat -->
+        <div class="alert alert-success alert-sm mb-2" id="result_section_patrimoine" style="display: none;" role="alert">
+          <small class="fw-bold">Prime estimée : </small>
+          <span class="fw-bold prime-result" id="result_patrimoine">0.00 €</span>
+          <div class="mt-1">
+            <small id="details_patrimoine" class="text-muted"></small>
+          </div>
+        </div>
+
+        <small class="text-muted d-block">
+          Éléments visibles depuis l'espace public, non classés au patrimoine
+        </small>
+      </div>
+    </div>
+  </div>
+</div>
