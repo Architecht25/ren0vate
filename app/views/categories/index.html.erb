@@ -20,34 +20,26 @@
         <div class="col-lg-4 col-md-6">
           <%= link_to category_path(category), class: "text-decoration-none" do %>
             <div class="bg-light p-4 rounded text-center h-100">
-              <!-- Icône circulaire avec couleur selon le code -->
+              <!-- Icône circulaire avec couleur selon la région -->
               <div class="icon-circle mx-auto mb-3" style="width: 50px; height: 50px; background-color: <%=
-                case category.code.to_s
-                when /flandre|flamand|vlaam/i then '#2c5282'  # Bleu pour Flandre
-                when /wallonie|wallon|region_wallonne/i then '#38a169'  # Vert pour Wallonie
-                when /bruxelles|brussels|region_bruxelles/i then '#d69e2e'  # Orange pour Bruxelles
-                else
-                  case category.code.to_s.downcase
-                  when 'cat1', 'cat2', 'cat3', 'cat4' then '#2c5282'  # Bleu par défaut pour cat1-4
-                  when 'cat5', 'cat6', 'cat7', 'cat8' then '#38a169'  # Vert pour cat5-8
-                  else '#d69e2e'  # Orange pour le reste
-                  end
+                case category.region.to_s.downcase
+                when 'flandre' then '#2c5282'  # Bleu pour Flandre
+                when 'wallonie' then '#38a169'  # Vert pour Wallonie
+                when 'bruxelles' then '#6c757d'  # Gris pour Bruxelles
+                when '' then '#2c5282'  # Bleu pour région non définie (Flandre par défaut)
+                else '#2c5282'  # Bleu par défaut (Flandre)
                 end %>; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
                 <i class="bi bi-tag" style="color: white; font-size: 20px;"></i>
               </div>
 
               <!-- Titre de la catégorie -->
               <h6 class="mb-0 fw-bold" style="color: <%=
-                case category.code.to_s
-                when /flandre|flamand|vlaam/i then '#2c5282'  # Bleu pour Flandre
-                when /wallonie|wallon|region_wallonne/i then '#38a169'  # Vert pour Wallonie
-                when /bruxelles|brussels|region_bruxelles/i then '#d69e2e'  # Orange pour Bruxelles
-                else
-                  case category.code.to_s.downcase
-                  when 'cat1', 'cat2', 'cat3', 'cat4' then '#2c5282'  # Bleu par défaut pour cat1-4
-                  when 'cat5', 'cat6', 'cat7', 'cat8' then '#38a169'  # Vert pour cat5-8
-                  else '#d69e2e'  # Orange pour le reste
-                  end
+                case category.region.to_s.downcase
+                when 'flandre' then '#2c5282'  # Bleu pour Flandre
+                when 'wallonie' then '#38a169'  # Vert pour Wallonie
+                when 'bruxelles' then '#6c757d'  # Gris pour Bruxelles
+                when '' then '#2c5282'  # Bleu pour région non définie (Flandre par défaut)
+                else '#2c5282'  # Bleu par défaut (Flandre)
                 end %>;">
                 <%= category.description %>
               </h6>
