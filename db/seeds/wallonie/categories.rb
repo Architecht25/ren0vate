@@ -9,9 +9,6 @@ Category.find_or_create_by(code: "wallonie_r1") do |cat|
   cat.seuil_seul = 26900
   cat.couple_sans_charge = 26900
   cat.increment_par_personne = 5000
-  cat.autre_bien_interdit = false
-  cat.location_sociale_autorisee = true
-  cat.eligible_pour_verbouwlening = true
 end
 
 Category.find_or_create_by(code: "wallonie_r2") do |cat|
@@ -20,9 +17,6 @@ Category.find_or_create_by(code: "wallonie_r2") do |cat|
   cat.seuil_seul = 38300
   cat.couple_sans_charge = 38300
   cat.increment_par_personne = 5000
-  cat.autre_bien_interdit = false
-  cat.location_sociale_autorisee = true
-  cat.eligible_pour_verbouwlening = true
 end
 
 Category.find_or_create_by(code: "wallonie_r3") do |cat|
@@ -31,9 +25,6 @@ Category.find_or_create_by(code: "wallonie_r3") do |cat|
   cat.seuil_seul = 50600
   cat.couple_sans_charge = 50600
   cat.increment_par_personne = 5000
-  cat.autre_bien_interdit = false
-  cat.location_sociale_autorisee = false
-  cat.eligible_pour_verbouwlening = true
 end
 
 Category.find_or_create_by(code: "wallonie_r4") do |cat|
@@ -42,9 +33,6 @@ Category.find_or_create_by(code: "wallonie_r4") do |cat|
   cat.seuil_seul = 114400
   cat.couple_sans_charge = 114400
   cat.increment_par_personne = 5000
-  cat.autre_bien_interdit = true
-  cat.location_sociale_autorisee = false
-  cat.eligible_pour_verbouwlening = true
 end
 
 Category.find_or_create_by(code: "wallonie_r5") do |cat|
@@ -53,9 +41,6 @@ Category.find_or_create_by(code: "wallonie_r5") do |cat|
   cat.seuil_seul = 999999    # Pas de limite supérieure
   cat.couple_sans_charge = 999999
   cat.increment_par_personne = 5000
-  cat.autre_bien_interdit = true
-  cat.location_sociale_autorisee = false
-  cat.eligible_pour_verbouwlening = false
 end
 
 puts "✅ Catégories Wallonie créées avec succès"

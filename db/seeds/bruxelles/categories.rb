@@ -9,9 +9,6 @@ Category.find_or_create_by(code: "bruxelles_cat1") do |cat|
   cat.seuil_seul = 37600
   cat.couple_sans_charge = 37600
   cat.increment_par_personne = 5000
-  cat.autre_bien_interdit = false
-  cat.location_sociale_autorisee = true
-  cat.eligible_pour_verbouwlening = false  # Pas de verbouwlening à Bruxelles
 end
 
 Category.find_or_create_by(code: "bruxelles_cat2") do |cat|
@@ -20,9 +17,6 @@ Category.find_or_create_by(code: "bruxelles_cat2") do |cat|
   cat.seuil_seul = 75100
   cat.couple_sans_charge = 75100
   cat.increment_par_personne = 5000
-  cat.autre_bien_interdit = false
-  cat.location_sociale_autorisee = false
-  cat.eligible_pour_verbouwlening = false
 end
 
 Category.find_or_create_by(code: "bruxelles_cat3") do |cat|
@@ -31,9 +25,6 @@ Category.find_or_create_by(code: "bruxelles_cat3") do |cat|
   cat.seuil_seul = 93000
   cat.couple_sans_charge = 93000
   cat.increment_par_personne = 5000
-  cat.autre_bien_interdit = true
-  cat.location_sociale_autorisee = false
-  cat.eligible_pour_verbouwlening = false
 end
 
 puts "✅ Catégories Bruxelles créées avec succès"

@@ -3,7 +3,6 @@ puts "🔢 Création des catégories..."
 Category.find_or_create_by!(
   region: "flandre",
   code: "categorie_4",
-  region: "flandre",
   description: "Revenus très faibles",
   seuil_seul: 24230,
   seuil_seul_avec_charge: 36340,
@@ -17,7 +16,6 @@ Category.find_or_create_by!(
 Category.find_or_create_by!(
   region: "flandre",
   code: "categorie_3",
-  region: "flandre",
   description: "Revenus faibles",
   seuil_seul: 42340,
   seuil_seul_avec_charge: 59270,
