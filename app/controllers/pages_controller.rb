@@ -34,6 +34,11 @@ class PagesController < ApplicationController
     @primes = Prime.where(region: "wallonie").order(:ordre_affichage)
   end
 
+  def bruxelles
+    # Page principale Bruxelles - affiche la sélection de profil
+    @primes = Prime.where(region: "bruxelles").order(:ordre_affichage)
+  end
+
   def select_profile_wallonie
     @user_type = params[:profile_type]
 
@@ -171,6 +176,141 @@ class PagesController < ApplicationController
         )
       end
       format.html { redirect_to wallonie_path, alert: "Type de profil non reconnu" }
+    end
+  end
+
+  # ===== ACTIONS BRUXELLES =====
+
+  def select_profile_bruxelles
+    @user_type = params[:profile_type]
+
+    # Logique de redirection selon le type d'utilisateur pour Bruxelles
+    case @user_type
+    when "entreprise"
+      handle_ineligible_profile_bruxelles("Les entreprises ne sont pas éligibles aux primes RENOLUTION")
+    when "syndic"
+      handle_ineligible_profile_bruxelles("Les syndicats de copropriété doivent passer par un organisme agréé pour effectuer une introduction de demandes.")
+    when "bailleur"
+      handle_ineligible_profile_bruxelles("Les bailleurs sociaux doivent passer par un organisme agréé pour effectuer une introduction de demandes.")
+    when "prive", "asbl"
+      handle_eligible_profile_bruxelles
+    else
+      handle_invalid_profile_bruxelles
+    end
+  end
+
+  def test_eligibility_bruxelles
+    Rails.logger.info "=== Test Eligibility Bruxelles Action Called ==="
+    Rails.logger.info "Params: #{params.inspect}"
+
+    begin
+      # TODO: Créer BruxellesEligibilityService
+      # eligibility_service = BruxellesEligibilityService.new(params)
+      # result = eligibility_service.check_eligibility
+
+      # En attendant, renvoyer une réponse temporaire
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace(
+            "eligibility_content",
+            partial: "shared/alert",
+            locals: {
+              message: "Service d'éligibilité Bruxelles en cours de développement",
+              type: "info",
+              title: "🚧 En construction"
+            }
+          )
+        end
+        format.html { redirect_to bruxelles_path, notice: "Service en cours de développement" }
+      end
+
+    rescue => e
+      Rails.logger.error "Service error: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace(
+            "eligibility_content",
+            partial: "shared/alert",
+            locals: {
+              message: "Erreur technique: #{e.message}",
+              type: "danger",
+              title: "❌ Erreur"
+            }
+          )
+        end
+        format.html { redirect_to bruxelles_path, alert: "Erreur technique" }
+      end
+    end
+  end
+
+  def estimate_category_bruxelles
+    Rails.logger.info "=== Estimate Category Bruxelles Action Called ==="
+    Rails.logger.info "Params: #{params.inspect}"
+
+    # TODO: Implémenter le service de calcul de catégorie pour Bruxelles
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "eligibility_content",
+          partial: "shared/alert",
+          locals: {
+            message: "Calcul de catégorie Bruxelles en cours de développement",
+            type: "info",
+            title: "🚧 En construction"
+          }
+        )
+      end
+      format.html { redirect_to bruxelles_path, notice: "Service en cours de développement" }
+    end
+  end
+
+private
+
+  def handle_eligible_profile_bruxelles
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "eligibility_content",
+          partial: "pages/partials_bruxelles/questionnaire_eligibilite"
+        )
+      end
+      format.html { redirect_to bruxelles_path }
+    end
+  end
+
+  def handle_ineligible_profile_bruxelles(message)
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "eligibility_content",
+          partial: "shared/alert",
+          locals: {
+            message: message,
+            type: "warning",
+            title: "⚠️ Attention"
+          }
+        )
+      end
+      format.html { redirect_to bruxelles_path, alert: message }
+    end
+  end
+
+  def handle_invalid_profile_bruxelles
+    respond_to do |format|
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace(
+          "eligibility_content",
+          partial: "shared/alert",
+          locals: {
+            message: "Type de profil non reconnu",
+            type: "danger",
+            title: "❌ Erreur"
+          }
+        )
+      end
+      format.html { redirect_to bruxelles_path, alert: "Type de profil non reconnu" }
     end
   end
 

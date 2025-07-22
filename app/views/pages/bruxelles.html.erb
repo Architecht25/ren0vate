@@ -1,50 +1,132 @@
-<div class="container-fluid px-4 py-4">
-  <!-- Header épuré -->
-  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-    <div class="d-flex align-items-center">
-      <div class="icon-circle me-3">
-        <i class="bi bi-buildings"></i>
+<script>
+  // Initialisation automatique de la région Bruxelles dès que le DOM est prêt
+  document.addEventListener('DOMContentLoaded', function() {
+    localStorage.setItem("region", "bruxelles");
+    console.log('🌍 Région Bruxelles initialisée dans localStorage');
+  });
+
+  // Données des primes Bruxelles
+  window.primes = <%= raw(@primes.to_json(
+    only: [:slug, :titre, :unite, :type_de_valeur, :valeurs_par_categorie, :placeholder, :condition, :conseil, :document, :eligible_categories]
+  )) if @primes %>;
+</script>
+
+<div class="container-fluid py-4">
+  <!-- Header moderne et cohérent -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+              <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                <i class="bi bi-house-check text-primary fs-4"></i>
+              </div>
+              <div>
+                <h1 class="h3 mb-1 text-primary">Bruxelles - Primes de Rénovation</h1>
+                <p class="text-muted mb-0">Testez votre éligibilité et découvrez vos primes RENOLUTION</p>
+              </div>
+            </div>
+            <%= link_to root_path, class: "btn btn-outline-primary" do %>
+              <i class="bi bi-arrow-left me-2"></i>Retour à l'accueil
+            <% end %>
+          </div>
+        </div>
       </div>
-      <h1 class="h3 text-primary-custom mb-0 fw-normal">Bruxelles - L'odyssée de la rénovation</h1>
     </div>
-    <%= link_to root_path, class: "btn btn-primary-custom px-4" do %>
-      <i class="bi bi-house-door me-2"></i>Retour à l'accueil
-    <% end %>
   </div>
 
-  <!-- Contenu principal -->
-  <div class="row justify-content-center">
-    <div class="col-lg-8">
-      <div class="card border-0 bg-light-custom shadow-sm mb-4">
-        <div class="card-body p-4 text-center">
-          <div class="icon-circle-large mx-auto mb-4">
-            <i class="bi bi-buildings"></i>
-          </div>
-          <h2 class="h4 text-primary-custom mb-3 fw-normal">L'odyssée de la rénovation</h2>
-          <p class="text-muted-custom mb-4">Dans une quête pour un avenir durable, nous attendons le jour où un gouvernement se lèvera pour guider Bruxelles vers ses objectifs climatiques.</p>
+  <div class="row g-4">
+    <!-- COLONNE GAUCHE : Test d'éligibilité -->
+    <div class="col-lg-6">
+      <div class="h-100">
 
-          <!-- Statut -->
-          <div class="mb-4">
-            <h3 class="h5 text-primary-custom mb-3 fw-normal">Statut actuel</h3>
-            <div class="alert alert-info border-0 bg-white shadow-sm">
-              <i class="bi bi-hourglass-split me-2"></i>
-              <strong>En attente de la lumière dans l'obscurité...</strong>
+        <%= render 'pages/partials_bruxelles/selection_profil' %>
+
+
+        <!-- Affichage direct du questionnaire d'éligibilité -->
+        <%= render 'pages/partials_bruxelles/questionnaire_eligibilite' %>
+
+        <!-- Affinage de catégorie Bruxelles (masqué par défaut) -->
+        <div id="affinage-categorie-bruxelles" style="display: none;">
+          <%= render 'pages/partials_bruxelles/affinage_categorie' %>
+        </div>
+      </div>
+    </div> <!-- fin col-lg-6 colonne gauche -->
+
+    <!-- COLONNE DROITE : Primes et simulateur -->
+    <div class="col-lg-6">
+      <div class="h-100">
+
+        <%= render 'pages/partials_bruxelles/cartes_primes' %>
+
+        <!-- Autres aides disponibles -->
+        <div class="card border-0 shadow-sm mt-3">
+          <div class="card-header bg-light">
+            <h5 class="card-title mb-0">
+              <i class="bi bi-gift text-info me-2"></i>
+              Autres aides disponibles
+            </h5>
+            <p class="text-muted small mb-0 mt-1">
+              Aides complémentaires et informations pratiques
+            </p>
+          </div>
+          <div class="card-body">
+            <!-- Informations complémentaires intégrées -->
+            <div class="alert alert-info mb-3">
+              <h6 class="alert-heading">
+                <i class="bi bi-info-circle me-2"></i>
+                Comment utiliser ce simulateur
+              </h6>
+              <ul class="mb-0 small">
+                <li><strong>Saisie simple :</strong> Indiquez vos surfaces (m²) ou sélectionnez Oui/Non</li>
+                <li><strong>Calcul automatique :</strong> Les montants s'ajustent selon votre catégorie de revenus (Z1 à Z10)</li>
+                <li><strong>Cumul possible :</strong> Toutes les primes peuvent se cumuler selon vos travaux</li>
+                <li><strong>Estimation :</strong> Montants indicatifs, demande officielle requise pour confirmation</li>
+              </ul>
+            </div>
+
+            <div class="row g-3">
+              <%= render 'pages/partials_bruxelles/petit_patrimoine' %>
+              <%= render 'pages/partials_bruxelles/primes_communales_card' %>
+              <%= render 'pages/partials_bruxelles/monuments_et_sites_card' %>
             </div>
           </div>
+        </div>
 
-          <!-- Message d'espoir -->
-          <div class="mb-4">
-            <div class="alert alert-success border-0 bg-white shadow-sm">
-              <i class="bi bi-star me-2"></i>
-              <strong>Chaque jour est une étape vers l'espoir</strong>
-              <br>
-              <small class="text-muted-custom">Nous sommes prêts à agir dès que l'appel à l'aventure sera lancé.</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions et liens utiles -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body py-3">
+          <div class="row g-3 align-items-center">
+            <div class="col-md-8">
+              <h5 class="mb-1">
+                <i class="bi bi-link-45deg text-primary me-2"></i>
+                Liens utiles
+              </h5>
+              <p class="text-muted mb-0 small">Accédez aux informations détaillées sur les primes à Bruxelles</p>
+            </div>
+            <div class="col-md-4">
+              <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                <%= link_to primes_path, class: "btn btn-outline-primary btn-sm" do %>
+                  <i class="bi bi-list-ul me-1"></i>Primes
+                <% end %>
+                <%= link_to categories_path, class: "btn btn-outline-secondary btn-sm" do %>
+                  <i class="bi bi-diagram-3 me-1"></i>Catégories
+                <% end %>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
 </div>
 
 <!-- Utilise le fichier CSS externe properties.css -->
