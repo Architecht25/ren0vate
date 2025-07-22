@@ -284,11 +284,13 @@ export default class extends Controller {
           { slug: 'wallonie_chauffage_isol_conduites', inputSelector: '[data-wallonie-prime-card-target="inputIsolationConduites"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationConduites"]' },
           { slug: 'wallonie_chauffage_isol_ballon_500', inputSelector: '[data-wallonie-prime-card-target="inputIsolationBallon500"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationBallon500"]' },
           { slug: 'wallonie_chauffage_isol_ballon_sup', inputSelector: '[data-wallonie-prime-card-target="inputIsolationBallonPlus500"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationBallonPlus500"]' },
+          { slug: 'wallonie_chauffage_circ_3logt', inputSelector: '[data-wallonie-prime-card-target="inputCirculateur3Logements"]', resultSelector: '[data-wallonie-prime-card-target="resultCirculateur3Logements"]' },
+          { slug: 'wallonie_chauffage_circ_4logt', inputSelector: '[data-wallonie-prime-card-target="inputCirculateur4Logements"]', resultSelector: '[data-wallonie-prime-card-target="resultCirculateur4Logements"]' },
+          { slug: 'wallonie_chauffage_ballon_500', inputSelector: '[data-wallonie-prime-card-target="inputRemplacementBallon500"]', resultSelector: '[data-wallonie-prime-card-target="resultRemplacementBallon500"]' },
+          { slug: 'wallonie_chauffage_ballon_sup', inputSelector: '[data-wallonie-prime-card-target="inputRemplacementBallonPlus500"]', resultSelector: '[data-wallonie-prime-card-target="resultRemplacementBallonPlus500"]' },
+          { slug: 'wallonie_chauffage_vannes_base', inputSelector: '[data-wallonie-prime-card-target="inputMin5VannesThermostatiques"]', resultSelector: '[data-wallonie-prime-card-target="resultMin5VannesThermostatiques"]' },
+          { slug: 'wallonie_chauffage_vannes_sup', inputSelector: '[data-wallonie-prime-card-target="input5VannesComplémentaires"]', resultSelector: '[data-wallonie-prime-card-target="result5VannesComplémentaires"]' },
           { slug: 'wallonie_chauffage_thermostat', inputSelector: '[data-wallonie-prime-card-target="inputThermostat"]', resultSelector: '[data-wallonie-prime-card-target="resultThermostat"]' },
-          { slug: 'wallonie_chauffage_vannes_base', inputSelector: '[data-wallonie-prime-card-target="inputVannesThermostatiques"]', resultSelector: '[data-wallonie-prime-card-target="resultVannesThermostatiques"]' },
-          { slug: 'wallonie_installation_gaz', inputSelector: '[data-wallonie-prime-card-target="inputChauffeEauGaz"]', resultSelector: '[data-wallonie-prime-card-target="resultChauffeEauGaz"]' },
-          { slug: 'wallonie_chauffe_eau_solaire', inputSelector: '[data-wallonie-prime-card-target="inputSolaireThermique"]', resultSelector: '[data-wallonie-prime-card-target="resultSolaireThermique"]' },
-          { slug: 'wallonie_chauffage_circ_3logt', inputSelector: '[data-wallonie-prime-card-target="inputCirculateurEfficace"]', resultSelector: '[data-wallonie-prime-card-target="resultCirculateurEfficace"]' }
         ]
 
       case 'wallonie_eau_chaude_sanitaire_global':
