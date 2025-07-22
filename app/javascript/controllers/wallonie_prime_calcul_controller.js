@@ -8,6 +8,15 @@ export default class extends Controller {
     console.log("Wallonie Prime Calcul Controller connected")
     this.setupPrimesData()
     this.updateTotalGlobal()
+    this.setupEventListeners()
+  }
+
+  setupEventListeners() {
+    // Écouter les changements de catégorie depuis l'affinage
+    document.addEventListener('wallonie:category:changed', (event) => {
+      console.log("🎯 Catégorie changée reçue:", event.detail.categorie)
+      this.changeCategory(event.detail.categorie)
+    })
   }
 
   setupPrimesData() {

@@ -126,7 +126,7 @@ export default class extends Controller {
     if (!uniteInput) return 0
 
     const unites = parseFloat(uniteInput.value) || 0
-    const prixParUnite = calculData.montant_par_unite || calculData.montant || 0
+    const prixParUnite = calculData.montant_unitaire || calculData.montant_par_unite || calculData.prix_par_unite || calculData.montant || 0
 
     return unites * prixParUnite
   }
@@ -205,7 +205,8 @@ export default class extends Controller {
           montant = inputValue * (calculData.montant_m2 || calculData.prix_par_m2 || calculData.montant || 0)
           break
         case 'par_unite':
-          montant = inputValue * calculData.prix_par_unite
+        case 'montant_par_unite':  // Support pour les deux formats
+          montant = inputValue * (calculData.montant_unitaire || calculData.prix_par_unite || calculData.montant || 0)
           break
         case 'pourcentage':
           montant = inputValue * calculData.taux_pourcentage / 100
@@ -284,13 +285,13 @@ export default class extends Controller {
           { slug: 'wallonie_chauffage_isol_conduites', inputSelector: '[data-wallonie-prime-card-target="inputIsolationConduites"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationConduites"]' },
           { slug: 'wallonie_chauffage_isol_ballon_500', inputSelector: '[data-wallonie-prime-card-target="inputIsolationBallon500"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationBallon500"]' },
           { slug: 'wallonie_chauffage_isol_ballon_sup', inputSelector: '[data-wallonie-prime-card-target="inputIsolationBallonPlus500"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationBallonPlus500"]' },
-          { slug: 'wallonie_chauffage_circ_3logt', inputSelector: '[data-wallonie-prime-card-target="inputCirculateur3Logements"]', resultSelector: '[data-wallonie-prime-card-target="resultCirculateur3Logements"]' },
-          { slug: 'wallonie_chauffage_circ_4logt', inputSelector: '[data-wallonie-prime-card-target="inputCirculateur4Logements"]', resultSelector: '[data-wallonie-prime-card-target="resultCirculateur4Logements"]' },
+          { slug: 'wallonie_chauffage_circ_3logt', inputSelector: '[data-wallonie-prime-card-target="inputCirculateurMax3Logements"]', resultSelector: '[data-wallonie-prime-card-target="resultCirculateurMax3Logements"]' },
+          { slug: 'wallonie_chauffage_circ_4logt', inputSelector: '[data-wallonie-prime-card-target="inputCirculateurMin4Logements"]', resultSelector: '[data-wallonie-prime-card-target="resultCirculateurMin4Logements"]' },
           { slug: 'wallonie_chauffage_ballon_500', inputSelector: '[data-wallonie-prime-card-target="inputRemplacementBallon500"]', resultSelector: '[data-wallonie-prime-card-target="resultRemplacementBallon500"]' },
           { slug: 'wallonie_chauffage_ballon_sup', inputSelector: '[data-wallonie-prime-card-target="inputRemplacementBallonPlus500"]', resultSelector: '[data-wallonie-prime-card-target="resultRemplacementBallonPlus500"]' },
           { slug: 'wallonie_chauffage_vannes_base', inputSelector: '[data-wallonie-prime-card-target="inputMin5VannesThermostatiques"]', resultSelector: '[data-wallonie-prime-card-target="resultMin5VannesThermostatiques"]' },
-          { slug: 'wallonie_chauffage_vannes_sup', inputSelector: '[data-wallonie-prime-card-target="input5VannesComplémentaires"]', resultSelector: '[data-wallonie-prime-card-target="result5VannesComplémentaires"]' },
-          { slug: 'wallonie_chauffage_thermostat', inputSelector: '[data-wallonie-prime-card-target="inputThermostat"]', resultSelector: '[data-wallonie-prime-card-target="resultThermostat"]' },
+          { slug: 'wallonie_chauffage_vannes_sup', inputSelector: '[data-wallonie-prime-card-target="inputVannesSupplementaires"]', resultSelector: '[data-wallonie-prime-card-target="resultVannesSupplementaires"]' },
+          { slug: 'wallonie_chauffage_thermostat', inputSelector: '[data-wallonie-prime-card-target="inputThermostatAmbiance"]', resultSelector: '[data-wallonie-prime-card-target="resultThermostatAmbiance"]' }
         ]
 
       case 'wallonie_eau_chaude_sanitaire_global':

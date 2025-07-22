@@ -183,6 +183,13 @@ export default class extends Controller {
   afficherPrimesWallonie(categorie) {
     console.log("🚀 Affichage primes Wallonie pour catégorie:", categorie)
 
+    // Convertir R1 -> wallonie_r1 pour le calculateur
+    const categorieCalculateur = `wallonie_${categorie.toLowerCase()}`
+    console.log("🎯 Catégorie pour calculateur:", categorieCalculateur)
+
+    // Stocker la catégorie au bon format dans localStorage
+    localStorage.setItem('selectedWallonieCategory', categorieCalculateur)
+
     // Masquer le placeholder et afficher les cartes
     this.togglePrimesSection(true)
 
@@ -190,7 +197,7 @@ export default class extends Controller {
     this.updatePrimesSectionTitleWallonie(categorie)
 
     // Déclencher la mise à jour des cartes avec la catégorie Wallonie
-    this.updatePrimesCardsWallonie(categorie)
+    this.updatePrimesCardsWallonie(categorieCalculateur)
 
     // Afficher un bouton pour voir toutes les primes
     this.addViewPrimesButtonWallonie(categorie)
@@ -203,7 +210,7 @@ export default class extends Controller {
     }
   }
 
-  updatePrimesCardsWallonie(categorie) {
+  updatePrimesCardsWallonie(categorieCalculateur) {
     // Trouver toutes les cartes de primes Wallonie
     const allPrimeCards = document.querySelectorAll('[data-controller*="prime-card"]')
 
@@ -212,8 +219,8 @@ export default class extends Controller {
       const prime = window.primes?.find(p => p.slug === slug)
 
       if (prime) {
-        // Vérifier si cette prime est éligible pour cette catégorie R1-R5
-        const isEligible = prime.eligible_categories?.includes(categorie)
+        // Vérifier si cette prime est éligible pour cette catégorie wallonie_r1-r5
+        const isEligible = prime.eligible_categories?.includes(categorieCalculateur)
 
         if (isEligible) {
           card.style.display = ''
@@ -227,7 +234,7 @@ export default class extends Controller {
 
     // Déclencher un événement pour que les contrôleurs prime-card se mettent à jour
     document.dispatchEvent(new CustomEvent('wallonie:category:changed', {
-      detail: { categorie }
+      detail: { categorie: categorieCalculateur }
     }))
   }
 
