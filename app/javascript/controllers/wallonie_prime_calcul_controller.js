@@ -1,139 +1,127 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Controller principal pour le calcul global des primes Wallonie
+// Connects to data-controller="wallonie-prime-calcul"
 export default class extends Controller {
-  static targets = ["totalGlobal", "sectionTitle", "categoryIndicator"]
-  static values = { 
-    category: String,
-    primes: Object
-  }
+  static targets = ["sectionTitle", "grandTotal"]
 
   connect() {
-    console.log("🎯 Controller Wallonie Prime Calcul connecté")
-    
-    // Initialiser les données des primes depuis le script JSON
-    this.initializePrimesData()
-    
-    // Écouter les changements de catégorie
-    this.listenForCategoryChanges()
-    
-    // Calculer le total initial
-    this.updateGlobalTotal()
+    console.log("Wallonie Prime Calcul Controller connected")
+    this.setupPrimesData()
+    this.updateTotalGlobal()
   }
 
-  initializePrimesData() {
+  setupPrimesData() {
+    // Récupérer les données de primes depuis le localStorage ou depuis la page
     const primesDataElement = document.getElementById('wallonie-primes-data')
     if (primesDataElement) {
       try {
-        this.primesValue = JSON.parse(primesDataElement.textContent)
-        console.log("📊 Données des primes Wallonie chargées:", this.primesValue)
+        this.primesData = JSON.parse(primesDataElement.textContent)
+        console.log("Primes Wallonie chargées:", this.primesData)
       } catch (error) {
-        console.error("❌ Erreur lors du chargement des données des primes:", error)
-        this.primesValue = {}
+        console.error("Erreur parsing primes data:", error)
+        this.primesData = {}
       }
     }
 
-    // Récupérer la catégorie depuis localStorage
-    this.categoryValue = localStorage.getItem('selectedWallonieCategory') || 'r3'
-    this.updateCategoryDisplay()
-  }
+    // Récupérer la catégorie de revenus depuis le localStorage
+    let storedCategory = localStorage.getItem('selectedWallonieCategory') || 'wallonie_r3'
 
-  listenForCategoryChanges() {
-    // Écouter les événements de changement de catégorie
-    document.addEventListener('wallonie:categoryChanged', (event) => {
-      this.categoryValue = event.detail.category
-      this.updateCategoryDisplay()
-      this.updateGlobalTotal()
-      
-      // Notifier toutes les cartes du changement de catégorie
-      this.notifyCardsOfCategoryChange()
-    })
-
-    // Écouter les changements dans localStorage
-    window.addEventListener('storage', (event) => {
-      if (event.key === 'selectedWallonieCategory') {
-        this.categoryValue = event.newValue || 'r3'
-        this.updateCategoryDisplay()
-        this.notifyCardsOfCategoryChange()
-      }
-    })
-  }
-
-  updateCategoryDisplay() {
-    const categoryMap = {
-      'r1': 'R1 (Revenus très faibles)',
-      'r2': 'R2 (Revenus faibles)', 
-      'r3': 'R3 (Revenus moyens)',
-      'r4': 'R4 (Revenus élevés)',
-      'r5': 'R5 (Revenus très élevés)'
+    // S'assurer que la catégorie a le bon format (avec préfixe wallonie_)
+    if (!storedCategory.startsWith('wallonie_')) {
+      storedCategory = 'wallonie_' + storedCategory
     }
 
+    this.currentCategory = storedCategory
+    console.log("Catégorie Wallonie actuelle:", this.currentCategory)
+
+    this.updateSectionTitle()
+  }
+
+  updateSectionTitle() {
     if (this.hasSectionTitleTarget) {
-      this.sectionTitleTarget.textContent = `Vos primes Wallonie - ${categoryMap[this.categoryValue] || 'Catégorie R1-R5'}`
-    }
-    
-    if (this.hasCategoryIndicatorTarget) {
-      this.categoryIndicatorTarget.textContent = this.categoryValue.toUpperCase()
-      this.categoryIndicatorTarget.className = `badge bg-success fs-6`
-    }
-  }
-
-  notifyCardsOfCategoryChange() {
-    // Dispatcher un événement pour toutes les cartes
-    const event = new CustomEvent('wallonie:globalCategoryUpdate', {
-      detail: { 
-        category: this.categoryValue,
-        primes: this.primesValue 
+      const categoryMap = {
+        'wallonie_r1': 'R1 (Revenus très faibles)',
+        'wallonie_r2': 'R2 (Revenus faibles)',
+        'wallonie_r3': 'R3 (Revenus moyens)',
+        'wallonie_r4': 'R4 (Revenus élevés)',
+        'wallonie_r5': 'R5 (Revenus très élevés)'
       }
-    })
-    document.dispatchEvent(event)
+      this.sectionTitleTarget.textContent = `Vos primes Wallonie - ${categoryMap[this.currentCategory] || 'Catégorie R1-R5'}`
+    }
   }
 
-  updateGlobalTotal() {
+  updateTotalGlobal() {
+    // Calcul du total de toutes les cartes
     let total = 0
-    
-    // Récupérer tous les montants des cartes
-    const cards = document.querySelectorAll('[data-controller*="wallonie-prime-card"]')
-    cards.forEach(card => {
-      const resultElement = card.querySelector('[data-wallonie-prime-card-target="result"]')
-      if (resultElement) {
-        const amount = parseFloat(resultElement.textContent.replace(/[€\s,]/g, '')) || 0
-        total += amount
+    console.log("🔍 Début calcul total global...")
+
+    // Sélecteurs pour tous les totaux des cartes
+    const totalSelectors = [
+      '[data-wallonie-prime-card-target="resultAudit"]',          // Audit énergétique
+      '[data-wallonie-prime-card-target="totalToiture"]',        // Total Toiture
+      '[data-wallonie-prime-card-target="totalMurs"]',           // Total Murs
+      '[data-wallonie-prime-card-target="totalSols"]',           // Total Sols
+      '[data-wallonie-prime-card-target="totalVentilation"]',    // Total Ventilation
+      '[data-wallonie-prime-card-target="totalChaudiere"]',      // Total Chaudière
+      '[data-wallonie-prime-card-target="totalAmeliorationChauffage"]', // Total Amélioration Chauffage
+      '[data-wallonie-prime-card-target="totalEauChaudeSanitaire"]',    // Total Eau Chaude Sanitaire
+      '[data-wallonie-prime-card-target="resultMenuiseries"]',   // Menuiseries & Vitrages
+      '[data-wallonie-prime-card-target="resultElectricite"]',   // Installation électrique
+      '[data-wallonie-prime-card-target="resultGaz"]'            // Installation gaz
+    ]
+
+    // Calculer le total en parcourant tous les éléments
+    totalSelectors.forEach(selector => {
+      const element = document.querySelector(selector)
+      if (element) {
+        const montantText = element.textContent.replace('€', '').replace(/\s/g, '').replace(',', '.')
+        const montant = parseFloat(montantText) || 0
+        total += montant
+        console.log(`✅ ${selector}: ${montant}€ (texte: "${element.textContent}")`)
+      } else {
+        console.log(`❌ ${selector}: élément non trouvé`)
       }
     })
-    
-    if (this.hasTotalGlobalTarget) {
-      this.totalGlobalTarget.textContent = this.formatAmount(total)
+
+    console.log(`🎯 Total global calculé: ${total}€`)
+
+    if (this.hasGrandTotalTarget) {
+      this.grandTotalTarget.textContent = `${total.toLocaleString('fr-FR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })} €`
+      console.log(`📝 Total affiché: ${this.grandTotalTarget.textContent}`)
+    } else {
+      console.log("❌ Target grandTotal non trouvé!")
     }
-    
-    console.log(`💰 Total global Wallonie: ${this.formatAmount(total)}`)
   }
 
-  formatAmount(amount) {
-    return new Intl.NumberFormat('fr-BE', {
-      style: 'currency',
-      currency: 'EUR'
-    }).format(amount)
-  }
-
-  // Méthode appelée par les cartes pour mettre à jour le total
+  // Méthode appelée par les cartes enfants pour notifier un changement
   cardUpdated() {
-    this.updateGlobalTotal()
+    this.updateTotalGlobal()
   }
 
   // Méthode pour changer de catégorie (appelée depuis l'interface d'éligibilité)
   changeCategory(newCategory) {
-    this.categoryValue = newCategory
+    this.currentCategory = newCategory
     localStorage.setItem('selectedWallonieCategory', newCategory)
-    this.updateCategoryDisplay()
-    this.notifyCardsOfCategoryChange()
+    this.updateSectionTitle()
+
+    // Déclencher le recalcul de toutes les cartes
+    const cards = this.element.querySelectorAll('[data-controller~="wallonie-prime-card"]')
+    cards.forEach(card => {
+      const controller = this.application.getControllerForElementAndIdentifier(card, 'wallonie-prime-card')
+      if (controller && controller.recalculate) {
+        controller.recalculate()
+      }
+    })
   }
 
   getCurrentCategory() {
-    return this.categoryValue
+    return this.currentCategory
   }
 
   getPrimesData() {
-    return this.primesValue
+    return this.primesData
   }
 }

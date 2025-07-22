@@ -1,163 +1,381 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Controller pour une carte de prime individuelle Wallonie
+// Connects to data-controller="wallonie-prime-card"
 export default class extends Controller {
-  static targets = ["result"]
-  static values = { 
-    slug: String,
-    category: String 
-  }
+  static targets = []
+  static values = { slug: String }
 
   connect() {
-    console.log(`🎯 Card controller connecté pour: ${this.slugValue}`)
-    
-    // Écouter les événements de changement global de catégorie
-    this.boundGlobalUpdate = this.handleGlobalCategoryUpdate.bind(this)
-    document.addEventListener('wallonie:globalCategoryUpdate', this.boundGlobalUpdate)
-    
-    // Calculer initialement
+    console.log("Wallonie Prime Card Controller connected pour:", this.slugValue)
+    this.setupTargets()
     this.calculate()
   }
 
-  disconnect() {
-    // Nettoyer les event listeners
-    document.removeEventListener('wallonie:globalCategoryUpdate', this.boundGlobalUpdate)
-  }
+  setupTargets() {
+    // Créer dynamiquement les targets en fonction des inputs trouvés dans la carte
+    const inputs = this.element.querySelectorAll('input, select')
+    this.inputs = Array.from(inputs)
 
-  handleGlobalCategoryUpdate(event) {
-    this.categoryValue = event.detail.category
-    this.calculate()
+    // Créer les targets pour les résultats
+    const resultElements = this.element.querySelectorAll('[data-wallonie-prime-card-target*="result"]')
+    this.resultElements = Array.from(resultElements)
+
+    console.log(`Carte ${this.slugValue}: ${this.inputs.length} inputs, ${this.resultElements.length} résultats`)
   }
 
   calculate() {
     if (!this.slugValue) {
-      console.warn("❌ Aucun slug défini pour cette carte")
+      console.warn("Pas de slug défini pour cette carte")
       return
     }
 
-    const category = this.categoryValue || localStorage.getItem('selectedWallonieCategory') || 'r3'
-    
-    // Récupérer les données de prime
-    const primesData = this.getPrimesData()
-    const primeData = primesData[this.slugValue]
-    
-    if (!primeData) {
-      console.warn(`❌ Données non trouvées pour la prime: ${this.slugValue}`)
+    // Récupérer le controller parent pour accéder aux données
+    const parentController = this.getParentController()
+    if (!parentController) {
+      console.warn("Controller parent non trouvé")
       return
     }
 
-    let totalAmount = 0
+    const currentCategory = parentController.getCurrentCategory()
+    const primesData = parentController.getPrimesData()
 
-    // Récupérer toutes les valeurs d'inputs dans cette carte
-    const inputs = this.element.querySelectorAll('input, select')
-    
-    inputs.forEach(input => {
-      const value = this.getInputValue(input)
-      if (value > 0) {
-        const unitAmount = this.getUnitAmountForCategory(primeData, category)
-        
-        if (primeData.type_de_valeur === 'surface' || primeData.type_de_valeur === 'quantite') {
-          // Multiplication par la quantité/surface
-          totalAmount += value * unitAmount
-        } else {
-          // Valeur fixe (oui/non)
-          totalAmount += unitAmount
-        }
-      }
-    })
+    // Vérifier si c'est une carte composite (globale)
+    if (this.isCompositeCard()) {
+      this.calculateComposite(currentCategory, primesData)
+      return
+    }
+
+    // Trouver la prime correspondante
+    const prime = primesData[this.slugValue]
+    if (!prime) {
+      console.warn(`Prime non trouvée pour slug: ${this.slugValue}`)
+      return
+    }
+
+    // Calculer selon le type de calcul
+    const calculData = prime.valeurs_par_categorie[currentCategory]
+    if (!calculData) {
+      console.warn(`Données de calcul non trouvées pour ${currentCategory}`)
+      return
+    }
+
+    let total = 0
+
+    // Logique de calcul selon le type
+    switch (calculData.type) {
+      case 'montant_fixe':
+        total = this.calculateMontantFixe(calculData)
+        break
+      case 'par_m2':
+      case 'montant_m2':  // Support pour les deux formats
+        total = this.calculateParM2(calculData)
+        break
+      case 'par_unite':
+        total = this.calculateParUnite(calculData)
+        break
+      case 'pourcentage':
+        total = this.calculatePourcentage(calculData)
+        break
+      default:
+        console.warn(`Type de calcul non reconnu: ${calculData.type}`)
+    }
 
     // Mettre à jour l'affichage
-    this.updateResult(totalAmount)
-    
+    this.updateResult(total)
+
     // Notifier le controller parent
-    this.notifyParentController()
-
-    console.log(`💰 ${this.slugValue}: ${this.formatAmount(totalAmount)} (catégorie: ${category})`)
-  }
-
-  getInputValue(input) {
-    if (input.type === 'number') {
-      return parseFloat(input.value) || 0
-    } else if (input.tagName === 'SELECT') {
-      return parseFloat(input.value) || 0
-    } else {
-      return parseFloat(input.value) || 0
+    if (parentController.cardUpdated) {
+      parentController.cardUpdated()
     }
   }
 
-  getUnitAmountForCategory(primeData, category) {
-    const valeurs = primeData.valeurs_par_categorie || {}
-    
-    // Essayer différents formats de clé de catégorie
-    const possibleKeys = [
-      `wallonie_${category}`,      // wallonie_r3
-      category,                    // r3
-      category.toUpperCase(),      // R3
-      `wallonie_${category.toUpperCase()}` // wallonie_R3
+  calculateMontantFixe(calculData) {
+    // Pour les montants fixes (audit par exemple)
+    // Si input = 1 (Oui), on applique le montant, sinon 0
+    const firstInput = this.inputs[0]
+    if (!firstInput) return 0
+
+    const value = parseFloat(firstInput.value) || 0
+    return value === 1 ? calculData.montant : 0
+  }
+
+  calculateParM2(calculData) {
+    // Pour les calculs par m² (isolation par exemple)
+    // montant = surface_m2 * prix_par_m2
+    const surfaceInput = this.inputs.find(input =>
+      input.placeholder?.toLowerCase().includes('m²') ||
+      input.placeholder?.toLowerCase().includes('surface')
+    )
+
+    if (!surfaceInput) return 0
+
+    const surface = parseFloat(surfaceInput.value) || 0
+    const prixParM2 = calculData.montant_m2 || calculData.montant_par_m2 || calculData.prix_par_m2 || calculData.montant || 0
+
+    return surface * prixParM2
+  }
+
+  calculateParUnite(calculData) {
+    // Pour les calculs par unité (fenêtres, radiateurs, etc.)
+    // montant = nombre_unites * prix_par_unite
+    const uniteInput = this.inputs.find(input =>
+      input.placeholder?.toLowerCase().includes('nombre') ||
+      input.type === 'number'
+    )
+
+    if (!uniteInput) return 0
+
+    const unites = parseFloat(uniteInput.value) || 0
+    const prixParUnite = calculData.montant_par_unite || calculData.montant || 0
+
+    return unites * prixParUnite
+  }
+
+  calculatePourcentage(calculData) {
+    // Pour les calculs en pourcentage (du montant des travaux)
+    const montantInput = this.inputs.find(input =>
+      input.placeholder?.toLowerCase().includes('montant') ||
+      input.placeholder?.toLowerCase().includes('coût') ||
+      input.placeholder?.toLowerCase().includes('prix')
+    )
+
+    if (!montantInput) return 0
+
+    const montantTravaux = parseFloat(montantInput.value) || 0
+    const pourcentage = calculData.pourcentage || 0
+    const montantMax = calculData.montant_max || Infinity
+
+    const calculResult = (montantTravaux * pourcentage) / 100
+    return Math.min(calculResult, montantMax)
+  }
+
+  // Vérifie si c'est une carte composite (globale)
+  isCompositeCard() {
+    const compositeCards = [
+      'wallonie_toiture_global',
+      'wallonie_murs_global',
+      'wallonie_sols_global',
+      'wallonie_ventilation_global',
+      'wallonie_chaudiere_global',
+      'wallonie_amelioration_chauffage_global',
+      'wallonie_eau_chaude_sanitaire_global'
     ]
+    return compositeCards.includes(this.slugValue)
+  }
 
-    for (let key of possibleKeys) {
-      if (valeurs[key] !== undefined) {
-        const value = valeurs[key]
-        
-        // Si c'est un objet avec montant (structure Wallonie)
-        if (typeof value === 'object' && value.montant !== undefined) {
-          return parseFloat(value.montant) || 0
-        }
-        
-        // Si c'est une valeur directe
-        return parseFloat(value) || 0
+  // Calcule les primes pour une carte composite
+  calculateComposite(currentCategory, primesData) {
+    let totalGlobal = 0
+
+    // Définir les primes à calculer selon la carte
+    const primesToCalculate = this.getCompositePrimes()
+
+    primesToCalculate.forEach(compositeDefinition => {
+      const { slug, inputSelector, resultSelector } = compositeDefinition
+      const prime = primesData[slug]
+
+      if (!prime) {
+        console.warn(`Prime composite non trouvée: ${slug}`)
+        return
       }
-    }
 
-    console.warn(`❌ Valeur non trouvée pour catégorie: ${category} dans`, valeurs)
-    return 0
-  }
-
-  updateResult(amount) {
-    if (this.hasResultTarget) {
-      this.resultTarget.textContent = this.formatAmount(amount)
-    }
-  }
-
-  formatAmount(amount) {
-    return new Intl.NumberFormat('fr-BE', {
-      style: 'currency',
-      currency: 'EUR'
-    }).format(amount)
-  }
-
-  notifyParentController() {
-    // Trouver le controller parent et le notifier du changement
-    const parentElement = this.element.closest('[data-controller*="wallonie-prime-calcul"]')
-    if (parentElement) {
-      const parentController = this.application.getControllerForElementAndIdentifier(parentElement, 'wallonie-prime-calcul')
-      if (parentController && parentController.cardUpdated) {
-        parentController.cardUpdated()
+      const calculData = prime.valeurs_par_categorie[currentCategory]
+      if (!calculData) {
+        console.warn(`Données de calcul composite non trouvées pour ${slug} - ${currentCategory}`)
+        return
       }
-    }
-  }
 
-  getPrimesData() {
-    // Récupérer les données depuis le script JSON
-    const primesDataElement = document.getElementById('wallonie-primes-data')
-    if (primesDataElement) {
-      try {
-        return JSON.parse(primesDataElement.textContent)
-      } catch (error) {
-        console.error("❌ Erreur parsing primes data:", error)
-        return {}
+      // Trouver l'input correspondant
+      const input = this.element.querySelector(inputSelector)
+      if (!input) {
+        console.warn(`Input non trouvé pour ${inputSelector}`)
+        return
       }
+
+      // Calculer le montant pour cette prime spécifique
+      let montant = 0
+      const inputValue = parseFloat(input.value) || 0
+
+      switch (calculData.type) {
+        case 'montant_fixe':
+          montant = inputValue === 1 ? calculData.montant : 0
+          break
+        case 'par_m2':
+        case 'montant_m2':  // Support pour les deux formats
+          montant = inputValue * (calculData.montant_m2 || calculData.prix_par_m2 || calculData.montant || 0)
+          break
+        case 'par_unite':
+          montant = inputValue * calculData.prix_par_unite
+          break
+        case 'pourcentage':
+          montant = inputValue * calculData.taux_pourcentage / 100
+          break
+      }
+
+      // Mettre à jour l'affichage de ce résultat spécifique
+      const resultElement = this.element.querySelector(resultSelector)
+      if (resultElement) {
+        resultElement.textContent = `${montant.toLocaleString('fr-FR')} €`
+      }
+
+      totalGlobal += montant
+    })
+
+    // Mettre à jour le total global de la carte
+    this.updateGlobalTotal(totalGlobal)
+
+    // Notifier le controller parent
+    const parentController = this.getParentController()
+    if (parentController && parentController.cardUpdated) {
+      parentController.cardUpdated()
     }
-    return {}
   }
 
-  // Méthodes d'action pour les inputs
-  inputChanged(event) {
+  // Définit les primes composites selon le type de carte
+  getCompositePrimes() {
+    switch (this.slugValue) {
+      case 'wallonie_toiture_global':
+        return [
+          { slug: 'wallonie_toiture_remplacement_couverture', inputSelector: '[data-wallonie-prime-card-target="inputCouverture"]', resultSelector: '[data-wallonie-prime-card-target="resultCouverture"]' },
+          { slug: 'wallonie_toiture_appropriation_charpente', inputSelector: '[data-wallonie-prime-card-target="inputCharpente"]', resultSelector: '[data-wallonie-prime-card-target="resultCharpente"]' },
+          { slug: 'wallonie_toiture_evacuation_eaux_pluviales', inputSelector: '[data-wallonie-prime-card-target="inputEvacuation"]', resultSelector: '[data-wallonie-prime-card-target="resultEvacuation"]' },
+          { slug: 'wallonie_toiture_isolation_thermique', inputSelector: '[data-wallonie-prime-card-target="inputIsolationThermique"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationThermique"]' },
+          { slug: 'wallonie_toiture_isolation_biosource', inputSelector: '[data-wallonie-prime-card-target="inputIsolationBiosource"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationBiosource"]' }
+        ]
+
+      case 'wallonie_murs_global':
+        return [
+          { slug: 'wallonie_assechement_murs_infiltration', inputSelector: '[data-wallonie-prime-card-target="inputInfiltration"]', resultSelector: '[data-wallonie-prime-card-target="resultInfiltration"]' },
+          { slug: 'wallonie_assechement_murs_humidite', inputSelector: '[data-wallonie-prime-card-target="inputHumidite"]', resultSelector: '[data-wallonie-prime-card-target="resultHumidite"]' },
+          { slug: 'wallonie_renforcement_murs', inputSelector: '[data-wallonie-prime-card-target="inputRenforcement"]', resultSelector: '[data-wallonie-prime-card-target="resultRenforcement"]' },
+          { slug: 'wallonie_isolation_murs', inputSelector: '[data-wallonie-prime-card-target="inputDemolition"]', resultSelector: '[data-wallonie-prime-card-target="resultDemolition"]' },
+          { slug: 'wallonie_isolation_murs', inputSelector: '[data-wallonie-prime-card-target="inputIsolationThermique"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationThermique"]' },
+          { slug: 'wallonie_isolation_murs_biosource', inputSelector: '[data-wallonie-prime-card-target="inputIsolationBiosource"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationBiosource"]' },
+          { slug: 'wallonie_renforcement_murs', inputSelector: '[data-wallonie-prime-card-target="inputFacade"]', resultSelector: '[data-wallonie-prime-card-target="resultFacade"]' }
+        ]
+
+      case 'wallonie_sols_global':
+        return [
+          { slug: 'wallonie_isolation_sols', inputSelector: '[data-wallonie-prime-card-target="inputIsolationSols"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationSols"]' },
+          { slug: 'wallonie_isolation_sols_biosource', inputSelector: '[data-wallonie-prime-card-target="inputIsolationBiosource"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationBiosource"]' },
+          { slug: 'wallonie_remplacement_supports_circulation', inputSelector: '[data-wallonie-prime-card-target="inputSupports"]', resultSelector: '[data-wallonie-prime-card-target="resultSupports"]' },
+          { slug: 'wallonie_elimination_radon', inputSelector: '[data-wallonie-prime-card-target="inputRadon"]', resultSelector: '[data-wallonie-prime-card-target="resultRadon"]' }
+        ]
+
+      case 'wallonie_ventilation_global':
+        return [
+          { slug: 'wallonie_vmc_simple', inputSelector: '[data-wallonie-prime-card-target="inputVmcSimpleComplete"]', resultSelector: '[data-wallonie-prime-card-target="resultVmcSimpleComplete"]' },
+          { slug: 'wallonie_vmc_double', inputSelector: '[data-wallonie-prime-card-target="inputVmcDoubleComplete"]', resultSelector: '[data-wallonie-prime-card-target="resultVmcDoubleComplete"]' },
+          { slug: 'wallonie_vmc_simple_partielle', inputSelector: '[data-wallonie-prime-card-target="inputVmcSimplePartielle"]', resultSelector: '[data-wallonie-prime-card-target="resultVmcSimplePartielle"]' },
+          { slug: 'wallonie_vmc_double_partielle', inputSelector: '[data-wallonie-prime-card-target="inputVmcDoublePartielle"]', resultSelector: '[data-wallonie-prime-card-target="resultVmcDoublePartielle"]' }
+        ]
+
+      case 'wallonie_chaudiere_global':
+        return [
+          { slug: 'wallonie_pac_eau_chaude', inputSelector: '[data-wallonie-prime-card-target="inputPacEauChaude"]', resultSelector: '[data-wallonie-prime-card-target="resultPacEauChaude"]' },
+          { slug: 'wallonie_pac_chauffage', inputSelector: '[data-wallonie-prime-card-target="inputPacChauffage"]', resultSelector: '[data-wallonie-prime-card-target="resultPacChauffage"]' },
+          { slug: 'wallonie_chaudiere_biomasse', inputSelector: '[data-wallonie-prime-card-target="inputChaudiereBiomasse"]', resultSelector: '[data-wallonie-prime-card-target="resultChaudiereBiomasse"]' },
+          { slug: 'wallonie_poele_biomasse', inputSelector: '[data-wallonie-prime-card-target="inputPoeleBiomasse"]', resultSelector: '[data-wallonie-prime-card-target="resultPoeleBiomasse"]' },
+          { slug: 'wallonie_chauffe_eau_solaire', inputSelector: '[data-wallonie-prime-card-target="inputChauffeEauSolaire"]', resultSelector: '[data-wallonie-prime-card-target="resultChauffeEauSolaire"]' }
+        ]
+
+      case 'wallonie_amelioration_chauffage_global':
+        return [
+          { slug: 'wallonie_chauffage_isol_conduites', inputSelector: '[data-wallonie-prime-card-target="inputIsolationConduites"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationConduites"]' },
+          { slug: 'wallonie_chauffage_isol_ballon_500', inputSelector: '[data-wallonie-prime-card-target="inputIsolationBallon500"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationBallon500"]' },
+          { slug: 'wallonie_chauffage_isol_ballon_sup', inputSelector: '[data-wallonie-prime-card-target="inputIsolationBallonPlus500"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationBallonPlus500"]' },
+          { slug: 'wallonie_chauffage_thermostat', inputSelector: '[data-wallonie-prime-card-target="inputThermostat"]', resultSelector: '[data-wallonie-prime-card-target="resultThermostat"]' },
+          { slug: 'wallonie_chauffage_vannes_base', inputSelector: '[data-wallonie-prime-card-target="inputVannesThermostatiques"]', resultSelector: '[data-wallonie-prime-card-target="resultVannesThermostatiques"]' },
+          { slug: 'wallonie_installation_gaz', inputSelector: '[data-wallonie-prime-card-target="inputChauffeEauGaz"]', resultSelector: '[data-wallonie-prime-card-target="resultChauffeEauGaz"]' },
+          { slug: 'wallonie_chauffe_eau_solaire', inputSelector: '[data-wallonie-prime-card-target="inputSolaireThermique"]', resultSelector: '[data-wallonie-prime-card-target="resultSolaireThermique"]' },
+          { slug: 'wallonie_chauffage_circ_3logt', inputSelector: '[data-wallonie-prime-card-target="inputCirculateurEfficace"]', resultSelector: '[data-wallonie-prime-card-target="resultCirculateurEfficace"]' }
+        ]
+
+      case 'wallonie_eau_chaude_sanitaire_global':
+        return [
+          { slug: 'wallonie_pac_eau_chaude', inputSelector: '[data-wallonie-prime-card-target="inputBallonThermodynamique"]', resultSelector: '[data-wallonie-prime-card-target="resultBallonThermodynamique"]' },
+          { slug: 'wallonie_chauffe_eau_solaire', inputSelector: '[data-wallonie-prime-card-target="inputChauffeEauSolaireIndividuel"]', resultSelector: '[data-wallonie-prime-card-target="resultChauffeEauSolaireIndividuel"]' },
+          { slug: 'wallonie_chauffe_eau_solaire', inputSelector: '[data-wallonie-prime-card-target="inputSolaireCollectif"]', resultSelector: '[data-wallonie-prime-card-target="resultSolaireCollectif"]' },
+          { slug: 'wallonie_pac_eau_chaude', inputSelector: '[data-wallonie-prime-card-target="inputPacEauChaudeSanitaire"]', resultSelector: '[data-wallonie-prime-card-target="resultPacEauChaudeSanitaire"]' },
+          { slug: 'wallonie_installation_gaz', inputSelector: '[data-wallonie-prime-card-target="inputChauffeEauGazCondensation"]', resultSelector: '[data-wallonie-prime-card-target="resultChauffeEauGazCondensation"]' },
+          { slug: 'wallonie_ecs_echangeur', inputSelector: '[data-wallonie-prime-card-target="inputRecuperateurEauChaude"]', resultSelector: '[data-wallonie-prime-card-target="resultRecuperateurEauChaude"]' }
+        ]
+
+      // Ajouter les autres cartes globales au besoin
+      default:
+        return []
+    }
+  }
+
+  // Met à jour le total global de la carte composite
+  updateGlobalTotal(totalGlobal) {
+    const globalTargetName = this.getGlobalTargetName()
+    const globalTarget = this.element.querySelector(`[data-wallonie-prime-card-target="${globalTargetName}"]`)
+
+    if (globalTarget) {
+      globalTarget.textContent = `${totalGlobal.toLocaleString('fr-FR')} €`
+    }
+  }
+
+  // Détermine le nom du target pour le total global
+  getGlobalTargetName() {
+    switch (this.slugValue) {
+      case 'wallonie_toiture_global': return 'totalToiture'
+      case 'wallonie_murs_global': return 'totalMurs'
+      case 'wallonie_sols_global': return 'totalSols'
+      case 'wallonie_ventilation_global': return 'totalVentilation'
+      case 'wallonie_chaudiere_global': return 'totalChaudiere'
+      case 'wallonie_amelioration_chauffage_global': return 'totalAmeliorationChauffage'
+      case 'wallonie_eau_chaude_sanitaire_global': return 'totalEauChaudeSanitaire'
+      default: return 'total'
+    }
+  }
+
+  updateResult(montant) {
+    // Mettre à jour tous les éléments de résultat de cette carte
+    this.resultElements.forEach(element => {
+      element.textContent = `${montant.toLocaleString('fr-FR', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      })} €`
+    })
+  }
+
+  // Méthode pour recalculer (appelée depuis le controller parent)
+  recalculate() {
     this.calculate()
   }
 
-  selectChanged(event) {
-    this.calculate()
+  getParentController() {
+    // Trouver le controller parent wallonie-prime-calcul
+    let parent = this.element.parentElement
+    while (parent) {
+      if (parent.hasAttribute('data-controller') &&
+          parent.getAttribute('data-controller').includes('wallonie-prime-calcul')) {
+        return this.application.getControllerForElementAndIdentifier(parent, 'wallonie-prime-calcul')
+      }
+      parent = parent.parentElement
+    }
+    return null
   }
+
+  // Actions pour les différents types d'inputs
+  calculateAudit() { this.calculate() }
+  calculateToiture() { this.calculate() }
+  calculateMurs() { this.calculate() }
+  calculateSols() { this.calculate() }
+  calculateChauffage() { this.calculate() }
+  calculateEauSanitaire() { this.calculate() }
+  calculateVentilation() { this.calculate() }
+  calculateFenetres() { this.calculate() }
+  calculateElectricite() { this.calculate() }
+  calculateRenouvelables() { this.calculate() }
+  calculateChaudiere() { this.calculate() }
+  calculateAmeliorationChauffage() { this.calculate() }
+  calculateEauChaudeSanitaire() { this.calculate() }
+  calculateMenuiseriesVitrages() { this.calculate() }
+  calculateInstallationElectrique() { this.calculate() }
+  calculateInstallationGaz() { this.calculate() }
+  calculateMenuiseries() { this.calculate() }
+  calculateGaz() { this.calculate() }
 }
