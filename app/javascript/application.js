@@ -18,6 +18,8 @@ import PrimeCardController from "controllers/prime_card_controller"
 import PrimeCalculController from "controllers/prime_calcul_controller"
 import PebController from "controllers/peb_controller"
 import PetitPatrimoineBruxellesController from "controllers/petit_patrimoine_bruxelles_controller"
+import WalloniePrimeCalculController from "controllers/wallonie_prime_calcul_controller"
+import WalloniePrimeCardController from "controllers/wallonie_prime_card_controller"
 
 application.register("user_type", UserTypeController)
 application.register("test-eligibilite", TestEligibiliteController)
@@ -26,5 +28,7 @@ application.register("prime-card", PrimeCardController)
 application.register("prime-calcul", PrimeCalculController)
 application.register("peb", PebController)
 application.register("petit-patrimoine-bruxelles", PetitPatrimoineBruxellesController)
+application.register("wallonie-prime-calcul", WalloniePrimeCalculController)
+application.register("wallonie-prime-card", WalloniePrimeCardController)
 
 export { application }

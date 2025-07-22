@@ -13,41 +13,91 @@
     <% end %>
   </div>
 
-  <!-- Liste des catégories avec style primes -->
-  <% if @categories.any? %>
-    <div class="row g-4 justify-content-center">
-      <% @categories.each do |category| %>
-        <div class="col-lg-4 col-md-6">
-          <%= link_to category_path(category), class: "text-decoration-none" do %>
-            <div class="bg-light p-4 rounded text-center h-100">
-              <!-- Icône circulaire avec couleur selon la région -->
-              <div class="icon-circle mx-auto mb-3" style="width: 50px; height: 50px; background-color: <%=
-                case category.region.to_s.downcase
-                when 'flandre' then '#2c5282'  # Bleu pour Flandre
-                when 'wallonie' then '#38a169'  # Vert pour Wallonie
-                when 'bruxelles' then '#6c757d'  # Gris pour Bruxelles
-                when '' then '#2c5282'  # Bleu pour région non définie (Flandre par défaut)
-                else '#2c5282'  # Bleu par défaut (Flandre)
-                end %>; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                <i class="bi bi-tag" style="color: white; font-size: 20px;"></i>
-              </div>
+  <!-- Liste des catégories groupées par région -->
+  <% categories_with_region = @categories.select { |category| category.region.present? } %>
+  <% if categories_with_region.any? %>
+    <% categories_by_region = categories_with_region.group_by(&:region) %>
 
-              <!-- Titre de la catégorie -->
-              <h6 class="mb-0 fw-bold" style="color: <%=
-                case category.region.to_s.downcase
-                when 'flandre' then '#2c5282'  # Bleu pour Flandre
-                when 'wallonie' then '#38a169'  # Vert pour Wallonie
-                when 'bruxelles' then '#6c757d'  # Gris pour Bruxelles
-                when '' then '#2c5282'  # Bleu pour région non définie (Flandre par défaut)
-                else '#2c5282'  # Bleu par défaut (Flandre)
-                end %>;">
-                <%= category.description %>
-              </h6>
+    <!-- Flandre -->
+    <% if categories_by_region['flandre']&.any? %>
+      <div class="mb-5">
+        <h4 class="mb-3 text-center" style="color: #000000;">
+          <i class="bi bi-tag me-2"></i>Flandre
+        </h4>
+        <div class="row g-4 justify-content-center">
+          <% categories_by_region['flandre'].each do |category| %>
+            <div class="col-lg-3 col-md-6">
+              <%= link_to category_path(category), class: "text-decoration-none" do %>
+                <div class="bg-light p-4 rounded text-center h-100">
+                  <!-- Icône circulaire -->
+                  <div class="icon-circle mx-auto mb-3" style="width: 50px; height: 50px; background-color: #000000; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-tag" style="color: #ffffff; font-size: 20px;"></i>
+                  </div>
+                  <!-- Titre de la catégorie -->
+                  <h6 class="mb-0 fw-bold" style="color: #000000;">
+                    <%= category.description %>
+                  </h6>
+                </div>
+              <% end %>
             </div>
           <% end %>
         </div>
-      <% end %>
-    </div>
+      </div>
+    <% end %>
+
+    <!-- Bruxelles -->
+    <% if categories_by_region['bruxelles']&.any? %>
+      <div class="mb-5">
+        <h4 class="mb-3 text-center" style="color: #ffc107;">
+          <i class="bi bi-tag me-2"></i>Bruxelles
+        </h4>
+        <div class="row g-4 justify-content-center">
+          <% categories_by_region['bruxelles'].each do |category| %>
+            <div class="col-lg-4 col-md-6">
+              <%= link_to category_path(category), class: "text-decoration-none" do %>
+                <div class="bg-light p-4 rounded text-center h-100">
+                  <!-- Icône circulaire -->
+                  <div class="icon-circle mx-auto mb-3" style="width: 50px; height: 50px; background-color: #ffc107; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-tag" style="color: #000000; font-size: 20px;"></i>
+                  </div>
+                  <!-- Titre de la catégorie -->
+                  <h6 class="mb-0 fw-bold" style="color: #ffc107;">
+                    <%= category.description %>
+                  </h6>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Wallonie -->
+    <% if categories_by_region['wallonie']&.any? %>
+      <div class="mb-5">
+        <h4 class="mb-3 text-center" style="color: #dc3545;">
+          <i class="bi bi-tag me-2"></i>Wallonie
+        </h4>
+        <div class="row g-4 justify-content-center">
+          <% categories_by_region['wallonie'].each do |category| %>
+            <div class="col-lg-2 col-md-4 col-sm-6">
+              <%= link_to category_path(category), class: "text-decoration-none" do %>
+                <div class="bg-light p-4 rounded text-center h-100">
+                  <!-- Icône circulaire -->
+                  <div class="icon-circle mx-auto mb-3" style="width: 50px; height: 50px; background-color: #dc3545; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-tag" style="color: #ffffff; font-size: 20px;"></i>
+                  </div>
+                  <!-- Titre de la catégorie -->
+                  <h6 class="mb-0 fw-bold" style="color: #dc3545;">
+                    <%= category.description %>
+                  </h6>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
   <% else %>
     <!-- État vide simplifié -->
     <div class="text-center py-5">
