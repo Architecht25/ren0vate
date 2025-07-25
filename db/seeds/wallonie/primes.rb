@@ -1158,8 +1158,6 @@ Prime.find_or_initialize_by(slug: "wallonie_chauffage_vannes_sup").update!(
   category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")&.id
 )
 
-# === ECS (EAU CHAUDE SANITAIRE) ===
-
 Prime.find_or_initialize_by(slug: "wallonie_chauffage_thermostat").update!(
   titre: "Amélioration chauffage - Thermostat d'ambiance - Wallonie",
   ordre_affichage: 40,
@@ -1189,6 +1187,8 @@ Prime.find_or_initialize_by(slug: "wallonie_chauffage_thermostat").update!(
   region: "wallonie",
   category_id: Category.find_by(code: "wallonie_r1", region: "wallonie")&.id
 )
+# === ECS (EAU CHAUDE SANITAIRE) ===
+
 
 Prime.find_or_initialize_by(slug: "wallonie_ecs_ballon_500").update!(
   titre: "ECS - Remplacement ballon ≤500l - Wallonie",

@@ -6,7 +6,8 @@ export default class extends Controller {
   static values = { slug: String }
 
   connect() {
-    console.log("Wallonie Prime Card Controller connected pour:", this.slugValue)
+    console.log("🎯 Wallonie Prime Card Controller connected pour:", this.slugValue)
+    console.log("🎯 Controller ECS chargé et actif - hash: 9a20ff68d4d304a80f9d097c1d03c64735bf75f19e8dfe6518eb6e294b844b10")
     this.setupTargets()
     this.calculate()
   }
@@ -198,19 +199,31 @@ export default class extends Controller {
 
       switch (calculData.type) {
         case 'montant_fixe':
+          // Pour les montants fixes (audit, primes ECS, etc.)
+          // Si input = 1 (Oui), on applique le montant, sinon 0
           montant = inputValue === 1 ? calculData.montant : 0
           break
         case 'par_m2':
         case 'montant_m2':  // Support pour les deux formats
-          montant = inputValue * (calculData.montant_m2 || calculData.prix_par_m2 || calculData.montant || 0)
+          // Pour les calculs par m² (isolation par exemple)
+          // montant = surface_m2 * prix_par_m2
+          montant = inputValue * (calculData.montant_m2 || calculData.montant_par_m2 || calculData.prix_par_m2 || calculData.montant || 0)
           break
         case 'par_unite':
         case 'montant_par_unite':  // Support pour les deux formats
-          montant = inputValue * (calculData.montant_unitaire || calculData.prix_par_unite || calculData.montant || 0)
+          // Pour les calculs par unité (fenêtres, radiateurs, etc.)
+          // montant = nombre_unites * prix_par_unite
+          montant = inputValue * (calculData.montant_unitaire || calculData.montant_par_unite || calculData.prix_par_unite || calculData.montant || 0)
           break
         case 'pourcentage':
-          montant = inputValue * calculData.taux_pourcentage / 100
+          // Pour les calculs en pourcentage (du montant des travaux)
+          const pourcentage = calculData.pourcentage || calculData.taux_pourcentage || 0
+          const montantMax = calculData.montant_max || Infinity
+          const calculResult = (inputValue * pourcentage) / 100
+          montant = Math.min(calculResult, montantMax)
           break
+        default:
+          console.warn(`Type de calcul non reconnu dans composite: ${calculData.type}`)
       }
 
       // Mettre à jour l'affichage de ce résultat spécifique
@@ -296,12 +309,12 @@ export default class extends Controller {
 
       case 'wallonie_eau_chaude_sanitaire_global':
         return [
-          { slug: 'wallonie_pac_eau_chaude', inputSelector: '[data-wallonie-prime-card-target="inputBallonThermodynamique"]', resultSelector: '[data-wallonie-prime-card-target="resultBallonThermodynamique"]' },
-          { slug: 'wallonie_chauffe_eau_solaire', inputSelector: '[data-wallonie-prime-card-target="inputChauffeEauSolaireIndividuel"]', resultSelector: '[data-wallonie-prime-card-target="resultChauffeEauSolaireIndividuel"]' },
-          { slug: 'wallonie_chauffe_eau_solaire', inputSelector: '[data-wallonie-prime-card-target="inputSolaireCollectif"]', resultSelector: '[data-wallonie-prime-card-target="resultSolaireCollectif"]' },
-          { slug: 'wallonie_pac_eau_chaude', inputSelector: '[data-wallonie-prime-card-target="inputPacEauChaudeSanitaire"]', resultSelector: '[data-wallonie-prime-card-target="resultPacEauChaudeSanitaire"]' },
-          { slug: 'wallonie_installation_gaz', inputSelector: '[data-wallonie-prime-card-target="inputChauffeEauGazCondensation"]', resultSelector: '[data-wallonie-prime-card-target="resultChauffeEauGazCondensation"]' },
-          { slug: 'wallonie_ecs_echangeur', inputSelector: '[data-wallonie-prime-card-target="inputRecuperateurEauChaude"]', resultSelector: '[data-wallonie-prime-card-target="resultRecuperateurEauChaude"]' }
+          { slug: 'wallonie_ecs_ballon_500', inputSelector: '[data-wallonie-prime-card-target="inputRemplacementBallon500"]', resultSelector: '[data-wallonie-prime-card-target="resultRemplacementBallon500"]' },
+          { slug: 'wallonie_ecs_ballon_sup', inputSelector: '[data-wallonie-prime-card-target="inputRemplacementBallonSup"]', resultSelector: '[data-wallonie-prime-card-target="resultRemplacementBallonSup"]' },
+          { slug: 'wallonie_ecs_conduites_coll', inputSelector: '[data-wallonie-prime-card-target="inputIsolationConduites"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationConduites"]' },
+          { slug: 'wallonie_ecs_echangeur', inputSelector: '[data-wallonie-prime-card-target="inputEchangeurPlaques"]', resultSelector: '[data-wallonie-prime-card-target="resultEchangeurPlaques"]' },
+          { slug: 'wallonie_ecs_isol_ballon_500', inputSelector: '[data-wallonie-prime-card-target="inputIsolationBallon500"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationBallon500"]' },
+          { slug: 'wallonie_ecs_isol_ballon_sup', inputSelector: '[data-wallonie-prime-card-target="inputIsolationBallonSup"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationBallonSup"]' }
         ]
 
       // Ajouter les autres cartes globales au besoin
