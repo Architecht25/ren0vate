@@ -131,7 +131,7 @@ export default class extends Controller {
     localStorage.setItem("wallonie_revenu_tranche", revenuTranche)
 
     // Détermination de la catégorie basée sur le revenu
-    let categorieWallonie = "R5" // Par défaut
+    let categorieWallonie = "R3" // Par défaut - catégorie moyenne
 
     switch (revenuTranche) {
       case "r1":
