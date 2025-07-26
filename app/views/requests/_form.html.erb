@@ -89,7 +89,8 @@
     }
     
     function showRegionSection() {
-      console.log('Showing region section for:', regionSelect.value);
+      const selectedRegion = regionSelect.value;
+      console.log('Showing region section for:', selectedRegion);
       
       // Masquer toutes les sections
       sections.forEach(section => {
@@ -98,7 +99,6 @@
       });
       
       // Afficher la section correspondante
-      const selectedRegion = regionSelect.value;
       if (selectedRegion) {
         const targetSection = document.getElementById(selectedRegion + '-section');
         console.log('Looking for section:', selectedRegion + '-section');
@@ -111,8 +111,14 @@
       }
     }
     
-    // Initialiser l'affichage
+    // Initialiser immédiatement et avec une pause pour s'assurer que le formulaire est complètement chargé
+    console.log('Initial region value:', regionSelect.value);
     showRegionSection();
+    
+    setTimeout(function() {
+      console.log('Delayed check - region value:', regionSelect.value);
+      showRegionSection();
+    }, 200);
     
     // Écouter les changements
     regionSelect.addEventListener('change', showRegionSection);
