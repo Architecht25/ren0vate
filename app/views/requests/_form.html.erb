@@ -77,27 +77,27 @@
   document.addEventListener('DOMContentLoaded', function() {
     const regionSelect = document.getElementById('region-select');
     const sections = document.querySelectorAll('.region-section');
-    
+
     console.log('Found sections:', sections.length);
     sections.forEach((section, index) => {
       console.log(`Section ${index}:`, section.id, section);
     });
-    
+
     if (!regionSelect) {
       console.log('Region select not found');
       return;
     }
-    
+
     function showRegionSection() {
       const selectedRegion = regionSelect.value;
       console.log('Showing region section for:', selectedRegion);
-      
+
       // Masquer toutes les sections
       sections.forEach(section => {
         section.style.display = 'none';
         console.log('Hiding section:', section.id);
       });
-      
+
       // Afficher la section correspondante
       if (selectedRegion) {
         const targetSection = document.getElementById(selectedRegion + '-section');
@@ -110,16 +110,16 @@
         }
       }
     }
-    
+
     // Initialiser immédiatement et avec une pause pour s'assurer que le formulaire est complètement chargé
     console.log('Initial region value:', regionSelect.value);
     showRegionSection();
-    
+
     setTimeout(function() {
       console.log('Delayed check - region value:', regionSelect.value);
       showRegionSection();
     }, 200);
-    
+
     // Écouter les changements
     regionSelect.addEventListener('change', showRegionSection);
   });

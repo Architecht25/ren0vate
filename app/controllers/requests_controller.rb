@@ -51,18 +51,18 @@ class RequestsController < ApplicationController
 
   def destroy
     @request = Request.find(params[:id])
-    
+
     # Vérifier que la demande peut être supprimée et appartient à l'utilisateur
     unless @request.user == current_user
       redirect_to requests_path, alert: "Vous n'êtes pas autorisé à supprimer cette demande."
       return
     end
-    
+
     unless @request.can_be_deleted?
       redirect_to requests_path, alert: "Cette demande ne peut pas être supprimée car elle n'est plus en brouillon."
       return
     end
-    
+
     @request.destroy
     redirect_to requests_path, notice: "Demande supprimée avec succès."
   end
