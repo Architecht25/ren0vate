@@ -50,6 +50,11 @@ class Request < ApplicationRecord
   # Scope pour récupérer les demandes récentes
   scope :recent, -> { order(created_at: :desc) }
 
+  # Méthode pour vérifier si la demande peut être supprimée
+  def can_be_deleted?
+    status == 'draft'
+  end
+
   private
 
   def flandre?

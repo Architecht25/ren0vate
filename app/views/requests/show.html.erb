@@ -11,6 +11,16 @@
       <%= link_to edit_request_path(@request), class: "btn btn-outline-primary-custom me-2" do %>
         <i class="bi bi-pencil me-2"></i>Modifier
       <% end %>
+      <% if @request.can_be_deleted? %>
+        <%= link_to request_path(@request), method: :delete,
+                    data: { 
+                      confirm: "Êtes-vous sûr de vouloir supprimer cette demande ? Cette action est irréversible.",
+                      turbo_method: :delete
+                    },
+                    class: "btn btn-outline-danger me-2" do %>
+          <i class="bi bi-trash me-2"></i>Supprimer
+        <% end %>
+      <% end %>
       <%= link_to requests_path, class: "btn btn-outline-secondary" do %>
         <i class="bi bi-arrow-left me-2"></i>Retour
       <% end %>

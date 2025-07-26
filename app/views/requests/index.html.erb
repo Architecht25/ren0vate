@@ -12,42 +12,62 @@
     <div class="row g-3">
       <% @requests.each do |request| %>
         <div class="col-md-6 col-lg-4">
-          <%= link_to request_path(request), class: "text-decoration-none" do %>
-            <div class="card border-0 bg-light-custom h-100 property-card">
-              <div class="card-body p-4">
-                <div class="d-flex align-items-center mb-3">
-                  <div class="icon-circle me-3">
-                    <i class="bi bi-file-earmark-text"></i>
-                  </div>
-                  <div class="flex-grow-1">
-                    <h5 class="card-title text-dark mb-1 fw-normal"><%= request.title %></h5>
-                    <p class="text-muted-custom mb-0 small">
-                      <i class="bi bi-calendar me-1"></i>
-                      <%= request.created_at.strftime("%d/%m/%Y") %>
-                    </p>
-                  </div>
+          <div class="card border-0 bg-light-custom h-100 property-card">
+            <div class="card-body p-4">
+              <div class="d-flex align-items-center mb-3">
+                <div class="icon-circle me-3">
+                  <i class="bi bi-file-earmark-text"></i>
                 </div>
-                <div class="mt-3">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <% status_class = case request.status
-                         when 'draft' then 'secondary'
-                         when 'pending' then 'warning'
-                         when 'in_progress' then 'info'
-                         when 'completed' then 'success'
-                         else 'secondary'
-                       end %>
-                    <span class="badge bg-<%= status_class %> rounded-pill px-3 py-2">
-                      <%= request.status&.humanize || 'Brouillon' %>
-                    </span>
-                    <small class="text-muted-custom">
-                      <i class="bi bi-clock me-1"></i>
-                      <%= time_ago_in_words(request.updated_at) %>
-                    </small>
-                  </div>
+                <div class="flex-grow-1">
+                  <h5 class="card-title text-dark mb-1 fw-normal">
+                    <%= link_to request.title, request_path(request), class: "text-decoration-none text-dark" %>
+                  </h5>
+                  <p class="text-muted-custom mb-0 small">
+                    <i class="bi bi-calendar me-1"></i>
+                    <%= request.created_at.strftime("%d/%m/%Y") %>
+                  </p>
+                </div>
+              </div>
+              <div class="mt-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <% status_class = case request.status
+                       when 'draft' then 'secondary'
+                       when 'pending' then 'warning'
+                       when 'in_progress' then 'info'
+                       when 'completed' then 'success'
+                       else 'secondary'
+                     end %>
+                  <span class="badge bg-<%= status_class %> rounded-pill px-3 py-2">
+                    <%= request.status&.humanize || 'Brouillon' %>
+                  </span>
+                  <small class="text-muted-custom">
+                    <i class="bi bi-clock me-1"></i>
+                    <%= time_ago_in_words(request.updated_at) %>
+                  </small>
+                </div>
+                
+                <!-- Actions pour les demandes -->
+                <div class="d-flex gap-2">
+                  <%= link_to request_path(request), class: "btn btn-sm btn-outline-primary-custom flex-fill" do %>
+                    <i class="bi bi-eye me-1"></i>Voir
+                  <% end %>
+                  <%= link_to edit_request_path(request), class: "btn btn-sm btn-outline-secondary" do %>
+                    <i class="bi bi-pencil"></i>
+                  <% end %>
+                  <% if request.can_be_deleted? %>
+                    <%= link_to request_path(request), method: :delete,
+                                data: { 
+                                  confirm: "Supprimer cette demande ?",
+                                  turbo_method: :delete
+                                },
+                                class: "btn btn-sm btn-outline-danger" do %>
+                      <i class="bi bi-trash"></i>
+                    <% end %>
+                  <% end %>
                 </div>
               </div>
             </div>
-          <% end %>
+          </div>
         </div>
       <% end %>
     </div>
