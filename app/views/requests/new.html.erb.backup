@@ -1,0 +1,210 @@
+<div class="container-fluid px-4 py-4">
+  <!-- Header épuré -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-file-earmark-plus"></i>
+      </div>
+      <h1 class="h3 text-primary-custom mb-0 fw-normal">Nouvelle Demande</h1>
+    </div>
+    <%= link_to requests_path, class: "btn btn-outline-primary-custom px-4" do %>
+      <i class="bi bi-arrow-left me-2"></i>
+      Retour à la liste
+    <% end %>
+  </div>
+
+  <!-- Formulaire dans une card épurée -->
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h5 class="card-title text-primary-custom mb-4">
+            <i class="bi bi-info-circle me-2"></i>Informations de la demande
+          </h5>
+
+          <%= form_with model: @request, local: true, class: "needs-validation", novalidate: true do |form| %>
+            <div class="mb-3">
+              <%= form.label :title, "Titre de la demande*", class: "form-label" %>
+              <%= form.text_field :title, class: "form-control", placeholder: "Ex: Demande de prime pour isolation toiture", required: true %>
+              <div class="invalid-feedback">
+                Veuillez entrer un titre pour votre demande.
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <%= form.label :description, "Description de la demande*", class: "form-label" %>
+              <%= form.text_area :description, rows: 3, class: "form-control", placeholder: "Décrivez brièvement votre demande de prime...", required: true %>
+              <div class="invalid-feedback">
+                Veuillez entrer une description pour votre demande.
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <%= form.label :region, "Région*", class: "form-label" %>
+              <%= form.select :region,
+                  [
+                    ["Bruxelles", "bruxelles"],
+                    ["Wallonie", "wallonie"],
+                    ["Flandre", "flandre"]
+                  ],
+                  { include_blank: "-- Sélectionnez votre région --" },
+                  { class: "form-select", required: true, id: "request_region" } %>
+              <div class="invalid-feedback">
+                Veuillez sélectionner une région.
+              </div>
+            </div>
+
+            <% if defined?(Property) && current_user.properties.any? %>
+              <div class="mb-3">
+                <%= form.label :property_id, "Bien immobilier concerné*", class: "form-label" %>
+                <%= form.collection_select :property_id, current_user.properties, :id, :full_address, { include_blank: "-- Sélectionner un bien --" }, { class: "form-select", required: true } %>
+                <div class="invalid-feedback">
+                  Veuillez sélectionner un bien immobilier.
+                </div>
+              </div>
+            <% else %>
+              <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong>Aucun bien immobilier trouvé</strong>
+                <p class="mb-2">Vous devez d'abord ajouter un bien immobilier avant de créer une demande.</p>
+                <%= link_to "Ajouter un bien immobilier", new_property_path, class: "btn btn-primary btn-sm" %>
+              </div>
+            <% end %>
+
+            <!-- Formulaires spécifiques par région -->
+            <div id="region-specific-form">
+              <div id="flandre-form" class="region-form" style="display: none;">
+                <%= render 'requests/region_forms/flandre', form: form %>
+              </div>
+              <div id="bruxelles-form" class="region-form" style="display: none;">
+                <%= render 'requests/region_forms/bruxelles', form: form %>
+              </div>
+              <div id="wallonie-form" class="region-form" style="display: none;">
+                <%= render 'requests/region_forms/wallonie', form: form %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar avec conseils et informations -->
+    <div class="col-lg-4">
+      <div class="card border-0 bg-light-custom mb-4">
+        <div class="card-body p-4">
+          <h6 class="card-title text-primary-custom mb-3">
+            <i class="bi bi-lightbulb me-2"></i>Conseils
+          </h6>
+          <ul class="list-unstyled text-muted-custom small">
+            <li class="mb-2">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              Choisissez un titre descriptif
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              Sélectionnez votre région
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              Associez à un bien immobilier
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              Détaillez votre demande
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h6 class="card-title text-primary-custom mb-3">
+            <i class="bi bi-info-circle me-2"></i>Formulaires par région
+          </h6>
+          <p class="text-muted-custom small mb-3">
+            Chaque région a ses propres critères et formulaires pour les demandes de primes.
+          </p>
+          <ul class="list-unstyled text-muted-custom small">
+            <li class="mb-1">• Bruxelles : Formulaire spécifique RBC</li>
+            <li class="mb-1">• Wallonie : Formulaire SPW</li>
+            <li class="mb-1">• Flandre : Formulaire Vlaio</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Validation Bootstrap améliorée
+(function() {
+  'use strict';
+  var forms = document.querySelectorAll('.needs-validation');
+  Array.prototype.slice.call(forms)
+    .forEach(function(form) {
+      form.addEventListener('submit', function(event) {
+        // Désactiver temporairement les champs requis dans les formulaires cachés
+        const hiddenForms = document.querySelectorAll('.region-form[style*="display: none"]');
+        const disabledFields = [];
+
+        hiddenForms.forEach(function(hiddenForm) {
+          const requiredFields = hiddenForm.querySelectorAll('[required]');
+          requiredFields.forEach(function(field) {
+            field.removeAttribute('required');
+            disabledFields.push(field);
+          });
+        });
+
+        // Vérifier la validité du formulaire
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+
+        // Rétablir l'attribut required pour les champs qui l'avaient
+        disabledFields.forEach(function(field) {
+          field.setAttribute('required', 'required');
+        });
+
+        form.classList.add('was-validated');
+      }, false);
+    });
+})();
+
+// Gestion des formulaires spécifiques par région
+document.addEventListener('turbo:load', function() {
+  const regionSelect = document.getElementById('request_region');
+  const regionForms = document.querySelectorAll('.region-form');
+
+  if (regionSelect) {
+    regionSelect.addEventListener('change', function() {
+      // Masquer tous les formulaires
+      regionForms.forEach(function(form) {
+        form.style.display = 'none';
+        // Désactiver la validation sur les champs cachés
+        const requiredFields = form.querySelectorAll('[required]');
+        requiredFields.forEach(function(field) {
+          field.removeAttribute('required');
+        });
+      });
+
+      // Afficher le formulaire correspondant à la région sélectionnée
+      const selectedRegion = this.value;
+      if (selectedRegion) {
+        const targetForm = document.getElementById(selectedRegion + '-form');
+        if (targetForm) {
+          targetForm.style.display = 'block';
+          // Réactiver la validation sur les champs visibles
+          const requiredFields = targetForm.querySelectorAll('[data-required="true"]');
+          requiredFields.forEach(function(field) {
+            field.setAttribute('required', 'required');
+          });
+        }
+      }
+    });
+  }
+});
+</script>
+
+<!-- Utilise le fichier CSS externe properties.css -->
+<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>

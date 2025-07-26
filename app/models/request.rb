@@ -50,16 +50,20 @@ class Request < ApplicationRecord
   # Scope pour récupérer les demandes récentes
   scope :recent, -> { order(created_at: :desc) }
 
-  # Méthode pour vérifier si la demande peut être supprimée
+  # Méthodes publiques pour vérifier les permissions
   def can_be_deleted?
     status == 'draft'
   end
 
-  private
+  def can_be_edited?
+    ['draft', 'pending'].include?(status)
+  end
 
   def flandre?
     region == 'flandre'
   end
+
+  private
 
   def document_devis_must_be_attached
     errors.add(:document_devis, "doit être joint") unless document_devis.attached?
