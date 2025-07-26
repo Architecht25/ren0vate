@@ -168,67 +168,79 @@
               </div>
 
               <div class="row g-3">
-                <!-- Assèchement infiltration -->
-                <div class="col-lg-3 col-md-4">
-                  <label class="form-label small">Assèchement infiltration :</label>
+                <!-- 1. Assèchement infiltration (14,4€/m²) -->
+                <div class="col-lg-4 col-md-6">
+                  <label class="form-label small">Assèchement infiltration (m²) :</label>
                   <div class="input-group input-group-sm">
-                    <select class="form-control"
-                            data-wallonie-prime-card-target="inputInfiltration"
-                            data-action="change->wallonie-prime-card#calculateMurs">
-                      <option value="0">Non</option>
-                      <option value="1">Oui</option>
-                    </select>
+                    <input type="number"
+                           class="form-control"
+                           placeholder="Surface m²"
+                           data-wallonie-prime-card-target="inputInfiltration"
+                           data-action="input->wallonie-prime-card#calculateMurs">
                     <span class="input-group-text bg-success text-white"
                           data-wallonie-prime-card-target="resultInfiltration">0 €</span>
                   </div>
                 </div>
 
-                <!-- Assèchement humidité -->
-                <div class="col-lg-3 col-md-4">
-                  <label class="form-label small">Assèchement humidité :</label>
+                <!-- 2. Assèchement humidité ascensionnelle (19,2€/m²) -->
+                <div class="col-lg-4 col-md-6">
+                  <label class="form-label small">Assèchement humidité (m²) :</label>
                   <div class="input-group input-group-sm">
-                    <select class="form-control"
-                            data-wallonie-prime-card-target="inputHumidite"
-                            data-action="change->wallonie-prime-card#calculateMurs">
-                      <option value="0">Non</option>
-                      <option value="1">Oui</option>
-                    </select>
+                    <input type="number"
+                           class="form-control"
+                           placeholder="Surface m²"
+                           data-wallonie-prime-card-target="inputHumidite"
+                           data-action="input->wallonie-prime-card#calculateMurs">
                     <span class="input-group-text bg-success text-white"
                           data-wallonie-prime-card-target="resultHumidite">0 €</span>
                   </div>
                 </div>
 
-                <!-- Renforcement murs -->
-                <div class="col-lg-3 col-md-4">
-                  <label class="form-label small">Renforcement murs :</label>
+                <!-- 3. Renforcement murs (19,2€/m²) -->
+                <div class="col-lg-4 col-md-6">
+                  <label class="form-label small">Renforcement murs (m²) :</label>
                   <div class="input-group input-group-sm">
-                    <select class="form-control"
-                            data-wallonie-prime-card-target="inputRenforcement"
-                            data-action="change->wallonie-prime-card#calculateMurs">
-                      <option value="0">Non</option>
-                      <option value="1">Oui</option>
-                    </select>
+                    <input type="number"
+                           class="form-control"
+                           placeholder="Surface m²"
+                           data-wallonie-prime-card-target="inputRenforcement"
+                           data-action="input->wallonie-prime-card#calculateMurs">
                     <span class="input-group-text bg-success text-white"
                           data-wallonie-prime-card-target="resultRenforcement">0 €</span>
                   </div>
                 </div>
 
-                <!-- Démolition reconstruction -->
-                <div class="col-lg-3 col-md-4">
-                  <label class="form-label small">Démolition/reconstruction :</label>
+                <!-- 4. Élimination mérule (840€ forfait) -->
+                <div class="col-lg-4 col-md-6">
+                  <label class="form-label small">Élimination mérule :</label>
                   <div class="input-group input-group-sm">
                     <select class="form-control"
-                            data-wallonie-prime-card-target="inputDemolition"
+                            data-wallonie-prime-card-target="inputMerule"
                             data-action="change->wallonie-prime-card#calculateMurs">
                       <option value="0">Non</option>
                       <option value="1">Oui</option>
                     </select>
                     <span class="input-group-text bg-success text-white"
-                          data-wallonie-prime-card-target="resultDemolition">0 €</span>
+                          data-wallonie-prime-card-target="resultMerule">0 €</span>
                   </div>
                 </div>
 
-                <!-- Isolation thermique murs -->
+                <!-- 5. Élimination radon (840€ forfait) -->
+                <div class="col-lg-4 col-md-6">
+                  <label class="form-label small">Élimination radon :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-wallonie-prime-card-target="inputRadon"
+                            data-action="change->wallonie-prime-card#calculateMurs">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-success text-white"
+                          data-wallonie-prime-card-target="resultRadon">0 €</span>
+                  </div>
+                </div>
+
+                <!-- 6. Isolation thermique murs (52,8€/m²) -->
                 <div class="col-lg-4 col-md-6">
                   <label class="form-label small">Isolation thermique (m²) :</label>
                   <div class="input-group input-group-sm">
@@ -242,7 +254,7 @@
                   </div>
                 </div>
 
-                <!-- Isolation biosourcée murs -->
+                <!-- 7. Isolation biosourcée murs (72€/m²) -->
                 <div class="col-lg-4 col-md-6">
                   <label class="form-label small">Isolation biosourcée (m²) :</label>
                   <div class="input-group input-group-sm">
@@ -253,21 +265,6 @@
                            data-action="input->wallonie-prime-card#calculateMurs">
                     <span class="input-group-text bg-success text-white"
                           data-wallonie-prime-card-target="resultIsolationBiosource">0 €</span>
-                  </div>
-                </div>
-
-                <!-- Rénovation façade -->
-                <div class="col-lg-4 col-md-6">
-                  <label class="form-label small">Rénovation façade :</label>
-                  <div class="input-group input-group-sm">
-                    <select class="form-control"
-                            data-wallonie-prime-card-target="inputFacade"
-                            data-action="change->wallonie-prime-card#calculateMurs">
-                      <option value="0">Non</option>
-                      <option value="1">Oui</option>
-                    </select>
-                    <span class="input-group-text bg-success text-white"
-                          data-wallonie-prime-card-target="resultFacade">0 €</span>
                   </div>
                 </div>
               </div>
@@ -330,31 +327,29 @@
 
                 <!-- Remplacement supports -->
                 <div class="col-md-6">
-                  <label class="form-label small">Remplacement supports :</label>
+                  <label class="form-label small">Remplacement supports (m²) :</label>
                   <div class="input-group input-group-sm">
-                    <select class="form-control"
-                            data-wallonie-prime-card-target="inputSupports"
-                            data-action="change->wallonie-prime-card#calculateSols">
-                      <option value="0">Non</option>
-                      <option value="1">Oui</option>
-                    </select>
+                    <input type="number"
+                           class="form-control"
+                           placeholder="Surface m²"
+                           data-wallonie-prime-card-target="inputSupports"
+                           data-action="input->wallonie-prime-card#calculateSols">
                     <span class="input-group-text bg-secondary text-white"
                           data-wallonie-prime-card-target="resultSupports">0 €</span>
                   </div>
                 </div>
 
-                <!-- Système ventilation anti-radon -->
+                <!-- Isolation finition planchers (12€/m²) -->
                 <div class="col-md-6">
-                  <label class="form-label small">Ventilation anti-radon :</label>
+                  <label class="form-label small">Finition planchers (m²) :</label>
                   <div class="input-group input-group-sm">
-                    <select class="form-control"
-                            data-wallonie-prime-card-target="inputRadon"
-                            data-action="change->wallonie-prime-card#calculateSols">
-                      <option value="0">Non</option>
-                      <option value="1">Oui</option>
-                    </select>
+                    <input type="number"
+                           class="form-control"
+                           placeholder="Surface m²"
+                           data-wallonie-prime-card-target="inputFinitionPlanchers"
+                           data-action="input->wallonie-prime-card#calculateSols">
                     <span class="input-group-text bg-secondary text-white"
-                          data-wallonie-prime-card-target="resultRadon">0 €</span>
+                          data-wallonie-prime-card-target="resultFinitionPlanchers">0 €</span>
                   </div>
                 </div>
               </div>

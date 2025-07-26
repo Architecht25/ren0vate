@@ -92,12 +92,17 @@ export default class extends Controller {
 
   calculateMontantFixe(calculData) {
     // Pour les montants fixes (audit par exemple)
-    // Si input = 1 (Oui), on applique le montant, sinon 0
+    // Si input = "1" (Oui), on applique le montant, sinon 0
     const firstInput = this.inputs[0]
     if (!firstInput) return 0
 
-    const value = parseFloat(firstInput.value) || 0
-    return value === 1 ? calculData.montant : 0
+    const inputValue = firstInput.value
+    const isSelected = inputValue === "1" || inputValue === 1
+    const montant = isSelected ? calculData.montant : 0
+
+    console.log(`💰 Montant fixe simple - Input: "${inputValue}", Sélectionné: ${isSelected}, Montant: ${montant}€`)
+
+    return montant
   }
 
   calculateParM2(calculData) {
@@ -195,32 +200,50 @@ export default class extends Controller {
 
       // Calculer le montant pour cette prime spécifique
       let montant = 0
-      const inputValue = parseFloat(input.value) || 0
+      const inputValue = input.value
+
+      console.log(`🔍 Calcul pour ${slug}:`, {
+        inputSelector,
+        inputValue,
+        inputType: input.type,
+        calculDataType: calculData.type,
+        calculData
+      })
 
       switch (calculData.type) {
         case 'montant_fixe':
           // Pour les montants fixes (audit, primes ECS, etc.)
-          // Si input = 1 (Oui), on applique le montant, sinon 0
-          montant = inputValue === 1 ? calculData.montant : 0
+          // Si input = "1" (Oui), on applique le montant, sinon 0
+          const isSelected = inputValue === "1" || inputValue === 1
+          montant = isSelected ? calculData.montant : 0
+          console.log(`💰 Montant fixe: ${isSelected ? 'Sélectionné' : 'Non sélectionné'} = ${montant}€`)
           break
         case 'par_m2':
         case 'montant_m2':  // Support pour les deux formats
           // Pour les calculs par m² (isolation par exemple)
           // montant = surface_m2 * prix_par_m2
-          montant = inputValue * (calculData.montant_m2 || calculData.montant_par_m2 || calculData.prix_par_m2 || calculData.montant || 0)
+          const surface = parseFloat(inputValue) || 0
+          const prixParM2 = calculData.montant_m2 || calculData.montant_par_m2 || calculData.prix_par_m2 || calculData.montant || 0
+          montant = surface * prixParM2
+          console.log(`📏 Par m²: ${surface}m² × ${prixParM2}€/m² = ${montant}€`)
           break
         case 'par_unite':
         case 'montant_par_unite':  // Support pour les deux formats
           // Pour les calculs par unité (fenêtres, radiateurs, etc.)
           // montant = nombre_unites * prix_par_unite
-          montant = inputValue * (calculData.montant_unitaire || calculData.montant_par_unite || calculData.prix_par_unite || calculData.montant || 0)
+          const unites = parseFloat(inputValue) || 0
+          const prixParUnite = calculData.montant_unitaire || calculData.montant_par_unite || calculData.prix_par_unite || calculData.montant || 0
+          montant = unites * prixParUnite
+          console.log(`🔢 Par unité: ${unites} × ${prixParUnite}€ = ${montant}€`)
           break
         case 'pourcentage':
           // Pour les calculs en pourcentage (du montant des travaux)
+          const montantTravaux = parseFloat(inputValue) || 0
           const pourcentage = calculData.pourcentage || calculData.taux_pourcentage || 0
           const montantMax = calculData.montant_max || Infinity
-          const calculResult = (inputValue * pourcentage) / 100
+          const calculResult = (montantTravaux * pourcentage) / 100
           montant = Math.min(calculResult, montantMax)
+          console.log(`📊 Pourcentage: ${montantTravaux}€ × ${pourcentage}% = ${montant}€ (max: ${montantMax}€)`)
           break
         default:
           console.warn(`Type de calcul non reconnu dans composite: ${calculData.type}`)
@@ -230,6 +253,9 @@ export default class extends Controller {
       const resultElement = this.element.querySelector(resultSelector)
       if (resultElement) {
         resultElement.textContent = `${montant.toLocaleString('fr-FR')} €`
+        console.log(`✅ Résultat mis à jour pour ${slug}: ${montant}€`)
+      } else {
+        console.warn(`❌ Element résultat non trouvé: ${resultSelector}`)
       }
 
       totalGlobal += montant
@@ -262,10 +288,10 @@ export default class extends Controller {
           { slug: 'wallonie_assechement_murs_infiltration', inputSelector: '[data-wallonie-prime-card-target="inputInfiltration"]', resultSelector: '[data-wallonie-prime-card-target="resultInfiltration"]' },
           { slug: 'wallonie_assechement_murs_humidite', inputSelector: '[data-wallonie-prime-card-target="inputHumidite"]', resultSelector: '[data-wallonie-prime-card-target="resultHumidite"]' },
           { slug: 'wallonie_renforcement_murs', inputSelector: '[data-wallonie-prime-card-target="inputRenforcement"]', resultSelector: '[data-wallonie-prime-card-target="resultRenforcement"]' },
-          { slug: 'wallonie_isolation_murs', inputSelector: '[data-wallonie-prime-card-target="inputDemolition"]', resultSelector: '[data-wallonie-prime-card-target="resultDemolition"]' },
+          { slug: 'wallonie_elimination_merule', inputSelector: '[data-wallonie-prime-card-target="inputMerule"]', resultSelector: '[data-wallonie-prime-card-target="resultMerule"]' },
+          { slug: 'wallonie_elimination_radon', inputSelector: '[data-wallonie-prime-card-target="inputRadon"]', resultSelector: '[data-wallonie-prime-card-target="resultRadon"]' },
           { slug: 'wallonie_isolation_murs', inputSelector: '[data-wallonie-prime-card-target="inputIsolationThermique"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationThermique"]' },
-          { slug: 'wallonie_isolation_murs_biosource', inputSelector: '[data-wallonie-prime-card-target="inputIsolationBiosource"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationBiosource"]' },
-          { slug: 'wallonie_renforcement_murs', inputSelector: '[data-wallonie-prime-card-target="inputFacade"]', resultSelector: '[data-wallonie-prime-card-target="resultFacade"]' }
+          { slug: 'wallonie_isolation_murs_biosource', inputSelector: '[data-wallonie-prime-card-target="inputIsolationBiosource"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationBiosource"]' }
         ]
 
       case 'wallonie_sols_global':
@@ -273,7 +299,7 @@ export default class extends Controller {
           { slug: 'wallonie_isolation_sols', inputSelector: '[data-wallonie-prime-card-target="inputIsolationSols"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationSols"]' },
           { slug: 'wallonie_isolation_sols_biosource', inputSelector: '[data-wallonie-prime-card-target="inputIsolationBiosource"]', resultSelector: '[data-wallonie-prime-card-target="resultIsolationBiosource"]' },
           { slug: 'wallonie_remplacement_supports_circulation', inputSelector: '[data-wallonie-prime-card-target="inputSupports"]', resultSelector: '[data-wallonie-prime-card-target="resultSupports"]' },
-          { slug: 'wallonie_elimination_radon', inputSelector: '[data-wallonie-prime-card-target="inputRadon"]', resultSelector: '[data-wallonie-prime-card-target="resultRadon"]' }
+          { slug: 'wallonie_isolation_finition_planchers', inputSelector: '[data-wallonie-prime-card-target="inputFinitionPlanchers"]', resultSelector: '[data-wallonie-prime-card-target="resultFinitionPlanchers"]' }
         ]
 
       case 'wallonie_ventilation_global':
