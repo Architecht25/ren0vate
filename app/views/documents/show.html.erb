@@ -56,6 +56,54 @@
             </div>
           <% end %>
 
+          <!-- Associations -->
+          <% if @document.property.present? || @document.project.present? || @document.request.present? %>
+            <div class="mb-4">
+              <label class="form-label text-muted-custom">Associations</label>
+              <div class="row g-2">
+                <% if @document.property.present? %>
+                  <div class="col-md-4">
+                    <div class="bg-light p-3 rounded">
+                      <div class="d-flex align-items-center">
+                        <i class="bi bi-house me-2 text-primary"></i>
+                        <div>
+                          <small class="text-muted d-block">Bien immobilier</small>
+                          <%= link_to @document.property.address, property_path(@document.property), class: "text-decoration-none" %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+                <% if @document.project.present? %>
+                  <div class="col-md-4">
+                    <div class="bg-light p-3 rounded">
+                      <div class="d-flex align-items-center">
+                        <i class="bi bi-folder me-2 text-success"></i>
+                        <div>
+                          <small class="text-muted d-block">Projet</small>
+                          <%= link_to @document.project.display_name, project_path(@document.project), class: "text-decoration-none" %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+                <% if @document.request.present? %>
+                  <div class="col-md-4">
+                    <div class="bg-light p-3 rounded">
+                      <div class="d-flex align-items-center">
+                        <i class="bi bi-clipboard-check me-2 text-info"></i>
+                        <div>
+                          <small class="text-muted d-block">Demande</small>
+                          <%= link_to @document.request.title, request_path(@document.request), class: "text-decoration-none" %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+
           <% if @document.file.attached? %>
             <div class="mb-3">
               <label class="form-label text-muted-custom">Fichier attaché</label>

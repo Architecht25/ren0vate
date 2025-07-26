@@ -208,7 +208,7 @@ class DocumentsController < ApplicationController
   end
 
   def document_params
-    params.require(:document).permit(:type_document, :notes, :status, :document_source, :file, :file_url)
+    params.require(:document).permit(:type_document, :notes, :status, :document_source, :file, :file_url, :property_id, :project_id, :request_id, :simulation_id)
   end
 
   def can_access_document?(document)

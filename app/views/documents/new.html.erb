@@ -39,22 +39,65 @@
               </div>
             </div>
 
-            <!-- Contexte (si fourni) -->
-            <% if @property %>
-              <%= form.hidden_field :property_id, value: @property.id %>
-              <div class="alert alert-info mb-4">
-                <i class="bi bi-house-door me-2"></i>
-                Document associé au bien : <strong><%= @property.name %></strong>
-              </div>
-            <% end %>
+            <!-- Association à un bien -->
+            <div class="mb-4">
+              <%= form.label :property_id, "Bien associé", class: "form-label" %>
+              <% if @property %>
+                <%= form.hidden_field :property_id, value: @property.id %>
+                <div class="alert alert-info">
+                  <i class="bi bi-house-door me-2"></i>
+                  Document associé au bien : <strong><%= @property.name %></strong>
+                </div>
+              <% else %>
+                <%= form.select :property_id,
+                    options_from_collection_for_select(current_user.properties, :id, :address, @document.property_id),
+                    { include_blank: "-- Sélectionnez un bien (optionnel) --" },
+                    { class: "form-select" } %>
+                <small class="form-text text-muted">
+                  Sélectionnez le bien concerné par ce document.
+                </small>
+              <% end %>
+            </div>
 
-            <% if @project %>
-              <%= form.hidden_field :project_id, value: @project.id %>
-              <div class="alert alert-info mb-4">
-                <i class="bi bi-tools me-2"></i>
-                Document associé au chantier : <strong><%= @project.nom %></strong>
-              </div>
-            <% end %>
+            <!-- Association à un projet -->
+            <div class="mb-4">
+              <%= form.label :project_id, "Projet associé", class: "form-label" %>
+              <% if @project %>
+                <%= form.hidden_field :project_id, value: @project.id %>
+                <div class="alert alert-info">
+                  <i class="bi bi-tools me-2"></i>
+                  Document associé au projet : <strong><%= @project.nom %></strong>
+                </div>
+              <% else %>
+                <%= form.select :project_id,
+                    options_from_collection_for_select(current_user.projects, :id, :display_name, @document.project_id),
+                    { include_blank: "-- Sélectionnez un projet (optionnel) --" },
+                    { class: "form-select" } %>
+                <small class="form-text text-muted">
+                  Sélectionnez le projet concerné par ce document.
+                </small>
+              <% end %>
+            </div>
+
+            <!-- Association à une demande -->
+            <div class="mb-4">
+              <%= form.label :request_id, "Demande associée", class: "form-label" %>
+              <% if @request %>
+                <%= form.hidden_field :request_id, value: @request.id %>
+                <div class="alert alert-info">
+                  <i class="bi bi-file-text me-2"></i>
+                  Document associé à la demande : <strong><%= @request.title %></strong>
+                </div>
+              <% else %>
+                <%= form.select :request_id,
+                    options_from_collection_for_select(current_user.requests, :id, :title, @document.request_id),
+                    { include_blank: "-- Sélectionnez une demande (optionnel) --" },
+                    { class: "form-select" } %>
+                <small class="form-text text-muted">
+                  Sélectionnez la demande concernée par ce document.
+                </small>
+              <% end %>
+            </div>
 
             <!-- Zone de drag & drop -->
             <div class="mb-4">

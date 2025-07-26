@@ -55,6 +55,37 @@
                 </div>
               </div>
 
+              <!-- Associations -->
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :property_id, "Bien immobilier", class: "form-label" %>
+                  <%= form.select :property_id,
+                        options_from_collection_for_select(current_user.properties, :id, :address, @document.property_id),
+                        { prompt: "Sélectionner un bien..." },
+                        { class: "form-select" } %>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :project_id, "Projet", class: "form-label" %>
+                  <%= form.select :project_id,
+                        options_from_collection_for_select(current_user.projects, :id, :display_name, @document.project_id),
+                        { prompt: "Sélectionner un projet..." },
+                        { class: "form-select" } %>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <div class="mb-3">
+                  <%= form.label :request_id, "Demande", class: "form-label" %>
+                  <%= form.select :request_id,
+                        options_from_collection_for_select(current_user.requests, :id, :title, @document.request_id),
+                        { prompt: "Sélectionner une demande..." },
+                        { class: "form-select" } %>
+                </div>
+              </div>
+
               <!-- Boutons d'action -->
               <div class="col-12">
                 <div class="d-flex gap-3 justify-content-end">
