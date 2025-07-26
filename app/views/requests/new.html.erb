@@ -32,6 +32,14 @@
             </div>
 
             <div class="mb-3">
+              <%= form.label :description, "Description de la demande*", class: "form-label" %>
+              <%= form.text_area :description, rows: 3, class: "form-control", placeholder: "Décrivez brièvement votre demande de prime...", required: true %>
+              <div class="invalid-feedback">
+                Veuillez entrer une description pour votre demande.
+              </div>
+            </div>
+
+            <div class="mb-3">
               <%= form.label :region, "Région*", class: "form-label" %>
               <%= form.select :region,
                   [
@@ -46,13 +54,20 @@
               </div>
             </div>
 
-            <% if defined?(Property) && Property.any? %>
+            <% if defined?(Property) && current_user.properties.any? %>
               <div class="mb-3">
                 <%= form.label :property_id, "Bien immobilier concerné*", class: "form-label" %>
-                <%= form.collection_select :property_id, Property.all, :id, :name, { include_blank: "-- Sélectionner un bien --" }, { class: "form-select", required: true } %>
+                <%= form.collection_select :property_id, current_user.properties, :id, :full_address, { include_blank: "-- Sélectionner un bien --" }, { class: "form-select", required: true } %>
                 <div class="invalid-feedback">
                   Veuillez sélectionner un bien immobilier.
                 </div>
+              </div>
+            <% else %>
+              <div class="alert alert-warning">
+                <i class="bi bi-exclamation-triangle me-2"></i>
+                <strong>Aucun bien immobilier trouvé</strong>
+                <p class="mb-2">Vous devez d'abord ajouter un bien immobilier avant de créer une demande.</p>
+                <%= link_to "Ajouter un bien immobilier", new_property_path, class: "btn btn-primary btn-sm" %>
               </div>
             <% end %>
 

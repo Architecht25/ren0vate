@@ -15,11 +15,14 @@ class ProjectsController < ApplicationController
   end
 
   def create
-    @project = current_user.projects.build(project_params)
+    @project = Project.new(project_params)
+    @project.user = current_user
 
     if @project.save
       redirect_to @project, notice: 'Chantier créé avec succès.'
     else
+      Rails.logger.error "Project validation errors: #{@project.errors.full_messages}"
+      flash.now[:alert] = "Erreurs de validation : #{@project.errors.full_messages.join(', ')}"
       render :new, status: :unprocessable_entity
     end
   end

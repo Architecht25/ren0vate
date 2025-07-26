@@ -249,47 +249,64 @@
 
                   <td class="text-center">
                     <div class="dropdown">
-                      <button class="btn btn-sm btn-outline-secondary dropdown-toggle"
+                      <button class="btn btn-sm btn-outline-secondary dropdown-toggle px-3"
                               type="button"
-                              data-bs-toggle="dropdown">
+                              id="dropdownMenuButton<%= document.id %>"
+                              data-bs-auto-close="true">
+                        <i class="bi bi-three-dots me-1"></i>
                         Actions
                       </button>
-                      <ul class="dropdown-menu">
+                      <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="dropdownMenuButton<%= document.id %>">
                         <% if document.file.attached? %>
                           <li>
                             <%= link_to download_document_path(document),
-                                class: "dropdown-item",
+                                class: "dropdown-item d-flex align-items-center",
                                 target: "_blank" do %>
-                              <i class="bi bi-download me-2"></i>Télécharger
+                              <i class="bi bi-download me-2 text-primary"></i>
+                              <span>Télécharger</span>
                             <% end %>
                           </li>
 
                           <% if document.preview_available? %>
                             <li>
                               <%= link_to preview_document_path(document),
-                                  class: "dropdown-item",
+                                  class: "dropdown-item d-flex align-items-center",
                                   target: "_blank" do %>
-                                <i class="bi bi-eye me-2"></i>Prévisualiser
+                                <i class="bi bi-eye me-2 text-info"></i>
+                                <span>Prévisualiser</span>
                               <% end %>
                             </li>
                           <% end %>
+                          <li><hr class="dropdown-divider my-1"></li>
                         <% end %>
 
                         <li>
-                          <%= link_to edit_document_path(document),
-                              class: "dropdown-item" do %>
-                            <i class="bi bi-pencil me-2"></i>Modifier
+                          <%= link_to document_path(document),
+                              class: "dropdown-item d-flex align-items-center" do %>
+                            <i class="bi bi-eye me-2 text-secondary"></i>
+                            <span>Voir détails</span>
                           <% end %>
                         </li>
 
-                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                          <%= link_to edit_document_path(document),
+                              class: "dropdown-item d-flex align-items-center" do %>
+                            <i class="bi bi-pencil me-2 text-warning"></i>
+                            <span>Modifier</span>
+                          <% end %>
+                        </li>
+
+                        <li><hr class="dropdown-divider my-1"></li>
 
                         <li>
                           <%= link_to document_path(document),
-                              class: "dropdown-item text-danger",
-                              method: :delete,
-                              confirm: "Êtes-vous sûr de vouloir supprimer ce document ?" do %>
-                            <i class="bi bi-trash me-2"></i>Supprimer
+                              class: "dropdown-item d-flex align-items-center text-danger",
+                              data: {
+                                turbo_method: :delete,
+                                turbo_confirm: "Êtes-vous sûr de vouloir supprimer ce document ?"
+                              } do %>
+                            <i class="bi bi-trash me-2"></i>
+                            <span>Supprimer</span>
                           <% end %>
                         </li>
                       </ul>
@@ -361,6 +378,90 @@
   transition: all 0.2s ease;
 }
 
+/* Styles pour les dropdowns manuels */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: fixed !important;
+  top: auto !important;
+  left: auto !important;
+  z-index: 9999 !important;
+  display: none;
+  min-width: 11rem;
+  padding: 0.5rem 0;
+  margin: 0;
+  font-size: 0.875rem;
+  color: #212529;
+  text-align: left;
+  list-style: none;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0.5rem;
+  box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.25);
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.dropdown-menu.show {
+  display: block !important;
+}
+
+.dropdown-menu-end {
+  right: 0;
+  left: auto;
+}
+
+/* Styles pour la table avec overflow visible */
+.table-responsive {
+  overflow: visible !important;
+}
+
+.table-responsive .table {
+  overflow: visible;
+}
+
+.table tbody tr:last-child .dropdown-menu {
+  transform: translateY(-100%);
+  margin-top: -0.5rem;
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  clear: both;
+  font-weight: 400;
+  color: #212529;
+  text-align: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+  background-color: transparent;
+  border: 0;
+  transition: all 0.15s ease-in-out;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  color: #1e2125;
+  background-color: #f8f9fa;
+  transform: translateX(2px);
+}
+
+.dropdown-item.text-danger:hover {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.dropdown-divider {
+  height: 0;
+  margin: 0.5rem 0;
+  overflow: hidden;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
 .document-row:hover {
   background-color: rgba(var(--bs-primary-rgb), 0.02);
 }
@@ -404,6 +505,21 @@
     height: 40px;
     font-size: 1rem;
   }
+
+  /* Boutons Actions plus compacts sur mobile */
+  .dropdown-toggle {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem !important;
+  }
+
+  .dropdown-menu {
+    min-width: 10rem;
+    font-size: 0.8rem;
+  }
+
+  .dropdown-item {
+    padding: 0.375rem 0.75rem;
+  }
 }
 
 /* Animation pour les statistiques */
@@ -412,6 +528,89 @@
   transition: transform 0.2s ease;
 }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  initializeDropdowns();
+});
+
+document.addEventListener('turbo:load', function() {
+  initializeDropdowns();
+});
+
+function initializeDropdowns() {
+  console.log('Initializing dropdowns...');
+
+  // Supprimer les anciens event listeners en clonant les boutons
+  document.querySelectorAll('.dropdown-toggle').forEach(function(button) {
+    const newButton = button.cloneNode(true);
+    button.parentNode.replaceChild(newButton, button);
+  });
+
+  // Ajouter les event listeners aux nouveaux boutons
+  document.querySelectorAll('.dropdown-toggle').forEach(function(button) {
+    button.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const dropdown = this.closest('.dropdown');
+      const menu = dropdown.querySelector('.dropdown-menu');
+
+      console.log('Button clicked:', this.id);
+
+      // Fermer tous les autres dropdowns
+      document.querySelectorAll('.dropdown-menu').forEach(function(otherMenu) {
+        if (otherMenu !== menu) {
+          otherMenu.classList.remove('show');
+        }
+      });
+
+      // Calculer la position du menu
+      const rect = this.getBoundingClientRect();
+      const menuHeight = 250; // hauteur estimée du menu
+      const viewportHeight = window.innerHeight;
+      const spaceBelow = viewportHeight - rect.bottom;
+      const spaceAbove = rect.top;
+
+      // Positionner le menu
+      if (spaceBelow >= menuHeight || spaceBelow >= spaceAbove) {
+        // Afficher en dessous
+        menu.style.top = (rect.bottom + window.scrollY) + 'px';
+        menu.style.transform = 'none';
+      } else {
+        // Afficher au-dessus
+        menu.style.top = (rect.top + window.scrollY) + 'px';
+        menu.style.transform = 'translateY(-100%)';
+      }
+
+      // Position horizontale (aligné à droite)
+      menu.style.left = (rect.right - menu.offsetWidth) + 'px';
+
+      // Toggle ce dropdown
+      menu.classList.toggle('show');
+      console.log('Menu toggled, now showing:', menu.classList.contains('show'));
+    });
+  });
+
+  // Fermer dropdowns en cliquant ailleurs
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.dropdown')) {
+      document.querySelectorAll('.dropdown-menu.show').forEach(function(menu) {
+        menu.classList.remove('show');
+      });
+    }
+  });
+
+  // Fermer dropdowns lors du scroll
+  window.addEventListener('scroll', function() {
+    document.querySelectorAll('.dropdown-menu.show').forEach(function(menu) {
+      menu.classList.remove('show');
+    });
+  });
+
+  console.log('Dropdowns initialized:', document.querySelectorAll('.dropdown-toggle').length);
+}
+</script>
 
 <!-- Utilise le fichier CSS externe properties.css -->
 <%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>

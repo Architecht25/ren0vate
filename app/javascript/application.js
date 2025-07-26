@@ -1,5 +1,5 @@
 import "@hotwired/turbo-rails"
-import "bootstrap"
+// import "bootstrap" // Commenté car on utilise Bootstrap via CDN
 import "sweetalert2"
 
 import { Application } from "@hotwired/stimulus"

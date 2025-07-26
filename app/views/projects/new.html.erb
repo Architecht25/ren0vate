@@ -64,17 +64,30 @@
                   { class: "form-select" } %>
             </div>
 
-            <% if defined?(Property) && current_user.properties.any? %>
-              <!-- Sélection de propriété -->
-              <div class="mb-3">
-                <%= form.label :property_id, "Bien immobilier associé", class: "form-label" %>
+            <!-- Sélection de propriété obligatoire -->
+            <div class="mb-3">
+              <%= form.label :property_id, "Bien immobilier associé*", class: "form-label" %>
+              <% if defined?(Property) && current_user.properties.any? %>
                 <%= form.collection_select :property_id, current_user.properties, :id, :full_address, { include_blank: "-- Sélectionner un bien --" }, class: "form-select" %>
-              </div>
-            <% end %>
+                <div class="form-text">Sélectionnez le bien immobilier pour lequel vous créez ce chantier de rénovation.</div>
+              <% else %>
+                <div class="alert alert-warning">
+                  <i class="bi bi-exclamation-triangle me-2"></i>
+                  <strong>Aucun bien immobilier trouvé</strong>
+                  <p class="mb-2">Vous devez d'abord ajouter un bien immobilier avant de créer un chantier.</p>
+                  <%= link_to "Ajouter un bien immobilier", new_property_path, class: "btn btn-primary btn-sm" %>
+                </div>
+                <%= form.hidden_field :property_id, value: "" %>
+              <% end %>
+            </div>
 
             <div class="d-flex justify-content-end mt-4">
               <%= link_to "Annuler", projects_path, class: "btn btn-outline-secondary me-2" %>
-              <%= form.submit "Créer le chantier", class: "btn btn-primary-custom" %>
+              <% if defined?(Property) && current_user.properties.any? %>
+                <%= form.submit "Créer le chantier", class: "btn btn-primary-custom" %>
+              <% else %>
+                <%= form.submit "Créer le chantier", class: "btn btn-primary-custom", disabled: true, title: "Ajoutez d'abord un bien immobilier" %>
+              <% end %>
             </div>
           <% end %>
         </div>

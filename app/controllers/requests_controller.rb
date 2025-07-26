@@ -1,6 +1,6 @@
 class RequestsController < ApplicationController
   def index
-    @requests = Request.all
+    @requests = current_user.requests.order(created_at: :desc)
   end
 
   def show
@@ -13,10 +13,26 @@ class RequestsController < ApplicationController
 
   def create
     @request = Request.new(request_params)
+    @request.user = current_user  # Assigner l'utilisateur connecté
+    @request.status = 'draft' if @request.status.blank?  # Statut par défaut
+
+    # Debug logs
+    Rails.logger.info "REQUEST DEBUG: Params = #{request_params}"
+    Rails.logger.info "REQUEST DEBUG: Request attributes = #{@request.attributes}"
+    Rails.logger.info "REQUEST DEBUG: Valid? = #{@request.valid?}"
+    Rails.logger.info "REQUEST DEBUG: Errors = #{@request.errors.full_messages}" unless @request.valid?
+
     if @request.save
-      redirect_to @request
+      # Redirection selon le type d'action
+      if params[:commit] == "Sauvegarder en brouillon"
+        redirect_to requests_path, notice: 'Brouillon sauvegardé avec succès.'
+      else
+        redirect_to @request, notice: 'Demande créée avec succès.'
+      end
     else
-      render :new
+      Rails.logger.error "REQUEST SAVE FAILED: #{@request.errors.full_messages}"
+      flash.now[:alert] = "Erreurs: #{@request.errors.full_messages.join(', ')}"
+      render :new, status: :unprocessable_entity
     end
   end
 

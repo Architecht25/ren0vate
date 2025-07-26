@@ -1,6 +1,6 @@
 class DocumentsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_document, only: [:show, :download, :destroy]
+  before_action :set_document, only: [:show, :edit, :update, :download, :destroy]
   before_action :set_context, only: [:index, :new, :create]
 
   # GET /documents ou /properties/:property_id/documents ou /projects/:project_id/documents
@@ -46,6 +46,14 @@ class DocumentsController < ApplicationController
     end
   end
 
+  # GET /documents/:id/edit
+  def edit
+    unless can_access_document?(@document)
+      redirect_to root_path, alert: "Accès non autorisé"
+      return
+    end
+  end
+
   # POST /documents (Upload via AJAX ou form)
   def create
     @document = current_user.documents.build(document_params)
@@ -82,6 +90,20 @@ class DocumentsController < ApplicationController
       else
         render :new, status: :unprocessable_entity
       end
+    end
+  end
+
+  # PATCH/PUT /documents/:id
+  def update
+    unless can_access_document?(@document)
+      redirect_to root_path, alert: "Accès non autorisé"
+      return
+    end
+
+    if @document.update(document_params)
+      redirect_to @document, notice: 'Document mis à jour avec succès.'
+    else
+      render :edit, status: :unprocessable_entity
     end
   end
 
@@ -137,16 +159,37 @@ class DocumentsController < ApplicationController
   # DELETE /documents/:id
   def destroy
     unless can_access_document?(@document)
-      redirect_to root_path, alert: "Accès non autorisé"
+      if request.xhr?
+        render json: { status: 'error', message: 'Accès non autorisé' }, status: :forbidden
+      else
+        redirect_to root_path, alert: "Accès non autorisé"
+      end
       return
     end
 
-    @document.destroy
+    begin
+      @document.destroy
 
-    if request.xhr?
-      render json: { status: 'success', message: 'Document supprimé' }
-    else
-      redirect_to_context_or_default(notice: 'Document supprimé')
+      if request.xhr?
+        render json: {
+          status: 'success',
+          message: 'Document supprimé avec succès',
+          redirect_url: documents_path
+        }
+      else
+        redirect_to_context_or_default(notice: 'Document supprimé avec succès')
+      end
+    rescue => e
+      Rails.logger.error "Erreur lors de la suppression du document #{@document.id}: #{e.message}"
+
+      if request.xhr?
+        render json: {
+          status: 'error',
+          message: 'Erreur lors de la suppression du document'
+        }, status: :unprocessable_entity
+      else
+        redirect_to_context_or_default(alert: 'Erreur lors de la suppression du document')
+      end
     end
   end
 

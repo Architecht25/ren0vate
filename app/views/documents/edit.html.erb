@@ -23,34 +23,47 @@
           </h5>
 
           <%= form_with model: @document, local: true, class: "needs-validation", novalidate: true do |form| %>
-            <div class="mb-3">
-              <%= form.label :type_document, "Type de document*", class: "form-label" %>
-              <%= form.text_field :type_document, class: "form-control", placeholder: "Ex: Facture, Devis, Certificat", required: true %>
-              <div class="invalid-feedback">
-                Veuillez entrer un type de document.
+            <div class="row g-3">
+              <div class="col-12">
+                <div class="mb-3">
+                  <%= form.label :type_document, "Type de document*", class: "form-label" %>
+                  <%= form.text_field :type_document, class: "form-control", placeholder: "Ex: Facture, Devis, Certificat", required: true %>
+                  <div class="invalid-feedback">
+                    Veuillez entrer un type de document.
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div class="mb-3">
-              <%= form.label :notes, "Notes", class: "form-label" %>
-              <%= form.text_area :notes, rows: 4, class: "form-control", placeholder: "Ajoutez des notes sur ce document..." %>
-            </div>
+              <div class="col-12">
+                <div class="mb-3">
+                  <%= form.label :notes, "Notes", class: "form-label" %>
+                  <%= form.text_area :notes, rows: 4, class: "form-control", placeholder: "Ajoutez des notes sur ce document..." %>
+                </div>
+              </div>
 
-            <div class="mb-4">
-              <%= form.label :status, "Statut", class: "form-label" %>
-              <%= form.select :status,
-                    options_for_select([
-                      ['En attente', 'pending'],
-                      ['Approuvé', 'approved'],
-                      ['Rejeté', 'rejected']
-                    ], @document.status),
-                    {},
-                    { class: "form-select" } %>
-            </div>
+              <div class="col-12">
+                <div class="mb-3">
+                  <%= form.label :status, "Statut", class: "form-label" %>
+                  <%= form.select :status,
+                        options_for_select([
+                          ['En attente', 'pending'],
+                          ['Approuvé', 'approved'],
+                          ['Rejeté', 'rejected']
+                        ], @document.status),
+                        {},
+                        { class: "form-select" } %>
+                </div>
+              </div>
 
-            <div class="d-flex gap-2">
-              <%= form.submit "Mettre à jour", class: "btn btn-primary-custom px-4" %>
-              <%= link_to "Annuler", @document, class: "btn btn-outline-secondary px-4" %>
+              <!-- Boutons d'action -->
+              <div class="col-12">
+                <div class="d-flex gap-3 justify-content-end">
+                  <%= link_to @document, class: "btn btn-outline-secondary" do %>
+                    <i class="bi bi-x-lg me-2"></i>Annuler
+                  <% end %>
+                  <%= form.submit "Mettre à jour", class: "btn btn-primary-custom px-4" %>
+                </div>
+              </div>
             </div>
           <% end %>
         </div>
@@ -72,6 +85,16 @@
               <li class="mb-2">
                 <i class="bi bi-pencil me-2"></i>
                 Modifié le <%= @document.updated_at.strftime("%d/%m/%Y") %>
+              </li>
+            <% end %>
+            <% if @document.file.attached? %>
+              <li class="mb-2">
+                <i class="bi bi-file-earmark me-2"></i>
+                Fichier: <%= @document.file.filename %>
+              </li>
+              <li class="mb-2">
+                <i class="bi bi-hdd me-2"></i>
+                Taille: <%= number_to_human_size(@document.file.byte_size) %>
               </li>
             <% end %>
           </ul>
@@ -99,79 +122,55 @@
 })();
 </script>
 
+<!-- Styles CSS -->
+<style>
+.icon-circle {
+  width: 48px;
+  height: 48px;
+  background: rgba(var(--bs-primary-rgb), 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: var(--bs-primary);
+}
+
+.bg-light-custom {
+  background-color: #f8f9fa !important;
+}
+
+.text-primary-custom {
+  color: var(--bs-primary) !important;
+}
+
+.text-muted-custom {
+  color: #6c757d !important;
+}
+
+.btn-primary-custom {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  color: white;
+}
+
+.btn-primary-custom:hover {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  opacity: 0.9;
+}
+
+.btn-outline-primary-custom {
+  color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+
+.btn-outline-primary-custom:hover {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  color: white;
+}
+</style>
+
 <!-- Utilise le fichier CSS externe properties.css -->
 <%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>
-              <div class="col-12">
-                <div class="form-floating">
-                  <%= form.text_area :content, class: "form-control", placeholder: "Contenu du document", style: "height: 200px;" %>
-                  <%= form.label :content, "Contenu", class: "form-label" %>
-                </div>
-                <div class="form-text">
-                  <i class="bi bi-info-circle me-1"></i>
-                  Décrivez le contenu ou ajoutez des notes importantes.
-                </div>
-              </div>
-
-              <!-- Boutons d'action -->
-              <div class="col-12">
-                <div class="d-flex gap-3 justify-content-end">
-                  <%= link_to documents_path, class: "btn btn-outline-secondary" do %>
-                    <i class="bi bi-x-lg me-2"></i>Annuler
-                  <% end %>
-                  <%= form.submit "Mettre à jour", class: "btn btn-warning" %>
-                </div>
-              </div>
-            </div>
-          <% end %>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Informations supplémentaires -->
-  <div class="row mt-4 justify-content-center">
-    <div class="col-lg-8 col-md-10">
-      <div class="card border-0 shadow-sm">
-        <div class="card-body">
-          <div class="row g-3 text-center">
-            <div class="col-md-6">
-              <div class="d-flex align-items-center justify-content-center">
-                <i class="bi bi-calendar3 text-muted me-2"></i>
-                <span class="text-muted">
-                  Créé le <%= @document.created_at.strftime("%d/%m/%Y à %H:%M") if @document.created_at %>
-                </span>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="d-flex align-items-center justify-content-center">
-                <i class="bi bi-clock text-muted me-2"></i>
-                <span class="text-muted">
-                  Modifié le <%= @document.updated_at.strftime("%d/%m/%Y à %H:%M") if @document.updated_at %>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-  // Validation Bootstrap
-  (function() {
-    'use strict';
-    window.addEventListener('load', function() {
-      var forms = document.getElementsByClassName('needs-validation');
-      var validation = Array.prototype.filter.call(forms, function(form) {
-        form.addEventListener('submit', function(event) {
-          if (form.checkValidity() === false) {
-            event.preventDefault();
-            event.stopPropagation();
-          }
-          form.classList.add('was-validated');
-        }, false);
-      });
-    }, false);
-  })();
-</script>
