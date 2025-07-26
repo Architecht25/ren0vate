@@ -17,7 +17,7 @@ Prime.find_or_initialize_by(slug: "wallonie_realisation_audit_logement").update!
     "wallonie_r2": {"type": "montant_fixe", "montant": 560, "condition": "Audit énergétique complet"},
     "wallonie_r3": {"type": "montant_fixe", "montant": 420, "condition": "Audit énergétique complet"},
     "wallonie_r4": {"type": "montant_fixe", "montant": 280, "condition": "Audit énergétique complet"},
-    "wallonie_r5": {"type": "montant_fixe", "montant": 140, "condition": "Audit énergétique complet"}
+    "wallonie_r5": {"type": "montant_fixe", "montant": 76, "condition": "Audit énergétique complet"}
   }'),
   condition: "Réalisé par auditeur agréé. Rapport dans les 6 mois.",
   conseil: "Étape préalable recommandée avant travaux.",
