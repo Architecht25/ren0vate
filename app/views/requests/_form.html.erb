@@ -74,7 +74,8 @@
 <% end %>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  // Fonction pour initialiser les formulaires régionaux
+  function initializeRegionalForms() {
     const regionSelect = document.getElementById('region-select');
     const sections = document.querySelectorAll('.region-section');
 
@@ -105,22 +106,73 @@
         if (targetSection) {
           targetSection.style.display = 'block';
           console.log('Showing section:', selectedRegion + '-section', targetSection);
+
+          // Si c'est la Wallonie, initialiser le système de sélection de primes
+          if (selectedRegion === 'wallonie') {
+            initializeWalloniePrimeSelection();
+          }
         } else {
           console.log('Section not found:', selectedRegion + '-section');
         }
       }
     }
 
-    // Initialiser immédiatement et avec une pause pour s'assurer que le formulaire est complètement chargé
+    // Initialiser immédiatement
     console.log('Initial region value:', regionSelect.value);
     showRegionSection();
 
-    setTimeout(function() {
-      console.log('Delayed check - region value:', regionSelect.value);
-      showRegionSection();
-    }, 200);
-
     // Écouter les changements
     regionSelect.addEventListener('change', showRegionSection);
-  });
+
+    // Réessayer après un court délai pour s'assurer que tout est chargé
+    setTimeout(function() {
+      console.log('Delayed initialization - region value:', regionSelect.value);
+      showRegionSection();
+    }, 100);
+  }
+
+  // Fonction pour initialiser la sélection des primes Wallonie
+  function initializeWalloniePrimeSelection() {
+    const primeTypeSelect = document.getElementById('wallonie-prime-type');
+    const wallonieSections = document.querySelectorAll('.wallonie-prime-section');
+
+    if (!primeTypeSelect) {
+      console.log('Wallonie prime type select not found');
+      return;
+    }
+
+    function showWalloniePrimeSection() {
+      const selectedType = primeTypeSelect.value;
+      console.log('Wallonie - Showing prime section for:', selectedType);
+
+      // Masquer toutes les sections Wallonie
+      wallonieSections.forEach(section => {
+        section.style.display = 'none';
+      });
+
+      // Afficher la section correspondante
+      if (selectedType) {
+        const targetSection = document.getElementById(selectedType + '-section');
+        if (targetSection) {
+          targetSection.style.display = 'block';
+          console.log('Wallonie - Showing section:', selectedType + '-section');
+        }
+      }
+    }
+
+    // Écouter les changements sur le sélecteur de prime Wallonie
+    primeTypeSelect.addEventListener('change', showWalloniePrimeSection);
+
+    // Initialiser l'état si une option est déjà sélectionnée
+    showWalloniePrimeSection();
+  }
+
+  // Initialiser au chargement de la page
+  document.addEventListener('DOMContentLoaded', initializeRegionalForms);
+
+  // Réessayer avec Turbo (Rails 7+)
+  document.addEventListener('turbo:load', initializeRegionalForms);
+
+  // Fallback pour les anciennes versions de Rails
+  document.addEventListener('page:load', initializeRegionalForms);
 </script>

@@ -1,0 +1,293 @@
+<%= simple_form_for @request, local: true, html: { multipart: true, class: "needs-validation", novalidate: true } do |f| %>
+  <!-- Champ caché pour la région -->
+  <%= f.hidden_field :region, value: "wallonie" %>
+
+  <div class="container-fluid px-0">
+    <!-- En-tête du formulaire -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-4 bg-gradient-primary text-white">
+        <div class="d-flex align-items-center">
+          <div class="icon-circle bg-white bg-opacity-20 me-3">
+            <i class="bi bi-clipboard-data text-white"></i>
+          </div>
+          <div>
+            <h2 class="mb-1 fw-semibold">Demande de prime – Audit énergétique</h2>
+            <p class="mb-0 opacity-90">Région Wallonne</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 1: Informations sur le demandeur -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-4">
+        <h5 class="text-primary mb-4 fw-semibold">
+          <i class="bi bi-person-circle me-2"></i>
+          1. Informations sur le demandeur
+        </h5>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <%= f.input :nom,
+                label: "Nom*",
+                wrapper_html: { class: "mb-3" },
+                input_html: { class: "form-control", required: true } %>
+            <%= f.input :prenom,
+                label: "Prénom*",
+                wrapper_html: { class: "mb-3" },
+                input_html: { class: "form-control", required: true } %>
+            <%= f.input :email,
+                label: "Adresse e-mail*",
+                wrapper_html: { class: "mb-3" },
+                input_html: { class: "form-control", type: "email", required: true } %>
+            <%= f.input :telephone,
+                label: "Numéro de téléphone*",
+                wrapper_html: { class: "mb-3" },
+                input_html: { class: "form-control", required: true } %>
+            <%= f.input :registre_national,
+                label: "N° de registre national*",
+                hint: "Ex : 83.07.15-123.45",
+                wrapper_html: { class: "mb-0" },
+                input_html: { class: "form-control", required: true } %>
+          </div>
+          <div class="col-md-6">
+            <%= f.input :adresse,
+                label: "Rue et numéro*",
+                wrapper_html: { class: "mb-3" },
+                input_html: { class: "form-control", required: true } %>
+            <div class="row g-2">
+              <div class="col-4">
+                <%= f.input :code_postal,
+                    label: "Code postal*",
+                    wrapper_html: { class: "mb-3" },
+                    input_html: { class: "form-control", required: true, pattern: "[0-9]{4}" } %>
+              </div>
+              <div class="col-8">
+                <%= f.input :commune,
+                    label: "Commune*",
+                    wrapper_html: { class: "mb-3" },
+                    input_html: { class: "form-control", required: true } %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2: Informations sur le bien à auditer -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-4">
+        <h5 class="text-success mb-4 fw-semibold">
+          <i class="bi bi-house-door me-2"></i>
+          2. Informations sur le bien à auditer
+        </h5>
+
+        <div class="row g-3">
+          <div class="col-12">
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle me-2"></i>
+              <strong>Note :</strong> Si le bien à auditer est différent de votre adresse personnelle, veuillez le préciser dans la description.
+            </div>
+          </div>
+          <div class="col-md-6">
+            <%= f.input :type_bien,
+                as: :select,
+                collection: ["Maison unifamiliale", "Appartement", "Immeuble à appartements", "Autre"],
+                label: "Type de bien*",
+                prompt: "-- Sélectionnez le type de bien --",
+                wrapper_html: { class: "mb-3" },
+                input_html: { class: "form-select", required: true } %>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Année de construction approximative*</label>
+            <%= f.number_field :revenus_annuels,
+                placeholder: "ex. 1985",
+                class: "form-control",
+                min: 1800,
+                max: Date.current.year,
+                required: true %>
+            <div class="form-text">Nous utilisons temporairement ce champ pour l'année de construction</div>
+          </div>
+          <div class="col-md-12">
+            <%= f.input :usage,
+                as: :select,
+                collection: ["Résidence principale", "Logement locatif", "Autre"],
+                label: "Affectation du logement*",
+                prompt: "-- Sélectionnez l'affectation --",
+                wrapper_html: { class: "mb-0" },
+                input_html: { class: "form-select", required: true } %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Informations relatives à l'audit -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-4">
+        <h5 class="text-info mb-4 fw-semibold">
+          <i class="bi bi-clipboard-check me-2"></i>
+          3. Informations relatives à l'audit
+        </h5>
+
+        <div class="row g-3">
+          <div class="col-12">
+            <div class="alert alert-warning">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              <strong>Information importante :</strong> Veuillez renseigner les détails de l'audit dans la description ci-dessous.
+            </div>
+          </div>
+          <div class="col-12">
+            <%= f.input :description,
+                as: :text,
+                label: "Informations relatives à l'audit*",
+                placeholder: "Veuillez indiquer :
+- Nom de l'auditeur agréé
+- Numéro d'agrément
+- Date de réalisation de l'audit
+- Montant payé pour l'audit (TVAC)",
+                wrapper_html: { class: "mb-0" },
+                input_html: { class: "form-control", rows: 6, required: true } %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4: Documents à joindre -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-4">
+        <h5 class="text-warning mb-4 fw-semibold">
+          <i class="bi bi-file-earmark-text me-2"></i>
+          4. Documents à joindre
+        </h5>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Preuve de paiement de l'audit*</label>
+            <%= f.file_field :document_factures,
+                class: "form-control",
+                accept: ".pdf,.jpg,.jpeg,.png",
+                required: true,
+                multiple: true %>
+            <div class="form-text">Formats acceptés: PDF, JPG, PNG (max 5 MB)</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Rapport d'audit énergétique complet*</label>
+            <%= f.file_field :document_autres,
+                class: "form-control",
+                accept: ".pdf",
+                required: true,
+                multiple: true %>
+            <div class="form-text">Format PDF uniquement</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Copie de la carte d'identité (recto-verso)*</label>
+            <%= f.file_field :document_attestations,
+                class: "form-control",
+                accept: ".pdf,.jpg,.jpeg,.png",
+                required: true,
+                multiple: true %>
+            <div class="form-text">Recto et verso en un seul fichier</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Certificat PEB (si disponible)</label>
+            <%= f.file_field :document_peb,
+                class: "form-control",
+                accept: ".pdf,.jpg,.jpeg,.png" %>
+            <div class="form-text">Optionnel - Si vous avez un certificat PEB</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 5: Déclaration sur l'honneur -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-4">
+        <h5 class="text-danger mb-4 fw-semibold">
+          <i class="bi bi-shield-check me-2"></i>
+          5. Déclaration sur l'honneur
+        </h5>
+
+        <div class="form-check">
+          <%= f.check_box :confirmation_veracite,
+              class: "form-check-input",
+              required: true %>
+          <%= f.label :confirmation_veracite,
+              "Je certifie que les informations ci-dessus sont exactes et complètes.*",
+              class: "form-check-label" %>
+        </div>
+        <div class="form-check mt-2">
+          <%= f.check_box :acceptation_conditions,
+              class: "form-check-input",
+              required: true %>
+          <%= f.label :acceptation_conditions,
+              "J'accepte les conditions générales de la demande de prime audit énergétique.*",
+              class: "form-check-label" %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Boutons d'action -->
+    <div class="d-flex justify-content-between align-items-center mt-4">
+      <%= link_to "Annuler", requests_path, class: "btn btn-outline-secondary btn-lg px-4" %>
+      <%= f.submit "Soumettre la demande", class: "btn btn-primary btn-lg px-5" %>
+    </div>
+  </div>
+<% end %>
+
+<!-- Script de validation -->
+<script>
+(function() {
+  'use strict';
+  var forms = document.querySelectorAll('.needs-validation');
+  Array.prototype.slice.call(forms)
+    .forEach(function(form) {
+      form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+})();
+</script>
+
+<!-- Styles CSS personnalisés -->
+<style>
+.icon-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.bg-gradient-primary {
+  background: linear-gradient(135deg, var(--bs-primary) 0%, #0056b3 100%);
+}
+
+.form-control-lg {
+  font-size: 1.1rem;
+  padding: 0.75rem 1rem;
+}
+
+.card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.form-text {
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.btn-lg {
+  padding: 0.75rem 2rem;
+  font-size: 1.1rem;
+}
+</style>

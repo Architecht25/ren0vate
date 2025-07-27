@@ -1,9 +1,93 @@
-<!-- Formulaire spécifique pour la Wallonie -->
-<div class="alert alert-info">
-  <i class="bi bi-info-circle me-2"></i>
-  <strong>Formulaire pour la Région Wallonne</strong>
-  <p class="mb-0 small">Primes disponibles : Prime Habitation (logement + énergie)</p>
+<!-- Sélection du type de prime pour la Wallonie -->
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body p-4 bg-gradient-success text-white">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle bg-white bg-opacity-20 me-3">
+        <i class="bi bi-list-ul text-white"></i>
+      </div>
+      <div>
+        <h4 class="mb-1 fw-semibold">Région Wallonne</h4>
+        <p class="mb-0 opacity-90">Sélectionnez le type de prime que vous souhaitez demander</p>
+      </div>
+    </div>
+  </div>
 </div>
+
+<!-- Sélecteur de type de prime -->
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body p-4">
+    <h5 class="text-primary mb-4 fw-semibold">
+      <i class="bi bi-funnel me-2"></i>
+      Type de demande de prime
+    </h5>
+
+    <div class="mb-4">
+      <label class="form-label fw-semibold">Choisissez le type de prime*</label>
+      <select id="wallonie-prime-type" class="form-select form-select-lg" required>
+        <option value="">-- Sélectionnez le type de prime --</option>
+        <option value="audit">Prime Audit Énergétique</option>
+        <option value="regionale">Prime Régionale (Habitation + Énergie)</option>
+        <option value="communale">Primes Communales</option>
+        <option value="monument">Prime Monument et Site</option>
+      </select>
+      <div class="form-text">Sélectionnez le type de prime correspondant à votre projet</div>
+    </div>
+
+    <!-- Descriptions des primes -->
+    <div class="row g-3">
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 border-primary">
+          <div class="card-body text-center p-3">
+            <i class="bi bi-clipboard-data text-primary fs-1 mb-2"></i>
+            <h6 class="card-title">Prime Audit</h6>
+            <p class="card-text small">Remboursement partiel de l'audit énergétique de votre logement</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 border-success">
+          <div class="card-body text-center p-3">
+            <i class="bi bi-house-heart text-success fs-1 mb-2"></i>
+            <h6 class="card-title">Prime Régionale</h6>
+            <p class="card-text small">Primes pour les travaux d'amélioration énergétique et du logement</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 border-info">
+          <div class="card-body text-center p-3">
+            <i class="bi bi-building text-info fs-1 mb-2"></i>
+            <h6 class="card-title">Prime Communale</h6>
+            <p class="card-text small">Primes spécifiques octroyées par votre commune</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 col-lg-3">
+        <div class="card h-100 border-warning">
+          <div class="card-body text-center p-3">
+            <i class="bi bi-building-gear text-warning fs-1 mb-2"></i>
+            <h6 class="card-title">Monument & Site</h6>
+            <p class="card-text small">Primes pour bâtiments classés ou en zone protégée</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section pour Prime Audit Énergétique -->
+<div id="audit-section" class="wallonie-prime-section" style="display: none;">
+  <%= render 'requests/region_forms/audit_energetique_wallonie' %>
+</div>
+
+<!-- Section pour Prime Régionale -->
+<div id="regionale-section" class="wallonie-prime-section" style="display: none;">
+  <!-- Formulaire spécifique pour la Wallonie - Prime Régionale -->
+  <div class="alert alert-info">
+    <i class="bi bi-info-circle me-2"></i>
+    <strong>Prime Régionale Wallonne</strong>
+    <p class="mb-0 small">Primes disponibles : Prime Habitation (logement + énergie)</p>
+  </div>
 
 <div class="wallonie-specific-fields">
 
@@ -313,7 +397,7 @@
     </div>
     <div class="card-body">
       <!-- Récapitulatif -->
-      <div class="alert alert-warning">
+            <div class="alert alert-warning">
         <i class="bi bi-exclamation-triangle me-2"></i>
         <strong>Vérification finale</strong>
         <p class="mb-0">Vous êtes sur le point de soumettre votre demande de prime habitation en Wallonie. Veuillez vérifier que toutes les informations sont correctes et que les documents justificatifs ont bien été joints.</p>
@@ -326,6 +410,87 @@
           Je confirme que les informations fournies sont exactes et complètes à ma connaissance.
         </label>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section pour Primes Communales -->
+<div id="communale-section" class="wallonie-prime-section" style="display: none;">
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+      <h4 class="text-info mb-4">
+        <i class="bi bi-building me-2"></i>
+        Primes Communales
+      </h4>
+      <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        <strong>Information</strong>
+        <p class="mb-0">Les primes communales varient selon votre commune. Veuillez contacter directement votre administration communale pour connaître les primes disponibles et leurs conditions d'octroi.</p>
+      </div>
+      <div class="text-center">
+        <i class="bi bi-tools fs-1 text-muted mb-3"></i>
+        <p class="text-muted">Cette section sera développée prochainement avec les formulaires spécifiques par commune.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section pour Prime Monument et Site -->
+<div id="monument-section" class="wallonie-prime-section" style="display: none;">
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+      <h4 class="text-warning mb-4">
+        <i class="bi bi-building-gear me-2"></i>
+        Prime Monument et Site
+      </h4>
+      <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        <strong>Bâtiments protégés</strong>
+        <p class="mb-0">Cette prime concerne les bâtiments classés, inscrits sur la liste de sauvegarde ou situés en zone de protection. Des conditions spécifiques s'appliquent.</p>
+      </div>
+      <div class="text-center">
+        <i class="bi bi-tools fs-1 text-muted mb-3"></i>
+        <p class="text-muted">Cette section sera développée prochainement avec le formulaire spécifique pour les monuments et sites.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript géré dans _form.html.erb pour éviter les conflits -->
+
+<!-- Styles CSS personnalisés -->
+<style>
+.bg-gradient-success {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.icon-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.wallonie-prime-section {
+  margin-top: 1.5rem;
+}
+
+.card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.form-select-lg {
+  font-size: 1.1rem;
+  padding: 0.75rem 1rem;
+}
+</style>
 
       <!-- Email de contact -->
       <div class="mb-3">
