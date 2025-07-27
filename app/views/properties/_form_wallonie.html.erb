@@ -67,49 +67,60 @@
 
   <!-- Section Caractéristiques spécifiques à la Wallonie -->
   <div class="form-section mb-4">
-    <h5 class="text-primary-custom mb-3 fw-normal">
-      <i class="bi bi-info-circle me-2"></i>
+    <h5 class="text-primary-custom mb-4 fw-normal">
+      <i class="bi bi-flag-fill me-2 text-warning"></i>
       Caractéristiques spécifiques à la Wallonie
     </h5>
 
-    <div class="row g-3">
-      <div class="col-md-4">
-        <%= f.input :certificat_peb_wallonie,
-            label: "Certificat PEB (Wallonie)",
-            placeholder: "ex. 350 kWh/m²",
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-control-custom" } %>
-      </div>
-      <div class="col-md-4">
-        <%= f.input :surface_habitable_wallonie,
-            label: "Surface habitable (Wallonie)",
-            placeholder: "ex. 120 m²",
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-control-custom", type: "number" } %>
-      </div>
-      <div class="col-md-4">
-        <%= f.input :mode_chauffage_wallonie,
-            label: "Mode de chauffage (Wallonie)",
-            placeholder: "ex. Gaz naturel",
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-control-custom" } %>
+    <!-- Sous-section Performance énergétique -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-4">
+        <h6 class="text-success mb-3 fw-semibold">
+          <i class="bi bi-lightning-charge me-2"></i>
+          Performance énergétique
+        </h6>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <%= f.input :certificat_peb_wallonie,
+                label: "Certificat PEB",
+                placeholder: "ex. 350 kWh/m²/an",
+                wrapper_html: { class: "mb-0" },
+                input_html: { class: "form-control-custom" } %>
+          </div>
+          <div class="col-md-6">
+            <%= f.input :audit_energetique,
+                label: "Audit énergétique",
+                placeholder: "ex. 280 kWh/m²/an",
+                wrapper_html: { class: "mb-0" },
+                input_html: { class: "form-control-custom" } %>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="row g-3 mt-2">
-      <div class="col-md-6">
-        <%= f.input :annee_construction,
-            label: "Année de construction*",
-            placeholder: "ex. 1985",
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-control-custom", type: "number" } %>
-      </div>
-      <div class="col-md-6">
-        <%= f.input :date_raccordement_electrique,
-            label: "Date de raccordement électrique",
-            placeholder: "Année de raccordement",
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-control-custom", type: "number" } %>
+    <!-- Sous-section Caractéristiques du bâtiment -->
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body p-4">
+        <h6 class="text-info mb-3 fw-semibold">
+          <i class="bi bi-rulers me-2"></i>
+          Caractéristiques du bâtiment
+        </h6>
+        <div class="row g-3">
+          <div class="col-md-4">
+            <%= f.input :surface_habitable_wallonie,
+                label: "Surface habitable",
+                placeholder: "ex. 120",
+                wrapper_html: { class: "mb-0" },
+                input_html: { class: "form-control-custom", type: "number", min: "1", step: "1" } %>
+          </div>
+          <div class="col-md-4">
+            <%= f.input :annee_construction,
+                label: "Année de construction*",
+                placeholder: "ex. 1985",
+                wrapper_html: { class: "mb-0" },
+                input_html: { class: "form-control-custom", type: "number", min: "1800", max: Date.current.year } %>
+          </div>
+        </div>
       </div>
     </div>
   </div>
