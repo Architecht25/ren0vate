@@ -92,6 +92,69 @@ export default class extends Controller {
     }
   }
 
+  estimerCategorieBruxelles() {
+    console.log("🎯 Estimation catégorie Bruxelles");
+
+    const statut = document.getElementById("category_estimation_bruxelles_statut_familial")?.value
+    const nbCharges = parseInt(document.getElementById("category_estimation_bruxelles_enfants_charge")?.value || "0")
+    const revenu = document.getElementById("category_estimation_bruxelles_revenu_net")?.value
+
+    console.log("🎯 Valeurs récupérées:", { statut, nbCharges, revenu });
+
+    if (!statut || !revenu) {
+      alert("Veuillez remplir tous les champs obligatoires pour estimer votre catégorie.")
+      return
+    }
+
+    // Stocker dans localStorage spécifique à Bruxelles
+    localStorage.setItem("bruxelles_statut_familial", statut)
+    localStorage.setItem("bruxelles_enfants_charge", nbCharges)
+    localStorage.setItem("bruxelles_revenu_net", revenu)
+
+    // Estimation pour Bruxelles basée sur les tranches de revenus (3 catégories)
+    let categorieEstimee = "3"
+
+    switch (revenu) {
+      case "faible":
+        categorieEstimee = "3"
+        break
+      case "moyen":
+        categorieEstimee = "2"
+        break
+      case "eleve":
+        categorieEstimee = "1"
+        break
+    }
+
+    // Affichage dans le bloc resultAffinage
+    const badge = `<span class="badge rounded-pill bg-primary">Catégorie ${categorieEstimee}</span>`
+    localStorage.setItem("bruxelles_categorie_badge", badge);
+
+    this.resultAffinageTarget.innerHTML = `
+      <p class="mt-2">
+        ✅ Sur base de vos réponses, vous êtes probablement en ${badge} pour les primes RENOLUTION Bruxelles.
+      </p>
+      <p class="text-muted small">
+        Cette estimation vous donne une idée de vos primes. Pour un calcul précis, consultez votre espace personnel.
+      </p>
+    `
+    this.resultAffinageTarget.style.display = "block"
+    this.resultAffinageTarget.classList.remove("alert-secondary", "alert-warning", "alert-info", "alert-primary")
+
+    if (categorieEstimee === "1") {
+      this.resultAffinageTarget.classList.add("alert-info")
+    } else if (categorieEstimee === "2") {
+      this.resultAffinageTarget.classList.add("alert-primary")
+    } else if (categorieEstimee === "3") {
+      this.resultAffinageTarget.classList.add("alert-warning")
+    }
+
+    localStorage.setItem("bruxelles_categorie_estimee", categorieEstimee)
+    localStorage.setItem("bruxellesCategorieEstimee", categorieEstimee);
+
+    console.log("🎯 Catégorie Bruxelles estimée:", categorieEstimee);
+  }
+
   togglePrimesSection(show = true) {
     const placeholder = document.getElementById("primes-placeholder");
     const primesSection = document.querySelector(".primes-section");

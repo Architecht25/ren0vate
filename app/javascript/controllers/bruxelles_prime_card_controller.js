@@ -159,12 +159,12 @@ export default class extends Controller {
       "Revenus Faibles": 1.0,     // Primes maximales
       "Revenus Moyens": 0.7,      // Primes moyennes
       "Revenus Élevés": 0.4,      // Primes réduites
-      
+
       // Catégories automatiques pour autres profils
       "Catégorie I": 0.8,         // Entreprises et ASBL
       "Catégorie II": 0.8,        // Syndics de copropriété
       "Catégorie III": 0.8,       // Bailleurs sociaux (AIS)
-      
+
       // Compatibilité avec anciennes catégories (si présentes)
       "Z1": 1.0, "Z2": 0.9, "Z3": 0.8, "Z4": 0.7, "Z5": 0.6,
       "Z6": 0.5, "Z7": 0.4, "Z8": 0.3, "Z9": 0.2, "Z10": 0.1

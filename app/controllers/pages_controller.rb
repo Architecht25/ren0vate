@@ -90,7 +90,7 @@ class PagesController < ApplicationController
 
             render turbo_stream: turbo_stream.replace(
               "eligibility_content",
-              partial: "pages/partials_bruxelles/resultat_eligible",
+              partial: "pages/partials_bruxelles/resultat_eligible_debug",
               locals: {
                 profile: result[:profile],
                 message: result[:message],

@@ -630,33 +630,9 @@ export default class extends Controller {
 
       // Si éligible, afficher le formulaire d'affinage de catégorie
       if (isEligible) {
-        this.showAffinageBruxelles();
+        this.showAffinageBruxellesParticulier();
       }
     }
-  }
-
-  showAffinageBruxelles() {
-    // Faire appel au serveur pour afficher l'affinage de catégorie
-    fetch('/test_eligibility_bruxelles', {
-      method: 'POST',
-      headers: {
-        'Accept': 'text/vnd.turbo-stream.html',
-        'X-Requested-With': 'XMLHttpRequest',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: 'eligibility_passed=true'
-    })
-    .then(response => response.text())
-    .then(html => {
-      // Utiliser Turbo pour remplacer le contenu
-      const frame = document.getElementById('eligibility_content')
-      if (frame) {
-        frame.innerHTML = html
-      }
-    })
-    .catch(error => {
-      console.error('Erreur lors du chargement de l\'affinage:', error)
-    })
   }
 
   handleAnswerBruxellesParticulier(event) {
@@ -871,35 +847,102 @@ export default class extends Controller {
   validateTestBruxellesParticulier() {
     console.log("🎯 Validation du test d'éligibilité Bruxelles Particulier");
 
-    const form = this.formTarget;
     const testData = JSON.parse(localStorage.getItem("eligibiliteBruxellesParticulier") || "{}");
+    console.log("🎯 Données récupérées:", testData);
 
-    // Ajouter le profile_type
-    testData.profile_type = "prive";
+    // Logique simple côté client comme pour la Wallonie
+    const client_protege = testData["client_protege"];
 
-    // Envoyer les données au serveur pour validation finale
-    fetch('/bruxelles/test-eligibility', {
-      method: 'POST',
-      headers: {
-        'Accept': 'text/vnd.turbo-stream.html',
-        'X-Requested-With': 'XMLHttpRequest',
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'X-CSRF-Token': document.querySelector('[name="csrf-token"]')?.content
-      },
-      body: new URLSearchParams(testData).toString()
-    })
-    .then(response => response.text())
-    .then(html => {
-      // Utiliser Turbo pour remplacer le contenu
-      const frame = document.getElementById('eligibility_content')
-      if (frame) {
-        frame.innerHTML = html
+    let message = "✅ Vous êtes éligible aux primes RENOLUTION Bruxelles !";
+    let recommendations = [];
+
+    // Client protégé = catégorie de revenus la plus favorable
+    if (client_protege === "oui") {
+      recommendations.push("✨ Vous bénéficiez de primes majorées en tant que client protégé");
+      message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-success'>Client protégé (Catégorie 3)</span>";
+
+      // Stocker la catégorie dans localStorage pour la suite
+      localStorage.setItem("bruxelles_categorie", "3");
+      localStorage.setItem("bruxellesCategorieEstimee", "3");
+    } else {
+      message += "<br><br><strong>Prochaine étape :</strong> Calculez votre catégorie de revenus pour connaître vos primes exactes";
+    }
+
+    console.log("🎯 Message final:", message);
+    console.log("🎯 Recommandations:", recommendations);
+
+    this.showResultBruxellesParticulier(message, true, recommendations);
+  }
+
+  showResultBruxellesParticulier(message, isEligible = true, recommendations = []) {
+    console.log("🎯 showResultBruxellesParticulier appelée", { message, isEligible, recommendations });
+
+    // Pour les particuliers, utiliser la méthode finale avec affinage activé
+    this.showFinalResultBruxelles(message, isEligible, recommendations, true);
+  }
+
+  showAffinageBruxellesParticulier() {
+    // Afficher le bloc d'affinage de catégorie Bruxelles (même approche que Wallonie)
+    const affinageBloc = document.getElementById("affinage-categorie-bruxelles")
+    if (affinageBloc) {
+      affinageBloc.style.display = "block"
+
+      // Scroll smooth vers le bloc d'affinage
+      setTimeout(() => {
+        affinageBloc.scrollIntoView({ behavior: 'smooth' })
+      }, 500)
+    }
+  }
+
+  // Méthode pour afficher le résultat final sans affinage (pour entreprises, syndics, etc.)
+  showFinalResultBruxelles(message, isEligible = true, recommendations = [], showAffinage = false) {
+    if (this.hasFormTarget) {
+      this.formTarget.style.display = "none"
+    }
+
+    if (this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "none"
+    }
+
+    if (this.hasResultTarget) {
+      let content = `
+        <div class="alert ${isEligible ? 'alert-success' : 'alert-danger'}">
+          <h5 class="alert-heading">
+            <i class="bi bi-${isEligible ? 'check-circle' : 'x-circle'} me-2"></i>
+            Résultat du test d'éligibilité Bruxelles
+          </h5>
+          <p class="mb-0">${message}</p>
+        </div>
+      `;
+
+      if (recommendations.length > 0) {
+        content += `
+          <div class="alert alert-info mt-3">
+            <h6 class="alert-heading">
+              <i class="bi bi-lightbulb me-2"></i>
+              Informations importantes
+            </h6>
+            <ul class="mb-0">
+              ${recommendations.map(rec => `<li>${rec}</li>`).join('')}
+            </ul>
+          </div>
+        `;
       }
-    })
-    .catch(error => {
-      console.error('Erreur lors de la validation:', error)
-      this.showResult("❌ Erreur lors de la validation. Veuillez réessayer.", false);
-    })
+
+      content += `
+        <div class="btn-group mt-3">
+          <button type="button" class="btn btn-secondary" onclick="location.reload()">🔄 Recommencer</button>
+        </div>
+      `;
+
+      this.resultTarget.innerHTML = content;
+      this.resultTarget.style.display = "block";
+
+      // Si demandé ET éligible, afficher le formulaire d'affinage de catégorie (seulement pour particuliers)
+      if (isEligible && showAffinage) {
+        this.showAffinageBruxellesParticulier();
+      }
+    }
   }
 
   handleAnswerBruxellesEntreprise(event) {
@@ -1085,34 +1128,25 @@ export default class extends Controller {
   validateTestBruxellesEntreprise() {
     console.log("🎯 Validation du test d'éligibilité Bruxelles Entreprise");
 
-    const form = this.formTarget;
-    const testData = JSON.parse(localStorage.getItem("eligibiliteBruxellesEntreprise") || "{}");
+    let message = "✅ Votre entreprise est éligible aux primes RENOLUTION Bruxelles !";
+    message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-primary'>Catégorie 1</span>";
 
-    // Ajouter le profile_type
-    testData.profile_type = "entreprise";
+    let recommendations = [
+      "🏢 En tant qu'entreprise, vous êtes automatiquement en catégorie 1",
+      "📋 Assurez-vous que votre entreprise est bien inscrite à la BCE",
+      "💼 Les montants des primes correspondent à la grille tarifaire entreprise"
+    ];
 
-    // Envoyer les données au serveur pour validation finale
-    fetch('/test_eligibility_bruxelles', {
-      method: 'POST',
-      headers: {
-        'Accept': 'text/vnd.turbo-stream.html',
-        'X-Requested-With': 'XMLHttpRequest',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams(testData).toString()
-    })
-    .then(response => response.text())
-    .then(html => {
-      // Utiliser Turbo pour remplacer le contenu
-      const frame = document.getElementById('eligibility_content')
-      if (frame) {
-        frame.innerHTML = html
-      }
-    })
-    .catch(error => {
-      console.error('Erreur lors de la validation:', error)
-      this.showResult("❌ Erreur lors de la validation. Veuillez réessayer.", false);
-    })
+    // Stocker la catégorie dans localStorage pour la suite
+    localStorage.setItem("bruxelles_categorie", "1");
+    localStorage.setItem("bruxellesCategorieEstimee", "1");
+
+    this.showResultBruxellesEntreprise(message, true, recommendations);
+  }
+
+  showResultBruxellesEntreprise(message, isEligible = true, recommendations = []) {
+    // Pour les entreprises, pas d'affinage - résultat direct
+    this.showFinalResultBruxelles(message, isEligible, recommendations, false);
   }
 
   // SYNDIC
@@ -1177,31 +1211,25 @@ export default class extends Controller {
   validateTestBruxellesSyndic() {
     console.log("🎯 Validation du test d'éligibilité Bruxelles Syndic");
 
-    const form = this.formTarget;
-    const testData = JSON.parse(localStorage.getItem("eligibiliteBruxellesSyndic") || "{}");
+    let message = "✅ Votre copropriété est éligible aux primes RENOLUTION Bruxelles !";
+    message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-warning'>Catégorie 2</span>";
 
-    testData.profile_type = "syndic";
+    let recommendations = [
+      "🏢 En tant que syndic/copropriété, vous êtes automatiquement en catégorie 2",
+      "👥 La demande doit être faite au nom de l'ACP (Association des Copropriétaires)",
+      "📋 Minimum 2 unités requises pour être éligible"
+    ];
 
-    fetch('/test_eligibility_bruxelles', {
-      method: 'POST',
-      headers: {
-        'Accept': 'text/vnd.turbo-stream.html',
-        'X-Requested-With': 'XMLHttpRequest',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams(testData).toString()
-    })
-    .then(response => response.text())
-    .then(html => {
-      const frame = document.getElementById('eligibility_content')
-      if (frame) {
-        frame.innerHTML = html
-      }
-    })
-    .catch(error => {
-      console.error('Erreur lors de la validation:', error)
-      this.showResult("❌ Erreur lors de la validation. Veuillez réessayer.", false);
-    })
+    // Stocker la catégorie dans localStorage pour la suite
+    localStorage.setItem("bruxelles_categorie", "2");
+    localStorage.setItem("bruxellesCategorieEstimee", "2");
+
+    this.showResultBruxellesSyndic(message, true, recommendations);
+  }
+
+  showResultBruxellesSyndic(message, isEligible = true, recommendations = []) {
+    // Pour les syndics, pas d'affinage - résultat direct
+    this.showFinalResultBruxelles(message, isEligible, recommendations, false);
   }
 
   // BAILLEUR
@@ -1265,31 +1293,25 @@ export default class extends Controller {
   validateTestBruxellesBailleur() {
     console.log("🎯 Validation du test d'éligibilité Bruxelles Bailleur");
 
-    const form = this.formTarget;
-    const testData = JSON.parse(localStorage.getItem("eligibiliteBruxellesBailleur") || "{}");
+    let message = "✅ Votre organisme de logement social est éligible aux primes RENOLUTION Bruxelles !";
+    message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-success'>Catégorie 3 (AIS)</span>";
 
-    testData.profile_type = "bailleur";
+    let recommendations = [
+      "🏠 En tant qu'AIS (Agence Immobilière Sociale), vous êtes en catégorie 3",
+      "📋 Agrément AIS requis pour l'éligibilité",
+      "🎯 Primes spécifiques au logement social"
+    ];
 
-    fetch('/test_eligibility_bruxelles', {
-      method: 'POST',
-      headers: {
-        'Accept': 'text/vnd.turbo-stream.html',
-        'X-Requested-With': 'XMLHttpRequest',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams(testData).toString()
-    })
-    .then(response => response.text())
-    .then(html => {
-      const frame = document.getElementById('eligibility_content')
-      if (frame) {
-        frame.innerHTML = html
-      }
-    })
-    .catch(error => {
-      console.error('Erreur lors de la validation:', error)
-      this.showResult("❌ Erreur lors de la validation. Veuillez réessayer.", false);
-    })
+    // Stocker la catégorie dans localStorage pour la suite
+    localStorage.setItem("bruxelles_categorie", "3");
+    localStorage.setItem("bruxellesCategorieEstimee", "3");
+
+    this.showResultBruxellesBailleur(message, true, recommendations);
+  }
+
+  showResultBruxellesBailleur(message, isEligible = true, recommendations = []) {
+    // Pour les bailleurs sociaux, pas d'affinage - résultat direct
+    this.showFinalResultBruxelles(message, isEligible, recommendations, false);
   }
 
   // ASBL
@@ -1408,30 +1430,24 @@ export default class extends Controller {
   validateTestBruxellesAsbl() {
     console.log("🎯 Validation du test d'éligibilité Bruxelles ASBL");
 
-    const form = this.formTarget;
-    const testData = JSON.parse(localStorage.getItem("eligibiliteBruxellesAsbl") || "{}");
+    let message = "✅ Votre ASBL est éligible aux primes RENOLUTION Bruxelles !";
+    message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-info'>Catégorie 1 (ASBL)</span>";
 
-    testData.profile_type = "asbl";
+    let recommendations = [
+      "🏛️ En tant qu'ASBL, vous êtes en catégorie 1 comme les entreprises",
+      "📋 Activités d'intérêt général reconnues requises",
+      "⚖️ Pas de déduction TVA autorisée pour cette prime"
+    ];
 
-    fetch('/test_eligibility_bruxelles', {
-      method: 'POST',
-      headers: {
-        'Accept': 'text/vnd.turbo-stream.html',
-        'X-Requested-With': 'XMLHttpRequest',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams(testData).toString()
-    })
-    .then(response => response.text())
-    .then(html => {
-      const frame = document.getElementById('eligibility_content')
-      if (frame) {
-        frame.innerHTML = html
-      }
-    })
-    .catch(error => {
-      console.error('Erreur lors de la validation:', error)
-      this.showResult("❌ Erreur lors de la validation. Veuillez réessayer.", false);
-    })
+    // Stocker la catégorie dans localStorage pour la suite
+    localStorage.setItem("bruxelles_categorie", "1");
+    localStorage.setItem("bruxellesCategorieEstimee", "1");
+
+    this.showResultBruxellesAsbl(message, true, recommendations);
+  }
+
+  showResultBruxellesAsbl(message, isEligible = true, recommendations = []) {
+    // Pour les ASBL, pas d'affinage - résultat direct
+    this.showFinalResultBruxelles(message, isEligible, recommendations, false);
   }
 }
