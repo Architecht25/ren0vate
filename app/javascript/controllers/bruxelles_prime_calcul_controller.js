@@ -396,6 +396,42 @@ export default class extends Controller {
         })
         console.log("✅ Événement ajouté pour régulation thermique")
       }
+
+      // Carte I - Services et études - Certificat PEB
+      const inputCertificatPeb = document.querySelector('[data-bruxelles-prime-card-target="inputCertificatPeb"]')
+      if (inputCertificatPeb) {
+        inputCertificatPeb.addEventListener('change', () => {
+          this.calculateSpecificPrime('bruxelles_certificat_peb', inputCertificatPeb, '[data-bruxelles-prime-card-target="resultCertificatPeb"]')
+        })
+        console.log("✅ Événement ajouté pour certificat PEB")
+      }
+
+      // Carte E - Toiture - Surface toiture
+      const inputSurfaceToiture = document.querySelector('[data-bruxelles-prime-card-target="inputSurfaceToiture"]')
+      if (inputSurfaceToiture) {
+        inputSurfaceToiture.addEventListener('input', () => {
+          this.calculateSpecificPrime('bruxelles_surface_toiture', inputSurfaceToiture, '[data-bruxelles-prime-card-target="resultSurfaceToiture"]')
+        })
+        console.log("✅ Événement ajouté pour surface toiture")
+      }
+
+      // Carte J - Chauffage - Radiateurs BT
+      const inputRadiateursBt = document.querySelector('[data-bruxelles-prime-card-target="inputRadiateursBt"]')
+      if (inputRadiateursBt) {
+        inputRadiateursBt.addEventListener('input', () => {
+          this.calculateSpecificPrime('bruxelles_radiateurs_bt', inputRadiateursBt, '[data-bruxelles-prime-card-target="resultRadiateursBt"]')
+        })
+        console.log("✅ Événement ajouté pour radiateurs BT")
+      }
+
+      // Carte I - Aménagement - Mise en conformité électrique
+      const inputMiseConformiteElectrique = document.querySelector('[data-bruxelles-prime-card-target="inputMiseConformiteElectrique"]')
+      if (inputMiseConformiteElectrique) {
+        inputMiseConformiteElectrique.addEventListener('input', () => {
+          this.calculateSpecificPrime('bruxelles_mise_en_conformite_electrique', inputMiseConformiteElectrique, '[data-bruxelles-prime-card-target="resultMiseConformiteElectrique"]')
+        })
+        console.log("✅ Événement ajouté pour mise en conformité électrique")
+      }
     }, 500)
   }
 
