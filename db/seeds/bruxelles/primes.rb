@@ -190,9 +190,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_protection_echafaudages").update!(
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 40, "condition": "Protection et échafaudages résidentiels"},
+    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 20, "condition": "Protection et échafaudages résidentiels"},
     "bruxelles_cat2": {"type": "montant_m2", "montant_m2": 30, "condition": "Protection et échafaudages résidentiels"},
-    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 20, "condition": "Protection et échafaudages résidentiels"}
+    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 40, "condition": "Protection et échafaudages résidentiels"}
   }'),
   condition: "Installation de protection et échafaudages pour travaux résidentiels",
   conseil: "Indispensable pour la sécurité lors de travaux en hauteur",
@@ -222,7 +222,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_structure_portante").update!(
   valeurs_par_categorie: JSON.parse('{
     "bruxelles_cat1": {
       "type": "pourcentage",
-      "pourcentage": 70,
+      "pourcentage": 30,
       "condition": "Sur base du montant facturé pour les travaux liés aux structures portantes"
     },
     "bruxelles_cat2": {
@@ -232,7 +232,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_structure_portante").update!(
     },
     "bruxelles_cat3": {
       "type": "pourcentage",
-      "pourcentage": 30,
+      "pourcentage": 70,
       "condition": "Sur base du montant facturé pour les travaux liés aux structures portantes"
     }
   }'),
@@ -241,9 +241,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_structure_portante").update!(
   document: "Devis + facture + preuve de l'intervention structurelle (ex : plans, photos, rapports)",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
-    "bruxelles_cat1": "Pourcentage du montant total - ex : 70%",
+    "bruxelles_cat1": "Pourcentage du montant total - ex : 30%",
     "bruxelles_cat2": "Pourcentage du montant total - ex : 50%",
-    "bruxelles_cat3": "Pourcentage du montant total - ex : 30%"
+    "bruxelles_cat3": "Pourcentage du montant total - ex : 70%"
   }'),
   image: "images/structure_portante.webp",
   region: "bruxelles",
@@ -261,30 +261,30 @@ Prime.find_or_initialize_by(slug: "bruxelles_gestion_egouts").update!(
     "bruxelles_cat1": {
       "type": "grille_variable",
       "grille": {
-        "mètre de tuyauterie": 45,
-        "chambre de visite": 210,
-        "avaloir": 70,
-        "raccordement égout": 440
+        "mètre de tuyauterie": 25,
+        "chambre de visite": 80,
+        "avaloir": 25,
+        "raccordement égout": 165
       },
       "condition": "Montants maximaux pour les différents éléments du système de canalisation"
     },
     "bruxelles_cat2": {
       "type": "grille_variable",
       "grille": {
-        "mètre de tuyauterie": 35,
-        "chambre de visite": 160,
-        "avaloir": 50,
-        "raccordement égout": 330
+        "mètre de tuyauterie": 45,
+        "chambre de visite": 130,
+        "avaloir": 45,
+        "raccordement égout": 275
       },
       "condition": "Montants maximaux pour les différents éléments du système de canalisation"
     },
     "bruxelles_cat3": {
       "type": "grille_variable",
       "grille": {
-        "mètre de tuyauterie": 25,
-        "chambre de visite": 120,
-        "avaloir": 25,
-        "raccordement égout": 165
+        "mètre de tuyauterie": 70,
+        "chambre de visite": 210,
+        "avaloir": 70,
+        "raccordement égout": 40
       },
       "condition": "Montants maximaux pour les différents éléments du système de canalisation"
     }
@@ -311,9 +311,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_recuperation_eau_pluie").update!(
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "montant_fixe", "montant": 1100, "condition": "Installation récupération eau de pluie"},
+    "bruxelles_cat1": {"type": "montant_fixe", "montant": 500, "condition": "Installation récupération eau de pluie"},
     "bruxelles_cat2": {"type": "montant_fixe", "montant": 750, "condition": "Installation récupération eau de pluie"},
-    "bruxelles_cat3": {"type": "montant_fixe", "montant": 500, "condition": "Installation récupération eau de pluie"}
+    "bruxelles_cat3": {"type": "montant_fixe", "montant": 1100, "condition": "Installation récupération eau de pluie"}
   }'),
   condition: "Installation complète de récupération d\'eau de pluie",
   conseil: "Permet de réduire la consommation d\'eau potable et gérer les eaux pluviales",
@@ -337,9 +337,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_demolition_permeabilisation").updat
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 80, "condition": "Démolition pour perméabilisation du sol"},
+    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 60, "condition": "Démolition pour perméabilisation du sol"},
     "bruxelles_cat2": {"type": "montant_m2", "montant_m2": 75, "condition": "Démolition pour perméabilisation du sol"},
-    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 60, "condition": "Démolition pour perméabilisation du sol"}
+    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 90, "condition": "Démolition pour perméabilisation du sol"}
   }'),
   condition: "Démolition d\'éléments pour améliorer la perméabilisation du sol",
   conseil: "Améliore la gestion des eaux de pluie et réduit le ruissellement",
@@ -369,7 +369,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_traitement_humidite_sol").update!(
   valeurs_par_categorie: JSON.parse('{
     "bruxelles_cat1": {
       "type": "pourcentage",
-      "pourcentage": 80,
+      "pourcentage": 30,
       "condition": "Traitement contre les remontées capillaires, humidité ascensionnelle ou infiltration par le sol"
     },
     "bruxelles_cat2": {
@@ -379,7 +379,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_traitement_humidite_sol").update!(
     },
     "bruxelles_cat3": {
       "type": "pourcentage",
-      "pourcentage": 30,
+      "pourcentage": 80,
       "condition": "Traitement contre les remontées capillaires, humidité ascensionnelle ou infiltration par le sol"
     }
   }'),
@@ -407,7 +407,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_traitement_fongique_insectes").upda
   valeurs_par_categorie: JSON.parse('{
     "bruxelles_cat1": {
       "type": "pourcentage",
-      "pourcentage": 80,
+      "pourcentage": 30,
       "condition": "Traitement ciblé contre les moisissures, champignons (ex. mérule) ou insectes xylophages (ex. capricornes, vrillettes)"
     },
     "bruxelles_cat2": {
@@ -417,7 +417,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_traitement_fongique_insectes").upda
     },
     "bruxelles_cat3": {
       "type": "pourcentage",
-      "pourcentage": 30,
+      "pourcentage": 80,
       "condition": "Traitement ciblé contre les moisissures, champignons (ex. mérule) ou insectes xylophages (ex. capricornes, vrillettes)"
     }
   }'),
@@ -449,7 +449,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_structure_toiture").update!(
   valeurs_par_categorie: JSON.parse('{
     "bruxelles_cat1": {
       "type": "pourcentage",
-      "pourcentage": 50,
+      "pourcentage": 30,
       "condition": "Travaux de réparation ou remplacement de la structure porteuse de la toiture"
     },
     "bruxelles_cat2": {
@@ -459,7 +459,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_structure_toiture").update!(
     },
     "bruxelles_cat3": {
       "type": "pourcentage",
-      "pourcentage": 30,
+      "pourcentage": 50,
       "condition": "Travaux de réparation ou remplacement de la structure porteuse de la toiture"
     }
   }'),
@@ -477,7 +477,6 @@ Prime.find_or_initialize_by(slug: "bruxelles_structure_toiture").update!(
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
 )
 
-
 Prime.find_or_initialize_by(slug: "bruxelles_isolation_toiture_etancheite").update!(
   titre: "Isolation toiture (isolation/étanchéité) - Bruxelles",
   ordre_affichage: 15,
@@ -486,9 +485,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_toiture_etancheite").upda
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 80, "condition": "Isolation et étanchéité de toiture"},
+    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 60, "condition": "Isolation et étanchéité de toiture"},
     "bruxelles_cat2": {"type": "montant_m2", "montant_m2": 70, "condition": "Isolation et étanchéité de toiture"},
-    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 60, "condition": "Isolation et étanchéité de toiture"}
+    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 80, "condition": "Isolation et étanchéité de toiture"}
   }'),
   condition: "Isolation thermique et étanchéité de toiture selon normes",
   conseil: "Combine isolation et étanchéité pour une performance optimale",
@@ -512,9 +511,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_thermique_toiture").updat
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 55, "condition": "Isolation thermique de toiture"},
+    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 35, "condition": "Isolation thermique de toiture"},
     "bruxelles_cat2": {"type": "montant_m2", "montant_m2": 45, "condition": "Isolation thermique de toiture"},
-    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 35, "condition": "Isolation thermique de toiture"}
+    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 55, "condition": "Isolation thermique de toiture"}
   }'),
   condition: "Isolation thermique de toiture selon normes de performance",
   conseil: "Améliore significativement l\'efficacité énergétique du bâtiment",
@@ -540,7 +539,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_accessoires_toiture").update!(
   valeurs_par_categorie: JSON.parse('{
     "bruxelles_cat1": {
       "type": "pourcentage",
-      "pourcentage": 50,
+      "pourcentage": 30,
       "condition": "Accessoires liés à la toiture : coupoles, lanterneaux, costières, abergements, etc."
     },
     "bruxelles_cat2": {
@@ -550,7 +549,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_accessoires_toiture").update!(
     },
     "bruxelles_cat3": {
       "type": "pourcentage",
-      "pourcentage": 30,
+      "pourcentage": 50,
       "condition": "Accessoires liés à la toiture : coupoles, lanterneaux, costières, abergements, etc."
     }
   }'),
@@ -576,9 +575,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_toiture_vegetale").update!(
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 40, "condition": "Installation de toiture végétale"},
-    "bruxelles_cat2": {"type": "montant_m2", "montant_m2": 30, "condition": "Installation de toiture végétale"},
-    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 20, "condition": "Installation de toiture végétale"}
+    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 30, "condition": "Installation de toiture végétale"},
+    "bruxelles_cat2": {"type": "montant_m2", "montant_m2": 40, "condition": "Installation de toiture végétale"},
+    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 50, "condition": "Installation de toiture végétale"}
   }'),
   condition: "Installation de toiture végétale extensive ou intensive",
   conseil: "Améliore l\'isolation, la gestion des eaux pluviales et la biodiversité",
@@ -606,9 +605,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_interieure_facade").updat
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 45, "condition": "Isolation intérieure des façades"},
+    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 35, "condition": "Isolation intérieure des façades"},
     "bruxelles_cat2": {"type": "montant_m2", "montant_m2": 40, "condition": "Isolation intérieure des façades"},
-    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 35, "condition": "Isolation intérieure des façades"}
+    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 45, "condition": "Isolation intérieure des façades"}
   }'),
   condition: "Isolation intérieure des murs de façade selon normes de performance",
   conseil: "Solution pratique quand l\'isolation extérieure n'est pas possible",
@@ -632,9 +631,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_exterieure_facade").updat
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 90, "condition": "Isolation extérieure des façades"},
+    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 50, "condition": "Isolation extérieure des façades"},
     "bruxelles_cat2": {"type": "montant_m2", "montant_m2": 70, "condition": "Isolation extérieure des façades"},
-    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 50, "condition": "Isolation extérieure des façades"}
+    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 90, "condition": "Isolation extérieure des façades"}
   }'),
   condition: "Isolation extérieure des murs de façade avec finition",
   conseil: "Solution optimale pour performance thermique et suppression ponts thermiques",
@@ -658,9 +657,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_coulisse").update!(
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 30, "condition": "Isolation en coulisse des murs"},
+    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 20, "condition": "Isolation en coulisse des murs"},
     "bruxelles_cat2": {"type": "montant_m2", "montant_m2": 25, "condition": "Isolation en coulisse des murs"},
-    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 20, "condition": "Isolation en coulisse des murs"}
+    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 30, "condition": "Isolation en coulisse des murs"}
   }'),
   condition: "Isolation par injection ou insufflation dans coulisse existante",
   conseil: "Solution économique pour murs creux sans démolition",
@@ -686,20 +685,17 @@ Prime.find_or_initialize_by(slug: "bruxelles_bardage_facade").update!(
   valeurs_par_categorie: JSON.parse('{
     "bruxelles_cat1": {
       "type": "montant_m2_et_limite",
-      "montant_par_m2": 80,
-      "plafond_m2": 100,
+      "montant_par_m2": 40,
       "condition": "Pose d\'un bardage extérieur neuf (bois, métal, fibre-ciment...) en complément ou non d\'une isolation"
     },
     "bruxelles_cat2": {
       "type": "montant_m2_et_limite",
-      "montant_par_m2": 60,
-      "plafond_m2": 100,
+      "montant_par_m2": 45,
       "condition": "Pose d\'un bardage extérieur neuf (bois, métal, fibre-ciment...) en complément ou non d\'une isolation"
     },
     "bruxelles_cat3": {
       "type": "montant_m2_et_limite",
-      "montant_par_m2": 40,
-      "plafond_m2": 100,
+      "montant_par_m2": 50,
       "condition": "Pose d\'un bardage extérieur neuf (bois, métal, fibre-ciment...) en complément ou non d\'une isolation"
     }
   }'),
@@ -708,9 +704,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_bardage_facade").update!(
   document: "Facture mentionnant le type de matériau + surface + photos avant/après",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
-    "bruxelles_cat1": "Surface en m² – max 100 m²",
-    "bruxelles_cat2": "Surface en m² – max 100 m²",
-    "bruxelles_cat3": "Surface en m² – max 100 m²"
+    "bruxelles_cat1": "Surface en m²",
+    "bruxelles_cat2": "Surface en m²",
+    "bruxelles_cat3": "Surface en m²"
   }'),
   image: "images/bardage_facade.webp",
   region: "bruxelles",
@@ -727,20 +723,17 @@ Prime.find_or_initialize_by(slug: "bruxelles_enduit_facade").update!(
   valeurs_par_categorie: JSON.parse('{
     "bruxelles_cat1": {
       "type": "montant_m2_et_limite",
-      "montant_par_m2": 70,
-      "plafond_m2": 100,
+      "montant_par_m2": 40,
       "condition": "Application d\'un enduit neuf sur la façade, en complément ou non d\'une isolation extérieure"
     },
     "bruxelles_cat2": {
       "type": "montant_m2_et_limite",
-      "montant_par_m2": 50,
-      "plafond_m2": 100,
+      "montant_par_m2": 45,
       "condition": "Application d\'un enduit neuf sur la façade, en complément ou non d\'une isolation extérieure"
     },
     "bruxelles_cat3": {
       "type": "montant_m2_et_limite",
-      "montant_par_m2": 30,
-      "plafond_m2": 100,
+      "montant_par_m2": 50,
       "condition": "Application d\'un enduit neuf sur la façade, en complément ou non d\'une isolation extérieure"
     }
   }'),
@@ -749,9 +742,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_enduit_facade").update!(
   document: "Facture mentionnant surface, type d'enduit, technique d'application + photos avant/après",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
-    "bruxelles_cat1": "Surface en m² – max 100 m²",
-    "bruxelles_cat2": "Surface en m² – max 100 m²",
-    "bruxelles_cat3": "Surface en m² – max 100 m²"
+    "bruxelles_cat1": "Surface en m²",
+    "bruxelles_cat2": "Surface en m²",
+    "bruxelles_cat3": "Surface en m²"
   }'),
   image: "images/enduit_facade.webp",
   region: "bruxelles",
@@ -792,9 +785,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_facades_arriere_laterales").update!
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 40, "condition": "Rénovation façades arrière et latérales"},
+    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 20, "condition": "Rénovation façades arrière et latérales"},
     "bruxelles_cat2": {"type": "montant_m2", "montant_m2": 30, "condition": "Rénovation façades arrière et latérales"},
-    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 20, "condition": "Rénovation façades arrière et latérales"}
+    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 40, "condition": "Rénovation façades arrière et latérales"}
   }'),
   condition: "Rénovation des façades arrière et latérales non visibles depuis l\'espace public",
   conseil: "Permet d\'améliorer l\'esthétique et l'étanchéité de toutes les façades",
@@ -861,9 +854,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_remplacement_fenetres_bois").update
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 140, "condition": "Remplacement fenêtres en bois performantes"},
+    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 100, "condition": "Remplacement fenêtres en bois performantes"},
     "bruxelles_cat2": {"type": "montant_m2", "montant_m2": 120, "condition": "Remplacement fenêtres en bois performantes"},
-    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 100, "condition": "Remplacement fenêtres en bois performantes"}
+    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 140, "condition": "Remplacement fenêtres en bois performantes"}
   }'),
   condition: "Remplacement par fenêtres bois haute performance énergétique",
   conseil: "Matériau écologique avec excellentes performances thermiques",
@@ -887,9 +880,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_remplacement_fenetres_pvc_alu").upd
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 55, "condition": "Remplacement fenêtres PVC ou aluminium"},
+    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 40, "condition": "Remplacement fenêtres PVC ou aluminium"},
     "bruxelles_cat2": {"type": "montant_m2", "montant_m2": 50, "condition": "Remplacement fenêtres PVC ou aluminium"},
-    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 40, "condition": "Remplacement fenêtres PVC ou aluminium"}
+    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 55, "condition": "Remplacement fenêtres PVC ou aluminium"}
   }'),
   condition: "Remplacement par fenêtres PVC ou aluminium haute performance",
   conseil: "Solution durable avec bon rapport qualité-prix",
@@ -913,9 +906,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_reparation_fenetres").update!(
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 260, "condition": "Réparation fenêtres existantes"},
+    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 130, "condition": "Réparation fenêtres existantes"},
     "bruxelles_cat2": {"type": "montant_m2", "montant_m2": 220, "condition": "Réparation fenêtres existantes"},
-    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 130, "condition": "Réparation fenêtres existantes"}
+    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 260, "condition": "Réparation fenêtres existantes"}
   }'),
   condition: "Réparation de fenêtres existantes pour améliorer leurs performances",
   conseil: "Alternative économique au remplacement pour fenêtres de qualité",
@@ -939,9 +932,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_reparation_portes").update!(
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 180, "condition": "Réparation portes existantes"},
+    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 90, "condition": "Réparation portes existantes"},
     "bruxelles_cat2": {"type": "montant_m2", "montant_m2": 150, "condition": "Réparation portes existantes"},
-    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 90, "condition": "Réparation portes existantes"}
+    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 180, "condition": "Réparation portes existantes"}
   }'),
   condition: "Réparation de portes existantes pour améliorer isolation et sécurité",
   conseil: "Permet de conserver le patrimoine architectural tout en améliorant les performances",
@@ -969,9 +962,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_thermique_sols").update!(
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 45, "condition": "Isolation thermique sols et planchers"},
+    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 35, "condition": "Isolation thermique sols et planchers"},
     "bruxelles_cat2": {"type": "montant_m2", "montant_m2": 40, "condition": "Isolation thermique sols et planchers"},
-    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 35, "condition": "Isolation thermique sols et planchers"}
+    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 45, "condition": "Isolation thermique sols et planchers"}
   }'),
   condition: "Isolation thermique des sols et planchers selon normes de performance",
   conseil: "Réduit les pertes de chaleur par le sol et améliore le confort",
@@ -995,9 +988,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_acoustique_sols").update!
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 90, "condition": "Isolation acoustique sols et planchers"},
+    "bruxelles_cat1": {"type": "montant_m2", "montant_m2": 30, "condition": "Isolation acoustique sols et planchers"},
     "bruxelles_cat2": {"type": "montant_m2", "montant_m2": 60, "condition": "Isolation acoustique sols et planchers"},
-    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 30, "condition": "Isolation acoustique sols et planchers"}
+    "bruxelles_cat3": {"type": "montant_m2", "montant_m2": 90, "condition": "Isolation acoustique sols et planchers"}
   }'),
   condition: "Isolation acoustique des sols et planchers pour réduire les nuisances sonores",
   conseil: "Améliore significativement le confort acoustique entre logements",
@@ -1025,9 +1018,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_escaliers").update!(
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "montant_unite", "montant_unite": 80, "condition": "Rénovation ou installation d\'escaliers"},
+    "bruxelles_cat1": {"type": "montant_unite", "montant_unite": 30, "condition": "Rénovation ou installation d\'escaliers"},
     "bruxelles_cat2": {"type": "montant_unite", "montant_unite": 50, "condition": "Rénovation ou installation d\'escaliers"},
-    "bruxelles_cat3": {"type": "montant_unite", "montant_unite": 30, "condition": "Rénovation ou installation d\'escaliers"}
+    "bruxelles_cat3": {"type": "montant_unite", "montant_unite": 80, "condition": "Rénovation ou installation d\'escaliers"}
   }'),
   condition: "Rénovation ou installation d\'escaliers intérieurs ou extérieurs",
   conseil: "Améliore la sécurité et l'accessibilité du logement",
@@ -1079,17 +1072,17 @@ Prime.find_or_initialize_by(slug: "bruxelles_protection_incendie").update!(
   valeurs_par_categorie: JSON.parse('{
     "bruxelles_cat1": {
       "type": "pourcentage",
-      "pourcentage": 80,
+      "pourcentage": 20,
       "condition": "Équipements ou travaux visant à améliorer la sécurité incendie conformément aux recommandations officielles"
     },
     "bruxelles_cat2": {
       "type": "pourcentage",
-      "pourcentage": 50,
+      "pourcentage": 20,
       "condition": "Équipements ou travaux visant à améliorer la sécurité incendie conformément aux recommandations officielles"
     },
     "bruxelles_cat3": {
       "type": "pourcentage",
-      "pourcentage": 30,
+      "pourcentage": 20,
       "condition": "Équipements ou travaux visant à améliorer la sécurité incendie conformément aux recommandations officielles"
     }
   }'),
@@ -1147,17 +1140,17 @@ Prime.find_or_initialize_by(slug: "bruxelles_pac_chauffage").update!(
   valeurs_par_categorie: JSON.parse('{
     "bruxelles_cat1": {
       "type": "montant_fixe",
-      "montant": 6000,
+      "montant": 4500,
       "condition": "Installation d\'une pompe à chaleur pour chauffage central en remplacement d\'un ancien système"
     },
     "bruxelles_cat2": {
       "type": "montant_fixe",
-      "montant": 4500,
+      "montant": 4750,
       "condition": "Installation d\'une pompe à chaleur pour chauffage central en remplacement d\'un ancien système"
     },
     "bruxelles_cat3": {
       "type": "montant_fixe",
-      "montant": 3000,
+      "montant": 5000,
       "condition": "Installation d\'une pompe à chaleur pour chauffage central en remplacement d\'un ancien système"
     }
   }'),
@@ -1185,20 +1178,17 @@ Prime.find_or_initialize_by(slug: "bruxelles_radiateurs_basse_temperature").upda
   valeurs_par_categorie: JSON.parse('{
     "bruxelles_cat1": {
       "type": "montant_unite_et_limite",
-      "montant_par_unite": 200,
-      "plafond_unites": 10,
+      "montant_par_unite": 75,
       "condition": "Remplacement ou installation de radiateurs basse température compatibles avec une pompe à chaleur"
     },
     "bruxelles_cat2": {
       "type": "montant_unite_et_limite",
       "montant_par_unite": 125,
-      "plafond_unites": 10,
       "condition": "Remplacement ou installation de radiateurs basse température compatibles avec une pompe à chaleur"
     },
     "bruxelles_cat3": {
       "type": "montant_unite_et_limite",
-      "montant_par_unite": 75,
-      "plafond_unites": 10,
+      "montant_par_unite": 200,
       "condition": "Remplacement ou installation de radiateurs basse température compatibles avec une pompe à chaleur"
     }
   }'),
@@ -1207,9 +1197,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_radiateurs_basse_temperature").upda
   document: "Facture précisant le type et le nombre de radiateurs + preuve de compatibilité",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
-    "bruxelles_cat1": "Nombre d\'unités – max 10",
-    "bruxelles_cat2": "Nombre d\'unités – max 10",
-    "bruxelles_cat3": "Nombre d\'unités – max 10"
+    "bruxelles_cat1": "Nombre d\'unités",
+    "bruxelles_cat2": "Nombre d\'unités",
+    "bruxelles_cat3": "Nombre d\'unités"
   }'),
   image: "images/radiateurs_bt.webp",
   region: "bruxelles",
@@ -1383,9 +1373,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_appareil_sanitaire").update!(
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "montant_unite", "montant_unite": 540, "condition": "Installation d\'appareils sanitaires"},
+    "bruxelles_cat1": {"type": "montant_unite", "montant_unite": 200, "condition": "Installation d\'appareils sanitaires"},
     "bruxelles_cat2": {"type": "montant_unite", "montant_unite": 340, "condition": "Installation d\'appareils sanitaires"},
-    "bruxelles_cat3": {"type": "montant_unite", "montant_unite": 200, "condition": "Installation d\'appareils sanitaires"}
+    "bruxelles_cat3": {"type": "montant_unite", "montant_unite": 540, "condition": "Installation d\'appareils sanitaires"}
   }'),
   condition: "Installation d\'appareils sanitaires performants (WC, lavabo, douche, etc.)",
   conseil: "Améliore le confort et l'hygiène, choisir équipements économes en eau",
@@ -1413,9 +1403,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_mise_normes_electricite_gaz").updat
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "pourcentage", "pourcentage": 70, "condition": "Mise aux normes installations électriques et gaz"},
+    "bruxelles_cat1": {"type": "pourcentage", "pourcentage": 30, "condition": "Mise aux normes installations électriques et gaz"},
     "bruxelles_cat2": {"type": "pourcentage", "pourcentage": 50, "condition": "Mise aux normes installations électriques et gaz"},
-    "bruxelles_cat3": {"type": "pourcentage", "pourcentage": 30, "condition": "Mise aux normes installations électriques et gaz"}
+    "bruxelles_cat3": {"type": "pourcentage", "pourcentage": 70, "condition": "Mise aux normes installations électriques et gaz"}
   }'),
   condition: "Mise aux normes des installations électriques et gaz selon réglementation",
   conseil: "Obligatoire pour la sécurité, intervention par professionnel agréé requise",
@@ -1443,9 +1433,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_ventilation_systeme_c").update!(
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "montant_fixe", "montant": 2230, "condition": "Installation ventilation mécanique système C"},
+    "bruxelles_cat1": {"type": "montant_fixe", "montant": 1550, "condition": "Installation ventilation mécanique système C"},
     "bruxelles_cat2": {"type": "montant_fixe", "montant": 1950, "condition": "Installation ventilation mécanique système C"},
-    "bruxelles_cat3": {"type": "montant_fixe", "montant": 1550, "condition": "Installation ventilation mécanique système C"}
+    "bruxelles_cat3": {"type": "montant_fixe", "montant": 2230, "condition": "Installation ventilation mécanique système C"}
   }'),
   condition: "Installation de ventilation mécanique système C (extraction mécanique)",
   conseil: "Améliore la qualité de l'air intérieur et évacue l'humidité",
@@ -1469,9 +1459,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_ventilation_systeme_d").update!(
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "montant_fixe", "montant": 4300, "condition": "Installation VMC double flux (système D)"},
+    "bruxelles_cat1": {"type": "montant_fixe", "montant": 3000, "condition": "Installation VMC double flux (système D)"},
     "bruxelles_cat2": {"type": "montant_fixe", "montant": 3750, "condition": "Installation VMC double flux (système D)"},
-    "bruxelles_cat3": {"type": "montant_fixe", "montant": 3000, "condition": "Installation VMC double flux (système D)"}
+    "bruxelles_cat3": {"type": "montant_fixe", "montant": 4300, "condition": "Installation VMC double flux (système D)"}
   }'),
   condition: "Installation VMC double flux avec récupération de chaleur",
   conseil: "Solution haut de gamme pour qualité d'air optimale et économies d'énergie",

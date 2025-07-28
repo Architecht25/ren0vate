@@ -1,199 +1,341 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = [
-    // Services et études
-    "auditMaison", "auditBatiment", "auditLogement", "accompagnement", "conseiller",
-
-    // Isolation et menuiseries
-    "isolationToiture", "isolationMurs", "isolationSol", "fenetres", "portes",
-
-    // Chauffage et ventilation
-    "chaudiere", "pompeAChaleur", "ventilation", "solairethermique",
-
-    // Électricité et divers
-    "electrique", "photovoltaique", "autres",
-
-    // Résultat
-    "total", "surface"
-  ]
+  static targets = ["total"]
+  static values = { category: String, slug: String }
 
   connect() {
-    console.log("🎯 Contrôleur Bruxelles Prime Card connecté");
+    console.log("🎯 Contrôleur Bruxelles Prime Card connecté")
 
-    this.currentCategory = "Z1"; // Catégorie par défaut
+    // Récupérer la catégorie actuelle depuis le contrôleur parent
+    this.currentCategory = this.getCurrentCategoryFromParent()
 
     // Écouter les changements de catégorie
-    document.addEventListener('bruxelles:category:changed', this.updateCategory.bind(this));
+    this.element.addEventListener('bruxelles:category:changed', this.updateCategory.bind(this))
 
     // Calculer le montant initial
-    this.calculate();
+    this.calculate()
   }
 
   disconnect() {
-    document.removeEventListener('bruxelles:category:changed', this.updateCategory.bind(this));
+    this.element.removeEventListener('bruxelles:category:changed', this.updateCategory.bind(this))
   }
 
   updateCategory(event) {
-    this.currentCategory = event.detail?.categorie || "Z1";
-    console.log("🔄 Carte Prime Bruxelles - Nouvelle catégorie:", this.currentCategory);
-    this.calculate();
+    this.currentCategory = event.detail?.categorie || "bruxelles_cat3"
+    console.log("🔄 Carte Prime Bruxelles - Nouvelle catégorie:", this.currentCategory)
+    this.calculate()
+  }
+
+  getCurrentCategoryFromParent() {
+    const parentController = this.getParentController()
+    if (parentController && parentController.getCurrentCategory) {
+      return parentController.getCurrentCategory()
+    }
+    
+    // Fallback vers localStorage
+    const storedCategory = localStorage.getItem("bruxellesCategorieEstimee")
+    if (storedCategory) {
+      const categoryMap = {
+        "1": "bruxelles_cat1",
+        "2": "bruxelles_cat2", 
+        "3": "bruxelles_cat3"
+      }
+      return categoryMap[storedCategory] || "bruxelles_cat3"
+    }
+    
+    return "bruxelles_cat3" // Catégorie par défaut
   }
 
   calculate() {
-    let total = 0;
+    // Si c'est une carte composite (globale), utiliser le calcul composite
+    if (this.isCompositeCard()) {
+      this.calculateComposite()
+      return
+    }
 
-    // Récupérer les valeurs des différents éléments
-    const values = {
-      // Services et études (forfaitaires)
-      auditMaison: this.getTargetValue("auditMaison"),
-      auditBatiment: this.getTargetValue("auditBatiment"),
-      auditLogement: this.getTargetValue("auditLogement"),
-      accompagnement: this.getTargetValue("accompagnement"),
-      conseiller: this.getTargetValue("conseiller"),
-
-      // Isolation (m²)
-      isolationToiture: this.getTargetValue("isolationToiture"),
-      isolationMurs: this.getTargetValue("isolationMurs"),
-      isolationSol: this.getTargetValue("isolationSol"),
-
-      // Menuiseries (m²)
-      fenetres: this.getTargetValue("fenetres"),
-      portes: this.getTargetValue("portes"),
-
-      // Chauffage (forfaitaires ou unités)
-      chaudiere: this.getTargetValue("chaudiere"),
-      pompeAChaleur: this.getTargetValue("pompeAChaleur"),
-      ventilation: this.getTargetValue("ventilation"),
-      solairethermique: this.getTargetValue("solairethermique"),
-
-      // Électricité
-      electrique: this.getTargetValue("electrique"),
-      photovoltaique: this.getTargetValue("photovoltaique"),
-
-      // Autres
-      autres: this.getTargetValue("autres")
-    };
-
-    // Calculer selon la catégorie de revenus Bruxelles (Z1 à Z10)
-    total += this.calculateServicesEtudes(values);
-    total += this.calculateIsolation(values);
-    total += this.calculateMenuiseries(values);
-    total += this.calculateChauffage(values);
-    total += this.calculateElectricite(values);
-    total += this.calculateAutres(values);
-
-    // Afficher le résultat
-    this.updateTotal(total);
+    // Sinon, calcul simple
+    this.calculateSimple()
   }
 
-  calculateServicesEtudes(values) {
-    let total = 0;
+  calculateSimple() {
+    let total = 0
 
-    // Barème simplifié pour Bruxelles - ajuster selon documentation officielle
-    const multiplier = this.getCategoryMultiplier();
+    // Récupérer tous les inputs de la carte
+    const inputs = this.element.querySelectorAll('input, select')
+    
+    inputs.forEach(input => {
+      const value = this.getInputValue(input)
+      if (value > 0) {
+        // Calculer selon le type d'input et la catégorie
+        const montant = this.calculateInputAmount(input, value)
+        total += montant
+      }
+    })
 
-    if (values.auditMaison > 0) total += 650 * multiplier;
-    if (values.auditBatiment > 0) total += 1200 * multiplier;
-    if (values.auditLogement > 0) total += 450 * multiplier;
-    if (values.accompagnement > 0) total += 500 * multiplier;
-    if (values.conseiller > 0) total += 300 * multiplier;
+    // Mettre à jour l'affichage
+    this.updateTotal(total)
 
-    return total;
+    // Notifier le parent
+    this.notifyParent()
   }
 
-  calculateIsolation(values) {
-    let total = 0;
-    const multiplier = this.getCategoryMultiplier();
+  calculateComposite() {
+    // Pour les cartes composites qui contiennent plusieurs primes
+    // Chaque section a ses propres inputs et résultats
+    let totalGeneral = 0
 
-    // Montants approximatifs - ajuster selon barème officiel
-    total += values.isolationToiture * 25 * multiplier;
-    total += values.isolationMurs * 30 * multiplier;
-    total += values.isolationSol * 20 * multiplier;
+    const sections = this.getCompositeSections()
+    
+    sections.forEach(section => {
+      let sectionTotal = 0
+      
+      section.inputs.forEach(inputSelector => {
+        const input = this.element.querySelector(inputSelector)
+        if (input) {
+          const value = this.getInputValue(input)
+          if (value > 0) {
+            const montant = this.calculateSectionAmount(section.type, value)
+            sectionTotal += montant
+          }
+        }
+      })
 
-    return total;
+      // Mettre à jour le résultat de la section
+      if (section.resultSelector) {
+        const resultElement = this.element.querySelector(section.resultSelector)
+        if (resultElement) {
+          resultElement.textContent = `${sectionTotal.toLocaleString('fr-BE')} €`
+        }
+      }
+
+      totalGeneral += sectionTotal
+    })
+
+    // Mettre à jour le total de la carte
+    this.updateTotal(totalGeneral)
+
+    // Notifier le parent
+    this.notifyParent()
   }
 
-  calculateMenuiseries(values) {
-    let total = 0;
-    const multiplier = this.getCategoryMultiplier();
-
-    total += values.fenetres * 85 * multiplier;
-    total += values.portes * 120 * multiplier;
-
-    return total;
+  getInputValue(input) {
+    if (input.type === 'checkbox' || input.type === 'radio') {
+      return input.checked ? (parseFloat(input.value) || 1) : 0
+    }
+    if (input.tagName === 'SELECT') {
+      return parseFloat(input.value) || 0
+    }
+    return parseFloat(input.value) || 0
   }
 
-  calculateChauffage(values) {
-    let total = 0;
-    const multiplier = this.getCategoryMultiplier();
-
-    if (values.chaudiere > 0) total += 1500 * multiplier;
-    if (values.pompeAChaleur > 0) total += 4500 * multiplier;
-    if (values.ventilation > 0) total += 3500 * multiplier;
-    if (values.solairethermique > 0) total += 2500 * multiplier;
-
-    return total;
+  calculateInputAmount(input, value) {
+    // Récupérer le type de calcul depuis l'attribut data ou le placeholder
+    const calculType = this.getCalculationType(input)
+    const baseAmount = this.getBaseAmount(input, calculType)
+    
+    // Appliquer le multiplicateur de catégorie
+    const multiplier = this.getCategoryMultiplier()
+    
+    let montant = 0
+    
+    switch (calculType) {
+      case 'montant_fixe':
+        montant = value > 0 ? baseAmount * multiplier : 0
+        break
+      case 'par_m2':
+        montant = value * baseAmount * multiplier
+        break
+      case 'par_unite':
+        montant = value * baseAmount * multiplier
+        break
+      case 'pourcentage':
+        const maxAmount = this.getMaxAmount(input)
+        montant = Math.min((value * baseAmount / 100) * multiplier, maxAmount)
+        break
+      default:
+        montant = value * baseAmount * multiplier
+    }
+    
+    return Math.round(montant)
   }
 
-  calculateElectricite(values) {
-    let total = 0;
-    const multiplier = this.getCategoryMultiplier();
-
-    total += values.electrique * 50 * multiplier; // par point
-    total += values.photovoltaique * 300 * multiplier; // par kWc
-
-    return total;
+  calculateSectionAmount(sectionType, value) {
+    const baseAmounts = this.getSectionBaseAmounts()
+    const baseAmount = baseAmounts[sectionType] || 0
+    const multiplier = this.getCategoryMultiplier()
+    
+    return Math.round(value * baseAmount * multiplier)
   }
 
-  calculateAutres(values) {
-    // Pour les autres primes spécifiques
-    return values.autres * this.getCategoryMultiplier();
+  getCalculationType(input) {
+    // Déterminer le type de calcul selon les attributs ou le contexte
+    if (input.dataset.calculType) {
+      return input.dataset.calculType
+    }
+    
+    const placeholder = input.placeholder?.toLowerCase() || ''
+    
+    if (placeholder.includes('m²') || placeholder.includes('surface')) {
+      return 'par_m2'
+    }
+    if (placeholder.includes('nombre') || placeholder.includes('unité')) {
+      return 'par_unite'
+    }
+    if (placeholder.includes('montant') || placeholder.includes('coût')) {
+      return 'pourcentage'
+    }
+    if (input.type === 'checkbox' || (input.tagName === 'SELECT' && input.value === '1')) {
+      return 'montant_fixe'
+    }
+    
+    return 'par_unite' // Par défaut
+  }
+
+  getBaseAmount(input, calculType) {
+    // Montants de base selon le type de travaux et la carte
+    const baseAmounts = {
+      // Services et études (Prime A)
+      'audit_maison': 650,
+      'audit_batiment': 1200,
+      'audit_logement': 450,
+      'accompagnement': 500,
+      'conseiller': 300,
+
+      // Isolation (Prime C)
+      'isolation_toiture_m2': 25,
+      'isolation_murs_m2': 30,
+      'isolation_sol_m2': 20,
+
+      // Menuiseries (Prime H)
+      'fenetres_m2': 85,
+      'portes_m2': 120,
+
+      // Chauffage (Prime F)
+      'chaudiere': 1500,
+      'pac': 4500,
+      'ventilation': 3500,
+      'solaire_thermique': 2500,
+
+      // Électricité (Prime J)
+      'electrique_point': 50,
+      'photovoltaique_kwc': 300
+    }
+
+    // Essayer de déterminer le type depuis l'ID ou les classes
+    const inputId = input.id || ''
+    const inputClasses = input.className || ''
+    
+    for (const [key, amount] of Object.entries(baseAmounts)) {
+      if (inputId.includes(key) || inputClasses.includes(key)) {
+        return amount
+      }
+    }
+
+    // Valeur par défaut selon le type de calcul
+    switch (calculType) {
+      case 'montant_fixe': return 500
+      case 'par_m2': return 25
+      case 'par_unite': return 100
+      case 'pourcentage': return 20
+      default: return 100
+    }
+  }
+
+  getMaxAmount(input) {
+    // Montant maximum pour les calculs en pourcentage
+    return parseFloat(input.dataset.maxAmount) || 5000
   }
 
   getCategoryMultiplier() {
-    // Facteur multiplicateur selon la catégorie de revenus simplifiée
-    // Compatible avec le nouveau système d'affinage
+    // Facteur multiplicateur selon la catégorie de revenus
     const multipliers = {
-      // Nouvelles catégories simplifiées pour particuliers
-      "Revenus Faibles": 1.0,     // Primes maximales
-      "Revenus Moyens": 0.7,      // Primes moyennes
-      "Revenus Élevés": 0.4,      // Primes réduites
+      "bruxelles_cat1": 0.8,    // Entreprises, ASBL
+      "bruxelles_cat2": 0.8,    // Syndics
+      "bruxelles_cat3": 1.0     // Particuliers (revenus faibles), AIS
+    }
 
-      // Catégories automatiques pour autres profils
-      "Catégorie I": 0.8,         // Entreprises et ASBL
-      "Catégorie II": 0.8,        // Syndics de copropriété
-      "Catégorie III": 0.8,       // Bailleurs sociaux (AIS)
-
-      // Compatibilité avec anciennes catégories (si présentes)
-      "Z1": 1.0, "Z2": 0.9, "Z3": 0.8, "Z4": 0.7, "Z5": 0.6,
-      "Z6": 0.5, "Z7": 0.4, "Z8": 0.3, "Z9": 0.2, "Z10": 0.1
-    };
-
-    return multipliers[this.currentCategory] || 0.8; // Valeur par défaut
+    return multipliers[this.currentCategory] || 1.0
   }
 
-  getTargetValue(targetName) {
-    const hasTargetMethodName = 'has' + targetName.charAt(0).toUpperCase() + targetName.slice(1) + 'Target';
-    if (this[hasTargetMethodName]) {
-      const target = this[targetName + 'Target'];
-      if (target) {
-        const value = parseFloat(target.value) || 0;
-        return Math.max(0, value); // Assurer une valeur positive
+  isCompositeCard() {
+    // Vérifier si c'est une carte composite
+    const compositeCategories = [
+      'prime-a', 'prime-b', 'prime-c', 'prime-d', 'prime-e',
+      'prime-f', 'prime-g', 'prime-h', 'prime-i', 'prime-j',
+      'prime-kl', 'prime-m', 'prime-z'
+    ]
+    
+    return compositeCategories.includes(this.categoryValue)
+  }
+
+  getCompositeSections() {
+    // Définir les sections composites selon la carte
+    // À adapter selon la structure réelle des cartes
+    return [
+      {
+        type: 'section1',
+        inputs: ['[data-section="1"] input', '[data-section="1"] select'],
+        resultSelector: '[data-section="1"] .result'
       }
+    ]
+  }
+
+  getSectionBaseAmounts() {
+    // Montants de base pour les sections composites
+    return {
+      'section1': 100,
+      'section2': 200,
+      'section3': 300
     }
-    return 0;
   }
 
   updateTotal(total) {
     if (this.hasTotalTarget) {
-      this.totalTarget.textContent = `${Math.round(total).toLocaleString('fr-BE')} €`;
+      this.totalTarget.textContent = `${total.toLocaleString('fr-BE')} €`
 
       // Ajouter une classe pour l'animation
-      this.totalTarget.classList.add('updated');
+      this.totalTarget.classList.add('updated')
       setTimeout(() => {
-        this.totalTarget.classList.remove('updated');
-      }, 300);
+        this.totalTarget.classList.remove('updated')
+      }, 300)
     }
   }
+
+  notifyParent() {
+    // Notifier le contrôleur parent qu'une carte a été mise à jour
+    const parentController = this.getParentController()
+    if (parentController && parentController.cardUpdated) {
+      parentController.cardUpdated()
+    }
+  }
+
+  getParentController() {
+    // Trouver le controller parent bruxelles-prime-calcul
+    let parent = this.element.parentElement
+    while (parent) {
+      if (parent.hasAttribute('data-controller') &&
+          parent.getAttribute('data-controller').includes('bruxelles-prime-calcul')) {
+        return this.application.getControllerForElementAndIdentifier(parent, 'bruxelles-prime-calcul')
+      }
+      parent = parent.parentElement
+    }
+    return null
+  }
+
+  // Méthode pour recalculer (appelée depuis le controller parent)
+  recalculate() {
+    this.calculate()
+  }
+
+  // Actions pour les événements de changement
+  calculateAudit() { this.calculate() }
+  calculateToiture() { this.calculate() }
+  calculateIsolation() { this.calculate() }
+  calculateMenuiseries() { this.calculate() }
+  calculateChauffage() { this.calculate() }
+  calculateVentilation() { this.calculate() }
+  calculateElectricite() { this.calculate() }
+  calculateRenouvelables() { this.calculate() }
+  calculateAutres() { this.calculate() }
 }
