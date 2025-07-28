@@ -190,43 +190,6 @@ class PagesController < ApplicationController
     end
   end
 
-      respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: turbo_stream.replace(
-            "eligibility_content",
-            partial: "pages/partials_bruxelles/resultat_categorie",
-            locals: {
-              category: category,
-              category_color: category_color,
-              category_details: category_details,
-              primes: @primes
-            }
-          )
-        end
-        format.html { redirect_to bruxelles_path }
-      end
-
-    rescue => e
-      Rails.logger.error "Category estimation error: #{e.message}"
-      Rails.logger.error e.backtrace.join("\n")
-
-      respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: turbo_stream.replace(
-            "eligibility_content",
-            partial: "shared/alert",
-            locals: {
-              message: "Erreur lors du calcul de catégorie: #{e.message}",
-              type: "danger",
-              title: "❌ Erreur"
-            }
-          )
-        end
-        format.html { redirect_to bruxelles_path, alert: "Erreur technique" }
-      end
-    end
-  end
-
   def test_eligibility_wallonie
     Rails.logger.info "=== Test Eligibility Wallonie Action Called ==="
     Rails.logger.info "Params: #{params.inspect}"
