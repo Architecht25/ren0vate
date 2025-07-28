@@ -1,0 +1,130 @@
+<!-- Questionnaire d'éligibilité RENOLUTION Bruxelles - Syndics de copropriété -->
+<div id="eligibility-test-bruxelles-syndic" data-controller="test-eligibilite">
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-primary bg-opacity-10">
+      <h5 class="card-title mb-0 text-primary">
+        <i class="bi bi-people me-2"></i>
+        Test d'éligibilité - Syndics de copropriété
+      </h5>
+      <p class="text-muted small mb-0 mt-1">
+        Vérifiez l'éligibilité de votre copropriété aux primes RENOLUTION Bruxelles
+      </p>
+    </div>
+
+    <div class="card-body">
+      <form id="eligibilityFormBruxellesSyndic" name="eligibilityFormBruxellesSyndic"
+            data-test-eligibilite-target="form">
+        <input type="hidden" name="profile_type" value="syndic">
+      <!-- Question 1: Localisation -->
+      <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+        <h6 class="mb-3 text-dark">
+          <i class="bi bi-geo-alt text-primary me-2"></i>
+          L'immeuble est-il situé en Région de Bruxelles-Capitale ?
+        </h6>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="localisation" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="localisation_oui">
+            <label class="form-check-label" for="localisation_oui">
+              <i class="bi bi-check-circle text-success me-1"></i>Oui
+            </label>
+          </div>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="localisation" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="localisation_non">
+            <label class="form-check-label" for="localisation_non">
+              <i class="bi bi-x-circle text-danger me-1"></i>Non
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 2: Usage résidentiel -->
+      <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+        <h6 class="mb-3 text-dark">
+          <i class="bi bi-building text-primary me-2"></i>
+          L'immeuble est-il principalement résidentiel (au moins 80% logement) ?
+        </h6>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="usage_residentiel" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="usage_residentiel_oui">
+            <label class="form-check-label" for="usage_residentiel_oui">
+              <i class="bi bi-check-circle text-success me-1"></i>Oui
+            </label>
+          </div>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="usage_residentiel" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="usage_residentiel_non">
+            <label class="form-check-label" for="usage_residentiel_non">
+              <i class="bi bi-x-circle text-danger me-1"></i>Non
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 3: Âge de l'immeuble -->
+      <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+        <h6 class="mb-3 text-dark">
+          <i class="bi bi-calendar text-primary me-2"></i>
+          L'immeuble a-t-il été construit il y a plus de 10 ans ?
+        </h6>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="age_immeuble" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="age_immeuble_oui">
+            <label class="form-check-label" for="age_immeuble_oui">
+              <i class="bi bi-check-circle text-success me-1"></i>Oui
+            </label>
+          </div>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="age_immeuble" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="age_immeuble_non">
+            <label class="form-check-label" for="age_immeuble_non">
+              <i class="bi bi-x-circle text-danger me-1"></i>Non
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 4: Minimum d'unités -->
+      <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+        <h6 class="mb-3 text-dark">
+          <i class="bi bi-hash text-primary me-2"></i>
+          La copropriété compte-t-elle au moins 2 unités ?
+        </h6>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="minimum_unites" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="minimum_unites_oui">
+            <label class="form-check-label" for="minimum_unites_oui">
+              <i class="bi bi-check-circle text-success me-1"></i>Oui
+            </label>
+          </div>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="minimum_unites" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="minimum_unites_non">
+            <label class="form-check-label" for="minimum_unites_non">
+              <i class="bi bi-x-circle text-danger me-1"></i>Non
+            </label>
+          </div>
+        </div>
+      </div>
+      </form>
+
+      <!-- Bouton de validation du test -->
+      <div class="text-center mt-4">
+        <button type="button"
+                class="btn btn-success btn-lg"
+                data-action="click->test-eligibilite#validateTestBruxellesSyndic"
+                data-test-eligibilite-target="validateButton"
+                style="display: none;">
+          <i class="bi bi-check2-circle me-2"></i>Valider mon test d'éligibilité
+        </button>
+      </div>
+
+      <!-- Zone de résultat -->
+      <div data-test-eligibilite-target="result" class="mt-4"></div>
+    </div>
+  </div>
+</div>

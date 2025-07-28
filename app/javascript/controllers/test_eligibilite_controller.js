@@ -658,4 +658,475 @@ export default class extends Controller {
       console.error('Erreur lors du chargement de l\'affinage:', error)
     })
   }
+
+  handleAnswerBruxellesParticulier(event) {
+    console.log("🎯 Test Eligibilité Bruxelles Particulier - Réponse:", event.target.name, "=", event.target.value);
+
+    const form = this.formTarget;
+    const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+
+    const testData = responses.reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    localStorage.setItem("eligibiliteBruxellesParticulier", JSON.stringify(testData));
+
+    // Vérification immédiate des cas d'inéligibilité Bruxelles Particulier
+    const localisation = testData["localisation"];
+    if (localisation === "non") {
+      this.showResult("❌ Le logement doit être situé en Région de Bruxelles-Capitale", false);
+      return;
+    }
+
+    const proprietaire = testData["proprietaire"];
+    if (proprietaire === "non") {
+      this.showResult("❌ Vous devez être propriétaire du logement pour bénéficier des primes", false);
+      return;
+    }
+
+    const residence_principale = testData["residence_principale"];
+    if (residence_principale === "non") {
+      this.showResult("❌ Le logement doit être votre résidence principale", false);
+      return;
+    }
+
+    const age_batiment = testData["age_batiment"];
+    if (age_batiment === "non") {
+      this.showResult("❌ Le bâtiment doit avoir été construit il y a plus de 10 ans", false);
+      return;
+    }
+
+    const compte_belge = testData["compte_belge"];
+    if (compte_belge === "non") {
+      this.showResult("❌ Un compte bancaire belge est requis pour le versement des primes", false);
+      return;
+    }
+
+    // Vérifier si toutes les questions sont répondues
+    this.checkIfAllAnsweredBruxellesParticulier();
+  }
+
+  checkIfAllAnsweredBruxellesParticulier() {
+    const form = this.formTarget;
+
+    // Obtenir tous les noms de questions uniques
+    const radioInputs = Array.from(form.querySelectorAll("input[type='radio']"));
+    const questionNames = [...new Set(radioInputs.map(input => input.name))].filter(name => name !== "profile_type");
+
+    // Vérifier que chaque question a une réponse cochée
+    const allAnswered = questionNames.every(name => {
+      return form.querySelector(`input[name="${name}"]:checked`) !== null;
+    });
+
+    if (allAnswered && this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "block";
+    } else if (this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "none";
+    }
+  }
+
+  validateTestBruxellesParticulier() {
+    console.log("🎯 Validation du test d'éligibilité Bruxelles Particulier");
+
+    const form = this.formTarget;
+    const testData = JSON.parse(localStorage.getItem("eligibiliteBruxellesParticulier") || "{}");
+
+    // Ajouter le profile_type
+    testData.profile_type = "prive";
+
+    // Envoyer les données au serveur pour validation finale
+    fetch('/test_eligibility_bruxelles', {
+      method: 'POST',
+      headers: {
+        'Accept': 'text/vnd.turbo-stream.html',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams(testData).toString()
+    })
+    .then(response => response.text())
+    .then(html => {
+      // Utiliser Turbo pour remplacer le contenu
+      const frame = document.getElementById('eligibility_content')
+      if (frame) {
+        frame.innerHTML = html
+      }
+    })
+    .catch(error => {
+      console.error('Erreur lors de la validation:', error)
+      this.showResult("❌ Erreur lors de la validation. Veuillez réessayer.", false);
+    })
+  }
+
+  handleAnswerBruxellesEntreprise(event) {
+    console.log("🎯 Test Eligibilité Bruxelles Entreprise - Réponse:", event.target.name, "=", event.target.value);
+
+    const form = this.formTarget;
+    const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+
+    const testData = responses.reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    localStorage.setItem("eligibiliteBruxellesEntreprise", JSON.stringify(testData));
+
+    // Vérification immédiate des cas d'inéligibilité Bruxelles Entreprise
+    const localisation = testData["localisation"];
+    if (localisation === "non") {
+      this.showResult("❌ L'entreprise et le bâtiment doivent être situés en Région de Bruxelles-Capitale", false);
+      return;
+    }
+
+    const est_pme = testData["est_pme"];
+    if (est_pme === "non") {
+      this.showResult("❌ Seules les PME (moins de 250 employés) sont éligibles aux primes", false);
+      return;
+    }
+
+    const autorisation_travaux = testData["autorisation_travaux"];
+    if (autorisation_travaux === "non") {
+      this.showResult("❌ Vous devez être propriétaire ou avoir l'autorisation du propriétaire", false);
+      return;
+    }
+
+    const usage_professionnel = testData["usage_professionnel"];
+    if (usage_professionnel === "non") {
+      this.showResult("❌ Le bâtiment doit être destiné exclusivement à l'activité professionnelle", false);
+      return;
+    }
+
+    const compte_belge = testData["compte_belge"];
+    if (compte_belge === "non") {
+      this.showResult("❌ Un compte bancaire belge est requis pour le versement des primes", false);
+      return;
+    }
+
+    // Vérifier si toutes les questions sont répondues
+    this.checkIfAllAnsweredBruxellesEntreprise();
+  }
+
+  checkIfAllAnsweredBruxellesEntreprise() {
+    const form = this.formTarget;
+
+    // Obtenir tous les noms de questions uniques
+    const radioInputs = Array.from(form.querySelectorAll("input[type='radio']"));
+    const questionNames = [...new Set(radioInputs.map(input => input.name))].filter(name => name !== "profile_type");
+
+    // Vérifier que chaque question a une réponse cochée
+    const allAnswered = questionNames.every(name => {
+      return form.querySelector(`input[name="${name}"]:checked`) !== null;
+    });
+
+    if (allAnswered && this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "block";
+    } else if (this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "none";
+    }
+  }
+
+  validateTestBruxellesEntreprise() {
+    console.log("🎯 Validation du test d'éligibilité Bruxelles Entreprise");
+
+    const form = this.formTarget;
+    const testData = JSON.parse(localStorage.getItem("eligibiliteBruxellesEntreprise") || "{}");
+
+    // Ajouter le profile_type
+    testData.profile_type = "entreprise";
+
+    // Envoyer les données au serveur pour validation finale
+    fetch('/test_eligibility_bruxelles', {
+      method: 'POST',
+      headers: {
+        'Accept': 'text/vnd.turbo-stream.html',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams(testData).toString()
+    })
+    .then(response => response.text())
+    .then(html => {
+      // Utiliser Turbo pour remplacer le contenu
+      const frame = document.getElementById('eligibility_content')
+      if (frame) {
+        frame.innerHTML = html
+      }
+    })
+    .catch(error => {
+      console.error('Erreur lors de la validation:', error)
+      this.showResult("❌ Erreur lors de la validation. Veuillez réessayer.", false);
+    })
+  }
+
+  // SYNDIC
+  handleAnswerBruxellesSyndic(event) {
+    console.log("🎯 Test Eligibilité Bruxelles Syndic - Réponse:", event.target.name, "=", event.target.value);
+
+    const form = this.formTarget;
+    const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+
+    const testData = responses.reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    localStorage.setItem("eligibiliteBruxellesSyndic", JSON.stringify(testData));
+
+    // Vérification immédiate des cas d'inéligibilité Bruxelles Syndic
+    const localisation = testData["localisation"];
+    if (localisation === "non") {
+      this.showResult("❌ L'immeuble doit être situé en Région de Bruxelles-Capitale", false);
+      return;
+    }
+
+    const usage_residentiel = testData["usage_residentiel"];
+    if (usage_residentiel === "non") {
+      this.showResult("❌ L'immeuble doit être principalement résidentiel (au moins 80% logement)", false);
+      return;
+    }
+
+    const age_immeuble = testData["age_immeuble"];
+    if (age_immeuble === "non") {
+      this.showResult("❌ L'immeuble doit avoir été construit il y a plus de 10 ans", false);
+      return;
+    }
+
+    const minimum_unites = testData["minimum_unites"];
+    if (minimum_unites === "non") {
+      this.showResult("❌ La copropriété doit compter au moins 2 unités", false);
+      return;
+    }
+
+    // Vérifier si toutes les questions sont répondues
+    this.checkIfAllAnsweredBruxellesSyndic();
+  }
+
+  checkIfAllAnsweredBruxellesSyndic() {
+    const form = this.formTarget;
+    const radioInputs = Array.from(form.querySelectorAll("input[type='radio']"));
+    const questionNames = [...new Set(radioInputs.map(input => input.name))].filter(name => name !== "profile_type");
+
+    const allAnswered = questionNames.every(name => {
+      return form.querySelector(`input[name="${name}"]:checked`) !== null;
+    });
+
+    if (allAnswered && this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "block";
+    } else if (this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "none";
+    }
+  }
+
+  validateTestBruxellesSyndic() {
+    console.log("🎯 Validation du test d'éligibilité Bruxelles Syndic");
+
+    const form = this.formTarget;
+    const testData = JSON.parse(localStorage.getItem("eligibiliteBruxellesSyndic") || "{}");
+
+    testData.profile_type = "syndic";
+
+    fetch('/test_eligibility_bruxelles', {
+      method: 'POST',
+      headers: {
+        'Accept': 'text/vnd.turbo-stream.html',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams(testData).toString()
+    })
+    .then(response => response.text())
+    .then(html => {
+      const frame = document.getElementById('eligibility_content')
+      if (frame) {
+        frame.innerHTML = html
+      }
+    })
+    .catch(error => {
+      console.error('Erreur lors de la validation:', error)
+      this.showResult("❌ Erreur lors de la validation. Veuillez réessayer.", false);
+    })
+  }
+
+  // BAILLEUR
+  handleAnswerBruxellesBailleur(event) {
+    console.log("🎯 Test Eligibilité Bruxelles Bailleur - Réponse:", event.target.name, "=", event.target.value);
+
+    const form = this.formTarget;
+    const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+
+    const testData = responses.reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    localStorage.setItem("eligibiliteBruxellesBailleur", JSON.stringify(testData));
+
+    // Vérification immédiate des cas d'inéligibilité Bruxelles Bailleur
+    const agrement_ais = testData["agrement_ais"];
+    if (agrement_ais === "non") {
+      this.showResult("❌ Un agrément AIS (Agence Immobilière Sociale) est requis", false);
+      return;
+    }
+
+    const localisation = testData["localisation"];
+    if (localisation === "non") {
+      this.showResult("❌ Les logements doivent être situés en Région de Bruxelles-Capitale", false);
+      return;
+    }
+
+    const logement_social = testData["logement_social"];
+    if (logement_social === "non") {
+      this.showResult("❌ Vous devez gérer au moins un logement destiné au logement social", false);
+      return;
+    }
+
+    const compte_belge = testData["compte_belge"];
+    if (compte_belge === "non") {
+      this.showResult("❌ Un compte bancaire belge est requis pour le versement des primes", false);
+      return;
+    }
+
+    this.checkIfAllAnsweredBruxellesBailleur();
+  }
+
+  checkIfAllAnsweredBruxellesBailleur() {
+    const form = this.formTarget;
+    const radioInputs = Array.from(form.querySelectorAll("input[type='radio']"));
+    const questionNames = [...new Set(radioInputs.map(input => input.name))].filter(name => name !== "profile_type");
+
+    const allAnswered = questionNames.every(name => {
+      return form.querySelector(`input[name="${name}"]:checked`) !== null;
+    });
+
+    if (allAnswered && this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "block";
+    } else if (this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "none";
+    }
+  }
+
+  validateTestBruxellesBailleur() {
+    console.log("🎯 Validation du test d'éligibilité Bruxelles Bailleur");
+
+    const form = this.formTarget;
+    const testData = JSON.parse(localStorage.getItem("eligibiliteBruxellesBailleur") || "{}");
+
+    testData.profile_type = "bailleur";
+
+    fetch('/test_eligibility_bruxelles', {
+      method: 'POST',
+      headers: {
+        'Accept': 'text/vnd.turbo-stream.html',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams(testData).toString()
+    })
+    .then(response => response.text())
+    .then(html => {
+      const frame = document.getElementById('eligibility_content')
+      if (frame) {
+        frame.innerHTML = html
+      }
+    })
+    .catch(error => {
+      console.error('Erreur lors de la validation:', error)
+      this.showResult("❌ Erreur lors de la validation. Veuillez réessayer.", false);
+    })
+  }
+
+  // ASBL
+  handleAnswerBruxellesAsbl(event) {
+    console.log("🎯 Test Eligibilité Bruxelles ASBL - Réponse:", event.target.name, "=", event.target.value);
+
+    const form = this.formTarget;
+    const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+
+    const testData = responses.reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    localStorage.setItem("eligibiliteBruxellesAsbl", JSON.stringify(testData));
+
+    // Vérification immédiate des cas d'inéligibilité Bruxelles ASBL
+    const localisation = testData["localisation"];
+    if (localisation === "non") {
+      this.showResult("❌ L'ASBL et le bâtiment doivent être situés en Région de Bruxelles-Capitale", false);
+      return;
+    }
+
+    const secteur_eligible = testData["secteur_eligible"];
+    if (secteur_eligible === "non") {
+      this.showResult("❌ L'ASBL doit exercer ses activités dans le secteur social, culturel ou d'intérêt général", false);
+      return;
+    }
+
+    const autorisation_travaux = testData["autorisation_travaux"];
+    if (autorisation_travaux === "non") {
+      this.showResult("❌ Vous devez être propriétaire ou avoir l'autorisation du propriétaire", false);
+      return;
+    }
+
+    const usage_asbl = testData["usage_asbl"];
+    if (usage_asbl === "non") {
+      this.showResult("❌ Le bâtiment doit être destiné aux activités de l'ASBL (pas résidentiel)", false);
+      return;
+    }
+
+    const accueil_public = testData["accueil_public"];
+    if (accueil_public === "non") {
+      this.showResult("❌ L'ASBL doit accueillir régulièrement du public ou des bénéficiaires", false);
+      return;
+    }
+
+    this.checkIfAllAnsweredBruxellesAsbl();
+  }
+
+  checkIfAllAnsweredBruxellesAsbl() {
+    const form = this.formTarget;
+    const radioInputs = Array.from(form.querySelectorAll("input[type='radio']"));
+    const questionNames = [...new Set(radioInputs.map(input => input.name))].filter(name => name !== "profile_type");
+
+    const allAnswered = questionNames.every(name => {
+      return form.querySelector(`input[name="${name}"]:checked`) !== null;
+    });
+
+    if (allAnswered && this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "block";
+    } else if (this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "none";
+    }
+  }
+
+  validateTestBruxellesAsbl() {
+    console.log("🎯 Validation du test d'éligibilité Bruxelles ASBL");
+
+    const form = this.formTarget;
+    const testData = JSON.parse(localStorage.getItem("eligibiliteBruxellesAsbl") || "{}");
+
+    testData.profile_type = "asbl";
+
+    fetch('/test_eligibility_bruxelles', {
+      method: 'POST',
+      headers: {
+        'Accept': 'text/vnd.turbo-stream.html',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams(testData).toString()
+    })
+    .then(response => response.text())
+    .then(html => {
+      const frame = document.getElementById('eligibility_content')
+      if (frame) {
+        frame.innerHTML = html
+      }
+    })
+    .catch(error => {
+      console.error('Erreur lors de la validation:', error)
+      this.showResult("❌ Erreur lors de la validation. Veuillez réessayer.", false);
+    })
+  }
 }

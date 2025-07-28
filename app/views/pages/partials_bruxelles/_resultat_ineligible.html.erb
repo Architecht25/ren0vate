@@ -3,18 +3,29 @@
   <div class="card-header bg-danger">
     <h4 class="card-title mb-0 text-white">
       <i class="bi bi-x-circle me-2"></i>
-      Test d'éligibilité Bruxelles - Non éligible
+      Test d'éligibilité - Non éligible
     </h4>
   </div>
-  <div class="card-body text-center">
+  <div class="card-body">
     <div class="alert alert-danger border-0 mb-4">
-      <i class="bi bi-exclamation-triangle fs-1 mb-3 d-block"></i>
-      <h5 class="mb-3">Malheureusement, vous n'êtes pas éligible</h5>
-      <p class="mb-0">
+      <i class="bi bi-exclamation-triangle fs-1 mb-3 d-block text-center"></i>
+      <h5 class="mb-3 text-center">Malheureusement, vous n'êtes pas éligible</h5>
+      <p class="mb-3">
         <strong>
           <%= message.present? ? message : "Une ou plusieurs conditions d'éligibilité ne sont pas remplies." %>
         </strong>
       </p>
+
+      <% if defined?(reasons) && reasons.present? %>
+        <div class="mt-3">
+          <h6 class="fw-bold">Raisons de l'inéligibilité :</h6>
+          <ul class="mb-0">
+            <% reasons.each do |reason| %>
+              <li><%= reason %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
     </div>
 
     <div class="mb-4">

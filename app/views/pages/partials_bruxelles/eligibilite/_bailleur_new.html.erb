@@ -1,0 +1,131 @@
+<!-- Questionnaire d'éligibilité RENOLUTION Bruxelles - Bailleurs sociaux (AIS) -->
+<div id="eligibility-test-bruxelles-bailleur" data-controller="test-eligibilite">
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-primary bg-opacity-10">
+      <h5 class="card-title mb-0 text-primary">
+        <i class="bi bi-key me-2"></i>
+        Test d'éligibilité - Bailleurs sociaux (AIS)
+      </h5>
+      <p class="text-muted small mb-0 mt-1">
+        Vérifiez l'éligibilité de vos logements aux primes RENOLUTION Bruxelles
+      </p>
+    </div>
+
+    <div class="card-body">
+      <form id="eligibilityFormBruxellesBailleur" name="eligibilityFormBruxellesBailleur"
+            data-test-eligibilite-target="form">
+        <input type="hidden" name="profile_type" value="bailleur">
+
+      <!-- Question 1: Agrément AIS -->
+      <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+        <h6 class="mb-3 text-dark">
+          <i class="bi bi-award text-primary me-2"></i>
+          Êtes-vous agréé comme Agence Immobilière Sociale (AIS) ?
+        </h6>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="agrement_ais" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesBailleur" id="agrement_ais_oui">
+            <label class="form-check-label" for="agrement_ais_oui">
+              <i class="bi bi-check-circle text-success me-1"></i>Oui
+            </label>
+          </div>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="agrement_ais" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesBailleur" id="agrement_ais_non">
+            <label class="form-check-label" for="agrement_ais_non">
+              <i class="bi bi-x-circle text-danger me-1"></i>Non
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 2: Localisation -->
+      <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+        <h6 class="mb-3 text-dark">
+          <i class="bi bi-geo-alt text-primary me-2"></i>
+          Les logements sont-ils situés en Région de Bruxelles-Capitale ?
+        </h6>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="localisation" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesBailleur" id="localisation_oui">
+            <label class="form-check-label" for="localisation_oui">
+              <i class="bi bi-check-circle text-success me-1"></i>Oui
+            </label>
+          </div>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="localisation" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesBailleur" id="localisation_non">
+            <label class="form-check-label" for="localisation_non">
+              <i class="bi bi-x-circle text-danger me-1"></i>Non
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 3: Logement social -->
+      <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+        <h6 class="mb-3 text-dark">
+          <i class="bi bi-house-heart text-primary me-2"></i>
+          Gérez-vous au moins un logement destiné au logement social ?
+        </h6>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="logement_social" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesBailleur" id="logement_social_oui">
+            <label class="form-check-label" for="logement_social_oui">
+              <i class="bi bi-check-circle text-success me-1"></i>Oui
+            </label>
+          </div>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="logement_social" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesBailleur" id="logement_social_non">
+            <label class="form-check-label" for="logement_social_non">
+              <i class="bi bi-x-circle text-danger me-1"></i>Non
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 4: Compte bancaire belge -->
+      <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+        <h6 class="mb-3 text-dark">
+          <i class="bi bi-bank text-primary me-2"></i>
+          L'AIS possède-t-elle un compte bancaire belge ?
+        </h6>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="compte_belge" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesBailleur" id="compte_belge_oui">
+            <label class="form-check-label" for="compte_belge_oui">
+              <i class="bi bi-check-circle text-success me-1"></i>Oui
+            </label>
+          </div>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="compte_belge" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesBailleur" id="compte_belge_non">
+            <label class="form-check-label" for="compte_belge_non">
+              <i class="bi bi-x-circle text-danger me-1"></i>Non
+            </label>
+          </div>
+        </div>
+      </div>
+      </form>
+
+      <!-- Bouton de validation du test -->
+      <div class="text-center mt-4">
+        <button type="button"
+                class="btn btn-success btn-lg"
+                data-action="click->test-eligibilite#validateTestBruxellesBailleur"
+                data-test-eligibilite-target="validateButton"
+                style="display: none;">
+          <i class="bi bi-check2-circle me-2"></i>Valider mon test d'éligibilité
+        </button>
+      </div>
+
+      <!-- Zone de résultat -->
+      <div data-test-eligibilite-target="result" class="mt-4"></div>
+    </div>
+  </div>
+</div>

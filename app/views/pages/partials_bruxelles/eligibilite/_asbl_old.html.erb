@@ -1,0 +1,105 @@
+<!-- Questionnaire d'éligibilité RENOLUTION Bruxelles - ASBL -->
+<%= form_with url: test_eligibility_bruxelles_path, method: :post, local: false,
+    data: { turbo_frame: "eligibility_content" }, class: "eligibility-form" do |f| %>
+
+  <%= hidden_field_tag :profile_type, "asbl" %>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-primary bg-opacity-10">
+      <h5 class="card-title mb-0 text-primary">
+        <i class="bi bi-shield-check me-2"></i>
+        Test d'éligibilité - ASBL
+      </h5>
+      <p class="text-muted small mb-0 mt-1">
+        Vérifiez l'éligibilité de votre ASBL aux primes RENOLUTION Bruxelles
+      </p>
+    </div>
+
+    <div class="card-body">
+      <div class="mb-4">
+        <label class="form-label fw-bold">
+          <i class="bi bi-geo-alt text-primary me-2"></i>
+          Votre ASBL et le bâtiment sont-ils situés en Région de Bruxelles-Capitale ?
+        </label>
+        <div class="form-check">
+          <%= f.radio_button :localisation, "oui", class: "form-check-input", required: true %>
+          <%= f.label :localisation_oui, "Oui", class: "form-check-label" %>
+        </div>
+        <div class="form-check">
+          <%= f.radio_button :localisation, "non", class: "form-check-input" %>
+          <%= f.label :localisation_non, "Non", class: "form-check-label" %>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label fw-bold">
+          <i class="bi bi-heart text-primary me-2"></i>
+          Votre ASBL exerce-t-elle ses activités dans le secteur social, culturel ou d'intérêt général ?
+        </label>
+        <div class="form-check">
+          <%= f.radio_button :secteur_eligible, "oui", class: "form-check-input", required: true %>
+          <%= f.label :secteur_eligible_oui, "Oui", class: "form-check-label" %>
+        </div>
+        <div class="form-check">
+          <%= f.radio_button :secteur_eligible, "non", class: "form-check-input" %>
+          <%= f.label :secteur_eligible_non, "Non", class: "form-check-label" %>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label fw-bold">
+          <i class="bi bi-key text-primary me-2"></i>
+          Êtes-vous propriétaire du bâtiment ou avez-vous l'autorisation du propriétaire ?
+        </label>
+        <div class="form-check">
+          <%= f.radio_button :autorisation_travaux, "oui", class: "form-check-input", required: true %>
+          <%= f.label :autorisation_travaux_oui, "Oui", class: "form-check-label" %>
+        </div>
+        <div class="form-check">
+          <%= f.radio_button :autorisation_travaux, "non", class: "form-check-input" %>
+          <%= f.label :autorisation_travaux_non, "Non", class: "form-check-label" %>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label fw-bold">
+          <i class="bi bi-building text-primary me-2"></i>
+          Le bâtiment est-il destiné aux activités de l'ASBL (pas résidentiel) ?
+        </label>
+        <div class="form-check">
+          <%= f.radio_button :usage_asbl, "oui", class: "form-check-input", required: true %>
+          <%= f.label :usage_asbl_oui, "Oui", class: "form-check-label" %>
+        </div>
+        <div class="form-check">
+          <%= f.radio_button :usage_asbl, "non", class: "form-check-input" %>
+          <%= f.label :usage_asbl_non, "Non", class: "form-check-label" %>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label class="form-label fw-bold">
+          <i class="bi bi-people text-primary me-2"></i>
+          L'ASBL accueille-t-elle régulièrement du public ou des bénéficiaires ?
+        </label>
+        <div class="form-check">
+          <%= f.radio_button :accueil_public, "oui", class: "form-check-input", required: true %>
+          <%= f.label :accueil_public_oui, "Oui", class: "form-check-label" %>
+        </div>
+        <div class="form-check">
+          <%= f.radio_button :accueil_public, "non", class: "form-check-input" %>
+          <%= f.label :accueil_public_non, "Non", class: "form-check-label" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-footer bg-light">
+      <div class="d-flex gap-2">
+        <%= f.submit "Vérifier l'éligibilité", class: "btn btn-primary",
+            data: { disable_with: "Vérification..." } %>
+        <button type="button" class="btn btn-outline-secondary" onclick="location.reload()">
+          <i class="bi bi-arrow-clockwise me-1"></i>Recommencer
+        </button>
+      </div>
+    </div>
+  </div>
+<% end %>

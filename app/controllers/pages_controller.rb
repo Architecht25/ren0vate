@@ -59,17 +59,11 @@ class PagesController < ApplicationController
   end
 
   def select_profile_bruxelles
-    @user_type = params[:profile_type]
+    @profile_type = params[:profile_type]
 
-    # Logique de redirection selon le type d'utilisateur pour Bruxelles
-    case @user_type
-    when "entreprise"
-      handle_ineligible_profile_bruxelles("Les entreprises ne sont pas éligibles aux primes RENOLUTION")
-    when "syndic"
-      handle_ineligible_profile_bruxelles("Les syndicats de copropriété doivent passer par un organisme agréé pour effectuer une introduction de demandes.")
-    when "bailleur"
-      handle_ineligible_profile_bruxelles("Les bailleurs sociaux doivent passer par un organisme agréé pour effectuer une introduction de demandes.")
-    when "prive", "asbl"
+    # Tous les profils sont maintenant éligibles avec leurs questionnaires spécifiques
+    case @profile_type
+    when "prive", "entreprise", "syndic", "bailleur", "asbl"
       handle_eligible_profile_bruxelles
     else
       handle_invalid_profile_bruxelles
@@ -81,16 +75,33 @@ class PagesController < ApplicationController
     Rails.logger.info "Params: #{params.inspect}"
 
     begin
-      # Cas 1: Test d'éligibilité basique (questions oui/non)
-      # Cette logique sera gérée côté JavaScript normalement
-      # Ici on retourne juste le résultat "éligible" pour continuer vers l'affinage
+      # Utilisation du service d'éligibilité Bruxelles
+      eligibility_service = BruxellesEligibilityService.new(params)
+      result = eligibility_service.check_eligibility
+      Rails.logger.info "Eligibility result: #{result}"
 
       respond_to do |format|
         format.turbo_stream do
-          render turbo_stream: turbo_stream.replace(
-            "eligibility_content",
-            partial: "pages/partials_bruxelles/resultat_eligible"
-          )
+          if result[:eligible]
+            render turbo_stream: turbo_stream.replace(
+              "eligibility_content",
+              partial: "pages/partials_bruxelles/resultat_eligible",
+              locals: {
+                profile: result[:profile],
+                message: result[:message]
+              }
+            )
+          else
+            render turbo_stream: turbo_stream.replace(
+              "eligibility_content",
+              partial: "pages/partials_bruxelles/resultat_ineligible",
+              locals: {
+                profile: result[:profile],
+                message: result[:message],
+                reasons: result[:reasons]
+              }
+            )
+          end
         end
         format.html { redirect_to bruxelles_path }
       end
@@ -105,7 +116,9 @@ class PagesController < ApplicationController
             "eligibility_content",
             partial: "pages/partials_bruxelles/resultat_ineligible",
             locals: {
-              message: "Erreur lors du calcul d'éligibilité: #{e.message}"
+              message: "Erreur lors du calcul d'éligibilité",
+              reasons: ["Erreur technique : #{e.message}"],
+              profile: "erreur"
             }
           )
         end
@@ -328,7 +341,8 @@ private
       format.turbo_stream do
         render turbo_stream: turbo_stream.replace(
           "eligibility_content",
-          partial: "pages/partials_bruxelles/questionnaire_eligibilite"
+          partial: "pages/partials_bruxelles/questionnaire_eligibilite",
+          locals: { profile_type: @profile_type }
         )
       end
       format.html { redirect_to bruxelles_path }
