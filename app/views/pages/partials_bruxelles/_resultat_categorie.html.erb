@@ -1,0 +1,148 @@
+<!-- Résultat estimation de catégorie pour Bruxelles -->
+<div class="alert alert-info alert-dismissible fade show mt-3" role="alert">
+  <h6 class="alert-heading">
+    <i class="bi bi-calculator me-2"></i>Votre catégorie RENOLUTION
+  </h6>
+
+  <p class="mb-3">
+    ✅ Sur base de vos réponses, vous êtes en
+    <span class="badge bg-<%= category_color %> fs-6">Catégorie <%= category %></span>
+  </p>
+
+  <% if defined?(category_details) && category_details.present? %>
+    <small class="text-muted">
+      <%= category_details %>
+    </small>
+  <% end %>
+
+  <div class="mt-3">
+    <small class="text-muted">
+      <strong>Rappel :</strong> Les catégories Z1-Z10 déterminent le montant de vos primes RENOLUTION Bruxelles.
+      Z1 = primes maximales, Z10 = primes minimales.
+    </small>
+  </div>
+
+  <div class="mt-3 d-flex gap-2 flex-wrap">
+    <a href="#primes-section" class="btn btn-success btn-sm">
+      <i class="bi bi-gift me-1"></i>Voir mes primes <%= category %>
+    </a>
+    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="location.reload()">
+      <i class="bi bi-arrow-clockwise me-1"></i>Recommencer
+    </button>
+    <a href="https://renolution.brussels" target="_blank" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-box-arrow-up-right me-1"></i>Site officiel
+    </a>
+  </div>
+
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+</div>
+
+<!-- Section des primes pour cette catégorie -->
+<div id="primes-section" class="mt-4">
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-primary bg-opacity-10">
+      <h5 class="card-title mb-0 text-primary">
+        <i class="bi bi-gift me-2"></i>
+        Vos primes RENOLUTION - Catégorie <%= category %>
+      </h5>
+      <p class="text-muted small mb-0 mt-1">
+        Primes disponibles pour votre catégorie de revenus
+      </p>
+    </div>
+
+    <div class="card-body">
+      <% if defined?(primes) && primes.any? %>
+        <div class="row g-3" data-controller="bruxelles-prime-card">
+          <% primes.each do |prime| %>
+            <div class="col-md-6 col-lg-4">
+              <div class="card h-100 border-0 shadow-sm"
+                   data-controller="bruxelles-prime-card"
+                   data-bruxelles-prime-card-category-value="<%= category %>"
+                   data-bruxelles-prime-card-prime-id-value="<%= prime.id %>">
+
+                <div class="card-header bg-light">
+                  <h6 class="card-title mb-0 text-truncate" title="<%= prime.nom %>">
+                    <%= prime.nom %>
+                  </h6>
+                  <% if prime.type_aide %>
+                    <small class="text-muted"><%= prime.type_aide %></small>
+                  <% end %>
+                </div>
+
+                <div class="card-body">
+                  <% if prime.description.present? %>
+                    <p class="card-text small text-muted">
+                      <%= truncate(prime.description, length: 100) %>
+                    </p>
+                  <% end %>
+
+                  <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="text-muted small">Montant estimé :</span>
+                      <span class="badge bg-success fs-6" data-bruxelles-prime-card-target="amount">
+                        Calcul...
+                      </span>
+                    </div>
+                  </div>
+
+                  <% if prime.conditions.present? %>
+                    <div class="collapse" id="conditions-<%= prime.id %>">
+                      <div class="border-top pt-2">
+                        <small class="text-muted">
+                          <strong>Conditions :</strong><br>
+                          <%= simple_format(truncate(prime.conditions, length: 200)) %>
+                        </small>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+
+                <div class="card-footer bg-transparent">
+                  <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-primary flex-fill"
+                            data-action="click->bruxelles-prime-card#calculateAmount">
+                      <i class="bi bi-calculator me-1"></i>
+                      Calculer
+                    </button>
+                    <% if prime.conditions.present? %>
+                      <button type="button" class="btn btn-sm btn-outline-secondary"
+                              data-bs-toggle="collapse"
+                              data-bs-target="#conditions-<%= prime.id %>">
+                        <i class="bi bi-info-circle"></i>
+                      </button>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="alert alert-warning">
+          <h6 class="alert-heading">
+            <i class="bi bi-exclamation-triangle me-1"></i>
+            Aucune prime trouvée
+          </h6>
+          <p class="mb-0">
+            Aucune prime n'a été trouvée pour votre catégorie <%= category %>.
+            Cela peut être dû à une configuration ou vous pourriez être dans une catégorie sans primes spécifiques.
+          </p>
+        </div>
+      <% end %>
+
+      <!-- Conseils généraux -->
+      <div class="alert alert-info mt-4">
+        <h6 class="alert-heading">
+          <i class="bi bi-lightbulb me-1"></i>
+          Conseils pour maximiser vos primes
+        </h6>
+        <ul class="mb-0 small">
+          <li><strong>Audit énergétique :</strong> Obligatoire pour certaines primes, recommandé pour toutes</li>
+          <li><strong>Combinaison :</strong> Plusieurs primes peuvent être cumulées pour un même projet</li>
+          <li><strong>Timing :</strong> Demande avant le début des travaux</li>
+          <li><strong>Entreprise :</strong> Choisir un professionnel certifié et inscrit BCE</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,65 +1,81 @@
-<!-- Test d'éligibilité Bruxelles -->
-<div id="eligibility-test-bruxelles" data-controller="test-eligibilite">
-  <div class="card border-0 shadow-sm">
-    <div class="card-header bg-light">
-      <h4 class="card-title mb-0">
-        <i class="bi bi-check-circle text-success me-2"></i>
-        Test d'éligibilité Bruxelles
-      </h4>
-    </div>
-    <div class="card-body">
-      <form id="eligibilityFormBruxelles" name="eligibilityFormBruxelles" data-test-eligibilite-target="form">
-        <% steps = {
-          "localisation" => "Le logement est-il situé en Région de Bruxelles Capitale ?",
-          "age_logement" => "Le bâtiment a-t-il été construit il y a plus de 10 ans à la date de la demande ?",
-          "destination" => "Le bien est-il destiné à être habité (maison, appartement, immeuble à logement) ?",
-          "entrepreneur" => "Les travaux seront-ils réalisés par un professionnel inscrit à la Banque Carrefour des Entreprises ?",
-          "reconstruction" => "S'agit-il d'une reconstruction assimilée à du neuf ? (ex. démolition + amélioration PEB)",
-          "propriete" => "Êtes-vous propriétaire ou copropriétaire du bien (min. 1 %) ?",
-          "compte_bancaire" => "Possédez-vous un compte bancaire belge pour le virement de la prime ?",
-          "client_protege" => "Êtes-vous un client protégé ou bénéficiaire (RIS, BIM, AIS, ou tarif social énergie) ?",
-          "audit" => "Avez-vous réalisé ou prévoyez-vous un audit énergétique ou étude préalable (audit logement, acoustique, matériaux, architecte/ingénieur) ?",
-          "peb_classe" => "Le certificat PEB avant travaux indique-t-il une classe E, F ou G ?",
-          "factures_recentes" => "Les travaux ont-ils été réalisés, avec une facture de solde émise dans les 12 mois précédant la demande ?",
-          "performance_energetique" => "Les travaux visent-ils à améliorer la performance énergétique (isolation, chauffage, ventilation, panneaux PV…) ?",
-          "types_travaux" => "Les travaux concernent-ils uniquement l'électricité/gaz, la ventilation, le chauffage/chauffe eau, la toiture, les fenêtres/portes, les murs/sol/planchers, les sanitaires, ou l'aménagement intérieur ?",
-          "copropriete" => "En cas de copropriété, le bâtiment est-il à usage de logement à min. 80 %, et la demande est-elle collective (ACP/syndic) ?"
-        } %>
+<div class="card border-0 shadow-sm mt-3" id="questionnaire-eligibilite">
+  <div class="card-header bg-success bg-opacity-10">
+    <h5 class="card-title mb-0 text-success">
+      <i class="bi bi-check-circle me-2"></i>
+      Test d'éligibilité - Profil éligible
+    </h5>
+    <p class="text-muted small mb-0 mt-1">
+      Répondez aux questions pour affiner vos primes
+    </p>
+  </div>
+  <div class="card-body">
+    <form id="eligibilityFormBruxelles" name="eligibilityFormBruxelles" data-controller="test-eligibilite" data-test-eligibilite-target="form">
+      <% steps = {
+        "localisation" => "Le logement est-il situé en Région de Bruxelles-Capitale ?",
+        "age_logement" => "Le bâtiment a-t-il été construit il y a plus de 10 ans à la date de la demande ?",
+        "destination" => "Le bien est-il destiné à être habité (maison, appartement, immeuble à logement) ?",
+        "entrepreneur" => "Les travaux seront-ils réalisés par un professionnel inscrit à la Banque Carrefour des Entreprises ?",
+        "reconstruction" => "S'agit-il d'une reconstruction assimilée à du neuf ? (ex. démolition + amélioration PEB)",
+        "propriete" => "Êtes-vous propriétaire ou copropriétaire du bien (min. 1 %) ?",
+        "compte_bancaire" => "Possédez-vous un compte bancaire belge pour le virement de la prime ?",
+        "client_protege" => "Êtes-vous un client protégé ou bénéficiaire (RIS, BIM, AIS, ou tarif social énergie) ?",
+        "audit" => "Avez-vous réalisé ou prévoyez-vous un audit énergétique ou étude préalable (audit logement, acoustique, matériaux, architecte/ingénieur) ?",
+        "peb_classe" => "Le certificat PEB avant travaux indique-t-il une classe E, F ou G ?",
+        "factures_recentes" => "Les travaux ont-ils été réalisés, avec une facture de solde émise dans les 12 mois précédant la demande ?",
+        "performance_energetique" => "Les travaux visent-ils à améliorer la performance énergétique (isolation, chauffage, ventilation, panneaux PV…) ?",
+        "types_travaux" => "Les travaux concernent-ils uniquement l'électricité/gaz, la ventilation, le chauffage/chauffe eau, la toiture, les fenêtres/portes, les murs/sol/planchers, les sanitaires, ou l'aménagement intérieur ?",
+        "copropriete" => "En cas de copropriété, le bâtiment est-il à usage de logement à min. 80 %, et la demande est-elle collective (ACP/syndic) ?"
+      } %>
 
-        <% steps.each do |key, question| %>
-          <div class="mb-3 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
-            <h6 class="mb-3 text-dark"><%= question %></h6>
-            <div class="d-flex gap-3">
-              <div class="form-check">
-                <input type="radio" class="form-check-input" name="<%= key %>" value="oui" data-action="click->test-eligibilite#handleAnswerBruxelles" id="<%= key %>_oui">
-                <label class="form-check-label" for="<%= key %>_oui">
-                  <i class="bi bi-check-circle text-success me-1"></i>Oui
-                </label>
-              </div>
-              <div class="form-check">
-                <input type="radio" class="form-check-input" name="<%= key %>" value="non" data-action="click->test-eligibilite#handleAnswerBruxelles" id="<%= key %>_non">
-                <label class="form-check-label" for="<%= key %>_non">
-                  <i class="bi bi-x-circle text-danger me-1"></i>Non
-                </label>
-              </div>
+      <% steps.each do |key, question| %>
+        <div class="mb-3 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+          <h6 class="mb-3 text-dark"><%= question %></h6>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="<%= key %>" value="oui" data-action="click->test-eligibilite#handleAnswerBruxelles" id="<%= key %>_oui">
+              <label class="form-check-label" for="<%= key %>_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="<%= key %>" value="non" data-action="click->test-eligibilite#handleAnswerBruxelles" id="<%= key %>_non">
+              <label class="form-check-label" for="<%= key %>_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non
+              </label>
             </div>
           </div>
-        <% end %>
-      </form>
+        </div>
+      <% end %>
+    </form>
 
-      <!-- Bouton de validation du test -->
-      <div class="text-center mt-4">
-        <button type="button"
-                class="btn btn-success btn-lg"
-                data-action="click->test-eligibilite#validateTestBruxelles"
-                data-test-eligibilite-target="validateButton"
-                style="display: none;">
-          <i class="bi bi-check2-circle me-2"></i>Valider mon test d'éligibilité
-        </button>
-      </div>
 
-      <!-- Zone de résultat -->
-      <div data-test-eligibilite-target="result" class="mt-4"></div>
+    <!-- Bouton de validation du test -->
+    <div class="text-center mt-4">
+      <button type="button"
+              class="btn btn-success btn-lg"
+              data-action="click->test-eligibilite#validateTestBruxelles"
+              data-test-eligibilite-target="validateButton"
+              style="display: none;">
+        <i class="bi bi-check2-circle me-2"></i>Valider mon test d'éligibilité
+      </button>
     </div>
+
+    <!-- Zone de résultat -->
+    <div data-test-eligibilite-target="result" class="mt-4"></div>
+
+    <!-- Information complémentaire -->
+    <div class="alert alert-info mt-3 mb-0">
+      <h6 class="alert-heading">
+        <i class="bi bi-info-circle me-1"></i>
+        À savoir
+      </h6>
+      <ul class="mb-0 small">
+        <li><strong>Éligibilité :</strong> Toutes les conditions doivent être respectées</li>
+        <li><strong>Région :</strong> Spécifique à la Région de Bruxelles-Capitale</li>
+        <li><strong>Professionnel :</strong> Obligatoire pour obtenir les primes</li>
+        <li><strong>Délais :</strong> Demande avant le début des travaux recommandée</li>
+      </ul>
+    </div>
+
   </div>
 </div>

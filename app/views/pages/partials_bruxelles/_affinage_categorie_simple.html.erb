@@ -1,8 +1,8 @@
-<!-- Affinage de catégorie - Version Rails-first pour Bruxelles -->
-<div class="card border-secondary mt-4" data-controller="categorie-estimation">
-  <div class="card-header bg-secondary bg-opacity-10">
+<!-- Affinage de catégorie simple - Version Rails-first pour Bruxelles -->
+<div class="card border-warning mt-4" data-controller="categorie-estimation">
+  <div class="card-header bg-warning bg-opacity-10">
     <h5 class="card-title mb-0">
-      <i class="bi bi-gear text-secondary me-2"></i>
+      <i class="bi bi-gear text-warning me-2"></i>
       Affinez votre catégorie Z1-Z10
     </h5>
   </div>
@@ -19,8 +19,8 @@
               ["Isolé / Célibataire", "isole"],
               ["Couple", "couple"]
             ]),
-            {},
-            { class: "form-select", required: true, id: "category_estimation_bruxelles_statut_familial" } %>
+            { prompt: false },
+            { class: "form-select", required: true } %>
       </div>
 
       <!-- Nombre d'enfants à charge -->
@@ -32,8 +32,8 @@
               ["0", "0"], ["1", "1"], ["2", "2"], ["3", "3"],
               ["4", "4"], ["5", "5"], ["6", "6"], ["7", "7"]
             ]),
-            {},
-            { class: "form-select", required: true, id: "category_estimation_bruxelles_enfants_charge" } %>
+            { prompt: false },
+            { class: "form-select", required: true } %>
       </div>
 
       <!-- Nombre de personnes âgées à charge -->
@@ -44,8 +44,8 @@
               ["Sélectionnez", ""],
               ["0", "0"], ["1", "1"], ["2", "2"]
             ]),
-            {},
-            { class: "form-select", required: true, id: "category_estimation_bruxelles_personnes_agees_charge" } %>
+            { prompt: false },
+            { class: "form-select", required: true } %>
       </div>
 
       <!-- Revenu imposable net pour Bruxelles -->
@@ -65,33 +65,33 @@
               ["66 801 € – 72 500 €", "z9"],
               ["Plus de 72 501 €", "z10"]
             ]),
-            {},
-            { class: "form-select", required: true, id: "category_estimation_bruxelles_revenu_net" } %>
+            { prompt: false },
+            { class: "form-select", required: true } %>
         <p class="mt-3 text-muted small">
           💡 Pour un calcul précis basé sur vos documents fiscaux, créez un compte ou connectez-vous à votre espace personnel.
         </p>
       </div>
 
       <div class="text-center">
-        <%= f.submit "Valider et recalculer ma catégorie",
-            class: "btn btn-secondary",
+        <%= f.submit "Calculer ma catégorie et mes primes",
+            class: "btn btn-warning",
             data: {
-              disable_with: "Calcul en cours...",
-              action: "click->categorie-estimation#estimerCategorieBruxelles"
+              disable_with: "Calcul en cours..."
             } %>
       </div>
     <% end %>
 
-    <!-- Résultat de l'affinage -->
-    <div data-categorie-estimation-target="resultAffinage" style="display: none;" class="mt-3">
-      <!-- Le résultat apparaîtra ici -->
-    </div>
-
-    <!-- Bouton pour voir les primes -->
-    <div class="text-center mt-3">
-      <button id="go-simulateur-bruxelles" class="btn btn-secondary btn-lg" style="display: none;">
-        🎯 Voir mes primes Bruxelles
-      </button>
+    <!-- Information complémentaire -->
+    <div class="alert alert-info mt-3 mb-0">
+      <h6 class="alert-heading">
+        <i class="bi bi-info-circle me-1"></i>
+        Information catégories Bruxelles
+      </h6>
+      <p class="mb-0 small">
+        Les catégories Z1 à Z10 déterminent le montant des primes RENOLUTION selon vos revenus.
+        <strong>Z1 = revenus les plus faibles</strong> (primes maximales) et
+        <strong>Z10 = revenus les plus élevés</strong> (primes minimales).
+      </p>
     </div>
   </div>
 </div>

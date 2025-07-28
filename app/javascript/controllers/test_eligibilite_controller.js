@@ -457,4 +457,205 @@ export default class extends Controller {
       }, 500)
     }
   }
+
+  // ========== MÉTHODES BRUXELLES ==========
+
+  handleAnswerBruxelles(event) {
+    console.log("🎯 Test Eligibilité Bruxelles - Réponse:", event.target.name, "=", event.target.value);
+
+    const form = this.formTarget;
+    const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+
+    const testData = responses.reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    localStorage.setItem("eligibiliteBruxelles", JSON.stringify(testData));
+
+    // Vérification immédiate des cas d'inéligibilité Bruxelles
+    const localisation = testData["localisation"];
+    if (localisation === "non") {
+      this.showResultBruxelles("❌ Le logement doit être situé en Région de Bruxelles Capitale", false);
+      return;
+    }
+
+    const age_logement = testData["age_logement"];
+    if (age_logement === "non") {
+      this.showResultBruxelles("❌ Le bâtiment doit avoir été construit il y a plus de 10 ans", false);
+      return;
+    }
+
+    const destination = testData["destination"];
+    if (destination === "non") {
+      this.showResultBruxelles("❌ Le bien doit être destiné à être habité (maison, appartement, immeuble à logement)", false);
+      return;
+    }
+
+    const entrepreneur = testData["entrepreneur"];
+    if (entrepreneur === "non") {
+      this.showResultBruxelles("❌ Les travaux doivent être réalisés par un professionnel inscrit à la Banque Carrefour des Entreprises", false);
+      return;
+    }
+
+    const reconstruction = testData["reconstruction"];
+    if (reconstruction === "oui") {
+      this.showResultBruxelles("❌ Les reconstructions assimilées à du neuf ne sont pas éligibles", false);
+      return;
+    }
+
+    const propriete = testData["propriete"];
+    if (propriete === "non") {
+      this.showResultBruxelles("❌ Vous devez être propriétaire ou copropriétaire du bien (min. 1%)", false);
+      return;
+    }
+
+    const compte_bancaire = testData["compte_bancaire"];
+    if (compte_bancaire === "non") {
+      this.showResultBruxelles("❌ Un compte bancaire belge est requis pour le virement de la prime", false);
+      return;
+    }
+
+    const factures_recentes = testData["factures_recentes"];
+    if (factures_recentes === "oui") {
+      this.showResultBruxelles("❌ Les travaux doivent être réalisés après l'introduction de la demande", false);
+      return;
+    }
+
+    const performance_energetique = testData["performance_energetique"];
+    if (performance_energetique === "non") {
+      this.showResultBruxelles("❌ Les travaux doivent viser à améliorer la performance énergétique", false);
+      return;
+    }
+
+    // Si on arrive ici, vérifier si toutes les questions sont répondues
+    this.checkAllAnsweredBruxelles(testData);
+  }
+
+  checkAllAnsweredBruxelles(testData) {
+    const requiredQuestions = [
+      "localisation", "age_logement", "destination", "entrepreneur", "reconstruction",
+      "propriete", "compte_bancaire", "client_protege", "audit", "peb_classe",
+      "factures_recentes", "performance_energetique", "types_travaux", "copropriete"
+    ];
+
+    const allAnswered = requiredQuestions.every(question => testData[question] !== undefined);
+
+    if (allAnswered && this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "block";
+    }
+  }
+
+  validateTestBruxelles() {
+    console.log("🎯 Validation du test d'éligibilité Bruxelles");
+
+    const form = this.formTarget;
+    const testData = JSON.parse(localStorage.getItem("eligibiliteBruxelles") || "{}");
+
+    // Déterminer la catégorie selon les critères Bruxelles
+    const client_protege = testData["client_protege"];
+    const audit = testData["audit"];
+    const peb_classe = testData["peb_classe"];
+
+    let message = "✅ Vous êtes éligible aux primes RENOLUTION Bruxelles !";
+    let recommendations = [];
+
+    // Client protégé = catégorie de revenus la plus favorable
+    if (client_protege === "oui") {
+      recommendations.push("✨ Vous bénéficiez de primes majorées en tant que client protégé");
+    }
+
+    // Audit énergétique
+    if (audit === "oui") {
+      recommendations.push("📊 Votre audit énergétique vous donnera accès à des primes spécifiques");
+    } else {
+      recommendations.push("💡 Conseil : Un audit énergétique peut débloquer des primes supplémentaires");
+    }
+
+    // Classe PEB
+    if (peb_classe === "oui") {
+      recommendations.push("🏠 Votre logement classe E, F ou G vous donne accès aux primes RENOLUTION");
+    }
+
+    const copropriete = testData["copropriete"];
+    if (copropriete === "oui") {
+      recommendations.push("🏢 En copropriété, la demande doit être collective via l'ACP/syndic");
+    }
+
+    this.showResultBruxelles(message, true, recommendations);
+  }
+
+  showResultBruxelles(message, isEligible = true, recommendations = []) {
+    if (this.hasFormTarget) {
+      this.formTarget.style.display = "none"
+    }
+
+    if (this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "none"
+    }
+
+    if (this.hasResultTarget) {
+      let content = `
+        <div class="alert ${isEligible ? 'alert-success' : 'alert-danger'}">
+          <h5 class="alert-heading">
+            <i class="bi bi-${isEligible ? 'check-circle' : 'x-circle'} me-2"></i>
+            Résultat du test d'éligibilité Bruxelles
+          </h5>
+          <p class="mb-0">${message}</p>
+        </div>
+      `;
+
+      if (recommendations.length > 0) {
+        content += `
+          <div class="alert alert-info mt-3">
+            <h6 class="alert-heading">
+              <i class="bi bi-lightbulb me-2"></i>
+              Recommandations personnalisées
+            </h6>
+            <ul class="mb-0">
+              ${recommendations.map(rec => `<li>${rec}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+      }
+
+      content += `
+        <div class="btn-group mt-3">
+          <button type="button" class="btn btn-secondary" onclick="location.reload()">🔄 Recommencer</button>
+        </div>
+      `;
+
+      this.resultTarget.innerHTML = content;
+      this.resultTarget.style.display = "block";
+
+      // Si éligible, afficher le formulaire d'affinage de catégorie
+      if (isEligible) {
+        this.showAffinageBruxelles();
+      }
+    }
+  }
+
+  showAffinageBruxelles() {
+    // Faire appel au serveur pour afficher l'affinage de catégorie
+    fetch('/test_eligibility_bruxelles', {
+      method: 'POST',
+      headers: {
+        'Accept': 'text/vnd.turbo-stream.html',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: 'eligibility_passed=true'
+    })
+    .then(response => response.text())
+    .then(html => {
+      // Utiliser Turbo pour remplacer le contenu
+      const frame = document.getElementById('eligibility_content')
+      if (frame) {
+        frame.innerHTML = html
+      }
+    })
+    .catch(error => {
+      console.error('Erreur lors du chargement de l\'affinage:', error)
+    })
+  }
 }
