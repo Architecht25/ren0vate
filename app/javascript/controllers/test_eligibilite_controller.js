@@ -878,12 +878,13 @@ export default class extends Controller {
     testData.profile_type = "prive";
 
     // Envoyer les données au serveur pour validation finale
-    fetch('/test_eligibility_bruxelles', {
+    fetch('/bruxelles/test-eligibility', {
       method: 'POST',
       headers: {
         'Accept': 'text/vnd.turbo-stream.html',
         'X-Requested-With': 'XMLHttpRequest',
         'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]')?.content
       },
       body: new URLSearchParams(testData).toString()
     })
