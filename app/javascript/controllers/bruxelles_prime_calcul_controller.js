@@ -5,6 +5,13 @@ export default class extends Controller {
 
   connect() {
     console.log("🎯 Bruxelles Prime Calcul controller connected")
+    
+    // Forcer la catégorie I par défaut pour harmoniser dev/prod
+    if (!localStorage.getItem("bruxellesCategorieEstimee")) {
+      localStorage.setItem("bruxellesCategorieEstimee", "1")
+      console.log("🎯 Catégorie par défaut initialisée à I (bruxelles_cat1)")
+    }
+    
     this.setupPrimesData()
     this.setupEventListeners()
     this.updateTotalGlobal()
@@ -59,10 +66,10 @@ export default class extends Controller {
       return this.mapStoredCategoryToInternal(storedCategory, profileType)
     }
 
-    // 2. Pour les tests : forcer catégorie 3 (primes maximales) si pas d'autre info
-    console.log("🧪 Mode test : application catégorie 3 (primes maximales)")
-    localStorage.setItem("bruxellesCategorieEstimee", "3")
-    return "bruxelles_cat3"
+    // 2. Harmonisation : forcer catégorie I par défaut dans tous les environnements
+    console.log("🎯 Mode par défaut : application catégorie I (harmonisé dev/prod)")
+    localStorage.setItem("bruxellesCategorieEstimee", "1")
+    return "bruxelles_cat1"
   }
 
   mapStoredCategoryToInternal(storedCategory, profileType) {
@@ -73,7 +80,7 @@ export default class extends Controller {
       "3": "bruxelles_cat3"  // AIS, Particuliers (revenus faibles)
     }
 
-    return categoryMap[storedCategory] || "bruxelles_cat3"
+    return categoryMap[storedCategory] || "bruxelles_cat1"
   }
 
   mapStoredCategoryToDisplay(storedCategory, profileType) {
