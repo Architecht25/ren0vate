@@ -152,28 +152,31 @@ export default class extends Controller {
   }
 
   getCategoryMultiplier() {
-    // Facteur multiplicateur selon la catégorie de revenus
-    // À ajuster selon le barème officiel Bruxelles
+    // Facteur multiplicateur selon la catégorie de revenus simplifiée
+    // Compatible avec le nouveau système d'affinage
     const multipliers = {
-      "Z1": 1.0,  // Revenus très faibles
-      "Z2": 0.9,
-      "Z3": 0.8,
-      "Z4": 0.7,
-      "Z5": 0.6,
-      "Z6": 0.5,
-      "Z7": 0.4,
-      "Z8": 0.3,
-      "Z9": 0.2,
-      "Z10": 0.1, // Revenus élevés
-      "I-III": 0.8 // Valeur par défaut pour les catégories I à III
+      // Nouvelles catégories simplifiées pour particuliers
+      "Revenus Faibles": 1.0,     // Primes maximales
+      "Revenus Moyens": 0.7,      // Primes moyennes
+      "Revenus Élevés": 0.4,      // Primes réduites
+      
+      // Catégories automatiques pour autres profils
+      "Catégorie I": 0.8,         // Entreprises et ASBL
+      "Catégorie II": 0.8,        // Syndics de copropriété
+      "Catégorie III": 0.8,       // Bailleurs sociaux (AIS)
+      
+      // Compatibilité avec anciennes catégories (si présentes)
+      "Z1": 1.0, "Z2": 0.9, "Z3": 0.8, "Z4": 0.7, "Z5": 0.6,
+      "Z6": 0.5, "Z7": 0.4, "Z8": 0.3, "Z9": 0.2, "Z10": 0.1
     };
 
-    return multipliers[this.currentCategory] || 0.8;
+    return multipliers[this.currentCategory] || 0.8; // Valeur par défaut
   }
 
   getTargetValue(targetName) {
-    if (this.hasTarget(targetName)) {
-      const target = this.targets.find(targetName);
+    const hasTargetMethodName = 'has' + targetName.charAt(0).toUpperCase() + targetName.slice(1) + 'Target';
+    if (this[hasTargetMethodName]) {
+      const target = this[targetName + 'Target'];
       if (target) {
         const value = parseFloat(target.value) || 0;
         return Math.max(0, value); // Assurer une valeur positive
