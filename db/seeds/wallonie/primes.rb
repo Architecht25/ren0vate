@@ -13,10 +13,10 @@ Prime.find_or_initialize_by(slug: "wallonie_realisation_audit_logement").update!
   type_de_valeur: "dynamique",
   eligible_categories: ["wallonie_r1", "wallonie_r2", "wallonie_r3", "wallonie_r4", "wallonie_r5"],
   valeurs_par_categorie: JSON.parse('{
-    "wallonie_r1": {"type": "montant_fixe", "montant": 840, "condition": "Audit énergétique complet"},
-    "wallonie_r2": {"type": "montant_fixe", "montant": 560, "condition": "Audit énergétique complet"},
-    "wallonie_r3": {"type": "montant_fixe", "montant": 420, "condition": "Audit énergétique complet"},
-    "wallonie_r4": {"type": "montant_fixe", "montant": 280, "condition": "Audit énergétique complet"},
+    "wallonie_r1": {"type": "montant_fixe", "montant": 456, "condition": "Audit énergétique complet"},
+    "wallonie_r2": {"type": "montant_fixe", "montant": 304, "condition": "Audit énergétique complet"},
+    "wallonie_r3": {"type": "montant_fixe", "montant": 228, "condition": "Audit énergétique complet"},
+    "wallonie_r4": {"type": "montant_fixe", "montant": 152, "condition": "Audit énergétique complet"},
     "wallonie_r5": {"type": "montant_fixe", "montant": 76, "condition": "Audit énergétique complet"}
   }'),
   condition: "Réalisé par auditeur agréé. Rapport dans les 6 mois.",
@@ -108,7 +108,7 @@ Prime.find_or_initialize_by(slug: "wallonie_toiture_evacuation_eaux_pluviales").
     "wallonie_r1": {"type": "montant_fixe", "montant": 240, "condition": "Remplacement système"},
     "wallonie_r2": {"type": "montant_fixe", "montant": 160, "condition": "Remplacement système"},
     "wallonie_r3": {"type": "montant_fixe", "montant": 120, "condition": "Remplacement système"},
-    "wallonie_r4": {"type": "montant_fixe", "montant": 50, "condition": "Remplacement système"},
+    "wallonie_r4": {"type": "montant_fixe", "montant": 80, "condition": "Remplacement système"},
     "wallonie_r5": {"type": "montant_fixe", "montant": 40, "condition": "Remplacement système"}
   }'),
   condition: "Remplacement du dispositif de collecte et d'évacuation des eaux pluviales.",
