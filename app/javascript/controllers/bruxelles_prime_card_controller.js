@@ -21,9 +21,6 @@ export default class extends Controller {
     // Écouter les changements de catégorie
     this.element.addEventListener('bruxelles:category:changed', this.recalculate.bind(this))
 
-    // Ajouter les événements d'écoute pour les champs spécifiques
-    this.addSpecificFieldListeners()
-
     // Calculer le montant initial
     this.calculate()
   }
@@ -204,6 +201,22 @@ export default class extends Controller {
           const quantite = parseFloat(input.value) || 0
           montant = quantite * calculData.montant_unite
           console.log("🔢 Montant unité:", montant, "€ (quantité:", quantite, "× ", calculData.montant_unite, "€/unité)")
+          break
+        case 'pourcentage':
+          const montantTravaux = parseFloat(input.value) || 0
+          const pourcentage = calculData.pourcentage || 0
+          const montantMax = calculData.montant_max || Infinity
+
+          // Vérifier s'il y a un calcul basé sur une autre prime
+          if (calculData.base_calculation) {
+            console.log(`📊 ${primeSlug}: Calcul basé sur ${calculData.base_calculation} - non implémenté pour l'instant`)
+            montant = 0
+          } else {
+            // Calcul sur le montant saisi
+            const calculResult = (montantTravaux * pourcentage) / 100
+            montant = Math.min(calculResult, montantMax)
+            console.log(`📊 Pourcentage: ${montant}€ (${montantTravaux}€ × ${pourcentage}%, max: ${montantMax}€)`)
+          }
           break
         // Ajouter d'autres types si nécessaire
         default:
