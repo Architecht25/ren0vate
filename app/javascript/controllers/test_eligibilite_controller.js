@@ -741,33 +741,33 @@ export default class extends Controller {
   handleConditionalAlerts(questionName, value) {
     // Gestion des alertes d'information
     const alertsMap = {
-      'primes_recues': { 
-        condition: value === 'oui', 
-        elementId: 'primes_recues_warning' 
+      'primes_recues': {
+        condition: value === 'oui',
+        elementId: 'primes_recues_warning'
       },
-      'bim': { 
-        condition: value === 'oui', 
-        elementId: 'bim_info' 
+      'bim': {
+        condition: value === 'oui',
+        elementId: 'bim_info'
       },
-      'ris': { 
-        condition: value === 'oui', 
-        elementId: 'ris_info' 
+      'ris': {
+        condition: value === 'oui',
+        elementId: 'ris_info'
       },
-      'client_protege': { 
-        condition: value === 'oui', 
-        elementId: 'client_protege_info' 
+      'client_protege': {
+        condition: value === 'oui',
+        elementId: 'client_protege_info'
       },
-      'vente_bien': { 
-        condition: value === 'oui', 
-        elementId: 'vente_bien_warning' 
+      'vente_bien': {
+        condition: value === 'oui',
+        elementId: 'vente_bien_warning'
       },
-      'permis_urbanisme': { 
-        condition: value === 'non', 
-        elementId: 'permis_urbanisme_info' 
+      'permis_urbanisme': {
+        condition: value === 'non',
+        elementId: 'permis_urbanisme_info'
       },
-      'parties_communes': { 
-        condition: value === 'oui', 
-        elementId: 'parties_communes_warning' 
+      'parties_communes': {
+        condition: value === 'oui',
+        elementId: 'parties_communes_warning'
       }
     };
 
@@ -814,7 +814,7 @@ export default class extends Controller {
     // Obtenir tous les noms de questions uniques de base
     const radioInputs = Array.from(form.querySelectorAll("input[type='radio']"));
     let questionNames = [...new Set(radioInputs.map(input => input.name))].filter(name => name !== "profile_type");
-    
+
     // Questions de base obligatoires
     const baseQuestions = [
       'localisation', 'age_batiment', 'professionnel_agree', 'nouvelle_construction',
@@ -845,15 +845,15 @@ export default class extends Controller {
 
     // Si indépendant = oui, vérifier les sous-questions
     if (testData.independant === 'oui') {
-      conditionalAnswered = conditionalAnswered && 
+      conditionalAnswered = conditionalAnswered &&
         (testData.tva_deductible !== undefined) &&
         (testData.usage_professionnel !== undefined);
-      
+
       // Si usage professionnel = oui, vérifier les surfaces
       if (testData.usage_professionnel === 'oui') {
         const surfaceTotale = form.querySelector('input[name="surface_totale"]');
         const surfacePro = form.querySelector('input[name="surface_professionnelle"]');
-        conditionalAnswered = conditionalAnswered && 
+        conditionalAnswered = conditionalAnswered &&
           (surfaceTotale && surfaceTotale.value.trim() !== '') &&
           (surfacePro && surfacePro.value.trim() !== '');
       }
@@ -975,9 +975,9 @@ export default class extends Controller {
   handleConditionalAlertsEntreprise(questionName, value) {
     // Gestion des alertes d'information
     const alertsMap = {
-      'primes_recues': { 
-        condition: value === 'oui', 
-        elementId: 'primes_recues_warning' 
+      'primes_recues': {
+        condition: value === 'oui',
+        elementId: 'primes_recues_warning'
       }
     };
 
@@ -1046,20 +1046,20 @@ export default class extends Controller {
 
     // Si propriétaire immeuble = oui, vérifier les sous-questions
     if (testData.proprietaire_immeuble === 'oui') {
-      conditionalAnswered = conditionalAnswered && 
+      conditionalAnswered = conditionalAnswered &&
         (testData.logement_80_pourcent !== undefined) &&
         (testData.usage_collectivite !== undefined);
-      
+
       // Vérifier quantité appartements
       const quantiteAppartements = form.querySelector('input[name="quantite_appartements"]');
-      conditionalAnswered = conditionalAnswered && 
+      conditionalAnswered = conditionalAnswered &&
         (quantiteAppartements && quantiteAppartements.value.trim() !== '');
 
       // Si usage collectivité = oui, vérifier nom et code Nacebel
       if (testData.usage_collectivite === 'oui') {
         const nomCollectivite = form.querySelector('input[name="nom_collectivite"]');
         const codeNacebel = form.querySelector('input[name="code_nacebel"]');
-        conditionalAnswered = conditionalAnswered && 
+        conditionalAnswered = conditionalAnswered &&
           (nomCollectivite && nomCollectivite.value.trim() !== '') &&
           (codeNacebel && codeNacebel.value.trim() !== '');
       }
@@ -1068,7 +1068,7 @@ export default class extends Controller {
     // Si TVA déductible = oui, vérifier pourcentage
     if (testData.tva_deductible === 'oui') {
       const pourcentageTva = form.querySelector('input[name="pourcentage_tva"]');
-      conditionalAnswered = conditionalAnswered && 
+      conditionalAnswered = conditionalAnswered &&
         (pourcentageTva && pourcentageTva.value.trim() !== '');
     }
 
@@ -1378,7 +1378,7 @@ export default class extends Controller {
       const tvaDeductionSection = document.getElementById('asbl_tva_deduction_section');
       if (tvaDeductionSection) {
         tvaDeductionSection.style.display = value === 'oui' ? 'block' : 'none';
-        
+
         // Reset la question de déduction si on cache la section
         if (value === 'non') {
           const tvaDeductionInputs = document.querySelectorAll('input[name="tva_deduction"]');

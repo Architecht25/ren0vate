@@ -36,7 +36,7 @@ class BruxellesEligibilityService
       reasons << "Le bien concerné par la demande doit être situé en Région de Bruxelles-Capitale"
     end
 
-    # Question 2: Âge du bâtiment  
+    # Question 2: Âge du bâtiment
     if @params[:age_batiment] == "non"
       reasons << "Le bâtiment doit être âgé d'au moins 10 ans"
     end
@@ -135,7 +135,7 @@ class BruxellesEligibilityService
       reasons << "Le bien concerné par la demande doit être situé en Région de Bruxelles-Capitale"
     end
 
-    # Question 2: Âge du bâtiment  
+    # Question 2: Âge du bâtiment
     if @params[:age_batiment] == "non"
       reasons << "Le bâtiment doit être âgé d'au moins 10 ans"
     end
@@ -177,7 +177,7 @@ class BruxellesEligibilityService
       if @params[:quantite_appartements].present?
         propriete_info << "Quantité d'appartements : #{@params[:quantite_appartements]}"
       end
-      
+
       case @params[:logement_80_pourcent]
       when "oui"
         propriete_info << "Avec au moins 80% de logement"
