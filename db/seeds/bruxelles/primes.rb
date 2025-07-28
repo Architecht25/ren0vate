@@ -70,18 +70,18 @@ Prime.find_or_initialize_by(slug: "bruxelles_etude_acoustique").update!(
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "pourcentage", "pourcentage": 2, "base_calculation": "F6-H2-isolation", "condition": "Calculé sur le montant prime d isolation (F6-H2)"},
-    "bruxelles_cat2": {"type": "pourcentage", "pourcentage": 2, "base_calculation": "F6-H2-isolation", "condition": "Calculé sur le montant prime d isolation (F6-H2)"},
-    "bruxelles_cat3": {"type": "pourcentage", "pourcentage": 2, "base_calculation": "F6-H2-isolation", "condition": "Calculé sur le montant prime d isolation (F6-H2)"}
+    "bruxelles_cat1": {"type": "pourcentage", "pourcentage": 2, "montant_max": 500, "condition": "2% du montant des travaux d isolation acoustique"},
+    "bruxelles_cat2": {"type": "pourcentage", "pourcentage": 2, "montant_max": 1000, "condition": "2% du montant des travaux d isolation acoustique"},
+    "bruxelles_cat3": {"type": "pourcentage", "pourcentage": 2, "montant_max": 1500, "condition": "2% du montant des travaux d isolation acoustique"}
   }'),
   condition: "Étude acoustique obligatoire en complément des travaux d'isolation F6-H2",
   conseil: "2% du montant de la prime d'isolation (F6-H2) si travaux d'isolation acoustique réalisés",
   document: "Rapport d'étude acoustique + facture du bureau d'études agréé",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
-    "bruxelles_cat1": "2% de la prime F6-H2",
-    "bruxelles_cat2": "2% de la prime F6-H2",
-    "bruxelles_cat3": "2% de la prime F6-H2"
+    "bruxelles_cat1": "Montant des travaux d isolation acoustique",
+    "bruxelles_cat2": "Montant des travaux d isolation acoustique",
+    "bruxelles_cat3": "Montant des travaux d isolation acoustique"
   }'),
   image: "images/etude_acoustique_bruxelles.webp",
   region: "bruxelles",
@@ -1403,9 +1403,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_mise_normes_electricite_gaz").updat
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "pourcentage", "pourcentage": 30, "condition": "Mise aux normes installations électriques et gaz"},
-    "bruxelles_cat2": {"type": "pourcentage", "pourcentage": 50, "condition": "Mise aux normes installations électriques et gaz"},
-    "bruxelles_cat3": {"type": "pourcentage", "pourcentage": 70, "condition": "Mise aux normes installations électriques et gaz"}
+    "bruxelles_cat1": {"type": "pourcentage", "pourcentage": 30, "montant_max": 3000, "condition": "Mise aux normes installations électriques et gaz"},
+    "bruxelles_cat2": {"type": "pourcentage", "pourcentage": 50, "montant_max": 5000, "condition": "Mise aux normes installations électriques et gaz"},
+    "bruxelles_cat3": {"type": "pourcentage", "pourcentage": 70, "montant_max": 7000, "condition": "Mise aux normes installations électriques et gaz"}
   }'),
   condition: "Mise aux normes des installations électriques et gaz selon réglementation",
   conseil: "Obligatoire pour la sécurité, intervention par professionnel agréé requise",
@@ -1597,22 +1597,22 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z4").update!(
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
   )
 
-  Prime.find_or_initialize_by(slug: "bruxelles_bonus_z5").update!(
-    titre: "Bonus Z5 – Portes et fenêtres acoustiques - Bruxelles",
-    ordre_affichage: 51,
-    icon_name: "volume-x",
-    unite: "€/m² (max 50m²)",
-    type_de_valeur: "dynamique",
-    eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
-    valeurs_par_categorie: JSON.parse('{
-      "bruxelles_cat1": {"type": "montant_m2_et_limite", "montant_par_m2": 35, "plafond_m2": 50, "condition": "Fenêtres ou portes avec isolation acoustique ≥ 30 dB"},
-      "bruxelles_cat2": {"type": "montant_m2_et_limite", "montant_par_m2": 35, "plafond_m2": 50, "condition": "Fenêtres ou portes avec isolation acoustique ≥ 30 dB"},
-      "bruxelles_cat3": {"type": "montant_m2_et_limite", "montant_par_m2": 35, "plafond_m2": 50, "condition": "Fenêtres ou portes avec isolation acoustique ≥ 30 dB"}
-      }'),
-      condition: "Isolation acoustique certifiée pour chaque vitrage ou bâti",
-      conseil: "Utilisez des vitrages multi-couches avec intercalaire acoustique",
-      document: "Facture détaillant le type et la performance acoustique + certificat",
-      specifique: "Bruxelles - Renolution",
+Prime.find_or_initialize_by(slug: "bruxelles_bonus_z5").update!(
+  titre: "Bonus Z5 – Portes et fenêtres acoustiques - Bruxelles",
+  ordre_affichage: 51,
+  icon_name: "volume-x",
+  unite: "€/m² (max 50m²)",
+  type_de_valeur: "dynamique",
+  eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
+  valeurs_par_categorie: JSON.parse('{
+    "bruxelles_cat1": {"type": "montant_m2_et_limite", "montant_par_m2": 35, "plafond_m2": 50, "condition": "Fenêtres ou portes avec isolation acoustique ≥ 30 dB"},
+    "bruxelles_cat2": {"type": "montant_m2_et_limite", "montant_par_m2": 35, "plafond_m2": 50, "condition": "Fenêtres ou portes avec isolation acoustique ≥ 30 dB"},
+    "bruxelles_cat3": {"type": "montant_m2_et_limite", "montant_par_m2": 35, "plafond_m2": 50, "condition": "Fenêtres ou portes avec isolation acoustique ≥ 30 dB"}
+    }'),
+    condition: "Isolation acoustique certifiée pour chaque vitrage ou bâti",
+    conseil: "Utilisez des vitrages multi-couches avec intercalaire acoustique",
+    document: "Facture détaillant le type et la performance acoustique + certificat",
+    specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface en m² – max 50",
     "bruxelles_cat2": "Surface en m² – max 50",
@@ -1621,7 +1621,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z4").update!(
   image: "images/bonus_z5.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
-  )
+)
 
 Prime.find_or_initialize_by(slug: "bruxelles_bonus_z6").update!(
   titre: "Bonus Z6 – Réemploi d\'équipements sanitaires - Bruxelles",

@@ -316,14 +316,7 @@ export default class extends Controller {
         console.log("✅ Événement ajouté pour structure portante")
       }
 
-      // Carte C - Gros-œuvre - Gestion égouts
-      const inputGestionEgouts = document.querySelector('[data-bruxelles-prime-card-target="inputGestionEgouts"]')
-      if (inputGestionEgouts) {
-        inputGestionEgouts.addEventListener('input', () => {
-          this.calculateSpecificPrime('bruxelles_gestion_egouts', inputGestionEgouts, '[data-bruxelles-prime-card-target="resultGestionEgouts"]')
-        })
-        console.log("✅ Événement ajouté pour gestion égouts")
-      }
+      // NOTE: Gestion égouts supprimée - gérée par bruxelles_prime_card_controller
 
       // Carte D - Salubrité - Traitement humidité sol
       const inputTraitementHumiditeSol = document.querySelector('[data-bruxelles-prime-card-target="inputTraitementHumiditeSol"]')

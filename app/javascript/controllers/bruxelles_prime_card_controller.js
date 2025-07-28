@@ -62,6 +62,14 @@ export default class extends Controller {
     const calculData = prime.valeurs_par_categorie[currentCategory]
     if (!calculData) {
       console.warn(`Données de calcul non trouvées pour ${currentCategory}`)
+      // Vérifier si la prime existe pour d'autres catégories
+      const availableCategories = Object.keys(prime.valeurs_par_categorie)
+      if (availableCategories.length > 0) {
+        console.info(`Prime ${this.slugValue} disponible seulement pour: ${availableCategories.join(', ')}`)
+        // Afficher 0€ pour les primes non disponibles
+        this.updateTotal(0)
+        return
+      }
       return
     }
 
@@ -78,8 +86,17 @@ export default class extends Controller {
       case 'montant_m2_et_limite':
         total = this.calculateMontantM2AvecLimite(calculData)
         break
+      case 'montant_unite':
+        total = this.calculateMontantUnite(calculData)
+        break
+      case 'montant_unite_et_limite':
+        total = this.calculateMontantUniteAvecLimite(calculData)
+        break
       case 'pourcentage':
         total = this.calculatePourcentage(calculData)
+        break
+      case 'grille_variable':
+        total = this.calculateGrilleVariable(calculData)
         break
       default:
         console.warn(`Type de calcul non reconnu: ${calculData.type}`)
@@ -110,10 +127,22 @@ export default class extends Controller {
   calculateMontantM2(calculData) {
     // Pour les calculs au m²
     const surfaceInput = this.element.querySelector('input[type="number"], input[placeholder*="m²"]')
-    if (!surfaceInput) return 0
+    if (!surfaceInput) {
+      console.warn("❌ Aucun input trouvé pour montant_m2")
+      return 0
+    }
 
     const surface = parseFloat(surfaceInput.value) || 0
-    return surface * calculData.montant_m2
+    const montantParM2 = calculData.montant_m2 || calculData.montant_par_m2 || 0
+
+    console.log(`🔍 Calcul m²: surface=${surface}, montantParM2=${montantParM2}, input.value="${surfaceInput.value}"`)
+
+    if (isNaN(surface) || isNaN(montantParM2)) {
+      console.error("❌ Valeurs NaN détectées:", { surface, montantParM2, calculData })
+      return 0
+    }
+
+    return surface * montantParM2
   }
 
   calculateMontantM2AvecLimite(calculData) {
@@ -122,7 +151,8 @@ export default class extends Controller {
     if (!surfaceInput) return 0
 
     const surface = parseFloat(surfaceInput.value) || 0
-    const surfaceLimitee = Math.min(surface, calculData.plafond_m2 || 999)
+    const plafondM2 = calculData.plafond_m2 || 100 // Défaut 100 m² comme indiqué dans l'unité
+    const surfaceLimitee = Math.min(surface, plafondM2)
     return surfaceLimitee * calculData.montant_par_m2
   }
 
@@ -139,6 +169,58 @@ export default class extends Controller {
       const montantTravaux = parseFloat(montantInput.value) || 0
       return (montantTravaux * calculData.pourcentage) / 100
     }
+  }
+
+  calculateGrilleVariable(calculData) {
+    // Pour les calculs avec grille de prix variable (ex: égouts)
+    if (!calculData.grille) return 0
+
+    let total = 0
+    // Chercher spécifiquement les inputs de la grille variable
+    const inputs = this.element.querySelectorAll('input[data-bruxelles-prime-card-target="inputGestionEgouts"]')
+    console.log(`🔍 Grille variable - ${inputs.length} inputs trouvés`)
+
+    inputs.forEach((input, index) => {
+      const quantity = parseFloat(input.value) || 0
+      const grilleKeys = Object.keys(calculData.grille)
+      const placeholder = input.placeholder
+
+      console.log(`🔍 Input ${index}: "${placeholder}" = ${quantity}`)
+
+      if (grilleKeys[index]) {
+        const pricePerUnit = calculData.grille[grilleKeys[index]]
+        const lineTotal = quantity * pricePerUnit
+        total += lineTotal
+        console.log(`✅ ${grilleKeys[index]} (${placeholder}): ${quantity} × ${pricePerUnit}€ = ${lineTotal}€`)
+      } else {
+        console.log(`❌ Pas de clé grille pour index ${index}`)
+      }
+    })
+
+    console.log(`📊 Total grille variable: ${total}€`)
+    return total
+  }
+
+  calculateMontantUnite(calculData) {
+    // Pour les calculs à l'unité
+    const quantiteInput = this.element.querySelector('input[type="number"]')
+    if (!quantiteInput) return 0
+
+    const quantite = parseFloat(quantiteInput.value) || 0
+    const montantParUnite = calculData.montant_unite || calculData.montant_par_unite || 0
+    return quantite * montantParUnite
+  }
+
+  calculateMontantUniteAvecLimite(calculData) {
+    // Pour les calculs à l'unité avec plafond
+    const quantiteInput = this.element.querySelector('input[type="number"]')
+    if (!quantiteInput) return 0
+
+    const quantite = parseFloat(quantiteInput.value) || 0
+    const montantParUnite = calculData.montant_unite || calculData.montant_par_unite || 0
+    const plafondUnite = calculData.plafond_unite || calculData.plafond_quantite || 999
+    const quantiteLimitee = Math.min(quantite, plafondUnite)
+    return quantiteLimitee * montantParUnite
   }
 
   getBaseCalculationAmount(baseCalculation) {
@@ -172,6 +254,11 @@ export default class extends Controller {
       const calculData = prime.valeurs_par_categorie[currentCategory]
       if (!calculData) {
         console.warn(`Données de calcul composite non trouvées pour ${slug} - ${currentCategory}`)
+        // Vérifier si la prime existe pour d'autres catégories
+        const availableCategories = Object.keys(prime.valeurs_par_categorie)
+        if (availableCategories.length > 0) {
+          console.info(`Prime ${slug} disponible seulement pour: ${availableCategories.join(', ')}`)
+        }
         return
       }
 
@@ -194,8 +281,20 @@ export default class extends Controller {
           break
         case 'montant_m2':
           const surface = parseFloat(input.value) || 0
-          montant = surface * calculData.montant_m2
-          console.log("📐 Montant m²:", montant, "€ (surface:", surface, "m² × ", calculData.montant_m2, "€/m²)")
+          const montantParM2 = calculData.montant_m2 || calculData.montant_par_m2 || 0
+          montant = surface * montantParM2
+          console.log("📐 Montant m²:", montant, "€ (surface:", surface, "m² × ", montantParM2, "€/m²)")
+
+          if (isNaN(montant)) {
+            console.error("❌ NaN détecté pour montant_m2:", {
+              surface,
+              montantParM2,
+              inputValue: input.value,
+              calculData,
+              slug
+            })
+            montant = 0
+          }
           break
         case 'montant_unite':
           const quantite = parseFloat(input.value) || 0
@@ -209,7 +308,7 @@ export default class extends Controller {
 
           // Vérifier s'il y a un calcul basé sur une autre prime
           if (calculData.base_calculation) {
-            console.log(`📊 ${primeSlug}: Calcul basé sur ${calculData.base_calculation} - non implémenté pour l'instant`)
+            console.log(`📊 ${slug}: Calcul basé sur ${calculData.base_calculation} - non implémenté pour l'instant`)
             montant = 0
           } else {
             // Calcul sur le montant saisi
@@ -217,6 +316,68 @@ export default class extends Controller {
             montant = Math.min(calculResult, montantMax)
             console.log(`📊 Pourcentage: ${montant}€ (${montantTravaux}€ × ${pourcentage}%, max: ${montantMax}€)`)
           }
+          break
+        case 'grille_variable':
+          // Calcul grille variable (ex: égouts)
+          if (!calculData.grille) {
+            console.warn(`Grille de prix manquante pour ${slug}`)
+            montant = 0
+          } else {
+            // Extraire le nom du target depuis l'inputSelector
+            const targetName = inputSelector.replace('[data-bruxelles-prime-card-target="', '').replace('"]', '')
+
+            // Pour les égouts, sélectionner UNIQUEMENT les inputs dans la section des égouts
+            let validInputs = []
+
+            if (slug.includes('gestion_egouts')) {
+              // Sélectionner spécifiquement les inputs de la section "Gestion égouts"
+              const gestionEgoutsSection = this.element.querySelector('[data-bruxelles-prime-card-target="inputGestionEgouts"]')?.closest('.col-md-12')
+              if (gestionEgoutsSection) {
+                validInputs = Array.from(gestionEgoutsSection.querySelectorAll('input[data-bruxelles-prime-card-target="inputGestionEgouts"]'))
+                console.log(`🎯 ${slug}: Trouvé ${validInputs.length} inputs spécifiques dans la section égouts`)
+              }
+            } else {
+              // Pour les autres grilles variables, utiliser la sélection normale
+              const grilleInputs = this.element.querySelectorAll(`input[data-bruxelles-prime-card-target="${targetName}"]`)
+              validInputs = Array.from(grilleInputs)
+            }
+
+            let total = 0
+
+            console.log(`🎯 ${slug}: ${validInputs.length} inputs valides trouvés`)
+
+            // Associer chaque input à un élément de la grille
+            const grilleKeys = Object.keys(calculData.grille)
+            validInputs.forEach((inp, index) => {
+              if (grilleKeys[index]) {
+                const quantity = parseFloat(inp.value) || 0
+                const pricePerUnit = calculData.grille[grilleKeys[index]]
+                total += quantity * pricePerUnit
+                console.log(`📊 ${grilleKeys[index]}: ${quantity} × ${pricePerUnit}€ = ${quantity * pricePerUnit}€ (placeholder: ${inp.placeholder})`)
+              }
+            })
+
+            montant = total
+            console.log(`📊 Total grille variable pour ${slug}: ${montant}€`)
+          }
+          break
+        case 'montant_m2_et_limite':
+          // Calcul montant m² avec limitation de surface
+          const surfaceM2 = parseFloat(input.value) || 0
+          const montantParM2Limite = calculData.montant_par_m2 || 0
+          const plafondSurface = calculData.plafond_m2 || 100 // Défaut 100 m²
+          const surfaceLimitee = Math.min(surfaceM2, plafondSurface)
+          montant = surfaceLimitee * montantParM2Limite
+          console.log(`📐 Montant m² avec limite: ${montant}€ (${surfaceLimitee}m² × ${montantParM2Limite}€/m², max: ${plafondSurface}m²)`)
+          break
+        case 'montant_unite_et_limite':
+          // Calcul montant unité avec limitation de quantité
+          const quantiteLimitee = parseFloat(input.value) || 0
+          const montantParUniteLimite = calculData.montant_unite || calculData.montant_par_unite || 0
+          const plafondQuantite = calculData.plafond_unite || calculData.plafond_quantite || 999
+          const quantiteFinale = Math.min(quantiteLimitee, plafondQuantite)
+          montant = quantiteFinale * montantParUniteLimite
+          console.log(`🔢 Montant unité avec limite: ${montant}€ (${quantiteFinale} × ${montantParUniteLimite}€/unité, max: ${plafondQuantite})`)
           break
         // Ajouter d'autres types si nécessaire
         default:
@@ -229,7 +390,10 @@ export default class extends Controller {
         resultElement.textContent = `${montant.toLocaleString('fr-BE')} €`
         console.log("✨ Résultat mis à jour:", resultSelector, "→", montant, "€")
       } else {
-        console.warn(`Element résultat non trouvé pour ${resultSelector}`)
+        console.warn(`❌ Element résultat non trouvé pour ${resultSelector} dans la carte ${this.slugValue}`)
+        // Debug: lister tous les éléments avec data-bruxelles-prime-card-target
+        const allTargets = this.element.querySelectorAll('[data-bruxelles-prime-card-target]')
+        console.log(`🔍 Debug - Tous les targets trouvés dans cette carte:`, Array.from(allTargets).map(el => el.getAttribute('data-bruxelles-prime-card-target')))
       }
 
       totalGlobal += montant
