@@ -8,27 +8,61 @@
     Félicitations ! Selon vos réponses au test d'éligibilité, vous remplissez les conditions pour bénéficier des primes RENOLUTION en Région de Bruxelles-Capitale.
   </p>
 
-  <p class="mb-3">
-    <i class="bi bi-info-circle me-1"></i>
-    Pour connaître le montant exact de vos primes, nous avons besoin de déterminer votre catégorie de revenus (Z1 à Z10).
-  </p>
+  <% if defined?(needs_refinement) && needs_refinement %>
+    <!-- Cas particulier : affinage nécessaire -->
+    <p class="mb-3">
+      <i class="bi bi-info-circle me-1"></i>
+      Pour connaître le montant exact de vos primes, nous avons besoin de déterminer votre catégorie de revenus.
+    </p>
 
-  <div class="d-flex gap-2 flex-wrap">
-    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="location.reload()">
-      <i class="bi bi-arrow-clockwise me-1"></i>Recommencer
-    </button>
+    <div class="d-flex gap-2 flex-wrap">
+      <button type="button" class="btn btn-outline-secondary btn-sm" onclick="location.reload()">
+        <i class="bi bi-arrow-clockwise me-1"></i>Recommencer
+      </button>
 
-    <button type="button" class="btn btn-warning btn-sm" onclick="document.getElementById('category-refinement-bruxelles').style.display='block'">
-      <i class="bi bi-calculator me-1"></i>Calculer ma catégorie
-    </button>
+      <button type="button" class="btn btn-warning btn-sm" onclick="document.getElementById('category-refinement-bruxelles').style.display='block'">
+        <i class="bi bi-calculator me-1"></i>Calculer ma catégorie
+      </button>
 
-    <a href="https://renolution.brussels" target="_blank" class="btn btn-primary btn-sm">
-      <i class="bi bi-box-arrow-up-right me-1"></i>Site officiel
-    </a>
+      <a href="https://renolution.brussels" target="_blank" class="btn btn-primary btn-sm">
+        <i class="bi bi-box-arrow-up-right me-1"></i>Site officiel
+      </a>
+    </div>
+  <% elsif defined?(auto_category) && auto_category %>
+    <!-- Cas autres profils : catégorie automatique -->
+    <div class="alert alert-<%= auto_category[:color] %> mt-3" role="alert">
+      <h6 class="mb-2">
+        <i class="bi bi-award me-1"></i><strong><%= auto_category[:category] %></strong>
+      </h6>
+      <p class="mb-2"><%= auto_category[:details] %></p>
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap">
+      <button type="button" class="btn btn-outline-secondary btn-sm" onclick="location.reload()">
+        <i class="bi bi-arrow-clockwise me-1"></i>Nouveau test
+      </button>
+
+      <a href="https://renolution.brussels" target="_blank" class="btn btn-primary btn-sm">
+        <i class="bi bi-box-arrow-up-right me-1"></i>Site officiel
+      </a>
+    </div>
+  <% else %>
+    <!-- Cas par défaut (fallback) -->
+    <div class="d-flex gap-2 flex-wrap">
+      <button type="button" class="btn btn-outline-secondary btn-sm" onclick="location.reload()">
+        <i class="bi bi-arrow-clockwise me-1"></i>Recommencer
+      </button>
+
+      <a href="https://renolution.brussels" target="_blank" class="btn btn-primary btn-sm">
+        <i class="bi bi-box-arrow-up-right me-1"></i>Site officiel
+      </a>
+    </div>
+  <% end %>
+</div>
+
+<% if defined?(needs_refinement) && needs_refinement %>
+  <!-- Section d'affinage de catégorie (masquée par défaut, seulement pour particuliers) -->
+  <div id="category-refinement-bruxelles" style="display: none;" class="mt-3">
+    <%= render 'pages/partials_bruxelles/affinage_categorie_simple' %>
   </div>
-</div>
-
-<!-- Section d'affinage de catégorie (masquée par défaut) -->
-<div id="category-refinement-bruxelles" style="display: none;" class="mt-3">
-  <%= render 'pages/partials_bruxelles/affinage_categorie_simple' %>
-</div>
+<% end %>

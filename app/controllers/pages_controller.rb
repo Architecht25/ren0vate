@@ -83,12 +83,19 @@ class PagesController < ApplicationController
       respond_to do |format|
         format.turbo_stream do
           if result[:eligible]
+            # Déterminer si l'affinage est nécessaire et la catégorie automatique
+            profile_type = result[:profile]
+            needs_refinement = profile_type == 'particulier'
+            auto_category = get_automatic_category_bruxelles(profile_type) unless needs_refinement
+
             render turbo_stream: turbo_stream.replace(
               "eligibility_content",
               partial: "pages/partials_bruxelles/resultat_eligible",
               locals: {
                 profile: result[:profile],
-                message: result[:message]
+                message: result[:message],
+                needs_refinement: needs_refinement,
+                auto_category: auto_category
               }
             )
           else
@@ -364,6 +371,37 @@ private
   end
 
   private
+
+  def get_automatic_category_bruxelles(profile_type)
+    case profile_type
+    when 'entreprise'
+      {
+        category: 'Catégorie I',
+        color: 'primary',
+        details: 'Catégorie automatique pour les entreprises - Accès aux primes professionnelles'
+      }
+    when 'syndic'
+      {
+        category: 'Catégorie II',
+        color: 'info',
+        details: 'Catégorie automatique pour les syndics de copropriété - Primes pour parties communes'
+      }
+    when 'bailleur'
+      {
+        category: 'Catégorie III',
+        color: 'success',
+        details: 'Catégorie automatique pour les bailleurs sociaux (AIS) - Primes logement social'
+      }
+    when 'asbl'
+      {
+        category: 'Catégorie I',
+        color: 'primary',
+        details: 'Catégorie automatique pour les ASBL - Accès aux primes institutionnelles'
+      }
+    else
+      nil
+    end
+  end
 
   def determine_bruxelles_category_simple(revenu_net, statut_familial, enfants_charge)
     # Logique simplifiée pour 3 tranches de revenus
