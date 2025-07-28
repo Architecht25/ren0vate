@@ -1,292 +1,372 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["total"]
-  static values = { category: String, slug: String }
+  static targets = [
+    "total",
+    // Carte I - Services et études
+    "inputAuditMaison", "resultAuditMaison",
+    "inputAuditBatiment", "resultAuditBatiment",
+    // Carte J - Isolation toiture
+    "inputIsolationToiture", "resultIsolationToiture",
+    // Carte K - Isolation murs
+    "inputIsolationMurs", "resultIsolationMurs",
+    // Carte M - Pompe à chaleur
+    "inputPompeChaleurd", "resultPompeChaleurd"
+  ]
+  static values = { slug: String }
 
   connect() {
-    console.log("🎯 Contrôleur Bruxelles Prime Card connecté")
-
-    // Récupérer la catégorie actuelle depuis le contrôleur parent
-    this.currentCategory = this.getCurrentCategoryFromParent()
+    console.log("🎯 Contrôleur Bruxelles Prime Card connecté pour:", this.slugValue)
 
     // Écouter les changements de catégorie
-    this.element.addEventListener('bruxelles:category:changed', this.updateCategory.bind(this))
+    this.element.addEventListener('bruxelles:category:changed', this.recalculate.bind(this))
+
+    // Ajouter les événements d'écoute pour les champs spécifiques
+    this.addSpecificFieldListeners()
 
     // Calculer le montant initial
     this.calculate()
   }
 
   disconnect() {
-    this.element.removeEventListener('bruxelles:category:changed', this.updateCategory.bind(this))
-  }
-
-  updateCategory(event) {
-    this.currentCategory = event.detail?.categorie || "bruxelles_cat3"
-    console.log("🔄 Carte Prime Bruxelles - Nouvelle catégorie:", this.currentCategory)
-    this.calculate()
-  }
-
-  getCurrentCategoryFromParent() {
-    const parentController = this.getParentController()
-    if (parentController && parentController.getCurrentCategory) {
-      return parentController.getCurrentCategory()
-    }
-    
-    // Fallback vers localStorage
-    const storedCategory = localStorage.getItem("bruxellesCategorieEstimee")
-    if (storedCategory) {
-      const categoryMap = {
-        "1": "bruxelles_cat1",
-        "2": "bruxelles_cat2", 
-        "3": "bruxelles_cat3"
-      }
-      return categoryMap[storedCategory] || "bruxelles_cat3"
-    }
-    
-    return "bruxelles_cat3" // Catégorie par défaut
+    this.element.removeEventListener('bruxelles:category:changed', this.recalculate.bind(this))
   }
 
   calculate() {
-    // Si c'est une carte composite (globale), utiliser le calcul composite
-    if (this.isCompositeCard()) {
-      this.calculateComposite()
+    if (!this.slugValue) {
+      console.warn("Pas de slug défini pour cette carte")
       return
     }
 
-    // Sinon, calcul simple
-    this.calculateSimple()
-  }
+    // Récupérer le controller parent pour accéder aux données
+    const parentController = this.getParentController()
+    if (!parentController) {
+      console.warn("Controller parent non trouvé")
+      return
+    }
 
-  calculateSimple() {
+    const currentCategory = parentController.getCurrentCategory()
+    const primesData = parentController.getPrimesData()
+
+    // Vérifier si c'est une carte composite (globale)
+    if (this.isCompositeCard()) {
+      this.calculateComposite(currentCategory, primesData)
+      return
+    }
+
+    // Trouver la prime correspondante
+    const prime = primesData[this.slugValue]
+    if (!prime) {
+      console.warn(`Prime non trouvée pour slug: ${this.slugValue}`)
+      return
+    }
+
+    // Calculer selon le type de calcul
+    const calculData = prime.valeurs_par_categorie[currentCategory]
+    if (!calculData) {
+      console.warn(`Données de calcul non trouvées pour ${currentCategory}`)
+      return
+    }
+
     let total = 0
 
-    // Récupérer tous les inputs de la carte
-    const inputs = this.element.querySelectorAll('input, select')
-    
-    inputs.forEach(input => {
-      const value = this.getInputValue(input)
-      if (value > 0) {
-        // Calculer selon le type d'input et la catégorie
-        const montant = this.calculateInputAmount(input, value)
-        total += montant
-      }
-    })
+    // Logique de calcul selon le type
+    switch (calculData.type) {
+      case 'montant_fixe':
+        total = this.calculateMontantFixe(calculData)
+        break
+      case 'montant_m2':
+        total = this.calculateMontantM2(calculData)
+        break
+      case 'montant_m2_et_limite':
+        total = this.calculateMontantM2AvecLimite(calculData)
+        break
+      case 'pourcentage':
+        total = this.calculatePourcentage(calculData)
+        break
+      default:
+        console.warn(`Type de calcul non reconnu: ${calculData.type}`)
+    }
 
     // Mettre à jour l'affichage
     this.updateTotal(total)
 
-    // Notifier le parent
-    this.notifyParent()
+    // Notifier le controller parent
+    if (parentController.cardUpdated) {
+      parentController.cardUpdated()
+    }
   }
 
-  calculateComposite() {
+  calculateMontantFixe(calculData) {
+    // Pour les montants fixes (audit par exemple)
+    // Si input = "1" (Oui), on applique le montant, sinon 0
+    const firstInput = this.element.querySelector('input, select')
+    if (!firstInput) return 0
+
+    const inputValue = firstInput.value
+    const isSelected = inputValue === "1" || inputValue === 1 ||
+                      (firstInput.type === 'checkbox' && firstInput.checked)
+
+    return isSelected ? calculData.montant : 0
+  }
+
+  calculateMontantM2(calculData) {
+    // Pour les calculs au m²
+    const surfaceInput = this.element.querySelector('input[type="number"], input[placeholder*="m²"]')
+    if (!surfaceInput) return 0
+
+    const surface = parseFloat(surfaceInput.value) || 0
+    return surface * calculData.montant_m2
+  }
+
+  calculateMontantM2AvecLimite(calculData) {
+    // Pour les calculs au m² avec plafond
+    const surfaceInput = this.element.querySelector('input[type="number"], input[placeholder*="m²"]')
+    if (!surfaceInput) return 0
+
+    const surface = parseFloat(surfaceInput.value) || 0
+    const surfaceLimitee = Math.min(surface, calculData.plafond_m2 || 999)
+    return surfaceLimitee * calculData.montant_par_m2
+  }
+
+  calculatePourcentage(calculData) {
+    if (calculData.base_calculation) {
+      // Pourcentage basé sur une autre prime
+      const baseAmount = this.getBaseCalculationAmount(calculData.base_calculation)
+      return (baseAmount * calculData.pourcentage) / 100
+    } else {
+      // Pourcentage du montant saisi
+      const montantInput = this.element.querySelector('input[type="number"]')
+      if (!montantInput) return 0
+
+      const montantTravaux = parseFloat(montantInput.value) || 0
+      return (montantTravaux * calculData.pourcentage) / 100
+    }
+  }
+
+  getBaseCalculationAmount(baseCalculation) {
+    // Pour les calculs en pourcentage basés sur d'autres primes
+    // Ex: "F6-H2-isolation" -> récupérer le montant de la prime d'isolation
+    console.log("Calcul basé sur:", baseCalculation)
+    // TODO: Implémenter la logique pour récupérer les montants d'autres primes
+    return 1000 // Valeur temporaire
+  }
+
+  calculateComposite(currentCategory, primesData) {
     // Pour les cartes composites qui contiennent plusieurs primes
-    // Chaque section a ses propres inputs et résultats
-    let totalGeneral = 0
+    console.log("🔄 Calcul composite pour:", this.slugValue, "catégorie:", currentCategory)
+    let totalGlobal = 0
 
-    const sections = this.getCompositeSections()
-    
-    sections.forEach(section => {
-      let sectionTotal = 0
-      
-      section.inputs.forEach(inputSelector => {
-        const input = this.element.querySelector(inputSelector)
-        if (input) {
-          const value = this.getInputValue(input)
-          if (value > 0) {
-            const montant = this.calculateSectionAmount(section.type, value)
-            sectionTotal += montant
-          }
-        }
-      })
+    // Définir les primes à calculer selon la carte
+    const primesToCalculate = this.getCompositePrimes()
+    console.log("📋 Primes à calculer:", primesToCalculate.length)
 
-      // Mettre à jour le résultat de la section
-      if (section.resultSelector) {
-        const resultElement = this.element.querySelector(section.resultSelector)
-        if (resultElement) {
-          resultElement.textContent = `${sectionTotal.toLocaleString('fr-BE')} €`
-        }
+    primesToCalculate.forEach(compositeDefinition => {
+      const { slug, inputSelector, resultSelector } = compositeDefinition
+      console.log("🔍 Traitement de:", slug, "avec selector:", inputSelector)
+
+      const prime = primesData[slug]
+
+      if (!prime) {
+        console.warn(`Prime composite non trouvée: ${slug}`)
+        return
       }
 
-      totalGeneral += sectionTotal
+      const calculData = prime.valeurs_par_categorie[currentCategory]
+      if (!calculData) {
+        console.warn(`Données de calcul composite non trouvées pour ${slug} - ${currentCategory}`)
+        return
+      }
+
+      // Trouver l'input correspondant
+      const input = this.element.querySelector(inputSelector)
+      if (!input) {
+        console.warn(`Input non trouvé pour ${inputSelector}`)
+        return
+      }
+
+      console.log("✅ Input trouvé:", input.tagName, "valeur:", input.value, "type calcul:", calculData.type)
+
+      // Calculer selon le type
+      let montant = 0
+      switch (calculData.type) {
+        case 'montant_fixe':
+          const isSelected = input.value === "1" || input.checked
+          montant = isSelected ? calculData.montant : 0
+          console.log("💰 Montant fixe:", montant, "€ (sélectionné:", isSelected, "montant base:", calculData.montant, "€)")
+          break
+        case 'montant_m2':
+          const surface = parseFloat(input.value) || 0
+          montant = surface * calculData.montant_m2
+          console.log("📐 Montant m²:", montant, "€ (surface:", surface, "m² × ", calculData.montant_m2, "€/m²)")
+          break
+        case 'montant_unite':
+          const quantite = parseFloat(input.value) || 0
+          montant = quantite * calculData.montant_unite
+          console.log("🔢 Montant unité:", montant, "€ (quantité:", quantite, "× ", calculData.montant_unite, "€/unité)")
+          break
+        // Ajouter d'autres types si nécessaire
+        default:
+          console.warn("Type de calcul non géré:", calculData.type)
+      }
+
+      // Mettre à jour le résultat spécifique
+      const resultElement = this.element.querySelector(resultSelector)
+      if (resultElement) {
+        resultElement.textContent = `${montant.toLocaleString('fr-BE')} €`
+        console.log("✨ Résultat mis à jour:", resultSelector, "→", montant, "€")
+      } else {
+        console.warn(`Element résultat non trouvé pour ${resultSelector}`)
+      }
+
+      totalGlobal += montant
     })
 
+    console.log("🎯 Total global de la carte:", totalGlobal, "€")
+
     // Mettre à jour le total de la carte
-    this.updateTotal(totalGeneral)
+    this.updateTotal(totalGlobal)
 
     // Notifier le parent
-    this.notifyParent()
-  }
-
-  getInputValue(input) {
-    if (input.type === 'checkbox' || input.type === 'radio') {
-      return input.checked ? (parseFloat(input.value) || 1) : 0
+    const parentController = this.getParentController()
+    if (parentController && parentController.cardUpdated) {
+      parentController.cardUpdated()
     }
-    if (input.tagName === 'SELECT') {
-      return parseFloat(input.value) || 0
-    }
-    return parseFloat(input.value) || 0
-  }
-
-  calculateInputAmount(input, value) {
-    // Récupérer le type de calcul depuis l'attribut data ou le placeholder
-    const calculType = this.getCalculationType(input)
-    const baseAmount = this.getBaseAmount(input, calculType)
-    
-    // Appliquer le multiplicateur de catégorie
-    const multiplier = this.getCategoryMultiplier()
-    
-    let montant = 0
-    
-    switch (calculType) {
-      case 'montant_fixe':
-        montant = value > 0 ? baseAmount * multiplier : 0
-        break
-      case 'par_m2':
-        montant = value * baseAmount * multiplier
-        break
-      case 'par_unite':
-        montant = value * baseAmount * multiplier
-        break
-      case 'pourcentage':
-        const maxAmount = this.getMaxAmount(input)
-        montant = Math.min((value * baseAmount / 100) * multiplier, maxAmount)
-        break
-      default:
-        montant = value * baseAmount * multiplier
-    }
-    
-    return Math.round(montant)
-  }
-
-  calculateSectionAmount(sectionType, value) {
-    const baseAmounts = this.getSectionBaseAmounts()
-    const baseAmount = baseAmounts[sectionType] || 0
-    const multiplier = this.getCategoryMultiplier()
-    
-    return Math.round(value * baseAmount * multiplier)
-  }
-
-  getCalculationType(input) {
-    // Déterminer le type de calcul selon les attributs ou le contexte
-    if (input.dataset.calculType) {
-      return input.dataset.calculType
-    }
-    
-    const placeholder = input.placeholder?.toLowerCase() || ''
-    
-    if (placeholder.includes('m²') || placeholder.includes('surface')) {
-      return 'par_m2'
-    }
-    if (placeholder.includes('nombre') || placeholder.includes('unité')) {
-      return 'par_unite'
-    }
-    if (placeholder.includes('montant') || placeholder.includes('coût')) {
-      return 'pourcentage'
-    }
-    if (input.type === 'checkbox' || (input.tagName === 'SELECT' && input.value === '1')) {
-      return 'montant_fixe'
-    }
-    
-    return 'par_unite' // Par défaut
-  }
-
-  getBaseAmount(input, calculType) {
-    // Montants de base selon le type de travaux et la carte
-    const baseAmounts = {
-      // Services et études (Prime A)
-      'audit_maison': 650,
-      'audit_batiment': 1200,
-      'audit_logement': 450,
-      'accompagnement': 500,
-      'conseiller': 300,
-
-      // Isolation (Prime C)
-      'isolation_toiture_m2': 25,
-      'isolation_murs_m2': 30,
-      'isolation_sol_m2': 20,
-
-      // Menuiseries (Prime H)
-      'fenetres_m2': 85,
-      'portes_m2': 120,
-
-      // Chauffage (Prime F)
-      'chaudiere': 1500,
-      'pac': 4500,
-      'ventilation': 3500,
-      'solaire_thermique': 2500,
-
-      // Électricité (Prime J)
-      'electrique_point': 50,
-      'photovoltaique_kwc': 300
-    }
-
-    // Essayer de déterminer le type depuis l'ID ou les classes
-    const inputId = input.id || ''
-    const inputClasses = input.className || ''
-    
-    for (const [key, amount] of Object.entries(baseAmounts)) {
-      if (inputId.includes(key) || inputClasses.includes(key)) {
-        return amount
-      }
-    }
-
-    // Valeur par défaut selon le type de calcul
-    switch (calculType) {
-      case 'montant_fixe': return 500
-      case 'par_m2': return 25
-      case 'par_unite': return 100
-      case 'pourcentage': return 20
-      default: return 100
-    }
-  }
-
-  getMaxAmount(input) {
-    // Montant maximum pour les calculs en pourcentage
-    return parseFloat(input.dataset.maxAmount) || 5000
-  }
-
-  getCategoryMultiplier() {
-    // Facteur multiplicateur selon la catégorie de revenus
-    const multipliers = {
-      "bruxelles_cat1": 0.8,    // Entreprises, ASBL
-      "bruxelles_cat2": 0.8,    // Syndics
-      "bruxelles_cat3": 1.0     // Particuliers (revenus faibles), AIS
-    }
-
-    return multipliers[this.currentCategory] || 1.0
   }
 
   isCompositeCard() {
-    // Vérifier si c'est une carte composite
-    const compositeCategories = [
-      'prime-a', 'prime-b', 'prime-c', 'prime-d', 'prime-e',
-      'prime-f', 'prime-g', 'prime-h', 'prime-i', 'prime-j',
-      'prime-kl', 'prime-m', 'prime-z'
+    // Vérifier si c'est une carte composite Bruxelles
+    const compositeCards = [
+      'bruxelles_prime_a_global',
+      'bruxelles_prime_b_global',
+      'bruxelles_prime_c_global',
+      'bruxelles_prime_d_global',
+      'bruxelles_prime_e_global',
+      'bruxelles_prime_f_global',
+      'bruxelles_prime_g_global',
+      'bruxelles_prime_h_global',
+      'bruxelles_prime_i_global',
+      'bruxelles_prime_j_global',
+      'bruxelles_prime_kl_global',
+      'bruxelles_prime_m_global'
+      // bruxelles_prime_z_global retiré temporairement
     ]
-    
-    return compositeCategories.includes(this.categoryValue)
+    return compositeCards.includes(this.slugValue)
   }
 
-  getCompositeSections() {
-    // Définir les sections composites selon la carte
-    // À adapter selon la structure réelle des cartes
-    return [
-      {
-        type: 'section1',
-        inputs: ['[data-section="1"] input', '[data-section="1"] select'],
-        resultSelector: '[data-section="1"] .result'
-      }
-    ]
-  }
+  getCompositePrimes() {
+    // Définir les sous-primes selon la carte composite Bruxelles
+    switch (this.slugValue) {
+      case 'bruxelles_prime_a_global':
+        // Prime A - Services et études (6 primes)
+        return [
+          { slug: 'bruxelles_audit_energetique_maison', inputSelector: '[data-bruxelles-prime-card-target="inputAuditMaison"]', resultSelector: '[data-bruxelles-prime-card-target="resultAuditMaison"]' },
+          { slug: 'bruxelles_audit_energetique_batiment', inputSelector: '[data-bruxelles-prime-card-target="inputAuditBatiment"]', resultSelector: '[data-bruxelles-prime-card-target="resultAuditBatiment"]' },
+          { slug: 'bruxelles_certificat_peb', inputSelector: '[data-bruxelles-prime-card-target="inputCertificatPeb"]', resultSelector: '[data-bruxelles-prime-card-target="resultCertificatPeb"]' },
+          { slug: 'bruxelles_etude_acoustique', inputSelector: '[data-bruxelles-prime-card-target="inputEtudeAcoustique"]', resultSelector: '[data-bruxelles-prime-card-target="resultEtudeAcoustique"]' },
+          { slug: 'bruxelles_etude_totem', inputSelector: '[data-bruxelles-prime-card-target="inputEtudeTotem"]', resultSelector: '[data-bruxelles-prime-card-target="resultEtudeTotem"]' },
+          { slug: 'bruxelles_suivi_professionnel', inputSelector: '[data-bruxelles-prime-card-target="inputSuiviProfessionnel"]', resultSelector: '[data-bruxelles-prime-card-target="resultSuiviProfessionnel"]' }
+        ]
 
-  getSectionBaseAmounts() {
-    // Montants de base pour les sections composites
-    return {
-      'section1': 100,
-      'section2': 200,
-      'section3': 300
+      case 'bruxelles_prime_b_global':
+        // Prime B - Installations de chantier (1 prime)
+        return [
+          { slug: 'bruxelles_protection_echafaudages', inputSelector: '[data-bruxelles-prime-card-target="inputProtectionEchafaudages"]', resultSelector: '[data-bruxelles-prime-card-target="resultProtectionEchafaudages"]' }
+        ]
+
+      case 'bruxelles_prime_c_global':
+        // Prime C - Gros-œuvre & gestion de l'eau (4 primes)
+        return [
+          { slug: 'bruxelles_structure_portante', inputSelector: '[data-bruxelles-prime-card-target="inputStructurePortante"]', resultSelector: '[data-bruxelles-prime-card-target="resultStructurePortante"]' },
+          { slug: 'bruxelles_gestion_egouts', inputSelector: '[data-bruxelles-prime-card-target="inputGestionEgouts"]', resultSelector: '[data-bruxelles-prime-card-target="resultGestionEgouts"]' },
+          { slug: 'bruxelles_recuperation_eau_pluie', inputSelector: '[data-bruxelles-prime-card-target="inputRecuperationEauPluie"]', resultSelector: '[data-bruxelles-prime-card-target="resultRecuperationEauPluie"]' },
+          { slug: 'bruxelles_demolition_permeabilisation', inputSelector: '[data-bruxelles-prime-card-target="inputDemolitionPermeabilisation"]', resultSelector: '[data-bruxelles-prime-card-target="resultDemolitionPermeabilisation"]' }
+        ]
+
+      case 'bruxelles_prime_d_global':
+        // Prime D - Salubrité (2 primes)
+        return [
+          { slug: 'bruxelles_traitement_humidite_sol', inputSelector: '[data-bruxelles-prime-card-target="inputTraitementHumiditeSol"]', resultSelector: '[data-bruxelles-prime-card-target="resultTraitementHumiditeSol"]' },
+          { slug: 'bruxelles_traitement_fongique_insectes', inputSelector: '[data-bruxelles-prime-card-target="inputTraitementFongiqueInsectes"]', resultSelector: '[data-bruxelles-prime-card-target="resultTraitementFongiqueInsectes"]' }
+        ]
+
+      case 'bruxelles_prime_e_global':
+        // Prime E - Toiture (5 primes)
+        return [
+          { slug: 'bruxelles_structure_toiture', inputSelector: '[data-bruxelles-prime-card-target="inputStructureToiture"]', resultSelector: '[data-bruxelles-prime-card-target="resultStructureToiture"]' },
+          { slug: 'bruxelles_isolation_toiture_etancheite', inputSelector: '[data-bruxelles-prime-card-target="inputIsolationToitureEtancheite"]', resultSelector: '[data-bruxelles-prime-card-target="resultIsolationToitureEtancheite"]' },
+          { slug: 'bruxelles_isolation_thermique_toiture', inputSelector: '[data-bruxelles-prime-card-target="inputIsolationThermiqueToiture"]', resultSelector: '[data-bruxelles-prime-card-target="resultIsolationThermiqueToiture"]' },
+          { slug: 'bruxelles_accessoires_toiture', inputSelector: '[data-bruxelles-prime-card-target="inputAccessoiresToiture"]', resultSelector: '[data-bruxelles-prime-card-target="resultAccessoiresToiture"]' },
+          { slug: 'bruxelles_toiture_vegetale', inputSelector: '[data-bruxelles-prime-card-target="inputToitureVegetale"]', resultSelector: '[data-bruxelles-prime-card-target="resultToitureVegetale"]' }
+        ]
+
+      case 'bruxelles_prime_f_global':
+        // Prime F - Façades (8 primes)
+        return [
+          { slug: 'bruxelles_isolation_interieure_facade', inputSelector: '[data-bruxelles-prime-card-target="inputIsolationInterieure"]', resultSelector: '[data-bruxelles-prime-card-target="resultIsolationInterieure"]' },
+          { slug: 'bruxelles_isolation_exterieure_facade', inputSelector: '[data-bruxelles-prime-card-target="inputIsolationExterieure"]', resultSelector: '[data-bruxelles-prime-card-target="resultIsolationExterieure"]' },
+          { slug: 'bruxelles_isolation_coulisse', inputSelector: '[data-bruxelles-prime-card-target="inputIsolationCoulisse"]', resultSelector: '[data-bruxelles-prime-card-target="resultIsolationCoulisse"]' },
+          { slug: 'bruxelles_bardage_facade', inputSelector: '[data-bruxelles-prime-card-target="inputBardageFacade"]', resultSelector: '[data-bruxelles-prime-card-target="resultBardageFacade"]' },
+          { slug: 'bruxelles_enduit_facade', inputSelector: '[data-bruxelles-prime-card-target="inputEnduitFacade"]', resultSelector: '[data-bruxelles-prime-card-target="resultEnduitFacade"]' },
+          { slug: 'bruxelles_embellissement_facade_avant', inputSelector: '[data-bruxelles-prime-card-target="inputEmbellissementAvant"]', resultSelector: '[data-bruxelles-prime-card-target="resultEmbellissementAvant"]' },
+          { slug: 'bruxelles_facades_arriere_laterales', inputSelector: '[data-bruxelles-prime-card-target="inputFacadesArriere"]', resultSelector: '[data-bruxelles-prime-card-target="resultFacadesArriere"]' },
+          { slug: 'bruxelles_isolation_acoustique_murs', inputSelector: '[data-bruxelles-prime-card-target="inputIsolationAcoustique"]', resultSelector: '[data-bruxelles-prime-card-target="resultIsolationAcoustique"]' }
+        ]
+
+      case 'bruxelles_prime_g_global':
+        // Prime G - Portes & fenêtres (4 primes)
+        return [
+          { slug: 'bruxelles_remplacement_fenetres_bois', inputSelector: '[data-bruxelles-prime-card-target="inputFenetresBois"]', resultSelector: '[data-bruxelles-prime-card-target="resultFenetresBois"]' },
+          { slug: 'bruxelles_remplacement_fenetres_pvc_alu', inputSelector: '[data-bruxelles-prime-card-target="inputFenetresPvcAlu"]', resultSelector: '[data-bruxelles-prime-card-target="resultFenetresPvcAlu"]' },
+          { slug: 'bruxelles_reparation_fenetres', inputSelector: '[data-bruxelles-prime-card-target="inputReparationFenetres"]', resultSelector: '[data-bruxelles-prime-card-target="resultReparationFenetres"]' },
+          { slug: 'bruxelles_reparation_portes', inputSelector: '[data-bruxelles-prime-card-target="inputReparationPortes"]', resultSelector: '[data-bruxelles-prime-card-target="resultReparationPortes"]' }
+        ]
+
+      case 'bruxelles_prime_h_global':
+        // Prime H - Sols & planchers (2 primes)
+        return [
+          { slug: 'bruxelles_isolation_thermique_sols', inputSelector: '[data-bruxelles-prime-card-target="inputIsolationThermiqueSols"]', resultSelector: '[data-bruxelles-prime-card-target="resultIsolationThermiqueSols"]' },
+          { slug: 'bruxelles_isolation_acoustique_sols', inputSelector: '[data-bruxelles-prime-card-target="inputIsolationAcoustiqueSols"]', resultSelector: '[data-bruxelles-prime-card-target="resultIsolationAcoustiqueSols"]' }
+        ]
+
+      case 'bruxelles_prime_i_global':
+        // Prime I - Aménagement intérieur (4 primes)
+        return [
+          { slug: 'bruxelles_escaliers', inputSelector: '[data-bruxelles-prime-card-target="inputEscaliers"]', resultSelector: '[data-bruxelles-prime-card-target="resultEscaliers"]' },
+          { slug: 'bruxelles_emplacement_velo', inputSelector: '[data-bruxelles-prime-card-target="inputEmplacementVelo"]', resultSelector: '[data-bruxelles-prime-card-target="resultEmplacementVelo"]' },
+          { slug: 'bruxelles_protection_incendie', inputSelector: '[data-bruxelles-prime-card-target="inputProtectionIncendie"]', resultSelector: '[data-bruxelles-prime-card-target="resultProtectionIncendie"]' },
+          { slug: 'bruxelles_amenagement_pmr', inputSelector: '[data-bruxelles-prime-card-target="inputAmenagementPmr"]', resultSelector: '[data-bruxelles-prime-card-target="resultAmenagementPmr"]' }
+        ]
+
+      case 'bruxelles_prime_j_global':
+        // Prime J - Chauffage et chauffe-eau
+        return [
+          { slug: 'bruxelles_pac_chauffage', inputSelector: '[data-bruxelles-prime-card-target="inputPacChauffage"]', resultSelector: '[data-bruxelles-prime-card-target="resultPacChauffage"]' },
+          { slug: 'bruxelles_radiateurs_basse_temperature', inputSelector: '[data-bruxelles-prime-card-target="inputRadiateursBT"]', resultSelector: '[data-bruxelles-prime-card-target="resultRadiateursBT"]' },
+          { slug: 'bruxelles_regulation_thermique', inputSelector: '[data-bruxelles-prime-card-target="inputRegulationThermique"]', resultSelector: '[data-bruxelles-prime-card-target="resultRegulationThermique"]' },
+          { slug: 'bruxelles_chauffe_eau_solaire', inputSelector: '[data-bruxelles-prime-card-target="inputChauffeEauSolaire"]', resultSelector: '[data-bruxelles-prime-card-target="resultChauffeEauSolaire"]' },
+          { slug: 'bruxelles_chauffe_eau_pac', inputSelector: '[data-bruxelles-prime-card-target="inputChauffeEauPac"]', resultSelector: '[data-bruxelles-prime-card-target="resultChauffeEauPac"]' },
+          { slug: 'bruxelles_raccordement_reseau_chaleur', inputSelector: '[data-bruxelles-prime-card-target="inputRaccordementReseau"]', resultSelector: '[data-bruxelles-prime-card-target="resultRaccordementReseau"]' }
+        ]
+
+      case 'bruxelles_prime_kl_global':
+        // Prime KL - Sanitaires et électricité
+        return [
+          { slug: 'bruxelles_appareil_sanitaire', inputSelector: '[data-bruxelles-prime-card-target="inputAppareilSanitaire"]', resultSelector: '[data-bruxelles-prime-card-target="resultAppareilSanitaire"]' },
+          { slug: 'bruxelles_mise_normes_electricite_gaz', inputSelector: '[data-bruxelles-prime-card-target="inputMiseNormesElecGaz"]', resultSelector: '[data-bruxelles-prime-card-target="resultMiseNormesElecGaz"]' }
+        ]
+
+      case 'bruxelles_prime_m_global':
+        // Prime M - Ventilation
+        return [
+          { slug: 'bruxelles_ventilation_systeme_c', inputSelector: '[data-bruxelles-prime-card-target="inputVentilationC"]', resultSelector: '[data-bruxelles-prime-card-target="resultVentilationC"]' },
+          { slug: 'bruxelles_ventilation_systeme_d', inputSelector: '[data-bruxelles-prime-card-target="inputVentilationD"]', resultSelector: '[data-bruxelles-prime-card-target="resultVentilationD"]' }
+        ]
+
+      // Prime B (protection échafaudages) est une prime simple, pas composite
+      // Prime Z (bonus) retirée temporairement
+      default:
+        return []
     }
   }
 
@@ -299,14 +379,6 @@ export default class extends Controller {
       setTimeout(() => {
         this.totalTarget.classList.remove('updated')
       }, 300)
-    }
-  }
-
-  notifyParent() {
-    // Notifier le contrôleur parent qu'une carte a été mise à jour
-    const parentController = this.getParentController()
-    if (parentController && parentController.cardUpdated) {
-      parentController.cardUpdated()
     }
   }
 
@@ -328,7 +400,7 @@ export default class extends Controller {
     this.calculate()
   }
 
-  // Actions pour les événements de changement
+  // Actions pour les événements de changement (compatibilité)
   calculateAudit() { this.calculate() }
   calculateToiture() { this.calculate() }
   calculateIsolation() { this.calculate() }

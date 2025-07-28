@@ -1,5 +1,20 @@
 <!-- Section Primes Bruxelles RENOLUTION - 13 cartes principales par catégorie -->
 <div class="primes-section-bruxelles" data-controller="bruxelles-prime-calcul">
+
+  <!-- Injection des données de primes depuis la base de données -->
+  <script id="bruxelles-primes-data" type="application/json">
+    <%= raw Prime.where(region: "bruxelles").map { |prime|
+      [prime.slug, {
+        nom: prime.titre,
+        valeurs_par_categorie: {
+          "bruxelles_cat1" => prime.valeurs_par_categorie&.dig("bruxelles_cat1") || {},
+          "bruxelles_cat2" => prime.valeurs_par_categorie&.dig("bruxelles_cat2") || {},
+          "bruxelles_cat3" => prime.valeurs_par_categorie&.dig("bruxelles_cat3") || {}
+        }
+      }]
+    }.to_h.to_json %>
+  </script>
+
   <div class="card border-0 shadow-sm mb-4">
     <div class="card-header bg-success bg-opacity-10">
       <h4 class="card-title mb-0">
@@ -13,11 +28,25 @@
       </p>
     </div>
     <div class="card-body">
-      <div class="row g-4">
+
+      <!-- Total général des primes -->
+      <div class="alert alert-info d-flex justify-content-between align-items-center mb-4">
+        <span class="fw-bold">
+          <i class="bi bi-calculator-fill me-2"></i>
+          Total estimé de vos primes Bruxelles :
+        </span>
+        <span class="badge bg-primary fs-5" data-bruxelles-prime-calcul-target="totalGeneral">
+          0 €
+        </span>
+      </div>
+
+      <div class="row g-3">
 
         <!-- CARTE 1: SERVICES ET ÉTUDES PRÉALABLES (PRIME A) -->
-        <div class="col-lg-4 col-md-6">
-          <div class="card border-0 shadow-sm h-100" data-controller="bruxelles-prime-card" data-category="prime-a">
+        <div class="col-lg-6 col-md-6">
+          <div class="card border-0 shadow-sm h-100"
+               data-controller="bruxelles-prime-card"
+               data-bruxelles-prime-card-slug-value="bruxelles_prime_a_global">
             <div class="card-body">
               <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -29,80 +58,111 @@
                 </div>
               </div>
 
-              <!-- Audit énergétique maison -->
-              <div class="mb-2">
-                <label class="form-label small">Audit énergétique maison :</label>
-                <select class="form-select form-select-sm"
-                        data-bruxelles-prime-card-target="auditMaison"
-                        data-action="change->bruxelles-prime-card#calculate">
-                  <option value="0">Non</option>
-                  <option value="1">Oui</option>
-                </select>
+              <div class="row g-2">
+                <!-- Audit énergétique maison -->
+                <div class="col-md-6">
+                  <label class="form-label small">Audit maison :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-bruxelles-prime-card-target="inputAuditMaison"
+                            data-action="change->bruxelles-prime-card#calculate">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-primary text-white"
+                          data-bruxelles-prime-card-target="resultAuditMaison">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Audit énergétique bâtiment -->
+                <div class="col-md-6">
+                  <label class="form-label small">Audit bâtiment :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-bruxelles-prime-card-target="inputAuditBatiment"
+                            data-action="change->bruxelles-prime-card#calculate">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-primary text-white"
+                          data-bruxelles-prime-card-target="resultAuditBatiment">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Certificat PEB -->
+                <div class="col-md-6">
+                  <label class="form-label small">Certificat PEB :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-bruxelles-prime-card-target="inputCertificatPeb"
+                            data-action="change->bruxelles-prime-card#calculate">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-primary text-white"
+                          data-bruxelles-prime-card-target="resultCertificatPeb">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Étude acoustique -->
+                <div class="col-md-6">
+                  <label class="form-label small">Étude acoustique :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-bruxelles-prime-card-target="inputEtudeAcoustique"
+                            data-action="change->bruxelles-prime-card#calculate">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-primary text-white"
+                          data-bruxelles-prime-card-target="resultEtudeAcoustique">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Étude TOTEM -->
+                <div class="col-md-6">
+                  <label class="form-label small">Étude TOTEM :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-bruxelles-prime-card-target="inputEtudeTotem"
+                            data-action="change->bruxelles-prime-card#calculate">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-primary text-white"
+                          data-bruxelles-prime-card-target="resultEtudeTotem">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Suivi professionnel -->
+                <div class="col-md-6">
+                  <label class="form-label small">Suivi professionnel :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="Montant €"
+                           data-bruxelles-prime-card-target="inputSuiviProfessionnel"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-primary text-white"
+                          data-bruxelles-prime-card-target="resultSuiviProfessionnel">0 €</span>
+                  </div>
+                </div>
               </div>
 
-              <!-- Audit énergétique bâtiment -->
-              <div class="mb-2">
-                <label class="form-label small">Audit énergétique bâtiment :</label>
-                <select class="form-select form-select-sm"
-                        data-bruxelles-prime-card-target="auditBatiment"
-                        data-action="change->bruxelles-prime-card#calculate">
-                  <option value="0">Non</option>
-                  <option value="1">Oui</option>
-                </select>
-              </div>
-
-              <!-- Étude acoustique -->
-              <div class="mb-2">
-                <label class="form-label small">Étude acoustique (% isolation F6-H2) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Montant isolation F6-H2"
-                       data-bruxelles-prime-card-target="etudeAcoustique"
-                       data-action="input->bruxelles-prime-card#calculate">
-              </div>
-
-              <!-- Étude TOTEM -->
-              <div class="mb-2">
-                <label class="form-label small">Étude TOTEM :</label>
-                <select class="form-select form-select-sm"
-                        data-bruxelles-prime-card-target="etudeTotem"
-                        data-action="change->bruxelles-prime-card#calculate">
-                  <option value="0">Non</option>
-                  <option value="1">Oui</option>
-                </select>
-              </div>
-
-              <!-- Suivi professionnel -->
-              <div class="mb-2">
-                <label class="form-label small">Suivi professionnel (honoraires €) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Montant honoraires"
-                       data-bruxelles-prime-card-target="suiviProfessionnel"
-                       data-action="input->bruxelles-prime-card#calculate">
-              </div>
-
-              <!-- Certificat PEB (cat Z3 uniquement) -->
-              <div class="mb-3">
-                <label class="form-label small">Certificat PEB (catégorie Z3 seulement) :</label>
-                <select class="form-select form-select-sm"
-                        data-bruxelles-prime-card-target="certificatPeb"
-                        data-action="change->bruxelles-prime-card#calculate">
-                  <option value="0">Non</option>
-                  <option value="1">Oui</option>
-                </select>
-              </div>
-
-              <!-- Résultat -->
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted small">Prime calculée :</span>
-                <span class="badge bg-primary fs-6" data-bruxelles-prime-card-target="resultA">
-                  0 €
-                </span>
+              <!-- Total Services et études -->
+              <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong class="text-primary">Total Services :</strong>
+                  <span class="badge bg-primary fs-6" data-bruxelles-prime-card-target="total">
+                    0 €
+                  </span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-
-        <!-- CARTE 2: INSTALLATIONS DE CHANTIER (PRIME B) -->
-        <div class="col-lg-4 col-md-6">
-          <div class="card border-0 shadow-sm h-100" data-controller="bruxelles-prime-card" data-category="prime-b">
+        </div>        <!-- CARTE 2: INSTALLATIONS DE CHANTIER (PRIME B) -->
+        <div class="col-lg-3 col-md-6">
+          <div class="card border-0 shadow-sm h-100"
+               data-controller="bruxelles-prime-card"
+               data-bruxelles-prime-card-slug-value="bruxelles_prime_b_global">
             <div class="card-body">
               <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -117,25 +177,33 @@
               <!-- Protection/échafaudages -->
               <div class="mb-3">
                 <label class="form-label small">Protection/échafaudages (m²) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Surface en m²"
-                       data-bruxelles-prime-card-target="protectionEchafaudage"
-                       data-action="input->bruxelles-prime-card#calculate">
+                <div class="input-group input-group-sm">
+                  <input type="number" class="form-control" placeholder="Surface m²"
+                         data-bruxelles-prime-card-target="inputProtectionEchafaudages"
+                         data-action="input->bruxelles-prime-card#calculate">
+                  <span class="input-group-text bg-warning text-white"
+                        data-bruxelles-prime-card-target="resultProtectionEchafaudages">0 €</span>
+                </div>
               </div>
 
-              <!-- Résultat -->
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted small">Prime calculée :</span>
-                <span class="badge bg-warning fs-6" data-bruxelles-prime-card-target="resultB">
-                  0 €
-                </span>
+              <!-- Total Installations -->
+              <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong class="text-warning">Total Installations :</strong>
+                  <span class="badge bg-warning fs-6" data-bruxelles-prime-card-target="total">
+                    0 €
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- CARTE 3: GROS-ŒUVRE & GESTION DE L'EAU (PRIME C) -->
-        <div class="col-lg-4 col-md-6">
-          <div class="card border-0 shadow-sm h-100" data-controller="bruxelles-prime-card" data-category="prime-c">
+        <div class="col-lg-3 col-md-6">
+          <div class="card border-0 shadow-sm h-100"
+               data-controller="bruxelles-prime-card"
+               data-bruxelles-prime-card-slug-value="bruxelles_prime_c_global">
             <div class="card-body">
               <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -147,47 +215,80 @@
                 </div>
               </div>
 
-              <!-- Structures portantes -->
-              <div class="mb-2">
-                <label class="form-label small">Structures portantes (montant €) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Montant facturé"
-                       data-bruxelles-prime-card-target="structuresPortantes"
-                       data-action="input->bruxelles-prime-card#calculate">
+              <div class="row g-2">
+                <!-- Structures portantes -->
+                <div class="col-md-6">
+                  <label class="form-label small">Structure portante :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="Montant €"
+                           data-bruxelles-prime-card-target="inputStructurePortante"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-info text-white"
+                          data-bruxelles-prime-card-target="resultStructurePortante">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Gestion égouts -->
+                <div class="col-md-6">
+                  <label class="form-label small">Gestion égouts :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-bruxelles-prime-card-target="inputGestionEgouts"
+                            data-action="change->bruxelles-prime-card#calculate">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-info text-white"
+                          data-bruxelles-prime-card-target="resultGestionEgouts">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Récupération eau de pluie -->
+                <div class="col-md-6">
+                  <label class="form-label small">Récup. eau pluie :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-bruxelles-prime-card-target="inputRecuperationEauPluie"
+                            data-action="change->bruxelles-prime-card#calculate">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-info text-white"
+                          data-bruxelles-prime-card-target="resultRecuperationEauPluie">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Démolition perméabilisation -->
+                <div class="col-md-6">
+                  <label class="form-label small">Démol. perméabil. :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputDemolitionPermeabilisation"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-info text-white"
+                          data-bruxelles-prime-card-target="resultDemolitionPermeabilisation">0 €</span>
+                  </div>
+                </div>
               </div>
 
-              <!-- Récupération eau de pluie -->
-              <div class="mb-2">
-                <label class="form-label small">Récupération eau de pluie :</label>
-                <select class="form-select form-select-sm"
-                        data-bruxelles-prime-card-target="recuperationEau"
-                        data-action="change->bruxelles-prime-card#calculate">
-                  <option value="0">Non</option>
-                  <option value="1">Oui</option>
-                </select>
-              </div>
-
-              <!-- Démolition perméabilisation -->
-              <div class="mb-3">
-                <label class="form-label small">Démolition perméabilisation (m²) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Surface en m²"
-                       data-bruxelles-prime-card-target="demolitionPermeabilisation"
-                       data-action="input->bruxelles-prime-card#calculate">
-              </div>
-
-              <!-- Résultat -->
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted small">Prime calculée :</span>
-                <span class="badge bg-info fs-6" data-bruxelles-prime-card-target="resultC">
-                  0 €
-                </span>
+              <!-- Total Gros-œuvre -->
+              <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong class="text-info">Total Gros-œuvre :</strong>
+                  <span class="badge bg-info fs-6" data-bruxelles-prime-card-target="total">
+                    0 €
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- CARTE 4: SALUBRITÉ (PRIME D) -->
-        <div class="col-lg-4 col-md-6">
-          <div class="card border-0 shadow-sm h-100" data-controller="bruxelles-prime-card" data-category="prime-d">
+        <div class="col-lg-3 col-md-6">
+          <div class="card border-0 shadow-sm h-100"
+               data-controller="bruxelles-prime-card"
+               data-bruxelles-prime-card-slug-value="bruxelles_prime_d_global">
             <div class="card-body">
               <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -199,36 +300,50 @@
                 </div>
               </div>
 
-              <!-- Traitement humidité sol -->
-              <div class="mb-2">
-                <label class="form-label small">Traitement humidité sol (montant €) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Montant facturé"
-                       data-bruxelles-prime-card-target="traitementHumidite"
-                       data-action="input->bruxelles-prime-card#calculate">
+              <div class="row g-2">
+                <!-- Traitement humidité sol -->
+                <div class="col-md-12">
+                  <label class="form-label small">Traitement humidité sol :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="Montant €"
+                           data-bruxelles-prime-card-target="inputTraitementHumiditeSol"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-danger text-white"
+                          data-bruxelles-prime-card-target="resultTraitementHumiditeSol">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Traitement fongique/insectes -->
+                <div class="col-md-12">
+                  <label class="form-label small">Traitement champignons/insectes :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="Montant €"
+                           data-bruxelles-prime-card-target="inputTraitementFongiqueInsectes"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-danger text-white"
+                          data-bruxelles-prime-card-target="resultTraitementFongiqueInsectes">0 €</span>
+                  </div>
+                </div>
               </div>
 
-              <!-- Traitement fongique/insectes -->
-              <div class="mb-3">
-                <label class="form-label small">Traitement champignons/insectes (montant €) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Montant facturé"
-                       data-bruxelles-prime-card-target="traitementFongique"
-                       data-action="input->bruxelles-prime-card#calculate">
-              </div>
-
-              <!-- Résultat -->
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted small">Prime calculée :</span>
-                <span class="badge bg-danger fs-6" data-bruxelles-prime-card-target="resultD">
-                  0 €
-                </span>
+              <!-- Total Salubrité -->
+              <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong class="text-danger">Total Salubrité :</strong>
+                  <span class="badge bg-danger fs-6" data-bruxelles-prime-card-target="total">
+                    0 €
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- CARTE 5: TOITURE (PRIME E) -->
-        <div class="col-lg-4 col-md-6">
-          <div class="card border-0 shadow-sm h-100" data-controller="bruxelles-prime-card" data-category="prime-e">
+        <div class="col-lg-3 col-md-6">
+          <div class="card border-0 shadow-sm h-100"
+               data-controller="bruxelles-prime-card"
+               data-bruxelles-prime-card-slug-value="bruxelles_prime_e_global">
             <div class="card-body">
               <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -240,60 +355,86 @@
                 </div>
               </div>
 
-              <!-- Structure toiture -->
-              <div class="mb-2">
-                <label class="form-label small">Structure toiture (montant €) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Montant facturé"
-                       data-bruxelles-prime-card-target="structureToiture"
-                       data-action="input->bruxelles-prime-card#calculate">
+              <div class="row g-2">
+                <!-- Structure toiture -->
+                <div class="col-md-6">
+                  <label class="form-label small">Structure toiture :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="Montant €"
+                           data-bruxelles-prime-card-target="inputStructureToiture"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-success text-white"
+                          data-bruxelles-prime-card-target="resultStructureToiture">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Isolation toiture/étanchéité -->
+                <div class="col-md-6">
+                  <label class="form-label small">Isolation/étanchéité :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputIsolationToitureEtancheite"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-success text-white"
+                          data-bruxelles-prime-card-target="resultIsolationToitureEtancheite">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Isolation thermique toiture -->
+                <div class="col-md-6">
+                  <label class="form-label small">Isolation thermique :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputIsolationThermiqueToiture"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-success text-white"
+                          data-bruxelles-prime-card-target="resultIsolationThermiqueToiture">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Accessoires toiture -->
+                <div class="col-md-6">
+                  <label class="form-label small">Accessoires :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="Montant €"
+                           data-bruxelles-prime-card-target="inputAccessoiresToiture"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-success text-white"
+                          data-bruxelles-prime-card-target="resultAccessoiresToiture">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Toiture végétale -->
+                <div class="col-md-12">
+                  <label class="form-label small">Toiture végétale :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputToitureVegetale"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-success text-white"
+                          data-bruxelles-prime-card-target="resultToitureVegetale">0 €</span>
+                  </div>
+                </div>
               </div>
 
-              <!-- Isolation toiture/étanchéité -->
-              <div class="mb-2">
-                <label class="form-label small">Isolation toiture/étanchéité (m²) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Surface en m²"
-                       data-bruxelles-prime-card-target="isolationToitureEtancheite"
-                       data-action="input->bruxelles-prime-card#calculate">
-              </div>
-
-              <!-- Isolation thermique toiture -->
-              <div class="mb-2">
-                <label class="form-label small">Isolation thermique toiture (m²) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Surface en m²"
-                       data-bruxelles-prime-card-target="isolationThermiqueToiture"
-                       data-action="input->bruxelles-prime-card#calculate">
-              </div>
-
-              <!-- Accessoires toiture -->
-              <div class="mb-2">
-                <label class="form-label small">Accessoires toiture (montant €) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Montant facturé"
-                       data-bruxelles-prime-card-target="accessoiresToiture"
-                       data-action="input->bruxelles-prime-card#calculate">
-              </div>
-
-              <!-- Toiture végétale -->
-              <div class="mb-3">
-                <label class="form-label small">Toiture végétale (m²) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Surface en m²"
-                       data-bruxelles-prime-card-target="toitureVegetale"
-                       data-action="input->bruxelles-prime-card#calculate">
-              </div>
-
-              <!-- Résultat -->
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted small">Prime calculée :</span>
-                <span class="badge bg-success fs-6" data-bruxelles-prime-card-target="resultE">
-                  0 €
-                </span>
+              <!-- Total Toiture -->
+              <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong class="text-success">Total Toiture :</strong>
+                  <span class="badge bg-success fs-6" data-bruxelles-prime-card-target="total">
+                    0 €
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- CARTE 6: FAÇADES (PRIME F) -->
-        <div class="col-lg-4 col-md-6">
-          <div class="card border-0 shadow-sm h-100" data-controller="bruxelles-prime-card" data-category="prime-f">
+        <div class="col-lg-6 col-md-12">
+          <div class="card border-0 shadow-sm h-100"
+               data-controller="bruxelles-prime-card"
+               data-bruxelles-prime-card-slug-value="bruxelles_prime_f_global">
             <div class="card-body">
               <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -305,84 +446,122 @@
                 </div>
               </div>
 
-              <!-- Isolation intérieure façade -->
-              <div class="mb-2">
-                <label class="form-label small">Isolation intérieure façade (m²) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Surface en m²"
-                       data-bruxelles-prime-card-target="isolationInterieureFacade"
-                       data-action="input->bruxelles-prime-card#calculate">
+              <div class="row g-2">
+                <!-- Isolation intérieure façade -->
+                <div class="col-lg-4 col-md-6">
+                  <label class="form-label small">Isol. intérieure :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputIsolationInterieure"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-secondary text-white"
+                          data-bruxelles-prime-card-target="resultIsolationInterieure">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Isolation extérieure façade -->
+                <div class="col-lg-4 col-md-6">
+                  <label class="form-label small">Isol. extérieure :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputIsolationExterieure"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-secondary text-white"
+                          data-bruxelles-prime-card-target="resultIsolationExterieure">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Isolation coulisse -->
+                <div class="col-lg-4 col-md-6">
+                  <label class="form-label small">Isol. coulisse :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputIsolationCoulisse"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-secondary text-white"
+                          data-bruxelles-prime-card-target="resultIsolationCoulisse">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Bardage façade -->
+                <div class="col-lg-4 col-md-6">
+                  <label class="form-label small">Bardage façade :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m² (max 100)"
+                           data-bruxelles-prime-card-target="inputBardageFacade"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-secondary text-white"
+                          data-bruxelles-prime-card-target="resultBardageFacade">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Enduit façade -->
+                <div class="col-lg-4 col-md-6">
+                  <label class="form-label small">Enduit façade :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m² (max 100)"
+                           data-bruxelles-prime-card-target="inputEnduitFacade"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-secondary text-white"
+                          data-bruxelles-prime-card-target="resultEnduitFacade">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Embellissement façade avant -->
+                <div class="col-lg-4 col-md-6">
+                  <label class="form-label small">Embellissement avant :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputEmbellissementAvant"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-secondary text-white"
+                          data-bruxelles-prime-card-target="resultEmbellissementAvant">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Façades arrière/latérales -->
+                <div class="col-lg-6 col-md-6">
+                  <label class="form-label small">Façades arrière/latérales :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputFacadesArriere"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-secondary text-white"
+                          data-bruxelles-prime-card-target="resultFacadesArriere">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Isolation acoustique murs -->
+                <div class="col-lg-6 col-md-6">
+                  <label class="form-label small">Isolation acoustique murs :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputIsolationAcoustique"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-secondary text-white"
+                          data-bruxelles-prime-card-target="resultIsolationAcoustique">0 €</span>
+                  </div>
+                </div>
               </div>
 
-              <!-- Isolation extérieure façade -->
-              <div class="mb-2">
-                <label class="form-label small">Isolation extérieure façade (m²) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Surface en m²"
-                       data-bruxelles-prime-card-target="isolationExterieureFacade"
-                       data-action="input->bruxelles-prime-card#calculate">
-              </div>
-
-              <!-- Isolation coulisse -->
-              <div class="mb-2">
-                <label class="form-label small">Isolation coulisse (m²) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Surface en m²"
-                       data-bruxelles-prime-card-target="isolationCoulisse"
-                       data-action="input->bruxelles-prime-card#calculate">
-              </div>
-
-              <!-- Bardage façade -->
-              <div class="mb-2">
-                <label class="form-label small">Bardage façade (m², max 100m²) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Surface en m²"
-                       data-bruxelles-prime-card-target="bardageFacade"
-                       data-action="input->bruxelles-prime-card#calculate">
-              </div>
-
-              <!-- Enduit façade -->
-              <div class="mb-2">
-                <label class="form-label small">Enduit façade (m², max 100m²) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Surface en m²"
-                       data-bruxelles-prime-card-target="enduitFacade"
-                       data-action="input->bruxelles-prime-card#calculate">
-              </div>
-
-              <!-- Embellissement façade avant -->
-              <div class="mb-2">
-                <label class="form-label small">Embellissement façade avant (m²) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Surface en m²"
-                       data-bruxelles-prime-card-target="embellissementFacade"
-                       data-action="input->bruxelles-prime-card#calculate">
-              </div>
-
-              <!-- Façades arrière/latérales -->
-              <div class="mb-2">
-                <label class="form-label small">Façades arrière/latérales (m²) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Surface en m²"
-                       data-bruxelles-prime-card-target="facadesArriere"
-                       data-action="input->bruxelles-prime-card#calculate">
-              </div>
-
-              <!-- Isolation acoustique murs -->
-              <div class="mb-3">
-                <label class="form-label small">Isolation acoustique murs (m²) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Surface en m²"
-                       data-bruxelles-prime-card-target="isolationAcoustiqueMurs"
-                       data-action="input->bruxelles-prime-card#calculate">
-              </div>
-
-              <!-- Résultat -->
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted small">Prime calculée :</span>
-                <span class="badge bg-secondary fs-6" data-bruxelles-prime-card-target="resultF">
-                  0 €
-                </span>
+              <!-- Total Façades -->
+              <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong class="text-secondary">Total Façades :</strong>
+                  <span class="badge bg-secondary fs-6" data-bruxelles-prime-card-target="total">
+                    0 €
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- CARTE 7: PORTES & FENÊTRES (PRIME G) -->
-        <div class="col-lg-4 col-md-6">
-          <div class="card border-0 shadow-sm h-100" data-controller="bruxelles-prime-card" data-category="prime-g">
+        <div class="col-lg-6 col-md-6">
+          <div class="card border-0 shadow-sm h-100"
+               data-controller="bruxelles-prime-card"
+               data-bruxelles-prime-card-slug-value="bruxelles_prime_g_global">
             <div class="card-body">
               <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -394,52 +573,74 @@
                 </div>
               </div>
 
-              <!-- Remplacement fenêtres bois -->
-              <div class="mb-2">
-                <label class="form-label small">Remplacement fenêtres bois (m²) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Surface en m²"
-                       data-bruxelles-prime-card-target="fenetresBois"
-                       data-action="input->bruxelles-prime-card#calculate">
+              <div class="row g-2">
+                <!-- Remplacement fenêtres bois -->
+                <div class="col-md-6">
+                  <label class="form-label small">Fenêtres bois :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputFenetresBois"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-primary text-white"
+                          data-bruxelles-prime-card-target="resultFenetresBois">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Remplacement fenêtres PVC/alu -->
+                <div class="col-md-6">
+                  <label class="form-label small">Fenêtres PVC/alu :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputFenetresPvcAlu"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-primary text-white"
+                          data-bruxelles-prime-card-target="resultFenetresPvcAlu">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Réparation fenêtres -->
+                <div class="col-md-6">
+                  <label class="form-label small">Réparation fenêtres :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputReparationFenetres"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-primary text-white"
+                          data-bruxelles-prime-card-target="resultReparationFenetres">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Réparation portes -->
+                <div class="col-md-6">
+                  <label class="form-label small">Réparation portes :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputReparationPortes"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-primary text-white"
+                          data-bruxelles-prime-card-target="resultReparationPortes">0 €</span>
+                  </div>
+                </div>
               </div>
 
-              <!-- Remplacement fenêtres PVC/alu -->
-              <div class="mb-2">
-                <label class="form-label small">Remplacement fenêtres PVC/alu (m²) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Surface en m²"
-                       data-bruxelles-prime-card-target="fenetresPvcAlu"
-                       data-action="input->bruxelles-prime-card#calculate">
-              </div>
-
-              <!-- Réparation fenêtres -->
-              <div class="mb-2">
-                <label class="form-label small">Réparation fenêtres (m²) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Surface en m²"
-                       data-bruxelles-prime-card-target="reparationFenetres"
-                       data-action="input->bruxelles-prime-card#calculate">
-              </div>
-
-              <!-- Réparation portes -->
-              <div class="mb-3">
-                <label class="form-label small">Réparation portes (m²) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Surface en m²"
-                       data-bruxelles-prime-card-target="reparationPortes"
-                       data-action="input->bruxelles-prime-card#calculate">
-              </div>
-
-              <!-- Résultat -->
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted small">Prime calculée :</span>
-                <span class="badge bg-primary fs-6" data-bruxelles-prime-card-target="resultG">
-                  0 €
-                </span>
+              <!-- Total Portes & Fenêtres -->
+              <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong class="text-primary">Total Menuiseries :</strong>
+                  <span class="badge bg-primary fs-6" data-bruxelles-prime-card-target="total">
+                    0 €
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- CARTE 8: SOLS & PLANCHERS (PRIME H) -->
-        <div class="col-lg-4 col-md-6">
-          <div class="card border-0 shadow-sm h-100" data-controller="bruxelles-prime-card" data-category="prime-h">
+        <div class="col-lg-3 col-md-6">
+          <div class="card border-0 shadow-sm h-100"
+               data-controller="bruxelles-prime-card"
+               data-bruxelles-prime-card-slug-value="bruxelles_prime_h_global">
             <div class="card-body">
               <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="bg-dark bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -451,44 +652,50 @@
                 </div>
               </div>
 
-              <!-- Isolation thermique sols -->
-              <div class="mb-2">
-                <label class="form-label small">Isolation thermique sols (m²) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Surface en m²"
-                       data-bruxelles-prime-card-target="isolationThermiqueSols"
-                       data-action="input->bruxelles-prime-card#calculate">
+              <div class="row g-2">
+                <!-- Isolation thermique sols -->
+                <div class="col-md-12">
+                  <label class="form-label small">Isolation thermique sols :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputIsolationThermiqueSols"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-dark text-white"
+                          data-bruxelles-prime-card-target="resultIsolationThermiqueSols">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Isolation acoustique sols -->
+                <div class="col-md-12">
+                  <label class="form-label small">Isolation acoustique sols :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputIsolationAcoustiqueSols"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-dark text-white"
+                          data-bruxelles-prime-card-target="resultIsolationAcoustiqueSols">0 €</span>
+                  </div>
+                </div>
               </div>
 
-              <!-- Isolation acoustique sols -->
-              <div class="mb-2">
-                <label class="form-label small">Isolation acoustique sols (m²) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Surface en m²"
-                       data-bruxelles-prime-card-target="isolationAcoustiqueSols"
-                       data-action="input->bruxelles-prime-card#calculate">
-              </div>
-
-              <!-- Escaliers -->
-              <div class="mb-3">
-                <label class="form-label small">Escaliers (nombre de marches) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Nombre de marches"
-                       data-bruxelles-prime-card-target="escaliers"
-                       data-action="input->bruxelles-prime-card#calculate">
-              </div>
-
-              <!-- Résultat -->
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted small">Prime calculée :</span>
-                <span class="badge bg-dark fs-6" data-bruxelles-prime-card-target="resultH">
-                  0 €
-                </span>
+              <!-- Total Sols -->
+              <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong class="text-dark">Total Sols :</strong>
+                  <span class="badge bg-dark fs-6" data-bruxelles-prime-card-target="total">
+                    0 €
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- CARTE 9: AMÉNAGEMENT INTÉRIEUR (PRIME I) -->
-        <div class="col-lg-4 col-md-6">
-          <div class="card border-0 shadow-sm h-100" data-controller="bruxelles-prime-card" data-category="prime-i">
+        <div class="col-lg-6 col-md-6">
+          <div class="card border-0 shadow-sm h-100"
+               data-controller="bruxelles-prime-card"
+               data-bruxelles-prime-card-slug-value="bruxelles_prime_i_global">
             <div class="card-body">
               <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -500,36 +707,77 @@
                 </div>
               </div>
 
-              <!-- Emplacement vélo -->
-              <div class="mb-2">
-                <label class="form-label small">Emplacement vélo (nombre, max 2/logement) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Nombre d'emplacements"
-                       data-bruxelles-prime-card-target="emplacementVelo"
-                       data-action="input->bruxelles-prime-card#calculate">
+              <div class="row g-2">
+                <!-- Escaliers -->
+                <div class="col-md-6">
+                  <label class="form-label small">Escaliers :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="Nb marches"
+                           data-bruxelles-prime-card-target="inputEscaliers"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-warning text-white"
+                          data-bruxelles-prime-card-target="resultEscaliers">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Emplacement vélo -->
+                <div class="col-md-6">
+                  <label class="form-label small">Emplacement vélo :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="Nb empl. (max 2)"
+                           data-bruxelles-prime-card-target="inputEmplacementVelo"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-warning text-white"
+                          data-bruxelles-prime-card-target="resultEmplacementVelo">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Protection incendie -->
+                <div class="col-md-6">
+                  <label class="form-label small">Protection incendie :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="Montant €"
+                           data-bruxelles-prime-card-target="inputProtectionIncendie"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-warning text-white"
+                          data-bruxelles-prime-card-target="resultProtectionIncendie">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Aménagement PMR -->
+                <div class="col-md-6">
+                  <label class="form-label small">Aménagement PMR :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-bruxelles-prime-card-target="inputAmenagementPmr"
+                            data-action="change->bruxelles-prime-card#calculate">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-warning text-white"
+                          data-bruxelles-prime-card-target="resultAmenagementPmr">0 €</span>
+                  </div>
+                </div>
               </div>
 
-              <!-- Protection incendie -->
-              <div class="mb-3">
-                <label class="form-label small">Protection incendie (montant €) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Montant facturé"
-                       data-bruxelles-prime-card-target="protectionIncendie"
-                       data-action="input->bruxelles-prime-card#calculate">
-              </div>
-
-              <!-- Résultat -->
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted small">Prime calculée :</span>
-                <span class="badge bg-warning fs-6" data-bruxelles-prime-card-target="resultI">
-                  0 €
-                </span>
+              <!-- Total Aménagement -->
+              <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong class="text-warning">Total Aménagement :</strong>
+                  <span class="badge bg-warning fs-6" data-bruxelles-prime-card-target="total">
+                    0 €
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- CARTE 10: CHAUFFAGE & CHAUFFE-EAU (PRIME J) -->
-        <div class="col-lg-4 col-md-6">
-          <div class="card border-0 shadow-sm h-100" data-controller="bruxelles-prime-card" data-category="prime-j">
+        <div class="col-lg-6 col-md-6">
+          <div class="card border-0 shadow-sm h-100"
+               data-controller="bruxelles-prime-card"
+               data-bruxelles-prime-card-slug-value="bruxelles_prime_j_global">
             <div class="card-body">
               <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -541,83 +789,113 @@
                 </div>
               </div>
 
-              <!-- PAC chauffage -->
-              <div class="mb-2">
-                <label class="form-label small">PAC chauffage :</label>
-                <select class="form-select form-select-sm"
-                        data-bruxelles-prime-card-target="pacChauffage"
-                        data-action="change->bruxelles-prime-card#calculate">
-                  <option value="0">Non</option>
-                  <option value="1">Oui</option>
-                </select>
+              <div class="row g-2">
+                <!-- PAC chauffage -->
+                <div class="col-lg-6 col-md-6">
+                  <label class="form-label small">PAC chauffage :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-bruxelles-prime-card-target="inputPacChauffage"
+                            data-action="change->bruxelles-prime-card#calculate">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-danger text-white"
+                          data-bruxelles-prime-card-target="resultPacChauffage">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Radiateurs basse température -->
+                <div class="col-lg-6 col-md-6">
+                  <label class="form-label small">Radiateurs BT :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="Nombre"
+                           data-bruxelles-prime-card-target="inputRadiateursBT"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-danger text-white"
+                          data-bruxelles-prime-card-target="resultRadiateursBT">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Régulation thermique -->
+                <div class="col-lg-6 col-md-6">
+                  <label class="form-label small">Régulation thermique :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-bruxelles-prime-card-target="inputRegulationThermique"
+                            data-action="change->bruxelles-prime-card#calculate">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-danger text-white"
+                          data-bruxelles-prime-card-target="resultRegulationThermique">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Chauffe-eau solaire -->
+                <div class="col-lg-6 col-md-6">
+                  <label class="form-label small">Chauffe-eau solaire :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-bruxelles-prime-card-target="inputChauffeEauSolaire"
+                            data-action="change->bruxelles-prime-card#calculate">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-danger text-white"
+                          data-bruxelles-prime-card-target="resultChauffeEauSolaire">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Chauffe-eau PAC -->
+                <div class="col-lg-6 col-md-6">
+                  <label class="form-label small">Chauffe-eau PAC :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-bruxelles-prime-card-target="inputChauffeEauPac"
+                            data-action="change->bruxelles-prime-card#calculate">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-danger text-white"
+                          data-bruxelles-prime-card-target="resultChauffeEauPac">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Raccordement réseau chaleur -->
+                <div class="col-lg-6 col-md-6">
+                  <label class="form-label small">Raccordement réseau :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-bruxelles-prime-card-target="inputRaccordementReseau"
+                            data-action="change->bruxelles-prime-card#calculate">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-danger text-white"
+                          data-bruxelles-prime-card-target="resultRaccordementReseau">0 €</span>
+                  </div>
+                </div>
               </div>
 
-              <!-- Radiateurs basse température -->
-              <div class="mb-2">
-                <label class="form-label small">Radiateurs basse température (nombre) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Nombre de radiateurs"
-                       data-bruxelles-prime-card-target="radiateursBT"
-                       data-action="input->bruxelles-prime-card#calculate">
-              </div>
-
-              <!-- Régulation thermique -->
-              <div class="mb-2">
-                <label class="form-label small">Régulation thermique :</label>
-                <select class="form-select form-select-sm"
-                        data-bruxelles-prime-card-target="regulationThermique"
-                        data-action="change->bruxelles-prime-card#calculate">
-                  <option value="0">Non</option>
-                  <option value="1">Oui</option>
-                </select>
-              </div>
-
-              <!-- Chauffe-eau solaire -->
-              <div class="mb-2">
-                <label class="form-label small">Chauffe-eau solaire :</label>
-                <select class="form-select form-select-sm"
-                        data-bruxelles-prime-card-target="chauffeEauSolaire"
-                        data-action="change->bruxelles-prime-card#calculate">
-                  <option value="0">Non</option>
-                  <option value="1">Oui</option>
-                </select>
-              </div>
-
-              <!-- Chauffe-eau PAC -->
-              <div class="mb-2">
-                <label class="form-label small">Chauffe-eau PAC :</label>
-                <select class="form-select form-select-sm"
-                        data-bruxelles-prime-card-target="chauffeEauPac"
-                        data-action="change->bruxelles-prime-card#calculate">
-                  <option value="0">Non</option>
-                  <option value="1">Oui</option>
-                </select>
-              </div>
-
-              <!-- Raccordement réseau chaleur -->
-              <div class="mb-3">
-                <label class="form-label small">Raccordement réseau chaleur :</label>
-                <select class="form-select form-select-sm"
-                        data-bruxelles-prime-card-target="raccordementReseau"
-                        data-action="change->bruxelles-prime-card#calculate">
-                  <option value="0">Non</option>
-                  <option value="1">Oui</option>
-                </select>
-              </div>
-
-              <!-- Résultat -->
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted small">Prime calculée :</span>
-                <span class="badge bg-danger fs-6" data-bruxelles-prime-card-target="resultJ">
-                  0 €
-                </span>
+              <!-- Total Chauffage -->
+              <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong class="text-danger">Total Chauffage :</strong>
+                  <span class="badge bg-danger fs-6" data-bruxelles-prime-card-target="total">
+                    0 €
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- CARTE 11: SANITAIRES & ÉLECTRICITÉ (PRIMES K+L) -->
-        <div class="col-lg-4 col-md-6">
-          <div class="card border-0 shadow-sm h-100" data-controller="bruxelles-prime-card" data-category="prime-kl">
+        <div class="col-lg-3 col-md-6">
+          <div class="card border-0 shadow-sm h-100"
+               data-controller="bruxelles-prime-card"
+               data-bruxelles-prime-card-slug-value="bruxelles_prime_kl_global">
             <div class="card-body">
               <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -629,39 +907,53 @@
                 </div>
               </div>
 
-              <!-- Appareil sanitaire -->
-              <div class="mb-2">
-                <label class="form-label small">Appareil sanitaire (nombre) :</label>
-                <input type="number" class="form-control form-control-sm" placeholder="Nombre d'appareils"
-                       data-bruxelles-prime-card-target="appareilSanitaire"
-                       data-action="input->bruxelles-prime-card#calculate">
+              <div class="row g-2">
+                <!-- Appareil sanitaire -->
+                <div class="col-md-12">
+                  <label class="form-label small">Appareil sanitaire :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="Nombre"
+                           data-bruxelles-prime-card-target="inputAppareilSanitaire"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-info text-white"
+                          data-bruxelles-prime-card-target="resultAppareilSanitaire">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Mise aux normes électricité/gaz -->
+                <div class="col-md-12">
+                  <label class="form-label small">Mise aux normes élec./gaz :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-bruxelles-prime-card-target="inputMiseNormesElecGaz"
+                            data-action="change->bruxelles-prime-card#calculate">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-info text-white"
+                          data-bruxelles-prime-card-target="resultMiseNormesElecGaz">0 €</span>
+                  </div>
+                </div>
               </div>
 
-              <!-- Mise aux normes électricité/gaz -->
-              <div class="mb-3">
-                <label class="form-label small">Mise aux normes électricité/gaz :</label>
-                <select class="form-select form-select-sm"
-                        data-bruxelles-prime-card-target="miseNormesElecGaz"
-                        data-action="change->bruxelles-prime-card#calculate">
-                  <option value="0">Non</option>
-                  <option value="1">Oui</option>
-                </select>
-              </div>
-
-              <!-- Résultat -->
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted small">Prime calculée :</span>
-                <span class="badge bg-info fs-6" data-bruxelles-prime-card-target="resultKL">
-                  0 €
-                </span>
+              <!-- Total Sanitaires -->
+              <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong class="text-info">Total Sanitaires :</strong>
+                  <span class="badge bg-info fs-6" data-bruxelles-prime-card-target="total">
+                    0 €
+                  </span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- CARTE 12: VENTILATION (PRIME M) -->
-        <div class="col-lg-4 col-md-6">
-          <div class="card border-0 shadow-sm h-100" data-controller="bruxelles-prime-card" data-category="prime-m">
+        <div class="col-lg-3 col-md-6">
+          <div class="card border-0 shadow-sm h-100"
+               data-controller="bruxelles-prime-card"
+               data-bruxelles-prime-card-slug-value="bruxelles_prime_m_global">
             <div class="card-body">
               <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -673,158 +965,46 @@
                 </div>
               </div>
 
-              <!-- Ventilation système C -->
-              <div class="mb-2">
-                <label class="form-label small">Ventilation système C :</label>
-                <select class="form-select form-select-sm"
-                        data-bruxelles-prime-card-target="ventilationC"
-                        data-action="change->bruxelles-prime-card#calculate">
-                  <option value="0">Non</option>
-                  <option value="1">Oui</option>
-                </select>
-              </div>
-
-              <!-- Ventilation système D -->
-              <div class="mb-3">
-                <label class="form-label small">Ventilation système D :</label>
-                <select class="form-select form-select-sm"
-                        data-bruxelles-prime-card-target="ventilationD"
-                        data-action="change->bruxelles-prime-card#calculate">
-                  <option value="0">Non</option>
-                  <option value="1">Oui</option>
-                </select>
-              </div>
-
-              <!-- Résultat -->
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted small">Prime calculée :</span>
-                <span class="badge bg-success fs-6" data-bruxelles-prime-card-target="resultM">
-                  0 €
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- CARTE 13: BONUS RENOLUTION (PRIME Z) -->
-        <div class="col-lg-4 col-md-6">
-          <div class="card border-0 shadow-sm h-100" data-controller="bruxelles-prime-card" data-category="prime-z">
-            <div class="card-body">
-              <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                  <i class="bi bi-star fs-5 text-primary"></i>
+              <div class="row g-2">
+                <!-- Ventilation système C -->
+                <div class="col-md-12">
+                  <label class="form-label small">Ventilation système C :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-bruxelles-prime-card-target="inputVentilationC"
+                            data-action="change->bruxelles-prime-card#calculate">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-success text-white"
+                          data-bruxelles-prime-card-target="resultVentilationC">0 €</span>
+                  </div>
                 </div>
-                <div>
-                  <h6 class="card-title mb-1">Bonus RENOLUTION</h6>
-                  <small class="text-muted">Bonus combinaisons travaux</small>
+
+                <!-- Ventilation système D -->
+                <div class="col-md-12">
+                  <label class="form-label small">Ventilation système D :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-bruxelles-prime-card-target="inputVentilationD"
+                            data-action="change->bruxelles-prime-card#calculate">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-success text-white"
+                          data-bruxelles-prime-card-target="resultVentilationD">0 €</span>
+                  </div>
                 </div>
               </div>
 
-              <!-- Bonus Z1 -->
-              <div class="mb-2">
-                <label class="form-label small">Bonus Z1 (audit + isolation toiture) :</label>
-                <select class="form-select form-select-sm"
-                        data-bruxelles-prime-card-target="bonusZ1"
-                        data-action="change->bruxelles-prime-card#calculate">
-                  <option value="0">Non</option>
-                  <option value="1">Oui</option>
-                </select>
-              </div>
-
-              <!-- Bonus Z2 -->
-              <div class="mb-2">
-                <label class="form-label small">Bonus Z2 (audit + isolation murs) :</label>
-                <select class="form-select form-select-sm"
-                        data-bruxelles-prime-card-target="bonusZ2"
-                        data-action="change->bruxelles-prime-card#calculate">
-                  <option value="0">Non</option>
-                  <option value="1">Oui</option>
-                </select>
-              </div>
-
-              <!-- Bonus Z3 -->
-              <div class="mb-2">
-                <label class="form-label small">Bonus Z3 (audit + isolation sols) :</label>
-                <select class="form-select form-select-sm"
-                        data-bruxelles-prime-card-target="bonusZ3"
-                        data-action="change->bruxelles-prime-card#calculate">
-                  <option value="0">Non</option>
-                  <option value="1">Oui</option>
-                </select>
-              </div>
-
-              <!-- Bonus Z4 -->
-              <div class="mb-2">
-                <label class="form-label small">Bonus Z4 (audit + remplacement fenêtres) :</label>
-                <select class="form-select form-select-sm"
-                        data-bruxelles-prime-card-target="bonusZ4"
-                        data-action="change->bruxelles-prime-card#calculate">
-                  <option value="0">Non</option>
-                  <option value="1">Oui</option>
-                </select>
-              </div>
-
-              <!-- Bonus Z5 -->
-              <div class="mb-2">
-                <label class="form-label small">Bonus Z5 (audit + PAC) :</label>
-                <select class="form-select form-select-sm"
-                        data-bruxelles-prime-card-target="bonusZ5"
-                        data-action="change->bruxelles-prime-card#calculate">
-                  <option value="0">Non</option>
-                  <option value="1">Oui</option>
-                </select>
-              </div>
-
-              <!-- Bonus Z6 -->
-              <div class="mb-2">
-                <label class="form-label small">Bonus Z6 (audit + ventilation D) :</label>
-                <select class="form-select form-select-sm"
-                        data-bruxelles-prime-card-target="bonusZ6"
-                        data-action="change->bruxelles-prime-card#calculate">
-                  <option value="0">Non</option>
-                  <option value="1">Oui</option>
-                </select>
-              </div>
-
-              <!-- Bonus Z7 -->
-              <div class="mb-2">
-                <label class="form-label small">Bonus Z7 (rénovation globale) :</label>
-                <select class="form-select form-select-sm"
-                        data-bruxelles-prime-card-target="bonusZ7"
-                        data-action="change->bruxelles-prime-card#calculate">
-                  <option value="0">Non</option>
-                  <option value="1">Oui</option>
-                </select>
-              </div>
-
-              <!-- Bonus Z9 -->
-              <div class="mb-2">
-                <label class="form-label small">Bonus Z9 (rénovation lourde) :</label>
-                <select class="form-select form-select-sm"
-                        data-bruxelles-prime-card-target="bonusZ9"
-                        data-action="change->bruxelles-prime-card#calculate">
-                  <option value="0">Non</option>
-                  <option value="1">Oui</option>
-                </select>
-              </div>
-
-              <!-- Bonus Z10 -->
-              <div class="mb-3">
-                <label class="form-label small">Bonus Z10 (logement social) :</label>
-                <select class="form-select form-select-sm"
-                        data-bruxelles-prime-card-target="bonusZ10"
-                        data-action="change->bruxelles-prime-card#calculate">
-                  <option value="0">Non</option>
-                  <option value="1">Oui</option>
-                </select>
-              </div>
-
-              <!-- Résultat -->
-              <div class="d-flex justify-content-between align-items-center">
-                <span class="text-muted small">Prime calculée :</span>
-                <span class="badge bg-primary fs-6" data-bruxelles-prime-card-target="resultZ">
-                  0 €
-                </span>
+              <!-- Total Ventilation -->
+              <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong class="text-success">Total Ventilation :</strong>
+                  <span class="badge bg-success fs-6" data-bruxelles-prime-card-target="total">
+                    0 €
+                  </span>
+                </div>
               </div>
             </div>
           </div>
