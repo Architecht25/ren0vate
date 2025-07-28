@@ -664,42 +664,73 @@ export default class extends Controller {
 
     const form = this.formTarget;
     const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+    const inputValues = [...form.querySelectorAll("input[type=number]")];
 
     const testData = responses.reduce((acc, response) => {
       acc[response.name] = response.value;
       return acc;
     }, {});
 
+    // Ajouter les valeurs numériques
+    inputValues.forEach(input => {
+      if (input.value) {
+        testData[input.name] = input.value;
+      }
+    });
+
     localStorage.setItem("eligibiliteBruxellesParticulier", JSON.stringify(testData));
+
+    // Gestion des alertes conditionnelles
+    this.handleConditionalAlerts(event.target.name, event.target.value);
 
     // Vérification immédiate des cas d'inéligibilité Bruxelles Particulier
     const localisation = testData["localisation"];
     if (localisation === "non") {
-      this.showResult("❌ Le logement doit être situé en Région de Bruxelles-Capitale", false);
-      return;
-    }
-
-    const proprietaire = testData["proprietaire"];
-    if (proprietaire === "non") {
-      this.showResult("❌ Vous devez être propriétaire du logement pour bénéficier des primes", false);
-      return;
-    }
-
-    const residence_principale = testData["residence_principale"];
-    if (residence_principale === "non") {
-      this.showResult("❌ Le logement doit être votre résidence principale", false);
+      this.showResult("❌ Le bien concerné par la demande doit être situé en Région de Bruxelles-Capitale", false);
       return;
     }
 
     const age_batiment = testData["age_batiment"];
     if (age_batiment === "non") {
-      this.showResult("❌ Le bâtiment doit avoir été construit il y a plus de 10 ans", false);
+      this.showResult("❌ Le bâtiment doit être âgé d'au moins 10 ans", false);
+      return;
+    }
+
+    const professionnel_agree = testData["professionnel_agree"];
+    if (professionnel_agree === "non") {
+      this.showResult("❌ Les travaux doivent être réalisés par un professionnel inscrit à la Banque Carrefour des Entreprises qui dispose de l'accès réglementé à la profession", false);
+      return;
+    }
+
+    const nouvelle_construction = testData["nouvelle_construction"];
+    if (nouvelle_construction === "oui") {
+      this.showResult("❌ Les nouvelles constructions ou ajouts considérés comme nouvelle construction ne sont pas éligibles", false);
       return;
     }
 
     const compte_belge = testData["compte_belge"];
     if (compte_belge === "non") {
-      this.showResult("❌ Un compte bancaire belge est requis pour le versement des primes", false);
+      this.showResult("❌ Un compte bancaire belge est requis pour le virement de la prime", false);
+      return;
+    }
+
+    const travaux_realises = testData["travaux_realises"];
+    if (travaux_realises === "non") {
+      this.showResult("❌ Les travaux doivent être réalisés avec une facture de solde émise dans les 12 mois précédant la demande", false);
+      return;
+    }
+
+    // Vérification appartement + parties communes
+    const proprietaire_appartement = testData["proprietaire_appartement"];
+    const parties_communes = testData["parties_communes"];
+    if (proprietaire_appartement === "oui" && parties_communes === "oui") {
+      this.showResult("❌ Pour les travaux concernant les parties communes d'un immeuble, la demande doit être faite au nom de l'ACP (Association des Copropriétaires)", false);
+      return;
+    }
+
+    const domiciliation = testData["domiciliation"];
+    if (domiciliation === "non") {
+      this.showResult("❌ Vous devez être domicilié à l'adresse du chantier au plus tard avant l'introduction de la demande", false);
       return;
     }
 
@@ -707,17 +738,128 @@ export default class extends Controller {
     this.checkIfAllAnsweredBruxellesParticulier();
   }
 
+  handleConditionalAlerts(questionName, value) {
+    // Gestion des alertes d'information
+    const alertsMap = {
+      'primes_recues': { 
+        condition: value === 'oui', 
+        elementId: 'primes_recues_warning' 
+      },
+      'bim': { 
+        condition: value === 'oui', 
+        elementId: 'bim_info' 
+      },
+      'ris': { 
+        condition: value === 'oui', 
+        elementId: 'ris_info' 
+      },
+      'client_protege': { 
+        condition: value === 'oui', 
+        elementId: 'client_protege_info' 
+      },
+      'vente_bien': { 
+        condition: value === 'oui', 
+        elementId: 'vente_bien_warning' 
+      },
+      'permis_urbanisme': { 
+        condition: value === 'non', 
+        elementId: 'permis_urbanisme_info' 
+      },
+      'parties_communes': { 
+        condition: value === 'oui', 
+        elementId: 'parties_communes_warning' 
+      }
+    };
+
+    Object.entries(alertsMap).forEach(([key, config]) => {
+      const element = document.getElementById(config.elementId);
+      if (element) {
+        element.style.display = (questionName === key && config.condition) ? 'block' : 'none';
+      }
+    });
+
+    // Gestion des sections conditionnelles
+    this.handleConditionalSections(questionName, value);
+  }
+
+  handleConditionalSections(questionName, value) {
+    // Appartement -> Parties communes
+    if (questionName === 'proprietaire_appartement') {
+      const appartementDetails = document.getElementById('appartement_parties_communes');
+      if (appartementDetails) {
+        appartementDetails.style.display = value === 'oui' ? 'block' : 'none';
+      }
+    }
+
+    // Indépendant -> Détails
+    if (questionName === 'independant') {
+      const independantDetails = document.getElementById('independant_details');
+      if (independantDetails) {
+        independantDetails.style.display = value === 'oui' ? 'block' : 'none';
+      }
+    }
+
+    // Usage professionnel -> Surfaces
+    if (questionName === 'usage_professionnel') {
+      const usageDetails = document.getElementById('usage_professionnel_details');
+      if (usageDetails) {
+        usageDetails.style.display = value === 'oui' ? 'block' : 'none';
+      }
+    }
+  }
+
   checkIfAllAnsweredBruxellesParticulier() {
     const form = this.formTarget;
 
-    // Obtenir tous les noms de questions uniques
+    // Obtenir tous les noms de questions uniques de base
     const radioInputs = Array.from(form.querySelectorAll("input[type='radio']"));
-    const questionNames = [...new Set(radioInputs.map(input => input.name))].filter(name => name !== "profile_type");
+    let questionNames = [...new Set(radioInputs.map(input => input.name))].filter(name => name !== "profile_type");
+    
+    // Questions de base obligatoires
+    const baseQuestions = [
+      'localisation', 'age_batiment', 'professionnel_agree', 'nouvelle_construction',
+      'compte_belge', 'travaux_realises', 'primes_recues', 'proprietaire_appartement',
+      'proprietaire_maison', 'bim', 'ris', 'client_protege', 'independant',
+      'domiciliation', 'vente_bien', 'permis_urbanisme', 'bien_classe', 'petit_patrimoine'
+    ];
 
-    // Vérifier que chaque question a une réponse cochée
-    const allAnswered = questionNames.every(name => {
-      return form.querySelector(`input[name="${name}"]:checked`) !== null;
+    // Obtenir les réponses actuelles
+    const testData = [...form.querySelectorAll("input[type=radio]:checked")].reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    // Vérifier les questions de base
+    let allBaseAnswered = baseQuestions.every(name => {
+      const input = form.querySelector(`input[name="${name}"]:checked`);
+      return input !== null;
     });
+
+    // Vérifications conditionnelles
+    let conditionalAnswered = true;
+
+    // Si propriétaire appartement = oui, vérifier parties_communes
+    if (testData.proprietaire_appartement === 'oui') {
+      conditionalAnswered = conditionalAnswered && (testData.parties_communes !== undefined);
+    }
+
+    // Si indépendant = oui, vérifier les sous-questions
+    if (testData.independant === 'oui') {
+      conditionalAnswered = conditionalAnswered && 
+        (testData.tva_deductible !== undefined) &&
+        (testData.usage_professionnel !== undefined);
+      
+      // Si usage professionnel = oui, vérifier les surfaces
+      if (testData.usage_professionnel === 'oui') {
+        const surfaceTotale = form.querySelector('input[name="surface_totale"]');
+        const surfacePro = form.querySelector('input[name="surface_professionnelle"]');
+        conditionalAnswered = conditionalAnswered && 
+          (surfaceTotale && surfaceTotale.value.trim() !== '') &&
+          (surfacePro && surfacePro.value.trim() !== '');
+      }
+    }
+
+    const allAnswered = allBaseAnswered && conditionalAnswered;
 
     if (allAnswered && this.hasValidateButtonTarget) {
       this.validateButtonTarget.style.display = "block";
@@ -764,42 +906,65 @@ export default class extends Controller {
 
     const form = this.formTarget;
     const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+    const inputValues = [...form.querySelectorAll("input[type=number], input[type=text]")];
 
     const testData = responses.reduce((acc, response) => {
       acc[response.name] = response.value;
       return acc;
     }, {});
 
+    // Ajouter les valeurs des champs texte et numériques
+    inputValues.forEach(input => {
+      if (input.value) {
+        testData[input.name] = input.value;
+      }
+    });
+
     localStorage.setItem("eligibiliteBruxellesEntreprise", JSON.stringify(testData));
+
+    // Gestion des alertes conditionnelles
+    this.handleConditionalAlertsEntreprise(event.target.name, event.target.value);
 
     // Vérification immédiate des cas d'inéligibilité Bruxelles Entreprise
     const localisation = testData["localisation"];
     if (localisation === "non") {
-      this.showResult("❌ L'entreprise et le bâtiment doivent être situés en Région de Bruxelles-Capitale", false);
+      this.showResult("❌ Le bien concerné par la demande doit être situé en Région de Bruxelles-Capitale", false);
       return;
     }
 
-    const est_pme = testData["est_pme"];
-    if (est_pme === "non") {
-      this.showResult("❌ Seules les PME (moins de 250 employés) sont éligibles aux primes", false);
+    const age_batiment = testData["age_batiment"];
+    if (age_batiment === "non") {
+      this.showResult("❌ Le bâtiment doit être âgé d'au moins 10 ans", false);
       return;
     }
 
-    const autorisation_travaux = testData["autorisation_travaux"];
-    if (autorisation_travaux === "non") {
-      this.showResult("❌ Vous devez être propriétaire ou avoir l'autorisation du propriétaire", false);
+    const professionnel_agree = testData["professionnel_agree"];
+    if (professionnel_agree === "non") {
+      this.showResult("❌ Les travaux doivent être réalisés par un professionnel inscrit à la Banque Carrefour des Entreprises qui dispose de l'accès réglementé à la profession", false);
       return;
     }
 
-    const usage_professionnel = testData["usage_professionnel"];
-    if (usage_professionnel === "non") {
-      this.showResult("❌ Le bâtiment doit être destiné exclusivement à l'activité professionnelle", false);
+    const nouvelle_construction = testData["nouvelle_construction"];
+    if (nouvelle_construction === "oui") {
+      this.showResult("❌ Les nouvelles constructions ou ajouts considérés comme nouvelle construction ne sont pas éligibles", false);
       return;
     }
 
     const compte_belge = testData["compte_belge"];
     if (compte_belge === "non") {
-      this.showResult("❌ Un compte bancaire belge est requis pour le versement des primes", false);
+      this.showResult("❌ Un compte bancaire belge est requis pour le virement de la prime", false);
+      return;
+    }
+
+    const travaux_realises = testData["travaux_realises"];
+    if (travaux_realises === "non") {
+      this.showResult("❌ Les travaux doivent être réalisés avec une facture de solde émise dans les 12 mois précédant la demande", false);
+      return;
+    }
+
+    const enregistrement_bce = testData["enregistrement_bce"];
+    if (enregistrement_bce === "non") {
+      this.showResult("❌ Pour introduire une demande de prime en tant que société, cette dernière doit être inscrite à la BCE", false);
       return;
     }
 
@@ -807,17 +972,107 @@ export default class extends Controller {
     this.checkIfAllAnsweredBruxellesEntreprise();
   }
 
+  handleConditionalAlertsEntreprise(questionName, value) {
+    // Gestion des alertes d'information
+    const alertsMap = {
+      'primes_recues': { 
+        condition: value === 'oui', 
+        elementId: 'primes_recues_warning' 
+      }
+    };
+
+    Object.entries(alertsMap).forEach(([key, config]) => {
+      const element = document.getElementById(config.elementId);
+      if (element) {
+        element.style.display = (questionName === key && config.condition) ? 'block' : 'none';
+      }
+    });
+
+    // Gestion des sections conditionnelles
+    this.handleConditionalSectionsEntreprise(questionName, value);
+  }
+
+  handleConditionalSectionsEntreprise(questionName, value) {
+    // Propriétaire immeuble -> Détails
+    if (questionName === 'proprietaire_immeuble') {
+      const immeubleDetails = document.getElementById('immeuble_details');
+      if (immeubleDetails) {
+        immeubleDetails.style.display = value === 'oui' ? 'block' : 'none';
+      }
+    }
+
+    // Usage collectivité -> Détails collectivité
+    if (questionName === 'usage_collectivite') {
+      const collectiviteDetails = document.getElementById('collectivite_details');
+      if (collectiviteDetails) {
+        collectiviteDetails.style.display = value === 'oui' ? 'block' : 'none';
+      }
+    }
+
+    // TVA déductible -> Pourcentage
+    if (questionName === 'tva_deductible') {
+      const tvaPourcentage = document.getElementById('tva_pourcentage');
+      if (tvaPourcentage) {
+        tvaPourcentage.style.display = value === 'oui' ? 'block' : 'none';
+      }
+    }
+  }
+
   checkIfAllAnsweredBruxellesEntreprise() {
     const form = this.formTarget;
 
-    // Obtenir tous les noms de questions uniques
-    const radioInputs = Array.from(form.querySelectorAll("input[type='radio']"));
-    const questionNames = [...new Set(radioInputs.map(input => input.name))].filter(name => name !== "profile_type");
+    // Questions de base obligatoires
+    const baseQuestions = [
+      'localisation', 'age_batiment', 'professionnel_agree', 'nouvelle_construction',
+      'compte_belge', 'travaux_realises', 'primes_recues', 'proprietaire_immeuble',
+      'proprietaire_appartement', 'proprietaire_maison', 'enregistrement_bce',
+      'bail_ais', 'tva_deductible', 'de_minimis', 'bien_classe', 'petit_patrimoine'
+    ];
 
-    // Vérifier que chaque question a une réponse cochée
-    const allAnswered = questionNames.every(name => {
-      return form.querySelector(`input[name="${name}"]:checked`) !== null;
+    // Obtenir les réponses actuelles
+    const testData = [...form.querySelectorAll("input[type=radio]:checked")].reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    // Vérifier les questions de base
+    let allBaseAnswered = baseQuestions.every(name => {
+      const input = form.querySelector(`input[name="${name}"]:checked`);
+      return input !== null;
     });
+
+    // Vérifications conditionnelles
+    let conditionalAnswered = true;
+
+    // Si propriétaire immeuble = oui, vérifier les sous-questions
+    if (testData.proprietaire_immeuble === 'oui') {
+      conditionalAnswered = conditionalAnswered && 
+        (testData.logement_80_pourcent !== undefined) &&
+        (testData.usage_collectivite !== undefined);
+      
+      // Vérifier quantité appartements
+      const quantiteAppartements = form.querySelector('input[name="quantite_appartements"]');
+      conditionalAnswered = conditionalAnswered && 
+        (quantiteAppartements && quantiteAppartements.value.trim() !== '');
+
+      // Si usage collectivité = oui, vérifier nom et code Nacebel
+      if (testData.usage_collectivite === 'oui') {
+        const nomCollectivite = form.querySelector('input[name="nom_collectivite"]');
+        const codeNacebel = form.querySelector('input[name="code_nacebel"]');
+        conditionalAnswered = conditionalAnswered && 
+          (nomCollectivite && nomCollectivite.value.trim() !== '') &&
+          (codeNacebel && codeNacebel.value.trim() !== '');
+      }
+    }
+
+    // Si TVA déductible = oui, vérifier pourcentage
+    if (testData.tva_deductible === 'oui') {
+      const pourcentageTva = form.querySelector('input[name="pourcentage_tva"]');
+      conditionalAnswered = conditionalAnswered && 
+        (pourcentageTva && pourcentageTva.value.trim() !== '');
+    }
+
+    const allAnswered = allBaseAnswered && conditionalAnswered;
 
     if (allAnswered && this.hasValidateButtonTarget) {
       this.validateButtonTarget.style.display = "block";
@@ -1050,6 +1305,9 @@ export default class extends Controller {
 
     localStorage.setItem("eligibiliteBruxellesAsbl", JSON.stringify(testData));
 
+    // Gestion des sections conditionnelles
+    this.handleConditionalSectionsAsbl(event.target.name, event.target.value);
+
     // Vérification immédiate des cas d'inéligibilité Bruxelles ASBL
     const localisation = testData["localisation"];
     if (localisation === "non") {
@@ -1057,31 +1315,77 @@ export default class extends Controller {
       return;
     }
 
-    const secteur_eligible = testData["secteur_eligible"];
-    if (secteur_eligible === "non") {
-      this.showResult("❌ L'ASBL doit exercer ses activités dans le secteur social, culturel ou d'intérêt général", false);
+    const autres_primes = testData["autres_primes"];
+    if (autres_primes === "oui") {
+      this.showResult("❌ Vous ne pouvez pas cumuler cette prime avec d'autres primes d'énergie pour le même bâtiment", false);
+      return;
+    }
+
+    const usage_collectivite = testData["usage_collectivite"];
+    if (usage_collectivite === "oui") {
+      this.showResult("❌ Ce bâtiment ne peut pas être utilisé par une collectivité ou administration publique", false);
+      return;
+    }
+
+    const enregistrement_bce = testData["enregistrement_bce"];
+    if (enregistrement_bce === "non") {
+      this.showResult("❌ L'ASBL doit être enregistrée à la BCE (Banque Carrefour des Entreprises)", false);
       return;
     }
 
     const autorisation_travaux = testData["autorisation_travaux"];
     if (autorisation_travaux === "non") {
-      this.showResult("❌ Vous devez être propriétaire ou avoir l'autorisation du propriétaire", false);
+      this.showResult("❌ Vous devez être propriétaire du bâtiment ou avoir l'autorisation écrite du propriétaire pour réaliser les travaux", false);
       return;
     }
 
-    const usage_asbl = testData["usage_asbl"];
-    if (usage_asbl === "non") {
-      this.showResult("❌ Le bâtiment doit être destiné aux activités de l'ASBL (pas résidentiel)", false);
+    const travaux_commences = testData["travaux_commences"];
+    if (travaux_commences === "oui") {
+      this.showResult("❌ Les travaux ne doivent pas avoir commencé avant l'introduction de la demande de prime", false);
       return;
     }
 
-    const accueil_public = testData["accueil_public"];
-    if (accueil_public === "non") {
-      this.showResult("❌ L'ASBL doit accueillir régulièrement du public ou des bénéficiaires", false);
+    const tva_deduction = testData["tva_deduction"];
+    if (tva_deduction === "oui") {
+      this.showResult("❌ Si vous pouvez déduire la TVA sur les travaux, vous n'êtes pas éligible à cette prime", false);
+      return;
+    }
+
+    const activites_interet_general = testData["activites_interet_general"];
+    if (activites_interet_general === "non") {
+      this.showResult("❌ L'ASBL doit exercer des activités d'intérêt général reconnues", false);
+      return;
+    }
+
+    const utilisation_reguliere = testData["utilisation_reguliere"];
+    if (utilisation_reguliere === "non") {
+      this.showResult("❌ Le bâtiment doit être utilisé de manière régulière et continue pour les activités de l'ASBL", false);
+      return;
+    }
+
+    const batiment_conforme = testData["batiment_conforme"];
+    if (batiment_conforme === "non") {
+      this.showResult("❌ Le bâtiment doit être conforme à la réglementation en vigueur (permis d'urbanisme, normes de sécurité, accessibilité)", false);
       return;
     }
 
     this.checkIfAllAnsweredBruxellesAsbl();
+  }
+
+  handleConditionalSectionsAsbl(questionName, value) {
+    // Section déduction TVA si ASBL a un numéro TVA
+    if (questionName === 'numero_tva') {
+      const tvaDeductionSection = document.getElementById('asbl_tva_deduction_section');
+      if (tvaDeductionSection) {
+        tvaDeductionSection.style.display = value === 'oui' ? 'block' : 'none';
+        
+        // Reset la question de déduction si on cache la section
+        if (value === 'non') {
+          const tvaDeductionInputs = document.querySelectorAll('input[name="tva_deduction"]');
+          tvaDeductionInputs.forEach(input => input.checked = false);
+        }
+      }
+    }
   }
 
   checkIfAllAnsweredBruxellesAsbl() {

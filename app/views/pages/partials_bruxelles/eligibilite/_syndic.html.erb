@@ -15,11 +15,12 @@
       <form id="eligibilityFormBruxellesSyndic" name="eligibilityFormBruxellesSyndic"
             data-test-eligibilite-target="form">
         <input type="hidden" name="profile_type" value="syndic">
-      <!-- Question 1: Localisation -->
+      
+      <!-- Question 1: Localisation du bien -->
       <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
         <h6 class="mb-3 text-dark">
           <i class="bi bi-geo-alt text-primary me-2"></i>
-          L'immeuble est-il situé en Région de Bruxelles-Capitale ?
+          Le bien concerné par la demande est-il situé en Région de Bruxelles-Capitale ?
         </h6>
         <div class="d-flex gap-3">
           <div class="form-check">
@@ -39,72 +40,423 @@
         </div>
       </div>
 
-      <!-- Question 2: Usage résidentiel -->
-      <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
-        <h6 class="mb-3 text-dark">
-          <i class="bi bi-building text-primary me-2"></i>
-          L'immeuble est-il principalement résidentiel (au moins 80% logement) ?
-        </h6>
-        <div class="d-flex gap-3">
-          <div class="form-check">
-            <input type="radio" class="form-check-input" name="usage_residentiel" value="oui"
-                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="usage_residentiel_oui">
-            <label class="form-check-label" for="usage_residentiel_oui">
-              <i class="bi bi-check-circle text-success me-1"></i>Oui
-            </label>
-          </div>
-          <div class="form-check">
-            <input type="radio" class="form-check-input" name="usage_residentiel" value="non"
-                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="usage_residentiel_non">
-            <label class="form-check-label" for="usage_residentiel_non">
-              <i class="bi bi-x-circle text-danger me-1"></i>Non
-            </label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Question 3: Âge de l'immeuble -->
+      <!-- Question 2: Âge du bâtiment -->
       <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
         <h6 class="mb-3 text-dark">
           <i class="bi bi-calendar text-primary me-2"></i>
-          L'immeuble a-t-il été construit il y a plus de 10 ans ?
+          Le bâtiment est-il âgé d'au moins 10 ans ?
         </h6>
         <div class="d-flex gap-3">
           <div class="form-check">
-            <input type="radio" class="form-check-input" name="age_immeuble" value="oui"
-                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="age_immeuble_oui">
-            <label class="form-check-label" for="age_immeuble_oui">
+            <input type="radio" class="form-check-input" name="age_batiment" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="age_batiment_oui">
+            <label class="form-check-label" for="age_batiment_oui">
               <i class="bi bi-check-circle text-success me-1"></i>Oui
             </label>
           </div>
           <div class="form-check">
-            <input type="radio" class="form-check-input" name="age_immeuble" value="non"
-                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="age_immeuble_non">
-            <label class="form-check-label" for="age_immeuble_non">
+            <input type="radio" class="form-check-input" name="age_batiment" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="age_batiment_non">
+            <label class="form-check-label" for="age_batiment_non">
               <i class="bi bi-x-circle text-danger me-1"></i>Non
             </label>
           </div>
         </div>
       </div>
 
-      <!-- Question 4: Minimum d'unités -->
+      <!-- Question 3: Professionnel agréé -->
       <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
         <h6 class="mb-3 text-dark">
-          <i class="bi bi-hash text-primary me-2"></i>
-          La copropriété compte-t-elle au moins 2 unités ?
+          <i class="bi bi-tools text-primary me-2"></i>
+          Les travaux sont-ils réalisés par un professionnel inscrit à la Banque Carrefour des Entreprises qui dispose de l'accès réglementé à la profession ?
         </h6>
         <div class="d-flex gap-3">
           <div class="form-check">
-            <input type="radio" class="form-check-input" name="minimum_unites" value="oui"
-                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="minimum_unites_oui">
-            <label class="form-check-label" for="minimum_unites_oui">
+            <input type="radio" class="form-check-input" name="professionnel_agree" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="professionnel_agree_oui">
+            <label class="form-check-label" for="professionnel_agree_oui">
               <i class="bi bi-check-circle text-success me-1"></i>Oui
             </label>
           </div>
           <div class="form-check">
-            <input type="radio" class="form-check-input" name="minimum_unites" value="non"
-                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="minimum_unites_non">
-            <label class="form-check-label" for="minimum_unites_non">
+            <input type="radio" class="form-check-input" name="professionnel_agree" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="professionnel_agree_non">
+            <label class="form-check-label" for="professionnel_agree_non">
+              <i class="bi bi-x-circle text-danger me-1"></i>Non
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 4: Nouvelle construction -->
+      <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+        <h6 class="mb-3 text-dark">
+          <i class="bi bi-hammer text-primary me-2"></i>
+          S'agit-il d'une nouvelle construction ou d'un ajout considéré comme nouvelle construction ?
+        </h6>
+        <p class="text-muted small mb-3">
+          <i class="bi bi-info-circle me-1"></i>
+          Exemple : une maison construite sur un terrain vierge, l'ajout d'une unité de logement en toiture d'un immeuble...
+        </p>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="nouvelle_construction" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="nouvelle_construction_oui">
+            <label class="form-check-label" for="nouvelle_construction_oui">
+              <i class="bi bi-check-circle text-success me-1"></i>Oui
+            </label>
+          </div>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="nouvelle_construction" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="nouvelle_construction_non">
+            <label class="form-check-label" for="nouvelle_construction_non">
+              <i class="bi bi-x-circle text-danger me-1"></i>Non
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 5: Compte bancaire belge -->
+      <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+        <h6 class="mb-3 text-dark">
+          <i class="bi bi-bank text-primary me-2"></i>
+          Possédez-vous un compte bancaire belge pour le virement de la prime ?
+        </h6>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="compte_belge" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="compte_belge_oui">
+            <label class="form-check-label" for="compte_belge_oui">
+              <i class="bi bi-check-circle text-success me-1"></i>Oui
+            </label>
+          </div>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="compte_belge" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="compte_belge_non">
+            <label class="form-check-label" for="compte_belge_non">
+              <i class="bi bi-x-circle text-danger me-1"></i>Non
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 6: Travaux réalisés avec facture -->
+      <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+        <h6 class="mb-3 text-dark">
+          <i class="bi bi-receipt text-primary me-2"></i>
+          Les travaux ont-ils été réalisés, avec une facture de solde émise dans les 12 mois précédant la demande ?
+        </h6>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="travaux_realises" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="travaux_realises_oui">
+            <label class="form-check-label" for="travaux_realises_oui">
+              <i class="bi bi-check-circle text-success me-1"></i>Oui
+            </label>
+          </div>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="travaux_realises" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="travaux_realises_non">
+            <label class="form-check-label" for="travaux_realises_non">
+              <i class="bi bi-x-circle text-danger me-1"></i>Non
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 7: Primes déjà reçues -->
+      <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+        <h6 class="mb-3 text-dark">
+          <i class="bi bi-award text-primary me-2"></i>
+          J'ai introduit et reçu des primes pour le bien concerné
+        </h6>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="primes_recues" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="primes_recues_oui">
+            <label class="form-check-label" for="primes_recues_oui">
+              <i class="bi bi-check-circle text-success me-1"></i>Oui
+            </label>
+          </div>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="primes_recues" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="primes_recues_non">
+            <label class="form-check-label" for="primes_recues_non">
+              <i class="bi bi-x-circle text-danger me-1"></i>Non
+            </label>
+          </div>
+        </div>
+        <div class="alert alert-warning mt-2" style="display: none;" id="primes_recues_warning">
+          <small><i class="bi bi-exclamation-triangle me-1"></i>
+          Des travaux identiques dans un même bien ne bénéficient d'une prime qu'une fois par période de 10 ans</small>
+        </div>
+      </div>
+
+      <!-- Question 8: Syndic professionnel -->
+      <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+        <h6 class="mb-3 text-dark">
+          <i class="bi bi-person-badge text-primary me-2"></i>
+          Mon syndic est un professionnel (personne morale avec un n°BCE)
+        </h6>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="syndic_professionnel" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="syndic_professionnel_oui">
+            <label class="form-check-label" for="syndic_professionnel_oui">
+              <i class="bi bi-check-circle text-success me-1"></i>Oui
+            </label>
+          </div>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="syndic_professionnel" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="syndic_professionnel_non">
+            <label class="form-check-label" for="syndic_professionnel_non">
+              <i class="bi bi-x-circle text-danger me-1"></i>Non
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 9: ACP enregistrée à la BCE -->
+      <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+        <h6 class="mb-3 text-dark">
+          <i class="bi bi-building-check text-primary me-2"></i>
+          Votre ACP est-elle enregistrée à la BCE ?
+        </h6>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="acp_bce" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="acp_bce_oui">
+            <label class="form-check-label" for="acp_bce_oui">
+              <i class="bi bi-check-circle text-success me-1"></i>Oui
+            </label>
+          </div>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="acp_bce" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="acp_bce_non">
+            <label class="form-check-label" for="acp_bce_non">
+              <i class="bi bi-x-circle text-danger me-1"></i>Non
+            </label>
+          </div>
+        </div>
+        
+        <!-- Sous-questions conditionnelles pour ACP BCE -->
+        <div class="mt-3 ps-3 border-start border-warning" style="display: none;" id="acp_bce_details">
+          <h6 class="mb-2 text-warning">
+            <i class="bi bi-arrow-right me-2"></i>
+            Dans le cas où votre ACP est enregistrée à la BCE, votre syndic (professionnel ou particulier) apparaît-il sur la page BCE de votre ACP ?
+          </h6>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="syndic_page_bce" value="oui"
+                     data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="syndic_page_bce_oui">
+              <label class="form-check-label" for="syndic_page_bce_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="syndic_page_bce" value="non"
+                     data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="syndic_page_bce_non">
+              <label class="form-check-label" for="syndic_page_bce_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sous-questions pour dérogation ACP -->
+        <div class="mt-3 ps-3 border-start border-info" style="display: none;" id="derogation_acp">
+          <h6 class="mb-2 text-info">
+            <i class="bi bi-arrow-right me-2"></i>
+            Avez-vous une dérogation à la création d'une ACP inscrite dans votre acte de base ?
+          </h6>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="derogation_acp" value="oui"
+                     data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="derogation_acp_oui">
+              <label class="form-check-label" for="derogation_acp_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="derogation_acp" value="non"
+                     data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="derogation_acp_non">
+              <label class="form-check-label" for="derogation_acp_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non
+              </label>
+            </div>
+          </div>
+          <div class="alert alert-danger mt-2" style="display: none;" id="derogation_acp_warning">
+            <small><i class="bi bi-exclamation-triangle me-1"></i>
+            Pas éligible – votre copropriété/ACP doit être inscrite à la BCE</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 10: TVA déductible -->
+      <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+        <h6 class="mb-3 text-dark">
+          <i class="bi bi-percent text-primary me-2"></i>
+          Déduisez-vous la TVA pour les travaux concernés par votre demande ?
+        </h6>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="tva_deductible" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="tva_deductible_oui">
+            <label class="form-check-label" for="tva_deductible_oui">
+              <i class="bi bi-check-circle text-success me-1"></i>Oui
+            </label>
+          </div>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="tva_deductible" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="tva_deductible_non">
+            <label class="form-check-label" for="tva_deductible_non">
+              <i class="bi bi-x-circle text-danger me-1"></i>Non
+            </label>
+          </div>
+        </div>
+        
+        <!-- Sous-question pour pourcentage TVA -->
+        <div class="mt-3 ps-3 border-start border-warning" style="display: none;" id="tva_pourcentage">
+          <div class="mb-3">
+            <label for="pourcentage_tva" class="form-label text-warning">
+              <i class="bi bi-calculator me-1"></i>À quel pourcentage ?
+            </label>
+            <input type="number" class="form-control" id="pourcentage_tva" name="pourcentage_tva" 
+                   placeholder="ex: 100" min="0" max="100">
+            <div class="form-text">
+              Si vous récupérez la totalité de la TVA, veuillez encoder 100%. 
+              Si vous ne récupérez qu'une partie de la TVA (ex: 50%), veuillez encoder ce pourcentage.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 11: 80% logement -->
+      <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+        <h6 class="mb-3 text-dark">
+          <i class="bi bi-building text-primary me-2"></i>
+          80% de votre bien est affecté au logement
+        </h6>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="logement_80_pourcent" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="logement_80_pourcent_oui">
+            <label class="form-check-label" for="logement_80_pourcent_oui">
+              <i class="bi bi-check-circle text-success me-1"></i>Oui
+            </label>
+          </div>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="logement_80_pourcent" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="logement_80_pourcent_non">
+            <label class="form-check-label" for="logement_80_pourcent_non">
+              <i class="bi bi-x-circle text-danger me-1"></i>Non
+            </label>
+          </div>
+        </div>
+        <div class="alert alert-warning mt-2" style="display: none;" id="logement_80_warning">
+          <small><i class="bi bi-exclamation-triangle me-1"></i>
+          PAS DE RÉPONSE CAR INFO INCOHÉRENTE IRISBOX/HOMEGRADE – je dois vérifier</small>
+        </div>
+      </div>
+
+      <!-- Question 12: Parties communes -->
+      <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+        <h6 class="mb-3 text-dark">
+          <i class="bi bi-building-gear text-primary me-2"></i>
+          Les travaux concernent-ils les parties communes (ensemble d'une ou des façades, le toit, caves) ?
+        </h6>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="parties_communes" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="parties_communes_oui">
+            <label class="form-check-label" for="parties_communes_oui">
+              <i class="bi bi-check-circle text-success me-1"></i>Oui
+            </label>
+          </div>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="parties_communes" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="parties_communes_non">
+            <label class="form-check-label" for="parties_communes_non">
+              <i class="bi bi-x-circle text-danger me-1"></i>Non
+            </label>
+          </div>
+        </div>
+        <div class="alert alert-danger mt-2" style="display: none;" id="parties_communes_warning">
+          <small><i class="bi bi-exclamation-triangle me-1"></i>
+          Pas éligible - merci d'introduire en tant que propriétaire occupant/bailleur et non copro/ACP</small>
+        </div>
+      </div>
+
+      <!-- Question 13: Permis d'urbanisme -->
+      <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+        <h6 class="mb-3 text-dark">
+          <i class="bi bi-file-text text-primary me-2"></i>
+          J'ai un permis d'urbanisme octroyé par ma commune
+        </h6>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="permis_urbanisme" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="permis_urbanisme_oui">
+            <label class="form-check-label" for="permis_urbanisme_oui">
+              <i class="bi bi-check-circle text-success me-1"></i>Oui
+            </label>
+          </div>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="permis_urbanisme" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="permis_urbanisme_non">
+            <label class="form-check-label" for="permis_urbanisme_non">
+              <i class="bi bi-x-circle text-danger me-1"></i>Non
+            </label>
+          </div>
+        </div>
+        <div class="alert alert-info mt-2" style="display: none;" id="permis_urbanisme_info">
+          <small><i class="bi bi-info-circle me-1"></i>
+          Certains travaux nécessitent un permis d'urbanisme, nous vous invitons à consulter le service urbanisme de votre commune</small>
+        </div>
+      </div>
+
+      <!-- Question 14: Bien classé -->
+      <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+        <h6 class="mb-3 text-dark">
+          <i class="bi bi-building-gear text-primary me-2"></i>
+          Ce bien est-il classé ?
+        </h6>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="bien_classe" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="bien_classe_oui">
+            <label class="form-check-label" for="bien_classe_oui">
+              <i class="bi bi-check-circle text-success me-1"></i>Oui
+            </label>
+          </div>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="bien_classe" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="bien_classe_non">
+            <label class="form-check-label" for="bien_classe_non">
+              <i class="bi bi-x-circle text-danger me-1"></i>Non
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Question 15: Petit patrimoine -->
+      <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+        <h6 class="mb-3 text-dark">
+          <i class="bi bi-gem text-primary me-2"></i>
+          La façade du bâtiment comporte-t-elle des éléments qui appartiennent au "Petit patrimoine" ?
+        </h6>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="petit_patrimoine" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="petit_patrimoine_oui">
+            <label class="form-check-label" for="petit_patrimoine_oui">
+              <i class="bi bi-check-circle text-success me-1"></i>Oui
+            </label>
+          </div>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="petit_patrimoine" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesSyndic" id="petit_patrimoine_non">
+            <label class="form-check-label" for="petit_patrimoine_non">
               <i class="bi bi-x-circle text-danger me-1"></i>Non
             </label>
           </div>
