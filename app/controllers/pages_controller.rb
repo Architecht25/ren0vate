@@ -135,7 +135,6 @@ class PagesController < ApplicationController
       # Récupération des paramètres
       statut_familial = params[:statut_familial]
       enfants_charge = params[:enfants_charge].to_i
-      personnes_agees_charge = params[:personnes_agees_charge].to_i
       revenu_net = params[:revenu_net]
 
       # Validation
@@ -143,35 +142,53 @@ class PagesController < ApplicationController
         raise ArgumentError, "Paramètres manquants"
       end
 
-      # Le revenu_net contient déjà la catégorie (z1, z2, etc.)
-      category = revenu_net.upcase
+      # Déterminer la catégorie selon la tranche de revenus
+      category_info = determine_bruxelles_category_simple(revenu_net, statut_familial, enfants_charge)
 
-      # Couleur selon la catégorie
-      category_color = case category
-                      when 'Z1', 'Z2', 'Z3' then 'success'
-                      when 'Z4', 'Z5', 'Z6', 'Z7' then 'warning'
-                      else 'primary'
-                      end
+      # Récupération des primes pour Bruxelles
+      @primes = Prime.where(region: "bruxelles").order(:ordre_affichage)
 
-      # Détails de la catégorie
-      category_details = case category
-                        when 'Z1' then 'Revenus très faibles - Primes maximales'
-                        when 'Z2' then 'Revenus faibles - Primes élevées'
-                        when 'Z3' then 'Revenus modérés-bas - Primes importantes'
-                        when 'Z4' then 'Revenus modérés - Primes substantielles'
-                        when 'Z5' then 'Revenus moyens-bas - Primes moyennes'
-                        when 'Z6' then 'Revenus moyens - Primes modérées'
-                        when 'Z7' then 'Revenus moyens-élevés - Primes réduites'
-                        when 'Z8' then 'Revenus élevés-bas - Primes minimales'
-                        when 'Z9' then 'Revenus élevés - Primes très réduites'
-                        when 'Z10' then 'Revenus très élevés - Primes limitées'
-                        else 'Catégorie déterminée'
-                        end
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace(
+            "eligibility_content",
+            partial: "pages/partials_bruxelles/resultat_categorie",
+            locals: {
+              category: category_info[:category],
+              category_color: category_info[:color],
+              category_details: category_info[:details],
+              primes: @primes,
+              composition_familiale: {
+                statut: statut_familial,
+                enfants: enfants_charge,
+                tranche_revenu: revenu_net
+              }
+            }
+          )
+        end
+        format.html { redirect_to bruxelles_path }
+      end
 
-      # Récupération des primes pour cette catégorie
-      @primes = Prime.where(region: "bruxelles")
-                   .where("eligible_categories @> ARRAY[?]::varchar[]", [category])
-                   .order(:ordre_affichage)
+    rescue => e
+      Rails.logger.error "Category estimation error: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.replace(
+            "eligibility_content",
+            partial: "shared/alert",
+            locals: {
+              message: "Erreur lors du calcul de catégorie: #{e.message}",
+              type: "danger",
+              title: "❌ Erreur"
+            }
+          )
+        end
+        format.html { redirect_to bruxelles_path, alert: "Erreur technique" }
+      end
+    end
+  end
 
       respond_to do |format|
         format.turbo_stream do
@@ -385,61 +402,34 @@ private
 
   private
 
-  def calculate_bruxelles_category(income, marital_status, children_count)
-    # Seuils de revenus pour Bruxelles RENOLUTION 2024
-    thresholds = {
-      "Z1" => { single: 22090, married: 32390 },
-      "Z2" => { single: 26510, married: 38900 },
-      "Z3" => { single: 30930, married: 45410 },
-      "Z4" => { single: 35350, married: 51920 },
-      "Z5" => { single: 39770, married: 58430 },
-      "Z6" => { single: 44190, married: 64940 },
-      "Z7" => { single: 48610, married: 71450 },
-      "Z8" => { single: 53030, married: 77960 },
-      "Z9" => { single: 57450, married: 84470 },
-      "Z10" => { single: 61870, married: 90980 }
-    }
-
-    # Ajustement pour les enfants (4420€ par enfant)
-    child_adjustment = children_count * 4420
-    status_key = marital_status == 'single' ? :single : :married
-
-    # Trouver la catégorie appropriée
-    thresholds.each do |category, limits|
-      adjusted_limit = limits[status_key] + child_adjustment
-      if income <= adjusted_limit
-        return {
-          code: category,
-          description: get_category_description(category),
-          max_income: adjusted_limit,
-          eligible: true
-        }
-      end
+  def determine_bruxelles_category_simple(revenu_net, statut_familial, enfants_charge)
+    # Logique simplifiée pour 3 tranches de revenus
+    case revenu_net
+    when 'faible'
+      {
+        category: 'Revenus Faibles',
+        color: 'success',
+        details: 'Primes maximales disponibles - Vous bénéficiez des montants les plus élevés'
+      }
+    when 'moyen'
+      {
+        category: 'Revenus Moyens',
+        color: 'warning',
+        details: 'Primes moyennes disponibles - Vous bénéficiez de montants substantiels'
+      }
+    when 'eleve'
+      {
+        category: 'Revenus Élevés',
+        color: 'info',
+        details: 'Primes réduites disponibles - Vous bénéficiez de montants de base'
+      }
+    else
+      {
+        category: 'Catégorie Non Déterminée',
+        color: 'primary',
+        details: 'Merci de préciser votre tranche de revenus'
+      }
     end
-
-    # Si revenus trop élevés
-    {
-      code: "Non éligible",
-      description: "Revenus supérieurs aux plafonds RENOLUTION",
-      max_income: nil,
-      eligible: false
-    }
-  end
-
-  def get_category_description(category)
-    descriptions = {
-      "Z1" => "Revenus très faibles - Primes maximales",
-      "Z2" => "Revenus faibles - Primes élevées",
-      "Z3" => "Revenus modérés-bas - Primes importantes",
-      "Z4" => "Revenus modérés - Primes substantielles",
-      "Z5" => "Revenus moyens-bas - Primes moyennes",
-      "Z6" => "Revenus moyens - Primes modérées",
-      "Z7" => "Revenus moyens-élevés - Primes réduites",
-      "Z8" => "Revenus élevés-bas - Primes minimales",
-      "Z9" => "Revenus élevés - Primes très réduites",
-      "Z10" => "Revenus très élevés - Primes limitées"
-    }
-    descriptions[category] || "Catégorie inconnue"
   end
 
 end
