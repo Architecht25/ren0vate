@@ -5,13 +5,13 @@ export default class extends Controller {
 
   connect() {
     console.log("🎯 Bruxelles Prime Calcul controller connected")
-    
+
     // Forcer la catégorie I par défaut pour harmoniser dev/prod
     if (!localStorage.getItem("bruxellesCategorieEstimee")) {
       localStorage.setItem("bruxellesCategorieEstimee", "1")
       console.log("🎯 Catégorie par défaut initialisée à I (bruxelles_cat1)")
     }
-    
+
     this.setupPrimesData()
     this.setupEventListeners()
     this.updateTotalGlobal()
@@ -288,6 +288,114 @@ export default class extends Controller {
         })
         console.log("✅ Événement ajouté pour pompe à chaleur")
       }
+
+      // Carte I - Services et études - Étude acoustique
+      const inputEtudeAcoustique = document.querySelector('[data-bruxelles-prime-card-target="inputEtudeAcoustique"]')
+      if (inputEtudeAcoustique) {
+        inputEtudeAcoustique.addEventListener('change', () => {
+          this.calculateSpecificPrime('bruxelles_etude_acoustique', inputEtudeAcoustique, '[data-bruxelles-prime-card-target="resultEtudeAcoustique"]')
+        })
+        console.log("✅ Événement ajouté pour étude acoustique")
+      }
+
+      // Carte I - Services et études - Suivi professionnel
+      const inputSuiviProfessionnel = document.querySelector('[data-bruxelles-prime-card-target="inputSuiviProfessionnel"]')
+      if (inputSuiviProfessionnel) {
+        inputSuiviProfessionnel.addEventListener('input', () => {
+          this.calculateSpecificPrime('bruxelles_suivi_professionnel', inputSuiviProfessionnel, '[data-bruxelles-prime-card-target="resultSuiviProfessionnel"]')
+        })
+        console.log("✅ Événement ajouté pour suivi professionnel")
+      }
+
+      // Carte C - Gros-œuvre - Structure portante
+      const inputStructurePortante = document.querySelector('[data-bruxelles-prime-card-target="inputStructurePortante"]')
+      if (inputStructurePortante) {
+        inputStructurePortante.addEventListener('input', () => {
+          this.calculateSpecificPrime('bruxelles_structure_portante', inputStructurePortante, '[data-bruxelles-prime-card-target="resultStructurePortante"]')
+        })
+        console.log("✅ Événement ajouté pour structure portante")
+      }
+
+      // Carte C - Gros-œuvre - Gestion égouts
+      const inputGestionEgouts = document.querySelector('[data-bruxelles-prime-card-target="inputGestionEgouts"]')
+      if (inputGestionEgouts) {
+        inputGestionEgouts.addEventListener('input', () => {
+          this.calculateSpecificPrime('bruxelles_gestion_egouts', inputGestionEgouts, '[data-bruxelles-prime-card-target="resultGestionEgouts"]')
+        })
+        console.log("✅ Événement ajouté pour gestion égouts")
+      }
+
+      // Carte D - Salubrité - Traitement humidité sol
+      const inputTraitementHumiditeSol = document.querySelector('[data-bruxelles-prime-card-target="inputTraitementHumiditeSol"]')
+      if (inputTraitementHumiditeSol) {
+        inputTraitementHumiditeSol.addEventListener('input', () => {
+          this.calculateSpecificPrime('bruxelles_traitement_humidite_sol', inputTraitementHumiditeSol, '[data-bruxelles-prime-card-target="resultTraitementHumiditeSol"]')
+        })
+        console.log("✅ Événement ajouté pour traitement humidité sol")
+      }
+
+      // Carte D - Salubrité - Traitement fongique et insectes
+      const inputTraitementFongiqueInsectes = document.querySelector('[data-bruxelles-prime-card-target="inputTraitementFongiqueInsectes"]')
+      if (inputTraitementFongiqueInsectes) {
+        inputTraitementFongiqueInsectes.addEventListener('input', () => {
+          this.calculateSpecificPrime('bruxelles_traitement_fongique_insectes', inputTraitementFongiqueInsectes, '[data-bruxelles-prime-card-target="resultTraitementFongiqueInsectes"]')
+        })
+        console.log("✅ Événement ajouté pour traitement fongique insectes")
+      }
+
+      // Carte E - Toiture - Accessoires toiture
+      const inputAccessoiresToiture = document.querySelector('[data-bruxelles-prime-card-target="inputAccessoiresToiture"]')
+      if (inputAccessoiresToiture) {
+        inputAccessoiresToiture.addEventListener('input', () => {
+          this.calculateSpecificPrime('bruxelles_accessoires_toiture', inputAccessoiresToiture, '[data-bruxelles-prime-card-target="resultAccessoiresToiture"]')
+        })
+        console.log("✅ Événement ajouté pour accessoires toiture")
+      }
+
+      // Carte F - Façades - Bardage façade
+      const inputBardageFacade = document.querySelector('[data-bruxelles-prime-card-target="inputBardageFacade"]')
+      if (inputBardageFacade) {
+        inputBardageFacade.addEventListener('input', () => {
+          this.calculateSpecificPrime('bruxelles_bardage_facade', inputBardageFacade, '[data-bruxelles-prime-card-target="resultBardageFacade"]')
+        })
+        console.log("✅ Événement ajouté pour bardage façade")
+      }
+
+      // Carte F - Façades - Enduit façade
+      const inputEnduitFacade = document.querySelector('[data-bruxelles-prime-card-target="inputEnduitFacade"]')
+      if (inputEnduitFacade) {
+        inputEnduitFacade.addEventListener('input', () => {
+          this.calculateSpecificPrime('bruxelles_enduit_facade', inputEnduitFacade, '[data-bruxelles-prime-card-target="resultEnduitFacade"]')
+        })
+        console.log("✅ Événement ajouté pour enduit façade")
+      }
+
+      // Carte F - Façades - Isolation acoustique murs
+      const inputIsolationAcoustique = document.querySelector('[data-bruxelles-prime-card-target="inputIsolationAcoustique"]')
+      if (inputIsolationAcoustique) {
+        inputIsolationAcoustique.addEventListener('input', () => {
+          this.calculateSpecificPrime('bruxelles_isolation_acoustique_murs', inputIsolationAcoustique, '[data-bruxelles-prime-card-target="resultIsolationAcoustique"]')
+        })
+        console.log("✅ Événement ajouté pour isolation acoustique murs")
+      }
+
+      // Carte I - Aménagement - Protection incendie
+      const inputProtectionIncendie = document.querySelector('[data-bruxelles-prime-card-target="inputProtectionIncendie"]')
+      if (inputProtectionIncendie) {
+        inputProtectionIncendie.addEventListener('input', () => {
+          this.calculateSpecificPrime('bruxelles_protection_incendie', inputProtectionIncendie, '[data-bruxelles-prime-card-target="resultProtectionIncendie"]')
+        })
+        console.log("✅ Événement ajouté pour protection incendie")
+      }
+
+      // Carte J - Chauffage - Régulation thermique
+      const inputRegulationThermique = document.querySelector('[data-bruxelles-prime-card-target="inputRegulationThermique"]')
+      if (inputRegulationThermique) {
+        inputRegulationThermique.addEventListener('input', () => {
+          this.calculateSpecificPrime('bruxelles_regulation_thermique', inputRegulationThermique, '[data-bruxelles-prime-card-target="resultRegulationThermique"]')
+        })
+        console.log("✅ Événement ajouté pour régulation thermique")
+      }
     }, 500)
   }
 
@@ -329,9 +437,17 @@ export default class extends Controller {
         const montantTravaux = parseFloat(inputElement.value) || 0
         const pourcentage = calculData.pourcentage || 0
         const montantMax = calculData.montant_max || Infinity
-        const calculResult = (montantTravaux * pourcentage) / 100
-        montant = Math.min(calculResult, montantMax)
-        console.log(`📊 ${primeSlug}: ${montant}€ (${montantTravaux}€ × ${pourcentage}%, max: ${montantMax}€)`)
+
+        // Vérifier s'il y a un calcul basé sur une autre prime
+        if (calculData.base_calculation) {
+          console.log(`📊 ${primeSlug}: Calcul basé sur ${calculData.base_calculation} - non implémenté pour l'instant`)
+          montant = 0
+        } else {
+          // Calcul sur le montant saisi
+          const calculResult = (montantTravaux * pourcentage) / 100
+          montant = Math.min(calculResult, montantMax)
+          console.log(`📊 ${primeSlug}: ${montant}€ (${montantTravaux}€ × ${pourcentage}%, max: ${montantMax}€)`)
+        }
         break
       default:
         console.warn("Type de calcul Bruxelles non géré:", calculData.type)
