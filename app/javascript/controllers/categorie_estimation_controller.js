@@ -153,6 +153,11 @@ export default class extends Controller {
     localStorage.setItem("bruxellesCategorieEstimee", categorieEstimee);
 
     console.log("🎯 Catégorie Bruxelles estimée:", categorieEstimee);
+
+    // Déclencher un événement pour que les contrôleurs Bruxelles se mettent à jour
+    document.dispatchEvent(new CustomEvent('bruxelles:category:changed', {
+      detail: { categorie: `bruxelles_cat${categorieEstimee}` }
+    }));
   }
 
   togglePrimesSection(show = true) {

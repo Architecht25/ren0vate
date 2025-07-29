@@ -219,6 +219,9 @@ export default class extends Controller {
   changeCategory(newCategory) {
     this.currentCategory = newCategory
     localStorage.setItem('selectedBruxellesCategory', newCategory)
+    // Mettre à jour aussi la catégorie estimée pour cohérence
+    const categoryNumber = newCategory.replace('bruxelles_cat', '')
+    localStorage.setItem('bruxellesCategorieEstimee', categoryNumber)
     this.updateSectionTitle()
 
     console.log(`🔄 Changement de catégorie vers: ${newCategory}`)
