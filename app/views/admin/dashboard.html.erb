@@ -1,25 +1,52 @@
 <h1>Admin Dashboard</h1>
 
-<h2>Primes</h2>
-<ul>
-  <% @primes.each do |prime| %>
-    <li><%= prime.name %></li>
-  <% end %>
-</ul>
-
-<h2>Categories</h2>
-<ul>
-  <% @categories.each do |category| %>
-    <li><%= category.name %></li>
-  <% end %>
-</ul>
-
-<h2>Documents</h2>
-<ul>
-  <% @documents.each do |document| %>
-    <li><%= document.name %></li>
-  <% end %>
-</ul>
+<h2>Utilisateurs inscrits (<%= @users.count %>)</h2>
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Email</th>
+        <th>Nom</th>
+        <th>Prénom</th>
+        <th>Région</th>
+        <th>Téléphone</th>
+        <th>Ville</th>
+        <th>Date d'inscription</th>
+        <th>Profil complet</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @users.each do |user| %>
+        <tr>
+          <td><%= user.id %></td>
+          <td><%= user.email %></td>
+          <td><%= user.last_name %></td>
+          <td><%= user.first_name %></td>
+          <td>
+            <% if user.region.present? %>
+              <span class="badge bg-<%= user.region == 'wallonie' ? 'success' : user.region == 'bruxelles' ? 'primary' : 'warning' %>">
+                <%= user.region.capitalize %>
+              </span>
+            <% else %>
+              <span class="badge bg-secondary">Non définie</span>
+            <% end %>
+          </td>
+          <td><%= user.phone %></td>
+          <td><%= user.city %></td>
+          <td><%= user.created_at.strftime("%d/%m/%Y") %></td>
+          <td>
+            <% if user.first_name.present? && user.last_name.present? && user.region.present? %>
+              <span class="badge bg-success">✓ Complet</span>
+            <% else %>
+              <span class="badge bg-warning">⚠ Incomplet</span>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
 
 <h2>LocalStorage Data</h2>
 <div id="local-storage-data"></div>
