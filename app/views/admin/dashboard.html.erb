@@ -16,6 +16,9 @@
         <th>Profil complet</th>
         <th>Propriétés</th>
         <th>Chantiers</th>
+        <th>Simulations</th>
+        <th>Documents</th>
+        <th>Demandes</th>
       </tr>
     </thead>
     <tbody>
@@ -44,8 +47,41 @@
               <span class="badge bg-warning">⚠ Incomplet</span>
             <% end %>
           </td>
-          <td><%= user.properties.count %></td>
-          <td><%= user.projects.count %></td>
+          <td>
+            <% if user.properties.any? %>
+              <span class="badge bg-info"><%= user.properties.count %></span>
+            <% else %>
+              <span class="badge bg-secondary">0</span>
+            <% end %>
+          </td>
+          <td>
+            <% if user.projects.any? %>
+              <span class="badge bg-info"><%= user.projects.count %></span>
+            <% else %>
+              <span class="badge bg-secondary">Aucune</span>
+            <% end %>
+          </td>
+          <td>
+            <% if user.simulations.any? %>
+              <span class="badge bg-info"><%= user.simulations.count %></span>
+            <% else %>
+              <span class="badge bg-secondary">Aucune</span>
+            <% end %>
+          </td>
+          <td>
+            <% if user.documents.any? %>
+              <span class="badge bg-info"><%= user.documents.count %></span>
+            <% else %>
+              <span class="badge bg-secondary">Aucune</span>
+            <% end %>
+          </td>
+          <td>
+            <% if user.requests.any? %>
+              <span class="badge bg-info"><%= user.requests.count %> demande(s)</span>
+            <% else %>
+              <span class="badge bg-secondary">Aucune</span>
+            <% end %>
+          </td>
         </tr>
       <% end %>
     </tbody>
