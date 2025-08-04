@@ -14,6 +14,7 @@
         <th>Ville</th>
         <th>Date d'inscription</th>
         <th>Profil complet</th>
+        <th>Propriétés</th>
       </tr>
     </thead>
     <tbody>
@@ -42,20 +43,9 @@
               <span class="badge bg-warning">⚠ Incomplet</span>
             <% end %>
           </td>
+          <td><%= user.properties.count %></td>
         </tr>
       <% end %>
     </tbody>
   </table>
 </div>
-
-<h2>LocalStorage Data</h2>
-<div id="local-storage-data"></div>
-
-<script>
-  const localStorageData = {};
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    localStorageData[key] = localStorage.getItem(key);
-  }
-  document.getElementById('local-storage-data').textContent = JSON.stringify(localStorageData, null, 2);
-</script>
