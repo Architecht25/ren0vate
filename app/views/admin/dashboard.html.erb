@@ -87,3 +87,78 @@
     </tbody>
   </table>
 </div>
+
+<!-- Statistiques -->
+<h2>Statistiques</h2>
+<div class="col-md-2">
+    <h3>Primes par région</h3>
+    <ul class="list-group">
+      <% @primes.group_by(&:region).each do |region, primes| %>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <%= region.capitalize %>
+          <span class="badge bg-success rounded-pill"><%= primes.count %></span>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+  <div class="row">
+  <div class="col-md-2">
+    <h3>Total des utilisateurs</h3>
+    <div class="card text-center">
+      <div class="card-body">
+        <h1 class="card-title text-primary"><%= @users.count %></h1>
+        <p class="card-text">Utilisateurs inscrits</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-2">
+    <h3>Total des biens</h3>
+    <div class="card text-center">
+      <div class="card-body">
+        <h1 class="card-title text-info"><%= @properties.count %></h1>
+        <p class="card-text">Propriétés enregistrées</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-2">
+    <h3>Total des chantiers</h3>
+    <div class="card text-center">
+      <div class="card-body">
+        <h1 class="card-title text-warning"><%= @projects.count %></h1>
+        <p class="card-text">Chantiers créés</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-2">
+    <h3>Total des simulations</h3>
+    <div class="card text-center">
+      <div class="card-body">
+        <h1 class="card-title text-danger"><%= @simulations.count %></h1>
+        <p class="card-text">Simulations effectuées</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-2">
+    <h3>Total des documents</h3>
+    <div class="card text-center">
+      <div class="card-body">
+        <h1 class="card-title text-secondary"><%= @documents.count %></h1>
+        <p class="card-text">Documents téléchargés</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-2">
+    <h3>Total des demandes</h3>
+    <div class="card text-center">
+      <div class="card-body">
+        <h1 class="card-title text-primary"><%= @requests.count %></h1>
+        <p class="card-text">Demandes en cours</p>
+      </div>
+    </div>
+  </div>
+</div>
