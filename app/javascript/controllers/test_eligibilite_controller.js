@@ -413,22 +413,34 @@ export default class extends Controller {
     const revenus = testData["revenus"];
     const travaux_toiture = testData["travaux_toiture"];
 
+    // ❌ VÉRIFICATION R5 : Si revenus trop élevés = INÉLIGIBLE
+    if (revenus === "oui") {
+      // Revenus > 114.400€ = Catégorie R5 = INÉLIGIBLE
+      this.showResultWallonieParticulier(
+        "❌ Vos revenus dépassent le plafond d'éligibilité aux primes Wallonie<br><br>" +
+        "<strong>Catégorie :</strong> <span class='badge bg-danger'>R5 - Non éligible</span><br><br>" +
+        "💰 Avec des revenus supérieurs à 114.400€ (après déductions), vous n'êtes malheureusement plus éligible aux primes habitation de la Région wallonne.",
+        false,
+        [
+          "📋 Revenus trop élevés selon les critères régionaux",
+          "💡 Vous pouvez néanmoins bénéficier des déductions fiscales fédérales",
+          "� Renseignez-vous sur les prêts à taux avantageux pour la rénovation"
+        ]
+      );
+      return; // Arrêter le processus ici
+    }
+
+    // ✅ Si on arrive ici, l'utilisateur est éligible (R1-R4)
     let message = "✅ Vous êtes éligible aux primes habitation Wallonie !";
     let recommendations = [];
 
-    if (revenus === "non") {
-      // Revenus <= 114.400€
-      if (travaux_toiture === "oui") {
-        message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-success'>R1-R4 (toiture uniquement)</span>";
-        recommendations.push("🏠 Travaux de toiture uniquement éligibles avec vos revenus");
-      } else {
-        message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-success'>R1-R4 (tous travaux)</span>";
-        recommendations.push("🎯 Tous les types de travaux sont éligibles avec vos revenus");
-      }
+    // Revenus <= 114.400€ (R1-R4)
+    if (travaux_toiture === "oui") {
+      message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-success'>R1-R4 (toiture uniquement)</span>";
+      recommendations.push("� Travaux de toiture uniquement éligibles avec vos revenus");
     } else {
-      // Revenus > 114.400€
-      message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-warning'>R5</span>";
-      recommendations.push("💰 Primes réduites selon votre tranche de revenus");
+      message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-success'>R1-R4 (tous travaux)</span>";
+      recommendations.push("🎯 Tous les types de travaux sont éligibles avec vos revenus");
     }
 
     // Conseils sur l'audit
@@ -439,9 +451,8 @@ export default class extends Controller {
       recommendations.push("💡 Conseil : Un audit énergétique peut débloquer des primes supplémentaires");
     }
 
-    // Stocker la catégorie dans localStorage
-    const categorie = revenus === "non" ? "R1-R4" : "R5";
-    localStorage.setItem("wallonie_categorie", categorie);
+    // Stocker la catégorie dans localStorage (seulement R1-R4 maintenant)
+    localStorage.setItem("wallonie_categorie", "R1-R4");
 
     this.showResultWallonieParticulier(message, true, recommendations);
   }
