@@ -26,20 +26,20 @@ export default class extends Controller {
     localStorage.setItem("personnes_charge", nbCharges)
     localStorage.setItem("revenu_net", revenuInput)
 
-    // Convertir la valeur sélectionnée en revenu numérique (prendre le milieu de la tranche)
+    // Convertir la valeur sélectionnée en revenu numérique basé sur les seuils de catégories
     let revenuAnnuel = 0
     switch (revenuInput) {
       case "-24320":
-        revenuAnnuel = 20000 // Milieu de la tranche basse
+        revenuAnnuel = 20000 // Catégorie 4 pour la plupart des situations
         break
       case "24231-42340":
-        revenuAnnuel = 33000 // Milieu de la tranche
+        revenuAnnuel = 35000 // Catégorie 4 pour couple, 3 pour seul
         break
       case "42341-53880":
-        revenuAnnuel = 48000 // Milieu de la tranche
+        revenuAnnuel = 48000 // Catégorie 3 pour la plupart des situations
         break
       case "53881+":
-        revenuAnnuel = 90000 // Estimation pour revenus élevés - ajustée pour test
+        revenuAnnuel = 60000 // Catégorie 3 pour couple+enfants, 2 pour seul
         break
     }
 
