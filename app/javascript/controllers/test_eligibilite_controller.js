@@ -1896,4 +1896,749 @@ export default class extends Controller {
     // Pour les ASBL, pas d'affinage - résultat direct
     this.showFinalResultBruxelles(message, isEligible, recommendations, false);
   }
+
+  // ========== NOUVEAUX PROFILS BRUXELLES ==========
+
+  // PARTICULIER BAILLEUR
+  handleAnswerBruxellesParticulierBailleur(event) {
+    console.log("🎯 Test Eligibilité Bruxelles Particulier Bailleur - Réponse:", event.target.name, "=", event.target.value);
+
+    const form = this.formTarget;
+    const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+    const inputValues = [...form.querySelectorAll("input[type=number]")];
+
+    const testData = responses.reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    // Ajouter les valeurs numériques
+    inputValues.forEach(input => {
+      if (input.value) {
+        testData[input.name] = input.value;
+      }
+    });
+
+    localStorage.setItem("eligibiliteBruxellesParticulierBailleur", JSON.stringify(testData));
+
+    // Gestion des alertes conditionnelles
+    this.handleConditionalAlertsBailleur(event.target.name, event.target.value);
+
+    // Vérifications d'inéligibilité
+    const localisation = testData["localisation"];
+    if (localisation === "non") {
+      this.showResult("❌ Le bien doit être situé en Région de Bruxelles-Capitale", false);
+      return;
+    }
+
+    const age_batiment = testData["age_batiment"];
+    if (age_batiment === "non") {
+      this.showResult("❌ Le bâtiment doit être âgé d'au moins 10 ans", false);
+      return;
+    }
+
+    const professionnel_agree = testData["professionnel_agree"];
+    if (professionnel_agree === "non") {
+      this.showResult("❌ Les travaux doivent être réalisés par un professionnel agréé", false);
+      return;
+    }
+
+    const nouvelle_construction = testData["nouvelle_construction"];
+    if (nouvelle_construction === "oui") {
+      this.showResult("❌ Les nouvelles constructions ne sont pas éligibles", false);
+      return;
+    }
+
+    const compte_bancaire_belge = testData["compte_bancaire_belge"];
+    if (compte_bancaire_belge === "non") {
+      this.showResult("❌ Un compte bancaire belge est requis", false);
+      return;
+    }
+
+    const travaux_realises = testData["travaux_realises"];
+    if (travaux_realises === "non") {
+      this.showResult("❌ Les travaux doivent être réalisés avec facture dans les 12 mois", false);
+      return;
+    }
+
+    this.checkIfAllAnsweredBruxellesParticulierBailleur();
+  }
+
+  handleConditionalAlertsBailleur(questionName, value) {
+    const alertsMap = {
+      'primes_anterieures': { condition: value === 'oui', elementId: 'primes_anterieures_info' },
+      'bim': { condition: value === 'oui', elementId: 'bim_info' },
+      'ris': { condition: value === 'oui', elementId: 'ris_info' },
+      'client_protege': { condition: value === 'oui', elementId: 'client_protege_info' },
+      'permis_urbanisme': { condition: value === 'non', elementId: 'permis_urbanisme_info' },
+      'peb': { condition: value === 'non', elementId: 'peb_info' }
+    };
+
+    Object.entries(alertsMap).forEach(([key, config]) => {
+      const element = document.getElementById(config.elementId);
+      if (element && questionName === key) {
+        element.style.display = config.condition ? 'block' : 'none';
+      }
+    });
+
+    // Gestion des sections conditionnelles
+    if (questionName === 'type_propriete') {
+      const immeubleDetails = document.getElementById('immeuble_details');
+      if (immeubleDetails) {
+        immeubleDetails.style.display = value === 'immeuble_complet' ? 'block' : 'none';
+      }
+    }
+
+    if (questionName === 'activite_professionnelle') {
+      const activiteDetails = document.getElementById('activite_details');
+      if (activiteDetails) {
+        activiteDetails.style.display = value === 'oui' ? 'block' : 'none';
+      }
+    }
+  }
+
+  checkIfAllAnsweredBruxellesParticulierBailleur() {
+    const form = this.formTarget;
+    const radioInputs = Array.from(form.querySelectorAll("input[type='radio']"));
+    const questionNames = [...new Set(radioInputs.map(input => input.name))].filter(name => name !== "profile_type");
+
+    const testData = [...form.querySelectorAll("input[type=radio]:checked")].reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    let allAnswered = questionNames.every(name => {
+      return form.querySelector(`input[name="${name}"]:checked`) !== null;
+    });
+
+    // Vérifications conditionnelles
+    if (testData.type_propriete === 'immeuble_complet') {
+      const nbAppartements = form.querySelector('input[name="nb_appartements"]');
+      allAnswered = allAnswered && nbAppartements && nbAppartements.value.trim() !== '';
+      allAnswered = allAnswered && testData.composition_immeuble !== undefined;
+    }
+
+    if (testData.activite_professionnelle === 'oui') {
+      allAnswered = allAnswered && testData.tva_applicable !== undefined;
+    }
+
+    if (allAnswered && this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "block";
+    } else if (this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "none";
+    }
+  }
+
+  validateTestBruxellesParticulierBailleur() {
+    console.log("🎯 Validation du test d'éligibilité Bruxelles Particulier Bailleur");
+
+    const testData = JSON.parse(localStorage.getItem("eligibiliteBruxellesParticulierBailleur") || "{}");
+
+    let message = "✅ Vous êtes éligible aux primes RENOLUTION Bruxelles en tant que particulier bailleur !";
+    let recommendations = [];
+
+    // Vérifier les avantages
+    if (testData.bim === "oui") {
+      recommendations.push("✨ Vous bénéficiez de primes majorées avec le statut BIM");
+    }
+    if (testData.ris === "oui") {
+      recommendations.push("✨ Vous bénéficiez de primes majorées avec le RIS");
+    }
+    if (testData.client_protege === "oui") {
+      recommendations.push("✨ Vous bénéficiez de primes majorées en tant que client protégé");
+    }
+
+    if (testData.type_propriete === 'immeuble_complet') {
+      recommendations.push("🏢 Propriétaire d'immeuble complet - primes spécifiques applicables");
+    }
+
+    message += "<br><br><strong>Profil :</strong> <span class='badge bg-primary'>Particulier Bailleur</span>";
+
+    localStorage.setItem("bruxelles_categorie", "particulier_bailleur");
+    this.showResultBruxellesParticulierBailleur(message, true, recommendations);
+  }
+
+  showResultBruxellesParticulierBailleur(message, isEligible = true, recommendations = []) {
+    this.showFinalResultBruxelles(message, isEligible, recommendations, true);
+  }
+
+  // PARTICULIER INDIVISION
+  handleAnswerBruxellesParticulierIndivision(event) {
+    console.log("🎯 Test Eligibilité Bruxelles Particulier Indivision - Réponse:", event.target.name, "=", event.target.value);
+
+    const form = this.formTarget;
+    const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+
+    const testData = responses.reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    localStorage.setItem("eligibiliteBruxellesParticulierIndivision", JSON.stringify(testData));
+
+    // Gestion des alertes
+    this.handleConditionalAlertsIndivision(event.target.name, event.target.value);
+
+    // Vérifications d'inéligibilité
+    const localisation = testData["localisation"];
+    if (localisation === "non") {
+      this.showResult("❌ Le bien doit être situé en Région de Bruxelles-Capitale", false);
+      return;
+    }
+
+    const age_batiment = testData["age_batiment"];
+    if (age_batiment === "non") {
+      this.showResult("❌ Le bâtiment doit être âgé d'au moins 10 ans", false);
+      return;
+    }
+
+    const professionnel_agree = testData["professionnel_agree"];
+    if (professionnel_agree === "non") {
+      this.showResult("❌ Les travaux doivent être réalisés par un professionnel agréé", false);
+      return;
+    }
+
+    const nouvelle_construction = testData["nouvelle_construction"];
+    if (nouvelle_construction === "oui") {
+      this.showResult("❌ Les nouvelles constructions ne sont pas éligibles", false);
+      return;
+    }
+
+    const compte_bancaire_belge = testData["compte_bancaire_belge"];
+    if (compte_bancaire_belge === "non") {
+      this.showResult("❌ Un compte bancaire belge est requis", false);
+      return;
+    }
+
+    const travaux_realises = testData["travaux_realises"];
+    if (travaux_realises === "non") {
+      this.showResult("❌ Les travaux doivent être réalisés avec facture dans les 12 mois", false);
+      return;
+    }
+
+    this.checkIfAllAnsweredBruxellesParticulierIndivision();
+  }
+
+  handleConditionalAlertsIndivision(questionName, value) {
+    const alertsMap = {
+      'primes_anterieures': { condition: value === 'oui', elementId: 'primes_anterieures_info' }
+    };
+
+    Object.entries(alertsMap).forEach(([key, config]) => {
+      const element = document.getElementById(config.elementId);
+      if (element && questionName === key) {
+        element.style.display = config.condition ? 'block' : 'none';
+      }
+    });
+  }
+
+  checkIfAllAnsweredBruxellesParticulierIndivision() {
+    const form = this.formTarget;
+    const radioInputs = Array.from(form.querySelectorAll("input[type='radio']"));
+    const questionNames = [...new Set(radioInputs.map(input => input.name))].filter(name => name !== "profile_type");
+
+    const allAnswered = questionNames.every(name => {
+      return form.querySelector(`input[name="${name}"]:checked`) !== null;
+    });
+
+    if (allAnswered && this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "block";
+    } else if (this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "none";
+    }
+  }
+
+  validateTestBruxellesParticulierIndivision() {
+    console.log("🎯 Validation du test d'éligibilité Bruxelles Particulier Indivision");
+
+    let message = "✅ Vous êtes éligible aux primes RENOLUTION Bruxelles en tant que particulier en indivision !";
+    message += "<br><br><strong>Profil :</strong> <span class='badge bg-info'>Particulier Indivision</span>";
+
+    let recommendations = [
+      "👥 En tant que copropriétaire en indivision, vous pouvez demander les primes individuellement",
+      "📋 Attention à la règle des 10 ans pour les primes identiques",
+      "⚖️ Chaque indivisaire peut faire sa demande selon sa quote-part"
+    ];
+
+    localStorage.setItem("bruxelles_categorie", "particulier_indivision");
+    this.showResultBruxellesParticulierIndivision(message, true, recommendations);
+  }
+
+  showResultBruxellesParticulierIndivision(message, isEligible = true, recommendations = []) {
+    this.showFinalResultBruxelles(message, isEligible, recommendations, true);
+  }
+
+  // LOCATAIRE
+  handleAnswerBruxellesLocataire(event) {
+    console.log("🎯 Test Eligibilité Bruxelles Locataire - Réponse:", event.target.name, "=", event.target.value);
+
+    const form = this.formTarget;
+    const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+    const inputValues = [...form.querySelectorAll("input[type=number]")];
+
+    const testData = responses.reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    // Ajouter les valeurs numériques
+    inputValues.forEach(input => {
+      if (input.value) {
+        testData[input.name] = input.value;
+      }
+    });
+
+    localStorage.setItem("eligibiliteBruxellesLocataire", JSON.stringify(testData));
+
+    // Gestion des alertes conditionnelles
+    this.handleConditionalAlertsLocataire(event.target.name, event.target.value);
+
+    // Vérifications d'inéligibilité
+    const localisation = testData["localisation"];
+    if (localisation === "non") {
+      this.showResult("❌ Le bien doit être situé en Région de Bruxelles-Capitale", false);
+      return;
+    }
+
+    const age_batiment = testData["age_batiment"];
+    if (age_batiment === "non") {
+      this.showResult("❌ Le bâtiment doit être âgé d'au moins 10 ans", false);
+      return;
+    }
+
+    const professionnel_agree = testData["professionnel_agree"];
+    if (professionnel_agree === "non") {
+      this.showResult("❌ Les travaux doivent être réalisés par un professionnel agréé", false);
+      return;
+    }
+
+    const nouvelle_construction = testData["nouvelle_construction"];
+    if (nouvelle_construction === "oui") {
+      this.showResult("❌ Les nouvelles constructions ne sont pas éligibles", false);
+      return;
+    }
+
+    const compte_bancaire_belge = testData["compte_bancaire_belge"];
+    if (compte_bancaire_belge === "non") {
+      this.showResult("❌ Un compte bancaire belge est requis", false);
+      return;
+    }
+
+    const travaux_realises = testData["travaux_realises"];
+    if (travaux_realises === "non") {
+      this.showResult("❌ Les travaux doivent être réalisés avec facture dans les 12 mois", false);
+      return;
+    }
+
+    const accord_proprietaire = testData["accord_proprietaire"];
+    if (accord_proprietaire === "non") {
+      this.showResult("❌ L'accord écrit du propriétaire est obligatoire pour les locataires", false);
+      return;
+    }
+
+    this.checkIfAllAnsweredBruxellesLocataire();
+  }
+
+  handleConditionalAlertsLocataire(questionName, value) {
+    const alertsMap = {
+      'primes_anterieures': { condition: value === 'oui', elementId: 'primes_anterieures_info' },
+      'bim': { condition: value === 'oui', elementId: 'bim_info' },
+      'ris': { condition: value === 'oui', elementId: 'ris_info' },
+      'client_protege': { condition: value === 'oui', elementId: 'client_protege_info' },
+      'permis_urbanisme': { condition: value === 'non', elementId: 'permis_urbanisme_info' }
+    };
+
+    Object.entries(alertsMap).forEach(([key, config]) => {
+      const element = document.getElementById(config.elementId);
+      if (element && questionName === key) {
+        element.style.display = config.condition ? 'block' : 'none';
+      }
+    });
+
+    // Gestion des sections conditionnelles
+    if (questionName === 'type_propriete') {
+      const immeubleDetails = document.getElementById('immeuble_details');
+      if (immeubleDetails) {
+        immeubleDetails.style.display = value === 'immeuble_complet' ? 'block' : 'none';
+      }
+    }
+
+    if (questionName === 'activite_professionnelle') {
+      const activiteDetails = document.getElementById('activite_details');
+      if (activiteDetails) {
+        activiteDetails.style.display = value === 'oui' ? 'block' : 'none';
+      }
+    }
+  }
+
+  checkIfAllAnsweredBruxellesLocataire() {
+    const form = this.formTarget;
+    const radioInputs = Array.from(form.querySelectorAll("input[type='radio']"));
+    const questionNames = [...new Set(radioInputs.map(input => input.name))].filter(name => name !== "profile_type");
+
+    const testData = [...form.querySelectorAll("input[type=radio]:checked")].reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    let allAnswered = questionNames.every(name => {
+      return form.querySelector(`input[name="${name}"]:checked`) !== null;
+    });
+
+    // Vérifications conditionnelles
+    if (testData.type_propriete === 'immeuble_complet') {
+      const nbAppartements = form.querySelector('input[name="nb_appartements"]');
+      allAnswered = allAnswered && nbAppartements && nbAppartements.value.trim() !== '';
+      allAnswered = allAnswered && testData.composition_immeuble !== undefined;
+    }
+
+    if (testData.activite_professionnelle === 'oui') {
+      allAnswered = allAnswered && testData.pourcentage_activite !== undefined;
+    }
+
+    if (allAnswered && this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "block";
+    } else if (this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "none";
+    }
+  }
+
+  validateTestBruxellesLocataire() {
+    console.log("🎯 Validation du test d'éligibilité Bruxelles Locataire");
+
+    const testData = JSON.parse(localStorage.getItem("eligibiliteBruxellesLocataire") || "{}");
+
+    let message = "✅ Vous êtes éligible aux primes RENOLUTION Bruxelles en tant que locataire !";
+    let recommendations = [];
+
+    // Vérifier les avantages
+    if (testData.bim === "oui") {
+      recommendations.push("✨ Vous bénéficiez de primes majorées avec le statut BIM");
+    }
+    if (testData.ris === "oui") {
+      recommendations.push("✨ Vous bénéficiez de primes majorées avec le RIS");
+    }
+    if (testData.client_protege === "oui") {
+      recommendations.push("✨ Vous bénéficiez de primes majorées en tant que client protégé");
+    }
+
+    recommendations.push("📝 En tant que locataire, l'accord écrit du propriétaire est obligatoire");
+    recommendations.push("🏠 Certains travaux spécifiques sont accessibles aux locataires");
+
+    message += "<br><br><strong>Profil :</strong> <span class='badge bg-success'>Locataire</span>";
+
+    localStorage.setItem("bruxelles_categorie", "locataire");
+    this.showResultBruxellesLocataire(message, true, recommendations);
+  }
+
+  showResultBruxellesLocataire(message, isEligible = true, recommendations = []) {
+    this.showFinalResultBruxelles(message, isEligible, recommendations, true);
+  }
+
+  // EMPHYTEOTE
+  handleAnswerBruxellesEmphyteote(event) {
+    console.log("🎯 Test Eligibilité Bruxelles Emphythéote - Réponse:", event.target.name, "=", event.target.value);
+
+    const form = this.formTarget;
+    const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+    const inputValues = [...form.querySelectorAll("input[type=number]")];
+
+    const testData = responses.reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    // Ajouter les valeurs numériques
+    inputValues.forEach(input => {
+      if (input.value) {
+        testData[input.name] = input.value;
+      }
+    });
+
+    localStorage.setItem("eligibiliteBruxellesEmphyteote", JSON.stringify(testData));
+
+    // Gestion des alertes conditionnelles
+    this.handleConditionalAlertsEmphyteote(event.target.name, event.target.value);
+
+    // Vérifications d'inéligibilité
+    const localisation = testData["localisation"];
+    if (localisation === "non") {
+      this.showResult("❌ Le bien doit être situé en Région de Bruxelles-Capitale", false);
+      return;
+    }
+
+    const age_batiment = testData["age_batiment"];
+    if (age_batiment === "non") {
+      this.showResult("❌ Le bâtiment doit être âgé d'au moins 10 ans", false);
+      return;
+    }
+
+    const professionnel_agree = testData["professionnel_agree"];
+    if (professionnel_agree === "non") {
+      this.showResult("❌ Les travaux doivent être réalisés par un professionnel agréé", false);
+      return;
+    }
+
+    const nouvelle_construction = testData["nouvelle_construction"];
+    if (nouvelle_construction === "oui") {
+      this.showResult("❌ Les nouvelles constructions ne sont pas éligibles", false);
+      return;
+    }
+
+    const compte_bancaire_belge = testData["compte_bancaire_belge"];
+    if (compte_bancaire_belge === "non") {
+      this.showResult("❌ Un compte bancaire belge est requis", false);
+      return;
+    }
+
+    const travaux_realises = testData["travaux_realises"];
+    if (travaux_realises === "non") {
+      this.showResult("❌ Les travaux doivent être réalisés avec facture dans les 12 mois", false);
+      return;
+    }
+
+    this.checkIfAllAnsweredBruxellesEmphyteote();
+  }
+
+  handleConditionalAlertsEmphyteote(questionName, value) {
+    const alertsMap = {
+      'primes_anterieures': { condition: value === 'oui', elementId: 'primes_anterieures_info' },
+      'bim': { condition: value === 'oui', elementId: 'bim_info' },
+      'ris': { condition: value === 'oui', elementId: 'ris_info' },
+      'client_protege': { condition: value === 'oui', elementId: 'client_protege_info' },
+      'permis_urbanisme': { condition: value === 'non', elementId: 'permis_urbanisme_info' }
+    };
+
+    Object.entries(alertsMap).forEach(([key, config]) => {
+      const element = document.getElementById(config.elementId);
+      if (element && questionName === key) {
+        element.style.display = config.condition ? 'block' : 'none';
+      }
+    });
+
+    // Gestion des sections conditionnelles
+    if (questionName === 'type_propriete') {
+      const immeubleDetails = document.getElementById('immeuble_details');
+      if (immeubleDetails) {
+        immeubleDetails.style.display = value === 'immeuble_complet' ? 'block' : 'none';
+      }
+    }
+  }
+
+  checkIfAllAnsweredBruxellesEmphyteote() {
+    const form = this.formTarget;
+    const radioInputs = Array.from(form.querySelectorAll("input[type='radio']"));
+    const questionNames = [...new Set(radioInputs.map(input => input.name))].filter(name => name !== "profile_type");
+
+    const testData = [...form.querySelectorAll("input[type=radio]:checked")].reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    let allAnswered = questionNames.every(name => {
+      return form.querySelector(`input[name="${name}"]:checked`) !== null;
+    });
+
+    // Vérifications conditionnelles
+    if (testData.type_propriete === 'immeuble_complet') {
+      const nbAppartements = form.querySelector('input[name="nb_appartements"]');
+      allAnswered = allAnswered && nbAppartements && nbAppartements.value.trim() !== '';
+      allAnswered = allAnswered && testData.composition_immeuble !== undefined;
+    }
+
+    if (allAnswered && this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "block";
+    } else if (this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "none";
+    }
+  }
+
+  validateTestBruxellesEmphyteote() {
+    console.log("🎯 Validation du test d'éligibilité Bruxelles Emphythéote");
+
+    const testData = JSON.parse(localStorage.getItem("eligibiliteBruxellesEmphyteote") || "{}");
+
+    let message = "✅ Vous êtes éligible aux primes RENOLUTION Bruxelles en tant qu'emphythéote !";
+    let recommendations = [];
+
+    // Vérifier les avantages
+    if (testData.bim === "oui") {
+      recommendations.push("✨ Vous bénéficiez de primes majorées avec le statut BIM");
+    }
+    if (testData.ris === "oui") {
+      recommendations.push("✨ Vous bénéficiez de primes majorées avec le RIS");
+    }
+    if (testData.client_protege === "oui") {
+      recommendations.push("✨ Vous bénéficiez de primes majorées en tant que client protégé");
+    }
+
+    if (testData.type_propriete === 'immeuble_complet') {
+      recommendations.push("🏢 Propriétaire d'immeuble complet via bail emphytéotique");
+    }
+
+    recommendations.push("📜 En tant qu'emphythéote, vous avez les mêmes droits qu'un propriétaire pour les primes");
+
+    message += "<br><br><strong>Profil :</strong> <span class='badge bg-warning'>Emphythéote</span>";
+
+    localStorage.setItem("bruxelles_categorie", "emphyteote");
+    this.showResultBruxellesEmphyteote(message, true, recommendations);
+  }
+
+  showResultBruxellesEmphyteote(message, isEligible = true, recommendations = []) {
+    this.showFinalResultBruxelles(message, isEligible, recommendations, true);
+  }
+
+  // COPROPRIETAIRE
+  handleAnswerBruxellesCoproprietaire(event) {
+    console.log("🎯 Test Eligibilité Bruxelles Copropriétaire - Réponse:", event.target.name, "=", event.target.value);
+
+    const form = this.formTarget;
+    const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+    const inputValues = [...form.querySelectorAll("input[type=number]")];
+
+    const testData = responses.reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    // Ajouter les valeurs numériques
+    inputValues.forEach(input => {
+      if (input.value) {
+        testData[input.name] = input.value;
+      }
+    });
+
+    localStorage.setItem("eligibiliteBruxellesCoproprietaire", JSON.stringify(testData));
+
+    // Gestion des alertes conditionnelles
+    this.handleConditionalAlertsCoproprietaire(event.target.name, event.target.value);
+
+    // Vérifications d'inéligibilité
+    const localisation = testData["localisation"];
+    if (localisation === "non") {
+      this.showResult("❌ Le bien doit être situé en Région de Bruxelles-Capitale", false);
+      return;
+    }
+
+    const age_batiment = testData["age_batiment"];
+    if (age_batiment === "non") {
+      this.showResult("❌ Le bâtiment doit être âgé d'au moins 10 ans", false);
+      return;
+    }
+
+    const professionnel_agree = testData["professionnel_agree"];
+    if (professionnel_agree === "non") {
+      this.showResult("❌ Les travaux doivent être réalisés par un professionnel agréé", false);
+      return;
+    }
+
+    const nouvelle_construction = testData["nouvelle_construction"];
+    if (nouvelle_construction === "oui") {
+      this.showResult("❌ Les nouvelles constructions ne sont pas éligibles", false);
+      return;
+    }
+
+    const compte_bancaire_belge = testData["compte_bancaire_belge"];
+    if (compte_bancaire_belge === "non") {
+      this.showResult("❌ Un compte bancaire belge est requis", false);
+      return;
+    }
+
+    const travaux_realises = testData["travaux_realises"];
+    if (travaux_realises === "non") {
+      this.showResult("❌ Les travaux doivent être réalisés avec facture dans les 12 mois", false);
+      return;
+    }
+
+    this.checkIfAllAnsweredBruxellesCoproprietaire();
+  }
+
+  handleConditionalAlertsCoproprietaire(questionName, value) {
+    const alertsMap = {
+      'primes_anterieures': { condition: value === 'oui', elementId: 'primes_anterieures_info' },
+      'bim': { condition: value === 'oui', elementId: 'bim_info' },
+      'ris': { condition: value === 'oui', elementId: 'ris_info' },
+      'client_protege': { condition: value === 'oui', elementId: 'client_protege_info' },
+      'permis_urbanisme': { condition: value === 'non', elementId: 'permis_urbanisme_info' }
+    };
+
+    Object.entries(alertsMap).forEach(([key, config]) => {
+      const element = document.getElementById(config.elementId);
+      if (element && questionName === key) {
+        element.style.display = config.condition ? 'block' : 'none';
+      }
+    });
+
+    // Gestion des sections conditionnelles
+    if (questionName === 'type_propriete') {
+      const immeubleDetails = document.getElementById('immeuble_details');
+      if (immeubleDetails) {
+        immeubleDetails.style.display = value === 'immeuble_complet' ? 'block' : 'none';
+      }
+    }
+  }
+
+  checkIfAllAnsweredBruxellesCoproprietaire() {
+    const form = this.formTarget;
+    const radioInputs = Array.from(form.querySelectorAll("input[type='radio']"));
+    const questionNames = [...new Set(radioInputs.map(input => input.name))].filter(name => name !== "profile_type");
+
+    const testData = [...form.querySelectorAll("input[type=radio]:checked")].reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    let allAnswered = questionNames.every(name => {
+      return form.querySelector(`input[name="${name}"]:checked`) !== null;
+    });
+
+    // Vérifications conditionnelles
+    if (testData.type_propriete === 'immeuble_complet') {
+      const nbAppartements = form.querySelector('input[name="nb_appartements"]');
+      allAnswered = allAnswered && nbAppartements && nbAppartements.value.trim() !== '';
+      allAnswered = allAnswered && testData.composition_immeuble !== undefined;
+    }
+
+    if (allAnswered && this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "block";
+    } else if (this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "none";
+    }
+  }
+
+  validateTestBruxellesCoproprietaire() {
+    console.log("🎯 Validation du test d'éligibilité Bruxelles Copropriétaire");
+
+    const testData = JSON.parse(localStorage.getItem("eligibiliteBruxellesCoproprietaire") || "{}");
+
+    let message = "✅ Vous êtes éligible aux primes RENOLUTION Bruxelles en tant que copropriétaire !";
+    let recommendations = [];
+
+    // Vérifier les avantages
+    if (testData.bim === "oui") {
+      recommendations.push("✨ Vous bénéficiez de primes majorées avec le statut BIM");
+    }
+    if (testData.ris === "oui") {
+      recommendations.push("✨ Vous bénéficiez de primes majorées avec le RIS");
+    }
+    if (testData.client_protege === "oui") {
+      recommendations.push("✨ Vous bénéficiez de primes majorées en tant que client protégé");
+    }
+
+    if (testData.type_propriete === 'immeuble_complet') {
+      recommendations.push("🏢 Propriétaire d'immeuble complet - primes spécifiques applicables");
+    }
+
+    recommendations.push("👥 En tant que copropriétaire, vous pouvez demander les primes pour votre quote-part");
+    recommendations.push("🏛️ Pour les parties communes, la demande doit être collective via l'ACP");
+
+    message += "<br><br><strong>Profil :</strong> <span class='badge bg-info'>Copropriétaire</span>";
+
+    localStorage.setItem("bruxelles_categorie", "coproprietaire");
+    this.showResultBruxellesCoproprietaire(message, true, recommendations);
+  }
+
+  showResultBruxellesCoproprietaire(message, isEligible = true, recommendations = []) {
+    this.showFinalResultBruxelles(message, isEligible, recommendations, true);
+  }
 }

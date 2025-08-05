@@ -9,12 +9,14 @@ export default class extends Controller {
   connect() {
   }
 
+// ========== MÉTHODES FLANDRE ==========
+
   estimerCategorie() {
     const statut = document.getElementById("statut-familial").value
     const nbCharges = parseInt(document.getElementById("personnes-charge").value)
-    const revenu = document.getElementById("revenu-net").value
+    const revenuInput = document.getElementById("revenu-net").value
 
-    if (!statut || isNaN(nbCharges) || !revenu) {
+    if (!statut || isNaN(nbCharges) || !revenuInput) {
       alert("Veuillez remplir tous les champs pour estimer votre catégorie.")
       return
     }
@@ -22,25 +24,27 @@ export default class extends Controller {
     // Stocker dans localStorage
     localStorage.setItem("statut_familial", statut)
     localStorage.setItem("personnes_charge", nbCharges)
-    localStorage.setItem("revenu_net", revenu)
+    localStorage.setItem("revenu_net", revenuInput)
 
-    // Estimation simple basée uniquement sur la tranche de revenu
-    let categorieEstimee = "4"
-
-    switch (revenu) {
+    // Convertir la valeur sélectionnée en revenu numérique (prendre le milieu de la tranche)
+    let revenuAnnuel = 0
+    switch (revenuInput) {
       case "-24320":
-        categorieEstimee = "4"
+        revenuAnnuel = 20000 // Milieu de la tranche basse
         break
       case "24231-42340":
-        categorieEstimee = "3"
+        revenuAnnuel = 33000 // Milieu de la tranche
         break
       case "42341-53880":
-        categorieEstimee = "2"
+        revenuAnnuel = 48000 // Milieu de la tranche
         break
       case "53881+":
-        categorieEstimee = "1"
+        revenuAnnuel = 65000 // Estimation pour revenus élevés
         break
     }
+
+    // Calculer la catégorie selon les vraies règles Flandre
+    let categorieEstimee = this.calculerCategorieFlandre(revenuAnnuel, statut, nbCharges)
 
     // Affichage dans le bloc resultAffinage
     const badge = `<span class="badge rounded-pill bg-dark">Catégorie ${categorieEstimee}</span>`
@@ -91,6 +95,64 @@ export default class extends Controller {
       });
     }
   }
+
+  // Méthode pour calculer la catégorie Flandre selon les vraies règles du seed
+  calculerCategorieFlandre(revenuAnnuel, statut, nbCharges) {
+    // Seuils basés sur les données du seed flandre/categories.rb
+    const categories = [
+      {
+        numero: "4",
+        seuil_seul: 24230,
+        seuil_avec_charge: 36340,
+        couple_sans_charge: 36340
+      },
+      {
+        numero: "3", 
+        seuil_seul: 42340,
+        seuil_avec_charge: 59270,
+        couple_sans_charge: 59270
+      },
+      {
+        numero: "2",
+        seuil_seul: 53880,
+        seuil_avec_charge: 76980,
+        couple_sans_charge: 76980
+      },
+      {
+        numero: "1",
+        seuil_seul: 500000, // Pas de limite réelle
+        seuil_avec_charge: 500000,
+        couple_sans_charge: 500000
+      }
+    ]
+
+    const increment_par_personne = 4320
+
+    // Déterminer le seuil applicable selon la situation
+    for (let cat of categories) {
+      let seuilApplicable = 0
+
+      if (statut === "seul") {
+        if (nbCharges > 0) {
+          seuilApplicable = cat.seuil_avec_charge + (nbCharges - 1) * increment_par_personne
+        } else {
+          seuilApplicable = cat.seuil_seul
+        }
+      } else if (statut === "couple") {
+        seuilApplicable = cat.couple_sans_charge + nbCharges * increment_par_personne
+      }
+
+      // Si le revenu est inférieur ou égal au seuil, on est dans cette catégorie
+      if (revenuAnnuel <= seuilApplicable) {
+        return cat.numero
+      }
+    }
+
+    // Si aucune catégorie ne correspond, on est en catégorie 1 (revenus élevés)
+    return "1"
+  }
+
+// ========== MÉTHODES BRUXELLES ==========
 
   estimerCategorieBruxelles() {
     console.log("🎯 Estimation catégorie Bruxelles");
