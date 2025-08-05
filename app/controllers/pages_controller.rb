@@ -1,6 +1,6 @@
 class PagesController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:home, :flandre, :wallonie, :bruxelles, :select_profile_wallonie, :test_eligibility_wallonie, :estimate_category_wallonie, :select_profile_bruxelles, :test_eligibility_bruxelles, :estimate_category_bruxelles]
-  skip_before_action :verify_authenticity_token, only: [:select_profile_wallonie, :test_eligibility_wallonie, :estimate_category_wallonie, :select_profile_bruxelles, :test_eligibility_bruxelles, :estimate_category_bruxelles]
+  skip_before_action :authenticate_user!, only: [:home, :flandre, :wallonie, :bruxelles, :bruxelles_entreprises, :select_profile_wallonie, :test_eligibility_wallonie, :estimate_category_wallonie, :select_profile_bruxelles, :test_eligibility_bruxelles, :estimate_category_bruxelles, :test_eligibility_bruxelles_entreprises, :legal, :privacy]
+  skip_before_action :verify_authenticity_token, only: [:select_profile_wallonie, :test_eligibility_wallonie, :estimate_category_wallonie, :select_profile_bruxelles, :test_eligibility_bruxelles, :estimate_category_bruxelles, :test_eligibility_bruxelles_entreprises]
 
   def home
   end
@@ -334,8 +334,6 @@ class PagesController < ApplicationController
 
   # ===== ACTIONS BRUXELLES =====
 
-private
-
   def handle_eligible_profile_bruxelles
     respond_to do |format|
       format.turbo_stream do
@@ -382,8 +380,6 @@ private
       format.html { redirect_to bruxelles_path, alert: "Type de profil non reconnu" }
     end
   end
-
-  private
 
   def get_automatic_category_bruxelles(profile_type)
     case profile_type
@@ -444,6 +440,75 @@ private
         details: 'Merci de préciser votre tranche de revenus'
       }
     end
+  end
+
+  # Nouveau simulateur pour les aides aux entreprises Bruxelles
+  def bruxelles_entreprises
+    # Page principale du simulateur d'éligibilité aux aides pour entreprises à Bruxelles
+  end
+
+  def test_eligibility_bruxelles_entreprises
+    Rails.logger.info "=== Test Eligibility Bruxelles Entreprises Action Called ==="
+    Rails.logger.info "Params: #{params.inspect}"
+
+    begin
+      # Utilisation d'un service d'éligibilité spécialisé pour les entreprises
+      eligibility_service = BruxellesEntreprisesEligibilityService.new(params)
+      result = eligibility_service.check_eligibility
+      Rails.logger.info "Business eligibility result: #{result}"
+
+      respond_to do |format|
+        format.turbo_stream do
+          if result[:eligible]
+            render turbo_stream: turbo_stream.update("result",
+              partial: "shared/business_eligibility_result",
+              locals: {
+                result: result[:message],
+                is_eligible: true,
+                recommendations: result[:recommendations] || [],
+                subsidy_categories: result[:subsidy_categories] || []
+              }
+            )
+          else
+            render turbo_stream: turbo_stream.update("result",
+              partial: "shared/business_eligibility_result",
+              locals: {
+                result: result[:message],
+                is_eligible: false,
+                recommendations: result[:recommendations] || []
+              }
+            )
+          end
+        end
+        format.html { redirect_to bruxelles_entreprises_path }
+      end
+    rescue => e
+      Rails.logger.error "Error in business eligibility check: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.update("result",
+            partial: "shared/business_eligibility_result",
+            locals: {
+              result: "❌ Une erreur est survenue lors de la vérification d'éligibilité. Veuillez réessayer.",
+              is_eligible: false,
+              recommendations: ["Vérifiez vos réponses et réessayez", "Contactez le support si le problème persiste"]
+            }
+          )
+        end
+        format.html { redirect_to bruxelles_entreprises_path }
+      end
+    end
+  end
+
+  # Pages légales
+  def legal
+    # Page mentions légales
+  end
+
+  def privacy
+    # Page politique de confidentialité
   end
 
 end
