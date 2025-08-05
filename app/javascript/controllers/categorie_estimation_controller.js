@@ -138,7 +138,7 @@ export default class extends Controller {
         } else {
           seuilApplicable = cat.seuil_seul
         }
-      } else if (statut === "couple") {
+      } else if (statut === "couple" || statut === "couple-enfant") {
         seuilApplicable = cat.couple_sans_charge + nbCharges * increment_par_personne
       }
 
