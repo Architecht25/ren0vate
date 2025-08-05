@@ -1,5 +1,5 @@
-// ce fi  connect() {ier gère la calcul estimatif de la catégorie de prime sur la home page pour identifier rapidement si l'utilisateur es t en catégoire 1, 2, 3 ou 4.
-// il s'agit d'une estimation et non d'un calcul précis. c'est volontaire pour inviter l'utilisateur à se diriger vers le login.
+// Ce fichier gère le calcul estimatif de la catégorie de prime sur la home page pour identifier rapidement si l'utilisateur est en catégorie 1, 2, 3 ou 4.
+// Il s'agit d'une estimation et non d'un calcul précis. C'est volontaire pour inviter l'utilisateur à se diriger vers le login.
 
 import { Controller } from "@hotwired/stimulus"
 
