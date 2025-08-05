@@ -24,6 +24,7 @@ import BruxellesPrimeCardController from "controllers/bruxelles_prime_card_contr
 import BruxellesPrimeCalculController from "controllers/bruxelles_prime_calcul_controller"
 import BceSearchController from "controllers/bce_search_controller"
 import LogoutModalController from "controllers/logout_modal_controller"
+import BruxellesAidesEstimationController from "controllers/bruxelles_aides_estimation_controller"
 
 application.register("user_type", UserTypeController)
 application.register("test-eligibilite", TestEligibiliteController)
@@ -38,5 +39,6 @@ application.register("bruxelles-prime-card", BruxellesPrimeCardController)
 application.register("bruxelles-prime-calcul", BruxellesPrimeCalculController)
 application.register("bce-search", BceSearchController)
 application.register("logout-modal", LogoutModalController)
+application.register("bruxelles-aides-estimation", BruxellesAidesEstimationController)
 
 export { application }
