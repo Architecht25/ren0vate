@@ -1,38 +1,72 @@
-<h2 class="text-center mb-4">Inscription</h2>
+<div class="auth-container">
+  <div class="row justify-content-center">
+    <div class="col-auto" style="min-width: 320px; max-width: 400px;">
+      <div class="auth-card">
+        <!-- Header avec logo -->
+        <div class="auth-header text-center mb-4">
+          <div class="auth-logo mb-3">
+            <i class="bi bi-house-heart-fill text-primary-custom" style="font-size: 3rem;"></i>
+          </div>
+          <h2 class="auth-title">Rejoignez Ren0vate</h2>
+          <p class="auth-subtitle text-muted">Créez votre compte pour commencer</p>
+        </div>
 
-<div class="container mt-5">
-  <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "form-horizontal" }) do |f| %>
-    <%= f.error_notification %>
+        <!-- Formulaire -->
+        <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "auth-form" }) do |f| %>
+          <%= f.error_notification %>
 
-    <div class="form-group w-50 mx-auto">
-      <%= f.input :email,
-                  required: true,
-                  autofocus: true,
-                  input_html: { class: "form-control", autocomplete: "email" },
-                  label_html: { class: "form-label" } %>
+          <div class="form-group mb-3">
+            <%= f.input :email,
+                        required: true,
+                        autofocus: true,
+                        label: "Email",
+                        input_html: {
+                          class: "form-control",
+                          autocomplete: "email",
+                          placeholder: "votre.email@exemple.com"
+                        },
+                        label_html: { class: "form-label fw-semibold" } %>
+          </div>
+
+          <div class="form-group mb-3">
+            <%= f.input :password,
+                        required: true,
+                        label: "Mot de passe",
+                        hint: ("#{@minimum_password_length} caractères minimum" if @minimum_password_length),
+                        input_html: {
+                          class: "form-control",
+                          autocomplete: "new-password",
+                          placeholder: "Choisissez un mot de passe sécurisé"
+                        },
+                        label_html: { class: "form-label fw-semibold" } %>
+          </div>
+
+          <div class="form-group mb-4">
+            <%= f.input :password_confirmation,
+                        required: true,
+                        label: "Confirmer le mot de passe",
+                        input_html: {
+                          class: "form-control",
+                          autocomplete: "new-password",
+                          placeholder: "Répétez votre mot de passe"
+                        },
+                        label_html: { class: "form-label fw-semibold" } %>
+          </div>
+
+          <div class="form-actions mb-4">
+            <%= f.button :submit, "Créer mon compte",
+                         class: "btn btn-primary-custom btn-lg w-100 d-flex align-items-center justify-content-center" do %>
+              <i class="bi bi-person-plus-fill me-2"></i>
+              Créer mon compte
+            <% end %>
+          </div>
+        <% end %>
+
+        <!-- Liens -->
+        <div class="auth-links text-center">
+          <%= render "devise/shared/links" %>
+        </div>
+      </div>
     </div>
-
-    <div class="form-group w-50 mx-auto">
-      <%= f.input :password,
-                  required: true,
-                  hint: ("#{@minimum_password_length} caractères minimum" if @minimum_password_length),
-                  input_html: { class: "form-control", autocomplete: "new-password" },
-                  label_html: { class: "form-label" } %>
-    </div>
-
-    <div class="form-group w-50 mx-auto">
-      <%= f.input :password_confirmation,
-                  required: true,
-                  input_html: { class: "form-control", autocomplete: "new-password" },
-                  label_html: { class: "form-label" } %>
-    </div>
-
-    <div class="form-actions text-center mt-4">
-      <%= f.button :submit, "S'inscrire", class: "btn btn-primary" %>
-    </div>
-  <% end %>
-
-  <div class="text-center mt-3">
-    <%= render "devise/shared/links" %>
   </div>
 </div>

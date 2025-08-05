@@ -1,34 +1,68 @@
-<h2 class="text-center mb-4">Connexion</h2>
+<div class="auth-container">
+  <div class="row justify-content-center">
+    <div class="col-auto" style="min-width: 320px; max-width: 400px;">
+      <div class="auth-card">
+        <!-- Header avec logo -->
+        <div class="auth-header text-center mb-4">
+          <div class="auth-logo mb-3">
+            <i class="bi bi-house-heart-fill text-primary-custom" style="font-size: 3rem;"></i>
+          </div>
+          <h2 class="auth-title">Bienvenue sur Ren0vate</h2>
+          <p class="auth-subtitle text-muted">Connectez-vous à votre compte</p>
+        </div>
 
-<div class="container mt-5">
-  <%= simple_form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "form-horizontal" }) do |f| %>
-    <div class="form-group w-25 mx-auto">
-      <%= f.input :email,
-                  required: true,
-                  autofocus: true,
-                  input_html: { class: "form-control", autocomplete: "email" },
-                  label_html: { class: "form-label" } %>
-    </div>
+        <!-- Formulaire -->
+        <%= simple_form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "auth-form" }) do |f| %>
+          <div class="form-group mb-3">
+            <%= f.input :email,
+                        required: true,
+                        autofocus: true,
+                        label: "Email",
+                        input_html: {
+                          class: "form-control",
+                          autocomplete: "email",
+                          placeholder: "votre.email@exemple.com"
+                        },
+                        label_html: { class: "form-label fw-semibold" } %>
+          </div>
 
-    <div class="form-group w-25 mx-auto">
-      <%= f.input :password,
-                  required: true,
-                  input_html: { class: "form-control", autocomplete: "current-password" },
-                  label_html: { class: "form-label" } %>
-    </div>
+          <div class="form-group mb-3">
+            <%= f.input :password,
+                        required: true,
+                        label: "Mot de passe",
+                        input_html: {
+                          class: "form-control",
+                          autocomplete: "current-password",
+                          placeholder: "Votre mot de passe"
+                        },
+                        label_html: { class: "form-label fw-semibold" } %>
+          </div>
 
-    <% if devise_mapping.rememberable? %>
-      <div class="form-check w-25 mx-auto">
-        <%= f.input :remember_me, as: :boolean, label: "Se souvenir de moi", input_html: { class: "form-check-input" }, label_html: { class: "form-check-label" } %>
+          <% if devise_mapping.rememberable? %>
+            <div class="form-check mb-4">
+              <%= f.input :remember_me,
+                          as: :boolean,
+                          label: "Se souvenir de moi",
+                          input_html: { class: "form-check-input" },
+                          label_html: { class: "form-check-label" },
+                          wrapper: false %>
+            </div>
+          <% end %>
+
+          <div class="form-actions mb-4">
+            <%= f.button :submit, "Se connecter",
+                         class: "btn btn-primary-custom btn-lg w-100 d-flex align-items-center justify-content-center" do %>
+              <i class="bi bi-box-arrow-in-right me-2"></i>
+              Se connecter
+            <% end %>
+          </div>
+        <% end %>
+
+        <!-- Liens -->
+        <div class="auth-links text-center">
+          <%= render "devise/shared/links" %>
+        </div>
       </div>
-    <% end %>
-
-    <div class="form-actions text-center mt-4">
-      <%= f.button :submit, "Se connecter", class: "btn btn-primary" %>
     </div>
-  <% end %>
-
-  <div class="text-center mt-3">
-    <%= render "devise/shared/links" %>
   </div>
 </div>

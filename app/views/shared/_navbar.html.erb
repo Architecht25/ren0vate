@@ -83,12 +83,15 @@
           </li>
 
           <!-- Déconnexion -->
-          <li class="nav-item">
+          <li class="nav-item" data-controller="logout-modal">
             <%= button_to destroy_user_session_path, method: :delete,
-                data: { turbo_confirm: "Êtes-vous sûr de vouloir vous déconnecter ?" },
+                data: { action: "click->logout-modal#show" },
                 class: "nav-link text-danger d-flex align-items-center border-0 bg-transparent px-3" do %>
               <i class="bi bi-box-arrow-right me-2"></i> Déconnexion
             <% end %>
+
+            <!-- Modal de confirmation -->
+            <%= render 'shared/logout_modal' %>
           </li>
         <% else %>
           <li class="nav-item">

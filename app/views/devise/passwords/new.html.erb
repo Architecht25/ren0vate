@@ -1,18 +1,47 @@
-<h2>Forgot your password?</h2>
+<div class="auth-container">
+  <div class="row justify-content-center">
+    <div class="col-auto" style="min-width: 280px; max-width: 350px;">
+      <div class="auth-card">
+        <!-- Header avec logo -->
+        <div class="auth-header text-center mb-4">
+          <div class="auth-logo mb-3">
+            <i class="bi bi-envelope-fill text-primary-custom" style="font-size: 3rem;"></i>
+          </div>
+          <h2 class="auth-title">Mot de passe oublié ?</h2>
+          <p class="auth-subtitle text-muted">Nous vous enverrons un lien de réinitialisation</p>
+        </div>
 
-<%= simple_form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
-  <%= f.error_notification %>
+        <!-- Formulaire -->
+        <%= simple_form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, class: "auth-form" }) do |f| %>
+          <%= f.error_notification %>
 
-  <div class="form-inputs">
-    <%= f.input :email,
-                required: true,
-                autofocus: true,
-                input_html: { autocomplete: "email" } %>
+          <div class="form-group mb-4">
+            <%= f.input :email,
+                        required: true,
+                        autofocus: true,
+                        label: "Email",
+                        input_html: {
+                          class: "form-control",
+                          autocomplete: "email",
+                          placeholder: "votre.email@exemple.com"
+                        },
+                        label_html: { class: "form-label fw-semibold" } %>
+          </div>
+
+          <div class="form-actions mb-4">
+            <%= f.button :submit, "Envoyer les instructions",
+                         class: "btn btn-primary-custom btn-lg w-100 d-flex align-items-center justify-content-center" do %>
+              <i class="bi bi-send-fill me-2"></i>
+              Envoyer les instructions
+            <% end %>
+          </div>
+        <% end %>
+
+        <!-- Liens -->
+        <div class="auth-links text-center">
+          <%= render "devise/shared/links" %>
+        </div>
+      </div>
+    </div>
   </div>
-
-  <div class="form-actions">
-    <%= f.button :submit, "Send me reset password instructions" %>
-  </div>
-<% end %>
-
-<%= render "devise/shared/links" %>
+</div>
