@@ -39,7 +39,7 @@ export default class extends Controller {
         revenuAnnuel = 48000 // Milieu de la tranche
         break
       case "53881+":
-        revenuAnnuel = 65000 // Estimation pour revenus élevés
+        revenuAnnuel = 90000 // Estimation pour revenus élevés - ajustée pour test
         break
     }
 
