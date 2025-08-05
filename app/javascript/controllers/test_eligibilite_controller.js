@@ -372,12 +372,6 @@ export default class extends Controller {
       return;
     }
 
-    const entrepreneur = testData["entrepreneur"];
-    if (entrepreneur === "non") {
-      this.showResult("❌ L'entrepreneur chargé des travaux doit être inscrit à la Banque Carrefour des Entreprises", false);
-      return;
-    }
-
     const factures_anciennes = testData["factures_anciennes"];
     if (factures_anciennes === "oui") {
       this.showResult("❌ Les factures de solde ne peuvent pas dater de plus de 2 ans", false);
@@ -890,6 +884,10 @@ export default class extends Controller {
       'audit': {
         condition: value === 'non',
         elementId: 'audit_wallonie_info'
+      },
+      'entrepreneur': {
+        condition: value === 'non',
+        elementId: 'entrepreneur_wallonie_info'
       }
     };
 
