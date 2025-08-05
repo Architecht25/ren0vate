@@ -316,23 +316,35 @@ export default class extends Controller {
 
   // ========== MÉTHODES WALLONIE ==========
 
-  handleAnswerWallonie(event) {
-    console.log("🎯 Test Eligibilité Wallonie - Réponse:", event.target.name, "=", event.target.value);
+  // WALLONIE PARTICULIER
+  handleAnswerWallonieParticulier(event) {
+    console.log("🎯 Test Eligibilité Wallonie Particulier - Réponse:", event.target.name, "=", event.target.value);
 
     const form = this.formTarget;
     const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+    const inputValues = [...form.querySelectorAll("input[type=number]")];
 
     const testData = responses.reduce((acc, response) => {
       acc[response.name] = response.value;
       return acc;
     }, {});
 
-    localStorage.setItem("eligibiliteWallonie", JSON.stringify(testData));
+    // Ajouter les valeurs numériques
+    inputValues.forEach(input => {
+      if (input.value) {
+        testData[input.name] = input.value;
+      }
+    });
 
-    // Vérification immédiate des cas d'inéligibilité Wallonie
+    localStorage.setItem("eligibiliteWallonieParticulier", JSON.stringify(testData));
+
+    // Gestion des alertes conditionnelles pour la Wallonie
+    this.handleConditionalAlertsWallonie(event.target.name, event.target.value);
+
+    // Vérification immédiate des cas d'inéligibilité Wallonie Particulier
     const localisation = testData["localisation"];
     if (localisation === "non") {
-      this.showResult("❌ Le logement doit être situé en Wallonie", false);
+      this.showResult("❌ Le logement doit être situé en Wallonie (hors Communauté germanophone)", false);
       return;
     }
 
@@ -344,31 +356,25 @@ export default class extends Controller {
 
     const propriete = testData["propriete"];
     if (propriete === "non") {
-      this.showResult("❌ Vous devez être propriétaire du logement", false);
+      this.showResult("❌ Vous devez être propriétaire du logement (plein propriétaire, nu-propriétaire, usufruitier ou copropriétaire)", false);
       return;
     }
 
     const residence_principale = testData["residence_principale"];
     if (residence_principale === "non") {
-      this.showResult("❌ Le logement doit être occupé comme résidence principale dans les 24 mois", false);
+      this.showResult("❌ Le logement doit être occupé comme résidence principale dans les 24 mois suivant l'introduction de la demande", false);
       return;
     }
 
     const age_logement = testData["age_logement"];
     if (age_logement === "non") {
-      this.showResult("❌ Le logement doit avoir plus de 15 ans", false);
-      return;
-    }
-
-    const audit = testData["audit"];
-    if (audit === "non") {
-      this.showResult("❌ Un audit énergétique par un auditeur agréé est obligatoire", false);
+      this.showResult("❌ Le logement doit avoir été construit il y a plus de 15 ans", false);
       return;
     }
 
     const entrepreneur = testData["entrepreneur"];
     if (entrepreneur === "non") {
-      this.showResult("❌ L'entrepreneur doit être inscrit à la Banque Carrefour des Entreprises", false);
+      this.showResult("❌ L'entrepreneur chargé des travaux doit être inscrit à la Banque Carrefour des Entreprises", false);
       return;
     }
 
@@ -378,43 +384,417 @@ export default class extends Controller {
       return;
     }
 
-    // Si on arrive ici, vérifier si toutes les questions sont répondues
-    this.checkAllAnsweredWallonie(testData);
+    // Vérifier si toutes les questions sont répondues
+    this.checkIfAllAnsweredWallonieParticulier();
   }
 
-  checkAllAnsweredWallonie(testData) {
-    const requiredQuestions = ["localisation", "destination", "propriete", "residence_principale", "age_logement", "audit", "entrepreneur", "revenus", "factures_anciennes", "travaux_toiture"];
+  checkIfAllAnsweredWallonieParticulier() {
+    const form = this.formTarget;
+    const radioInputs = Array.from(form.querySelectorAll("input[type='radio']"));
+    const questionNames = [...new Set(radioInputs.map(input => input.name))].filter(name => name !== "profile_type");
 
-    const allAnswered = requiredQuestions.every(question => testData[question] !== undefined);
+    const allAnswered = questionNames.every(name => {
+      return form.querySelector(`input[name="${name}"]:checked`) !== null;
+    });
 
     if (allAnswered && this.hasValidateButtonTarget) {
       this.validateButtonTarget.style.display = "block";
+    } else if (this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "none";
     }
   }
 
-  validateTestWallonie() {
-    console.log("🚀 Validation finale du test Wallonie");
+  validateTestWallonieParticulier() {
+    console.log("🎯 Validation du test d'éligibilité Wallonie Particulier");
 
-    const testData = JSON.parse(localStorage.getItem("eligibiliteWallonie") || "{}");
+    const testData = JSON.parse(localStorage.getItem("eligibiliteWallonieParticulier") || "{}");
 
     // Déterminer la catégorie R1-R5 selon les revenus
     const revenus = testData["revenus"];
     const travaux_toiture = testData["travaux_toiture"];
 
+    let message = "✅ Vous êtes éligible aux primes habitation Wallonie !";
+    let recommendations = [];
+
     if (revenus === "non") {
       // Revenus <= 114.400€
       if (travaux_toiture === "oui") {
-        this.showResultWallonie("✅ Éligible aux primes Wallonie - Catégorie R1-R4 (toiture uniquement)", true);
+        message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-success'>R1-R4 (toiture uniquement)</span>";
+        recommendations.push("🏠 Travaux de toiture uniquement éligibles avec vos revenus");
       } else {
-        this.showResultWallonie("✅ Éligible aux primes Wallonie - Catégorie R1-R4 (tous travaux)", true);
+        message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-success'>R1-R4 (tous travaux)</span>";
+        recommendations.push("🎯 Tous les types de travaux sont éligibles avec vos revenus");
       }
     } else {
       // Revenus > 114.400€
-      this.showResultWallonie("✅ Éligible aux primes Wallonie - Catégorie R5", true);
+      message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-warning'>R5</span>";
+      recommendations.push("💰 Primes réduites selon votre tranche de revenus");
+    }
+
+    // Conseils sur l'audit
+    const audit = testData["audit"];
+    if (audit === "oui") {
+      recommendations.push("📊 Votre audit énergétique vous donnera accès à des primes supplémentaires");
+    } else {
+      recommendations.push("💡 Conseil : Un audit énergétique peut débloquer des primes supplémentaires");
+    }
+
+    // Stocker la catégorie dans localStorage
+    const categorie = revenus === "non" ? "R1-R4" : "R5";
+    localStorage.setItem("wallonie_categorie", categorie);
+
+    this.showResultWallonieParticulier(message, true, recommendations);
+  }
+
+  showResultWallonieParticulier(message, isEligible = true, recommendations = []) {
+    // Pour les particuliers, utiliser la méthode finale avec affinage activé
+    this.showFinalResultWallonie(message, isEligible, recommendations, true);
+  }
+
+  // WALLONIE ENTREPRISE
+  handleAnswerWallonieEntreprise(event) {
+    console.log("🎯 Test Eligibilité Wallonie Entreprise - Réponse:", event.target.name, "=", event.target.value);
+
+    const form = this.formTarget;
+    const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+    const inputValues = [...form.querySelectorAll("input[type=number], input[type=text]")];
+
+    const testData = responses.reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    // Ajouter les valeurs des champs texte et numériques
+    inputValues.forEach(input => {
+      if (input.value) {
+        testData[input.name] = input.value;
+      }
+    });
+
+    localStorage.setItem("eligibiliteWallonieEntreprise", JSON.stringify(testData));
+
+    // Vérifications d'inéligibilité spécifiques aux entreprises
+    const localisation = testData["localisation"];
+    if (localisation === "non") {
+      this.showResult("❌ L'entreprise et le bâtiment doivent être situés en Wallonie", false);
+      return;
+    }
+
+    const enregistrement_bce = testData["enregistrement_bce"];
+    if (enregistrement_bce === "non") {
+      this.showResult("❌ L'entreprise doit être inscrite à la BCE (Banque Carrefour des Entreprises)", false);
+      return;
+    }
+
+    const destination = testData["destination"];
+    if (destination === "non") {
+      this.showResult("❌ Le bâtiment doit être destiné principalement à des activités professionnelles", false);
+      return;
+    }
+
+    const age_batiment = testData["age_batiment"];
+    if (age_batiment === "non") {
+      this.showResult("❌ Le bâtiment doit avoir plus de 15 ans", false);
+      return;
+    }
+
+    const entrepreneur = testData["entrepreneur"];
+    if (entrepreneur === "non") {
+      this.showResult("❌ L'entrepreneur réalisant les travaux doit être inscrit à la BCE", false);
+      return;
+    }
+
+    this.checkIfAllAnsweredWallonieEntreprise();
+  }
+
+  checkIfAllAnsweredWallonieEntreprise() {
+    const form = this.formTarget;
+    const radioInputs = Array.from(form.querySelectorAll("input[type='radio']"));
+    const questionNames = [...new Set(radioInputs.map(input => input.name))].filter(name => name !== "profile_type");
+
+    const allAnswered = questionNames.every(name => {
+      return form.querySelector(`input[name="${name}"]:checked`) !== null;
+    });
+
+    if (allAnswered && this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "block";
+    } else if (this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "none";
     }
   }
 
-  showResultWallonie(message, isEligible = true) {
+  validateTestWallonieEntreprise() {
+    console.log("🎯 Validation du test d'éligibilité Wallonie Entreprise");
+
+    let message = "✅ Votre entreprise est éligible aux primes Wallonie !";
+    message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-primary'>Entreprise</span>";
+
+    let recommendations = [
+      "🏢 En tant qu'entreprise, vous avez accès aux primes spécifiques aux professionnels",
+      "📋 Inscription BCE obligatoire pour l'entreprise et l'entrepreneur",
+      "💼 Primes calculées selon la grille tarifaire entreprise"
+    ];
+
+    localStorage.setItem("wallonie_categorie", "entreprise");
+    this.showResultWallonieEntreprise(message, true, recommendations);
+  }
+
+  showResultWallonieEntreprise(message, isEligible = true, recommendations = []) {
+    // Pour les entreprises, pas d'affinage - résultat direct
+    this.showFinalResultWallonie(message, isEligible, recommendations, false);
+  }
+
+  // WALLONIE SYNDIC
+  handleAnswerWallonieSyndic(event) {
+    console.log("🎯 Test Eligibilité Wallonie Syndic - Réponse:", event.target.name, "=", event.target.value);
+
+    const form = this.formTarget;
+    const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+
+    const testData = responses.reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    localStorage.setItem("eligibiliteWallonieSyndic", JSON.stringify(testData));
+
+    // Vérifications spécifiques aux syndics
+    const localisation = testData["localisation"];
+    if (localisation === "non") {
+      this.showResult("❌ L'immeuble doit être situé en Wallonie", false);
+      return;
+    }
+
+    const usage_residentiel = testData["usage_residentiel"];
+    if (usage_residentiel === "non") {
+      this.showResult("❌ L'immeuble doit être principalement résidentiel (au moins 80% logement)", false);
+      return;
+    }
+
+    const age_immeuble = testData["age_immeuble"];
+    if (age_immeuble === "non") {
+      this.showResult("❌ L'immeuble doit avoir plus de 15 ans", false);
+      return;
+    }
+
+    const minimum_unites = testData["minimum_unites"];
+    if (minimum_unites === "non") {
+      this.showResult("❌ La copropriété doit compter au moins 2 unités", false);
+      return;
+    }
+
+    this.checkIfAllAnsweredWallonieSyndic();
+  }
+
+  checkIfAllAnsweredWallonieSyndic() {
+    const form = this.formTarget;
+    const radioInputs = Array.from(form.querySelectorAll("input[type='radio']"));
+    const questionNames = [...new Set(radioInputs.map(input => input.name))].filter(name => name !== "profile_type");
+
+    const allAnswered = questionNames.every(name => {
+      return form.querySelector(`input[name="${name}"]:checked`) !== null;
+    });
+
+    if (allAnswered && this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "block";
+    } else if (this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "none";
+    }
+  }
+
+  validateTestWallonieSyndic() {
+    console.log("🎯 Validation du test d'éligibilité Wallonie Syndic");
+
+    let message = "✅ Votre copropriété est éligible aux primes Wallonie !";
+    message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-warning'>Syndic/Copropriété</span>";
+
+    let recommendations = [
+      "🏢 En tant que syndic, vous gérez les demandes pour la copropriété",
+      "👥 La demande doit être faite au nom de la copropriété",
+      "📋 Minimum 2 unités requises, immeuble à dominante résidentielle"
+    ];
+
+    localStorage.setItem("wallonie_categorie", "syndic");
+    this.showResultWallonieSyndic(message, true, recommendations);
+  }
+
+  showResultWallonieSyndic(message, isEligible = true, recommendations = []) {
+    // Pour les syndics, pas d'affinage - résultat direct
+    this.showFinalResultWallonie(message, isEligible, recommendations, false);
+  }
+
+  // WALLONIE ASBL
+  handleAnswerWallonieAsbl(event) {
+    console.log("🎯 Test Eligibilité Wallonie ASBL - Réponse:", event.target.name, "=", event.target.value);
+
+    const form = this.formTarget;
+    const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+
+    const testData = responses.reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    localStorage.setItem("eligibiliteWallonieAsbl", JSON.stringify(testData));
+
+    // Vérifications spécifiques aux ASBL
+    const localisation = testData["localisation"];
+    if (localisation === "non") {
+      this.showResult("❌ L'ASBL et le bâtiment doivent être situés en Wallonie", false);
+      return;
+    }
+
+    const enregistrement_bce = testData["enregistrement_bce"];
+    if (enregistrement_bce === "non") {
+      this.showResult("❌ L'ASBL doit être enregistrée à la BCE", false);
+      return;
+    }
+
+    const activites_interet_general = testData["activites_interet_general"];
+    if (activites_interet_general === "non") {
+      this.showResult("❌ L'ASBL doit exercer des activités d'intérêt général", false);
+      return;
+    }
+
+    const usage_collectivite = testData["usage_collectivite"];
+    if (usage_collectivite === "oui") {
+      this.showResult("❌ Le bâtiment ne peut pas être utilisé par une collectivité publique", false);
+      return;
+    }
+
+    const autorisation_travaux = testData["autorisation_travaux"];
+    if (autorisation_travaux === "non") {
+      this.showResult("❌ Vous devez être propriétaire ou avoir l'autorisation écrite du propriétaire", false);
+      return;
+    }
+
+    this.checkIfAllAnsweredWallonieAsbl();
+  }
+
+  checkIfAllAnsweredWallonieAsbl() {
+    const form = this.formTarget;
+    const radioInputs = Array.from(form.querySelectorAll("input[type='radio']"));
+    const questionNames = [...new Set(radioInputs.map(input => input.name))].filter(name => name !== "profile_type");
+
+    const allAnswered = questionNames.every(name => {
+      return form.querySelector(`input[name="${name}"]:checked`) !== null;
+    });
+
+    if (allAnswered && this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "block";
+    } else if (this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "none";
+    }
+  }
+
+  validateTestWallonieAsbl() {
+    console.log("🎯 Validation du test d'éligibilité Wallonie ASBL");
+
+    let message = "✅ Votre ASBL est éligible aux primes Wallonie !";
+    message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-info'>ASBL</span>";
+
+    let recommendations = [
+      "🏛️ En tant qu'ASBL, vous avez accès aux primes spécifiques aux associations",
+      "📋 Activités d'intérêt général requises",
+      "⚖️ Pas d'usage par des collectivités publiques autorisé"
+    ];
+
+    localStorage.setItem("wallonie_categorie", "asbl");
+    this.showResultWallonieAsbl(message, true, recommendations);
+  }
+
+  showResultWallonieAsbl(message, isEligible = true, recommendations = []) {
+    // Pour les ASBL, pas d'affinage - résultat direct
+    this.showFinalResultWallonie(message, isEligible, recommendations, false);
+  }
+
+  // WALLONIE BAILLEUR
+  handleAnswerWallonieBailleur(event) {
+    console.log("🎯 Test Eligibilité Wallonie Bailleur - Réponse:", event.target.name, "=", event.target.value);
+
+    const form = this.formTarget;
+    const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+
+    const testData = responses.reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    localStorage.setItem("eligibiliteWallonieBailleur", JSON.stringify(testData));
+
+    // Vérifications spécifiques aux bailleurs sociaux
+    const localisation = testData["localisation"];
+    if (localisation === "non") {
+      this.showResult("❌ Le logement doit être situé en Wallonie", false);
+      return;
+    }
+
+    const statut_bailleur = testData["statut_bailleur"];
+    if (statut_bailleur === "non") {
+      this.showResult("❌ Vous devez être reconnu comme bailleur social par la Région wallonne", false);
+      return;
+    }
+
+    const destination_sociale = testData["destination_sociale"];
+    if (destination_sociale === "non") {
+      this.showResult("❌ Le bien doit être destiné au logement social", false);
+      return;
+    }
+
+    const age_logement = testData["age_logement"];
+    if (age_logement === "non") {
+      this.showResult("❌ Le logement doit avoir plus de 15 ans", false);
+      return;
+    }
+
+    const entrepreneur = testData["entrepreneur"];
+    if (entrepreneur === "non") {
+      this.showResult("❌ L'entrepreneur chargé des travaux doit être inscrit à la BCE", false);
+      return;
+    }
+
+    this.checkIfAllAnsweredWallonieBailleur();
+  }
+
+  checkIfAllAnsweredWallonieBailleur() {
+    const form = this.formTarget;
+    const radioInputs = Array.from(form.querySelectorAll("input[type='radio']"));
+    const questionNames = [...new Set(radioInputs.map(input => input.name))].filter(name => name !== "profile_type");
+
+    const allAnswered = questionNames.every(name => {
+      return form.querySelector(`input[name="${name}"]:checked`) !== null;
+    });
+
+    if (allAnswered && this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "block";
+    } else if (this.hasValidateButtonTarget) {
+      this.validateButtonTarget.style.display = "none";
+    }
+  }
+
+  validateTestWallonieBailleur() {
+    console.log("🎯 Validation du test d'éligibilité Wallonie Bailleur");
+
+    let message = "✅ Votre organisme de logement social est éligible aux primes Wallonie !";
+    message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-info'>Bailleur Social</span>";
+
+    let recommendations = [
+      "🏠 En tant que bailleur social reconnu, vous avez accès aux primes spécifiques",
+      "🏛️ Statut de bailleur social reconnu par la Région wallonne requis",
+      "👥 Travaux destinés au logement social uniquement"
+    ];
+
+    localStorage.setItem("wallonie_categorie", "bailleur");
+    this.showResultWallonieBailleur(message, true, recommendations);
+  }
+
+  showResultWallonieBailleur(message, isEligible = true, recommendations = []) {
+    // Pour les bailleurs, pas d'affinage - résultat direct
+    this.showFinalResultWallonie(message, isEligible, recommendations, false);
+  }
+
+  // Méthode générale pour afficher les résultats Wallonie
+  showFinalResultWallonie(message, isEligible = true, recommendations = [], showAffinage = false) {
     if (this.hasFormTarget) {
       this.formTarget.style.display = "none"
     }
@@ -424,28 +804,47 @@ export default class extends Controller {
     }
 
     if (this.hasResultTarget) {
-      this.resultTarget.innerHTML = `
-        <div class="alert alert-success">
+      let content = `
+        <div class="alert ${isEligible ? 'alert-success' : 'alert-danger'}">
           <h5 class="alert-heading">
-            <i class="bi bi-check-circle me-2"></i>
-            Résultat du test d'éligibilité
+            <i class="bi bi-${isEligible ? 'check-circle' : 'x-circle'} me-2"></i>
+            Résultat du test d'éligibilité Wallonie
           </h5>
           <p class="mb-0">${message}</p>
         </div>
+      `;
+
+      if (recommendations.length > 0) {
+        content += `
+          <div class="alert alert-info mt-3">
+            <h6 class="alert-heading">
+              <i class="bi bi-lightbulb me-2"></i>
+              Informations importantes
+            </h6>
+            <ul class="mb-0">
+              ${recommendations.map(rec => `<li>${rec}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+      }
+
+      content += `
         <div class="btn-group mt-3">
           <button type="button" class="btn btn-secondary" onclick="location.reload()">🔄 Recommencer</button>
         </div>
-      `
-      this.resultTarget.style.display = "block"
+      `;
 
-      // Si éligible, afficher le formulaire d'affinage de catégorie
-      if (isEligible) {
-        this.showAffinageWallonie()
+      this.resultTarget.innerHTML = content;
+      this.resultTarget.style.display = "block";
+
+      // Si demandé ET éligible, afficher le formulaire d'affinage de catégorie (seulement pour particuliers)
+      if (isEligible && showAffinage) {
+        this.showAffinageWallonieParticulier();
       }
     }
   }
 
-  showAffinageWallonie() {
+  showAffinageWallonieParticulier() {
     // Afficher le bloc d'affinage de catégorie Wallonie
     const affinageBloc = document.getElementById("affinage-categorie-wallonie")
     if (affinageBloc) {
@@ -456,6 +855,28 @@ export default class extends Controller {
         affinageBloc.scrollIntoView({ behavior: 'smooth' })
       }, 500)
     }
+  }
+
+  handleConditionalAlertsWallonie(questionName, value) {
+    // Gestion des alertes d'information spécifiques à la Wallonie
+    const alertsMap = {
+      'audit': {
+        condition: value === 'non',
+        elementId: 'audit_wallonie_info'
+      }
+    };
+
+    // Pour chaque alerte configurée
+    Object.entries(alertsMap).forEach(([key, config]) => {
+      const element = document.getElementById(config.elementId);
+      if (element) {
+        // Afficher l'alerte si c'est la bonne question ET la bonne condition
+        // Masquer l'alerte si c'est la bonne question MAIS pas la bonne condition
+        if (questionName === key) {
+          element.style.display = config.condition ? 'block' : 'none';
+        }
+      }
+    });
   }
 
   // ========== MÉTHODES BRUXELLES ==========

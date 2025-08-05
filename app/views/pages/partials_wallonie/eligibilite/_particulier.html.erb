@@ -1,0 +1,306 @@
+<!-- Questionnaire d'éligibilité Wallonie - Particuliers -->
+<div id="eligibility-test-wallonie-particulier" data-controller="test-eligibilite">
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-success bg-opacity-10">
+      <h5 class="card-title mb-0 text-success">
+        <i class="bi bi-house me-2"></i>
+        Test d'éligibilité - Particuliers
+      </h5>
+      <p class="text-muted small mb-0 mt-1">
+        Vérifiez vos critères d'éligibilité aux primes habitation Wallonie
+      </p>
+    </div>
+
+    <div class="card-body">
+      <form id="eligibilityFormWallonieParticulier" name="eligibilityFormWallonieParticulier"
+            data-test-eligibilite-target="form">
+        <input type="hidden" name="profile_type" value="particulier">
+
+        <!-- Question 1: Localisation du bien -->
+        <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+          <h6 class="mb-3 text-dark">
+            <i class="bi bi-geo-alt text-success me-2"></i>
+            Le logement est-il situé en Wallonie (hors Communauté germanophone) ?
+          </h6>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="localisation" value="oui"
+                     data-action="click->test-eligibilite#handleAnswerWallonie" id="localisation_oui">
+              <label class="form-check-label" for="localisation_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="localisation" value="non"
+                     data-action="click->test-eligibilite#handleAnswerWallonie" id="localisation_non">
+              <label class="form-check-label" for="localisation_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 2: Destination du bien -->
+        <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+          <h6 class="mb-3 text-dark">
+            <i class="bi bi-house-door text-success me-2"></i>
+            Le bien est-il destiné à être habité à min 50% ?
+          </h6>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="destination" value="oui"
+                     data-action="click->test-eligibilite#handleAnswerWallonie" id="destination_oui">
+              <label class="form-check-label" for="destination_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="destination" value="non"
+                     data-action="click->test-eligibilite#handleAnswerWallonie" id="destination_non">
+              <label class="form-check-label" for="destination_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 3: Propriété du logement -->
+        <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+          <h6 class="mb-3 text-dark">
+            <i class="bi bi-key text-success me-2"></i>
+            Êtes-vous propriétaire du logement (plein propriétaire, nu-propriétaire ou usufruitier ou co-propriétaire) ?
+          </h6>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="propriete" value="oui"
+                     data-action="click->test-eligibilite#handleAnswerWallonie" id="propriete_oui">
+              <label class="form-check-label" for="propriete_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="propriete" value="non"
+                     data-action="click->test-eligibilite#handleAnswerWallonie" id="propriete_non">
+              <label class="form-check-label" for="propriete_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 4: Résidence principale -->
+        <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+          <h6 class="mb-3 text-dark">
+            <i class="bi bi-house-heart text-success me-2"></i>
+            Le logement sera-t-il occupé à titre de résidence principale dans les 24 mois suivant l'introduction de la demande des primes travaux ?
+          </h6>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="residence_principale" value="oui"
+                     data-action="click->test-eligibilite#handleAnswerWallonie" id="residence_principale_oui">
+              <label class="form-check-label" for="residence_principale_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="residence_principale" value="non"
+                     data-action="click->test-eligibilite#handleAnswerWallonie" id="residence_principale_non">
+              <label class="form-check-label" for="residence_principale_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 5: Âge du logement -->
+        <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+          <h6 class="mb-3 text-dark">
+            <i class="bi bi-calendar text-success me-2"></i>
+            Le logement a-t-il été construit il y a plus de 15 ans (par rapport à la date de la demande) ?
+          </h6>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="age_logement" value="oui"
+                     data-action="click->test-eligibilite#handleAnswerWallonie" id="age_logement_oui">
+              <label class="form-check-label" for="age_logement_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="age_logement" value="non"
+                     data-action="click->test-eligibilite#handleAnswerWallonie" id="age_logement_non">
+              <label class="form-check-label" for="age_logement_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 6: Audit énergétique -->
+        <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+          <h6 class="mb-3 text-dark">
+            <i class="bi bi-clipboard-data text-success me-2"></i>
+            Avez-vous effectué un audit (/!\) pas un PEB par un auditeur agréé ou prévoyez-vous d'en faire un ?
+          </h6>
+          <p class="text-muted small mb-3">
+            <i class="bi bi-info-circle me-1"></i>
+            L'audit énergétique permet d'accéder à certaines primes spécifiques et peut augmenter les montants
+          </p>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="audit" value="oui"
+                     data-action="click->test-eligibilite#handleAnswerWallonie" id="audit_oui">
+              <label class="form-check-label" for="audit_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="audit" value="non"
+                     data-action="click->test-eligibilite#handleAnswerWallonie" id="audit_non">
+              <label class="form-check-label" for="audit_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non
+              </label>
+            </div>
+          </div>
+
+          <!-- Alerte d'information pour l'audit en Wallonie -->
+          <div id="audit_wallonie_info" class="alert alert-info mt-3" style="display: none;">
+            <div class="d-flex align-items-start">
+              <i class="bi bi-info-circle-fill text-info me-2 mt-1"></i>
+              <div>
+                <h6 class="alert-heading mb-2">Information importante sur l'audit énergétique</h6>
+                <p class="mb-2">
+                  Bien que l'audit énergétique ne soit pas obligatoire pour toutes les primes en Wallonie,
+                  il est <strong>fortement recommandé</strong> car il :
+                </p>
+                <ul class="mb-2">
+                  <li>Vous donne accès à des primes supplémentaires</li>
+                  <li>Vous aide à optimiser vos travaux de rénovation</li>
+                  <li>Peut augmenter le montant de certaines primes</li>
+                </ul>
+                <small class="text-muted">
+                  Vous pouvez continuer le test même sans audit prévu.
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 7: Entrepreneur agréé -->
+        <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+          <h6 class="mb-3 text-dark">
+            <i class="bi bi-tools text-success me-2"></i>
+            L'entrepreneur chargé des travaux est-il inscrit à la Banque Carrefour des Entreprises ?
+          </h6>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="entrepreneur" value="oui"
+                     data-action="click->test-eligibilite#handleAnswerWallonie" id="entrepreneur_oui">
+              <label class="form-check-label" for="entrepreneur_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="entrepreneur" value="non"
+                     data-action="click->test-eligibilite#handleAnswerWallonie" id="entrepreneur_non">
+              <label class="form-check-label" for="entrepreneur_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 8: Revenus du ménage -->
+        <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+          <h6 class="mb-3 text-dark">
+            <i class="bi bi-cash text-success me-2"></i>
+            Après déduction de 5.000 € par enfant à charge, grossesse en cours ou personne de plus de 60 ans figurant sur les compositions de ménage concernées, le total des revenus imposables cumulés (y compris ceux des copropriétaires éventuels) dépasse-t-il 114.400 € ?
+          </h6>
+          <p class="text-muted small mb-3">
+            <i class="bi bi-info-circle me-1"></i>
+            Cette information détermine votre catégorie de revenus et les montants de primes auxquels vous avez droit
+          </p>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="revenus" value="oui"
+                     data-action="click->test-eligibilite#handleAnswerWallonie" id="revenus_oui">
+              <label class="form-check-label" for="revenus_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui (> 114.400 €)
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="revenus" value="non"
+                     data-action="click->test-eligibilite#handleAnswerWallonie" id="revenus_non">
+              <label class="form-check-label" for="revenus_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non (≤ 114.400 €)
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 9: Factures anciennes -->
+        <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+          <h6 class="mb-3 text-dark">
+            <i class="bi bi-receipt text-success me-2"></i>
+            Les travaux pour lesquels vous sollicitez une prime ont-ils des factures de solde émises il y a deux ans ou plus ?
+          </h6>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="factures_anciennes" value="oui"
+                     data-action="click->test-eligibilite#handleAnswerWallonie" id="factures_anciennes_oui">
+              <label class="form-check-label" for="factures_anciennes_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="factures_anciennes" value="non"
+                     data-action="click->test-eligibilite#handleAnswerWallonie" id="factures_anciennes_non">
+              <label class="form-check-label" for="factures_anciennes_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 10: Travaux toiture uniquement -->
+        <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+          <h6 class="mb-3 text-dark">
+            <i class="bi bi-house-up text-success me-2"></i>
+            Prévoyez-vous uniquement de réaliser des travaux liés à l'isolation de votre toiture ?
+          </h6>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="travaux_toiture" value="oui"
+                     data-action="click->test-eligibilite#handleAnswerWallonie" id="travaux_toiture_oui">
+              <label class="form-check-label" for="travaux_toiture_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="travaux_toiture" value="non"
+                     data-action="click->test-eligibilite#handleAnswerWallonie" id="travaux_toiture_non">
+              <label class="form-check-label" for="travaux_toiture_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non
+              </label>
+            </div>
+          </div>
+        </div>
+
+      </form>
+
+      <!-- Bouton de validation du test -->
+      <div class="text-center mt-4">
+        <button type="button"
+                class="btn btn-success btn-lg"
+                data-action="click->test-eligibilite#validateTestWallonie"
+                data-test-eligibilite-target="validateButton"
+                style="display: none;">
+          <i class="bi bi-check2-circle me-2"></i>Valider mon test d'éligibilité
+        </button>
+      </div>
+
+      <!-- Zone de résultat -->
+      <div data-test-eligibilite-target="result" class="mt-4"></div>
+    </div>
+  </div>
+</div>

@@ -82,6 +82,7 @@ Rails.application.routes.draw do
 
   get '/flandre', to: 'pages#flandre', as: :flandre
   get '/wallonie', to: 'pages#wallonie', as: :wallonie
+  get '/wallonie/select-profile', to: 'pages#select_profile_wallonie'
   post '/wallonie/select-profile', to: 'pages#select_profile_wallonie', as: :select_profile_wallonie
   post '/wallonie/test-eligibility', to: 'pages#test_eligibility_wallonie', as: :test_eligibility_wallonie
   post '/wallonie/estimate-category', to: 'pages#estimate_category_wallonie', as: :estimate_category_wallonie

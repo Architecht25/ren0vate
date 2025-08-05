@@ -27,6 +27,10 @@ export default class extends Controller {
   }
 
   showUserTypeAlert(userType) {
+    // Vérifier si on est sur la page Wallonie - dans ce cas, ne pas bloquer les syndics et bailleurs
+    const isWalloniePage = window.location.pathname.includes('/wallonie') ||
+                          document.querySelector('[data-region="wallonie"]') !== null;
+
     // Vérifier si SweetAlert est disponible
     if (typeof Swal === 'undefined') {
       console.warn('⚠️ SweetAlert non disponible, utilisation d\'alert() standard')
@@ -36,12 +40,13 @@ export default class extends Controller {
         return
       }
 
-      if (userType === "syndic") {
+      // Ne bloquer les syndics et bailleurs que si on n'est PAS sur Wallonie
+      if (userType === "syndic" && !isWalloniePage) {
         alert('⚠️ Attention\n\nLes syndicats de copropriété doivent passer par une EnergieHuis pour effectuer une introduction de demandes.')
         return
       }
 
-      if (userType === "bailleur") {
+      if (userType === "bailleur" && !isWalloniePage) {
         alert('⚠️ Attention\n\nLes bailleurs sociaux doivent passer par une EnergieHuis pour effectuer une introduction de demandes.')
         return
       }
@@ -59,7 +64,8 @@ export default class extends Controller {
       })
     }
 
-    if (userType === "syndic") {
+    // Ne bloquer les syndics et bailleurs que si on n'est PAS sur Wallonie
+    if (userType === "syndic" && !isWalloniePage) {
       Swal.fire({
         icon: 'warning',
         title: '⚠️ Attention',
@@ -68,7 +74,7 @@ export default class extends Controller {
       })
     }
 
-    if (userType === "bailleur") {
+    if (userType === "bailleur" && !isWalloniePage) {
       Swal.fire({
         icon: 'warning',
         title: '⚠️ Attention',

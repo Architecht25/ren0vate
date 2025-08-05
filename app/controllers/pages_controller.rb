@@ -43,15 +43,27 @@ class PagesController < ApplicationController
   def select_profile_wallonie
     @user_type = params[:profile_type]
 
-    # Logique de redirection selon le type d'utilisateur
-    case @user_type
+    # Mapper les types de profils pour correspondre aux partials
+    mapped_profile = case @user_type
+    when "prive"
+      "particulier"
     when "entreprise"
-      handle_ineligible_profile("Les entreprises ne sont pas éligibles aux primes")
+      "entreprise"
     when "syndic"
-      handle_ineligible_profile("Les syndicats de copropriété doivent passer par une EnergieHuis pour effectuer une introduction de demandes.")
+      "syndic"
     when "bailleur"
-      handle_ineligible_profile("Les bailleurs sociaux doivent passer par une EnergieHuis pour effectuer une introduction de demandes.")
-    when "prive", "asbl"
+      "bailleur"
+    when "asbl"
+      "asbl"
+    else
+      @user_type
+    end
+
+    @profile_type = mapped_profile
+
+    # Logique de redirection selon le type d'utilisateur pour Wallonie
+    case @user_type
+    when "entreprise", "syndic", "bailleur", "prive", "asbl"
       handle_eligible_profile
     else
       handle_invalid_profile
@@ -278,7 +290,8 @@ class PagesController < ApplicationController
       format.turbo_stream do
         render turbo_stream: turbo_stream.replace(
           "eligibility_content",
-          partial: "pages/partials_wallonie/questionnaire_eligibilite"
+          partial: "pages/partials_wallonie/questionnaire_eligibilite",
+          locals: { profile_type: @profile_type }
         )
       end
       format.html { redirect_to wallonie_path, notice: "Profil sélectionné avec succès" }
