@@ -384,6 +384,22 @@ export default class extends Controller {
       return;
     }
 
+    // ❌ VÉRIFICATION R5 IMMÉDIATE : Si revenus trop élevés = INÉLIGIBLE
+    const revenus = testData["revenus"];
+    if (revenus === "oui") {
+      this.showResult(
+        "❌ Vos revenus dépassent le plafond d'éligibilité aux primes Wallonie<br><br>" +
+        "<strong>Catégorie :</strong> <span class='badge bg-danger'>R5 - Non éligible</span><br><br>" +
+        "💰 Avec des revenus supérieurs à 114.400€ (après déductions), vous n'êtes malheureusement plus éligible aux primes habitation de la Région wallonne.<br><br>" +
+        "<strong>Alternatives possibles :</strong><br>" +
+        "• Déductions fiscales fédérales pour travaux de rénovation<br>" +
+        "• Prêts à taux avantageux pour la rénovation<br>" +
+        "• Primes communales (si disponibles dans votre commune)",
+        false
+      );
+      return;
+    }
+
     // Vérifier si toutes les questions sont répondues
     this.checkIfAllAnsweredWallonieParticulier();
   }
