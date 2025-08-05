@@ -23,6 +23,13 @@ Rails.application.routes.draw do
 
   # API pour calculs de primes
   namespace :api do
+    # API BCE pour recherche d'entreprises
+    post 'bce/search', to: 'bce#search'
+
+    # API Aides Bruxelles pour entreprises
+    get 'bruxelles_aides/categories', to: 'bruxelles_aides#categories'
+    get 'bruxelles_aides/categories/:category_id', to: 'bruxelles_aides#category_details'
+
     namespace :v1 do
       namespace :wallonie do
         post 'check_eligibility', to: 'calculations#check_eligibility'
