@@ -75,7 +75,7 @@ class PagesController < ApplicationController
 
     # Tous les profils sont maintenant éligibles avec leurs questionnaires spécifiques
     case @profile_type
-    when "prive", "entreprise", "syndic", "bailleur", "asbl"
+    when "prive", "entreprise", "syndic", "bailleur", "asbl", "coproprietaire", "emphytheote", "locataire", "particulier_bailleur", "particulier_indivision"
       handle_eligible_profile_bruxelles
     else
       handle_invalid_profile_bruxelles

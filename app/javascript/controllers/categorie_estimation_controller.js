@@ -107,7 +107,7 @@ export default class extends Controller {
         couple_sans_charge: 36340
       },
       {
-        numero: "3", 
+        numero: "3",
         seuil_seul: 42340,
         seuil_avec_charge: 59270,
         couple_sans_charge: 59270

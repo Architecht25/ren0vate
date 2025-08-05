@@ -4,6 +4,7 @@ export default class extends Controller {
   static targets = ["form", "result", "formCard", "validateButton"]
 
   connect() {
+    console.log("🎯 Contrôleur test-eligibilite connecté");
     if (this.hasResultTarget) {
       this.resultTarget.style.display = "none"
     }
