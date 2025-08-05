@@ -30,6 +30,9 @@ Rails.application.routes.draw do
         post 'get_category', to: 'calculations#get_category'
       end
     end
+
+    # API BCE
+    post '/bce/search', to: 'bce#search'
   end
 
   # Documents avec routes spéciales pour download et contexte

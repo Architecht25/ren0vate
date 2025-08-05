@@ -22,6 +22,7 @@ import WalloniePrimeCalculController from "controllers/wallonie_prime_calcul_con
 import WalloniePrimeCardController from "controllers/wallonie_prime_card_controller"
 import BruxellesPrimeCardController from "controllers/bruxelles_prime_card_controller"
 import BruxellesPrimeCalculController from "controllers/bruxelles_prime_calcul_controller"
+import BceSearchController from "controllers/bce_search_controller"
 
 application.register("user_type", UserTypeController)
 application.register("test-eligibilite", TestEligibiliteController)
@@ -34,5 +35,6 @@ application.register("wallonie-prime-calcul", WalloniePrimeCalculController)
 application.register("wallonie-prime-card", WalloniePrimeCardController)
 application.register("bruxelles-prime-card", BruxellesPrimeCardController)
 application.register("bruxelles-prime-calcul", BruxellesPrimeCalculController)
+application.register("bce-search", BceSearchController)
 
 export { application }
