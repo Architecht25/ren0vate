@@ -1610,28 +1610,64 @@ export default class extends Controller {
 
     localStorage.setItem("eligibiliteBruxellesSyndic", JSON.stringify(testData));
 
-    // Vérification immédiate des cas d'inéligibilité Bruxelles Syndic
+    // Gestion des alertes conditionnelles
+    this.handleConditionalAlertsSyndic(event.target.name, event.target.value);
+
+    // Vérifications d'inéligibilité Bruxelles Syndic
     const localisation = testData["localisation"];
     if (localisation === "non") {
-      this.showResult("❌ L'immeuble doit être situé en Région de Bruxelles-Capitale", false);
+      this.showResult("❌ Le bien doit être situé en Région de Bruxelles-Capitale", false);
       return;
     }
 
-    const usage_residentiel = testData["usage_residentiel"];
-    if (usage_residentiel === "non") {
-      this.showResult("❌ L'immeuble doit être principalement résidentiel (au moins 80% logement)", false);
+    const age_batiment = testData["age_batiment"];
+    if (age_batiment === "non") {
+      this.showResult("❌ Le bâtiment doit être âgé d'au moins 10 ans", false);
       return;
     }
 
-    const age_immeuble = testData["age_immeuble"];
-    if (age_immeuble === "non") {
-      this.showResult("❌ L'immeuble doit avoir été construit il y a plus de 10 ans", false);
+    const professionnel_agree = testData["professionnel_agree"];
+    if (professionnel_agree === "non") {
+      this.showResult("❌ Les travaux doivent être réalisés par un professionnel agréé", false);
       return;
     }
 
-    const minimum_unites = testData["minimum_unites"];
-    if (minimum_unites === "non") {
-      this.showResult("❌ La copropriété doit compter au moins 2 unités", false);
+    const nouvelle_construction = testData["nouvelle_construction"];
+    if (nouvelle_construction === "oui") {
+      this.showResult("❌ Les nouvelles constructions ne sont pas éligibles", false);
+      return;
+    }
+
+    const compte_belge = testData["compte_belge"];
+    if (compte_belge === "non") {
+      this.showResult("❌ Un compte bancaire belge est requis", false);
+      return;
+    }
+
+    const travaux_realises = testData["travaux_realises"];
+    if (travaux_realises === "non") {
+      this.showResult("❌ Les travaux doivent être réalisés avec facture dans les 12 mois", false);
+      return;
+    }
+
+    const acp_bce = testData["acp_bce"];
+    if (acp_bce === "non") {
+      const derogation_acp = testData["derogation_acp"];
+      if (derogation_acp === "non") {
+        this.showResult("❌ L'ACP doit être inscrite à la Banque Carrefour des Entreprises ou avoir une dérogation", false);
+        return;
+      }
+    }
+
+    const logement_80_pourcent = testData["logement_80_pourcent"];
+    if (logement_80_pourcent === "non") {
+      this.showResult("❌ Au moins 80% du bien doit être affecté au logement", false);
+      return;
+    }
+
+    const parties_communes = testData["parties_communes"];
+    if (parties_communes === "non") {
+      this.showResult("❌ Les travaux doivent concerner les parties communes pour les copropriétés", false);
       return;
     }
 
@@ -1639,14 +1675,70 @@ export default class extends Controller {
     this.checkIfAllAnsweredBruxellesSyndic();
   }
 
+  handleConditionalAlertsSyndic(questionName, value) {
+    const alertsMap = {
+      'primes_recues': { condition: value === 'oui', elementId: 'primes_recues_warning' },
+      'logement_80_pourcent': { condition: value === 'non', elementId: 'logement_80_warning' },
+      'derogation_acp': { condition: value === 'non', elementId: 'derogation_acp_warning' },
+      'parties_communes': { condition: value === 'non', elementId: 'parties_communes_warning' },
+      'permis_urbanisme': { condition: value === 'non', elementId: 'permis_urbanisme_info' }
+    };
+
+    Object.entries(alertsMap).forEach(([key, config]) => {
+      const element = document.getElementById(config.elementId);
+      if (element && questionName === key) {
+        element.style.display = config.condition ? 'block' : 'none';
+      }
+    });
+
+    // Gestion des sections conditionnelles
+    if (questionName === 'acp_bce') {
+      const acpDetails = document.getElementById('acp_bce_details');
+      const derogationAcp = document.getElementById('derogation_acp');
+      if (acpDetails && derogationAcp) {
+        if (value === 'oui') {
+          acpDetails.style.display = 'block';
+          derogationAcp.style.display = 'none';
+        } else {
+          acpDetails.style.display = 'none';
+          derogationAcp.style.display = 'block';
+        }
+      }
+    }
+
+    if (questionName === 'tva_deductible') {
+      const tvaPourcentage = document.getElementById('tva_pourcentage');
+      if (tvaPourcentage) {
+        tvaPourcentage.style.display = value === 'oui' ? 'block' : 'none';
+      }
+    }
+  }
+
   checkIfAllAnsweredBruxellesSyndic() {
     const form = this.formTarget;
     const radioInputs = Array.from(form.querySelectorAll("input[type='radio']"));
     const questionNames = [...new Set(radioInputs.map(input => input.name))].filter(name => name !== "profile_type");
 
-    const allAnswered = questionNames.every(name => {
+    const testData = [...form.querySelectorAll("input[type=radio]:checked")].reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    let allAnswered = questionNames.every(name => {
       return form.querySelector(`input[name="${name}"]:checked`) !== null;
     });
+
+    // Vérifications conditionnelles pour les champs obligatoires
+    if (testData.acp_bce === 'oui') {
+      allAnswered = allAnswered && testData.syndic_page_bce !== undefined;
+    } else if (testData.acp_bce === 'non') {
+      allAnswered = allAnswered && testData.derogation_acp !== undefined;
+    }
+
+    if (testData.tva_deductible === 'oui') {
+      const pourcentageTva = form.querySelector('input[name="pourcentage_tva"]');
+      allAnswered = allAnswered && pourcentageTva && pourcentageTva.value.trim() !== '';
+    }
 
     if (allAnswered && this.hasValidateButtonTarget) {
       this.validateButtonTarget.style.display = "block";
@@ -1658,19 +1750,62 @@ export default class extends Controller {
   validateTestBruxellesSyndic() {
     console.log("🎯 Validation du test d'éligibilité Bruxelles Syndic");
 
-    let message = "✅ Votre copropriété est éligible aux primes RENOLUTION Bruxelles !";
-    message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-warning'>Catégorie 2</span>";
+    const testData = JSON.parse(localStorage.getItem("eligibiliteBruxellesSyndic") || "{}");
 
-    let recommendations = [
-      "🏢 En tant que syndic/copropriété, vous êtes automatiquement en catégorie 2",
-      "👥 La demande doit être faite au nom de l'ACP (Association des Copropriétaires)",
-      "📋 Minimum 2 unités requises pour être éligible"
-    ];
+    let message = "✅ Votre copropriété est éligible aux primes RENOLUTION Bruxelles !";
+    let recommendations = [];
+
+    // Recommandations spécifiques aux syndics
+    recommendations.push("🏢 En tant que syndic/copropriété, vous êtes automatiquement en catégorie 2");
+    recommendations.push("👥 La demande doit être faite au nom de l'ACP (Association des Copropriétaires)");
+    
+    if (testData.primes_recues === "oui") {
+      recommendations.push("⚠️ Attention aux cumuls : certaines primes ne peuvent pas être obtenues plusieurs fois");
+    }
+
+    if (testData.syndic_professionnel === "oui") {
+      recommendations.push("🏛️ Syndic professionnel - vérifiez les conditions spécifiques");
+    } else if (testData.syndic_professionnel === "non") {
+      recommendations.push("👨‍👩‍👧‍👦 Syndic bénévole - procédures simplifiées possibles");
+    }
+
+    if (testData.acp_bce === "oui") {
+      recommendations.push("✅ ACP correctement inscrite à la BCE - dossier complet");
+      if (testData.syndic_page_bce === "oui") {
+        recommendations.push("👤 Le syndic apparaît sur la page BCE de l'ACP - parfait");
+      } else if (testData.syndic_page_bce === "non") {
+        recommendations.push("⚠️ Le syndic doit apparaître sur la page BCE de l'ACP");
+      }
+    } else if (testData.acp_bce === "non" && testData.derogation_acp === "oui") {
+      recommendations.push("📝 Dérogation ACP acceptée - vérifiez l'acte de base");
+    }
+
+    if (testData.tva_deductible === "oui") {
+      recommendations.push("💰 TVA déductible - montants calculés HTVA");
+    } else {
+      recommendations.push("💶 TVA non déductible - montants calculés TVAC");
+    }
+
+    if (testData.bien_classe === "oui") {
+      recommendations.push("🏛️ Bien classé - primes majorées possibles selon les travaux");
+    }
+
+    if (testData.petit_patrimoine === "oui") {
+      recommendations.push("💎 Petit patrimoine détecté - primes spécifiques disponibles");
+    }
+
+    if (testData.permis_urbanisme === "non") {
+      recommendations.push("⚠️ Vérifiez si un permis d'urbanisme est nécessaire");
+    }
+
+    recommendations.push("📋 Pensez à obtenir l'accord de l'assemblée générale avant travaux");
+    recommendations.push("🔧 Vérifiez que les travaux concernent les parties communes");
+    recommendations.push("💶 Les montants varient selon le type de travaux et la superficie");
+
+    message += "<br><br><strong>Profil :</strong> <span class='badge bg-warning'>Syndic/Copropriété</span>";
 
     // Stocker la catégorie dans localStorage pour la suite
-    localStorage.setItem("bruxelles_categorie", "2");
-    localStorage.setItem("bruxellesCategorieEstimee", "2");
-
+    localStorage.setItem("bruxelles_categorie", "syndic");
     this.showResultBruxellesSyndic(message, true, recommendations);
   }
 
