@@ -114,47 +114,125 @@ Prime.find_or_initialize_by(slug: "bruxelles_etude_totem").update!(
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
 )
 
-Prime.find_or_initialize_by(slug: "bruxelles_suivi_professionnel").update!(
-  titre: "Suivi architecte / ingénieur stabilité / expert façade - Bruxelles",
+# Suivi professionnel - 3 types distincts
+
+Prime.find_or_initialize_by(slug: "bruxelles_suivi_architecte").update!(
+  titre: "Suivi architecte - Bruxelles",
   ordre_affichage: 5,
   icon_name: "briefcase",
   unite: "%",
-  type_de_valeur: "dynamique",
+  type_de_valeur: "pourcentage",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
     "bruxelles_cat1": {
       "type": "pourcentage",
       "pourcentage": 8,
-      "condition": "Montant basé sur les honoraires liés à la mission de suivi"
+      "condition": "8% des honoraires de l\'architecte pour le suivi des travaux"
+    },
+    "bruxelles_cat2": {
+      "type": "pourcentage",
+      "pourcentage": 8,
+      "condition": "8% des honoraires de l\'architecte pour le suivi des travaux"
+    },
+    "bruxelles_cat3": {
+      "type": "pourcentage",
+      "pourcentage": 8,
+      "condition": "8% des honoraires de l\'architecte pour le suivi des travaux"
+    }
+  }'),
+  condition: "Suivi technique des travaux par un architecte agréé",
+  conseil: "L\'architecte assure le suivi général de votre projet de rénovation",
+  document: "Contrat d\'architecture + facture des honoraires de suivi",
+  specifique: "Bruxelles - Renolution",
+  placeholder: JSON.parse('{
+    "bruxelles_cat1": "Montant des honoraires architecte (€)",
+    "bruxelles_cat2": "Montant des honoraires architecte (€)",
+    "bruxelles_cat3": "Montant des honoraires architecte (€)"
+  }'),
+  image: "images/suivi_architecte.webp",
+  region: "bruxelles",
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
+)
+
+Prime.find_or_initialize_by(slug: "bruxelles_suivi_ingenieur_stabilite").update!(
+  titre: "Suivi ingénieur stabilité - Bruxelles",
+  ordre_affichage: 6,
+  icon_name: "calculator",
+  unite: "%",
+  type_de_valeur: "pourcentage",
+  eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
+  valeurs_par_categorie: JSON.parse('{
+    "bruxelles_cat1": {
+      "type": "pourcentage",
+      "pourcentage": 2,
+      "condition": "2% des honoraires de l\'ingénieur pour le suivi structurel"
     },
     "bruxelles_cat2": {
       "type": "pourcentage",
       "pourcentage": 2,
-      "condition": "Montant basé sur les honoraires liés à la mission de suivi"
+      "condition": "2% des honoraires de l\'ingénieur pour le suivi structurel"
     },
     "bruxelles_cat3": {
       "type": "pourcentage",
       "pourcentage": 2,
-      "condition": "Montant basé sur les honoraires liés à la mission de suivi"
+      "condition": "2% des honoraires de l\'ingénieur pour le suivi structurel"
     }
   }'),
-  condition: "Uniquement si un professionnel reconnu assure le suivi technique des travaux de rénovation",
-  conseil: "Faites appel à un architecte, ingénieur ou expert façade pour bénéficier d\'un accompagnement technique reconnu et de la prime",
-  document: "Contrat ou convention + facture du professionnel",
+  condition: "Suivi des travaux de stabilité par un ingénieur agréé",
+  conseil: "Indispensable pour les travaux touchant à la structure du bâtiment",
+  document: "Contrat d\'ingénierie + facture des honoraires de suivi structurel",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
-    "bruxelles_cat1": "Pourcentage des honoraires - ex : 8%",
-    "bruxelles_cat2": "Pourcentage des honoraires - ex : 2%",
-    "bruxelles_cat3": "Pourcentage des honoraires - ex : 2%"
+    "bruxelles_cat1": "Montant des honoraires ingénieur (€)",
+    "bruxelles_cat2": "Montant des honoraires ingénieur (€)",
+    "bruxelles_cat3": "Montant des honoraires ingénieur (€)"
   }'),
-  image: "images/suivi_professionnel.webp",
+  image: "images/suivi_ingenieur.webp",
+  region: "bruxelles",
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
+)
+
+Prime.find_or_initialize_by(slug: "bruxelles_suivi_expert_facade").update!(
+  titre: "Suivi expert façade - Bruxelles",
+  ordre_affichage: 7,
+  icon_name: "home-building",
+  unite: "%",
+  type_de_valeur: "pourcentage",
+  eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
+  valeurs_par_categorie: JSON.parse('{
+    "bruxelles_cat1": {
+      "type": "pourcentage",
+      "pourcentage": 2,
+      "condition": "2% des honoraires de l\'expert pour le suivi des travaux de façade"
+    },
+    "bruxelles_cat2": {
+      "type": "pourcentage",
+      "pourcentage": 2,
+      "condition": "2% des honoraires de l\'expert pour le suivi des travaux de façade"
+    },
+    "bruxelles_cat3": {
+      "type": "pourcentage",
+      "pourcentage": 2,
+      "condition": "2% des honoraires de l\'expert pour le suivi des travaux de façade"
+    }
+  }'),
+  condition: "Suivi des travaux de façade par un expert spécialisé",
+  conseil: "Recommandé pour les travaux complexes d\'isolation et d\'embellissement de façades",
+  document: "Contrat d\'expertise + facture des honoraires de suivi façade",
+  specifique: "Bruxelles - Renolution",
+  placeholder: JSON.parse('{
+    "bruxelles_cat1": "Montant des honoraires expert (€)",
+    "bruxelles_cat2": "Montant des honoraires expert (€)",
+    "bruxelles_cat3": "Montant des honoraires expert (€)"
+  }'),
+  image: "images/suivi_facade.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_certificat_peb").update!(
   titre: "Certificat PEB - Bruxelles",
-  ordre_affichage: 6,
+  ordre_affichage: 8,
   icon_name: "certificate",
   unite: "€",
   type_de_valeur: "montant_fixe",
@@ -166,7 +244,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_certificat_peb").update!(
       "condition": "Catégorie III ; montant minimal de primes demandées ≥ 250 €"
     }
   }'),
-  condition: "Certificat PEB établi par un certificateur agréé (résidentiel) – uniquement pour les ménages de catégorie III",  # :contentReference[oaicite:0]{index=0}
+  condition: "Certificat PEB établi par un certificateur agréé (résidentiel) – uniquement pour les ménages de catégorie III",
   conseil: "Regroupez vos demandes pour atteindre le seuil minimal de 250 € de primes afin de pouvoir introduire cette prime",
   document: "Certificat PEB + facture du certificateur agréé",
   specifique: "Bruxelles - Renolution",
@@ -184,7 +262,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_certificat_peb").update!(
 
 Prime.find_or_initialize_by(slug: "bruxelles_protection_echafaudages").update!(
   titre: "Protection/échafaudages - Bruxelles",
-  ordre_affichage: 7,
+  ordre_affichage: 9,
   icon_name: "ladder",
   unite: "€/m²",
   type_de_valeur: "dynamique",
@@ -1206,50 +1284,85 @@ Prime.find_or_initialize_by(slug: "bruxelles_radiateurs_basse_temperature").upda
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
 )
 
-Prime.find_or_initialize_by(slug: "bruxelles_regulation_thermique").update!(
-  titre: "Régulation thermique - Bruxelles",
+Prime.find_or_initialize_by(slug: "bruxelles_thermostat").update!(
+  titre: "Thermostat d'ambiance - Bruxelles",
   ordre_affichage: 39,
   icon_name: "sliders",
-  unite: "€/unité (max 10)",
+  unite: "€/unité",
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
     "bruxelles_cat1": {
-      "type": "montant_unite_et_limite",
-      "montant_par_unite": 70,
-      "plafond_unites": 10,
-      "condition": "Installation de dispositifs de régulation thermique par pièce (thermostats, vannes thermostatiques, etc.)"
+      "type": "montant_unite",
+      "montant_par_unite": 40,
+      "condition": "Installation de thermostats d\'ambiance pour régulation par zone"
     },
     "bruxelles_cat2": {
-      "type": "montant_unite_et_limite",
-      "montant_par_unite": 40,
-      "plafond_unites": 10,
-      "condition": "Installation de dispositifs de régulation thermique par pièce (thermostats, vannes thermostatiques, etc.)"
+      "type": "montant_unite",
+      "montant_par_unite": 70,
+      "condition": "Installation de thermostats d\'ambiance pour régulation par zone"
     },
     "bruxelles_cat3": {
-      "type": "montant_unite_et_limite",
-      "montant_par_unite": 15,
-      "plafond_unites": 10,
-      "condition": "Installation de dispositifs de régulation thermique par pièce (thermostats, vannes thermostatiques, etc.)"
+      "type": "montant_unite",
+      "montant_par_unite": 100,
+      "condition": "Installation de thermostats d\'ambiance pour régulation par zone"
     }
   }'),
-  condition: "Dispositifs de régulation indépendants par pièce : vannes thermostatiques, thermostats d'ambiance, etc.",
-  conseil: "Une bonne régulation thermique permet de réduire la consommation d'énergie tout en améliorant le confort",
-  document: "Facture précisant le nombre d\'unités, type de dispositifs et emplacement",
+  condition: "Thermostats d'ambiance permettant la régulation de température par zone",
+  conseil: "Permet un contrôle précis de la température et des économies d'énergie significatives",
+  document: "Facture précisant le nombre et type de thermostats + attestation d'installation",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
-    "bruxelles_cat1": "Nombre de pièces équipées – max 10",
-    "bruxelles_cat2": "Nombre de pièces équipées – max 10",
-    "bruxelles_cat3": "Nombre de pièces équipées – max 10"
+    "bruxelles_cat1": "Nombre de thermostats",
+    "bruxelles_cat2": "Nombre de thermostats",
+    "bruxelles_cat3": "Nombre de thermostats"
   }'),
-  image: "images/regulation_thermique.webp",
+  image: "images/thermostat_bruxelles.webp",
+  region: "bruxelles",
+  category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
+)
+
+Prime.find_or_initialize_by(slug: "bruxelles_vannes_thermostatiques").update!(
+  titre: "Vannes thermostatiques - Bruxelles",
+  ordre_affichage: 40,
+  icon_name: "thermometer-half",
+  unite: "€/unité",
+  type_de_valeur: "dynamique",
+  eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
+  valeurs_par_categorie: JSON.parse('{
+    "bruxelles_cat1": {
+      "type": "montant_unite",
+      "montant_par_unite": 15,
+      "condition": "Installation de vannes thermostatiques sur radiateurs"
+    },
+    "bruxelles_cat2": {
+      "type": "montant_unite",
+      "montant_par_unite": 25,
+      "condition": "Installation de vannes thermostatiques sur radiateurs"
+    },
+    "bruxelles_cat3": {
+      "type": "montant_unite",
+      "montant_par_unite": 40,
+      "condition": "Installation de vannes thermostatiques sur radiateurs"
+    }
+  }'),
+  condition: "Vannes thermostatiques permettant la régulation individuelle par radiateur",
+  conseil: "Complément idéal aux thermostats d'ambiance pour un contrôle fin par radiateur",
+  document: "Facture précisant le nombre de vannes + certificat de performance",
+  specifique: "Bruxelles - Renolution",
+  placeholder: JSON.parse('{
+    "bruxelles_cat1": "Nombre de vannes",
+    "bruxelles_cat2": "Nombre de vannes",
+    "bruxelles_cat3": "Nombre de vannes"
+  }'),
+  image: "images/vannes_thermostatiques_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_chauffe_eau_solaire").update!(
   titre: "Chauffe-eau solaire thermique - Bruxelles",
-  ordre_affichage: 40,
+  ordre_affichage: 41,
   icon_name: "sun",
   unite: "€/logement",
   type_de_valeur: "dynamique",
@@ -1287,7 +1400,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_chauffe_eau_solaire").update!(
 
 Prime.find_or_initialize_by(slug: "bruxelles_chauffe_eau_pac").update!(
   titre: "Chauffe-eau via pompe à chaleur - Bruxelles",
-  ordre_affichage: 41,
+  ordre_affichage: 42,
   icon_name: "cloud-drizzle",
   unite: "€",
   type_de_valeur: "forfait_logement",
@@ -1325,7 +1438,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_chauffe_eau_pac").update!(
 
 Prime.find_or_initialize_by(slug: "bruxelles_raccordement_reseau_chaleur").update!(
   titre: "Raccordement réseau de chaleur - Bruxelles",
-  ordre_affichage: 42,
+  ordre_affichage: 43,
   icon_name: "heat-wave",
   unite: "€/logement",
   type_de_valeur: "dynamique",
@@ -1367,7 +1480,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_raccordement_reseau_chaleur").updat
 
 Prime.find_or_initialize_by(slug: "bruxelles_appareil_sanitaire").update!(
   titre: "Appareil sanitaire - Bruxelles",
-  ordre_affichage: 43,
+  ordre_affichage: 44,
   icon_name: "droplet-half",
   unite: "€/unité",
   type_de_valeur: "dynamique",
@@ -1397,7 +1510,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_appareil_sanitaire").update!(
 
 Prime.find_or_initialize_by(slug: "bruxelles_mise_normes_electricite_gaz").update!(
   titre: "Mise aux normes électricité/gaz - Bruxelles",
-  ordre_affichage: 44,
+  ordre_affichage: 45,
   icon_name: "lightning",
   unite: "% du coût",
   type_de_valeur: "dynamique",
@@ -1427,7 +1540,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_mise_normes_electricite_gaz").updat
 
 Prime.find_or_initialize_by(slug: "bruxelles_ventilation_systeme_c").update!(
   titre: "Ventilation système C - Bruxelles",
-  ordre_affichage: 45,
+  ordre_affichage: 46,
   icon_name: "wind",
   unite: "€/logement",
   type_de_valeur: "dynamique",
@@ -1453,7 +1566,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_ventilation_systeme_c").update!(
 
 Prime.find_or_initialize_by(slug: "bruxelles_ventilation_systeme_d").update!(
   titre: "Ventilation système D (VMC double flux) - Bruxelles",
-  ordre_affichage: 46,
+  ordre_affichage: 47,
   icon_name: "arrow-repeat",
   unite: "€/logement",
   type_de_valeur: "dynamique",
@@ -1482,25 +1595,25 @@ Prime.find_or_initialize_by(slug: "bruxelles_ventilation_systeme_d").update!(
 # =====================================================
 
 Prime.find_or_initialize_by(slug: "bruxelles_bonus_z1").update!(
-  titre: "Bonus Z1 – Matériau d\'isolation durable - Bruxelles",
-  ordre_affichage: 47,
+  titre: "Bonus Z1 – Matériau d'isolation durable - Bruxelles",
+  ordre_affichage: 48,
   icon_name: "leaf",
-  unite: "%",
+  unite: "€/m²",
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "pourcentage", "pourcentage": 10, "condition": "Utilisation de matériaux d\'isolation biosourcés ou recyclés"},
-    "bruxelles_cat2": {"type": "pourcentage", "pourcentage": 10, "condition": "Utilisation de matériaux d\'isolation biosourcés ou recyclés"},
-    "bruxelles_cat3": {"type": "pourcentage", "pourcentage": 10, "condition": "Utilisation de matériaux d\'isolation biosourcés ou recyclés"}
+    "bruxelles_cat1": {"type": "montant_m2", "montant_par_m2": 10, "condition": "Isolation avec matériaux naturels composés d\'au moins 85% de composants renouvelables"},
+    "bruxelles_cat2": {"type": "montant_m2", "montant_par_m2": 10, "condition": "Isolation avec matériaux naturels composés d\'au moins 85% de composants renouvelables"},
+    "bruxelles_cat3": {"type": "montant_m2", "montant_par_m2": 10, "condition": "Isolation avec matériaux naturels composés d\'au moins 85% de composants renouvelables"}
   }'),
-  condition: "Matériaux d\'isolation durables (laine de bois, cellulose, fibres de coton, etc.)",
-  conseil: "Privilégier des matériaux certifiés écologiques pour maximiser l'impact environnemental",
-  document: "Facture + certificat du fournisseur attestant de la durabilité du matériau",
+  condition: "Matériaux naturels : cellulose, liège, fibres végétales (chanvre, bois, lin, paille, coton) ou animales (plumes, laine, duvet)",
+  conseil: "Privilégier des matériaux certifiés écologiques avec au moins 85% de composants renouvelables",
+  document: "Facture + certificat du fournisseur attestant de la composition du matériau",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
-    "bruxelles_cat1": "Pourcentage d\'augmentation automatique",
-    "bruxelles_cat2": "Pourcentage d\'augmentation automatique",
-    "bruxelles_cat3": "Pourcentage d\'augmentation automatique"
+    "bruxelles_cat1": "Surface en m²",
+    "bruxelles_cat2": "Surface en m²",
+    "bruxelles_cat3": "Surface en m²"
   }'),
   image: "images/bonus_z1.webp",
   region: "bruxelles",
@@ -1509,24 +1622,24 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z1").update!(
 
 Prime.find_or_initialize_by(slug: "bruxelles_bonus_z2").update!(
   titre: "Bonus Z2 – Matériau de couverture durable - Bruxelles",
-  ordre_affichage: 48,
+  ordre_affichage: 49,
   icon_name: "umbrella",
-  unite: "%",
+  unite: "€/m²",
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "pourcentage", "pourcentage": 10, "condition": "Utilisation de matériaux de couverture recyclables ou durables"},
-    "bruxelles_cat2": {"type": "pourcentage", "pourcentage": 10, "condition": "Utilisation de matériaux de couverture recyclables ou durables"},
-    "bruxelles_cat3": {"type": "pourcentage", "pourcentage": 10, "condition": "Utilisation de matériaux de couverture recyclables ou durables"}
+    "bruxelles_cat1": {"type": "montant_m2", "montant_par_m2": 20, "condition": "Bardeaux de bois, tuiles céramiques, ardoises naturelles (toitures en pente) ou EPDM (toitures plates)"},
+    "bruxelles_cat2": {"type": "montant_m2", "montant_par_m2": 20, "condition": "Bardeaux de bois, tuiles céramiques, ardoises naturelles (toitures en pente) ou EPDM (toitures plates)"},
+    "bruxelles_cat3": {"type": "montant_m2", "montant_par_m2": 20, "condition": "Bardeaux de bois, tuiles céramiques, ardoises naturelles (toitures en pente) ou EPDM (toitures plates)"}
   }'),
-  condition: "Matériaux de couverture certifiés durables (tuiles recyclables, zinc naturel, etc.)",
-  conseil: "Choisissez des matériaux à faible empreinte carbone pour renforcer la performance environnementale",
-  document: "Facture + certificat du fournisseur attestant la durabilité du matériau",
+  condition: "Matériaux de couverture durables selon le type de toiture (pente ou plate)",
+  conseil: "Choisissez des matériaux adaptés au type de toiture pour optimiser la durabilité",
+  document: "Facture + fiche technique du matériau + attestation de pose conforme",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
-    "bruxelles_cat1": "Pourcentage de majoration appliqué",
-    "bruxelles_cat2": "Pourcentage de majoration appliqué",
-    "bruxelles_cat3": "Pourcentage de majoration appliqué"
+    "bruxelles_cat1": "Surface de couverture en m²",
+    "bruxelles_cat2": "Surface de couverture en m²",
+    "bruxelles_cat3": "Surface de couverture en m²"
   }'),
   image: "images/bonus_z2.webp",
   region: "bruxelles",
@@ -1534,28 +1647,16 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z2").update!(
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_bonus_z3").update!(
-  titre: "Bonus Z3 – Bardage durable - Bruxelles",
-  ordre_affichage: 49,
-  icon_name: "box",
-  unite: "%",
+  titre: "Bonus Z3 – Matériau de bardage durable - Bruxelles",
+  ordre_affichage: 50,
+  icon_name: "building",
+  unite: "€/m²",
   type_de_valeur: "pourcentage",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {
-      "type": "pourcentage",
-      "pourcentage": 10,
-      "condition": "Utilisation de bardage certifié durable (ex. bois FSC, matériaux recyclés, biosourcés)"
-    },
-    "bruxelles_cat2": {
-      "type": "pourcentage",
-      "pourcentage": 10,
-      "condition": "Utilisation de bardage certifié durable (ex. bois FSC, matériaux recyclés, biosourcés)"
-    },
-    "bruxelles_cat3": {
-      "type": "pourcentage",
-      "pourcentage": 10,
-      "condition": "Utilisation de bardage certifié durable (ex. bois FSC, matériaux recyclés, biosourcés)"
-    }
+    "bruxelles_cat1": {"type": "montant_m2", "montant_par_m2": 20, "condition": "Bois local (rayon 300km), pierre naturelle locale ou brique de terre cuite"},
+    "bruxelles_cat2": {"type": "montant_m2", "montant_par_m2": 20, "condition": "Bois local (rayon 300km), pierre naturelle locale ou brique de terre cuite"},
+    "bruxelles_cat3": {"type": "montant_m2", "montant_par_m2": 20, "condition": "Bois local (rayon 300km), pierre naturelle locale ou brique de terre cuite"}
   }'),
   condition: "Pose d’un bardage extérieur en matériaux labellisés écologiques ou issus du réemploi",
   conseil: "Privilégiez des matériaux durables certifiés (FSC, PEFC, etc.) ou réemployés localement",
@@ -1572,30 +1673,30 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z3").update!(
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_bonus_z4").update!(
-  titre: "Bonus Z4 – Portes et fenêtres durables - Bruxelles",
-  ordre_affichage: 50,
+  titre: "Bonus Z4 – Matériau de fenêtres durables - Bruxelles",
+  ordre_affichage: 51,
   icon_name: "door-open",
-  unite: "%",
+  unite: "€/m²",
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "pourcentage", "pourcentage": 10, "condition": "Pose de portes/fenêtres fabriquées à partir de matériaux durables ou recyclés"},
-    "bruxelles_cat2": {"type": "pourcentage", "pourcentage": 10, "condition": "Pose de portes/fenêtres fabriquées à partir de matériaux durables ou recyclés"},
-    "bruxelles_cat3": {"type": "pourcentage", "pourcentage": 10, "condition": "Pose de portes/fenêtres fabriquées à partir de matériaux durables ou recyclés"}
+    "bruxelles_cat1": {"type": "montant_m2", "montant_par_m2": 100, "condition": "Châssis bois local, alu recyclé ou PVC recyclé"},
+    "bruxelles_cat2": {"type": "montant_m2", "montant_par_m2": 100, "condition": "Châssis bois local, alu recyclé ou PVC recyclé"},
+    "bruxelles_cat3": {"type": "montant_m2", "montant_par_m2": 100, "condition": "Châssis bois local, alu recyclé ou PVC recyclé"}
     }'),
-    condition: "Portes et fenêtres avec labels environnementaux (bois certifié, alu recyclé, etc.)",
-    conseil: "Privilégiez des fenêtres avec certification NF Environnement ou équivalent",
-  document: "Facture + certificat ou label du fabricant",
+    condition: "Matériaux de châssis durables (bois local, métaux recyclés)",
+    conseil: "Privilégiez des châssis avec certification environnementale",
+  document: "Facture + certificat d'origine du matériau + fiche technique",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
-    "bruxelles_cat1": "Pourcentage de majoration appliqué",
-    "bruxelles_cat2": "Pourcentage de majoration appliqué",
-    "bruxelles_cat3": "Pourcentage de majoration appliqué"
+    "bruxelles_cat1": "Surface de châssis en m²",
+    "bruxelles_cat2": "Surface de châssis en m²",
+    "bruxelles_cat3": "Surface de châssis en m²"
   }'),
   image: "images/bonus_z4.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
-  )
+)
 
 Prime.find_or_initialize_by(slug: "bruxelles_bonus_z5").update!(
   titre: "Bonus Z5 – Portes et fenêtres acoustiques - Bruxelles",
@@ -1624,25 +1725,25 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z5").update!(
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_bonus_z6").update!(
-  titre: "Bonus Z6 – Réemploi d\'équipements sanitaires - Bruxelles",
-  ordre_affichage: 52,
+  titre: "Bonus Z6 – Réemploi d'équipements sanitaires - Bruxelles",
+  ordre_affichage: 53,
   icon_name: "recycle",
-  unite: "%",
+  unite: "€/appareil (max 5)",
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "pourcentage", "pourcentage": 10, "condition": "Réemploi ou remise en état d\'équipements sanitaires existants"},
-    "bruxelles_cat2": {"type": "pourcentage", "pourcentage": 10, "condition": "Réemploi ou remise en état d\'équipements sanitaires existants"},
-    "bruxelles_cat3": {"type": "pourcentage", "pourcentage": 10, "condition": "Réemploi ou remise en état d\'équipements sanitaires existants"}
-    }'),
-    condition: "Lavabos, baignoires ou WC remis en état ou repris d\'un autre projet",
-    conseil: "Vérifiez la conformité sanitaire avant réemploi",
-    document: "Facture ou bon de cession + certificat de remise en état",
-    specifique: "Bruxelles - Renolution",
-    placeholder: JSON.parse('{
-    "bruxelles_cat1": "Pourcentage de majoration appliqué",
-    "bruxelles_cat2": "Pourcentage de majoration appliqué",
-    "bruxelles_cat3": "Pourcentage de majoration appliqué"
+    "bruxelles_cat1": {"type": "montant_unite", "montant_par_unite": 70, "condition": "Réemploi ou remise en état d équipements sanitaires (max 5 appareils)"},
+    "bruxelles_cat2": {"type": "montant_unite", "montant_par_unite": 70, "condition": "Réemploi ou remise en état d équipements sanitaires (max 5 appareils)"},
+    "bruxelles_cat3": {"type": "montant_unite", "montant_par_unite": 70, "condition": "Réemploi ou remise en état d équipements sanitaires (max 5 appareils)"}
+  }'),
+  condition: "Lavabos, baignoires ou WC remis en état ou repris d'un autre projet",
+  conseil: "Vérifiez la conformité sanitaire avant réemploi. Maximum 5 appareils",
+  document: "Facture ou bon de cession + certificat de remise en état",
+  specifique: "Bruxelles - Renolution",
+  placeholder: JSON.parse('{
+    "bruxelles_cat1": "Nombre d appareils réemployés (max 5)",
+    "bruxelles_cat2": "Nombre d appareils réemployés (max 5)",
+    "bruxelles_cat3": "Nombre d appareils réemployés (max 5)"
     }'),
   image: "images/bonus_z6.webp",
   region: "bruxelles",
@@ -1650,19 +1751,19 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z6").update!(
 )
 
 Prime.find_or_initialize_by(slug: "bruxelles_bonus_z7").update!(
-  titre: "Bonus Z7 – Capacité tampon de citerne d\'eau de pluie - Bruxelles",
-  ordre_affichage: 53,
+  titre: "Bonus Z7 – Capacité tampon de citerne d'eau de pluie - Bruxelles",
+  ordre_affichage: 54,
   icon_name: "droplet-percent",
   unite: "€/citerne",
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "montant_fixe", "montant": 300, "condition": "Capacité de stockage ≥ 3 000 L"},
-    "bruxelles_cat2": {"type": "montant_fixe", "montant": 300, "condition": "Capacité de stockage ≥ 3 000 L"},
-    "bruxelles_cat3": {"type": "montant_fixe", "montant": 300, "condition": "Capacité de stockage ≥ 3 000 L"}
+    "bruxelles_cat1": {"type": "montant_fixe", "montant": 100, "condition": "Capacité de stockage ≥ 3 000 L"},
+    "bruxelles_cat2": {"type": "montant_fixe", "montant": 150, "condition": "Capacité de stockage ≥ 3 000 L"},
+    "bruxelles_cat3": {"type": "montant_fixe", "montant": 200, "condition": "Capacité de stockage ≥ 3 000 L"}
   }'),
   condition: "Citerne enterrée ou aérienne avec capacité tampon minimale de 3 000 litres",
-  conseil: "Vérifiez l\'espace disponible et la stabilité du terrain avant installation",
+  conseil: "Vérifiez l'espace disponible et la stabilité du terrain avant installation",
   document: "Facture + fiche technique citerne précisant capacité",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
@@ -1683,9 +1784,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z9").update!(
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "montant_fixe", "montant": 400, "condition": "Désinstallation et évacuation de cuve mazout/charbon"},
-    "bruxelles_cat2": {"type": "montant_fixe", "montant": 400, "condition": "Désinstallation et évacuation de cuve mazout/charbon"},
-    "bruxelles_cat3": {"type": "montant_fixe", "montant": 400, "condition": "Désinstallation et évacuation de cuve mazout/charbon"}
+    "bruxelles_cat1": {"type": "montant_fixe", "montant": 300, "condition": "Désinstallation et évacuation de cuve mazout/charbon"},
+    "bruxelles_cat2": {"type": "montant_fixe", "montant": 350, "condition": "Désinstallation et évacuation de cuve mazout/charbon"},
+    "bruxelles_cat3": {"type": "montant_fixe", "montant": 500, "condition": "Désinstallation et évacuation de cuve mazout/charbon"}
   }'),
   condition: "Enlèvement complet et dépollution du site de stockage de mazout ou charbon",
   conseil: "Engagez un spécialiste agréé pour assurer la conformité environnementale",
@@ -1709,9 +1810,9 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z10").update!(
   type_de_valeur: "dynamique",
   eligible_categories: ["bruxelles_cat1", "bruxelles_cat2", "bruxelles_cat3"],
   valeurs_par_categorie: JSON.parse('{
-    "bruxelles_cat1": {"type": "pourcentage", "pourcentage": 20, "condition": "Au moins 3 types de travaux soumis"},
+    "bruxelles_cat1": {"type": "pourcentage", "pourcentage": 10, "condition": "Au moins 3 types de travaux soumis"},
     "bruxelles_cat2": {"type": "pourcentage", "pourcentage": 10, "condition": "Au moins 3 types de travaux soumis"},
-    "bruxelles_cat3": {"type": "pourcentage", "pourcentage": 10, "condition": "Au moins 3 types de travaux soumis"}
+    "bruxelles_cat3": {"type": "pourcentage", "pourcentage": 20, "condition": "Au moins 3 types de travaux soumis"}
   }'),
   condition: "Regroupement de trois travaux ou plus dans la même demande",
   conseil: "Réunissez vos travaux pour maximiser la prime globale",

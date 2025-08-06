@@ -3,6 +3,8 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = [
     "total",
+    // Inputs génériques pour les bonus
+    "inputSurface", "inputSurfaceLimitee", "inputQuantiteLimitee", "inputSelect",
     // Carte I - Services et études
     "inputAuditMaison", "resultAuditMaison",
     "inputAuditBatiment", "resultAuditBatiment",
@@ -113,8 +115,15 @@ export default class extends Controller {
 
   calculateMontantFixe(calculData) {
     // Pour les montants fixes (audit par exemple)
-    // Si input = "1" (Oui), on applique le montant, sinon 0
-    const firstInput = this.element.querySelector('input, select')
+    let firstInput = null
+
+    // Essayer d'abord le target select générique
+    if (this.hasInputSelectTarget) {
+      firstInput = this.inputSelectTarget
+    } else {
+      firstInput = this.element.querySelector('input, select')
+    }
+
     if (!firstInput) return 0
 
     const inputValue = firstInput.value
@@ -126,7 +135,16 @@ export default class extends Controller {
 
   calculateMontantM2(calculData) {
     // Pour les calculs au m²
-    const surfaceInput = this.element.querySelector('input[type="number"], input[placeholder*="m²"]')
+    let surfaceInput = null
+
+    // Essayer d'abord les nouveaux targets génériques
+    if (this.hasInputSurfaceTarget) {
+      surfaceInput = this.inputSurfaceTarget
+    } else {
+      // Fallback vers l'ancienne méthode
+      surfaceInput = this.element.querySelector('input[type="number"], input[placeholder*="m²"]')
+    }
+
     if (!surfaceInput) {
       console.warn("❌ Aucun input trouvé pour montant_m2")
       return 0
@@ -147,16 +165,34 @@ export default class extends Controller {
 
   calculateMontantM2AvecLimite(calculData) {
     // Pour les calculs au m² avec plafond
-    const surfaceInput = this.element.querySelector('input[type="number"], input[placeholder*="m²"]')
+    let surfaceInput = null
+
+    // Essayer d'abord le target spécialisé pour les surfaces limitées
+    if (this.hasInputSurfaceLimiteeTarget) {
+      surfaceInput = this.inputSurfaceLimiteeTarget
+    } else if (this.hasInputSurfaceTarget) {
+      surfaceInput = this.inputSurfaceTarget
+    } else {
+      // Fallback vers l'ancienne méthode
+      surfaceInput = this.element.querySelector('input[type="number"], input[placeholder*="m²"]')
+    }
+
     if (!surfaceInput) return 0
 
     const surface = parseFloat(surfaceInput.value) || 0
-    const plafondM2 = calculData.plafond_m2 || 100 // Défaut 100 m² comme indiqué dans l'unité
+    const montantParM2 = calculData.montant_m2 || calculData.montant_par_m2 || 0
+    const plafondM2 = calculData.plafond_m2 || calculData.plafond_surface || 999
     const surfaceLimitee = Math.min(surface, plafondM2)
-    return surfaceLimitee * calculData.montant_par_m2
+
+    return surfaceLimitee * montantParM2
   }
 
   calculatePourcentage(calculData) {
+    // Cas spécial pour le bonus Z10 - travaux multiples
+    if (this.slugValue === 'bruxelles_bonus_z10') {
+      return this.calculateBonusTravauxMultiples(calculData)
+    }
+
     if (calculData.base_calculation) {
       // Pourcentage basé sur une autre prime
       const baseAmount = this.getBaseCalculationAmount(calculData.base_calculation)
@@ -169,6 +205,47 @@ export default class extends Controller {
       const montantTravaux = parseFloat(montantInput.value) || 0
       return (montantTravaux * calculData.pourcentage) / 100
     }
+  }
+
+  calculateBonusTravauxMultiples(calculData) {
+    // Pour le bonus Z10, on applique le pourcentage sur le total des primes principales
+    const selectInput = this.element.querySelector('select')
+    if (!selectInput || selectInput.value !== "1") return 0
+
+    // Récupérer le total des primes principales (hors bonus)
+    const parentController = this.getParentController()
+    if (!parentController) return 0
+
+    const totalPrimesPrincipales = this.getTotalPrimesPrincipales()
+    const pourcentage = calculData.pourcentage || 0
+
+    console.log(`🎯 Bonus Z10: ${pourcentage}% sur ${totalPrimesPrincipales}€`)
+    return (totalPrimesPrincipales * pourcentage) / 100
+  }
+
+  getTotalPrimesPrincipales() {
+    // Calculer le total des primes principales (exclure les bonus Z1-Z10)
+    let total = 0
+    const parentElement = this.element.closest('[data-controller*="bruxelles-prime-calcul"]')
+    if (!parentElement) return 0
+
+    const cardElements = parentElement.querySelectorAll('[data-controller*="bruxelles-prime-card"]')
+
+    cardElements.forEach(cardElement => {
+      const slug = cardElement.dataset.bruxellesPrimeCardSlugValue || ''
+
+      // Exclure les bonus Z1-Z10 pour éviter la double comptabilisation
+      if (slug.includes('bonus_z')) return
+
+      const totalElement = cardElement.querySelector('[data-bruxelles-prime-card-target="total"]')
+      if (totalElement) {
+        const montantText = totalElement.textContent.replace(/[€\s\.]/g, '').replace(',', '.')
+        const montant = parseFloat(montantText) || 0
+        total += montant
+      }
+    })
+
+    return total
   }
 
   calculateGrilleVariable(calculData) {
@@ -203,7 +280,15 @@ export default class extends Controller {
 
   calculateMontantUnite(calculData) {
     // Pour les calculs à l'unité
-    const quantiteInput = this.element.querySelector('input[type="number"]')
+    let quantiteInput = null
+
+    // Essayer d'abord les nouveaux targets génériques
+    if (this.hasInputQuantiteLimiteeTarget) {
+      quantiteInput = this.inputQuantiteLimiteeTarget
+    } else {
+      quantiteInput = this.element.querySelector('input[type="number"]')
+    }
+
     if (!quantiteInput) return 0
 
     const quantite = parseFloat(quantiteInput.value) || 0
@@ -298,8 +383,9 @@ export default class extends Controller {
           break
         case 'montant_unite':
           const quantite = parseFloat(input.value) || 0
-          montant = quantite * calculData.montant_unite
-          console.log("🔢 Montant unité:", montant, "€ (quantité:", quantite, "× ", calculData.montant_unite, "€/unité)")
+          const montantParUnite = calculData.montant_unite || calculData.montant_par_unite || 0
+          montant = quantite * montantParUnite
+          console.log("🔢 Montant unité:", montant, "€ (quantité:", quantite, "× ", montantParUnite, "€/unité)")
           break
         case 'pourcentage':
           const montantTravaux = parseFloat(input.value) || 0
@@ -441,14 +527,16 @@ export default class extends Controller {
     // Définir les sous-primes selon la carte composite Bruxelles
     switch (this.slugValue) {
       case 'bruxelles_prime_a_global':
-        // Prime A - Services et études (6 primes)
+        // Prime A - Services et études (8 primes)
         return [
           { slug: 'bruxelles_audit_energetique_maison', inputSelector: '[data-bruxelles-prime-card-target="inputAuditMaison"]', resultSelector: '[data-bruxelles-prime-card-target="resultAuditMaison"]' },
           { slug: 'bruxelles_audit_energetique_batiment', inputSelector: '[data-bruxelles-prime-card-target="inputAuditBatiment"]', resultSelector: '[data-bruxelles-prime-card-target="resultAuditBatiment"]' },
           { slug: 'bruxelles_certificat_peb', inputSelector: '[data-bruxelles-prime-card-target="inputCertificatPeb"]', resultSelector: '[data-bruxelles-prime-card-target="resultCertificatPeb"]' },
           { slug: 'bruxelles_etude_acoustique', inputSelector: '[data-bruxelles-prime-card-target="inputEtudeAcoustique"]', resultSelector: '[data-bruxelles-prime-card-target="resultEtudeAcoustique"]' },
           { slug: 'bruxelles_etude_totem', inputSelector: '[data-bruxelles-prime-card-target="inputEtudeTotem"]', resultSelector: '[data-bruxelles-prime-card-target="resultEtudeTotem"]' },
-          { slug: 'bruxelles_suivi_professionnel', inputSelector: '[data-bruxelles-prime-card-target="inputSuiviProfessionnel"]', resultSelector: '[data-bruxelles-prime-card-target="resultSuiviProfessionnel"]' }
+          { slug: 'bruxelles_suivi_architecte', inputSelector: '[data-bruxelles-prime-card-target="inputSuiviArchitecte"]', resultSelector: '[data-bruxelles-prime-card-target="resultSuiviArchitecte"]' },
+          { slug: 'bruxelles_suivi_ingenieur_stabilite', inputSelector: '[data-bruxelles-prime-card-target="inputSuiviIngenieur"]', resultSelector: '[data-bruxelles-prime-card-target="resultSuiviIngenieur"]' },
+          { slug: 'bruxelles_suivi_expert_facade', inputSelector: '[data-bruxelles-prime-card-target="inputSuiviExpertFacade"]', resultSelector: '[data-bruxelles-prime-card-target="resultSuiviExpertFacade"]' }
         ]
 
       case 'bruxelles_prime_b_global':
@@ -526,7 +614,8 @@ export default class extends Controller {
         return [
           { slug: 'bruxelles_pac_chauffage', inputSelector: '[data-bruxelles-prime-card-target="inputPacChauffage"]', resultSelector: '[data-bruxelles-prime-card-target="resultPacChauffage"]' },
           { slug: 'bruxelles_radiateurs_basse_temperature', inputSelector: '[data-bruxelles-prime-card-target="inputRadiateursBT"]', resultSelector: '[data-bruxelles-prime-card-target="resultRadiateursBT"]' },
-          { slug: 'bruxelles_regulation_thermique', inputSelector: '[data-bruxelles-prime-card-target="inputRegulationThermique"]', resultSelector: '[data-bruxelles-prime-card-target="resultRegulationThermique"]' },
+          { slug: 'bruxelles_thermostat', inputSelector: '[data-bruxelles-prime-card-target="inputThermostat"]', resultSelector: '[data-bruxelles-prime-card-target="resultThermostat"]' },
+          { slug: 'bruxelles_vannes_thermostatiques', inputSelector: '[data-bruxelles-prime-card-target="inputVannesThermostatiques"]', resultSelector: '[data-bruxelles-prime-card-target="resultVannesThermostatiques"]' },
           { slug: 'bruxelles_chauffe_eau_solaire', inputSelector: '[data-bruxelles-prime-card-target="inputChauffeEauSolaire"]', resultSelector: '[data-bruxelles-prime-card-target="resultChauffeEauSolaire"]' },
           { slug: 'bruxelles_chauffe_eau_pac', inputSelector: '[data-bruxelles-prime-card-target="inputChauffeEauPac"]', resultSelector: '[data-bruxelles-prime-card-target="resultChauffeEauPac"]' },
           { slug: 'bruxelles_raccordement_reseau_chaleur', inputSelector: '[data-bruxelles-prime-card-target="inputRaccordementReseau"]', resultSelector: '[data-bruxelles-prime-card-target="resultRaccordementReseau"]' }

@@ -301,14 +301,7 @@ export default class extends Controller {
         console.log("✅ Événement ajouté pour étude acoustique")
       }
 
-      // Carte I - Services et études - Suivi professionnel
-      const inputSuiviProfessionnel = document.querySelector('[data-bruxelles-prime-card-target="inputSuiviProfessionnel"]')
-      if (inputSuiviProfessionnel) {
-        inputSuiviProfessionnel.addEventListener('input', () => {
-          this.calculateSpecificPrime('bruxelles_suivi_professionnel', inputSuiviProfessionnel, '[data-bruxelles-prime-card-target="resultSuiviProfessionnel"]')
-        })
-        console.log("✅ Événement ajouté pour suivi professionnel")
-      }
+      // NOTE: Gestion des 3 suivis professionnels supprimée - gérée par bruxelles_prime_card_controller
 
       // Carte C - Gros-œuvre - Structure portante
       const inputStructurePortante = document.querySelector('[data-bruxelles-prime-card-target="inputStructurePortante"]')
