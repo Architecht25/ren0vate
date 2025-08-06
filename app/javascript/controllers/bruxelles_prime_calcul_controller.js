@@ -274,13 +274,13 @@ export default class extends Controller {
         console.log("✅ Événement ajouté pour isolation toiture")
       }
 
-      // Carte K - Isolation murs
-      const inputIsolationMurs = document.querySelector('[data-bruxelles-prime-card-target="inputIsolationMurs"]')
-      if (inputIsolationMurs) {
-        inputIsolationMurs.addEventListener('change', () => {
-          this.calculateSpecificPrime('bruxelles_isolation_interieure_facade', inputIsolationMurs, '[data-bruxelles-prime-card-target="resultIsolationMurs"]')
+      // Carte F - Isolation intérieure façade
+      const inputIsolationInterieure = document.querySelector('[data-bruxelles-prime-card-target="inputIsolationInterieure"]')
+      if (inputIsolationInterieure) {
+        inputIsolationInterieure.addEventListener('input', () => {
+          this.calculateSpecificPrime('bruxelles_isolation_interieure_facade', inputIsolationInterieure, '[data-bruxelles-prime-card-target="resultIsolationInterieure"]')
         })
-        console.log("✅ Événement ajouté pour isolation murs")
+        console.log("✅ Événement ajouté pour isolation intérieure façade")
       }
 
       // Carte M - Pompe à chaleur
@@ -348,32 +348,7 @@ export default class extends Controller {
         console.log("✅ Événement ajouté pour accessoires toiture")
       }
 
-      // Carte F - Façades - Bardage façade
-      const inputBardageFacade = document.querySelector('[data-bruxelles-prime-card-target="inputBardageFacade"]')
-      if (inputBardageFacade) {
-        inputBardageFacade.addEventListener('input', () => {
-          this.calculateSpecificPrime('bruxelles_bardage_facade', inputBardageFacade, '[data-bruxelles-prime-card-target="resultBardageFacade"]')
-        })
-        console.log("✅ Événement ajouté pour bardage façade")
-      }
-
-      // Carte F - Façades - Enduit façade
-      const inputEnduitFacade = document.querySelector('[data-bruxelles-prime-card-target="inputEnduitFacade"]')
-      if (inputEnduitFacade) {
-        inputEnduitFacade.addEventListener('input', () => {
-          this.calculateSpecificPrime('bruxelles_enduit_facade', inputEnduitFacade, '[data-bruxelles-prime-card-target="resultEnduitFacade"]')
-        })
-        console.log("✅ Événement ajouté pour enduit façade")
-      }
-
-      // Carte F - Façades - Isolation acoustique murs
-      const inputIsolationAcoustique = document.querySelector('[data-bruxelles-prime-card-target="inputIsolationAcoustique"]')
-      if (inputIsolationAcoustique) {
-        inputIsolationAcoustique.addEventListener('input', () => {
-          this.calculateSpecificPrime('bruxelles_isolation_acoustique_murs', inputIsolationAcoustique, '[data-bruxelles-prime-card-target="resultIsolationAcoustique"]')
-        })
-        console.log("✅ Événement ajouté pour isolation acoustique murs")
-      }
+      // NOTE: Carte F - Façades (Bardage, Enduit, etc.) - Gérée par bruxelles_prime_card_controller comme carte composite
 
       // Carte I - Aménagement - Protection incendie
       const inputProtectionIncendie = document.querySelector('[data-bruxelles-prime-card-target="inputProtectionIncendie"]')

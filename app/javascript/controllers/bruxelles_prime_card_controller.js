@@ -388,9 +388,15 @@ export default class extends Controller {
       const resultElement = this.element.querySelector(resultSelector)
       if (resultElement) {
         resultElement.textContent = `${montant.toLocaleString('fr-BE')} €`
-        console.log("✨ Résultat mis à jour:", resultSelector, "→", montant, "€")
+        console.log(`✨ [${slug}] Résultat mis à jour: ${resultSelector} → ${montant}€`)
+
+        // Debug spécifique pour les problèmes de façade
+        if (slug.includes('facade')) {
+          console.log(`🏠 FACADE DEBUG: slug="${slug}", input="${inputSelector}", result="${resultSelector}", montant=${montant}€`)
+          console.log(`🏠 Element DOM trouvé:`, resultElement.outerHTML.substring(0, 100) + '...')
+        }
       } else {
-        console.warn(`❌ Element résultat non trouvé pour ${resultSelector} dans la carte ${this.slugValue}`)
+        console.warn(`❌ [${slug}] Element résultat non trouvé pour ${resultSelector} dans la carte ${this.slugValue}`)
         // Debug: lister tous les éléments avec data-bruxelles-prime-card-target
         const allTargets = this.element.querySelectorAll('[data-bruxelles-prime-card-target]')
         console.log(`🔍 Debug - Tous les targets trouvés dans cette carte:`, Array.from(allTargets).map(el => el.getAttribute('data-bruxelles-prime-card-target')))
