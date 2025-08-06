@@ -1157,6 +1157,12 @@ export default class extends Controller {
       return;
     }
 
+    const consentement_controles = testData["consentement_controles"];
+    if (consentement_controles === "non") {
+      this.showResult("❌ Le consentement aux visites et contrôles des membres de l'administration est obligatoire pour l'éligibilité", false);
+      return;
+    }
+
     // Vérifier si toutes les questions sont répondues
     this.checkIfAllAnsweredBruxellesParticulier();
   }
@@ -1243,7 +1249,8 @@ export default class extends Controller {
       'localisation', 'age_batiment', 'professionnel_agree', 'nouvelle_construction',
       'compte_belge', 'travaux_realises', 'primes_recues', 'proprietaire_appartement',
       'proprietaire_maison', 'bim', 'ris', 'client_protege', 'independant',
-      'domiciliation', 'vente_bien', 'permis_urbanisme', 'bien_classe', 'petit_patrimoine'
+      'domiciliation', 'vente_bien', 'permis_urbanisme', 'bien_classe', 'petit_patrimoine',
+      'consentement_controles'
     ];
 
     // Obtenir les réponses actuelles
@@ -1459,6 +1466,12 @@ export default class extends Controller {
       return;
     }
 
+    const consentement_controles = testData["consentement_controles"];
+    if (consentement_controles === "non") {
+      this.showResult("❌ Le consentement aux visites et contrôles des membres de l'administration est obligatoire pour l'éligibilité", false);
+      return;
+    }
+
     // Vérifier si toutes les questions sont répondues
     this.checkIfAllAnsweredBruxellesEntreprise();
   }
@@ -1517,7 +1530,8 @@ export default class extends Controller {
       'localisation', 'age_batiment', 'professionnel_agree', 'nouvelle_construction',
       'compte_belge', 'travaux_realises', 'primes_recues', 'proprietaire_immeuble',
       'proprietaire_appartement', 'proprietaire_maison', 'enregistrement_bce',
-      'bail_ais', 'tva_deductible', 'de_minimis', 'bien_classe', 'petit_patrimoine'
+      'bail_ais', 'tva_deductible', 'de_minimis', 'bien_classe', 'petit_patrimoine',
+      'consentement_controles'
     ];
 
     // Obtenir les réponses actuelles
@@ -1671,6 +1685,12 @@ export default class extends Controller {
       return;
     }
 
+    const consentement_controles = testData["consentement_controles"];
+    if (consentement_controles === "non") {
+      this.showResult("❌ Le consentement aux visites et contrôles des membres de l'administration est obligatoire pour l'éligibilité", false);
+      return;
+    }
+
     // Vérifier si toutes les questions sont répondues
     this.checkIfAllAnsweredBruxellesSyndic();
   }
@@ -1758,7 +1778,7 @@ export default class extends Controller {
     // Recommandations spécifiques aux syndics
     recommendations.push("🏢 En tant que syndic/copropriété, vous êtes automatiquement en catégorie 2");
     recommendations.push("👥 La demande doit être faite au nom de l'ACP (Association des Copropriétaires)");
-    
+
     if (testData.primes_recues === "oui") {
       recommendations.push("⚠️ Attention aux cumuls : certaines primes ne peuvent pas être obtenues plusieurs fois");
     }
@@ -1850,6 +1870,12 @@ export default class extends Controller {
     const compte_belge = testData["compte_belge"];
     if (compte_belge === "non") {
       this.showResult("❌ Un compte bancaire belge est requis pour le versement des primes", false);
+      return;
+    }
+
+    const consentement_controles = testData["consentement_controles"];
+    if (consentement_controles === "non") {
+      this.showResult("❌ Le consentement aux visites et contrôles des membres de l'administration est obligatoire pour l'éligibilité", false);
       return;
     }
 
@@ -1974,6 +2000,12 @@ export default class extends Controller {
       return;
     }
 
+    const consentement_controles = testData["consentement_controles"];
+    if (consentement_controles === "non") {
+      this.showResult("❌ Le consentement aux visites et contrôles des membres de l'administration est obligatoire pour l'éligibilité", false);
+      return;
+    }
+
     this.checkIfAllAnsweredBruxellesAsbl();
   }
 
@@ -2094,6 +2126,12 @@ export default class extends Controller {
     const travaux_realises = testData["travaux_realises"];
     if (travaux_realises === "non") {
       this.showResult("❌ Les travaux doivent être réalisés avec facture dans les 12 mois", false);
+      return;
+    }
+
+    const consentement_controles = testData["consentement_controles"];
+    if (consentement_controles === "non") {
+      this.showResult("❌ Le consentement aux visites et contrôles des membres de l'administration est obligatoire pour l'éligibilité", false);
       return;
     }
 
@@ -2267,6 +2305,12 @@ export default class extends Controller {
       return;
     }
 
+    const consentement_controles = testData["consentement_controles"];
+    if (consentement_controles === "non") {
+      this.showResult("❌ Le consentement aux visites et contrôles des membres de l'administration est obligatoire pour l'éligibilité", false);
+      return;
+    }
+
     this.checkIfAllAnsweredBruxellesParticulierIndivision();
   }
 
@@ -2418,6 +2462,12 @@ export default class extends Controller {
       return;
     }
 
+    const consentement_controles = testData["consentement_controles"];
+    if (consentement_controles === "non") {
+      this.showResult("❌ Le consentement aux visites et contrôles des membres de l'administration est obligatoire pour l'éligibilité", false);
+      return;
+    }
+
     this.checkIfAllAnsweredBruxellesLocataire();
   }
 
@@ -2507,7 +2557,7 @@ export default class extends Controller {
 
     // Recommandations spécifiques aux locataires
     recommendations.push("📝 En tant que locataire, l'accord écrit du propriétaire est obligatoire");
-    
+
     if (testData.type_propriete) {
       if (testData.type_propriete === "immeuble_complet") {
         recommendations.push("� Pour un immeuble complet, certaines primes spécifiques sont disponibles");
@@ -2596,6 +2646,12 @@ export default class extends Controller {
     const travaux_realises = testData["travaux_realises"];
     if (travaux_realises === "non") {
       this.showResult("❌ Les travaux doivent être réalisés avec facture dans les 12 mois", false);
+      return;
+    }
+
+    const consentement_controles = testData["consentement_controles"];
+    if (consentement_controles === "non") {
+      this.showResult("❌ Le consentement aux visites et contrôles des membres de l'administration est obligatoire pour l'éligibilité", false);
       return;
     }
 
@@ -2769,6 +2825,12 @@ export default class extends Controller {
     const travaux_realises = testData["travaux_realises"];
     if (travaux_realises === "non") {
       this.showResult("❌ Les travaux doivent être réalisés avec facture dans les 12 mois", false);
+      return;
+    }
+
+    const consentement_controles = testData["consentement_controles"];
+    if (consentement_controles === "non") {
+      this.showResult("❌ Le consentement aux visites et contrôles des membres de l'administration est obligatoire pour l'éligibilité", false);
       return;
     }
 

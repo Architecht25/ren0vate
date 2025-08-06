@@ -192,7 +192,36 @@
           </div>
         </div>
 
-        <!-- Question 8: Type de propriété -->
+        <!-- Question 8: Accord du propriétaire -->
+        <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+          <h6 class="mb-3 text-dark">
+            <i class="bi bi-file-text text-primary me-2"></i>
+            Mon propriétaire a donné son accord (écrit) préalable pour les travaux et la demande de primes
+          </h6>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="accord_proprietaire" value="oui"
+                     data-action="click->test-eligibilite#handleAnswerBruxellesLocataire" id="accord_proprietaire_oui">
+              <label class="form-check-label" for="accord_proprietaire_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="accord_proprietaire" value="non"
+                     data-action="click->test-eligibilite#handleAnswerBruxellesLocataire" id="accord_proprietaire_non">
+              <label class="form-check-label" for="accord_proprietaire_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non
+              </label>
+            </div>
+          </div>
+          <!-- Alert pour accord propriétaire -->
+          <div id="accord_proprietaire_info" class="alert alert-danger mt-3" style="display: none;">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong>Attention :</strong> L'accord écrit préalable du propriétaire est obligatoire pour bénéficier des primes en tant que locataire.
+          </div>
+        </div>
+
+        <!-- Question 9: Type de propriété -->
         <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
           <h6 class="mb-3 text-dark">
             <i class="bi bi-house-gear text-primary me-2"></i>
@@ -259,7 +288,7 @@
           </div>
         </div>
 
-        <!-- Question 9: BIM -->
+        <!-- Question 10: BIM -->
         <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
           <h6 class="mb-3 text-dark">
             <i class="bi bi-shield-plus text-primary me-2"></i>
@@ -288,7 +317,7 @@
           </div>
         </div>
 
-        <!-- Question 10: RIS -->
+        <!-- Question 11: RIS -->
         <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
           <h6 class="mb-3 text-dark">
             <i class="bi bi-person-plus text-primary me-2"></i>
@@ -317,7 +346,7 @@
           </div>
         </div>
 
-        <!-- Question 11: Client protégé -->
+        <!-- Question 12: Client protégé -->
         <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
           <h6 class="mb-3 text-dark">
             <i class="bi bi-shield-check text-primary me-2"></i>
@@ -346,7 +375,7 @@
           </div>
         </div>
 
-        <!-- Question 12: Indépendant -->
+        <!-- Question 13: Indépendant -->
         <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
           <h6 class="mb-3 text-dark">
             <i class="bi bi-briefcase text-primary me-2"></i>
@@ -387,7 +416,7 @@
           </div>
         </div>
 
-        <!-- Question 13: Activité professionnelle -->
+        <!-- Question 14: Activité professionnelle -->
         <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
           <h6 class="mb-3 text-dark">
             <i class="bi bi-house-gear text-primary me-2"></i>
@@ -425,7 +454,7 @@
           </div>
         </div>
 
-        <!-- Question 14: Permis d'urbanisme -->
+        <!-- Question 15: Permis d'urbanisme -->
         <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
           <h6 class="mb-3 text-dark">
             <i class="bi bi-file-earmark-check text-primary me-2"></i>
@@ -454,7 +483,7 @@
           </div>
         </div>
 
-        <!-- Question 15: Bien classé -->
+        <!-- Question 16: Bien classé -->
         <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
           <h6 class="mb-3 text-dark">
             <i class="bi bi-star text-primary me-2"></i>
@@ -478,7 +507,7 @@
           </div>
         </div>
 
-        <!-- Question 16: Petit patrimoine -->
+        <!-- Question 17: Petit patrimoine -->
         <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
           <h6 class="mb-3 text-dark">
             <i class="bi bi-building-check text-primary me-2"></i>
@@ -496,6 +525,30 @@
               <input type="radio" class="form-check-input" name="petit_patrimoine" value="non"
                      data-action="click->test-eligibilite#handleAnswerBruxellesLocataire" id="petit_patrimoine_non">
               <label class="form-check-label" for="petit_patrimoine_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 9: Consentement visites et contrôles -->
+        <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+          <h6 class="mb-3 text-dark">
+            <i class="bi bi-eye text-primary me-2"></i>
+            Vous consentez aux visites et contrôles des membres de l'administration
+          </h6>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="consentement_controles" value="oui"
+                     data-action="click->test-eligibilite#handleAnswerBruxellesLocataire" id="consentement_controles_oui">
+              <label class="form-check-label" for="consentement_controles_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="consentement_controles" value="non"
+                     data-action="click->test-eligibilite#handleAnswerBruxellesLocataire" id="consentement_controles_non">
+              <label class="form-check-label" for="consentement_controles_non">
                 <i class="bi bi-x-circle text-danger me-1"></i>Non
               </label>
             </div>
@@ -584,7 +637,8 @@
     ];
 
     const showAlertOnNo = [
-      { name: 'permis_urbanisme', alertId: 'permis_urbanisme_info' }
+      { name: 'permis_urbanisme', alertId: 'permis_urbanisme_info' },
+      { name: 'accord_proprietaire', alertId: 'accord_proprietaire_info' }
     ];
 
     showAlertOnYes.forEach(item => {

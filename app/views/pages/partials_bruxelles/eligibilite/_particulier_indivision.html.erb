@@ -192,6 +192,282 @@
           </div>
         </div>
 
+        <!-- Question 8: Type de propriété -->
+        <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+          <h6 class="mb-3 text-dark">
+            <i class="bi bi-house-gear text-primary me-2"></i>
+            Quel type de bien possédez-vous ?
+          </h6>
+          <div class="row">
+            <div class="col-12 mb-2">
+              <div class="form-check">
+                <input type="radio" class="form-check-input" name="type_propriete" value="immeuble_complet"
+                       data-action="click->test-eligibilite#handleAnswerBruxellesParticulierIndivision" id="type_propriete_immeuble">
+                <label class="form-check-label" for="type_propriete_immeuble">
+                  <i class="bi bi-building me-1"></i>Je suis propriétaire de tout l'immeuble
+                </label>
+              </div>
+            </div>
+            <div class="col-12 mb-2">
+              <div class="form-check">
+                <input type="radio" class="form-check-input" name="type_propriete" value="appartement"
+                       data-action="click->test-eligibilite#handleAnswerBruxellesParticulierIndivision" id="type_propriete_appartement">
+                <label class="form-check-label" for="type_propriete_appartement">
+                  <i class="bi bi-door-open me-1"></i>Je suis propriétaire d'un appartement résidentiel
+                </label>
+              </div>
+            </div>
+            <div class="col-12 mb-2">
+              <div class="form-check">
+                <input type="radio" class="form-check-input" name="type_propriete" value="maison"
+                       data-action="click->test-eligibilite#handleAnswerBruxellesParticulierIndivision" id="type_propriete_maison">
+                <label class="form-check-label" for="type_propriete_maison">
+                  <i class="bi bi-house me-1"></i>Je suis propriétaire d'une maison
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sous-questions pour immeuble complet -->
+          <div id="immeuble_details" style="display: none;" class="mt-3 p-3 bg-white border rounded">
+            <h6 class="mb-3">Détails de l'immeuble</h6>
+            <div class="mb-3">
+              <label for="nb_appartements" class="form-label">Quantité d'appartements :</label>
+              <input type="number" class="form-control" id="nb_appartements" name="nb_appartements" min="1">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Composition de l'immeuble :</label>
+              <div class="form-check">
+                <input type="radio" class="form-check-input" name="composition_immeuble" value="80_plus_logement" id="composition_80_plus">
+                <label class="form-check-label" for="composition_80_plus">
+                  Avec au moins 80% de logement
+                </label>
+              </div>
+              <div class="form-check">
+                <input type="radio" class="form-check-input" name="composition_immeuble" value="80_moins_logement" id="composition_80_moins">
+                <label class="form-check-label" for="composition_80_moins">
+                  Avec moins de 80% de logement
+                </label>
+              </div>
+              <div class="form-check">
+                <input type="radio" class="form-check-input" name="composition_immeuble" value="sans_logement" id="composition_sans">
+                <label class="form-check-label" for="composition_sans">
+                  Sans logement
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 9: Indépendant -->
+        <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+          <h6 class="mb-3 text-dark">
+            <i class="bi bi-briefcase text-primary me-2"></i>
+            Êtes-vous un indépendant ?
+          </h6>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="independant" value="oui"
+                     data-action="click->test-eligibilite#handleAnswerBruxellesParticulierIndivision" id="independant_oui">
+              <label class="form-check-label" for="independant_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="independant" value="non"
+                     data-action="click->test-eligibilite#handleAnswerBruxellesParticulierIndivision" id="independant_non">
+              <label class="form-check-label" for="independant_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non
+              </label>
+            </div>
+          </div>
+
+          <!-- Sous-question TVA -->
+          <div id="tva_question" style="display: none;" class="mt-3 p-3 bg-white border rounded">
+            <h6 class="mb-3">Déduisez-vous la TVA pour les travaux concernés par votre demande ?</h6>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="tva_deduite" value="oui" id="tva_deduite_oui">
+              <label class="form-check-label" for="tva_deduite_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="tva_deduite" value="non" id="tva_deduite_non">
+              <label class="form-check-label" for="tva_deduite_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 10: Activité professionnelle -->
+        <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+          <h6 class="mb-3 text-dark">
+            <i class="bi bi-house-gear text-primary me-2"></i>
+            Une partie de votre logement est-elle utilisée pour l'exercice d'une activité professionnelle ?
+          </h6>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="activite_professionnelle" value="oui"
+                     data-action="click->test-eligibilite#handleAnswerBruxellesParticulierIndivision" id="activite_professionnelle_oui">
+              <label class="form-check-label" for="activite_professionnelle_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="activite_professionnelle" value="non"
+                     data-action="click->test-eligibilite#handleAnswerBruxellesParticulierIndivision" id="activite_professionnelle_non">
+              <label class="form-check-label" for="activite_professionnelle_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non
+              </label>
+            </div>
+          </div>
+
+          <!-- Sous-questions superficie -->
+          <div id="superficie_details" style="display: none;" class="mt-3 p-3 bg-white border rounded">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="superficie_totale" class="form-label">Nombre de m² total du logement concerné :</label>
+                <input type="number" class="form-control" id="superficie_totale" name="superficie_totale" min="1">
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="superficie_professionnelle" class="form-label">Nombre de m² utilisés pour votre activité professionnelle :</label>
+                <input type="number" class="form-control" id="superficie_professionnelle" name="superficie_professionnelle" min="1">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 11: Permis d'urbanisme -->
+        <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+          <h6 class="mb-3 text-dark">
+            <i class="bi bi-file-earmark-check text-primary me-2"></i>
+            J'ai un permis d'urbanisme octroyé par ma commune
+          </h6>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="permis_urbanisme" value="oui"
+                     data-action="click->test-eligibilite#handleAnswerBruxellesParticulierIndivision" id="permis_urbanisme_oui">
+              <label class="form-check-label" for="permis_urbanisme_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="permis_urbanisme" value="non"
+                     data-action="click->test-eligibilite#handleAnswerBruxellesParticulierIndivision" id="permis_urbanisme_non">
+              <label class="form-check-label" for="permis_urbanisme_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non
+              </label>
+            </div>
+          </div>
+          <!-- Alert pour permis d'urbanisme -->
+          <div id="permis_urbanisme_info" class="alert alert-warning mt-3" style="display: none;">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>Information :</strong> Certains travaux nécessitent un permis d'urbanisme, nous vous invitons à consulter le service urbanisme de votre commune.
+          </div>
+        </div>
+
+        <!-- Question 12: Bien classé -->
+        <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+          <h6 class="mb-3 text-dark">
+            <i class="bi bi-star text-primary me-2"></i>
+            Ce bien est-il classé ?
+          </h6>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="bien_classe" value="oui"
+                     data-action="click->test-eligibilite#handleAnswerBruxellesParticulierIndivision" id="bien_classe_oui">
+              <label class="form-check-label" for="bien_classe_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="bien_classe" value="non"
+                     data-action="click->test-eligibilite#handleAnswerBruxellesParticulierIndivision" id="bien_classe_non">
+              <label class="form-check-label" for="bien_classe_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 13: Petit patrimoine -->
+        <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+          <h6 class="mb-3 text-dark">
+            <i class="bi bi-building-check text-primary me-2"></i>
+            La façade du bâtiment comporte-t-elle des éléments qui appartiennent au "Petit patrimoine" ?
+          </h6>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="petit_patrimoine" value="oui"
+                     data-action="click->test-eligibilite#handleAnswerBruxellesParticulierIndivision" id="petit_patrimoine_oui">
+              <label class="form-check-label" for="petit_patrimoine_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="petit_patrimoine" value="non"
+                     data-action="click->test-eligibilite#handleAnswerBruxellesParticulierIndivision" id="petit_patrimoine_non">
+              <label class="form-check-label" for="petit_patrimoine_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 14: Mandat indivisaires -->
+        <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+          <h6 class="mb-3 text-dark">
+            <i class="bi bi-file-earmark-person text-primary me-2"></i>
+            J'ai un mandat signé par tous les autres indivisaires, qui m'autorise à représenter l'indivision dans le cadre de la demande de primes, à réaliser les travaux, à recevoir la prime
+          </h6>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="mandat_indivisaires" value="oui"
+                     data-action="click->test-eligibilite#handleAnswerBruxellesParticulierIndivision" id="mandat_indivisaires_oui">
+              <label class="form-check-label" for="mandat_indivisaires_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="mandat_indivisaires" value="non"
+                     data-action="click->test-eligibilite#handleAnswerBruxellesParticulierIndivision" id="mandat_indivisaires_non">
+              <label class="form-check-label" for="mandat_indivisaires_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non
+              </label>
+            </div>
+          </div>
+          <!-- Alert pour mandat indivisaires -->
+          <div id="mandat_indivisaires_info" class="alert alert-danger mt-3" style="display: none;">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong>Attention :</strong> Le mandat signé par tous les indivisaires est obligatoire pour représenter l'indivision dans la demande de primes.
+          </div>
+        </div>
+
+        <!-- Question 15: Consentement visites et contrôles -->
+        <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+          <h6 class="mb-3 text-dark">
+            <i class="bi bi-eye text-primary me-2"></i>
+            Vous consentez aux visites et contrôles des membres de l'administration
+          </h6>
+          <div class="d-flex gap-3">
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="consentement_controles" value="oui"
+                     data-action="click->test-eligibilite#handleAnswerBruxellesParticulierIndivision" id="consentement_controles_oui">
+              <label class="form-check-label" for="consentement_controles_oui">
+                <i class="bi bi-check-circle text-success me-1"></i>Oui
+              </label>
+            </div>
+            <div class="form-check">
+              <input type="radio" class="form-check-input" name="consentement_controles" value="non"
+                     data-action="click->test-eligibilite#handleAnswerBruxellesParticulierIndivision" id="consentement_controles_non">
+              <label class="form-check-label" for="consentement_controles_non">
+                <i class="bi bi-x-circle text-danger me-1"></i>Non
+              </label>
+            </div>
+          </div>
+        </div>
+
         <!-- Zone de résultat -->
         <div id="resultBruxellesParticulierIndivision" class="mt-4" style="display: none;">
           <div class="alert alert-info">
@@ -221,19 +497,85 @@
 </div>
 
 <script>
-  // Gestion des alertes informatives
+  // Gestion des sous-questions dynamiques
   document.addEventListener('DOMContentLoaded', function() {
-    // Gestion de l'alerte pour primes antérieures
-    const primesAnterieureBtns = document.querySelectorAll('input[name="primes_anterieures"]');
-    const primesAnterieureInfo = document.getElementById('primes_anterieures_info');
+    // Gestion du type de propriété
+    const typeProprieteBtns = document.querySelectorAll('input[name="type_propriete"]');
+    const immeubleDetails = document.getElementById('immeuble_details');
 
-    primesAnterieureBtns.forEach(btn => {
+    typeProprieteBtns.forEach(btn => {
+      btn.addEventListener('change', function() {
+        if (this.value === 'immeuble_complet') {
+          immeubleDetails.style.display = 'block';
+        } else {
+          immeubleDetails.style.display = 'none';
+        }
+      });
+    });
+
+    // Gestion indépendant -> TVA
+    const independantBtns = document.querySelectorAll('input[name="independant"]');
+    const tvaQuestion = document.getElementById('tva_question');
+
+    independantBtns.forEach(btn => {
       btn.addEventListener('change', function() {
         if (this.value === 'oui') {
-          primesAnterieureInfo.style.display = 'block';
+          tvaQuestion.style.display = 'block';
         } else {
-          primesAnterieureInfo.style.display = 'none';
+          tvaQuestion.style.display = 'none';
         }
+      });
+    });
+
+    // Gestion activité professionnelle -> superficie
+    const activiteBtns = document.querySelectorAll('input[name="activite_professionnelle"]');
+    const superficieDetails = document.getElementById('superficie_details');
+
+    activiteBtns.forEach(btn => {
+      btn.addEventListener('change', function() {
+        if (this.value === 'oui') {
+          superficieDetails.style.display = 'block';
+        } else {
+          superficieDetails.style.display = 'none';
+        }
+      });
+    });
+
+    // Gestion des alertes informatives
+    const showAlertOnYes = [
+      { name: 'primes_anterieures', alertId: 'primes_anterieures_info' }
+    ];
+
+    const showAlertOnNo = [
+      { name: 'permis_urbanisme', alertId: 'permis_urbanisme_info' },
+      { name: 'mandat_indivisaires', alertId: 'mandat_indivisaires_info' }
+    ];
+
+    showAlertOnYes.forEach(item => {
+      const btns = document.querySelectorAll(`input[name="${item.name}"]`);
+      const alert = document.getElementById(item.alertId);
+      btns.forEach(btn => {
+        btn.addEventListener('change', function() {
+          if (this.value === 'oui') {
+            alert.style.display = 'block';
+          } else {
+            alert.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    showAlertOnNo.forEach(item => {
+      const btns = document.querySelectorAll(`input[name="${item.name}"]`);
+      const alert = document.getElementById(item.alertId);
+      btns.forEach(btn => {
+        btn.addEventListener('change', function() {
+          if (this.value === 'non') {
+            alert.style.display = 'block';
+          } else {
+            alert.style.display = 'none';
+          }
+        });
       });
     });
   });
