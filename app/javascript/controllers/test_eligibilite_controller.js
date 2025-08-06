@@ -2069,11 +2069,19 @@ export default class extends Controller {
 
     const form = this.formTarget;
     const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+    const inputValues = [...form.querySelectorAll("input[type=number]")];
 
     const testData = responses.reduce((acc, response) => {
       acc[response.name] = response.value;
       return acc;
     }, {});
+
+    // Ajouter les valeurs numériques
+    inputValues.forEach(input => {
+      if (input.value) {
+        testData[input.name] = input.value;
+      }
+    });
 
     localStorage.setItem("eligibiliteBruxellesParticulierIndivision", JSON.stringify(testData));
 
@@ -2117,12 +2125,21 @@ export default class extends Controller {
       return;
     }
 
+    // NOUVELLE VÉRIFICATION: Mandat indivisaires (critère bloquant)
+    const mandat_indivisaires = testData["mandat_indivisaires"];
+    if (mandat_indivisaires === "non") {
+      this.showResult("❌ Le mandat signé par tous les indivisaires est obligatoire pour représenter l'indivision", false);
+      return;
+    }
+
     this.checkIfAllAnsweredBruxellesParticulierIndivision();
   }
 
   handleConditionalAlertsIndivision(questionName, value) {
     const alertsMap = {
-      'primes_anterieures': { condition: value === 'oui', elementId: 'primes_anterieures_info' }
+      'primes_anterieures': { condition: value === 'oui', elementId: 'primes_anterieures_info' },
+      'permis_urbanisme': { condition: value === 'non', elementId: 'permis_urbanisme_info' },
+      'mandat_indivisaires': { condition: value === 'non', elementId: 'mandat_indivisaires_info' }
     };
 
     Object.entries(alertsMap).forEach(([key, config]) => {
@@ -2152,14 +2169,43 @@ export default class extends Controller {
   validateTestBruxellesParticulierIndivision() {
     console.log("🎯 Validation du test d'éligibilité Bruxelles Particulier Indivision");
 
+    const testData = JSON.parse(localStorage.getItem("eligibiliteBruxellesParticulierIndivision") || "{}");
+
     let message = "✅ Vous êtes éligible aux primes RENOLUTION Bruxelles en tant que particulier en indivision !";
     message += "<br><br><strong>Profil :</strong> <span class='badge bg-info'>Particulier Indivision</span>";
 
     let recommendations = [
       "👥 En tant que copropriétaire en indivision, vous pouvez demander les primes individuellement",
       "📋 Attention à la règle des 10 ans pour les primes identiques",
-      "⚖️ Chaque indivisaire peut faire sa demande selon sa quote-part"
+      "⚖️ Chaque indivisaire peut faire sa demande selon sa quote-part",
+      "📝 Le mandat signé par tous les indivisaires est obligatoire"
     ];
+
+    // Recommandations spécifiques basées sur les réponses
+    const type_propriete = testData["type_propriete"];
+    if (type_propriete === "immeuble_complet") {
+      recommendations.push("🏢 Immeuble complet : Vérifiez la composition (% logement) pour l'éligibilité");
+    }
+
+    const independant = testData["independant"];
+    if (independant === "oui") {
+      recommendations.push("💼 Indépendant : Attention à la déduction TVA qui peut affecter le montant des primes");
+    }
+
+    const activite_professionnelle = testData["activite_professionnelle"];
+    if (activite_professionnelle === "oui") {
+      recommendations.push("🏠 Usage mixte : Seule la partie résidentielle est éligible aux primes");
+    }
+
+    const bien_classe = testData["bien_classe"];
+    if (bien_classe === "oui") {
+      recommendations.push("🏛️ Bien classé : Des primes majorées peuvent être disponibles");
+    }
+
+    const petit_patrimoine = testData["petit_patrimoine"];
+    if (petit_patrimoine === "oui") {
+      recommendations.push("🏗️ Petit patrimoine : Des bonus peuvent s'appliquer selon les éléments");
+    }
 
     localStorage.setItem("bruxelles_categorie", "particulier_indivision");
     this.showResultBruxellesParticulierIndivision(message, true, recommendations);
@@ -2246,7 +2292,8 @@ export default class extends Controller {
       'bim': { condition: value === 'oui', elementId: 'bim_info' },
       'ris': { condition: value === 'oui', elementId: 'ris_info' },
       'client_protege': { condition: value === 'oui', elementId: 'client_protege_info' },
-      'permis_urbanisme': { condition: value === 'non', elementId: 'permis_urbanisme_info' }
+      'permis_urbanisme': { condition: value === 'non', elementId: 'permis_urbanisme_info' },
+      'accord_proprietaire': { condition: value === 'non', elementId: 'accord_proprietaire_danger' }
     };
 
     Object.entries(alertsMap).forEach(([key, config]) => {
@@ -2312,7 +2359,7 @@ export default class extends Controller {
     let message = "✅ Vous êtes éligible aux primes RENOLUTION Bruxelles en tant que locataire !";
     let recommendations = [];
 
-    // Vérifier les avantages
+    // Vérifier les avantages sociaux
     if (testData.bim === "oui") {
       recommendations.push("✨ Vous bénéficiez de primes majorées avec le statut BIM");
     }
@@ -2323,8 +2370,27 @@ export default class extends Controller {
       recommendations.push("✨ Vous bénéficiez de primes majorées en tant que client protégé");
     }
 
+    // Recommandations spécifiques aux locataires
     recommendations.push("📝 En tant que locataire, l'accord écrit du propriétaire est obligatoire");
-    recommendations.push("🏠 Certains travaux spécifiques sont accessibles aux locataires");
+    
+    if (testData.type_propriete) {
+      if (testData.type_propriete === "immeuble_complet") {
+        recommendations.push("� Pour un immeuble complet, certaines primes spécifiques sont disponibles");
+      } else {
+        recommendations.push("🏠 Vérifiez les travaux autorisés pour votre type de logement");
+      }
+    }
+
+    if (testData.activite_professionnelle === "oui") {
+      recommendations.push("💼 Activité professionnelle détectée - vérifiez les conditions spécifiques");
+    }
+
+    if (testData.permis_urbanisme === "non") {
+      recommendations.push("⚠️ Attention : un permis d'urbanisme peut être requis selon les travaux");
+    }
+
+    recommendations.push("🔧 Consultez la liste des travaux éligibles pour les locataires");
+    recommendations.push("💶 Les montants des primes peuvent varier selon votre profil");
 
     message += "<br><br><strong>Profil :</strong> <span class='badge bg-success'>Locataire</span>";
 
@@ -2462,7 +2528,7 @@ export default class extends Controller {
     let message = "✅ Vous êtes éligible aux primes RENOLUTION Bruxelles en tant qu'emphythéote !";
     let recommendations = [];
 
-    // Vérifier les avantages
+    // Vérifier les avantages sociaux
     if (testData.bim === "oui") {
       recommendations.push("✨ Vous bénéficiez de primes majorées avec le statut BIM");
     }
@@ -2473,11 +2539,31 @@ export default class extends Controller {
       recommendations.push("✨ Vous bénéficiez de primes majorées en tant que client protégé");
     }
 
+    // Recommandations basées sur le type de propriété
     if (testData.type_propriete === 'immeuble_complet') {
       recommendations.push("🏢 Propriétaire d'immeuble complet via bail emphytéotique");
+    } else if (testData.type_propriete === 'appartement') {
+      recommendations.push("🏠 Appartement en bail emphytéotique - certaines primes spécifiques disponibles");
+    } else if (testData.type_propriete === 'maison') {
+      recommendations.push("🏡 Maison en bail emphytéotique - accès aux primes résidentielles");
+    }
+
+    // Recommandations basées sur l'occupation
+    if (testData.proprietaire_occupant === "oui") {
+      recommendations.push("🏠 Propriétaire occupant - éligible aux primes pour logement principal");
+      if (testData.proprietaire_bailleur === "oui") {
+        recommendations.push("💼 Double statut occupant/bailleur - vérifiez les conditions mixtes");
+      }
+    } else if (testData.proprietaire_bailleur === "oui") {
+      recommendations.push("🏘️ Propriétaire bailleur - primes pour logement locatif disponibles");
+    }
+
+    if (testData.permis_urbanisme === "non") {
+      recommendations.push("⚠️ Attention : un permis d'urbanisme peut être requis selon les travaux");
     }
 
     recommendations.push("📜 En tant qu'emphythéote, vous avez les mêmes droits qu'un propriétaire pour les primes");
+    recommendations.push("⏱️ Le bail emphytéotique doit être en cours de validité");
 
     message += "<br><br><strong>Profil :</strong> <span class='badge bg-warning'>Emphythéote</span>";
 
