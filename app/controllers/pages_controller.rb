@@ -92,6 +92,10 @@ class PagesController < ApplicationController
       result = eligibility_service.check_eligibility
       Rails.logger.info "Eligibility result: #{result}"
 
+      # Sauvegarder les données d'éligibilité dans la session pour le filtrage des primes
+      session[:bruxelles_eligibility_data] = params.except(:controller, :action, :authenticity_token)
+      Rails.logger.info "💾 Données d'éligibilité sauvegardées: usage_bien = #{params[:usage_bien]}"
+
       respond_to do |format|
         format.turbo_stream do
           if result[:eligible]
@@ -164,8 +168,22 @@ class PagesController < ApplicationController
       # Déterminer la catégorie selon la tranche de revenus
       category_info = determine_bruxelles_category_simple(revenu_net, statut_familial, enfants_charge)
 
-      # Récupération des primes pour Bruxelles
-      @primes = Prime.where(region: "bruxelles").order(:ordre_affichage)
+      # Récupération des données d'éligibilité pour déterminer le statut du bien
+      eligibility_data = session[:bruxelles_eligibility_data] || {}
+      usage_bien = eligibility_data['usage_bien'] || 'residentiel'
+
+      # Filtrage des primes selon le statut du bien
+      if usage_bien == 'mixte'
+        # Usage mixte : seulement les primes avec statut_compatible incluant "non_residentiel"
+        @primes = Prime.where(region: "bruxelles")
+                      .where("statut_compatible @> ?", ["non_residentiel"].to_json)
+                      .order(:ordre_affichage)
+        Rails.logger.info "🏢 Usage mixte détecté - #{@primes.count} primes compatibles affichées"
+      else
+        # Usage résidentiel : toutes les primes
+        @primes = Prime.where(region: "bruxelles").order(:ordre_affichage)
+        Rails.logger.info "🏠 Usage résidentiel détecté - #{@primes.count} primes affichées"
+      end
 
       respond_to do |format|
         format.turbo_stream do

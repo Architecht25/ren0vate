@@ -438,7 +438,45 @@
         </div>
       </div>
 
-      <!-- Question 14: Domiciliation -->
+      <!-- Question 14: Usage du bien (pour le filtrage des primes) -->
+      <div class="mb-4 p-3 border rounded bg-warning bg-opacity-10" data-test-eligibilite-target="formCard">
+        <h6 class="mb-3 text-dark">
+          <i class="bi bi-building-gear text-primary me-2"></i>
+          Quel est l'usage principal du bien concerné par les travaux ?
+        </h6>
+        <p class="text-muted small mb-3">
+          <i class="bi bi-info-circle me-1"></i>
+          Cette information détermine quelles primes sont disponibles pour votre projet
+        </p>
+        <div class="d-flex flex-column gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="usage_bien" value="residentiel"
+                   data-action="click->test-eligibilite#handleUsageBien" id="usage_bien_residentiel">
+            <label class="form-check-label" for="usage_bien_residentiel">
+              <i class="bi bi-house-heart text-success me-1"></i>
+              <strong>Résidentiel uniquement</strong>
+              <br><small class="text-muted">Logement familial, sans activité commerciale ou professionnelle</small>
+            </label>
+          </div>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="usage_bien" value="mixte"
+                   data-action="click->test-eligibilite#handleUsageBien" id="usage_bien_mixte">
+            <label class="form-check-label" for="usage_bien_mixte">
+              <i class="bi bi-building text-warning me-1"></i>
+              <strong>Mixte (résidentiel + activité)</strong>
+              <br><small class="text-muted">Logement avec bureau, commerce, cabinet médical, etc.</small>
+            </label>
+          </div>
+        </div>
+        <div class="alert alert-info mt-3" style="display: none;" id="usage_bien_info">
+          <small><i class="bi bi-lightbulb me-1"></i>
+          <strong>Impact sur vos primes :</strong>
+          <span id="usage_bien_impact_text"></span>
+          </small>
+        </div>
+      </div>
+
+      <!-- Question 15: Domiciliation -->
       <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
         <h6 class="mb-3 text-dark">
           <i class="bi bi-person-vcard text-primary me-2"></i>
@@ -462,7 +500,7 @@
         </div>
       </div>
 
-      <!-- Question 15: Vente du bien -->
+      <!-- Question 16: Vente du bien -->
       <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
         <h6 class="mb-3 text-dark">
           <i class="bi bi-house-exclamation text-primary me-2"></i>
@@ -490,7 +528,7 @@
         </div>
       </div>
 
-      <!-- Question 16: Permis d'urbanisme -->
+      <!-- Question 17: Permis d'urbanisme -->
       <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
         <h6 class="mb-3 text-dark">
           <i class="bi bi-file-text text-primary me-2"></i>
@@ -518,7 +556,7 @@
         </div>
       </div>
 
-      <!-- Question 17: Bien classé -->
+      <!-- Question 18: Bien classé -->
       <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
         <h6 class="mb-3 text-dark">
           <i class="bi bi-building-gear text-primary me-2"></i>
@@ -542,7 +580,7 @@
         </div>
       </div>
 
-      <!-- Question 18: Petit patrimoine -->
+      <!-- Question 19: Petit patrimoine -->
       <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
         <h6 class="mb-3 text-dark">
           <i class="bi bi-gem text-primary me-2"></i>
@@ -564,30 +602,31 @@
             </label>
           </div>
         </div>
+      </div>
 
-        <!-- Question 17: Consentement visites et contrôles -->
-        <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
-          <h6 class="mb-3 text-dark">
-            <i class="bi bi-eye text-primary me-2"></i>
-            Vous consentez aux visites et contrôles des membres de l'administration
-          </h6>
-          <div class="d-flex gap-3">
-            <div class="form-check">
-              <input type="radio" class="form-check-input" name="consentement_controles" value="oui"
-                     data-action="click->test-eligibilite#handleAnswerBruxellesParticulier" id="consentement_controles_oui">
-              <label class="form-check-label" for="consentement_controles_oui">
-                <i class="bi bi-check-circle text-success me-1"></i>Oui
-              </label>
-            </div>
-            <div class="form-check">
-              <input type="radio" class="form-check-input" name="consentement_controles" value="non"
-                     data-action="click->test-eligibilite#handleAnswerBruxellesParticulier" id="consentement_controles_non">
-              <label class="form-check-label" for="consentement_controles_non">
-                <i class="bi bi-x-circle text-danger me-1"></i>Non
-              </label>
-            </div>
+      <!-- Question 20: Consentement visites et contrôles -->
+      <div class="mb-4 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+        <h6 class="mb-3 text-dark">
+          <i class="bi bi-eye text-primary me-2"></i>
+          Vous consentez aux visites et contrôles des membres de l'administration
+        </h6>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="consentement_controles" value="oui"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesParticulier" id="consentement_controles_oui">
+            <label class="form-check-label" for="consentement_controles_oui">
+              <i class="bi bi-check-circle text-success me-1"></i>Oui
+            </label>
+          </div>
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="consentement_controles" value="non"
+                   data-action="click->test-eligibilite#handleAnswerBruxellesParticulier" id="consentement_controles_non">
+            <label class="form-check-label" for="consentement_controles_non">
+              <i class="bi bi-x-circle text-danger me-1"></i>Non
+            </label>
           </div>
         </div>
+      </div>
       </div>
       </form>
 

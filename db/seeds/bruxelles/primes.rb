@@ -36,6 +36,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_audit_energetique_maison").update!(
     "bruxelles_cat2": "Forfaitaire - 1 ou 0",
     "bruxelles_cat3": "Forfaitaire - 1 ou 0"
   }'),
+  statut_compatible: ["residentiel", "non_residentiel"],
   image: "images/audit_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -62,6 +63,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_audit_energetique_batiment").update
     "bruxelles_cat2": "Forfaitaire - 1 ou 0",
     "bruxelles_cat3": "Forfaitaire - 1 ou 0"
   }'),
+  statut_compatible: ["residentiel", "non_residentiel"],
   image: "images/audit_batiment_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -88,6 +90,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_etude_acoustique").update!(
     "bruxelles_cat2": "Montant des travaux d isolation acoustique",
     "bruxelles_cat3": "Montant des travaux d isolation acoustique"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/etude_acoustique_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -114,6 +117,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_etude_totem").update!(
     "bruxelles_cat2": "Forfait - 1 si réalisée, 0 sinon",
     "bruxelles_cat3": "Forfait - 1 si réalisée, 0 sinon"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/etude_totem.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -154,6 +158,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_suivi_architecte").update!(
     "bruxelles_cat2": "Montant des honoraires architecte (€)",
     "bruxelles_cat3": "Montant des honoraires architecte (€)"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/suivi_architecte.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -192,6 +197,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_suivi_ingenieur_stabilite").update!
     "bruxelles_cat2": "Montant des honoraires ingénieur (€)",
     "bruxelles_cat3": "Montant des honoraires ingénieur (€)"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/suivi_ingenieur.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -230,6 +236,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_suivi_expert_facade").update!(
     "bruxelles_cat2": "Montant des honoraires expert (€)",
     "bruxelles_cat3": "Montant des honoraires expert (€)"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/suivi_facade.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -256,6 +263,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_certificat_peb").update!(
   placeholder: JSON.parse('{
     "bruxelles_cat3": "Forfait par logement (150 €)"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/certificat_peb.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat3", region: "bruxelles")&.id
@@ -286,6 +294,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_protection_echafaudages").update!(
     "bruxelles_cat2": "Surface en m²",
     "bruxelles_cat3": "Surface en m²"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/echafaudage_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -328,6 +337,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_structure_portante").update!(
     "bruxelles_cat2": "Pourcentage du montant total - ex : 50%",
     "bruxelles_cat3": "Pourcentage du montant total - ex : 70%"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/structure_portante.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -381,6 +391,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_gestion_egouts").update!(
     "bruxelles_cat2": "Indiquer le nombre de mètres, chambres, avaloirs, etc.",
     "bruxelles_cat3": "Indiquer le nombre de mètres, chambres, avaloirs, etc."
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/gestion_egouts.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -407,6 +418,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_recuperation_eau_pluie").update!(
     "bruxelles_cat2": "Forfaitaire - par logement",
     "bruxelles_cat3": "Forfaitaire - par logement"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/eau_pluie_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -433,6 +445,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_demolition_permeabilisation").updat
     "bruxelles_cat2": "Surface en m²",
     "bruxelles_cat3": "Surface en m²"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/demolition_permeabilisation_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -475,6 +488,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_traitement_humidite_sol").update!(
     "bruxelles_cat2": "Pourcentage du montant total - ex : 50%",
     "bruxelles_cat3": "Pourcentage du montant total - ex : 30%"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/humidite_sol.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -513,6 +527,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_traitement_fongique_insectes").upda
     "bruxelles_cat2": "Pourcentage du montant total - ex : 50%",
     "bruxelles_cat3": "Pourcentage du montant total - ex : 30%"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/traitement_fongique.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -555,6 +570,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_structure_toiture").update!(
     "bruxelles_cat2": "Pourcentage du montant total - ex : 40%",
     "bruxelles_cat3": "Pourcentage du montant total - ex : 30%"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/structure_toiture.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -581,6 +597,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_toiture_etancheite").upda
     "bruxelles_cat2": "Surface en m²",
     "bruxelles_cat3": "Surface en m²"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/isolation_toiture_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -607,6 +624,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_thermique_toiture").updat
     "bruxelles_cat2": "Surface en m²",
     "bruxelles_cat3": "Surface en m²"
   }'),
+  statut_compatible: ["residentiel", "non_residentiel"],
   image: "images/isolation_thermique_toiture_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -645,6 +663,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_accessoires_toiture").update!(
     "bruxelles_cat2": "Pourcentage du montant total - ex : 40%",
     "bruxelles_cat3": "Pourcentage du montant total - ex : 30%"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/accessoires_toiture.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -671,6 +690,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_toiture_vegetale").update!(
     "bruxelles_cat2": "Surface en m²",
     "bruxelles_cat3": "Surface en m²"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/toiture_vegetale_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -701,6 +721,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_interieure_facade").updat
     "bruxelles_cat2": "Surface en m²",
     "bruxelles_cat3": "Surface en m²"
   }'),
+  statut_compatible: ["residentiel", "non_residentiel"],
   image: "images/isolation_interieure_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -727,6 +748,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_exterieure_facade").updat
     "bruxelles_cat2": "Surface en m²",
     "bruxelles_cat3": "Surface en m²"
   }'),
+  statut_compatible: ["residentiel", "non_residentiel"],
   image: "images/isolation_exterieure_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -753,6 +775,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_coulisse").update!(
     "bruxelles_cat2": "Surface en m²",
     "bruxelles_cat3": "Surface en m²"
   }'),
+  statut_compatible: ["residentiel", "non_residentiel"],
   image: "images/isolation_coulisse_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -791,6 +814,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_bardage_facade").update!(
     "bruxelles_cat2": "Surface en m²",
     "bruxelles_cat3": "Surface en m²"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/bardage_facade.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -829,6 +853,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_enduit_facade").update!(
     "bruxelles_cat2": "Surface en m²",
     "bruxelles_cat3": "Surface en m²"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/enduit_facade.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -855,6 +880,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_embellissement_facade_avant").updat
     "bruxelles_cat2": "Surface en m² + nb logements",
     "bruxelles_cat3": "Surface en m² + nb logements"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/embellissement_facade_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -881,6 +907,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_facades_arriere_laterales").update!
     "bruxelles_cat2": "Surface en m²",
     "bruxelles_cat3": "Surface en m²"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/facades_arriere_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -919,6 +946,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_acoustique_murs").update!
     "bruxelles_cat2": "Surface en m²",
     "bruxelles_cat3": "Surface en m²"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/isolation_acoustique_murs.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -950,6 +978,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_remplacement_fenetres_bois").update
     "bruxelles_cat2": "Surface en m²",
     "bruxelles_cat3": "Surface en m²"
   }'),
+  statut_compatible: ["residentiel", "non_residentiel"],
   image: "images/fenetres_bois_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -976,6 +1005,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_remplacement_fenetres_pvc_alu").upd
     "bruxelles_cat2": "Surface en m²",
     "bruxelles_cat3": "Surface en m²"
   }'),
+  statut_compatible: ["residentiel", "non_residentiel"],
   image: "images/fenetres_pvc_alu_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1002,6 +1032,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_reparation_fenetres").update!(
     "bruxelles_cat2": "Surface en m²",
     "bruxelles_cat3": "Surface en m²"
   }'),
+  statut_compatible: ["residentiel", "non_residentiel"],
   image: "images/reparation_fenetres_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1028,6 +1059,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_reparation_portes").update!(
     "bruxelles_cat2": "Surface en m²",
     "bruxelles_cat3": "Surface en m²"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/reparation_portes_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1058,6 +1090,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_thermique_sols").update!(
     "bruxelles_cat2": "Surface en m²",
     "bruxelles_cat3": "Surface en m²"
   }'),
+  statut_compatible: ["residentiel", "non_residentiel"],
   image: "images/isolation_sols_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1084,6 +1117,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_acoustique_sols").update!
     "bruxelles_cat2": "Surface en m²",
     "bruxelles_cat3": "Surface en m²"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/isolation_acoustique_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1114,6 +1148,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_escaliers").update!(
     "bruxelles_cat2": "Nombre de marches",
     "bruxelles_cat3": "Nombre de marches"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/escaliers_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1140,6 +1175,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_emplacement_velo").update!(
     "bruxelles_cat2": "Nombre de vélos (max 2/logement)",
     "bruxelles_cat3": "Nombre de vélos (max 2/logement)"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/emplacement_velo_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1178,6 +1214,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_protection_incendie").update!(
     "bruxelles_cat2": "Pourcentage du montant total – ex : 50%",
     "bruxelles_cat3": "Pourcentage du montant total – ex : 30%"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/protection_incendie.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1204,6 +1241,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_amenagement_pmr").update!(
     "bruxelles_cat2": "Forfaitaire - par logement",
     "bruxelles_cat3": "Forfaitaire - par logement"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/amenagement_pmr_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1246,6 +1284,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_pac_chauffage").update!(
     "bruxelles_cat2": "Montant forfaitaire par logement",
     "bruxelles_cat3": "Montant forfaitaire par logement"
   }'),
+  statut_compatible: ["residentiel", "non_residentiel"],
   image: "images/pac_chauffage.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1284,6 +1323,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_radiateurs_basse_temperature").upda
     "bruxelles_cat2": "Nombre d\'unités",
     "bruxelles_cat3": "Nombre d\'unités"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/radiateurs_bt.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1322,6 +1362,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_thermostat").update!(
     "bruxelles_cat2": "Nombre de thermostats",
     "bruxelles_cat3": "Nombre de thermostats"
   }'),
+  statut_compatible: ["residentiel", "non_residentiel"],
   image: "images/thermostat_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1360,6 +1401,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_vannes_thermostatiques").update!(
     "bruxelles_cat2": "Nombre de vannes",
     "bruxelles_cat3": "Nombre de vannes"
   }'),
+  statut_compatible: ["residentiel", "non_residentiel"],
   image: "images/vannes_thermostatiques_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1398,6 +1440,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_chauffe_eau_solaire").update!(
     "bruxelles_cat2": "Forfait par logement",
     "bruxelles_cat3": "Forfait par logement"
   }'),
+  statut_compatible: ["residentiel", "non_residentiel"],
   image: "images/chauffe_eau_solaire.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1436,6 +1479,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_chauffe_eau_pac").update!(
     "bruxelles_cat2": "Forfait par logement",
     "bruxelles_cat3": "Forfait par logement"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/chauffe_eau_pac.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1474,6 +1518,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_raccordement_reseau_chaleur").updat
     "bruxelles_cat2": "Forfait par logement",
     "bruxelles_cat3": "Forfait par logement"
   }'),
+  statut_compatible: ["residentiel", "non_residentiel"],
   image: "images/raccordement_chaleur.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1504,6 +1549,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_appareil_sanitaire").update!(
     "bruxelles_cat2": "Nombre d\'appareils",
     "bruxelles_cat3": "Nombre d\'appareils"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/sanitaire_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1534,6 +1580,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_mise_normes_electricite_gaz").updat
     "bruxelles_cat2": "Coût total des travaux",
     "bruxelles_cat3": "Coût total des travaux"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/electricite_gaz_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1564,6 +1611,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_ventilation_systeme_c").update!(
     "bruxelles_cat2": "Forfaitaire - par logement",
     "bruxelles_cat3": "Forfaitaire - par logement"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/ventilation_c_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1590,6 +1638,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_ventilation_systeme_d").update!(
     "bruxelles_cat2": "Forfaitaire - par logement",
     "bruxelles_cat3": "Forfaitaire - par logement"
   }'),
+  statut_compatible: ["residentiel", "non_residentiel"],
   image: "images/vmc_double_flux_bruxelles.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1620,6 +1669,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z1").update!(
     "bruxelles_cat2": "Surface en m²",
     "bruxelles_cat3": "Surface en m²"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/bonus_z1.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1646,6 +1696,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z2").update!(
     "bruxelles_cat2": "Surface de couverture en m²",
     "bruxelles_cat3": "Surface de couverture en m²"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/bonus_z2.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1672,6 +1723,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z3").update!(
     "bruxelles_cat2": "Majoration automatique si matériau certifié",
     "bruxelles_cat3": "Majoration automatique si matériau certifié"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/bonus_z3.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1698,6 +1750,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z4").update!(
     "bruxelles_cat2": "Surface de châssis en m²",
     "bruxelles_cat3": "Surface de châssis en m²"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/bonus_z4.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1719,11 +1772,12 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z5").update!(
     conseil: "Utilisez des vitrages multi-couches avec intercalaire acoustique",
     document: "Facture détaillant le type et la performance acoustique + certificat",
     specifique: "Bruxelles - Renolution",
-  placeholder: JSON.parse('{
-    "bruxelles_cat1": "Surface en m² – max 50",
-    "bruxelles_cat2": "Surface en m² – max 50",
-    "bruxelles_cat3": "Surface en m² – max 50"
+    placeholder: JSON.parse('{
+      "bruxelles_cat1": "Surface en m² – max 50",
+      "bruxelles_cat2": "Surface en m² – max 50",
+      "bruxelles_cat3": "Surface en m² – max 50"
     }'),
+    statut_compatible: ["residentiel"],
   image: "images/bonus_z5.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1750,6 +1804,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z6").update!(
     "bruxelles_cat2": "Nombre d appareils réemployés (max 5)",
     "bruxelles_cat3": "Nombre d appareils réemployés (max 5)"
     }'),
+  statut_compatible: ["residentiel"],
   image: "images/bonus_z6.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1776,6 +1831,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z7").update!(
     "bruxelles_cat2": "Forfait pour citerne ≥ 3000L",
     "bruxelles_cat3": "Forfait pour citerne ≥ 3000L"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/bonus_z7.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1802,6 +1858,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z9").update!(
     "bruxelles_cat2": "Forfait nettoyage cuve",
     "bruxelles_cat3": "Forfait nettoyage cuve"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/bonus_z9.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id
@@ -1828,6 +1885,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z10").update!(
     "bruxelles_cat2": "Pourcentage de majoration appliqué",
     "bruxelles_cat3": "Pourcentage de majoration appliqué"
   }'),
+  statut_compatible: ["residentiel"],
   image: "images/bonus_z10.webp",
   region: "bruxelles",
   category_id: Category.find_by(code: "bruxelles_cat1", region: "bruxelles")&.id

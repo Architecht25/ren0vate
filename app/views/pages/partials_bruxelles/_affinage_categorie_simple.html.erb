@@ -10,6 +10,9 @@
     <%= form_with url: estimate_category_bruxelles_path, method: :post, local: false,
         data: { turbo_frame: "eligibility_content" }, class: "category-estimation-form" do |f| %>
 
+      <!-- Champ caché pour l'usage du bien -->
+      <%= f.hidden_field :usage_bien, value: "", id: "usage_bien_hidden", data: { from_eligibility: true } %>
+
       <!-- Statut du ménage -->
       <div class="mb-3">
         <%= f.label :statut_familial, "Situation familiale", class: "form-label" %>

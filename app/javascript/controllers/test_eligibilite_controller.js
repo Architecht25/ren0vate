@@ -1167,6 +1167,43 @@ export default class extends Controller {
     this.checkIfAllAnsweredBruxellesParticulier();
   }
 
+  handleUsageBien(event) {
+    console.log("🏠 Gestion de l'usage du bien:", event.target.value);
+
+    // Afficher l'info box avec l'impact
+    const infoBox = document.getElementById('usage_bien_info');
+    const impactText = document.getElementById('usage_bien_impact_text');
+
+    if (infoBox && impactText) {
+      let message = "";
+
+      if (event.target.value === 'residentiel') {
+        message = "Toutes les primes RENOLUTION sont disponibles pour votre projet (58 primes au total).";
+      } else if (event.target.value === 'mixte') {
+        message = "Seules les primes compatibles avec l'usage mixte/commercial sont disponibles (16 primes spécialisées).";
+      }
+
+      impactText.textContent = message;
+      infoBox.style.display = 'block';
+    }
+
+    // NOUVEAU : Appliquer immédiatement le filtrage des primes
+    this.filterPrimesByStatut(event.target.value);
+
+    // Sauvegarder la sélection dans localStorage
+    const form = this.formTarget;
+    const responses = [...form.querySelectorAll("input[type=radio]:checked")];
+    const testData = responses.reduce((acc, response) => {
+      acc[response.name] = response.value;
+      return acc;
+    }, {});
+
+    localStorage.setItem("eligibiliteBruxellesParticulier", JSON.stringify(testData));
+
+    // Appeler la méthode principale pour vérifier l'éligibilité
+    this.handleAnswerBruxellesParticulier(event);
+  }
+
   handleConditionalAlerts(questionName, value) {
     // Gestion des alertes d'information
     const alertsMap = {
@@ -1248,7 +1285,7 @@ export default class extends Controller {
     const baseQuestions = [
       'localisation', 'age_batiment', 'professionnel_agree', 'nouvelle_construction',
       'compte_belge', 'travaux_realises', 'primes_recues', 'proprietaire_appartement',
-      'proprietaire_maison', 'bim', 'ris', 'client_protege', 'independant',
+      'proprietaire_maison', 'bim', 'ris', 'client_protege', 'independant', 'usage_bien',
       'domiciliation', 'vente_bien', 'permis_urbanisme', 'bien_classe', 'petit_patrimoine',
       'consentement_controles'
     ];
@@ -1336,10 +1373,44 @@ export default class extends Controller {
   }
 
   showAffinageBruxellesParticulier() {
-    // Afficher le bloc d'affinage de catégorie Bruxelles (même approche que Wallonie)
+    // Afficher le bloc d'affinage de catégorie Bruxelles
     const affinageBloc = document.getElementById("affinage-categorie-bruxelles")
     if (affinageBloc) {
       affinageBloc.style.display = "block"
+
+      // Récupérer les données d'éligibilité pour afficher l'info sur le statut du bien
+      const testData = JSON.parse(localStorage.getItem("eligibiliteBruxellesParticulier") || "{}");
+      const usageBien = testData["usage_bien"] || "residentiel";
+
+      // Ajouter un badge informatif sur le statut des primes
+      let statusInfo = "";
+      if (usageBien === "mixte") {
+        statusInfo = `<div class="alert alert-warning mt-2">
+          <i class="bi bi-building me-1"></i>
+          <strong>Usage mixte détecté:</strong> Seules les 16 primes compatibles avec l'usage mixte/commercial seront affichées.
+        </div>`;
+      } else {
+        statusInfo = `<div class="alert alert-success mt-2">
+          <i class="bi bi-house-heart me-1"></i>
+          <strong>Usage résidentiel:</strong> Toutes les 58 primes RENOLUTION sont disponibles pour votre projet.
+        </div>`;
+      }
+
+      // Injecter l'info de statut avant le formulaire d'affinage
+      const affinageCard = affinageBloc.querySelector('.card-body');
+      if (affinageCard && !affinageCard.querySelector('.usage-bien-status')) {
+        affinageCard.insertAdjacentHTML('afterbegin', `<div class="usage-bien-status">${statusInfo}</div>`);
+      }
+
+      // Remplir le champ caché avec l'usage du bien
+      const usageBienHidden = affinageBloc.querySelector('#usage_bien_hidden');
+      if (usageBienHidden) {
+        usageBienHidden.value = usageBien;
+        console.log("🏠 Usage du bien défini dans le formulaire:", usageBien);
+      }
+
+      // Appliquer le filtrage des primes selon l'usage du bien
+      this.filterPrimesByStatut(usageBien === "mixte" ? "mixte" : "residentiel");
 
       // Scroll smooth vers le bloc d'affinage
       setTimeout(() => {
@@ -1671,6 +1742,12 @@ export default class extends Controller {
         this.showResult("❌ L'ACP doit être inscrite à la Banque Carrefour des Entreprises ou avoir une dérogation", false);
         return;
       }
+    }
+
+    const syndic_page_bce = testData["syndic_page_bce"];
+    if (syndic_page_bce === "non") {
+      this.showResult("❌ Non : pas éligible – votre copropriété /ACP doit être inscrite à la BCE", false);
+      return;
     }
 
     const logement_80_pourcent = testData["logement_80_pourcent"];
@@ -2924,5 +3001,171 @@ export default class extends Controller {
 
   showResultBruxellesCoproprietaire(message, isEligible = true, recommendations = []) {
     this.showFinalResultBruxelles(message, isEligible, recommendations, true);
+  }
+
+  // =============================
+  // FONCTIONS DE FILTRAGE DES PRIMES PAR STATUT
+  // =============================
+
+  /**
+   * Configuration des champs accessibles pour usage mixte
+   * Retourne un objet avec les slugs des cartes et leurs champs autorisés
+   */
+  getPrimeMixteFieldsConfig() {
+    return {
+      'bruxelles_prime_a_global': {
+        // Services et études - Seuls les audits sont autorisés en usage mixte
+        allowedFields: ['inputAuditMaison', 'inputAuditBatiment']
+      },
+      'bruxelles_prime_b_global': {
+        // Installations de chantier - Aucun champ autorisé en usage mixte (protection résidentielle uniquement)
+        allowedFields: []
+      }
+      // TODO: Ajouter les autres cartes selon vos spécifications
+    };
+  }
+
+  /**
+   * Filtre les cartes de primes selon le statut (résidentiel/mixte)
+   * @param {string} statut - 'residentiel' ou 'mixte'
+   */
+  filterPrimesByStatut(statut) {
+    console.log(`🎯 Filtrage des primes pour statut: ${statut}`);
+    
+    const primesSection = document.querySelector('.primes-section-bruxelles');
+    if (!primesSection) {
+      console.warn('Section des primes non trouvée');
+      return;
+    }
+
+    const primeCards = primesSection.querySelectorAll('[data-statut-compatible]');
+    const mixteConfig = this.getPrimeMixteFieldsConfig();
+    let compatibleCount = 0;
+    let totalCount = primeCards.length;
+
+    primeCards.forEach(card => {
+      try {
+        const compatibleStatuts = JSON.parse(card.dataset.statutCompatible);
+        const cardSlug = card.dataset.bruxellesPrimeCardSlugValue;
+        
+        // TOUTES les cartes restent toujours visibles et non floutées
+        card.style.display = 'block';
+        card.style.opacity = '1';
+        card.style.filter = 'none';
+        
+        if (compatibleStatuts.includes(statut)) {
+          // Carte compatible avec le statut
+          if (statut === 'mixte' && mixteConfig[cardSlug]) {
+            // Mode mixte avec restrictions de champs spécifiques
+            this.applyMixteFieldsRestriction(card, mixteConfig[cardSlug]);
+          } else {
+            // Mode résidentiel ou carte sans restrictions spécifiques
+            this.enableAllFields(card);
+          }
+          compatibleCount++;
+        } else {
+          // Carte non compatible - activer tous les champs normalement
+          // Les badges "RÉSIDENTIEL UNIQUEMENT" gèrent déjà l'indication visuelle
+          this.enableAllFields(card);
+        }
+      } catch (error) {
+        console.error('Erreur lors du parsing des statuts compatibles:', error);
+        // En cas d'erreur, afficher la carte par défaut avec tous les champs actifs
+        card.style.display = 'block';
+        card.style.opacity = '1';
+        card.style.filter = 'none';
+        this.enableAllFields(card);
+      }
+    });
+
+    console.log(`✅ Filtrage terminé: ${compatibleCount}/${totalCount} cartes compatibles avec ${statut}`);
+  }
+
+  /**
+   * Applique les restrictions de champs pour usage mixte
+   * @param {Element} card - La carte de prime
+   * @param {Object} config - Configuration des champs autorisés
+   */
+  applyMixteFieldsRestriction(card, config) {
+    const allInputs = card.querySelectorAll('input, select');
+    
+    if (config.allowedFields.includes('all')) {
+      // Tous les champs autorisés
+      this.enableAllFields(card);
+      return;
+    }
+
+    allInputs.forEach(input => {
+      const target = input.dataset.bruxellesPrimeCardTarget;
+      const container = input.closest('.col-md-2, .col-md-6, .col-md-12, .col-lg-4, .col-lg-6');
+      
+      if (config.allowedFields.includes(target)) {
+        // Champ autorisé - activer complètement
+        input.disabled = false;
+        input.style.opacity = '1';
+        if (container) {
+          container.style.opacity = '1';
+          container.style.filter = 'none';
+        }
+      } else {
+        // Champ non autorisé - désactiver et griser uniquement ce champ
+        input.disabled = true;
+        input.value = '';
+        input.style.opacity = '0.4';
+        if (container) {
+          container.style.opacity = '0.4';
+          container.style.filter = 'grayscale(50%)';
+        }
+        
+        // Mettre à jour le résultat à 0
+        const resultTarget = input.dataset.bruxellesPrimeCardTarget?.replace('input', 'result');
+        const resultElement = card.querySelector(`[data-bruxelles-prime-card-target="${resultTarget}"]`);
+        if (resultElement) {
+          resultElement.textContent = '0 €';
+        }
+      }
+    });
+  }
+
+  /**
+   * Active tous les champs d'une carte
+   * @param {Element} card - La carte de prime
+   */
+  enableAllFields(card) {
+    const allInputs = card.querySelectorAll('input, select');
+    
+    allInputs.forEach(input => {
+      const container = input.closest('.col-md-2, .col-md-6, .col-md-12, .col-lg-4, .col-lg-6');
+      
+      input.disabled = false;
+      input.style.opacity = '1';
+      
+      if (container) {
+        container.style.opacity = '1';
+        container.style.filter = 'none';
+      }
+    });
+  }
+
+  /**
+   * Désactive tous les champs d'une carte (pour le grisage)
+   * @param {Element} card - La carte de prime
+   */
+  disableAllFields(card) {
+    const allInputs = card.querySelectorAll('input, select');
+    
+    allInputs.forEach(input => {
+      input.disabled = true;
+      input.value = '';
+      input.style.opacity = '0.5';
+      input.closest('.col-md-6, .col-md-12, .col-lg-4, .col-lg-6')?.style.setProperty('opacity', '0.5');
+      
+      // Mettre à jour le résultat à 0
+      const resultTarget = input.dataset.bruxellesPrimeCardTarget?.replace('input', 'result');
+      const resultElement = card.querySelector(`[data-bruxelles-prime-card-target="${resultTarget}"]`);
+      if (resultElement) {
+        resultElement.textContent = '0 €';
+      }
+    });
   }
 }
