@@ -3,33 +3,54 @@
 
 <%= render 'pages/bruxelles_entreprises/hero_section' %>
 
-<div class="container py-5">
-  <!-- Section Info Rapide -->
-  <div class="row mb-5">
+<!-- Section Info Rapide -->
+<div class="container py-3">
+  <div class="row mb-4">
     <div class="col-12">
       <%= render 'pages/bruxelles_entreprises/info_section' %>
     </div>
   </div>
+</div>
 
-  <!-- Formulaire de Test d'Éligibilité -->
-  <div class="row justify-content-center">
-    <div class="col-lg-10">
-      <%= render 'pages/bruxelles_entreprises/bce_search' %>
-      <%= render 'pages/bruxelles_entreprises/eligibility_form' %>
-    </div>
-  </div>
+<!-- Layout principal: 3 colonnes pleine largeur -->
+<div class="container-fluid px-4 py-3">
+  <div class="row">
+    <!-- Colonne 1: BCE + Éligibilité (25%) -->
+    <div class="col-lg-3">
+      <!-- Recherche BCE -->
+      <div class="mb-4">
+        <%= render 'pages/bruxelles_entreprises/bce_search' %>
+      </div>
 
-  <!-- Zone de résultats -->
-  <div class="row justify-content-center mt-4">
-    <div class="col-lg-10">
-      <div id="result" data-test_eligibilite_entreprises_target="result">
-        <!-- Les résultats apparaîtront ici -->
+      <!-- Formulaire d'éligibilité -->
+      <div class="mb-4">
+        <%= render 'pages/bruxelles_entreprises/eligibility_form' %>
       </div>
     </div>
-  </div>
 
-  <!-- Section d'estimation des primes -->
-  <%= render 'pages/bruxelles_entreprises/estimation_cards' %>
+    <!-- Colonne 2: Questions + Résultats (25%) -->
+    <div class="col-lg-3">
+      <!-- Questions supplémentaires -->
+      <div class="mb-4">
+        <%= render 'pages/bruxelles_entreprises/additional_questions' %>
+      </div>
+
+      <!-- Résultats de simulation -->
+      <div class="mb-4">
+        <%= render 'pages/bruxelles_entreprises/simulation_results' %>
+      </div>
+
+      <!-- Zone de résultats d'éligibilité -->
+      <div id="result" data-test_eligibilite_entreprises_target="result">
+        <!-- Les résultats d'éligibilité apparaîtront ici -->
+      </div>
+    </div>
+
+    <!-- Colonne 3: Cartes d'estimation des aides (50%) -->
+    <div class="col-lg-6">
+      <%= render 'pages/bruxelles_entreprises/estimation_cards' %>
+    </div>
+  </div>
 </div>
 
 <style>

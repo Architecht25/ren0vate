@@ -1,16 +1,17 @@
-<div class="row mt-5" data-controller="bruxelles-aides-estimation">
-  <div class="col-12">
-    <h3 class="text-center mb-4">
+<div data-controller="bruxelles-aides-estimation">
+  <div class="sticky-top" style="top: 20px;">
+    <h4 class="mb-4">
       <i class="fas fa-calculator me-2"></i>
-      Estimation des Primes par Catégorie
-    </h3>
-    <p class="text-center text-muted mb-5">
+      Estimation des Aides
+    </h4>
+    <p class="text-muted mb-4">
       Sélectionnez les catégories qui vous intéressent et renseignez vos montants pour obtenir une estimation
     </p>
   </div>
 
-  <!-- Catégorie 1: Transition économique -->
-  <div class="col-lg-6 mb-4">
+  <div class="row">
+    <!-- Catégorie 1: Transition économique -->
+    <div class="col-lg-4 mb-4">
     <div class="card h-100 border-0 shadow-sm" data-category="transition_economique">
       <div class="card-header bg-success text-white">
         <div class="d-flex justify-content-between align-items-center">
@@ -52,6 +53,32 @@
           <small class="text-muted">Taux: 25% • Plafond: 200.000€</small>
         </div>
 
+          <!-- Mobilité basses émissions -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Mobilité basses émissions</label>
+          <div class="input-group">
+            <span class="input-group-text">€</span>
+            <input type="number" class="form-control" placeholder="0" min="0"
+                   data-action="input->bruxelles-aides-estimation#calculateEstimate"
+                   data-subcategory="mobilite_basses_emissions">
+          </div>
+          <small class="text-muted">Taux: 40% • Plafond: 4.000€</small>
+        </div>
+
+
+          <!-- Accessibilité des lieux -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Accessibilité des lieux</label>
+          <div class="input-group">
+            <span class="input-group-text">€</span>
+            <input type="number" class="form-control" placeholder="0" min="0"
+                   data-action="input->bruxelles-aides-estimation#calculateEstimate"
+                   data-subcategory="accessibilite_lieux">
+          </div>
+          <small class="text-muted">Taux: 40% • Plafond: 4.000€</small>
+        </div>
+
+
         <div class="estimation-result bg-light p-3 rounded mt-3" style="display: none;">
           <strong>Estimation totale: <span class="text-success estimation-amount">0€</span></strong>
         </div>
@@ -60,7 +87,7 @@
   </div>
 
   <!-- Catégorie 2: Investissements -->
-  <div class="col-lg-6 mb-4">
+  <div class="col-lg-4 mb-4">
     <div class="card h-100 border-0 shadow-sm" data-category="investissements">
       <div class="card-header bg-primary text-white">
         <div class="d-flex justify-content-between align-items-center">
@@ -78,12 +105,26 @@
       <div class="card-body" style="display: none;" data-bruxelles-aides-estimation-target="categoryBody">
         <p class="card-text small mb-3">Matériels, travaux, immobilier, conformité, sécurisation</p>
 
+        <!-- Investissements transition économique -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Investissements transition économique</label>
+          <div class="input-group">
+            <span class="input-group-text">€</span>
+            <input type="number" class="form-control" placeholder="0" min="0"
+                   data-action="input->bruxelles-aides-estimation#calculateEstimate"
+                   data-subcategory="investissements_transition">
+          </div>
+          <small class="text-muted">Taux: 25% • Plafond: 200.000€</small>
+        </div>
+
         <!-- Matériels et équipements -->
         <div class="mb-3">
           <label class="form-label fw-bold">Matériels et équipements</label>
           <div class="input-group">
             <span class="input-group-text">€</span>
             <input type="number" class="form-control" placeholder="0" min="0"
+                   data-action="input->bruxelles-aides-estimation#calculateEstimate"
+                   data-subcategory="materiels_equipements">
                    data-action="input->bruxelles-aides-estimation#calculateEstimate"
                    data-subcategory="materiels_equipements">
           </div>
@@ -114,6 +155,42 @@
           <small class="text-muted">Taux: 50% • Plafond: 100.000€</small>
         </div>
 
+        <!-- Sécurisation des locaux -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Sécurisation des locaux</label>
+          <div class="input-group">
+            <span class="input-group-text">€</span>
+            <input type="number" class="form-control" placeholder="0" min="0"
+                   data-action="input->bruxelles-aides-estimation#calculateEstimate"
+                   data-subcategory="securisation_locaux">
+          </div>
+          <small class="text-muted">Taux: 25% • Plafond: 200.000€</small>
+        </div>
+
+        <!-- Accessibilité des lieux -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Accessibilité des lieux</label>
+          <div class="input-group">
+            <span class="input-group-text">€</span>
+            <input type="number" class="form-control" placeholder="0" min="0"
+                   data-action="input->bruxelles-aides-estimation#calculateEstimate"
+                   data-subcategory="accessibilite_lieux">
+          </div>
+          <small class="text-muted">Taux: 25% • Plafond: 200.000€</small>
+        </div>
+
+        <!-- Mobilité basses émissions -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Mobilité basses émissions</label>
+          <div class="input-group">
+            <span class="input-group-text">€</span>
+            <input type="number" class="form-control" placeholder="0" min="0"
+                   data-action="input->bruxelles-aides-estimation#calculateEstimate"
+                   data-subcategory="mobilite_basses_emissions">
+          </div>
+          <small class="text-muted">Taux: 25% • Plafond: 200.000€</small>
+        </div>
+
         <div class="estimation-result bg-light p-3 rounded mt-3" style="display: none;">
           <strong>Estimation totale: <span class="text-primary estimation-amount">0€</span></strong>
         </div>
@@ -122,7 +199,7 @@
   </div>
 
   <!-- Catégorie 3: Recrutement & Formation -->
-  <div class="col-lg-6 mb-4">
+  <div class="col-lg-4 mb-4">
     <div class="card h-100 border-0 shadow-sm" data-category="recrutement_formation">
       <div class="card-header bg-info text-white">
         <div class="d-flex justify-content-between align-items-center">
@@ -140,17 +217,6 @@
       <div class="card-body" style="display: none;" data-bruxelles-aides-estimation-target="categoryBody">
         <p class="card-text small mb-3">Aides à l'embauche et formation du personnel</p>
 
-        <!-- Aide à l'embauche -->
-        <div class="mb-3">
-          <label class="form-label fw-bold">Nombre d'embauches</label>
-          <div class="input-group">
-            <input type="number" class="form-control" placeholder="0" min="0"
-                   data-action="input->bruxelles-aides-estimation#calculateEstimate"
-                   data-subcategory="aide_embauche">
-            <span class="input-group-text">personnes</span>
-          </div>
-          <small class="text-muted">6.000€ par embauche • Maximum 10 personnes</small>
-        </div>
 
         <!-- Formation du personnel -->
         <div class="mb-3">
@@ -164,7 +230,55 @@
           <small class="text-muted">Taux: 75% • Plafond: 25.000€</small>
         </div>
 
-        <div class="estimation-result bg-light p-3 rounded mt-3" style="display: none;">
+        <!-- Projet de reconversion industrielle -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Projet de reconversion industrielle</label>
+          <div class="input-group">
+            <span class="input-group-text">€</span>
+            <input type="number" class="form-control" placeholder="0" min="0"
+                   data-action="input->bruxelles-aides-estimation#calculateEstimate"
+                   data-subcategory="reconversion_industrielle">
+          </div>
+          <small class="text-muted">Taux: 75% • Plafond: 25.000€</small>
+        </div>
+
+        <!-- Aide à l'embauche -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Nombre d'embauches</label>
+          <div class="input-group">
+            <input type="number" class="form-control" placeholder="0" min="0"
+                   data-action="input->bruxelles-aides-estimation#calculateEstimate"
+                   data-subcategory="aide_embauche">
+            <span class="input-group-text">personnes</span>
+          </div>
+          <small class="text-muted">6.000€ par embauche • Maximum 10 personnes</small>
+        </div>
+
+        <!-- Recrutement projet d'exportation -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Recrutement projet d'exportation</label>
+          <div class="input-group">
+            <input type="number" class="form-control" placeholder="0" min="0"
+                   data-action="input->bruxelles-aides-estimation#calculateEstimate"
+                   data-subcategory="recrutement_exportation">
+            <span class="input-group-text">personnes</span>
+          </div>
+          <small class="text-muted">6.000€ par embauche • Maximum 10 personnes</small>
+        </div>
+
+        <!-- Validation des compétences -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Validation des compétences</label>
+          <div class="input-group">
+            <span class="input-group-text">€</span>
+            <input type="number" class="form-control" placeholder="0" min="0"
+                   data-action="input->bruxelles-aides-estimation#calculateEstimate"
+                   data-subcategory="validation_competences">
+          </div>
+          <small class="text-muted">Taux: 50% • Plafond: 10.000€</small>
+        </div>
+
+      <div class="estimation-result bg-light p-3 rounded mt-3" style="display: none;">
           <strong>Estimation totale: <span class="text-info estimation-amount">0€</span></strong>
         </div>
       </div>
@@ -172,7 +286,7 @@
   </div>
 
   <!-- Catégorie 4: Expertise & Services -->
-  <div class="col-lg-6 mb-4">
+  <div class="col-lg-4 mb-4">
     <div class="card h-100 border-0 shadow-sm" data-category="expertise_services">
       <div class="card-header bg-warning text-dark">
         <div class="d-flex justify-content-between align-items-center">
@@ -202,14 +316,62 @@
           <small class="text-muted">Taux: 50% • Plafond: 12.500€</small>
         </div>
 
-        <!-- Études et audits -->
+        <!-- Consultance transition économique -->
         <div class="mb-3">
-          <label class="form-label fw-bold">Études et audits</label>
+          <label class="form-label fw-bold">Consultance transition économique</label>
           <div class="input-group">
             <span class="input-group-text">€</span>
             <input type="number" class="form-control" placeholder="0" min="0"
                    data-action="input->bruxelles-aides-estimation#calculateEstimate"
-                   data-subcategory="etudes_audits">
+                   data-subcategory="consultance_transition_economique">
+          </div>
+          <small class="text-muted">Taux: 75% • Plafond: 25.000€</small>
+        </div>
+
+        <!-- Consultance en stratégie export -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Consultance en stratégie export</label>
+          <div class="input-group">
+            <span class="input-group-text">€</span>
+            <input type="number" class="form-control" placeholder="0" min="0"
+                   data-action="input->bruxelles-aides-estimation#calculateEstimate"
+                   data-subcategory="consultance_en_strategie_export">
+          </div>
+          <small class="text-muted">Taux: 75% • Plafond: 25.000€</small>
+        </div>
+
+        <!-- Digitalisation -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Digitalisation</label>
+          <div class="input-group">
+            <span class="input-group-text">€</span>
+            <input type="number" class="form-control" placeholder="0" min="0"
+                   data-action="input->bruxelles-aides-estimation#calculateEstimate"
+                   data-subcategory="digitalisation">
+          </div>
+          <small class="text-muted">Taux: 75% • Plafond: 25.000€</small>
+        </div>
+
+        <!-- Cession ou reprise d'entreprise -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Cession ou reprise d'entreprise</label>
+          <div class="input-group">
+            <span class="input-group-text">€</span>
+            <input type="number" class="form-control" placeholder="0" min="0"
+                   data-action="input->bruxelles-aides-estimation#calculateEstimate"
+                   data-subcategory="cession_reprise_entreprise">
+          </div>
+          <small class="text-muted">Taux: 75% • Plafond: 25.000€</small>
+        </div>
+
+        <!-- Coworking -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Coworking</label>
+          <div class="input-group">
+            <span class="input-group-text">€</span>
+            <input type="number" class="form-control" placeholder="0" min="0"
+                   data-action="input->bruxelles-aides-estimation#calculateEstimate"
+                   data-subcategory="coworking">
           </div>
           <small class="text-muted">Taux: 75% • Plafond: 25.000€</small>
         </div>
@@ -222,7 +384,7 @@
   </div>
 
   <!-- Catégorie 5: Nuisances chantier -->
-  <div class="col-lg-6 mb-4">
+  <div class="col-lg-4 mb-4">
     <div class="card h-100 border-0 shadow-sm" data-category="nuisances_chantier">
       <div class="card-header bg-danger text-white">
         <div class="d-flex justify-content-between align-items-center">
@@ -272,7 +434,7 @@
   </div>
 
   <!-- Catégorie 6: Exportation (suspendue) -->
-  <div class="col-lg-6 mb-4">
+  <div class="col-lg-4 mb-4">
     <div class="card h-100 border-0 shadow-sm opacity-75" data-category="exportation">
       <div class="card-header bg-secondary text-white">
         <div class="d-flex justify-content-between align-items-center">
