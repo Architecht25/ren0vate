@@ -3031,7 +3031,7 @@ export default class extends Controller {
    */
   filterPrimesByStatut(statut) {
     console.log(`🎯 Filtrage des primes pour statut: ${statut}`);
-    
+
     const primesSection = document.querySelector('.primes-section-bruxelles');
     if (!primesSection) {
       console.warn('Section des primes non trouvée');
@@ -3047,12 +3047,12 @@ export default class extends Controller {
       try {
         const compatibleStatuts = JSON.parse(card.dataset.statutCompatible);
         const cardSlug = card.dataset.bruxellesPrimeCardSlugValue;
-        
+
         // TOUTES les cartes restent toujours visibles et non floutées
         card.style.display = 'block';
         card.style.opacity = '1';
         card.style.filter = 'none';
-        
+
         if (compatibleStatuts.includes(statut)) {
           // Carte compatible avec le statut
           if (statut === 'mixte' && mixteConfig[cardSlug]) {
@@ -3088,7 +3088,7 @@ export default class extends Controller {
    */
   applyMixteFieldsRestriction(card, config) {
     const allInputs = card.querySelectorAll('input, select');
-    
+
     if (config.allowedFields.includes('all')) {
       // Tous les champs autorisés
       this.enableAllFields(card);
@@ -3098,7 +3098,7 @@ export default class extends Controller {
     allInputs.forEach(input => {
       const target = input.dataset.bruxellesPrimeCardTarget;
       const container = input.closest('.col-md-2, .col-md-6, .col-md-12, .col-lg-4, .col-lg-6');
-      
+
       if (config.allowedFields.includes(target)) {
         // Champ autorisé - activer complètement
         input.disabled = false;
@@ -3116,7 +3116,7 @@ export default class extends Controller {
           container.style.opacity = '0.4';
           container.style.filter = 'grayscale(50%)';
         }
-        
+
         // Mettre à jour le résultat à 0
         const resultTarget = input.dataset.bruxellesPrimeCardTarget?.replace('input', 'result');
         const resultElement = card.querySelector(`[data-bruxelles-prime-card-target="${resultTarget}"]`);
@@ -3133,13 +3133,13 @@ export default class extends Controller {
    */
   enableAllFields(card) {
     const allInputs = card.querySelectorAll('input, select');
-    
+
     allInputs.forEach(input => {
       const container = input.closest('.col-md-2, .col-md-6, .col-md-12, .col-lg-4, .col-lg-6');
-      
+
       input.disabled = false;
       input.style.opacity = '1';
-      
+
       if (container) {
         container.style.opacity = '1';
         container.style.filter = 'none';
@@ -3153,13 +3153,13 @@ export default class extends Controller {
    */
   disableAllFields(card) {
     const allInputs = card.querySelectorAll('input, select');
-    
+
     allInputs.forEach(input => {
       input.disabled = true;
       input.value = '';
       input.style.opacity = '0.5';
       input.closest('.col-md-6, .col-md-12, .col-lg-4, .col-lg-6')?.style.setProperty('opacity', '0.5');
-      
+
       // Mettre à jour le résultat à 0
       const resultTarget = input.dataset.bruxellesPrimeCardTarget?.replace('input', 'result');
       const resultElement = card.querySelector(`[data-bruxelles-prime-card-target="${resultTarget}"]`);
