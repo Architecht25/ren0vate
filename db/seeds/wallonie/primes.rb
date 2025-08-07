@@ -1,7 +1,12 @@
 puts "🏴󠁢󠁥󠁷󠁡󠁬󠁿 Création des primes Wallonie..."
 
-# Nettoyage des primes Wallonie existantes
-Prime.where(region: "wallonie").delete_all
+# Mode sécurisé : ne supprime que si pas en production ou si explicitement demandé
+if Rails.env.development? || ENV['FORCE_PRIME_RESET'] == 'true'
+  puts "🗑️  Nettoyage des primes Wallonie existantes (#{Rails.env})..."
+  Prime.where(region: "wallonie").delete_all
+else
+  puts "🔒 Mode production : conservation des primes existantes"
+end
 
 # === AUDIT ===
 

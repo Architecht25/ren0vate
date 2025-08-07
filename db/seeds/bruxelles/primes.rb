@@ -3,8 +3,13 @@
 
 puts "🏢 Création des primes Bruxelles RENOLUTION..."
 
-# Nettoyage des primes Bruxelles existantes
-Prime.where(region: "bruxelles").delete_all
+# Mode sécurisé : ne supprime que si pas en production ou si explicitement demandé
+if Rails.env.development? || ENV['FORCE_PRIME_RESET'] == 'true'
+  puts "🗑️  Nettoyage des primes Bruxelles existantes (#{Rails.env})..."
+  Prime.where(region: "bruxelles").delete_all
+else
+  puts "🔒 Mode production : conservation des primes existantes"
+end
 
 # =====================================================
 # PRIME A : Services et études préalables

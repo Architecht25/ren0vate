@@ -1,4 +1,13 @@
-Prime.where(region: "flandre").delete_all
+# Primes de Flandre
+puts "🇳🇱 Création des primes Flandre..."
+
+# Mode sécurisé : ne supprime que si pas en production ou si explicitement demandé
+if Rails.env.development? || ENV['FORCE_PRIME_RESET'] == 'true'
+  puts "🗑️  Nettoyage des primes Flandre existantes (#{Rails.env})..."
+  Prime.where(region: "flandre").delete_all
+else
+  puts "🔒 Mode production : conservation des primes existantes"
+end
 
 Prime.find_or_initialize_by(slug: "isolation_toiture").update!(
   titre: "Isolation de la toiture",

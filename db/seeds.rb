@@ -50,8 +50,29 @@ end
 
 # ➤ Propriétés de test
 puts "🏠 Création de propriétés de test..."
-user = User.first
-if user
+
+# Mode intelligent : choisir un utilisateur approprié selon l'environnement
+if Rails.env.development?
+  # En développement : créer ou utiliser Robin
+  user = User.find_or_create_by(email: 'robin@primes-services.be') do |u|
+    u.password = 'password123'
+    u.password_confirmation = 'password123'
+    u.nom = 'Robin'
+  end
+  puts "  👤 Utilisateur de développement : #{user.email}"
+elsif Rails.env.production?
+  # En production : utiliser Robin si il existe, sinon prendre le plus actif
+  user = User.find_by(email: 'robin@primes-services.be') ||
+         User.joins(:properties).group('users.id').order('COUNT(properties.id) DESC').first ||
+         User.order(created_at: :desc).first
+  puts "  👤 Utilisateur production sélectionné : #{user&.email&.gsub(/.{3,}@/, '***@') || 'aucun'}"
+else
+  # Autres environnements : essayer Robin puis fallback
+  user = User.find_by(email: 'robin@primes-services.be') || User.first
+  puts "  👤 Utilisateur sélectionné : #{user&.email || 'aucun'}"
+end
+if user && (Rails.env.development? || ENV['CREATE_TEST_PROPERTIES'] == 'true')
+  puts "  🏗️  Création des propriétés de test..."
   # Bien en Wallonie
   wallonie_property = user.properties.find_or_create_by(rue: "Rue de l'Énergie", numero: "24") do |property|
     property.code_postal = "5000"
@@ -87,6 +108,8 @@ if user
     property.annee_construction = "1970"
   end
   puts "  ✅ Propriété Bruxelles créée : #{bruxelles_property.full_address}"
+elsif user && Rails.env.production?
+  puts "  🔒 Mode production : propriétés de test non créées (utilisez CREATE_TEST_PROPERTIES=true si nécessaire)"
 else
   puts "  ⚠️  Aucun utilisateur trouvé, création de propriétés ignorée"
 end
