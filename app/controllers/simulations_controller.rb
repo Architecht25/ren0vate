@@ -54,7 +54,7 @@ class SimulationsController < ApplicationController
   private
 
   def simulation_params
-    params.require(:simulation).permit(:titre, :region, :parameters, :source, :property_id, :user_id,
+    params.require(:simulation).permit(:titre, :region, :parameters, :source, :property_id, :project_id, :user_id,
                                        :eligible, :category, :category_description, :ineligibility_reason)
   end
 

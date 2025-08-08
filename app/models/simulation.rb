@@ -1,6 +1,7 @@
 class Simulation < ApplicationRecord
   belongs_to :user
   belongs_to :property, optional: true
+  belongs_to :project, optional: true
   has_many :simulation_prime_cards, dependent: :destroy
   has_many :primes, through: :simulation_prime_cards
   has_many :documents

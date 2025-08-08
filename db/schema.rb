@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_07_111855) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_08_083034) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -308,6 +308,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_07_111855) do
     t.string "region"
     t.text "parameters"
     t.string "source"
+    t.bigint "project_id"
+    t.index ["project_id"], name: "index_simulations_on_project_id"
     t.index ["property_id"], name: "index_simulations_on_property_id"
     t.index ["user_id"], name: "index_simulations_on_user_id"
   end
@@ -377,6 +379,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_07_111855) do
   add_foreign_key "requests", "users"
   add_foreign_key "simulation_prime_cards", "primes"
   add_foreign_key "simulation_prime_cards", "simulations"
+  add_foreign_key "simulations", "projects"
   add_foreign_key "simulations", "properties"
   add_foreign_key "simulations", "users"
   add_foreign_key "works", "primes"
