@@ -39,8 +39,14 @@ class ProjectsController < ApplicationController
   end
 
   def destroy
-    @project.destroy
-    redirect_to projects_path, notice: 'Chantier supprimé avec succès.'
+    project_name = @project.nom
+
+    begin
+      @project.destroy
+      redirect_to projects_path, notice: "Le chantier '#{project_name}' a été supprimé avec succès."
+    rescue => e
+      redirect_to @project, alert: "Erreur lors de la suppression du chantier : #{e.message}"
+    end
   end
 
   private

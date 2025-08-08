@@ -65,8 +65,53 @@ module Regions
       end
 
       def property_in_wallonie?(property)
+        # Log pour debug
+        Rails.logger.info "Checking property region: '#{property.region}' for property #{property.id}"
+        
         # Vérification via le champ region de la propriété
-        property.region&.downcase == 'wallonie'
+        if property.region.present? && property.region.downcase == 'wallonie'
+          Rails.logger.info "Property region matches 'wallonie'"
+          return true
+        end
+        
+        # Vérification alternative par l'adresse si region non définie ou différente
+        Rails.logger.info "Region field not matching, checking by postal code..."
+        if property.region.blank? || property.region.downcase != 'wallonie'
+          result = property_in_wallonie_by_address?(property)
+          Rails.logger.info "Postal code check result: #{result}"
+          return result
+        end
+        
+        Rails.logger.info "Property not in Wallonie"
+        false
+      end
+
+      def property_in_wallonie_by_address?(property)
+        # Code postal belge pour Wallonie
+        # Codes postaux wallons selon les provinces
+        postal_code = property.code_postal || property.cp
+        return false unless postal_code.present?
+        
+        postal_int = postal_code.to_i
+        
+        # Définition complète des codes postaux wallons
+        wallonie_ranges = [
+          (1300..1499),  # Brabant wallon (La Hulpe = 1310 ici !)
+          (4000..4999),  # Province de Liège  
+          (5000..5999),  # Province de Namur
+          (6000..6999),  # Hainaut (Charleroi region)
+          (7000..7999),  # Hainaut (Mons region)
+          (6700..6799),  # Partie du Luxembourg belge
+          (6800..6999)   # Suite Luxembourg belge
+        ]
+        
+        # Log pour debug
+        Rails.logger.info "Checking postal code #{postal_int} for Wallonie eligibility"
+        
+        in_wallonie = wallonie_ranges.any? { |range| range.include?(postal_int) }
+        Rails.logger.info "Postal code #{postal_int} in Wallonie: #{in_wallonie}"
+        
+        in_wallonie
       end
 
       def property_for_habitation?(property)

@@ -11,6 +11,34 @@
       <%= link_to edit_project_path(@project), class: "btn btn-outline-primary-custom me-2" do %>
         <i class="bi bi-pencil me-2"></i>Modifier
       <% end %>
+
+      <div class="btn-group me-2" role="group">
+        <button type="button" class="btn btn-outline-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi bi-trash me-2"></i>Supprimer
+        </button>
+        <ul class="dropdown-menu">
+          <li>
+            <h6 class="dropdown-header">Attention</h6>
+          </li>
+          <li>
+            <span class="dropdown-item-text small text-muted">
+              Cette action supprimera définitivement le chantier et toutes ses données associées.
+            </span>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <%= link_to project_path(@project),
+                class: "dropdown-item text-danger fw-bold",
+                data: {
+                  turbo_method: :delete,
+                  turbo_confirm: "Êtes-vous absolument sûr de vouloir supprimer le chantier '#{@project.nom}' ?\n\nCette action est IRRÉVERSIBLE et supprimera :\n- Le chantier et ses paramètres\n- Tous les travaux associés\n- Les documents liés\n- L'historique complet\n\nTapez 'SUPPRIMER' pour confirmer"
+                } do %>
+              <i class="bi bi-trash me-2"></i>Confirmer la suppression
+            <% end %>
+          </li>
+        </ul>
+      </div>
+
       <%= link_to projects_path, class: "btn btn-outline-secondary" do %>
         <i class="bi bi-arrow-left me-2"></i>Retour
       <% end %>

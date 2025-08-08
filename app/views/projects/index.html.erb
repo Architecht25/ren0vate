@@ -12,8 +12,40 @@
     <div class="row g-3">
       <% @projects.each do |project| %>
         <div class="col-md-6 col-lg-4">
-          <%= link_to project_path(project), class: "text-decoration-none" do %>
-            <div class="card border-0 bg-light-custom h-100 property-card">
+          <div class="card border-0 bg-light-custom h-100 property-card position-relative">
+            <!-- Menu actions trois points -->
+            <div class="position-absolute top-0 end-0 m-2" style="z-index: 10;">
+              <div class="dropdown">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="bi bi-three-dots-vertical"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow">
+                  <li>
+                    <%= link_to project_path(project), class: "dropdown-item" do %>
+                      <i class="bi bi-eye me-2"></i>Voir
+                    <% end %>
+                  </li>
+                  <li>
+                    <%= link_to edit_project_path(project), class: "dropdown-item" do %>
+                      <i class="bi bi-pencil me-2"></i>Modifier
+                    <% end %>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <%= link_to project_path(project),
+                        class: "dropdown-item text-danger",
+                        data: {
+                          turbo_method: :delete,
+                          turbo_confirm: "Êtes-vous sûr de vouloir supprimer le chantier '#{project.nom}' ?\n\nCette action supprimera définitivement :\n- Le chantier et ses informations\n- Tous les travaux associés\n- Les documents liés\n\nCette action est irréversible."
+                        } do %>
+                      <i class="bi bi-trash me-2"></i>Supprimer
+                    <% end %>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <%= link_to project_path(project), class: "text-decoration-none" do %>
               <div class="card-body p-4">
                 <div class="d-flex align-items-center mb-3">
                   <div class="icon-circle me-3">
@@ -43,8 +75,8 @@
                   </div>
                 </div>
               </div>
-            </div>
-          <% end %>
+            <% end %>
+          </div>
         </div>
       <% end %>
     </div>
