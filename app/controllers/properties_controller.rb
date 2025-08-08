@@ -72,12 +72,29 @@ class PropertiesController < ApplicationController
   end
 
   def destroy
-    property_name = @property.name
+    property_name = @property.name || "Bien ##{@property.id}"
 
-    if @property.destroy
-      redirect_to properties_path, notice: "Le bien \"#{property_name}\" a été supprimé avec succès."
-    else
-      redirect_to @property, alert: "Impossible de supprimer ce bien. Veuillez réessayer."
+    begin
+      Rails.logger.info "Attempting to delete property '#{property_name}' (ID: #{@property.id})"
+
+      # Vérifier les associations avant suppression pour debug
+      simulations_count = @property.simulations.count
+      projects_count = @property.projects.count
+      requests_count = @property.requests.count
+      documents_count = @property.documents.count
+
+      Rails.logger.info "Property has #{simulations_count} simulations, #{projects_count} projects, #{requests_count} requests, #{documents_count} documents"
+
+      @property.destroy!
+
+      Rails.logger.info "Successfully deleted property '#{property_name}'"
+      redirect_to properties_path, notice: "Le bien '#{property_name}' a été supprimé avec succès."
+
+    rescue => e
+      Rails.logger.error "Failed to delete property '#{property_name}': #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+
+      redirect_to @property, alert: "Erreur lors de la suppression du bien : #{e.message}"
     end
   end
 
