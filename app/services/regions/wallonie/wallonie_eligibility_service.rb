@@ -123,7 +123,9 @@ module Regions
         
         Rails.logger.info "Property not in Wallonie"
         false
-      end      def property_in_wallonie_by_address?(property)
+      end
+
+      def property_in_wallonie_by_address?(property)
         # Code postal belge pour Wallonie
         # Codes postaux wallons selon les provinces
         postal_code = property.code_postal || property.cp
