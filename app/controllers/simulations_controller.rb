@@ -238,12 +238,12 @@ class SimulationsController < ApplicationController
     Rails.logger.info "=== PERFORM_ELIGIBILITY_TEST ==="
     Rails.logger.info "Simulation ID: #{simulation.id}, region: '#{simulation.region}'"
     Rails.logger.info "Property present: #{simulation.property.present?}"
-    
+
     unless simulation.region&.downcase == 'wallonie'
       Rails.logger.info "SKIPPED: Region '#{simulation.region}' is not wallonie"
       return
     end
-    
+
     unless simulation.property.present?
       Rails.logger.info "SKIPPED: No property associated"
       return

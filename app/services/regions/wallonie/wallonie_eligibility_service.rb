@@ -105,24 +105,26 @@ module Regions
 
       def property_in_wallonie?(property)
         # Log pour debug
-        Rails.logger.info "Checking property region: '#{property.region}' for property #{property.id}"
-        
-        # Vérification via le champ region de la propriété (Wallonie avec majuscule)
-        if property.region.present? && property.region == 'Wallonie'
-          Rails.logger.info "Property region matches 'Wallonie'"
-          return true
+        Rails.logger.info "Checking property region: '#{property.region}' (raw) for property #{property.id}"
+        Rails.logger.info "Property region class: #{property.region.class}"
+        Rails.logger.info "Property region bytes: #{property.region&.bytes&.inspect}"
+
+        # Vérification via le champ region de la propriété (case-insensitive et strip des espaces)
+        if property.region.present?
+          region_clean = property.region.to_s.strip.downcase
+          Rails.logger.info "Cleaned region: '#{region_clean}'"
+          
+          if region_clean == 'wallonie'
+            Rails.logger.info "Property region matches 'wallonie' (after cleaning)"
+            return true
+          end
         end
-        
+
         # Vérification alternative par l'adresse si region non définie ou différente
         Rails.logger.info "Region field not matching, checking by postal code..."
-        if property.region.blank? || property.region != 'Wallonie'
-          result = property_in_wallonie_by_address?(property)
-          Rails.logger.info "Postal code check result: #{result}"
-          return result
-        end
-        
-        Rails.logger.info "Property not in Wallonie"
-        false
+        result = property_in_wallonie_by_address?(property)
+        Rails.logger.info "Postal code check result: #{result}"
+        return result
       end
 
       def property_in_wallonie_by_address?(property)
