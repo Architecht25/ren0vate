@@ -997,25 +997,28 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Démarrer l'initialisation
   initializePrimeSystem();
+
+  // Styles CSS pour les indicateurs visuels
+  if (!document.getElementById('prime-styles')) {
+    const primeStyles = document.createElement('style');
+    primeStyles.id = 'prime-styles';
+    primeStyles.textContent = `
+      .amount-updated {
+        background-color: rgba(40, 167, 69, 0.1);
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+      }
+
+      .prime-input:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+      }
+
+      #total-amount-sidebar {
+        transition: opacity 0.3s ease, color 0.3s ease;
+      }
+    `;
+    document.head.appendChild(primeStyles);
+  }
 });
-
-// Styles CSS pour les indicateurs visuels
-const primeStyles = document.createElement('style');
-primeStyles.textContent = `
-  .amount-updated {
-    background-color: rgba(40, 167, 69, 0.1);
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-  }
-
-  .prime-input:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-  }
-
-  #total-amount-sidebar {
-    transition: opacity 0.3s ease, color 0.3s ease;
-  }
-`;
-document.head.appendChild(primeStyles);
 </script>
