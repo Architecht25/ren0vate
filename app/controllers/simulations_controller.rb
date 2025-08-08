@@ -235,7 +235,21 @@ class SimulationsController < ApplicationController
 
   # ÉTAPE 1: Test d'éligibilité
   def perform_eligibility_test(simulation)
-    return unless simulation.region == 'wallonie' && simulation.property.present?
+    Rails.logger.info "=== PERFORM_ELIGIBILITY_TEST ==="
+    Rails.logger.info "Simulation ID: #{simulation.id}, region: '#{simulation.region}'"
+    Rails.logger.info "Property present: #{simulation.property.present?}"
+    
+    unless simulation.region&.downcase == 'wallonie'
+      Rails.logger.info "SKIPPED: Region '#{simulation.region}' is not wallonie"
+      return
+    end
+    
+    unless simulation.property.present?
+      Rails.logger.info "SKIPPED: No property associated"
+      return
+    end
+
+    Rails.logger.info "Proceeding with eligibility test..."
 
     # Utiliser le service d'éligibilité Wallonie
     eligibility_service = Regions::Wallonie::WallonieEligibilityService.new(
@@ -265,7 +279,7 @@ class SimulationsController < ApplicationController
 
   # ÉTAPE 2: Détermination de la catégorie
   def perform_category_determination(simulation)
-    return unless simulation.eligible? && simulation.region == 'wallonie'
+    return unless simulation.eligible? && simulation.region&.downcase == 'wallonie'
 
     # Utiliser le service de catégorie Wallonie
     category_service = Regions::Wallonie::WallonieCategoryService.new(

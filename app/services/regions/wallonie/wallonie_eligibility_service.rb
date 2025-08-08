@@ -106,26 +106,24 @@ module Regions
       def property_in_wallonie?(property)
         # Log pour debug
         Rails.logger.info "Checking property region: '#{property.region}' for property #{property.id}"
-
-        # Vérification via le champ region de la propriété
-        if property.region.present? && property.region.downcase == 'wallonie'
-          Rails.logger.info "Property region matches 'wallonie'"
+        
+        # Vérification via le champ region de la propriété (Wallonie avec majuscule)
+        if property.region.present? && property.region == 'Wallonie'
+          Rails.logger.info "Property region matches 'Wallonie'"
           return true
         end
-
+        
         # Vérification alternative par l'adresse si region non définie ou différente
         Rails.logger.info "Region field not matching, checking by postal code..."
-        if property.region.blank? || property.region.downcase != 'wallonie'
+        if property.region.blank? || property.region != 'Wallonie'
           result = property_in_wallonie_by_address?(property)
           Rails.logger.info "Postal code check result: #{result}"
           return result
         end
-
+        
         Rails.logger.info "Property not in Wallonie"
         false
-      end
-
-      def property_in_wallonie_by_address?(property)
+      end      def property_in_wallonie_by_address?(property)
         # Code postal belge pour Wallonie
         # Codes postaux wallons selon les provinces
         postal_code = property.code_postal || property.cp
