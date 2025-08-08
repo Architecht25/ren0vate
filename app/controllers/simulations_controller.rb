@@ -47,8 +47,183 @@ class SimulationsController < ApplicationController
 
   def destroy
     @simulation = Simulation.find(params[:id])
-    @simulation.destroy
-    redirect_to simulations_path
+    simulation_title = @simulation.titre
+
+    begin
+      @simulation.destroy
+      redirect_to simulations_path, notice: "La simulation '#{simulation_title}' a été supprimée avec succès."
+    rescue => e
+      redirect_to @simulation, alert: "Erreur lors de la suppression de la simulation : #{e.message}"
+    end
+  end
+
+  # Routes AJAX pour les étapes de simulation
+  def check_eligibility
+    @simulation = Simulation.find(params[:id])
+    perform_eligibility_test(@simulation)
+
+    respond_to do |format|
+      format.json {
+        render json: {
+          eligible: @simulation.eligible,
+          message: @simulation.eligible? ? @simulation.category_description : @simulation.ineligibility_reason,
+          next_step: @simulation.eligible? ? 'category' : nil
+        }
+      }
+    end
+  end
+
+  def calculate_category
+    @simulation = Simulation.find(params[:id])
+    perform_category_determination(@simulation)
+
+    respond_to do |format|
+      format.json {
+        render json: {
+          eligible: @simulation.eligible,
+          category: @simulation.category,
+          message: @simulation.category_description,
+          next_step: @simulation.category.present? ? 'primes' : nil
+        }
+      }
+    end
+  end
+
+  def calculate_primes
+    @simulation = Simulation.find(params[:id])
+
+    begin
+      perform_primes_calculation(@simulation)
+
+      respond_to do |format|
+        format.json {
+          params_data = @simulation.parameters ? JSON.parse(@simulation.parameters) : {}
+          prime_cards = params_data['prime_cards'] || []
+          render json: {
+            success: true,
+            eligible: @simulation.eligible,
+            category: @simulation.category,
+            total_primes: @simulation.total_simule,
+            cards: prime_cards,
+            final_result: true
+          }
+        }
+      end
+    rescue => e
+      Rails.logger.error "Erreur lors du calcul des primes: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+
+      respond_to do |format|
+        format.json {
+          render json: {
+            success: false,
+            message: "Erreur lors du calcul: #{e.message}"
+          }
+        }
+      end
+    end
+  end
+
+  def update_prime_inputs
+    @simulation = Simulation.find(params[:id])
+    user_inputs = params[:user_inputs] || {}
+
+    Rails.logger.info "Updating prime inputs for simulation #{@simulation.id} with #{user_inputs.keys.length} inputs"
+
+    begin
+      # Récupérer les paramètres existants
+      current_params = @simulation.parameters ? JSON.parse(@simulation.parameters) : {}
+
+      # Mettre à jour les saisies utilisateur
+      current_params['user_inputs'] = user_inputs
+      current_params['last_input_update'] = Time.current
+
+      # Recalculer les montants avec les nouvelles saisies
+      updated_totals = {}
+      if @simulation.category.present?
+        updated_totals = recalculate_with_user_inputs(user_inputs)
+        current_params.merge!(updated_totals)
+      end
+
+      # Sauvegarder de manière optimisée
+      @simulation.update_columns(
+        parameters: current_params.to_json,
+        total_simule: current_params['total_general'],
+        updated_at: Time.current
+      )
+
+      Rails.logger.info "Successfully updated simulation #{@simulation.id}, new total: #{current_params['total_general']}"
+
+      respond_to do |format|
+        format.json {
+          render json: {
+            success: true,
+            user_inputs: user_inputs,
+            total_amount: current_params['total_general'],
+            updated_cards: current_params['prime_cards'],
+            calculation_time: Time.current.strftime('%H:%M:%S')
+          }
+        }
+      end
+
+    rescue StandardError => e
+      Rails.logger.error "Error updating prime inputs for simulation #{@simulation.id}: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+
+      respond_to do |format|
+        format.json {
+          render json: {
+            success: false,
+            error: "Erreur lors du calcul: #{e.message}"
+          }, status: :internal_server_error
+        }
+      end
+    end
+  end
+
+  private
+
+  # Méthode optimisée pour recalculer avec les saisies utilisateur
+  def recalculate_with_user_inputs(user_inputs)
+    return {} unless @simulation.category.present?
+
+    Rails.logger.info "Recalculating with #{user_inputs.keys.length} user inputs for category #{@simulation.category}"
+
+    begin
+      # Utiliser le service de calcul avec les nouvelles saisies
+      calculator_service = Regions::Wallonie::WalloniePostLoginCalculatorService.new(
+        {
+          property_id: @simulation.property_id,
+          project_id: @simulation.project_id,
+          user_inputs: user_inputs  # Passer les saisies au service
+        },
+        user: current_user
+      )
+
+      category_result = {
+        category: @simulation.category,
+        eligible: true
+      }
+
+      # Recalculer avec les nouvelles données de manière optimisée
+      start_time = Time.current
+      cards_data = calculator_service.generate_prime_cards(category_result)
+      calculation_time = Time.current - start_time
+
+      Rails.logger.info "Calculation completed in #{calculation_time.round(3)}s for #{cards_data[:cards]&.keys&.length || 0} categories"
+
+      {
+        'prime_cards' => cards_data[:cards],
+        'total_general' => cards_data[:total],
+        'category_used' => cards_data[:category_used],
+        'calculation_timestamp' => Time.current,
+        'calculation_duration' => calculation_time.round(3)
+      }
+
+    rescue StandardError => e
+      Rails.logger.error "Error in recalculate_with_user_inputs: #{e.message}"
+      raise e
+    end
   end
 
   private
@@ -58,88 +233,98 @@ class SimulationsController < ApplicationController
                                        :eligible, :category, :category_description, :ineligibility_reason)
   end
 
-  # ÉTAPE 1: Test d'éligibilité (méthode stub à implémenter)
+  # ÉTAPE 1: Test d'éligibilité
   def perform_eligibility_test(simulation)
-    # TODO: Implémenter la logique de test d'éligibilité
-    # Pour l'instant, on peut définir comme éligible par défaut pour tester l'interface
+    return unless simulation.region == 'wallonie' && simulation.property.present?
 
-    # Exemple de logique simple (à remplacer par la vraie logique métier)
-    if simulation.region.present? && simulation.property.present?
+    # Utiliser le service d'éligibilité Wallonie
+    eligibility_service = Regions::Wallonie::WallonieEligibilityService.new(
+      {
+        property_id: simulation.property_id,
+        project_id: simulation.project_id
+      },
+      user: current_user
+    )
+
+    result = eligibility_service.check_eligibility
+
+    if result[:eligible]
       simulation.update(
-        eligible: true
+        eligible: true,
+        category_description: result[:message]
       )
-      # Déclencher l'étape 2
+      # Déclencher l'étape 2 automatiquement
       perform_category_determination(simulation)
     else
       simulation.update(
         eligible: false,
-        ineligibility_reason: "Région ou propriété manquante"
+        ineligibility_reason: result[:message]
       )
     end
   end
 
-  # ÉTAPE 2: Détermination de la catégorie (méthode stub à implémenter)
+  # ÉTAPE 2: Détermination de la catégorie
   def perform_category_determination(simulation)
-    # TODO: Implémenter la logique de détermination de catégorie
+    return unless simulation.eligible? && simulation.region == 'wallonie'
 
-    # Exemple de logique simple basée sur la région
-    category_info = case simulation.region
-                   when 'wallonie'
-                     {
-                       category: 'Rénovation énergétique Wallonie',
-                       description: 'Primes pour travaux d\'isolation et d\'efficacité énergétique en Wallonie'
-                     }
-                   when 'flandre'
-                     {
-                       category: 'Woningrenovatiepremie Vlaanderen',
-                       description: 'Subsidies voor energiebesparende renovaties in Vlaanderen'
-                     }
-                   when 'bruxelles'
-                     {
-                       category: 'Primes énergie Bruxelles',
-                       description: 'Primes de la région bruxelloise pour l\'amélioration énergétique'
-                     }
-                   else
-                     {
-                       category: 'Général',
-                       description: 'Catégorie générale'
-                     }
-                   end
-
-    simulation.update(
-      category: category_info[:category],
-      category_description: category_info[:description]
+    # Utiliser le service de catégorie Wallonie
+    category_service = Regions::Wallonie::WallonieCategoryService.new(
+      {
+        property_id: simulation.property_id,
+        project_id: simulation.project_id
+      },
+      user: current_user
     )
 
-    # Déclencher l'étape 3
-    perform_prime_calculation(simulation)
-  end
+    result = category_service.determine_category
 
-  # ÉTAPE 3: Calcul des primes (méthode stub à implémenter)
-  def perform_prime_calculation(simulation)
-    # TODO: Implémenter la logique de calcul des primes
-
-    # Pour l'instant, créer quelques primes d'exemple pour tester l'interface
-    # (à remplacer par la vraie logique de calcul)
-
-    # Exemple de création de primes factices
-    if simulation.category.present?
-      create_example_prime_cards(simulation)
-    end
-  end
-
-  # Méthode d'exemple pour créer des cartes primes factices (à supprimer plus tard)
-  def create_example_prime_cards(simulation)
-    # Prime d'exemple 1
-    if Prime.exists?
-      prime1 = Prime.first
-      simulation.simulation_prime_cards.create!(
-        prime: prime1,
-        montant_simule: 1500,
-        calcul_details: "Surface isolation: 50m² × 30€/m² = 1500€"
+    if result[:eligible]
+      simulation.update(
+        category: result[:category],
+        category_description: result[:details]
+      )
+      # Déclencher l'étape 3 automatiquement
+      perform_primes_calculation(simulation)
+    else
+      # Si non éligible au niveau catégorie, mise à jour de l'éligibilité globale
+      simulation.update(
+        eligible: false,
+        ineligibility_reason: result[:error] || "Non éligible pour les primes"
       )
     end
+  end
 
-    # Vous pouvez ajouter d'autres primes d'exemple ici
+  # ÉTAPE 3: Calcul des primes
+  def perform_primes_calculation(simulation)
+    return unless simulation.eligible? && simulation.category.present?
+
+    # Utiliser le service de calcul de primes post-login
+    calculator_service = Regions::Wallonie::WalloniePostLoginCalculatorService.new(
+      {
+        property_id: simulation.property_id,
+        project_id: simulation.project_id
+      },
+      user: current_user
+    )
+
+    # Préparer les données de catégorie pour le calculateur
+    category_result = {
+      category: simulation.category,
+      eligible: true
+    }
+
+    # Générer les cartes de primes structurées
+    cards_data = calculator_service.generate_prime_cards(category_result)
+
+    # Mettre à jour la simulation avec les données des cartes
+    simulation.update(
+      total_simule: cards_data[:total],
+      parameters: {
+        prime_cards: cards_data[:cards],
+        total_general: cards_data[:total],
+        category_used: cards_data[:category_used],
+        calculation_timestamp: Time.current
+      }.to_json
+    )
   end
 end

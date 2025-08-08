@@ -8,7 +8,7 @@ module Regions
         log_calculation("Début vérification éligibilité Wallonie", @params)
 
         # Version post-login avec données réelles
-        return ineligible_response("Utilisates eur non connecté") unless @user
+        return ineligible_response("Utilisateseur non connecté") unless @user
         return check_eligibility_post_login
       end
 
@@ -45,8 +45,8 @@ module Regions
         # 7. Factures anciennes : vérification via le projet
         return ineligible_response("Les factures doivent dater de moins de 2 ans") if factures_too_old?(project)
 
-        # Si toutes les vérifications passent, calculer la catégorie
-        calculate_precise_category
+        # Si toutes les vérifications passent, retourner éligible
+        eligible_response(category: nil, message: "Éligible aux primes Wallonie")
       end
 
       def property_eligible?(property)
@@ -70,9 +70,23 @@ module Regions
       end
 
       def property_for_habitation?(property)
+        # Vérification prioritaire : pourcentage d'habitation >= 50%
+        if property.habitation_percentage.present?
+          return property.habitation_percentage >= 50
+        end
+
         # Pour Wallonie, vérifier type_propriete_wallonie ou occupation
-        # Si pas de données spécifiques, on assume que c'est pour l'habitation
-        return true if property.type_propriete_wallonie.present?
+        if property.type_propriete_wallonie.present?
+          habitation_types = %w[
+            logement_unifamilial
+            appartement
+            maison
+            residence_principale
+            habitation
+          ]
+          return property.type_propriete_wallonie.in?(habitation_types)
+        end
+
         return true if property.occupation == 'residence_principale'
 
         # Logique par défaut : si c'est un logement, on assume habitation >= 50%
@@ -114,92 +128,64 @@ module Regions
       end
 
       def entrepreneur_valid?(project)
-        # Pour l'instant, on assume que c'est valide
-        # TODO: À implémenter selon les données disponibles dans le projet
-        # Pourrait vérifier un champ entrepreneur_bce ou similar
-        true
+        # Vérification : numéro BCE présent et valide
+        return false unless project&.bce_number.present?
+
+        # Validation basique du format BCE (10 chiffres)
+        project.bce_number.match?(/\A\d{10}\z/)
       end
 
       def factures_too_old?(project)
         # Vérification : factures de moins de 2 ans
-        # Pour l'instant, on assume que c'est bon
-        # TODO: À implémenter selon les données de factures dans le projet
-        false
+        return true unless project
+
+        # Vérifier la date des factures (invoice_date) ou la date de fin des travaux
+        reference_date = project.invoice_date || project.work_completion_date
+        return false unless reference_date
+
+        # Les factures sont considérées comme trop anciennes si > 2 ans
+        (Date.current - reference_date).to_i > (2 * 365)
       end
 
-      def calculate_precise_category
-        # Utiliser les vraies données de revenus de l'utilisateur
-        return ineligible_response("Revenus non renseignés") unless @user.household_income
+      def check_basic_eligibility
+        # Vérifie uniquement l'éligibilité sans calcul de catégorie
+        return ineligible_response("Utilisateur requis") unless @user
 
-        # Prise en compte des déductions (enfants, personnes âgées)
-        adjusted_income = calculate_adjusted_income(@user.household_income)
-        category = determine_income_category(adjusted_income)
+        property = get_property
+        return ineligible_response("Propriété requise") unless property
 
-        # Récupération des données du projet pour les conditions spéciales
         project = user_project
 
-        # Conditions spéciales basées sur les données réelles du projet
-        toiture_only = projet_toiture_seulement?(project)
-        audit_prevu = projet_avec_audit?(project)
+        # Vérification des 7 critères d'éligibilité
+        eligibility_checks = [
+          { check: property_in_wallonie?(property), message: "Propriété non située en Wallonie" },
+          { check: property_for_habitation?(property), message: "Propriété non destinée à l'habitation" },
+          { check: user_is_owner?(property), message: "Vous devez être propriétaire" },
+          { check: residence_principale?(property), message: "Doit être votre résidence principale" },
+          { check: property_old_enough?(property), message: "Propriété construite il y a moins de 15 ans" },
+          { check: entrepreneur_valid?(project), message: "Entrepreneur ou facturation non valide" },
+          { check: @user.revenu_demandeur.present?, message: "Revenus non renseignés" }
+        ]
 
-        if toiture_only
-          eligible_response(
-            category: category,
-            message: "Éligible aux primes toiture - Catégorie #{category} confirmée",
-            special_conditions: {
-              travaux_toiture: true,
-              audit_recommande: !audit_prevu
-            }
-          )
-        else
-          eligible_response(
-            category: category,
-            message: "Éligible aux primes - Catégorie #{category} confirmée",
-            special_conditions: {
-              audit_recommande: !audit_prevu
-            }
-          )
-        end
-      end
-
-      def projet_toiture_seulement?(project)
-        # TODO: À implémenter selon la structure des travaux dans le projet
-        # Exemple : project.works.all? { |work| work.category == 'toiture' }
-        false # Par défaut
-      end
-
-      def projet_avec_audit?(project)
-        # Vérifier si un audit est prévu/présent
-        return true if project&.property&.audit_energetique
-
-        # TODO: Autres vérifications selon les données disponibles
-        false
-      end
-
-      def calculate_adjusted_income(base_income)
-        # Déduction de 5.000€ par enfant à charge, grossesse en cours ou personne > 60 ans
-        # Cette logique dépend de votre modèle User
-        deductions = 0
-
-        if @user.respond_to?(:children_count) && @user.children_count
-          deductions += @user.children_count * 5000
+        # Vérifier chaque critère
+        eligibility_checks.each do |criteria|
+          return ineligible_response(criteria[:message]) unless criteria[:check]
         end
 
-        if @user.respond_to?(:elderly_count) && @user.elderly_count
-          deductions += @user.elderly_count * 5000
-        end
-
-        [base_income - deductions, 0].max
+        # Si tous les critères sont remplis
+        eligible_response(
+          message: "Éligible aux primes Wallonie"
+        )
       end
 
-      def determine_income_category(adjusted_income)
-        # Barèmes Wallonie 2025 (revenus imposables après déductions)
-        return "R1" if adjusted_income <= 25_400
-        return "R2" if adjusted_income <= 36_200
-        return "R3" if adjusted_income <= 51_800
-        return "R4" if adjusted_income <= 79_000
-        return "R5" if adjusted_income <= 114_400
-        "R6" # Au-delà de 114.400€
+      private
+
+      def get_property
+        # Récupère la propriété associée à la simulation
+        property_id = get_param(:property_id)
+        return nil unless property_id
+
+        @user.properties.find_by(id: property_id)
       end
     end
   end

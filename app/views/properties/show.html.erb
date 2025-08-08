@@ -284,6 +284,140 @@
     </div>
   </div>
 
+  <!-- Section spécifique pour l'éligibilité Wallonie -->
+  <% if @property.region == 'wallonie' %>
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-light-custom border-0">
+        <div class="d-flex align-items-center">
+          <div class="icon-circle me-3">
+            <i class="bi bi-award"></i>
+          </div>
+          <div>
+            <h5 class="mb-0 fw-normal text-primary-custom">Informations d'éligibilité aux primes Wallonie</h5>
+            <small class="text-muted">Critères requis pour les subventions de rénovation</small>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row g-4">
+          <div class="col-md-6">
+            <h6 class="text-success mb-3">
+              <i class="bi bi-house-check me-2"></i>Occupation et usage
+            </h6>
+            <ul class="list-unstyled">
+              <li class="d-flex align-items-center mb-2">
+                <i class="bi bi-<%= @property.occupation.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+                <span class="<%= @property.occupation.present? ? 'text-dark' : 'text-muted' %>">
+                  Type d'occupation:
+                  <% if @property.occupation.present? %>
+                    <strong><%= @property.occupation.humanize %></strong>
+                    <% if @property.occupation == 'residence_principale' %>
+                      <span class="badge bg-success ms-2">✓ Éligible</span>
+                    <% end %>
+                  <% else %>
+                    <em>Non renseigné</em>
+                  <% end %>
+                </span>
+              </li>
+              <li class="d-flex align-items-center mb-2">
+                <i class="bi bi-<%= @property.habitation_percentage.present? && @property.habitation_percentage >= 50 ? 'check-circle-fill text-success' : (@property.habitation_percentage.present? ? 'x-circle-fill text-danger' : 'circle text-muted') %> me-2"></i>
+                <span class="<%= @property.habitation_percentage.present? ? 'text-dark' : 'text-muted' %>">
+                  Pourcentage d'habitation:
+                  <% if @property.habitation_percentage.present? %>
+                    <strong><%= @property.habitation_percentage %>%</strong>
+                    <% if @property.habitation_percentage >= 50 %>
+                      <span class="badge bg-success ms-2">✓ Éligible (≥50%)</span>
+                    <% else %>
+                      <span class="badge bg-danger ms-2">✗ Non éligible (<50%)</span>
+                    <% end %>
+                  <% else %>
+                    <em>Non renseigné</em>
+                  <% end %>
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="col-md-6">
+            <h6 class="text-info mb-3">
+              <i class="bi bi-building me-2"></i>Propriété et bâtiment
+            </h6>
+            <ul class="list-unstyled">
+              <li class="d-flex align-items-center mb-2">
+                <i class="bi bi-<%= @property.type_propriete_wallonie.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+                <span class="<%= @property.type_propriete_wallonie.present? ? 'text-dark' : 'text-muted' %>">
+                  Statut propriétaire:
+                  <% if @property.type_propriete_wallonie.present? %>
+                    <strong><%= @property.type_propriete_wallonie.humanize %></strong>
+                    <% proprietary_types = %w[proprietaire_occupant copropriétaire nu_proprietaire usufruitier plein_proprietaire] %>
+                    <% if proprietary_types.include?(@property.type_propriete_wallonie) %>
+                      <span class="badge bg-success ms-2">✓ Éligible</span>
+                    <% end %>
+                  <% else %>
+                    <em>Non renseigné</em>
+                  <% end %>
+                </span>
+              </li>
+              <li class="d-flex align-items-center mb-2">
+                <i class="bi bi-<%= @property.annee_construction.present? && (Date.current.year - @property.annee_construction) > 15 ? 'check-circle-fill text-success' : (@property.annee_construction.present? ? 'x-circle-fill text-danger' : 'circle text-muted') %> me-2"></i>
+                <span class="<%= @property.annee_construction.present? ? 'text-dark' : 'text-muted' %>">
+                  Âge du logement:
+                  <% if @property.annee_construction.present? %>
+                    <strong><%= Date.current.year - @property.annee_construction %> ans</strong>
+                    <% if (Date.current.year - @property.annee_construction) > 15 %>
+                      <span class="badge bg-success ms-2">✓ Éligible (>15 ans)</span>
+                    <% else %>
+                      <span class="badge bg-danger ms-2">✗ Non éligible (≤15 ans)</span>
+                    <% end %>
+                  <% else %>
+                    <em>Non renseigné</em>
+                  <% end %>
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Résumé d'éligibilité -->
+        <div class="mt-4 p-3 bg-light rounded">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <h6 class="mb-1">Statut d'éligibilité global</h6>
+              <small class="text-muted">Basé sur les critères principaux pour les primes Wallonie</small>
+            </div>
+            <div>
+              <% eligibility_checks = [
+                   @property.occupation == 'residence_principale',
+                   @property.habitation_percentage.present? && @property.habitation_percentage >= 50,
+                   @property.type_propriete_wallonie.present? && %w[proprietaire_occupant copropriétaire nu_proprietaire usufruitier plein_proprietaire].include?(@property.type_propriete_wallonie),
+                   @property.annee_construction.present? && (Date.current.year - @property.annee_construction) > 15
+                 ]
+                 passed_checks = eligibility_checks.count(true)
+                 total_checks = eligibility_checks.length %>
+
+              <% if passed_checks == total_checks %>
+                <span class="badge bg-success px-3 py-2">
+                  <i class="bi bi-check-circle-fill me-1"></i>
+                  Éligible (<%= passed_checks %>/<%= total_checks %>)
+                </span>
+              <% elsif passed_checks >= (total_checks / 2.0) %>
+                <span class="badge bg-warning px-3 py-2">
+                  <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                  Partiellement éligible (<%= passed_checks %>/<%= total_checks %>)
+                </span>
+              <% else %>
+                <span class="badge bg-danger px-3 py-2">
+                  <i class="bi bi-x-circle-fill me-1"></i>
+                  Non éligible (<%= passed_checks %>/<%= total_checks %>)
+                </span>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
   <!-- Informations sur le seuil de demandes -->
   <% unless @actions_available[:can_request] %>
     <div class="alert alert-warning">

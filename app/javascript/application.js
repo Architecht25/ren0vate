@@ -6,8 +6,8 @@ import { Application } from "@hotwired/stimulus"
 
 const application = Application.start()
 
-// Configure Stimulus development experience
-application.debug = true
+// Configure Stimulus development experience (logs désactivés pour réduire le bruit)
+application.debug = false
 window.Stimulus = application
 
 // Import et register tous les contrôleurs manuellement et simplement

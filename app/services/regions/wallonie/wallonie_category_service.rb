@@ -1,119 +1,107 @@
 # Service de détermination de catégorie pour la région Wallonie
-# Migré et amélioré depuis wallonie_category_service.rb
+# Utilise exclusivement les données de la base de données post-login
+# 5 catégories (R1-R5) avec seuil d'inéligibilité à 114.400€
 
 module Regions
   module Wallonie
     class WallonieCategoryService < Regions::BaseService
+      ELIGIBILITY_THRESHOLD = 114_400 # Seuil maximum d'éligibilité
+
       def determine_category
         log_calculation("Début détermination catégorie Wallonie", @params)
 
-        if @is_post_login
-          determine_category_post_login
-        else
-          determine_category_pre_login
-        end
+        return { error: "Service disponible uniquement post-login", eligible: false } unless @is_post_login
+
+        determine_category_post_login
       end
 
       private
 
-      def determine_category_pre_login
-        # Version basée sur le revenu imposable fourni
-        revenu_imposable = get_param(:revenu_imposable)
-
-        if revenu_imposable
-          # Utiliser la même logique que post-login mais avec composition familiale simplifiée
-          categories = Category.wallonie.order(:seuil_seul)
-          family_composition = build_family_composition_from_params
-          matching_category = find_matching_category(categories, revenu_imposable, family_composition)
-
-          {
-            category: matching_category.code.sub('wallonie_', '').upcase,
-            color: category_color(matching_category.code.sub('wallonie_', '').upcase),
-            details: matching_category.description,
-            needs_refinement: false
-          }
-        else
-          # Fallback sur l'ancienne logique si pas de revenu imposable
-          revenu_tranche = get_param(:revenu_net) || get_param(:revenu_tranche)
-
-          category = case revenu_tranche
-                     when "r1" then "R1"
-                     when "r2" then "R2"
-                     when "r3" then "R3"
-                     when "r4" then "R4"
-                     when "r5" then "R5"
-                     else
-                       # Si pas de tranche précise, estimer selon le booléen revenus
-                       get_param(:revenus) == "non" ? "R1-R4" : "R5"
-                     end
-
-          {
-            category: category,
-            color: category_color(category),
-            details: category_details(category),
-            needs_refinement: category.include?("-")
-          }
-        end
-      end
-
       def determine_category_post_login
         # Version précise avec données utilisateur réelles
-        return { error: "Revenus non renseignés" } unless @user.household_income
+        return { error: "Revenus non renseignés", eligible: false } unless @user.revenu_demandeur
 
-        # Récupérer les catégories Wallonie depuis la base
-        categories = Category.wallonie.order(:seuil_seul)
+        # Calculer le revenu total du ménage
+        total_household_income = calculate_total_household_income
 
-        family_composition = get_family_composition
-        matching_category = find_matching_category(categories, @user.household_income, family_composition)
+        # Calculer le revenu ajusté avec déductions
+        adjusted_income = calculate_adjusted_income(total_household_income)
+
+        # Vérifier le seuil d'éligibilité
+        if adjusted_income > ELIGIBILITY_THRESHOLD
+          return {
+            eligible: false,
+            message: "Revenus trop élevés (#{adjusted_income}€ > #{ELIGIBILITY_THRESHOLD}€)",
+            adjusted_income: adjusted_income,
+            total_income: total_household_income
+          }
+        end
+
+        # Déterminer la catégorie selon les barèmes Wallonie
+        category_code = determine_income_category(adjusted_income)
 
         {
-          category: matching_category.code,
-          color: category_color(matching_category.code),
-          details: matching_category.description,
-          family_composition: family_composition,
-          exact_income: @user.household_income,
-          needs_refinement: false,
-          category_object: matching_category
+          eligible: true,
+          category: category_code,
+          color: category_color(category_code),
+          details: category_details(category_code),
+          adjusted_income: adjusted_income,
+          total_income: total_household_income,
+          deductions: total_household_income - adjusted_income,
+          family_composition: get_family_composition,
+          needs_refinement: false
         }
+      end
+
+      # Méthodes de calcul des revenus
+      def calculate_total_household_income
+        # Revenu du demandeur (obligatoire)
+        total = @user.revenu_demandeur || 0
+
+        # Ajouter le revenu du conjoint si marié/cohabitant/couple et si renseigné
+        if @user.situation_familiale.in?(%w[marie cohabitant couple]) && @user.revenu_conjoint
+          total += @user.revenu_conjoint
+        end
+
+        total
+      end
+
+      def calculate_adjusted_income(base_income)
+        # Déduction de 5.000€ par enfant à charge, grossesse en cours ou personne > 60 ans
+        deductions = 0
+
+        # Déduction enfants à charge
+        if @user.nombre_enfants && @user.nombre_enfants > 0
+          deductions += @user.nombre_enfants * 5000
+        end
+
+        # TODO: Ajouter déductions pour grossesse en cours ou personnes > 60 ans
+        # si ces champs sont ajoutés au modèle User
+
+        [base_income - deductions, 0].max
+      end
+
+      def determine_income_category(adjusted_income)
+        # Barèmes Wallonie 2025 (revenus imposables après déductions) - 5 catégories seulement
+        return "R1" if adjusted_income <= 25_400
+        return "R2" if adjusted_income <= 36_200
+        return "R3" if adjusted_income <= 51_800
+        return "R4" if adjusted_income <= 79_000
+        return "R5" if adjusted_income <= 114_400
+
+        # Si on arrive ici, c'est une erreur car devrait être détecté plus tôt
+        "INELIGIBLE"
       end
 
       def get_family_composition
-        # Récupérer depuis les données utilisateur ou les paramètres
-        is_couple = %w[married cohabiting].include?(@user&.marital_status || get_param(:statut_familial))
-        children = @user&.children_count || get_param(:enfants_charge).to_i
-        elderly = @user&.elderly_dependents || get_param(:personnes_agees_charge).to_i
-
+        # Récupérer depuis les données utilisateur réelles
         {
-          is_couple: is_couple,
-          children_count: children,
-          elderly_dependents: elderly,
-          statut_familial: @user&.marital_status || get_param(:statut_familial)
+          situation_familiale: @user.situation_familiale,
+          nombre_enfants: @user.nombre_enfants || 0,
+          revenu_demandeur: @user.revenu_demandeur,
+          revenu_conjoint: @user.revenu_conjoint,
+          is_couple: @user.situation_familiale.in?(%w[marie cohabitant couple])
         }
-      end
-
-      def build_family_composition_from_params
-        # Construire la composition familiale à partir des paramètres pré-login
-        situation = get_param(:situation_familiale)
-        children = get_param(:nombre_personnes_fiscalement_a_charge) || 0
-
-        {
-          is_couple: situation != "seul",
-          children_count: children.to_i,
-          elderly_dependents: 0, # Pas d'info dans les paramètres pré-login
-          statut_familial: situation
-        }
-      end
-
-      def find_matching_category(categories, income, family_composition)
-        # Trouver la catégorie appropriée selon les revenus
-        categories.each do |category|
-          if category.eligible_for_income?(income, family_composition)
-            return category
-          end
-        end
-
-        # Si aucune catégorie trouvée, retourner R5 par défaut
-        categories.find { |c| c.code == "wallonie_r5" } || categories.last
       end
 
       def category_color(category)
@@ -123,7 +111,7 @@ module Regions
         when "R3" then "warning"    # Jaune
         when "R4" then "secondary"  # Gris
         when "R5" then "danger"     # Rouge - Prime la plus faible
-        when "R1-R4" then "warning" # Jaune pour les estimations
+        when "INELIGIBLE" then "dark" # Noir pour inéligible
         else "secondary"
         end
       end
@@ -131,17 +119,17 @@ module Regions
       def category_details(category)
         case category
         when "R1"
-          "Revenus très modestes - Primes maximales"
+          "Revenus très modestes (≤ 25.400€) - Primes maximales"
         when "R2"
-          "Revenus modestes - Primes élevées"
+          "Revenus modestes (25.401€ - 36.200€) - Primes élevées"
         when "R3"
-          "Revenus moyens - Primes moyennes"
+          "Revenus moyens (36.201€ - 51.800€) - Primes moyennes"
         when "R4"
-          "Revenus moyens supérieurs - Primes réduites"
+          "Revenus moyens supérieurs (51.801€ - 79.000€) - Primes réduites"
         when "R5"
-          "Revenus supérieurs - Primes minimales"
-        when "R1-R4"
-          "Catégorie à affiner selon revenus exacts"
+          "Revenus supérieurs (79.001€ - 114.400€) - Primes minimales"
+        when "INELIGIBLE"
+          "Revenus trop élevés (> 114.400€) - Non éligible"
         else
           "Catégorie à déterminer"
         end

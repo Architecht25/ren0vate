@@ -49,13 +49,23 @@
 
             <% if defined?(Property) && current_user.properties.any? %>
               <div class="mb-3">
-                <%= form.label :property_id, "Bien immobilier concerné", class: "form-label" %>
+                <%= form.label :property_id, "Bien immobilier concerné*", class: "form-label" %>
                 <%= form.collection_select :property_id, current_user.properties, :id, :full_address,
                     {
                       include_blank: "-- Sélectionner un bien --",
                       selected: (@simulation.property_id if @simulation.property.present?)
                     },
-                    class: "form-select" %>
+                    { class: "form-select", required: true } %>
+                <div class="form-text">La sélection d'un bien immobilier est obligatoire pour effectuer une simulation.</div>
+              </div>
+            <% else %>
+              <div class="mb-3">
+                <div class="alert alert-warning" role="alert">
+                  <i class="bi bi-exclamation-triangle me-2"></i>
+                  <strong>Aucun bien immobilier trouvé !</strong><br>
+                  Vous devez d'abord ajouter un bien immobilier avant de pouvoir créer une simulation.
+                  <%= link_to "Ajouter un bien", new_property_path, class: "btn btn-sm btn-outline-primary ms-2" %>
+                </div>
               </div>
             <% end %>
 
@@ -76,7 +86,13 @@
 
             <div class="d-flex justify-content-end mt-4">
               <%= link_to "Annuler", simulations_path, class: "btn btn-outline-secondary me-2" %>
-              <%= form.submit "Lancer la simulation", class: "btn btn-primary-custom" %>
+              <% if current_user.properties.any? %>
+                <%= form.submit "Lancer la simulation", class: "btn btn-primary-custom" %>
+              <% else %>
+                <button type="button" class="btn btn-primary-custom" disabled>
+                  <i class="bi bi-exclamation-triangle me-2"></i>Ajoutez d'abord un bien
+                </button>
+              <% end %>
             </div>
           <% end %>
         </div>

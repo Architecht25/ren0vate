@@ -75,6 +75,12 @@ Rails.application.routes.draw do
   end
 
   resources :simulations do
+    member do
+      post :check_eligibility  # Étape 1: Vérification éligibilité
+      post :calculate_category  # Étape 2: Calcul de catégorie
+      post :calculate_primes    # Étape 3: Calcul des primes
+      patch :update_prime_inputs # Sauvegarde des saisies utilisateur
+    end
     # Documents liés à une simulation
     resources :documents, shallow: true
   end

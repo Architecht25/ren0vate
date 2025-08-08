@@ -115,6 +115,87 @@
           <% end %>
         </div>
       </div>
+
+      <!-- Informations pour l'éligibilité aux primes -->
+      <% if @project.bce_number.present? || @project.invoice_date.present? || @project.work_completion_date.present? %>
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body p-4">
+            <h5 class="card-title text-primary-custom mb-3">
+              <i class="bi bi-award me-2"></i>Informations pour l'éligibilité aux primes
+            </h5>
+
+            <div class="row">
+              <% if @project.bce_number.present? %>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label text-muted-custom small">Numéro BCE Entrepreneur</label>
+                    <p class="mb-0">
+                      <i class="bi bi-building text-info me-2"></i>
+                      <%= @project.bce_number %>
+                      <% if @project.bce_number.match?(/\A\d{10}\z/) %>
+                        <span class="badge bg-success ms-2">
+                          <i class="bi bi-check-circle me-1"></i>Valide
+                        </span>
+                      <% else %>
+                        <span class="badge bg-warning ms-2">
+                          <i class="bi bi-exclamation-triangle me-1"></i>Format invalide
+                        </span>
+                      <% end %>
+                    </p>
+                  </div>
+                </div>
+              <% end %>
+
+              <% if @project.invoice_date.present? %>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label text-muted-custom small">Date des factures</label>
+                    <p class="mb-0">
+                      <i class="bi bi-receipt text-info me-2"></i>
+                      <%= @project.invoice_date.strftime("%d/%m/%Y") %>
+                      <% days_diff = (Date.current - @project.invoice_date).to_i %>
+                      <% if days_diff <= (2 * 365) %>
+                        <span class="badge bg-success ms-2">
+                          <i class="bi bi-check-circle me-1"></i>Éligible
+                        </span>
+                      <% else %>
+                        <span class="badge bg-danger ms-2">
+                          <i class="bi bi-x-circle me-1"></i>Trop ancien (>2 ans)
+                        </span>
+                      <% end %>
+                    </p>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+
+            <% if @project.work_completion_date.present? %>
+              <div class="mb-3">
+                <label class="form-label text-muted-custom small">Date de fin des travaux</label>
+                <p class="mb-0">
+                  <i class="bi bi-calendar-check text-info me-2"></i>
+                  <%= @project.work_completion_date.strftime("%d/%m/%Y") %>
+                </p>
+              </div>
+            <% end %>
+
+            <!-- Indicateur d'éligibilité global -->
+            <div class="alert alert-info mb-0">
+              <i class="bi bi-info-circle me-2"></i>
+              <strong>Statut d'éligibilité :</strong>
+              <% if @project.property&.region == 'wallonie' %>
+                <% if @project.bce_number.present? && @project.bce_number.match?(/\A\d{10}\z/) %>
+                  <span class="text-success">✓ Prêt pour la vérification d'éligibilité Wallonie</span>
+                <% else %>
+                  <span class="text-warning">⚠ Numéro BCE requis pour l'éligibilité Wallonie</span>
+                <% end %>
+              <% else %>
+                <span class="text-muted">Informations enregistrées pour référence</span>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
     </div>
 
     <!-- Colonne latérale -->

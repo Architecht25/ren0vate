@@ -1,14 +1,14 @@
 class Simulation < ApplicationRecord
   belongs_to :user
-  belongs_to :property, optional: true
+  belongs_to :property
   belongs_to :project, optional: true
   has_many :simulation_prime_cards, dependent: :destroy
   has_many :primes, through: :simulation_prime_cards
-  has_many :documents
+  has_many :documents, dependent: :destroy
 
-  has_one :request
+  has_one :request, dependent: :destroy
 
-  validates :region, :titre, presence: true
+  validates :region, :titre, :property_id, presence: true
 
   # Scope pour récupérer les simulations récentes
   scope :recent, -> { order(created_at: :desc) }

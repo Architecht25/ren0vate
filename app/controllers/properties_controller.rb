@@ -289,6 +289,9 @@ class PropertiesController < ApplicationController
       # Champs communs améliorés
       :surface_habitable, :mode_chauffage_principal,
 
+      # Champs pour l'éligibilité aux primes
+      :habitation_percentage,
+
       # Champs spécifiques Wallonie
       :type_propriete_wallonie, :certificat_peb_wallonie,
       :surface_habitable_wallonie, :mode_chauffage_wallonie,

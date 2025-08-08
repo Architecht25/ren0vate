@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_08_083034) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_08_140800) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -147,6 +147,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_08_083034) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.string "bce_number"
+    t.date "invoice_date"
+    t.date "work_completion_date"
     t.index ["property_id"], name: "index_projects_on_property_id"
     t.index ["user_id"], name: "index_projects_on_user_id"
   end
@@ -189,6 +192,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_08_083034) do
     t.string "certificat_peb_bruxelles"
     t.integer "surface_habitable"
     t.string "mode_chauffage_principal"
+    t.integer "habitation_percentage"
     t.index ["user_id"], name: "index_properties_on_user_id"
   end
 
