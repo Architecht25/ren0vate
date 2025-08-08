@@ -965,8 +965,12 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // Initialisation optimisée et robuste
+  let initializationAttempts = 0;
+  const maxAttempts = 10; // Limite le nombre de tentatives
+
   function initializePrimeSystem() {
     console.log('Initializing prime system...');
+    initializationAttempts++;
 
     // Attendre que le DOM soit complètement chargé
     if (document.readyState === 'loading') {
@@ -977,7 +981,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Vérifier la présence du conteneur de primes
     const primeContainer = document.getElementById('prime-cards-container');
     if (!primeContainer) {
-      console.log('Prime container not ready, retrying...');
+      console.log(`Prime container not ready, attempt ${initializationAttempts}/${maxAttempts}...`);
+      
+      // Arrêter après le nombre maximum de tentatives
+      if (initializationAttempts >= maxAttempts) {
+        console.log('Prime container not found after maximum attempts. Simulation may not be eligible or container not rendered.');
+        return;
+      }
+      
       setTimeout(initializePrimeSystem, 200);
       return;
     }

@@ -113,7 +113,7 @@ module Regions
         if property.region.present?
           region_clean = property.region.to_s.strip.downcase
           Rails.logger.info "Cleaned region: '#{region_clean}'"
-          
+
           if region_clean == 'wallonie'
             Rails.logger.info "Property region matches 'wallonie' (after cleaning)"
             return true
