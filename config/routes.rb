@@ -90,7 +90,6 @@ Rails.application.routes.draw do
   end
 
   resources :users
-  resources :work
 
   # config/routes.rb
   post "/calcul-categorie", to: "categories#calcul"

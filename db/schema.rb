@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_09_114847) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_09_215530) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -354,18 +354,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_114847) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
-  create_table "works", force: :cascade do |t|
-    t.bigint "project_id", null: false
-    t.integer "surface"
-    t.float "montant_estimé"
-    t.string "type"
-    t.bigint "prime_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["prime_id"], name: "index_works_on_prime_id"
-    t.index ["project_id"], name: "index_works_on_project_id"
-  end
-
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "documents", "projects"
@@ -393,6 +381,4 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_114847) do
   add_foreign_key "simulations", "projects"
   add_foreign_key "simulations", "properties"
   add_foreign_key "simulations", "users"
-  add_foreign_key "works", "primes"
-  add_foreign_key "works", "projects"
 end

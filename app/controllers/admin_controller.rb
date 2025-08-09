@@ -10,6 +10,5 @@ class AdminController < ApplicationController
     @requests = Request.all
     @simulations = Simulation.all
     @users = User.all
-    @work = Work.all
   end
 end
