@@ -254,7 +254,7 @@ class SimulationsController < ApplicationController
     Rails.logger.info "Property present: #{simulation.property.present?}"
 
     region = simulation.region&.downcase
-    
+
     unless ['wallonie', 'flandre'].include?(region)
       Rails.logger.info "SKIPPED: Region '#{simulation.region}' is not supported yet"
       return
@@ -295,8 +295,8 @@ class SimulationsController < ApplicationController
         eligible: true,
         category_description: result[:message]
       )
-      # Déclencher l'étape 2 automatiquement pour Wallonie seulement
-      perform_category_determination(simulation) if region == 'wallonie'
+      # Déclencher l'étape 2 automatiquement pour Wallonie et Flandre
+      perform_category_determination(simulation) if ['wallonie', 'flandre'].include?(region)
     else
       simulation.update(
         eligible: false,
@@ -307,16 +307,27 @@ class SimulationsController < ApplicationController
 
   # ÉTAPE 2: Détermination de la catégorie
   def perform_category_determination(simulation)
-    return unless simulation.eligible? && simulation.region&.downcase == 'wallonie'
+    region = simulation.region&.downcase
+    return unless simulation.eligible? && ['wallonie', 'flandre'].include?(region)
 
-    # Utiliser le service de catégorie Wallonie
-    category_service = Regions::Wallonie::WallonieCategoryService.new(
-      {
-        property_id: simulation.property_id,
-        project_id: simulation.project_id
-      },
-      user: current_user
-    )
+    # Choisir le service de catégorie selon la région
+    if region == 'wallonie'
+      category_service = Regions::Wallonie::WallonieCategoryService.new(
+        {
+          property_id: simulation.property_id,
+          project_id: simulation.project_id
+        },
+        user: current_user
+      )
+    elsif region == 'flandre'
+      category_service = Regions::Flandre::FlandreCategoryService.new(
+        {
+          property_id: simulation.property_id,
+          project_id: simulation.project_id
+        },
+        user: current_user
+      )
+    end
 
     result = category_service.determine_category
 
@@ -338,16 +349,27 @@ class SimulationsController < ApplicationController
 
   # ÉTAPE 3: Calcul des primes
   def perform_primes_calculation(simulation)
+    region = simulation.region&.downcase
     return unless simulation.eligible? && simulation.category.present?
 
-    # Utiliser le service de calcul de primes post-login
-    calculator_service = Regions::Wallonie::WalloniePostLoginCalculatorService.new(
-      {
-        property_id: simulation.property_id,
-        project_id: simulation.project_id
-      },
-      user: current_user
-    )
+    # Choisir le service de calcul selon la région
+    if region == 'wallonie'
+      calculator_service = Regions::Wallonie::WalloniePostLoginCalculatorService.new(
+        {
+          property_id: simulation.property_id,
+          project_id: simulation.project_id
+        },
+        user: current_user
+      )
+    elsif region == 'flandre'
+      calculator_service = Regions::Flandre::FlandrePostLoginCalculatorService.new(
+        {
+          property_id: simulation.property_id,
+          project_id: simulation.project_id
+        },
+        user: current_user
+      )
+    end
 
     # Préparer les données de catégorie pour le calculateur
     category_result = {
@@ -359,14 +381,21 @@ class SimulationsController < ApplicationController
     cards_data = calculator_service.generate_prime_cards(category_result)
 
     # Mettre à jour la simulation avec les données des cartes
-    simulation.update(
-      total_simule: cards_data[:total],
-      parameters: {
-        prime_cards: cards_data[:cards],
-        total_general: cards_data[:total],
-        category_used: cards_data[:category_used],
-        calculation_timestamp: Time.current
-      }.to_json
-    )
+    if region == 'wallonie'
+      simulation.update(
+        total_simule: cards_data[:total],
+        parameters: {
+          prime_cards: cards_data[:cards],
+          total_general: cards_data[:total],
+          category_used: cards_data[:category_used],
+          calculation_timestamp: Time.current
+        }.to_json
+      )
+    elsif region == 'flandre'
+      simulation.update(
+        total_simule: cards_data[:total_general],
+        parameters: cards_data.to_json
+      )
+    end
   end
 end

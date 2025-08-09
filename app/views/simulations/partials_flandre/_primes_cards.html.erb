@@ -113,7 +113,7 @@
                             <% when 'number' %>
                               <div class="input-group">
                                 <span class="input-group-text bg-light">
-                                  <i class="bi bi-<%= prime['type'] == 'montant_m2' ? 'rulers' : 'currency-euro' %>"></i>
+                                  <i class="bi bi-<%= prime['type'] == 'surface' ? 'rulers' : 'currency-euro' %>"></i>
                                 </span>
                                 <input type="number"
                                        class="form-control prime-input"
@@ -129,8 +129,22 @@
                                 <% end %>
                               </div>
                               <div class="form-text">
-                                <%= prime['type'] == 'montant_m2' ? 'Surface en m² (selon normes Flandre)' : 'Montant des travaux en € (TTC Flandre)' %>
+                                <%= prime['type'] == 'surface' ? 'Surface en m² (selon normes Flandre)' : 'Montant des travaux en € (TTC Flandre)' %>
                               </div>
+                            <% else %>
+                              <!-- Fallback: affichage par défaut si input_type non reconnu -->
+                              <div class="form-check form-switch">
+                                <input class="form-check-input prime-input"
+                                       type="checkbox"
+                                       id="prime_<%= prime['slug'] %>"
+                                       data-prime-slug="<%= prime['slug'] %>"
+                                       <%= prime['user_input_value'] == 1 ? 'checked' : '' %>>
+                                <label class="form-check-label fw-medium" for="prime_<%= prime['slug'] %>">
+                                  <i class="bi bi-check-circle me-2 text-success"></i>
+                                  Je réalise ces travaux (critères Flandre)
+                                </label>
+                              </div>
+                              <small class="text-warning">Type d'input par défaut utilisé</small>
                             <% end %>
                           </div>
 
@@ -195,6 +209,7 @@
             </div>
           </div>
         </div>
+
       <% else %>
         <div class="alert alert-warning d-flex align-items-center" role="alert">
           <i class="bi bi-exclamation-triangle me-3"></i>
