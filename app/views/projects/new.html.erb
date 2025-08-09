@@ -25,99 +25,16 @@
           </h5>
 
           <%= form_with model: @project, local: true do |form| %>
-            <div class="mb-3">
-              <%= form.label :nom, "Nom du chantier*", class: "form-label" %>
-              <%= form.text_field :nom, class: "form-control", placeholder: "Ex: Rénovation complète appartement" %>
-            </div>
+            <!-- Champs de base communs -->
+            <%= render 'projects/partials_general/basic_fields', form: form %>
 
-            <div class="mb-3">
-              <%= form.label :description, "Description", class: "form-label" %>
-              <%= form.text_area :description, rows: 4, class: "form-control", placeholder: "Décrivez le chantier et les travaux à réaliser..." %>
-            </div>
+            <!-- Sélection de propriété avec détection de région -->
+            <%= render 'projects/partials_general/property_selection', form: form %>
 
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <%= form.label :date_début, "Date de début prévue", class: "form-label" %>
-                  <%= form.date_field :date_début, class: "form-control" %>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <%= form.label :date_fin, "Date de fin prévue", class: "form-label" %>
-                  <%= form.date_field :date_fin, class: "form-control" %>
-                </div>
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <%= form.label :statut, "Statut du chantier", class: "form-label" %>
-              <%= form.select :statut,
-                  options_for_select([
-                    ['En préparation', 'preparation'],
-                    ['En cours', 'en_cours'],
-                    ['En pause', 'pause'],
-                    ['Terminé', 'termine'],
-                    ['Annulé', 'annule']
-                  ], 'preparation'),
-                  { include_blank: false },
-                  { class: "form-select" } %>
-            </div>
-
-            <!-- Nouvelle section : Informations pour l'éligibilité aux primes Wallonie -->
-            <div class="mb-4 mt-4">
-              <h6 class="text-primary-custom mb-3">
-                <i class="bi bi-award me-2"></i>Informations pour l'éligibilité aux primes (Wallonie)
-              </h6>
-              <div class="border rounded p-3 bg-light">
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="mb-3">
-                      <%= form.label :bce_number, "Numéro BCE de l'entrepreneur", class: "form-label" %>
-                      <%= form.text_field :bce_number, class: "form-control", placeholder: "Ex: 0123456789", pattern: "[0-9]{10}", maxlength: "10" %>
-                      <div class="form-text">Numéro d'entreprise à 10 chiffres (obligatoire pour les primes Wallonie)</div>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="mb-3">
-                      <%= form.label :invoice_date, "Date des factures", class: "form-label" %>
-                      <%= form.date_field :invoice_date, class: "form-control" %>
-                      <div class="form-text">Date des factures pour vérifier l'éligibilité (max 2 ans)</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="mb-3">
-                      <%= form.label :work_completion_date, "Date de fin des travaux", class: "form-label" %>
-                      <%= form.date_field :work_completion_date, class: "form-control" %>
-                      <div class="form-text">Date de finalisation des travaux</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="alert alert-info small mb-0">
-                  <i class="bi bi-info-circle me-2"></i>
-                  Ces informations sont nécessaires pour vérifier l'éligibilité aux primes de rénovation en Wallonie. Elles peuvent être remplies plus tard.
-                </div>
-              </div>
-            </div>
-
-            <!-- Sélection de propriété obligatoire -->
-            <div class="mb-3">
-              <%= form.label :property_id, "Bien immobilier associé*", class: "form-label" %>
-              <% if defined?(Property) && current_user.properties.any? %>
-                <%= form.collection_select :property_id, current_user.properties, :id, :full_address, { include_blank: "-- Sélectionner un bien --" }, class: "form-select" %>
-                <div class="form-text">Sélectionnez le bien immobilier pour lequel vous créez ce chantier de rénovation.</div>
-              <% else %>
-                <div class="alert alert-warning">
-                  <i class="bi bi-exclamation-triangle me-2"></i>
-                  <strong>Aucun bien immobilier trouvé</strong>
-                  <p class="mb-2">Vous devez d'abord ajouter un bien immobilier avant de créer un chantier.</p>
-                  <%= link_to "Ajouter un bien immobilier", new_property_path, class: "btn btn-primary btn-sm" %>
-                </div>
-                <%= form.hidden_field :property_id, value: "" %>
-              <% end %>
-            </div>
+            <!-- Champs spécifiques par région (affichés dynamiquement) -->
+            <%= render 'projects/partials_wallonie/eligibility_fields', form: form %>
+            <%= render 'projects/partials_flandre/eligibility_fields', form: form %>
+            <%= render 'projects/partials_bruxelles/eligibility_fields', form: form %>
 
             <div class="d-flex justify-content-end mt-4">
               <%= link_to "Annuler", projects_path, class: "btn btn-outline-secondary me-2" %>
@@ -162,3 +79,80 @@
 
 <!-- Utilise le fichier CSS externe properties.css -->
 <%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🏗️ Project form loaded - initializing region-specific fields');
+
+  const propertySelect = document.getElementById('project_property_id');
+  const wallonieFields = document.getElementById('wallonie-fields');
+  const flandreFields = document.getElementById('flandre-fields');
+  const bruxellesFields = document.getElementById('bruxelles-fields');
+
+  if (!propertySelect) {
+    console.log('No property select found');
+    return;
+  }
+
+  // Map des propriétés et leurs régions (à charger dynamiquement)
+  const propertyRegions = {};
+
+  // Récupérer les régions des propriétés via AJAX ou les injecter depuis le controller
+  <% if current_user.properties.any? %>
+    <% current_user.properties.each do |property| %>
+      propertyRegions[<%= property.id %>] = '<%= property.region&.downcase %>';
+    <% end %>
+  <% end %>
+
+  function updateRegionFields(selectedPropertyId) {
+    console.log('🏠 Property selected:', selectedPropertyId);
+
+    // Masquer tous les champs régionaux
+    if (wallonieFields) wallonieFields.style.display = 'none';
+    if (flandreFields) flandreFields.style.display = 'none';
+    if (bruxellesFields) bruxellesFields.style.display = 'none';
+
+    if (!selectedPropertyId || selectedPropertyId === '') {
+      console.log('No property selected, hiding all regional fields');
+      return;
+    }
+
+    const region = propertyRegions[selectedPropertyId];
+    console.log('🌍 Property region:', region);
+
+    // Afficher les champs de la région correspondante
+    switch(region) {
+      case 'wallonie':
+        if (wallonieFields) {
+          wallonieFields.style.display = 'block';
+          console.log('✅ Showing Wallonie fields');
+        }
+        break;
+      case 'flandre':
+        if (flandreFields) {
+          flandreFields.style.display = 'block';
+          console.log('✅ Showing Flandre fields');
+        }
+        break;
+      case 'bruxelles':
+        if (bruxellesFields) {
+          bruxellesFields.style.display = 'block';
+          console.log('✅ Showing Bruxelles fields');
+        }
+        break;
+      default:
+        console.log('⚠️ Unknown region:', region);
+    }
+  }
+
+  // Écouter les changements de sélection de propriété
+  propertySelect.addEventListener('change', function() {
+    updateRegionFields(this.value);
+  });
+
+  // Initialiser avec la valeur actuelle (si en édition)
+  updateRegionFields(propertySelect.value);
+
+  console.log('✅ Region-specific fields initialized');
+});
+</script>

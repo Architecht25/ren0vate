@@ -362,7 +362,7 @@ module Regions
         return false unless project
 
         # Vérifier la date des factures (invoice_date) ou la date de fin des travaux
-        reference_date = project.invoice_date || project.work_completion_date || project.facture_solde_date
+        reference_date = project.invoice_date || project.work_completion_date
         return false unless reference_date
 
         # Les factures sont trop anciennes si > 2 ans

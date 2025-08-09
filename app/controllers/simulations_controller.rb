@@ -5,6 +5,20 @@ class SimulationsController < ApplicationController
 
   def show
     @simulation = Simulation.find(params[:id])
+
+    # Extraire les données des primes et le total depuis les paramètres
+    if @simulation.parameters.present?
+      params_data = JSON.parse(@simulation.parameters)
+      @prime_cards = params_data['prime_cards'] || []
+      @total_amount = @simulation.total_simule || 0
+    else
+      @prime_cards = []
+      @total_amount = 0
+    end
+
+    # Rendre les variables disponibles dans la vue
+    prime_cards = @prime_cards
+    total_amount = @total_amount
   end
 
   def new
@@ -239,8 +253,10 @@ class SimulationsController < ApplicationController
     Rails.logger.info "Simulation ID: #{simulation.id}, region: '#{simulation.region}'"
     Rails.logger.info "Property present: #{simulation.property.present?}"
 
-    unless simulation.region&.downcase == 'wallonie'
-      Rails.logger.info "SKIPPED: Region '#{simulation.region}' is not wallonie"
+    region = simulation.region&.downcase
+    
+    unless ['wallonie', 'flandre'].include?(region)
+      Rails.logger.info "SKIPPED: Region '#{simulation.region}' is not supported yet"
       return
     end
 
@@ -249,18 +265,28 @@ class SimulationsController < ApplicationController
       return
     end
 
-    Rails.logger.info "Proceeding with eligibility test..."
+    Rails.logger.info "Proceeding with eligibility test for region: #{region}"
     Rails.logger.info "📋 Simulation property_id: #{simulation.property_id}"
     Rails.logger.info "📋 Simulation project_id: #{simulation.project_id}"
 
-    # Utiliser le service d'éligibilité Wallonie
-    eligibility_service = Regions::Wallonie::WallonieEligibilityService.new(
-      {
-        property_id: simulation.property_id,
-        project_id: simulation.project_id
-      },
-      user: current_user
-    )
+    # Choisir le service d'éligibilité selon la région
+    if region == 'wallonie'
+      eligibility_service = Regions::Wallonie::WallonieEligibilityService.new(
+        {
+          property_id: simulation.property_id,
+          project_id: simulation.project_id
+        },
+        user: current_user
+      )
+    elsif region == 'flandre'
+      eligibility_service = Regions::Flandre::FlandreEligibilityService.new(
+        {
+          property_id: simulation.property_id,
+          project_id: simulation.project_id
+        },
+        user: current_user
+      )
+    end
 
     result = eligibility_service.check_eligibility
 
@@ -269,8 +295,8 @@ class SimulationsController < ApplicationController
         eligible: true,
         category_description: result[:message]
       )
-      # Déclencher l'étape 2 automatiquement
-      perform_category_determination(simulation)
+      # Déclencher l'étape 2 automatiquement pour Wallonie seulement
+      perform_category_determination(simulation) if region == 'wallonie'
     else
       simulation.update(
         eligible: false,

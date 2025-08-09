@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_09_102040) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_09_114847) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -150,6 +150,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_102040) do
     t.string "bce_number"
     t.date "invoice_date"
     t.date "work_completion_date"
+    t.text "type_travaux"
+    t.boolean "reconstruction_demolition"
+    t.boolean "tva_reduit_6_pourcent"
     t.index ["property_id"], name: "index_projects_on_property_id"
     t.index ["user_id"], name: "index_projects_on_user_id"
   end

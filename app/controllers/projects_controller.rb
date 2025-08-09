@@ -56,6 +56,14 @@ class ProjectsController < ApplicationController
   end
 
   def project_params
-    params.require(:project).permit(:nom, :description, :date_début, :date_fin, :statut, :property_id, :bce_number, :invoice_date, :work_completion_date)
+    params.require(:project).permit(
+      :nom, :description, :date_début, :date_fin, :statut, :property_id,
+      :bce_number, :invoice_date, :work_completion_date,
+      # Champs spécifiques Flandre
+      :type_travaux, :reconstruction_demolition, :tva_reduit_6_pourcent,
+      # Checkboxes pour types de travaux Flandre
+      :type_travaux_isolation, :type_travaux_chauffage, :type_travaux_ventilation,
+      :type_travaux_fenetres, :type_travaux_toiture, :type_travaux_autre
+    )
   end
 end
