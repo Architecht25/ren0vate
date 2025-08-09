@@ -16,11 +16,12 @@ module Regions
 
       def check_eligibility_post_login
         # Récupération des données réelles
-        property = user_property
+        property = get_property  # Utiliser get_property au lieu de user_property
         project = user_project
 
         Rails.logger.info "=== DÉBUT VÉRIFICATION ÉLIGIBILITÉ WALLONIE ==="
         Rails.logger.info "Property ID: #{property&.id}, Project ID: #{project&.id}"
+        Rails.logger.info "Params: property_id=#{get_param(:property_id)}, project_id=#{get_param(:project_id)}"
 
         return ineligible_response("Propriété non trouvée") unless property
         return ineligible_response("Projet non trouvé") unless project
@@ -295,9 +296,12 @@ module Regions
       def get_property
         # Récupère la propriété associée à la simulation
         property_id = get_param(:property_id)
+        Rails.logger.info "🏠 get_property: property_id param = #{property_id}"
         return nil unless property_id
 
-        @user.properties.find_by(id: property_id)
+        property = @user.properties.find_by(id: property_id)
+        Rails.logger.info "🏠 get_property: found property = #{property&.id}, region = '#{property&.region}'"
+        property
       end
     end
   end

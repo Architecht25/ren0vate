@@ -250,6 +250,8 @@ class SimulationsController < ApplicationController
     end
 
     Rails.logger.info "Proceeding with eligibility test..."
+    Rails.logger.info "📋 Simulation property_id: #{simulation.property_id}"
+    Rails.logger.info "📋 Simulation project_id: #{simulation.project_id}"
 
     # Utiliser le service d'éligibilité Wallonie
     eligibility_service = Regions::Wallonie::WallonieEligibilityService.new(

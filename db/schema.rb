@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_08_140800) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_09_102040) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -193,6 +193,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_08_140800) do
     t.integer "surface_habitable"
     t.string "mode_chauffage_principal"
     t.integer "habitation_percentage"
+    t.string "type_propriete_flandre"
+    t.integer "pourcentage_propriete"
+    t.boolean "domicilie_flandre"
+    t.boolean "client_protege_flandre"
     t.index ["user_id"], name: "index_properties_on_user_id"
   end
 

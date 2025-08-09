@@ -28,7 +28,20 @@
             <span class="badge bg-primary-custom ms-2"><%= @property.region&.humanize || 'Région non définie' %></span>
           </h5>
 
-          <%= render 'edit_form_by_region', property: @property %>
+          <!-- Utiliser les formulaires spécifiques par région comme pour la création -->
+          <% case @property.region %>
+          <% when "bruxelles" %>
+            <%= render partial: "form_bruxelles", locals: { property: @property } %>
+          <% when "wallonie" %>
+            <%= render partial: "form_wallonie", locals: { property: @property } %>
+          <% when "flandre" %>
+            <%= render partial: "form_flandre", locals: { property: @property } %>
+          <% else %>
+            <div class="alert alert-warning">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              Région non définie. Veuillez d'abord sélectionner une région pour ce bien.
+            </div>
+          <% end %>
         </div>
       </div>
     </div>

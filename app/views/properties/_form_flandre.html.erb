@@ -1,4 +1,5 @@
-<%= simple_form_for @property, local: true do |f| %>
+<% property ||= @property %>
+<%= simple_form_for property, local: true do |f| %>
   <!-- Champ caché pour la région -->
   <%= f.hidden_field :region, value: "flandre" %>
 
@@ -56,10 +57,10 @@
             as: :select,
             collection: [
               ["Maison unifamiliale", "maison"],
-              ["Appartement en copropriété", "appartement en copropriété"],
-              ["Appartement non en copropriété", "appartement non en copropriété"],
-              ["Immeuble à plusieurs unités d'habitation", "immeuble de rapport"],
-              ["Non logement", "non logement"]
+              ["Appartement en copropriété", "appartement_copro"],
+              ["Appartement non en copropriété", "appartement"],
+              ["Immeuble à plusieurs unités d'habitation", "immeuble_appartements"],
+              ["Non logement", "non_logement"]
             ],
             prompt: "-- Sélectionnez le type de bien --",
             wrapper_html: { class: "mb-0" },
@@ -70,13 +71,73 @@
             label: "Usage (Flandre)*",
             as: :select,
             collection: [
-              ["Résidence principale", "résidence principale"],
+              ["Résidence principale", "residence_principale"],
               ["Logement loué", "location"],
               ["Autre", "autre"]
             ],
             prompt: "-- Sélectionnez l'usage --",
             wrapper_html: { class: "mb-0" },
             input_html: { class: "form-control-custom" } %>
+      </div>
+    </div>
+
+    <!-- Nouvelle section : Statut de propriété -->
+    <div class="row g-3 mt-2">
+      <div class="col-md-6">
+        <%= f.input :type_propriete_flandre,
+            label: "Statut de propriété (Flandre)*",
+            as: :select,
+            collection: [
+              ["Propriétaire occupant", "eigenaar_bewoner"],
+              ["Plein propriétaire", "volle_eigenaar"],
+              ["Copropriétaire", "mede_eigenaar"],
+              ["Usufruitier", "vruchtgebruiker"],
+              ["Nu-propriétaire", "naakte_eigenaar"],
+              ["Locataire", "huurder"],
+              ["Autre", "andere"]
+            ],
+            prompt: "-- Sélectionnez votre statut --",
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-control-custom" } %>
+      </div>
+      <div class="col-md-6">
+        <%= f.input :pourcentage_propriete,
+            label: "Votre part de propriété (%)*",
+            placeholder: "ex. 100",
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-control-custom", type: "number", min: "1", max: "100" } %>
+        <small class="form-text text-muted">
+          <i class="bi bi-info-circle me-1"></i>
+          De quel % du bien êtes-vous propriétaire ? (Min. 1% requis)
+        </small>
+      </div>
+    </div>
+
+    <!-- Nouvelle section : Habitation et domiciliation -->
+    <div class="row g-3 mt-2">
+      <div class="col-md-6">
+        <%= f.input :habitation_percentage,
+            label: "Usage habitation du bien (%)*",
+            placeholder: "ex. 100",
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-control-custom", type: "number", min: "1", max: "100" } %>
+        <small class="form-text text-muted">
+          <i class="bi bi-info-circle me-1"></i>
+          Quel % du bien est destiné au logement vs commercial ? (Flandre: généralement 100%)
+        </small>
+      </div>
+      <div class="col-md-6">
+        <h6 class="text-primary-custom mb-2 fw-normal">Serez-vous domicilié sur ce bien après rénovation?</h6>
+        <%= f.input :domicilie_flandre,
+            label: false,
+            as: :radio_buttons,
+            collection: [['Oui', true], ['Non', false]],
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-check-input" } %>
+        <small class="form-text text-muted">
+          <i class="bi bi-info-circle me-1"></i>
+          Obligatoire pour l'éligibilité aux primes Flandre
+        </small>
       </div>
     </div>
   </div>
@@ -118,14 +179,16 @@
             label: "Numéro EAN (Flandre)*",
             placeholder: "ex. 5412345678901",
             wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-control-custom" } %>
+            input_html: { class: "form-control-custom" },
+            hint: "Code EAN de votre compteur électrique (obligatoire pour les primes Flandre)" %>
       </div>
       <div class="col-md-6">
         <%= f.input :parcelle_flandre,
             label: "Numéro de parcelle cadastrale (Flandre)",
             placeholder: "ex. 136E",
             wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-control-custom" } %>
+            input_html: { class: "form-control-custom" },
+            hint: "Numéro de parcelle visible sur votre extrait cadastral" %>
       </div>
     </div>
 
@@ -141,6 +204,22 @@
       </div>
 
       <div class="col-md-6">
+        <h6 class="text-primary-custom mb-2 fw-normal">Êtes-vous un client protégé (tarif social énergie)?</h6>
+        <%= f.input :client_protege_flandre,
+            label: false,
+            as: :radio_buttons,
+            collection: [['Oui', true], ['Non', false]],
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-check-input" } %>
+        <small class="form-text text-muted">
+          <i class="bi bi-info-circle me-1"></i>
+          Client protégé = catégorie 4 automatique (primes maximales)
+        </small>
+      </div>
+    </div>
+
+    <div class="row g-3 mt-2">
+      <div class="col-md-6">
         <h6 class="text-primary-custom mb-2 fw-normal">Le certificat PEB indique-t-il un label E, F ou inférieur (G) avant rénovation?</h6>
         <%= f.input :peb,
             label: false,
@@ -150,6 +229,19 @@
             input_html: { class: "form-check-input" } %>
       </div>
 
+      <div class="col-md-6">
+        <h6 class="text-primary-custom mb-2 fw-normal">Le logement est-il un bâtiment qui a été démoli mais en gardant des résidus pour bénéficier de la TVA à 6% ?</h6>
+        <%= f.input :reconstruit,
+            label: false,
+            as: :radio_buttons,
+            collection: [['Oui', 'oui'], ['Non', 'non']],
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-check-input" } %>
+      </div>
+    </div>
+
+    <!-- Section dates PEB -->
+    <div class="row g-3 mt-3">
       <div class="col-md-6">
         <%= f.input :date_peb_avant_travaux,
             label: "Date de production du certificat PEB avant travaux*",
@@ -169,17 +261,6 @@
             wrapper_html: { class: "mb-0" },
             input_html: { class: "form-control-custom", type: "date" } %>
       </div>
-
-      <div class="col-md-6">
-        <h6 class="text-primary-custom mb-2 fw-normal">Le logement est-il un bâtiment qui a été démoli mais en gardant des résidus pour bénéficier de la TVA à 6% ?</h6>
-        <%= f.input :reconstruit,
-            label: false,
-            as: :radio_buttons,
-            collection: [['Oui', 'oui'], ['Non', 'non']],
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-check-input" } %>
-      </div>
-
     </div>
   </div>
 

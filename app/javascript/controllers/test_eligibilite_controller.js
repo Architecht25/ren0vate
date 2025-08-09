@@ -13,6 +13,8 @@ export default class extends Controller {
     }
   }
 
+    // ========== MÉTHODES FLANDRE ==========
+
   handleAnswer(event) {
     const form = this.formTarget;
     const responses = [...form.querySelectorAll("input[type=radio]:checked")];
