@@ -132,7 +132,7 @@ export default class extends Controller {
     for (let cat of categories) {
       let seuilApplicable = 0
 
-      if (statut === "seul") {
+      if (statut === "isolé" || statut === "seul") {
         if (nbCharges > 0) {
           seuilApplicable = cat.seuil_avec_charge + (nbCharges - 1) * increment_par_personne
         } else {

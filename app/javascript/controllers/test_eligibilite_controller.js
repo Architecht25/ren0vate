@@ -98,7 +98,6 @@ export default class extends Controller {
 
 
   calculateResult() {
-
     ["userType", "usage", "appartement", "appartement-copro", "immeuble-appartements", "proprietaire", "autre_bien", "annee", "type", "copro", "peb", "domicile", "demolition", "travaux", "protege"]
     .forEach(name => {
       const value = this.formTarget.querySelector(`[name="${name}"]:checked`)?.value;
@@ -174,6 +173,7 @@ export default class extends Controller {
         message += " (Accès à la carte PEB)";
       } else {
         message += " (Catégorie 1 + carte PEB)";
+        categorie = 1;
       }
     } else {
       message += " (Pas de carte PEB)";
