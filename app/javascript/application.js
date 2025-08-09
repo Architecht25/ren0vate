@@ -10,6 +10,9 @@ const application = Application.start()
 application.debug = false
 window.Stimulus = application
 
+// Import des logiques spécifiques
+import "./logic/flandre_calculations"
+
 // Import et register tous les contrôleurs manuellement et simplement
 import UserTypeController from "controllers/user_type_controller"
 import TestEligibiliteController from "controllers/test_eligibilite_controller"

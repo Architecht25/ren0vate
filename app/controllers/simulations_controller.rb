@@ -204,15 +204,30 @@ class SimulationsController < ApplicationController
     Rails.logger.info "Recalculating with #{user_inputs.keys.length} user inputs for category #{@simulation.category}"
 
     begin
-      # Utiliser le service de calcul avec les nouvelles saisies
-      calculator_service = Regions::Wallonie::WalloniePostLoginCalculatorService.new(
-        {
-          property_id: @simulation.property_id,
-          project_id: @simulation.project_id,
-          user_inputs: user_inputs  # Passer les saisies au service
-        },
-        user: current_user
-      )
+      # Choisir le service de calcul selon la région
+      region = @simulation.region&.downcase
+
+      if region == 'wallonie'
+        calculator_service = Regions::Wallonie::WalloniePostLoginCalculatorService.new(
+          {
+            property_id: @simulation.property_id,
+            project_id: @simulation.project_id,
+            user_inputs: user_inputs  # Passer les saisies au service
+          },
+          user: current_user
+        )
+      elsif region == 'flandre'
+        calculator_service = Regions::Flandre::FlandrePostLoginCalculatorService.new(
+          {
+            property_id: @simulation.property_id,
+            project_id: @simulation.project_id,
+            user_inputs: user_inputs  # Passer les saisies au service
+          },
+          user: current_user
+        )
+      else
+        raise "Région '#{region}' non supportée"
+      end
 
       category_result = {
         category: @simulation.category,
@@ -224,11 +239,11 @@ class SimulationsController < ApplicationController
       cards_data = calculator_service.generate_prime_cards(category_result)
       calculation_time = Time.current - start_time
 
-      Rails.logger.info "Calculation completed in #{calculation_time.round(3)}s for #{cards_data[:cards]&.keys&.length || 0} categories"
+      Rails.logger.info "Calculation completed in #{calculation_time.round(3)}s for #{cards_data[:prime_cards]&.keys&.length || 0} categories"
 
       {
-        'prime_cards' => cards_data[:cards],
-        'total_general' => cards_data[:total],
+        'prime_cards' => cards_data[:prime_cards],
+        'total_general' => cards_data[:total_general],
         'category_used' => cards_data[:category_used],
         'calculation_timestamp' => Time.current,
         'calculation_duration' => calculation_time.round(3)

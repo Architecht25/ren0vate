@@ -30,6 +30,10 @@ Rails.application.routes.draw do
     get 'bruxelles_aides/categories', to: 'bruxelles_aides#categories'
     get 'bruxelles_aides/categories/:category_id', to: 'bruxelles_aides#category_details'
 
+    # API Calculs Flandre
+    post 'flandre/calculate_prime', to: 'flandre_calculations#calculate_prime'
+    post 'flandre/calculate_all', to: 'flandre_calculations#calculate_all'
+
     namespace :v1 do
       namespace :wallonie do
         post 'check_eligibility', to: 'calculations#check_eligibility'
