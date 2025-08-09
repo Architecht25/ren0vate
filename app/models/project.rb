@@ -2,7 +2,6 @@ class Project < ApplicationRecord
   belongs_to :user
   belongs_to :property
   belongs_to :request, optional: true
-  has_many :works, dependent: :destroy
   has_many :documents, dependent: :destroy
   has_many :simulations, dependent: :destroy  # Ajouter cette ligne
 
