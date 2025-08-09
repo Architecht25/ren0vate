@@ -1,415 +1,79 @@
-<div class="container-fluid px-4 py-4">
-  <!-- Header avec actions -->
-  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-    <div class="d-flex align-items-center">
-      <div class="icon-circle me-3">
-        <i class="bi bi-calculator"></i>
-      </div>
-      <h1 class="h3 text-primary-custom mb-0 fw-normal"><%= @simulation.titre %></h1>
-    </div>
-    <div>
-      <%= link_to edit_simulation_path(@simulation), class: "btn btn-outline-primary-custom me-2" do %>
-        <i class="bi bi-pencil me-2"></i>Modifier
-      <% end %>
-
-      <div class="btn-group me-2" role="group">
-        <button type="button" class="btn btn-outline-danger dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-          <i class="bi bi-trash me-2"></i>Supprimer
-        </button>
-        <ul class="dropdown-menu">
-          <li>
-            <h6 class="dropdown-header">Attention</h6>
-          </li>
-          <li>
-            <span class="dropdown-item-text small text-muted">
-              Cette action supprimera définitivement la simulation et toutes ses données associées.
-            </span>
-          </li>
-          <li><hr class="dropdown-divider"></li>
-          <li>
-            <%= link_to simulation_path(@simulation),
-                class: "dropdown-item text-danger fw-bold",
-                data: {
-                  turbo_method: :delete,
-                  turbo_confirm: "Êtes-vous absolument sûr de vouloir supprimer la simulation '#{@simulation.titre}' ?\n\nCette action est IRRÉVERSIBLE et supprimera :\n- La simulation et ses paramètres\n- Tous les calculs de primes associés\n- Les documents liés\n- L'historique complet\n\nTapez 'SUPPRIMER' pour confirmer"
-                } do %>
-              <i class="bi bi-trash me-2"></i>Confirmer la suppression
-            <% end %>
-          </li>
-        </ul>
-      </div>
-
-      <%= link_to simulations_path, class: "btn btn-outline-secondary" do %>
-        <i class="bi bi-arrow-left me-2"></i>Retour
-      <% end %>
-    </div>
+<!-- En-tête de la page simulation -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h1 class="h3 text-primary-custom mb-1">
+      <i class="bi bi-calculator me-2"></i><%= @simulation.titre %>
+    </h1>
+    <p class="text-muted-custom mb-0">
+      <i class="bi bi-geo-alt me-1"></i>
+      <%= @simulation.region.capitalize if @simulation.region.present? %>
+      · Simulation créée le <%= @simulation.created_at.strftime("%d/%m/%Y") %>
+    </p>
   </div>
+  <div class="d-flex gap-2">
+    <%= link_to edit_simulation_path(@simulation), class: "btn btn-outline-primary-custom" do %>
+      <i class="bi bi-pencil me-1"></i>Modifier
+    <% end %>
+    <%= link_to simulations_path, class: "btn btn-secondary" do %>
+      <i class="bi bi-arrow-left me-1"></i>Retour
+    <% end %>
+  </div>
+</div>
 
+<div class="container-fluid">
   <div class="row">
-    <!-- Colonne principale -->
+    <!-- Contenu principal -->
     <div class="col-lg-8">
-      <!-- Indicateur de progression -->
-      <div class="card border-0 shadow-sm mb-4">
+      <!-- Navigation par étapes -->
+      <div class="card mb-4 border-0 shadow-sm">
         <div class="card-body p-4">
-          <h5 class="card-title text-primary-custom mb-3">
-            <i class="bi bi-list-check me-2"></i>Progression de la simulation
-          </h5>
+          <div class="step-nav d-flex justify-content-between align-items-center position-relative">
+            <div class="step-progress position-absolute w-100" style="height: 2px; background: #e9ecef; top: 50%; z-index: 1;"></div>
 
-          <div class="progress mb-3" style="height: 10px;">
-            <% progress_percent = [@simulation.processing_step * 25, 100].min %>
-            <div class="progress-bar bg-primary-custom" style="width: <%= progress_percent %>%"></div>
-          </div>
+            <div class="step-item text-center position-relative" style="z-index: 2;">
+              <div class="step-circle bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 40px; height: 40px;">
+                <span class="fw-bold">1</span>
+              </div>
+              <span class="text-primary fw-medium">Éligibilité</span>
+            </div>
 
-          <div class="row text-center">
-            <div class="col-3">
-              <div class="d-flex flex-column align-items-center">
-                <div class="icon-circle mb-2 <%= @simulation.processing_step >= 1 ? 'bg-primary-custom text-white' : 'bg-light-custom' %>">
-                  <i class="bi bi-shield-check"></i>
-                </div>
-                <small class="<%= @simulation.processing_step >= 1 ? 'text-primary-custom fw-bold' : 'text-muted' %>">Éligibilité</small>
+            <div class="step-item text-center position-relative" style="z-index: 2;">
+              <div class="step-circle bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 40px; height: 40px;">
+                <span class="fw-bold">2</span>
               </div>
+              <span class="text-muted">Catégorie</span>
             </div>
-            <div class="col-3">
-              <div class="d-flex flex-column align-items-center">
-                <div class="icon-circle mb-2 <%= @simulation.processing_step >= 2 ? 'bg-primary-custom text-white' : 'bg-light-custom' %>">
-                  <i class="bi bi-tag"></i>
-                </div>
-                <small class="<%= @simulation.processing_step >= 2 ? 'text-primary-custom fw-bold' : 'text-muted' %>">Catégorie</small>
-              </div>
-            </div>
-            <div class="col-3">
-              <div class="d-flex flex-column align-items-center">
-                <div class="icon-circle mb-2 <%= @simulation.processing_step >= 3 ? 'bg-primary-custom text-white' : 'bg-light-custom' %>">
-                  <i class="bi bi-calculator"></i>
-                </div>
-                <small class="<%= @simulation.processing_step >= 3 ? 'text-primary-custom fw-bold' : 'text-muted' %>">Calcul</small>
-              </div>
-            </div>
-            <div class="col-3">
-              <div class="d-flex flex-column align-items-center">
-                <div class="icon-circle mb-2 <%= @simulation.processing_step >= 4 ? 'bg-success text-white' : 'bg-light-custom' %>">
-                  <i class="bi bi-check-circle"></i>
-                </div>
-                <small class="<%= @simulation.processing_step >= 4 ? 'text-success fw-bold' : 'text-muted' %>">Terminé</small>
-              </div>
-            </div>
-          </div>
 
-          <div class="text-center mt-3">
-            <p class="text-muted-custom small mb-0">
-              Étape actuelle : <strong><%= @simulation.step_name %></strong>
-            </p>
+            <div class="step-item text-center position-relative" style="z-index: 2;">
+              <div class="step-circle bg-secondary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 40px; height: 40px;">
+                <span class="fw-bold">3</span>
+              </div>
+              <span class="text-muted">Primes</span>
+            </div>
           </div>
         </div>
       </div>
 
-            <!-- ÉTAPE 1: Test d'éligibilité -->
-      <div class="card border-0 shadow-sm mb-4" id="eligibility-step">
-        <div class="card-body p-4">
-          <h5 class="card-title text-primary-custom mb-3">
-            <i class="bi bi-shield-check me-2"></i>Étape 1 : Test d'éligibilité
-          </h5>
-
-          <div id="eligibility-status">
-            <% if @simulation.respond_to?(:eligible) && @simulation.eligible? %>
-              <div class="alert alert-success d-flex align-items-center" role="alert">
-                <i class="bi bi-check-circle-fill me-3 fs-4"></i>
-                <div>
-                  <h6 class="alert-heading mb-1">✅ Votre demande est éligible !</h6>
-                  <p class="mb-0">Vous remplissez les conditions pour bénéficier des primes de rénovation dans votre région.</p>
-                  <% if @simulation.respond_to?(:category_description) && @simulation.category_description.present? %>
-                    <small class="text-muted">Détails : <%= @simulation.category_description %></small>
-                  <% end %>
-                </div>
-              </div>
-            <% elsif @simulation.respond_to?(:eligible) && !@simulation.eligible? %>
-              <div class="alert alert-danger d-flex align-items-center" role="alert">
-                <i class="bi bi-x-circle-fill me-3 fs-4"></i>
-                <div>
-                  <h6 class="alert-heading mb-1">❌ Votre demande n'est pas éligible</h6>
-                  <p class="mb-0">Certaines conditions ne sont pas remplies pour cette simulation.</p>
-                  <% if @simulation.respond_to?(:ineligibility_reason) && @simulation.ineligibility_reason.present? %>
-                    <small class="text-muted">Raison : <%= @simulation.ineligibility_reason %></small>
-                  <% end %>
-                </div>
-              </div>
-            <% else %>
-              <div class="alert alert-info d-flex align-items-center" role="alert">
-                <i class="bi bi-hourglass-split me-3 fs-4"></i>
-                <div>
-                  <h6 class="alert-heading mb-1">🔄 Test d'éligibilité prêt</h6>
-                  <p class="mb-0">Cliquez sur le bouton ci-dessous pour vérifier l'éligibilité de votre demande.</p>
-                </div>
-              </div>
-            <% end %>
-          </div>
-
-          <% unless @simulation.respond_to?(:eligible) && @simulation.eligible? %>
-            <div class="mt-3">
-              <button id="check-eligibility-btn" class="btn btn-primary-custom">
-                <i class="bi bi-shield-check me-2"></i>Vérifier l'éligibilité
-              </button>
-            </div>
-          <% end %>
+      <!-- Contenu spécifique par région -->
+      <% case @simulation.region&.downcase %>
+      <% when 'wallonie' %>
+        <%= render 'partials_wallonie/eligibility_step' %>
+        <%= render 'partials_wallonie/category_step' %>
+        <%= render 'partials_wallonie/primes_cards' %>
+      <% when 'flandre' %>
+        <%= render 'partials_flandre/eligibility_step' %>
+        <%= render 'partials_flandre/category_step' %>
+        <%= render 'partials_flandre/primes_cards' %>
+      <% when 'bruxelles' %>
+        <%= render 'partials_bruxelles/eligibility_step' %>
+        <%= render 'partials_bruxelles/category_step' %>
+        <%= render 'partials_bruxelles/primes_cards' %>
+      <% else %>
+        <div class="alert alert-warning">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          Région non reconnue ou non spécifiée. Veuillez sélectionner une région valide.
         </div>
-      </div>
-
-      <!-- ÉTAPE 2: Catégorie (seulement si éligible) -->
-      <div class="card border-0 shadow-sm mb-4" id="category-step" style="<%= @simulation.respond_to?(:eligible) && @simulation.eligible? ? '' : 'display: none;' %>">
-        <div class="card-body p-4">
-          <h5 class="card-title text-primary-custom mb-3">
-            <i class="bi bi-tag me-2"></i>Étape 2 : Catégorie de primes
-          </h5>
-
-          <div id="category-status">
-            <% if @simulation.respond_to?(:category) && @simulation.category.present? %>
-              <div class="bg-light-custom p-3 rounded mb-3">
-                <div class="d-flex align-items-center">
-                  <div class="icon-circle me-3 bg-primary-custom text-white">
-                    <i class="bi bi-bookmark-fill"></i>
-                  </div>
-                  <div>
-                    <h6 class="mb-1">Catégorie : <%= @simulation.category %></h6>
-                    <% if @simulation.respond_to?(:category_description) && @simulation.category_description.present? %>
-                      <p class="text-muted-custom small mb-0"><%= @simulation.category_description %></p>
-                    <% end %>
-                  </div>
-                </div>
-              </div>
-            <% else %>
-              <div class="alert alert-warning d-flex align-items-center" role="alert">
-                <i class="bi bi-exclamation-triangle me-3"></i>
-                <div>
-                  <h6 class="alert-heading mb-1">⚠️ Catégorie prête à calculer</h6>
-                  <p class="mb-0">Cliquez pour déterminer votre catégorie de revenus et les primes applicables.</p>
-                </div>
-              </div>
-            <% end %>
-          </div>
-
-          <% unless @simulation.respond_to?(:category) && @simulation.category.present? %>
-            <div class="mt-3">
-              <button id="calculate-category-btn" class="btn btn-primary-custom">
-                <i class="bi bi-calculator me-2"></i>Calculer la catégorie
-              </button>
-            </div>
-          <% end %>
-        </div>
-      </div>
-
-      <!-- ÉTAPE 3: Cartes primes interactives (seulement si catégorie définie) -->
-      <div class="card border-0 shadow-sm mb-4" id="primes-step" style="<%= @simulation.respond_to?(:category) && @simulation.category.present? ? '' : 'display: none;' %>">
-        <div class="card-body p-4">
-          <h5 class="card-title text-primary-custom mb-3">
-            <i class="bi bi-credit-card me-2"></i>Étape 3 : Primes disponibles
-          </h5>
-
-          <div id="primes-status">
-            <%
-              prime_cards = {}
-              total_amount = 0
-              if @simulation.parameters.present?
-                begin
-                  parsed_params = JSON.parse(@simulation.parameters)
-                  # Utiliser les nouvelles données prime_cards de notre implémentation Option A
-                  prime_cards = parsed_params['prime_cards'] || {}
-                  total_amount = parsed_params['total_general'] || 0
-                rescue JSON::ParserError
-                  prime_cards = {}
-                  total_amount = 0
-                end
-              end
-            %>
-
-            <% if prime_cards.any? %>
-              <div class="alert alert-success d-flex align-items-center mb-4" role="alert">
-                <i class="bi bi-check-circle-fill me-3 fs-4"></i>
-                <div>
-                  <h6 class="alert-heading mb-1">✅ Primes calculées !</h6>
-                  <p class="mb-0">Personnalisez vos travaux et voyez le montant des primes en temps réel.</p>
-                </div>
-              </div>
-
-              <!-- Cartes de primes organisées par catégorie -->
-              <div id="prime-cards-container">
-                <% prime_cards.each do |category_name, category_data| %>
-                  <% next unless category_data['primes']&.any? %>
-
-                  <div class="card border-0 shadow-sm mb-4 category-card" data-category="<%= category_name %>">
-                    <div class="card-header bg-gradient-primary text-white py-3 position-relative">
-                      <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
-                          <div class="icon-circle me-3 bg-white bg-opacity-20">
-                            <i class="bi bi-<%= category_data['icon'] || 'house-gear' %> text-white"></i>
-                          </div>
-                          <div>
-                            <h5 class="mb-0 text-white fw-bold">
-                              <%= category_data['title'] || category_name.humanize %>
-                            </h5>
-                            <small class="text-white text-opacity-75">
-                              <%= category_data['primes'].count %> prime<%= 's' if category_data['primes'].count > 1 %> disponible<%= 's' if category_data['primes'].count > 1 %>
-                            </small>
-                          </div>
-                        </div>
-                        <div class="text-end">
-                          <h4 class="mb-0 text-white fw-bold category-total">
-                            <%
-                              category_total = category_data['primes'].sum { |p| p['calculated_amount'] || 0 }
-                            %>
-                            <%= number_to_currency(category_total, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
-                          </h4>
-                          <small class="text-white text-opacity-75">Total catégorie</small>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="card-body p-4">
-                      <div class="row g-4">
-                        <% category_data['primes'].each_with_index do |prime, index| %>
-                          <div class="col-lg-6">
-                            <div class="prime-card card border h-100 position-relative overflow-hidden"
-                                 data-prime-slug="<%= prime['slug'] %>"
-                                 style="animation-delay: <%= (index * 0.1) %>s;">
-
-                              <!-- Badge montant en position sticky -->
-                              <div class="position-absolute top-0 end-0 m-3" style="z-index: 10;">
-                                <span class="badge bg-success fs-6 px-3 py-2 calculated-amount shadow">
-                                  <%= number_to_currency(prime['calculated_amount'] || 0, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
-                                </span>
-                              </div>
-
-                              <div class="card-body p-4">
-                                <!-- En-tête de la prime -->
-                                <div class="mb-3">
-                                  <h6 class="text-primary fw-bold mb-2" style="padding-right: 80px;">
-                                    <%= prime['titre'] %>
-                                  </h6>
-                                  <% if prime['description'].present? %>
-                                    <p class="text-muted small mb-0">
-                                      <%= prime['description'] %>
-                                    </p>
-                                  <% end %>
-                                </div>
-
-                                <!-- Section d'input -->
-                                <div class="prime-input-section mb-3">
-                                  <% case prime['input_type'] %>
-                                  <% when 'checkbox' %>
-                                    <div class="form-check form-switch">
-                                      <input class="form-check-input prime-input"
-                                             type="checkbox"
-                                             id="prime_<%= prime['slug'] %>"
-                                             data-prime-slug="<%= prime['slug'] %>"
-                                             <%= prime['user_input_value'] == 1 ? 'checked' : '' %>>
-                                      <label class="form-check-label fw-medium" for="prime_<%= prime['slug'] %>">
-                                        <i class="bi bi-check-circle me-2 text-success"></i>
-                                        Je réalise ces travaux
-                                      </label>
-                                    </div>
-                                  <% when 'number' %>
-                                    <div class="input-group">
-                                      <span class="input-group-text bg-light">
-                                        <i class="bi bi-<%= prime['type'] == 'montant_m2' ? 'rulers' : 'currency-euro' %>"></i>
-                                      </span>
-                                      <input type="number"
-                                             class="form-control prime-input"
-                                             id="prime_<%= prime['slug'] %>"
-                                             data-prime-slug="<%= prime['slug'] %>"
-                                             placeholder="<%= prime['placeholder'] || 'Entrez la valeur' %>"
-                                             value="<%= prime['user_input_value'] %>"
-                                             step="0.01">
-                                      <% if prime['unite'].present? %>
-                                        <span class="input-group-text bg-light text-muted">
-                                          <%= prime['unite'] %>
-                                        </span>
-                                      <% end %>
-                                    </div>
-                                    <div class="form-text">
-                                      <%= prime['type'] == 'montant_m2' ? 'Surface en m²' : 'Montant des travaux en €' %>
-                                    </div>
-                                  <% end %>
-                                </div>
-
-                                <!-- Conditions et conseils -->
-                                <% if prime['conditions'].present? || prime['conseil'].present? %>
-                                  <div class="border-top pt-3">
-                                    <% if prime['conditions'].present? %>
-                                      <div class="alert alert-warning alert-sm py-2 mb-2">
-                                        <i class="bi bi-exclamation-triangle me-2"></i>
-                                        <small><strong>Conditions :</strong> <%= prime['conditions'] %></small>
-                                      </div>
-                                    <% end %>
-
-                                    <% if prime['conseil'].present? %>
-                                      <div class="alert alert-info alert-sm py-2 mb-0">
-                                        <i class="bi bi-lightbulb me-2"></i>
-                                        <small><strong>Conseil :</strong> <%= prime['conseil'] %></small>
-                                      </div>
-                                    <% end %>
-                                  </div>
-                                <% end %>
-                              </div>
-
-                              <!-- Hover effect overlay -->
-                              <div class="position-absolute top-0 start-0 w-100 h-100 bg-primary bg-opacity-10 opacity-0 transition-opacity"
-                                   style="transition: opacity 0.3s ease; pointer-events: none;"></div>
-                            </div>
-                          </div>
-                        <% end %>
-                      </div>
-                    </div>
-                  </div>
-                <% end %>
-              </div>
-
-              <!-- Récapitulatif par catégorie -->
-              <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body p-4">
-                  <h6 class="text-primary-custom mb-3">
-                    <i class="bi bi-list-check me-2"></i>Récapitulatif par catégorie
-                  </h6>
-
-                  <div class="row g-3">
-                    <% prime_cards.each do |category_name, category_data| %>
-                      <% if category_data['primes']&.any? %>
-                        <div class="col-sm-6" data-sidebar-category="<%= category_name %>">
-                          <div class="d-flex justify-content-between align-items-center bg-light rounded px-3 py-2">
-                            <span class="small text-muted">
-                              <i class="bi bi-<%= category_data['icon'] || 'house-gear' %> me-1"></i>
-                              <%= category_data['title'] || category_name.humanize %>
-                            </span>
-                            <span class="small fw-semibold text-primary sidebar-category-total">
-                              <%
-                                category_total = category_data['primes'].sum { |p| p['calculated_amount'] || 0 }
-                              %>
-                              <%= number_to_currency(category_total, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
-                            </span>
-                          </div>
-                        </div>
-                      <% end %>
-                    <% end %>
-                  </div>
-                </div>
-              </div>
-            <% else %>
-              <div class="alert alert-warning d-flex align-items-center" role="alert">
-                <i class="bi bi-exclamation-triangle me-3"></i>
-                <div>
-                  <h6 class="alert-heading mb-1">⚠️ Primes prêtes à calculer</h6>
-                  <p class="mb-0">Cliquez pour calculer les montants des primes disponibles selon votre catégorie.</p>
-                </div>
-              </div>
-
-              <div class="mt-3">
-                <button id="calculate-primes-btn" class="btn btn-primary-custom">
-                  <i class="bi bi-calculator me-2"></i>Calculer les primes
-                </button>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      </div>
-
-
+      <% end %>
     </div>
 
     <!-- Colonne latérale -->
@@ -481,6 +145,7 @@
           <% end %>
         </div>
       </div>
+
       <!-- Documents -->
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-4">
@@ -570,107 +235,30 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       .then(response => response.json())
       .then(data => {
-        const eligibilityStatus = document.getElementById('eligibility-status');
-        const categoryStep = document.getElementById('category-step');
-
-        if (data.eligible) {
-          eligibilityStatus.innerHTML = `
-            <div class="alert alert-success d-flex align-items-center" role="alert">
-              <i class="bi bi-check-circle-fill me-3 fs-4"></i>
-              <div>
-                <h6 class="alert-heading mb-1">✅ Votre demande est éligible !</h6>
-                <p class="mb-0">${data.message}</p>
-              </div>
-            </div>
-          `;
-          categoryStep.style.display = 'block';
-          this.style.display = 'none';
+        if (data.success) {
+          window.location.reload(); // Recharger pour afficher les nouveaux résultats
         } else {
-          eligibilityStatus.innerHTML = `
-            <div class="alert alert-danger d-flex align-items-center" role="alert">
-              <i class="bi bi-x-circle-fill me-3 fs-4"></i>
-              <div>
-                <h6 class="alert-heading mb-1">❌ Votre demande n'est pas éligible</h6>
-                <p class="mb-0">${data.message}</p>
-              </div>
-            </div>
-          `;
-          this.style.display = 'none';
+          console.error('Erreur lors de la vérification:', data);
+          this.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Erreur - Réessayer';
+          this.disabled = false;
         }
       })
       .catch(error => {
-        console.error('Erreur:', error);
-        this.innerHTML = '<i class="bi bi-shield-check me-2"></i>Vérifier l\'éligibilité';
+        console.error('Erreur réseau:', error);
+        this.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Erreur - Réessayer';
         this.disabled = false;
       });
     });
   }
 
-  // Bouton pour calculer la catégorie
-  const calculateCategoryBtn = document.getElementById('calculate-category-btn');
-  if (calculateCategoryBtn) {
-    calculateCategoryBtn.addEventListener('click', function() {
-      this.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Calcul en cours...';
+  // Bouton pour déterminer la catégorie
+  const determineCategoryBtn = document.getElementById('determine-category-btn');
+  if (determineCategoryBtn) {
+    determineCategoryBtn.addEventListener('click', function() {
+      this.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Analyse en cours...';
       this.disabled = true;
 
-      fetch(`/simulations/${simulationId}/calculate_category`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
-          'Accept': 'application/json'
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        const categoryStatus = document.getElementById('category-status');
-        const primesStep = document.getElementById('primes-step');
-
-        if (data.eligible && data.category) {
-          categoryStatus.innerHTML = `
-            <div class="bg-light-custom p-3 rounded mb-3">
-              <div class="d-flex align-items-center">
-                <div class="icon-circle me-3 bg-primary-custom text-white">
-                  <i class="bi bi-bookmark-fill"></i>
-                </div>
-                <div>
-                  <h6 class="mb-1">Catégorie : ${data.category}</h6>
-                  <p class="text-muted-custom small mb-0">${data.message}</p>
-                </div>
-              </div>
-            </div>
-          `;
-          primesStep.style.display = 'block';
-          this.style.display = 'none';
-        } else {
-          categoryStatus.innerHTML = `
-            <div class="alert alert-danger d-flex align-items-center" role="alert">
-              <i class="bi bi-x-circle-fill me-3 fs-4"></i>
-              <div>
-                <h6 class="alert-heading mb-1">❌ Problème de catégorie</h6>
-                <p class="mb-0">${data.message}</p>
-              </div>
-            </div>
-          `;
-          this.style.display = 'none';
-        }
-      })
-      .catch(error => {
-        console.error('Erreur:', error);
-        this.innerHTML = '<i class="bi bi-calculator me-2"></i>Calculer la catégorie';
-        this.disabled = false;
-      });
-    });
-  }
-
-  // Bouton pour calculer les primes
-  const calculatePrimesBtn = document.getElementById('calculate-primes-btn');
-  if (calculatePrimesBtn) {
-    calculatePrimesBtn.addEventListener('click', function() {
-      this.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Calcul en cours...';
-      this.disabled = true;
-
-      fetch(`/simulations/${simulationId}/calculate_primes`, {
+      fetch(`/simulations/${simulationId}/determine_category`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -681,37 +269,32 @@ document.addEventListener('DOMContentLoaded', function() {
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          // Recharger la page pour afficher les cartes de primes
-          window.location.reload();
+          window.location.reload(); // Recharger pour afficher les nouveaux résultats
         } else {
-          alert('Erreur lors du calcul des primes: ' + data.message);
-          this.innerHTML = '<i class="bi bi-calculator me-2"></i>Calculer les primes';
+          console.error('Erreur lors de la détermination:', data);
+          this.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Erreur - Réessayer';
           this.disabled = false;
         }
       })
       .catch(error => {
-        console.error('Erreur:', error);
-        this.innerHTML = '<i class="bi bi-calculator me-2"></i>Calculer les primes';
+        console.error('Erreur réseau:', error);
+        this.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Erreur - Réessayer';
         this.disabled = false;
       });
     });
   }
 
-  // Gestion optimisée des saisies utilisateur pour les primes
+  // Système de gestion des primes - Version optimisée
   function setupPrimeInputListeners() {
-    console.log('Setting up optimized prime input listeners');
-
-    // Éviter les listeners multiples
     if (window.primeListenersInitialized) {
       console.log('Prime listeners already initialized, skipping...');
       return;
     }
 
-    // Conteneur spécifique pour la délégation d'événements
+    console.log('Setting up prime input listeners...');
     const primeContainer = document.getElementById('prime-cards-container');
     if (!primeContainer) {
-      console.log('Prime container not found, retrying in 500ms...');
-      setTimeout(setupPrimeInputListeners, 500);
+      console.log('Prime container not found');
       return;
     }
 

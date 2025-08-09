@@ -1,0 +1,76 @@
+<!-- ÉTAPE 2: Catégorie (seulement si éligible) - Flandre -->
+<div class="card border-0 shadow-sm mb-4" id="category-step" style="<%= @simulation.respond_to?(:eligible) && @simulation.eligible? ? '' : 'display: none;' %>">
+  <div class="card-body p-4">
+    <h5 class="card-title text-primary-custom mb-3">
+      <i class="bi bi-tag me-2"></i>Étape 2 : Catégorie de primes (Flandre)
+    </h5>
+
+    <div id="category-status">
+      <% if @simulation.respond_to?(:category) && @simulation.category.present? %>
+        <div class="bg-light-custom p-3 rounded mb-3">
+          <div class="d-flex align-items-center">
+            <div class="icon-circle me-3 bg-primary-custom text-white">
+              <i class="bi bi-bookmark-fill"></i>
+            </div>
+            <div class="flex-grow-1">
+              <h6 class="mb-1">
+                Catégorie Flandre :
+                <span class="badge bg-primary-custom fs-6">Catégorie <%= @simulation.category %></span>
+              </h6>
+              <% if @simulation.respond_to?(:category_description) && @simulation.category_description.present? %>
+                <p class="text-muted-custom small mb-0"><%= @simulation.category_description %></p>
+              <% end %>
+
+              <!-- Affichage spécifique pour le système Flandre (Cat 4 = meilleur, Cat 1 = plus bas) -->
+              <% if @simulation.category.present? %>
+                <div class="mt-2">
+                  <% case @simulation.category.to_i %>
+                  <% when 4 %>
+                    <small class="text-success">
+                      <i class="bi bi-star-fill me-1"></i>
+                      <strong>Catégorie maximale</strong> - Primes les plus élevées disponibles
+                    </small>
+                  <% when 3 %>
+                    <small class="text-info">
+                      <i class="bi bi-star-fill me-1"></i>
+                      <strong>Catégorie élevée</strong> - Primes importantes disponibles
+                    </small>
+                  <% when 2 %>
+                    <small class="text-warning">
+                      <i class="bi bi-star-half me-1"></i>
+                      <strong>Catégorie moyenne</strong> - Primes modérées disponibles
+                    </small>
+                  <% when 1 %>
+                    <small class="text-secondary">
+                      <i class="bi bi-star me-1"></i>
+                      <strong>Catégorie de base</strong> - Primes réduites disponibles
+                    </small>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% else %>
+        <div class="alert alert-warning d-flex align-items-center" role="alert">
+          <i class="bi bi-exclamation-triangle me-3"></i>
+          <div>
+            <h6 class="alert-heading mb-1">⚠️ Catégorie prête à calculer</h6>
+            <p class="mb-0">Cliquez pour déterminer votre catégorie de revenus Flandre et les primes applicables.</p>
+            <small class="text-muted d-block mt-1">
+              Système à 4 niveaux : Cat 4 (revenus faibles, primes maximales) → Cat 1 (revenus élevés, primes réduites)
+            </small>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <% unless @simulation.respond_to?(:category) && @simulation.category.present? %>
+      <div class="mt-3">
+        <button id="calculate-category-btn" class="btn btn-primary-custom">
+          <i class="bi bi-calculator me-2"></i>Calculer la catégorie Flandre
+        </button>
+      </div>
+    <% end %>
+  </div>
+</div>
