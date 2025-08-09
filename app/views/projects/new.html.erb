@@ -81,7 +81,8 @@
 <%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+// Fonction pour initialiser les champs régionaux
+function initializeRegionFields() {
   console.log('🏗️ Project form loaded - initializing region-specific fields');
 
   const propertySelect = document.getElementById('project_property_id');
@@ -154,5 +155,17 @@ document.addEventListener('DOMContentLoaded', function() {
   updateRegionFields(propertySelect.value);
 
   console.log('✅ Region-specific fields initialized');
-});
+}
+
+// Initialiser quand le DOM est chargé ET avec Turbo
+document.addEventListener('DOMContentLoaded', initializeRegionFields);
+document.addEventListener('turbo:load', initializeRegionFields);
+
+// Double sécurité si les événements ont déjà été déclenchés
+if (document.readyState === 'loading') {
+  // Le document est encore en cours de chargement
+} else {
+  // Le document est déjà chargé
+  initializeRegionFields();
+}
 </script>
