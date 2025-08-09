@@ -404,6 +404,8 @@ module Regions
           user_input_value
         )
 
+        # Toujours retourner la prime pour permettre l'interaction utilisateur
+        # même si le montant calculé est 0
         {
           id: prime.id,
           slug: prime.slug,

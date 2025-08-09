@@ -214,6 +214,8 @@
 console.log('🎯 Script de simulation chargé !');
 document.addEventListener('DOMContentLoaded', function() {
   console.log('🚀 DOMContentLoaded - Script de simulation démarré !');
+  console.log('📅 Timestamp:', new Date().toISOString());
+  console.log('🔧 Version avec améliorations automatiques v2.0');
 
   const simulationId = '<%= @simulation.id %>';
   console.log('📋 Simulation ID:', simulationId);
@@ -236,7 +238,15 @@ document.addEventListener('DOMContentLoaded', function() {
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          window.location.reload(); // Recharger pour afficher les nouveaux résultats
+          // Mettre à jour l'UI sans recharger
+          this.innerHTML = '<i class="bi bi-check-circle me-2"></i>Éligibilité vérifiée';
+          this.disabled = true;
+          this.classList.remove('btn-primary');
+          this.classList.add('btn-success');
+
+          // Déclencher automatiquement la détermination de catégorie
+          console.log('🎯 Éligibilité confirmée, déclenchement automatique de la catégorie...');
+          setTimeout(() => triggerCategoryDetermination(), 500);
         } else {
           console.error('Erreur lors de la vérification:', data);
           this.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Erreur - Réessayer';
@@ -269,7 +279,15 @@ document.addEventListener('DOMContentLoaded', function() {
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          window.location.reload(); // Recharger pour afficher les nouveaux résultats
+          // Mettre à jour l'UI sans recharger
+          this.innerHTML = '<i class="bi bi-check-circle me-2"></i>Catégorie déterminée';
+          this.disabled = true;
+          this.classList.remove('btn-primary');
+          this.classList.add('btn-success');
+
+          // Déclencher automatiquement le calcul des primes
+          console.log('🎯 Catégorie confirmée, déclenchement automatique du calcul des primes...');
+          setTimeout(() => triggerPrimesCalculation(), 500);
         } else {
           console.error('Erreur lors de la détermination:', data);
           this.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Erreur - Réessayer';
@@ -281,6 +299,50 @@ document.addEventListener('DOMContentLoaded', function() {
         this.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Erreur - Réessayer';
         this.disabled = false;
       });
+    });
+  }
+
+  // Fonction pour déclencher automatiquement la détermination de catégorie
+  function triggerCategoryDetermination() {
+    console.log('🔄 triggerCategoryDetermination appelée !');
+    const determineCategoryBtn = document.getElementById('determine-category-btn');
+    console.log('🔍 Bouton déterminer catégorie:', determineCategoryBtn);
+    if (determineCategoryBtn && !determineCategoryBtn.disabled) {
+      console.log('✅ Déclenchement automatique de la détermination de catégorie');
+      determineCategoryBtn.click();
+    } else {
+      console.log('❌ Catégorie déjà déterminée ou bouton non trouvé');
+    }
+  }
+
+  // Fonction pour déclencher automatiquement le calcul des primes
+  function triggerPrimesCalculation() {
+    console.log('🔄 triggerPrimesCalculation appelée !');
+    console.log('🎯 Déclenchement automatique du calcul des primes');
+
+    fetch(`/simulations/${simulationId}/calculate_primes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        'Accept': 'application/json'
+      }
+    })
+    .then(response => {
+      console.log('📡 Réponse reçue du calcul primes:', response.status);
+      return response.json();
+    })
+    .then(data => {
+      console.log('📊 Données du calcul primes:', data);
+      if (data.success) {
+        console.log('✅ Calcul des primes réussi, rechargement de la page pour afficher les résultats');
+        window.location.reload(); // Seulement pour cette étape finale
+      } else {
+        console.error('❌ Erreur lors du calcul des primes:', data);
+      }
+    })
+    .catch(error => {
+      console.error('❌ Erreur réseau lors du calcul des primes:', error);
     });
   }
 
@@ -302,6 +364,9 @@ document.addEventListener('DOMContentLoaded', function() {
     primeContainer.addEventListener('change', function(event) {
       if (event.target.classList.contains('prime-input')) {
         console.log('Prime input changed:', event.target.dataset.primeSlug);
+        // Mise à jour immédiate pour le feedback visuel
+        const value = event.target.type === 'checkbox' ? (event.target.checked ? 1 : 0) : parseFloat(event.target.value) || 0;
+        updatePrimeDisplayImmediate(event.target.dataset.primeSlug, value, event.target.getAttribute('data-input-type'));
         debouncedUpdate();
       }
     });
@@ -309,7 +374,35 @@ document.addEventListener('DOMContentLoaded', function() {
     primeContainer.addEventListener('input', function(event) {
       if (event.target.classList.contains('prime-input') && event.target.type !== 'checkbox') {
         console.log('Prime input typing:', event.target.dataset.primeSlug);
+        // Mise à jour immédiate pour le feedback visuel
+        const value = parseFloat(event.target.value) || 0;
+        updatePrimeDisplayImmediate(event.target.dataset.primeSlug, value, event.target.getAttribute('data-input-type'));
         debouncedUpdate();
+      }
+    });
+
+    // Gestionnaire pour la touche Enter
+    primeContainer.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter' && event.target.classList.contains('prime-input')) {
+        console.log('Enter pressed on:', event.target.dataset.primeSlug);
+        event.preventDefault(); // Empêche la soumission du formulaire
+
+        // Force la mise à jour immédiate
+        if (event.target.type !== 'checkbox') {
+          const value = parseFloat(event.target.value) || 0;
+          updatePrimeDisplayImmediate(event.target.dataset.primeSlug, value, event.target.getAttribute('data-input-type'));
+        }
+
+        // Déclenche la mise à jour sans délai
+        clearTimeout(debounceTimer);
+        updateAllPrimes();
+
+        // Déplace le focus au prochain input
+        const inputs = Array.from(primeContainer.querySelectorAll('.prime-input'));
+        const currentIndex = inputs.indexOf(event.target);
+        if (currentIndex < inputs.length - 1) {
+          inputs[currentIndex + 1].focus();
+        }
       }
     });
 
@@ -325,9 +418,81 @@ document.addEventListener('DOMContentLoaded', function() {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(() => {
         updatePrimeInputs();
-      }, 400); // Légèrement plus long pour les 45 cartes
+      }, 100); // Réduit à 100ms pour une réactivité maximale
     };
   })();
+
+  // Mise à jour immédiate de l'affichage (sans attendre le serveur)
+  function updatePrimeDisplayImmediate(primeSlug, value, inputType = null) {
+    const primeCard = document.querySelector(`[data-prime-slug="${primeSlug}"]`);
+    if (!primeCard) return;
+
+    // Chercher l'élément d'affichage du montant (plusieurs classes possibles)
+    const amountElement = primeCard.querySelector('.calculated-amount, .calculated-result, .prime-result');
+    if (!amountElement) {
+      console.log('Aucun élément de résultat trouvé pour:', primeSlug);
+      return;
+    }
+
+    // Calcul d'estimation immédiate côté client
+    let estimatedAmount = 0;
+
+    if (value > 0) {
+      // Estimation simple basée sur des règles générales Flandre
+      if (primeSlug.includes('isolation')) {
+        estimatedAmount = Math.min(value * 0.5, 5000); // 50% jusqu'à 5000€
+      } else if (primeSlug === 'ramen_deuren') {
+        estimatedAmount = Math.min(value * 0.5, 2500); // Châssis/portes
+      } else if (primeSlug === 'warmtepompboiler') {
+        estimatedAmount = 1200; // Forfait fixe
+      } else {
+        estimatedAmount = Math.min(value * 0.4, 3000); // Estimation générale
+      }
+    }
+
+    // Mise à jour immédiate de l'affichage
+    amountElement.textContent = `${estimatedAmount.toLocaleString('fr-BE')} €`;
+    amountElement.classList.add('updating');
+    amountElement.style.background = 'linear-gradient(45deg, #e8f5e8, #d4edda)';
+    amountElement.style.transition = 'all 0.3s ease';
+
+    // Retirer l'indicateur après la vraie mise à jour serveur
+    setTimeout(() => {
+      amountElement.classList.remove('updating');
+      amountElement.style.background = '';
+    }, 2000);
+
+    // Mettre à jour le total immédiatement aussi
+    updateTotalImmediate();
+  }
+
+  // Mise à jour immédiate du total
+  function updateTotalImmediate() {
+    // Chercher tous les éléments de montants (plusieurs classes possibles)
+    const amountElements = document.querySelectorAll('.calculated-amount, .calculated-result, .prime-result');
+    let total = 0;
+
+    amountElements.forEach(element => {
+      const value = parseFloat(element.textContent.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+      total += value;
+    });
+
+    // Chercher l'élément total (plusieurs sélecteurs possibles)
+    const totalElement = document.querySelector('#total-simule-amount, .total-amount, [data-total-amount]');
+    if (totalElement) {
+      totalElement.textContent = `${total.toLocaleString('fr-BE')} €`;
+      totalElement.style.background = 'linear-gradient(45deg, #e8f5e8, #d4edda)';
+      totalElement.style.transition = 'all 0.3s ease';
+
+      setTimeout(() => {
+        totalElement.style.background = '';
+      }, 2000);
+
+      console.log('💰 Total mis à jour:', total, '€');
+    } else {
+      console.log('❌ Élément total non trouvé');
+    }
+  }
 
   function updatePrimeInputs() {
     console.log('updatePrimeInputs called - optimized version');
@@ -436,6 +601,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Appliquer toutes les mises à jour en une fois
     console.log(`Applying ${updates.length} UI updates`);
     updates.forEach(update => {
+      // Supprimer l'indicateur de mise à jour immédiate
+      update.element.classList.remove('updating');
+      update.element.style.opacity = '1';
+
       update.element.textContent = update.newValue;
       // Ajouter un effet visuel léger pour indiquer le changement
       update.element.classList.add('amount-updated');
@@ -616,3 +785,34 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 </script>
+
+<style>
+/* Styles pour les indicateurs de mise à jour */
+.calculated-amount.updating {
+  transition: opacity 0.3s ease;
+}
+
+.calculated-amount.amount-updated {
+  animation: highlight 1.5s ease;
+}
+
+@keyframes highlight {
+  0% { background-color: #e3f2fd; }
+  50% { background-color: #bbdefb; }
+  100% { background-color: transparent; }
+}
+
+/* Indicateur de chargement pour les primes */
+.loading-indicator {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.loading-indicator::after {
+  content: "⏳";
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+}
+</style>

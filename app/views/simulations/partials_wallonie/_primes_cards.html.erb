@@ -1,5 +1,5 @@
 <!-- ÉTAPE 3: Cartes primes interactives Wallonie (seulement si catégorie définie) -->
-<div class="card border-0 shadow-sm mb-4" id="primes-step" style="<%= @simulation.respond_to?(:category) && @simulation.category.present? ? '' : 'display: none;' %>">
+<div class="card border-0 shadow-sm mb-4 wallonie-primes" id="primes-step" style="<%= @simulation.respond_to?(:category) && @simulation.category.present? ? '' : 'display: none;' %>">
   <div class="card-body p-4">
     <h5 class="card-title text-primary-custom mb-3">
       <i class="bi bi-credit-card me-2"></i>Étape 3 : Primes disponibles (Wallonie)
@@ -12,7 +12,6 @@
         if @simulation.parameters.present?
           begin
             parsed_params = JSON.parse(@simulation.parameters)
-            # Utiliser les nouvelles données prime_cards de notre implémentation Option A
             prime_cards = parsed_params['prime_cards'] || {}
             total_amount = parsed_params['total_general'] || 0
           rescue JSON::ParserError
@@ -27,146 +26,163 @@
           <i class="bi bi-check-circle-fill me-3 fs-4"></i>
           <div>
             <h6 class="alert-heading mb-1">✅ Primes Wallonie calculées !</h6>
-            <p class="mb-0">Personnalisez vos travaux et voyez le montant des primes en temps réel.</p>
+            <p class="mb-0">Personnalisez vos travaux selon les critères Wallonie et voyez le montant des primes en temps réel.</p>
           </div>
         </div>
 
-        <!-- Cartes de primes organisées par catégorie -->
+        <!-- Cartes de primes compactes - Design moderne -->
         <div id="prime-cards-container">
           <% prime_cards.each do |category_name, category_data| %>
             <% next unless category_data['primes']&.any? %>
 
-            <div class="card border-0 shadow-sm mb-4 category-card" data-category="<%= category_name %>">
-              <div class="card-header bg-gradient-primary text-white py-3 position-relative">
-                <div class="d-flex align-items-center justify-content-between">
-                  <div class="d-flex align-items-center">
-                    <div class="icon-circle me-3 bg-white bg-opacity-20">
-                      <i class="bi bi-<%= category_data['icon'] || 'house-gear' %> text-white"></i>
-                    </div>
-                    <div>
-                      <h5 class="mb-0 text-white fw-bold">
-                        <%= category_data['title'] || category_name.humanize %>
-                      </h5>
-                      <small class="text-white text-opacity-75">
-                        <%= category_data['primes'].count %> prime<%= 's' if category_data['primes'].count > 1 %> disponible<%= 's' if category_data['primes'].count > 1 %>
-                      </small>
-                    </div>
-                  </div>
-                  <div class="text-end">
-                    <h4 class="mb-0 text-white fw-bold category-total">
-                      <%
-                        category_total = category_data['primes'].sum { |p| p['calculated_amount'] || 0 }
-                      %>
-                      <%= number_to_currency(category_total, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
-                    </h4>
-                    <small class="text-white text-opacity-75">Total catégorie</small>
-                  </div>
+            <!-- En-tête de catégorie subtil mais visible -->
+            <div class="d-flex align-items-center justify-content-between mb-3 p-3 rounded-3"
+                 data-group="<%= category_name %>"
+                 style="background: linear-gradient(135deg, #f8f9fc 0%, #e9ecef 100%); border-left: 4px solid #dc3545;">
+              <div class="d-flex align-items-center">
+                <div class="me-3" style="width: 36px; height: 36px; border-radius: 10px; background: #dc3545; display: flex; align-items: center; justify-content: center;">
+                  <i class="bi bi-<%= category_data['icon'] || 'house-gear' %>" style="color: white; font-size: 18px;"></i>
+                </div>
+                <div>
+                  <h6 class="mb-0 fw-bold text-dark" style="font-size: 17px;"><%= category_data['title'] || category_name.humanize %></h6>
+                  <small class="text-muted" style="font-size: 13px;"><%= category_data['primes'].count %> prime<%= 's' if category_data['primes'].count > 1 %> disponible<%= 's' if category_data['primes'].count > 1 %></small>
                 </div>
               </div>
-              <div class="card-body p-4">
-                <div class="row g-4">
-                  <% category_data['primes'].each_with_index do |prime, index| %>
-                    <div class="col-lg-6">
-                      <div class="prime-card card border h-100 position-relative overflow-hidden"
-                           data-prime-slug="<%= prime['slug'] %>"
-                           style="animation-delay: <%= (index * 0.1) %>s;">
+              <div class="text-end">
+                <span class="badge bg-success text-white fw-bold group-total" style="font-size: 15px; padding: 10px 14px; border-radius: 8px;">
+                  <%
+                    category_total = category_data['primes'].sum { |p| p['calculated_amount'] || 0 }
+                  %>
+                  <%= number_to_currency(category_total, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
+                </span>
+                <div class="mt-1">
+                  <small class="text-muted fw-medium" style="font-size: 11px;">Total catégorie</small>
+                </div>
+              </div>
+            </div>
 
-                        <!-- Badge montant en position sticky -->
-                        <div class="position-absolute top-0 end-0 m-3" style="z-index: 10;">
-                          <span class="badge bg-success fs-6 px-3 py-2 calculated-amount shadow">
+            <!-- Grille de cartes primes compactes -->
+            <div class="row g-3 mb-5">
+              <% category_data['primes'].each_with_index do |prime, index| %>
+                <div class="col-lg-4 col-md-6">
+                  <%
+                    # Couleurs pastels pour les icônes (couleurs Wallonie)
+                    colors = [
+                      { light: '#fef2f2', dark: '#dc3545' },  # rouge wallonie
+                      { light: '#fffbeb', dark: '#f59e0b' },  # orange
+                      { light: '#f0f9ff', dark: '#0ea5e9' },  # bleu
+                      { light: '#f7fee7', dark: '#65a30d' },  # vert olive
+                      { light: '#faf5ff', dark: '#8b5cf6' },  # violet
+                      { light: '#f1f5f9', dark: '#64748b' }   # slate
+                    ]
+                    color = colors[index % colors.length]
+
+                    # Icônes spécifiques par slug wallonie
+                    icon = case prime['slug']
+                           when /audit/ then 'search'
+                           when /toiture/ then 'house-up'
+                           when /mur/, /merule/, /radon/ then 'bricks'
+                           when /sol/, /plancher/ then 'layers'
+                           when /menuiserie/ then 'door-open'
+                           when /electrique/ then 'lightning'
+                           when /gaz/ then 'fire'
+                           when /pac/, /chaudiere/, /chauffage/ then 'thermometer-half'
+                           when /ventilation/, /vmc/ then 'wind'
+                           when /ecs/ then 'droplet'
+                           else 'house-gear'
+                           end
+                  %>
+
+                  <div class="card border-0 shadow-sm h-100 prime-card"
+                       data-prime-slug="<%= prime['slug'] %>"
+                       data-calculated-amount="<%= prime['calculated_amount'] || 0 %>"
+                       style="border-radius: 12px; transition: all 0.3s ease;">
+
+                    <div class="card-body p-3">
+                      <!-- Header horizontal avec icône colorée -->
+                      <div class="d-flex align-items-center mb-3">
+                        <div class="icon-container me-3"
+                             style="width: 40px; height: 40px; border-radius: 8px;
+                                    background: <%= color[:light] %>;
+                                    display: flex; align-items: center; justify-content: center;">
+                          <i class="bi bi-<%= icon %>"
+                             style="color: <%= color[:dark] %>; font-size: 18px;"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                          <h6 class="mb-1 fw-semibold text-dark" style="font-size: 14px; line-height: 1.2;">
+                            <%= prime['titre'] %>
+                          </h6>
+                          <span class="badge" style="background: <%= color[:light] %>;
+                                                   color: <%= color[:dark] %>;
+                                                   font-size: 10px;">WALLONIE</span>
+                        </div>
+                      </div>
+
+                      <!-- Input section horizontale -->
+                      <div class="d-flex align-items-center gap-2 mb-2">
+                        <% case prime['input_type'] %>
+                        <% when 'checkbox' %>
+                          <div class="form-check form-switch flex-grow-1">
+                            <input class="form-check-input prime-checkbox"
+                                   type="checkbox"
+                                   id="prime_<%= prime['slug'] %>"
+                                   data-prime-slug="<%= prime['slug'] %>"
+                                   data-input-type="checkbox"
+                                   style="transform: scale(0.8);"
+                                   <%= prime['user_input_value'] == 1 ? 'checked' : '' %>>
+                            <label class="form-check-label" for="prime_<%= prime['slug'] %>" style="font-size: 12px;">
+                              <%= prime['placeholder'] %>
+                            </label>
+                          </div>
+                        <% when 'number' %>
+                          <div class="flex-grow-1">
+                            <input type="number"
+                                   class="form-control form-control-sm prime-input"
+                                   id="prime_<%= prime['slug'] %>"
+                                   data-prime-slug="<%= prime['slug'] %>"
+                                   data-input-type="number"
+                                   placeholder="<%= prime['placeholder'] %>"
+                                   value="<%= prime['user_input_value'] || 0 %>"
+                                   min="0"
+                                   step="any"
+                                   style="border-radius: 6px; border: 1px solid #e3e6f0; font-size: 13px;">
+                          </div>
+                        <% else %>
+                          <input type="text"
+                                 class="form-control form-control-sm prime-input flex-grow-1"
+                                 id="prime_<%= prime['slug'] %>"
+                                 data-prime-slug="<%= prime['slug'] %>"
+                                 data-input-type="text"
+                                 placeholder="<%= prime['placeholder'] %>"
+                                 value="<%= prime['user_input_value'] || '' %>"
+                                 style="border-radius: 6px; border: 1px solid #e3e6f0; font-size: 13px;">
+                        <% end %>
+
+                        <!-- Résultat à droite -->
+                        <div class="result-display">
+                          <span class="badge bg-success calculated-result" style="font-size: 12px; min-width: 70px;">
                             <%= number_to_currency(prime['calculated_amount'] || 0, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
                           </span>
                         </div>
+                      </div>
 
-                        <div class="card-body p-4">
-                          <!-- En-tête de la prime -->
-                          <div class="mb-3">
-                            <h6 class="text-primary fw-bold mb-2" style="padding-right: 80px;">
-                              <%= prime['titre'] %>
-                            </h6>
-                            <% if prime['description'].present? %>
-                              <p class="text-muted small mb-0">
-                                <%= prime['description'] %>
-                              </p>
-                            <% end %>
-                          </div>
-
-                          <!-- Section d'input -->
-                          <div class="prime-input-section mb-3">
-                            <% case prime['input_type'] %>
-                            <% when 'checkbox' %>
-                              <div class="form-check form-switch">
-                                <input class="form-check-input prime-input"
-                                       type="checkbox"
-                                       id="prime_<%= prime['slug'] %>"
-                                       data-prime-slug="<%= prime['slug'] %>"
-                                       <%= prime['user_input_value'] == 1 ? 'checked' : '' %>>
-                                <label class="form-check-label fw-medium" for="prime_<%= prime['slug'] %>">
-                                  <i class="bi bi-check-circle me-2 text-success"></i>
-                                  Je réalise ces travaux
-                                </label>
-                              </div>
-                            <% when 'number' %>
-                              <div class="input-group">
-                                <span class="input-group-text bg-light">
-                                  <i class="bi bi-<%= prime['type'] == 'montant_m2' ? 'rulers' : 'currency-euro' %>"></i>
-                                </span>
-                                <input type="number"
-                                       class="form-control prime-input"
-                                       id="prime_<%= prime['slug'] %>"
-                                       data-prime-slug="<%= prime['slug'] %>"
-                                       placeholder="<%= prime['placeholder'] || 'Entrez la valeur' %>"
-                                       value="<%= prime['user_input_value'] %>"
-                                       step="0.01">
-                                <% if prime['unite'].present? %>
-                                  <span class="input-group-text bg-light text-muted">
-                                    <%= prime['unite'] %>
-                                  </span>
-                                <% end %>
-                              </div>
-                              <div class="form-text">
-                                <%= prime['type'] == 'montant_m2' ? 'Surface en m²' : 'Montant des travaux en €' %>
-                              </div>
-                            <% end %>
-                          </div>
-
-                          <!-- Conditions et conseils -->
-                          <% if prime['conditions'].present? || prime['conseil'].present? %>
-                            <div class="border-top pt-3">
-                              <% if prime['conditions'].present? %>
-                                <div class="alert alert-warning alert-sm py-2 mb-2">
-                                  <i class="bi bi-exclamation-triangle me-2"></i>
-                                  <small><strong>Conditions :</strong> <%= prime['conditions'] %></small>
-                                </div>
-                              <% end %>
-
-                              <% if prime['conseil'].present? %>
-                                <div class="alert alert-info alert-sm py-2 mb-0">
-                                  <i class="bi bi-lightbulb me-2"></i>
-                                  <small><strong>Conseil :</strong> <%= prime['conseil'] %></small>
-                                </div>
-                              <% end %>
-                            </div>
-                          <% end %>
-                        </div>
-
-                        <!-- Hover effect overlay -->
-                        <div class="position-absolute top-0 start-0 w-100 h-100 bg-primary bg-opacity-10 opacity-0 transition-opacity"
-                             style="transition: opacity 0.3s ease; pointer-events: none;"></div>
+                      <!-- Détails de calcul (cachés par défaut) -->
+                      <div class="calculation-details mt-2" style="display: none;">
+                        <small class="text-muted"></small>
                       </div>
                     </div>
-                  <% end %>
+                  </div>
                 </div>
-              </div>
+              <% end %>
             </div>
           <% end %>
         </div>
 
-        <!-- Récapitulatif par catégorie -->
+        <!-- Récapitulatif par catégorie - Wallonie -->
         <div class="card border-0 shadow-sm mb-4">
           <div class="card-body p-4">
             <h6 class="text-primary-custom mb-3">
-              <i class="bi bi-list-check me-2"></i>Récapitulatif par catégorie
+              <i class="bi bi-list-check me-2"></i>Récapitulatif par catégorie (Wallonie)
             </h6>
 
             <div class="row g-3">
@@ -191,12 +207,31 @@
             </div>
           </div>
         </div>
+
+        <!-- Total général final -->
+        <div class="card border-0 mb-4" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);">
+          <div class="card-body text-center text-white py-4">
+            <h4 class="mb-2 fw-bold">
+              <i class="bi bi-award me-2"></i>Total des primes Wallonie
+            </h4>
+            <h2 class="mb-0 total-amount fw-bold" style="font-size: 2.5rem;">
+              <%= number_to_currency(total_amount, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
+            </h2>
+            <small class="text-white text-opacity-75 d-block mt-2">
+              Montant estimatif des primes selon votre catégorie et vos travaux
+            </small>
+          </div>
+        </div>
+
       <% else %>
         <div class="alert alert-warning d-flex align-items-center" role="alert">
           <i class="bi bi-exclamation-triangle me-3"></i>
           <div>
             <h6 class="alert-heading mb-1">⚠️ Primes Wallonie prêtes à calculer</h6>
-            <p class="mb-0">Cliquez pour calculer les montants des primes disponibles selon votre catégorie.</p>
+            <p class="mb-0">Cliquez pour calculer les montants des primes disponibles selon votre catégorie Wallonie.</p>
+            <small class="text-muted d-block mt-1">
+              Calcul basé sur les tarifs et critères spécifiques à la région wallonne
+            </small>
           </div>
         </div>
 

@@ -12,6 +12,7 @@ window.Stimulus = application
 
 // Import des logiques spécifiques
 import "./logic/flandre_calculations"
+import "./logic/prime_inputs_handlers"
 
 // Import et register tous les contrôleurs manuellement et simplement
 import UserTypeController from "controllers/user_type_controller"
