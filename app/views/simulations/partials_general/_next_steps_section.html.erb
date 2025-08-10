@@ -1,0 +1,178 @@
+<!-- Section Prochaines étapes après simulation -->
+<div class="row g-4 mt-4">
+  <div class="col-12">
+    <div class="card border-0 shadow-sm bg-gradient-success-light">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center mb-3">
+          <div class="icon-circle me-3 bg-success">
+            <i class="bi bi-arrow-right text-white"></i>
+          </div>
+          <div>
+            <h5 class="card-title mb-0 fw-normal">🎯 Prochaines étapes pour votre demande</h5>
+            <small class="text-muted">Votre simulation est terminée, passons à l'action !</small>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          <!-- Étape 1: Documents -->
+          <div class="col-lg-4">
+            <div class="card h-100 border-0 bg-white">
+              <div class="card-body p-3 text-center">
+                <div class="icon-circle-large mx-auto mb-3 bg-warning">
+                  <i class="bi bi-file-earmark-check text-white"></i>
+                </div>
+                <h6 class="fw-bold mb-2">1. Documents obligatoires</h6>
+                <div class="mb-3">
+                  <%
+                    # Calcul dynamique des documents requis selon la région
+                    required_docs = case @simulation.region&.downcase
+                    when 'bruxelles'
+                      ['Factures des travaux (max 12 mois)', 'Certificat PEB', 'Numéro BCE entrepreneur', 'Photos avant/après']
+                    when 'wallonie'
+                      ['Factures des travaux (max 24 mois)', 'Devis détaillés', 'Attestation entrepreneur', 'RIB bancaire']
+                    when 'flandre'
+                      ['Factures avec TVA', 'Code EAN logement', 'Attestation conformité', 'Preuves d\'achèvement']
+                    else
+                      ['Factures des travaux', 'Documents techniques', 'Preuves de conformité']
+                    end
+                  %>
+                  <ul class="list-unstyled small">
+                    <% required_docs.each do |doc| %>
+                      <li class="mb-1">
+                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                        <%= doc %>
+                      </li>
+                    <% end %>
+                  </ul>
+                </div>
+                <%= link_to documents_path(property_id: @simulation.property.id), class: "btn btn-outline-warning btn-sm w-100" do %>
+                  <i class="bi bi-upload me-2"></i>Gérer documents
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+          <!-- Étape 2: Timing -->
+          <div class="col-lg-4">
+            <div class="card h-100 border-0 bg-white">
+              <div class="card-body p-3 text-center">
+                <div class="icon-circle-large mx-auto mb-3 bg-info">
+                  <i class="bi bi-clock text-white"></i>
+                </div>
+                <h6 class="fw-bold mb-2">2. Délais à respecter</h6>
+                <div class="mb-3">
+                  <%
+                    # Informations de timing par région
+                    timing_info = case @simulation.region&.downcase
+                    when 'bruxelles'
+                      { deadline: '12 mois après travaux', processing: '3-6 mois', period: 'Toute l\'année' }
+                    when 'wallonie'
+                      { deadline: '24 mois après travaux', processing: '2-4 mois', period: 'Toute l\'année' }
+                    when 'flandre'
+                      { deadline: '12 mois après travaux', processing: '2-3 mois', period: 'Toute l\'année' }
+                    else
+                      { deadline: 'Variable', processing: '3-6 mois', period: 'Variable' }
+                    end
+                  %>
+                  <div class="small">
+                    <div class="d-flex justify-content-between mb-1">
+                      <span class="text-muted">Délai limite :</span>
+                      <span class="fw-medium text-danger"><%= timing_info[:deadline] %></span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1">
+                      <span class="text-muted">Traitement :</span>
+                      <span class="fw-medium"><%= timing_info[:processing] %></span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                      <span class="text-muted">Dépôt :</span>
+                      <span class="fw-medium text-success"><%= timing_info[:period] %></span>
+                    </div>
+                  </div>
+                </div>
+                <button class="btn btn-outline-info btn-sm w-100" data-bs-toggle="modal" data-bs-target="#timingModal">
+                  <i class="bi bi-calendar-event me-2"></i>Voir calendrier
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Étape 3: Action -->
+          <div class="col-lg-4">
+            <div class="card h-100 border-0 bg-white">
+              <div class="card-body p-3 text-center">
+                <div class="icon-circle-large mx-auto mb-3 bg-success">
+                  <i class="bi bi-send text-white"></i>
+                </div>
+                <h6 class="fw-bold mb-2">3. Déposer la demande</h6>
+                <div class="mb-3">
+                  <p class="small text-muted mb-2">
+                    Votre simulation montre <strong><%= number_to_currency(@simulation.total_primes_amount || 0, unit: '€', separator: ',', delimiter: ' ') %></strong> de primes potentielles.
+                  </p>
+                  <div class="alert alert-success alert-sm py-2 mb-0">
+                    <small>
+                      <i class="bi bi-shield-check me-1"></i>
+                      Dossier <%= @simulation.property&.completion_percentage || 0 %>% prêt
+                    </small>
+                  </div>
+                </div>
+                <% if @simulation.property&.completion_percentage.to_i >= 80 %>
+                  <%= link_to new_request_path(property_id: @simulation.property.id, simulation_id: @simulation.id), class: "btn btn-success btn-sm w-100" do %>
+                    <i class="bi bi-rocket me-2"></i>Déposer demande
+                  <% end %>
+                <% else %>
+                  <%= link_to dashboard_property_path(@simulation.property), class: "btn btn-outline-success btn-sm w-100" do %>
+                    <i class="bi bi-list-check me-2"></i>Compléter dossier
+                  <% end %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alerte informative -->
+        <div class="alert alert-info mt-4 mb-0">
+          <div class="d-flex align-items-start">
+            <i class="bi bi-lightbulb-fill me-3 mt-1"></i>
+            <div>
+              <h6 class="alert-heading mb-2">💡 Conseil de nos experts</h6>
+              <p class="mb-2">
+                Région <strong><%= @simulation.region&.capitalize %></strong> :
+                <% case @simulation.region&.downcase
+                   when 'bruxelles' %>
+                  Les demandes sont traitées plus rapidement si vous joignez toutes les factures en une seule fois.
+                <% when 'wallonie' %>
+                  Pensez à vérifier que votre entrepreneur a bien complété l'attestation technique obligatoire.
+                <% when 'flandre' %>
+                  Assurez-vous que votre code EAN correspond exactement à celui du logement rénové.
+                <% else %>
+                  Contactez-nous pour des conseils personnalisés selon votre région.
+                <% end %>
+              </p>
+              <small class="text-muted">
+                Cette simulation a été générée le <%= @simulation.created_at.strftime('%d/%m/%Y à %H:%M') %>
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal pour le calendrier détaillé -->
+<div class="modal fade" id="timingModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-calendar-event me-2"></i>
+          Calendrier des démarches - <%= @simulation.region&.capitalize %>
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <%= render 'simulations/partials_general/timing_calendar', simulation: @simulation %>
+      </div>
+    </div>
+  </div>
+</div>

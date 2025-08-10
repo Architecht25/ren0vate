@@ -23,82 +23,11 @@
           </h5>
 
           <%= form_with model: @project, local: true do |form| %>
-            <div class="mb-3">
-              <%= form.label :nom, "Nom du chantier", class: "form-label" %>
-              <%= form.text_field :nom, class: "form-control", placeholder: "Ex: Rénovation cuisine" %>
-            </div>
+            <%= render 'projects/partials_general/basic_fields', form: form %>
 
-            <div class="mb-3">
-              <%= form.label :description, "Description", class: "form-label" %>
-              <%= form.text_area :description, rows: 4, class: "form-control", placeholder: "Décrivez le chantier et les travaux à réaliser..." %>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <%= form.label :date_début, "Date de début prévue", class: "form-label" %>
-                  <%= form.date_field :date_début, class: "form-control" %>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <%= form.label :date_fin, "Date de fin prévue", class: "form-label" %>
-                  <%= form.date_field :date_fin, class: "form-control" %>
-                </div>
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <%= form.label :statut, "Statut du chantier", class: "form-label" %>
-              <%= form.select :statut,
-                  options_for_select([
-                    ['En préparation', 'preparation'],
-                    ['En cours', 'en_cours'],
-                    ['En pause', 'pause'],
-                    ['Terminé', 'termine'],
-                    ['Annulé', 'annule']
-                  ], @project.statut),
-                  { include_blank: false },
-                  { class: "form-select" } %>
-            </div>
-
-            <!-- Nouvelle section : Informations pour l'éligibilité aux primes Wallonie -->
-            <div class="mb-4 mt-4">
-              <h6 class="text-primary-custom mb-3">
-                <i class="bi bi-award me-2"></i>Informations pour l'éligibilité aux primes (Wallonie)
-              </h6>
-              <div class="border rounded p-3 bg-light">
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="mb-3">
-                      <%= form.label :bce_number, "Numéro BCE de l'entrepreneur", class: "form-label" %>
-                      <%= form.text_field :bce_number, class: "form-control", placeholder: "Ex: 0123456789", pattern: "[0-9]{10}", maxlength: "10" %>
-                      <div class="form-text">Numéro d'entreprise à 10 chiffres (obligatoire pour les primes Wallonie)</div>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="mb-3">
-                      <%= form.label :invoice_date, "Date des factures", class: "form-label" %>
-                      <%= form.date_field :invoice_date, class: "form-control" %>
-                      <div class="form-text">Date des factures pour vérifier l'éligibilité (max 2 ans)</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="mb-3">
-                      <%= form.label :work_completion_date, "Date de fin des travaux", class: "form-label" %>
-                      <%= form.date_field :work_completion_date, class: "form-control" %>
-                      <div class="form-text">Date de finalisation des travaux</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="alert alert-info small mb-0">
-                  <i class="bi bi-info-circle me-2"></i>
-                  Ces informations sont nécessaires pour vérifier l'éligibilité aux primes de rénovation en Wallonie.
-                </div>
-              </div>
-            </div>
+            <% if @project.property&.region.present? %>
+              <%= render "projects/partials_#{@project.property.region.downcase}/eligibility_fields", form: form %>
+            <% end %>
 
             <% if @project.respond_to?(:property_id) && defined?(Property) %>
               <div class="mb-3">

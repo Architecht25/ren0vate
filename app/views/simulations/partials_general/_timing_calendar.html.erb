@@ -1,0 +1,130 @@
+<!-- Calendrier des démarches par région -->
+<div class="timeline-container">
+  <%
+    # Configuration des étapes par région
+    steps = case @simulation.region&.downcase
+    when 'bruxelles'
+      [
+        { icon: 'hammer', title: 'Réalisation des travaux', desc: 'Travaux par entrepreneur agréé BCE', timing: 'J-365 à J-1' },
+        { icon: 'receipt', title: 'Réception factures', desc: 'Facture de solde émise', timing: 'J-0' },
+        { icon: 'file-earmark-check', title: 'Préparation dossier', desc: 'Rassemblement documents obligatoires', timing: 'J+1 à J+30' },
+        { icon: 'send', title: 'Dépôt demande', desc: 'Soumission via RENOLUTION', timing: 'J+30 à J+365' },
+        { icon: 'clock-history', title: 'Traitement', desc: 'Instruction par Bruxelles Environnement', timing: 'J+365 à J+545' },
+        { icon: 'check-circle', title: 'Paiement', desc: 'Virement sur compte belge', timing: 'J+545' }
+      ]
+    when 'wallonie'
+      [
+        { icon: 'hammer', title: 'Réalisation des travaux', desc: 'Travaux par entrepreneur qualifié', timing: 'J-730 à J-1' },
+        { icon: 'receipt', title: 'Réception factures', desc: 'Factures et attestation entrepreneur', timing: 'J-0' },
+        { icon: 'file-earmark-check', title: 'Préparation dossier', desc: 'Documents et photos des travaux', timing: 'J+1 à J+60' },
+        { icon: 'send', title: 'Dépôt demande', desc: 'Soumission via RENOLUTION', timing: 'J+60 à J+730' },
+        { icon: 'clock-history', title: 'Traitement', desc: 'Instruction par SPW', timing: 'J+730 à J+850' },
+        { icon: 'check-circle', title: 'Paiement', desc: 'Virement sur RIB fourni', timing: 'J+850' }
+      ]
+    when 'flandre'
+      [
+        { icon: 'hammer', title: 'Réalisation des travaux', desc: 'Travaux conformes normes flamandes', timing: 'J-365 à J-1' },
+        { icon: 'receipt', title: 'Réception factures', desc: 'Factures avec TVA et attestations', timing: 'J-0' },
+        { icon: 'file-earmark-check', title: 'Préparation dossier', desc: 'Code EAN et preuves conformité', timing: 'J+1 à J+30' },
+        { icon: 'send', title: 'Dépôt demande', desc: 'Soumission via RENOLUTION', timing: 'J+30 à J+365' },
+        { icon: 'clock-history', title: 'Traitement', desc: 'Instruction par VEKA', timing: 'J+365 à J+455' },
+        { icon: 'check-circle', title: 'Paiement', desc: 'Virement automatique', timing: 'J+455' }
+      ]
+    else
+      []
+    end
+  %>
+
+  <% if steps.any? %>
+    <div class="row">
+      <% steps.each_with_index do |step, index| %>
+        <div class="col-12 mb-4">
+          <div class="d-flex align-items-start">
+            <!-- Numéro d'étape -->
+            <div class="step-number me-3">
+              <div class="step-circle <%= index <= 1 ? 'bg-success' : index <= 2 ? 'bg-warning' : 'bg-light' %>">
+                <i class="bi bi-<%= step[:icon] %> <%= index <= 2 ? 'text-white' : 'text-muted' %>"></i>
+              </div>
+              <% unless index == steps.length - 1 %>
+                <div class="step-line <%= index <= 1 ? 'bg-success' : 'bg-light' %>"></div>
+              <% end %>
+            </div>
+
+            <!-- Contenu de l'étape -->
+            <div class="flex-grow-1">
+              <div class="card border-0 bg-light h-100">
+                <div class="card-body p-3">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="mb-0 fw-bold"><%= step[:title] %></h6>
+                    <span class="badge <%= index <= 1 ? 'bg-success' : index <= 2 ? 'bg-warning' : 'bg-secondary' %> small">
+                      <%= step[:timing] %>
+                    </span>
+                  </div>
+                  <p class="text-muted small mb-0"><%= step[:desc] %></p>
+
+                  <!-- Actions spécifiques -->
+                  <% if index == 2 && @simulation.property.present? %>
+                    <div class="mt-2">
+                      <%= link_to documents_dashboard_property_path(@simulation.property),
+                          class: "btn btn-outline-primary btn-sm" do %>
+                        <i class="bi bi-folder-plus me-1"></i>Préparer documents
+                      <% end %>
+                    </div>
+                  <% elsif index == 3 && @simulation.property&.completion_percentage.to_i >= 80 %>
+                    <div class="mt-2">
+                      <%= link_to new_request_path(property_id: @simulation.property.id),
+                          class: "btn btn-primary btn-sm" do %>
+                        <i class="bi bi-send me-1"></i>Déposer maintenant
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Légende -->
+    <div class="mt-4 p-3 bg-light rounded">
+      <h6 class="small fw-bold mb-2">📝 Légende du timing</h6>
+      <div class="row g-2 small">
+        <div class="col-md-6">
+          <strong>J-0 :</strong> Date de la facture de solde des travaux
+        </div>
+        <div class="col-md-6">
+          <strong>J+30 :</strong> 30 jours après la facture de solde
+        </div>
+      </div>
+      <p class="text-muted small mt-2 mb-0">
+        <i class="bi bi-info-circle me-1"></i>
+        Ces délais sont indicatifs et peuvent varier selon la complexité du dossier.
+      </p>
+    </div>
+  <% end %>
+</div>
+
+<style>
+.step-number {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.step-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+.step-line {
+  width: 2px;
+  height: 30px;
+  margin-top: 5px;
+}
+</style>
