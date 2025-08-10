@@ -1,18 +1,55 @@
-<!-- ÉTAPE 2: Catégorie Bruxelles -->
-<div class="card border-0 shadow-sm mb-4 h-100" id="category-step" style="display: none;">
+<!-- ÉTAPE 2: Catégorie (seulement si éligible) - Bruxelles -->
+<div class="card border-0 shadow-sm mb-4 h-100" id="category-step" style="<%= @simulation.respond_to?(:eligible) && @simulation.eligible? ? '' : 'display: none;' %>">
   <div class="card-body p-4 d-flex flex-column">
     <h5 class="card-title text-primary-custom mb-3">
       <i class="bi bi-tag me-2"></i>Étape 2 : Catégorie de primes (Bruxelles-Capitale)
     </h5>
 
     <div id="category-status">
-      <div class="alert alert-info d-flex align-items-center" role="alert">
-        <i class="bi bi-info-circle me-3"></i>
-        <div>
-          <h6 class="alert-heading mb-1">🚧 Service en développement</h6>
-          <p class="mb-0">Le service de catégorisation pour Bruxelles sera bientôt disponible.</p>
+      <% if @simulation.respond_to?(:category) && @simulation.category.present? %>
+        <div class="bg-light-custom p-3 rounded mb-3">
+          <div class="d-flex align-items-center">
+            <div class="icon-circle me-3 bg-success text-white">
+              <i class="bi bi-bookmark-fill"></i>
+            </div>
+            <div>
+              <h6 class="mb-1">Catégorie Bruxelles : <%= @simulation.category.gsub('bruxelles_', '').upcase %></h6>
+              <% if @simulation.respond_to?(:category_description) && @simulation.category_description.present? %>
+                <p class="text-muted-custom small mb-0"><%= @simulation.category_description %></p>
+              <% end %>
+              <% if @simulation.respond_to?(:exact_income) && @simulation.exact_income.present? %>
+                <small class="text-muted">Revenus : <%= number_to_currency(@simulation.exact_income, unit: '€', separator: ',', delimiter: ' ') %></small>
+              <% end %>
+            </div>
+          </div>
         </div>
-      </div>
+
+        <!-- Affichage des seuils utilisés -->
+        <% if @simulation.respond_to?(:thresholds_used) && @simulation.thresholds_used.present? %>
+          <div class="alert alert-info small">
+            <strong>Seuils RENOLUTION 2024 pour votre ménage :</strong><br>
+            • Catégorie 1 : jusqu'à <%= number_to_currency(@simulation.thresholds_used[:cat1], unit: '€', separator: ',', delimiter: ' ') %><br>
+            • Catégorie 2 : jusqu'à <%= number_to_currency(@simulation.thresholds_used[:cat2], unit: '€', separator: ',', delimiter: ' ') %><br>
+            • Catégorie 3 : au-delà de <%= number_to_currency(@simulation.thresholds_used[:cat2], unit: '€', separator: ',', delimiter: ' ') %>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="alert alert-warning d-flex align-items-center" role="alert">
+          <i class="bi bi-exclamation-triangle me-3"></i>
+          <div>
+            <h6 class="alert-heading mb-1">⚠️ Catégorie prête à calculer</h6>
+            <p class="mb-0">Cliquez pour déterminer votre catégorie de revenus RENOLUTION Bruxelles et les primes applicables.</p>
+          </div>
+        </div>
+      <% end %>
     </div>
+
+    <% unless @simulation.respond_to?(:category) && @simulation.category.present? %>
+      <div class="mt-3">
+        <button id="determine-category-btn" class="btn btn-success">
+          <i class="bi bi-calculator me-2"></i>Calculer la catégorie Bruxelles
+        </button>
+      </div>
+    <% end %>
   </div>
 </div>

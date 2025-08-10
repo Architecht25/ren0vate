@@ -48,4 +48,21 @@ class Simulation < ApplicationRecord
       'Simulation terminée'
     end
   end
+
+  # Accès aux données de catégorie stockées dans parameters
+  def exact_income
+    return nil unless parameters.present?
+    parsed_params = JSON.parse(parameters)
+    parsed_params['exact_income']
+  rescue JSON::ParserError
+    nil
+  end
+
+  def thresholds_used
+    return nil unless parameters.present?
+    parsed_params = JSON.parse(parameters)
+    parsed_params['thresholds_used']
+  rescue JSON::ParserError
+    nil
+  end
 end

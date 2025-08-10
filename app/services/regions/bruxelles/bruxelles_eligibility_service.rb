@@ -459,12 +459,15 @@ module Regions
           )
         end
 
-        # Calcul normal basé sur les revenus
-        category = determine_income_category_bruxelles(@user.household_income)
+        # Calcul de catégorie via le service dédié
+        category_service = Regions::Bruxelles::BruxellesCategoryService.new(@user, @params, true)
+        category_result = category_service.determine_category
+
+        return ineligible_response("Erreur calcul catégorie") if category_result[:error]
 
         eligible_response(
-          category: category,
-          message: "Éligible aux primes - Catégorie #{category.gsub('bruxelles_', '')} confirmée"
+          category: category_result[:category],
+          message: "Éligible aux primes - Catégorie #{category_result[:category].gsub('bruxelles_', '')} confirmée"
         )
       end
 
@@ -487,48 +490,16 @@ module Regions
       def calculate_precise_category
         return ineligible_response("Revenus non renseignés") unless @user.household_income
 
-        category = determine_income_category_bruxelles(@user.household_income)
+        # Utilisation du service de catégorie dédié
+        category_service = Regions::Bruxelles::BruxellesCategoryService.new(@user, @params, true)
+        category_result = category_service.determine_category
+
+        return ineligible_response("Erreur calcul catégorie") if category_result[:error]
 
         eligible_response(
-          category: category,
-          message: "Éligible aux primes - Catégorie #{category.gsub('bruxelles_', '')} confirmée"
+          category: category_result[:category],
+          message: "Éligible aux primes - Catégorie #{category_result[:category].gsub('bruxelles_', '')} confirmée"
         )
-      end
-
-      def determine_income_category_bruxelles(income)
-        # Barèmes Bruxelles RENOLUTION 2024
-        family_size = get_family_size
-
-        # Seuils selon taille de ménage
-        thresholds = calculate_brussels_thresholds(family_size)
-
-        return "bruxelles_cat1" if income <= thresholds[:cat1]
-        return "bruxelles_cat2" if income <= thresholds[:cat2]
-        "bruxelles_cat3"
-      end
-
-      def get_family_size
-        # Calculer la taille du ménage
-        base_size = @user.marital_status&.in?(%w[married cohabiting]) ? 2 : 1
-        children = @user.children_count || 0
-        elderly = @user.elderly_dependents || 0
-
-        base_size + children + elderly
-      end
-
-      def calculate_brussels_thresholds(family_size)
-        # Seuils Bruxelles selon taille ménage (exemples à ajuster selon les vrais seuils)
-        base_cat1 = 25_000
-        base_cat2 = 45_000
-
-        # Majoration par personne supplémentaire
-        additional_per_person = 5_000
-        bonus = (family_size - 1) * additional_per_person
-
-        {
-          cat1: base_cat1 + bonus,
-          cat2: base_cat2 + bonus
-        }
       end
 
       def check_basic_eligibility

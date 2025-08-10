@@ -331,7 +331,7 @@ class SimulationsController < ApplicationController
   # ÉTAPE 2: Détermination de la catégorie
   def perform_category_determination(simulation)
     region = simulation.region&.downcase
-    return unless simulation.eligible? && ['wallonie', 'flandre'].include?(region)
+    return unless simulation.eligible? && ['wallonie', 'flandre', 'bruxelles'].include?(region)
 
     # Choisir le service de catégorie selon la région
     if region == 'wallonie'
@@ -350,23 +350,41 @@ class SimulationsController < ApplicationController
         },
         user: current_user
       )
+    elsif region == 'bruxelles'
+      category_service = Regions::Bruxelles::BruxellesCategoryService.new(
+        current_user,
+        {
+          property_id: simulation.property_id,
+          project_id: simulation.project_id
+        },
+        true # post_login
+      )
     end
 
     result = category_service.determine_category
 
-    if result[:eligible]
+    if result[:error]
+      # Gestion des erreurs spécifiques
+      simulation.update(
+        eligible: false,
+        ineligibility_reason: result[:error]
+      )
+    else
+      # Succès - mise à jour avec la catégorie
+      # Préparer les paramètres existants
+      existing_params = simulation.parameters ? JSON.parse(simulation.parameters) : {}
+      existing_params.merge!({
+        'exact_income' => result[:exact_income],
+        'thresholds_used' => result[:thresholds_used]
+      })
+      
       simulation.update(
         category: result[:category],
-        category_description: result[:details]
+        category_description: result[:details],
+        parameters: existing_params.to_json
       )
       # Déclencher l'étape 3 automatiquement
       perform_primes_calculation(simulation)
-    else
-      # Si non éligible au niveau catégorie, mise à jour de l'éligibilité globale
-      simulation.update(
-        eligible: false,
-        ineligibility_reason: result[:error] || "Non éligible pour les primes"
-      )
     end
   end
 

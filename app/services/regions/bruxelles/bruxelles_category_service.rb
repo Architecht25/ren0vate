@@ -7,31 +7,8 @@ module Regions
       def determine_category
         log_calculation("Début détermination catégorie Bruxelles", @params)
 
-        if @is_post_login
-          determine_category_post_login
-        else
-          determine_category_pre_login
-        end
-      end
-
-      private
-
-      def determine_category_pre_login
-        # Version simplifiée basée sur autodéclaration
-        category = estimate_category_from_params
-
-        {
-          category: category,
-          color: category_color(category),
-          details: category_details(category),
-          needs_refinement: category.include?("-"),
-          system: "RENOLUTION"
-        }
-      end
-
-      def determine_category_post_login
-        # Version précise avec données utilisateur réelles
-        return { error: "Revenus non renseignés" } unless @user.household_income
+        # Version précise avec données utilisateur réelles (post-login uniquement)
+        return { error: "Revenus non renseignés" } unless @user&.household_income
 
         family_composition = get_family_composition
         category = calculate_category_from_income(@user.household_income, family_composition)
@@ -48,36 +25,14 @@ module Regions
         }
       end
 
-      def estimate_category_from_params
-        # Estimation basée sur les paramètres fournis
-        if get_param(:revenus_bas) == "oui"
-          "bruxelles_cat1"
-        elsif get_param(:revenus_moyens) == "oui"
-          "bruxelles_cat2"
-        elsif get_param(:revenus_eleves) == "oui"
-          "bruxelles_cat3"
-        elsif get_param(:revenus_precis)
-          # Si montant précis fourni
-          income = get_param(:revenus_precis).to_f
-          return "bruxelles_cat1-cat3" if income <= 0
-
-          # Estimation rapide avec ménage type (2 personnes)
-          thresholds = calculate_thresholds({ family_size: 2 })
-          return "bruxelles_cat1" if income <= thresholds[:cat1]
-          return "bruxelles_cat2" if income <= thresholds[:cat2]
-          "bruxelles_cat3"
-        else
-          # Pas assez d'infos pour estimer
-          "bruxelles_cat1-cat3"
-        end
-      end
+      private
 
       def get_family_composition
         {
           family_size: calculate_family_size,
-          marital_status: @user&.marital_status || get_param(:statut_familial),
-          children_count: @user&.children_count || get_param(:enfants_charge).to_i,
-          elderly_dependents: @user&.elderly_dependents || get_param(:personnes_agees_charge).to_i
+          marital_status: @user.marital_status,
+          children_count: @user.children_count || 0,
+          elderly_dependents: @user.elderly_dependents || 0
         }
       end
 
@@ -85,14 +40,13 @@ module Regions
         base_size = 1
 
         # Ajouter conjoint si applicable
-        if @user&.marital_status&.in?(%w[married cohabiting]) ||
-           get_param(:statut_familial)&.in?(%w[married cohabiting])
+        if @user.marital_status&.in?(%w[married cohabiting])
           base_size += 1
         end
 
         # Ajouter personnes à charge
-        children = @user&.children_count || get_param(:enfants_charge).to_i
-        elderly = @user&.elderly_dependents || get_param(:personnes_agees_charge).to_i
+        children = @user.children_count || 0
+        elderly = @user.elderly_dependents || 0
 
         base_size + children + elderly
       end
@@ -108,15 +62,15 @@ module Regions
       def calculate_thresholds(family_composition)
         family_size = family_composition[:family_size] || 2
 
-        # Seuils de base Bruxelles RENOLUTION 2024
-        # (À ajuster selon les vrais barèmes)
+        # Seuils officiels Bruxelles RENOLUTION 2024 (depuis db/seeds/bruxelles/categories.rb)
         base_thresholds = {
-          cat1: 27_000,  # Revenus modestes
-          cat2: 48_000   # Revenus moyens
+          cat1: 37_600,  # Revenus modestes - Primes RENOLUTION maximales
+          cat2: 75_100   # Revenus moyens - Primes RENOLUTION moyennes
+          # cat3: 93_000+ # Revenus élevés - Primes RENOLUTION de base (pas de seuil supérieur)
         }
 
         # Majoration par personne supplémentaire au-delà de 1
-        additional_per_person = 5_200
+        additional_per_person = 5_000  # Selon seeds officiels
         bonus = [family_size - 1, 0].max * additional_per_person
 
         {
