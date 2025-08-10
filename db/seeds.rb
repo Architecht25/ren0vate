@@ -115,3 +115,11 @@ else
 end
 
 puts "✅ Seeds terminés"
+
+# ➤ AIDES AUX ENTREPRISES - Chargement des seeds
+puts "\n🏢 === AIDES AUX ENTREPRISES ==="
+entreprises_bruxelles_path = Rails.root.join("db", "seeds", "entreprises", "bruxelles", "aides.rb")
+if File.exist?(entreprises_bruxelles_path)
+  puts "🔹 Chargement de : #{entreprises_bruxelles_path}"
+  load entreprises_bruxelles_path
+end

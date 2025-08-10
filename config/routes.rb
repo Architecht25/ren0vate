@@ -2,6 +2,12 @@ Rails.application.routes.draw do
   devise_for :users
   root "pages#home"
 
+  # API routes for enterprise aids
+  namespace :api do
+    get 'entreprises/bce/:numero_bce', to: 'entreprises#bce_lookup'
+    get 'entreprises/bruxelles/aides', to: 'entreprises#bruxelles_aides'
+  end
+
   # Dashboard routes
   get '/dashboard', to: 'dashboard#index', as: :dashboard
 

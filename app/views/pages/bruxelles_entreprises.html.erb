@@ -12,38 +12,66 @@
   </div>
 </div>
 
-<!-- Layout principal: 3 colonnes pleine largeur -->
-<div class="container-fluid px-4 py-3">
+<!-- Workflow principal avec étapes -->
+<div class="container-fluid px-4 py-3" data-controller="workflow">
+  <!-- Indicateur de progression -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <%= render 'pages/bruxelles_entreprises/workflow_progress' %>
+    </div>
+  </div>
+
   <div class="row">
-    <!-- Colonne 1: BCE + Éligibilité (30%) -->
-    <div class="col-lg-4">
-      <!-- Recherche BCE -->
-      <div class="mb-4">
-        <%= render 'pages/bruxelles_entreprises/bce_search' %>
+    <!-- ÉTAPE 1: Recherche BCE + Informations entreprise -->
+    <div class="col-lg-4" data-workflow-target="step1">
+      <div class="card shadow-lg border-0 mb-4">
+        <div class="card-header bg-success text-white py-3">
+          <h4 class="mb-0">
+            <span class="badge bg-light text-success rounded-circle me-2">1</span>
+            Identification Entreprise
+          </h4>
+        </div>
+        <div class="card-body">
+          <%= render 'pages/bruxelles_entreprises/enhanced_bce_search' %>
+        </div>
       </div>
     </div>
 
-    <!-- Colonne 2: Questions + Résultats (30%) -->
-    <div class="col-lg-4">
-      <!-- Questions supplémentaires -->
-      <div class="mb-4">
-        <%= render 'pages/bruxelles_entreprises/eligibility_form' %>
-      </div>
-
-      <!-- Résultats de simulation -->
-      <div class="mb-4">
-        <%= render 'pages/bruxelles_entreprises/simulation_results' %>
-      </div>
-
-      <!-- Zone de résultats d'éligibilité -->
-      <div id="result" data-test_eligibilite_entreprises_target="result">
-        <!-- Les résultats d'éligibilité apparaîtront ici -->
+    <!-- ÉTAPE 2: Test d'éligibilité intelligent -->
+    <div class="col-lg-4" data-workflow-target="step2" data-controller="eligibility-checker">
+      <div class="card shadow-lg border-0 mb-4">
+        <div class="card-header bg-primary text-white py-3">
+          <h4 class="mb-0">
+            <span class="badge bg-light text-primary rounded-circle me-2">2</span>
+            Éligibilité & Diagnostics
+          </h4>
+        </div>
+        <div class="card-body">
+          <%= render 'pages/bruxelles_entreprises/eligibility_checker' %>
+        </div>
       </div>
     </div>
 
-    <!-- Colonne 3: Cartes d'estimation des aides (40%) -->
-    <div class="col-lg-4">
-      <%= render 'pages/bruxelles_entreprises/estimation_cards' %>
+    <!-- ÉTAPE 3: Calculateur d'aides personnalisé -->
+    <div class="col-lg-4" data-workflow-target="step3" data-controller="aid-calculator">
+      <div class="card shadow-lg border-0 mb-4">
+        <div class="card-header bg-warning text-dark py-3">
+          <h4 class="mb-0">
+            <span class="badge bg-dark text-warning rounded-circle me-2">3</span>
+            Calculateur d'Aides
+          </h4>
+        </div>
+        <div class="card-body">
+          <%= render 'pages/bruxelles_entreprises/aid_calculator' %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section récapitulatif final -->
+  <div class="row mt-4" id="final-summary" style="display: none;">
+    <div class="col-12">
+      <%= render 'pages/bruxelles_entreprises/final_summary' %>
     </div>
   </div>
 </div>
@@ -79,5 +107,37 @@
 
 .bce-info-item:last-child {
   border-bottom: none;
+}
+
+/* Styles pour le workflow par étapes */
+.step-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.step-disabled .card {
+  background-color: #f8f9fa !important;
+}
+
+.step-disabled .card-header {
+  background-color: #6c757d !important;
+}
+
+.step-active {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+  animation: stepActivate 0.5s ease-in-out;
+}
+
+@keyframes stepActivate {
+  0% {
+    transform: scale(0.98);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 </style>

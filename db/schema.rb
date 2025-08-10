@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_10_095557) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_10_141727) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -77,6 +77,27 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_10_095557) do
     t.index ["request_id"], name: "index_documents_on_request_id"
     t.index ["simulation_id"], name: "index_documents_on_simulation_id"
     t.index ["user_id"], name: "index_documents_on_user_id"
+  end
+
+  create_table "entreprise_aides", force: :cascade do |t|
+    t.string "titre"
+    t.string "slug"
+    t.text "description"
+    t.string "region"
+    t.string "categorie"
+    t.json "secteurs_eligibles"
+    t.json "tailles_eligibles"
+    t.decimal "montant_min"
+    t.decimal "montant_max"
+    t.decimal "taux_aide"
+    t.json "conditions_eligibilite"
+    t.json "documents_requis"
+    t.string "url_officielle"
+    t.string "statut"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.jsonb "modalites_paiement"
+    t.jsonb "delais_procedures"
   end
 
   create_table "notifications", force: :cascade do |t|

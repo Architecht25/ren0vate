@@ -1,0 +1,124 @@
+<!-- Recherche BCE améliorée -->
+<div data-controller="enhanced-bce-search">
+  <div class="mb-3">
+    <label class="form-label fw-bold">
+      <i class="fas fa-building me-2"></i>
+      Numéro d'entreprise BCE
+    </label>
+    <div class="input-group">
+      <input type="text"
+             id="numero_entreprise_bce"
+             class="form-control form-control-lg"
+             placeholder="Ex: 0833618097"
+             pattern="[0-9]{10}"
+             maxlength="10"
+             data-enhanced-bce-search-target="input">
+      <button type="button"
+              class="btn btn-success"
+              data-enhanced-bce-search-target="searchButton"
+              data-action="click->enhanced-bce-search#searchCompany">
+        <i class="fas fa-search me-2"></i>
+        Rechercher
+      </button>
+    </div>
+    <div class="form-text">
+      <i class="fas fa-info-circle me-1"></i>
+      Saisissez le numéro BCE à 10 chiffres de votre entreprise
+    </div>
+  </div>
+
+  <!-- Zone de loading -->
+  <div id="bce-loading"
+       class="text-center py-3"
+       style="display: none;"
+       data-enhanced-bce-search-target="loading">
+    <div class="spinner-border text-success" role="status">
+      <span class="visually-hidden">Recherche en cours...</span>
+    </div>
+    <p class="mt-2 text-muted">Recherche des informations BCE...</p>
+  </div>
+
+  <!-- Messages d'erreur -->
+  <div id="bce-error" class="alert alert-danger" style="display: none;">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    <span id="bce-error-message"></span>
+  </div>
+
+  <!-- Aide contextuelle -->
+  <div class="card border-info mt-3">
+    <div class="card-body py-3">
+      <h6 class="card-title text-info mb-2">
+        <i class="fas fa-lightbulb me-2"></i>
+        Comment trouver votre numéro BCE ?
+      </h6>
+      <ul class="list-unstyled mb-0 small">
+        <li><i class="fas fa-check text-success me-2"></i>Consultez vos documents officiels (statuts, contrats)</li>
+        <li><i class="fas fa-check text-success me-2"></i>Vérifiez sur le site <a href="https://kbopub.economie.fgov.be" target="_blank">kbopub.economie.fgov.be</a></li>
+        <li><i class="fas fa-check text-success me-2"></i>Contactez votre comptable ou secrétariat social</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Informations entreprise (s'affiche après la recherche) -->
+  <div class="card border-success mt-3" style="display: none;" data-enhanced-bce-search-target="companyInfo">
+    <div class="card-header bg-success text-white">
+      <h5 class="mb-0">
+        <i class="fas fa-building me-2"></i>
+        Informations Entreprise
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-2">
+            <strong>Dénomination :</strong>
+            <span id="company-name" class="text-success fw-bold"></span>
+          </div>
+          <div class="mb-2">
+            <strong>Numéro BCE :</strong>
+            <span id="company-bce" class="font-monospace"></span>
+          </div>
+          <div class="mb-2">
+            <strong>Forme juridique :</strong>
+            <span id="company-legal-form"></span>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-2">
+            <strong>Adresse :</strong>
+            <div id="company-address" class="small"></div>
+          </div>
+          <div class="mb-2">
+            <strong>Code NACE :</strong>
+            <span id="company-nace" class="font-monospace"></span>
+          </div>
+          <div class="mb-2">
+            <strong>Statut :</strong>
+            <span id="company-status" class="badge"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analyse automatique -->
+      <div class="alert alert-info mt-3" id="auto-analysis">
+        <h6 class="alert-heading">
+          <i class="fas fa-robot me-2"></i>
+          Analyse Automatique
+        </h6>
+        <div id="auto-analysis-content">
+          <!-- Le contenu sera rempli dynamiquement -->
+        </div>
+      </div>
+
+      <!-- Bouton pour passer à l'étape suivante -->
+      <div class="text-center mt-3">
+        <button type="button"
+                class="btn btn-primary btn-lg"
+                data-action="click->enhanced-bce-search#nextStep">
+          <i class="fas fa-arrow-right me-2"></i>
+          Vérifier l'Éligibilité
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

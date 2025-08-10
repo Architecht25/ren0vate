@@ -29,6 +29,10 @@ import BruxellesPrimeCalculController from "controllers/bruxelles_prime_calcul_c
 import BceSearchController from "controllers/bce_search_controller"
 import LogoutModalController from "controllers/logout_modal_controller"
 import BruxellesAidesEstimationController from "controllers/bruxelles_aides_estimation_controller"
+import WorkflowController from "controllers/workflow_controller"
+import EnhancedBceSearchController from "controllers/enhanced_bce_search_controller"
+import EligibilityCheckerController from "controllers/eligibility_checker_controller"
+import AidCalculatorController from "controllers/aid_calculator_controller"
 
 application.register("user_type", UserTypeController)
 application.register("test-eligibilite", TestEligibiliteController)
@@ -44,5 +48,9 @@ application.register("bruxelles-prime-calcul", BruxellesPrimeCalculController)
 application.register("bce-search", BceSearchController)
 application.register("logout-modal", LogoutModalController)
 application.register("bruxelles-aides-estimation", BruxellesAidesEstimationController)
+application.register("workflow", WorkflowController)
+application.register("enhanced-bce-search", EnhancedBceSearchController)
+application.register("eligibility-checker", EligibilityCheckerController)
+application.register("aid-calculator", AidCalculatorController)
 
 export { application }
