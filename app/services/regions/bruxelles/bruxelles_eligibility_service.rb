@@ -227,7 +227,7 @@ module Regions
 
       def property_in_bruxelles_by_postal_code?(property)
         # Codes postaux de la Région de Bruxelles-Capitale
-        postal_code = property.code_postal || property.cp
+        postal_code = property.code_postal
         return false unless postal_code.present?
 
         postal_int = postal_code.to_i
@@ -245,7 +245,6 @@ module Regions
       def property_for_habitation?(property)
         # Vérification que le bien est destiné à l'habitation
         return true if property.usage == 'residentiel'
-        return true if property.destination == 'habitation'
 
         # Par défaut, si pas de données contraires, on assume habitation
         property.usage != 'commercial' && property.usage != 'industriel'
@@ -262,7 +261,7 @@ module Regions
           plein_proprietaire
         ]
 
-        return true if property.type_propriete_bruxelles.in?(proprietaire_types)
+        return true if property.type_bien_bruxelles.in?(proprietaire_types)
         return true if property.type_propriete.in?(proprietaire_types)
 
         # Par défaut, si l'utilisateur a créé la propriété, on assume qu'il est propriétaire
@@ -340,7 +339,9 @@ module Regions
 
       def parties_communes_invalid?(property, project)
         # Vérification travaux parties communes pour appartements
-        return false unless property.property_type == 'apartment'
+        is_apartment = property.type_bien_bruxelles == 'appartement' ||
+                      property.type_propriete == 'appartement'
+        return false unless is_apartment
 
         # Si travaux concernent parties communes sans être ACP
         return true if project&.parties_communes == true && @user.type_demandeur != 'acp'
@@ -385,8 +386,8 @@ module Regions
 
       def type_propriete_valid?(property)
         # Vérification type de propriété (appartement ou maison)
-        return true if property.property_type.in?(%w[apartment house])
-        return true if property.type_bien.in?(%w[appartement maison])
+        return true if property.type_bien_bruxelles.in?(%w[appartement maison])
+        return true if property.type_propriete.in?(%w[appartement maison])
 
         true # Par défaut valide
       end

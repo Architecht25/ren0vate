@@ -303,12 +303,11 @@ class SimulationsController < ApplicationController
       )
     elsif region == 'bruxelles'
       eligibility_service = Regions::Bruxelles::BruxellesEligibilityService.new(
-        params: {
+        {
           property_id: simulation.property_id,
           project_id: simulation.project_id
         },
-        user: current_user,
-        is_post_login: user_signed_in?
+        user: current_user
       )
     end
 
