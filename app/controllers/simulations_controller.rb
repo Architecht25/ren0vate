@@ -377,7 +377,7 @@ class SimulationsController < ApplicationController
         'exact_income' => result[:exact_income],
         'thresholds_used' => result[:thresholds_used]
       })
-      
+
       simulation.update(
         category: result[:category],
         category_description: result[:details],
