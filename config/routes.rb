@@ -119,6 +119,10 @@ Rails.application.routes.draw do
   # Nouveau simulateur : Aides aux entreprises Bruxelles
   get '/bruxelles-entreprises', to: 'pages#bruxelles_entreprises', as: :bruxelles_entreprises
   post '/bruxelles-entreprises/test-eligibility', to: 'pages#test_eligibility_bruxelles_entreprises', as: :test_eligibility_bruxelles_entreprises
+
+  # Pages d'information sur les aides aux entreprises (autres régions)
+  get '/flandre-entreprises', to: 'pages#flandre_entreprises', as: :flandre_entreprises
+  get '/wallonie-entreprises', to: 'pages#wallonie_entreprises', as: :wallonie_entreprises
   get '/mentions-legales', to: 'pages#legal', as: :legal
   get '/politique-de-confidentialite', to: 'pages#privacy', as: :privacy
 end

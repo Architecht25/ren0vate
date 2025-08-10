@@ -1,5 +1,5 @@
 class PagesController < ApplicationController
-  skip_before_action :authenticate_user!, only: [:home, :flandre, :wallonie, :bruxelles, :bruxelles_entreprises, :select_profile_wallonie, :test_eligibility_wallonie, :estimate_category_wallonie, :select_profile_bruxelles, :test_eligibility_bruxelles, :estimate_category_bruxelles, :test_eligibility_bruxelles_entreprises, :legal, :privacy]
+  skip_before_action :authenticate_user!, only: [:home, :flandre, :wallonie, :bruxelles, :bruxelles_entreprises, :flandre_entreprises, :wallonie_entreprises, :select_profile_wallonie, :test_eligibility_wallonie, :estimate_category_wallonie, :select_profile_bruxelles, :test_eligibility_bruxelles, :estimate_category_bruxelles, :test_eligibility_bruxelles_entreprises, :legal, :privacy]
   skip_before_action :verify_authenticity_token, only: [:select_profile_wallonie, :test_eligibility_wallonie, :estimate_category_wallonie, :select_profile_bruxelles, :test_eligibility_bruxelles, :estimate_category_bruxelles, :test_eligibility_bruxelles_entreprises]
 
   def home
@@ -533,4 +533,18 @@ class PagesController < ApplicationController
     # Page politique de confidentialité
   end
 
+  def flandre_entreprises
+    # Page d'information sur les aides aux entreprises en Flandre
+    # Simple page de redirection vers les sites officiels flamands
+  end
+
+  def wallonie_entreprises
+    # Page d'information sur les aides aux entreprises en Wallonie
+    # Simple page de redirection vers les sites officiels wallons
+  end
+
+  private
+
 end
+
+  private
