@@ -1,13 +1,14 @@
-class BruxellesEntreprisesEligibilityService
-  attr_reader :params
+module Entreprises
+  class BruxellesEntreprisesEligibilityService
+    attr_reader :params
 
-  def initialize(params)
-    @params = params
-    Rails.logger.info "🏢 Service d'éligibilité Bruxelles Entreprises initialisé avec: #{params.inspect}"
-  end
+    def initialize(params)
+      @params = params
+      Rails.logger.info "🏢 Service d'éligibilité Bruxelles Entreprises initialisé avec: #{params.inspect}"
+    end
 
-  def check_eligibility
-    Rails.logger.info "🎯 Début vérification éligibilité entreprise Bruxelles"
+    def check_eligibility
+      Rails.logger.info "🎯 Début vérification éligibilité entreprise Bruxelles"
 
     # Vérifications d'éligibilité de base
     return ineligible("❌ Le siège d'exploitation doit être situé en Région de Bruxelles-Capitale") if params[:localisation] == "non"
@@ -152,5 +153,6 @@ class BruxellesEntreprisesEligibilityService
     }
 
     categories
+  end
   end
 end

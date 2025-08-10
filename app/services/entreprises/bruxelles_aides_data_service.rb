@@ -1,13 +1,14 @@
-class BruxellesAidesDataService
-  # Données complètes des aides aux entreprises bruxelloises
-  # Source: economie-emploi.brussels
+module Entreprises
+  class BruxellesAidesDataService
+    # Données complètes des aides aux entreprises bruxelloises
+    # Source: economie-emploi.brussels
 
-  def self.get_all_categories
-    {
-      transition_economique: {
-        name: "Transition économique",
-        icon: "🌱",
-        description: "Accompagnement vers la transition sociale, environnementale et numérique",
+    def self.get_all_categories
+      {
+        transition_economique: {
+          name: "Transition économique",
+          icon: "🌱",
+          description: "Accompagnement vers la transition sociale, environnementale et numérique",
         color: "success",
         aides: get_transition_economique_aides
       },
@@ -386,5 +387,6 @@ class BruxellesAidesDataService
         info: "Les primes d'exportation sont temporairement suspendues. De nouvelles modalités sont en cours d'élaboration. Consultez régulièrement le site economie-emploi.brussels pour les dernières mises à jour."
       }
     ]
+  end
   end
 end

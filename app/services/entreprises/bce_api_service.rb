@@ -1,12 +1,13 @@
-class BceApiService
-  include HTTParty
+module Entreprises
+  class BceApiService
+    include HTTParty
 
-  # API BCE officielle - Service Web Public Search
-  PRODUCTION_ENDPOINT = 'https://kbopub.economie.fgov.be/kbopubws110000/services/wsKBOPub'
-  TEST_ENDPOINT = 'https://kbopub-acc.economie.fgov.be/kbopubws110000/services/wsKBOPub'
+    # API BCE officielle - Service Web Public Search
+    PRODUCTION_ENDPOINT = 'https://kbopub.economie.fgov.be/kbopubws110000/services/wsKBOPub'
+    TEST_ENDPOINT = 'https://kbopub-acc.economie.fgov.be/kbopubws110000/services/wsKBOPub'
 
-  # Utiliser l'environnement de test pour le développement
-  BASE_URL = Rails.env.production? ? PRODUCTION_ENDPOINT : TEST_ENDPOINT
+    # Utiliser l'environnement de test pour le développement
+    BASE_URL = Rails.env.production? ? PRODUCTION_ENDPOINT : TEST_ENDPOINT
 
   def self.search_company(enterprise_number)
     # Pour le moment, on garde la simulation jusqu'à obtenir les credentials d'authentification
@@ -235,3 +236,5 @@ end
 #
 # Documentation complète dans : cookbook-bce-public-search.pdf
 # Support : kbo-bce-webservice@economie.fgov.be
+  end
+end

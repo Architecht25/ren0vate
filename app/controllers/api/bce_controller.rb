@@ -11,7 +11,7 @@ class Api::BceController < ApplicationController
       return
     end
 
-    result = BceApiService.search_company(enterprise_number)
+    result = Entreprises::BceApiService.search_company(enterprise_number)
 
     if result[:error]
       render json: result, status: :not_found

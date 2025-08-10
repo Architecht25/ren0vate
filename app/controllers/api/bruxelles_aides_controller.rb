@@ -4,7 +4,7 @@ class Api::BruxellesAidesController < ApplicationController
 
   def categories
     begin
-      categories = BruxellesAidesDataService.get_all_categories
+      categories = Entreprises::BruxellesAidesDataService.get_all_categories
 
       # Simplifier la structure pour l'aperçu des catégories
       simplified_categories = categories.map do |key, category|
@@ -45,7 +45,7 @@ class Api::BruxellesAidesController < ApplicationController
         }, status: 400
       end
 
-      category_data = BruxellesAidesDataService.get_category_details(category_key)
+      category_data = Entreprises::BruxellesAidesDataService.get_category_details(category_key)
 
       if category_data.empty?
         return render json: {
