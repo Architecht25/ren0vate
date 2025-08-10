@@ -1,0 +1,524 @@
+<!-- Section Étape 3: Cartes des primes Flandre -->
+<div class="text-center mb-4">
+  <h3 class="text-primary-custom mb-2">
+    <i class="bi bi-calculator me-2"></i>
+    Vos primes Flandre - Catégorie R1 (Revenus très faibles)
+  </h3>
+  <p class="text-muted-custom small">Les montants s'ajustent automatiquement selon votre catégorie de revenus</p>
+</div>
+
+<div class="row g-4">
+  <!-- Ligne 1: 6 cartes -->
+  <div class="row g-4 mb-4">
+    <!-- Carte 1: Isolation toiture -->
+    <div class="col-lg-2 col-md-4 col-sm-6">
+      <div class="card border-0 shadow h-100" data-controller="flandre-prime-card" data-flandre-prime-card-slug-value="isolation_toiture">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+              <i class="bi bi-house fs-5 text-warning"></i>
+            </div>
+            <div>
+              <h6 class="card-title mb-1">Isolation de la toiture</h6>
+              <small class="text-muted">Par m²</small>
+            </div>
+          </div>
+
+          <!-- Input superficie -->
+          <div class="mb-3">
+            <label class="form-label small">Surface (m²) :</label>
+            <input type="number" class="form-control form-control-sm" placeholder="0" min="0" step="0.1"
+                   data-flandre-prime-card-target="input" data-action="input->flandre-prime-card#calculate">
+          </div>
+
+          <div class="mt-auto">
+            <div class="result-container p-3 bg-light rounded">
+              <div class="text-center">
+                <span class="badge bg-warning fs-6" data-flandre-prime-card-target="result">0 €</span>
+                <div class="small text-muted mt-1">Prime calculée</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carte 2: Isolation murs cat 1-2 -->
+    <div class="col-lg-2 col-md-4 col-sm-6">
+      <div class="card border-0 shadow h-100" data-controller="flandre-prime-card" data-flandre-prime-card-slug-value="isolation_murs_cat12">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+              <i class="bi bi-bricks fs-5 text-primary"></i>
+            </div>
+            <div>
+              <h6 class="card-title mb-1">Isolation murs (cat. 1-2)</h6>
+              <small class="text-muted">Par m²</small>
+            </div>
+          </div>
+
+          <!-- Type de mur et surface -->
+          <div class="mb-2">
+            <label class="form-label small">Type de mur :</label>
+            <select class="form-select form-select-sm mb-2" data-flandre-prime-card-target="typeMur">
+              <option value="">Choisissez</option>
+              <option value="mur_creux">Mur creux</option>
+              <option value="interieur">Intérieur</option>
+              <option value="exterieur">Extérieur</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small">Surface (m²) :</label>
+            <input type="number" class="form-control form-control-sm" placeholder="0" min="0" step="0.1"
+                   data-flandre-prime-card-target="input" data-action="input->flandre-prime-card#calculate">
+          </div>
+
+          <div class="mt-auto">
+            <div class="result-container p-3 bg-light rounded">
+              <div class="text-center">
+                <span class="badge bg-primary fs-6" data-flandre-prime-card-target="result">0 €</span>
+                <div class="small text-muted mt-1">Prime calculée</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carte 3: Isolation murs cat 3-4 -->
+    <div class="col-lg-2 col-md-4 col-sm-6">
+      <div class="card border-0 shadow h-100" data-controller="flandre-prime-card" data-flandre-prime-card-slug-value="isolation_murs_cat34">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+              <i class="bi bi-bricks fs-5 text-success"></i>
+            </div>
+            <div>
+              <h6 class="card-title mb-1">Isolation murs (cat. 3-4)</h6>
+              <small class="text-muted">Montant facture</small>
+            </div>
+          </div>
+
+          <!-- Montant facture -->
+          <div class="mb-3">
+            <label class="form-label small">Montant facture (€) :</label>
+            <input type="number" class="form-control form-control-sm" placeholder="0" min="0"
+                   data-flandre-prime-card-target="input" data-action="input->flandre-prime-card#calculate">
+          </div>
+
+          <div class="mt-auto">
+            <div class="result-container p-3 bg-light rounded">
+              <div class="text-center">
+                <span class="badge bg-success fs-6" data-flandre-prime-card-target="result">0 €</span>
+                <div class="small text-muted mt-1">Prime calculée</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carte 4: Isolation sol -->
+    <div class="col-lg-2 col-md-4 col-sm-6">
+      <div class="card border-0 shadow h-100" data-controller="flandre-prime-card" data-flandre-prime-card-slug-value="isolation_sol">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+              <i class="bi bi-bounding-box fs-5 text-secondary"></i>
+            </div>
+            <div>
+              <h6 class="card-title mb-1">Isolation du sol</h6>
+              <small class="text-muted">Par m²</small>
+            </div>
+          </div>
+
+          <!-- Input superficie -->
+          <div class="mb-3">
+            <label class="form-label small">Surface (m²) :</label>
+            <input type="number" class="form-control form-control-sm" placeholder="0" min="0" step="0.1"
+                   data-flandre-prime-card-target="input" data-action="input->flandre-prime-card#calculate">
+          </div>
+
+          <div class="mt-auto">
+            <div class="result-container p-3 bg-light rounded">
+              <div class="text-center">
+                <span class="badge bg-secondary fs-6" data-flandre-prime-card-target="result">0 €</span>
+                <div class="small text-muted mt-1">Prime calculée</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carte 5: Remplacement châssis et portes -->
+    <div class="col-lg-2 col-md-4 col-sm-6">
+      <div class="card border-0 shadow h-100" data-controller="flandre-prime-card" data-flandre-prime-card-slug-value="ramen_deuren">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+              <i class="bi bi-windows fs-5 text-info"></i>
+            </div>
+            <div>
+              <h6 class="card-title mb-1">Châssis et portes</h6>
+              <small class="text-muted">Par m²</small>
+            </div>
+          </div>
+
+          <!-- Input superficie -->
+          <div class="mb-3">
+            <label class="form-label small">Surface (m²) :</label>
+            <input type="number" class="form-control form-control-sm" placeholder="0" min="0" step="0.1"
+                   data-flandre-prime-card-target="input" data-action="input->flandre-prime-card#calculate">
+          </div>
+
+          <div class="mt-auto">
+            <div class="result-container p-3 bg-light rounded">
+              <div class="text-center">
+                <span class="badge bg-info fs-6" data-flandre-prime-card-target="result">0 €</span>
+                <div class="small text-muted mt-1">Prime calculée</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carte 6: Travaux préparatoires isolation -->
+    <div class="col-lg-2 col-md-4 col-sm-6">
+      <div class="card border-0 shadow h-100" data-controller="flandre-prime-card" data-flandre-prime-card-slug-value="voorbereiding_isolatie">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+              <i class="bi bi-tools fs-5 text-warning"></i>
+            </div>
+            <div>
+              <h6 class="card-title mb-1">Travaux préparatoires</h6>
+              <small class="text-muted">Pour isolation</small>
+            </div>
+          </div>
+
+          <!-- Montant facture -->
+          <div class="mb-3">
+            <label class="form-label small">Montant facture (€) :</label>
+            <input type="number" class="form-control form-control-sm" placeholder="0" min="0"
+                   data-flandre-prime-card-target="input" data-action="input->flandre-prime-card#calculate">
+          </div>
+
+          <div class="mt-auto">
+            <div class="result-container p-3 bg-light rounded">
+              <div class="text-center">
+                <span class="badge bg-warning fs-6" data-flandre-prime-card-target="result">0 €</span>
+                <div class="small text-muted mt-1">Prime calculée</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ligne 2: 6 cartes -->
+  <div class="row g-4 mb-4">
+    <!-- Carte 7: Pompe à chaleur -->
+    <div class="col-lg-2 col-md-4 col-sm-6">
+      <div class="card border-0 shadow h-100" data-controller="flandre-prime-card" data-flandre-prime-card-slug-value="warmtepomp">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+              <i class="bi bi-wind fs-5 text-success"></i>
+            </div>
+            <div>
+              <h6 class="card-title mb-1">Pompe à chaleur</h6>
+              <small class="text-muted">Forfait selon type</small>
+            </div>
+          </div>
+
+          <!-- Type de pompe -->
+          <div class="mb-2">
+            <label class="form-label small">Type de pompe :</label>
+            <select class="form-select form-select-sm mb-2" data-flandre-prime-card-target="typePompe" data-action="change->flandre-prime-card#calculate">
+              <option value="">Choisissez</option>
+              <option value="geothermique">Géothermique</option>
+              <option value="air_eau">Air/Eau</option>
+              <option value="air_air">Air/Air</option>
+              <option value="hybride">Hybride</option>
+            </select>
+          </div>
+
+          <!-- Montant facture -->
+          <div class="mb-3">
+            <label class="form-label small">Montant facture (€) :</label>
+            <input type="number" class="form-control form-control-sm" placeholder="0" min="0"
+                   data-flandre-prime-card-target="input" data-action="input->flandre-prime-card#calculate">
+          </div>
+
+          <div class="mt-auto">
+            <div class="result-container p-3 bg-light rounded">
+              <div class="text-center">
+                <span class="badge bg-success fs-6" data-flandre-prime-card-target="result">0 €</span>
+                <div class="small text-muted mt-1">Prime calculée</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carte 8: Travaux préparatoires sanitaire/électricité -->
+    <div class="col-lg-2 col-md-4 col-sm-6">
+      <div class="card border-0 shadow h-100" data-controller="flandre-prime-card" data-flandre-prime-card-slug-value="voorbereiding_sanitair_elec">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+              <i class="bi bi-plug fs-5 text-danger"></i>
+            </div>
+            <div>
+              <h6 class="card-title mb-1">Travaux sanitaires/élec.</h6>
+              <small class="text-muted">Montant facture</small>
+            </div>
+          </div>
+
+          <!-- Montant facture -->
+          <div class="mb-3">
+            <label class="form-label small">Montant facture (€) :</label>
+            <input type="number" class="form-control form-control-sm" placeholder="0" min="0"
+                   data-flandre-prime-card-target="input" data-action="input->flandre-prime-card#calculate">
+          </div>
+
+          <div class="mt-auto">
+            <div class="result-container p-3 bg-light rounded">
+              <div class="text-center">
+                <span class="badge bg-danger fs-6" data-flandre-prime-card-target="result">0 €</span>
+                <div class="small text-muted mt-1">Prime calculée</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carte 9: Chauffe-eau thermodynamique -->
+    <div class="col-lg-2 col-md-4 col-sm-6">
+      <div class="card border-0 shadow h-100" data-controller="flandre-prime-card" data-flandre-prime-card-slug-value="warmtepompboiler">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+              <i class="bi bi-droplet fs-5 text-primary"></i>
+            </div>
+            <div>
+              <h6 class="card-title mb-1">Chauffe-eau thermodynamique</h6>
+              <small class="text-muted">Forfait</small>
+            </div>
+          </div>
+
+          <!-- Montant facture -->
+          <div class="mb-3">
+            <label class="form-label small">Montant facture (€) :</label>
+            <input type="number" class="form-control form-control-sm" placeholder="0" min="0"
+                   data-flandre-prime-card-target="input" data-action="input->flandre-prime-card#calculate">
+          </div>
+
+          <div class="mt-auto">
+            <div class="result-container p-3 bg-light rounded">
+              <div class="text-center">
+                <span class="badge bg-primary fs-6" data-flandre-prime-card-target="result">0 €</span>
+                <div class="small text-muted mt-1">Prime calculée</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carte 10: Rénovation toiture -->
+    <div class="col-lg-2 col-md-4 col-sm-6">
+      <div class="card border-0 shadow h-100" data-controller="flandre-prime-card" data-flandre-prime-card-slug-value="renovation_toiture">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+              <i class="bi bi-layers fs-5 text-warning"></i>
+            </div>
+            <div>
+              <h6 class="card-title mb-1">Rénovation toiture</h6>
+              <small class="text-muted">Travaux associés</small>
+            </div>
+          </div>
+
+          <!-- Montant facture -->
+          <div class="mb-3">
+            <label class="form-label small">Montant facture (€) :</label>
+            <input type="number" class="form-control form-control-sm" placeholder="0" min="0"
+                   data-flandre-prime-card-target="input" data-action="input->flandre-prime-card#calculate">
+          </div>
+
+          <div class="mt-auto">
+            <div class="result-container p-3 bg-light rounded">
+              <div class="text-center">
+                <span class="badge bg-warning fs-6" data-flandre-prime-card-target="result">0 €</span>
+                <div class="small text-muted mt-1">Prime calculée</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carte 11: Rénovation murs -->
+    <div class="col-lg-2 col-md-4 col-sm-6">
+      <div class="card border-0 shadow h-100" data-controller="flandre-prime-card" data-flandre-prime-card-slug-value="renovation_murs">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+              <i class="bi bi-columns fs-5 text-success"></i>
+            </div>
+            <div>
+              <h6 class="card-title mb-1">Rénovation murs</h6>
+              <small class="text-muted">Travaux associés</small>
+            </div>
+          </div>
+
+          <!-- Montant facture -->
+          <div class="mb-3">
+            <label class="form-label small">Montant facture (€) :</label>
+            <input type="number" class="form-control form-control-sm" placeholder="0" min="0"
+                   data-flandre-prime-card-target="input" data-action="input->flandre-prime-card#calculate">
+          </div>
+
+          <div class="mt-auto">
+            <div class="result-container p-3 bg-light rounded">
+              <div class="text-center">
+                <span class="badge bg-success fs-6" data-flandre-prime-card-target="result">0 €</span>
+                <div class="small text-muted mt-1">Prime calculée</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carte 12: Rénovation sol -->
+    <div class="col-lg-2 col-md-4 col-sm-6">
+      <div class="card border-0 shadow h-100" data-controller="flandre-prime-card" data-flandre-prime-card-slug-value="renovation_sol">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+              <i class="bi bi-grid-3x3 fs-5 text-secondary"></i>
+            </div>
+            <div>
+              <h6 class="card-title mb-1">Rénovation sol</h6>
+              <small class="text-muted">Travaux associés</small>
+            </div>
+          </div>
+
+          <!-- Montant facture -->
+          <div class="mb-3">
+            <label class="form-label small">Montant facture (€) :</label>
+            <input type="number" class="form-control form-control-sm" placeholder="0" min="0"
+                   data-flandre-prime-card-target="input" data-action="input->flandre-prime-card#calculate">
+          </div>
+
+          <div class="mt-auto">
+            <div class="result-container p-3 bg-light rounded">
+              <div class="text-center">
+                <span class="badge bg-secondary fs-6" data-flandre-prime-card-target="result">0 €</span>
+                <div class="small text-muted mt-1">Prime calculée</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section Résultats Flandre -->
+<div class="mt-5">
+  <div class="card border-0 shadow-lg">
+    <div class="card-body p-4">
+      <div class="text-center mb-4">
+        <h4 class="text-primary-custom mb-2">
+          <i class="bi bi-calculator me-2"></i>
+          Total estimé de vos primes Flandre
+        </h4>
+        <p class="text-muted-custom small">Les montants s'ajustent automatiquement selon votre catégorie de revenus</p>
+      </div>
+
+      <!-- Affichage du total principal -->
+      <div class="bg-primary bg-opacity-10 rounded-3 p-4 text-center mb-4">
+        <div class="row align-items-center">
+          <div class="col-md-8 mb-3 mb-md-0">
+            <h2 class="display-4 fw-bold text-primary mb-1" id="totalFlandre">0,00 €</h2>
+            <p class="text-muted mb-0">Catégorie non définie • Estimation selon votre profil de revenus</p>
+          </div>
+          <div class="col-md-4">
+            <div class="bg-white rounded-2 p-3">
+              <i class="bi bi-info-circle text-primary fs-4 mb-2"></i>
+              <p class="small text-muted mb-0">Ce montant est une estimation basée sur vos travaux sélectionnés</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Détails par catégorie de travaux -->
+      <div class="row g-4">
+        <!-- Isolation -->
+        <div class="col-md-6 col-lg-3">
+          <div class="bg-warning bg-opacity-10 rounded-2 p-3 text-center h-100">
+            <i class="bi bi-house fs-4 text-warning mb-2"></i>
+            <h6 class="fw-bold text-warning">Isolation</h6>
+            <p class="h5 mb-1" id="totalIsolationFlandre">0 €</p>
+            <small class="text-muted">Toiture, murs, sol</small>
+          </div>
+        </div>
+
+        <!-- Chauffage -->
+        <div class="col-md-6 col-lg-3">
+          <div class="bg-success bg-opacity-10 rounded-2 p-3 text-center h-100">
+            <i class="bi bi-thermometer-half fs-4 text-success mb-2"></i>
+            <h6 class="fw-bold text-success">Chauffage</h6>
+            <p class="h5 mb-1" id="totalChauffageFlandre">0 €</p>
+            <small class="text-muted">Pompes à chaleur, chauffe-eau</small>
+          </div>
+        </div>
+
+        <!-- Menuiseries -->
+        <div class="col-md-6 col-lg-3">
+          <div class="bg-info bg-opacity-10 rounded-2 p-3 text-center h-100">
+            <i class="bi bi-windows fs-4 text-info mb-2"></i>
+            <h6 class="fw-bold text-info">Menuiseries</h6>
+            <p class="h5 mb-1" id="totalMenuiseriesFlandre">0 €</p>
+            <small class="text-muted">Châssis et portes</small>
+          </div>
+        </div>
+
+        <!-- Travaux connexes -->
+        <div class="col-md-6 col-lg-3">
+          <div class="bg-secondary bg-opacity-10 rounded-2 p-3 text-center h-100">
+            <i class="bi bi-tools fs-4 text-secondary mb-2"></i>
+            <h6 class="fw-bold text-secondary">Travaux connexes</h6>
+            <p class="h5 mb-1" id="totalTravauxFlandre">0 €</p>
+            <small class="text-muted">Préparatoires, rénovation</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Note informative -->
+      <div class="alert alert-info mt-4 mb-0">
+        <div class="d-flex align-items-start">
+          <i class="bi bi-lightbulb me-3 mt-1 fs-5"></i>
+          <div>
+            <h6 class="alert-heading mb-2">Bon à savoir</h6>
+            <p class="mb-2">Ces montants sont des estimations basées sur les grilles tarifaires officielles de la Flandre.</p>
+            <ul class="mb-0 small">
+              <li>Les primes varient selon votre catégorie de revenus (R1 à R4)</li>
+              <li>Certaines primes sont forfaitaires, d'autres calculées au m² ou en pourcentage</li>
+              <li>Des conditions techniques spécifiques peuvent s'appliquer</li>
+              <li>Il est recommandé de vérifier votre éligibilité auprès des organismes officiels</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
