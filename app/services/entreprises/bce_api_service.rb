@@ -206,8 +206,6 @@ module Entreprises
 
       parts.join(' ')
     end
-  end
-end
 
 # ========================================
 # INSTRUCTIONS POUR ACTIVER L'API OFFICIELLE BCE
