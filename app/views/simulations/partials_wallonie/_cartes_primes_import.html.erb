@@ -1,24 +1,19 @@
 <!-- Section Primes Wallonie - 10 cartes permanentes -->
-<div class="primes-section-wallonie" data-controller="wallonie-prime-calcul">
-  <div class="card border-0 shadow-sm mb-4">
-    <div class="card-header bg-primary bg-opacity-10">
-      <h4 class="card-title mb-0">
-        <i class="bi bi-calculator text-primary me-2"></i>
-        <span data-wallonie-prime-calcul-target="sectionTitle">
-          Vos primes Wallonie - Toutes catégories R1 à R5
-        </span>
-      </h4>
-      <p class="text-muted small mb-0 mt-1">
-        💡 Les montants s'ajustent automatiquement selon votre catégorie de revenus
-      </p>
-    </div>
+<div data-controller="wallonie-prime-calcul">
+  <h4 class="mb-3">
+    <i class="bi bi-calculator text-primary me-2"></i>
+    <span data-wallonie-prime-calcul-target="sectionTitle">
+      Vos primes Wallonie - Toutes catégories R1 à R5
+    </span>
+  </h4>
+  <p class="text-muted small mb-4">
+    💡 Les montants s'ajustent automatiquement selon votre catégorie de revenus
+  </p>
 
-    <div class="card-body">
-      <div class="row g-4">
-
+  <div class="row g-3">
         <!-- CARTE 1: AUDIT - Simple (1 input) -->
-        <div class="col-lg-4 col-md-6">
-          <div class="card border-0 shadow-sm h-100" data-controller="wallonie-prime-card" data-slug="wallonie_realisation_audit_logement">
+        <div class="col-lg-3 col-md-4 col-sm-6">
+          <div class="card border-0 shadow h-100" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_realisation_audit_logement">
             <div class="card-body">
               <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -53,8 +48,8 @@
         </div>
 
         <!-- CARTE 2: TOITURE - Complexe (5 inputs) -->
-        <div class="col-lg-8 col-md-6">
-          <div class="card border-0 shadow-sm h-100" data-controller="wallonie-prime-card" data-slug="wallonie_toiture_global">
+        <div class="col-lg-3 col-md-4 col-sm-6">
+          <div class="card border-0 shadow h-100" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_toiture_global">
             <div class="card-body">
               <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -134,7 +129,7 @@
                            placeholder="Surface m²"
                            data-wallonie-prime-card-target="inputIsolationBiosource"
                            data-action="input->wallonie-prime-card#calculateToiture">
-                    <span class="input-group-text bg-success text-white"
+                    <span class="input-group-text bg-warning text-white"
                           data-wallonie-prime-card-target="resultIsolationBiosource">0 €</span>
                   </div>
                 </div>
@@ -154,8 +149,8 @@
         </div>
 
         <!-- CARTE 3: MURS - Complexe (7 inputs) -->
-        <div class="col-lg-12">
-          <div class="card border-0 shadow-sm h-100" data-controller="wallonie-prime-card" data-slug="wallonie_murs_global">
+        <div class="col-lg-3 col-md-4 col-sm-6">
+          <div class="card border-0 shadow h-100" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_murs_global">
             <div class="card-body">
               <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -168,68 +163,80 @@
               </div>
 
               <div class="row g-3">
-                <!-- Assèchement infiltration -->
-                <div class="col-lg-3 col-md-4">
-                  <label class="form-label small">Assèchement infiltration :</label>
+                <!-- 1. Assèchement infiltration (14,4€/m²) -->
+                <div class="col-md-4 col-sm-6">
+                  <label class="form-label small">Assèchement infiltration (m²) :</label>
                   <div class="input-group input-group-sm">
-                    <select class="form-control"
-                            data-wallonie-prime-card-target="inputInfiltration"
-                            data-action="change->wallonie-prime-card#calculateMurs">
-                      <option value="0">Non</option>
-                      <option value="1">Oui</option>
-                    </select>
+                    <input type="number"
+                           class="form-control"
+                           placeholder="Surface m²"
+                           data-wallonie-prime-card-target="inputInfiltration"
+                           data-action="input->wallonie-prime-card#calculateMurs">
                     <span class="input-group-text bg-success text-white"
                           data-wallonie-prime-card-target="resultInfiltration">0 €</span>
                   </div>
                 </div>
 
-                <!-- Assèchement humidité -->
-                <div class="col-lg-3 col-md-4">
-                  <label class="form-label small">Assèchement humidité :</label>
+                <!-- 2. Assèchement humidité ascensionnelle (19,2€/m²) -->
+                <div class="col-md-4 col-sm-6">
+                  <label class="form-label small">Assèchement humidité (m²) :</label>
                   <div class="input-group input-group-sm">
-                    <select class="form-control"
-                            data-wallonie-prime-card-target="inputHumidite"
-                            data-action="change->wallonie-prime-card#calculateMurs">
-                      <option value="0">Non</option>
-                      <option value="1">Oui</option>
-                    </select>
+                    <input type="number"
+                           class="form-control"
+                           placeholder="Surface m²"
+                           data-wallonie-prime-card-target="inputHumidite"
+                           data-action="input->wallonie-prime-card#calculateMurs">
                     <span class="input-group-text bg-success text-white"
                           data-wallonie-prime-card-target="resultHumidite">0 €</span>
                   </div>
                 </div>
 
-                <!-- Renforcement murs -->
-                <div class="col-lg-3 col-md-4">
-                  <label class="form-label small">Renforcement murs :</label>
+                <!-- 3. Renforcement murs (19,2€/m²) -->
+                <div class="col-md-4 col-sm-6">
+                  <label class="form-label small">Renforcement murs (m²) :</label>
                   <div class="input-group input-group-sm">
-                    <select class="form-control"
-                            data-wallonie-prime-card-target="inputRenforcement"
-                            data-action="change->wallonie-prime-card#calculateMurs">
-                      <option value="0">Non</option>
-                      <option value="1">Oui</option>
-                    </select>
+                    <input type="number"
+                           class="form-control"
+                           placeholder="Surface m²"
+                           data-wallonie-prime-card-target="inputRenforcement"
+                           data-action="input->wallonie-prime-card#calculateMurs">
                     <span class="input-group-text bg-success text-white"
                           data-wallonie-prime-card-target="resultRenforcement">0 €</span>
                   </div>
                 </div>
 
-                <!-- Démolition reconstruction -->
-                <div class="col-lg-3 col-md-4">
-                  <label class="form-label small">Démolition/reconstruction :</label>
+                <!-- 4. Élimination mérule (840€ forfait) -->
+                <div class="col-md-4 col-sm-6">
+                  <label class="form-label small">Élimination mérule :</label>
                   <div class="input-group input-group-sm">
                     <select class="form-control"
-                            data-wallonie-prime-card-target="inputDemolition"
+                            data-wallonie-prime-card-target="inputMerule"
                             data-action="change->wallonie-prime-card#calculateMurs">
                       <option value="0">Non</option>
                       <option value="1">Oui</option>
                     </select>
                     <span class="input-group-text bg-success text-white"
-                          data-wallonie-prime-card-target="resultDemolition">0 €</span>
+                          data-wallonie-prime-card-target="resultMerule">0 €</span>
                   </div>
                 </div>
 
-                <!-- Isolation thermique murs -->
-                <div class="col-lg-4 col-md-6">
+                <!-- 5. Élimination radon (840€ forfait) -->
+                <div class="col-md-4 col-sm-6">
+                  <label class="form-label small">Élimination radon :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-wallonie-prime-card-target="inputRadon"
+                            data-action="change->wallonie-prime-card#calculateMurs">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-success text-white"
+                          data-wallonie-prime-card-target="resultRadon">0 €</span>
+                  </div>
+                </div>
+
+                <!-- 6. Isolation thermique murs (52,8€/m²) -->
+                <div class="col-md-4 col-sm-6">
                   <label class="form-label small">Isolation thermique (m²) :</label>
                   <div class="input-group input-group-sm">
                     <input type="number"
@@ -242,8 +249,8 @@
                   </div>
                 </div>
 
-                <!-- Isolation biosourcée murs -->
-                <div class="col-lg-4 col-md-6">
+                <!-- 7. Isolation biosourcée murs (72€/m²) -->
+                <div class="col-md-4 col-sm-6">
                   <label class="form-label small">Isolation biosourcée (m²) :</label>
                   <div class="input-group input-group-sm">
                     <input type="number"
@@ -253,21 +260,6 @@
                            data-action="input->wallonie-prime-card#calculateMurs">
                     <span class="input-group-text bg-success text-white"
                           data-wallonie-prime-card-target="resultIsolationBiosource">0 €</span>
-                  </div>
-                </div>
-
-                <!-- Rénovation façade -->
-                <div class="col-lg-4 col-md-6">
-                  <label class="form-label small">Rénovation façade :</label>
-                  <div class="input-group input-group-sm">
-                    <select class="form-control"
-                            data-wallonie-prime-card-target="inputFacade"
-                            data-action="change->wallonie-prime-card#calculateMurs">
-                      <option value="0">Non</option>
-                      <option value="1">Oui</option>
-                    </select>
-                    <span class="input-group-text bg-success text-white"
-                          data-wallonie-prime-card-target="resultFacade">0 €</span>
                   </div>
                 </div>
               </div>
@@ -286,8 +278,8 @@
         </div>
 
         <!-- CARTE 4: SOLS - Complexe (4 inputs) -->
-        <div class="col-lg-8 col-md-8">
-          <div class="card border-0 shadow-sm h-100" data-controller="wallonie-prime-card" data-slug="wallonie_sols_global">
+        <div class="col-lg-3 col-md-4 col-sm-6">
+          <div class="card border-0 shadow h-100" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_sols_global">
             <div class="card-body">
               <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -330,31 +322,29 @@
 
                 <!-- Remplacement supports -->
                 <div class="col-md-6">
-                  <label class="form-label small">Remplacement supports :</label>
+                  <label class="form-label small">Remplacement supports (m²) :</label>
                   <div class="input-group input-group-sm">
-                    <select class="form-control"
-                            data-wallonie-prime-card-target="inputSupports"
-                            data-action="change->wallonie-prime-card#calculateSols">
-                      <option value="0">Non</option>
-                      <option value="1">Oui</option>
-                    </select>
+                    <input type="number"
+                           class="form-control"
+                           placeholder="Surface m²"
+                           data-wallonie-prime-card-target="inputSupports"
+                           data-action="input->wallonie-prime-card#calculateSols">
                     <span class="input-group-text bg-secondary text-white"
                           data-wallonie-prime-card-target="resultSupports">0 €</span>
                   </div>
                 </div>
 
-                <!-- Système ventilation anti-radon -->
+                <!-- Isolation finition planchers (12€/m²) -->
                 <div class="col-md-6">
-                  <label class="form-label small">Ventilation anti-radon :</label>
+                  <label class="form-label small">Finition planchers (m²) :</label>
                   <div class="input-group input-group-sm">
-                    <select class="form-control"
-                            data-wallonie-prime-card-target="inputRadon"
-                            data-action="change->wallonie-prime-card#calculateSols">
-                      <option value="0">Non</option>
-                      <option value="1">Oui</option>
-                    </select>
+                    <input type="number"
+                           class="form-control"
+                           placeholder="Surface m²"
+                           data-wallonie-prime-card-target="inputFinitionPlanchers"
+                           data-action="input->wallonie-prime-card#calculateSols">
                     <span class="input-group-text bg-secondary text-white"
-                          data-wallonie-prime-card-target="resultRadon">0 €</span>
+                          data-wallonie-prime-card-target="resultFinitionPlanchers">0 €</span>
                   </div>
                 </div>
               </div>
@@ -373,8 +363,8 @@
         </div>
 
         <!-- CARTE 5: VENTILATION - Complexe (4 inputs) -->
-        <div class="col-lg-4 col-md-4">
-          <div class="card border-0 shadow-sm h-100" data-controller="wallonie-prime-card" data-slug="wallonie_ventilation_global">
+        <div class="col-lg-3 col-md-4 col-sm-6">
+          <div class="card border-0 shadow h-100" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_ventilation_global">
             <div class="card-body">
               <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -462,8 +452,8 @@
         </div>
 
         <!-- CARTE 6: CHAUDIÈRE - Complexe (5 inputs) -->
-        <div class="col-lg-8 col-md-8">
-          <div class="card border-0 shadow-sm h-100" data-controller="wallonie-prime-card" data-slug="wallonie_chaudiere_global">
+        <div class="col-lg-3 col-md-4 col-sm-6">
+          <div class="card border-0 shadow h-100" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_chaudiere_global">
             <div class="card-body">
               <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -477,7 +467,7 @@
 
               <div class="row g-3">
                 <!-- PAC eau chaude -->
-                <div class="col-lg-6 col-md-6">
+                <div class="col-md-6 col-sm-6">
                   <label class="form-label small">PAC eau chaude :</label>
                   <div class="input-group input-group-sm">
                     <select class="form-control"
@@ -492,7 +482,7 @@
                 </div>
 
                 <!-- PAC chauffage -->
-                <div class="col-lg-6 col-md-6">
+                <div class="col-md-6 col-sm-6">
                   <label class="form-label small">PAC chauffage/combinée :</label>
                   <div class="input-group input-group-sm">
                     <select class="form-control"
@@ -507,7 +497,7 @@
                 </div>
 
                 <!-- Chaudière biomasse -->
-                <div class="col-lg-6 col-md-6">
+                <div class="col-md-6 col-sm-6">
                   <label class="form-label small">Chaudière biomasse :</label>
                   <div class="input-group input-group-sm">
                     <select class="form-control"
@@ -522,7 +512,7 @@
                 </div>
 
                 <!-- Poêle biomasse -->
-                <div class="col-lg-6 col-md-6">
+                <div class="col-md-6 col-sm-6">
                   <label class="form-label small">Poêle biomasse :</label>
                   <div class="input-group input-group-sm">
                     <select class="form-control"
@@ -537,7 +527,7 @@
                 </div>
 
                 <!-- Chauffe-eau solaire -->
-                <div class="col-lg-12">
+                <div class="col-12">
                   <label class="form-label small">Chauffe-eau solaire :</label>
                   <div class="input-group input-group-sm">
                     <select class="form-control"
@@ -566,8 +556,8 @@
         </div>
 
         <!-- CARTE 7: AMÉLIORATION CHAUFFAGE - Très complexe (9 inputs) -->
-        <div class="col-lg-4 col-md-4">
-          <div class="card border-0 shadow-sm h-100" data-controller="wallonie-prime-card" data-slug="wallonie_amelioration_chauffage_global">
+        <div class="col-lg-6 col-md-4 col-sm-6">
+          <div class="card border-0 shadow h-100" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_amelioration_chauffage_global">
             <div class="card-body">
               <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -579,140 +569,161 @@
                 </div>
               </div>
 
-              <div class="row g-2">
-                <!-- Isolation conduites -->
-                <div class="col-12">
-                  <label class="form-label small">Isolation conduites :</label>
-                  <div class="input-group input-group-sm">
-                    <select class="form-control"
-                            data-wallonie-prime-card-target="inputIsolationConduites"
-                            data-action="change->wallonie-prime-card#calculateAmeliorationChauffage">
-                      <option value="0">Non</option>
-                      <option value="1">Oui</option>
-                    </select>
-                    <span class="input-group-text bg-warning text-white"
-                          data-wallonie-prime-card-target="resultIsolationConduites">0 €</span>
+              <div class="row g-3">
+                <!-- Colonne 1 -->
+                <div class="col-md-6">
+                  <!-- Isolation conduites de chauffage -->
+                  <div class="mb-2">
+                    <label class="form-label small">Isolation conduites de chauffage :</label>
+                    <div class="input-group input-group-sm">
+                      <select class="form-control"
+                              data-wallonie-prime-card-target="inputIsolationConduites"
+                              data-action="change->wallonie-prime-card#calculateAmeliorationChauffage">
+                        <option value="0">Non</option>
+                        <option value="1">Oui</option>
+                      </select>
+                      <span class="input-group-text bg-warning text-white"
+                            data-wallonie-prime-card-target="resultIsolationConduites">0 €</span>
+                    </div>
+                  </div>
+
+                  <!-- Isolation ballon ≤500l -->
+                  <div class="mb-2">
+                    <label class="form-label small">Isolation ballon ≤500l :</label>
+                    <div class="input-group input-group-sm">
+                      <select class="form-control"
+                              data-wallonie-prime-card-target="inputIsolationBallon500"
+                              data-action="change->wallonie-prime-card#calculateAmeliorationChauffage">
+                        <option value="0">Non</option>
+                        <option value="1">Oui</option>
+                      </select>
+                      <span class="input-group-text bg-warning text-white"
+                            data-wallonie-prime-card-target="resultIsolationBallon500">0 €</span>
+                    </div>
+                  </div>
+
+                  <!-- Isolation ballon >500l -->
+                  <div class="mb-2">
+                    <label class="form-label small">Isolation ballon >500l :</label>
+                    <div class="input-group input-group-sm">
+                      <select class="form-control"
+                              data-wallonie-prime-card-target="inputIsolationBallonPlus500"
+                              data-action="change->wallonie-prime-card#calculateAmeliorationChauffage">
+                        <option value="0">Non</option>
+                        <option value="1">Oui</option>
+                      </select>
+                      <span class="input-group-text bg-warning text-white"
+                            data-wallonie-prime-card-target="resultIsolationBallonPlus500">0 €</span>
+                    </div>
+                  </div>
+
+                  <!-- Circulateur max 3 logements -->
+                  <div class="mb-2">
+                    <label class="form-label small">Circulateur (max 3 logements) :</label>
+                    <div class="input-group input-group-sm">
+                      <select class="form-control"
+                              data-wallonie-prime-card-target="inputCirculateurMax3Logements"
+                              data-action="change->wallonie-prime-card#calculateAmeliorationChauffage">
+                        <option value="0">Non</option>
+                        <option value="1">Oui</option>
+                      </select>
+                      <span class="input-group-text bg-warning text-white"
+                            data-wallonie-prime-card-target="resultCirculateurMax3Logements">0 €</span>
+                    </div>
+                  </div>
+
+                  <!-- Circulateur min 4 logements -->
+                  <div class="mb-2">
+                    <label class="form-label small">Circulateur (min 4 logements) :</label>
+                    <div class="input-group input-group-sm">
+                      <select class="form-control"
+                              data-wallonie-prime-card-target="inputCirculateurMin4Logements"
+                              data-action="change->wallonie-prime-card#calculateAmeliorationChauffage">
+                        <option value="0">Non</option>
+                        <option value="1">Oui</option>
+                      </select>
+                      <span class="input-group-text bg-warning text-white"
+                            data-wallonie-prime-card-target="resultCirculateurMin4Logements">0 €</span>
+                    </div>
                   </div>
                 </div>
 
-                <!-- Isolation ballon ≤500l -->
-                <div class="col-12">
-                  <label class="form-label small">Isolation ballon ≤500l :</label>
-                  <div class="input-group input-group-sm">
-                    <select class="form-control"
-                            data-wallonie-prime-card-target="inputIsolationBallon500"
-                            data-action="change->wallonie-prime-card#calculateAmeliorationChauffage">
-                      <option value="0">Non</option>
-                      <option value="1">Oui</option>
-                    </select>
-                    <span class="input-group-text bg-warning text-white"
-                          data-wallonie-prime-card-target="resultIsolationBallon500">0 €</span>
+                <!-- Colonne 2 -->
+                <div class="col-md-6">
+                  <!-- Remplacement ballon ≤500l -->
+                  <div class="mb-2">
+                    <label class="form-label small">Remplacement ballon ≤500l :</label>
+                    <div class="input-group input-group-sm">
+                      <select class="form-control"
+                              data-wallonie-prime-card-target="inputRemplacementBallon500"
+                              data-action="change->wallonie-prime-card#calculateAmeliorationChauffage">
+                        <option value="0">Non</option>
+                        <option value="1">Oui</option>
+                      </select>
+                      <span class="input-group-text bg-warning text-white"
+                            data-wallonie-prime-card-target="resultRemplacementBallon500">0 €</span>
+                    </div>
+                  </div>
+
+                  <!-- Remplacement ballon >500l -->
+                  <div class="mb-2">
+                    <label class="form-label small">Remplacement ballon >500l :</label>
+                    <div class="input-group input-group-sm">
+                      <select class="form-control"
+                              data-wallonie-prime-card-target="inputRemplacementBallonPlus500"
+                              data-action="change->wallonie-prime-card#calculateAmeliorationChauffage">
+                        <option value="0">Non</option>
+                        <option value="1">Oui</option>
+                      </select>
+                      <span class="input-group-text bg-warning text-white"
+                            data-wallonie-prime-card-target="resultRemplacementBallonPlus500">0 €</span>
+                    </div>
+                  </div>
+
+                  <!-- Minimum 5 vannes thermostatiques -->
+                  <div class="mb-2">
+                    <label class="form-label small">Min 5 vannes thermostatiques :</label>
+                    <div class="input-group input-group-sm">
+                      <select class="form-control"
+                              data-wallonie-prime-card-target="inputMin5VannesThermostatiques"
+                              data-action="change->wallonie-prime-card#calculateAmeliorationChauffage">
+                        <option value="0">Non</option>
+                        <option value="1">Oui</option>
+                      </select>
+                      <span class="input-group-text bg-warning text-white"
+                            data-wallonie-prime-card-target="resultMin5VannesThermostatiques">0 €</span>
+                    </div>
+                  </div>
+
+                  <!-- Vannes supplémentaires -->
+                  <div class="mb-2">
+                    <label class="form-label small">Vannes supplémentaires :</label>
+                    <div class="input-group input-group-sm">
+                      <input type="number"
+                             min="0"
+                             class="form-control"
+                             placeholder="Nombre"
+                             data-wallonie-prime-card-target="inputVannesSupplementaires"
+                             data-action="input->wallonie-prime-card#calculateAmeliorationChauffage">
+                      <span class="input-group-text bg-warning text-white"
+                            data-wallonie-prime-card-target="resultVannesSupplementaires">0 €</span>
+                    </div>
                   </div>
                 </div>
+              </div>
 
-                <!-- Isolation ballon >500l -->
-                <div class="col-12">
-                  <label class="form-label small">Isolation ballon >500l :</label>
-                  <div class="input-group input-group-sm">
-                    <select class="form-control"
-                            data-wallonie-prime-card-target="inputIsolationBallonPlus500"
-                            data-action="change->wallonie-prime-card#calculateAmeliorationChauffage">
-                      <option value="0">Non</option>
-                      <option value="1">Oui</option>
-                    </select>
-                    <span class="input-group-text bg-warning text-white"
-                          data-wallonie-prime-card-target="resultIsolationBallonPlus500">0 €</span>
-                  </div>
-                </div>
-
-                <!-- Thermostat programmable -->
-                <div class="col-12">
-                  <label class="form-label small">Thermostat programmable :</label>
-                  <div class="input-group input-group-sm">
-                    <select class="form-control"
-                            data-wallonie-prime-card-target="inputThermostat"
-                            data-action="change->wallonie-prime-card#calculateAmeliorationChauffage">
-                      <option value="0">Non</option>
-                      <option value="1">Oui</option>
-                    </select>
-                    <span class="input-group-text bg-warning text-white"
-                          data-wallonie-prime-card-target="resultThermostat">0 €</span>
-                  </div>
-                </div>
-
-                <!-- Vannes thermostatiques -->
-                <div class="col-12">
-                  <label class="form-label small">Vannes thermostatiques :</label>
-                  <div class="input-group input-group-sm">
-                    <select class="form-control"
-                            data-wallonie-prime-card-target="inputVannesThermostatiques"
-                            data-action="change->wallonie-prime-card#calculateAmeliorationChauffage">
-                      <option value="0">Non</option>
-                      <option value="1">Oui</option>
-                    </select>
-                    <span class="input-group-text bg-warning text-white"
-                          data-wallonie-prime-card-target="resultVannesThermostatiques">0 €</span>
-                  </div>
-                </div>
-
-                <!-- Chauffe-eau gaz instantané -->
-                <div class="col-12">
-                  <label class="form-label small">Chauffe-eau gaz instantané :</label>
-                  <div class="input-group input-group-sm">
-                    <select class="form-control"
-                            data-wallonie-prime-card-target="inputChauffeEauGaz"
-                            data-action="change->wallonie-prime-card#calculateAmeliorationChauffage">
-                      <option value="0">Non</option>
-                      <option value="1">Oui</option>
-                    </select>
-                    <span class="input-group-text bg-warning text-white"
-                          data-wallonie-prime-card-target="resultChauffeEauGaz">0 €</span>
-                  </div>
-                </div>
-
-                <!-- Système solaire thermique -->
-                <div class="col-12">
-                  <label class="form-label small">Système solaire thermique :</label>
-                  <div class="input-group input-group-sm">
-                    <select class="form-control"
-                            data-wallonie-prime-card-target="inputSolaireThermique"
-                            data-action="change->wallonie-prime-card#calculateAmeliorationChauffage">
-                      <option value="0">Non</option>
-                      <option value="1">Oui</option>
-                    </select>
-                    <span class="input-group-text bg-warning text-white"
-                          data-wallonie-prime-card-target="resultSolaireThermique">0 €</span>
-                  </div>
-                </div>
-
-                <!-- Récupérateur chaleur -->
-                <div class="col-12">
-                  <label class="form-label small">Récupérateur chaleur :</label>
-                  <div class="input-group input-group-sm">
-                    <select class="form-control"
-                            data-wallonie-prime-card-target="inputRecuperateurChaleur"
-                            data-action="change->wallonie-prime-card#calculateAmeliorationChauffage">
-                      <option value="0">Non</option>
-                      <option value="1">Oui</option>
-                    </select>
-                    <span class="input-group-text bg-warning text-white"
-                          data-wallonie-prime-card-target="resultRecuperateurChaleur">0 €</span>
-                  </div>
-                </div>
-
-                <!-- Circulateur efficace -->
-                <div class="col-12">
-                  <label class="form-label small">Circulateur efficace :</label>
-                  <div class="input-group input-group-sm">
-                    <select class="form-control"
-                            data-wallonie-prime-card-target="inputCirculateurEfficace"
-                            data-action="change->wallonie-prime-card#calculateAmeliorationChauffage">
-                      <option value="0">Non</option>
-                      <option value="1">Oui</option>
-                    </select>
-                    <span class="input-group-text bg-warning text-white"
-                          data-wallonie-prime-card-target="resultCirculateurEfficace">0 €</span>
-                  </div>
+              <!-- Thermostat d'ambiance en pleine largeur -->
+              <div class="mt-2">
+                <label class="form-label small">Thermostat d'ambiance :</label>
+                <div class="input-group input-group-sm">
+                  <select class="form-control"
+                          data-wallonie-prime-card-target="inputThermostatAmbiance"
+                          data-action="change->wallonie-prime-card#calculateAmeliorationChauffage">
+                    <option value="0">Non</option>
+                    <option value="1">Oui</option>
+                  </select>
+                  <span class="input-group-text bg-warning text-white"
+                        data-wallonie-prime-card-target="resultThermostatAmbiance">0 €</span>
                 </div>
               </div>
 
@@ -728,27 +739,27 @@
             </div>
           </div>
         </div>
-
       </div>
 
+      <!-- Ligne 3 : Cartes 8, 9, 10, 11 -->
+      <div class="row g-3 mt-3">
         <!-- CARTE 8: EAU CHAUDE SANITAIRE - Complexe (6 inputs authentiques DB) -->
-        <div class="row mt-4">
-          <div class="col-lg-8 col-md-8">
-            <div class="card border-0 shadow-sm h-100" data-controller="wallonie-prime-card" data-slug="wallonie_eau_chaude_sanitaire_global">
-              <div class="card-body">
-                <div class="d-flex align-items-center gap-3 mb-3">
-                  <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                    <i class="bi bi-droplet fs-5 text-info"></i>
-                  </div>
-                  <div>
-                    <h6 class="card-title mb-1">Eau Chaude Sanitaire</h6>
-                    <small class="text-muted">6 types d'équipements</small>
-                  </div>
+        <div class="col-lg-3 col-md-4 col-sm-6">
+          <div class="card border-0 shadow h-100" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_eau_chaude_sanitaire_global">
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                  <i class="bi bi-droplet fs-5 text-info"></i>
                 </div>
+                <div>
+                  <h6 class="card-title mb-1">Eau Chaude Sanitaire</h6>
+                  <small class="text-muted">6 types d'équipements</small>
+                </div>
+              </div>
 
                 <div class="row g-3">
                   <!-- ECS - Remplacement ballon ≤500l -->
-                  <div class="col-lg-4 col-md-6">
+                  <div class="col-md-4 col-sm-6">
                     <label class="form-label small">Remplacement ballon ≤500l :</label>
                     <div class="input-group input-group-sm">
                       <select class="form-control"
@@ -763,7 +774,7 @@
                   </div>
 
                   <!-- ECS - Remplacement ballon >500l -->
-                  <div class="col-lg-4 col-md-6">
+                  <div class="col-md-4 col-sm-6">
                     <label class="form-label small">Remplacement ballon >500l :</label>
                     <div class="input-group input-group-sm">
                       <select class="form-control"
@@ -778,7 +789,7 @@
                   </div>
 
                   <!-- ECS - Isolation conduites boucle circulation (collective) -->
-                  <div class="col-lg-4 col-md-6">
+                  <div class="col-md-4 col-sm-6">
                     <label class="form-label small">Isolation conduites collective :</label>
                     <div class="input-group input-group-sm">
                       <select class="form-control"
@@ -793,7 +804,7 @@
                   </div>
 
                   <!-- ECS - Isolation échangeur plaques externe -->
-                  <div class="col-lg-4 col-md-6">
+                  <div class="col-md-4 col-sm-6">
                     <label class="form-label small">Isolation échangeur plaques :</label>
                     <div class="input-group input-group-sm">
                       <select class="form-control"
@@ -808,7 +819,7 @@
                   </div>
 
                   <!-- ECS - Isolation ballon ≤500l -->
-                  <div class="col-lg-4 col-md-6">
+                  <div class="col-md-4 col-sm-6">
                     <label class="form-label small">Isolation ballon ≤500l :</label>
                     <div class="input-group input-group-sm">
                       <select class="form-control"
@@ -823,7 +834,7 @@
                   </div>
 
                   <!-- ECS - Isolation ballon >500l -->
-                  <div class="col-lg-4 col-md-6">
+                  <div class="col-md-4 col-sm-6">
                     <label class="form-label small">Isolation ballon >500l :</label>
                     <div class="input-group input-group-sm">
                       <select class="form-control"
@@ -852,8 +863,8 @@
           </div>
 
           <!-- CARTE 9: MENUISERIES - Simple (1 input) -->
-          <div class="col-lg-4 col-md-4">
-            <div class="card border-0 shadow-sm h-100" data-controller="wallonie-prime-card" data-slug="wallonie_menuiseries_vitrages">
+          <div class="col-lg-3 col-md-4 col-sm-6">
+            <div class="card border-0 shadow h-100" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_menuiseries_vitrages">
               <div class="card-body">
                 <div class="d-flex align-items-center gap-3 mb-3">
                   <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -885,17 +896,15 @@
               </div>
             </div>
           </div>
-        </div>
 
         <!-- CARTE 10: INSTALLATIONS - Simples (2 inputs) -->
-        <div class="row mt-4">
-          <div class="col-lg-6 col-md-6">
-            <div class="card border-0 shadow-sm h-100" data-controller="wallonie-prime-card" data-slug="wallonie_installation_electrique">
-              <div class="card-body">
-                <div class="d-flex align-items-center gap-3 mb-3">
-                  <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                    <i class="bi bi-lightning fs-5 text-warning"></i>
-                  </div>
+        <div class="col-lg-3 col-md-4 col-sm-6">
+          <div class="card border-0 shadow h-100" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_installation_electrique">
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                  <i class="bi bi-lightning fs-5 text-warning"></i>
+                </div>
                   <div>
                     <h6 class="card-title mb-1">Installation électrique</h6>
                     <small class="text-muted">Remise en conformité</small>
@@ -924,8 +933,9 @@
             </div>
           </div>
 
-          <div class="col-lg-6 col-md-6">
-            <div class="card border-0 shadow-sm h-100" data-controller="wallonie-prime-card" data-slug="wallonie_installation_gaz">
+        <!-- CARTE 11: INSTALLATION GAZ -->
+        <div class="col-lg-3 col-md-4 col-sm-6">
+          <div class="card border-0 shadow h-100" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_installation_gaz">
               <div class="card-body">
                 <div class="d-flex align-items-center gap-3 mb-3">
                   <div class="bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -960,10 +970,8 @@
           </div>
         </div>
 
-      </div>
-
       <!-- TOTAL GÉNÉRAL -->
-      <div class="row mt-4">
+      <div class="row mt-3">
         <div class="col-12">
           <div class="card bg-primary bg-opacity-10 border-primary">
             <div class="card-body text-center">
@@ -981,22 +989,5 @@
             </div>
           </div>
         </div>
-      </div>
-
-    </div>
   </div>
-</div>
-
-<!-- Informations complémentaires -->
-<div class="alert alert-info mt-4">
-  <h6 class="alert-heading">
-    <i class="bi bi-info-circle me-2"></i>
-    Comment utiliser ce simulateur
-  </h6>
-  <ul class="mb-0 small">
-    <li><strong>Saisie simple :</strong> Indiquez vos surfaces (m²) ou sélectionnez Oui/Non</li>
-    <li><strong>Calcul automatique :</strong> Les montants s'ajustent selon votre catégorie de revenus (R1 à R5)</li>
-    <li><strong>Cumul possible :</strong> Toutes les primes peuvent se cumuler selon vos travaux</li>
-    <li><strong>Estimation :</strong> Montants indicatifs, demande officielle requise pour confirmation</li>
-  </ul>
 </div>
