@@ -3,11 +3,166 @@
   <h6 class="text-primary-custom mb-3">
     <i class="bi bi-award me-2"></i>Informations pour l'éligibilité aux primes (Bruxelles)
   </h6>
-  <div class="border rounded p-3 bg-light">
-    <div class="alert alert-warning text-center">
-      <i class="bi bi-construction me-2"></i>
-      <strong>Service en développement</strong>
-      <p class="mb-0">Les spécificités pour la région de Bruxelles-Capitale sont en cours de développement.</p>
+  <div class="border rounded p-4 bg-light">
+
+    <!-- Section Entrepreneur -->
+    <div class="mb-4">
+      <h6 class="text-primary mb-3">
+        <i class="bi bi-building me-2"></i>Entrepreneur
+      </h6>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :bce_number, "Numéro BCE de l'entrepreneur*", class: "form-label" %>
+            <%= form.text_field :bce_number, class: "form-control", placeholder: "Ex: 0123456789", pattern: "[0-9]{10}", maxlength: "10" %>
+            <div class="form-text">Numéro d'entreprise à 10 chiffres (obligatoire pour les primes Bruxelles)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Dates -->
+    <div class="mb-4">
+      <h6 class="text-primary mb-3">
+        <i class="bi bi-calendar me-2"></i>Dates des travaux
+      </h6>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :invoice_date, "Date des factures*", class: "form-label" %>
+            <%= form.date_field :invoice_date, class: "form-control" %>
+            <div class="form-text">Date des factures (max 12 mois pour Bruxelles)</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :work_completion_date, "Date de fin des travaux", class: "form-label" %>
+            <%= form.date_field :work_completion_date, class: "form-control" %>
+            <div class="form-text">Date de finalisation des travaux</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Type de travaux -->
+    <div class="mb-4">
+      <h6 class="text-primary mb-3">
+        <i class="bi bi-hammer me-2"></i>Type de travaux
+      </h6>
+      <div class="row">
+        <div class="col-md-4">
+          <%= form.check_box :parties_communes, class: "form-check-input me-2" %>
+          <%= form.label :parties_communes, "Travaux en parties communes", class: "form-check-label" %>
+        </div>
+        <div class="col-md-4">
+          <%= form.check_box :facade_works, class: "form-check-input me-2" %>
+          <%= form.label :facade_works, "Travaux de façade", class: "form-check-label" %>
+        </div>
+        <div class="col-md-4">
+          <%= form.check_box :extension_works, class: "form-check-input me-2" %>
+          <%= form.label :extension_works, "Extension/ajout", class: "form-check-label" %>
+        </div>
+      </div>
+      <div class="row mt-2">
+        <div class="col-md-4">
+          <%= form.check_box :toiture_modification, class: "form-check-input me-2" %>
+          <%= form.label :toiture_modification, "Modification toiture", class: "form-check-label" %>
+        </div>
+      </div>
+      <div class="form-text mt-2">
+        <i class="bi bi-info-circle me-1"></i>
+        Ces types de travaux peuvent nécessiter un permis d'urbanisme
+      </div>
+    </div>
+
+    <!-- Section Permis d'urbanisme -->
+    <div class="mb-4">
+      <h6 class="text-primary mb-3">
+        <i class="bi bi-file-text me-2"></i>Permis d'urbanisme
+      </h6>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :permis_urbanisme_number, "Numéro de permis d'urbanisme", class: "form-label" %>
+            <%= form.text_field :permis_urbanisme_number, class: "form-control", placeholder: "Ex: PU-2024-001" %>
+            <div class="form-text">Si applicable selon le type de travaux</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :permis_urbanisme_date, "Date d'octroi du permis", class: "form-label" %>
+            <%= form.date_field :permis_urbanisme_date, class: "form-control" %>
+            <div class="form-text">Date d'obtention du permis d'urbanisme</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Usage professionnel -->
+    <div class="mb-4">
+      <h6 class="text-primary mb-3">
+        <i class="bi bi-briefcase me-2"></i>Usage professionnel
+      </h6>
+      <div class="row">
+        <div class="col-md-4">
+          <%= form.check_box :usage_professionnel, class: "form-check-input me-2" %>
+          <%= form.label :usage_professionnel, "Usage professionnel du bien", class: "form-check-label" %>
+        </div>
+      </div>
+      <div class="row mt-3" id="surfaces-pro" style="display: none;">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :surface_totale, "Surface totale (m²)", class: "form-label" %>
+            <%= form.number_field :surface_totale, class: "form-control", placeholder: "Ex: 120", min: "1" %>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :surface_professionnelle, "Surface professionnelle (m²)", class: "form-label" %>
+            <%= form.number_field :surface_professionnelle, class: "form-control", placeholder: "Ex: 30", min: "0" %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Primes précédentes -->
+    <div class="mb-4">
+      <h6 class="text-primary mb-3">
+        <i class="bi bi-archive me-2"></i>Primes précédentes
+      </h6>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="mb-3">
+            <%= form.label :previous_subsidies, "Primes déjà reçues pour ce bien", class: "form-label" %>
+            <%= form.text_area :previous_subsidies, class: "form-control", rows: "3", placeholder: "Ex: Prime isolation toiture 2022, Prime audit énergétique 2023..." %>
+            <div class="form-text">Listez les primes déjà obtenues pour éviter les doublons</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-info small mb-0">
+      <i class="bi bi-info-circle me-2"></i>
+      Ces informations sont nécessaires pour vérifier l'éligibilité aux primes RENOLUTION en Région de Bruxelles-Capitale.
+      Les champs marqués d'un * sont obligatoires.
     </div>
   </div>
 </div>
+
+<script>
+  // Afficher/masquer les champs de surface selon l'usage professionnel
+  document.addEventListener('DOMContentLoaded', function() {
+    const usageProfessionnel = document.getElementById('project_usage_professionnel');
+    const surfacesPro = document.getElementById('surfaces-pro');
+
+    if (usageProfessionnel && surfacesPro) {
+      usageProfessionnel.addEventListener('change', function() {
+        if (this.checked) {
+          surfacesPro.style.display = 'block';
+        } else {
+          surfacesPro.style.display = 'none';
+        }
+      });
+    }
+  });
+</script>

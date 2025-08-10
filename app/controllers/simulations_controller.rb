@@ -270,7 +270,7 @@ class SimulationsController < ApplicationController
 
     region = simulation.region&.downcase
 
-    unless ['wallonie', 'flandre'].include?(region)
+    unless ['wallonie', 'flandre', 'bruxelles'].include?(region)
       Rails.logger.info "SKIPPED: Region '#{simulation.region}' is not supported yet"
       return
     end
@@ -301,6 +301,15 @@ class SimulationsController < ApplicationController
         },
         user: current_user
       )
+    elsif region == 'bruxelles'
+      eligibility_service = Regions::Bruxelles::BruxellesEligibilityService.new(
+        params: {
+          property_id: simulation.property_id,
+          project_id: simulation.project_id
+        },
+        user: current_user,
+        is_post_login: user_signed_in?
+      )
     end
 
     result = eligibility_service.check_eligibility
@@ -310,8 +319,8 @@ class SimulationsController < ApplicationController
         eligible: true,
         category_description: result[:message]
       )
-      # Déclencher l'étape 2 automatiquement pour Wallonie et Flandre
-      perform_category_determination(simulation) if ['wallonie', 'flandre'].include?(region)
+      # Déclencher l'étape 2 automatiquement pour Wallonie, Flandre et Bruxelles
+      perform_category_determination(simulation) if ['wallonie', 'flandre', 'bruxelles'].include?(region)
     else
       simulation.update(
         eligible: false,

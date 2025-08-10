@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_09_215530) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_10_095557) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -153,6 +153,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_215530) do
     t.text "type_travaux"
     t.boolean "reconstruction_demolition"
     t.boolean "tva_reduit_6_pourcent"
+    t.boolean "parties_communes"
+    t.boolean "facade_works"
+    t.boolean "extension_works"
+    t.boolean "toiture_modification"
+    t.string "permis_urbanisme_number"
+    t.date "permis_urbanisme_date"
+    t.boolean "usage_professionnel"
+    t.integer "surface_professionnelle"
+    t.integer "surface_totale"
+    t.text "previous_subsidies"
     t.index ["property_id"], name: "index_projects_on_property_id"
     t.index ["user_id"], name: "index_projects_on_user_id"
   end
@@ -200,6 +210,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_215530) do
     t.integer "pourcentage_propriete"
     t.boolean "domicilie_flandre"
     t.boolean "client_protege_flandre"
+    t.string "usage"
+    t.boolean "domiciliation"
+    t.boolean "nouvelle_construction"
+    t.boolean "bien_classe"
+    t.boolean "petit_patrimoine"
+    t.boolean "facade_patrimoine"
+    t.integer "surface_totale"
+    t.boolean "primes_recues"
     t.index ["user_id"], name: "index_properties_on_user_id"
   end
 
@@ -350,6 +368,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_09_215530) do
     t.integer "revenu_conjoint"
     t.string "annee_revenus_conjoint"
     t.integer "nombre_enfants"
+    t.boolean "bim", default: false
+    t.boolean "ris", default: false
+    t.boolean "client_protege_bruxelles", default: false
+    t.boolean "independant", default: false
+    t.boolean "tva_deductible", default: false
+    t.string "statut_professionnel"
+    t.boolean "vente_prevue_5_ans", default: false
+    t.boolean "consentement_controles", default: false
+    t.boolean "compte_bancaire_belge", default: false
+    t.string "type_demandeur"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end

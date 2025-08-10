@@ -88,7 +88,11 @@ class PagesController < ApplicationController
 
     begin
       # Utilisation du service d'éligibilité Bruxelles
-      eligibility_service = BruxellesEligibilityService.new(params)
+      eligibility_service = Regions::Bruxelles::BruxellesEligibilityService.new(
+        params: params,
+        user: current_user,
+        is_post_login: user_signed_in?
+      )
       result = eligibility_service.check_eligibility
       Rails.logger.info "Eligibility result: #{result}"
 

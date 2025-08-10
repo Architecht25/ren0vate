@@ -6,13 +6,197 @@
     </h5>
 
     <div id="eligibility-status">
-      <div class="alert alert-info d-flex align-items-center" role="alert">
-        <i class="bi bi-info-circle me-3 fs-4"></i>
-        <div>
-          <h6 class="alert-heading mb-1">🚧 Service en développement</h6>
-          <p class="mb-0">Le service d'éligibilité pour la Région de Bruxelles-Capitale sera bientôt disponible.</p>
+      <% if @simulation.respond_to?(:eligible) && @simulation.eligible? %>
+        <div class="alert alert-success d-flex align-items-center" role="alert">
+          <i class="bi bi-check-circle-fill me-3 fs-4"></i>
+          <div>
+            <h6 class="alert-heading mb-1">✅ Votre demande est éligible !</h6>
+            <p class="mb-0">Vous remplissez les conditions pour bénéficier des primes RENOLUTION de Bruxelles-Capitale.</p>
+            <% if @simulation.respond_to?(:category_description) && @simulation.category_description.present? %>
+              <small class="text-muted">Détails : <%= @simulation.category_description %></small>
+            <% end %>
+          </div>
         </div>
+      <% elsif @simulation.respond_to?(:eligible) && !@simulation.eligible? %>
+        <div class="alert alert-danger d-flex align-items-center" role="alert">
+          <i class="bi bi-x-circle-fill me-3 fs-4"></i>
+          <div>
+            <h6 class="alert-heading mb-1">❌ Votre demande n'est pas éligible</h6>
+            <p class="mb-0">Certaines conditions ne sont pas remplies pour les primes RENOLUTION Bruxelles.</p>
+            <% if @simulation.respond_to?(:ineligibility_reason) && @simulation.ineligibility_reason.present? %>
+              <small class="text-muted">Raison : <%= @simulation.ineligibility_reason %></small>
+            <% end %>
+          </div>
+        </div>
+      <% else %>
+        <div class="alert alert-info d-flex align-items-center" role="alert">
+          <i class="bi bi-hourglass-split me-3 fs-4"></i>
+          <div>
+            <h6 class="alert-heading mb-1">🔄 Test d'éligibilité prêt</h6>
+            <p class="mb-0">Cliquez sur le bouton ci-dessous pour vérifier l'éligibilité de votre demande RENOLUTION Bruxelles.</p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <% unless @simulation.respond_to?(:eligible) && @simulation.eligible? %>
+      <div class="mt-3">
+        <button id="check-eligibility-btn-bruxelles" class="btn btn-primary-custom">
+          <i class="bi bi-shield-check me-2"></i>Vérifier l'éligibilité Bruxelles
+        </button>
       </div>
+    <% end %>
+
+    <!-- Informations spécifiques à Bruxelles -->
+    <div class="mt-3 p-3 bg-light rounded">
+      <h6 class="text-primary-custom mb-2">
+        <i class="bi bi-info-circle me-2"></i>Spécificités RENOLUTION Bruxelles
+      </h6>
+      <ul class="small text-muted mb-0">
+        <li>Logement situé en Région de Bruxelles-Capitale (19 communes)</li>
+        <li>Bâtiment âgé d'au moins 10 ans</li>
+        <li>Travaux réalisés par un professionnel agréé BCE</li>
+        <li>3 catégories de revenus selon le système RENOLUTION</li>
+      </ul>
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const checkEligibilityBtn = document.getElementById('check-eligibility-btn-bruxelles');
+  const eligibilityStatus = document.getElementById('eligibility-status');
+
+  if (checkEligibilityBtn) {
+    checkEligibilityBtn.addEventListener('click', function() {
+      console.log('🎯 Vérification éligibilité Bruxelles lancée');
+      checkBruxellesEligibility();
+    });
+  }
+
+  function checkBruxellesEligibility() {
+    // Désactiver le bouton pendant la vérification
+    checkEligibilityBtn.disabled = true;
+    checkEligibilityBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Vérification en cours...';
+
+    // Récupérer l'ID de la simulation
+    const simulationId = '<%= @simulation.id %>';
+
+    // Appel Ajax au service d'éligibilité Rails
+    fetch(`/simulations/${simulationId}/check_eligibility`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        region: 'bruxelles'
+      })
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('📋 Résultat éligibilité Bruxelles:', data);
+      displayEligibilityResult(data);
+    })
+    .catch(error => {
+      console.error('❌ Erreur lors de la vérification:', error);
+      displayErrorResult();
+    })
+    .finally(() => {
+      // Réactiver le bouton
+      checkEligibilityBtn.disabled = false;
+      checkEligibilityBtn.innerHTML = '<i class="bi bi-shield-check me-2"></i>Vérifier l\'éligibilité Bruxelles';
+    });
+  }
+
+  function displayEligibilityResult(data) {
+    let alertClass, iconClass, title, description;
+
+    if (data.eligible) {
+      alertClass = 'alert-success';
+      iconClass = 'bi-check-circle-fill';
+      title = '✅ Votre demande est éligible !';
+      description = 'Vous remplissez les conditions pour bénéficier des primes RENOLUTION de Bruxelles-Capitale.';
+
+      // Masquer le bouton si éligible
+      checkEligibilityBtn.style.display = 'none';
+
+      // Déclencher automatiquement l'étape suivante si définie
+      if (data.next_step) {
+        setTimeout(() => {
+          console.log('🎯 Déclenchement automatique étape suivante:', data.next_step);
+          triggerNextStep(data.next_step);
+        }, 2000);
+      }
+    } else {
+      alertClass = 'alert-danger';
+      iconClass = 'bi-x-circle-fill';
+      title = '❌ Votre demande n\'est pas éligible';
+      description = 'Certaines conditions ne sont pas remplies pour les primes RENOLUTION Bruxelles.';
+    }
+
+    // Construire le HTML du résultat
+    const resultHTML = `
+      <div class="alert ${alertClass} d-flex align-items-center" role="alert">
+        <i class="bi ${iconClass} me-3 fs-4"></i>
+        <div>
+          <h6 class="alert-heading mb-1">${title}</h6>
+          <p class="mb-0">${description}</p>
+          ${data.message ? `<small class="text-muted">Détails : ${data.message}</small>` : ''}
+        </div>
+      </div>
+    `;
+
+    // Mettre à jour le DOM
+    eligibilityStatus.innerHTML = resultHTML;
+
+    // Animation d'apparition
+    eligibilityStatus.style.opacity = '0';
+    setTimeout(() => {
+      eligibilityStatus.style.transition = 'opacity 0.5s';
+      eligibilityStatus.style.opacity = '1';
+    }, 100);
+  }
+
+  function displayErrorResult() {
+    const errorHTML = `
+      <div class="alert alert-warning d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle-fill me-3 fs-4"></i>
+        <div>
+          <h6 class="alert-heading mb-1">⚠️ Erreur technique</h6>
+          <p class="mb-0">Une erreur s'est produite lors de la vérification. Veuillez réessayer.</p>
+        </div>
+      </div>
+    `;
+
+    eligibilityStatus.innerHTML = errorHTML;
+  }
+
+  function triggerNextStep(step) {
+    // Déclencher l'étape suivante selon le résultat
+    if (step === 'category') {
+      // Appel pour calculer la catégorie automatiquement
+      fetch(`/simulations/${simulationId}/calculate_category`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+          'Accept': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('📊 Catégorie calculée:', data);
+        // Actualiser la page pour afficher les résultats
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      })
+      .catch(error => {
+        console.error('❌ Erreur calcul catégorie:', error);
+      });
+    }
+  }
+});
+</script>
