@@ -627,7 +627,7 @@ EntrepriseAide.find_or_create_by(slug: "bruxelles_prime_materiel_travaux") do |a
     }
   }
 
-  aide.infos_complementaires = {
+  aide.delais_procedures = {
     "fiscalite" => "Cette prime fait partie des revenus imposables",
     "obligations_post_octroi" => "Respect des obligations après obtention",
     "zone_developpement" => "Vérifier si lieu investissement en zone développement",
@@ -734,7 +734,7 @@ EntrepriseAide.find_or_create_by(slug: "bruxelles_prime_immobilier") do |aide|
     }
   }
 
-  aide.infos_complementaires = {
+  aide.delais_procedures = {
     "fiscalite" => "Cette prime fait partie des revenus imposables",
     "obligations_post_octroi" => "Respect des obligations après obtention",
     "zone_developpement" => "Zone proximité canal - vérifier localisation",
@@ -840,7 +840,7 @@ EntrepriseAide.find_or_create_by(slug: "bruxelles_prime_conformite_normes") do |
     }
   }
 
-  aide.infos_complementaires = {
+  aide.delais_procedures = {
     "fiscalite" => "Cette prime fait partie des revenus imposables",
     "obligations_post_octroi" => "Respect des obligations après obtention",
     "expert_requis" => "Rapport expert OBLIGATOIRE avant toute demande",
@@ -949,7 +949,7 @@ EntrepriseAide.find_or_create_by(slug: "bruxelles_prime_securisation") do |aide|
     }
   }
 
-  aide.infos_complementaires = {
+  aide.delais_procedures = {
     "fiscalite" => "Cette prime fait partie des revenus imposables",
     "obligations_post_octroi" => "Respect des obligations après obtention",
     "specialisation_securite" => "Aide spécialisée systèmes sécurisation uniquement",
@@ -1064,7 +1064,7 @@ EntrepriseAide.find_or_create_by(slug: "bruxelles_prime_accessibilite") do |aide
     }
   }
 
-  aide.infos_complementaires = {
+  aide.delais_procedures = {
     "fiscalite" => "Cette prime fait partie des revenus imposables",
     "obligations_post_octroi" => "Respect des obligations après obtention",
     "objectif_social" => "Amélioration accessibilité PMR, personnes âgées, poussettes",
@@ -1197,7 +1197,7 @@ EntrepriseAide.find_or_create_by(slug: "bruxelles_prime_formation") do |aide|
     }
   }
 
-  aide.infos_complementaires = {
+  aide.delais_procedures = {
     "fiscalite" => "Cette prime fait partie des revenus imposables",
     "obligations_post_octroi" => "Respect des obligations après obtention",
     "profil_formateur" => {
@@ -1325,7 +1325,7 @@ EntrepriseAide.find_or_create_by(slug: "bruxelles_prime_recrutement") do |aide|
     }
   }
 
-  aide.infos_complementaires = {
+  aide.delais_procedures = {
     "fiscalite" => "Cette prime fait partie des revenus imposables",
     "obligations_post_octroi" => "Respect des obligations après obtention",
     "restriction_taille" => "UNIQUEMENT micro-entreprises (critères UE)",
@@ -1443,7 +1443,7 @@ EntrepriseAide.find_or_create_by(slug: "bruxelles_prime_consultance") do |aide|
     }
   }
 
-  aide.infos_complementaires = {
+  aide.delais_procedures = {
     "fiscalite" => "Cette prime fait partie des revenus imposables",
     "obligations_post_octroi" => "Respect des obligations après obtention",
     "profil_consultant" => {
@@ -1569,7 +1569,7 @@ EntrepriseAide.find_or_create_by(slug: "bruxelles_prime_digitalisation") do |aid
     }
   }
 
-  aide.infos_complementaires = {
+  aide.delais_procedures = {
     "fiscalite" => "Cette prime fait partie des revenus imposables",
     "obligations_post_octroi" => "Respect des obligations après obtention",
     "charte_numerique_responsable" => "Engagement obligatoire respect principes durabilité numérique",
