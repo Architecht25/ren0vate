@@ -1,0 +1,179 @@
+<div class="container-fluid px-4 py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-megaphone"></i>
+      </div>
+      <h1 class="h3 text-primary-custom mb-0 fw-normal">Créer une notification admin</h1>
+    </div>
+    <%= link_to notifications_path, class: "btn btn-outline-secondary" do %>
+      <i class="bi bi-arrow-left me-2"></i>Retour
+    <% end %>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <%= form_with url: create_admin_notifications_path, method: :post, local: true, class: "needs-validation", novalidate: true do |form| %>
+
+            <!-- Type de notification -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Type de notification</label>
+              <select name="notification[type]" class="form-select" required>
+                <option value="">Sélectionner un type</option>
+                <option value="admin_info">📢 Information générale</option>
+                <option value="admin_legal">⚖️ Mise à jour légale</option>
+                <option value="admin_maintenance">🔧 Maintenance système</option>
+                <option value="admin_nouvelle_prime">🎉 Nouvelle prime disponible</option>
+                <option value="admin_urgent">🚨 Notification urgente</option>
+              </select>
+            </div>
+
+            <!-- Titre -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Titre</label>
+              <input type="text" name="notification[title]" class="form-control"
+                     placeholder="Ex: Nouvelle prime isolation disponible" required>
+            </div>
+
+            <!-- Message -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Message</label>
+              <textarea name="notification[message]" class="form-control" rows="4"
+                        placeholder="Rédigez votre message ici..." required></textarea>
+            </div>
+
+            <div class="row">
+              <!-- Catégorie -->
+              <div class="col-md-6 mb-4">
+                <label class="form-label fw-semibold">Catégorie</label>
+                <select name="notification[category]" class="form-select">
+                  <option value="systeme">🔧 Système</option>
+                  <option value="aide">💡 Aide</option>
+                  <option value="rappel">⏰ Rappel</option>
+                  <option value="nouveaute">✨ Nouveauté</option>
+                  <option value="urgent">🚨 Urgent</option>
+                </select>
+              </div>
+
+              <!-- Priorité -->
+              <div class="col-md-6 mb-4">
+                <label class="form-label fw-semibold">Priorité</label>
+                <select name="notification[priority]" class="form-select">
+                  <option value="normale">📝 Normale</option>
+                  <option value="haute">⚡ Haute</option>
+                  <option value="urgente">🔥 Urgente</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Ciblage -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Destinataires</label>
+              <div class="border rounded p-3">
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="radio" name="notification[target_type]"
+                         id="target_all" value="all_users" checked>
+                  <label class="form-check-label" for="target_all">
+                    <strong>Tous les utilisateurs</strong> (<%= @users.count %> utilisateurs)
+                  </label>
+                </div>
+
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="radio" name="notification[target_type]"
+                         id="target_region" value="by_region">
+                  <label class="form-check-label" for="target_region">
+                    <strong>Par région</strong>
+                  </label>
+                  <select name="notification[target_region]" class="form-select mt-2" style="display: none;" id="region_select">
+                    <option value="wallonie">🏴󠁢󠁥󠁷󠁡󠁬󠁿 Wallonie</option>
+                    <option value="flandre">🇳🇱 Flandre</option>
+                    <option value="bruxelles">🏢 Bruxelles</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Expiration -->
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Expiration (optionnel)</label>
+              <select name="notification[expires_days]" class="form-select">
+                <option value="">Pas d'expiration</option>
+                <option value="7">Dans 7 jours</option>
+                <option value="14">Dans 14 jours</option>
+                <option value="30">Dans 30 jours</option>
+                <option value="90">Dans 90 jours</option>
+              </select>
+            </div>
+
+            <!-- Actions -->
+            <div class="d-flex justify-content-end gap-2">
+              <%= link_to notifications_path, class: "btn btn-secondary" do %>
+                Annuler
+              <% end %>
+              <button type="submit" class="btn btn-primary-custom">
+                <i class="bi bi-send me-2"></i>Envoyer la notification
+              </button>
+            </div>
+
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar avec info -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">📊 Aperçu des utilisateurs</h5>
+
+          <div class="mb-3">
+            <small class="text-muted">Total des utilisateurs inscrits</small>
+            <h4 class="text-primary-custom"><%= @users.count %></h4>
+          </div>
+
+          <div class="mb-3">
+            <small class="text-muted">Répartition par région</small>
+            <% User.group(:region).count.each do |region, count| %>
+              <div class="d-flex justify-content-between">
+                <span><%= region&.capitalize || 'Non définie' %></span>
+                <span class="badge bg-secondary"><%= count %></span>
+              </div>
+            <% end %>
+          </div>
+
+          <hr>
+
+          <h6>💡 Conseils</h6>
+          <ul class="small text-muted">
+            <li>Utilisez un titre clair et explicite</li>
+            <li>Préférez les messages courts et directs</li>
+            <li>Les notifications urgentes génèrent un email</li>
+            <li>Testez avec votre propre compte d'abord</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Afficher/masquer le sélecteur de région
+document.addEventListener('DOMContentLoaded', function() {
+  const regionRadio = document.getElementById('target_region');
+  const regionSelect = document.getElementById('region_select');
+  const allRadios = document.querySelectorAll('input[name="notification[target_type]"]');
+
+  allRadios.forEach(radio => {
+    radio.addEventListener('change', function() {
+      if (this.value === 'by_region') {
+        regionSelect.style.display = 'block';
+      } else {
+        regionSelect.style.display = 'none';
+      }
+    });
+  });
+});
+</script>

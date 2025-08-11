@@ -12,6 +12,19 @@ class User < ApplicationRecord
 
   belongs_to :last_active_simulation, class_name: "Simulation", optional: true
 
+  # Méthodes pour les notifications
+  def unread_notifications_count
+    notifications.unread.active.count
+  end
+
+  def has_unread_notifications?
+    unread_notifications_count > 0
+  end
+
+  def mark_all_notifications_as_read!
+    notifications.unread.update_all(read_at: Time.current)
+  end
+
   # Méthodes pour la soumission et le paiement
   def can_submit?
     # Logique pour vérifier si l'utilisateur peut soumettre

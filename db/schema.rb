@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_10_141727) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_11_082922) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -108,8 +108,31 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_10_141727) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "property_id"
+    t.string "title"
+    t.string "category"
+    t.string "action_url"
+    t.datetime "read_at"
+    t.integer "priority"
+    t.datetime "expires_at"
+    t.bigint "project_id"
+    t.bigint "simulation_id"
+    t.index ["project_id"], name: "index_notifications_on_project_id"
     t.index ["property_id"], name: "index_notifications_on_property_id"
+    t.index ["simulation_id"], name: "index_notifications_on_simulation_id"
     t.index ["user_id"], name: "index_notifications_on_user_id"
+  end
+
+  create_table "prime_document_templates", force: :cascade do |t|
+    t.string "title"
+    t.text "description"
+    t.string "type_document"
+    t.bigint "prime_id", null: false
+    t.boolean "is_required"
+    t.string "file_url"
+    t.integer "order_position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["prime_id"], name: "index_prime_document_templates_on_prime_id"
   end
 
   create_table "prime_submissions", force: :cascade do |t|
@@ -410,8 +433,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_10_141727) do
   add_foreign_key "documents", "requests"
   add_foreign_key "documents", "simulations"
   add_foreign_key "documents", "users"
+  add_foreign_key "notifications", "projects"
   add_foreign_key "notifications", "properties"
+  add_foreign_key "notifications", "simulations"
   add_foreign_key "notifications", "users"
+  add_foreign_key "prime_document_templates", "primes"
   add_foreign_key "prime_submissions", "properties"
   add_foreign_key "prime_submissions", "users"
   add_foreign_key "primes", "categories"

@@ -1,47 +1,147 @@
 class NotificationsController < ApplicationController
+  before_action :authenticate_user!
+  before_action :ensure_admin, only: [:new_admin, :create_admin, :generate_automatic, :edit, :update, :destroy]
+  before_action :set_notification, only: [:show, :edit, :update, :destroy, :mark_as_read]
+
   def index
-    @notifications = Notification.all
+    @notifications = current_user.notifications
+                                .active
+                                .includes(:property, :project, :simulation)
+                                .by_priority
+
+    # Filtrage par type si spécifié
+    @notifications = @notifications.where(type: params[:type]) if params[:type].present?
+
+    # Filtrage par catégorie si spécifié
+    @notifications = @notifications.where(category: params[:category]) if params[:category].present?
+
+    # Filtrage lu/non lu
+    case params[:status]
+    when 'unread'
+      @notifications = @notifications.unread
+    when 'read'
+      @notifications = @notifications.read_notifications
+    end
+
+    # Stats pour l'interface
+    @stats = {
+      total: current_user.notifications.active.count,
+      unread: current_user.unread_notifications_count,
+      by_priority: current_user.notifications.active.group(:priority).count,
+      by_category: current_user.notifications.active.group(:category).count
+    }
   end
 
   def show
-    @notification = Notification.find(params[:id])
+    # Marquer automatiquement comme lu quand on consulte
+    @notification.mark_as_read! unless @notification.read?
+
+    # Préparer les données pour la vue
+    @related_items = get_related_items(@notification)
   end
 
-  def new
-    @notification = Notification.new
-  end
+  def mark_as_read
+    @notification.mark_as_read!
 
-  def create
-    @notification = Notification.new(notification_params)
-    if @notification.save
-      redirect_to @notification
-    else
-      render :new
+    respond_to do |format|
+      format.json { render json: { status: 'success', read: true } }
+      format.html { redirect_back(fallback_location: notifications_path) }
     end
   end
 
-  def edit
-    @notification = Notification.find(params[:id])
-  end
+  def mark_all_as_read
+    current_user.mark_all_notifications_as_read!
 
-  def update
-    @notification = Notification.find(params[:id])
-    if @notification.update(notification_params)
-      redirect_to @notification
-    else
-      render :edit
+    respond_to do |format|
+      format.json { render json: { status: 'success', count: current_user.unread_notifications_count } }
+      format.html { redirect_to notifications_path, notice: 'Toutes les notifications ont été marquées comme lues.' }
     end
   end
 
   def destroy
-    @notification = Notification.find(params[:id])
     @notification.destroy
-    redirect_to notifications_path
+
+    respond_to do |format|
+      format.json { render json: { status: 'success' } }
+      format.html { redirect_to notifications_path, notice: 'Notification supprimée.' }
+    end
+  end
+
+  # Actions admin (à protéger avec un before_action pour les admins)
+  def new_admin
+    @notification = Notification.new
+    @users = User.all
+  end
+
+  def create_admin
+    case params[:notification][:target_type]
+    when 'all_users'
+      target_users = User.all
+    when 'specific_users'
+      target_users = User.where(id: params[:notification][:user_ids])
+    when 'by_region'
+      target_users = User.where(region: params[:notification][:target_region])
+    else
+      target_users = User.all
+    end
+
+    Notification.create_admin_notification(
+      type: params[:notification][:type],
+      title: params[:notification][:title],
+      message: params[:notification][:message],
+      category: params[:notification][:category] || 'systeme',
+      priority: params[:notification][:priority] || 'normale',
+      target_users: target_users,
+      expires_at: params[:notification][:expires_days]&.to_i&.days&.from_now
+    )
+
+    redirect_to notifications_path, notice: "Notification envoyée à #{target_users.count} utilisateurs."
+  end
+
+  def generate_automatic
+    service = NotificationService.new
+    count = service.generate_all_automatic_notifications
+
+    respond_to do |format|
+      format.json { render json: { success: true, count: count } }
+      format.html { redirect_to '/admin/dashboard', notice: "#{count} notifications automatiques générées." }
+    end
   end
 
   private
 
+  def ensure_admin
+    # Pour l'instant, basé sur l'email - à améliorer avec un vrai système de rôles
+    unless current_user.email == 'robin@primes-services.be'
+      redirect_to notifications_path, alert: 'Accès non autorisé.'
+    end
+  end
+
+  def set_notification
+    @notification = current_user.notifications.find(params[:id])
+  end
+
   def notification_params
-    params.require(:notification).permit(:title, :content)
+    params.require(:notification).permit(:title, :message, :type, :category, :priority, :action_url, :expires_at)
+  end
+
+  def get_related_items(notification)
+    items = {}
+
+    if notification.property
+      items[:property] = notification.property
+      items[:property_documents] = notification.property.documents.recent.limit(3)
+    end
+
+    if notification.project
+      items[:project] = notification.project
+      items[:project_documents] = notification.project.documents.recent.limit(3)
+    end
+
+    if notification.simulation
+      items[:simulation] = notification.simulation
+    end
+
+    items
   end
 end

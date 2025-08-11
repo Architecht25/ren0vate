@@ -1,5 +1,7 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light px-4 py-3 shadow-sm">
-  <div class="container-fluid">
+<nav class="navbar navbar-expand-lg navbar-light bg-light px-4 py-          <!-- Séparateur pour mobile -->
+          <li class="d-lg-none"><hr class="dropdown-divider"></li>
+
+          <!-- Dropdown utilisateur --> <div class="container-fluid">
     <!-- Logo -->
     <a class="navbar-brand d-flex align-items-center" href="/">
       <i class="bi bi-house-heart-fill me-2 text-primary-custom"></i>
@@ -47,6 +49,17 @@
               <i class="bi bi-file-earmark-text me-2"></i> Documentation
             <% end %>
           </li>
+          <li class="nav-item">
+            <%= link_to prime_document_templates_path, class: "nav-link px-3 d-flex align-items-center" do %>
+              <i class="bi bi-download me-2"></i> Documents officiels
+            <% end %>
+          </li>
+          <li class="nav-item position-relative">
+            <%= link_to notifications_path, class: "nav-link px-3 d-flex align-items-center" do %>
+              <i class="bi bi-bell me-2"></i> Notifications
+              <%= unread_notifications_badge(current_user) %>
+            <% end %>
+          </li>
           <li class ="nav-item">
             <%= link_to requests_path, class: "nav-link px-3 d-flex align-items-center" do %>
               <i class="bi bi-list me-2"></i> Mes demandes
@@ -55,17 +68,6 @@
 
           <!-- Séparateur pour mobile -->
           <li class="d-lg-none"><hr class="dropdown-divider"></li>
-
-          <!-- Notifications -->
-          <li class="nav-item position-relative">
-            <%= link_to notifications_path, class: "nav-link px-3 d-flex align-items-center" do %>
-              <i class="bi bi-bell me-2"></i> Notifications
-              <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                2
-                <span class="visually-hidden">unread messages</span>
-              </span>
-            <% end %>
-          </li>
 
           <!-- Admin Dashboard (si admin) -->
           <li class="nav-item">

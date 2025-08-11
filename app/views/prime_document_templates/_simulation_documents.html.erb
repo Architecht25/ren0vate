@@ -1,0 +1,136 @@
+<!-- Partial pour afficher les documents téléchargeables après simulation -->
+<% if defined?(simulation) && simulation&.persisted? %>
+  <%
+    # Récupérer les primes de la simulation (à adapter selon votre logique)
+    selected_primes = simulation.respond_to?(:selected_primes) ? simulation.selected_primes : []
+
+    # Si pas de méthode selected_primes, utiliser une logique alternative
+    if selected_primes.empty? && simulation.simulation_prime_cards.any?
+      selected_primes = simulation.simulation_prime_cards.includes(:prime).map(&:prime)
+    end
+
+    available_templates = PrimeDocumentTemplate.joins(:prime)
+                            .where(prime: selected_primes)
+                            .required_docs
+                            .by_order if selected_primes.any?
+    available_templates ||= []
+  %>
+
+  <% if available_templates.any? %>
+    <div class="card mt-4">
+      <div class="card-header bg-success bg-opacity-10">
+        <h5 class="card-title mb-0">
+          <i class="bi bi-download text-success me-2"></i>
+          Documents officiels à télécharger
+        </h5>
+        <p class="text-muted small mb-0 mt-1">
+          📋 Attestations et formulaires pour vos primes sélectionnées
+        </p>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-md-8">
+            <p class="mb-2">
+              <strong><%= available_templates.count %></strong> document(s) officiel(s) disponible(s)
+              pour <strong><%= selected_primes.count %></strong> prime(s).
+            </p>
+            <small class="text-muted">
+              Ces documents doivent être remplis par votre entrepreneur et joints à votre dossier de demande.
+            </small>
+          </div>
+          <div class="col-md-4 text-end">
+            <% if available_templates.count > 1 %>
+              <%= link_to download_documents_simulation_path(simulation_id: simulation.id),
+                    class: "btn btn-success",
+                    data: { confirm: "Télécharger tous les documents en ZIP ?" } do %>
+                <i class="bi bi-download"></i> Tout télécharger (ZIP)
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Liste des documents par prime -->
+        <div class="row g-3">
+          <% available_templates.group_by(&:prime).each do |prime, templates| %>
+            <div class="col-12">
+              <div class="border rounded p-3 bg-light">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h6 class="mb-0 text-primary">
+                    <i class="bi bi-award"></i> <%= prime.titre %>
+                  </h6>
+                  <span class="badge bg-primary"><%= templates.count %> doc(s)</span>
+                </div>
+
+                <div class="row g-2">
+                  <% templates.each do |template| %>
+                    <div class="col-md-6 col-lg-4">
+                      <div class="d-flex align-items-center gap-2 p-2 bg-white rounded border">
+                        <div class="flex-shrink-0">
+                          <i class="bi bi-file-earmark-pdf text-danger"></i>
+                        </div>
+                        <div class="flex-grow-1 min-w-0">
+                          <div class="fw-medium small">
+                            <%= truncate(template.title, length: 25) %>
+                          </div>
+                          <div class="text-muted" style="font-size: 0.75rem;">
+                            <%= template.type_document.humanize %>
+                          </div>
+                        </div>
+                        <div class="flex-shrink-0">
+                          <% if template.file_available? %>
+                            <%= link_to download_prime_document_template_path(template),
+                                  class: "btn btn-sm btn-outline-primary",
+                                  target: "_blank",
+                                  title: "Télécharger #{template.title}" do %>
+                              <i class="bi bi-download"></i>
+                            <% end %>
+                          <% else %>
+                            <span class="btn btn-sm btn-outline-secondary disabled" title="Non disponible">
+                              <i class="bi bi-x"></i>
+                            </span>
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Actions supplémentaires -->
+        <div class="mt-3 pt-3 border-top">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <small class="text-muted">
+                💡 <strong>Conseil:</strong> Téléchargez ces documents avant de contacter votre entrepreneur.
+                Ils contiennent les informations techniques nécessaires pour votre projet.
+              </small>
+            </div>
+            <div class="col-md-4 text-end">
+              <%= link_to prime_document_templates_path,
+                    class: "btn btn-sm btn-outline-info" do %>
+                <i class="bi bi-list"></i> Voir tous les documents
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <!-- Message si aucun document disponible -->
+    <div class="alert alert-info mt-4">
+      <h6 class="alert-heading">
+        <i class="bi bi-info-circle"></i> Documents officiels
+      </h6>
+      <p class="mb-2">
+        Aucun document officiel n'est encore disponible pour les primes de cette simulation.
+      </p>
+      <small class="text-muted">
+        Les documents seront ajoutés prochainement. En attendant, vous pouvez consulter
+        <%= link_to "tous les documents disponibles", prime_document_templates_path, class: "alert-link" %>.
+      </small>
+    </div>
+  <% end %>
+<% end %>

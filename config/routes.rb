@@ -60,7 +60,28 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :notifications
+  # Documents officiels des primes (attestations, formulaires, etc.)
+  resources :prime_document_templates, only: [:index, :show] do
+    member do
+      get :download
+    end
+  end
+
+  # Routes pour téléchargement groupé de documents
+  get 'primes/:id/download_documents', to: 'prime_document_templates#download_prime_documents', as: :download_documents_prime
+  get 'simulations/:simulation_id/download_documents', to: 'prime_document_templates#download_simulation_documents', as: :download_documents_simulation
+
+  resources :notifications, only: [:index, :show] do
+    member do
+      patch :mark_as_read
+    end
+    collection do
+      patch :mark_all_as_read
+      get :new_admin
+      post :create_admin
+      post :generate_automatic
+    end
+  end
   resources :properties do
     member do
       get :dashboard  # Dashboard spécifique pour un bien

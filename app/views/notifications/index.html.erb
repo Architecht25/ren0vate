@@ -7,8 +7,17 @@
       </div>
       <h1 class="h3 text-primary-custom mb-0 fw-normal">Mes Notifications</h1>
     </div>
-    <%= link_to new_notification_path, class: "btn btn-primary-custom px-4" do %>
-      <i class="bi bi-plus-lg me-2"></i>Créer une notification
+
+    <!-- Bouton création réservé aux admins -->
+    <% if current_user_admin? %>
+      <div class="d-flex gap-2">
+        <%= link_to new_admin_notifications_path, class: "btn btn-outline-primary px-3" do %>
+          <i class="bi bi-plus-lg me-2"></i>Nouvelle notification admin
+        <% end %>
+        <%= link_to "/admin/dashboard", class: "btn btn-info px-3" do %>
+          <i class="bi bi-gear me-2"></i>Dashboard admin
+        <% end %>
+      </div>
     <% end %>
   </div>
 

@@ -1,0 +1,160 @@
+<% content_for :title, "Documents officiels des primes" %>
+
+<div class="container py-4">
+  <div class="row">
+    <div class="col-12">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <h2 class="mb-1">📋 Documents officiels des primes</h2>
+          <p class="text-muted mb-0">
+            <% if @prime %>
+              Documents pour la prime: <strong><%= @prime.titre %></strong>
+            <% else %>
+              Attestations, formulaires et guides pour toutes les primes
+            <% end %>
+          </p>
+        </div>
+      </div>
+
+      <!-- Filtres -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <%= form_with url: prime_document_templates_path, method: :get, local: true, class: "row g-3" do |form| %>
+            <div class="col-md-4">
+              <%= form.select :prime_id,
+                    options_from_collection_for_select(Prime.par_ordre_affichage, :id, :titre, params[:prime_id]),
+                    { prompt: "Toutes les primes" },
+                    { class: "form-select" } %>
+            </div>
+            <div class="col-md-4">
+              <%= form.select :type_document,
+                    options_for_select(PrimeDocumentTemplate.type_documents.map { |k,v| [k.humanize, v] }, params[:type_document]),
+                    { prompt: "Tous types" },
+                    { class: "form-select" } %>
+            </div>
+            <div class="col-md-4">
+              <%= form.submit "Filtrer", class: "btn btn-primary" %>
+              <%= link_to "Réinitialiser", prime_document_templates_path, class: "btn btn-outline-secondary ms-2" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card text-center border-primary">
+            <div class="card-body">
+              <h4 class="text-primary mb-1"><%= @templates.count %></h4>
+              <small class="text-muted">Documents trouvés</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-center border-success">
+            <div class="card-body">
+              <h4 class="text-success mb-1"><%= @templates.required_docs.count %></h4>
+              <small class="text-muted">Documents obligatoires</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-center border-info">
+            <div class="card-body">
+              <h4 class="text-info mb-1"><%= @templates.joins(:prime).distinct.count('primes.id') %></h4>
+              <small class="text-muted">Primes couvertes</small>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-center border-warning">
+            <div class="card-body">
+              <h4 class="text-warning mb-1"><%= @templates.select { |t| t.file_available? }.count %></h4>
+              <small class="text-muted">Fichiers disponibles</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Liste des documents -->
+      <% if @templates.any? %>
+        <div class="row">
+          <% @templates.group_by(&:prime).each do |prime, templates| %>
+            <div class="col-12 mb-4">
+              <div class="card">
+                <div class="card-header bg-light">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                      <h5 class="mb-1"><%= prime.titre %></h5>
+                      <small class="text-muted">Region: <%= prime.region&.capitalize %> • <%= templates.count %> document(s)</small>
+                    </div>
+                    <% if templates.any? { |t| t.file_available? } %>
+                      <%= link_to download_documents_prime_path(id: prime.id),
+                            class: "btn btn-sm btn-outline-primary" do %>
+                        <i class="bi bi-download"></i> Télécharger tout
+                      <% end %>
+                    <% end %>
+                  </div>
+                </div>
+                <div class="card-body">
+                  <div class="row g-3">
+                    <% templates.each do |template| %>
+                      <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 <%= 'border-success' if template.is_required %>">
+                          <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                              <h6 class="card-title mb-1"><%= template.title %></h6>
+                              <% if template.is_required %>
+                                <span class="badge bg-success">Obligatoire</span>
+                              <% end %>
+                            </div>
+
+                            <p class="text-muted small mb-2">
+                              Type: <%= template.type_document.humanize %>
+                            </p>
+
+                            <% if template.description.present? %>
+                              <p class="small text-secondary mb-3">
+                                <%= truncate(template.description, length: 100) %>
+                              </p>
+                            <% end %>
+
+                            <div class="d-flex gap-2">
+                              <% if template.file_available? %>
+                                <%= link_to download_prime_document_template_path(template),
+                                      class: "btn btn-sm btn-primary flex-fill",
+                                      target: "_blank" do %>
+                                  <i class="bi bi-download"></i> Télécharger
+                                <% end %>
+                              <% else %>
+                                <span class="btn btn-sm btn-outline-secondary flex-fill disabled">
+                                  <i class="bi bi-x-circle"></i> Non disponible
+                                </span>
+                              <% end %>
+
+                              <%= link_to prime_document_template_path(template),
+                                    class: "btn btn-sm btn-outline-info" do %>
+                                <i class="bi bi-eye"></i>
+                              <% end %>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="text-center py-5">
+          <i class="bi bi-folder-x display-1 text-muted"></i>
+          <h4 class="mt-3">Aucun document trouvé</h4>
+          <p class="text-muted">Essayez de modifier vos filtres ou contactez l'administrateur.</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

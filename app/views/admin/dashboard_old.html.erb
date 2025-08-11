@@ -97,7 +97,7 @@
 
   <!-- Contenu des onglets -->
   <div class="tab-content" id="adminTabsContent">
-
+    
     <!-- ========== ONGLET NOTIFICATIONS ========== -->
     <div class="tab-pane fade show active" id="notifications-panel" role="tabpanel">
       <div class="row">
@@ -179,11 +179,11 @@
                 <%= link_to new_admin_notifications_path, class: "btn btn-primary-custom btn-lg" do %>
                   <i class="bi bi-plus-circle me-2"></i>Créer notification
                 <% end %>
-
+                
                 <button type="button" class="btn btn-outline-info btn-lg" onclick="generateAutomaticNotifications()">
                   <i class="bi bi-robot me-2"></i>Générer automatiques
                 </button>
-
+                
                 <%= link_to notifications_path, class: "btn btn-outline-secondary" do %>
                   <i class="bi bi-list me-2"></i>Voir toutes
                 <% end %>
@@ -218,198 +218,177 @@
     </div>
 
     <!-- ========== ONGLET UTILISATEURS ========== -->
-    <div class="tab-pane fade" id="users-panel" role="tabpanel">
-      <div class="row">
-        <div class="col-md-4">
-          <!-- Stats utilisateurs -->
-          <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-light">
-              <h5 class="mb-0"><i class="bi bi-people me-2"></i>Aperçu des utilisateurs</h5>
-            </div>
-            <div class="card-body">
-              <div class="row text-center">
-                <div class="col-12 mb-3">
-                  <h3 class="text-primary-custom mb-0"><%= @users.count %></h3>
-                  <small class="text-muted">Utilisateurs inscrits</small>
-                </div>
-              </div>
-              <div class="mb-3">
-                <h6>Répartition par région</h6>
-                <% User.group(:region).count.each do |region, count| %>
-                  <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="small">
-                      <i class="bi bi-geo-alt me-1"></i>
-                      <%= region&.capitalize || 'Non définie' %>
-                    </span>
-                    <span class="badge bg-primary-custom"><%= count %></span>
-                  </div>
                 <% end %>
               </div>
-              <div class="mb-3">
-                <h6>Profils complétés</h6>
-                <% complete_profiles = @users.select { |u| u.first_name.present? && u.last_name.present? && u.region.present? }.count %>
-                <div class="progress">
-                  <div class="progress-bar bg-success" style="width: <%= (@users.count > 0 ? (complete_profiles.to_f / @users.count * 100) : 0).round(1) %>%"></div>
-                </div>
-                <small class="text-muted"><%= complete_profiles %>/<%= @users.count %> profils complets</small>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-8">
-          <!-- Liste des utilisateurs -->
-          <div class="card border-0 shadow-sm">
-            <div class="card-header bg-light d-flex justify-content-between align-items-center">
-              <h5 class="mb-0"><i class="bi bi-list me-2"></i>Utilisateurs récents</h5>
-              <small class="text-muted">Derniers inscrits</small>
-            </div>
-            <div class="card-body">
-              <div class="table-responsive">
-                <table class="table table-hover">
-                  <thead class="table-light">
-                    <tr>
-                      <th>Utilisateur</th>
-                      <th>Région</th>
-                      <th>Inscription</th>
-                      <th>Activité</th>
-                      <th>Statut</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <% @users.order(created_at: :desc).limit(10).each do |user| %>
-                      <tr>
-                        <td>
-                          <div>
-                            <strong><%= user.email %></strong>
-                            <% if user.first_name.present? || user.last_name.present? %>
-                              <br><small class="text-muted"><%= "#{user.first_name} #{user.last_name}".strip %></small>
-                            <% end %>
-                          </div>
-                        </td>
-                        <td>
-                          <% if user.region.present? %>
-                            <span class="badge bg-<%= user.region == 'wallonie' ? 'success' : user.region == 'bruxelles' ? 'primary' : 'warning' %>">
-                              <%= user.region.capitalize %>
-                            </span>
-                          <% else %>
-                            <span class="badge bg-secondary">Non définie</span>
-                          <% end %>
-                        </td>
-                        <td>
-                          <small class="text-muted"><%= user.created_at.strftime("%d/%m/%Y") %></small>
-                        </td>
-                        <td>
-                          <div class="d-flex gap-1">
-                            <span class="badge bg-light text-dark" title="Propriétés"><%= user.properties.count %> 🏠</span>
-                            <span class="badge bg-light text-dark" title="Simulations"><%= user.simulations.count %> 🧮</span>
-                          </div>
-                        </td>
-                        <td>
-                          <% if user.first_name.present? && user.last_name.present? && user.region.present? %>
-                            <span class="badge bg-success">✓ Complet</span>
-                          <% else %>
-                            <span class="badge bg-warning">⚠ Incomplet</span>
-                          <% end %>
-                        </td>
-                      </tr>
-                    <% end %>
-                  </tbody>
-                </table>
-              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- ========== ONGLET STATISTIQUES ========== -->
-    <div class="tab-pane fade" id="stats-panel" role="tabpanel">
-      <div class="row">
-        <div class="col-md-6">
-          <!-- Stats générales -->
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <div class="card text-center border-0 shadow-sm">
-                <div class="card-body">
-                  <h3 class="text-primary"><%= @properties.count %></h3>
-                  <p class="card-text small">Propriétés enregistrées</p>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6 mb-3">
-              <div class="card text-center border-0 shadow-sm">
-                <div class="card-body">
-                  <h3 class="text-warning"><%= @projects.count %></h3>
-                  <p class="card-text small">Chantiers créés</p>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6 mb-3">
-              <div class="card text-center border-0 shadow-sm">
-                <div class="card-body">
-                  <h3 class="text-danger"><%= @simulations.count %></h3>
-                  <p class="card-text small">Simulations effectuées</p>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-6 mb-3">
-              <div class="card text-center border-0 shadow-sm">
-                <div class="card-body">
-                  <h3 class="text-info"><%= @documents.count %></h3>
-                  <p class="card-text small">Documents téléchargés</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+  <!-- ========== SECTION UTILISATEURS ========== -->
 
-        <div class="col-md-6">
-          <!-- Primes par région -->
-          <div class="card border-0 shadow-sm">
-            <div class="card-header bg-light">
-              <h5 class="mb-0"><i class="bi bi-geo-alt me-2"></i>Primes par région</h5>
-            </div>
-            <div class="card-body">
-              <% @primes.group_by(&:region).each do |region, primes| %>
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span><%= region.capitalize %></span>
-                  <span class="badge bg-success"><%= primes.count %></span>
-                </div>
-              <% end %>
-            </div>
-          </div>
-        </div>
+<h2>Utilisateurs inscrits (<%= @users.count %>)</h2>
+<div class="table-responsive">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Email</th>
+        <th>Nom</th>
+        <th>Prénom</th>
+        <th>Région</th>
+        <th>Téléphone</th>
+        <th>Ville</th>
+        <th>Date d'inscription</th>
+        <th>Profil complet</th>
+        <th>Propriétés</th>
+        <th>Chantiers</th>
+        <th>Simulations</th>
+        <th>Documents</th>
+        <th>Demandes</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @users.each do |user| %>
+        <tr>
+          <td><%= user.id %></td>
+          <td><%= user.email %></td>
+          <td><%= user.last_name %></td>
+          <td><%= user.first_name %></td>
+          <td>
+            <% if user.region.present? %>
+              <span class="badge bg-<%= user.region == 'wallonie' ? 'success' : user.region == 'bruxelles' ? 'primary' : 'warning' %>">
+                <%= user.region.capitalize %>
+              </span>
+            <% else %>
+              <span class="badge bg-secondary">Non définie</span>
+            <% end %>
+          </td>
+          <td><%= user.phone %></td>
+          <td><%= user.city %></td>
+          <td><%= user.created_at.strftime("%d/%m/%Y") %></td>
+          <td>
+            <% if user.first_name.present? && user.last_name.present? && user.region.present? %>
+              <span class="badge bg-success">✓ Complet</span>
+            <% else %>
+              <span class="badge bg-warning">⚠ Incomplet</span>
+            <% end %>
+          </td>
+          <td>
+            <% if user.properties.any? %>
+              <span class="badge bg-info"><%= user.properties.count %></span>
+            <% else %>
+              <span class="badge bg-secondary">0</span>
+            <% end %>
+          </td>
+          <td>
+            <% if user.projects.any? %>
+              <span class="badge bg-info"><%= user.projects.count %></span>
+            <% else %>
+              <span class="badge bg-secondary">Aucune</span>
+            <% end %>
+          </td>
+          <td>
+            <% if user.simulations.any? %>
+              <span class="badge bg-info"><%= user.simulations.count %></span>
+            <% else %>
+              <span class="badge bg-secondary">Aucune</span>
+            <% end %>
+          </td>
+          <td>
+            <% if user.documents.any? %>
+              <span class="badge bg-info"><%= user.documents.count %></span>
+            <% else %>
+              <span class="badge bg-secondary">Aucune</span>
+            <% end %>
+          </td>
+          <td>
+            <% if user.requests.any? %>
+              <span class="badge bg-info"><%= user.requests.count %> demande(s)</span>
+            <% else %>
+              <span class="badge bg-secondary">Aucune</span>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<!-- Statistiques -->
+<h2>Statistiques</h2>
+<div class="col-md-2">
+    <h3>Primes par région</h3>
+    <ul class="list-group">
+      <% @primes.group_by(&:region).each do |region, primes| %>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <%= region.capitalize %>
+          <span class="badge bg-success rounded-pill"><%= primes.count %></span>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+  <div class="row">
+  <div class="col-md-2">
+    <h3>Total des utilisateurs</h3>
+    <div class="card text-center">
+      <div class="card-body">
+        <h1 class="card-title text-primary"><%= @users.count %></h1>
+        <p class="card-text">Utilisateurs inscrits</p>
       </div>
     </div>
+  </div>
 
-    <!-- ========== ONGLET SYSTÈME ========== -->
-    <div class="tab-pane fade" id="system-panel" role="tabpanel">
-      <div class="card border-0 shadow-sm">
-        <div class="card-header bg-light">
-          <h5 class="mb-0"><i class="bi bi-gear me-2"></i>Informations système</h5>
-        </div>
-        <div class="card-body">
-          <div class="row">
-            <div class="col-md-6">
-              <h6>Environnement</h6>
-              <p><code><%= Rails.env %></code></p>
-
-              <h6>Version Rails</h6>
-              <p><code><%= Rails.version %></code></p>
-            </div>
-            <div class="col-md-6">
-              <h6>Base de données</h6>
-              <p><code><%= ActiveRecord::Base.connection.adapter_name %></code></p>
-
-              <h6>Dernière mise à jour</h6>
-              <p><code><%= Time.current.strftime("%d/%m/%Y %H:%M") %></code></p>
-            </div>
-          </div>
-        </div>
+  <div class="col-md-2">
+    <h3>Total des biens</h3>
+    <div class="card text-center">
+      <div class="card-body">
+        <h1 class="card-title text-info"><%= @properties.count %></h1>
+        <p class="card-text">Propriétés enregistrées</p>
       </div>
     </div>
+  </div>
 
+  <div class="col-md-2">
+    <h3>Total des chantiers</h3>
+    <div class="card text-center">
+      <div class="card-body">
+        <h1 class="card-title text-warning"><%= @projects.count %></h1>
+        <p class="card-text">Chantiers créés</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-2">
+    <h3>Total des simulations</h3>
+    <div class="card text-center">
+      <div class="card-body">
+        <h1 class="card-title text-danger"><%= @simulations.count %></h1>
+        <p class="card-text">Simulations effectuées</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-2">
+    <h3>Total des documents</h3>
+    <div class="card text-center">
+      <div class="card-body">
+        <h1 class="card-title text-secondary"><%= @documents.count %></h1>
+        <p class="card-text">Documents téléchargés</p>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-2">
+    <h3>Total des demandes</h3>
+    <div class="card text-center">
+      <div class="card-body">
+        <h1 class="card-title text-primary"><%= @requests.count %></h1>
+        <p class="card-text">Demandes en cours</p>
+      </div>
+    </div>
   </div>
 </div>
 
