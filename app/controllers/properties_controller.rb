@@ -119,6 +119,22 @@ class PropertiesController < ApplicationController
 
     # Notifications liées à ce bien
     @property_notifications = current_user.notifications.where(property: @property).recent.limit(5) if current_user.respond_to?(:notifications)
+
+    # Progressions des demandes pour ce bien
+    @request_progresses = RequestProgress.joins(:request)
+                                       .where(requests: { property: @property })
+                                       .includes(:request, :prime)
+                                       .order(created_at: :desc)
+
+    # Statistiques des demandes
+    @demandes_stats = {
+      total: @request_progresses.count,
+      en_attente: @request_progresses.en_attente.count,
+      finalises: @request_progresses.finalises.count,
+      accordees: @request_progresses.where(status_administratif: 'accorde').count,
+      montant_total_demande: @request_progresses.sum(:montant_demande) || 0,
+      montant_total_accorde: @request_progresses.sum(:montant_accorde) || 0
+    }
   end
 
   def documents_dashboard

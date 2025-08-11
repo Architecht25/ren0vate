@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_11_082922) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_11_105553) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -284,8 +284,22 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_11_082922) do
     t.datetime "completed_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "numero_dossier"
+    t.string "email_suivi", null: false
+    t.string "status_administratif", default: "en_preparation"
+    t.decimal "montant_demande", precision: 10, scale: 2
+    t.decimal "montant_accorde", precision: 10, scale: 2
+    t.string "prime_accordee"
+    t.date "date_soumission"
+    t.date "date_derniere_maj"
+    t.text "commentaires_admin"
+    t.boolean "document_recu", default: false
+    t.index ["date_soumission"], name: "index_request_progresses_on_date_soumission"
+    t.index ["email_suivi"], name: "index_request_progresses_on_email_suivi", unique: true
+    t.index ["numero_dossier"], name: "index_request_progresses_on_numero_dossier", unique: true, where: "(numero_dossier IS NOT NULL)"
     t.index ["prime_id"], name: "index_request_progresses_on_prime_id"
     t.index ["request_id"], name: "index_request_progresses_on_request_id"
+    t.index ["status_administratif"], name: "index_request_progresses_on_status_administratif"
   end
 
   create_table "requests", force: :cascade do |t|

@@ -32,7 +32,7 @@
         <div>
           <strong>Informations manquantes :</strong>
           <span class="text-muted-custom ms-2">
-            <%= @actions_available[:missing_fields].map(&:humanize).join(", ") %>
+            <%= @actions_available[:missing_fields].map { |field| field.to_s.humanize }.join(", ") %>
           </span>
         </div>
       </div>
@@ -264,6 +264,161 @@
       </div>
     </div>
   <% end %>
+
+  <!-- Progressions des demandes -->
+  <div class="row g-4 mt-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <div class="d-flex align-items-center">
+              <div class="icon-circle me-3">
+                <i class="bi bi-clipboard-check"></i>
+              </div>
+              <div>
+                <h5 class="card-title mb-0 fw-normal">Suivi des demandes</h5>
+                <small class="text-muted-custom">État des demandes administratives</small>
+              </div>
+            </div>
+            <% if @demandes_stats[:total] > 0 %>
+              <span class="badge bg-primary-custom fs-6 px-3 py-2">
+                <%= @demandes_stats[:total] %> demande<%= 's' if @demandes_stats[:total] > 1 %>
+              </span>
+            <% end %>
+          </div>
+
+          <% if @request_progresses.any? %>
+            <!-- Statistiques résumées -->
+            <div class="row g-3 mb-4">
+              <div class="col-md-3">
+                <div class="text-center p-3 bg-info bg-opacity-10 rounded">
+                  <div class="h4 mb-0 text-info"><%= @demandes_stats[:total] %></div>
+                  <small class="text-muted">Total demandes</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="text-center p-3 bg-warning bg-opacity-10 rounded">
+                  <div class="h4 mb-0 text-warning"><%= @demandes_stats[:en_attente] %></div>
+                  <small class="text-muted">En attente</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="text-center p-3 bg-success bg-opacity-10 rounded">
+                  <div class="h4 mb-0 text-success"><%= @demandes_stats[:accordees] %></div>
+                  <small class="text-muted">Accordées</small>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="text-center p-3 bg-primary bg-opacity-10 rounded">
+                  <div class="h4 mb-0 text-primary"><%= number_to_currency(@demandes_stats[:montant_total_accorde], unit: '€', separator: ',', delimiter: ' ') %></div>
+                  <small class="text-muted">Montant accordé</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Liste des demandes -->
+            <div class="table-responsive">
+              <table class="table table-hover">
+                <thead class="table-light">
+                  <tr>
+                    <th>Prime</th>
+                    <th>Statut</th>
+                    <th>Dossier</th>
+                    <th>Montant demandé</th>
+                    <th>Montant accordé</th>
+                    <th>Dernière MAJ</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @request_progresses.each do |progress| %>
+                    <tr>
+                      <td>
+                        <div>
+                          <strong><%= progress.prime.titre %></strong>
+                          <br><small class="text-muted"><%= progress.request.title %></small>
+                        </div>
+                      </td>
+                      <td>
+                        <%= request_progress_status_badge(progress.status_administratif) %>
+                      </td>
+                      <td>
+                        <% if progress.numero_dossier.present? %>
+                          <code><%= progress.numero_dossier %></code>
+                        <% else %>
+                          <small class="text-muted">Non attribué</small>
+                        <% end %>
+                      </td>
+                      <td>
+                        <%= format_currency_amount(progress.montant_demande) %>
+                      </td>
+                      <td>
+                        <% if progress.montant_accorde.present? && progress.montant_accorde > 0 %>
+                          <strong class="text-success">
+                            <%= format_currency_amount(progress.montant_accorde) %>
+                          </strong>
+                          <br><%= format_taux_octroi(progress.taux_octroi) %>
+                        <% else %>
+                          <%= format_currency_amount(nil) %>
+                        <% end %>
+                      </td>
+                      <td>
+                        <% if progress.date_derniere_maj.present? %>
+                          <%= progress.date_derniere_maj.strftime("%d/%m/%Y") %>
+                        <% elsif progress.date_soumission.present? %>
+                          <%= progress.date_soumission.strftime("%d/%m/%Y") %>
+                        <% else %>
+                          <small class="text-muted">-</small>
+                        <% end %>
+                      </td>
+                      <td>
+                        <div class="d-flex gap-1">
+                          <% if progress.document_recu %>
+                            <span class="badge bg-success" title="Document reçu">
+                              <i class="bi bi-file-check"></i>
+                            </span>
+                          <% end %>
+                          <% if progress.email_suivi.present? %>
+                            <button type="button" class="btn btn-outline-secondary btn-sm"
+                                    data-bs-toggle="tooltip"
+                                    title="Email de suivi: <%= progress.email_suivi %>">
+                              <i class="bi bi-envelope"></i>
+                            </button>
+                          <% end %>
+                        </div>
+                      </td>
+                    </tr>
+                    <% if progress.commentaires_admin.present? %>
+                      <tr>
+                        <td colspan="7" class="bg-light">
+                          <small class="text-muted">
+                            <i class="bi bi-chat-text me-1"></i>
+                            <strong>Commentaires :</strong> <%= progress.commentaires_admin %>
+                          </small>
+                        </td>
+                      </tr>
+                    <% end %>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <!-- État vide -->
+            <div class="text-center py-5">
+              <i class="bi bi-clipboard-x text-muted" style="font-size: 3rem;"></i>
+              <h5 class="text-muted mt-3">Aucune demande pour ce bien</h5>
+              <p class="text-muted">Les progressions de vos demandes administratives apparaîtront ici.</p>
+              <% if @actions_available[:can_request] %>
+                <%= link_to new_request_path(property_id: @property.id), class: "btn btn-primary-custom" do %>
+                  <i class="bi bi-plus-lg me-2"></i>Faire une première demande
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Notifications liées au bien -->
   <% if @property_notifications&.any? %>
