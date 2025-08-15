@@ -1,15 +1,23 @@
 Rails.application.routes.draw do
-  devise_for :users
-  root "pages#home"
+  # Routes avec support multi-langues
+  scope "(:locale)", locale: /fr|nl|en/ do
+    devise_for :users
+    root "pages#home"
 
-  # API routes for enterprise aids
-  namespace :api do
-    get 'entreprises/bce/:numero_bce', to: 'entreprises#bce_lookup'
-    get 'entreprises/bruxelles/aides', to: 'entreprises#bruxelles_aides'
-  end
+    # API routes for enterprise aids
+    namespace :api do
+      get 'entreprises/bce/:numero_bce', to: 'entreprises#bce_lookup'
+      get 'entreprises/bruxelles/aides', to: 'entreprises#bruxelles_aides'
 
-  # Dashboard routes
-  get '/dashboard', to: 'dashboard#index', as: :dashboard
+      # API pour les préférences utilisateur
+      patch 'users/language-preference', to: 'users#update_language_preference'
+    end
+
+    # Dashboard routes
+    get '/dashboard', to: 'dashboard#index', as: :dashboard
+
+    # Test I18n route
+    get '/i18n-test', to: 'i18n_test#index', as: :i18n_test
 
   # Regulations - Base de connaissance réglementaire
   resources :regulations, only: [:index] do
@@ -146,4 +154,9 @@ Rails.application.routes.draw do
   get '/wallonie-entreprises', to: 'pages#wallonie_entreprises', as: :wallonie_entreprises
   get '/mentions-legales', to: 'pages#legal', as: :legal
   get '/politique-de-confidentialite', to: 'pages#privacy', as: :privacy
+
+  end # Fin du scope locale
+
+  # Route de redirection pour les URLs sans locale
+  get '/*path', to: redirect("/fr/%{path}"), constraints: lambda { |req| !req.path.starts_with?("/fr") && !req.path.starts_with?("/nl") && !req.path.starts_with?("/en") }
 end

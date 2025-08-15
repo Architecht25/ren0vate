@@ -41,10 +41,10 @@ class PropertiesController < ApplicationController
     Rails.logger.info "Property errors: #{@property.errors.full_messages}" unless @property.valid?
 
     if @property.save
-      redirect_to @property, notice: "Le bien a été créé avec succès."
+      redirect_to @property, notice: t('notices.property_created')
     else
       # Préserver le paramètre région lors du rendu d'erreur
-      flash.now[:alert] = "Veuillez corriger les erreurs ci-dessous."
+      flash.now[:alert] = t('common.please_correct_errors')
       render :new, status: :unprocessable_entity
     end
   end
@@ -61,12 +61,12 @@ class PropertiesController < ApplicationController
       Rails.logger.info "[PROPERTY UPDATE] ✅ Mise à jour réussie pour propriété ID: #{@property.id}"
       Rails.logger.info "[PROPERTY UPDATE] 🔧 Nouvelles valeurs: region=#{@property.region}, ean_flandre=#{@property.ean_flandre}, certificat_peb_flandre=#{@property.certificat_peb_flandre}"
 
-      redirect_to @property, notice: "Le bien a été mis à jour avec succès."
+      redirect_to @property, notice: t('notices.property_updated')
     else
       Rails.logger.error "[PROPERTY UPDATE] ❌ Échec de la mise à jour pour propriété ID: #{@property.id}"
       Rails.logger.error "[PROPERTY UPDATE] 🚨 Erreurs: #{@property.errors.full_messages.join(', ')}"
 
-      flash.now[:alert] = "Erreur lors de la mise à jour : #{@property.errors.full_messages.join(', ')}"
+      flash.now[:alert] = t('errors.property_update_failed', errors: @property.errors.full_messages.join(', '))
       render :edit, status: :unprocessable_entity
     end
   end
@@ -88,13 +88,13 @@ class PropertiesController < ApplicationController
       @property.destroy!
 
       Rails.logger.info "Successfully deleted property '#{property_name}'"
-      redirect_to properties_path, notice: "Le bien '#{property_name}' a été supprimé avec succès."
+      redirect_to properties_path, notice: t('notices.property_deleted', name: property_name)
 
     rescue => e
       Rails.logger.error "Failed to delete property '#{property_name}': #{e.message}"
       Rails.logger.error e.backtrace.join("\n")
 
-      redirect_to @property, alert: "Erreur lors de la suppression du bien : #{e.message}"
+      redirect_to @property, alert: t('errors.property_deletion_failed', message: e.message)
     end
   end
 

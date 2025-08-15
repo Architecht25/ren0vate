@@ -33,6 +33,7 @@ import WorkflowController from "controllers/workflow_controller"
 import EnhancedBceSearchController from "controllers/enhanced_bce_search_controller"
 import EligibilityCheckerController from "controllers/eligibility_checker_controller"
 import AidCalculatorController from "controllers/aid_calculator_controller"
+import LanguageController from "controllers/language_controller"
 
 application.register("user_type", UserTypeController)
 application.register("test-eligibilite", TestEligibiliteController)
@@ -52,5 +53,6 @@ application.register("workflow", WorkflowController)
 application.register("enhanced-bce-search", EnhancedBceSearchController)
 application.register("eligibility-checker", EligibilityCheckerController)
 application.register("aid-calculator", AidCalculatorController)
+application.register("language", LanguageController)
 
 export { application }

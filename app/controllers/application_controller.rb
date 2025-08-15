@@ -2,6 +2,73 @@ class ApplicationController < ActionController::Base
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
 
+  # Configuration I18n pour la Belgique
+  before_action :set_locale
+  around_action :switch_locale
+
+  private
+
+  def set_locale
+    # 1. Paramètre URL (?locale=nl)
+    if params[:locale].present? && I18n.available_locales.include?(params[:locale].to_sym)
+      session[:locale] = params[:locale]
+      I18n.locale = params[:locale]
+
+    # 2. Session utilisateur
+    elsif session[:locale].present? && I18n.available_locales.include?(session[:locale].to_sym)
+      I18n.locale = session[:locale]
+
+    # 3. Préférence utilisateur connecté
+    elsif user_signed_in? && current_user.preferred_locale.present?
+      I18n.locale = current_user.preferred_locale
+      session[:locale] = current_user.preferred_locale
+
+    # 4. Détection par région de la propriété
+    elsif user_signed_in? && current_user.properties.any?
+      locale = detect_locale_from_region
+      I18n.locale = locale if locale
+
+    # 5. En-têtes HTTP Accept-Language avec la gem
+    elsif respond_to?(:http_accept_language) && http_accept_language.present?
+      I18n.locale = http_accept_language.compatible_language_from(I18n.available_locales) || I18n.default_locale
+
+    # 6. Défaut
+    else
+      I18n.locale = I18n.default_locale
+    end
+
+    Rails.logger.debug "🌍 Locale set to: #{I18n.locale}"
+  end
+
+  def switch_locale(&action)
+    locale = I18n.locale || I18n.default_locale
+    I18n.with_locale(locale, &action)
+  end
+
+  def detect_locale_from_region
+    return nil unless user_signed_in?
+
+    # Prendre la région de la dernière propriété modifiée
+    last_property = current_user.properties.order(:updated_at).last
+    return nil unless last_property&.region
+
+    case last_property.region.downcase
+    when 'flandre', 'vlaanderen'
+      :nl
+    when 'wallonie', 'wallonië'
+      :fr
+    when 'bruxelles', 'brussel', 'brussels'
+      # Bruxelles est bilingue, garder le choix utilisateur ou défaut
+      session[:locale]&.to_sym || :fr
+    else
+      nil
+    end
+  end
+
+  def default_url_options
+    { locale: I18n.locale }
+  end
+
   before_action :authenticate_user!
   before_action :configure_permitted_parameters, if: :devise_controller?
 

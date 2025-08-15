@@ -12,6 +12,9 @@ class User < ApplicationRecord
 
   belongs_to :last_active_simulation, class_name: "Simulation", optional: true
 
+  # Validation pour la langue préférée
+  validates :preferred_locale, inclusion: { in: %w[fr nl en] }, allow_blank: true
+
   # Méthodes pour les notifications
   def unread_notifications_count
     notifications.unread.active.count

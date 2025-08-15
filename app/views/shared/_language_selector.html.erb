@@ -1,0 +1,31 @@
+<div class="language-selector">
+  <div class="dropdown">
+    <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+      <span class="me-2"><%= current_locale_flag %></span>
+      <span><%= current_locale_name %></span>
+    </button>
+    <ul class="dropdown-menu">
+      <% language_options.each do |locale, data| %>
+        <li>
+          <%= link_to url_for(locale: locale),
+                      class: "dropdown-item #{'active' if I18n.locale.to_s == locale}",
+                      data: { turbo_method: :get } do %>
+            <span class="me-2"><%= data[:flag] %></span>
+            <span><%= data[:name] %></span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+</div>
+
+<style>
+.language-selector .dropdown-item.active {
+  background-color: var(--bs-primary);
+  color: white;
+}
+
+.language-selector .dropdown-item:hover:not(.active) {
+  background-color: var(--bs-light);
+}
+</style>
