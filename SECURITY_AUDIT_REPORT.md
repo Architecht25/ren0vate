@@ -1,8 +1,8 @@
 # Rapport d'Audit de Sécurité - Application Ren0vate
 
-**Date du rapport :** 15 août 2025  
-**Version de l'application :** Rails 8.0.2 avec Ruby 3.3.5  
-**Environnement :** Production Heroku avec PostgreSQL  
+**Date du rapport :** 15 août 2025
+**Version de l'application :** Rails 8.0.2 avec Ruby 3.3.5
+**Environnement :** Production Heroku avec PostgreSQL
 
 ## 📋 Résumé Exécutif
 
@@ -100,7 +100,7 @@ Cette application Rails présente une base de sécurité correcte mais nécessit
 #### 1. Activation de la confirmation d'email
 ```ruby
 # Dans app/models/user.rb
-devise :database_authenticatable, :registerable, :recoverable, 
+devise :database_authenticatable, :registerable, :recoverable,
        :rememberable, :validatable, :trackable, :confirmable
 ```
 
@@ -195,7 +195,7 @@ config.ssl_options = { hsts: { expires: 1.year } }
 
 # Headers de sécurité
 config.force_ssl = true
-config.session_store :cookie_store, 
+config.session_store :cookie_store,
   key: '_app_session',
   secure: Rails.env.production?,
   httponly: true,
