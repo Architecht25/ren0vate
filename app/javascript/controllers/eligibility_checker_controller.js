@@ -15,7 +15,12 @@ export default class extends Controller {
       numero_bce: "0833618097",
       statut: "ACTIF",
       code_nace: "71121",
-      forme_juridique: "Société privée à responsabilité limitée"
+      forme_juridique: "Société privée à responsabilité limitée",
+      nombre_employes: 75, // Pour déclencher des améliorations potentielles
+      date_creation: "2022-01-01", // Entreprise récente
+      adresse: {
+        code_postal: "1000" // Bruxelles
+      }
     }
     this.loadAids()
   }
@@ -28,6 +33,7 @@ export default class extends Controller {
 
       this.aidsValue = aids
       console.log("Aides chargées:", aids.length)
+      console.log("Première aide complète:", aids[0]) // DEBUG: voir la structure
 
       // Déclencher l'analyse dès qu'on a les aides et les données d'entreprise
       if (this.companyValue) {
@@ -134,7 +140,33 @@ export default class extends Controller {
       return { status: 'ineligible', issues }
     }
 
-    // Vérification de la taille d'entreprise
+    // 🎯 Critères d'éligibilité plus sélectifs pour générer des diagnostics pertinents
+    const aideName = aid.titre || ''
+
+    // Simuler des critères spécifiques seulement pour quelques aides pour démonstration
+    if (aideName.includes('Transition') && company.nombre_employes > 100) {
+      // Seulement si vraiment trop d'employés
+      improvements.push({
+        issue: `Effectif trop important pour optimiser la ${aideName} (${company.nombre_employes} employés)`,
+        suggestion: "Considérer une restructuration en filiales ou une réduction d'effectif"
+      })
+    }
+
+    if (aideName.includes('Formation') && company.date_creation) {
+      // Vérifier l'âge seulement si pertinent
+      const creation = new Date(company.date_creation)
+      const now = new Date()
+      const ageInMonths = (now - creation) / (1000 * 60 * 60 * 24 * 30.44)
+
+      if (ageInMonths < 6) { // Très récent
+        improvements.push({
+          issue: `Entreprise très récente pour la ${aideName} (${Math.floor(ageInMonths)} mois)`,
+          suggestion: `Développer d'abord l'activité pendant ${Math.ceil(6 - ageInMonths)} mois supplémentaires`
+        })
+      }
+    }
+
+    // Vérification de la taille d'entreprise (critères existants)
     if (criteria.taille_entreprise) {
       const sizeCheck = this.checkCompanySize(company, criteria.taille_entreprise)
       if (!sizeCheck.eligible) {
@@ -195,15 +227,36 @@ export default class extends Controller {
   }
 
   checkCompanySize(company, criteria) {
-    // Logique simplifiée - à adapter selon les vraies données
     const employeeCount = company.nombre_employes || 0
     const turnover = company.chiffre_affaires || 0
 
-    if (criteria.includes('PME') && (employeeCount > 250 || turnover > 50000000)) {
+    // Critères PME : < 250 employés ET < 50M€ CA
+    if (criteria.includes('PME')) {
+      if (employeeCount > 250) {
+        return {
+          eligible: false,
+          canImprove: employeeCount <= 300, // Possible si pas trop grand
+          message: `Entreprise trop grande (${employeeCount} employés)`,
+          improvement: "Réduire l'effectif à moins de 250 employés ou restructurer en filiales"
+        }
+      }
+      if (turnover > 50000000) {
+        return {
+          eligible: false,
+          canImprove: turnover <= 60000000,
+          message: `Chiffre d'affaires trop élevé (${this.formatAmount(turnover)})`,
+          improvement: "Réorganiser la structure pour séparer certaines activités"
+        }
+      }
+    }
+
+    // Critères TPE : < 10 employés
+    if (criteria.includes('TPE') && employeeCount >= 10) {
       return {
         eligible: false,
-        canImprove: false,
-        message: "Entreprise trop grande (> 250 employés ou > 50M€ CA)"
+        canImprove: employeeCount <= 15,
+        message: `Trop d'employés pour une TPE (${employeeCount})`,
+        improvement: "Réduire l'effectif à moins de 10 employés"
       }
     }
 
@@ -247,34 +300,100 @@ export default class extends Controller {
   }
 
   displayResults(eligible, potential, ineligible) {
-    // Mettre à jour les compteurs
-    document.getElementById('eligible-count').textContent = eligible.length
+    // Afficher toutes les aides ensemble d'abord
+    this.displayAllAids(eligible, potential, ineligible)
 
-    // Afficher les aides éligibles
-    this.displayEligibleAids(eligible)
-
-    // Afficher les aides potentielles avec améliorations
+    // Afficher une section diagnostic séparée seulement si nécessaire
     if (potential.length > 0) {
-      this.displayPotentialAids(potential)
-      document.getElementById('improvement-section').style.display = 'block'
-    }
-
-    // Afficher les aides non éligibles
-    if (ineligible.length > 0) {
-      this.displayIneligibleAids(ineligible)
-      document.getElementById('ineligible-section').style.display = 'block'
+      this.displayDiagnosticSection(potential)
     }
 
     // Afficher les résultats
     document.getElementById('eligibility-results').style.display = 'block'
 
-    // Activer le bouton suivant si au moins une aide est éligible
-    if (eligible.length > 0) {
-      document.getElementById('proceed-to-calculator').disabled = false
-    }
+    // Activer le bouton suivant
+    document.getElementById('proceed-to-calculator').disabled = false
 
-    // 🎯 NOUVEAU: Transmettre les données au calculateur d'aides
+    // 🎯 Transmettre les données au calculateur d'aides
     this.passDataToCalculator(eligible, potential)
+  }
+
+  displayAllAids(eligible, potential, ineligible) {
+    // Mettre à jour le compteur total
+    const totalAids = eligible.length + potential.length + ineligible.length
+    document.getElementById('eligible-count').textContent = totalAids
+
+    // Créer une liste unifiée avec toutes les aides
+    const allAids = [
+      ...eligible.map(({aid}) => ({aid, status: 'eligible'})),
+      ...potential.map(({aid}) => ({aid, status: 'potential'})),
+      ...ineligible.map(({aid}) => ({aid, status: 'ineligible'}))
+    ]
+
+    const container = document.getElementById('eligible-aids')
+    container.innerHTML = allAids.map(({aid, status}) => {
+      const statusClass = status === 'eligible' ? 'success' : status === 'potential' ? 'warning' : 'secondary'
+      const statusIcon = status === 'eligible' ? 'check-circle' : status === 'potential' ? 'tools' : 'info-circle'
+      const statusText = status === 'eligible' ? 'Éligible' : status === 'potential' ? 'Potentielle' : 'Non éligible'
+
+      return `
+        <div class="col-md-6 mb-3">
+          <div class="card border-${statusClass} h-100">
+            <div class="card-body">
+              <h6 class="card-title">${aid.titre || 'Aide non spécifiée'}</h6>
+              <span class="badge bg-${statusClass} mb-2">
+                <i class="fas fa-${statusIcon} me-1"></i>${statusText}
+              </span>
+              <p class="card-text small">${aid.description || 'Description non disponible'}</p>
+              <div class="small text-muted">
+                <strong>Montant max:</strong> ${this.formatAmount(aid.montant_max)}<br>
+                <strong>Taux:</strong> ${aid.taux_aide || 'Non spécifié'}%
+              </div>
+            </div>
+          </div>
+        </div>
+      `
+    }).join('')
+  }
+
+  displayDiagnosticSection(potential) {
+    // Créer une section diagnostic séparée
+    const diagnosticHtml = `
+      <div class="mt-4 p-3 bg-light rounded border-warning border">
+        <h6 class="text-warning mb-3">
+          <i class="fas fa-lightbulb me-2"></i>
+          Conseils d'Optimisation (${potential.length} aide(s) à améliorer)
+        </h6>
+        <div class="accordion" id="diagnostic-accordion">
+          ${potential.map(({ aid, result }, index) => `
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#diagnostic-${index}">
+                  <strong>${aid.titre}</strong>
+                  <span class="badge bg-warning ms-2">${result.improvements.length} conseil(s)</span>
+                </button>
+              </h2>
+              <div id="diagnostic-${index}" class="accordion-collapse collapse"
+                   data-bs-parent="#diagnostic-accordion">
+                <div class="accordion-body">
+                  ${result.improvements.map(improvement => `
+                    <div class="alert alert-warning mb-2">
+                      <strong>💡 Conseil:</strong> ${improvement.issue}<br>
+                      <strong>🎯 Action:</strong> ${improvement.suggestion}
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `
+
+    // Ajouter la section diagnostic après les aides
+    const container = document.getElementById('eligible-aids').parentElement
+    container.insertAdjacentHTML('afterend', diagnosticHtml)
   }
 
   passDataToCalculator(eligible, potential) {
@@ -286,12 +405,16 @@ export default class extends Controller {
       const eligibleAids = eligible.map(({ aid }) => aid)
       const potentialAids = potential.map(({ aid }) => aid)
 
+      // 🎯 Toutes les aides pour le calculateur (les 14 aides)
+      const allAids = this.aidsValue || []
+
       // Transmettre via un événement personnalisé
       const event = new CustomEvent('eligibility:results', {
         detail: {
           company: this.companyValue,
           eligibleAids: eligibleAids,
           potentialAids: potentialAids,
+          allAids: allAids,
           allResults: { eligible, potential }
         }
       })
@@ -299,7 +422,8 @@ export default class extends Controller {
       calculatorElement.dispatchEvent(event)
       console.log("📤 Données transmises au calculateur:", {
         eligible: eligibleAids.length,
-        potential: potentialAids.length
+        potential: potentialAids.length,
+        total: allAids.length
       })
     } else {
       console.warn("⚠️ Calculateur d'aides non trouvé")
@@ -312,11 +436,11 @@ export default class extends Controller {
       <div class="col-md-6 mb-3">
         <div class="card border-success h-100">
           <div class="card-body">
-            <h6 class="card-title text-success">${aid.nom}</h6>
-            <p class="card-text small">${aid.description_courte || aid.description}</p>
+            <h6 class="card-title text-success">${aid.titre || 'Aide non spécifiée'}</h6>
+            <p class="card-text small">${aid.description || 'Description non disponible'}</p>
             <div class="small text-muted">
-              <strong>Montant max:</strong> ${this.formatAmount(aid.montant_maximum)}<br>
-              <strong>Taux:</strong> ${aid.taux_aide}%
+              <strong>Montant max:</strong> ${this.formatAmount(aid.montant_max)}<br>
+              <strong>Taux:</strong> ${aid.taux_aide || 'Non spécifié'}%
             </div>
           </div>
         </div>
@@ -331,13 +455,13 @@ export default class extends Controller {
         <h2 class="accordion-header">
           <button class="accordion-button collapsed" type="button"
                   data-bs-toggle="collapse" data-bs-target="#improvement-${index}">
-            <strong>${aid.nom}</strong>
+            <strong>${aid.titre || 'Aide non spécifiée'}</strong>
             <span class="badge bg-warning ms-2">${result.improvements.length} amélioration(s)</span>
           </button>
         </h2>
         <div id="improvement-${index}" class="accordion-collapse collapse">
           <div class="accordion-body">
-            <p class="mb-3">${aid.description_courte || aid.description}</p>
+            <p class="mb-3">${aid.description || 'Description non disponible'}</p>
             <h6 class="text-warning">Améliorations requises:</h6>
             <ul class="list-group list-group-flush">
               ${result.improvements.map(improvement => `
@@ -358,7 +482,7 @@ export default class extends Controller {
     container.innerHTML = ineligible.map(({ aid, result }) => `
       <div class="card border-light mb-2">
         <div class="card-body">
-          <h6 class="card-title text-muted">${aid.nom}</h6>
+          <h6 class="card-title text-muted">${aid.titre || 'Aide non spécifiée'}</h6>
           <div class="small text-danger">
             ${result.issues.map(issue => `<div>• ${issue}</div>`).join('')}
           </div>
@@ -368,8 +492,14 @@ export default class extends Controller {
   }
 
   formatAmount(amount) {
-    if (!amount) return 'Non spécifié'
-    return new Intl.NumberFormat('fr-BE', { style: 'currency', currency: 'EUR' }).format(amount)
+    if (!amount || amount === 'Non spécifié') return 'Non spécifié'
+
+    // Convertir en nombre si c'est une string
+    const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount
+
+    if (isNaN(numericAmount)) return 'Non spécifié'
+
+    return new Intl.NumberFormat('fr-BE', { style: 'currency', currency: 'EUR' }).format(numericAmount)
   }
 
   showLoading() {

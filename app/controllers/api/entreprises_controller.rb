@@ -1,4 +1,8 @@
 class Api::EntreprisesController < ApplicationController
+  # Permettre l'accès sans authentification pour les APIs publiques d'entreprises
+  skip_before_action :authenticate_user!
+  skip_before_action :verify_authenticity_token
+
   def bce_lookup
     numero_bce = params[:numero_bce]
 

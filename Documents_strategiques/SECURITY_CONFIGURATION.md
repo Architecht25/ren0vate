@@ -8,7 +8,7 @@ La CSP a été configurée pour prévenir les attaques XSS et l'injection de cod
 
 #### Configuration Actuelle
 
-**Mode :** 
+**Mode :**
 - Développement/Test : Report-only (analyse des violations sans blocage)
 - Production : Enforcement actif
 

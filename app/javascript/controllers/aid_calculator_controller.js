@@ -1,11 +1,12 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["totalInvestment", "totalAids", "aidCalculations", "detailedResults"]
+  static targets = ["totalInvestment", "totalAids", "aidCalculations", "detailedResults", "investmentInputs"]
   static values = {
     company: Object,
     eligibleAids: Array,
-    potentialAids: Array
+    potentialAids: Array,
+    allAids: Array
   }
 
   connect() {
@@ -20,12 +21,12 @@ export default class extends Controller {
       console.log("📥 Données reçues de l'éligibilité:", event.detail)
 
       this.companyValue = event.detail.company
-      this.eligibleAidsValue = event.detail.eligibleAids
+      this.eligibleAidsValue = event.detail.allAids || event.detail.eligibleAids // 🎯 Utiliser toutes les aides
       this.potentialAidsValue = event.detail.potentialAids || []
 
       console.log("✅ Données mises à jour:", {
         company: !!this.companyValue,
-        eligibleAids: this.eligibleAidsValue?.length || 0,
+        allAids: this.eligibleAidsValue?.length || 0,
         potentialAids: this.potentialAidsValue?.length || 0
       })
 
@@ -70,12 +71,18 @@ export default class extends Controller {
   }
 
   getInvestments() {
-    return {
-      consultation: parseFloat(document.getElementById('investment-consultation').value) || 0,
-      equipment: parseFloat(document.getElementById('investment-equipment').value) || 0,
-      mobility: parseFloat(document.getElementById('investment-mobility').value) || 0,
-      other: parseFloat(document.getElementById('investment-other').value) || 0
-    }
+    // 🎯 Récupérer les investissements pour chaque aide (IDs 25-38)
+    const investments = {}
+    const aidIds = [25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38]
+
+    aidIds.forEach(aidId => {
+      const inputElement = document.getElementById(`investment-aid-${aidId}`)
+      if (inputElement) {
+        investments[aidId] = parseFloat(inputElement.value) || 0
+      }
+    })
+
+    return investments
   }
 
   calculateTotalInvestment(investments) {
@@ -83,17 +90,24 @@ export default class extends Controller {
   }
 
   calculateEachAid(investments) {
-    return this.eligibleAidsValue.map(aid => {
-      const applicableInvestment = this.getApplicableInvestment(aid, investments)
-      const montant = this.calculateAidAmount(aid, applicableInvestment)
+    // 🎯 Calculer pour toutes les aides disponibles qui ont un investissement > 0
+    if (!this.eligibleAidsValue || this.eligibleAidsValue.length === 0) {
+      return []
+    }
 
-      return {
-        aid,
-        applicableInvestment,
-        montant,
-        details: this.getCalculationDetails(aid, applicableInvestment, montant)
+    return this.eligibleAidsValue.map(aid => {
+      const investmentAmount = investments[aid.id] || 0
+      if (investmentAmount > 0) {
+        const montant = this.calculateAidAmount(aid, investmentAmount)
+        return {
+          aid: aid,
+          applicableInvestment: investmentAmount,
+          montant: montant,
+          details: this.getCalculationDetails(aid, investmentAmount, montant)
+        }
       }
-    }).filter(calc => calc.montant > 0)
+      return null
+    }).filter(calc => calc !== null && calc.montant > 0)
   }
 
   getApplicableInvestment(aid, investments) {
@@ -159,7 +173,7 @@ export default class extends Controller {
         <div class="card-body p-2">
           <div class="d-flex justify-content-between align-items-center">
             <div>
-              <strong class="small">${calc.aid.nom}</strong>
+              <strong class="small">${calc.aid.titre}</strong>
               <div class="text-muted small">
                 ${this.formatCurrency(calc.applicableInvestment)} × ${calc.aid.taux_aide}%
               </div>
@@ -181,7 +195,7 @@ export default class extends Controller {
           <button class="accordion-button collapsed" type="button"
                   data-bs-toggle="collapse" data-bs-target="#detail-${index}">
             <div class="d-flex justify-content-between w-100 me-3">
-              <span><strong>${calc.aid.nom}</strong></span>
+              <span><strong>${calc.aid.titre}</strong></span>
               <span class="text-success"><strong>${this.formatCurrency(calc.montant)}</strong></span>
             </div>
           </button>
