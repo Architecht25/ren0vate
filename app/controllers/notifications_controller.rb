@@ -85,6 +85,13 @@ class NotificationsController < ApplicationController
       target_users = User.all
     end
 
+    expires_days = params[:notification][:expires_days]
+    expires_at = if expires_days.present? && expires_days.to_i > 0
+                   expires_days.to_i.days.from_now
+                 else
+                   nil  # Pas d'expiration si le champ est vide ou zéro
+                 end
+
     Notification.create_admin_notification(
       type: params[:notification][:type],
       title: params[:notification][:title],
@@ -92,7 +99,7 @@ class NotificationsController < ApplicationController
       category: params[:notification][:category] || 'systeme',
       priority: params[:notification][:priority] || 'normale',
       target_users: target_users,
-      expires_at: params[:notification][:expires_days]&.to_i&.days&.from_now
+      expires_at: expires_at
     )
 
     redirect_to notifications_path, notice: "Notification envoyée à #{target_users.count} utilisateurs."
