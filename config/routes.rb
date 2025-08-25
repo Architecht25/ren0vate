@@ -11,6 +11,13 @@ Rails.application.routes.draw do
 
       # API pour les préférences utilisateur
       patch 'users/language-preference', to: 'users#update_language_preference'
+      
+        # Routes API pour la sécurité
+  namespace :api do
+    get 'security/headers_check'
+    get 'security/csp_violations'
+    get 'security/security_overview'
+  end
     end
 
     # Dashboard routes
