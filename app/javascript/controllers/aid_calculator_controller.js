@@ -73,7 +73,7 @@ export default class extends Controller {
   getInvestments() {
     // 🎯 Récupérer les investissements pour chaque aide dynamiquement
     const investments = {}
-    
+
     // Si on a les données d'éligibilité, utiliser les IDs réels
     if (this.eligibleAidsValue && this.eligibleAidsValue.length > 0) {
       this.eligibleAidsValue.forEach(aid => {
