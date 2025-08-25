@@ -1,7 +1,13 @@
 Rails.application.routes.draw do
+  # Routes Devise en dehors du scope pour éviter les problèmes de mapping
+  devise_for :users, path_names: { 
+    sign_in: 'connexion', 
+    sign_out: 'deconnexion', 
+    sign_up: 'inscription'
+  }
+  
   # Routes avec support multi-langues
   scope "(:locale)", locale: /fr|nl|en/ do
-    devise_for :users
     root "pages#home"
 
     # API routes for enterprise aids
