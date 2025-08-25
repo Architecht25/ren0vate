@@ -33,6 +33,8 @@ Rails.application.configure do
                           "https://cdnjs.cloudflare.com"
 
     policy.style_src_attr "'unsafe-inline'" # Pour les attributs style="" nécessaires aux composants UI
+    
+    policy.script_src_attr "'unsafe-inline'" # Pour les event handlers onclick, onload, etc. dans les attributs
 
     # Polices : sources locales + CDNs + data URLs
     policy.font_src    :self,
