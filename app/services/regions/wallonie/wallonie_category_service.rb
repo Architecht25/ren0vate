@@ -19,6 +19,23 @@ module Regions
 
       def determine_category_post_login
         # Version précise avec données utilisateur réelles
+
+        # Vérification spéciale pour les syndics : catégorie R5 automatique
+        profile_type = get_param(:profile_type) || get_param(:user_type)
+        if profile_type == "syndic"
+          return {
+            eligible: true,
+            category: "R5",
+            color: category_color("R5"),
+            details: "Syndic de copropriété - Catégorie R5 appliquée automatiquement",
+            adjusted_income: nil,
+            total_income: nil,
+            deductions: 0,
+            family_composition: { profile_type: "syndic" },
+            needs_refinement: false
+          }
+        end
+
         return { error: "Revenus non renseignés", eligible: false } unless @user.revenu_demandeur
 
         # Calculer le revenu total du ménage

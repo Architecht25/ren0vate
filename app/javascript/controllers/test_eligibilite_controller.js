@@ -630,15 +630,18 @@ export default class extends Controller {
     console.log("🎯 Validation du test d'éligibilité Wallonie Syndic");
 
     let message = "✅ Votre copropriété est éligible aux primes Wallonie !";
-    message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-warning'>Syndic/Copropriété</span>";
+    message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-danger'>R5 - Syndic/Copropriété</span>";
 
     let recommendations = [
       "🏢 En tant que syndic, vous gérez les demandes pour la copropriété",
       "👥 La demande doit être faite au nom de la copropriété",
-      "📋 Minimum 2 unités requises, immeuble à dominante résidentielle"
+      "📋 Minimum 2 unités requises, immeuble à dominante résidentielle",
+      "💰 Catégorie R5 appliquée automatiquement pour les syndics"
     ];
 
-    localStorage.setItem("wallonie_categorie", "syndic");
+    // Définir explicitement la catégorie R5 pour les syndics
+    localStorage.setItem("wallonie_categorie", "R5");
+    localStorage.setItem("wallonie_profile_type", "syndic");
     this.showResultWallonieSyndic(message, true, recommendations);
   }
 
