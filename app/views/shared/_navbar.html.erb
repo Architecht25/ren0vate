@@ -70,11 +70,14 @@
           <li class="d-lg-none"><hr class="dropdown-divider"></li>
 
           <!-- Admin Dashboard (si admin) -->
-          <li class="nav-item">
-            <%= link_to '/admin/dashboard', class: "nav-link px-3 d-flex align-items-center text-info" do %>
-              <i class="bi bi-gear me-2"></i> Admin
-            <% end %>
-          </li>
+          <% if current_user&.admin? %>
+            <li class="nav-item">
+              <%= link_to '/admin/dashboard', class: "nav-link px-3 d-flex align-items-center text-danger" do %>
+                <i class="bi bi-shield-lock me-2"></i>
+                <strong>Admin Dashboard</strong>
+              <% end %>
+            </li>
+          <% end %>
 
           <!-- Profil - lien direct -->
           <li class="nav-item">

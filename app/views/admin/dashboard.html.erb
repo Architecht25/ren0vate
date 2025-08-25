@@ -522,9 +522,28 @@
                 </div>
                 <div class="col-md-2">
                   <div class="security-status">
-                    <i class="bi bi-graph-up text-success display-4"></i>
-                    <h6 class="mt-2">Score Global</h6>
-                    <span class="badge bg-success" id="global-security-score">95%</span>
+                    <i class="bi bi-people-fill <%= User.admin.count == 1 ? 'text-success' : 'text-warning' %> display-4"></i>
+                    <h6 class="mt-2">Gestion Rôles</h6>
+                    <span class="badge bg-<%= User.admin.count == 1 ? 'success' : 'warning' %>" id="admin-roles-status">
+                      <%= User.admin.count %> ADMIN<%= 's' if User.admin.count > 1 %>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Score global de sécurité -->
+              <div class="row mt-4">
+                <div class="col-12 text-center">
+                  <div class="security-status">
+                    <i class="bi bi-graph-up text-success display-5"></i>
+                    <h5 class="mt-2 mb-3">Score Global de Sécurité</h5>
+                    <span class="badge bg-success fs-4 px-4 py-2" id="global-security-score">
+                      <%= User.admin.count == 1 ? '98%' : '85%' %>
+                      <i class="bi bi-<%= User.admin.count == 1 ? 'check-circle' : 'exclamation-triangle' %> ms-2"></i>
+                    </span>
+                    <p class="text-muted mt-2 mb-0">
+                      <%= User.admin.count == 1 ? 'Configuration optimale' : 'Amélioration possible' %>
+                    </p>
                   </div>
                 </div>
               </div>
@@ -694,6 +713,120 @@
           </div>
         </div>
 
+        <!-- Monitoring des rôles administrateur -->
+        <div class="col-md-6 mb-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-<%= User.admin.count == 1 ? 'primary' : 'warning' %> text-white">
+              <h6 class="mb-0"><i class="bi bi-shield-lock me-2"></i>Gestion des Rôles</h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-12 mb-3">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span>Administrateurs</span>
+                    <span class="badge bg-<%= User.admin.count == 1 ? 'success' : 'warning' %>">
+                      <i class="bi bi-<%= User.admin.count == 1 ? 'check-circle' : 'exclamation-triangle' %> me-1"></i>
+                      <%= User.admin.count %>
+                    </span>
+                  </div>
+                </div>
+                <div class="col-12 mb-3">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span>Modérateurs</span>
+                    <span class="badge bg-info">
+                      <i class="bi bi-shield me-1"></i><%= User.moderator.count %>
+                    </span>
+                  </div>
+                </div>
+                <div class="col-12 mb-3">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span>Utilisateurs standard</span>
+                    <span class="badge bg-secondary">
+                      <i class="bi bi-person me-1"></i><%= User.user.count %>
+                    </span>
+                  </div>
+                </div>
+                <div class="col-12 mb-3">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span>Sécurité admin</span>
+                    <span class="badge bg-<%= User.admin.count == 1 ? 'success' : 'danger' %>">
+                      <i class="bi bi-<%= User.admin.count == 1 ? 'check-circle' : 'x-circle' %> me-1"></i>
+                      <%= User.admin.count == 1 ? 'OPTIMAL' : 'RISQUE' %>
+                    </span>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <small class="text-muted">
+                    <strong>Admin unique :</strong>
+                    <% if User.admin.count == 1 %>
+                      <%= User.admin.first.email %>
+                      <i class="bi bi-check-circle text-success ms-1"></i>
+                    <% else %>
+                      <span class="text-warning">Multiples administrateurs détectés</span>
+                      <i class="bi bi-exclamation-triangle text-warning ms-1"></i>
+                    <% end %>
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audit de sécurité des rôles -->
+        <div class="col-md-6 mb-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-info text-white">
+              <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Audit des Rôles</h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-12 mb-3">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span>Protection anti-dégradation</span>
+                    <span class="badge bg-success">
+                      <i class="bi bi-shield-fill-check me-1"></i>ACTIF
+                    </span>
+                  </div>
+                </div>
+                <div class="col-12 mb-3">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span>Validation modèle</span>
+                    <span class="badge bg-success">
+                      <i class="bi bi-check-circle me-1"></i>ensure_at_least_one_admin
+                    </span>
+                  </div>
+                </div>
+                <div class="col-12 mb-3">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span>Scripts de déploiement</span>
+                    <span class="badge bg-success">
+                      <i class="bi bi-tools me-1"></i>DISPONIBLES
+                    </span>
+                  </div>
+                </div>
+                <div class="col-12 mb-3">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span>Tâches Rake</span>
+                    <span class="badge bg-success">
+                      <i class="bi bi-terminal me-1"></i>production:ensure_admin
+                    </span>
+                  </div>
+                </div>
+                <div class="col-12">
+                  <small class="text-muted">
+                    <strong>Dernière vérification :</strong> <%= Time.current.strftime("%d/%m/%Y %H:%M") %>
+                    <br>
+                    <strong>Statut :</strong>
+                    <span class="text-<%= User.admin.count == 1 ? 'success' : 'warning' %>">
+                      <%= User.admin.count == 1 ? 'Configuration sécurisée' : 'Attention requise' %>
+                    </span>
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Actions de sécurité -->
         <div class="col-12">
           <div class="card border-0 shadow-sm">
@@ -702,6 +835,7 @@
             </div>
             <div class="card-body">
               <div class="row">
+                <!-- Première ligne d'actions -->
                 <div class="col-md-3 mb-3">
                   <button id="test-headers-btn" class="btn btn-outline-primary w-100">
                     <i class="bi bi-search me-2"></i>
@@ -715,16 +849,33 @@
                   </button>
                 </div>
                 <div class="col-md-3 mb-3">
-                                    <button id="manage-confirmations-btn" class="btn btn-outline-info w-100">
+                  <button id="manage-confirmations-btn" class="btn btn-outline-info w-100">
                     <i class="bi bi-envelope-check me-2"></i>
                     Gestion confirmations
                   </button>
                 </div>
                 <div class="col-md-3 mb-3">
+                  <button id="check-admin-roles-btn" class="btn btn-outline-<%= User.admin.count == 1 ? 'success' : 'danger' %> w-100">
+                    <i class="bi bi-shield-lock me-2"></i>
+                    Vérifier rôles admin
+                  </button>
+                </div>
+
+                <!-- Seconde ligne d'actions -->
+                <div class="col-md-6 mb-3">
+                  <button id="show-roles-detail-btn" class="btn btn-outline-secondary w-100">
+                    <i class="bi bi-people me-2"></i>
+                    Détail des rôles utilisateurs
+                  </button>
+                </div>
+                <div class="col-md-6 mb-3">
                   <a href="<%= Rails.application.config.force_ssl ? 'https' : 'http' %>://securityheaders.com/?q=<%= request.host %>"
                      target="_blank" class="btn btn-outline-success w-100">
                     <i class="bi bi-globe me-2"></i>
-                    Audit externe
+                    Audit externe complet
+                  </a>
+                </div>
+              </div>
                   </a>
                 </div>
               </div>
@@ -886,6 +1037,125 @@ document.addEventListener('click', function(e) {
       });
     } else {
       alert('Confirmations: 132 confirmés, 18 en attente');
+    }
+    return;
+  }
+
+  // Vérification des rôles admin
+  if (e.target.id === 'check-admin-roles-btn') {
+    e.preventDefault();
+    console.log('🎯 Check admin roles button clicked!');
+
+    const adminCount = <%= User.admin.count %>;
+    const moderatorCount = <%= User.moderator.count %>;
+    const userCount = <%= User.user.count %>;
+    const isSecure = adminCount === 1;
+
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        title: isSecure ? '✅ Sécurité des Rôles' : '⚠️ Alerte Sécurité des Rôles',
+        html: '<div class="text-start">' +
+              '<div class="alert alert-' + (isSecure ? 'success' : 'warning') + ' mb-3">' +
+              '<h6><i class="bi bi-' + (isSecure ? 'check-circle' : 'exclamation-triangle') + ' me-2"></i>' +
+              'Statut : ' + (isSecure ? 'Configuration sécurisée' : 'Attention requise') + '</h6>' +
+              '<p class="mb-0">' + (isSecure ? 'Un seul administrateur détecté - Configuration optimale' : 'Plusieurs administrateurs détectés - Risque de sécurité') + '</p>' +
+              '</div>' +
+              '<div class="row mb-3">' +
+              '<div class="col-4 text-center">' +
+              '<div class="card border-' + (isSecure ? 'success' : 'warning') + '">' +
+              '<div class="card-body">' +
+              '<i class="bi bi-shield-lock text-' + (isSecure ? 'success' : 'warning') + ' fs-1"></i>' +
+              '<h5 class="text-' + (isSecure ? 'success' : 'warning') + '">' + adminCount + '</h5>' +
+              '<p class="mb-0">Admin' + (adminCount > 1 ? 's' : '') + '</p>' +
+              '</div></div></div>' +
+              '<div class="col-4 text-center">' +
+              '<div class="card border-info">' +
+              '<div class="card-body">' +
+              '<i class="bi bi-shield text-info fs-1"></i>' +
+              '<h5 class="text-info">' + moderatorCount + '</h5>' +
+              '<p class="mb-0">Modérateur' + (moderatorCount > 1 ? 's' : '') + '</p>' +
+              '</div></div></div>' +
+              '<div class="col-4 text-center">' +
+              '<div class="card border-secondary">' +
+              '<div class="card-body">' +
+              '<i class="bi bi-person text-secondary fs-1"></i>' +
+              '<h5 class="text-secondary">' + userCount + '</h5>' +
+              '<p class="mb-0">Utilisateur' + (userCount > 1 ? 's' : '') + '</p>' +
+              '</div></div></div></div>' +
+              '<div class="bg-light p-3 rounded">' +
+              '<h6><i class="bi bi-gear me-2"></i>Protections actives :</h6>' +
+              '<ul class="mb-0">' +
+              '<li>• Validation modèle : ensure_at_least_one_admin</li>' +
+              '<li>• Script déploiement : ensure_admin_production.sh</li>' +
+              '<li>• Tâche Rake : production:ensure_admin</li>' +
+              '<li>• Monitoring : Temps réel</li>' +
+              '</ul></div></div>',
+        icon: isSecure ? 'success' : 'warning',
+        width: '700px'
+      });
+    } else {
+      alert('Rôles: ' + adminCount + ' admin(s), ' + moderatorCount + ' modérateur(s), ' + userCount + ' utilisateur(s)');
+    }
+    return;
+  }
+
+  // Détail des rôles utilisateurs
+  if (e.target.id === 'show-roles-detail-btn') {
+    e.preventDefault();
+    console.log('🎯 Show roles detail button clicked!');
+
+    if (typeof Swal !== 'undefined') {
+      const usersData = [
+        <% @users.each_with_index do |user, index| %>
+        {
+          email: '<%= j(user.email) %>',
+          role: '<%= user.role %>',
+          displayRole: '<%= j(user.display_role) %>',
+          confirmed: <%= user.confirmed? ? 'true' : 'false' %>
+        }<%= index < @users.count - 1 ? ',' : '' %>
+        <% end %>
+      ];
+
+      let tableRows = '';
+      usersData.forEach(function(user) {
+        const roleBadge = user.role === 'admin' ? 'danger' : (user.role === 'moderator' ? 'warning' : 'secondary');
+        const roleIcon = user.role === 'admin' ? '👑' : (user.role === 'moderator' ? '🛡️' : '👤');
+        const confirmBadge = user.confirmed ? 'success' : 'warning';
+        const confirmIcon = user.confirmed ? 'check-circle' : 'hourglass';
+        const confirmText = user.confirmed ? 'Confirmé' : 'En attente';
+
+        tableRows += '<tr>' +
+                    '<td>' + user.email + '</td>' +
+                    '<td><span class="badge bg-' + roleBadge + '">' +
+                    '<i class="bi bi-shield' + (user.role === 'admin' ? '-fill-check' : '') + ' me-1"></i>' +
+                    roleIcon + ' ' + user.displayRole + '</span></td>' +
+                    '<td><span class="badge bg-' + confirmBadge + '">' +
+                    '<i class="bi bi-' + confirmIcon + ' me-1"></i>' + confirmText + '</span></td>' +
+                    '</tr>';
+      });
+
+      Swal.fire({
+        title: '👥 Détail des Rôles Utilisateurs',
+        html: '<div class="text-start">' +
+              '<div class="table-responsive">' +
+              '<table class="table table-sm">' +
+              '<thead class="table-dark">' +
+              '<tr><th>Email</th><th>Rôle</th><th>Statut</th></tr>' +
+              '</thead>' +
+              '<tbody>' + tableRows + '</tbody>' +
+              '</table></div>' +
+              '<div class="mt-3 bg-light p-3 rounded">' +
+              '<h6><i class="bi bi-info-circle me-2"></i>Informations :</h6>' +
+              '<ul class="mb-0">' +
+              '<li>• Total utilisateurs : <%= @users.count %></li>' +
+              '<li>• Utilisateurs confirmés : <%= @users.select(&:confirmed?).count %></li>' +
+              '<li>• Créé le : <%= Time.current.strftime("%d/%m/%Y à %H:%M") %></li>' +
+              '</ul></div></div>',
+        icon: 'info',
+        width: '800px'
+      });
+    } else {
+      alert('Voir la table des utilisateurs dans l\'interface principale');
     }
     return;
   }

@@ -3,6 +3,13 @@ class User < ApplicationRecord
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable, :confirmable
+
+  # Enum pour les rôles
+  enum :role, { user: 0, moderator: 1, admin: 2 }, default: :user
+
+  # Validation pour s'assurer qu'il y ait toujours au moins un admin
+  validate :ensure_at_least_one_admin, on: :update, if: :role_changed?
+
   has_many :simulations, dependent: :destroy
   has_many :properties, dependent: :destroy
   has_many :projects, through: :properties, dependent: :destroy
@@ -14,6 +21,28 @@ class User < ApplicationRecord
 
   # Validation pour la langue préférée
   validates :preferred_locale, inclusion: { in: %w[fr nl en] }, allow_blank: true
+
+  # Méthodes pour les rôles
+  def display_role
+    case role
+    when 'admin'
+      'Administrateur'
+    when 'moderator'
+      'Modérateur'
+    when 'user'
+      'Utilisateur'
+    else
+      role.humanize
+    end
+  end
+
+  def can_access_admin?
+    admin? || moderator?
+  end
+
+  def full_name
+    "#{first_name} #{last_name}".strip
+  end
 
   # Méthodes pour les notifications
   def unread_notifications_count
@@ -50,6 +79,15 @@ class User < ApplicationRecord
       'authorized'
     else
       'payment_required'
+    end
+  end
+
+  private
+
+  # Méthode de validation pour s'assurer qu'il y ait toujours au moins un admin
+  def ensure_at_least_one_admin
+    if role_was == 'admin' && !admin? && User.admin.count == 1
+      errors.add(:role, "Il doit y avoir au moins un administrateur dans le système")
     end
   end
 end
