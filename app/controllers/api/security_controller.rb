@@ -47,6 +47,14 @@ class Api::SecurityController < ApplicationController
       authentication: {
         provider: 'Devise',
         status: 'active',
+        confirmable: User.devise_modules.include?(:confirmable),
+        users_confirmed: User.where.not(confirmed_at: nil).count,
+        users_unconfirmed: User.where(confirmed_at: nil).count,
+        configuration: {
+          allow_unconfirmed_access_for: Devise.allow_unconfirmed_access_for&.inspect,
+          confirm_within: Devise.confirm_within&.inspect,
+          reconfirmable: Devise.reconfirmable
+        },
         users_count: User.count,
         last_sign_in: User.maximum(:last_sign_in_at)
       },
