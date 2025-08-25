@@ -71,16 +71,25 @@ export default class extends Controller {
   }
 
   getInvestments() {
-    // 🎯 Récupérer les investissements pour chaque aide (IDs 25-38)
+    // 🎯 Récupérer les investissements pour chaque aide dynamiquement
     const investments = {}
-    const aidIds = [25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38]
-
-    aidIds.forEach(aidId => {
-      const inputElement = document.getElementById(`investment-aid-${aidId}`)
-      if (inputElement) {
-        investments[aidId] = parseFloat(inputElement.value) || 0
-      }
-    })
+    
+    // Si on a les données d'éligibilité, utiliser les IDs réels
+    if (this.eligibleAidsValue && this.eligibleAidsValue.length > 0) {
+      this.eligibleAidsValue.forEach(aid => {
+        const inputElement = document.getElementById(`investment-aid-${aid.id}`)
+        if (inputElement) {
+          investments[aid.id] = parseFloat(inputElement.value) || 0
+        }
+      })
+    } else {
+      // Fallback : chercher tous les champs d'investissement présents
+      const investmentInputs = document.querySelectorAll('input[id^="investment-aid-"]')
+      investmentInputs.forEach(input => {
+        const aidId = parseInt(input.id.replace('investment-aid-', ''))
+        investments[aidId] = parseFloat(input.value) || 0
+      })
+    }
 
     return investments
   }
