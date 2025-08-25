@@ -157,6 +157,9 @@ Rails.application.routes.draw do
 
   end # Fin du scope locale
 
+  # Route pour les rapports de violation CSP (hors scope locale)
+  post '/csp-violation-report-endpoint', to: 'security#csp_violation_report'
+
   # Route de redirection pour les URLs sans locale
   get '/*path', to: redirect("/fr/%{path}"), constraints: lambda { |req| !req.path.starts_with?("/fr") && !req.path.starts_with?("/nl") && !req.path.starts_with?("/en") }
 end

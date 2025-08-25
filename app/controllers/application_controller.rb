@@ -5,6 +5,9 @@ class ApplicationController < ActionController::Base
   # Configuration I18n pour la Belgique
   before_action :set_locale
   around_action :switch_locale
+  
+  # Headers de sécurité
+  before_action :set_security_headers
 
   private
 
@@ -71,6 +74,38 @@ class ApplicationController < ActionController::Base
 
   before_action :authenticate_user!
   before_action :configure_permitted_parameters, if: :devise_controller?
+
+  private
+
+  def set_security_headers
+    # X-Frame-Options : Protection contre le clickjacking
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    
+    # X-Content-Type-Options : Empêcher le MIME type sniffing
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    
+    # X-XSS-Protection : Protection XSS pour les anciens navigateurs
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    
+    # Referrer-Policy : Contrôler les informations de référent
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    
+    # Feature-Policy / Permissions-Policy : Contrôler les APIs du navigateur
+    response.headers['Permissions-Policy'] = [
+      'camera=(), microphone=(), geolocation=(self)',
+      'payment=(), usb=(), magnetometer=(), gyroscope=()',
+      'accelerometer=(), ambient-light-sensor=(), autoplay=()',
+      'encrypted-media=(), fullscreen=(self), picture-in-picture=()'
+    ].join(', ')
+    
+    if Rails.env.production?
+      # Strict-Transport-Security : Forcer HTTPS
+      response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains; preload'
+      
+      # Expect-CT : Certificate Transparency
+      response.headers['Expect-CT'] = 'max-age=86400, enforce'
+    end
+  end
 
   protected
 
