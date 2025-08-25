@@ -10,7 +10,7 @@ Rails.application.configure do
     policy.default_src :self
 
     # Scripts : permettre nos scripts + CDNs de confiance + nonces pour inline
-    policy.script_src  :self, 
+    policy.script_src  :self,
                        :https,
                        "'unsafe-inline'", # Temporaire pour les onclick handlers
                        "https://cdn.jsdelivr.net",
@@ -33,7 +33,7 @@ Rails.application.configure do
                           "https://cdnjs.cloudflare.com"
 
     policy.style_src_attr "'unsafe-inline'" # Pour les attributs style="" nécessaires aux composants UI
-    
+
     policy.script_src_attr "'unsafe-inline'" # Pour les event handlers onclick, onload, etc. dans les attributs
 
     # Polices : sources locales + CDNs + data URLs
@@ -79,11 +79,11 @@ Rails.application.configure do
   end
 
   # Générer des nonces pour les scripts et styles inline autorisés
-  config.content_security_policy_nonce_generator = ->(request) { 
+  config.content_security_policy_nonce_generator = ->(request) {
     # Utiliser l'ID de session pour générer le nonce
-    request.session.id.to_s 
+    request.session.id.to_s
   }
-  
+
   # Appliquer les nonces aux directives script-src et style-src
   config.content_security_policy_nonce_directives = %w(script-src style-src)
 

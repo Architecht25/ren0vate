@@ -5,7 +5,7 @@ module DeviseUrlHelper
       opts.merge(locale: locale)
     )
   end
-  
+
   def reset_password_url(resource, opts = {})
     locale = resource.preferred_locale || I18n.default_locale
     Rails.application.routes.url_helpers.edit_user_password_url(

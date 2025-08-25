@@ -59,7 +59,7 @@ Rails.application.configure do
   config.action_mailer.delivery_method = :smtp
 
   # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { 
+  config.action_mailer.default_url_options = {
     host: ENV.fetch('APP_HOST', 'ren0vate-630b5136c442.herokuapp.com'),
     protocol: 'https'
   }

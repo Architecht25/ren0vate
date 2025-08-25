@@ -8,21 +8,21 @@ class SecurityController < ApplicationController
     # Parser le rapport CSP (JSON)
     begin
       report = JSON.parse(request.body.read)
-      
+
       # Logger le rapport pour analyse
       Rails.logger.warn "[CSP VIOLATION] #{report.inspect}"
-      
+
       # En production, on pourrait :
       # - Envoyer à un service de monitoring (Sentry, DataDog, etc.)
       # - Stocker en base pour analyse
       # - Envoyer un email aux administrateurs si critique
-      
+
       # Exemple de logging structuré
       log_csp_violation(report)
-      
+
       # Répondre avec succès pour que le navigateur ne retry pas
       head :no_content
-      
+
     rescue JSON::ParserError => e
       Rails.logger.error "[CSP VIOLATION] Invalid JSON: #{e.message}"
       head :bad_request
@@ -46,7 +46,7 @@ class SecurityController < ApplicationController
 
     # Logger de manière structurée
     Rails.logger.warn "[CSP VIOLATION DETAILS] #{violation_data.to_json}"
-    
+
     # Si la violation est critique (tentative d'injection), on peut alerter
     if critical_violation?(report)
       Rails.logger.error "[CSP CRITICAL VIOLATION] Possible security threat detected: #{violation_data.to_json}"
@@ -57,10 +57,10 @@ class SecurityController < ApplicationController
   def critical_violation?(report)
     # Détecter les violations critiques qui pourraient indiquer une attaque
     return false unless report['csp-report']
-    
+
     violation = report['csp-report']
     blocked_uri = violation['blocked-uri'] || ''
-    
+
     # Signes d'une possible attaque XSS
     suspicious_patterns = [
       /javascript:/i,
@@ -69,7 +69,7 @@ class SecurityController < ApplicationController
       /<script/i,
       /vbscript:/i
     ]
-    
+
     suspicious_patterns.any? { |pattern| blocked_uri.match?(pattern) }
   end
 end

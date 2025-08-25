@@ -1,10 +1,10 @@
 class UserMailer < Devise::Mailer
   include DeviseUrlHelper
-  
+
   def confirmation_instructions(record, token, opts = {})
     @token = token
     @resource = record
-    
+
     # Utiliser la locale préférée de l'utilisateur
     I18n.with_locale(record.preferred_locale || I18n.default_locale) do
       devise_mail(record, :confirmation_instructions, opts)
@@ -14,8 +14,8 @@ class UserMailer < Devise::Mailer
   def reset_password_instructions(record, token, opts = {})
     @token = token
     @resource = record
-    
-    # Utiliser la locale préférée de l'utilisateur  
+
+    # Utiliser la locale préférée de l'utilisateur
     I18n.with_locale(record.preferred_locale || I18n.default_locale) do
       devise_mail(record, :reset_password_instructions, opts)
     end

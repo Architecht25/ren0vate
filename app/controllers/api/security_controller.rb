@@ -32,7 +32,7 @@ class Api::SecurityController < ApplicationController
   def csp_violations
     # Récupérer les violations CSP des dernières 24h depuis les logs
     violations_count = 0 # Placeholder - dans un vrai cas, parser les logs ou BDD
-    
+
     render json: {
       count: violations_count,
       period: '24h',

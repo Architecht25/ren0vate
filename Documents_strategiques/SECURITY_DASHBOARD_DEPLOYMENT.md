@@ -30,7 +30,7 @@ Nous avons déployé avec succès le **cinquième onglet sécurité** dans le da
 ### 4. **API de Monitoring**
 ```
 GET /api/security/headers_check
-GET /api/security/csp_violations  
+GET /api/security/csp_violations
 GET /api/security/security_overview
 ```
 
@@ -95,11 +95,11 @@ class Api::SecurityController < ApplicationController
   def headers_check
     # Vérification temps réel des headers
   end
-  
+
   def csp_violations
     # Monitoring des violations CSP
   end
-  
+
   def security_overview
     # Vue d'ensemble de la sécurité
   end
