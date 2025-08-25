@@ -1904,10 +1904,11 @@ export default class extends Controller {
     recommendations.push("🔧 Vérifiez que les travaux concernent les parties communes");
     recommendations.push("💶 Les montants varient selon le type de travaux et la superficie");
 
-    message += "<br><br><strong>Profil :</strong> <span class='badge bg-warning'>Syndic/Copropriété</span>";
+    message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-info'>Catégorie 2</span>";
 
     // Stocker la catégorie dans localStorage pour la suite
-    localStorage.setItem("bruxelles_categorie", "syndic");
+    localStorage.setItem("bruxelles_categorie", "2");
+    localStorage.setItem("bruxelles_profile_type", "syndic");
     this.showResultBruxellesSyndic(message, true, recommendations);
   }
 
@@ -2309,8 +2310,10 @@ export default class extends Controller {
     }
 
     message += "<br><br><strong>Profil :</strong> <span class='badge bg-primary'>Particulier Bailleur</span>";
+    message += "<br><small class='text-muted'>Votre catégorie sera déterminée selon vos revenus et votre situation familiale.</small>";
 
-    localStorage.setItem("bruxelles_categorie", "particulier_bailleur");
+    // Ne pas stocker de catégorie définitive - elle sera déterminée par l'affinage
+    localStorage.setItem("bruxelles_profile_type", "particulier_bailleur");
     this.showResultBruxellesParticulierBailleur(message, true, recommendations);
   }
 

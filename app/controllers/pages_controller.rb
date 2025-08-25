@@ -105,7 +105,11 @@ class PagesController < ApplicationController
           if result[:eligible]
             # Déterminer si l'affinage est nécessaire et la catégorie automatique
             profile_type = result[:profile]
-            needs_refinement = profile_type == 'particulier'
+
+            # Profils nécessitant un test d'affinage (basé sur les revenus)
+            needs_refinement = profile_type.in?(['prive', 'particulier', 'locataire', 'particulier_indivision', 'emphytheote', 'particulier_bailleur', 'coproprietaire'])
+
+            # Catégorie automatique pour les autres profils (entreprise, asbl, syndic, bailleur)
             auto_category = get_automatic_category_bruxelles(profile_type) unless needs_refinement
 
             render turbo_stream: turbo_stream.replace(
