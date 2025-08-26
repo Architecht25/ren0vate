@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_26_065743) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_26_132603) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -40,6 +40,65 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_26_065743) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "bce_activities", force: :cascade do |t|
+    t.string "entity_number", null: false
+    t.string "activity_group"
+    t.string "nace_version"
+    t.string "nace_code"
+    t.string "classification"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["entity_number"], name: "index_bce_activities_on_entity_number"
+    t.index ["nace_code"], name: "index_bce_activities_on_nace_code"
+  end
+
+  create_table "bce_addresses", force: :cascade do |t|
+    t.string "entity_number", null: false
+    t.string "type_of_address"
+    t.string "country_nl"
+    t.string "country_fr"
+    t.string "zipcode"
+    t.string "municipality_nl"
+    t.string "municipality_fr"
+    t.string "street_nl"
+    t.string "street_fr"
+    t.string "house_number"
+    t.string "box"
+    t.string "extra_address_info"
+    t.date "date_striking_off"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["entity_number"], name: "index_bce_addresses_on_entity_number"
+    t.index ["municipality_nl", "municipality_fr"], name: "index_bce_addresses_on_municipality_nl_and_municipality_fr"
+    t.index ["zipcode"], name: "index_bce_addresses_on_zipcode"
+  end
+
+  create_table "bce_denominations", force: :cascade do |t|
+    t.string "entity_number", null: false
+    t.string "language"
+    t.string "type_of_denomination"
+    t.text "denomination", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["denomination"], name: "index_bce_denominations_on_denomination"
+    t.index ["entity_number", "language"], name: "index_bce_denominations_on_entity_number_and_language"
+    t.index ["entity_number"], name: "index_bce_denominations_on_entity_number"
+  end
+
+  create_table "bce_enterprises", force: :cascade do |t|
+    t.string "enterprise_number", null: false
+    t.string "status"
+    t.string "juridical_situation"
+    t.string "type_of_enterprise"
+    t.string "juridical_form"
+    t.string "juridical_form_cac"
+    t.date "start_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["enterprise_number"], name: "index_bce_enterprises_on_enterprise_number", unique: true
+    t.index ["status"], name: "index_bce_enterprises_on_status"
   end
 
   create_table "categories", force: :cascade do |t|
