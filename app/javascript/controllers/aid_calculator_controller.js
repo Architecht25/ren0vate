@@ -11,8 +11,69 @@ export default class extends Controller {
 
   connect() {
     console.log("Aid Calculator controller connected")
-    this.setupInvestmentListeners()
+    this.loadAvailableAids()
     this.setupEligibilityListener()
+  }
+
+  async loadAvailableAids() {
+    try {
+      console.log("🔄 Chargement des aides depuis l'API...")
+      const response = await fetch('/api/entreprises/bruxelles/aides')
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+
+      const aids = await response.json()
+      console.log("✅ Aides chargées:", aids.length)
+
+      this.allAidsValue = aids
+      this.renderInvestmentFields(aids)
+      this.setupInvestmentListeners()
+    } catch (error) {
+      console.error("❌ Erreur chargement aides:", error)
+      this.renderErrorState()
+    }
+  }
+
+  renderInvestmentFields(aids) {
+    const container = document.getElementById('dynamic-investment-fields')
+    if (!container) return
+
+    container.innerHTML = aids.map(aid => `
+      <div class="mb-3">
+        <label for="investment-aid-${aid.id}" class="form-label">
+          ${aid.titre}
+          <small class="text-muted">(€)</small>
+          ${aid.montant_min ? `<small class="text-warning d-block">⚠️ Minimum: ${this.formatCurrency(aid.montant_min)} d'investissement requis</small>` : ''}
+          ${aid.montant_max ? `<small class="text-info d-block">📈 Maximum: ${this.formatCurrency(aid.montant_max)}</small>` : ''}
+        </label>
+        <input type="number"
+               class="form-control investment-input"
+               id="investment-aid-${aid.id}"
+               min="0"
+               step="${this.getStepForAid(aid)}"
+               placeholder="${aid.montant_min ? Math.ceil(aid.montant_min / (aid.taux_aide / 100)) : '0'}"
+               data-aid-id="${aid.id}"
+               data-action="input->aid-calculator#calculateAids">
+      </div>
+    `).join('')
+  }
+
+  getStepForAid(aid) {
+    // Déterminer le pas de saisie selon le montant maximum
+    if (aid.montant_max > 50000) return "1000"
+    if (aid.montant_max > 10000) return "500"
+    return "100"
+  }
+
+  renderErrorState() {
+    const container = document.getElementById('dynamic-investment-fields')
+    if (!container) return
+
+    container.innerHTML = `
+      <div class="alert alert-warning">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        Impossible de charger les aides. Veuillez rafraîchir la page.
+      </div>
+    `
   }
 
   setupEligibilityListener() {
@@ -37,7 +98,7 @@ export default class extends Controller {
 
   setupInvestmentListeners() {
     // Écouter les changements sur tous les champs d'investissement
-    const investmentInputs = this.element.querySelectorAll('input[type="number"]')
+    const investmentInputs = this.element.querySelectorAll('.investment-input')
     investmentInputs.forEach(input => {
       input.addEventListener('input', () => this.calculateAids())
     })
@@ -50,7 +111,7 @@ export default class extends Controller {
     // Mettre à jour le total des investissements
     this.totalInvestmentTarget.textContent = this.formatCurrency(totalInvestment)
 
-    if (totalInvestment > 0 && this.eligibleAidsValue) {
+    if (totalInvestment > 0 && (this.eligibleAidsValue?.length > 0 || this.allAidsValue?.length > 0)) {
       const aidCalculations = this.calculateEachAid(investments)
       const totalAids = aidCalculations.reduce((sum, calc) => sum + calc.montant, 0)
 
@@ -74,9 +135,9 @@ export default class extends Controller {
     // 🎯 Récupérer les investissements pour chaque aide dynamiquement
     const investments = {}
 
-    // Si on a les données d'éligibilité, utiliser les IDs réels
-    if (this.eligibleAidsValue && this.eligibleAidsValue.length > 0) {
-      this.eligibleAidsValue.forEach(aid => {
+    // Utiliser les aides chargées depuis l'API
+    if (this.allAidsValue && this.allAidsValue.length > 0) {
+      this.allAidsValue.forEach(aid => {
         const inputElement = document.getElementById(`investment-aid-${aid.id}`)
         if (inputElement) {
           investments[aid.id] = parseFloat(inputElement.value) || 0
@@ -84,10 +145,12 @@ export default class extends Controller {
       })
     } else {
       // Fallback : chercher tous les champs d'investissement présents
-      const investmentInputs = document.querySelectorAll('input[id^="investment-aid-"]')
+      const investmentInputs = document.querySelectorAll('.investment-input')
       investmentInputs.forEach(input => {
-        const aidId = parseInt(input.id.replace('investment-aid-', ''))
-        investments[aidId] = parseFloat(input.value) || 0
+        const aidId = parseInt(input.dataset.aidId)
+        if (aidId) {
+          investments[aidId] = parseFloat(input.value) || 0
+        }
       })
     }
 
@@ -100,11 +163,13 @@ export default class extends Controller {
 
   calculateEachAid(investments) {
     // 🎯 Calculer pour toutes les aides disponibles qui ont un investissement > 0
-    if (!this.eligibleAidsValue || this.eligibleAidsValue.length === 0) {
+    const aidsToUse = this.eligibleAidsValue?.length > 0 ? this.eligibleAidsValue : this.allAidsValue
+
+    if (!aidsToUse || aidsToUse.length === 0) {
       return []
     }
 
-    return this.eligibleAidsValue.map(aid => {
+    return aidsToUse.map(aid => {
       const investmentAmount = investments[aid.id] || 0
       if (investmentAmount > 0) {
         const montant = this.calculateAidAmount(aid, investmentAmount)
@@ -143,12 +208,12 @@ export default class extends Controller {
     let montantCalcule = applicableInvestment * tauxAide
 
     // Appliquer les limites
-    if (aid.montant_minimum && montantCalcule < aid.montant_minimum) {
+    if (aid.montant_min && montantCalcule < aid.montant_min) {
       return 0 // Investissement trop faible
     }
 
-    if (aid.montant_maximum && montantCalcule > aid.montant_maximum) {
-      montantCalcule = aid.montant_maximum
+    if (aid.montant_max && montantCalcule > aid.montant_max) {
+      montantCalcule = aid.montant_max
     }
 
     return Math.round(montantCalcule)
@@ -165,12 +230,12 @@ export default class extends Controller {
       limitesAppliquees: []
     }
 
-    if (aid.montant_minimum && details.montantBrut < aid.montant_minimum) {
-      details.limitesAppliquees.push(`Montant minimum: ${this.formatCurrency(aid.montant_minimum)}`)
+    if (aid.montant_min && details.montantBrut < aid.montant_min) {
+      details.limitesAppliquees.push(`Montant minimum: ${this.formatCurrency(aid.montant_min)}`)
     }
 
-    if (aid.montant_maximum && details.montantBrut > aid.montant_maximum) {
-      details.limitesAppliquees.push(`Montant maximum: ${this.formatCurrency(aid.montant_maximum)}`)
+    if (aid.montant_max && details.montantBrut > aid.montant_max) {
+      details.limitesAppliquees.push(`Montant maximum: ${this.formatCurrency(aid.montant_max)}`)
     }
 
     return details

@@ -6,10 +6,66 @@ class Api::EntreprisesController < ApplicationController
   def bce_lookup
     numero_bce = params[:numero_bce]
 
-    # Simulation d'une réponse API BCE - à remplacer par vraie API
-    company_data = simulate_bce_response(numero_bce)
+    # Nettoyer le numéro (enlever espaces et points)
+    clean_numero = numero_bce.gsub(/[^0-9]/, '')
+    formatted_numero = "#{clean_numero[0..3]}.#{clean_numero[4..6]}.#{clean_numero[7..9]}"
 
-    if company_data
+    # Rechercher dans les vraies données BCE
+    enterprise = BceEnterprise.find_by_number(formatted_numero)
+
+    if enterprise
+      # Récupérer les données associées
+      denomination = enterprise.bce_denominations.official.first&.denomination ||
+                    enterprise.bce_denominations.first&.denomination ||
+                    "Dénomination non disponible"
+
+      address = enterprise.bce_addresses.first
+      all_activities = enterprise.bce_activities.order(:nace_version, :activity_group)
+      main_activity = all_activities.where(classification: 'MAIN').first
+
+      # Construire la liste des codes NACE
+      nace_codes = all_activities.map do |activity|
+        {
+          code: activity.nace_code,
+          version: activity.nace_version,
+          classification: activity.classification,
+          activity_group: activity.activity_group
+        }
+      end
+
+      # Construire l'adresse complète
+      full_address = if address
+        street = "#{address.street_fr || address.street_nl || ''} #{address.house_number || ''}".strip
+        {
+          rue: street,
+          numero: address.house_number || '',
+          code_postal: address.zipcode || '',
+          commune: address.municipality_fr || address.municipality_nl || ''
+        }
+      else
+        { rue: 'N/A', numero: '', code_postal: 'N/A', commune: 'N/A' }
+      end
+
+      # Formater la forme juridique
+      forme_juridique_libelle = case enterprise.juridical_form
+      when '610' then 'Société privée à responsabilité limitée (SPRL)'
+      when '620' then 'Société anonyme (SA)'
+      when '000' then 'Personne physique'
+      else enterprise.juridical_form || 'N/A'
+      end
+
+      company_data = {
+        numero_bce: enterprise.enterprise_number,
+        denomination: denomination,
+        forme_juridique: forme_juridique_libelle,
+        statut: enterprise.status == 'AC' ? 'ACTIF' : enterprise.status,
+        date_creation: enterprise.start_date&.strftime('%Y-%m-%d'),
+        code_nace: main_activity&.nace_code || 'N/A',
+        codes_nace: nace_codes,
+        adresse: full_address,
+        taille_entreprise: 'Non déterminée' # À calculer si nécessaire
+      }
+
       render json: {
         success: true,
         data: company_data
@@ -35,79 +91,8 @@ class Api::EntreprisesController < ApplicationController
 
   private
 
-  def simulate_bce_response(numero_bce)
-    # Simulation de données d'entreprise
-    case numero_bce.gsub(/[^0-9]/, '')
-    when '0833618097'
-      {
-        numero_bce: '0833.618.097',
-        denomination: 'RenovaTech Solutions SPRL',
-        forme_juridique: 'Société privée à responsabilité limitée',
-        statut: 'ACTIF',
-        date_creation: '2019-05-15',
-        code_nace: '71121',
-        adresse: {
-          rue: 'Avenue des Arts 45',
-          code_postal: '1040',
-          commune: 'Etterbeek'
-        },
-        nombre_employes: 15,
-        chiffre_affaires: 1200000,
-        taille_entreprise: 'PME'
-      }
-    when '0123456789'
-      {
-        numero_bce: '0123.456.789',
-        denomination: 'Innovation Tech Solutions SPRL',
-        forme_juridique: 'Société privée à responsabilité limitée',
-        statut: 'ACTIF',
-        date_creation: '2020-01-15',
-        code_nace: '62010',
-        adresse: {
-          rue: 'Avenue Louise 123',
-          code_postal: '1050',
-          commune: 'Ixelles'
-        },
-        nombre_employes: 25,
-        chiffre_affaires: 2500000,
-        taille_entreprise: 'PME'
-      }
-    when '0987654321'
-      {
-        numero_bce: '0987.654.321',
-        denomination: 'EcoConsulting & Partners SA',
-        forme_juridique: 'Société anonyme',
-        statut: 'ACTIF',
-        date_creation: '2018-06-10',
-        code_nace: '70220',
-        adresse: {
-          rue: 'Rue de la Loi 200',
-          code_postal: '1000',
-          commune: 'Bruxelles'
-        },
-        nombre_employes: 12,
-        chiffre_affaires: 1800000,
-        taille_entreprise: 'PME'
-      }
-    when '0456789123'
-      {
-        numero_bce: '0456.789.123',
-        denomination: 'Green Mobility Solutions SCRL',
-        forme_juridique: 'Société coopérative à responsabilité limitée',
-        statut: 'ACTIF',
-        date_creation: '2021-03-20',
-        code_nace: '49390',
-        adresse: {
-          rue: 'Boulevard du Souverain 25',
-          code_postal: '1170',
-          commune: 'Watermael-Boitsfort'
-        },
-        nombre_employes: 8,
-        chiffre_affaires: 950000,
-        taille_entreprise: 'Micro-entreprise'
-      }
-    else
-      nil
-    end
-  end
+  # Méthode de simulation conservée pour référence en cas de besoin
+  # def simulate_bce_response(numero_bce)
+  #   # Ancienne simulation - remplacée par vraies données BCE
+  # end
 end

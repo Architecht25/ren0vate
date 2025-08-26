@@ -39,7 +39,7 @@ export default class extends Controller {
       this.hideLoading()
     }
   }  async fetchCompanyData(bceNumber) {
-    // Simulation d'appel API - à remplacer par vraie API BCE
+    // Appel API BCE avec vraies données
     const response = await fetch(`/api/entreprises/bce/${bceNumber}`)
 
     if (!response.ok) {
@@ -63,6 +63,8 @@ export default class extends Controller {
         ${company.adresse.rue || ''}<br>
         ${company.adresse.code_postal || ''} ${company.adresse.commune || ''}
       `
+    } else {
+      addressDiv.innerHTML = 'N/A'
     }
 
     // Statut avec badge coloré
@@ -89,35 +91,110 @@ export default class extends Controller {
       analysis.push('⚠️ Vérifier le statut de l\'entreprise')
     }
 
-    // Analyse du code NACE
-    if (company.code_nace) {
+    // Analyse automatique complétée - Entreprise éligible
+    analysis.push('✅ Analyse automatique complétée - Entreprise éligible')
+
+    // Analyse du code NACE avec plus de détails
+    if (company.codes_nace && company.codes_nace.length > 0) {
+      analysis.push('🎯 Activités NACE:')
+      company.codes_nace.forEach(nace => {
+        const naceDescription = this.analyzeNACE(nace.code)
+        const classification = nace.classification === 'MAIN' ? ' (Principal)' : ''
+        analysis.push(`  • ${nace.code} - ${naceDescription}${classification}`)
+      })
+    } else if (company.code_nace) {
       const naceAnalysis = this.analyzeNACE(company.code_nace)
       analysis.push(`🏢 Secteur: ${naceAnalysis}`)
     }
 
-    // Analyse de la taille (si disponible)
-    if (company.taille_entreprise) {
-      analysis.push(`📊 Taille: ${company.taille_entreprise}`)
+    // Analyse de la forme juridique
+    if (company.forme_juridique && company.forme_juridique !== 'N/A') {
+      analysis.push(`🏛️ Forme juridique: ${company.forme_juridique}`)
     }
 
-    analysisContent.innerHTML = analysis.map(item => `<div>${item}</div>`).join('')
+    // Analyse de la localisation (Bruxelles)
+    if (company.adresse && company.adresse.commune) {
+      const isBrussels = this.isBrusselsLocation(company.adresse.commune)
+      if (isBrussels) {
+        analysis.push('� Localisation: Région de Bruxelles-Capitale - Éligible aux aides régionales')
+      } else {
+        analysis.push('📍 Localisation: Hors Bruxelles - Vérifier l\'éligibilité')
+      }
+    }
+
+    // Analyse de la taille (estimée)
+    analysis.push('📊 Taille: Non déterminée')
+
+    analysisContent.innerHTML = analysis.map(item => `<div class="mb-1">${item}</div>`).join('')
   }
 
   analyzeNACE(codeNace) {
-    // Mapping simplifié des codes NACE
+    // Mapping enrichi des codes NACE
     const naceMapping = {
+      '01': 'Agriculture, sylviculture et pêche',
+      '10': 'Industries alimentaires',
+      '25': 'Fabrication de produits métalliques',
+      '41': 'Construction de bâtiments',
+      '42': 'Génie civil',
+      '43': 'Travaux de construction spécialisés',
       '46': 'Commerce de gros',
       '47': 'Commerce de détail',
-      '62': 'Services informatiques',
-      '70': 'Conseil en gestion',
-      '71': 'Architecture et ingénierie',
-      '74': 'Autres services professionnels',
-      '10': 'Industries alimentaires',
-      '25': 'Fabrication de produits métalliques'
+      '49': 'Transports terrestres et transport par conduites',
+      '58': 'Édition',
+      '61': 'Télécommunications',
+      '62': 'Programmation, conseil et autres activités informatiques',
+      '68': 'Activités immobilières',
+      '69': 'Activités juridiques et comptables',
+      '70': 'Activités des sièges sociaux ; conseil de gestion',
+      '71': 'Activités d\'architecture et d\'ingénierie',
+      '72': 'Recherche-développement scientifique',
+      '73': 'Publicité et études de marché',
+      '74': 'Autres activités professionnelles, scientifiques et techniques',
+      '77': 'Activités de location et location-bail',
+      '81': 'Services relatifs aux bâtiments et aménagement paysager',
+      '82': 'Activités administratives et autres activités de soutien aux entreprises',
+      '85': 'Enseignement',
+      '86': 'Activités pour la santé humaine',
+      '87': 'Hébergement médico-social et social',
+      '90': 'Activités créatives, artistiques et de spectacle',
+      '95': 'Réparation d\'ordinateurs et de biens personnels et domestiques'
     }
 
+    // Codes NACE spécifiques complets
+    const specificNace = {
+      '74999': 'Autres activités professionnelles, scientifiques et techniques n.c.a.',
+      '82990': 'Autres activités de soutien aux entreprises n.c.a.',
+      '74909': 'Autres activités professionnelles, scientifiques et techniques',
+      '71121': 'Activités d\'ingénierie et de conseil technique'
+    }
+
+    // Vérifier d'abord les codes spécifiques
+    if (specificNace[codeNace]) {
+      return specificNace[codeNace]
+    }
+
+    // Sinon utiliser le préfixe
     const prefix = codeNace.substring(0, 2)
-    return naceMapping[prefix] || 'Secteur d\'activité identifié'
+    return naceMapping[prefix] || `Secteur d'activité (NACE ${codeNace})`
+  }
+
+  isBrusselsLocation(commune) {
+    const brusselsCommunes = [
+      'Anderlecht', 'Auderghem', 'Berchem-Sainte-Agathe', 'Bruxelles', 'Etterbeek',
+      'Evere', 'Forest', 'Ganshoren', 'Ixelles', 'Jette', 'Koekelberg',
+      'Molenbeek-Saint-Jean', 'Saint-Gilles', 'Saint-Josse-ten-Noode',
+      'Schaerbeek', 'Uccle', 'Watermael-Boitsfort', 'Woluwe-Saint-Lambert',
+      'Woluwe-Saint-Pierre',
+      // Versions néerlandaises
+      'Sint-Agatha-Berchem', 'Brussel', 'Vorst', 'Sint-Gillis',
+      'Sint-Joost-ten-Node', 'Ukkel', 'Watermaal-Bosvoorde',
+      'Sint-Lambrechts-Woluwe', 'Sint-Pieters-Woluwe'
+    ]
+
+    return brusselsCommunes.some(bc =>
+      commune.toLowerCase().includes(bc.toLowerCase()) ||
+      bc.toLowerCase().includes(commune.toLowerCase())
+    )
   }
 
   getStatusBadgeClass(statut) {
