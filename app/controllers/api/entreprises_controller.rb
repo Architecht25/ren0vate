@@ -10,7 +10,7 @@ class Api::EntreprisesController < ApplicationController
     clean_numero = numero_bce.gsub(/[^0-9]/, '')
     formatted_numero = "#{clean_numero[0..3]}.#{clean_numero[4..6]}.#{clean_numero[7..9]}"
 
-    # Rechercher dans les vraies données BCE
+    # Rechercher d'abord dans nos données locales BCE
     enterprise = BceEnterprise.find_by_number(formatted_numero)
 
     if enterprise
@@ -68,13 +68,34 @@ class Api::EntreprisesController < ApplicationController
 
       render json: {
         success: true,
-        data: company_data
+        data: company_data,
+        source: 'local_database'
       }
     else
-      render json: {
-        success: false,
-        message: "Entreprise non trouvée"
-      }, status: 404
+      # Fallback vers l'API BCE officielle
+      begin
+        bce_response = Entreprises::BceApiService.search_company(formatted_numero)
+        
+        if bce_response[:success]
+          render json: {
+            success: true,
+            data: bce_response[:data],
+            source: 'bce_api'
+          }
+        else
+          render json: {
+            success: false,
+            message: "Entreprise non trouvée dans la base locale ni via l'API BCE",
+            error: bce_response[:error]
+          }, status: 404
+        end
+      rescue StandardError => e
+        render json: {
+          success: false,
+          message: "Erreur lors de la recherche BCE",
+          error: e.message
+        }, status: 500
+      end
     end
   end
 
