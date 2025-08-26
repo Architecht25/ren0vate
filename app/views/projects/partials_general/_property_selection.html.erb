@@ -6,12 +6,24 @@
         { include_blank: "-- Sélectionner un bien --" },
         { class: "form-select", id: "project_property_id",
           "data-region-target" => "propertySelect" } %>
-    <div class="form-text">Sélectionnez le bien immobilier pour lequel vous créez ce chantier de rénovation.</div>
+    <div class="form-text">
+      <% if form.object.investment? %>
+        Sélectionnez le bien immobilier pour lequel vous réalisez cet investissement.
+      <% else %>
+        Sélectionnez le bien immobilier pour lequel vous créez ce chantier de rénovation.
+      <% end %>
+    </div>
   <% else %>
     <div class="alert alert-warning">
       <i class="bi bi-exclamation-triangle me-2"></i>
       <strong>Aucun bien immobilier trouvé</strong>
-      <p class="mb-2">Vous devez d'abord ajouter un bien immobilier avant de créer un chantier.</p>
+      <p class="mb-2">
+        <% if form.object.investment? %>
+          Vous devez d'abord ajouter un bien immobilier avant de créer un investissement.
+        <% else %>
+          Vous devez d'abord ajouter un bien immobilier avant de créer un chantier.
+        <% end %>
+      </p>
       <%= link_to "Ajouter un bien immobilier", new_property_path, class: "btn btn-primary btn-sm" %>
     </div>
     <%= form.hidden_field :property_id, value: "" %>

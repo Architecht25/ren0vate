@@ -7,9 +7,32 @@ class Project < ApplicationRecord
 
   validates :nom, presence: true
   validates :property_id, presence: true
+  validates :project_type, presence: true, inclusion: { in: %w[renovation investment],
+                                                       message: "doit être 'renovation' ou 'investment'" }
 
-  # Définir un statut par défaut
+  # Définir un statut et type par défaut
   before_validation :set_default_status
+  before_validation :set_default_project_type
+
+  # Méthodes pour les types de projets
+  def renovation?
+    project_type == 'renovation'
+  end
+
+  def investment?
+    project_type == 'investment'
+  end
+
+  def type_display
+    case project_type
+    when 'renovation'
+      'Chantier de rénovation'
+    when 'investment'
+      'Investissement d\'entreprise'
+    else
+      project_type.humanize
+    end
+  end
 
   # Méthode pour affichage
   def name
@@ -84,6 +107,10 @@ class Project < ApplicationRecord
 
   def set_default_status
     self.statut ||= 'preparation'
+  end
+
+  def set_default_project_type
+    self.project_type ||= 'renovation'
   end
 
   def update_type_travaux(type, should_include)

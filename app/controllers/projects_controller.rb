@@ -12,6 +12,7 @@ class ProjectsController < ApplicationController
 
   def new
     @project = current_user.projects.build
+    @project.project_type = params[:project_type] if params[:project_type].present?
   end
 
   def create
@@ -19,7 +20,8 @@ class ProjectsController < ApplicationController
     @project.user = current_user
 
     if @project.save
-      redirect_to @project, notice: 'Chantier créé avec succès.'
+      message = @project.investment? ? 'Investissement créé avec succès.' : 'Chantier créé avec succès.'
+      redirect_to @project, notice: message
     else
       Rails.logger.error "Project validation errors: #{@project.errors.full_messages}"
       flash.now[:alert] = "Erreurs de validation : #{@project.errors.full_messages.join(', ')}"
@@ -32,7 +34,8 @@ class ProjectsController < ApplicationController
 
   def update
     if @project.update(project_params)
-      redirect_to @project, notice: 'Chantier mis à jour avec succès.'
+      message = @project.investment? ? 'Investissement mis à jour avec succès.' : 'Chantier mis à jour avec succès.'
+      redirect_to @project, notice: message
     else
       render :edit, status: :unprocessable_entity
     end
@@ -40,12 +43,13 @@ class ProjectsController < ApplicationController
 
   def destroy
     project_name = @project.nom
+    project_type = @project.investment? ? "l'investissement" : "le chantier"
 
     begin
       @project.destroy
-      redirect_to projects_path, notice: "Le chantier '#{project_name}' a été supprimé avec succès."
+      redirect_to projects_path, notice: "#{project_type.capitalize} '#{project_name}' a été supprimé avec succès."
     rescue => e
-      redirect_to @project, alert: "Erreur lors de la suppression du chantier : #{e.message}"
+      redirect_to @project, alert: "Erreur lors de la suppression #{project_type.gsub('l\'', 'd\'un ')} : #{e.message}"
     end
   end
 
@@ -57,7 +61,7 @@ class ProjectsController < ApplicationController
 
   def project_params
     params.require(:project).permit(
-      :nom, :description, :date_début, :date_fin, :statut, :property_id,
+      :nom, :description, :date_début, :date_fin, :statut, :property_id, :project_type,
       :bce_number, :invoice_date, :work_completion_date,
       # Champs spécifiques Flandre
       :type_travaux, :reconstruction_demolition, :tva_reduit_6_pourcent,

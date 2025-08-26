@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_25_103046) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_26_065743) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -207,6 +207,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_25_103046) do
     t.integer "surface_professionnelle"
     t.integer "surface_totale"
     t.text "previous_subsidies"
+    t.string "project_type", default: "renovation"
     t.index ["property_id"], name: "index_projects_on_property_id"
     t.index ["user_id"], name: "index_projects_on_user_id"
   end

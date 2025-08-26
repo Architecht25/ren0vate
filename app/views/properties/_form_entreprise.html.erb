@@ -1,0 +1,198 @@
+<% property ||= @property %>
+<%= simple_form_for property, local: true do |f| %>
+  <!-- Champ caché pour marquer comme entreprise -->
+  <%= f.hidden_field :type, value: "entreprise" %>
+
+  <!-- Section Informations de l'entreprise -->
+  <div class="form-section mb-4">
+    <div class="d-flex align-items-center mb-3">
+      <div class="icon-circle me-3">
+        <i class="bi bi-building"></i>
+      </div>
+      <h5 class="mb-0 fw-normal text-primary-custom">Informations de l'entreprise</h5>
+    </div>
+
+    <%= f.input :name,
+        label: "Nom de l'entreprise ou du projet*",
+        placeholder: "ex. ACME Solutions - Bureaux Bruxelles",
+        wrapper_html: { class: "mb-3" },
+        input_html: { class: "form-control-custom" } %>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <%= f.input :numero_ean,
+            label: "Numéro d'entreprise (BCE)",
+            placeholder: "ex. 0123.456.789",
+            wrapper_html: { class: "mb-3" },
+            input_html: { class: "form-control-custom" } %>
+      </div>
+      <div class="col-md-6">
+        <%= f.input :occupation,
+            label: "Type d'activité*",
+            collection: [
+              ['Commerce de détail', 'commerce_detail'],
+              ['Commerce de gros', 'commerce_gros'],
+              ['Services', 'services'],
+              ['Industrie', 'industrie'],
+              ['Construction', 'construction'],
+              ['Technologie', 'technologie'],
+              ['Restauration', 'restauration'],
+              ['Santé', 'sante'],
+              ['Autre', 'autre']
+            ],
+            include_blank: "Sélectionnez une activité",
+            wrapper_html: { class: "mb-3" },
+            input_html: { class: "form-select-custom" } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Adresse du bien -->
+  <div class="form-section mb-4">
+    <div class="d-flex align-items-center mb-3">
+      <div class="icon-circle me-3">
+        <i class="bi bi-geo-alt"></i>
+      </div>
+      <h5 class="mb-0 fw-normal text-primary-custom">Adresse du bien</h5>
+    </div>
+
+    <%= f.input :rue,
+        label: "Rue*",
+        placeholder: "ex. Avenue des Entreprises",
+        wrapper_html: { class: "mb-3" },
+        input_html: { class: "form-control-custom" } %>
+
+    <div class="row g-3">
+      <div class="col-md-3">
+        <%= f.input :numero,
+            label: "Numéro*",
+            placeholder: "ex. 42",
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-control-custom" } %>
+      </div>
+      <div class="col-md-3">
+        <%= f.input :code_postal,
+            label: "Code postal*",
+            placeholder: "ex. 1000",
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-control-custom" } %>
+      </div>
+      <div class="col-md-6">
+        <%= f.input :commune,
+            label: "Commune*",
+            placeholder: "ex. Bruxelles",
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-control-custom" } %>
+      </div>
+    </div>
+
+    <!-- Région pour l'entreprise -->
+    <div class="row g-3 mt-2">
+      <div class="col-md-6">
+        <%= f.input :region,
+            label: "Région*",
+            collection: [
+              ['Bruxelles-Capitale', 'bruxelles'],
+              ['Wallonie', 'wallonie'],
+              ['Flandre', 'flandre']
+            ],
+            include_blank: "Sélectionnez une région",
+            wrapper_html: { class: "mb-3" },
+            input_html: { class: "form-select-custom" } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Caractéristiques du bien d'entreprise -->
+  <div class="form-section mb-4">
+    <div class="d-flex align-items-center mb-3">
+      <div class="icon-circle me-3">
+        <i class="bi bi-diagram-3"></i>
+      </div>
+      <h5 class="mb-0 fw-normal text-primary-custom">Caractéristiques du bien</h5>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <%= f.input :type_propriete,
+            label: "Type de bien*",
+            collection: [
+              ['Bureau', 'bureau'],
+              ['Local commercial', 'local_commercial'],
+              ['Entrepôt', 'entrepot'],
+              ['Atelier', 'atelier'],
+              ['Usine', 'usine'],
+              ['Local mixte', 'local_mixte'],
+              ['Autre', 'autre']
+            ],
+            include_blank: "Sélectionnez un type",
+            wrapper_html: { class: "mb-3" },
+            input_html: { class: "form-select-custom" } %>
+      </div>
+      <div class="col-md-6">
+        <%= f.input :surface_totale,
+            label: "Surface totale (m²)*",
+            placeholder: "ex. 250",
+            wrapper_html: { class: "mb-3" },
+            input_html: { class: "form-control-custom", type: "number", min: "1" } %>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <%= f.input :annee_construction,
+            label: "Année de construction",
+            placeholder: "ex. 1995",
+            wrapper_html: { class: "mb-3" },
+            input_html: { class: "form-control-custom", type: "number", min: "1800", max: Date.current.year } %>
+      </div>
+      <div class="col-md-6">
+        <%= f.input :usage,
+            label: "Usage principal",
+            collection: [
+              ['Siège social', 'siege_social'],
+              ['Point de vente', 'point_vente'],
+              ['Production', 'production'],
+              ['Stockage', 'stockage'],
+              ['Services', 'services'],
+              ['Location', 'location'],
+              ['Autre', 'autre']
+            ],
+            include_blank: "Sélectionnez un usage",
+            wrapper_html: { class: "mb-3" },
+            input_html: { class: "form-select-custom" } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Informations complémentaires -->
+  <div class="form-section mb-4">
+    <div class="d-flex align-items-center mb-3">
+      <div class="icon-circle me-3">
+        <i class="bi bi-info-circle"></i>
+      </div>
+      <h5 class="mb-0 fw-normal text-primary-custom">Informations complémentaires</h5>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <%= f.input :audit_energetique,
+            label: "Audit énergétique prévu",
+            as: :boolean,
+            wrapper_html: { class: "mb-3" } %>
+      </div>
+      <div class="col-md-6">
+        <%= f.input :primes_recues,
+            label: "Primes déjà reçues",
+            as: :boolean,
+            wrapper_html: { class: "mb-3" } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="d-flex justify-content-between align-items-center">
+    <%= link_to "Annuler", new_property_path, class: "btn btn-outline-secondary" %>
+    <%= f.button :submit, "Créer le bien d'entreprise", class: "btn btn-primary-custom px-4" %>
+  </div>
+<% end %>

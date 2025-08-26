@@ -3,10 +3,20 @@
   <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
     <div class="d-flex align-items-center">
       <div class="icon-circle me-3">
-        <i class="bi bi-hammer"></i>
+        <% if @project.investment? %>
+          <i class="bi bi-building"></i>
+        <% else %>
+          <i class="bi bi-hammer"></i>
+        <% end %>
       </div>
       <div>
-        <h1 class="h3 text-primary-custom mb-0 fw-normal">Nouveau Chantier de Rénovation</h1>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">
+          <% if @project.investment? %>
+            Nouvel Investissement d'Entreprise
+          <% else %>
+            Nouveau Chantier de Rénovation
+          <% end %>
+        </h1>
       </div>
     </div>
     <%= link_to projects_path, class: "btn btn-outline-primary-custom px-4" do %>
@@ -21,27 +31,37 @@
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-4">
           <h5 class="card-title text-primary-custom mb-4">
-            <i class="bi bi-info-circle me-2"></i>Informations du chantier
+            <i class="bi bi-info-circle me-2"></i>
+            <% if @project.investment? %>
+              Informations de l'investissement
+            <% else %>
+              Informations du chantier
+            <% end %>
           </h5>
 
           <%= form_with model: @project, local: true do |form| %>
+            <!-- Type de projet (caché) -->
+            <%= form.hidden_field :project_type %>
+
             <!-- Champs de base communs -->
             <%= render 'projects/partials_general/basic_fields', form: form %>
 
             <!-- Sélection de propriété avec détection de région -->
             <%= render 'projects/partials_general/property_selection', form: form %>
 
-            <!-- Champs spécifiques par région (affichés dynamiquement) -->
-            <%= render 'projects/partials_wallonie/eligibility_fields', form: form %>
-            <%= render 'projects/partials_flandre/eligibility_fields', form: form %>
-            <%= render 'projects/partials_bruxelles/eligibility_fields', form: form %>
+            <!-- Champs spécifiques par région (affichés dynamiquement, seulement pour les rénovations) -->
+            <% if @project.renovation? %>
+              <%= render 'projects/partials_wallonie/eligibility_fields', form: form %>
+              <%= render 'projects/partials_flandre/eligibility_fields', form: form %>
+              <%= render 'projects/partials_bruxelles/eligibility_fields', form: form %>
+            <% end %>
 
             <div class="d-flex justify-content-end mt-4">
               <%= link_to "Annuler", projects_path, class: "btn btn-outline-secondary me-2" %>
               <% if defined?(Property) && current_user.properties.any? %>
-                <%= form.submit "Créer le chantier", class: "btn btn-primary-custom" %>
+                <%= form.submit @project.investment? ? "Créer l'investissement" : "Créer le chantier", class: "btn btn-primary-custom" %>
               <% else %>
-                <%= form.submit "Créer le chantier", class: "btn btn-primary-custom", disabled: true, title: "Ajoutez d'abord un bien immobilier" %>
+                <%= form.submit @project.investment? ? "Créer l'investissement" : "Créer le chantier", class: "btn btn-primary-custom", disabled: true, title: "Ajoutez d'abord un bien immobilier" %>
               <% end %>
             </div>
           <% end %>
@@ -55,8 +75,13 @@
           <h5 class="card-title text-primary-custom mb-3">
             <i class="bi bi-lightbulb me-2"></i>Conseils
           </h5>
-          <p class="text-muted-custom small mb-3">Un chantier vous permet d'organiser vos travaux de rénovation pour un bien immobilier. Une fois créé, vous pourrez y ajouter des travaux spécifiques.</p>
-          <p class="text-muted-custom small mb-0">Associez votre chantier à un bien immobilier pour faciliter la gestion de vos projets et simuler les primes disponibles.</p>
+          <% if @project.investment? %>
+            <p class="text-muted-custom small mb-3">Un investissement d'entreprise vous permet de gérer un projet immobilier commercial. Vous pourrez suivre les aménagements et la documentation associée.</p>
+            <p class="text-muted-custom small mb-0">Associez l'investissement à un bien immobilier d'entreprise pour faciliter la gestion et le suivi financier.</p>
+          <% else %>
+            <p class="text-muted-custom small mb-3">Un chantier vous permet d'organiser vos travaux de rénovation pour un bien immobilier. Une fois créé, vous pourrez y ajouter des travaux spécifiques.</p>
+            <p class="text-muted-custom small mb-0">Associez votre chantier à un bien immobilier pour faciliter la gestion de vos projets et simuler les primes disponibles.</p>
+          <% end %>
         </div>
       </div>
 
@@ -66,10 +91,16 @@
             <i class="bi bi-check-circle me-2"></i>Prochaines étapes
           </h5>
           <ul class="text-muted-custom small mb-0 ps-3">
-            <li class="mb-2">Ajouter des travaux spécifiques à votre chantier</li>
-            <li class="mb-2">Joindre des documents (devis, plans, etc.)</li>
-            <li class="mb-2">Simuler les primes disponibles pour vos travaux</li>
-            <li>Suivre l'avancement de votre chantier</li>
+            <% if @project.investment? %>
+              <li class="mb-2">Documenter les aménagements prévus</li>
+              <li class="mb-2">Joindre des documents (plans, devis, etc.)</li>
+              <li class="mb-2">Suivre l'avancement de votre investissement</li>
+            <% else %>
+              <li class="mb-2">Ajouter des travaux spécifiques à votre chantier</li>
+              <li class="mb-2">Joindre des documents (devis, plans, etc.)</li>
+              <li class="mb-2">Simuler les primes disponibles pour vos travaux</li>
+              <li>Suivre l'avancement de votre chantier</li>
+            <% end %>
           </ul>
         </div>
       </div>

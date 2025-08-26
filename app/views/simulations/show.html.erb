@@ -72,12 +72,30 @@
             <%= render 'simulations/partials_flandre/category_step' %>
           </div>
         <% when 'bruxelles' %>
-          <div class="col-lg-6">
-            <%= render 'simulations/partials_bruxelles/eligibility_step' %>
-          </div>
-          <div class="col-lg-6">
-            <%= render 'simulations/partials_bruxelles/category_step' %>
-          </div>
+          <%
+            # Détecter si c'est une simulation d'entreprise
+            is_enterprise_simulation = @simulation.project&.investment? ||
+                                     (@simulation.respond_to?(:property) && @simulation.property&.project_type == 'investment') ||
+                                     params[:type] == 'entreprise'
+          %>
+
+          <% if is_enterprise_simulation %>
+            <!-- Simulation pour entreprise -->
+            <div class="col-lg-6">
+              <%= render 'simulations/partials_bruxelles_entreprise/eligibility_step' %>
+            </div>
+            <div class="col-lg-6">
+              <%= render 'simulations/partials_bruxelles_entreprise/category_step' %>
+            </div>
+          <% else %>
+            <!-- Simulation pour particuliers -->
+            <div class="col-lg-6">
+              <%= render 'simulations/partials_bruxelles/eligibility_step' %>
+            </div>
+            <div class="col-lg-6">
+              <%= render 'simulations/partials_bruxelles/category_step' %>
+            </div>
+          <% end %>
         <% else %>
           <div class="col-12">
             <div class="alert alert-warning text-center">
@@ -98,7 +116,20 @@
     <% when 'flandre' %>
       <%= render 'simulations/partials_flandre/cartes_primes_new' %>
     <% when 'bruxelles' %>
-      <%= render 'simulations/partials_bruxelles/cartes_primes_import' %>
+      <%
+        # Détecter si c'est une simulation d'entreprise
+        is_enterprise_simulation = @simulation.project&.investment? ||
+                                 (@simulation.respond_to?(:property) && @simulation.property&.project_type == 'investment') ||
+                                 params[:type] == 'entreprise'
+      %>
+
+      <% if is_enterprise_simulation %>
+        <!-- Cartes d'investissements pour entreprise -->
+        <%= render 'simulations/partials_bruxelles_entreprise/cartes_investissements' %>
+      <% else %>
+        <!-- Cartes de primes pour particuliers -->
+        <%= render 'simulations/partials_bruxelles/cartes_primes_import' %>
+      <% end %>
     <% else %>
       <div class="alert alert-warning text-center">
         <i class="bi bi-exclamation-triangle me-2"></i>

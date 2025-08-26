@@ -279,6 +279,9 @@ class PropertiesController < ApplicationController
 
     # Déterminer le template selon la région
     @template_region = @property.region || 'flandre'
+
+    # Render du template qui est maintenant dans requests/
+    render 'requests/formulaire_miroir'
   end
 
   def submit_prime
@@ -318,6 +321,7 @@ class PropertiesController < ApplicationController
       :annee_construction, :date_raccordement_electrique,
       :numero_ean, :numero_cadastre,
       :date_peb_avant_travaux, :date_peb_apres_travaux,
+      :name, :surface_totale, :usage, :primes_recues,
 
       # Champs communs améliorés
       :surface_habitable, :mode_chauffage_principal,

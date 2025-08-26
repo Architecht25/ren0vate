@@ -40,6 +40,26 @@
                   { class: "form-select" } %>
             </div>
 
+            <!-- Type de simulation pour Bruxelles -->
+            <div class="mb-3" id="simulation-type-section" style="display: none;">
+              <label class="form-label">Type de simulation*</label>
+              <div class="d-flex gap-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="simulation_type" id="simulation_particulier" value="particulier" checked>
+                  <label class="form-check-label" for="simulation_particulier">
+                    <i class="bi bi-house me-2"></i>Particulier (Rénovation)
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="simulation_type" id="simulation_entreprise" value="entreprise">
+                  <label class="form-check-label" for="simulation_entreprise">
+                    <i class="bi bi-building me-2"></i>Entreprise (Investissement)
+                  </label>
+                </div>
+              </div>
+              <div class="form-text">Sélectionnez le type de simulation selon votre profil</div>
+            </div>
+
             <% if @simulation.respond_to?(:parameters) %>
               <div class="mb-3">
                 <%= form.label :parameters, "Paramètres de simulation", class: "form-label" %>
@@ -129,3 +149,39 @@
 
 <!-- Utilise le fichier CSS externe properties.css -->
 <%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>
+
+<!-- Script pour gérer l'affichage conditionnel du type de simulation -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const regionSelect = document.querySelector('select[name="simulation[region]"]')
+  const simulationTypeSection = document.getElementById('simulation-type-section')
+
+  function toggleSimulationType() {
+    if (regionSelect.value === 'bruxelles') {
+      simulationTypeSection.style.display = 'block'
+    } else {
+      simulationTypeSection.style.display = 'none'
+    }
+  }
+
+  // Affichage initial
+  toggleSimulationType()
+
+  // Écouter les changements de région
+  regionSelect.addEventListener('change', toggleSimulationType)
+
+  // Gérer la soumission du formulaire pour inclure le type de simulation
+  const form = document.querySelector('form')
+  form.addEventListener('submit', function(e) {
+    const simulationType = document.querySelector('input[name="simulation_type"]:checked')
+    if (regionSelect.value === 'bruxelles' && simulationType) {
+      // Ajouter le type de simulation comme paramètre
+      const hiddenInput = document.createElement('input')
+      hiddenInput.type = 'hidden'
+      hiddenInput.name = 'type'
+      hiddenInput.value = simulationType.value
+      form.appendChild(hiddenInput)
+    }
+  })
+})
+</script>

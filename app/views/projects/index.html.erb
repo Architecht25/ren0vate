@@ -1,10 +1,15 @@
 <div class="container-fluid px-4 py-4">
   <!-- Header épuré -->
   <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-    <h1 class="h3 text-primary-custom mb-0 fw-normal">Mes Chantiers de Rénovation</h1>
-    <%= link_to new_project_path, class: "btn btn-primary-custom px-4" do %>
-      <i class="bi bi-plus-lg me-2"></i>Ajouter un chantier
-    <% end %>
+    <h1 class="h3 text-primary-custom mb-0 fw-normal">Mes Projets</h1>
+    <div class="d-flex gap-2">
+      <%= link_to new_project_path(project_type: 'renovation'), class: "btn btn-primary-custom px-4" do %>
+        <i class="bi bi-hammer me-2"></i>Ajouter un chantier
+      <% end %>
+      <%= link_to new_project_path(project_type: 'investment'), class: "btn btn-outline-primary-custom px-4" do %>
+        <i class="bi bi-building me-2"></i>Ajouter un investissement
+      <% end %>
+    </div>
   </div>
 
   <!-- Liste des chantiers -->
@@ -84,13 +89,18 @@
     <!-- État vide minimaliste -->
     <div class="text-center py-5 mt-5">
       <div class="icon-circle-large mx-auto mb-4">
-        <i class="bi bi-hammer"></i>
+        <i class="bi bi-folder-plus"></i>
       </div>
-      <h4 class="text-muted-custom mb-3 fw-normal">Aucun chantier enregistré</h4>
-      <p class="text-muted-custom mb-4">Commencez par ajouter votre premier chantier de rénovation</p>
-      <%= link_to new_project_path, class: "btn btn-primary-custom px-4" do %>
-        <i class="bi bi-plus-lg me-2"></i>Créer mon premier chantier
-      <% end %>
+      <h4 class="text-muted-custom mb-3 fw-normal">Aucun projet enregistré</h4>
+      <p class="text-muted-custom mb-4">Commencez par créer votre premier projet</p>
+      <div class="d-flex justify-content-center gap-3 flex-wrap">
+        <%= link_to new_project_path(project_type: 'renovation'), class: "btn btn-primary-custom px-4" do %>
+          <i class="bi bi-hammer me-2"></i>Créer un chantier de rénovation
+        <% end %>
+        <%= link_to new_project_path(project_type: 'investment'), class: "btn btn-outline-primary-custom px-4" do %>
+          <i class="bi bi-building me-2"></i>Créer un investissement d'entreprise
+        <% end %>
+      </div>
     </div>
   <% end %>
 </div>
