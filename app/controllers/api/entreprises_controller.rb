@@ -75,7 +75,7 @@ class Api::EntreprisesController < ApplicationController
       # Fallback vers l'API BCE officielle
       begin
         bce_response = Entreprises::BceApiService.search_company(formatted_numero)
-        
+
         if bce_response[:success]
           render json: {
             success: true,
