@@ -165,6 +165,14 @@ created_users = []
 
 # Création des utilisateurs
 users_data.each_with_index do |user_data, index|
+  existing_user = User.find_by(email: user_data[:email])
+  
+  if existing_user
+    puts "⚠️  Utilisateur déjà existant: #{user_data[:email]} - ignoré"
+    created_users << existing_user
+    next
+  end
+
   puts "👤 Création utilisateur: #{user_data[:email]}"
 
   user = User.create!(
