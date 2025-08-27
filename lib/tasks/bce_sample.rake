@@ -1,7 +1,7 @@
 namespace :bce do
   desc "Import échantillon d'entreprises de Bruxelles (safe pour GitHub)"
   task import_brussels_sample: :environment do
-    sample_size = ENV['SAMPLE_SIZE']&.to_i || 15000
+    sample_size = ENV['SAMPLE_SIZE']&.to_i || 50
 
     puts "🇧🇪 Import échantillon Bruxelles - #{sample_size} entreprises max"
     puts "💾 Cible: < 50 MB pour compatibilité GitHub"

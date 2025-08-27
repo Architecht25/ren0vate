@@ -73,4 +73,64 @@ namespace :admin do
       user.errors.full_messages.each { |msg| puts "  - #{msg}" }
     end
   end
+
+  desc "Reset user password"
+  task :reset_password, [:email] => :environment do |t, args|
+    email = args[:email]
+
+    if email.blank?
+      puts "Usage: rails admin:reset_password[user@example.com]"
+      exit
+    end
+
+    user = User.find_by(email: email)
+
+    if user.nil?
+      puts "❌ Utilisateur avec l'email '#{email}' non trouvé."
+      exit
+    end
+
+    print "Nouveau mot de passe: "
+    new_password = STDIN.gets.chomp
+
+    if new_password.length < 6
+      puts "❌ Le mot de passe doit faire au moins 6 caractères."
+      exit
+    end
+
+    user.password = new_password
+    user.password_confirmation = new_password
+
+    if user.save
+      puts "✅ Mot de passe modifié avec succès pour #{email}!"
+    else
+      puts "❌ Erreur lors de la modification:"
+      user.errors.full_messages.each { |msg| puts "  - #{msg}" }
+    end
+  end
+
+  desc "Quick password reset for robin@primes-services.be"
+  task :reset_robin => :environment do
+    user = User.find_by(email: 'robin@primes-services.be')
+
+    if user.nil?
+      puts "❌ Utilisateur robin@primes-services.be non trouvé."
+      exit
+    end
+
+    # Mot de passe temporaire
+    temp_password = "renovate2025"
+
+    user.password = temp_password
+    user.password_confirmation = temp_password
+
+    if user.save
+      puts "✅ Mot de passe réinitialisé pour robin@primes-services.be!"
+      puts "🔑 Nouveau mot de passe temporaire: #{temp_password}"
+      puts "⚠️  Pensez à le changer après connexion!"
+    else
+      puts "❌ Erreur lors de la modification:"
+      user.errors.full_messages.each { |msg| puts "  - #{msg}" }
+    end
+  end
 end

@@ -1,5 +1,13 @@
 puts "🌱 Lancement du seed principal..."
 
+# ➤ UTILISATEURS PRODUCTION - Chargement des seeds
+puts "\n👥 === UTILISATEURS PRODUCTION ==="
+users_production_path = Rails.root.join("db", "seeds", "users_production.rb")
+if File.exist?(users_production_path)
+  puts "🔹 Chargement de : #{users_production_path}"
+  load users_production_path
+end
+
 # ➤ FLANDRE - Chargement des seeds
 puts "\n🇳🇱 === FLANDRE ==="
 flandre_categories_path = Rails.root.join("db", "seeds", "flandre", "categories.rb")
