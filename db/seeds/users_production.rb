@@ -199,34 +199,36 @@ users_data.each_with_index do |user_data, index|
 
     puts "  🏠 Propriété #{prop_index + 1}: #{address[:street]}"
 
+    # Parse street address into number and street name
+    street_parts = address[:street].split(' ', 2)
+    numero = street_parts.first
+    rue = street_parts.size > 1 ? street_parts[1..-1].join(' ') : address[:street]
+
     property = Property.create!(
       user: user,
-      address: address[:street],
-      city: address[:city],
-      zipcode: address[:zipcode],
-      municipality: address[:municipality],
-      property_type: property_type,
-      surface: rand(50..300),
-      construction_year: rand(1950..2020),
-      energy_certificate: ['A', 'B', 'C', 'D', 'E'].sample
+      rue: rue,
+      numero: numero,
+      code_postal: address[:zipcode],
+      commune: address[:municipality],
+      region: 'bruxelles',
+      type_bien_bruxelles: property_type,
+      annee_construction: rand(1950..2020),
+      peb: ['A', 'B', 'C', 'D', 'E'].sample
     )
 
     # Créer 2-4 projets pour chaque propriété
     rand(2..4).times do |proj_index|
       project_type = project_types.sample
-      status = ['planned', 'in_progress', 'completed'].sample
+      statut = ['preparation', 'en_cours', 'termine'].sample
 
       puts "    🔧 Projet #{proj_index + 1}: #{project_type}"
 
       Project.create!(
         user: user,
         property: property,
-        title: "#{project_type} - #{property.address}",
+        nom: "#{project_type} - #{property.commune}",
         description: "Projet de #{project_type.downcase} pour améliorer l'efficacité énergétique",
-        status: status,
-        budget: rand(5000..50000),
-        start_date: rand(1.year.ago..6.months.from_now),
-        estimated_duration: rand(1..12) # mois
+        statut: statut
       )
     end
   end
