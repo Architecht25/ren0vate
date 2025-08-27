@@ -3,11 +3,11 @@ namespace :backup do
   task critical_data: :environment do
     puts "🛡️  BACKUP DONNÉES CRITIQUES"
     puts "=============================="
-    
+
     timestamp = Time.current.strftime("%Y%m%d_%H%M%S")
     backup_dir = Rails.root.join('tmp', 'backups')
     FileUtils.mkdir_p(backup_dir)
-    
+
     # 1. Backup Utilisateurs
     puts "👥 Export des utilisateurs..."
     users_file = backup_dir.join("users_#{timestamp}.json")
@@ -29,7 +29,7 @@ namespace :backup do
     end
     File.write(users_file, JSON.pretty_generate(users_data))
     puts "✅ Utilisateurs sauvés: #{users_file}"
-    
+
     # 2. Backup Propriétés
     puts "🏠 Export des propriétés..."
     properties_file = backup_dir.join("properties_#{timestamp}.json")
@@ -51,7 +51,7 @@ namespace :backup do
     end
     File.write(properties_file, JSON.pretty_generate(properties_data))
     puts "✅ Propriétés sauvées: #{properties_file}"
-    
+
     # 3. Backup Projets
     puts "🔧 Export des projets..."
     projects_file = backup_dir.join("projects_#{timestamp}.json")
@@ -69,7 +69,7 @@ namespace :backup do
     end
     File.write(projects_file, JSON.pretty_generate(projects_data))
     puts "✅ Projets sauvés: #{projects_file}"
-    
+
     # 4. Statistiques
     puts ""
     puts "📊 Statistiques du backup:"
@@ -77,52 +77,52 @@ namespace :backup do
     puts "   - Propriétés: #{Property.count}"
     puts "   - Projets: #{Project.count}"
     puts "   - Date: #{Time.current}"
-    
+
     puts ""
     puts "🎉 Backup terminé!"
     puts "📂 Fichiers dans: #{backup_dir}"
   end
-  
+
   desc "Restaurer des données critiques depuis un backup JSON"
   task :restore_critical_data, [:timestamp] => :environment do |t, args|
     unless args[:timestamp]
       puts "❌ Usage: rake backup:restore_critical_data[20250827_143000]"
       exit 1
     end
-    
+
     timestamp = args[:timestamp]
     backup_dir = Rails.root.join('tmp', 'backups')
-    
+
     puts "⚠️  RESTAURATION DONNÉES CRITIQUES"
     puts "=================================="
     puts "📅 Timestamp: #{timestamp}"
-    
+
     # Vérifier les fichiers
     users_file = backup_dir.join("users_#{timestamp}.json")
     properties_file = backup_dir.join("properties_#{timestamp}.json")
     projects_file = backup_dir.join("projects_#{timestamp}.json")
-    
+
     unless File.exist?(users_file)
       puts "❌ Fichier utilisateurs non trouvé: #{users_file}"
       exit 1
     end
-    
+
     puts "⚠️  Cette opération va ÉCRASER les données actuelles!"
     print "Tapez 'RESTORE' pour confirmer: "
     confirmation = STDIN.gets.chomp
-    
+
     unless confirmation == 'RESTORE'
       puts "❌ Restauration annulée"
       exit 1
     end
-    
+
     ActiveRecord::Base.transaction do
       # 1. Nettoyage
       puts "🧹 Suppression des données actuelles..."
       Project.destroy_all
       Property.destroy_all
       User.destroy_all
-      
+
       # 2. Restauration Utilisateurs
       puts "👥 Restauration des utilisateurs..."
       users_data = JSON.parse(File.read(users_file))
@@ -130,7 +130,7 @@ namespace :backup do
         User.create!(user_attrs.except('id'))
       end
       puts "✅ #{User.count} utilisateurs restaurés"
-      
+
       # 3. Restauration Propriétés
       if File.exist?(properties_file)
         puts "🏠 Restauration des propriétés..."
@@ -140,7 +140,7 @@ namespace :backup do
         end
         puts "✅ #{Property.count} propriétés restaurées"
       end
-      
+
       # 4. Restauration Projets
       if File.exist?(projects_file)
         puts "🔧 Restauration des projets..."
@@ -151,7 +151,7 @@ namespace :backup do
         puts "✅ #{Project.count} projets restaurés"
       end
     end
-    
+
     puts ""
     puts "🎉 Restauration terminée!"
     puts "📊 Données restaurées:"

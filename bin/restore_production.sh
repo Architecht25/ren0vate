@@ -30,7 +30,7 @@ else
     ls -la "$BACKUP_DIR"/*.dump 2>/dev/null | tail -5 || echo "Aucun backup trouvé"
     echo ""
     read -p "📅 Entrez la date du backup (YYYYMMDD_HHMMSS) ou ENTER pour le plus récent: " BACKUP_DATE
-    
+
     if [ -z "$BACKUP_DATE" ]; then
         BACKUP_DATE=$(ls -t "$BACKUP_DIR"/db_backup_*.dump 2>/dev/null | head -1 | sed 's/.*db_backup_\(.*\)\.dump/\1/')
         echo "🔄 Utilisation du backup le plus récent: $BACKUP_DATE"
@@ -73,7 +73,7 @@ echo -e "${YELLOW}3. ✅ Vérification des données restaurées...${NC}"
 echo "📊 Données après restauration:"
 heroku run "rails runner \"
 puts '   - Utilisateurs: ' + User.count.to_s
-puts '   - Propriétés: ' + Property.count.to_s  
+puts '   - Propriétés: ' + Property.count.to_s
 puts '   - Projets: ' + Project.count.to_s
 \"" --app $APP_NAME
 
