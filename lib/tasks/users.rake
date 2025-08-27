@@ -22,7 +22,7 @@ namespace :users do
     puts "🎉 Reconstruction terminée!"
     puts "📱 Vous pouvez maintenant vous connecter avec:"
     puts "   📧 robin@primes-services.be"
-    puts "   🔐 renovate2025"
+    puts "   🔐 robin123456"
   end
 
   desc "Créer seulement l'admin principal"
@@ -31,8 +31,8 @@ namespace :users do
 
     admin = User.create!(
       email: 'robin@primes-services.be',
-      password: 'renovate2025',
-      password_confirmation: 'renovate2025',
+      password: 'robin123456',
+      password_confirmation: 'robin123456',
       first_name: 'Robin',
       last_name: 'Admin',
       role: 'admin',
@@ -43,7 +43,7 @@ namespace :users do
     )
 
     puts "✅ Admin créé: #{admin.email}"
-    puts "🔐 Mot de passe: renovate2025"
+    puts "🔐 Mot de passe: robin123456"
   end
 
   desc "Compter les utilisateurs actuels"

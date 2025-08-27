@@ -13,7 +13,7 @@ end
 users_data = [
   {
     email: 'robin@primes-services.be',
-    password: 'renovate2025',
+    password: 'robin123456',
     first_name: 'Robin',
     last_name: 'Admin',
     role: 'admin',
@@ -233,7 +233,7 @@ puts "  🔧 Projets créés: #{Project.count}"
 puts ""
 puts "🔑 Accès admin:"
 puts "  📧 Email: robin@primes-services.be"
-puts "  🔐 Mot de passe: renovate2025"
+puts "  🔐 Mot de passe: robin123456"
 puts ""
 puts "🔑 Accès utilisateurs demo:"
 puts "  📧 Email: [n'importe lequel des autres emails]"
