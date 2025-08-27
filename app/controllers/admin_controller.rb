@@ -13,6 +13,7 @@ class AdminController < ApplicationController
     @requests = Request.all
     @simulations = Simulation.all
     @users = User.all
+    @backup_status = BackupStatusService.call
   end
 
   private
