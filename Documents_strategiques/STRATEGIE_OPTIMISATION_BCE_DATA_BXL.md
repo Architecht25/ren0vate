@@ -1,4 +1,4 @@
-# 🏢 Stratégie d'Optimisation des Données BCE
+# 🏢 Stratégie d'Optimisation des Données BCE - Bruxelles
 
 ## 📊 **Contexte et Problématique**
 
@@ -7,46 +7,39 @@
 - **Besoin** : Recherche rapide et complète d'entreprises
 - **Application** : ren0vate (primes de rénovation)
 
-## 🎯 **Stratégie Adoptée : Approche Progressive**
+## 🎯 **Stratégie Adoptée : Focus Bruxelles**
 
-### **Phase 1 : Base Locale Sélective (1-2 semaines)**
-Import intelligent des **50 000 entreprises les plus pertinentes**
+### **Phase 1 : Base Bruxelles Complète (3-5 jours)**
+Import de **144,902 entreprises** (personnes morales, siège social Bruxelles)
 
-### **Phase 2 : Optimisation Dynamique (1 mois d'observation)**
-Enrichissement automatique basé sur l'usage réel
+### **Phase 2 : Optimisation et Test (1 semaine)**
+Tests de performance et amélioration de la recherche
 
-### **Phase 3 : Migration API (optionnelle)**
-Basculement vers API BCE officielle quand approprié
+### **Phase 3 : Extension Progressive (selon besoins)**
+Extension à la Wallonie puis Flandre si nécessaire
 
 ---
 
-## 🎯 **Critères de Sélection des 50K Entreprises**
+## 🎯 **Données Bruxelles Sélectionnées**
 
-### **1. Critères Métier (0-40 points)**
+### **Critères de Filtrage**
 ```
-Secteurs Prioritaires ren0vate:
-✅ Construction/Rénovation (NACE 41*, 42*, 43*) → +40 pts
-✅ Énergie/Isolation (NACE 35*, 33.2*) → +40 pts  
-✅ Conseil énergétique (NACE 71.12, 74.90) → +30 pts
-✅ Immobilier (NACE 68*, 69*) → +25 pts
-✅ Services aux entreprises (NACE 82*) → +15 pts
-```
-
-### **2. Critères Viabilité (0-30 points)**
-```
-Entreprises Actives et Solides:
-✅ Statut = 'AC' (Actif) → +10 pts
-✅ Forme juridique SA/SPRL/SRL → +15 pts
-✅ Adresse complète définie → +5 pts
-✅ Date création < 2024 (maturité) → bonus
+Base Brussels-Only:
+✅ Codes postaux 1000-1210 (19 communes Bruxelles-Capitale)
+✅ Type d'adresse = REGO (siège social uniquement)
+✅ Personnes morales (numéros BCE commençant par "0")
+✅ Situation juridique = "000" (normale/active)
+✅ Total: 144,902 entreprises
 ```
 
-### **3. Critères Géographiques (0-20 points)**
+### **Répartition par Code Postal**
 ```
-Priorité Régionale:
-✅ Région Bruxelles-Capitale (1***) → +20 pts
-✅ Wallonie (4***, 5***, 6***, 7***) → +15 pts
-✅ Flandre - grandes villes → +10 pts
+Top 5 communes:
+- 1000 Bruxelles-Ville: ~28k entreprises
+- 1050 Ixelles: ~23k entreprises
+- 1180 Uccle: ~16k entreprises
+- 1030 Schaerbeek: ~13k entreprises
+- 1070 Anderlecht: ~13k entreprises
 ```
 
 ### **4. Critères Activité (0-10 points)**
@@ -87,11 +80,11 @@ Indicateurs de Dynamisme:
 1. SmartBceImportService
    - Analyse et scoring des CSV
    - Import sélectif top 50K
-   
-2. BceSearchAnalyticsService  
+
+2. BceSearchAnalyticsService
    - Tracking recherches manquées
    - Suggestions d'import dynamique
-   
+
 3. Extension EntreprisesController
    - Support recherche étendue
    - Fallback API si non trouvé
@@ -101,7 +94,7 @@ Indicateurs de Dynamisme:
 ```
 Tables existantes utilisées:
 - bce_enterprises (50K records)
-- bce_denominations (~60K records)  
+- bce_denominations (~60K records)
 - bce_addresses (~50K records)
 - bce_activities (~150K records)
 
@@ -143,7 +136,7 @@ Stockage estimé: ~100MB (vs 2.2GB CSV)
 
 ### **Si Contraintes Stockage**
 1. **Migration PostgreSQL externe**
-2. **Compression données** non critiques  
+2. **Compression données** non critiques
 3. **Archive entreprises** inactives
 
 ---
@@ -151,22 +144,22 @@ Stockage estimé: ~100MB (vs 2.2GB CSV)
 ## 🚀 **Bénéfices Attendus**
 
 ### **Court Terme (1 mois)**
-✅ **Recherche rapide** 85%+ entreprises pertinentes  
-✅ **Performance optimale** < 200ms  
-✅ **Zéro dépendance** externe  
-✅ **Coût maîtrisé** infrastructure  
+✅ **Recherche rapide** 85%+ entreprises pertinentes
+✅ **Performance optimale** < 200ms
+✅ **Zéro dépendance** externe
+✅ **Coût maîtrisé** infrastructure
 
 ### **Moyen Terme (3-6 mois)**
-✅ **Couverture 95%+** via enrichissement automatique  
-✅ **Analytics avancées** usage client  
-✅ **Base solide** pour fonctionnalités IA  
-✅ **Migration API** préparée si besoin  
+✅ **Couverture 95%+** via enrichissement automatique
+✅ **Analytics avancées** usage client
+✅ **Base solide** pour fonctionnalités IA
+✅ **Migration API** préparée si besoin
 
 ### **Long Terme (6+ mois)**
-✅ **Avantage concurrentiel** données BCE  
-✅ **Monétisation** recherche entreprises  
-✅ **Expansion** autres régions/pays  
-✅ **Écosystème** services aux entreprises  
+✅ **Avantage concurrentiel** données BCE
+✅ **Monétisation** recherche entreprises
+✅ **Expansion** autres régions/pays
+✅ **Écosystème** services aux entreprises
 
 ---
 
@@ -178,7 +171,7 @@ Stockage estimé: ~100MB (vs 2.2GB CSV)
 3. **Créer service** import sélectif
 4. **Tester** sur échantillon 1K entreprises
 
-### **Phase 2 - Semaine Prochaine**  
+### **Phase 2 - Semaine Prochaine**
 1. **Import complet** 50K entreprises
 2. **Déploiement production** avec monitoring
 3. **Tests utilisateur** recherche avancée
@@ -186,7 +179,7 @@ Stockage estimé: ~100MB (vs 2.2GB CSV)
 
 ---
 
-**Document créé le** : 26 août 2025  
-**Auteur** : Équipe technique ren0vate  
-**Version** : 1.0 - Stratégie initiale  
+**Document créé le** : 26 août 2025
+**Auteur** : Équipe technique ren0vate
+**Version** : 1.0 - Stratégie initiale
 **Prochaine révision** : Après phase 1 (2 semaines)
