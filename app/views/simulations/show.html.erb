@@ -1,3 +1,17 @@
+<!-- Scripts JSON pour les données des primes (selon la région) -->
+<% if @simulation.region == 'wallonie' && @primes.present? %>
+<!-- Données pour le calcul des primes Wallonie -->
+<script type="application/json" id="wallonie-primes-data">
+  <%= raw(@primes.each_with_object({}) { |prime, hash|
+    hash[prime.slug] = {
+      titre: prime.titre,
+      valeurs_par_categorie: prime.valeurs_par_categorie || {},
+      eligible_categories: prime.eligible_categories || []
+    }
+  }.to_json) %>
+</script>
+<% end %>
+
 <!-- En-tête de la page simulation -->
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>

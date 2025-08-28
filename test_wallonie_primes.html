@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Cartes Primes Wallonie</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1>Test Cartes Primes Wallonie</h1>
+
+        <!-- Test de données JSON -->
+        <script type="application/json" id="wallonie-primes-data">
+        {
+          "wallonie_realisation_audit_logement": {
+            "titre": "Audit énergétique",
+            "valeurs_par_categorie": {
+              "wallonie_r1": {"type": "montant_fixe", "montant": 500},
+              "wallonie_r2": {"type": "montant_fixe", "montant": 400},
+              "wallonie_r3": {"type": "montant_fixe", "montant": 300},
+              "wallonie_r4": {"type": "montant_fixe", "montant": 200},
+              "wallonie_r5": {"type": "montant_fixe", "montant": 100}
+            },
+            "eligible_categories": ["wallonie_r1", "wallonie_r2", "wallonie_r3", "wallonie_r4", "wallonie_r5"]
+          }
+        }
+        </script>
+
+        <!-- Section de test -->
+        <div data-controller="wallonie-prime-calcul">
+            <h4 class="mb-3">
+                <span data-wallonie-prime-calcul-target="sectionTitle">
+                    Test Primes Wallonie - R3
+                </span>
+            </h4>
+
+            <!-- Carte test audit -->
+            <div class="card" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_realisation_audit_logement">
+                <div class="card-body">
+                    <h6>Audit énergétique</h6>
+                    <select data-wallonie-prime-card-target="inputAudit" data-action="change->wallonie-prime-card#calculateAudit">
+                        <option value="0">Non</option>
+                        <option value="1">Oui</option>
+                    </select>
+                    <span data-wallonie-prime-card-target="resultAudit">0 €</span>
+                </div>
+            </div>
+
+            <!-- Total global -->
+            <div class="mt-3">
+                <h2>Total : <span data-wallonie-prime-calcul-target="grandTotal">0,00 €</span></h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chargement des scripts (simulé) -->
+    <script src="https://unpkg.com/@hotwired/stimulus/dist/stimulus.min.js"></script>
+    <script>
+        console.log("Test de base des cartes primes Wallonie");
+        console.log("Données JSON chargées:", document.getElementById('wallonie-primes-data'));
+    </script>
+</body>
+</html>

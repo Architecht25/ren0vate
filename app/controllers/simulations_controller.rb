@@ -6,6 +6,13 @@ class SimulationsController < ApplicationController
   def show
     @simulation = Simulation.find(params[:id])
 
+    # Charger les primes selon la région de la simulation
+    if @simulation.region.present?
+      @primes = Prime.where(region: @simulation.region).order(:ordre_affichage)
+    else
+      @primes = []
+    end
+
     # Extraire les données des primes et le total depuis les paramètres
     if @simulation.parameters.present?
       params_data = JSON.parse(@simulation.parameters)
