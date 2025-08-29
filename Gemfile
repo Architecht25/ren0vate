@@ -24,6 +24,11 @@ gem "httparty"
 gem "rubyzip"
 gem "http_accept_language"  # Pour la détection automatique de langue
 
+# OCR capabilities
+gem "rtesseract"  # Pour l'OCR avec Tesseract
+gem "pdf-reader"  # Pour l'extraction de texte des PDF
+gem "mini_magick" # Pour la manipulation d'images
+
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
 

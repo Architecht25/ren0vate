@@ -79,6 +79,10 @@ Rails.application.routes.draw do
     end
   end
 
+  # Routes OCR
+  post 'ocr/scan', to: 'ocr#scan'
+  post 'ocr/scan_and_create_document', to: 'ocr#scan_and_create_document'
+
   # Documents officiels des primes (attestations, formulaires, etc.)
   resources :prime_document_templates, only: [:index, :show] do
     member do
