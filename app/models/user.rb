@@ -85,7 +85,7 @@ class User < ApplicationRecord
   # Calcul du revenu total du ménage pour les primes Bruxelles
   def household_income
     return nil unless revenu_demandeur.present?
-    
+
     total = revenu_demandeur.to_i
     total += revenu_conjoint.to_i if revenu_conjoint.present?
     total

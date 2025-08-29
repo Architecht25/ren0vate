@@ -223,7 +223,7 @@ module Regions
 
         # Pour les entreprises, critères d'éligibilité simplifiés
         # Pas de vérification de revenus, BIM, RIS, etc.
-        
+
         Rails.logger.info "=== VÉRIFICATIONS ENTREPRISE PASSÉES ✅ ==="
         # Pour les entreprises, catégorie fixe ou différente logique
         eligible_response(

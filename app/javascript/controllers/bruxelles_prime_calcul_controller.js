@@ -118,6 +118,11 @@ export default class extends Controller {
     }
   }
 
+  // Méthode pour que les contrôleurs enfants puissent accéder aux données
+  getPrimesData() {
+    return this.primesData || {}
+  }
+
   updateTotalGlobal() {
     // Calculer le total en parcourant toutes les cartes actives
     let total = 0
@@ -143,7 +148,10 @@ export default class extends Controller {
 
     // Mettre à jour l'affichage du total
     if (this.hasTotalGeneralTarget) {
-      this.totalGeneralTarget.textContent = `${total.toLocaleString('fr-BE')} €`
+      this.totalGeneralTarget.textContent = `${total.toLocaleString('fr-FR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })} €`
 
       // Animation visuelle
       this.totalGeneralTarget.classList.add('updated')
@@ -191,7 +199,10 @@ export default class extends Controller {
     console.log(`🎯 Total global Bruxelles calculé: ${total}€`)
 
     if (this.hasTotalGeneralTarget) {
-      this.totalGeneralTarget.textContent = `${total.toLocaleString('fr-BE')} €`
+      this.totalGeneralTarget.textContent = `${total.toLocaleString('fr-FR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })} €`
       console.log(`📝 Total affiché: ${this.totalGeneralTarget.textContent}`)
 
       // Animation de mise à jour
@@ -207,6 +218,9 @@ export default class extends Controller {
     document.dispatchEvent(new CustomEvent('bruxelles:total:calculated', {
       detail: { total: total, category: this.currentCategory }
     }))
+
+    // Mettre à jour le résumé des primes sélectionnées
+    this.updateSelectedPrimesSummary()
   }
 
   // Méthode appelée par les cartes enfants pour notifier un changement
@@ -239,6 +253,9 @@ export default class extends Controller {
     setTimeout(() => {
       this.updateTotalGlobal()
     }, 100)
+
+    // Mettre à jour l'affichage de la catégorie
+    this.updateCategoryDisplay(newCategory)
   }
 
   addSpecificFieldListeners() {
@@ -456,15 +473,120 @@ export default class extends Controller {
     // Mettre à jour le résultat spécifique
     const resultElement = document.querySelector(resultSelector)
     if (resultElement) {
-      resultElement.textContent = `${montant.toLocaleString('fr-BE')} €`
+      resultElement.textContent = `${montant.toLocaleString('fr-FR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })} €`
       console.log("✨ Résultat Bruxelles mis à jour:", resultSelector, "→", montant, "€")
     }
 
     // Recalculer le total global
     this.updateTotalGlobal()
+
+    // Mettre à jour le résumé des primes sélectionnées
+    this.updateSelectedPrimesSummary()
   }
 
-  getPrimesData() {
-    return this.primesData || {}
+  updateSelectedPrimesSummary() {
+    if (!this.hasSelectedPrimesSummaryTarget) return
+
+    const selectedPrimes = this.getSelectedPrimes()
+
+    if (selectedPrimes.length === 0) {
+      this.selectedPrimesSummaryTarget.innerHTML = `
+        <div class="text-muted text-center py-3">
+          <i class="bi bi-info-circle me-2"></i>
+          Sélectionnez des travaux dans les cartes ci-dessus pour voir le détail de vos primes
+        </div>
+      `
+      return
+    }
+
+    // Style Wallonie : liste simple avec bordures, pas de card
+    let summaryHTML = ''
+
+    selectedPrimes.forEach((prime, index) => {
+      summaryHTML += `
+        <div class="row align-items-center py-2${index < selectedPrimes.length - 1 ? ' border-bottom' : ''}">
+          <div class="col-8">
+            <div class="fw-medium">${prime.name}</div>
+            <small class="text-muted">${prime.details}</small>
+          </div>
+          <div class="col-4 text-end">
+            <span class="fw-medium text-primary">${prime.amount}</span>
+          </div>
+        </div>
+      `
+    })
+
+    this.selectedPrimesSummaryTarget.innerHTML = summaryHTML
+  }
+
+  // Méthode pour récupérer les primes sélectionnées
+  getSelectedPrimes() {
+    const selectedPrimes = []
+
+    // Parcourir tous les éléments avec des valeurs > 0
+    const cardElements = this.element.querySelectorAll('[data-controller*="bruxelles-prime-card"]')
+
+    cardElements.forEach(card => {
+      const totalElement = card.querySelector('[data-bruxelles-prime-card-target="total"]')
+      if (totalElement) {
+        const amountText = totalElement.textContent.trim()
+        const amount = parseFloat(amountText.replace(/[€\s,]/g, '.')) || 0
+
+        if (amount > 0) {
+          // Trouver le nom de la prime
+          const titleElement = card.querySelector('.card-title')
+          const title = titleElement ? titleElement.textContent.trim() : 'Prime'
+
+          // Trouver les détails (inputs actifs)
+          const inputs = card.querySelectorAll('input[type="number"], select')
+          let details = []
+
+          inputs.forEach(input => {
+            const value = input.value
+            if (value && parseFloat(value) > 0) {
+              if (input.type === 'number') {
+                const unit = input.placeholder?.includes('m²') ? 'm²' : 'unité(s)'
+                details.push(`${value} ${unit}`)
+              } else if (input.tagName === 'SELECT' && value !== '0') {
+                details.push('Oui')
+              }
+            }
+          })
+
+          selectedPrimes.push({
+            name: title,
+            amount: amountText,
+            details: details.length > 0 ? details.join(', ') : 'Sélectionné'
+          })
+        }
+      }
+    })
+
+    return selectedPrimes
+  }
+
+  // Méthode d'auto-save (à implémenter si nécessaire)
+  autoSave() {
+    // Logique d'auto-save similaire à Flandre/Wallonie
+    console.log("🔄 Auto-save Bruxelles (à implémenter)")
+  }
+
+  // Méthode pour mettre à jour l'affichage de la catégorie
+  updateCategoryDisplay(category) {
+    if (!this.hasCurrentCategoryTarget) return
+
+    const categoryNames = {
+      'bruxelles_cat1': 'Catégorie I',
+      'bruxelles_cat2': 'Catégorie II',
+      'bruxelles_cat3': 'Catégorie III'
+    }
+
+    const categoryName = categoryNames[category] || 'Catégorie non définie'
+    this.currentCategoryTarget.textContent = `${categoryName} • Estimation selon votre profil de revenus`
+
+    console.log(`📋 Catégorie affichée: ${categoryName}`)
   }
 }
