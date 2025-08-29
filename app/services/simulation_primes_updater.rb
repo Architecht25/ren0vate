@@ -141,6 +141,58 @@ class SimulationPrimesUpdater
       montant_unitaire = category_data["montant_unitaire"].to_f
       unites * montant_unitaire
 
+    when "montant_m2_et_limite"
+      # Type Flandre: Prime au m² avec surface max et plafond pourcentage
+      surface = user_input.to_f
+      montant_m2 = category_data["montant_m2"].to_f
+      surface_max = category_data["surface_max"].to_f
+
+      # Limiter la surface au maximum autorisé
+      surface_prise_en_compte = [surface, surface_max].min
+      montant_base = surface_prise_en_compte * montant_m2
+
+      # Appliquer le plafond pourcentage si défini
+      if category_data["plafond_pourcentage"]
+        plafond_pct = category_data["plafond_pourcentage"].to_f / 100.0
+        # Ici il faudrait le coût total des travaux, pour l'instant on retourne le montant de base
+        montant_base
+      else
+        montant_base
+      end
+
+    when "pourcentage_et_plafond"
+      # Type Flandre: Pourcentage du coût avec plafond maximum
+      cout_travaux = user_input.to_f
+      pourcentage = category_data["pourcentage"].to_f / 100.0
+      plafond = category_data["plafond"].to_f
+
+      montant_base = cout_travaux * pourcentage
+      [montant_base, plafond].min
+
+    when "forfait_et_plafond_facture"
+      # Type Flandre: Forfait fixe OU pourcentage de la facture, selon le type choisi
+      if category_data["forfaits"].present?
+        # Cas pompe à chaleur : forfait selon le type + montant facture
+        # L'user_input contient le montant de la facture
+        # Il faudrait récupérer le type sélectionné séparément
+        # Pour l'instant, on suppose un forfait moyen
+        forfait_moyen = category_data["forfaits"].values.sum.to_f / category_data["forfaits"].size
+        forfait_moyen
+      elsif category_data["forfait"].present?
+        # Cas chauffe-eau : forfait fixe avec plafond pourcentage
+        forfait = category_data["forfait"].to_f
+        if category_data["plafond_pourcentage"].present?
+          cout_travaux = user_input.to_f
+          plafond_pct = category_data["plafond_pourcentage"].to_f / 100.0
+          plafond_facture = cout_travaux * plafond_pct
+          [forfait, plafond_facture].min
+        else
+          forfait
+        end
+      else
+        0
+      end
+
     else
       @logger.warn "⚠️ Type de calcul inconnu: #{category_data['type']}"
       0

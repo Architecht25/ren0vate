@@ -1,7 +1,7 @@
 class SimulationsController < ApplicationController
   # Exemptions temporaires pour les tests (à sécuriser en production)
-  skip_before_action :verify_authenticity_token, only: [:update_prime_inputs]
-  skip_before_action :authenticate_user!, only: [:show, :update_prime_inputs]
+  skip_before_action :verify_authenticity_token, only: [:update_prime_inputs, :restore_prime_inputs]
+  skip_before_action :authenticate_user!, only: [:show, :update_prime_inputs, :restore_prime_inputs]
 
   def index
     @simulations = Simulation.all
@@ -181,6 +181,51 @@ class SimulationsController < ApplicationController
       Rails.logger.error "❌ Exception class: #{e.class}"
       Rails.logger.error "❌ Exception backtrace: #{e.backtrace.join("\n")}"
       render json: { success: false, error: "Erreur lors de la sauvegarde: #{e.message}" }, status: :internal_server_error
+    end
+  end
+
+  def restore_prime_inputs
+    @simulation = Simulation.find(params[:id])
+
+    Rails.logger.info "🔄 Restoring prime inputs for simulation #{@simulation.id}"
+
+    begin
+      # Parser les paramètres de la simulation
+      params_data = safe_parse_simulation_parameters(@simulation)
+
+      if params_data.empty?
+        Rails.logger.warn "⚠️ No parameters found for simulation #{@simulation.id}"
+        render json: { success: true, user_inputs: {}, message: "Aucune donnée à restaurer" }
+        return
+      end
+
+      # Extraire les inputs utilisateur depuis la structure prime_cards
+      user_inputs = {}
+
+      if params_data["prime_cards"].present?
+        params_data["prime_cards"].each do |category_key, category_data|
+          next unless category_data["primes"].present?
+
+          category_data["primes"].each do |prime|
+            if prime["user_input_value"].present? && prime["user_input_value"] != 0 && prime["user_input_value"] != "0"
+              user_inputs[prime["slug"]] = prime["user_input_value"]
+            end
+          end
+        end
+      end
+
+      Rails.logger.info "✅ Restored #{user_inputs.keys.length} user inputs for simulation #{@simulation.id}"
+      render json: {
+        success: true,
+        user_inputs: user_inputs,
+        total_amount: @simulation.total_simule,
+        category: @simulation.category
+      }
+
+    rescue => e
+      Rails.logger.error "❌ Exception in restore_prime_inputs: #{e.message}"
+      Rails.logger.error "❌ Exception backtrace: #{e.backtrace.join("\n")}"
+      render json: { success: false, error: "Erreur lors de la restauration: #{e.message}" }, status: :internal_server_error
     end
   end
 

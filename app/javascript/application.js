@@ -26,6 +26,8 @@ import WalloniePrimeCalculController from "controllers/wallonie_prime_calcul_con
 import WalloniePrimeCardController from "controllers/wallonie_prime_card_controller"
 import BruxellesPrimeCardController from "controllers/bruxelles_prime_card_controller"
 import BruxellesPrimeCalculController from "controllers/bruxelles_prime_calcul_controller"
+import FlandrePrimeCardController from "controllers/flandre_prime_card_controller"
+import FlandrePrimeCalculController from "controllers/flandre_prime_calcul_controller"
 import BceSearchController from "controllers/bce_search_controller"
 import LogoutModalController from "controllers/logout_modal_controller"
 import BruxellesAidesEstimationController from "controllers/bruxelles_aides_estimation_controller"
@@ -46,6 +48,8 @@ application.register("wallonie-prime-calcul", WalloniePrimeCalculController)
 application.register("wallonie-prime-card", WalloniePrimeCardController)
 application.register("bruxelles-prime-card", BruxellesPrimeCardController)
 application.register("bruxelles-prime-calcul", BruxellesPrimeCalculController)
+application.register("flandre-prime-card", FlandrePrimeCardController)
+application.register("flandre-prime-calcul", FlandrePrimeCalculController)
 application.register("bce-search", BceSearchController)
 application.register("logout-modal", LogoutModalController)
 application.register("bruxelles-aides-estimation", BruxellesAidesEstimationController)

@@ -933,51 +933,6 @@ document.addEventListener('DOMContentLoaded', function() {
     updateTotalAmount(total);
   }
 
-  // Initialisation optimisée et robuste
-  let initializationAttempts = 0;
-  const maxAttempts = 10; // Limite le nombre de tentatives
-
-  function initializePrimeSystem() {
-    console.log('Initializing prime system...');
-    initializationAttempts++;
-
-    // Attendre que le DOM soit complètement chargé
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initializePrimeSystem);
-      return;
-    }
-
-    // Vérifier la présence du conteneur de primes
-    const primeContainer = document.getElementById('prime-cards-container');
-    if (!primeContainer) {
-      console.log(`Prime container not ready, attempt ${initializationAttempts}/${maxAttempts}...`);
-
-      // Arrêter après le nombre maximum de tentatives
-      if (initializationAttempts >= maxAttempts) {
-        console.log('Prime container not found after maximum attempts. Simulation may not be eligible or container not rendered.');
-        return;
-      }
-
-      setTimeout(initializePrimeSystem, 200);
-      return;
-    }
-
-    // Initialiser les listeners une seule fois
-    setupPrimeInputListeners();
-
-    // Calculer le total initial si des cartes sont présentes
-    const primeCards = document.querySelectorAll('.prime-card');
-    if (primeCards.length > 0) {
-      console.log(`Found ${primeCards.length} prime cards, calculating initial total`);
-      calculateInitialTotal();
-    }
-
-    console.log('Prime system initialized successfully');
-  }
-
-  // Démarrer l'initialisation
-  initializePrimeSystem();
-
   // Styles CSS pour les indicateurs visuels
   if (!document.getElementById('prime-styles')) {
     const primeStyles = document.createElement('style');
