@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["sectionTitle", "totalGeneral", "categoryDisplay", "categoryBadge", "categoryDescription"]
+  static targets = ["sectionTitle", "totalGeneral", "categoryDisplay", "categoryBadge", "categoryDescription", "selectedPrimesSummary", "currentCategory"]
 
   connect() {
     console.log("🎯 Bruxelles Prime Calcul controller connected")

@@ -355,7 +355,8 @@ class SimulationsController < ApplicationController
       eligibility_service = Regions::Bruxelles::BruxellesEligibilityService.new(
         {
           property_id: simulation.property_id,
-          project_id: simulation.project_id
+          project_id: simulation.project_id,
+          simulation_type: params[:simulation_type] || 'particulier'
         },
         user: current_user
       )
@@ -402,12 +403,12 @@ class SimulationsController < ApplicationController
       )
     elsif region == 'bruxelles'
       category_service = Regions::Bruxelles::BruxellesCategoryService.new(
-        current_user,
         {
           property_id: simulation.property_id,
-          project_id: simulation.project_id
+          project_id: simulation.project_id,
+          simulation_type: params[:simulation_type] || 'particulier'
         },
-        true # post_login
+        user: current_user
       )
     end
 
@@ -460,6 +461,15 @@ class SimulationsController < ApplicationController
         },
         user: current_user
       )
+    elsif region == 'bruxelles'
+      calculator_service = Regions::Bruxelles::BruxellesPostLoginCalculatorService.new(
+        {
+          property_id: simulation.property_id,
+          project_id: simulation.project_id,
+          simulation_type: params[:simulation_type] || 'particulier'
+        },
+        user: current_user
+      )
     end
 
     # Préparer les données de catégorie pour le calculateur
@@ -486,6 +496,16 @@ class SimulationsController < ApplicationController
       simulation.update(
         total_simule: cards_data[:total_general],
         parameters: cards_data.to_json
+      )
+    elsif region == 'bruxelles'
+      simulation.update(
+        total_simule: cards_data[:total],
+        parameters: {
+          prime_cards: cards_data[:cards],
+          total_general: cards_data[:total],
+          category_used: cards_data[:category_used],
+          calculation_timestamp: Time.current
+        }.to_json
       )
     end
   end

@@ -195,6 +195,23 @@ module Regions
           timestamp: Time.current
         }
       end
+
+      public
+
+      def generate_prime_cards(category_result)
+        log_calculation("Génération cartes primes Bruxelles", category_result)
+
+        # Pour Bruxelles, les calculs sont gérés côté client par le JavaScript controller
+        # qui utilise les données JSON injectées dans la vue
+        # Nous retournons une structure minimale pour que la simulation soit créée
+        {
+          cards: {},
+          total: 0,
+          category_used: category_result[:category],
+          region: 'bruxelles',
+          client_side_calculation: true
+        }
+      end
     end
   end
 end

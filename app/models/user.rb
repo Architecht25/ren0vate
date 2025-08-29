@@ -82,6 +82,44 @@ class User < ApplicationRecord
     end
   end
 
+  # Calcul du revenu total du ménage pour les primes Bruxelles
+  def household_income
+    return nil unless revenu_demandeur.present?
+    
+    total = revenu_demandeur.to_i
+    total += revenu_conjoint.to_i if revenu_conjoint.present?
+    total
+  end
+
+  # Méthodes de compatibilité pour les services Bruxelles
+  def marital_status
+    # Mapper situation_familiale vers les valeurs attendues par le service
+    case situation_familiale
+    when 'marie', 'mariee', 'married'
+      'married'
+    when 'cohabitation', 'cohabiting'
+      'cohabiting'
+    when 'celibataire', 'single'
+      'single'
+    when 'divorce', 'divorced'
+      'divorced'
+    when 'veuf', 'veuve', 'widowed'
+      'widowed'
+    else
+      'single'  # Valeur par défaut
+    end
+  end
+
+  def children_count
+    nombre_enfants || 0
+  end
+
+  def elderly_dependents
+    # Pour le moment, retournons 0 car ce champ n'existe pas encore dans le schéma
+    # TODO: Ajouter ce champ à la table users si nécessaire
+    0
+  end
+
   private
 
   # Méthode de validation pour s'assurer qu'il y ait toujours au moins un admin

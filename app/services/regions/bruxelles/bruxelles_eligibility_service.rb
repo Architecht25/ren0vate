@@ -17,6 +17,7 @@ module Regions
       def check_eligibility_post_login
         # Version complète avec données utilisateur réelles
         Rails.logger.info "=== DÉBUT VÉRIFICATION ÉLIGIBILITÉ BRUXELLES (POST-LOGIN) ==="
+        Rails.logger.info "Type de simulation: #{simulation_type}"
 
         property = get_property
         project = user_project
@@ -26,7 +27,16 @@ module Regions
         return ineligible_response("Propriété non trouvée") unless property
         return ineligible_response("Projet non trouvé") unless project
 
-        # Vérifications basées sur les données réelles + paramètres du formulaire
+        # Logique différente selon le type de simulation
+        if is_enterprise_simulation?
+          return check_eligibility_enterprise(property, project)
+        else
+          return check_eligibility_particulier(property, project)
+        end
+      end
+
+      def check_eligibility_particulier(property, project)
+        Rails.logger.info "=== VÉRIFICATION ÉLIGIBILITÉ PARTICULIER ==="
 
         # 1. Localisation : Le bien doit être en Région de Bruxelles-Capitale
         Rails.logger.info "=== Vérification 1: Localisation Bruxelles ==="
@@ -182,7 +192,47 @@ module Regions
         Rails.logger.info "=== TOUTES LES 20 VÉRIFICATIONS PASSÉES ✅ ==="
         # Si toutes les vérifications passent, calculer la catégorie précise avec BIM/RIS/Client protégé
         calculate_precise_category_with_status
-      end      # Méthodes de vérification spécifiques à Bruxelles
+      end
+
+      def check_eligibility_enterprise(property, project)
+        Rails.logger.info "=== VÉRIFICATION ÉLIGIBILITÉ ENTREPRISE ==="
+
+        # 1. Localisation : Le bien doit être en Région de Bruxelles-Capitale
+        Rails.logger.info "=== Vérification 1: Localisation Bruxelles ==="
+        unless property_in_bruxelles?(property)
+          Rails.logger.error "ÉCHEC: Propriété non en Bruxelles"
+          return ineligible_response("Le bien doit être situé en Région de Bruxelles-Capitale")
+        end
+        Rails.logger.info "✅ Localisation Bruxelles OK"
+
+        # 2. Âge du bâtiment : plus de 10 ans (spécificité Bruxelles)
+        Rails.logger.info "=== Vérification 2: Âge du logement ==="
+        unless property_old_enough_bruxelles?(property)
+          Rails.logger.error "ÉCHEC: Logement trop récent (#{property.annee_construction})"
+          return ineligible_response("Le bâtiment doit être âgé d'au moins 10 ans")
+        end
+        Rails.logger.info "✅ Âge du logement OK"
+
+        # 3. Professionnel agréé : à vérifier via le projet/chantier
+        Rails.logger.info "=== Vérification 3: Entrepreneur ==="
+        unless entrepreneur_valid?(project)
+          Rails.logger.error "ÉCHEC: Entrepreneur non valide (BCE: #{project&.bce_number})"
+          return ineligible_response("Recours à un entrepreneur agréé obligatoire")
+        end
+        Rails.logger.info "✅ Entrepreneur OK"
+
+        # Pour les entreprises, critères d'éligibilité simplifiés
+        # Pas de vérification de revenus, BIM, RIS, etc.
+        
+        Rails.logger.info "=== VÉRIFICATIONS ENTREPRISE PASSÉES ✅ ==="
+        # Pour les entreprises, catégorie fixe ou différente logique
+        eligible_response(
+          category: "bruxelles_cat1", # Catégorie par défaut pour entreprises
+          message: "Éligible aux primes Bruxelles (entreprise)"
+        )
+      end
+
+      # Méthodes de vérification spécifiques à Bruxelles
 
       def get_property
         # Récupère la propriété associée à la simulation
@@ -201,6 +251,17 @@ module Regions
         return nil unless project_id
 
         @user.projects.find_by(id: project_id)
+      end
+
+      def simulation_type
+        # Détermine le type de simulation : 'particulier' ou 'entreprise'
+        type = get_param(:simulation_type) || 'particulier'
+        Rails.logger.info "🎯 Type de simulation détecté: #{type}"
+        type
+      end
+
+      def is_enterprise_simulation?
+        simulation_type == 'entreprise'
       end
 
       def property_in_bruxelles?(property)
@@ -433,8 +494,9 @@ module Regions
       def bien_classe_ou_patrimoine?(property)
         # Vérification si bien classé ou protégé
         return true if property.bien_classe == true
-        return true if property.patrimoine_protege == true
-        return true if property.monument_historique == true
+        # Note: patrimoine_protege et monument_historique ne sont pas encore dans le schéma
+        # return true if property.patrimoine_protege == true
+        # return true if property.monument_historique == true
 
         false
       end
@@ -460,7 +522,7 @@ module Regions
         end
 
         # Calcul de catégorie via le service dédié
-        category_service = Regions::Bruxelles::BruxellesCategoryService.new(@user, @params, true)
+        category_service = Regions::Bruxelles::BruxellesCategoryService.new(@params, user: @user)
         category_result = category_service.determine_category
 
         return ineligible_response("Erreur calcul catégorie") if category_result[:error]
@@ -491,7 +553,7 @@ module Regions
         return ineligible_response("Revenus non renseignés") unless @user.household_income
 
         # Utilisation du service de catégorie dédié
-        category_service = Regions::Bruxelles::BruxellesCategoryService.new(@user, @params, true)
+        category_service = Regions::Bruxelles::BruxellesCategoryService.new(@params, user: @user)
         category_result = category_service.determine_category
 
         return ineligible_response("Erreur calcul catégorie") if category_result[:error]
