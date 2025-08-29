@@ -1,14 +1,31 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["sectionTitle", "totalGeneral"]
+  static targets = ["sectionTitle", "totalGeneral", "selectedPrimesSummary", "currentCategory"]
 
   connect() {
     console.log("🎯 Contrôleur Flandre Prime Calcul connecté")
     this.setupPrimesData()
+    this.setupGroupesPlafond()
     this.setupEventListeners()
     this.updateSectionTitle()
     this.setupAutoSaveRestore()
+  }
+
+  setupGroupesPlafond() {
+    // Configuration des groupes de plafond pour Flandre
+    this.groupesPlafond = {
+      toiture: ["isolation_toiture", "renovation_toiture"],
+      murs: ["isolation_murs_cat34", "renovation_murs"],
+      sol: ["isolation_sol", "renovation_sol"]
+    };
+
+    // Plafonds par groupe et par catégorie pour Flandre
+    this.plafondsParGroupeEtCategorie = {
+      toiture: { "1": 0, "2": 0, "3": 4025, "4": 5750 },
+      murs:    { "1": 0, "2": 0, "3": 3500, "4": 5000 },
+      sol:     { "1": 0, "2": 0, "3": 1050, "4": 1500 }
+    };
   }
 
   setupEventListeners() {
@@ -93,25 +110,101 @@ export default class extends Controller {
   updateTotalGlobal() {
     if (!this.hasTotalGeneralTarget) return
 
-    // Calculer le total de toutes les cartes
-    const allResultElements = this.element.querySelectorAll('[data-flandre-prime-card-target="result"]')
+    // Calculer le total de toutes les cartes avec application des plafonds
     let total = 0
+    const cartesMontants = {}
 
+    // Première passe : collecter tous les montants sans plafond
+    const allResultElements = this.element.querySelectorAll('[data-flandre-prime-card-target="result"]')
     allResultElements.forEach(element => {
-      const value = parseFloat(element.textContent.replace(/[€\s,]/g, '.').replace(/[^\d.]/g, '')) || 0
-      total += value
+      const card = element.closest('[data-flandre-prime-card-slug-value]')
+      if (card) {
+        const slug = card.dataset.flandrePrimeCardSlugValue
+        const value = parseFloat(element.textContent.replace(/[€\s,]/g, '.').replace(/[^\d.]/g, '')) || 0
+        cartesMontants[slug] = value
+        console.log(`📊 Trouvé carte ${slug}: ${value}€`)
+      }
     })
 
+    // Deuxième passe : appliquer les plafonds par groupe
+    const montantsFinaux = this.appliquerPlafondsGroupes(cartesMontants)
+
+    // Calculer le total final
+    total = Object.values(montantsFinaux).reduce((sum, montant) => sum + montant, 0)
+
     this.totalGeneralTarget.textContent = `${total.toFixed(2)} €`
-    console.log("💰 Total Flandre mis à jour:", total.toFixed(2), "€")
+    console.log("💰 Total Flandre mis à jour avec plafonds:", total.toFixed(2), "€")
 
     // Déclencher l'auto-save vers la base de données
     this.saveToDatabase()
   }
 
+  appliquerPlafondsGroupes(cartesMontants) {
+    if (["1", "2"].includes(this.currentCategory)) {
+      // Pas de plafonds pour les catégories 1 et 2
+      return cartesMontants
+    }
+
+    const montantsFinaux = { ...cartesMontants }
+
+    // Appliquer les plafonds par groupe
+    for (const [groupe, slugs] of Object.entries(this.groupesPlafond)) {
+      const plafond = this.plafondsParGroupeEtCategorie[groupe][this.currentCategory] || Infinity
+
+      // Calculer le total du groupe
+      const totalGroupe = slugs.reduce((sum, slug) => sum + (cartesMontants[slug] || 0), 0)
+
+      if (totalGroupe > plafond) {
+        // Réduire proportionnellement tous les montants du groupe
+        const facteur = plafond / totalGroupe
+        slugs.forEach(slug => {
+          if (cartesMontants[slug]) {
+            montantsFinaux[slug] = cartesMontants[slug] * facteur
+          }
+        })
+        console.log(`⚖️ Plafond appliqué au groupe ${groupe}: ${totalGroupe.toFixed(2)}€ → ${plafond.toFixed(2)}€`)
+      }
+    }
+
+    return montantsFinaux
+  }
+
   // Méthode appelée par les cartes enfants pour notifier un changement
   cardUpdated() {
     this.updateTotalGlobal()
+  }
+
+  // Méthode pour calculer le montant d'une carte avec application du plafond de groupe
+  calculateMontantAvecPlafond(slug, montantPropose) {
+    if (["1", "2"].includes(this.currentCategory)) {
+      return { montant: montantPropose, resteDisponible: Infinity }
+    }
+
+    let groupe = null
+
+    for (const [g, slugs] of Object.entries(this.groupesPlafond)) {
+      if (slugs.includes(slug)) {
+        groupe = g
+        break
+      }
+    }
+
+    if (!groupe) return { montant: montantPropose, resteDisponible: Infinity }
+
+    const plafond = this.plafondsParGroupeEtCategorie[groupe][this.currentCategory] || Infinity
+    const slugsGroupe = this.groupesPlafond[groupe]
+
+    const totalDejaAffiche = slugsGroupe.reduce((somme, s) => {
+      if (s === slug) return somme // on ignore la carte en cours
+      const span = document.querySelector(`[data-flandre-prime-card-slug-value="${s}"] [data-flandre-prime-card-target="result"]`)
+      const val = parseFloat(span?.textContent.replace("€", "").replace(",", ".") || 0)
+      return somme + (isNaN(val) ? 0 : val)
+    }, 0)
+
+    const plafondRestant = plafond - totalDejaAffiche
+    const montantFinal = Math.min(montantPropose, plafondRestant)
+
+    return { montant: montantFinal, resteDisponible: plafondRestant }
   }
 
   // Méthode pour changer de catégorie (appelée depuis l'interface d'éligibilité)

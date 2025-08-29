@@ -1,9 +1,4 @@
-<!-- Section Primes Flandre avec aut      <!-- Section unique: Toutes les primes Flandre -->
-      <div class="mb-5">
-        <h5 class="text-primary mb-3">
-          <i class="bi bi-award me-2"></i>Primes Flandre - Sélectionnez vos travaux
-        </h5>
-        <div class="row g-3"> -->
+<!-- Section Primes Flandre -->
 <div class="primes-section-flandre" data-controller="flandre-prime-calcul">
 
   <!-- Injection des données de primes depuis la base de données -->
@@ -11,7 +6,8 @@
     <%= raw Prime.where(region: "flandre").map { |prime|
       [prime.slug, {
         nom: prime.titre,
-        valeurs_par_categorie: prime.valeurs_par_categorie || {}
+        valeurs_par_categorie: prime.valeurs_par_categorie || {},
+        placeholder: prime.placeholder || {}
       }]
     }.to_h.to_json %>
   </script>
@@ -532,34 +528,191 @@
         </div>
       </div>
 
-      <!-- Section: Résultat Total -->
-      <div class="card bg-success bg-opacity-10 border-0">
-        <div class="card-body">
-          <div class="row align-items-center">
-            <div class="col-md-8">
-              <h5 class="text-success mb-2">
-                <i class="bi bi-calculator me-2"></i>Total estimé de vos primes
-              </h5>
-              <p class="text-muted mb-0">
-                Montant calculé selon votre catégorie de revenus et vos saisies
-              </p>
+      <!-- Section Résultats Flandre -->
+      <div class="mt-5">
+        <div class="card border-0 shadow-lg">
+          <div class="card-body p-4">
+            <div class="text-center mb-4">
+              <h4 class="text-primary mb-2">
+                <i class="bi bi-calculator me-2"></i>
+                Total estimé de vos primes Flandre
+              </h4>
+              <p class="text-muted small">Les montants s'ajustent automatiquement selon votre catégorie de revenus</p>
             </div>
-            <div class="col-md-4 text-end">
-              <div class="display-6 text-success fw-bold" data-flandre-prime-calcul-target="totalGeneral">
-                0 €
+
+            <!-- Affichage du total principal -->
+            <div class="bg-primary bg-opacity-10 rounded-3 p-4 text-center mb-4">
+              <div class="row align-items-center">
+                <div class="col-md-8 mb-3 mb-md-0">
+                  <h2 class="display-4 fw-bold text-primary mb-1" data-flandre-prime-calcul-target="totalGeneral">0,00 €</h2>
+                  <p class="text-muted mb-0">
+                    <span data-flandre-prime-calcul-target="currentCategory">Catégorie 4</span>
+                    • Estimation selon votre profil de revenus
+                  </p>
+                </div>
+                <div class="col-md-4">
+                  <div class="bg-white rounded-2 p-3">
+                    <i class="bi bi-info-circle text-primary fs-4 mb-2"></i>
+                    <p class="small text-muted mb-0">Ce montant est une estimation basée sur vos travaux sélectionnés</p>
+                  </div>
+                </div>
               </div>
-              <small class="text-muted">Total des primes</small>
+            </div>
+
+            <!-- Résumé des primes sélectionnées -->
+            <div class="card border-0 bg-light">
+              <div class="card-body p-4">
+                <h6 class="fw-bold text-dark mb-3">
+                  <i class="bi bi-list-check me-2"></i>
+                  Résumé de vos primes sélectionnées
+                </h6>
+
+                <!-- Liste dynamique des primes sélectionnées -->
+                <div id="selected-primes-summary-flandre" data-flandre-prime-calcul-target="selectedPrimesSummary">
+                  <div class="text-muted text-center py-3">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Sélectionnez des travaux dans les cartes ci-dessus pour voir le détail de vos primes
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Note informative -->
+            <div class="alert alert-info mt-4 mb-0">
+              <div class="d-flex align-items-start">
+                <i class="bi bi-lightbulb me-3 mt-1 fs-5"></i>
+                <div>
+                  <h6 class="alert-heading mb-2">Bon à savoir</h6>
+                  <p class="mb-2">Ces montants sont des estimations basées sur les grilles tarifaires officielles de la Flandre.</p>
+                  <ul class="mb-0 small">
+                    <li>Les primes varient selon votre catégorie de revenus (1 à 4)</li>
+                    <li>Certaines primes sont forfaitaires, d'autres calculées au m² ou en pourcentage</li>
+                    <li>Des conditions techniques spécifiques peuvent s'appliquer</li>
+                    <li>Il est recommandé de vérifier votre éligibilité auprès des organismes officiels</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-
     </div>
   </div>
-      </div>
-    </div>
-  </div>
-
 </div>
 
 <!-- End of Flandre primes section -->
+
+<script nonce="<%= content_security_policy_nonce %>">
+document.addEventListener('DOMContentLoaded', function() {
+  // Gestionnaire pour le résumé dynamique des primes sélectionnées Flandre
+  function updateSelectedPrimesSummaryFlandre() {
+    const summaryContainer = document.getElementById('selected-primes-summary-flandre');
+    if (!summaryContainer) return;
+
+    const selectedPrimes = [];
+
+    // Parcourir toutes les cartes de primes pour trouver les montants > 0
+    document.querySelectorAll('[data-controller="flandre-prime-card"]').forEach(card => {
+      const resultSpan = card.querySelector('[data-flandre-prime-card-target="result"]');
+      const slug = card.dataset.flandrePrimeCardSlugValue;
+
+      if (resultSpan && slug) {
+        const amountText = resultSpan.textContent.trim();
+        const amount = parseFloat(amountText.replace(/[€\s]/g, '').replace(',', '.'));
+
+        if (amount > 0) {
+          // Récupérer le titre depuis la carte
+          const titleElement = card.querySelector('.card-title');
+          const title = titleElement ? titleElement.textContent.trim() : slug;
+
+          // Récupérer la description ou l'unité
+          const unitElement = card.querySelector('.text-muted small');
+          const description = unitElement ? unitElement.textContent.trim() : '';
+
+          selectedPrimes.push({
+            slug: slug,
+            title: title,
+            description: description,
+            amount: amount,
+            formattedAmount: new Intl.NumberFormat('fr-BE', {
+              style: 'currency',
+              currency: 'EUR',
+              minimumFractionDigits: 0
+            }).format(amount)
+          });
+        }
+      }
+    });
+
+    // Mettre à jour l'affichage
+    if (selectedPrimes.length === 0) {
+      summaryContainer.innerHTML = `
+        <div class="text-muted text-center py-3">
+          <i class="bi bi-info-circle me-2"></i>
+          Sélectionnez des travaux dans les cartes ci-dessus pour voir le détail de vos primes
+        </div>
+      `;
+    } else {
+      let summaryHTML = '';
+      selectedPrimes.forEach(prime => {
+        summaryHTML += `
+          <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+            <div>
+              <div class="fw-medium text-dark">${prime.title}</div>
+              <small class="text-muted">${prime.description}</small>
+            </div>
+            <div class="text-end">
+              <span class="fw-bold text-primary">${prime.formattedAmount}</span>
+            </div>
+          </div>
+        `;
+      });
+
+      // Ajouter le total si plus d'une prime
+      if (selectedPrimes.length > 1) {
+        const total = selectedPrimes.reduce((sum, prime) => sum + prime.amount, 0);
+        const formattedTotal = new Intl.NumberFormat('fr-BE', {
+          style: 'currency',
+          currency: 'EUR',
+          minimumFractionDigits: 0
+        }).format(total);
+
+        summaryHTML += `
+          <div class="d-flex justify-content-between align-items-center py-3 mt-2 bg-primary bg-opacity-10 rounded px-3">
+            <div class="fw-bold text-primary">Total de vos primes sélectionnées</div>
+            <div class="fw-bold text-primary h5 mb-0">${formattedTotal}</div>
+          </div>
+        `;
+      }
+
+      summaryContainer.innerHTML = summaryHTML;
+    }
+
+    console.log(`📊 Résumé Flandre mis à jour: ${selectedPrimes.length} primes détectées`);
+  }
+
+  // Écouter les changements sur tous les inputs de primes
+  document.addEventListener('change', function(event) {
+    if (event.target.closest('[data-controller="flandre-prime-card"]')) {
+      // Délai court pour laisser le contrôleur mettre à jour les montants
+      setTimeout(() => {
+        updateSelectedPrimesSummaryFlandre();
+      }, 100);
+    }
+  });
+
+  // Écouter les saisies dans les champs numériques
+  document.addEventListener('input', function(event) {
+    if (event.target.closest('[data-controller="flandre-prime-card"]')) {
+      setTimeout(() => {
+        updateSelectedPrimesSummaryFlandre();
+      }, 150);
+    }
+  });
+
+  // Mise à jour initiale
+  setTimeout(updateSelectedPrimesSummaryFlandre, 500);
+
+  console.log('📝 Résumé dynamique des primes Flandre initialisé');
+});
+</script>

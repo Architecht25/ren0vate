@@ -10,6 +10,9 @@ export default class extends Controller {
     // Écouter les changements de catégorie
     this.element.addEventListener('flandre:category:changed', this.recalculate.bind(this))
 
+    // Mettre à jour le placeholder initial
+    this.updatePlaceholder()
+
     // Calculer le montant initial
     this.calculate()
   }
@@ -20,10 +23,39 @@ export default class extends Controller {
 
   recalculate() {
     // Attendre un court instant pour que les données de catégorie soient mises à jour
-    setTimeout(() => this.calculate(), 50)
+    setTimeout(() => {
+      this.updatePlaceholder()
+      this.calculate()
+    }, 50)
+  }
+
+  updatePlaceholder() {
+    if (!this.hasInputTarget) return
+
+    const parentController = this.getParentController()
+    if (!parentController) return
+
+    const currentCategory = parentController.getCurrentCategory()
+    const primesData = parentController.getPrimesData()
+    const prime = primesData[this.slugValue]
+
+    if (prime && prime.placeholder) {
+      const placeholderTexte = prime.placeholder[currentCategory]
+
+      // Si un placeholder spécifique existe pour cette catégorie, on l'applique
+      if (placeholderTexte) {
+        this.inputTarget.placeholder = placeholderTexte
+      } else {
+        // Fallback générique si aucun placeholder spécifique
+        this.inputTarget.placeholder = ["4", "3"].includes(currentCategory)
+          ? "Montant total de la facture (€)"
+          : "Surface en m²"
+      }
+    }
   }
 
   calculate() {
+    console.log(`🔍 Calculate appelé pour ${this.slugValue}`)
     if (!this.slugValue) {
       console.warn("Pas de slug défini pour cette carte Flandre")
       return
@@ -38,6 +70,7 @@ export default class extends Controller {
 
     const currentCategory = parentController.getCurrentCategory()
     const primesData = parentController.getPrimesData()
+    console.log(`📊 Données pour ${this.slugValue} - catégorie: ${currentCategory}`)
 
     // Trouver la prime correspondante
     const prime = primesData[this.slugValue]
@@ -86,6 +119,15 @@ export default class extends Controller {
         break
       case 'pourcentage':
         total = this.calculatePourcentage(calculData)
+        break
+      case 'pourcentage_et_plafond':
+        total = this.calculatePourcentageEtPlafond(calculData)
+        break
+      case 'montant':
+        total = this.calculateMontant(calculData)
+        break
+      case 'prime_conditionnelle':
+        total = this.calculatePrimeConditionnelle(calculData)
         break
       default:
         console.warn(`Type de calcul non pris en charge pour Flandre: ${calculData.type}`)
@@ -157,7 +199,13 @@ export default class extends Controller {
     } else if (this.slugValue === "warmtepomp") {
       // Pompe à chaleur - récupérer le type depuis un select si présent
       const typeSelect = this.element.querySelector('select')
-      const typePompe = typeSelect?.value || "air_eau"
+      const typePompe = typeSelect?.value
+
+      // Retourner 0 si aucun type n'est sélectionné
+      if (!typePompe || typePompe === "") {
+        return 0
+      }
+
       return calculData.forfaits?.[typePompe] || 0
     } else {
       // Autres cas
@@ -182,8 +230,27 @@ export default class extends Controller {
   }
 
   updateResult(amount) {
+    console.log(`🔄 updateResult pour ${this.slugValue}: ${amount} €`)
+
+    // Récupérer le contrôleur parent pour appliquer les plafonds
+    const parentController = this.getParentController()
+    let finalAmount = amount
+
+    if (parentController) {
+      const result = parentController.calculateMontantAvecPlafond(this.slugValue, amount)
+      finalAmount = result.montant
+
+      if (finalAmount !== amount) {
+        console.log(`⚖️ Plafond appliqué pour ${this.slugValue}: ${amount.toFixed(2)}€ → ${finalAmount.toFixed(2)}€`)
+      }
+    }
+
     if (this.hasResultTarget) {
-      this.resultTarget.textContent = `${amount.toFixed(2)} €`
+      console.log(`✅ Target result trouvé pour ${this.slugValue}`)
+      this.resultTarget.textContent = `${finalAmount.toFixed(2)} €`
+      console.log(`📝 Span mis à jour: ${this.resultTarget.textContent}`)
+    } else {
+      console.error(`❌ Pas de target result pour ${this.slugValue}`)
     }
 
     // Notifier le contrôleur parent
@@ -191,7 +258,7 @@ export default class extends Controller {
       bubbles: true,
       detail: {
         slug: this.slugValue,
-        amount: amount
+        amount: finalAmount
       }
     }))
   }
@@ -223,5 +290,36 @@ export default class extends Controller {
   // Action déclenchée par les selects
   onSelectChange() {
     this.calculate()
+  }
+
+  calculatePourcentageEtPlafond(calculData) {
+    // Type: pourcentage avec plafond (ex: 50% du montant avec un plafond de 5750€)
+    let inputValue = 0
+
+    if (this.hasInputTarget) {
+      inputValue = parseFloat(this.inputTarget.value) || 0
+    }
+
+    if (inputValue === 0) {
+      return 0
+    }
+
+    const pourcentage = calculData.pourcentage || 0
+    const plafond = calculData.plafond || 0
+
+    const montantCalcule = (inputValue * pourcentage) / 100
+
+    // Appliquer le plafond si défini
+    return plafond > 0 ? Math.min(montantCalcule, plafond) : montantCalcule
+  }
+
+  calculateMontant(calculData) {
+    // Type: montant fixe simple
+    return calculData.forfait || calculData.valeur || 0
+  }
+
+  calculatePrimeConditionnelle(calculData) {
+    // Type: prime conditionnelle - toujours 0 par défaut
+    return 0
   }
 }
