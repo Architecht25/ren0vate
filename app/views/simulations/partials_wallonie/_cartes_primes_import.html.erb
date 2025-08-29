@@ -1,5 +1,5 @@
 <!-- Section Primes Wallonie - 10 cartes permanentes -->
-<div data-controller="wallonie-prime-calcul">
+<div data-controller="wallonie-prime-calcul"<% if defined?(local_assigns) && local_assigns[:simulation_category] %> data-simulation-category="<%= local_assigns[:simulation_category] %>"<% end %>>
   <h4 class="mb-3">
     <i class="bi bi-calculator text-primary me-2"></i>
     <span data-wallonie-prime-calcul-target="sectionTitle">
@@ -1001,45 +1001,20 @@
               </div>
             </div>
 
-            <!-- Détails par catégorie de travaux -->
-            <div class="row g-4">
-              <!-- Isolation -->
-              <div class="col-md-6 col-lg-3">
-                <div class="bg-warning bg-opacity-10 rounded-2 p-3 text-center h-100">
-                  <i class="bi bi-house fs-4 text-warning mb-2"></i>
-                  <h6 class="fw-bold text-warning">Isolation</h6>
-                  <p class="h5 mb-1" id="totalIsolationWallonie">0 €</p>
-                  <small class="text-muted">Toiture, murs, sol</small>
-                </div>
-              </div>
+            <!-- Résumé des primes sélectionnées -->
+            <div class="card border-0 bg-light">
+              <div class="card-body p-4">
+                <h6 class="fw-bold text-dark mb-3">
+                  <i class="bi bi-list-check me-2"></i>
+                  Résumé de vos primes sélectionnées
+                </h6>
 
-              <!-- Chauffage -->
-              <div class="col-md-6 col-lg-3">
-                <div class="bg-success bg-opacity-10 rounded-2 p-3 text-center h-100">
-                  <i class="bi bi-thermometer-half fs-4 text-success mb-2"></i>
-                  <h6 class="fw-bold text-success">Chauffage</h6>
-                  <p class="h5 mb-1" id="totalChauffageWallonie">0 €</p>
-                  <small class="text-muted">Chaudières, pompes à chaleur</small>
-                </div>
-              </div>
-
-              <!-- Audit et régulation -->
-              <div class="col-md-6 col-lg-3">
-                <div class="bg-info bg-opacity-10 rounded-2 p-3 text-center h-100">
-                  <i class="bi bi-search fs-4 text-info mb-2"></i>
-                  <h6 class="fw-bold text-info">Audit & Régulation</h6>
-                  <p class="h5 mb-1" id="totalAuditWallonie">0 €</p>
-                  <small class="text-muted">Audit énergétique, régulation</small>
-                </div>
-              </div>
-
-              <!-- Ventilation -->
-              <div class="col-md-6 col-lg-3">
-                <div class="bg-secondary bg-opacity-10 rounded-2 p-3 text-center h-100">
-                  <i class="bi bi-wind fs-4 text-secondary mb-2"></i>
-                  <h6 class="fw-bold text-secondary">Ventilation</h6>
-                  <p class="h5 mb-1" id="totalVentilationWallonie">0 €</p>
-                  <small class="text-muted">VMC, ventilation</small>
+                <!-- Liste dynamique des primes sélectionnées -->
+                <div id="selected-primes-summary" data-wallonie-prime-calcul-target="selectedPrimesSummary">
+                  <div class="text-muted text-center py-3">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Sélectionnez des travaux dans les cartes ci-dessus pour voir le détail de vos primes
+                  </div>
                 </div>
               </div>
             </div>
@@ -1066,3 +1041,270 @@
     </div>
   </div>
 </div>
+
+<script nonce="<%= content_security_policy_nonce %>">
+document.addEventListener('DOMContentLoaded', function() {
+  // Gestionnaire pour le résumé dynamique des primes sélectionnées
+  function updateSelectedPrimesSummary() {
+    const summaryContainer = document.getElementById('selected-primes-summary');
+    if (!summaryContainer) return;
+
+    const selectedPrimes = [];
+
+    // Parcourir toutes les cartes de primes pour trouver les montants > 0
+    document.querySelectorAll('[data-controller="wallonie-prime-card"]').forEach(card => {
+      const primeTitle = card.querySelector('.card-title')?.textContent?.trim() || 'Prime';
+
+      // Chercher tous les éléments de résultat dans la carte
+      const resultElements = card.querySelectorAll('[data-wallonie-prime-card-target*="result"]');
+
+      resultElements.forEach(resultElement => {
+        const amountText = resultElement.textContent?.trim() || '0 €';
+        const amount = parseFloat(amountText.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+
+        if (amount > 0) {
+          // Trouver l'input correspondant pour obtenir la description
+          let description = 'Sélectionné';
+          const targetName = resultElement.getAttribute('data-wallonie-prime-card-target');
+
+          // Chercher l'input associé à ce résultat
+          let associatedInput = null;
+
+          // Méthodes pour trouver l'input associé
+          if (targetName) {
+            // Méthode 1: chercher par nom de target similaire
+            const inputTargetName = targetName.replace('result', 'input');
+            associatedInput = card.querySelector(`[data-wallonie-prime-card-target="${inputTargetName}"]`);
+          }
+
+          if (!associatedInput) {
+            // Méthode 2: chercher dans le même conteneur parent
+            const parentContainer = resultElement.closest('.mb-3, .d-flex, .row, .col-6');
+            if (parentContainer) {
+              associatedInput = parentContainer.querySelector('input, select');
+            }
+          }
+
+          if (!associatedInput) {
+            // Méthode 3: chercher le premier input de la carte qui a une valeur
+            const allInputs = card.querySelectorAll('input, select');
+            allInputs.forEach(input => {
+              if (input.type === 'checkbox' && input.checked) {
+                associatedInput = input;
+              } else if (input.type === 'number' && parseFloat(input.value) > 0) {
+                associatedInput = input;
+              } else if (input.tagName === 'SELECT' && input.value !== '0' && input.value !== '') {
+                associatedInput = input;
+              }
+            });
+          }
+
+          // Construire la description basée sur l'input trouvé
+          if (associatedInput) {
+            if (associatedInput.type === 'checkbox') {
+              const label = associatedInput.closest('.form-check')?.querySelector('label')?.textContent?.trim();
+              description = label || 'Sélectionné';
+            } else if (associatedInput.type === 'number') {
+              const value = parseFloat(associatedInput.value) || 0;
+              const label = associatedInput.closest('.mb-3, .col-6')?.querySelector('label')?.textContent?.trim() || '';
+              const unit = label.includes('m²') ? ' m²' : (label.includes('unité') ? ' unités' : '');
+              description = `${label.replace(':', '')} : ${value}${unit}`;
+            } else if (associatedInput.tagName === 'SELECT') {
+              const selectedOption = associatedInput.options[associatedInput.selectedIndex];
+              description = selectedOption?.textContent?.trim() || 'Sélectionné';
+            }
+          }
+
+          // Ajouter à la liste si pas déjà présent (éviter les doublons)
+          const existingIndex = selectedPrimes.findIndex(p =>
+            p.title === primeTitle && p.description === description
+          );
+
+          if (existingIndex === -1) {
+            selectedPrimes.push({
+              title: primeTitle,
+              description: description,
+              amount: amount,
+              formattedAmount: amountText
+            });
+          }
+        }
+      });
+    });
+
+    // Mettre à jour l'affichage
+    if (selectedPrimes.length === 0) {
+      summaryContainer.innerHTML = `
+        <div class="text-muted text-center py-3">
+          <i class="bi bi-info-circle me-2"></i>
+          Sélectionnez des travaux dans les cartes ci-dessus pour voir le détail de vos primes
+        </div>
+      `;
+    } else {
+      let summaryHTML = '';
+      selectedPrimes.forEach(prime => {
+        summaryHTML += `
+          <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+            <div>
+              <div class="fw-medium text-dark">${prime.title}</div>
+              <small class="text-muted">${prime.description}</small>
+            </div>
+            <div class="text-end">
+              <span class="fw-bold text-primary">${prime.formattedAmount}</span>
+            </div>
+          </div>
+        `;
+      });
+
+      // Ajouter le total si plus d'une prime
+      if (selectedPrimes.length > 1) {
+        const total = selectedPrimes.reduce((sum, prime) => sum + prime.amount, 0);
+        const formattedTotal = new Intl.NumberFormat('fr-BE', {
+          style: 'currency',
+          currency: 'EUR',
+          minimumFractionDigits: 0
+        }).format(total);
+
+        summaryHTML += `
+          <div class="d-flex justify-content-between align-items-center py-3 mt-2 bg-primary bg-opacity-10 rounded px-3">
+            <div class="fw-bold text-primary">Total de vos primes sélectionnées</div>
+            <div class="fw-bold text-primary h5 mb-0">${formattedTotal}</div>
+          </div>
+        `;
+      }
+
+      summaryContainer.innerHTML = summaryHTML;
+    }
+
+    console.log(`📊 Résumé mis à jour: ${selectedPrimes.length} primes détectées`);
+  }
+
+  // Écouter les changements sur tous les inputs de primes
+  document.addEventListener('change', function(event) {
+    if (event.target.closest('[data-controller="wallonie-prime-card"]')) {
+      // Délai court pour laisser le contrôleur mettre à jour les montants
+      setTimeout(() => {
+        updateSelectedPrimesSummary();
+        saveSimulationData();
+      }, 100);
+    }
+  });
+
+  // Écouter les saisies dans les champs numériques
+  document.addEventListener('input', function(event) {
+    if (event.target.type === 'number' && event.target.closest('[data-controller="wallonie-prime-card"]')) {
+      // Délai court pour laisser le contrôleur mettre à jour les montants
+      setTimeout(() => {
+        updateSelectedPrimesSummary();
+        debouncedSave();
+      }, 100);
+    }
+  });
+
+  // Fonction pour sauvegarder les données de la simulation
+  function saveSimulationData() {
+    // Ne pas sauvegarder pendant la phase de restauration
+    if (window.isRestoringValues) {
+      console.log('🔄 Sauvegarde ignorée: restauration en cours');
+      return;
+    }
+
+    const simulationId = '<%= @simulation&.id %>';
+    if (!simulationId) return;
+
+    const userInputs = {};
+
+    // Collecter toutes les saisies utilisateur
+    document.querySelectorAll('[data-controller="wallonie-prime-card"]').forEach(card => {
+      const inputs = card.querySelectorAll('input, select');
+
+      inputs.forEach(input => {
+        const primeSlug = input.closest('[data-wallonie-prime-card-slug-value]')?.getAttribute('data-wallonie-prime-card-slug-value');
+        if (!primeSlug) return;
+
+        let value = null;
+
+        if (input.type === 'checkbox') {
+          value = input.checked ? 1 : 0;
+        } else if (input.type === 'number') {
+          value = parseFloat(input.value) || 0;
+        } else if (input.tagName === 'SELECT') {
+          value = input.value;
+        }
+
+        if (value !== null) {
+          userInputs[primeSlug] = value;
+        }
+      });
+    });
+
+    console.log('💾 Sauvegarde des données simulation:', Object.keys(userInputs).length, 'saisies');
+
+    // Envoyer au serveur
+    fetch(`/simulations/${simulationId}/update_prime_inputs`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ user_inputs: userInputs })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        console.log('✅ Simulation sauvegardée:', data.total_amount + '€');
+        showSaveIndicator('success');
+      } else {
+        console.error('❌ Erreur sauvegarde:', data.error);
+        showSaveIndicator('error');
+      }
+    })
+    .catch(error => {
+      console.error('❌ Erreur réseau sauvegarde:', error);
+      showSaveIndicator('error');
+    });
+  }
+
+  // Sauvegarde avec délai pour éviter trop d'appels
+  const debouncedSave = (function() {
+    let timeoutId;
+    return function() {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(saveSimulationData, 1000); // 1 seconde de délai
+    };
+  })();
+
+  // Indicateur visuel de sauvegarde
+  function showSaveIndicator(status) {
+    const indicator = document.getElementById('save-indicator') || createSaveIndicator();
+
+    indicator.className = `position-fixed top-0 end-0 m-3 alert alert-${status === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+    indicator.style.zIndex = '9999';
+    indicator.innerHTML = `
+      <i class="bi bi-${status === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+      ${status === 'success' ? 'Simulation sauvegardée' : 'Erreur de sauvegarde'}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+
+    // Masquer automatiquement après 3 secondes
+    setTimeout(() => {
+      if (indicator.parentNode) {
+        indicator.remove();
+      }
+    }, 3000);
+  }
+
+  function createSaveIndicator() {
+    const indicator = document.createElement('div');
+    indicator.id = 'save-indicator';
+    document.body.appendChild(indicator);
+    return indicator;
+  }
+
+  // Mise à jour initiale
+  setTimeout(updateSelectedPrimesSummary, 500);
+
+  console.log('📝 Résumé dynamique des primes Wallonie initialisé');
+});
+</script>

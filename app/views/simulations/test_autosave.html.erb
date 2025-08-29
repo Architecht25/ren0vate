@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Auto-Save - Simulation 40</title>
+  <meta name="csrf-token" content="<%= csrf_token %>">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <h1>Test Auto-Save - Simulation <%= @simulation.id %></h1>
+
+  <div class="controls">
+    <h3>Saisies de test :</h3>
+    <label>
+      Audit logement:
+      <input type="number" id="wallonie_realisation_audit_logement" min="0" max="1" value="0">
+    </label><br><br>
+
+    <label>
+      Isolation sols (m²):
+      <input type="number" id="wallonie_isolation_sols" min="0" max="1000" value="0">
+    </label><br><br>
+
+    <div id="save-status" style="color: blue; margin: 10px 0;"></div>
+    <div id="total-display" style="font-weight: bold; font-size: 18px; margin: 10px 0;">
+      Total: <%= @simulation.total_simule %>€
+    </div>
+  </div>
+
+  <script>
+    // Configuration CSRF pour les requêtes AJAX
+    $.ajaxSetup({
+      beforeSend: function(xhr) {
+        xhr.setRequestHeader('X-CSRF-Token', $('meta[name="csrf-token"]').attr('content'));
+      }
+    });
+
+    let saveTimeout;
+    const simulationId = <%= @simulation.id %>;
+
+    function autoSave() {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => {
+        const userInputs = {};
+
+        // Collecter les valeurs des inputs
+        $('#wallonie_realisation_audit_logement, #wallonie_isolation_sols').each(function() {
+          const value = parseFloat($(this).val()) || 0;
+          if (value > 0) {
+            userInputs[$(this).attr('id')] = value;
+          }
+        });
+
+        // Afficher le statut
+        $('#save-status').text('💾 Sauvegarde...').css('color', 'blue');
+
+        // Envoyer la requête
+        $.ajax({
+          url: `/simulations/${simulationId}/update_prime_inputs`,
+          method: 'PATCH',
+          data: JSON.stringify({ user_inputs: userInputs }),
+          contentType: 'application/json',
+          success: function(response) {
+            console.log('✅ Sauvegarde réussie:', response);
+            $('#save-status').text('✅ Sauvé automatiquement').css('color', 'green');
+            $('#total-display').text(`Total: ${response.total_amount}€`);
+
+            setTimeout(() => {
+              $('#save-status').text('');
+            }, 2000);
+          },
+          error: function(xhr, status, error) {
+            console.error('❌ Erreur sauvegarde:', xhr.responseText);
+            $('#save-status').text('❌ Erreur de sauvegarde').css('color', 'red');
+          }
+        });
+      }, 1000);
+    }
+
+    // Attacher les événements
+    $('#wallonie_realisation_audit_logement, #wallonie_isolation_sols').on('input change', autoSave);
+  </script>
+</body>
+</html>

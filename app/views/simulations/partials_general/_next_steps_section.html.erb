@@ -96,34 +96,94 @@
             </div>
           </div>
 
-          <!-- Étape 3: Action -->
+          <!-- Étape 3: Recommandations techniques -->
           <div class="col-lg-4">
             <div class="card h-100 border-0 bg-white">
               <div class="card-body p-3 text-center">
-                <div class="icon-circle-large mx-auto mb-3 bg-success">
-                  <i class="bi bi-send text-white"></i>
+                <div class="icon-circle-large mx-auto mb-3 bg-info">
+                  <i class="bi bi-lightbulb text-white"></i>
                 </div>
-                <h6 class="fw-bold mb-2">3. Déposer la demande</h6>
+                <h6 class="fw-bold mb-2">3. Recommandations techniques</h6>
                 <div class="mb-3">
-                  <p class="small text-muted mb-2">
-                    Votre simulation montre <strong><%= number_to_currency(@simulation.total_primes_amount || 0, unit: '€', separator: ',', delimiter: ' ') %></strong> de primes potentielles.
-                  </p>
-                  <div class="alert alert-success alert-sm py-2 mb-0">
+                  <%
+                    # Génération dynamique des recommandations basées sur les primes sélectionnées
+                    selected_primes = []
+                    recommendations = []
+
+                    # Parser les paramètres de la simulation
+                    begin
+                      if @simulation.parameters.present?
+                        params_data = JSON.parse(@simulation.parameters)
+                        prime_cards = params_data['prime_cards'] || {}
+
+                        # Analyser les primes sélectionnées
+                        prime_cards.each do |category_key, category_data|
+                          next unless category_data['primes'].present?
+
+                          category_data['primes'].each do |prime|
+                            next if prime['user_input_value'].blank? || prime['user_input_value'].to_f == 0
+
+                            case prime['slug']
+                            when /isolation_toiture|isolation_murs|isolation_sols/
+                              selected_primes << "Isolation"
+                              recommendations << "Privilégiez les matériaux certifiés (λ ≤ 0.04 W/mK)"
+                            when /chaudiere|pompe_chaleur|chauffage|pac_/
+                              selected_primes << "Chauffage"
+                              recommendations << "Optez pour des équipements classe A++ minimum"
+                            when /ventilation|vmc_/
+                              selected_primes << "Ventilation"
+                              recommendations << "Système VMC double flux recommandé"
+                            when /audit/
+                              selected_primes << "Audit"
+                              recommendations << "Réalisez l'audit avant les travaux"
+                            when /photovoltaique|solaire/
+                              selected_primes << "Solaire"
+                              recommendations << "Orientation sud/sud-ouest optimale"
+                            when /menuiseries|vitrages/
+                              selected_primes << "Menuiseries"
+                              recommendations << "Triple vitrage Uw ≤ 1,3 W/m²K"
+                            end
+                          end
+                        end
+                      end
+                    rescue JSON::ParserError => e
+                      Rails.logger.warn "Erreur parsing parameters simulation #{@simulation.id}: #{e.message}"
+                    end
+
+                    # Recommandations par défaut si aucune prime sélectionnée
+                    if recommendations.empty?
+                      recommendations = [
+                        "Commencez par l'isolation",
+                        "Audit énergétique prioritaire",
+                        "Matériaux certifiés requis"
+                      ]
+                    end
+
+                    # Limiter à 3 recommandations
+                    recommendations = recommendations.uniq.first(3)
+                  %>
+
+                  <% if recommendations.any? %>
+                    <ul class="list-unstyled small text-start">
+                      <% recommendations.each do |rec| %>
+                        <li class="mb-1">
+                          <i class="bi bi-check-circle-fill text-info me-2"></i>
+                          <%= rec %>
+                        </li>
+                      <% end %>
+                    </ul>
+                  <% end %>
+
+                  <div class="alert alert-info alert-sm py-2 mb-0">
                     <small>
-                      <i class="bi bi-shield-check me-1"></i>
-                      Dossier <%= @simulation.property&.completion_percentage || 0 %>% prêt
+                      <i class="bi bi-tools me-1"></i>
+                      <%= selected_primes.uniq.count %> domaine(s) technique(s) sélectionné(s)
                     </small>
                   </div>
                 </div>
-                <% if @simulation.property&.completion_percentage.to_i >= 80 %>
-                  <%= link_to new_request_path(property_id: @simulation.property.id, simulation_id: @simulation.id), class: "btn btn-success btn-sm w-100" do %>
-                    <i class="bi bi-rocket me-2"></i>Déposer demande
-                  <% end %>
-                <% else %>
-                  <%= link_to dashboard_property_path(@simulation.property), class: "btn btn-outline-success btn-sm w-100" do %>
-                    <i class="bi bi-list-check me-2"></i>Compléter dossier
-                  <% end %>
-                <% end %>
+                <button class="btn btn-outline-info btn-sm w-100" data-bs-toggle="modal" data-bs-target="#technicalModal">
+                  <i class="bi bi-gear me-2"></i>Voir détails techniques
+                </button>
               </div>
             </div>
           </div>
@@ -172,6 +232,153 @@
       </div>
       <div class="modal-body">
         <%= render 'simulations/partials_general/timing_calendar', simulation: @simulation %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal pour les recommandations techniques détaillées -->
+<div class="modal fade" id="technicalModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-gear me-2"></i>
+          Recommandations techniques détaillées
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <%
+          # Recommandations techniques détaillées par type de prime
+          detailed_recommendations = {}
+
+          # Parser les paramètres de la simulation
+          begin
+            if @simulation.parameters.present?
+              params_data = JSON.parse(@simulation.parameters)
+              prime_cards = params_data['prime_cards'] || {}
+
+              # Analyser les primes sélectionnées pour les recommandations détaillées
+              prime_cards.each do |category_key, category_data|
+                next unless category_data['primes'].present?
+
+                category_data['primes'].each do |prime|
+                  next if prime['user_input_value'].blank? || prime['user_input_value'].to_f == 0
+
+                  case prime['slug']
+                  when /isolation_toiture/
+                    detailed_recommendations["Isolation de toiture"] = {
+                      icon: "bi-house-up",
+                      specs: ["Résistance thermique R ≥ 6 m²K/W", "Matériaux certifiés ACERMI", "Étanchéité à l'air renforcée"],
+                      tips: ["Vérifiez l'absence de ponts thermiques", "Traitement de la jonction mur-toiture obligatoire"]
+                    }
+                  when /isolation_murs/
+                    detailed_recommendations["Isolation des murs"] = {
+                      icon: "bi-building",
+                      specs: ["Résistance thermique R ≥ 3.7 m²K/W", "Isolation continue recommandée", "Pare-vapeur si nécessaire"],
+                      tips: ["Isolation par l'extérieur plus efficace", "Attention aux prises et interrupteurs"]
+                    }
+                  when /isolation_sols/
+                    detailed_recommendations["Isolation des sols"] = {
+                      icon: "bi-layers",
+                      specs: ["Résistance thermique R ≥ 2.1 m²K/W", "Étanchéité à l'humidité", "Matériaux adaptés au support"],
+                      tips: ["Isolation sous chape recommandée", "Vérifiez la hauteur sous plafond"]
+                    }
+                  when /chaudiere|pompe_chaleur|pac_/
+                    detailed_recommendations["Système de chauffage"] = {
+                      icon: "bi-thermometer-half",
+                      specs: ["Rendement ≥ 90% (chaudière)", "COP ≥ 4 (pompe à chaleur)", "Régulation programmable"],
+                      tips: ["Dimensionnement par professionnel obligatoire", "Entretien annuel requis"]
+                    }
+                  when /ventilation|vmc_/
+                    detailed_recommendations["Ventilation"] = {
+                      icon: "bi-wind",
+                      specs: ["VMC double flux préférable", "Rendement échangeur ≥ 85%", "Débit modulable"],
+                      tips: ["Nettoyage filtres tous les 6 mois", "Étanchéité du réseau essentielle"]
+                    }
+                  when /photovoltaique|solaire/
+                    detailed_recommendations["Panneaux photovoltaïques"] = {
+                      icon: "bi-sun",
+                      specs: ["Puissance minimale 3 kWc", "Rendement ≥ 20%", "Garantie 20 ans minimum"],
+                      tips: ["Orientation sud optimale", "Inclinaison 30-35° recommandée"]
+                    }
+                  when /menuiseries|vitrages/
+                    detailed_recommendations["Menuiseries et vitrages"] = {
+                      icon: "bi-door-open",
+                      specs: ["Coefficient Uw ≤ 1,3 W/m²K", "Triple vitrage recommandé", "Pose étanche obligatoire"],
+                      tips: ["Mesurer précisément les surfaces", "Vérifier les dimensions d'ouverture"]
+                    }
+                  end
+                end
+              end
+            end
+          rescue JSON::ParserError => e
+            Rails.logger.warn "Erreur parsing parameters simulation #{@simulation.id}: #{e.message}"
+          end
+        %>
+
+        <% if detailed_recommendations.any? %>
+          <div class="row g-4">
+            <% detailed_recommendations.each do |title, data| %>
+              <div class="col-12">
+                <div class="card border-0 bg-light">
+                  <div class="card-body p-3">
+                    <h6 class="card-title d-flex align-items-center mb-3">
+                      <i class="<%= data[:icon] %> me-2 text-primary"></i>
+                      <%= title %>
+                    </h6>
+
+                    <div class="row">
+                      <div class="col-md-6">
+                        <h6 class="small fw-bold text-muted mb-2">📋 Spécifications techniques</h6>
+                        <ul class="list-unstyled small">
+                          <% data[:specs].each do |spec| %>
+                            <li class="mb-1">
+                              <i class="bi bi-check-circle text-success me-2"></i>
+                              <%= spec %>
+                            </li>
+                          <% end %>
+                        </ul>
+                      </div>
+
+                      <div class="col-md-6">
+                        <h6 class="small fw-bold text-muted mb-2">💡 Conseils pratiques</h6>
+                        <ul class="list-unstyled small">
+                          <% data[:tips].each do |tip| %>
+                            <li class="mb-1">
+                              <i class="bi bi-lightbulb text-warning me-2"></i>
+                              <%= tip %>
+                            </li>
+                          <% end %>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+
+          <div class="alert alert-info mt-4 mb-0">
+            <div class="d-flex align-items-start">
+              <i class="bi bi-info-circle me-3 mt-1"></i>
+              <div>
+                <h6 class="alert-heading mb-2">ℹ️ Information importante</h6>
+                <p class="mb-0 small">
+                  Ces recommandations sont basées sur les primes sélectionnées dans votre simulation.
+                  Pour des conseils personnalisés, consultez un professionnel qualifié RGE.
+                </p>
+              </div>
+            </div>
+          </div>
+        <% else %>
+          <div class="text-center py-4">
+            <i class="bi bi-gear display-4 text-muted mb-3"></i>
+            <h5 class="text-muted">Aucune prime sélectionnée</h5>
+            <p class="text-muted">Sélectionnez des primes dans votre simulation pour voir les recommandations techniques.</p>
+          </div>
+        <% end %>
       </div>
     </div>
   </div>

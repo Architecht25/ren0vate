@@ -1,15 +1,15 @@
+<!-- Token CSRF pour les requêtes AJAX -->
+<%= csrf_meta_tags %>
+
 <!-- Scripts JSON pour les données des primes (selon la région) -->
-<% if @simulation.region == 'wallonie' && @primes.present? %>
-<!-- Données pour le calcul des primes Wallonie -->
-<script type="application/json" id="wallonie-primes-data">
-  <%= raw(@primes.each_with_object({}) { |prime, hash|
-    hash[prime.slug] = {
-      titre: prime.titre,
-      valeurs_par_categorie: prime.valeurs_par_categorie || {},
-      eligible_categories: prime.eligible_categories || []
-    }
-  }.to_json) %>
+<% if @simulation.region&.downcase == 'wallonie' && @primes.present? %>
+<script nonce="<%= content_security_policy_nonce %>">
+  // Données des primes Wallonie
+  window.primes = <%= raw(@primes.to_json(
+    only: [:slug, :titre, :unite, :type_de_valeur, :valeurs_par_categorie, :placeholder, :condition, :conseil, :document, :eligible_categories]
+  )) %>;
 </script>
+
 <% end %>
 
 <!-- En-tête de la page simulation -->
@@ -126,7 +126,197 @@
   <div class="container-fluid mb-4 mt-5">
     <% case @simulation.region&.downcase %>
     <% when 'wallonie' %>
-      <%= render 'simulations/partials_wallonie/cartes_primes_import' %>
+      <!-- Données pour le calcul des primes Wallonie -->
+      <script type="application/json" id="wallonie-primes-data">
+        <%= raw(@primes.each_with_object({}) { |prime, hash|
+          hash[prime.slug] = {
+            titre: prime.titre,
+            valeurs_par_categorie: prime.valeurs_par_categorie || {},
+            eligible_categories: prime.eligible_categories || []
+          }
+        }.to_json) if @primes %>
+      </script>
+      <%
+        simulation_category = nil
+        if @simulation.parameters.present?
+          begin
+            params_data = JSON.parse(@simulation.parameters)
+            if params_data['category_used'].present?
+              simulation_category = params_data['category_used'].start_with?('wallonie_') ? params_data['category_used'] : 'wallonie_' + params_data['category_used'].downcase
+            end
+          rescue JSON::ParserError
+            # Si le JSON est invalide, on ignore
+          end
+        end
+      %>
+      <% if simulation_category %>
+        <script nonce="<%= content_security_policy_nonce %>">
+          // 🎯 Forcer la catégorie avant la connexion des contrôleurs
+          localStorage.setItem('selectedWallonieCategory', '<%= simulation_category %>');
+          console.log('🎯 Catégorie simulation définie:', '<%= simulation_category %>');
+        </script>
+      <% end %>
+
+      <%
+        # Préparer les données pour restaurer les inputs
+        saved_inputs = {}
+        if @simulation.parameters.present?
+          begin
+            params_data = JSON.parse(@simulation.parameters)
+            if params_data['prime_cards'].present?
+              params_data['prime_cards'].each do |category_key, category_data|
+                next unless category_data['primes']
+                category_data['primes'].each do |prime|
+                  if prime['user_input_value'].present? && prime['user_input_value'] != 0 && prime['user_input_value'] != "0"
+                    saved_inputs[prime['slug']] = prime['user_input_value']
+                  end
+                end
+              end
+            end
+          rescue JSON::ParserError
+            # Si le JSON est invalide, on ignore
+          end
+        end
+      %>
+
+      <% if saved_inputs.any? %>
+        <script nonce="<%= content_security_policy_nonce %>">
+          // 🔄 Restaurer les valeurs sauvegardées des inputs
+          const savedInputs = <%= saved_inputs.to_json.html_safe %>;
+          let restorationApplied = false;
+
+          // Marquer temporairement qu'on est en phase de restauration
+          window.isRestoringValues = true;
+
+          function restoreSavedInputs() {
+            // Éviter les restaurations multiples sur la même page
+            if (restorationApplied) {
+              console.log('🔄 Restauration déjà appliquée, ignorée');
+              return;
+            }
+
+            console.log('🔄 Démarrage restauration des valeurs sauvegardées:', savedInputs);
+
+            // Indiquer qu'on est en train de restaurer pour éviter les conflits avec l'auto-save
+            window.isRestoringValues = true;
+
+            // Mapping des slugs des primes vers les targets Stimulus
+            const primeTargetMapping = {
+              'wallonie_realisation_audit_logement': 'inputAudit',
+              'wallonie_toiture_remplacement_couverture': 'inputCouverture',
+              'wallonie_toiture_appropriation_charpente': 'inputCharpente',
+              'wallonie_toiture_evacuation_eaux_pluviales': 'inputEauxPluviales',
+              'wallonie_toiture_isolation_thermique': 'inputIsolationToiture',
+              'wallonie_toiture_isolation_biosource': 'inputIsolationToitureBio',
+              'wallonie_isolation_sols': 'inputIsolationSols',
+              'wallonie_isolation_sols_biosource': 'inputIsolationSolsBio',
+              'wallonie_remplacement_supports_circulation': 'inputSupportsCirculation',
+              'wallonie_isolation_finition_planchers': 'inputFinitionPlanchers',
+              'wallonie_menuiseries_vitrages': 'inputMenuiseries',
+              'wallonie_installation_electrique': 'inputElectrique',
+              'wallonie_installation_gaz': 'inputGaz'
+            };
+
+            // Fonction pour tenter la restauration
+            function attemptRestore() {
+              let restoredCount = 0;
+
+              Object.entries(savedInputs).forEach(([slug, value]) => {
+                console.log('🔍 Recherche input pour slug:', slug, 'valeur:', value);
+
+                // Méthode 1: Utiliser le mapping
+                const targetName = primeTargetMapping[slug];
+                if (targetName) {
+                  const input = document.querySelector(`[data-wallonie-prime-card-target="${targetName}"]`);
+                  if (input && input.value !== value.toString()) { // Éviter de restaurer si déjà correct
+                    console.log('✅ Input trouvé par mapping:', targetName, input);
+                    if (input.type === 'checkbox') {
+                      input.checked = (value === '1' || value === 1 || value === true);
+                    } else {
+                      input.value = value;
+                    }
+                    // Déclencher SEULEMENT l'événement de calcul, pas l'auto-save
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                    console.log('✅ Valeur restaurée par mapping:', slug, '=', value);
+                    restoredCount++;
+                    return;
+                  }
+                }
+
+                // Méthode 2: Chercher par data-wallonie-prime-card-slug-value (pour les cartes à input unique)
+                const cardWithSlug = document.querySelector(`[data-wallonie-prime-card-slug-value="${slug}"]`);
+                if (cardWithSlug) {
+                  console.log('✅ Carte trouvée pour', slug, ':', cardWithSlug);
+
+                  const input = cardWithSlug.querySelector('input[type="checkbox"], input[type="number"]');
+                  if (input && input.value !== value.toString()) { // Éviter de restaurer si déjà correct
+                    console.log('📝 Input trouvé dans la carte:', input);
+                    if (input.type === 'checkbox') {
+                      input.checked = (value === '1' || value === 1 || value === true);
+                    } else {
+                      input.value = value;
+                    }
+                    input.dispatchEvent(new Event('change', { bubbles: true }));
+                    input.dispatchEvent(new Event('input', { bubbles: true }));
+                    console.log('✅ Valeur restaurée par carte:', slug, '=', value);
+                    restoredCount++;
+                    return;
+                  }
+                }
+
+                console.log('❌ Aucun input trouvé pour:', slug);
+              });
+
+              if (restoredCount > 0) {
+                restorationApplied = true;
+                console.log(`🎉 Restauration terminée: ${restoredCount} valeurs restaurées`);
+              }
+
+              // Marquer la fin de la restauration
+              setTimeout(() => {
+                window.isRestoringValues = false;
+                console.log('🔄 Restauration terminée, auto-save réactivé');
+              }, 500);
+
+              return restoredCount;
+            }
+
+            // Attendre que les contrôleurs soient initialisés
+            setTimeout(() => {
+              const restored = attemptRestore();
+
+              // Si rien n'a été restauré, essayer encore quelques fois
+              if (restored === 0) {
+                let attempts = 0;
+                const retryInterval = setInterval(() => {
+                  attempts++;
+                  const retryRestored = attemptRestore();
+
+                  if (retryRestored > 0 || attempts >= 3) {
+                    clearInterval(retryInterval);
+                    if (retryRestored === 0) {
+                      console.log('❌ Aucune valeur n\'a pu être restaurée après 3 tentatives');
+                      window.isRestoringValues = false;
+                    }
+                  }
+                }, 500);
+              }
+            }, 1500);
+          }
+
+          // Écouter les événements de navigation
+          document.addEventListener('DOMContentLoaded', restoreSavedInputs);
+          document.addEventListener('turbo:load', () => {
+            restorationApplied = false; // Reset pour nouvelle page
+            restoreSavedInputs();
+          });
+          document.addEventListener('turbo:render', () => {
+            restorationApplied = false; // Reset pour nouveau rendu
+            restoreSavedInputs();
+          });
+        </script>
+      <% end %>      <%= render 'simulations/partials_wallonie/cartes_primes_import', simulation_category: simulation_category %>
     <% when 'flandre' %>
       <%= render 'simulations/partials_flandre/cartes_primes_new' %>
     <% when 'bruxelles' %>
@@ -210,26 +400,15 @@
             <i class="bi bi-lightning-charge me-2"></i>Actions rapides
           </h5>
 
-          <!-- Les 3 boutons sur une seule ligne - poussés vers le bas -->
+          <!-- Les 2 boutons restants sur une seule ligne - poussés vers le bas -->
           <div class="mt-auto">
             <div class="row g-2">
-              <div class="col-4">
+              <div class="col-6">
                 <%= link_to "#", class: "btn btn-outline-primary-custom btn-sm w-100" do %>
                   <i class="bi bi-file-earmark-pdf me-1"></i>Export PDF
                 <% end %>
               </div>
-              <div class="col-4">
-                <% if @simulation.request.nil? %>
-                  <%= link_to "#", class: "btn btn-primary-custom btn-sm w-100" do %>
-                    <i class="bi bi-check-circle me-1"></i>Demande
-                  <% end %>
-                <% else %>
-                  <%= link_to "#", class: "btn btn-outline-success btn-sm w-100" do %>
-                    <i class="bi bi-eye me-1"></i>Voir demande
-                  <% end %>
-                <% end %>
-              </div>
-              <div class="col-4">
+              <div class="col-6">
                 <%= link_to "#", class: "btn btn-outline-primary-custom btn-sm w-100" do %>
                   <i class="bi bi-share me-1"></i>Partager
                 <% end %>
@@ -248,7 +427,7 @@
 <!-- Utilise le fichier CSS externe properties.css -->
 <%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>
 
-<script>
+<script nonce="<%= content_security_policy_nonce %>">
 console.log('🎯 Script de simulation chargé !');
 document.addEventListener('DOMContentLoaded', function() {
   console.log('🚀 DOMContentLoaded - Script de simulation démarré !');
