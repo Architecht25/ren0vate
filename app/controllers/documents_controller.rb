@@ -35,7 +35,7 @@ class DocumentsController < ApplicationController
 
     # Données des phases - toujours chargées pour la navigation
     @all_phases = DocumentPhase.all.order(:position)
-    
+
     # Données des phases spécifiques si c'est dans le contexte d'une propriété
     if @property
       @phases_data = @property.phases_with_status
@@ -311,18 +311,18 @@ class DocumentsController < ApplicationController
   # Méthodes pour le calcul des métriques génériques (sans propriété)
   def calculate_generic_completion(phase, documents_in_phase)
     return 0 if phase.required_document_types.empty?
-    
-    approved_required = documents_in_phase.count { |d| 
-      phase.required_document_types.include?(d.type_document) && d.status == 'approved' 
+
+    approved_required = documents_in_phase.count { |d|
+      phase.required_document_types.include?(d.type_document) && d.status == 'approved'
     }
-    
+
     total_required = phase.required_document_types.length
     ((approved_required.to_f / total_required) * 100).round
   end
 
   def determine_generic_status(phase, documents_in_phase)
     completion = calculate_generic_completion(phase, documents_in_phase)
-    
+
     case completion
     when 100 then :complete
     when 80..99 then :nearly_complete

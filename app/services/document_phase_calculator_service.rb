@@ -336,7 +336,7 @@ class DocumentPhaseCalculatorService
     phases_data.each do |phase_data|
       phase = phase_data[:phase]
       status = phase_data[:phase_status]
-      
+
       # Documents rejetés pour cette phase
       rejected_docs = property.documents
                              .where(type_document: phase.required_document_types)
