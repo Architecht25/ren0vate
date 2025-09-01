@@ -53,14 +53,14 @@
           </h1>
           <p class="text-muted mb-0">
             <% if @selected_document_type %>
-              Documents de type "<%= @selected_document_type.humanize %>" • <%= @documents.count %> document(s)
+              Documents de type "<%= document_type_name(@selected_document_type) %>" • <%= @documents.count %> document(s)
               <% if @selected_phase %>
                 <span class="badge bg-<%= @selected_phase.color %> ms-2"><%= @selected_phase.name %></span>
               <% end %>
             <% elsif @selected_phase %>
               Documents de la <%= @selected_phase.name.downcase %> • <%= @documents.count %> document(s)
             <% elsif params[:type_document].present? %>
-              Documents de type "<%= params[:type_document].humanize %>" • <%= @documents.count %> document(s)
+              Documents de type "<%= document_type_name(params[:type_document]) %>" • <%= @documents.count %> document(s)
             <% else %>
               Gestion de vos documents • <%= @documents.count %> document(s)
             <% end %>

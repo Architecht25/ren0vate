@@ -261,6 +261,24 @@ class PropertiesController < ApplicationController
           'Si applicable'
         ],
         priority: 'optional'
+      },
+      'acte_notarial' => {
+        title: '📜 Acte notarial',
+        image: 'acte_notarial.jpg',
+        conditions: [
+          'Acte notarié de la propriété',
+          'Document officiel de propriété'
+        ],
+        priority: 'optional'
+      },
+      'compromis' => {
+        title: '🤝 Compromis',
+        image: 'compromis.jpg',
+        conditions: [
+          'Compromis de vente signé',
+          'Accord préliminaire d\'achat'
+        ],
+        priority: 'optional'
       }
     }
   end

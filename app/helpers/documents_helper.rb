@@ -106,4 +106,9 @@ module DocumentsHelper
       options: options
     }
   end
+
+  # Nom localisé du type de document
+  def document_type_name(type_document)
+    I18n.t("documents.types.#{type_document}", default: type_document.humanize)
+  end
 end

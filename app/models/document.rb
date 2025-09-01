@@ -27,7 +27,9 @@ class Document < ApplicationRecord
     plan: 'plan',
     permis_urbanisme: 'permis_urbanisme',
     dossier_prime: 'dossier_prime',
-    certificat_protection: 'certificat_protection'
+    certificat_protection: 'certificat_protection',
+    acte_notarial: 'acte_notarial',
+    compromis: 'compromis'
   }
 
   # Status est une colonne string dans la DB, pas un enum integer
