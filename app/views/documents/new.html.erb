@@ -28,76 +28,97 @@
                         data: { turbo: false } do |form| %>
 
             <!-- Type de document -->
-            <div class="mb-4">
-              <%= form.label :type_document, "Type de document*", class: "form-label" %>
-              <%= form.select :type_document,
-                  options_from_collection_for_select(Document.type_documents, :first, :first, @document.type_document),
-                  { include_blank: "-- Sélectionnez le type --" },
-                  { class: "form-select", required: true } %>
-              <div class="invalid-feedback">
-                Veuillez sélectionner un type de document.
+            <% if @document.type_document.present? %>
+              <!-- Type pré-défini -->
+              <%= form.hidden_field :type_document, value: @document.type_document %>
+              <div class="mb-4">
+                <div class="alert alert-success">
+                  <i class="bi bi-file-earmark-check me-2"></i>
+                  Type de document : <strong><%= @document.type_document.humanize %></strong>
+                </div>
               </div>
-            </div>
+            <% else %>
+              <!-- Sélection du type -->
+              <div class="mb-4">
+                <%= form.label :type_document, "Type de document*", class: "form-label" %>
+                <%= form.select :type_document,
+                    options_from_collection_for_select(Document.type_documents, :first, :first, @document.type_document),
+                    { include_blank: "-- Sélectionnez le type --" },
+                    { class: "form-select", required: true } %>
+                <div class="invalid-feedback">
+                  Veuillez sélectionner un type de document.
+                </div>
+              </div>
+            <% end %>
 
-            <!-- Association à un bien -->
-            <div class="mb-4">
-              <%= form.label :property_id, "Bien associé", class: "form-label" %>
+            <!-- Associations (bien, projet, demande) -->
+            <% # Vérifier s'il y a des associations prédéfinies %>
+            <% has_predefined_associations = @property || @project || @request %>
+
+            <% if has_predefined_associations %>
+              <!-- Affichage des associations prédéfinies -->
               <% if @property %>
                 <%= form.hidden_field :property_id, value: @property.id %>
-                <div class="alert alert-info">
-                  <i class="bi bi-house-door me-2"></i>
-                  Document associé au bien : <strong><%= @property.name %></strong>
+                <div class="mb-4">
+                  <div class="alert alert-info">
+                    <i class="bi bi-house-door me-2"></i>
+                    Document associé au bien : <strong><%= @property.name %></strong>
+                  </div>
                 </div>
-              <% else %>
-                <%= form.select :property_id,
-                    options_from_collection_for_select(current_user.properties, :id, :address, @document.property_id),
-                    { include_blank: "-- Sélectionnez un bien (optionnel) --" },
-                    { class: "form-select" } %>
-                <small class="form-text text-muted">
-                  Sélectionnez le bien concerné par ce document.
-                </small>
               <% end %>
-            </div>
 
-            <!-- Association à un projet -->
-            <div class="mb-4">
-              <%= form.label :project_id, "Projet associé", class: "form-label" %>
               <% if @project %>
                 <%= form.hidden_field :project_id, value: @project.id %>
-                <div class="alert alert-info">
-                  <i class="bi bi-tools me-2"></i>
-                  Document associé au projet : <strong><%= @project.nom %></strong>
+                <div class="mb-4">
+                  <div class="alert alert-info">
+                    <i class="bi bi-tools me-2"></i>
+                    Document associé au projet : <strong><%= @project.nom %></strong>
+                  </div>
                 </div>
-              <% else %>
-                <%= form.select :project_id,
-                    options_from_collection_for_select(current_user.projects, :id, :display_name, @document.project_id),
-                    { include_blank: "-- Sélectionnez un projet (optionnel) --" },
-                    { class: "form-select" } %>
-                <small class="form-text text-muted">
-                  Sélectionnez le projet concerné par ce document.
-                </small>
               <% end %>
-            </div>
 
-            <!-- Association à une demande -->
-            <div class="mb-4">
-              <%= form.label :request_id, "Demande associée", class: "form-label" %>
               <% if @request %>
                 <%= form.hidden_field :request_id, value: @request.id %>
-                <div class="alert alert-info">
-                  <i class="bi bi-file-text me-2"></i>
-                  Document associé à la demande : <strong><%= @request.title %></strong>
+                <div class="mb-4">
+                  <div class="alert alert-info">
+                    <i class="bi bi-file-text me-2"></i>
+                    Document associé à la demande : <strong><%= @request.title %></strong>
+                  </div>
                 </div>
-              <% else %>
-                <%= form.select :request_id,
-                    options_from_collection_for_select(current_user.requests, :id, :title, @document.request_id),
-                    { include_blank: "-- Sélectionnez une demande (optionnel) --" },
-                    { class: "form-select" } %>
-                <small class="form-text text-muted">
-                  Sélectionnez la demande concernée par ce document.
-                </small>
               <% end %>
-            </div>
+            <% else %>
+              <!-- Sélection des associations sur une ligne -->
+              <div class="mb-4">
+                <label class="form-label">Associations (optionnelles)</label>
+                <div class="row associations-row">
+                  <div class="col-md-4">
+                    <%= form.label :property_id, "Bien", class: "form-label small" %>
+                    <%= form.select :property_id,
+                        options_from_collection_for_select(current_user.properties, :id, :address, @document.property_id),
+                        { include_blank: "-- Aucun --" },
+                        { class: "form-select form-select-sm" } %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= form.label :project_id, "Projet", class: "form-label small" %>
+                    <%= form.select :project_id,
+                        options_from_collection_for_select(current_user.projects, :id, :display_name, @document.project_id),
+                        { include_blank: "-- Aucun --" },
+                        { class: "form-select form-select-sm" } %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= form.label :request_id, "Demande", class: "form-label small" %>
+                    <%= form.select :request_id,
+                        options_from_collection_for_select(current_user.requests, :id, :title, @document.request_id),
+                        { include_blank: "-- Aucune --" },
+                        { class: "form-select form-select-sm" } %>
+                  </div>
+                </div>
+                <small class="form-text text-muted mt-2">
+                  <i class="bi bi-info-circle me-1"></i>
+                  Associez ce document à un bien, projet ou demande existant pour une meilleure organisation.
+                </small>
+              </div>
+            <% end %>
 
             <!-- Zone de drag & drop avec OCR -->
             <div class="mb-4">
@@ -193,30 +214,6 @@
               </div>
             </div>
 
-            <!-- Notes optionnelles avec texte OCR -->
-            <div class="mb-4">
-              <%= form.label :notes, "Notes (optionnel)", class: "form-label" %>
-              <%= form.text_area :notes,
-                  class: "form-control",
-                  rows: 4,
-                  id: "document-notes",
-                  placeholder: "Ajoutez des notes ou commentaires sur ce document..." %>
-              <div class="mt-2">
-                <button type="button" class="btn btn-sm btn-outline-info" id="append-ocr-to-notes" style="display: none;">
-                  <i class="bi bi-plus-circle me-1"></i>Ajouter le texte OCR aux notes
-                </button>
-              </div>
-            </div>
-
-            <!-- Status -->
-            <div class="mb-4">
-              <%= form.label :status, "Statut", class: "form-label" %>
-              <%= form.select :status,
-                  options_from_collection_for_select(Document.statuses, :first, :first, 'pending'),
-                  {},
-                  { class: "form-select" } %>
-            </div>
-
             <!-- Boutons d'action -->
             <div class="d-flex justify-content-end gap-2">
               <%= link_to "Annuler", documents_path, class: "btn btn-outline-secondary" %>
@@ -269,7 +266,7 @@
             </li>
             <li class="mb-2">
               <i class="bi bi-check-circle text-success me-2"></i>
-              Ajoutez des notes explicatives
+              Utilisez la fonction OCR pour l'extraction de texte
             </li>
           </ul>
         </div>
@@ -421,14 +418,18 @@
   pointer-events: none;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .upload-zone {
-    padding: 2rem 1rem;
-  }
+/* === AMÉLIORATIONS POUR LES ASSOCIATIONS EN LIGNE === */
+.form-select-sm {
+  font-size: 0.875rem;
+}
 
-  .upload-icon {
-    font-size: 2rem;
+.associations-row .col-md-4 {
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 768px) {
+  .associations-row .col-md-4 {
+    margin-bottom: 1rem;
   }
 }
 </style>
@@ -442,9 +443,7 @@ document.addEventListener('turbo:load', function() {
   const uploadModeRadios = document.querySelectorAll('input[name="upload_mode"]');
   const ocrResult = document.getElementById('ocr-result');
   const ocrProcessing = document.getElementById('ocr-processing');
-  const appendOcrBtn = document.getElementById('append-ocr-to-notes');
   const copyOcrBtn = document.getElementById('copy-ocr-text');
-  const documentNotes = document.getElementById('document-notes');
 
   let currentOcrText = '';
   let isOcrMode = false;
@@ -556,29 +555,7 @@ document.addEventListener('turbo:load', function() {
     });
   }
 
-  if (appendOcrBtn) {
-    appendOcrBtn.addEventListener('click', function() {
-      if (currentOcrText && documentNotes) {
-        const currentNotes = documentNotes.value;
-        const separator = currentNotes ? '\n\n---\n\n' : '';
-        const ocrSection = `📄 Texte extrait par OCR:\n\n${currentOcrText}`;
-
-        documentNotes.value = currentNotes + separator + ocrSection;
-        documentNotes.focus();
-
-        // Feedback
-        this.innerHTML = '<i class="bi bi-check me-1"></i>Ajouté aux notes';
-        this.classList.remove('btn-outline-info');
-        this.classList.add('btn-success');
-
-        setTimeout(() => {
-          this.innerHTML = '<i class="bi bi-plus-circle me-1"></i>Ajouter le texte OCR aux notes';
-          this.classList.remove('btn-success');
-          this.classList.add('btn-outline-info');
-        }, 3000);
-      }
-    });
-  }
+  // Plus de fonctionnalité d'ajout aux notes puisque le champ a été retiré
 
   function handleFileSelect(file) {
     // Validation côté client
@@ -667,17 +644,7 @@ document.addEventListener('turbo:load', function() {
     document.getElementById('ocr-processing-time').textContent = `Traité en ${data.processing_time}s`;
 
     ocrResult.style.display = 'block';
-    appendOcrBtn.style.display = data.text ? 'inline-block' : 'none';
-
-    // Auto-ajout aux notes si le texte est de bonne qualité
-    if (data.confidence > 70 && data.text.length > 10) {
-      const currentNotes = documentNotes.value;
-      if (!currentNotes.includes('📄 Texte extrait par OCR:')) {
-        const separator = currentNotes ? '\n\n---\n\n' : '';
-        const ocrSection = `📄 Texte extrait par OCR (${data.confidence}% confiance):\n\n${data.text}`;
-        documentNotes.value = currentNotes + separator + ocrSection;
-      }
-    }
+    // Plus de bouton d'ajout aux notes puisque le champ a été retiré
   }
 
   function showOcrError(errorMessage) {
@@ -698,7 +665,6 @@ document.addEventListener('turbo:load', function() {
 
   function hideOcrResult() {
     ocrResult.style.display = 'none';
-    appendOcrBtn.style.display = 'none';
     currentOcrText = '';
   }
 

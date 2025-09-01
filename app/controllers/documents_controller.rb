@@ -125,6 +125,9 @@ class DocumentsController < ApplicationController
   def create
     @document = current_user.documents.build(document_params)
 
+    # Définir le statut par défaut si non fourni
+    @document.status = 'pending' if @document.status.blank?
+
     # Définir le contexte automatiquement
     @document.property = @property if @property
     @document.project = @project if @project
@@ -275,7 +278,7 @@ class DocumentsController < ApplicationController
   end
 
   def document_params
-    params.require(:document).permit(:type_document, :notes, :status, :document_source, :file, :file_url, :property_id, :project_id, :request_id, :simulation_id)
+    params.require(:document).permit(:type_document, :status, :document_source, :file, :file_url, :property_id, :project_id, :request_id, :simulation_id)
   end
 
   def can_access_document?(document)
