@@ -109,6 +109,7 @@ Rails.application.routes.draw do
     member do
       get :dashboard  # Dashboard spécifique pour un bien
       get :documents_dashboard  # Gestion des documents par bien
+      get :documents_phases_dashboard  # Nouveau dashboard par phases métier
       get :formulaire_miroir  # Formulaire miroir pré-rempli
       post :submit_prime  # Soumission vers l'administration
       delete :destroy  # Route de suppression explicite

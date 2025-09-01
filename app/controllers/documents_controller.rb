@@ -12,6 +12,17 @@ class DocumentsController < ApplicationController
     @documents = @documents.where(project: @project) if @project
     @documents = @documents.where(request: @request) if @request
 
+    # Filtrage par phase si demandé
+    if params[:filter_phase].present? && @property
+      @selected_phase = DocumentPhase.find(params[:filter_phase])
+      @documents = @documents.by_phase(@selected_phase)
+    end
+
+    # Filtrage par type de document
+    if params[:type_document].present?
+      @documents = @documents.where(type_document: params[:type_document])
+    end
+
     # Groupement par type pour l'affichage
     @documents_by_type = @documents.group_by(&:type_document)
 
@@ -21,6 +32,43 @@ class DocumentsController < ApplicationController
       by_status: @documents.group(:status).count.transform_keys(&:to_s),
       by_type: @documents.group(:type_document).count.transform_keys(&:to_s)
     }
+
+    # Données des phases - toujours chargées pour la navigation
+    @all_phases = DocumentPhase.all.order(:position)
+    
+    # Données des phases spécifiques si c'est dans le contexte d'une propriété
+    if @property
+      @phases_data = @property.phases_with_status
+      @phase_calculator = DocumentPhaseCalculatorService.new(@property)
+    else
+      # Créer des données de phases génériques pour la navigation globale
+      @phases_data = @all_phases.map do |phase|
+        documents_in_phase = @documents.select { |d| d.document_phase == phase }
+        {
+          phase: phase,
+          completion_percentage: calculate_generic_completion(phase, documents_in_phase),
+          documents_count: documents_in_phase.count,
+          phase_status: determine_generic_status(phase, documents_in_phase),
+          missing_required: calculate_missing_documents(phase, documents_in_phase),
+          next_actions: []
+        }
+      end
+    end
+
+    # Filtrage par phase sélectionnée
+    if params[:filter_phase].present?
+      @selected_phase = DocumentPhase.find(params[:filter_phase])
+      phase_types = @selected_phase.required_document_types + @selected_phase.optional_document_types
+      @documents = @documents.where(type_document: phase_types)
+    end
+
+    # Filtrage par type de document spécifique
+    if params[:type_document].present?
+      @documents = @documents.where(type_document: params[:type_document])
+      @selected_document_type = params[:type_document]
+      # Trouver la phase correspondante pour le breadcrumb
+      @selected_phase ||= DocumentPhase.find_phase_for_document_type(params[:type_document])
+    end
   end
 
   # GET /documents/new
@@ -31,6 +79,25 @@ class DocumentsController < ApplicationController
     @document.property = @property if @property
     @document.project = @project if @project
     @document.request = @request if @request
+
+    # Pré-remplir le type de document si fourni
+    if params[:type_document].present?
+      @document.type_document = params[:type_document]
+    end
+
+    # Déterminer la phase suggérée basée sur le type de document
+    if @document.type_document.present?
+      @suggested_phase = DocumentPhase.find_phase_for_document_type(@document.type_document)
+    end
+
+    # Mode OCR si demandé
+    @ocr_mode = params[:upload_mode] == 'ocr'
+    @ocr_text = params[:ocr_text] if params[:ocr_text].present?
+
+    # Phases disponibles pour cette propriété
+    if @property
+      @phases_data = @property.phases_with_status
+    end
   end
 
   # GET /documents/:id
@@ -239,5 +306,34 @@ class DocumentsController < ApplicationController
     else
       redirect_to documents_path, options
     end
+  end
+
+  # Méthodes pour le calcul des métriques génériques (sans propriété)
+  def calculate_generic_completion(phase, documents_in_phase)
+    return 0 if phase.required_document_types.empty?
+    
+    approved_required = documents_in_phase.count { |d| 
+      phase.required_document_types.include?(d.type_document) && d.status == 'approved' 
+    }
+    
+    total_required = phase.required_document_types.length
+    ((approved_required.to_f / total_required) * 100).round
+  end
+
+  def determine_generic_status(phase, documents_in_phase)
+    completion = calculate_generic_completion(phase, documents_in_phase)
+    
+    case completion
+    when 100 then :complete
+    when 80..99 then :nearly_complete
+    when 50..79 then :in_progress
+    when 1..49 then :started
+    else :pending
+    end
+  end
+
+  def calculate_missing_documents(phase, documents_in_phase)
+    existing_types = documents_in_phase.map(&:type_document)
+    phase.required_document_types - existing_types
   end
 end

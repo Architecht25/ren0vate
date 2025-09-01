@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_26_181926) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_01_062824) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -118,6 +118,36 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_26_181926) do
     t.string "region"
     t.index ["region", "code"], name: "index_categories_on_region_and_code", unique: true
     t.index ["region"], name: "index_categories_on_region"
+  end
+
+  create_table "document_phase_statuses", force: :cascade do |t|
+    t.bigint "property_id", null: false
+    t.bigint "document_phase_id", null: false
+    t.integer "completion_percentage", default: 0
+    t.integer "status", default: 0
+    t.datetime "validated_at"
+    t.bigint "validated_by_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["document_phase_id"], name: "index_document_phase_statuses_on_document_phase_id"
+    t.index ["property_id", "document_phase_id"], name: "index_phase_statuses_on_property_and_phase", unique: true
+    t.index ["property_id"], name: "index_document_phase_statuses_on_property_id"
+    t.index ["status"], name: "index_document_phase_statuses_on_status"
+    t.index ["validated_by_id"], name: "index_document_phase_statuses_on_validated_by_id"
+  end
+
+  create_table "document_phases", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description", null: false
+    t.string "icon", null: false
+    t.string "color", null: false
+    t.integer "position", null: false
+    t.json "required_document_types", default: []
+    t.json "optional_document_types", default: []
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_document_phases_on_name", unique: true
+    t.index ["position"], name: "index_document_phases_on_position", unique: true
   end
 
   create_table "documents", force: :cascade do |t|
@@ -513,6 +543,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_26_181926) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "document_phase_statuses", "document_phases"
+  add_foreign_key "document_phase_statuses", "properties"
+  add_foreign_key "document_phase_statuses", "users", column: "validated_by_id"
   add_foreign_key "documents", "projects"
   add_foreign_key "documents", "properties"
   add_foreign_key "documents", "requests"

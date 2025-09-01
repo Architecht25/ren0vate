@@ -1,616 +1,662 @@
-<div class="container-fluid px-4 py-4">
-  <!-- Header avec statistiques -->
-  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-    <div class="d-flex align-items-center">
-      <div class="icon-circle me-3">
-        <i class="bi bi-folder2-open"></i>
-      </div>
-      <div>
-        <h1 class="h3 text-primary-custom mb-0 fw-normal">Documents</h1>
-        <small class="text-muted">Gestion de vos documents de chantiers</small>
-      </div>
-    </div>
+<% content_for :title, "Documents#{" - #{@property.name}" if @property}" %>
 
-    <div class="d-flex gap-2">
-      <%= link_to new_document_path, class: "btn btn-primary-custom px-4" do %>
-        <i class="bi bi-plus-circle me-2"></i>
-        Nouveau Document
-      <% end %>
-    </div>
-  </div>
-
-  <!-- Statistiques rapides -->
-  <div class="row mb-4">
-    <div class="col-md-3">
-      <div class="card border-0 bg-primary-subtle h-100">
-        <div class="card-body text-center">
-          <i class="bi bi-files display-6 text-primary-custom mb-2"></i>
-          <h4 class="fw-bold text-primary-custom"><%= @documents.count %></h4>
-          <small class="text-muted">Total Documents</small>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-3">
-      <div class="card border-0 bg-success-subtle h-100">
-        <div class="card-body text-center">
-          <i class="bi bi-check-circle display-6 text-success mb-2"></i>
-          <h4 class="fw-bold text-success"><%= @documents.where(status: 'approved').count %></h4>
-          <small class="text-muted">Approuvés</small>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-3">
-      <div class="card border-0 bg-warning-subtle h-100">
-        <div class="card-body text-center">
-          <i class="bi bi-clock display-6 text-warning mb-2"></i>
-          <h4 class="fw-bold text-warning"><%= @documents.where(status: 'pending').count %></h4>
-          <small class="text-muted">En attente</small>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-3">
-      <div class="card border-0 bg-info-subtle h-100">
-        <div class="card-body text-center">
-          <i class="bi bi-calendar-week display-6 text-info mb-2"></i>
-          <h4 class="fw-bold text-info"><%= @documents.where('created_at >= ?', 7.days.ago).count %></h4>
-          <small class="text-muted">Cette semaine</small>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Filtres et recherche -->
-  <div class="card border-0 shadow-sm mb-4">
-    <div class="card-body p-4">
-      <%= form_with url: documents_path, method: :get, local: true, class: "row g-3 align-items-end" do |form| %>
-        <div class="col-md-3">
-          <%= form.label :search, "Recherche", class: "form-label" %>
-          <%= form.text_field :search,
-              value: params[:search],
-              class: "form-control",
-              placeholder: "Nom de fichier, notes..." %>
-        </div>
-
-        <div class="col-md-2">
-          <%= form.label :type_filter, "Type", class: "form-label" %>
-          <%= form.select :type_filter,
-              options_from_collection_for_select(Document.type_documents, :first, :first, params[:type_filter]),
-              { include_blank: "Tous types" },
-              { class: "form-select" } %>
-        </div>
-
-        <div class="col-md-2">
-          <%= form.label :status_filter, "Statut", class: "form-label" %>
-          <%= form.select :status_filter,
-              options_from_collection_for_select(Document.statuses, :first, :first, params[:status_filter]),
-              { include_blank: "Tous statuts" },
-              { class: "form-select" } %>
-        </div>
-
-        <div class="col-md-2">
-          <%= form.label :context_filter, "Contexte", class: "form-label" %>
-          <%= form.select :context_filter,
-              [
-                ['Propriétés', 'property'],
-                ['Projets', 'project'],
-                ['Demandes', 'request'],
-                ['Simulations', 'simulation']
-              ],
-              { include_blank: "Tous contextes", selected: params[:context_filter] },
-              { class: "form-select" } %>
-        </div>
-
-        <div class="col-md-3">
-          <div class="d-flex gap-2">
-            <%= form.submit "Filtrer", class: "btn btn-outline-primary-custom" %>
-            <%= link_to "Reset", documents_path, class: "btn btn-outline-secondary" %>
-          </div>
-        </div>
-      <% end %>
-    </div>
-  </div>
-
-  <!-- Liste des documents -->
-  <% if @documents.any? %>
-    <div class="card border-0 shadow-sm">
-      <div class="card-body p-0">
-        <div class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead class="table-light">
-              <tr>
-                <th class="border-0 ps-4">
-                  <div class="d-flex align-items-center">
-                    <i class="bi bi-file-earmark me-2"></i>
-                    Document
-                  </div>
-                </th>
-                <th class="border-0">Type</th>
-                <th class="border-0">Contexte</th>
-                <th class="border-0">Statut</th>
-                <th class="border-0">Taille</th>
-                <th class="border-0">Uploadé le</th>
-                <th class="border-0 text-center">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% @documents.each do |document| %>
-                <tr class="document-row" data-document-id="<%= document.id %>">
-                  <td class="ps-4">
-                    <div class="d-flex align-items-center">
-                      <div class="file-icon me-3">
-                        <% if document.file.attached? %>
-                          <% case document.file.content_type %>
-                          <% when /image/ %>
-                            <i class="bi bi-file-earmark-image text-success"></i>
-                          <% when 'application/pdf' %>
-                            <i class="bi bi-file-earmark-pdf text-danger"></i>
-                          <% when /word/ %>
-                            <i class="bi bi-file-earmark-word text-primary"></i>
-                          <% when /excel|sheet/ %>
-                            <i class="bi bi-file-earmark-excel text-success"></i>
-                          <% else %>
-                            <i class="bi bi-file-earmark text-muted"></i>
-                          <% end %>
-                        <% else %>
-                          <i class="bi bi-file-earmark text-muted"></i>
-                        <% end %>
-                      </div>
-                      <div>
-                        <div class="fw-medium">
-                          <% if document.file.attached? %>
-                            <%= document.file.filename %>
-                          <% else %>
-                            Document sans fichier
-                          <% end %>
-                        </div>
-                        <% if document.notes.present? %>
-                          <small class="text-muted d-block">
-                            <%= truncate(document.notes, length: 50) %>
-                          </small>
-                        <% end %>
-                      </div>
-                    </div>
-                  </td>
-
-                  <td>
-                    <span class="badge bg-secondary-subtle text-secondary-emphasis">
-                      <%= document.type_document&.humanize %>
-                    </span>
-                  </td>
-
-                  <td>
-                    <% if document.property %>
-                      <div class="d-flex align-items-center">
-                        <i class="bi bi-house-door me-1 text-primary"></i>
-                        <small><%= link_to document.property.name, property_path(document.property), class: "text-decoration-none" %></small>
-                      </div>
-                    <% elsif document.project %>
-                      <div class="d-flex align-items-center">
-                        <i class="bi bi-tools me-1 text-warning"></i>
-                        <small><%= link_to document.project.nom, project_path(document.project), class: "text-decoration-none" %></small>
-                      </div>
-                    <% elsif document.request %>
-                      <div class="d-flex align-items-center">
-                        <i class="bi bi-clipboard me-1 text-info"></i>
-                        <small><%= link_to "Demande ##{document.request.id}", request_path(document.request), class: "text-decoration-none" %></small>
-                      </div>
-                    <% elsif document.simulation %>
-                      <div class="d-flex align-items-center">
-                        <i class="bi bi-calculator me-1 text-success"></i>
-                        <small><%= link_to "Simulation ##{document.simulation.id}", simulation_path(document.simulation), class: "text-decoration-none" %></small>
-                      </div>
-                    <% else %>
-                      <span class="text-muted">-</span>
-                    <% end %>
-                  </td>
-
-                  <td>
-                    <% case document.status %>
-                    <% when 'approved' %>
-                      <span class="badge bg-success-subtle text-success-emphasis">
-                        <i class="bi bi-check-circle me-1"></i>Approuvé
-                      </span>
-                    <% when 'pending' %>
-                      <span class="badge bg-warning-subtle text-warning-emphasis">
-                        <i class="bi bi-clock me-1"></i>En attente
-                      </span>
-                    <% when 'rejected' %>
-                      <span class="badge bg-danger-subtle text-danger-emphasis">
-                        <i class="bi bi-x-circle me-1"></i>Rejeté
-                      </span>
-                    <% else %>
-                      <span class="badge bg-secondary-subtle text-secondary-emphasis">
-                        <%= document.status&.humanize %>
-                      </span>
-                    <% end %>
-                  </td>
-
-                  <td>
-                    <% if document.file.attached? %>
-                      <small class="text-muted">
-                        <%= number_to_human_size(document.file.byte_size) %>
-                      </small>
-                    <% else %>
-                      <small class="text-muted">-</small>
-                    <% end %>
-                  </td>
-
-                  <td>
-                    <small class="text-muted">
-                      <%= document.created_at.strftime("%d/%m/%Y") %>
-                      <div class="text-muted-light">
-                        <%= document.created_at.strftime("%H:%M") %>
-                      </div>
-                    </small>
-                  </td>
-
-                  <td class="text-center">
-                    <div class="dropdown">
-                      <button class="btn btn-sm btn-outline-secondary dropdown-toggle px-3"
-                              type="button"
-                              id="dropdownMenuButton<%= document.id %>"
-                              data-bs-auto-close="true">
-                        <i class="bi bi-three-dots me-1"></i>
-                        Actions
-                      </button>
-                      <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="dropdownMenuButton<%= document.id %>">
-                        <% if document.file.attached? %>
-                          <li>
-                            <%= link_to download_document_path(document),
-                                class: "dropdown-item d-flex align-items-center",
-                                target: "_blank" do %>
-                              <i class="bi bi-download me-2 text-primary"></i>
-                              <span>Télécharger</span>
-                            <% end %>
-                          </li>
-
-                          <% if document.preview_available? %>
-                            <li>
-                              <%= link_to preview_document_path(document),
-                                  class: "dropdown-item d-flex align-items-center",
-                                  target: "_blank" do %>
-                                <i class="bi bi-eye me-2 text-info"></i>
-                                <span>Prévisualiser</span>
-                              <% end %>
-                            </li>
-                          <% end %>
-                          <li><hr class="dropdown-divider my-1"></li>
-                        <% end %>
-
-                        <li>
-                          <%= link_to document_path(document),
-                              class: "dropdown-item d-flex align-items-center" do %>
-                            <i class="bi bi-eye me-2 text-secondary"></i>
-                            <span>Voir détails</span>
-                          <% end %>
-                        </li>
-
-                        <li>
-                          <%= link_to edit_document_path(document),
-                              class: "dropdown-item d-flex align-items-center" do %>
-                            <i class="bi bi-pencil me-2 text-warning"></i>
-                            <span>Modifier</span>
-                          <% end %>
-                        </li>
-
-                        <li><hr class="dropdown-divider my-1"></li>
-
-                        <li>
-                          <%= link_to document_path(document),
-                              class: "dropdown-item d-flex align-items-center text-danger",
-                              data: {
-                                turbo_method: :delete,
-                                turbo_confirm: "Êtes-vous sûr de vouloir supprimer ce document ?"
-                              } do %>
-                            <i class="bi bi-trash me-2"></i>
-                            <span>Supprimer</span>
-                          <% end %>
-                        </li>
-                      </ul>
-                    </div>
-                  </td>
-                </tr>
+<div class="container-fluid py-4">
+  <div class="row">
+    <div class="col-12">
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <!-- Breadcrumb -->
+          <% if @selected_document_type || @selected_phase %>
+            <nav aria-label="breadcrumb">
+              <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item">
+                  <%= link_to documents_path(
+                                property_id: @property&.id,
+                                project_id: @project&.id
+                              ), class: "text-decoration-none" do %>
+                    <i class="bi bi-folder2 me-1"></i>Documents
+                  <% end %>
+                </li>
+                <% if @selected_phase && !@selected_document_type %>
+                  <li class="breadcrumb-item active" aria-current="page">
+                    <%= @selected_phase.icon %> <%= @selected_phase.name %>
+                  </li>
+                <% elsif @selected_document_type %>
+                  <% if @selected_phase %>
+                    <li class="breadcrumb-item">
+                      <%= link_to documents_path(
+                                    property_id: @property&.id,
+                                    project_id: @project&.id,
+                                    filter_phase: @selected_phase.id
+                                  ), class: "text-decoration-none" do %>
+                        <%= @selected_phase.icon %> <%= @selected_phase.name %>
+                      <% end %>
+                    </li>
+                  <% end %>
+                  <li class="breadcrumb-item active" aria-current="page">
+                    <%= @selected_document_type.humanize %>
+                  </li>
+                <% end %>
+              </ol>
+            </nav>
+          <% end %>
+          
+          <h1 class="h3 mb-1">
+            <i class="bi bi-folder2 text-primary me-2"></i>
+            Documents
+            <% if @property %>
+              - <%= @property.name %>
+            <% elsif @project %>
+              - <%= @project.name %>
+            <% end %>
+          </h1>
+          <p class="text-muted mb-0">
+            <% if @selected_document_type %>
+              Documents de type "<%= @selected_document_type.humanize %>" • <%= @documents.count %> document(s)
+              <% if @selected_phase %>
+                <span class="badge bg-<%= @selected_phase.color %> ms-2"><%= @selected_phase.name %></span>
               <% end %>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-
-    <!-- Pagination si nécessaire -->
-    <% if @documents.respond_to?(:total_pages) %>
-      <div class="d-flex justify-content-center mt-4">
-        <%= paginate @documents, theme: 'twitter-bootstrap-4' %>
-      </div>
-    <% end %>
-
-  <% else %>
-    <!-- État vide -->
-    <div class="card border-0 shadow-sm">
-      <div class="card-body text-center py-5">
-        <div class="empty-state">
-          <i class="bi bi-folder2-open display-1 text-muted mb-3"></i>
-          <h5 class="text-muted mb-3">Aucun document trouvé</h5>
-          <p class="text-muted mb-4">
-            <% if params[:search].present? || params[:type_filter].present? || params[:status_filter].present? %>
-              Aucun document ne correspond aux critères de recherche.
+            <% elsif @selected_phase %>
+              Documents de la <%= @selected_phase.name.downcase %> • <%= @documents.count %> document(s)
+            <% elsif params[:type_document].present? %>
+              Documents de type "<%= params[:type_document].humanize %>" • <%= @documents.count %> document(s)
             <% else %>
-              Commencez par uploader votre premier document.
+              Gestion de vos documents • <%= @documents.count %> document(s)
             <% end %>
           </p>
-          <div class="d-flex justify-content-center gap-2">
-            <% if params[:search].present? || params[:type_filter].present? || params[:status_filter].present? %>
-              <%= link_to "Effacer les filtres", documents_path, class: "btn btn-outline-secondary" %>
+        </div>
+        <div class="d-flex gap-2">
+          <% if @property %>
+            <%= link_to documents_phases_dashboard_property_path(@property),
+                        class: "btn btn-outline-info btn-sm" do %>
+              <i class="bi bi-kanban me-1"></i>Vue phases
             <% end %>
-            <%= link_to new_document_path, class: "btn btn-primary-custom" do %>
-              <i class="bi bi-plus-circle me-2"></i>
-              Nouveau Document
+            <%= link_to property_dashboard_path(@property),
+                        class: "btn btn-outline-secondary" do %>
+              <i class="bi bi-arrow-left me-2"></i>Dashboard bien
             <% end %>
+          <% elsif @project %>
+            <%= link_to @project, class: "btn btn-outline-secondary" do %>
+              <i class="bi bi-arrow-left me-2"></i>Retour projet
+            <% end %>
+          <% else %>
+            <%= link_to dashboard_path, class: "btn btn-outline-secondary" do %>
+              <i class="bi bi-arrow-left me-2"></i>Dashboard
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Filtres et actions -->
+      <div class="row mb-4">
+        <div class="col-md-8">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <div class="col-md-6">
+                  <!-- Filtre par phase - disponible pour tous les contextes -->
+                  <% if @phases_data&.any? %>
+                    <div class="mb-3 mb-md-0">
+                      <label class="form-label small text-muted">Filtrer par phase :</label>
+                      <div class="btn-group d-flex" role="group">
+                        <%= link_to documents_path(
+                              property_id: @property&.id,
+                              project_id: @project&.id
+                            ),
+                                   class: "btn #{'btn-primary' if @selected_phase.nil?} #{'btn-outline-primary' unless @selected_phase.nil?} btn-sm" do %>
+                          <i class="bi bi-grid me-1"></i>Toutes
+                        <% end %>
+                        <% @phases_data.each do |phase_data| %>
+                          <% phase = phase_data[:phase] %>
+                          <%= link_to documents_path(
+                                        property_id: @property&.id,
+                                        project_id: @project&.id,
+                                        filter_phase: phase.id
+                                      ),
+                                     class: "btn #{'btn-primary' if @selected_phase == phase} #{'btn-outline-primary' unless @selected_phase == phase} btn-sm" do %>
+                            <%= phase.icon %> <%= phase.name.gsub('Phase ', '') %>
+                          <% end %>
+                        <% end %>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+                <div class="col-md-6 text-end">
+                  <!-- Actions rapides -->
+                  <div class="btn-group" role="group">
+                    <%= link_to new_document_path(
+                          property_id: @property&.id,
+                          project_id: @project&.id,
+                          upload_mode: 'ocr'
+                        ),
+                        class: "btn btn-info btn-sm" do %>
+                      <i class="bi bi-eye me-1"></i>Scan OCR
+                    <% end %>
+                    <%= link_to new_document_path(
+                          property_id: @property&.id,
+                          project_id: @project&.id
+                        ),
+                        class: "btn btn-primary btn-sm" do %>
+                      <i class="bi bi-plus-circle me-1"></i>Nouveau document
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <!-- Stats rapides -->
+          <div class="card border-0 shadow-sm">
+            <div class="card-body">
+              <div class="row text-center">
+                <div class="col-4">
+                  <div class="text-success h5 mb-0"><%= @document_stats[:by_status]['approved'] || 0 %></div>
+                  <small class="text-muted">Approuvés</small>
+                </div>
+                <div class="col-4">
+                  <div class="text-warning h5 mb-0"><%= @document_stats[:by_status]['pending'] || 0 %></div>
+                  <small class="text-muted">En attente</small>
+                </div>
+                <div class="col-4">
+                  <div class="text-danger h5 mb-0"><%= @document_stats[:by_status]['rejected'] || 0 %></div>
+                  <small class="text-muted">Rejetés</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vue par phases - affichée dans tous les contextes -->
+      <% if @phases_data&.any? %>
+        <% if @selected_phase.present? %>
+          <!-- Vue détaillée de la phase sélectionnée -->
+          <div class="row mb-4">
+            <div class="col-12">
+              <div class="card border-0 shadow-sm">
+                <div class="card-header bg-<%= @selected_phase.color %> text-white">
+                  <div class="d-flex align-items-center">
+                    <div class="me-3" style="font-size: 2rem;"><%= @selected_phase.icon %></div>
+                    <div class="flex-grow-1">
+                      <h4 class="mb-1"><%= @selected_phase.name %></h4>
+                      <p class="mb-0 opacity-75"><%= @selected_phase.description %></p>
+                    </div>
+                    <div class="text-end">
+                      <%= link_to documents_path(
+                                    property_id: @property&.id,
+                                    project_id: @project&.id
+                                  ),
+                                 class: "btn btn-outline-light btn-sm" do %>
+                        <i class="bi bi-arrow-left me-1"></i>Toutes les phases
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="card-body">
+                  <!-- Types de documents obligatoires -->
+                  <% if @selected_phase.required_document_types.any? %>
+                    <div class="mb-4">
+                      <h6 class="text-danger mb-3">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Documents obligatoires
+                      </h6>
+                      <div class="row">
+                        <% @selected_phase.required_document_types.each do |doc_type| %>
+                          <% docs_of_type = @documents.select { |d| d.type_document == doc_type } %>
+                          <% has_approved = docs_of_type.any? { |d| d.status == 'approved' } %>
+                          
+                          <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card border-<%= has_approved ? 'success' : 'danger' %> h-100">
+                              <div class="card-body text-center">
+                                <div class="mb-2">
+                                  <i class="bi bi-<%= has_approved ? 'check-circle-fill text-success' : 'exclamation-circle-fill text-danger' %>" style="font-size: 2rem;"></i>
+                                </div>
+                                <h6 class="card-title">
+                                  <%= doc_type.humanize %>
+                                  <% if doc_type == 'attestation_entrepreneur' %>
+                                    <span class="badge bg-info ms-1">
+                                      <i class="bi bi-download me-1"></i>Officiels
+                                    </span>
+                                  <% end %>
+                                </h6>
+                                <p class="small text-muted mb-2"><%= docs_of_type.count %> document(s)</p>
+                                
+                                <div class="d-flex gap-1 justify-content-center">
+                                  <% if doc_type == 'attestation_entrepreneur' %>
+                                    <%= link_to prime_document_templates_path,
+                                               class: "btn btn-outline-info btn-sm" do %>
+                                      <i class="bi bi-download me-1"></i>Voir officiels
+                                    <% end %>
+                                  <% else %>
+                                    <%= link_to documents_path(
+                                                  property_id: @property&.id,
+                                                  project_id: @project&.id,
+                                                  type_document: doc_type
+                                                ),
+                                               class: "btn btn-outline-secondary btn-sm" do %>
+                                      <i class="bi bi-eye me-1"></i>Voir
+                                    <% end %>
+                                  <% end %>
+                                  <%= link_to new_document_path(
+                                                property_id: @property&.id,
+                                                project_id: @project&.id,
+                                                type_document: doc_type,
+                                                upload_mode: 'ocr'
+                                              ),
+                                             class: "btn btn-primary btn-sm" do %>
+                                    <i class="bi bi-plus me-1"></i>Ajouter
+                                  <% end %>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+                  <% end %>
+                  
+                  <!-- Types de documents optionnels -->
+                  <% if @selected_phase.optional_document_types.any? %>
+                    <div class="mb-3">
+                      <h6 class="text-info mb-3">
+                        <i class="bi bi-info-circle me-2"></i>Documents optionnels
+                      </h6>
+                      <div class="row">
+                        <% @selected_phase.optional_document_types.each do |doc_type| %>
+                          <% docs_of_type = @documents.select { |d| d.type_document == doc_type } %>
+                          <% has_docs = docs_of_type.any? %>
+                          
+                          <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card border-<%= has_docs ? 'info' : 'secondary' %> h-100">
+                              <div class="card-body text-center">
+                                <div class="mb-2">
+                                  <i class="bi bi-<%= has_docs ? 'file-earmark-check text-info' : 'file-earmark-plus text-muted' %>" style="font-size: 2rem;"></i>
+                                </div>
+                                <h6 class="card-title">
+                                  <%= doc_type.humanize %>
+                                  <% if doc_type == 'attestation_entrepreneur' %>
+                                    <span class="badge bg-info ms-1">
+                                      <i class="bi bi-download me-1"></i>Officiels
+                                    </span>
+                                  <% end %>
+                                </h6>
+                                <p class="small text-muted mb-2"><%= docs_of_type.count %> document(s)</p>
+                                
+                                <div class="d-flex gap-1 justify-content-center">
+                                  <% if doc_type == 'attestation_entrepreneur' %>
+                                    <%= link_to prime_document_templates_path,
+                                               class: "btn btn-outline-info btn-sm" do %>
+                                      <i class="bi bi-download me-1"></i>Voir officiels
+                                    <% end %>
+                                  <% elsif has_docs %>
+                                    <%= link_to documents_path(
+                                                  property_id: @property&.id,
+                                                  project_id: @project&.id,
+                                                  type_document: doc_type
+                                                ),
+                                               class: "btn btn-outline-info btn-sm" do %>
+                                      <i class="bi bi-eye me-1"></i>Voir
+                                    <% end %>
+                                  <% end %>
+                                  <%= link_to new_document_path(
+                                                property_id: @property&.id,
+                                                project_id: @project&.id,
+                                                type_document: doc_type,
+                                                upload_mode: 'ocr'
+                                              ),
+                                             class: "btn btn-outline-secondary btn-sm" do %>
+                                    <i class="bi bi-plus me-1"></i>Ajouter
+                                  <% end %>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% else %>
+          <!-- Mini vue des phases -->
+          <div class="row mb-4">
+            <div class="col-12 mb-3">
+              <h5 class="text-muted mb-0">
+                <i class="bi bi-kanban me-2"></i>Vue d'ensemble par phases métier
+              </h5>
+              <small class="text-muted">
+                <% if @property %>
+                  Progression spécifique pour <%= @property.name %>
+                <% else %>
+                  Progression générale de vos documents
+                <% end %>
+              </small>
+            </div>
+          <% @phases_data.each do |phase_data| %>
+            <% phase = phase_data[:phase] %>
+            <% docs_in_phase = @documents.select { |d| d.document_phase == phase } %>
+            
+            <div class="col-lg-3 col-md-6 mb-3">
+              <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                  <div class="d-flex align-items-center mb-2">
+                    <div class="me-2" style="font-size: 1.5rem;"><%= phase.icon %></div>
+                    <div class="flex-grow-1">
+                      <h6 class="card-title mb-0"><%= phase.name.gsub('Phase ', '') %></h6>
+                      <small class="text-muted"><%= docs_in_phase.count %> doc(s)</small>
+                    </div>
+                    <div class="badge bg-<%= phase_data[:completion_percentage] >= 80 ? 'success' : phase_data[:completion_percentage] >= 50 ? 'warning' : 'danger' %>">
+                      <%= phase_data[:completion_percentage] %>%
+                    </div>
+                  </div>
+                  
+                  <!-- Progress bar -->
+                  <div class="progress mb-2" style="height: 4px;">
+                    <div class="progress-bar bg-<%= phase_data[:completion_percentage] >= 80 ? 'success' : phase_data[:completion_percentage] >= 50 ? 'warning' : 'danger' %>"
+                         style="width: <%= phase_data[:completion_percentage] %>%"></div>
+                  </div>
+                  
+                  <!-- Description de la phase -->
+                  <p class="small text-muted mb-2"><%= phase.description %></p>
+                  
+                  <!-- Documents requis/optionnels -->
+                  <div class="small mb-2">
+                    <div class="text-muted">
+                      <strong>Obligatoires:</strong> <%= phase.required_document_types.count %>
+                      | <strong>Optionnels:</strong> <%= phase.optional_document_types.count %>
+                    </div>
+                  </div>
+                  
+                  <!-- Actions -->
+                  <div class="d-flex justify-content-between">
+                    <%= link_to documents_path(
+                                  property_id: @property&.id,
+                                  project_id: @project&.id,
+                                  filter_phase: phase.id
+                                ),
+                               class: "btn btn-outline-#{phase.color} btn-sm" do %>
+                      <i class="bi bi-folder2-open me-1"></i>Voir (<%= docs_in_phase.count %>)
+                    <% end %>
+                    <% if phase_data[:missing_required]&.any? %>
+                      <%= link_to new_document_path(
+                                    property_id: @property&.id,
+                                    project_id: @project&.id,
+                                    type_document: phase_data[:missing_required].first,
+                                    upload_mode: 'ocr'
+                                  ),
+                                 class: "btn btn-primary btn-sm" do %>
+                        <i class="bi bi-plus me-1"></i>Ajouter
+                      <% end %>
+                    <% else %>
+                      <%= link_to new_document_path(
+                                    property_id: @property&.id,
+                                    project_id: @project&.id,
+                                    type_document: phase.required_document_types.first
+                                  ),
+                                 class: "btn btn-outline-secondary btn-sm" do %>
+                        <i class="bi bi-plus me-1"></i>Nouveau
+                      <% end %>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        <% end %>
+      <% end %>      <!-- Liste des documents -->
+      <% if @documents.any? %>
+        <div class="row">
+          <% @documents.order(created_at: :desc).each do |document| %>
+            <div class="col-lg-4 col-md-6 mb-4">
+              <div class="card border-0 shadow-sm h-100">
+                <!-- Header de la carte avec phase -->
+                <div class="card-header bg-light border-0 d-flex justify-content-between align-items-center">
+                  <div class="d-flex align-items-center">
+                    <% if document.respond_to?(:document_phase) && document.document_phase %>
+                      <span class="me-2" style="font-size: 1.2rem;"><%= document.document_phase.icon %></span>
+                      <small class="text-muted"><%= document.document_phase.name %></small>
+                    <% else %>
+                      <small class="text-muted">Non classé</small>
+                    <% end %>
+                  </div>
+                  <div class="d-flex gap-1">
+                    <!-- Badge de priorité -->
+                    <% if document.respond_to?(:priority_badge_class) %>
+                      <span class="badge bg-<%= document.priority_badge_class %> badge-sm">
+                        <%= document.respond_to?(:priority_text) ? document.priority_text : 'Normal' %>
+                      </span>
+                    <% end %>
+                    <!-- Badge de statut -->
+                    <span class="badge bg-<%=
+                      case document.status
+                      when 'approved' then 'success'
+                      when 'pending' then 'warning'
+                      when 'rejected' then 'danger'
+                      else 'secondary'
+                      end
+                    %> badge-sm">
+                      <%=
+                        case document.status
+                        when 'approved' then '✓ Approuvé'
+                        when 'pending' then '⏳ En attente'
+                        when 'rejected' then '✗ Rejeté'
+                        else 'Non défini'
+                        end
+                      %>
+                    </span>
+                  </div>
+                </div>
+
+                <div class="card-body">
+                  <!-- Type de document -->
+                  <h6 class="card-title">
+                    <i class="bi bi-file-earmark-text text-primary me-2"></i>
+                    <%= document.type_document.humanize %>
+                  </h6>
+
+                  <!-- Informations du fichier -->
+                  <% if document.file.attached? %>
+                    <div class="d-flex align-items-center mb-2">
+                      <i class="bi bi-paperclip text-muted me-2"></i>
+                      <div class="flex-grow-1">
+                        <div class="small fw-medium"><%= document.file.filename %></div>
+                        <div class="text-muted small">
+                          <%= number_to_human_size(document.file.byte_size) %>
+                        </div>
+                      </div>
+                      <% if document.file.content_type.start_with?('image/') || document.file.content_type == 'application/pdf' %>
+                        <button class="btn btn-outline-info btn-sm preview-btn"
+                                data-document-id="<%= document.id %>">
+                          <i class="bi bi-eye"></i>
+                        </button>
+                      <% end %>
+                    </div>
+                  <% end %>
+
+                  <!-- Notes (tronquées) -->
+                  <% if document.notes.present? %>
+                    <div class="mb-2">
+                      <small class="text-muted">Notes:</small>
+                      <div class="small text-truncate"><%= document.notes %></div>
+                    </div>
+                  <% end %>
+
+                  <!-- Suggestions d'amélioration -->
+                  <% if document.respond_to?(:improvement_suggestions) %>
+                    <% suggestions = document.improvement_suggestions %>
+                    <% if suggestions.any? %>
+                      <div class="alert alert-info alert-sm mb-2">
+                        <i class="bi bi-lightbulb me-1"></i>
+                        <small><%= suggestions.first %></small>
+                      </div>
+                    <% end %>
+                  <% end %>
+
+                  <!-- Date de création -->
+                  <div class="text-muted small mb-3">
+                    <i class="bi bi-calendar3 me-1"></i>
+                    Ajouté <%= time_ago_in_words(document.created_at) %>
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="card-footer bg-transparent border-0">
+                  <div class="d-flex gap-2">
+                    <%= link_to document, class: "btn btn-outline-primary btn-sm" do %>
+                      <i class="bi bi-eye me-1"></i>Voir
+                    <% end %>
+                    <% if document.file.attached? %>
+                      <%= link_to rails_blob_path(document.file, disposition: "attachment"),
+                                 class: "btn btn-outline-secondary btn-sm" do %>
+                        <i class="bi bi-download me-1"></i>Télécharger
+                      <% end %>
+                    <% end %>
+                    <%= link_to edit_document_path(document),
+                               class: "btn btn-outline-warning btn-sm" do %>
+                      <i class="bi bi-pencil me-1"></i>Modifier
+                    <% end %>
+                    <%= link_to document, method: :delete,
+                               class: "btn btn-outline-danger btn-sm",
+                               confirm: "Êtes-vous sûr de vouloir supprimer ce document ?",
+                               form: { style: "display: inline;" } do %>
+                      <i class="bi bi-trash me-1"></i>Supprimer
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <!-- État vide -->
+        <div class="text-center py-5">
+          <div class="mb-4">
+            <i class="bi bi-folder2 text-muted" style="font-size: 4rem;"></i>
+          </div>
+          <h4 class="text-muted mb-3">
+            <% if @selected_phase %>
+              Aucun document pour la <%= @selected_phase.name.downcase %>
+            <% elsif params[:type_document].present? %>
+              Aucun document de type "<%= params[:type_document].humanize %>"
+            <% else %>
+              Aucun document trouvé
+            <% end %>
+          </h4>
+          <p class="text-muted mb-4">
+            <% if @selected_phase %>
+              Commencez par ajouter les documents requis pour cette phase.
+            <% else %>
+              Commencez par ajouter votre premier document.
+            <% end %>
+          </p>
+          <div class="d-flex gap-2 justify-content-center">
+            <%= link_to new_document_path(
+                  property_id: @property&.id,
+                  project_id: @project&.id,
+                  type_document: @selected_phase&.required_document_types&.first,
+                  upload_mode: 'ocr'
+                ),
+                class: "btn btn-info" do %>
+              <i class="bi bi-eye me-2"></i>Scan OCR
+            <% end %>
+            <%= link_to new_document_path(
+                  property_id: @property&.id,
+                  project_id: @project&.id,
+                  type_document: @selected_phase&.required_document_types&.first
+                ),
+                class: "btn btn-primary" do %>
+              <i class="bi bi-plus-circle me-2"></i>Ajouter un document
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de prévisualisation -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Prévisualisation du document</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="preview-content" class="text-center">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Chargement...</span>
           </div>
         </div>
       </div>
     </div>
-  <% end %>
+  </div>
 </div>
 
 <style>
-/* Styles personnalisés pour la liste des documents */
-.icon-circle {
-  width: 48px;
-  height: 48px;
-  background: rgba(var(--bs-primary-rgb), 0.1);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  color: var(--bs-primary);
+.card {
+  transition: all 0.3s ease;
 }
 
-.file-icon {
-  font-size: 1.5rem;
-}
-
-.document-row {
-  transition: all 0.2s ease;
-}
-
-/* Styles pour les dropdowns manuels */
-.dropdown {
-  position: relative;
-}
-
-.dropdown-menu {
-  position: fixed !important;
-  top: auto !important;
-  left: auto !important;
-  z-index: 9999 !important;
-  display: none;
-  min-width: 11rem;
-  padding: 0.5rem 0;
-  margin: 0;
-  font-size: 0.875rem;
-  color: #212529;
-  text-align: left;
-  list-style: none;
-  background-color: #fff;
-  background-clip: padding-box;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  border-radius: 0.5rem;
-  box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.25);
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.dropdown-menu.show {
-  display: block !important;
-}
-
-.dropdown-menu-end {
-  right: 0;
-  left: auto;
-}
-
-/* Styles pour la table avec overflow visible */
-.table-responsive {
-  overflow: visible !important;
-}
-
-.table-responsive .table {
-  overflow: visible;
-}
-
-.table tbody tr:last-child .dropdown-menu {
-  transform: translateY(-100%);
-  margin-top: -0.5rem;
-}
-
-.dropdown-item {
-  display: block;
-  width: 100%;
-  padding: 0.5rem 1rem;
-  clear: both;
-  font-weight: 400;
-  color: #212529;
-  text-align: inherit;
-  text-decoration: none;
-  white-space: nowrap;
-  background-color: transparent;
-  border: 0;
-  transition: all 0.15s ease-in-out;
-}
-
-.dropdown-item:hover,
-.dropdown-item:focus {
-  color: #1e2125;
-  background-color: #f8f9fa;
-  transform: translateX(2px);
-}
-
-.dropdown-item.text-danger:hover {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
-.dropdown-divider {
-  height: 0;
-  margin: 0.5rem 0;
-  overflow: hidden;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-.document-row:hover {
-  background-color: rgba(var(--bs-primary-rgb), 0.02);
-}
-
-.empty-state {
-  max-width: 400px;
-  margin: 0 auto;
-}
-
-.table td {
-  vertical-align: middle;
-  padding: 1rem 0.75rem;
-}
-
-.table th {
-  font-weight: 600;
-  color: var(--bs-gray-700);
-  font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 1rem 0.75rem;
-}
-
-.badge {
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .table-responsive {
-    font-size: 0.875rem;
-  }
-
-  .table td, .table th {
-    padding: 0.75rem 0.5rem;
-  }
-
-  .icon-circle {
-    width: 40px;
-    height: 40px;
-    font-size: 1rem;
-  }
-
-  /* Boutons Actions plus compacts sur mobile */
-  .dropdown-toggle {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.5rem !important;
-  }
-
-  .dropdown-menu {
-    min-width: 10rem;
-    font-size: 0.8rem;
-  }
-
-  .dropdown-item {
-    padding: 0.375rem 0.75rem;
-  }
-}
-
-/* Animation pour les statistiques */
 .card:hover {
   transform: translateY(-2px);
-  transition: transform 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+}
+
+.badge-sm {
+  font-size: 0.7rem;
+  padding: 0.25em 0.5em;
+}
+
+.alert-sm {
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.preview-btn:hover {
+  transform: scale(1.1);
 }
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  initializeDropdowns();
-});
-
 document.addEventListener('turbo:load', function() {
-  initializeDropdowns();
+  // Gestion de la prévisualisation
+  const previewButtons = document.querySelectorAll('.preview-btn');
+  const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+  const previewContent = document.getElementById('preview-content');
+
+  previewButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const documentId = this.dataset.documentId;
+
+      previewContent.innerHTML = `
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+      `;
+
+      previewModal.show();
+
+      fetch(`/documents/${documentId}/preview`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.type === 'image') {
+            previewContent.innerHTML = `<img src="${data.url}" class="img-fluid" alt="Prévisualisation">`;
+          } else if (data.type === 'pdf') {
+            previewContent.innerHTML = `<embed src="${data.url}" type="application/pdf" width="100%" height="600px">`;
+          } else {
+            previewContent.innerHTML = `<div class="alert alert-warning">${data.message || 'Prévisualisation non disponible'}</div>`;
+          }
+        })
+        .catch(error => {
+          previewContent.innerHTML = `<div class="alert alert-danger">Erreur lors du chargement de la prévisualisation</div>`;
+        });
+    });
+  });
 });
-
-function initializeDropdowns() {
-  console.log('Initializing dropdowns...');
-
-  // Supprimer les anciens event listeners en clonant les boutons
-  document.querySelectorAll('.dropdown-toggle').forEach(function(button) {
-    const newButton = button.cloneNode(true);
-    button.parentNode.replaceChild(newButton, button);
-  });
-
-  // Ajouter les event listeners aux nouveaux boutons
-  document.querySelectorAll('.dropdown-toggle').forEach(function(button) {
-    button.addEventListener('click', function(e) {
-      e.preventDefault();
-      e.stopPropagation();
-
-      const dropdown = this.closest('.dropdown');
-      const menu = dropdown.querySelector('.dropdown-menu');
-
-      console.log('Button clicked:', this.id);
-
-      // Fermer tous les autres dropdowns
-      document.querySelectorAll('.dropdown-menu').forEach(function(otherMenu) {
-        if (otherMenu !== menu) {
-          otherMenu.classList.remove('show');
-        }
-      });
-
-      // Calculer la position du menu
-      const rect = this.getBoundingClientRect();
-      const menuHeight = 250; // hauteur estimée du menu
-      const viewportHeight = window.innerHeight;
-      const spaceBelow = viewportHeight - rect.bottom;
-      const spaceAbove = rect.top;
-
-      // Positionner le menu
-      if (spaceBelow >= menuHeight || spaceBelow >= spaceAbove) {
-        // Afficher en dessous
-        menu.style.top = (rect.bottom + window.scrollY) + 'px';
-        menu.style.transform = 'none';
-      } else {
-        // Afficher au-dessus
-        menu.style.top = (rect.top + window.scrollY) + 'px';
-        menu.style.transform = 'translateY(-100%)';
-      }
-
-      // Position horizontale (aligné à droite)
-      menu.style.left = (rect.right - menu.offsetWidth) + 'px';
-
-      // Toggle ce dropdown
-      menu.classList.toggle('show');
-      console.log('Menu toggled, now showing:', menu.classList.contains('show'));
-    });
-  });
-
-  // Fermer dropdowns en cliquant ailleurs
-  document.addEventListener('click', function(e) {
-    if (!e.target.closest('.dropdown')) {
-      document.querySelectorAll('.dropdown-menu.show').forEach(function(menu) {
-        menu.classList.remove('show');
-      });
-    }
-  });
-
-  // Fermer dropdowns lors du scroll
-  window.addEventListener('scroll', function() {
-    document.querySelectorAll('.dropdown-menu.show').forEach(function(menu) {
-      menu.classList.remove('show');
-    });
-  });
-
-  console.log('Dropdowns initialized:', document.querySelectorAll('.dropdown-toggle').length);
-}
 </script>
-
-<!-- Utilise le fichier CSS externe properties.css -->
-<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>

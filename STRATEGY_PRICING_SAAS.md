@@ -25,7 +25,7 @@ D'après l'analyse du code et des documents d'architecture, le système de billi
 └── Tiers automatiques : free → occasional → portfolio_builder → power_investor → elite_member
 ```
 
-## 💰 Recommandations Pricing ACTUALISÉES 
+## 💰 Recommandations Pricing ACTUALISÉES
 
 ### 🎯 Nouvelle Stratégie Basée sur l'État Réel du Développement
 
@@ -55,7 +55,7 @@ Pricing optimisé basé sur l'architecture définie :
 
 🏠 BIENS SUPPLÉMENTAIRES (Pricing Tiered Optimisé)
 ├── 2-3 biens : 199€/bien (premium individual)
-├── 4-10 biens : 149€/bien (portfolio starter)  
+├── 4-10 biens : 149€/bien (portfolio starter)
 ├── 11-25 biens : 99€/bien (serious investor)
 ├── 25+ biens : 79€/bien (institutional pricing)
 └── Logique : Plus tu investis, moins tu paies par bien
@@ -67,12 +67,12 @@ Plans subscription avec pricing psychologique optimisé :
 
 REN0CHAT - 49€/mois
 ├── Questions processus réglementaire
-├── Conseils rénovation personnalisés  
+├── Conseils rénovation personnalisés
 ├── Support heures ouvrables (9h-17h)
 ├── Historique conversations illimité
 └── Intégration avec simulations existantes
 
-REN0BOT - 79€/mois  
+REN0BOT - 79€/mois
 ├── IA avancée 24/7
 ├── Analyse prédictive projets
 ├── Génération documents automatique
@@ -96,7 +96,7 @@ TIER GRATUIT (free) : 10% success fee
 ├── Pas d'engagement financier upfront
 └── Revenue partagé sur résultats obtenus
 
-TIER ACTIF (occasional) : 10% success fee  
+TIER ACTIF (occasional) : 10% success fee
 ├── Utilisateurs payant à l'usage
 ├── Simulations ou biens supplémentaires achetés
 └── Même taux mais priorité support
@@ -107,7 +107,7 @@ TIER INVESTISSEUR (portfolio_builder) : 10% → 8% success fee
 └── Réduction fee comme loyalty reward
 
 TIER EXPERT (power_investor) : 7% success fee
-├── 5+ biens ou subscription active  
+├── 5+ biens ou subscription active
 ├── Volume business significatif
 └── Taux préférentiel justifié
 
@@ -124,7 +124,7 @@ TIER ELITE (elite_member) : 5% success fee
 #### ✅ **CONFIRMÉ - Modèle Hybride Revolutionary**
 Le modèle hybride freemium + usage + subscription + success fee reste **OPTIMAL** pour Ren0vate. L'architecture développée confirme cette direction.
 
-#### 🆕 **NOUVEAU - Pricing Psychologique Affiné**  
+#### 🆕 **NOUVEAU - Pricing Psychologique Affiné**
 - Simulations : ~~10€~~ → **9€** (charm pricing)
 - Bundle Chat+Bot : **119€** (au lieu de 128€ = économie visible)
 - Success fee tiers : **Progression claire 10% → 8% → 7% → 5%**
@@ -134,7 +134,7 @@ Le modèle hybride freemium + usage + subscription + success fee reste **OPTIMAL
 # Progression utilisateur automatique basée sur usage :
 User.tier_progression = {
   free: "Nouveau utilisateur",
-  occasional: "Premier achat (simulation ou bien)",  
+  occasional: "Premier achat (simulation ou bien)",
   portfolio_builder: "3+ biens enregistrés",
   power_investor: "5+ biens OU subscription active",
   elite_member: "10+ biens ET subscription bundle"
@@ -189,7 +189,7 @@ Phase A (Novembre) : Usage-based
 ├── Biens supplémentaires pricing tiered
 └── 20% beta users test
 
-Phase B (Décembre) : Freemium optimization  
+Phase B (Décembre) : Freemium optimization
 ├── Onboarding freemium complet
 ├── Conversion funnels analytics
 └── 50% users on new model
@@ -201,7 +201,7 @@ Phase C (Janvier) : AI Subscriptions
 
 Phase D (Février) : Success Fee
 ├── Accords légaux clients
-├── Intégration comptable  
+├── Intégration comptable
 └── Tiers rewards système
 ```
 
@@ -210,7 +210,7 @@ Phase D (Février) : Success Fee
 #### 5. **Scale & International**
 ```
 Q2 2026 : Success fee operational
-Q3 2026 : AI features full deployment  
+Q3 2026 : AI features full deployment
 Q4 2026 : France expansion pilot
 Q1 2027 : Netherlands market entry
 Q2 2027 : White-label solutions B2B
@@ -255,13 +255,13 @@ FREEMIUM (45% = 1,800 users) :
 └── Revenue : 0€
 
 USAGE-BASED (35% = 1,400 users) :
-├── Simulations : 1,400 × 4 × 9€ × 12 = 604,800€  
+├── Simulations : 1,400 × 4 × 9€ × 12 = 604,800€
 ├── Biens : 600 × 149€ = 89,400€
 ├── Revenue ponctuel : 694,200€/an
 
 SUBSCRIPTIONS (15% = 600 users) :
 ├── Ren0Chat : 200 × 49€ × 12 = 117,600€
-├── Ren0Bot : 150 × 79€ × 12 = 142,200€  
+├── Ren0Bot : 150 × 79€ × 12 = 142,200€
 ├── Bundle : 250 × 119€ × 12 = 357,000€
 ├── Revenue récurrent : 616,800€/an
 
@@ -279,7 +279,7 @@ TOTAL REVENUE 2027 : 1,671,000€ (+347% growth)
 L'analyse du code confirme que **votre modèle économique hybride est PARFAITEMENT adapté** à l'infrastructure développée :
 
 1. **Système propriétés multiples** ✅ Déjà implémenté
-2. **Flexibilité billing** ✅ Architecture modulaire prête  
+2. **Flexibilité billing** ✅ Architecture modulaire prête
 3. **Évolutivité technique** ✅ Rails 8 + PostrgreSQL scalable
 4. **Compliance EU** ✅ Structure légale et technique adaptée
 
@@ -287,7 +287,7 @@ L'analyse du code confirme que **votre modèle économique hybride est PARFAITEM
 
 **Priorité #1 (Septembre 2025)** : Implémenter le système billing core
 **Priorité #2 (Octobre 2025)** : Tests beta du modèle usage-based
-**Priorité #3 (Q4 2025)** : Lancement freemium + conversion funnels  
+**Priorité #3 (Q4 2025)** : Lancement freemium + conversion funnels
 **Priorité #4 (Q1 2026)** : Features IA + subscriptions
 **Priorité #5 (Q2 2026)** : Success fee + tiers rewards
 
@@ -297,7 +297,7 @@ L'analyse du code confirme que **votre modèle économique hybride est PARFAITEM
 # Métriques prioritaires pour le business model :
 billing_kpis = {
   conversion_rate: "freemium → first_purchase",
-  arpu: "average_revenue_per_user", 
+  arpu: "average_revenue_per_user",
   ltv_cac: "lifetime_value / customer_acquisition_cost",
   churn_rate: "monthly_churn_by_tier",
   success_fee_volume: "total_grants_processed_monthly"
@@ -312,7 +312,7 @@ billing_kpis = {
 ```
 Chaque Vendredi (Review Week) :
 ├── 📊 Analyse des nouvelles fonctionnalités implémentées
-├── 💰 Évaluation impact pricing sur value proposition  
+├── 💰 Évaluation impact pricing sur value proposition
 ├── 🎯 Ajustement tarifs/segments si nécessaire
 ├── ✅ Validation cohérence pricing global
 └── 📝 Mise à jour documentation stratégique
@@ -326,18 +326,18 @@ Objectif : Pricing model qui suit EXACTEMENT le développement produit
 feature_pricing_impact = {
   value_increase: {
     minor: "0-5% impact pricing",
-    moderate: "5-15% impact pricing", 
+    moderate: "5-15% impact pricing",
     major: "15-30% impact pricing",
     revolutionary: "Nouveau tier/plan nécessaire"
   },
-  
+
   user_experience: {
     friction_reduction: "+€ justified",
     automation_added: "+€ justified",
     time_saving: "+€ justified",
     error_prevention: "+€ justified"
   },
-  
+
   competitive_advantage: {
     market_first: "Premium pricing possible",
     market_parity: "Standard pricing",
@@ -354,7 +354,7 @@ Une fois pricing model arrêté → Déploiement systémique :
 
 🎯 POINTS DE CONVERSION IDENTIFIÉS :
 ├── Simulation terminée → "Voir toutes mes primes" (Upgrade CTA)
-├── Limite bien atteinte → "Ajouter un bien" (Property slot CTA)  
+├── Limite bien atteinte → "Ajouter un bien" (Property slot CTA)
 ├── Usage intensif → "Passez au illimité" (Subscription CTA)
 ├── Projet réussi → "Réduisez vos fees" (Tier upgrade CTA)
 └── Dashboard vide → "Commencez gratuitement" (Onboarding CTA)
@@ -371,7 +371,7 @@ Nouvel utilisateur :
 
 Utilisateur actif freemium :
 ├── "Débloquez toutes vos primes pour 9€"
-├── "Votre 2ème bien à partir de 199€"  
+├── "Votre 2ème bien à partir de 199€"
 └── "Gagnez du temps avec l'IA à 49€/mois"
 
 Power user :
@@ -437,7 +437,7 @@ Landing → Freemium → First Purchase → Recurring → Loyalty
 ```
 Fonctionnalités ajoutées :
 ├── 📊 Stats & indicateurs par document
-├── 💡 Conseils contextuels automatiques  
+├── 💡 Conseils contextuels automatiques
 ├── 🛡️ Garde-fous réglementaires
 ├── 📄 Import attestations entrepreneurs (obligatoire)
 ├── 🎯 Drag & drop + OCR scan dans chaque carte
@@ -492,7 +492,7 @@ Impact Pricing Estimé : ⭐⭐ MODÉRÉ (8-12%)
 ```
 Avant Semaine 1 :
 ├── Calculateur primes ✅
-├── Multi-biens ✅  
+├── Multi-biens ✅
 ├── BCE intégré ✅
 └── Simulations ✅
 
@@ -541,7 +541,7 @@ AVANT (Pricing Conservative) :
 ├── Freemium : 1 bien + 1 simulation
 ├── Usage : 9€/simulation, 199€→149€→99€→79€/bien
 ├── Ren0Chat : 49€/mois
-├── Ren0Bot : 79€/mois  
+├── Ren0Bot : 79€/mois
 ├── Bundle : 119€/mois
 
 APRÈS (Pricing Value-Justified) :
@@ -559,7 +559,7 @@ APRÈS (Pricing Value-Justified) :
 B2B Professional Tier (89€/mois) inclut :
 ├── Toutes features Semaine 1
 ├── OCR + IA documents
-├── Dashboard projet complet  
+├── Dashboard projet complet
 ├── Réseau pro intégré
 ├── Analytics avancées
 └── Success fee préférentiel
@@ -593,7 +593,7 @@ Marketing Copy :
 Nouveaux points de conversion identifiés :
 
 📄 Upload Document → "OCR automatique avec PRO"
-🏗️ Projet complexe → "Dashboard professionnel adapté"  
+🏗️ Projet complexe → "Dashboard professionnel adapté"
 👷 Besoin entrepreneur → "Réseau partenaires PRO"
 📊 Analytics basiques → "Analytics avancées PRO"
 🤖 IA limitée → "IA contextuelle illimitée PRO"
@@ -613,7 +613,7 @@ Utilisateurs cibles B2B (estimés) :
 Revenue Potential PRO Tier :
 ├── Conversion conservative 10% = 12-18 clients
 ├── 15 clients × 89€ × 12 mois = 16,020€/an
-├── Conversion optimiste 25% = 29-46 clients  
+├── Conversion optimiste 25% = 29-46 clients
 ├── 35 clients × 89€ × 12 mois = 37,380€/an
 
 REVENUE SUPPLÉMENTAIRE : +16K€ à +37K€/an
@@ -649,7 +649,7 @@ Actions Week 2 :
 
 #### **📋 Planning Trimestre par Fonctionnalité**
 ```
-SEPTEMBRE 2025 : Core Business Primes 
+SEPTEMBRE 2025 : Core Business Primes
 ├── 🏠 Création bien → 💰 Obtention primes sur compte bancaire
 ├── 🔄 Workflow complet prime-to-cash
 ├── ✅ Gestion administrative end-to-end
@@ -661,7 +661,7 @@ OCTOBRE 2025 : Préparation Chantier
 ├── 📄 Gestion documentaire chantier
 └── ⏰ Timeline & milestones
 
-NOVEMBRE 2025 : Gestion Chantier  
+NOVEMBRE 2025 : Gestion Chantier
 ├── 📱 Suivi temps réel
 ├── 👷 Interface corps de métier
 ├── 📊 Reporting avancement
@@ -871,7 +871,7 @@ DÉCEMBRE KPIs :
 ```
 Ce document devient notre RÉFÉRENCE VIVANTE :
 ├── 📅 Reviews quotidiennes : ajustements micro
-├── 🗓️ Reviews hebdomadaires : validation macro  
+├── 🗓️ Reviews hebdomadaires : validation macro
 ├── 📊 Reviews mensuelles : pivot si nécessaire
 ├── 🎯 Reviews trimestrielles : vision long terme
 └── 💰 Pricing toujours aligné sur valeur livrée
@@ -906,7 +906,7 @@ VENDREDI - WEEKLY REVIEW :
 ```python
 def pricing_decision_framework(new_feature):
     impact = evaluate_value_impact(new_feature)
-    
+
     if impact < 5%:
         return "No pricing change needed"
     elif impact < 15%:
@@ -915,7 +915,7 @@ def pricing_decision_framework(new_feature):
         return "New feature tier or bundle"
     else:
         return "New pricing tier justified"
-        
+
 def implementation_speed():
     return "Same day for minor, same week for major"
 ```
@@ -925,7 +925,7 @@ def implementation_speed():
 KPIs à monitorer quotidiennement :
 ├── 💰 Daily revenue (target vs actual)
 ├── 👥 New signups by tier
-├── 🔄 Conversion funnel performance  
+├── 🔄 Conversion funnel performance
 ├── 📞 Support tickets (pricing related)
 ├── ⭐ User satisfaction scores
 ├── 🏗️ Feature adoption rates
@@ -946,7 +946,7 @@ SEPTEMBRE 2025 CHECKPOINTS :
 
 VALIDATION CRITERIA :
 ├── Features livrées = features planifiées ✅
-├── Pricing testé = pricing documenté ✅  
+├── Pricing testé = pricing documenté ✅
 ├── Revenue réel ≥ 80% projections ✅
 └── User feedback ≥ satisfaction target ✅
 ```
@@ -995,7 +995,7 @@ MESURER → ANALYSER → DÉCIDER → IMPLÉMENTER → MESURER
 
 Chaque itération améliore :
 ├── Product-market fit
-├── Pricing accuracy  
+├── Pricing accuracy
 ├── User experience
 ├── Revenue efficiency
 └── Competitive positioning
@@ -1020,10 +1020,10 @@ RÉSULTAT ATTENDU :
 
 ---
 
-**Document finalisé le** : 31 août 2025  
-**Statut** : VISION DOCUMENTÉE → EXÉCUTION EN COURS  
-**Méthodologie** : Living document + ajustements continus  
-**Objectif** : Transformer vision en réalité profitable  
+**Document finalisé le** : 31 août 2025
+**Statut** : VISION DOCUMENTÉE → EXÉCUTION EN COURS
+**Méthodologie** : Living document + ajustements continus
+**Objectif** : Transformer vision en réalité profitable
 **Version** : 4.0 FINAL - Stratégie complète + plan d'exécution
 
 **🎯 DE LA VISION À LA RÉALITÉ : RIEN NE PEUT NOUS ARRÊTER ! 💰🚀**
@@ -1055,7 +1055,7 @@ RÉSULTAT ATTENDU :
 Semaines 1-2 : Infrastructure CTA
 ├── 🎯 Identifier tous les points de conversion
 ├── 📝 Créer la copy bank contextuelle
-├── 🎨 Designer les CTA components  
+├── 🎨 Designer les CTA components
 ├── 📊 Setup analytics tracking
 └── 🧪 Framework A/B testing ready
 ```
@@ -1088,7 +1088,7 @@ Semaines 5-6 : Performance tuning
 
 Acquisition :
 ├── Freemium signup rate
-├── Time to first value  
+├── Time to first value
 ├── Onboarding completion %
 └── Free → Paid conversion %
 
@@ -1119,9 +1119,9 @@ Revenue :
 
 ---
 
-**Document mis à jour le** : 31 août 2025  
-**Méthodologie** : Review pricing hebdomadaire + Intégration SaaS complète  
-**Statut** : ARCHITECTURE DÉFINIE → OPTIMISATION CONTINUE → DÉPLOIEMENT INTÉGRÉ  
+**Document mis à jour le** : 31 août 2025
+**Méthodologie** : Review pricing hebdomadaire + Intégration SaaS complète
+**Statut** : ARCHITECTURE DÉFINIE → OPTIMISATION CONTINUE → DÉPLOIEMENT INTÉGRÉ
 **Version** : 3.1 - Stratégie évolutive et méthodologie d'exécution
 
 **🎯 Pricing model évolutif + SaaS integration complète = Success garanti ! 💰🚀**

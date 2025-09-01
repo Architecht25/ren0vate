@@ -142,7 +142,14 @@ class PropertiesController < ApplicationController
     @documents_by_type = @property.documents_by_type
     @document_stats = Document.completion_stats_for_property(@property)
 
-    # Configuration des types de documents avec leurs informations
+    # Nouveau système de phases
+    @phases_data = @property.phases_with_status
+    @phase_calculator = DocumentPhaseCalculatorService.new(@property)
+    @comprehensive_metrics = @phase_calculator.calculate_comprehensive_metrics
+    @recommendations = @phase_calculator.intelligent_recommendations.first(3)
+    @potential_issues = @phase_calculator.detect_potential_issues
+
+    # Configuration des types de documents avec leurs informations (legacy pour transition)
     @document_types_config = {
       'devis' => {
         title: '📄 Devis/métré',
@@ -256,6 +263,17 @@ class PropertiesController < ApplicationController
         priority: 'optional'
       }
     }
+  end
+
+  def documents_phases_dashboard
+    @property = current_user.properties.find(params[:id])
+
+    # Nouveau système de phases de documents
+    @phases_data = @property.phases_with_status
+    @phase_calculator = DocumentPhaseCalculatorService.new(@property)
+    @comprehensive_metrics = @phase_calculator.calculate_comprehensive_metrics
+    @recommendations = @phase_calculator.intelligent_recommendations.first(3)
+    @potential_issues = @phase_calculator.detect_potential_issues
   end
 
   def formulaire_miroir
