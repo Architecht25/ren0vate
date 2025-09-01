@@ -135,6 +135,9 @@ class PropertiesController < ApplicationController
       montant_total_demande: @request_progresses.sum(:montant_demande) || 0,
       montant_total_accorde: @request_progresses.sum(:montant_accorde) || 0
     }
+
+    # Test temporaire du nouveau dashboard
+    render 'dashboard_clean'
   end
 
   def documents_dashboard

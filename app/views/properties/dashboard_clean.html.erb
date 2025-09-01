@@ -1,0 +1,683 @@
+<div class="container-fluid px-4 py-4">
+  <!-- Header avec navigation -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-house-door"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">
+          <%= @property.name || "Bien sans nom" %>
+        </h1>
+        <small class="text-muted-custom">
+          <i class="bi bi-geo-alt me-1"></i>
+          <%= @property.rue %> <%= @property.numero %>, <%= @property.code_postal %> <%= @property.commune %>
+        </small>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <%= link_to dashboard_path, class: "btn btn-outline-primary-custom" do %>
+        <i class="bi bi-arrow-left me-2"></i>Dashboard général
+      <% end %>
+      <%= link_to edit_property_path(@property), class: "btn btn-primary-custom px-4" do %>
+        <i class="bi bi-pencil me-2"></i>Modifier
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Alertes et notifications -->
+  <% if @actions_available && @actions_available[:missing_fields].any? %>
+    <div class="alert alert-warning border-0 mb-4">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        <div>
+          <strong>Informations manquantes :</strong>
+          <span class="text-muted-custom ms-2">
+            <%= @actions_available[:missing_fields].map { |field| field.to_s.humanize }.join(", ") %>
+          </span>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Navigation rapide -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-2">
+      <%= link_to edit_property_path(@property), class: "card border-0 shadow bg-primary-custom text-white text-decoration-none h-100" do %>
+        <div class="card-body text-center p-3">
+          <i class="bi bi-house-gear fs-4 mb-2"></i>
+          <small class="d-block">Infos du bien</small>
+        </div>
+      <% end %>
+    </div>
+    <div class="col-md-2">
+      <%= link_to projects_path, class: "card border-0 shadow bg-warning text-white text-decoration-none h-100" do %>
+        <div class="card-body text-center p-3">
+          <i class="bi bi-hammer fs-4 mb-2"></i>
+          <small class="d-block">Chantiers</small>
+        </div>
+      <% end %>
+    </div>
+    <div class="col-md-2">
+      <%= link_to simulations_path, class: "card border-0 shadow bg-info text-white text-decoration-none h-100" do %>
+        <div class="card-body text-center p-3">
+          <i class="bi bi-calculator fs-4 mb-2"></i>
+          <small class="d-block">Simulations</small>
+        </div>
+      <% end %>
+    </div>
+    <div class="col-md-2">
+      <%= link_to property_documents_path(@property), class: "card border-0 shadow bg-success text-white text-decoration-none h-100" do %>
+        <div class="card-body text-center p-3">
+          <i class="bi bi-file-earmark-text fs-4 mb-2"></i>
+          <small class="d-block">Documents</small>
+        </div>
+      <% end %>
+    </div>
+    <div class="col-md-2">
+      <%= link_to requests_path, class: "card border-0 shadow bg-purple text-white text-decoration-none h-100" do %>
+        <div class="card-body text-center p-3">
+          <i class="bi bi-clipboard-check fs-4 mb-2"></i>
+          <small class="d-block">Demandes</small>
+        </div>
+      <% end %>
+    </div>
+    <div class="col-md-2">
+      <%= link_to new_request_path(property_id: @property.id), class: "card border-0 shadow bg-secondary text-white text-decoration-none h-100" do %>
+        <div class="card-body text-center p-3">
+          <i class="bi bi-plus-circle fs-4 mb-2"></i>
+          <small class="d-block">Nouvelle demande</small>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Statistiques principales -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-2">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body text-center p-3">
+          <div class="icon-circle mx-auto mb-2">
+            <i class="bi bi-percent"></i>
+          </div>
+          <h4 class="text-primary-custom mb-1"><%= @completion_stats ? @completion_stats[:overall] : 0 %>%</h4>
+          <small class="text-muted-custom">Complétude</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body text-center p-3">
+          <div class="icon-circle mx-auto mb-2">
+            <i class="bi bi-file-earmark-text"></i>
+          </div>
+          <h4 class="text-primary-custom mb-1"><%= @property.documents.count %></h4>
+          <small class="text-muted-custom">Documents</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body text-center p-3">
+          <div class="icon-circle mx-auto mb-2">
+            <i class="bi bi-clipboard-check"></i>
+          </div>
+          <h4 class="text-primary-custom mb-1"><%= @property.requests.count %></h4>
+          <small class="text-muted-custom">Demandes</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body text-center p-3">
+          <div class="icon-circle mx-auto mb-2">
+            <i class="bi bi-calculator"></i>
+          </div>
+          <h4 class="text-primary-custom mb-1"><%= @property.simulations.count %></h4>
+          <small class="text-muted-custom">Simulations</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body text-center p-3">
+          <div class="icon-circle mx-auto mb-2">
+            <i class="bi bi-hammer"></i>
+          </div>
+          <h4 class="text-primary-custom mb-1"><%= @property.projects.count rescue 0 %></h4>
+          <small class="text-muted-custom">Chantiers</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body text-center p-3">
+          <div class="icon-circle mx-auto mb-2">
+            <i class="bi bi-currency-euro"></i>
+          </div>
+          <h4 class="text-primary-custom mb-1">
+            <%= number_to_currency((@property.requests.sum(:montant_total) rescue 0), unit: "€", separator: ",", delimiter: " ") %>
+          </h4>
+          <small class="text-muted-custom">Primes obtenues</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sections principales épurées -->
+  <div class="row g-4">
+
+    <!-- État des données du bien -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow h-100">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center mb-3">
+            <div class="icon-circle me-3">
+              <i class="bi bi-house-gear"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0 fw-normal">État des données du bien</h5>
+              <small class="text-muted-custom">Complétude des informations</small>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-6">
+              <div class="info-item">
+                <small class="text-muted-custom">Informations administratives</small>
+                <div class="fw-medium">
+                  <span class="badge bg-<%= @completion_stats && @completion_stats[:admin] > 70 ? 'success' : @completion_stats && @completion_stats[:admin] > 40 ? 'warning' : 'danger' %>">
+                    <%= @completion_stats ? @completion_stats[:admin] : 0 %>%
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="info-item">
+                <small class="text-muted-custom">Informations chantier</small>
+                <div class="fw-medium">
+                  <span class="badge bg-<%= @completion_stats && @completion_stats[:chantier] > 70 ? 'success' : @completion_stats && @completion_stats[:chantier] > 40 ? 'warning' : 'danger' %>">
+                    <%= @completion_stats ? @completion_stats[:chantier] : 0 %>%
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="info-item">
+                <small class="text-muted-custom">Superficie habitable</small>
+                <div class="fw-medium"><%= @property.surface_habitable || "Non renseigné" %> m²</div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="info-item">
+                <small class="text-muted-custom">Région</small>
+                <div class="fw-medium">
+                  <% if @property.region %>
+                    <span class="badge bg-primary-custom"><%= @property.region.humanize %></span>
+                  <% else %>
+                    Non renseigné
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-top">
+            <%= link_to edit_property_path(@property), class: "btn btn-outline-primary-custom btn-sm w-100" do %>
+              <i class="bi bi-pencil me-2"></i>Modifier les informations
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- État des chantiers -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow h-100">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center mb-3">
+            <div class="icon-circle me-3">
+              <i class="bi bi-hammer"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0 fw-normal">État des chantiers</h5>
+              <small class="text-muted-custom">Projets en cours et planifiés</small>
+            </div>
+          </div>
+
+          <% if @property.projects.any? %>
+            <% @property.projects.limit(3).each do |project| %>
+              <div class="d-flex align-items-center py-2 border-bottom">
+                <i class="bi bi-hammer me-2 text-primary-custom"></i>
+                <div class="flex-grow-1">
+                  <div class="fw-medium"><%= project.nom || "Projet sans nom" %></div>
+                  <small class="text-muted-custom">
+                    Statut: <%= project.statut || "Non défini" %>
+                    <% if project.date_début %>
+                      | Début: <%= project.date_début.strftime("%d/%m/%Y") %>
+                    <% end %>
+                  </small>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="text-center py-4 text-muted-custom">
+              <i class="bi bi-hammer fs-3 mb-2 d-block"></i>
+              <p class="mb-0">Aucun chantier en cours</p>
+            </div>
+          <% end %>
+
+          <div class="mt-4 pt-3 border-top">
+            <%= link_to "#", class: "btn btn-outline-primary-custom btn-sm w-100" do %>
+              <i class="bi bi-plus-lg me-2"></i>Nouveau chantier
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <!-- Seconde rangée de sections -->
+  <div class="row g-4 mt-4">
+
+    <!-- État des analyses & simulations -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow h-100">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center mb-3">
+            <div class="icon-circle me-3">
+              <i class="bi bi-graph-up"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0 fw-normal">Analyses & Simulations</h5>
+              <small class="text-muted-custom">Évaluations énergétiques</small>
+            </div>
+          </div>
+
+          <% if @property.simulations.any? %>
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <div class="info-item text-center">
+                  <small class="text-muted-custom">Simulations totales</small>
+                  <div class="fw-medium h4 text-primary-custom mb-0"><%= @property.simulations.count %></div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="info-item text-center">
+                  <small class="text-muted-custom">Complètes</small>
+                  <div class="fw-medium h4 text-primary-custom mb-0"><%= @property.simulations.where.not(region: nil).count %></div>
+                </div>
+              </div>
+            </div>
+
+            <% @property.simulations.limit(2).each do |simulation| %>
+              <div class="d-flex align-items-center py-2 border-bottom">
+                <i class="bi bi-calculator me-2 text-primary-custom"></i>
+                <div class="flex-grow-1">
+                  <div class="fw-medium"><%= simulation.region&.humanize || "Simulation" %></div>
+                  <small class="text-muted-custom"><%= time_ago_in_words(simulation.created_at) %></small>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="text-center py-4 text-muted-custom">
+              <i class="bi bi-calculator fs-3 mb-2 d-block"></i>
+              <p class="mb-0">Aucune simulation</p>
+            </div>
+          <% end %>
+
+          <div class="mt-4 pt-3 border-top">
+            <%= link_to new_simulation_path(property_id: @property.id), class: "btn btn-outline-primary-custom btn-sm w-100" do %>
+              <i class="bi bi-plus-lg me-2"></i>Nouvelle simulation
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- État des documents -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow h-100">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center mb-3">
+            <div class="icon-circle me-3">
+              <i class="bi bi-file-earmark-text"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0 fw-normal">État des documents</h5>
+              <small class="text-muted-custom">Gestion documentaire</small>
+            </div>
+          </div>
+
+          <% if @property.documents.any? %>
+            <div class="row g-3 mb-3">
+              <div class="col-4">
+                <div class="info-item text-center">
+                  <small class="text-muted-custom">Total</small>
+                  <div class="fw-medium h4 text-primary-custom mb-0"><%= @property.documents.count %></div>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="info-item text-center">
+                  <small class="text-muted-custom">Approuvés</small>
+                  <div class="fw-medium h4 text-success mb-0"><%= @property.documents.where(status: 'approved').count rescue 0 %></div>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="info-item text-center">
+                  <small class="text-muted-custom">En attente</small>
+                  <div class="fw-medium h4 text-warning mb-0"><%= @property.documents.where(status: 'pending').count rescue 0 %></div>
+                </div>
+              </div>
+            </div>
+
+            <% @property.documents.limit(3).each do |document| %>
+              <div class="d-flex align-items-center py-2 border-bottom">
+                <i class="bi bi-file-earmark-text me-2 text-primary-custom"></i>
+                <div class="flex-grow-1">
+                  <div class="fw-medium"><%= document.type_document&.humanize || "Document" %></div>
+                  <small class="text-muted-custom">
+                    <%= document.created_at.strftime("%d/%m/%Y") %>
+                    <% if document.respond_to?(:status) && document.status %>
+                      | <%= document.status.humanize %>
+                    <% end %>
+                  </small>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="text-center py-4 text-muted-custom">
+              <i class="bi bi-file-earmark-plus fs-3 mb-2 d-block"></i>
+              <p class="mb-0">Aucun document</p>
+            </div>
+          <% end %>
+
+          <div class="mt-4 pt-3 border-top">
+            <%= link_to new_property_document_path(@property), class: "btn btn-outline-primary-custom btn-sm w-100" do %>
+              <i class="bi bi-plus-lg me-2"></i>Ajouter un document
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Troisième rangée de sections -->
+  <div class="row g-4 mt-4">
+
+    <!-- Suivi des demandes -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow h-100">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center mb-3">
+            <div class="icon-circle me-3">
+              <i class="bi bi-clipboard-check"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0 fw-normal">Suivi des demandes</h5>
+              <small class="text-muted-custom">Demandes de primes</small>
+            </div>
+          </div>
+
+          <% if @property.requests.any? %>
+            <% @property.requests.limit(3).each do |property_request| %>
+              <div class="d-flex align-items-center py-2 border-bottom">
+                <i class="bi bi-clipboard-check me-2 text-primary-custom"></i>
+                <div class="flex-grow-1">
+                  <div class="fw-medium"><%= property_request.type_travaux&.humanize || "Demande" %></div>
+                  <small class="text-muted-custom">
+                    <%= time_ago_in_words(property_request.created_at) %>
+                    <% if property_request.respond_to?(:status) && property_request.status %>
+                      | <span class="badge bg-<%= property_request.status == 'approved' ? 'success' : property_request.status == 'pending' ? 'primary' : property_request.status == 'rejected' ? 'danger' : 'secondary' %>">
+                        <%= property_request.status.humanize %>
+                      </span>
+                    <% end %>
+                  </small>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="text-center py-4 text-muted-custom">
+              <i class="bi bi-clipboard-plus fs-3 mb-2 d-block"></i>
+              <p class="mb-0">Aucune demande</p>
+            </div>
+          <% end %>
+
+          <div class="mt-4 pt-3 border-top">
+            <%= link_to new_request_path(property_id: @property.id), class: "btn btn-outline-primary-custom btn-sm w-100" do %>
+              <i class="bi bi-plus-lg me-2"></i>Nouvelle demande
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="col-lg-6">
+      <div class="card border-0 shadow h-100">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center mb-3">
+            <div class="icon-circle me-3">
+              <i class="bi bi-lightning"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0 fw-normal">Actions rapides</h5>
+              <small class="text-muted-custom">Gestion de votre bien</small>
+            </div>
+          </div>
+
+          <div class="d-grid gap-2">
+            <%= link_to new_request_path(property_id: @property.id), class: "btn btn-primary-custom text-start" do %>
+              <i class="bi bi-plus-lg me-2"></i>Faire une demande de prime
+            <% end %>
+
+            <%= link_to property_documents_path(@property), class: "btn btn-outline-primary-custom text-start" do %>
+              <i class="bi bi-file-earmark-text me-2"></i>Gérer les documents
+            <% end %>
+
+            <%= link_to new_property_document_path(@property), class: "btn btn-outline-success text-start" do %>
+              <i class="bi bi-cloud-upload me-2"></i>Uploader un document
+            <% end %>
+
+            <%= link_to new_simulation_path(property_id: @property.id), class: "btn btn-outline-primary-custom text-start" do %>
+              <i class="bi bi-calculator me-2"></i>Nouvelle simulation
+            <% end %>
+
+            <% if @property.region == 'flandre' %>
+              <%= link_to "https://woningpas.vlaanderen.be/", target: "_blank", class: "btn btn-outline-info text-start" do %>
+                <i class="bi bi-house-check me-2"></i>Woningpas Vlaanderen
+                <i class="bi bi-box-arrow-up-right ms-1 small"></i>
+              <% end %>
+            <% end %>
+
+            <%= link_to property_path(@property), class: "btn btn-outline-primary-custom text-start" do %>
+              <i class="bi bi-eye me-2"></i>Voir les détails
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Activité récente -->
+  <% if (@property.requests&.any? || @property.simulations&.any? || @property.documents&.any?) %>
+    <div class="row g-4 mt-4">
+      <div class="col-12">
+        <div class="card border-0 shadow">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center mb-3">
+              <div class="icon-circle me-3">
+                <i class="bi bi-clock-history"></i>
+              </div>
+              <div>
+                <h5 class="card-title mb-0 fw-normal">Activité récente</h5>
+                <small class="text-muted-custom">Dernières actions sur ce bien</small>
+              </div>
+            </div>
+
+            <div class="row g-3">
+              <% if @property.requests&.any? %>
+                <div class="col-md-6">
+                  <h6 class="text-muted-custom mb-2">Demandes récentes</h6>
+                  <% @property.requests.limit(3).each do |property_request| %>
+                    <div class="d-flex align-items-center py-2 border-bottom">
+                      <i class="bi bi-clipboard-check me-2 text-primary-custom"></i>
+                      <div class="flex-grow-1">
+                        <div class="fw-medium"><%= property_request.type_travaux&.humanize || "Demande" %></div>
+                        <small class="text-muted-custom"><%= property_request.created_at.strftime("%d/%m/%Y") %></small>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+
+              <% if @property.simulations&.any? %>
+                <div class="col-md-6">
+                  <h6 class="text-muted-custom mb-2">Simulations récentes</h6>
+                  <% @property.simulations.limit(3).each do |simulation| %>
+                    <div class="d-flex align-items-center py-2 border-bottom">
+                      <i class="bi bi-calculator me-2 text-primary-custom"></i>
+                      <div class="flex-grow-1">
+                        <div class="fw-medium"><%= simulation.region&.humanize || "Simulation" %></div>
+                        <small class="text-muted-custom"><%= simulation.created_at.strftime("%d/%m/%Y") %></small>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<!-- CSS pour les icônes et couleurs personnalisées -->
+<style>
+.card {
+  transition: all 0.3s ease;
+  background-color: #ffffff;
+  border-radius: 12px !important;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.card.shadow {
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+}
+
+.card.shadow-sm {
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
+}
+
+/* Cartes de navigation colorées */
+.card.bg-primary-custom:hover,
+.card.bg-warning:hover,
+.card.bg-info:hover,
+.card.bg-success:hover,
+.card.bg-purple:hover,
+.card.bg-secondary:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+}
+
+.icon-circle {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.15), rgba(var(--bs-primary-rgb), 0.25));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.icon-circle i {
+  color: var(--bs-primary);
+  font-size: 1.2rem;
+}
+
+.card:hover .icon-circle {
+  background: linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.25), rgba(var(--bs-primary-rgb), 0.35));
+  transform: scale(1.05);
+}
+
+/* Icônes des cartes de statistiques */
+.card.shadow-sm .icon-circle {
+  background: linear-gradient(135deg, rgba(var(--bs-primary-rgb), 0.1), rgba(var(--bs-primary-rgb), 0.2));
+}
+
+.bg-purple {
+  background-color: #6f42c1 !important;
+}
+
+.text-purple {
+  color: #6f42c1 !important;
+}
+
+.btn-outline-purple {
+  border-color: #6f42c1;
+  color: #6f42c1;
+}
+
+.btn-outline-purple:hover {
+  background-color: #6f42c1;
+  border-color: #6f42c1;
+  color: white;
+}
+
+.info-item {
+  margin-bottom: 1rem;
+}
+
+.info-item small {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.border-bottom {
+  border-color: rgba(0,0,0,0.08) !important;
+}
+
+.card-title {
+  color: #2c3e50;
+  font-weight: 600;
+}
+
+.text-muted-custom {
+  color: #6c757d !important;
+}
+
+.text-primary-custom {
+  color: var(--bs-primary) !important;
+}
+
+/* Animation pour les éléments de liste */
+.card-body .d-flex.align-items-center.py-2 {
+  transition: background-color 0.2s ease;
+  border-radius: 6px;
+  margin: 0 -0.5rem;
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+}
+
+.card-body .d-flex.align-items-center.py-2:hover {
+  background-color: rgba(var(--bs-primary-rgb), 0.05);
+}
+
+/* Effet de brillance sur les badges */
+.badge {
+  font-weight: 500;
+  padding: 0.5em 0.8em;
+  border-radius: 6px;
+}
+
+/* Amélioration des boutons */
+.btn {
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+</style>
