@@ -1,0 +1,1203 @@
+<div class="card shadow-sm border-0 p-3 text-center mb-3 h-100">
+    <div class="card-body d-flex flex-column align-items-center gap-3">
+      <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+        <i class="bi bi-building fs-5 text-warning"></i>
+      </div>
+      <h6 class="card-title mb-2">Primes Communales</h6>
+
+      <!-- Formulaire de vérification -->
+      <div class="w-100" style="max-width: 300px;">
+        <div class="mb-3">
+          <label for="code_postal_communales" class="form-label text-start w-100 small">Code postal</label>
+          <input type="text"
+                 class="form-control form-control-sm"
+                 id="code_postal_communales"
+                 placeholder="ex: 9000"
+                 pattern="[0-9]{4}"
+                 maxlength="4"
+                 oninput="checkCommunalesPrimes()">
+          <small class="text-muted">Saisissez votre code postal pour découvrir les primes disponibles</small>
+        </div>
+
+        <!-- Loading indicator -->
+        <div class="mb-3" id="loading_communales" style="display: none;">
+          <div class="d-flex align-items-center justify-content-center gap-2">
+            <div class="spinner-border spinner-border-sm text-warning" role="status"></div>
+            <small class="text-muted">Recherche en cours...</small>
+          </div>
+        </div>
+
+        <!-- Statut de vérification -->
+        <div class="mb-3" id="status_communales" style="display: none;">
+          <div class="d-flex align-items-center justify-content-center gap-2">
+            <i id="status_icon_communales" class="bi"></i>
+            <small id="status_text_communales" class="fw-bold"></small>
+          </div>
+        </div>
+
+        <!-- Sélection des primes (si disponibles) -->
+        <div class="mb-3" id="primes_selection" style="display: none;">
+          <label for="prime_communale_select" class="form-label text-start w-100 small">Sélectionnez une prime</label>
+          <select class="form-select form-select-sm" id="prime_communale_select" onchange="calculateCommunales()">
+            <option value="">Choisir une prime...</option>
+          </select>
+        </div>
+
+        <!-- Champ montant travaux (si prime sélectionnée) -->
+        <div class="mb-3" id="montant_section_communales" style="display: none;">
+          <label for="montant_travaux_communales" class="form-label text-start w-100 small">Montant des travaux (€)</label>
+          <input type="number"
+                 class="form-control form-control-sm"
+                 id="montant_travaux_communales"
+                 placeholder="0"
+                 min="0"
+                 step="0.01"
+                 oninput="calculateCommunales()">
+        </div>
+
+        <!-- Résultat -->
+        <div class="alert alert-warning alert-sm mb-2" id="result_section_communales" style="display: none;" role="alert">
+          <small class="fw-bold">Prime estimée : </small>
+          <span class="fw-bold prime-result" id="result_communales">0.00 €</span>
+          <div class="mt-1">
+            <small id="prime_details_communales" class="text-muted"></small>
+          </div>
+        </div>
+
+        <small class="text-muted d-block">
+          Les primes communales varient selon votre commune et le type de travaux
+        </small>
+      </div>
+    </div>
+  </div>
+
+<script>
+let communalesDebounceTimer;
+let selectedPrime = null;
+
+// Base de données des primes communales par code postal
+const communalesPrimesData = {
+  // Gent (9000)
+  '9000': {
+    commune: 'Gent',
+    primes: [
+      {
+        id: 'isolation_toiture_gent',
+        nom: 'Isolation de toiture',
+        type: 'pourcentage',
+        valeur: 0.30,
+        plafond: 15000,
+        description: '30% du montant, max 15.000€'
+      },
+      {
+        id: 'isolation_murs_gent',
+        nom: 'Isolation des murs',
+        type: 'pourcentage',
+        valeur: 0.25,
+        plafond: 12000,
+        description: '25% du montant, max 12.000€'
+      },
+      {
+        id: 'chaudiere_gent',
+        nom: 'Chaudière performante',
+        type: 'forfait',
+        valeur: 2000,
+        description: 'Forfait de 2.000€'
+      },
+      {
+        id: 'panneaux_solaires_gent',
+        nom: 'Panneaux solaires',
+        type: 'par_kw',
+        valeur: 150,
+        plafond: 3000,
+        description: '150€/kW installé, max 3.000€'
+      }
+    ]
+  },
+
+  // Antwerpen (2000)
+  '2000': {
+    commune: 'Antwerpen',
+    primes: [
+      {
+        id: 'isolation_toiture_antwerp',
+        nom: 'Isolation de toiture',
+        type: 'pourcentage',
+        valeur: 0.25,
+        plafond: 10000,
+        description: '25% du montant, max 10.000€'
+      },
+      {
+        id: 'facades_antwerp',
+        nom: 'Rénovation de façade',
+        type: 'pourcentage',
+        valeur: 0.40,
+        plafond: 20000,
+        description: '40% du montant, max 20.000€'
+      },
+      {
+        id: 'pompe_chaleur_antwerp',
+        nom: 'Pompe à chaleur',
+        type: 'forfait',
+        valeur: 3000,
+        description: 'Forfait de 3.000€'
+      }
+    ]
+  },
+
+  // Brugge (8000)
+  '8000': {
+    commune: 'Brugge',
+    primes: [
+      {
+        id: 'renovation_complete_brugge',
+        nom: 'Rénovation complète',
+        type: 'pourcentage',
+        valeur: 0.35,
+        plafond: 25000,
+        description: '35% du montant, max 25.000€'
+      },
+      {
+        id: 'fenêtres_brugge',
+        nom: 'Remplacement fenêtres',
+        type: 'pourcentage',
+        valeur: 0.20,
+        plafond: 8000,
+        description: '20% du montant, max 8.000€'
+      },
+      {
+        id: 'ventilation_brugge',
+        nom: 'Système de ventilation',
+        type: 'forfait',
+        valeur: 1500,
+        description: 'Forfait de 1.500€'
+      }
+    ]
+  },
+
+  // Leuven (3000)
+  '3000': {
+    commune: 'Leuven',
+    primes: [
+      {
+        id: 'isolation_toiture_leuven',
+        nom: 'Isolation de toiture',
+        type: 'pourcentage',
+        valeur: 0.35,
+        plafond: 18000,
+        description: '35% du montant, max 18.000€'
+      },
+      {
+        id: 'chauffe_eau_solaire_leuven',
+        nom: 'Chauffe-eau solaire',
+        type: 'forfait',
+        valeur: 2500,
+        description: 'Forfait de 2.500€'
+      }
+    ]
+  },
+
+  // Hasselt (3500)
+  '3500': {
+    commune: 'Hasselt',
+    primes: [
+      {
+        id: 'isolation_murs_hasselt',
+        nom: 'Isolation des murs',
+        type: 'pourcentage',
+        valeur: 0.30,
+        plafond: 14000,
+        description: '30% du montant, max 14.000€'
+      },
+      {
+        id: 'toiture_verte_hasselt',
+        nom: 'Toiture verte',
+        type: 'par_m2',
+        valeur: 25,
+        plafond: 5000,
+        description: '25€/m², max 5.000€'
+      }
+    ]
+  },
+
+  // Mechelen (2800)
+  '2800': {
+    commune: 'Mechelen',
+    primes: [
+      {
+        id: 'audit_energetique_mechelen',
+        nom: 'Audit énergétique',
+        type: 'forfait',
+        valeur: 500,
+        description: 'Forfait de 500€'
+      },
+      {
+        id: 'isolation_sol_mechelen',
+        nom: 'Isolation du sol',
+        type: 'pourcentage',
+        valeur: 0.25,
+        plafond: 8000,
+        description: '25% du montant, max 8.000€'
+      }
+    ]
+  },
+
+  // Tervuren (3080) - Primes réelles de Tervuren
+  '3080': {
+    commune: 'Tervuren',
+    primes: [
+      {
+        id: 'isolation_toiture_tervuren',
+        nom: 'Isolation de toiture',
+        type: 'pourcentage',
+        valeur: 0.40,
+        plafond: 2500,
+        description: '40% du montant, max 2.500€'
+      },
+      {
+        id: 'isolation_murs_tervuren',
+        nom: 'Isolation des murs',
+        type: 'pourcentage',
+        valeur: 0.30,
+        plafond: 2000,
+        description: '30% du montant, max 2.000€'
+      },
+      {
+        id: 'chaudiere_tervuren',
+        nom: 'Chaudière à condensation',
+        type: 'forfait',
+        valeur: 1000,
+        description: 'Forfait de 1.000€'
+      },
+      {
+        id: 'panneaux_solaires_tervuren',
+        nom: 'Panneaux photovoltaïques',
+        type: 'forfait',
+        valeur: 1500,
+        description: 'Forfait de 1.500€'
+      },
+      {
+        id: 'ventilation_tervuren',
+        nom: 'Système de ventilation',
+        type: 'forfait',
+        valeur: 750,
+        description: 'Forfait de 750€'
+      }
+    ]
+  }
+};
+
+function checkCommunalesPrimes() {
+  const codePostal = document.getElementById('code_postal_communales').value.trim();
+  const statusDiv = document.getElementById('status_communales');
+  const loadingDiv = document.getElementById('loading_communales');
+  const statusIcon = document.getElementById('status_icon_communales');
+  const statusText = document.getElementById('status_text_communales');
+  const primesSelection = document.getElementById('primes_selection');
+  const montantSection = document.getElementById('montant_section_communales');
+  const resultSection = document.getElementById('result_section_communales');
+
+  // Reset
+  clearTimeout(communalesDebounceTimer);
+
+  // Validation code postal
+  if (!codePostal) {
+    statusDiv.style.display = 'none';
+    primesSelection.style.display = 'none';
+    montantSection.style.display = 'none';
+    resultSection.style.display = 'none';
+    updateCommunalesTotal();
+    return;
+  }
+
+  if (!/^\d{4}$/.test(codePostal)) {
+    statusDiv.style.display = 'block';
+    loadingDiv.style.display = 'none';
+    statusIcon.className = 'bi bi-exclamation-triangle-fill text-warning';
+    statusText.textContent = 'Code postal invalide (4 chiffres)';
+    statusText.className = 'fw-bold text-warning';
+    primesSelection.style.display = 'none';
+    montantSection.style.display = 'none';
+    resultSection.style.display = 'none';
+    updateCommunalesTotal();
+    return;
+  }
+
+  console.log("Vérification primes communales pour:", codePostal);
+
+  // Debounce pour éviter trop d'appels
+  communalesDebounceTimer = setTimeout(() => {
+    searchCommunalesPrimes(codePostal);
+  }, 800);
+}
+
+async function searchCommunalesPrimes(codePostal) {
+  const statusDiv = document.getElementById('status_communales');
+  const loadingDiv = document.getElementById('loading_communales');
+  const statusIcon = document.getElementById('status_icon_communales');
+  const statusText = document.getElementById('status_text_communales');
+  const primesSelection = document.getElementById('primes_selection');
+  const montantSection = document.getElementById('montant_section_communales');
+  const resultSection = document.getElementById('result_section_communales');
+
+  // Afficher loading
+  loadingDiv.style.display = 'block';
+  statusDiv.style.display = 'none';
+
+  try {
+    // D'abord essayer l'API Premiezoeker.be avec les données réelles
+    console.log("🔌 Appel API Premiezoeker.be pour:", codePostal);
+
+    // Récupérer les détails de la commune pour construire l'URL
+    const communeDetails = await getCommuneDetailsByPostalCode(codePostal);
+
+    if (communeDetails && communeDetails.gemeente) {
+      try {
+        // Construire l'URL API Premiezoeker.be
+        const apiUrl = `https://www.premiezoeker.be/api/v1/premies?gemeente=${encodeURIComponent(communeDetails.gemeente)}&postcode=${codePostal}&straat=&huisnummer=`;
+
+        console.log("📞 URL API complète:", apiUrl);
+        console.log("🏛️ Commune détectée:", communeDetails.gemeente);
+
+        const response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: {
+            'Accept': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (compatible; RenovateApp/1.0)',
+            'Origin': 'https://www.premiezoeker.be'
+          },
+          mode: 'cors'
+        });
+
+        console.log("📡 Réponse API:", response.status, response.statusText);
+        console.log("📋 Headers réponse:", [...response.headers.entries()]);
+
+        if (response.ok) {
+          const primesData = await response.json();
+          console.log("✅ Données API reçues:", primesData);
+          console.log("📊 Nombre d'éléments:", primesData ? primesData.length : 0);
+
+          if (primesData && Array.isArray(primesData) && primesData.length > 0) {
+            console.log("🔍 Analyse des sources:", primesData.map(p => ({ titel: p.titel, bron: p.bron })));
+
+            // Filtrer les primes communales uniquement
+            const primesCommunales = primesData.filter(prime =>
+              prime.bron && prime.bron.toLowerCase().includes('gemeente')
+            );
+
+            console.log("🏛️ Primes communales filtrées:", primesCommunales);
+
+            if (primesCommunales.length > 0) {
+              // Primes réelles trouvées via API
+              statusIcon.className = 'bi bi-check-circle-fill text-success';
+              statusText.textContent = `${communeDetails.gemeente} : ${primesCommunales.length} prime(s) officielle(s) disponible(s)`;
+              statusText.className = 'fw-bold text-success';
+
+              // Remplir le select avec les primes réelles
+              const selectElement = document.getElementById('prime_communale_select');
+              selectElement.innerHTML = '<option value="">Choisir une prime...</option>';
+
+              primesCommunales.forEach((prime, index) => {
+                const option = document.createElement('option');
+                option.value = `api_${index}`;
+                option.textContent = `${prime.titel} - ${prime.bedrag || 'Montant variable'}`;
+
+                // Convertir la structure API vers notre format interne
+                const primeFormatted = {
+                  id: `api_${index}`,
+                  nom: prime.titel,
+                  type: 'api_externe',
+                  description: prime.omschrijving || prime.bedrag || 'Prime communale officielle',
+                  link: prime.link,
+                  sourceData: prime
+                };
+
+                option.dataset.primeData = JSON.stringify(primeFormatted);
+                selectElement.appendChild(option);
+              });
+
+              primesSelection.style.display = 'block';
+              loadingDiv.style.display = 'none';
+              statusDiv.style.display = 'block';
+              return; // Succès avec API réelle
+            } else {
+              console.log("ℹ️ API a répondu mais aucune prime communale trouvée");
+            }
+          } else {
+            console.log("ℹ️ API a répondu mais données vides ou incorrectes");
+          }
+        } else {
+          console.log("❌ API a répondu avec erreur:", response.status, response.statusText);
+        }
+
+      } catch (apiError) {
+        console.log("⚠️ Erreur API Premiezoeker.be:", apiError.message);
+        console.log("🔧 Type d'erreur:", apiError.name);
+        console.log("📍 Stack:", apiError.stack);
+      }
+    } else {
+      console.log("❌ Commune non trouvée dans le mapping pour:", codePostal);
+    }
+
+    // Fallback : charger les données depuis le fichier JSON
+    console.log("🔄 Fallback vers fichier JSON des primes communales");
+
+    try {
+      const jsonResponse = await fetch('/data/primes_communales.json', {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      if (jsonResponse.ok) {
+        const primesJsonData = await jsonResponse.json();
+        console.log("📄 Données JSON chargées:", primesJsonData.metadata);
+
+        // Cacher loading
+        loadingDiv.style.display = 'none';
+        statusDiv.style.display = 'block';
+
+        // Vérifier les données pour cette commune
+        const communeData = primesJsonData.communes[codePostal];
+
+        if (communeData && communeData.primes.length > 0) {
+          // Primes trouvées dans le JSON
+          statusIcon.className = 'bi bi-check-circle-fill text-warning';
+          statusText.textContent = `${communeData.commune} : ${communeData.primes.length} prime(s) disponible(s) (base de données locale)`;
+          statusText.className = 'fw-bold text-warning';
+
+          // Remplir le select avec les primes du JSON
+          const selectElement = document.getElementById('prime_communale_select');
+          selectElement.innerHTML = '<option value="">Choisir une prime...</option>';
+
+          communeData.primes.forEach(prime => {
+            const option = document.createElement('option');
+            option.value = prime.id;
+            option.textContent = `${prime.nom} - ${prime.description}`;
+            option.dataset.primeData = JSON.stringify(prime);
+            selectElement.appendChild(option);
+          });
+
+          primesSelection.style.display = 'block';
+
+        } else {
+          // Fallback vers la base locale JavaScript si pas dans JSON
+          console.log("🔄 Double fallback vers base JavaScript locale");
+
+          const communeDataJS = communalesPrimesData[codePostal];
+
+          if (communeDataJS && communeDataJS.primes.length > 0) {
+            statusIcon.className = 'bi bi-check-circle-fill text-warning';
+            statusText.textContent = `${communeDataJS.commune} : ${communeDataJS.primes.length} prime(s) référencée(s) (base de secours)`;
+            statusText.className = 'fw-bold text-warning';
+
+            const selectElement = document.getElementById('prime_communale_select');
+            selectElement.innerHTML = '<option value="">Choisir une prime...</option>';
+
+            communeDataJS.primes.forEach(prime => {
+              const option = document.createElement('option');
+              option.value = prime.id;
+              option.textContent = `${prime.nom} - ${prime.description}`;
+              option.dataset.primeData = JSON.stringify(prime);
+              selectElement.appendChild(option);
+            });
+
+            primesSelection.style.display = 'block';
+          } else {
+            // Aucune prime trouvée
+            statusIcon.className = 'bi bi-info-circle-fill text-info';
+            statusText.textContent = 'Aucune prime communale trouvée pour ce code postal';
+            statusText.className = 'fw-bold text-info';
+            primesSelection.style.display = 'none';
+            montantSection.style.display = 'none';
+            resultSection.style.display = 'none';
+            updateCommunalesTotal();
+          }
+        }
+
+      } else {
+        console.log("❌ Erreur chargement JSON:", jsonResponse.status);
+        throw new Error("Impossible de charger le fichier JSON");
+      }
+
+    } catch (jsonError) {
+      console.log("⚠️ Erreur chargement JSON, fallback JS:", jsonError.message);
+
+      // Triple fallback vers la base JavaScript locale
+      loadingDiv.style.display = 'none';
+      statusDiv.style.display = 'block';
+
+      const communeData = communalesPrimesData[codePostal];
+
+      if (communeData && communeData.primes.length > 0) {
+        statusIcon.className = 'bi bi-check-circle-fill text-warning';
+        statusText.textContent = `${communeData.commune} : ${communeData.primes.length} prime(s) référencée(s) (base de secours)`;
+        statusText.className = 'fw-bold text-warning';
+
+        const selectElement = document.getElementById('prime_communale_select');
+        selectElement.innerHTML = '<option value="">Choisir une prime...</option>';
+
+        communeData.primes.forEach(prime => {
+          const option = document.createElement('option');
+          option.value = prime.id;
+          option.textContent = `${prime.nom} - ${prime.description}`;
+          option.dataset.primeData = JSON.stringify(prime);
+          selectElement.appendChild(option);
+        });
+
+        primesSelection.style.display = 'block';
+
+      } else {
+        statusIcon.className = 'bi bi-info-circle-fill text-info';
+        statusText.textContent = 'Aucune prime communale trouvée pour ce code postal';
+        statusText.className = 'fw-bold text-info';
+        primesSelection.style.display = 'none';
+        montantSection.style.display = 'none';
+        resultSection.style.display = 'none';
+        updateCommunalesTotal();
+      }
+    }
+
+  } catch (error) {
+    console.error("❌ Erreur générale recherche primes:", error);
+
+    loadingDiv.style.display = 'none';
+    statusDiv.style.display = 'block';
+    statusIcon.className = 'bi bi-exclamation-triangle-fill text-warning';
+    statusText.textContent = 'Erreur de recherche';
+    statusText.className = 'fw-bold text-warning';
+    primesSelection.style.display = 'none';
+    montantSection.style.display = 'none';
+    resultSection.style.display = 'none';
+    updateCommunalesTotal();
+  }
+}
+
+// Fonction pour récupérer les détails de commune via code postal
+async function getCommuneDetailsByPostalCode(codePostal) {
+  // Mapping étendu des codes postaux vers les communes flamandes
+  const postalCodeMapping = {
+    // Province d'Anvers
+    '2000': { gemeente: 'Antwerpen' },
+    '2018': { gemeente: 'Antwerpen' },
+    '2020': { gemeente: 'Antwerpen' },
+    '2030': { gemeente: 'Antwerpen' },
+    '2040': { gemeente: 'Antwerpen' },
+    '2050': { gemeente: 'Antwerpen' },
+    '2060': { gemeente: 'Antwerpen' },
+    '2100': { gemeente: 'Deurne' },
+    '2140': { gemeente: 'Borgerhout' },
+    '2150': { gemeente: 'Borsbeek' },
+    '2160': { gemeente: 'Wommelgem' },
+    '2170': { gemeente: 'Merksem' },
+    '2180': { gemeente: 'Ekeren' },
+    '2200': { gemeente: 'Herentals' },
+    '2220': { gemeente: 'Heist-op-den-Berg' },
+    '2230': { gemeente: 'Herselt' },
+    '2240': { gemeente: 'Zandhoven' },
+    '2250': { gemeente: 'Olen' },
+    '2260': { gemeente: 'Westerlo' },
+    '2270': { gemeente: 'Herenthout' },
+    '2280': { gemeente: 'Grobbendonk' },
+    '2290': { gemeente: 'Vorselaar' },
+    '2300': { gemeente: 'Turnhout' },
+    '2310': { gemeente: 'Rijkevorsel' },
+    '2320': { gemeente: 'Hoogstraten' },
+    '2330': { gemeente: 'Merksplas' },
+    '2340': { gemeente: 'Beerse' },
+    '2350': { gemeente: 'Vosselaar' },
+    '2360': { gemeente: 'Oud-Turnhout' },
+    '2370': { gemeente: 'Arendonk' },
+    '2380': { gemeente: 'Ravels' },
+    '2390': { gemeente: 'Westmalle' },
+    '2400': { gemeente: 'Mol' },
+    '2430': { gemeente: 'Laakdal' },
+    '2440': { gemeente: 'Geel' },
+    '2450': { gemeente: 'Meerhout' },
+    '2460': { gemeente: 'Kasterlee' },
+    '2470': { gemeente: 'Retie' },
+    '2480': { gemeente: 'Dessel' },
+    '2490': { gemeente: 'Balen' },
+    '2500': { gemeente: 'Lier' },
+    '2520': { gemeente: 'Ranst' },
+    '2530': { gemeente: 'Boechout' },
+    '2540': { gemeente: 'Hove' },
+    '2550': { gemeente: 'Kontich' },
+    '2560': { gemeente: 'Nijlen' },
+    '2570': { gemeente: 'Duffel' },
+    '2580': { gemeente: 'Putte' },
+    '2590': { gemeente: 'Berlaar' },
+    '2600': { gemeente: 'Berchem' },
+    '2610': { gemeente: 'Wilrijk' },
+    '2620': { gemeente: 'Hemiksem' },
+    '2630': { gemeente: 'Aartselaar' },
+    '2640': { gemeente: 'Mortsel' },
+    '2650': { gemeente: 'Edegem' },
+    '2660': { gemeente: 'Hoboken' },
+    '2800': { gemeente: 'Mechelen' },
+    '2801': { gemeente: 'Heffen' },
+    '2811': { gemeente: 'Leest' },
+    '2812': { gemeente: 'Muizen' },
+    '2820': { gemeente: 'Bonheiden' },
+    '2830': { gemeente: 'Willebroek' },
+    '2840': { gemeente: 'Rumst' },
+    '2850': { gemeente: 'Boom' },
+    '2860': { gemeente: 'Sint-Katelijne-Waver' },
+    '2870': { gemeente: 'Puurs-Sint-Amands' },
+    '2880': { gemeente: 'Bornem' },
+    '2890': { gemeente: 'Lippelo' },
+    '2900': { gemeente: 'Schoten' },
+    '2910': { gemeente: 'Essen' },
+    '2920': { gemeente: 'Kalmthout' },
+    '2930': { gemeente: 'Brasschaat' },
+    '2940': { gemeente: 'Stabroek' },
+    '2950': { gemeente: 'Kapellen' },
+    '2960': { gemeente: 'Brecht' },
+    '2970': { gemeente: 'Schilde' },
+    '2980': { gemeente: 'Zoersel' },
+    '2990': { gemeente: 'Wuustwezel' },
+
+    // Province du Brabant flamand
+    '1000': { gemeente: 'Brussel' },
+    '1020': { gemeente: 'Laeken' },
+    '1030': { gemeente: 'Schaarbeek' },
+    '1040': { gemeente: 'Etterbeek' },
+    '1050': { gemeente: 'Elsene' },
+    '1060': { gemeente: 'Sint-Gillis' },
+    '1070': { gemeente: 'Anderlecht' },
+    '1080': { gemeente: 'Sint-Jans-Molenbeek' },
+    '1090': { gemeente: 'Jette' },
+    '1120': { gemeente: 'Neder-Over-Heembeek' },
+    '1130': { gemeente: 'Haren' },
+    '1140': { gemeente: 'Evere' },
+    '1150': { gemeente: 'Sint-Pieters-Woluwe' },
+    '1160': { gemeente: 'Oudergem' },
+    '1170': { gemeente: 'Watermaal-Bosvoorde' },
+    '1180': { gemeente: 'Ukkel' },
+    '1190': { gemeente: 'Vorst' },
+    '1200': { gemeente: 'Sint-Lambrechts-Woluwe' },
+    '1210': { gemeente: 'Sint-Joost-ten-Node' },
+    '1500': { gemeente: 'Halle' },
+    '1502': { gemeente: 'Lembeek' },
+    '1540': { gemeente: 'Herne' },
+    '1541': { gemeente: 'Sint-Pieters-Kapelle' },
+    '1547': { gemeente: 'Bever' },
+    '1560': { gemeente: 'Hoeilaart' },
+    '1570': { gemeente: 'Galmaarden' },
+    '1580': { gemeente: 'Liedekerke' },
+    '1600': { gemeente: 'Sint-Pieters-Leeuw' },
+    '1601': { gemeente: 'Ruisbroek' },
+    '1602': { gemeente: 'Vlezenbeek' },
+    '1620': { gemeente: 'Drogenbos' },
+    '1630': { gemeente: 'Linkebeek' },
+    '1640': { gemeente: 'Sint-Genesius-Rode' },
+    '1650': { gemeente: 'Beersel' },
+    '1651': { gemeente: 'Lot' },
+    '1652': { gemeente: 'Alsemberg' },
+    '1653': { gemeente: 'Dworp' },
+    '1654': { gemeente: 'Huizingen' },
+    '1670': { gemeente: 'Pepingen' },
+    '1671': { gemeente: 'Elingen' },
+    '1673': { gemeente: 'Heikruis' },
+    '1674': { gemeente: 'Bellingen' },
+    '1700': { gemeente: 'Dilbeek' },
+    '1701': { gemeente: 'Itterbeek' },
+    '1702': { gemeente: 'Groot-Bijgaarden' },
+    '1703': { gemeente: 'Schepdaal' },
+    '1730': { gemeente: 'Asse' },
+    '1731': { gemeente: 'Zellik' },
+    '1740': { gemeente: 'Ternat' },
+    '1741': { gemeente: 'Wambeek' },
+    '1742': { gemeente: 'Sint-Katherina-Lombeek' },
+    '1750': { gemeente: 'Lennik' },
+    '1755': { gemeente: 'Gooik' },
+    '1760': { gemeente: 'Roosdaal' },
+    '1761': { gemeente: 'Borchtlombeek' },
+    '1770': { gemeente: 'Liedekerke' },
+    '1780': { gemeente: 'Wemmel' },
+    '1785': { gemeente: 'Merchtem' },
+    '1790': { gemeente: 'Affligem' },
+    '1800': { gemeente: 'Vilvoorde' },
+    '1820': { gemeente: 'Steenokkerzeel' },
+    '1830': { gemeente: 'Machelen' },
+    '1831': { gemeente: 'Diegem' },
+    '1840': { gemeente: 'Londerzeel' },
+    '1850': { gemeente: 'Grimbergen' },
+    '1851': { gemeente: 'Humbeek' },
+    '1852': { gemeente: 'Beigem' },
+    '1853': { gemeente: 'Strombeek-Bever' },
+    '1860': { gemeente: 'Meise' },
+    '1861': { gemeente: 'Wolvertem' },
+    '1880': { gemeente: 'Kapelle-op-den-Bos' },
+    '1910': { gemeente: 'Kampenhout' },
+    '1930': { gemeente: 'Zaventem' },
+    '1931': { gemeente: 'Brucargo' },
+    '1932': { gemeente: 'Sint-Stevens-Woluwe' },
+    '1933': { gemeente: 'Sterrebeek' },
+    '1950': { gemeente: 'Kraainem' },
+    '1970': { gemeente: 'Wezembeek-Oppem' },
+    '3000': { gemeente: 'Leuven' },
+    '3001': { gemeente: 'Heverlee' },
+    '3010': { gemeente: 'Kessel-Lo' },
+    '3012': { gemeente: 'Wilsele' },
+    '3018': { gemeente: 'Wijgmaal' },
+    '3020': { gemeente: 'Herent' },
+    '3040': { gemeente: 'Huldenberg' },
+    '3041': { gemeente: 'Ottenburg' },
+    '3050': { gemeente: 'Oud-Heverlee' },
+    '3051': { gemeente: 'Sint-Joris-Weert' },
+    '3052': { gemeente: 'Blanden' },
+    '3053': { gemeente: 'Haasrode' },
+    '3054': { gemeente: 'Vaalbeek' },
+    '3060': { gemeente: 'Bertem' },
+    '3061': { gemeente: 'Leefdaal' },
+    '3070': { gemeente: 'Kortenberg' },
+    '3071': { gemeente: 'Erps-Kwerps' },
+    '3078': { gemeente: 'Everberg' },
+    '3080': { gemeente: 'Tervuren' }, // ⭐ TERVUREN AJOUTÉ !
+    '3090': { gemeente: 'Overijse' },
+    '3110': { gemeente: 'Rotselaar' },
+    '3111': { gemeente: 'Wezemaal' },
+    '3118': { gemeente: 'Werchter' },
+    '3120': { gemeente: 'Tremelo' },
+    '3128': { gemeente: 'Baal' },
+    '3130': { gemeente: 'Begijnendijk' },
+    '3140': { gemeente: 'Keerbergen' },
+    '3150': { gemeente: 'Haacht' },
+    '3190': { gemeente: 'Boortmeerbeek' },
+    '3191': { gemeente: 'Hever' },
+    '3200': { gemeente: 'Aarschot' },
+    '3201': { gemeente: 'Langdorp' },
+    '3202': { gemeente: 'Rillaar' },
+    '3210': { gemeente: 'Lubbeek' },
+    '3211': { gemeente: 'Binkom' },
+    '3212': { gemeente: 'Pellenberg' },
+    '3220': { gemeente: 'Holsbeek' },
+    '3221': { gemeente: 'Nieuwrode' },
+    '3270': { gemeente: 'Scherpenheuvel-Zichem' },
+    '3271': { gemeente: 'Averbode' },
+    '3272': { gemeente: 'Messelbroek' },
+    '3290': { gemeente: 'Diest' },
+    '3293': { gemeente: 'Kaggevinne' },
+    '3294': { gemeente: 'Molenstede' },
+    '3300': { gemeente: 'Tienen' },
+    '3320': { gemeente: 'Hoegaarden' },
+    '3321': { gemeente: 'Outgaarden' },
+    '3350': { gemeente: 'Linter' },
+    '3351': { gemeente: 'Melkwezer' },
+    '3360': { gemeente: 'Bierbeek' },
+    '3370': { gemeente: 'Boutersem' },
+    '3380': { gemeente: 'Glabbeek' },
+    '3381': { gemeente: 'Kapellen' },
+    '3384': { gemeente: 'Attenrode' },
+    '3390': { gemeente: 'Tielt-Winge' },
+    '3391': { gemeente: 'Meensel-Kiezegem' },
+
+    // Province de Flandre occidentale
+    '8000': { gemeente: 'Brugge' },
+    '8020': { gemeente: 'Oostkamp' },
+    '8200': { gemeente: 'Sint-Michiels' },
+    '8210': { gemeente: 'Zedelgem' },
+    '8211': { gemeente: 'Aartrijke' },
+    '8300': { gemeente: 'Knokke-Heist' },
+    '8301': { gemeente: 'Heist-aan-Zee' },
+    '8310': { gemeente: 'Assebroek' },
+    '8340': { gemeente: 'Sijsele' },
+    '8370': { gemeente: 'Blankenberge' },
+    '8380': { gemeente: 'Dudzele' },
+    '8400': { gemeente: 'Oostende' },
+    '8420': { gemeente: 'De Haan' },
+    '8421': { gemeente: 'Klemskerke' },
+    '8430': { gemeente: 'Middelkerke' },
+    '8431': { gemeente: 'Westende' },
+    '8432': { gemeente: 'Leffinge' },
+    '8433': { gemeente: 'Mannekensvere' },
+    '8434': { gemeente: 'Westende-Bad' },
+    '8450': { gemeente: 'Bredene' },
+    '8460': { gemeente: 'Oudenburg' },
+    '8470': { gemeente: 'Gistel' },
+    '8480': { gemeente: 'Ichtegem' },
+    '8490': { gemeente: 'Jabbeke' },
+    '8500': { gemeente: 'Kortrijk' },
+    '8501': { gemeente: 'Bissegem' },
+    '8510': { gemeente: 'Marke' },
+    '8511': { gemeente: 'Aalbeke' },
+    '8520': { gemeente: 'Kuurne' },
+    '8530': { gemeente: 'Harelbeke' },
+    '8531': { gemeente: 'Bavikhove' },
+    '8540': { gemeente: 'Deerlijk' },
+    '8550': { gemeente: 'Zwevegem' },
+    '8551': { gemeente: 'Heestert' },
+    '8552': { gemeente: 'Moen' },
+    '8560': { gemeente: 'Wevelgem' },
+    '8570': { gemeente: 'Anzegem' },
+    '8571': { gemeente: 'Gijzelbrechtegem' },
+    '8572': { gemeente: 'Kaster' },
+    '8573': { gemeente: 'Tiegem' },
+    '8580': { gemeente: 'Avelgem' },
+    '8581': { gemeente: 'Kerkhove' },
+    '8582': { gemeente: 'Waarmaarde' },
+    '8583': { gemeente: 'Bossuit' },
+    '8587': { gemeente: 'Spiere-Helkijn' },
+    '8600': { gemeente: 'Diksmuide' },
+    '8610': { gemeente: 'Kortemark' },
+    '8620': { gemeente: 'Nieuwpoort' },
+    '8630': { gemeente: 'Veurne' },
+    '8640': { gemeente: 'Vleteren' },
+    '8647': { gemeente: 'Lo-Reninge' },
+    '8650': { gemeente: 'Houthulst' },
+    '8660': { gemeente: 'De Panne' },
+    '8670': { gemeente: 'Koksijde' },
+    '8680': { gemeente: 'Koekelare' },
+    '8690': { gemeente: 'Alveringem' },
+    '8700': { gemeente: 'Tielt' },
+    '8710': { gemeente: 'Wielsbeke' },
+    '8720': { gemeente: 'Dentergem' },
+    '8730': { gemeente: 'Beernem' },
+    '8740': { gemeente: 'Pittem' },
+    '8750': { gemeente: 'Wingene' },
+    '8760': { gemeente: 'Meulebeke' },
+    '8770': { gemeente: 'Ingelmunster' },
+    '8780': { gemeente: 'Oostrozebeke' },
+    '8790': { gemeente: 'Waregem' },
+    '8800': { gemeente: 'Roeselare' },
+    '8810': { gemeente: 'Lichtervelde' },
+    '8820': { gemeente: 'Torhout' },
+    '8830': { gemeente: 'Hooglede' },
+    '8840': { gemeente: 'Staden' },
+    '8850': { gemeente: 'Ardooie' },
+    '8860': { gemeente: 'Lendelede' },
+    '8870': { gemeente: 'Izegem' },
+    '8880': { gemeente: 'Ledegem' },
+    '8890': { gemeente: 'Moorslede' },
+    '8900': { gemeente: 'Ieper' },
+    '8902': { gemeente: 'Hollebeke' },
+    '8904': { gemeente: 'Dikkebus' },
+    '8906': { gemeente: 'Elverdinge' },
+    '8908': { gemeente: 'Vlamertinge' },
+    '8920': { gemeente: 'Langemark-Poelkapelle' },
+    '8930': { gemeente: 'Menen' },
+    '8940': { gemeente: 'Wervik' },
+    '8950': { gemeente: 'Heuvelland' },
+    '8951': { gemeente: 'Dranouter' },
+    '8952': { gemeente: 'Westouter' },
+    '8953': { gemeente: 'Wijtschate' },
+    '8954': { gemeente: 'Kemmel' },
+    '8956': { gemeente: 'Loker' },
+    '8957': { gemeente: 'Messines' },
+    '8958': { gemeente: 'Nieuwkerke' },
+    '8970': { gemeente: 'Poperinge' },
+    '8972': { gemeente: 'Proven' },
+    '8978': { gemeente: 'Watou' },
+    '8980': { gemeente: 'Zonnebeke' },
+
+    // Province de Flandre orientale
+    '9000': { gemeente: 'Gent' },
+    '9030': { gemeente: 'Mariakerke' },
+    '9031': { gemeente: 'Drongen' },
+    '9032': { gemeente: 'Wondelgem' },
+    '9040': { gemeente: 'Sint-Amandsberg' },
+    '9041': { gemeente: 'Oostakker' },
+    '9042': { gemeente: 'Desteldonk' },
+    '9050': { gemeente: 'Ledeberg' },
+    '9051': { gemeente: 'Afsnee' },
+    '9052': { gemeente: 'Zwijnaarde' },
+    '9060': { gemeente: 'Zelzate' },
+    '9070': { gemeente: 'Destelbergen' },
+    '9080': { gemeente: 'Lochristi' },
+    '9090': { gemeente: 'Melle' },
+    '9100': { gemeente: 'Sint-Niklaas' },
+    '9111': { gemeente: 'Belsele' },
+    '9112': { gemeente: 'Sinaai' },
+    '9120': { gemeente: 'Beveren' },
+    '9130': { gemeente: 'Kallo' },
+    '9140': { gemeente: 'Temse' },
+    '9150': { gemeente: 'Kruibeke' },
+    '9160': { gemeente: 'Lokeren' },
+    '9170': { gemeente: 'Sint-Gillis-Waas' },
+    '9180': { gemeente: 'Moerbeke' },
+    '9190': { gemeente: 'Stekene' },
+    '9200': { gemeente: 'Dendermonde' },
+    '9220': { gemeente: 'Hamme' },
+    '9230': { gemeente: 'Wetteren' },
+    '9240': { gemeente: 'Zele' },
+    '9250': { gemeente: 'Waasmunster' },
+    '9260': { gemeente: 'Wichelen' },
+    '9270': { gemeente: 'Laarne' },
+    '9280': { gemeente: 'Lebbeke' },
+    '9290': { gemeente: 'Berlare' },
+    '9300': { gemeente: 'Aalst' },
+    '9310': { gemeente: 'Moorsel' },
+    '9320': { gemeente: 'Erembodegem' },
+    '9340': { gemeente: 'Lede' },
+    '9400': { gemeente: 'Ninove' },
+    '9420': { gemeente: 'Erpe-Mere' },
+    '9450': { gemeente: 'Haaltert' },
+    '9470': { gemeente: 'Denderleeuw' },
+    '9500': { gemeente: 'Geraardsbergen' },
+    '9520': { gemeente: 'Sint-Lievens-Houtem' },
+    '9530': { gemeente: 'Denderhoutem' },
+    '9540': { gemeente: 'Onkerzele' },
+    '9550': { gemeente: 'Herzele' },
+    '9570': { gemeente: 'Lierde' },
+    '9600': { gemeente: 'Ronse' },
+    '9620': { gemeente: 'Zottegem' },
+    '9630': { gemeente: 'Zwalm' },
+    '9636': { gemeente: 'Munkzwalm' },
+    '9660': { gemeente: 'Brakel' },
+    '9661': { gemeente: 'Elst' },
+    '9662': { gemeente: 'Opbrakel' },
+    '9663': { gemeente: 'Everbeek' },
+    '9680': { gemeente: 'Maarkedal' },
+    '9690': { gemeente: 'Kluisbergen' },
+    '9700': { gemeente: 'Oudenaarde' },
+    '9720': { gemeente: 'De Klinge' },
+    '9750': { gemeente: 'Kruisem' },
+    '9770': { gemeente: 'Kruishoutem' },
+    '9790': { gemeente: 'Wortegem-Petegem' },
+    '9800': { gemeente: 'Deinze' },
+    '9810': { gemeente: 'Nazareth' },
+    '9820': { gemeente: 'Merelbeke' },
+    '9830': { gemeente: 'Sint-Martens-Latem' },
+    '9840': { gemeente: 'De Pinte' },
+    '9850': { gemeente: 'Nevele' },
+    '9860': { gemeente: 'Oosterzele' },
+    '9870': { gemeente: 'Zulte' },
+    '9880': { gemeente: 'Aalter' },
+    '9890': { gemeente: 'Gavere' },
+    '9900': { gemeente: 'Eeklo' },
+    '9910': { gemeente: 'Knesselare' },
+    '9920': { gemeente: 'Lovendegem' },
+    '9930': { gemeente: 'Zomergem' },
+    '9940': { gemeente: 'Evergem' },
+    '9950': { gemeente: 'Waarschoot' },
+    '9960': { gemeente: 'Assenede' },
+    '9970': { gemeente: 'Kaprijke' },
+    '9980': { gemeente: 'Sint-Laureins' },
+    '9990': { gemeente: 'Maldegem' },
+
+    // Province du Limbourg
+    '3500': { gemeente: 'Hasselt' },
+    '3501': { gemeente: 'Wimmertingen' },
+    '3502': { gemeente: 'Runkst' },
+    '3511': { gemeente: 'Kuringen' },
+    '3512': { gemeente: 'Stokrooie' },
+    '3520': { gemeente: 'Zonhoven' },
+    '3530': { gemeente: 'Houthalen-Helchteren' },
+    '3540': { gemeente: 'Herk-de-Stad' },
+    '3545': { gemeente: 'Halen' },
+    '3550': { gemeente: 'Heusden-Zolder' },
+    '3560': { gemeente: 'Lummen' },
+    '3570': { gemeente: 'Alken' },
+    '3580': { gemeente: 'Beringen' },
+    '3581': { gemeente: 'Beverlo' },
+    '3582': { gemeente: 'Koersel' },
+    '3590': { gemeente: 'Diepenbeek' },
+    '3600': { gemeente: 'Genk' },
+    '3620': { gemeente: 'Lanaken' },
+    '3621': { gemeente: 'Rekem' },
+    '3630': { gemeente: 'Maasmechelen' },
+    '3631': { gemeente: 'Opgrimbie' },
+    '3640': { gemeente: 'Kinrooi' },
+    '3650': { gemeente: 'Dilsen-Stokkem' },
+    '3660': { gemeente: 'Opglabbeek' },
+    '3665': { gemeente: 'As' },
+    '3668': { gemeente: 'Niel-bij-As' },
+    '3670': { gemeente: 'Meeuwen-Gruitrode' },
+    '3680': { gemeente: 'Maaseik' },
+    '3690': { gemeente: 'Zutendaal' },
+    '3700': { gemeente: 'Tongeren' },
+    '3720': { gemeente: 'Kortessem' },
+    '3723': { gemeente: 'Guigoven' },
+    '3730': { gemeente: 'Hoeselt' },
+    '3732': { gemeente: 'Schalkhoven' },
+    '3740': { gemeente: 'Bilzen' },
+    '3742': { gemeente: 'Martenslinde' },
+    '3746': { gemeente: 'Hoelbeek' },
+    '3770': { gemeente: 'Riemst' },
+    '3790': { gemeente: 'Fourons' },
+    '3800': { gemeente: 'Sint-Truiden' },
+    '3803': { gemeente: 'Runkelen' },
+    '3806': { gemeente: 'Velm' },
+    '3830': { gemeente: 'Wellen' },
+    '3831': { gemeente: 'Herten' },
+    '3832': { gemeente: 'Ulbeek' },
+    '3840': { gemeente: 'Borgloon' },
+    '3850': { gemeente: 'Nieuwerkerken' },
+    '3870': { gemeente: 'Heers' },
+    '3880': { gemeente: 'Saint-Trond' },
+    '3890': { gemeente: 'Gingelom' }
+  };
+
+  return postalCodeMapping[codePostal] || null;
+}
+
+function calculateCommunales() {
+  const selectElement = document.getElementById('prime_communale_select');
+  const montantSection = document.getElementById('montant_section_communales');
+  const resultSection = document.getElementById('result_section_communales');
+  const selectedOption = selectElement.selectedOptions[0];
+
+  if (!selectedOption || !selectedOption.value) {
+    selectedPrime = null;
+    montantSection.style.display = 'none';
+    resultSection.style.display = 'none';
+    updateCommunalesTotal();
+    return;
+  }
+
+  // Récupérer les données de la prime sélectionnée
+  selectedPrime = JSON.parse(selectedOption.dataset.primeData);
+  console.log("Prime sélectionnée:", selectedPrime);
+
+  // Afficher le champ montant
+  montantSection.style.display = 'block';
+  resultSection.style.display = 'block';
+
+  // Calculer la prime
+  const montantTravaux = parseFloat(document.getElementById('montant_travaux_communales').value) || 0;
+  let primeCalculee = 0;
+  let details = '';
+
+  if (selectedPrime.type === 'api_externe') {
+    // Prime venant de l'API Premiezoeker.be
+    if (montantTravaux > 0) {
+      // Tentative d'extraction du montant depuis les données API
+      const sourceData = selectedPrime.sourceData;
+      const bedragText = sourceData.bedrag || '';
+
+      // Parser différents formats de montants
+      if (bedragText.includes('€') && bedragText.includes('/m²')) {
+        // Format: "€ 20/m²"
+        const match = bedragText.match(/€\s*(\d+)/);
+        if (match) {
+          const euroParM2 = parseFloat(match[1]);
+          const m2Estime = Math.floor(montantTravaux / 100); // Estimation 10m² pour 1000€
+          primeCalculee = m2Estime * euroParM2;
+          details = `(${m2Estime} m² estimés à ${euroParM2}€/m²)`;
+        }
+      } else if (bedragText.includes('%')) {
+        // Format: "30% du montant"
+        const match = bedragText.match(/(\d+)%/);
+        if (match) {
+          const pourcentage = parseFloat(match[1]) / 100;
+          primeCalculee = montantTravaux * pourcentage;
+          details = `(${match[1]}% du montant)`;
+        }
+      } else if (bedragText.includes('€') && !bedragText.includes('/')) {
+        // Format: "€ 2000" (forfait)
+        const match = bedragText.match(/€\s*(\d+)/);
+        if (match) {
+          primeCalculee = parseFloat(match[1]);
+          details = '(montant forfaitaire)';
+        }
+      } else {
+        // Format non reconnu, estimation par défaut
+        primeCalculee = montantTravaux * 0.20; // 20% par défaut
+        details = '(estimation 20% - voir détails officiels)';
+      }
+    }
+
+    // Ajouter le lien vers les détails officiels
+    if (selectedPrime.link) {
+      details += ` - Détails: ${selectedPrime.link}`;
+    }
+
+  } else {
+    // Prime de notre base locale (logique existante)
+    if (montantTravaux > 0) {
+      switch (selectedPrime.type) {
+        case 'pourcentage':
+          primeCalculee = montantTravaux * selectedPrime.valeur;
+          if (selectedPrime.plafond && primeCalculee > selectedPrime.plafond) {
+            primeCalculee = selectedPrime.plafond;
+            details = `(plafond ${selectedPrime.plafond.toLocaleString()}€ atteint)`;
+          }
+          break;
+
+        case 'forfait':
+          primeCalculee = selectedPrime.valeur;
+          details = '(montant forfaitaire)';
+          break;
+
+        case 'par_kw':
+          // Pour les panneaux solaires, on estime 1kW pour 1000€ de travaux
+          const kwEstime = Math.floor(montantTravaux / 1000);
+          primeCalculee = kwEstime * selectedPrime.valeur;
+          if (selectedPrime.plafond && primeCalculee > selectedPrime.plafond) {
+            primeCalculee = selectedPrime.plafond;
+            details = `(plafond ${selectedPrime.plafond.toLocaleString()}€ atteint)`;
+          } else {
+            details = `(${kwEstime} kW estimés)`;
+          }
+          break;
+
+        case 'par_m2':
+          // Pour les toitures vertes, on estime 10m² pour 1000€ de travaux
+          const m2Estime = Math.floor(montantTravaux / 100);
+          primeCalculee = m2Estime * selectedPrime.valeur;
+          if (selectedPrime.plafond && primeCalculee > selectedPrime.plafond) {
+            primeCalculee = selectedPrime.plafond;
+            details = `(plafond ${selectedPrime.plafond.toLocaleString()}€ atteint)`;
+          } else {
+            details = `(${m2Estime} m² estimés)`;
+          }
+          break;
+      }
+    }
+  }
+
+  console.log("Calcul communales:", {
+    prime: selectedPrime.nom,
+    type: selectedPrime.type,
+    montantTravaux,
+    primeCalculee: primeCalculee.toFixed(2),
+    details
+  });
+
+  // Afficher le résultat
+  const resultElement = document.getElementById('result_communales');
+  const detailsElement = document.getElementById('prime_details_communales');
+
+  resultElement.textContent = primeCalculee.toFixed(2) + " €";
+  detailsElement.innerHTML = details; // Utiliser innerHTML pour les liens
+
+  // Couleur selon la source
+  const alertDiv = resultElement.closest('.alert');
+  if (selectedPrime.type === 'api_externe') {
+    alertDiv.classList.remove('alert-warning');
+    alertDiv.classList.add('alert-success');
+  } else {
+    alertDiv.classList.remove('alert-success');
+    alertDiv.classList.add('alert-warning');
+  }
+
+  // Animation du résultat
+  if (primeCalculee > 0) {
+    resultElement.classList.add('text-success');
+    resultElement.classList.remove('text-muted');
+  } else {
+    resultElement.classList.remove('text-success');
+    resultElement.classList.add('text-muted');
+  }
+
+  updateCommunalesTotal();
+}
+
+function updateCommunalesTotal() {
+  // Mettre à jour le total global via le système PEB existant
+  const pebController = document.querySelector('[data-controller="peb"]');
+  if (pebController && window.Stimulus) {
+    const controller = window.Stimulus.getControllerForElementAndIdentifier(pebController, 'peb');
+    if (controller && controller.mettreAJourTotalPrimes) {
+      controller.mettreAJourTotalPrimes();
+    }
+  }
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("DOM chargé, initialisation primes communales");
+});
+</script>

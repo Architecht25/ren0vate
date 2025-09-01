@@ -32,54 +32,47 @@
                 data-peb-target="typeLogement"
                 data-action="change->peb#typeLogementChanged">
           <option value="">Choisir...</option>
-          <option value="appartement">Appartement</option>
           <option value="maison">Maison</option>
+          <option value="appartement">Appartement</option>
         </select>
       </div>
 
-      <!-- Ventilation conforme -->
+      <!-- Ventilation -->
       <div class="mb-2">
-        <label for="ventilation_conforme_peb" class="form-label text-start w-100 small">Ventilation conforme</label>
+        <label for="ventilation_peb" class="form-label text-start w-100 small">Ventilation conforme</label>
         <select class="form-select form-select-sm"
-                id="ventilation_conforme_peb"
-                data-peb-target="ventilationConforme"
-                data-action="change->peb#ventilationConformeChanged">
+                id="ventilation_peb"
+                data-peb-target="ventilation"
+                data-action="change->peb#ventilationChanged">
           <option value="">Choisir...</option>
-          <option value="oui">Oui</option>
-          <option value="non">Non</option>
+          <option value="avec_ventilation">Oui (système D)</option>
+          <option value="sans_ventilation">Non</option>
         </select>
       </div>
 
-      <!-- Label final visé -->
+      <!-- Label final -->
       <div class="mb-3">
-        <label for="label_final_vise_peb" class="form-label text-start w-100 small">Label final visé</label>
+        <label for="label_final_peb" class="form-label text-start w-100 small">Label final visé</label>
         <select class="form-select form-select-sm"
-                id="label_final_vise_peb"
-                data-peb-target="labelFinalVise"
-                data-action="change->peb#labelFinalViseChanged">
+                id="label_final_peb"
+                data-peb-target="labelFinal"
+                data-action="change->peb#labelFinalChanged">
           <option value="">Choisir...</option>
           <option value="A">A</option>
           <option value="B">B</option>
           <option value="C">C</option>
-          <option value="D">D</option>
         </select>
       </div>
 
-      <!-- Statut de vérification -->
-      <div class="mb-3" id="status_peb" style="display: none;">
-        <div class="d-flex align-items-center justify-content-center gap-2">
-          <i id="status_icon_peb" class="bi"></i>
-          <small id="status_text_peb" class="fw-bold"></small>
-        </div>
+      <!-- Résultat -->
+      <div class="alert alert-primary alert-sm mb-2" role="alert" data-peb-target="resultatContainer" style="display: none;">
+        <small class="fw-bold">Montant estimé : </small>
+        <span class="fw-bold prime-result" data-peb-target="montantCalcule">0.00 €</span>
       </div>
 
-      <!-- Montant estimé -->
-      <div class="text-center" id="montant_peb" style="display: none;">
-        <div class="alert alert-success py-2 mb-0">
-          <div class="fw-bold text-success mb-1">Montant estimé :</div>
-          <div class="h5 mb-0 text-success" id="montant_estime_peb">0,00 €</div>
-        </div>
-      </div>
+      <small class="text-muted d-block">
+        Prime basée sur l'amélioration du label énergétique (catégorie <%= @simulation&.category || '4' %>)
+      </small>
     </div>
   </div>
 </div>
