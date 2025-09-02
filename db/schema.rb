@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_01_062824) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_02_091545) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -299,6 +299,30 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_01_062824) do
     t.integer "surface_totale"
     t.text "previous_subsidies"
     t.string "project_type", default: "renovation"
+    t.string "architecte_nom"
+    t.string "architecte_prenom"
+    t.string "architecte_entreprise"
+    t.string "architecte_numero_ordre"
+    t.string "architecte_telephone"
+    t.string "architecte_email"
+    t.text "architecte_adresse"
+    t.text "architecte_specialites"
+    t.string "entrepreneur_principal_nom"
+    t.string "entrepreneur_principal_entreprise"
+    t.string "entrepreneur_principal_numero_tva"
+    t.string "entrepreneur_principal_telephone"
+    t.string "entrepreneur_principal_email"
+    t.text "entrepreneur_principal_adresse"
+    t.string "entrepreneur_principal_assurance"
+    t.text "entrepreneur_principal_certifications"
+    t.text "corps_metiers"
+    t.string "maitre_ouvrage_nom"
+    t.string "maitre_ouvrage_contact"
+    t.string "coordinateur_securite_nom"
+    t.string "coordinateur_securite_contact"
+    t.string "assurance_decennale_architecte"
+    t.string "assurance_decennale_entrepreneur"
+    t.text "garanties_travaux"
     t.index ["property_id"], name: "index_projects_on_property_id"
     t.index ["user_id"], name: "index_projects_on_user_id"
   end
@@ -354,6 +378,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_01_062824) do
     t.boolean "facade_patrimoine"
     t.integer "surface_totale"
     t.boolean "primes_recues"
+    t.decimal "valeur_achat", precision: 10, scale: 2
+    t.date "date_achat"
     t.index ["user_id"], name: "index_properties_on_user_id"
   end
 

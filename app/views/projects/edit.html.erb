@@ -25,6 +25,9 @@
           <%= form_with model: @project, local: true do |form| %>
             <%= render 'projects/partials_general/basic_fields', form: form %>
 
+            <!-- Nouveau: Informations des professionnels -->
+            <%= render 'projects/partials_general/professionals_fields', form: form %>
+
             <% if @project.property&.region.present? %>
               <%= render "projects/partials_#{@project.property.region.downcase}/eligibility_fields", form: form %>
             <% end %>

@@ -1,29 +1,14 @@
 class PropertiesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_property, only: [:show, :dashboard, :edit, :update, :destroy, :documents_dashboard]
+  before_action :set_property, only: [:show, :dashboard, :dashboard_clean, :edit, :update, :destroy, :documents_dashboard]
 
   def index
     @properties = current_user.properties
   end
 
   def show
-    # Données pour le dashboard du bien
-    @completion_stats = {
-      admin: @property.admin_completion_percentage,
-      chantier: @property.chantier_completion_percentage,
-      primes: @property.primes_completion_percentage,
-      overall: @property.completion_percentage
-    }
-
-    # Requests et simulations liées à ce bien
-    @recent_requests = @property.requests.recent.limit(3) if @property.respond_to?(:requests)
-    @recent_simulations = @property.simulations.recent.limit(3) if @property.respond_to?(:simulations)
-
-    # Actions disponibles
-    @actions_available = {
-      can_request: @property.ready_for_request?,
-      missing_fields: @property.missing_required_fields
-    }
+    # Redirection vers le dashboard clean unifié
+    redirect_to dashboard_clean_property_path(@property)
   end
 
   def new
@@ -138,6 +123,26 @@ class PropertiesController < ApplicationController
 
     # Test temporaire du nouveau dashboard
     render 'dashboard_clean'
+  end
+
+  def dashboard_clean
+    # Données pour le dashboard unifié
+    @completion_stats = {
+      admin: @property.admin_completion_percentage,
+      chantier: @property.chantier_completion_percentage,
+      primes: @property.primes_completion_percentage,
+      overall: @property.completion_percentage
+    }
+
+    # Requests et simulations liées à ce bien
+    @recent_requests = @property.requests.recent.limit(3) if @property.respond_to?(:requests)
+    @recent_simulations = @property.simulations.recent.limit(3) if @property.respond_to?(:simulations)
+
+    # Actions disponibles
+    @actions_available = {
+      can_request: @property.ready_for_request?,
+      missing_fields: @property.missing_required_fields
+    }
   end
 
   def documents_dashboard
@@ -360,7 +365,10 @@ class PropertiesController < ApplicationController
       :annee_construction, :date_raccordement_electrique,
       :numero_ean, :numero_cadastre,
       :date_peb_avant_travaux, :date_peb_apres_travaux,
-      :name, :surface_totale, :usage, :primes_recues,
+      :titre, :surface_totale, :usage, :primes_recues,
+
+      # Informations d'achat
+      :valeur_achat, :date_achat,
 
       # Champs communs améliorés
       :surface_habitable, :mode_chauffage_principal,

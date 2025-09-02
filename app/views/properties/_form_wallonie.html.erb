@@ -3,6 +3,21 @@
   <!-- Champ caché pour la région -->
   <%= f.hidden_field :region, value: "Wallonie" %>
 
+  <!-- Section Nom du bien -->
+  <div class="form-section mb-4">
+    <h5 class="text-primary-custom mb-3 fw-normal">
+      <i class="bi bi-tag me-2"></i>
+      Nom du bien
+    </h5>
+
+    <%= f.input :titre,
+        label: "Nom ou titre du bien",
+        placeholder: "ex. Maison Wallonie, Appartement Liège, Gîte familial...",
+        hint: "Donnez un nom à votre bien pour le retrouver facilement",
+        wrapper_html: { class: "mb-3" },
+        input_html: { class: "form-control-custom" } %>
+  </div>
+
   <!-- Section Adresse -->
   <div class="form-section mb-4">
     <h5 class="text-primary-custom mb-3 fw-normal">
@@ -63,6 +78,38 @@
             prompt: "-- Sélectionnez le type de propriété --",
             wrapper_html: { class: "mb-0" },
             input_html: { class: "form-control-custom" } %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Informations d'achat -->
+  <div class="form-section mb-4">
+    <h5 class="text-primary-custom mb-3 fw-normal">
+      <i class="bi bi-credit-card me-2"></i>
+      Informations d'achat
+    </h5>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <%= f.input :valeur_achat,
+            label: "Valeur d'achat (€)",
+            placeholder: "ex. 250000",
+            hint: "Prix d'achat du bien en euros",
+            wrapper_html: { class: "mb-0" },
+            input_html: {
+              class: "form-control-custom",
+              type: "number",
+              step: "0.01",
+              min: "0"
+            } %>
+      </div>
+      <div class="col-md-6">
+        <%= f.input :date_achat,
+            label: "Date d'achat",
+            hint: "Date d'acquisition du bien",
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-control-custom" },
+            as: :date %>
       </div>
     </div>
   </div>
@@ -130,14 +177,21 @@
           Performance énergétique
         </h6>
         <div class="row g-3">
-          <div class="col-md-6">
+          <div class="col-md-4">
             <%= f.input :certificat_peb_wallonie,
                 label: "Certificat PEB",
                 placeholder: "ex. 350 kWh/m²/an",
                 wrapper_html: { class: "mb-0" },
                 input_html: { class: "form-control-custom" } %>
           </div>
-          <div class="col-md-6">
+          <div class="col-md-4">
+            <%= f.input :date_peb_avant_travaux,
+                label: "Date du certificat PEB",
+                as: :date,
+                wrapper_html: { class: "mb-0" },
+                input_html: { class: "form-control-custom" } %>
+          </div>
+          <div class="col-md-4">
             <%= f.input :audit_energetique,
                 label: "Audit énergétique",
                 placeholder: "ex. 280 kWh/m²/an",

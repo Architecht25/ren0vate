@@ -172,13 +172,23 @@
                   </div>
                   <div class="flex-grow-1">
                     <div class="d-flex justify-content-between align-items-start mb-2">
-                      <h6 class="mb-0 fw-normal">
-                        <%= property.name rescue "Bien #{property.commune || property.id}" %>
-                      </h6>
-                      <small class="text-muted-custom">
-                        <i class="bi bi-geo-alt"></i>
-                        <%= property.commune || 'Commune inconnue' %>
-                      </small>
+                      <div class="flex-grow-1">
+                        <h6 class="mb-0 fw-normal">
+                          <%= property.titre.present? ? property.titre : "Bien #{property.commune || property.id}" %>
+                        </h6>
+                        <% if property.titre.present? %>
+                          <small class="text-muted">
+                            <i class="bi bi-geo-alt me-1"></i>
+                            <%= property.rue %> <%= property.numero %>, <%= property.commune %>
+                          </small>
+                        <% end %>
+                      </div>
+                      <% unless property.titre.present? %>
+                        <small class="text-muted-custom">
+                          <i class="bi bi-geo-alt"></i>
+                          <%= property.commune || 'Commune inconnue' %>
+                        </small>
+                      <% end %>
                     </div>
                     <div class="d-flex justify-content-between align-items-center">
                       <div class="flex-grow-1 me-3">

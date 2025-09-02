@@ -65,7 +65,45 @@
       <% end %>
     <% else %>
       <%= form.submit "Créer la demande", class: "btn btn-primary-custom px-4" %>
-      <%= form.submit "Sauvegarder en brouillon", class: "btn btn-outline-primary-custom px-4" %>
+      <%= form.submit "Sauvegarder en brouillon",
+          name: "commit",
+          value: "Sauvegarder en brouillon",
+          class: "btn btn-outline-primary-custom px-4",
+          formnovalidate: true %>
+
+      <!-- Bouton spécifique pour la Flandre -->
+      <a href="https://www.vlaanderen.be/premies-pour-renovation/mijn-verbouwpremie"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="btn btn-info px-4"
+         id="flandre-continue-btn"
+         style="display: none;">
+        <i class="bi bi-box-arrow-up-right me-2"></i>
+        Continuer sur le site Vlaanderen
+      </a>
+
+      <!-- Bouton spécifique pour la Wallonie -->
+      <a href="https://energie.wallonie.be/fr/aides-et-primes.html?IDC=10717"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="btn btn-info px-4"
+         id="wallonie-continue-btn"
+         style="display: none;">
+        <i class="bi bi-box-arrow-up-right me-2"></i>
+        Continuer sur le site Wallonie
+      </a>
+
+      <!-- Bouton spécifique pour Bruxelles -->
+      <a href="https://www.brussels.be/logement-et-energie/renovation-de-mon-logement/primes"
+         target="_blank"
+         rel="noopener noreferrer"
+         class="btn btn-info px-4"
+         id="bruxelles-continue-btn"
+         style="display: none;">
+        <i class="bi bi-box-arrow-up-right me-2"></i>
+        Continuer sur le site Bruxelles
+      </a>
+
       <%= link_to requests_path, class: "btn btn-outline-secondary" do %>
         Annuler
       <% end %>
@@ -98,6 +136,21 @@
         section.style.display = 'none';
         console.log('Hiding section:', section.id);
       });
+
+      // Gérer l'affichage des boutons spécifiques aux régions
+      const flandreBtn = document.getElementById('flandre-continue-btn');
+      const wallonieBtn = document.getElementById('wallonie-continue-btn');
+      const bruxellesBtn = document.getElementById('bruxelles-continue-btn');
+
+      if (flandreBtn) {
+        flandreBtn.style.display = selectedRegion === 'flandre' ? 'inline-block' : 'none';
+      }
+      if (wallonieBtn) {
+        wallonieBtn.style.display = selectedRegion === 'wallonie' ? 'inline-block' : 'none';
+      }
+      if (bruxellesBtn) {
+        bruxellesBtn.style.display = selectedRegion === 'bruxelles' ? 'inline-block' : 'none';
+      }
 
       // Afficher la section correspondante
       if (selectedRegion) {

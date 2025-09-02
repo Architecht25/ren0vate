@@ -3,6 +3,21 @@
   <!-- Champ caché pour la région -->
   <%= f.hidden_field :region, value: "flandre" %>
 
+  <!-- Section Nom du bien -->
+  <div class="form-section mb-4">
+    <h5 class="text-primary-custom mb-3 fw-normal">
+      <i class="bi bi-tag me-2"></i>
+      Naam van de woning
+    </h5>
+
+    <%= f.input :titre,
+        label: "Naam of titel van de woning",
+        placeholder: "ex. Mijn huis Vlaanderen, Appartement Gent, Gezinswoning...",
+        hint: "Geef een naam aan uw woning om deze gemakkelijk terug te vinden",
+        wrapper_html: { class: "mb-3" },
+        input_html: { class: "form-control-custom" } %>
+  </div>
+
   <!-- Section Adresse -->
   <div class="form-section mb-4">
     <h5 class="text-primary-custom mb-3 fw-normal">
@@ -80,7 +95,42 @@
             input_html: { class: "form-control-custom" } %>
       </div>
     </div>
+  </div>
 
+  <!-- Section Informations d'achat -->
+  <div class="form-section mb-4">
+    <h5 class="text-primary-custom mb-3 fw-normal">
+      <i class="bi bi-credit-card me-2"></i>
+      Informations d'achat
+    </h5>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <%= f.input :valeur_achat,
+            label: "Valeur d'achat (€)",
+            placeholder: "ex. 250000",
+            hint: "Prix d'achat du bien en euros",
+            wrapper_html: { class: "mb-0" },
+            input_html: {
+              class: "form-control-custom",
+              type: "number",
+              step: "0.01",
+              min: "0"
+            } %>
+      </div>
+      <div class="col-md-6">
+        <%= f.input :date_achat,
+            label: "Date d'achat",
+            hint: "Date d'acquisition du bien",
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-control-custom" },
+            as: :date %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Type de bien (suite) -->
+  <div class="form-section mb-4">
     <!-- Nouvelle section : Statut de propriété -->
     <div class="row g-3 mt-2">
       <div class="col-md-6">

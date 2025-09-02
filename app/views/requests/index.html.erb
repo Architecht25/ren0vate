@@ -33,12 +33,20 @@
                   <% status_class = case request.status
                        when 'draft' then 'secondary'
                        when 'pending' then 'warning'
+                       when 'submitted' then 'primary'
                        when 'in_progress' then 'info'
                        when 'completed' then 'success'
                        else 'secondary'
                      end %>
                   <span class="badge bg-<%= status_class %> rounded-pill px-3 py-2">
-                    <%= request.status&.humanize || 'Brouillon' %>
+                    <% case request.status
+                       when 'draft' then 'Brouillon'
+                       when 'pending' then 'En attente'
+                       when 'submitted' then 'Soumise'
+                       when 'in_progress' then 'En cours'
+                       when 'completed' then 'Terminée'
+                       else 'Brouillon'
+                     end %>
                   </span>
                   <small class="text-muted-custom">
                     <i class="bi bi-clock me-1"></i>
@@ -51,9 +59,24 @@
                   <%= link_to request_path(request), class: "btn btn-sm btn-outline-primary-custom flex-fill" do %>
                     <i class="bi bi-eye me-1"></i>Voir
                   <% end %>
-                  <%= link_to edit_request_path(request), class: "btn btn-sm btn-outline-secondary" do %>
-                    <i class="bi bi-pencil"></i>
+
+                  <% if request.status == 'submitted' %>
+                    <!-- Bouton pour continuer sur le site officiel -->
+                    <% official_url = case request.region
+                         when 'flandre' then 'https://www.vlaanderen.be/premies-pour-renovation/mijn-verbouwpremie'
+                         when 'wallonie' then 'https://energie.wallonie.be/fr/aides-et-primes.html?IDC=10717'
+                         when 'bruxelles' then 'https://www.brussels.be/logement-et-energie/renovation-de-mon-logement/primes'
+                         else '#'
+                       end %>
+                    <%= link_to official_url, target: "_blank", rel: "noopener noreferrer", class: "btn btn-sm btn-info flex-fill" do %>
+                      <i class="bi bi-box-arrow-up-right me-1"></i>Continuer
+                    <% end %>
+                  <% else %>
+                    <%= link_to edit_request_path(request), class: "btn btn-sm btn-outline-secondary" do %>
+                      <i class="bi bi-pencil"></i>
+                    <% end %>
                   <% end %>
+
                   <% if request.can_be_deleted? %>
                     <%= link_to request_path(request), method: :delete,
                                 data: {

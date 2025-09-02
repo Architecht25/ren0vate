@@ -355,13 +355,18 @@ module Regions
         Rails.logger.info "Checking entrepreneur for project #{project&.id}"
         Rails.logger.info "- bce_number: #{project&.bce_number}"
 
-        # Vérification : numéro BCE présent et valide
-        return false unless project&.bce_number.present?
-
-        # Validation basique du format BCE (10 chiffres)
-        result = project.bce_number.match?(/\A\d{10}\z/)
-        Rails.logger.info "- BCE format valid: #{result}"
-        result
+        # Pour Bruxelles, le numéro BCE n'est plus obligatoire
+        # On vérifie seulement le format s'il est fourni
+        if project&.bce_number.present?
+          # Validation basique du format BCE (10 chiffres) si présent
+          result = project.bce_number.match?(/\A\d{10}\z/)
+          Rails.logger.info "- BCE format valid: #{result}"
+          return result
+        else
+          # Si pas de numéro BCE, c'est accepté pour Bruxelles
+          Rails.logger.info "- No BCE number provided, but accepted for Bruxelles"
+          return true
+        end
       end
 
       def factures_too_old_bruxelles?(project)

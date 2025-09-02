@@ -153,6 +153,9 @@
         </div>
       </div>
 
+      <!-- Informations des professionnels -->
+      <%= render 'projects/partials_general/professionals_display' %>
+
       <!-- Informations pour l'éligibilité aux primes -->
       <% if @project.bce_number.present? || @project.invoice_date.present? || @project.work_completion_date.present? %>
         <div class="card border-0 shadow-sm mb-4">
@@ -237,38 +240,6 @@
 
     <!-- Colonne latérale -->
     <div class="col-lg-4">
-      <!-- Documents -->
-      <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body p-4">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="card-title text-primary-custom mb-0">
-              <i class="bi bi-file-earmark-text me-2"></i>Documents
-            </h5>
-            <%= link_to new_document_path(project_id: @project.id), class: "btn btn-sm btn-primary-custom" do %>
-              <i class="bi bi-upload me-1"></i>Ajouter
-            <% end if defined?(new_document_path) %>
-          </div>
-
-          <% if @project.documents.any? %>
-            <div class="list-group">
-              <% @project.documents.each do |doc| %>
-                <a href="<%= document_path(doc) if defined?(document_path) %>" class="list-group-item list-group-item-action d-flex align-items-center">
-                  <i class="bi bi-file-earmark me-3"></i>
-                  <div>
-                    <h6 class="mb-1"><%= doc.name if doc.respond_to?(:name) %></h6>
-                    <p class="text-muted-custom mb-0 small"><%= doc.created_at.strftime("%d/%m/%Y") if doc.respond_to?(:created_at) %></p>
-                  </div>
-                </a>
-              <% end %>
-            </div>
-          <% else %>
-            <div class="text-center py-3">
-              <p class="text-muted-custom mb-0">Aucun document ajouté</p>
-            </div>
-          <% end %>
-        </div>
-      </div>
-
       <!-- Actions rapides -->
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-4">
@@ -276,9 +247,6 @@
             <i class="bi bi-lightning-charge me-2"></i>Actions rapides
           </h5>
           <div class="d-grid gap-2">
-            <%= link_to new_simulation_path(project_id: @project.id), class: "btn btn-outline-primary-custom mb-2" do %>
-              <i class="bi bi-calculator me-2"></i>Simuler les primes
-            <% end %>
             <%= link_to projects_path, class: "btn btn-outline-primary-custom mb-2" do %>
               <i class="bi bi-file-earmark-pdf me-2"></i>Exporter en PDF
             <% end %>

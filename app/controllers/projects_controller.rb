@@ -67,7 +67,20 @@ class ProjectsController < ApplicationController
       :type_travaux, :reconstruction_demolition, :tva_reduit_6_pourcent,
       # Checkboxes pour types de travaux Flandre
       :type_travaux_isolation, :type_travaux_chauffage, :type_travaux_ventilation,
-      :type_travaux_fenetres, :type_travaux_toiture, :type_travaux_autre
+      :type_travaux_fenetres, :type_travaux_toiture, :type_travaux_autre,
+      # Champs architecte
+      :architecte_nom, :architecte_prenom, :architecte_entreprise, :architecte_numero_ordre,
+      :architecte_telephone, :architecte_email, :architecte_adresse, :architecte_specialites,
+      # Champs entrepreneur principal
+      :entrepreneur_principal_nom, :entrepreneur_principal_entreprise, :entrepreneur_principal_numero_tva,
+      :entrepreneur_principal_telephone, :entrepreneur_principal_email, :entrepreneur_principal_adresse,
+      :entrepreneur_principal_assurance, :entrepreneur_principal_certifications,
+      # Champs autres professionnels
+      :maitre_ouvrage_nom, :maitre_ouvrage_contact, :coordinateur_securite_nom, :coordinateur_securite_contact,
+      # Champs assurances
+      :assurance_decennale_architecte, :assurance_decennale_entrepreneur, :garanties_travaux,
+      # Corps de métiers (JSON)
+      :corps_metiers
     )
   end
 end

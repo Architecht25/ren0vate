@@ -3,6 +3,23 @@
   <!-- Champ caché pour la région -->
   <%= f.hidden_field :region, value: "bruxelles" %>
 
+  <!-- Section Nom du bien -->
+  <div class="form-section mb-4">
+    <div class="d-flex align-items-center mb-3">
+      <div class="icon-circle me-3">
+        <i class="bi bi-tag"></i>
+      </div>
+      <h5 class="mb-0 fw-normal text-primary-custom">Nom du bien</h5>
+    </div>
+
+    <%= f.input :titre,
+        label: "Nom ou titre du bien",
+        placeholder: "ex. Mon appartement Bruxelles, Bureau principal, Maison familiale...",
+        hint: "Donnez un nom à votre bien pour le retrouver facilement",
+        wrapper_html: { class: "mb-3" },
+        input_html: { class: "form-control-custom" } %>
+  </div>
+
   <!-- Section Adresse -->
   <div class="form-section mb-4">
     <div class="d-flex align-items-center mb-3">
@@ -90,6 +107,40 @@
     </div>
   </div>
 
+  <!-- Section Informations d'achat -->
+  <div class="form-section mb-4">
+    <div class="d-flex align-items-center mb-3">
+      <div class="icon-circle me-3">
+        <i class="bi bi-credit-card"></i>
+      </div>
+      <h5 class="mb-0 fw-normal text-primary-custom">Informations d'achat</h5>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-6">
+        <%= f.input :valeur_achat,
+            label: "Valeur d'achat (€)",
+            placeholder: "ex. 250000",
+            hint: "Prix d'achat du bien en euros",
+            wrapper_html: { class: "mb-0" },
+            input_html: {
+              class: "form-control-custom",
+              type: "number",
+              step: "0.01",
+              min: "0"
+            } %>
+      </div>
+      <div class="col-md-6">
+        <%= f.input :date_achat,
+            label: "Date d'achat",
+            hint: "Date d'acquisition du bien",
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-control-custom" },
+            as: :date %>
+      </div>
+    </div>
+  </div>
+
   <!-- Section Caractéristiques spécifiques à Bruxelles -->
   <div class="form-section mb-4">
     <div class="d-flex align-items-center mb-3">
@@ -100,7 +151,7 @@
     </div>
 
     <div class="row g-3">
-      <div class="col-md-6">
+      <div class="col-md-4">
         <%= f.input :peb,
             label: "Classe PEB",
             as: :select,
@@ -109,7 +160,15 @@
             wrapper_html: { class: "mb-0" },
             input_html: { class: "form-control-custom" } %>
       </div>
-      <div class="col-md-6">
+      <div class="col-md-4">
+        <%= f.input :date_peb_avant_travaux,
+            label: "Date du certificat PEB",
+            hint: "Date d'établissement du certificat",
+            wrapper_html: { class: "mb-0" },
+            input_html: { class: "form-control-custom" },
+            as: :date %>
+      </div>
+      <div class="col-md-4">
         <%= f.input :annee_construction,
             label: "Année de construction*",
             placeholder: "ex. 1985",

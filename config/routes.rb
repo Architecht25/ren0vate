@@ -108,6 +108,7 @@ Rails.application.routes.draw do
   resources :properties do
     member do
       get :dashboard  # Dashboard spécifique pour un bien
+      get :dashboard_clean  # Dashboard unifié moderne
       get :documents_dashboard  # Gestion des documents par bien
       get :documents_phases_dashboard  # Nouveau dashboard par phases métier
       get :formulaire_miroir  # Formulaire miroir pré-rempli

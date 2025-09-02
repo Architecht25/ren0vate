@@ -14,6 +14,12 @@ class Project < ApplicationRecord
   before_validation :set_default_status
   before_validation :set_default_project_type
 
+  # Sérialisation JSON pour les champs complexes
+  serialize :architecte_specialites, coder: JSON
+  serialize :entrepreneur_principal_certifications, coder: JSON
+  serialize :corps_metiers, coder: JSON
+  serialize :garanties_travaux, coder: JSON
+
   # Méthodes pour les types de projets
   def renovation?
     project_type == 'renovation'
@@ -42,6 +48,44 @@ class Project < ApplicationRecord
   # Méthode pour compatibilité
   def display_name
     "#{nom} (#{property&.name || 'Sans bien associé'})"
+  end
+
+  # Méthodes pour les professionnels
+  def architecte_nom_complet
+    [architecte_prenom, architecte_nom].compact.join(' ')
+  end
+
+  def architecte_complet?
+    architecte_nom.present? && architecte_prenom.present? && architecte_email.present?
+  end
+
+  def entrepreneur_principal_complet?
+    entrepreneur_principal_nom.present? && entrepreneur_principal_entreprise.present?
+  end
+
+  def has_coordinateur_securite?
+    coordinateur_securite_nom.present?
+  end
+
+  # Méthodes pour gérer les corps de métiers (stockés en JSON)
+  def corps_metiers_list
+    corps_metiers || []
+  end
+
+  def add_corps_metier(nom:, entreprise:, contact: nil, specialite: nil)
+    self.corps_metiers ||= []
+    self.corps_metiers << {
+      nom: nom,
+      entreprise: entreprise,
+      contact: contact,
+      specialite: specialite,
+      ajoute_le: Time.current
+    }
+  end
+
+  def remove_corps_metier(index)
+    return unless corps_metiers && corps_metiers[index]
+    self.corps_metiers.delete_at(index)
   end
 
   # Gestion des types de travaux Flandre

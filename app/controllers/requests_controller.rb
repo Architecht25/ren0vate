@@ -14,20 +14,54 @@ class RequestsController < ApplicationController
   def create
     @request = Request.new(request_params)
     @request.user = current_user  # Assigner l'utilisateur connecté
-    @request.status = 'draft' if @request.status.blank?  # Statut par défaut
+
+    # Pour les brouillons, assigner des valeurs par défaut si nécessaire
+    if params[:commit] == "Sauvegarder en brouillon"
+      @request.status = 'draft'
+      @request.title = @request.title.present? ? @request.title : "Brouillon #{Time.current.strftime('%d/%m/%Y %H:%M')}"
+      @request.description = @request.description.present? ? @request.description : "Brouillon en cours de rédaction"
+      @request.region = @request.region.present? ? @request.region : nil
+    else
+      @request.status = 'draft' if @request.status.blank?  # Statut par défaut
+    end
 
     # Debug logs
-    Rails.logger.info "REQUEST DEBUG: Params = #{request_params}"
+    Rails.logger.info "REQUEST DEBUG: All params = #{params.inspect}"
+    Rails.logger.info "REQUEST DEBUG: commit param = '#{params[:commit]}'"
+    Rails.logger.info "REQUEST DEBUG: Request params = #{request_params}"
     Rails.logger.info "REQUEST DEBUG: Request attributes = #{@request.attributes}"
     Rails.logger.info "REQUEST DEBUG: Valid? = #{@request.valid?}"
     Rails.logger.info "REQUEST DEBUG: Errors = #{@request.errors.full_messages}" unless @request.valid?
 
     if @request.save
       # Redirection selon le type d'action
+      Rails.logger.info "REQUEST DEBUG: Checking commit param: '#{params[:commit]}' == 'Sauvegarder en brouillon' ? #{params[:commit] == 'Sauvegarder en brouillon'}"
+
       if params[:commit] == "Sauvegarder en brouillon"
+        @request.update(status: 'draft')
+        Rails.logger.info "REQUEST DEBUG: Saving as draft and redirecting to requests_path"
         redirect_to requests_path, notice: 'Brouillon sauvegardé avec succès.'
       else
-        redirect_to @request, notice: 'Demande créée avec succès.'
+        # "Créer la demande" - Marquer comme soumise et rediriger vers le site officiel
+        @request.update(status: 'submitted')
+
+        # URL selon la région
+        official_url = case @request.region
+                      when 'flandre'
+                        'https://www.vlaanderen.be/premies-pour-renovation/mijn-verbouwpremie'
+                      when 'wallonie'
+                        'https://energie.wallonie.be/fr/aides-et-primes.html?IDC=10717'
+                      when 'bruxelles'
+                        'https://www.brussels.be/logement-et-energie/renovation-de-mon-logement/primes'
+                      else
+                        requests_path
+                      end
+
+        if official_url == requests_path
+          redirect_to requests_path, notice: 'Demande créée avec succès.'
+        else
+          redirect_to official_url, notice: 'Demande créée avec succès. Vous êtes redirigé vers le site officiel pour finaliser votre dépôt.', allow_other_host: true
+        end
       end
     else
       Rails.logger.error "REQUEST SAVE FAILED: #{@request.errors.full_messages}"
