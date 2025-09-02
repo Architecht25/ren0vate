@@ -1,35 +1,184 @@
-<h2>Edit <%= resource_name.to_s.humanize %></h2>
-
-<%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }) do |f| %>
-  <%= f.error_notification %>
-
-  <div class="form-inputs">
-    <%= f.input :email, required: true, autofocus: true %>
-
-    <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
-      <p>Currently waiting confirmation for: <%= resource.unconfirmed_email %></p>
-    <% end %>
-
-    <%= f.input :password,
-                hint: "leave it blank if you don't want to change it",
-                required: false,
-                input_html: { autocomplete: "new-password" } %>
-    <%= f.input :password_confirmation,
-                required: false,
-                input_html: { autocomplete: "new-password" } %>
-    <%= f.input :current_password,
-                hint: "we need your current password to confirm your changes",
-                required: true,
-                input_html: { autocomplete: "current-password" } %>
+<div class="container-fluid px-4 py-5">
+  <!-- Header professionnel -->
+  <div class="row justify-content-center mb-5">
+    <div class="col-lg-6">
+      <div class="text-center">
+        <h1 class="h2 text-dark fw-light mb-2">Paramètres du compte</h1>
+        <p class="text-muted">Gérez vos informations de connexion et sécurité</p>
+      </div>
+    </div>
   </div>
 
-  <div class="form-actions">
-    <%= f.button :submit, "Update" %>
+  <div class="row justify-content-center">
+    <div class="col-lg-5 col-md-8">
+      <!-- Carte principale avec design moderne -->
+      <div class="card border-0 shadow-lg rounded-4">
+        <div class="card-header bg-white border-0 pt-4 pb-3">
+          <div class="text-center">
+            <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+              <i class="bi bi-person-gear text-white fs-4"></i>
+            </div>
+            <h4 class="card-title mb-1 text-dark fw-normal">Informations de connexion</h4>
+            <p class="text-muted small mb-0">Modifiez votre email et mot de passe</p>
+          </div>
+        </div>
+
+        <div class="card-body px-5 pb-5">
+          <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put, class: "needs-validation", novalidate: true }) do |f| %>
+            <%= f.error_notification %>
+
+            <!-- Email avec icône -->
+            <div class="mb-4">
+              <label class="form-label text-dark fw-medium mb-2">
+                <i class="bi bi-envelope me-2 text-primary"></i>Adresse email
+              </label>
+              <%= f.email_field :email,
+                  required: true,
+                  autofocus: true,
+                  class: "form-control form-control-lg border-2 rounded-3 px-4 py-3",
+                  style: "background: #f8f9fa; border-color: #e9ecef !important;" %>
+
+              <% if devise_mapping.confirmable? && resource.pending_reconfirmation? %>
+                <div class="alert alert-warning mt-3 rounded-3 border-0">
+                  <i class="bi bi-clock-history me-2"></i>
+                  <small>En attente de confirmation pour: <strong><%= resource.unconfirmed_email %></strong></small>
+                </div>
+              <% end %>
+            </div>
+
+            <!-- Séparateur élégant -->
+            <div class="text-center my-4">
+              <hr class="hr-text" data-content="Sécurité">
+            </div>
+
+            <!-- Nouveau mot de passe -->
+            <div class="mb-4">
+              <label class="form-label text-dark fw-medium mb-2">
+                <i class="bi bi-key me-2 text-primary"></i>Nouveau mot de passe
+              </label>
+              <%= f.password_field :password,
+                  autocomplete: "new-password",
+                  class: "form-control form-control-lg border-2 rounded-3 px-4 py-3",
+                  style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                  placeholder: "Laissez vide pour conserver le mot de passe actuel" %>
+              <div class="form-text text-muted mt-2">
+                <small><i class="bi bi-info-circle me-1"></i>Minimum 6 caractères recommandés</small>
+              </div>
+            </div>
+
+            <!-- Confirmation mot de passe -->
+            <div class="mb-4">
+              <label class="form-label text-dark fw-medium mb-2">
+                <i class="bi bi-shield-check me-2 text-primary"></i>Confirmer le nouveau mot de passe
+              </label>
+              <%= f.password_field :password_confirmation,
+                  autocomplete: "new-password",
+                  class: "form-control form-control-lg border-2 rounded-3 px-4 py-3",
+                  style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                  placeholder: "Répétez votre nouveau mot de passe" %>
+            </div>
+
+            <!-- Séparateur pour authentification -->
+            <div class="text-center my-4">
+              <hr class="hr-text" data-content="Authentification">
+            </div>
+
+            <!-- Mot de passe actuel -->
+            <div class="mb-5">
+              <label class="form-label text-dark fw-medium mb-2">
+                <i class="bi bi-lock me-2 text-warning"></i>Mot de passe actuel
+              </label>
+              <%= f.password_field :current_password,
+                  required: true,
+                  autocomplete: "current-password",
+                  class: "form-control form-control-lg border-2 rounded-3 px-4 py-3",
+                  style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                  placeholder: "Entrez votre mot de passe actuel" %>
+              <div class="form-text text-muted mt-2">
+                <small><i class="bi bi-shield-exclamation me-1"></i>Requis pour confirmer les modifications</small>
+              </div>
+            </div>
+
+            <!-- Actions avec design moderne -->
+            <div class="d-grid gap-3">
+              <%= f.button :submit, class: "btn btn-primary btn-lg rounded-3 py-3 fw-medium" do %>
+                <i class="bi bi-check2-circle me-2"></i>Mettre à jour mes informations
+              <% end %>
+
+              <%= link_to profile_path, class: "btn btn-outline-secondary btn-lg rounded-3 py-3" do %>
+                <i class="bi bi-arrow-left me-2"></i>Retour au profil
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Section suppression avec design dangereux mais élégant -->
+      <div class="card border-0 shadow-sm rounded-4 mt-4" style="border-left: 4px solid #dc3545 !important;">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-start">
+            <div class="bg-danger bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 40px; height: 40px;">
+              <i class="bi bi-exclamation-triangle text-white"></i>
+            </div>
+            <div class="flex-grow-1">
+              <h6 class="text-danger mb-2 fw-medium">Zone dangereuse</h6>
+              <p class="text-muted small mb-3">La suppression de votre compte est définitive et irréversible.</p>
+              <%= button_to registration_path(resource_name),
+                  method: :delete,
+                  class: "btn btn-outline-danger btn-sm rounded-3",
+                  data: {
+                    confirm: "⚠️ ATTENTION ⚠️\n\nCette action supprimera définitivement :\n• Votre compte utilisateur\n• Toutes vos propriétés\n• Tous vos projets\n• Toutes vos demandes\n• L'historique complet\n\nÊtes-vous absolument certain de vouloir continuer ?",
+                    turbo_confirm: "⚠️ DERNIÈRE CHANCE ⚠️\n\nVous êtes sur le point de supprimer définitivement votre compte.\n\nCette action ne peut PAS être annulée.\n\nTapez 'SUPPRIMER' pour confirmer :"
+                  } do %>
+                <i class="bi bi-person-x me-1"></i>Supprimer mon compte
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-<% end %>
+</div>
 
-<h3>Cancel my account</h3>
+<!-- CSS personnalisé pour le design professionnel -->
+<style>
+  .hr-text {
+    position: relative;
+    border: none;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #dee2e6, transparent);
+  }
 
-<div>Unhappy? <%= button_to "Cancel my account", registration_path(resource_name), data: { confirm: "Are you sure?", turbo_confirm: "Are you sure?" }, method: :delete %></div>
+  .hr-text:before {
+    content: attr(data-content);
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: white;
+    padding: 0 20px;
+    color: #6c757d;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
 
-<%= link_to "Back", :back %>
+  .form-control:focus {
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15) !important;
+  }
+
+  .card {
+    transition: all 0.3s ease;
+  }
+
+  .btn {
+    transition: all 0.2s ease;
+  }
+
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+</style>
+
+<!-- Utilise le fichier CSS externe properties.css -->
+<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>

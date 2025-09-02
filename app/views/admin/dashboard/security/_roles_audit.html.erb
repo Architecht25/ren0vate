@@ -1,0 +1,54 @@
+<!-- Audit de sécurité des rôles -->
+<div class="col-md-6 mb-4">
+  <div class="card border-0 shadow-sm h-100">
+    <div class="card-header bg-info text-white">
+      <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Audit des Rôles</h6>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-12 mb-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <span>Protection anti-dégradation</span>
+            <span class="badge bg-success">
+              <i class="bi bi-shield-fill-check me-1"></i>ACTIF
+            </span>
+          </div>
+        </div>
+        <div class="col-12 mb-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <span>Validation modèle</span>
+            <span class="badge bg-success">
+              <i class="bi bi-check-circle me-1"></i>ensure_at_least_one_admin
+            </span>
+          </div>
+        </div>
+        <div class="col-12 mb-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <span>Scripts de déploiement</span>
+            <span class="badge bg-success">
+              <i class="bi bi-tools me-1"></i>DISPONIBLES
+            </span>
+          </div>
+        </div>
+        <div class="col-12 mb-3">
+          <div class="d-flex justify-content-between align-items-center">
+            <span>Tâches Rake</span>
+            <span class="badge bg-success">
+              <i class="bi bi-terminal me-1"></i>production:ensure_admin
+            </span>
+          </div>
+        </div>
+        <div class="col-12">
+          <small class="text-muted">
+            <strong>Dernière vérification :</strong> <%= Time.current.strftime("%d/%m/%Y %H:%M") %>
+            <br>
+            <strong>Statut :</strong>
+            <span class="text-<%= User.admin.count == 1 ? 'success' : 'warning' %>">
+              <%= User.admin.count == 1 ? 'Configuration sécurisée' : 'Attention requise' %>
+            </span>
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

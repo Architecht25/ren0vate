@@ -1,261 +1,491 @@
-<div class="container-fluid px-4 py-4">
-  <!-- Header épuré -->
-  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-    <h1 class="h3 text-primary-custom mb-0 fw-normal">Mon Profil</h1>
-    <div>
-      <%= link_to root_path, class: 'btn btn-light' do %>
-        <i class="bi bi-arrow-left me-1"></i>Retour
-      <% end %>
+<div class="container-fluid px-4 py-5">
+  <!-- Header professionnel avec avatar -->
+  <div class="row justify-content-center mb-5">
+    <div class="col-lg-10">
+      <div class="text-center">
+        <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+          <i class="bi bi-person text-white fs-1"></i>
+        </div>
+        <h1 class="h2 text-dark fw-light mb-2">Mon Profil</h1>
+        <p class="text-muted">Gérez vos informations personnelles et préférences</p>
+      </div>
     </div>
   </div>
 
-  <!-- Formulaire avec mise en page 3 colonnes optimisée (3-3-6) -->
-  <%= form_with model: current_user, url: profile_path, method: :patch, local: true do |f| %>
-    <div class="row g-3">
-      <!-- Colonne 1: Informations personnelles (25%) -->
-      <div class="col-lg-3">
-        <div class="card h-100 shadow-sm">
-          <div class="card-header bg-primary bg-opacity-10">
-            <h5 class="card-title mb-0 text-primary">
-              <i class="bi bi-person me-2"></i>Informations personnelles
-            </h5>
-          </div>
-          <div class="card-body p-3">
-            <div class="mb-3">
-              <%= f.label :first_name, "Prénom", class: "form-label small" %>
-              <%= f.text_field :first_name, class: "form-control form-control-sm" %>
-            </div>
-            <div class="mb-3">
-              <%= f.label :last_name, "Nom", class: "form-label small" %>
-              <%= f.text_field :last_name, class: "form-control form-control-sm" %>
-            </div>
-            <div class="mb-3">
-              <%= f.label :email, "Email", class: "form-label small" %>
-              <%= f.email_field :email, class: "form-control form-control-sm" %>
-            </div>
-            <div class="mb-3">
-              <%= f.label :phone, "Téléphone", class: "form-label small" %>
-              <%= f.telephone_field :phone, class: "form-control form-control-sm" %>
-            </div>
-            <div class="mb-3">
-              <%= f.label :iban, "IBAN", class: "form-label small" %>
-              <%= f.text_field :iban, class: "form-control form-control-sm",
-                  placeholder: "BE68 5390 0754 7034" %>
-            </div>
-          </div>
-        </div>
-      </div>
+  <!-- Formulaire avec design moderne -->
+  <%= form_with model: current_user, url: profile_path, method: :patch, local: true, class: "needs-validation", novalidate: true do |f| %>
 
-      <!-- Colonne 2: Adresse et Logement (25%) -->
-      <div class="col-lg-3">
-        <div class="card h-100 shadow-sm">
-          <div class="card-header bg-success bg-opacity-10">
-            <h5 class="card-title mb-0 text-success">
-              <i class="bi bi-geo-alt me-2"></i>Adresse & Logement
-            </h5>
-          </div>
-          <div class="card-body p-3">
-            <div class="mb-3">
-              <%= f.label :street, "Rue", class: "form-label small" %>
-              <%= f.text_field :street, class: "form-control form-control-sm" %>
-            </div>
-            <div class="row g-2 mb-3">
-              <div class="col-4">
-                <%= f.label :number, "N°", class: "form-label small" %>
-                <%= f.text_field :number, class: "form-control form-control-sm" %>
-              </div>
-              <div class="col-8">
-                <%= f.label :postal_code, "Code postal", class: "form-label small" %>
-                <%= f.text_field :postal_code, class: "form-control form-control-sm" %>
-              </div>
-            </div>
-            <div class="mb-3">
-              <%= f.label :city, "Ville", class: "form-label small" %>
-              <%= f.text_field :city, class: "form-control form-control-sm" %>
-            </div>
-            <div class="mb-3">
-              <%= f.label :region, "Région", class: "form-label small" %>
-              <%= f.select :region,
-                  options_for_select([
-                    ['Bruxelles-Capitale', 'bruxelles'],
-                    ['Wallonie', 'wallonie'],
-                    ['Flandre', 'flandre']
-                  ], current_user.region),
-                  { prompt: 'Sélectionnez...' },
-                  { class: "form-select form-select-sm" } %>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- Première rangée: Informations principales -->
+    <div class="row justify-content-center mb-4">
+      <div class="col-lg-10">
+        <div class="row g-4">
 
-      <!-- Colonne 3: Situation financière, familiale et Actions (50%) -->
-      <div class="col-lg-6">
-        <!-- Revenus et informations fiscales -->
-        <div class="card mb-3 shadow-sm">
-          <div class="card-header bg-warning bg-opacity-10">
-            <h5 class="card-title mb-0 text-warning">
-              <i class="bi bi-currency-euro me-2"></i>Revenus et informations fiscales
-            </h5>
-          </div>
-          <div class="card-body p-3">
-            <div class="row g-3">
-              <!-- Revenus demandeur -->
-              <div class="col-md-6">
-                <%= f.label :revenu_demandeur, 'Vos "Revenus Imposables Globalement"', class: 'form-label small text-muted' %>
-                <div class="mb-2">
-                  <a href="https://www.minfin.fgov.be/myminfin-web/pages/public" target="_blank" class="text-decoration-none small">
-                    <i class="bi bi-search me-1"></i>Rechercher ici votre AER
-                  </a>
-                </div>
-                <div class="row g-2">
-                  <div class="col-8">
-                    <%= f.number_field :revenu_demandeur,
-                        class: 'form-control form-control-sm',
-                        placeholder: 'ex. 21374,50',
-                        min: 0,
-                        step: 0.01 %>
+          <!-- Carte 1: Informations personnelles -->
+          <div class="col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+              <div class="card-header bg-white border-0 pt-4">
+                <div class="d-flex align-items-center">
+                  <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                    <i class="bi bi-person text-white fs-5"></i>
                   </div>
-                  <div class="col-4">
-                    <%= f.select :annee_revenus_demandeur,
-                        [['2023', '2023'], ['2022', '2022'], ['2021', '2021']],
-                        { prompt: 'Année' },
-                        class: 'form-select form-select-sm' %>
+                  <div>
+                    <h5 class="card-title mb-1 text-dark fw-normal">Informations personnelles</h5>
+                    <p class="text-muted small mb-0">Vos données d'identité</p>
                   </div>
                 </div>
               </div>
+              <div class="card-body px-4 pb-4">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label text-dark fw-medium mb-2">
+                      <i class="bi bi-person-badge me-2 text-primary"></i>Prénom
+                    </label>
+                    <%= f.text_field :first_name,
+                        class: "form-control form-control-lg border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                        placeholder: "Votre prénom" %>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label text-dark fw-medium mb-2">
+                      <i class="bi bi-person-badge me-2 text-primary"></i>Nom
+                    </label>
+                    <%= f.text_field :last_name,
+                        class: "form-control form-control-lg border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                        placeholder: "Votre nom de famille" %>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label text-dark fw-medium mb-2">
+                      <i class="bi bi-envelope me-2 text-primary"></i>Adresse email
+                    </label>
+                    <%= f.email_field :email,
+                        class: "form-control form-control-lg border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                        placeholder: "votre@email.com" %>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label text-dark fw-medium mb-2">
+                      <i class="bi bi-telephone me-2 text-primary"></i>Téléphone
+                    </label>
+                    <%= f.telephone_field :phone,
+                        class: "form-control form-control-lg border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                        placeholder: "+32 xxx xx xx xx" %>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label text-dark fw-medium mb-2">
+                      <i class="bi bi-bank me-2 text-primary"></i>IBAN
+                    </label>
+                    <%= f.text_field :iban,
+                        class: "form-control form-control-lg border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                        placeholder: "BE68 5390 0754 7034" %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-              <!-- Revenus conjoint -->
-              <div class="col-md-6">
-                <%= f.label :revenu_conjoint, 'Revenus du conjoint', class: 'form-label small text-muted' %>
-                <div class="mb-2">&nbsp;</div>
-                <div class="row g-2">
-                  <div class="col-8">
-                    <%= f.number_field :revenu_conjoint,
-                        class: 'form-control form-control-sm',
-                        placeholder: 'ex. 19671,25',
-                        min: 0,
-                        step: 0.01 %>
+          <!-- Carte 2: Adresse et localisation -->
+          <div class="col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+              <div class="card-header bg-white border-0 pt-4">
+                <div class="d-flex align-items-center">
+                  <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                    <i class="bi bi-geo-alt text-white fs-5"></i>
                   </div>
-                  <div class="col-4">
-                    <%= f.select :annee_revenus_conjoint,
-                        [['2023', '2023'], ['2022', '2022'], ['2021', '2021']],
-                        { prompt: 'Année' },
-                        class: 'form-select form-select-sm' %>
+                  <div>
+                    <h5 class="card-title mb-1 text-dark fw-normal">Adresse et localisation</h5>
+                    <p class="text-muted small mb-0">Votre lieu de résidence</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 pb-4">
+                <div class="row g-3">
+                  <div class="col-md-8">
+                    <label class="form-label text-dark fw-medium mb-2">
+                      <i class="bi bi-signpost me-2 text-success"></i>Rue
+                    </label>
+                    <%= f.text_field :street,
+                        class: "form-control form-control-lg border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                        placeholder: "Nom de la rue" %>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label text-dark fw-medium mb-2">
+                      <i class="bi bi-hash me-2 text-success"></i>Numéro
+                    </label>
+                    <%= f.text_field :number,
+                        class: "form-control form-control-lg border-2 rounded-3 px-3 text-center",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                        placeholder: "N°" %>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label text-dark fw-medium mb-2">
+                      <i class="bi bi-mailbox me-2 text-success"></i>Code postal
+                    </label>
+                    <%= f.text_field :postal_code,
+                        class: "form-control form-control-lg border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                        placeholder: "1000" %>
+                  </div>
+                  <div class="col-md-8">
+                    <label class="form-label text-dark fw-medium mb-2">
+                      <i class="bi bi-building me-2 text-success"></i>Ville
+                    </label>
+                    <%= f.text_field :city,
+                        class: "form-control form-control-lg border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                        placeholder: "Bruxelles" %>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label text-dark fw-medium mb-2">
+                      <i class="bi bi-map me-2 text-success"></i>Région
+                    </label>
+                    <%= f.select :region,
+                        options_for_select([
+                          ['Bruxelles-Capitale', 'bruxelles'],
+                          ['Wallonie', 'wallonie'],
+                          ['Flandre', 'flandre']
+                        ], current_user.region),
+                        { prompt: 'Sélectionnez votre région...' },
+                        { class: "form-select form-select-lg border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;" } %>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Situation familiale -->
-        <div class="card mb-3 shadow-sm">
-          <div class="card-header bg-info bg-opacity-10">
-            <h5 class="card-title mb-0 text-info">
-              <i class="bi bi-people me-2"></i>Situation familiale
-            </h5>
-          </div>
-          <div class="card-body p-3">
-            <div class="row g-3">
-              <div class="col-md-8">
-                <%= f.label :situation_familiale, 'Situation familiale', class: 'form-label small' %>
-                <%= f.select :situation_familiale,
-                    [['Couple', 'couple'], ['Isolé', 'isole'], ['Isolé avec enfant à charge', 'isole_avec_enfant']],
-                    { prompt: 'Sélectionnez...' },
-                    class: 'form-select form-select-sm' %>
-              </div>
-              <div class="col-md-4">
-                <%= f.label :nombre_enfants, 'Nb enfants à charge', class: 'form-label small' %>
-                <%= f.number_field :nombre_enfants,
-                    class: 'form-control form-control-sm',
-                    placeholder: '0',
-                    min: 0 %>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Statuts et Préférences -->
-        <div class="row g-3 mb-3">
-          <div class="col-md-6">
-            <div class="card h-100 shadow-sm">
-              <div class="card-header bg-secondary bg-opacity-10">
-                <h5 class="card-title mb-0 text-secondary">
-                  <i class="bi bi-shield-check me-2"></i>Statuts
-                </h5>
-              </div>
-              <div class="card-body p-3">
-                <div class="d-flex gap-3">
-                  <div class="form-check">
-                    <%= f.radio_button :protected_client, 'oui', class: 'form-check-input' %>
-                    <%= f.label :protected_client_oui, 'Client protégé', class: 'form-check-label small' %>
-                  </div>
-                  <div class="form-check">
-                    <%= f.radio_button :protected_client, 'non', class: 'form-check-input' %>
-                    <%= f.label :protected_client_non, 'Client standard', class: 'form-check-label small' %>
-                  </div>
-                </div>
-                <div class="mt-3">
-                  <p class="text-muted small mb-1">Statuts additionnels (à venir):</p>
-                  <div class="form-check">
-                    <input type="checkbox" class="form-check-input" disabled>
-                    <label class="form-check-label small text-muted">Statut BIM</label>
-                  </div>
-                  <div class="form-check">
-                    <input type="checkbox" class="form-check-input" disabled>
-                    <label class="form-check-label small text-muted">Statut RIS</label>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="card h-100 shadow-sm">
-              <div class="card-header bg-dark bg-opacity-10">
-                <h5 class="card-title mb-0 text-dark">
-                  <i class="bi bi-bell me-2"></i>Préférences
-                </h5>
-              </div>
-              <div class="card-body p-3">
-                <p class="text-muted small mb-2">Fonctionnalités à venir...</p>
-                <div class="form-check mb-2">
-                  <input type="checkbox" class="form-check-input" disabled>
-                  <label class="form-check-label small text-muted">Notifications email</label>
-                </div>
-                <div class="form-check mb-2">
-                  <input type="checkbox" class="form-check-input" disabled>
-                  <label class="form-check-label small text-muted">Notifications SMS</label>
-                </div>
-                <div class="form-check">
-                  <input type="checkbox" class="form-check-input" disabled>
-                  <label class="form-check-label small text-muted">Newsletter</label>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Actions -->
-        <div class="card shadow-sm">
-          <div class="card-header bg-primary bg-opacity-10">
-            <h5 class="card-title mb-0 text-primary">
-              <i class="bi bi-gear me-2"></i>Actions
-            </h5>
-          </div>
-          <div class="card-body p-3">
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-              <%= link_to "Annuler",
-                  dashboard_path,
-                  class: "btn btn-outline-secondary btn-sm me-md-2" %>
-              <%= f.button type: 'submit', class: 'btn btn-primary btn-sm' do %>
-                <i class="bi bi-check-lg me-1"></i>Mettre à jour le profil
-              <% end %>
-            </div>
-          </div>
         </div>
       </div>
     </div>
+
+    <!-- Deuxième rangée: Revenus et famille -->
+    <div class="row justify-content-center mb-4">
+      <div class="col-lg-10">
+        <div class="row g-4">
+
+          <!-- Carte 3: Revenus -->
+          <div class="col-lg-8">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+              <div class="card-header bg-white border-0 pt-4">
+                <div class="d-flex align-items-center">
+                  <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                    <i class="bi bi-currency-euro text-white fs-5"></i>
+                  </div>
+                  <div>
+                    <h5 class="card-title mb-1 text-dark fw-normal">Informations fiscales</h5>
+                    <p class="text-muted small mb-0">Vos revenus pour le calcul des primes</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 pb-4">
+                <div class="row g-4">
+                  <!-- Revenus demandeur -->
+                  <div class="col-md-6">
+                    <div class="bg-light rounded-3 p-3">
+                      <h6 class="text-dark mb-3">
+                        <i class="bi bi-person-check me-2 text-warning"></i>Vos revenus
+                      </h6>
+                      <label class="form-label text-dark fw-medium mb-2">Revenus Imposables Globalement</label>
+                      <div class="mb-3">
+                        <a href="https://www.minfin.fgov.be/myminfin-web/pages/public" target="_blank"
+                           class="text-decoration-none small text-primary">
+                          <i class="bi bi-search me-1"></i>Rechercher votre AER en ligne
+                        </a>
+                      </div>
+                      <div class="row g-2">
+                        <div class="col-8">
+                          <%= f.number_field :revenu_demandeur,
+                              class: 'form-control form-control-lg border-2 rounded-3 px-3',
+                              style: "background: white; border-color: #e9ecef !important;",
+                              placeholder: '21 374,50',
+                              min: 0,
+                              step: 0.01 %>
+                        </div>
+                        <div class="col-4">
+                          <%= f.select :annee_revenus_demandeur,
+                              [['2023', '2023'], ['2022', '2022'], ['2021', '2021']],
+                              { prompt: 'Année' },
+                              class: 'form-select form-select-lg border-2 rounded-3',
+                              style: "background: white; border-color: #e9ecef !important;" %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Revenus conjoint -->
+                  <div class="col-md-6">
+                    <div class="bg-light rounded-3 p-3">
+                      <h6 class="text-dark mb-3">
+                        <i class="bi bi-people me-2 text-warning"></i>Revenus du conjoint
+                      </h6>
+                      <label class="form-label text-dark fw-medium mb-2">Revenus Imposables (optionnel)</label>
+                      <div class="mb-3">
+                        <small class="text-muted">Si vous êtes en couple</small>
+                      </div>
+                      <div class="row g-2">
+                        <div class="col-8">
+                          <%= f.number_field :revenu_conjoint,
+                              class: 'form-control form-control-lg border-2 rounded-3 px-3',
+                              style: "background: white; border-color: #e9ecef !important;",
+                              placeholder: '19 671,25',
+                              min: 0,
+                              step: 0.01 %>
+                        </div>
+                        <div class="col-4">
+                          <%= f.select :annee_revenus_conjoint,
+                              [['2023', '2023'], ['2022', '2022'], ['2021', '2021']],
+                              { prompt: 'Année' },
+                              class: 'form-select form-select-lg border-2 rounded-3',
+                              style: "background: white; border-color: #e9ecef !important;" %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Carte 4: Situation familiale -->
+          <div class="col-lg-4">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+              <div class="card-header bg-white border-0 pt-4">
+                <div class="d-flex align-items-center">
+                  <div class="bg-info bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                    <i class="bi bi-people text-white fs-5"></i>
+                  </div>
+                  <div>
+                    <h5 class="card-title mb-1 text-dark fw-normal">Famille</h5>
+                    <p class="text-muted small mb-0">Votre situation</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 pb-4">
+                <div class="row g-3">
+                  <div class="col-12">
+                    <label class="form-label text-dark fw-medium mb-2">
+                      <i class="bi bi-heart me-2 text-info"></i>Situation familiale
+                    </label>
+                    <%= f.select :situation_familiale,
+                        [['Couple', 'couple'], ['Isolé', 'isole'], ['Isolé avec enfant à charge', 'isole_avec_enfant']],
+                        { prompt: 'Sélectionnez...' },
+                        class: 'form-select form-select-lg border-2 rounded-3 px-3',
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;" %>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label text-dark fw-medium mb-2">
+                      <i class="bi bi-person-hearts me-2 text-info"></i>Enfants à charge
+                    </label>
+                    <%= f.number_field :nombre_enfants,
+                        class: 'form-control form-control-lg border-2 rounded-3 px-3 text-center',
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                        placeholder: '0',
+                        min: 0 %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Troisième rangée: Actions et sécurité -->
+    <div class="row justify-content-center mb-5">
+      <div class="col-lg-10">
+        <div class="row g-4">
+
+          <!-- Carte 5: Actions principales -->
+          <div class="col-lg-4">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+              <div class="card-header bg-white border-0 pt-4">
+                <div class="d-flex align-items-center">
+                  <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                    <i class="bi bi-gear text-white fs-5"></i>
+                  </div>
+                  <div>
+                    <h5 class="card-title mb-1 text-dark fw-normal">Actions</h5>
+                    <p class="text-muted small mb-0">Gérer votre profil</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 pb-4">
+                <div class="d-grid gap-3">
+                  <%= f.button type: 'submit', class: 'btn btn-primary btn-lg rounded-3 py-3 fw-medium' do %>
+                    <i class="bi bi-check2-circle me-2"></i>Sauvegarder les modifications
+                  <% end %>
+                  <%= link_to dashboard_path, class: "btn btn-outline-secondary btn-lg rounded-3 py-3" do %>
+                    <i class="bi bi-arrow-left me-2"></i>Retour au tableau de bord
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Carte 6: Sécurité -->
+          <div class="col-lg-4">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+              <div class="card-header bg-white border-0 pt-4">
+                <div class="d-flex align-items-center">
+                  <div class="bg-danger bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                    <i class="bi bi-shield-lock text-white fs-5"></i>
+                  </div>
+                  <div>
+                    <h5 class="card-title mb-1 text-dark fw-normal">Sécurité</h5>
+                    <p class="text-muted small mb-0">Protéger votre compte</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 pb-4">
+                <div class="d-grid gap-3">
+                  <%= link_to edit_user_registration_path, class: "btn btn-outline-danger btn-lg rounded-3 py-3" do %>
+                    <i class="bi bi-key me-2"></i>Changer le mot de passe
+                  <% end %>
+                  <button type="button" class="btn btn-outline-warning btn-lg rounded-3 py-3" disabled>
+                    <i class="bi bi-shield-check me-2"></i>Double authentification
+                    <small class="d-block text-muted mt-1">Bientôt disponible</small>
+                  </button>
+
+                  <!-- Séparateur pour zone dangereuse -->
+                  <hr class="my-3">
+
+                  <!-- Zone dangereuse intégrée -->
+                  <div class="border border-danger rounded-3 p-3 bg-light bg-opacity-50">
+                    <div class="d-flex align-items-start">
+                      <div class="bg-danger bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0" style="width: 30px; height: 30px;">
+                        <i class="bi bi-exclamation-triangle text-white small"></i>
+                      </div>
+                      <div class="flex-grow-1">
+                        <h6 class="text-danger mb-2 fw-medium small">Zone dangereuse</h6>
+                        <p class="text-muted small mb-3">Suppression définitive et irréversible.</p>
+                        <button type="button" class="btn btn-outline-danger btn-sm rounded-3" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                          <i class="bi bi-person-x me-1"></i>Supprimer mon compte
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Carte 7: Paiements -->
+          <div class="col-lg-4">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+              <div class="card-header bg-white border-0 pt-4">
+                <div class="d-flex align-items-center">
+                  <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                    <i class="bi bi-credit-card text-white fs-5"></i>
+                  </div>
+                  <div>
+                    <h5 class="card-title mb-1 text-dark fw-normal">Paiements</h5>
+                    <p class="text-muted small mb-0">Moyens de paiement</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 pb-4">
+                <div class="d-grid gap-3">
+                  <button type="button" class="btn btn-outline-success btn-lg rounded-3 py-3" disabled>
+                    <i class="bi bi-stripe me-2"></i>Configurer Stripe
+                    <small class="d-block text-muted mt-1">Bientôt disponible</small>
+                  </button>
+                  <button type="button" class="btn btn-outline-info btn-lg rounded-3 py-3" disabled>
+                    <i class="bi bi-receipt me-2"></i>Historique des paiements
+                    <small class="d-block text-muted mt-1">Bientôt disponible</small>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
   <% end %>
+</div>
+
+<!-- CSS personnalisé pour le design professionnel -->
+<style>
+  .form-control:focus, .form-select:focus {
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15) !important;
+  }
+
+  .card {
+    transition: all 0.3s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+  }
+
+  .btn {
+    transition: all 0.2s ease;
+  }
+
+  .btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+
+  .bg-light {
+    background-color: #f8f9fa !important;
+  }
+</style>
+
+<!-- Modal Supprimer compte avec design moderne -->
+<div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header border-0 pb-0">
+        <div class="w-100 text-center">
+          <div class="bg-danger bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+            <i class="bi bi-exclamation-triangle text-white fs-4"></i>
+          </div>
+          <h5 class="modal-title text-danger fw-normal" id="deleteAccountModalLabel">
+            Supprimer définitivement le compte
+          </h5>
+        </div>
+        <button type="button" class="btn-close position-absolute" style="top: 15px; right: 15px;" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body px-4 py-3">
+        <div class="alert alert-danger border-0 rounded-3">
+          <h6 class="alert-heading text-danger fw-medium">⚠️ Attention - Action irréversible</h6>
+          <p class="mb-3">Cette action supprimera définitivement et sans possibilité de récupération :</p>
+          <ul class="mb-0">
+            <li>Votre profil et toutes vos informations personnelles</li>
+            <li>Toutes vos propriétés enregistrées</li>
+            <li>Tous vos projets de rénovation</li>
+            <li>Toutes vos demandes de primes</li>
+            <li>L'historique complet de votre activité</li>
+          </ul>
+        </div>
+        <div class="text-center">
+          <p class="text-muted mb-3">
+            <strong>Êtes-vous absolument certain de vouloir continuer ?</strong>
+          </p>
+          <%= link_to cancel_user_registration_path,
+              class: "btn btn-danger btn-lg rounded-3 px-4",
+              method: :get,
+              data: {
+                confirm: "⚠️ DERNIÈRE CONFIRMATION ⚠️\n\nVous êtes sur le point de supprimer définitivement votre compte.\n\nCette action ne peut PAS être annulée.\n\nTapez 'SUPPRIMER' pour confirmer définitivement :",
+                turbo_confirm: "SUPPRIMER"
+              } do %>
+            <i class="bi bi-person-x me-2"></i>Oui, supprimer mon compte définitivement
+          <% end %>
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-outline-secondary btn-lg rounded-3 flex-fill" data-bs-dismiss="modal">
+          <i class="bi bi-shield-check me-2"></i>Non, conserver mon compte
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Utilise le fichier CSS externe properties.css -->

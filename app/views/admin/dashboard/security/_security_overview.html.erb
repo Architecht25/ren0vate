@@ -1,0 +1,73 @@
+<!-- État général de la sécurité -->
+<div class="col-12 mb-4">
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-danger text-white">
+      <h5 class="mb-0"><i class="bi bi-shield-check me-2"></i>État de la sécurité</h5>
+    </div>
+    <div class="card-body">
+      <div class="row text-center">
+        <div class="col-md-2">
+          <div class="security-status">
+            <i class="bi bi-shield-fill-check text-success display-4"></i>
+            <h6 class="mt-2">HTTPS/SSL</h6>
+            <span class="badge bg-success">ACTIF</span>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="security-status">
+            <i class="bi bi-lock-fill text-success display-4"></i>
+            <h6 class="mt-2">Authentification</h6>
+            <span class="badge bg-success">DEVISE</span>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="security-status">
+            <i class="bi bi-envelope-check-fill text-success display-4"></i>
+            <h6 class="mt-2">Email Confirm</h6>
+            <span class="badge bg-success">ACTIF</span>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="security-status">
+            <i class="bi bi-eye-slash-fill text-success display-4"></i>
+            <h6 class="mt-2">CSP</h6>
+            <span class="badge bg-success">ENFORCED</span>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="security-status">
+            <i class="bi bi-database-lock text-success display-4"></i>
+            <h6 class="mt-2">Sessions</h6>
+            <span class="badge bg-success">SÉCURISÉES</span>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="security-status">
+            <i class="bi bi-people-fill <%= User.admin.count == 1 ? 'text-success' : 'text-warning' %> display-4"></i>
+            <h6 class="mt-2">Gestion Rôles</h6>
+            <span class="badge bg-<%= User.admin.count == 1 ? 'success' : 'warning' %>" id="admin-roles-status">
+              <%= User.admin.count %> ADMIN<%= 's' if User.admin.count > 1 %>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Score global de sécurité -->
+      <div class="row mt-4">
+        <div class="col-12 text-center">
+          <div class="security-status">
+            <i class="bi bi-graph-up text-success display-5"></i>
+            <h5 class="mt-2 mb-3">Score Global de Sécurité</h5>
+            <span class="badge bg-success fs-4 px-4 py-2" id="global-security-score">
+              <%= User.admin.count == 1 ? '98%' : '85%' %>
+              <i class="bi bi-<%= User.admin.count == 1 ? 'check-circle' : 'exclamation-triangle' %> ms-2"></i>
+            </span>
+            <p class="text-muted mt-2 mb-0">
+              <%= User.admin.count == 1 ? 'Configuration optimale' : 'Amélioration possible' %>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

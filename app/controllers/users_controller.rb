@@ -10,14 +10,14 @@ class UsersController < ApplicationController
   end
 
   def update
-  @user = current_user
-  if @user.update(user_params)
-    redirect_to profile_path, notice: "Profil mis à jour avec succès."
-  else
-    flash.now[:alert] = "Erreur lors de la mise à jour."
-    render :edit
+    @user = current_user
+    if @user.update(user_params)
+      redirect_to profile_path, notice: "Profil mis à jour avec succès."
+    else
+      flash.now[:alert] = "Erreur lors de la mise à jour."
+      render :profile
+    end
   end
-end
 
 private
 

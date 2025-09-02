@@ -11,7 +11,7 @@
   <% if @requests.any? %>
     <div class="row g-3">
       <% @requests.each do |request| %>
-        <div class="col-md-6 col-lg-4">
+        <div class="col-lg-3">
           <div class="card border-0 bg-light-custom h-100 property-card">
             <div class="card-body p-4">
               <div class="d-flex align-items-center mb-3">
@@ -56,8 +56,8 @@
 
                 <!-- Actions pour les demandes -->
                 <div class="d-flex gap-2">
-                  <%= link_to request_path(request), class: "btn btn-sm btn-outline-primary-custom flex-fill" do %>
-                    <i class="bi bi-eye me-1"></i>Voir
+                  <%= link_to request_path(request), class: "btn btn-sm btn-outline-primary-custom" do %>
+                    <i class="bi bi-eye"></i>
                   <% end %>
 
                   <% if request.status == 'submitted' %>
@@ -68,8 +68,8 @@
                          when 'bruxelles' then 'https://www.brussels.be/logement-et-energie/renovation-de-mon-logement/primes'
                          else '#'
                        end %>
-                    <%= link_to official_url, target: "_blank", rel: "noopener noreferrer", class: "btn btn-sm btn-info flex-fill" do %>
-                      <i class="bi bi-box-arrow-up-right me-1"></i>Continuer
+                    <%= link_to official_url, target: "_blank", rel: "noopener noreferrer", class: "btn btn-sm btn-info" do %>
+                      <i class="bi bi-box-arrow-up-right"></i>
                     <% end %>
                   <% else %>
                     <%= link_to edit_request_path(request), class: "btn btn-sm btn-outline-secondary" do %>
@@ -77,15 +77,13 @@
                     <% end %>
                   <% end %>
 
-                  <% if request.can_be_deleted? %>
-                    <%= link_to request_path(request), method: :delete,
-                                data: {
-                                  confirm: "Supprimer cette demande ?",
-                                  turbo_method: :delete
-                                },
-                                class: "btn btn-sm btn-outline-danger" do %>
-                      <i class="bi bi-trash"></i>
-                    <% end %>
+                  <%= link_to request_path(request), method: :delete,
+                              data: {
+                                confirm: "Supprimer cette demande ?",
+                                turbo_method: :delete
+                              },
+                              class: "btn btn-sm btn-outline-danger" do %>
+                    <i class="bi bi-trash"></i>
                   <% end %>
                 </div>
               </div>

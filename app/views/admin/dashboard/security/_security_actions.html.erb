@@ -1,0 +1,64 @@
+<!-- Actions de sécurité -->
+<div class="col-12">
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-dark text-white">
+      <h6 class="mb-0"><i class="bi bi-tools me-2"></i>Actions de sécurité</h6>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <!-- Première ligne d'actions -->
+        <div class="col-md-3 mb-3">
+          <button id="test-headers-btn" class="btn btn-outline-primary w-100">
+            <i class="bi bi-search me-2"></i>
+            Tester les headers
+          </button>
+        </div>
+        <div class="col-md-3 mb-3">
+          <button id="view-csp-violations-btn" class="btn btn-outline-warning w-100">
+            <i class="bi bi-list-ul me-2"></i>
+            Voir violations CSP
+          </button>
+        </div>
+        <div class="col-md-3 mb-3">
+          <button id="manage-confirmations-btn" class="btn btn-outline-info w-100">
+            <i class="bi bi-envelope-check me-2"></i>
+            Gestion confirmations
+          </button>
+        </div>
+        <div class="col-md-3 mb-3">
+          <button id="check-admin-roles-btn" class="btn btn-outline-<%= User.admin.count == 1 ? 'success' : 'danger' %> w-100">
+            <i class="bi bi-shield-lock me-2"></i>
+            Vérifier rôles admin
+          </button>
+        </div>
+
+        <!-- Seconde ligne d'actions -->
+        <div class="col-md-6 mb-3">
+          <button id="show-roles-detail-btn" class="btn btn-outline-secondary w-100">
+            <i class="bi bi-people me-2"></i>
+            Détail des rôles utilisateurs
+          </button>
+        </div>
+        <div class="col-md-6 mb-3">
+          <a href="<%= Rails.application.config.force_ssl ? 'https' : 'http' %>://securityheaders.com/?q=<%= request.host %>"
+             target="_blank" class="btn btn-outline-success w-100">
+            <i class="bi bi-globe me-2"></i>
+            Audit externe complet
+          </a>
+        </div>
+      </div>
+
+      <div class="row mt-3">
+        <div class="col-12">
+          <div class="alert alert-info d-flex align-items-center" role="alert">
+            <i class="bi bi-info-circle me-2"></i>
+            <div>
+              <strong>Documentation sécurité :</strong>
+              Consultez <code>SECURITY_CONFIGURATION.md</code> pour plus de détails sur la configuration de sécurité.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
