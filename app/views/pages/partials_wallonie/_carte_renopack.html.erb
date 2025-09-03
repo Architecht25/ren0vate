@@ -1,0 +1,167 @@
+<!-- Carte Rénopack Wallonie Compacte - Financement travaux de rénovation -->
+<div class="card border-0 shadow-sm h-100 d-flex flex-column" data-controller="renopack-wallonie">
+  <div class="card-header bg-success bg-opacity-10 p-2">
+    <div class="d-flex align-items-center gap-2">
+      <div class="bg-success bg-opacity-15 rounded-circle d-flex align-items-center justify-content-center"
+           style="width: 35px; height: 35px;">
+        <i class="bi bi-bank fs-6 text-success"></i>
+      </div>
+      <div>
+        <h6 class="card-title mb-0 small">
+          <i class="bi bi-piggy-bank me-1"></i>
+          Rénopack 0%
+        </h6>
+        <p class="text-muted small mb-0" style="font-size: 0.7rem;">
+          Prêt travaux jusqu'à 60k€
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body p-0 d-flex flex-column flex-grow-1" style="overflow-y: auto;">
+    <!-- Section contenu avec padding -->
+    <div class="p-2 flex-shrink-0">
+      <!-- Section 1: Vérification d'éligibilité compacte -->
+      <div class="mb-2">
+        <h6 class="text-primary mb-2 small">
+          <i class="bi bi-person-check me-1"></i>
+          Éligibilité
+        </h6>
+
+        <div class="row g-1">
+          <div class="col-12">
+          <label class="form-label small" style="font-size: 0.7rem;">Âge :</label>
+          <input type="number"
+                 class="form-control form-control-sm"
+                 data-renopack-wallonie-target="age"
+                 data-action="input->renopack-wallonie#eligibilityChanged"
+                 min="18" max="100" placeholder="Ex: 35">
+        </div>
+
+        <div class="col-12">
+          <label class="form-label small" style="font-size: 0.7rem;">Revenus RIG :</label>
+          <div class="input-group input-group-sm">
+            <input type="number"
+                   class="form-control"
+                   data-renopack-wallonie-target="revenus"
+                   data-action="input->renopack-wallonie#eligibilityChanged"
+                   min="0" placeholder="45000">
+            <span class="input-group-text small">€</span>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label small" style="font-size: 0.7rem;">Âge logement :</label>
+          <div class="input-group input-group-sm">
+            <input type="number"
+                   class="form-control"
+                   data-renopack-wallonie-target="logementAge"
+                   data-action="input->renopack-wallonie#eligibilityChanged"
+                   min="0" placeholder="25">
+            <span class="input-group-text small">ans</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Résultat éligibilité -->
+      <div class="mt-2 d-none" data-renopack-wallonie-target="eligibiliteSection">
+        <div data-renopack-wallonie-target="resultEligibilite"></div>
+        <div data-renopack-wallonie-target="detailsEligibilite"></div>
+      </div>
+    </div>
+
+    <!-- Section 2: Simulation du prêt compacte -->
+    <div class="mb-2 d-none" data-renopack-wallonie-target="simulationSection">
+      <h6 class="text-primary mb-2 small">
+        <i class="bi bi-calculator me-1"></i>
+        Simulation
+      </h6>
+
+      <div class="row g-1">
+        <div class="col-12">
+          <label class="form-label small" style="font-size: 0.7rem;">Montant travaux :</label>
+          <div class="input-group input-group-sm">
+            <input type="number"
+                   class="form-control"
+                   data-renopack-wallonie-target="montantTravaux"
+                   data-action="input->renopack-wallonie#loanChanged"
+                   min="1000" max="60000"
+                   placeholder="1k à 60k€">
+            <span class="input-group-text small">€</span>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label small" style="font-size: 0.7rem;">Capacité/mois :</label>
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-info text-white small">
+              <i class="bi bi-calculator"></i>
+            </span>
+            <span class="form-control bg-light small"
+                  data-renopack-wallonie-target="resultCapacite">
+              Auto
+            </span>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <label class="form-label small" style="font-size: 0.7rem;">Mensualité :</label>
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-success text-white small">
+              <i class="bi bi-piggy-bank"></i>
+            </span>
+            <span class="form-control bg-light small"
+                  data-renopack-wallonie-target="resultMensualite">
+              Auto
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3: Résultats détaillés compacts -->
+    <div class="d-none" data-renopack-wallonie-target="resultSection">
+      <div data-renopack-wallonie-target="detailsSimulation"></div>
+
+      <!-- Actions compactes -->
+      <div class="mt-2 pt-2 border-top">
+        <div class="row g-1">
+          <div class="col-12">
+            <a href="https://appicredit.swcs.be/"
+               target="_blank"
+               class="btn btn-success btn-sm w-100 small">
+              <i class="bi bi-box-arrow-up-right me-1"></i>
+              Demande SWCS
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section mauve qui reste DANS les bordures de la carte -->
+    <div class="mt-auto mx-2 mb-2" style="
+      background: repeating-linear-gradient(
+        45deg,
+        rgba(126, 84, 186, 0.1),
+        rgba(126, 84, 186, 0.1) 10px,
+        rgba(126, 84, 186, 0.2) 10px,
+        rgba(126, 84, 186, 0.2) 20px
+      );
+      border: 1px solid rgba(126, 84, 186, 0.3);
+      border-radius: 0.375rem;
+      padding: 8px;
+      min-height: 80px;
+    ">
+      <h6 class="mb-1 small text-muted">
+        <i class="bi bi-info-circle me-1"></i>
+        Points clés :
+      </h6>
+      <ul class="mb-0 text-muted" style="font-size: 0.65rem;">
+        <li><strong>0% intérêt</strong></li>
+        <li><strong>Audit obligatoire</strong></li>
+        <li><strong>Entrepreneur BCE</strong></li>
+        <li><strong>Travaux après accord</strong></li>
+      </ul>
+    </div>
+  </div>
+</div>
