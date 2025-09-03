@@ -28,7 +28,12 @@
   <!-- SECTION 1 – Identification du demandeur -->
   <div class="card mb-4">
     <div class="card-header bg-success text-white">
-      <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i>Identification du demandeur</h5>
+      <h5 class="mb-0">
+        <i class="bi bi-person-circle me-2"></i>Identification du demandeur
+        <% if @form_data.present? %>
+          <%= indicateur_section_complete(@form_data, [:nom, :prenom, :email, :telephone, :registre_national]) %>
+        <% end %>
+      </h5>
     </div>
     <div class="card-body">
       <div class="row">
@@ -49,8 +54,15 @@
         </div>
         <div class="col-md-6">
           <div class="mb-3">
-            <%= form.label :registre_national, "Numéro de registre national ou BCE *", class: "form-label" %>
-            <%= form.text_field :registre_national, class: "form-control", placeholder: "XX.XX.XX-XXX.XX ou BE0123456789", required: true %>
+            <%= form.label :registre_national, class: "form-label" do %>
+              Numéro de registre national ou BCE *
+              <%= badge_prerempli(@form_data, :registre_national) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :registre_national,
+                value: preremplir_champ(@form_data, :registre_national, current_user.national_number),
+                class: "form-control",
+                placeholder: "XX.XX.XX-XXX.XX ou BE0123456789",
+                required: true %>
           </div>
         </div>
       </div>
@@ -58,14 +70,28 @@
       <div class="row">
         <div class="col-md-6">
           <div class="mb-3">
-            <%= form.label :nom, "Nom du demandeur *", class: "form-label" %>
-            <%= form.text_field :nom, class: "form-control", placeholder: "Nom complet", required: true %>
+            <%= form.label :nom, class: "form-label" do %>
+              Nom du demandeur *
+              <%= badge_prerempli(@form_data, :nom) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :nom,
+                value: preremplir_champ(@form_data, :nom, current_user.last_name),
+                class: "form-control",
+                placeholder: "Nom complet",
+                required: true %>
           </div>
         </div>
         <div class="col-md-6">
           <div class="mb-3">
-            <%= form.label :prenom, "Prénom du demandeur *", class: "form-label" %>
-            <%= form.text_field :prenom, class: "form-control", placeholder: "Prénom", required: true %>
+            <%= form.label :prenom, class: "form-label" do %>
+              Prénom du demandeur *
+              <%= badge_prerempli(@form_data, :prenom) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :prenom,
+                value: preremplir_champ(@form_data, :prenom, current_user.first_name),
+                class: "form-control",
+                placeholder: "Prénom",
+                required: true %>
           </div>
         </div>
       </div>
@@ -73,14 +99,28 @@
       <div class="row">
         <div class="col-md-6">
           <div class="mb-3">
-            <%= form.label :telephone, "Téléphone *", class: "form-label" %>
-            <%= form.telephone_field :telephone, class: "form-control", placeholder: "0x/xxx.xx.xx", required: true %>
+            <%= form.label :telephone, class: "form-label" do %>
+              Téléphone *
+              <%= badge_prerempli(@form_data, :telephone) if @form_data.present? %>
+            <% end %>
+            <%= form.telephone_field :telephone,
+                value: preremplir_champ(@form_data, :telephone, current_user.phone),
+                class: "form-control",
+                placeholder: "0x/xxx.xx.xx",
+                required: true %>
           </div>
         </div>
         <div class="col-md-6">
           <div class="mb-3">
-            <%= form.label :email, "Adresse email *", class: "form-label" %>
-            <%= form.email_field :email, class: "form-control", placeholder: "nom@email.com", required: true %>
+            <%= form.label :email, class: "form-label" do %>
+              Adresse email *
+              <%= badge_prerempli(@form_data, :email) if @form_data.present? %>
+            <% end %>
+            <%= form.email_field :email,
+                value: preremplir_champ(@form_data, :email, current_user.email),
+                class: "form-control",
+                placeholder: "nom@email.com",
+                required: true %>
           </div>
         </div>
       </div>
@@ -88,21 +128,38 @@
   </div>  <!-- SECTION 2 – Données du logement -->
   <div class="card mb-4">
     <div class="card-header bg-info text-white">
-      <h5 class="mb-0"><i class="bi bi-house-door me-2"></i>Données du logement concerné</h5>
+      <h5 class="mb-0">
+        <i class="bi bi-house-door me-2"></i>Données du logement concerné
+        <% if @form_data.present? && @property.present? %>
+          <%= indicateur_section_complete(@form_data, [:adresse, :code_postal, :commune, :type_bien, :usage]) %>
+        <% end %>
+      </h5>
     </div>
     <div class="card-body">
       <div class="row">
         <div class="col-md-6">
           <div class="mb-3">
-            <%= form.label :ean, "Code EAN (optionnel)", class: "form-label" %>
-            <%= form.text_field :ean, class: "form-control", placeholder: "Ex: 54144..." %>
+            <%= form.label :ean, class: "form-label" do %>
+              Code EAN (optionnel)
+              <%= badge_prerempli(@form_data, :ean) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :ean,
+                value: preremplir_champ(@form_data, :ean),
+                class: "form-control",
+                placeholder: "Ex: 54144..." %>
             <div class="form-text">Code EAN de votre compteur électrique</div>
           </div>
         </div>
         <div class="col-md-6">
           <div class="mb-3">
-            <%= form.label :parcelle, "Numéro de parcelle (optionnel)", class: "form-label" %>
-            <%= form.text_field :parcelle, class: "form-control", placeholder: "Ex: 12345/02A" %>
+            <%= form.label :parcelle, class: "form-label" do %>
+              Numéro de parcelle (optionnel)
+              <%= badge_prerempli(@form_data, :parcelle) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :parcelle,
+                value: preremplir_champ(@form_data, :parcelle),
+                class: "form-control",
+                placeholder: "Ex: 12345/02A" %>
           </div>
         </div>
       </div>
@@ -110,14 +167,28 @@
       <div class="row">
         <div class="col-md-8">
           <div class="mb-3">
-            <%= form.label :adresse, "Adresse du logement *", class: "form-label" %>
-            <%= form.text_field :adresse, class: "form-control", placeholder: "Rue, numéro", required: true %>
+            <%= form.label :adresse, class: "form-label" do %>
+              Adresse du logement *
+              <%= badge_prerempli(@form_data, :adresse) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :adresse,
+                value: preremplir_champ(@form_data, :adresse),
+                class: "form-control",
+                placeholder: "Rue, numéro",
+                required: true %>
           </div>
         </div>
         <div class="col-md-4">
           <div class="mb-3">
-            <%= form.label :code_postal, "Code postal *", class: "form-label" %>
-            <%= form.text_field :code_postal, class: "form-control", placeholder: "Ex: 1000", required: true %>
+            <%= form.label :code_postal, class: "form-label" do %>
+              Code postal *
+              <%= badge_prerempli(@form_data, :code_postal) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :code_postal,
+                value: preremplir_champ(@form_data, :code_postal),
+                class: "form-control",
+                placeholder: "Ex: 1000",
+                required: true %>
           </div>
         </div>
       </div>
@@ -125,20 +196,33 @@
       <div class="row">
         <div class="col-md-6">
           <div class="mb-3">
-            <%= form.label :commune, "Commune *", class: "form-label" %>
-            <%= form.text_field :commune, class: "form-control", placeholder: "Nom de la commune", required: true %>
+            <%= form.label :commune, class: "form-label" do %>
+              Commune *
+              <%= badge_prerempli(@form_data, :commune) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :commune,
+                value: preremplir_champ(@form_data, :commune),
+                class: "form-control",
+                placeholder: "Nom de la commune",
+                required: true %>
           </div>
         </div>
         <div class="col-md-6">
           <div class="mb-3">
-            <%= form.label :type_bien, "Type de bien *", class: "form-label" %>
+            <%= form.label :type_bien, class: "form-label" do %>
+              Type de bien *
+              <%= badge_prerempli(@form_data, :type_bien) if @form_data.present? %>
+            <% end %>
             <%= form.select :type_bien,
                 [
                   ["Maison unifamiliale", "maison"],
                   ["Appartement", "appartement"],
                   ["Immeuble avec plusieurs unités", "immeuble"]
                 ],
-                { prompt: "-- Sélectionnez --" },
+                {
+                  prompt: "-- Sélectionnez --",
+                  selected: preremplir_champ(@form_data, :type_bien)
+                },
                 { class: "form-select", required: true } %>
           </div>
         </div>
@@ -147,20 +231,29 @@
       <div class="row">
         <div class="col-md-6">
           <div class="mb-3">
-            <%= form.label :usage, "Usage du bien *", class: "form-label" %>
+            <%= form.label :usage, class: "form-label" do %>
+              Usage du bien *
+              <%= badge_prerempli(@form_data, :usage) if @form_data.present? %>
+            <% end %>
             <%= form.select :usage,
                 [
                   ["Résidence principale", "residence_principale"],
                   ["Bien en location", "location"],
                   ["Autre", "autre"]
                 ],
-                { prompt: "-- Sélectionnez --" },
+                {
+                  prompt: "-- Sélectionnez --",
+                  selected: preremplir_champ(@form_data, :usage)
+                },
                 { class: "form-select", required: true } %>
           </div>
         </div>
         <div class="col-md-6">
           <div class="mb-3">
-            <%= form.label :chauffage_post_renovation, "Système de chauffage après rénovation *", class: "form-label" %>
+            <%= form.label :chauffage_post_renovation, class: "form-label" do %>
+              Système de chauffage après rénovation *
+              <%= badge_prerempli(@form_data, :chauffage_post_renovation) if @form_data.present? %>
+            <% end %>
             <%= form.select :chauffage_post_renovation,
                 [
                   ["Chauffage central au gaz (condensation)", "gaz"],
@@ -173,7 +266,10 @@
                   ["Autre (à spécifier)", "autre"],
                   ["Je ne sais pas", "ne_sais_pas"]
                 ],
-                { prompt: "-- Sélectionnez --" },
+                {
+                  prompt: "-- Sélectionnez --",
+                  selected: preremplir_champ(@form_data, :chauffage_post_renovation)
+                },
                 { class: "form-select", required: true } %>
           </div>
         </div>
@@ -200,24 +296,99 @@
                 <i class="bi bi-house-up me-2"></i>Travaux d'isolation
               </h6>
 
-              <div class="form-check mb-2">
-                <%= form.check_box :travaux_toiture, { class: "form-check-input" }, "toiture", "" %>
-                <%= form.label :travaux_toiture, "Isolation de la toiture", class: "form-check-label" %>
+              <!-- Isolation toiture -->
+              <div class="form-check mb-3">
+                <%= form.check_box :travaux_toiture,
+                                   { class: "form-check-input", checked: (defined?(form_data) && form_data ? form_data[:travaux_toiture] : false) },
+                                   "true", "" %>
+                <%= form.label :travaux_toiture, "Isolation de la toiture", class: "form-check-label fw-semibold" %>
+              </div>
+              <div class="travaux-details ms-4 mb-4">
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <%= form.label :surface_toiture, "Surface (m²)", class: "form-label" %>
+                    <%= form.number_field :surface_toiture,
+                                         class: "form-control",
+                                         min: 0, step: 1 %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= form.label :type_toiture, "Méthode", class: "form-label" %>
+                    <%= form.select :type_toiture,
+                                   options_for_select([
+                                     ['-- Sélectionnez --', ''],
+                                     ['Par l\'intérieur', 'interieur'],
+                                     ['Par l\'extérieur', 'exterieur']
+                                   ]),
+                                   {},
+                                   { class: "form-select" } %>
+                  </div>
+                </div>
               </div>
 
-              <div class="form-check mb-2">
-                <%= form.check_box :travaux_murs, { class: "form-check-input" }, "murs", "" %>
-                <%= form.label :travaux_murs, "Isolation des murs extérieurs", class: "form-check-label" %>
+              <!-- Isolation murs extérieurs -->
+              <div class="form-check mb-3">
+                <%= form.check_box :travaux_murs,
+                                   { class: "form-check-input", checked: (defined?(form_data) && form_data ? form_data[:travaux_murs] : false) },
+                                   "true", "" %>
+                <%= form.label :travaux_murs, "Isolation des murs extérieurs", class: "form-check-label fw-semibold" %>
+              </div>
+              <div class="travaux-details ms-4 mb-4">
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <%= form.label :surface_murs, "Surface (m²)", class: "form-label" %>
+                    <%= form.number_field :surface_murs,
+                                         class: "form-control",
+                                         min: 0, step: 1 %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= form.label :type_murs, "Méthode", class: "form-label" %>
+                    <%= form.select :type_murs,
+                                   options_for_select([
+                                     ['-- Sélectionnez --', ''],
+                                     ['Murs creux', 'creux'],
+                                     ['Par l\'intérieur', 'interieur'],
+                                     ['Par l\'extérieur', 'exterieur']
+                                   ]),
+                                   {},
+                                   { class: "form-select" } %>
+                  </div>
+                </div>
               </div>
 
-              <div class="form-check mb-2">
-                <%= form.check_box :travaux_sol, { class: "form-check-input" }, "sol", "" %>
-                <%= form.label :travaux_sol, "Isolation du sol ou des caves", class: "form-check-label" %>
+              <!-- Isolation du sol -->
+              <div class="form-check mb-3">
+                <%= form.check_box :travaux_sol,
+                                   { class: "form-check-input", checked: (defined?(form_data) && form_data ? form_data[:travaux_sol] : false) },
+                                   "true", "" %>
+                <%= form.label :travaux_sol, "Isolation du sol ou des caves", class: "form-check-label fw-semibold" %>
+              </div>
+              <div class="travaux-details ms-4 mb-4">
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <%= form.label :surface_sol, "Surface (m²)", class: "form-label" %>
+                    <%= form.number_field :surface_sol,
+                                         class: "form-control",
+                                         min: 0, step: 1 %>
+                  </div>
+                </div>
               </div>
 
-              <div class="form-check mb-2">
-                <%= form.check_box :travaux_vitrage, { class: "form-check-input" }, "vitrage", "" %>
-                <%= form.label :travaux_vitrage, "Remplacement du vitrage", class: "form-check-label" %>
+              <!-- Vitrage -->
+              <div class="form-check mb-3">
+                <%= form.check_box :travaux_vitrage,
+                                   { class: "form-check-input", checked: (defined?(form_data) && form_data ? form_data[:travaux_vitrage] : false) },
+                                   "true", "" %>
+                <%= form.label :travaux_vitrage, "Remplacement du vitrage", class: "form-check-label fw-semibold" %>
+              </div>
+              <div class="travaux-details ms-4 mb-4">
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <%= form.label :surface_vitrage, "Surface (m²)", class: "form-label" %>
+                    <%= form.number_field :surface_vitrage,
+                                         class: "form-control",
+                                         min: 0, step: 1 %>
+                  </div>
+                </div>
               </div>
 
               <div class="form-check mb-2">
@@ -236,9 +407,29 @@
                 <i class="bi bi-lightning-charge me-2"></i>Systèmes énergétiques
               </h6>
 
-              <div class="form-check mb-2">
-                <%= form.check_box :travaux_chauffage, { class: "form-check-input" }, "chauffage", "" %>
-                <%= form.label :travaux_chauffage, "Installation pompe à chaleur", class: "form-check-label" %>
+              <div class="form-check mb-3">
+                <%= form.check_box :travaux_chauffage,
+                                   { class: "form-check-input", checked: (defined?(form_data) && form_data ? form_data[:travaux_chauffage] : false) },
+                                   "true", "" %>
+                <%= form.label :travaux_chauffage, "Installation d'une pompe à chaleur et chauffe-eau thermodynamique", class: "form-check-label fw-semibold" %>
+              </div>
+              <div class="travaux-details ms-4 mb-4">
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <%= form.label :type_chauffage, "Type de système", class: "form-label" %>
+                    <%= form.select :type_chauffage,
+                                   options_for_select([
+                                     ['-- Sélectionnez --', ''],
+                                     ['Pompe à chaleur géothermique', 'pac-geothermique'],
+                                     ['Pompe à chaleur air/eau', 'pac-air-eau'],
+                                     ['Pompe à chaleur air/air', 'pac-air-air'],
+                                     ['Pompe à chaleur hybride', 'hybride'],
+                                     ['Boiler thermodynamique', 'boiler']
+                                   ]),
+                                   {},
+                                   { class: "form-select" } %>
+                  </div>
+                </div>
               </div>
 
               <div class="form-check mb-2">
@@ -382,114 +573,7 @@
     </div>
   </div>
 
-  <!-- SECTION MONUMENTS & SITES -->
-  <div class="card mb-4">
-    <div class="card-header bg-info text-white">
-      <h5 class="mb-0"><i class="bi bi-bank me-2"></i>Formulaire Monuments & Sites (optionnel)</h5>
-    </div>
-    <div class="card-body">
-      <div class="alert alert-info">
-        <i class="bi bi-info-circle me-2"></i>
-        <strong>Pour les biens classés ou situés dans des zones protégées</strong><br>
-        Si votre bien est un monument classé ou situé dans une zone protégée, vous pouvez bénéficier de primes spécifiques plus avantageuses.
-      </div>
 
-      <div class="text-center">
-        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#monumentsModal">
-          <i class="bi bi-bank me-2"></i>
-          Ouvrir le formulaire Monuments & Sites
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- SECTION FORMULAIRES COMMUNAUX -->
-  <div class="card mb-4">
-    <div class="card-header bg-primary text-white">
-      <h5 class="mb-0"><i class="bi bi-building me-2"></i>Formulaires Communaux (optionnel)</h5>
-    </div>
-    <div class="card-body">
-      <div class="alert alert-primary">
-        <i class="bi bi-info-circle me-2"></i>
-        <strong>Primes complémentaires de votre commune</strong><br>
-        Certaines communes offrent des primes complémentaires aux primes régionales. Vérifiez si votre commune propose des formulaires spécifiques.
-      </div>
-
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label for="commune_search" class="form-label">Rechercher votre commune</label>
-            <input type="text"
-                   class="form-control"
-                   id="commune_search"
-                   placeholder="ex: Antwerpen, Gent, Brugge...">
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label for="postal_code_search" class="form-label">Code postal</label>
-            <input type="text"
-                   class="form-control"
-                   id="postal_code_search"
-                   placeholder="ex: 2000, 9000...">
-          </div>
-        </div>
-      </div>
-
-      <div id="commune_results" class="mt-3" style="display: none;">
-        <h6>Formulaires disponibles pour votre commune :</h6>
-        <div id="commune_forms_list"></div>
-      </div>
-
-      <!-- Quelques communes principales -->
-      <div class="mt-4">
-        <h6>Principales communes avec formulaires :</h6>
-        <div class="row">
-          <div class="col-md-4">
-            <div class="list-group">
-              <a href="https://www.antwerpen.be/nl/info/52da4497b56e38600d78c1b7/premies-en-leningen-voor-wonen"
-                 target="_blank"
-                 class="list-group-item list-group-item-action">
-                <i class="bi bi-link-45deg me-2"></i>Antwerpen
-              </a>
-              <a href="https://stad.gent/nl/wonen-bouwen/subsidies-en-premies"
-                 target="_blank"
-                 class="list-group-item list-group-item-action">
-                <i class="bi bi-link-45deg me-2"></i>Gent
-              </a>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="list-group">
-              <a href="https://www.brugge.be/wonen-en-bouwen/premies-en-subsidies"
-                 target="_blank"
-                 class="list-group-item list-group-item-action">
-                <i class="bi bi-link-45deg me-2"></i>Brugge
-              </a>
-              <a href="https://www.leuven.be/premies-en-subsidies"
-                 target="_blank"
-                 class="list-group-item list-group-item-action">
-                <i class="bi bi-link-45deg me-2"></i>Leuven
-              </a>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="list-group">
-              <a href="https://www.hasselt.be/premies"
-                 target="_blank"
-                 class="list-group-item list-group-item-action">
-                <i class="bi bi-link-45deg me-2"></i>Hasselt
-              </a>
-              <small class="text-muted mt-2 d-block">
-                <i class="bi bi-plus-circle me-1"></i>
-                D'autres communes seront ajoutées progressivement
-              </small>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- SECTION 6 – Soumission de la demande -->
   <div class="card mb-4">
@@ -551,6 +635,17 @@
             Vos données sont traitées de manière sécurisée
           </small>
         </div>
+
+        <!-- Boutons de soumission pour le formulaire Flandre -->
+        <div class="d-flex gap-2 justify-content-end mb-3">
+          <%= form.submit "Sauvegarder en brouillon",
+              name: "commit",
+              value: "Sauvegarder en brouillon",
+              class: "btn btn-outline-primary px-4",
+              formnovalidate: true %>
+          <%= form.submit "Créer la demande", class: "btn btn-primary px-4" %>
+        </div>
+
         <div>
           <a href="https://www.vlaanderen.be/premies-pour-renovation/mijn-verbouwpremie"
              target="_blank"
@@ -605,3 +700,27 @@
 
 </div>
 </div>
+
+<script nonce="<%= content_security_policy_nonce %>">
+// JavaScript pour afficher/masquer les détails des travaux
+function initializeTravauxToggle() {
+  const checkboxes = document.querySelectorAll('.form-check-input[id^="travaux_"]');
+
+  checkboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      const detailsDiv = this.closest('.form-check').nextElementSibling;
+      if (detailsDiv && detailsDiv.classList.contains('travaux-details')) {
+        if (this.checked) {
+          detailsDiv.classList.remove('d-none');
+        } else {
+          detailsDiv.classList.add('d-none');
+        }
+      }
+    });
+  });
+}
+
+// Exécuter immédiatement et aussi au chargement du DOM
+initializeTravauxToggle();
+document.addEventListener('DOMContentLoaded', initializeTravauxToggle);
+</script>

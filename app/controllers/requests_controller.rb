@@ -11,6 +11,14 @@ class RequestsController < ApplicationController
     @request = Request.new
     # Charger les primes pour le prime_card_controller
     @primes = Prime.all
+
+    # Préparer les données de pré-remplissage si une propriété est sélectionnée
+    if params[:property_id].present?
+      @property = current_user.properties.find(params[:property_id])
+      @form_data = build_formulaire_data(@property)
+    else
+      @form_data = build_user_data
+    end
   end
 
   def create
@@ -78,10 +86,48 @@ class RequestsController < ApplicationController
 
   def update
     @request = Request.find(params[:id])
-    if @request.update(request_params)
-      redirect_to @request
+
+    # Gérer les brouillons pour la mise à jour aussi
+    if params[:commit] == "Sauvegarder en brouillon"
+      @request.status = 'draft'
+      # Assigner les nouvelles valeurs
+      @request.assign_attributes(request_params)
+      @request.title = @request.title.present? ? @request.title : "Brouillon #{Time.current.strftime('%d/%m/%Y %H:%M')}"
+      @request.description = @request.description.present? ? @request.description : "Brouillon en cours de rédaction"
+    elsif params[:commit] == "Créer la demande"
+      @request.assign_attributes(request_params)
+      @request.status = 'submitted'
     else
-      render :edit
+      @request.assign_attributes(request_params)
+    end
+
+    if @request.save
+      if params[:commit] == "Sauvegarder en brouillon"
+        redirect_to requests_path, notice: 'Brouillon mis à jour avec succès.'
+      elsif params[:commit] == "Créer la demande"
+        # Redirection vers le site officiel
+        official_url = case @request.region
+                      when 'flandre'
+                        'https://www.vlaanderen.be/premies-pour-renovation/mijn-verbouwpremie'
+                      when 'wallonie'
+                        'https://energie.wallonie.be/fr/aides-et-primes.html?IDC=10717'
+                      when 'bruxelles'
+                        'https://www.brussels.be/logement-et-energie/renovation-de-mon-logement/primes'
+                      else
+                        requests_path
+                      end
+
+        if official_url == requests_path
+          redirect_to requests_path, notice: 'Demande mise à jour avec succès.'
+        else
+          redirect_to official_url, notice: 'Demande soumise avec succès. Vous êtes redirigé vers le site officiel pour finaliser votre dépôt.', allow_other_host: true
+        end
+      else
+        redirect_to @request, notice: 'Demande mise à jour avec succès.'
+      end
+    else
+      flash.now[:alert] = "Erreurs: #{@request.errors.full_messages.join(', ')}"
+      render :edit, status: :unprocessable_entity
     end
   end
 
@@ -124,5 +170,98 @@ class RequestsController < ApplicationController
                                    :document_devis, :document_factures, :document_aer, :document_peb,
                                    :document_attestations, :document_photos, :document_autres,
                                    document_devis: [], document_factures: [], document_attestations: [], document_photos: [], document_autres: [])
+  end
+
+  # Méthodes de pré-remplissage
+  def build_formulaire_data(property)
+    {
+      # Données du demandeur
+      nom: current_user.last_name,
+      prenom: current_user.first_name,
+      email: current_user.email,
+      telephone: current_user.phone,
+      registre_national: current_user.national_number,
+
+      # Variations pour formulaires officiels
+      applicant_firstname: current_user.first_name,
+      applicant_lastname: current_user.last_name,
+      applicant_email: current_user.email,
+      applicant_phone: current_user.phone,
+      applicant_national_number: current_user.national_number,
+      applicant_address: current_user.street,
+      applicant_number: current_user.number,
+      applicant_postal_code: current_user.postal_code,
+      applicant_city: current_user.city,
+
+      # Données du bien
+      ean: property.ean_flandre || property.numero_ean,
+      adresse: "#{property.numero} #{property.rue}",
+      code_postal: property.code_postal,
+      commune: property.commune,
+      heritage_address: property.rue,
+      heritage_number: property.numero,
+      heritage_postal_code: property.code_postal,
+      heritage_city: property.commune,
+
+      # Type et usage selon la région
+      type_bien: map_property_type(property),
+      usage: map_property_usage(property),
+      parcelle: property.parcelle_flandre || property.numero_cadastre,
+      chauffage_post_renovation: property.chauffage_post_renovation_flandre,
+
+      # Données travaux (par défaut non cochées pour permettre l'affichage)
+      travaux_toiture: false,
+      travaux_murs: false,
+      travaux_sol: false,
+      travaux_fenetres: false,
+      travaux_chauffage: false,
+      travaux_ventilation: false,
+      travaux_photovoltaique: false,
+      travaux_chauffe_eau: false
+    }
+  end
+
+  def build_user_data
+    {
+      # Données de base de l'utilisateur
+      nom: current_user.last_name,
+      prenom: current_user.first_name,
+      email: current_user.email,
+      telephone: current_user.phone,
+      registre_national: current_user.national_number,
+
+      # Variations pour formulaires officiels
+      applicant_firstname: current_user.first_name,
+      applicant_lastname: current_user.last_name,
+      applicant_email: current_user.email,
+      applicant_phone: current_user.phone,
+      applicant_national_number: current_user.national_number,
+      applicant_address: current_user.street,
+      applicant_number: current_user.number,
+      applicant_postal_code: current_user.postal_code,
+      applicant_city: current_user.city
+    }
+  end
+
+  def map_property_type(property)
+    case property.region&.downcase
+    when 'flandre'
+      property.type_bien_flandre
+    when 'wallonie'
+      property.type_propriete_wallonie
+    when 'bruxelles'
+      property.type_bien_bruxelles
+    else
+      property.type
+    end
+  end
+
+  def map_property_usage(property)
+    case property.region&.downcase
+    when 'flandre'
+      property.usage_flandre
+    else
+      property.usage || property.occupation
+    end
   end
 end

@@ -79,7 +79,12 @@
             <!-- PERSONNE PHYSIQUE -->
             <div id="personne_physique_section" class="beneficiaire-section">
               <div class="card border-light bg-light p-3 mb-3">
-                <h5><i class="fas fa-user"></i> Personne physique</h5>
+                <h5>
+                  <i class="fas fa-user"></i> Personne physique
+                  <% if @form_data.present? %>
+                    <%= indicateur_section_complete(@form_data, [:applicant_last_name, :applicant_first_name, :applicant_national_number, :applicant_street, :applicant_number, :applicant_postal_code, :applicant_city]) %>
+                  <% end %>
+                </h5>
 
                 <div class="row mb-3">
                   <div class="col-md-4">
@@ -92,27 +97,57 @@
                     </select>
                   </div>
                   <div class="col-md-4">
-                    <label class="form-label">Nom *</label>
-                    <%= form.text_field :beneficiaire_nom, class: "form-control", required: true %>
+                    <%= form.label :beneficiaire_nom, class: "form-label" do %>
+                      Nom *
+                      <%= badge_prerempli(@form_data, :applicant_last_name) if @form_data.present? %>
+                    <% end %>
+                    <%= form.text_field :beneficiaire_nom,
+                        value: preremplir_champ(@form_data, :applicant_last_name, current_user.last_name),
+                        class: "form-control",
+                        required: true %>
                   </div>
                   <div class="col-md-4">
-                    <label class="form-label">Prénom *</label>
-                    <%= form.text_field :beneficiaire_prenom, class: "form-control", required: true %>
+                    <%= form.label :beneficiaire_prenom, class: "form-label" do %>
+                      Prénom *
+                      <%= badge_prerempli(@form_data, :applicant_first_name) if @form_data.present? %>
+                    <% end %>
+                    <%= form.text_field :beneficiaire_prenom,
+                        value: preremplir_champ(@form_data, :applicant_first_name, current_user.first_name),
+                        class: "form-control",
+                        required: true %>
                   </div>
                 </div>
 
                 <div class="row mb-3">
                   <div class="col-md-4">
-                    <label class="form-label">N° National *</label>
-                    <%= form.text_field :numero_national, class: "form-control", required: true %>
+                    <%= form.label :numero_national, class: "form-label" do %>
+                      N° National *
+                      <%= badge_prerempli(@form_data, :applicant_national_number) if @form_data.present? %>
+                    <% end %>
+                    <%= form.text_field :numero_national,
+                        value: preremplir_champ(@form_data, :applicant_national_number, current_user.national_number),
+                        class: "form-control",
+                        required: true %>
                   </div>
                   <div class="col-md-6">
-                    <label class="form-label">Rue *</label>
-                    <%= form.text_field :beneficiaire_rue, class: "form-control", required: true %>
+                    <%= form.label :beneficiaire_rue, class: "form-label" do %>
+                      Rue *
+                      <%= badge_prerempli(@form_data, :applicant_street) if @form_data.present? %>
+                    <% end %>
+                    <%= form.text_field :beneficiaire_rue,
+                        value: preremplir_champ(@form_data, :applicant_street, current_user.street),
+                        class: "form-control",
+                        required: true %>
                   </div>
                   <div class="col-md-1">
-                    <label class="form-label">N° *</label>
-                    <%= form.text_field :beneficiaire_numero, class: "form-control", required: true %>
+                    <%= form.label :beneficiaire_numero, class: "form-label" do %>
+                      N° *
+                      <%= badge_prerempli(@form_data, :applicant_number) if @form_data.present? %>
+                    <% end %>
+                    <%= form.text_field :beneficiaire_numero,
+                        value: preremplir_champ(@form_data, :applicant_number, current_user.number),
+                        class: "form-control",
+                        required: true %>
                   </div>
                   <div class="col-md-1">
                     <label class="form-label">Boîte</label>
@@ -122,20 +157,44 @@
 
                 <div class="row mb-3">
                   <div class="col-md-3">
-                    <label class="form-label">Code postal *</label>
-                    <%= form.text_field :beneficiaire_code_postal, class: "form-control", required: true %>
+                    <%= form.label :beneficiaire_code_postal, class: "form-label" do %>
+                      Code postal *
+                      <%= badge_prerempli(@form_data, :applicant_postal_code) if @form_data.present? %>
+                    <% end %>
+                    <%= form.text_field :beneficiaire_code_postal,
+                        value: preremplir_champ(@form_data, :applicant_postal_code, current_user.postal_code),
+                        class: "form-control",
+                        required: true %>
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label">Commune *</label>
-                    <%= form.text_field :beneficiaire_commune, class: "form-control", required: true %>
+                    <%= form.label :beneficiaire_commune, class: "form-label" do %>
+                      Commune *
+                      <%= badge_prerempli(@form_data, :applicant_city) if @form_data.present? %>
+                    <% end %>
+                    <%= form.text_field :beneficiaire_commune,
+                        value: preremplir_champ(@form_data, :applicant_city, current_user.city),
+                        class: "form-control",
+                        required: true %>
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label">Téléphone *</label>
-                    <%= form.telephone_field :beneficiaire_telephone, class: "form-control", required: true %>
+                    <%= form.label :beneficiaire_telephone, class: "form-label" do %>
+                      Téléphone *
+                      <%= badge_prerempli(@form_data, :applicant_phone) if @form_data.present? %>
+                    <% end %>
+                    <%= form.telephone_field :beneficiaire_telephone,
+                        value: preremplir_champ(@form_data, :applicant_phone, current_user.phone),
+                        class: "form-control",
+                        required: true %>
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label">E-mail *</label>
-                    <%= form.email_field :beneficiaire_email, class: "form-control", required: true %>
+                    <%= form.label :beneficiaire_email, class: "form-label" do %>
+                      E-mail *
+                      <%= badge_prerempli(@form_data, :applicant_email) if @form_data.present? %>
+                    <% end %>
+                    <%= form.email_field :beneficiaire_email,
+                        value: preremplir_champ(@form_data, :applicant_email, current_user.email),
+                        class: "form-control",
+                        required: true %>
                   </div>
                 </div>
 
@@ -596,7 +655,12 @@
 
             <!-- Boutons de soumission -->
             <div class="text-center">
-              <%= form.submit "Soumettre la demande de subvention", class: "btn btn-primary btn-lg me-3" %>
+              <%= form.submit "Sauvegarder en brouillon",
+                  name: "commit",
+                  value: "Sauvegarder en brouillon",
+                  class: "btn btn-outline-primary btn-lg me-3",
+                  formnovalidate: true %>
+              <%= form.submit "Créer la demande", class: "btn btn-primary btn-lg me-3" %>
               <%= link_to "Annuler", requests_path, class: "btn btn-secondary btn-lg" %>
             </div>
 

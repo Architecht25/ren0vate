@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_03_100450) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_03_154203) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -430,7 +430,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_03_100450) do
 
   create_table "requests", force: :cascade do |t|
     t.bigint "user_id", null: false
-    t.bigint "property_id", null: false
+    t.bigint "property_id"
     t.bigint "project_id"
     t.bigint "simulation_id"
     t.float "montant_total"
@@ -568,6 +568,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_03_100450) do
     t.datetime "confirmation_sent_at"
     t.string "unconfirmed_email"
     t.integer "role", default: 0, null: false
+    t.string "national_number"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["preferred_locale"], name: "index_users_on_preferred_locale"

@@ -67,7 +67,10 @@
   <!-- SECTION 1 – Identification -->
   <div class="card mb-4">
     <div class="card-header bg-success text-white">
-      <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i>Identification du demandeur</h5>
+      <h5 class="mb-0">
+        <i class="bi bi-person-circle me-2"></i>Identification du demandeur
+        <%= indicateur_section_complete(@form_data, champs_identite_utilisateur) if @form_data.present? %>
+      </h5>
     </div>
     <div class="card-body">
       <div class="row">
@@ -88,8 +91,14 @@
       <div class="row">
         <div class="col-md-6">
           <div class="mb-3">
-            <label class="form-label">Nom complet</label>
-            <%= form.text_field :nom, placeholder: "Nom complet", class: "form-control" %>
+            <%= form.label :nom, class: "form-label" do %>
+              Nom complet
+              <%= badge_prerempli(@form_data, :applicant_last_name) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :nom,
+                value: preremplir_champ(@form_data, :applicant_last_name, current_user.last_name),
+                placeholder: "Nom complet",
+                class: "form-control" %>
           </div>
         </div>
         <div class="col-md-6">
@@ -103,14 +112,26 @@
       <div class="row">
         <div class="col-md-6">
           <div class="mb-3">
-            <label class="form-label">Numéro de registre national</label>
-            <%= form.text_field :numero_registre_national, placeholder: "Numéro de registre national", class: "form-control" %>
+            <%= form.label :numero_registre_national, class: "form-label" do %>
+              Numéro de registre national
+              <%= badge_prerempli(@form_data, :applicant_national_number) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :numero_registre_national,
+                value: preremplir_champ(@form_data, :applicant_national_number, current_user.national_number),
+                placeholder: "Numéro de registre national",
+                class: "form-control" %>
           </div>
         </div>
         <div class="col-md-6">
           <div class="mb-3">
-            <label class="form-label">Compte bancaire du demandeur</label>
-            <%= form.text_field :compte_bancaire, placeholder: "IBAN BE...", class: "form-control" %>
+            <%= form.label :compte_bancaire, class: "form-label" do %>
+              Compte bancaire du demandeur
+              <%= badge_prerempli(@form_data, :iban) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :compte_bancaire,
+                value: preremplir_champ(@form_data, :iban, current_user.iban),
+                placeholder: "IBAN BE...",
+                class: "form-control" %>
           </div>
         </div>
       </div>
@@ -118,14 +139,26 @@
       <div class="row">
         <div class="col-md-6">
           <div class="mb-3">
-            <label class="form-label">Adresse e-mail</label>
-            <%= form.email_field :email, placeholder: "Adresse e-mail", class: "form-control" %>
+            <%= form.label :email, class: "form-label" do %>
+              Adresse e-mail
+              <%= badge_prerempli(@form_data, :applicant_email) if @form_data.present? %>
+            <% end %>
+            <%= form.email_field :email,
+                value: preremplir_champ(@form_data, :applicant_email, current_user.email),
+                placeholder: "Adresse e-mail",
+                class: "form-control" %>
           </div>
         </div>
         <div class="col-md-6">
           <div class="mb-3">
-            <label class="form-label">Numéro de téléphone</label>
-            <%= form.phone_field :phone, placeholder: "Numéro de téléphone", class: "form-control" %>
+            <%= form.label :phone, class: "form-label" do %>
+              Numéro de téléphone
+              <%= badge_prerempli(@form_data, :applicant_phone) if @form_data.present? %>
+            <% end %>
+            <%= form.phone_field :phone,
+                value: preremplir_champ(@form_data, :applicant_phone, current_user.phone),
+                placeholder: "Numéro de téléphone",
+                class: "form-control" %>
           </div>
         </div>
       </div>
@@ -134,14 +167,26 @@
       <div class="row">
         <div class="col-md-8">
           <div class="mb-3">
-            <label class="form-label">Adresse</label>
-            <%= form.text_field :adresse_demandeur, placeholder: "Adresse", class: "form-control" %>
+            <%= form.label :adresse_demandeur, class: "form-label" do %>
+              Adresse
+              <%= badge_prerempli(@form_data, :applicant_address) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :adresse_demandeur,
+                value: preremplir_champ(@form_data, :applicant_address, current_user.street),
+                placeholder: "Adresse",
+                class: "form-control" %>
           </div>
         </div>
         <div class="col-md-4">
           <div class="mb-3">
-            <label class="form-label">Code postal</label>
-            <%= form.text_field :code_postal_demandeur, placeholder: "Code postal", class: "form-control" %>
+            <%= form.label :code_postal_demandeur, class: "form-label" do %>
+              Code postal
+              <%= badge_prerempli(@form_data, :applicant_postal_code) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :code_postal_demandeur,
+                value: preremplir_champ(@form_data, :applicant_postal_code, current_user.postal_code),
+                placeholder: "Code postal",
+                class: "form-control" %>
           </div>
         </div>
       </div>
@@ -166,20 +211,35 @@
   <!-- SECTION 2 – Adresse du logement -->
   <div class="card mb-4">
     <div class="card-header bg-warning text-dark">
-      <h5 class="mb-0"><i class="bi bi-house-door me-2"></i>Adresse du logement concerné</h5>
+      <h5 class="mb-0">
+        <i class="bi bi-house-door me-2"></i>Adresse du logement concerné
+        <%= indicateur_section_complete(@form_data, champs_adresse_propriete) if @form_data.present? %>
+      </h5>
     </div>
     <div class="card-body">
       <div class="row">
         <div class="col-md-8">
           <div class="mb-3">
-            <label class="form-label">Adresse</label>
-            <%= form.text_field :adresse_logement, placeholder: "Adresse", class: "form-control" %>
+            <%= form.label :adresse_logement, class: "form-label" do %>
+              Adresse
+              <%= badge_prerempli(@form_data, :property_street) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :adresse_logement,
+                value: preremplir_champ(@form_data, :property_street),
+                placeholder: "Adresse",
+                class: "form-control" %>
           </div>
         </div>
         <div class="col-md-4">
           <div class="mb-3">
-            <label class="form-label">Code postal</label>
-            <%= form.text_field :code_postal_logement, placeholder: "Code postal", class: "form-control" %>
+            <%= form.label :code_postal_logement, class: "form-label" do %>
+              Code postal
+              <%= badge_prerempli(@form_data, :property_postal_code) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :code_postal_logement,
+                value: preremplir_champ(@form_data, :property_postal_code),
+                placeholder: "Code postal",
+                class: "form-control" %>
           </div>
         </div>
       </div>
@@ -187,8 +247,14 @@
       <div class="row">
         <div class="col-md-6">
           <div class="mb-3">
-            <label class="form-label">Commune</label>
-            <%= form.text_field :commune_logement, placeholder: "Commune", class: "form-control" %>
+            <%= form.label :commune_logement, class: "form-label" do %>
+              Commune
+              <%= badge_prerempli(@form_data, :property_city) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :commune_logement,
+                value: preremplir_champ(@form_data, :property_city),
+                placeholder: "Commune",
+                class: "form-control" %>
           </div>
         </div>
         <div class="col-md-6">
@@ -485,6 +551,17 @@
             Vos données sont traitées de manière sécurisée
           </small>
         </div>
+
+        <!-- Boutons de soumission pour le formulaire Wallonie -->
+        <div class="d-flex gap-2 justify-content-end mb-3">
+          <%= form.submit "Sauvegarder en brouillon",
+              name: "commit",
+              value: "Sauvegarder en brouillon",
+              class: "btn btn-outline-primary px-4",
+              formnovalidate: true %>
+          <%= form.submit "Créer la demande", class: "btn btn-primary px-4" %>
+        </div>
+
         <div>
           <a href="https://energie.wallonie.be/fr/aides-et-primes.html?IDC=10717"
              target="_blank"

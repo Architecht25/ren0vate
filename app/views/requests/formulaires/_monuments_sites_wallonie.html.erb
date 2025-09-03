@@ -35,6 +35,9 @@
               <h4 class="section-title">
                 <span class="section-number">1</span>
                 Identification du demandeur
+                <% if @form_data.present? %>
+                  <%= indicateur_section_complete(@form_data, champs_identite_utilisateur) %>
+                <% end %>
               </h4>
             </div>
 
@@ -66,42 +69,72 @@
                   </div>
                 </div>
                 <div class="col-md-6 mb-3">
-                  <label for="wallonie_nom_prenom" class="form-label fw-bold">
+                  <%= form.label :wallonie_nom_prenom, class: "form-label fw-bold" do %>
                     <i class="fas fa-id-card me-1"></i>Nom et prénom / Dénomination*
-                  </label>
-                  <input type="text" class="form-control" id="wallonie_nom_prenom" required>
+                    <%= badge_prerempli(@form_data, :applicant_full_name) if @form_data.present? %>
+                  <% end %>
+                  <%= form.text_field :wallonie_nom_prenom,
+                      value: preremplir_champ(@form_data, :applicant_full_name, "#{current_user.first_name} #{current_user.last_name}".strip),
+                      class: "form-control",
+                      required: true %>
                 </div>
               </div>
 
               <div class="row">
                 <div class="col-md-8 mb-3">
-                  <label for="wallonie_adresse_demandeur" class="form-label fw-bold">
+                  <%= form.label :wallonie_adresse_demandeur, class: "form-label fw-bold" do %>
                     <i class="fas fa-home me-1"></i>Adresse complète*
-                  </label>
-                  <input type="text" class="form-control" id="wallonie_adresse_demandeur" placeholder="Rue, numéro, boîte" required>
+                    <%= badge_prerempli(@form_data, :applicant_full_address) if @form_data.present? %>
+                  <% end %>
+                  <%= form.text_field :wallonie_adresse_demandeur,
+                      value: preremplir_champ(@form_data, :applicant_full_address, "#{current_user.street} #{current_user.number}".strip),
+                      placeholder: "Rue, numéro, boîte",
+                      class: "form-control",
+                      required: true %>
                 </div>
                 <div class="col-md-4 mb-3">
-                  <label for="wallonie_cp_ville_demandeur" class="form-label fw-bold">Code postal et ville*</label>
-                  <input type="text" class="form-control" id="wallonie_cp_ville_demandeur" placeholder="ex: 5000 Namur" required>
+                  <%= form.label :wallonie_cp_ville_demandeur, class: "form-label fw-bold" do %>
+                    Code postal et ville*
+                    <%= badge_prerempli(@form_data, :applicant_postal_city) if @form_data.present? %>
+                  <% end %>
+                  <%= form.text_field :wallonie_cp_ville_demandeur,
+                      value: preremplir_champ(@form_data, :applicant_postal_city, "#{current_user.postal_code} #{current_user.city}".strip),
+                      placeholder: "ex: 5000 Namur",
+                      class: "form-control",
+                      required: true %>
                 </div>
               </div>
 
               <div class="row">
                 <div class="col-md-4 mb-3">
-                  <label for="wallonie_telephone_demandeur" class="form-label fw-bold">
+                  <%= form.label :wallonie_telephone_demandeur, class: "form-label fw-bold" do %>
                     <i class="fas fa-phone me-1"></i>Téléphone*
-                  </label>
-                  <input type="tel" class="form-control" id="wallonie_telephone_demandeur" required>
+                    <%= badge_prerempli(@form_data, :applicant_phone) if @form_data.present? %>
+                  <% end %>
+                  <%= form.telephone_field :wallonie_telephone_demandeur,
+                      value: preremplir_champ(@form_data, :applicant_phone, current_user.phone),
+                      class: "form-control",
+                      required: true %>
                 </div>
                 <div class="col-md-4 mb-3">
-                  <label for="wallonie_email_demandeur" class="form-label fw-bold">
+                  <%= form.label :wallonie_email_demandeur, class: "form-label fw-bold" do %>
                     <i class="fas fa-envelope me-1"></i>Email*
-                  </label>
-                  <input type="email" class="form-control" id="wallonie_email_demandeur" required>
+                    <%= badge_prerempli(@form_data, :applicant_email) if @form_data.present? %>
+                  <% end %>
+                  <%= form.email_field :wallonie_email_demandeur,
+                      value: preremplir_champ(@form_data, :applicant_email, current_user.email),
+                      class: "form-control",
+                      required: true %>
                 </div>
                 <div class="col-md-4 mb-3">
-                  <label for="wallonie_numero_national" class="form-label fw-bold">Numéro national / BCE</label>
-                  <input type="text" class="form-control" id="wallonie_numero_national" placeholder="Pour personnes physiques/morales">
+                  <%= form.label :wallonie_numero_national, class: "form-label fw-bold" do %>
+                    Numéro national / BCE
+                    <%= badge_prerempli(@form_data, :applicant_national_number) if @form_data.present? %>
+                  <% end %>
+                  <%= form.text_field :wallonie_numero_national,
+                      value: preremplir_champ(@form_data, :applicant_national_number, current_user.national_number),
+                      placeholder: "Pour personnes physiques/morales",
+                      class: "form-control" %>
                 </div>
               </div>
             </div>

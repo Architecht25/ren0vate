@@ -19,20 +19,33 @@
   <!-- 1. Informations sur le demandeur -->
   <div class="card mb-4">
     <div class="card-header bg-primary text-white">
-      <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i>1. Informations sur le demandeur</h5>
+      <h5 class="mb-0">
+        <i class="bi bi-person-circle me-2"></i>1. Informations sur le demandeur
+        <%= indicateur_section_complete(@form_data, champs_identite_utilisateur) if @form_data.present? %>
+      </h5>
     </div>
     <div class="card-body">
       <div class="row">
         <div class="col-md-6">
           <div class="mb-3">
-            <label class="form-label">Nom</label>
-            <%= form.text_field :nom, class: "form-control" %>
+            <%= form.label :nom, class: "form-label" do %>
+              Nom
+              <%= badge_prerempli(@form_data, :applicant_last_name) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :nom,
+                value: preremplir_champ(@form_data, :applicant_last_name, current_user.last_name),
+                class: "form-control" %>
           </div>
         </div>
         <div class="col-md-6">
           <div class="mb-3">
-            <label class="form-label">Prénom</label>
-            <%= form.text_field :prenom, class: "form-control" %>
+            <%= form.label :prenom, class: "form-label" do %>
+              Prénom
+              <%= badge_prerempli(@form_data, :applicant_first_name) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :prenom,
+                value: preremplir_champ(@form_data, :applicant_first_name, current_user.first_name),
+                class: "form-control" %>
           </div>
         </div>
         <div class="col-md-6">
@@ -43,20 +56,35 @@
         </div>
         <div class="col-md-6">
           <div class="mb-3">
-            <label class="form-label">Numéro de registre national</label>
-            <%= form.text_field :num_registre_national, class: "form-control" %>
+            <%= form.label :num_registre_national, class: "form-label" do %>
+              Numéro de registre national
+              <%= badge_prerempli(@form_data, :applicant_national_number) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :num_registre_national,
+                value: preremplir_champ(@form_data, :applicant_national_number, current_user.national_number),
+                class: "form-control" %>
           </div>
         </div>
         <div class="col-md-6">
           <div class="mb-3">
-            <label class="form-label">Email</label>
-            <%= form.email_field :email, class: "form-control" %>
+            <%= form.label :email, class: "form-label" do %>
+              Email
+              <%= badge_prerempli(@form_data, :applicant_email) if @form_data.present? %>
+            <% end %>
+            <%= form.email_field :email,
+                value: preremplir_champ(@form_data, :applicant_email, current_user.email),
+                class: "form-control" %>
           </div>
         </div>
         <div class="col-md-6">
           <div class="mb-3">
-            <label class="form-label">Téléphone</label>
-            <%= form.text_field :telephone, class: "form-control" %>
+            <%= form.label :telephone, class: "form-label" do %>
+              Téléphone
+              <%= badge_prerempli(@form_data, :applicant_phone) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :telephone,
+                value: preremplir_champ(@form_data, :applicant_phone, current_user.phone),
+                class: "form-control" %>
           </div>
         </div>
         <div class="col-md-12">
@@ -82,20 +110,33 @@
   <!-- 2. Informations sur le bien -->
   <div class="card mb-4">
     <div class="card-header bg-success text-white">
-      <h5 class="mb-0"><i class="bi bi-house me-2"></i>2. Informations sur le bien immobilier</h5>
+      <h5 class="mb-0">
+        <i class="bi bi-house me-2"></i>2. Informations sur le bien immobilier
+        <%= indicateur_section_complete(@form_data, champs_adresse_propriete) if @form_data.present? %>
+      </h5>
     </div>
     <div class="card-body">
       <div class="row">
         <div class="col-md-12">
           <div class="mb-3">
-            <label class="form-label">Adresse du bien</label>
-            <%= form.text_field :adresse_bien, class: "form-control" %>
+            <%= form.label :adresse_bien, class: "form-label" do %>
+              Adresse du bien
+              <%= badge_prerempli(@form_data, :property_street) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :adresse_bien,
+                value: preremplir_champ(@form_data, :property_street),
+                class: "form-control" %>
           </div>
         </div>
         <div class="col-md-4">
           <div class="mb-3">
-            <label class="form-label">Code postal</label>
-            <%= form.text_field :code_postal, class: "form-control" %>
+            <%= form.label :code_postal, class: "form-label" do %>
+              Code postal
+              <%= badge_prerempli(@form_data, :property_postal_code) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :code_postal,
+                value: preremplir_champ(@form_data, :property_postal_code),
+                class: "form-control" %>
           </div>
         </div>
         <div class="col-md-8">
@@ -396,6 +437,17 @@
           Vos données sont traitées de manière sécurisée
         </small>
       </div>
+
+      <!-- Boutons de soumission pour le formulaire Bruxelles -->
+      <div class="d-flex gap-2 justify-content-end mb-3">
+        <%= form.submit "Sauvegarder en brouillon",
+            name: "commit",
+            value: "Sauvegarder en brouillon",
+            class: "btn btn-outline-primary px-4",
+            formnovalidate: true %>
+        <%= form.submit "Créer la demande", class: "btn btn-primary px-4" %>
+      </div>
+
       <div>
         <a href="https://www.brussels.be/logement-et-energie/renovation-de-mon-logement/primes"
            target="_blank"

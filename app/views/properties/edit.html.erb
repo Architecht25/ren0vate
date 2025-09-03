@@ -29,7 +29,8 @@
           </h5>
 
           <!-- Utiliser les formulaires spécifiques par région comme pour la création -->
-          <% case @property.region %>
+          <% normalized_region = @property.region&.downcase&.strip %>
+          <% case normalized_region %>
           <% when "bruxelles" %>
             <%= render partial: "form_bruxelles", locals: { property: @property } %>
           <% when "wallonie" %>
@@ -39,8 +40,21 @@
           <% else %>
             <div class="alert alert-warning">
               <i class="bi bi-exclamation-triangle me-2"></i>
-              Région non définie. Veuillez d'abord sélectionner une région pour ce bien.
+              Région non définie ou non reconnue : "<%= @property.region %>"<br>
+              <small>Régions supportées : Bruxelles, Wallonie, Flandre</small>
             </div>
+
+            <!-- Formulaire de secours pour définir la région -->
+            <%= form_with model: @property, local: true, class: "mt-3" do |form| %>
+              <div class="mb-3">
+                <%= form.label :region, "Sélectionner la région :", class: "form-label" %>
+                <%= form.select :region,
+                    [["Bruxelles", "bruxelles"], ["Wallonie", "wallonie"], ["Flandre", "flandre"]],
+                    { prompt: "-- Choisir une région --" },
+                    { class: "form-select" } %>
+              </div>
+              <%= form.submit "Mettre à jour la région", class: "btn btn-primary" %>
+            <% end %>
           <% end %>
         </div>
       </div>

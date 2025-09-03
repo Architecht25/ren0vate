@@ -5,7 +5,47 @@ export default class extends Controller {
 
   connect() {
     console.log('🚀 Request form controller connecté');
+
+    // Écouter l'événement de bien pré-sélectionné
+    this.element.addEventListener('propertyPreselected', this.handlePropertyPreselected.bind(this));
+
+    // Exposer la méthode pour accès externe
+    this.element.initializeForRegion = this.initializeForRegion.bind(this);
+
     this.initializeRegionalForms();
+  }
+
+  // Gestionnaire pour bien pré-sélectionné
+  handlePropertyPreselected(event) {
+    const region = event.detail.region;
+    console.log('🏠 Bien pré-sélectionné pour région:', region);
+
+    // Initialiser directement avec cette région
+    this.initializeForRegion(region);
+  }
+
+  // Initialiser pour une région spécifique
+  initializeForRegion(region) {
+    console.log('🎯 Initialisation pour région:', region);
+
+    if (this.hasFormTypeSectionTarget) {
+      // Afficher la section de type de formulaire
+      this.formTypeSectionTarget.style.display = 'block';
+
+      // Mettre à jour les options selon la région
+      this.updateFormTypeOptions(region);
+
+      // Afficher les boutons de soumission quand une propriété est pré-sélectionnée
+      const buttonSection = document.getElementById('submission-buttons');
+      if (buttonSection) {
+        buttonSection.style.display = 'flex';
+        console.log('✅ Boutons de soumission affichés pour propriété pré-sélectionnée');
+      }
+
+      console.log('✅ Section formulaire initialisée pour', region);
+    } else {
+      console.log('❌ formTypeSectionTarget non trouvé');
+    }
   }
 
   // Fonction pour initialiser les formulaires régionaux
@@ -42,6 +82,12 @@ export default class extends Controller {
   }
 
   showRegionalSection() {
+    // Pour les cas où on a un select de région visible
+    if (!this.hasRegionSelectTarget) {
+      console.log('No region select found');
+      return;
+    }
+
     const selectedRegion = this.regionSelectTarget.value;
     console.log('Selected region:', selectedRegion);
 
@@ -51,12 +97,8 @@ export default class extends Controller {
       section.style.display = 'none';
     });
 
-    if (selectedRegion && this.hasFormTypeSectionTarget) {
-      // Afficher la section de type de formulaire
-      this.formTypeSectionTarget.style.display = 'block';
-
-      // Mettre à jour les options selon la région
-      this.updateFormTypeOptions(selectedRegion);
+    if (selectedRegion) {
+      this.initializeForRegion(selectedRegion);
     } else if (this.hasFormTypeSectionTarget) {
       // Masquer la section de type de formulaire
       this.formTypeSectionTarget.style.display = 'none';
@@ -199,6 +241,18 @@ export default class extends Controller {
 
     // Gérer l'affichage des boutons spécifiques aux régions
     this.updateRegionalButtons(selectedRegion, selectedFormType);
+
+    // Afficher les boutons de soumission génériques quand une section est affichée
+    this.showSubmissionButtons(selectedFormType, selectedRegion);
+  }
+
+  showSubmissionButtons(formType, region) {
+    // Trouver la section des boutons d'action génériques
+    const buttonSection = document.getElementById('submission-buttons');
+    if (buttonSection && formType && region) {
+      buttonSection.style.display = 'flex';
+      console.log('✅ Boutons de soumission affichés pour:', formType, region);
+    }
   }
 
   updateRegionalButtons(region, formType) {

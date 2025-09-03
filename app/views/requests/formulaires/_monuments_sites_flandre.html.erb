@@ -23,6 +23,9 @@
       <div class="mb-4">
         <h6 class="border-bottom pb-2 mb-3">
           <i class="bi bi-person me-2"></i>1. Données du demandeur
+          <% if @form_data.present? %>
+            <%= indicateur_section_complete(@form_data, [:applicant_firstname, :applicant_lastname, :applicant_email, :applicant_phone]) %>
+          <% end %>
         </h6>
 
         <div class="row mb-3">
@@ -52,12 +55,24 @@
 
         <div class="row mb-3">
           <div class="col-md-6">
-            <%= form.label :applicant_firstname, "Prénom*", class: "form-label" %>
-            <%= form.text_field :applicant_firstname, class: "form-control", required: true %>
+            <%= form.label :applicant_firstname, class: "form-label" do %>
+              Prénom*
+              <%= badge_prerempli(@form_data, :applicant_firstname) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :applicant_firstname,
+                value: preremplir_champ(@form_data, :applicant_firstname, current_user.first_name),
+                class: "form-control",
+                required: true %>
           </div>
           <div class="col-md-6">
-            <%= form.label :applicant_lastname, "Nom de famille*", class: "form-label" %>
-            <%= form.text_field :applicant_lastname, class: "form-control", required: true %>
+            <%= form.label :applicant_lastname, class: "form-label" do %>
+              Nom de famille*
+              <%= badge_prerempli(@form_data, :applicant_lastname) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :applicant_lastname,
+                value: preremplir_champ(@form_data, :applicant_lastname, current_user.last_name),
+                class: "form-control",
+                required: true %>
           </div>
         </div>
 
@@ -70,40 +85,83 @@
 
         <div class="row mb-3">
           <div class="col-md-8">
-            <%= form.label :applicant_address, "Adresse*", class: "form-label" %>
-            <%= form.text_field :applicant_address, class: "form-control", required: true %>
+            <%= form.label :applicant_address, class: "form-label" do %>
+              Adresse*
+              <%= badge_prerempli(@form_data, :applicant_address) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :applicant_address,
+                value: preremplir_champ(@form_data, :applicant_address, current_user.street),
+                class: "form-control",
+                required: true %>
           </div>
           <div class="col-md-4">
-            <%= form.label :applicant_number, "Numéro*", class: "form-label" %>
-            <%= form.text_field :applicant_number, class: "form-control", required: true %>
+            <%= form.label :applicant_number, class: "form-label" do %>
+              Numéro*
+              <%= badge_prerempli(@form_data, :applicant_number) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :applicant_number,
+                value: preremplir_champ(@form_data, :applicant_number, current_user.number),
+                class: "form-control",
+                required: true %>
           </div>
         </div>
 
         <div class="row mb-3">
           <div class="col-md-4">
-            <%= form.label :applicant_postal_code, "Code postal*", class: "form-label" %>
-            <%= form.text_field :applicant_postal_code, class: "form-control", required: true %>
+            <%= form.label :applicant_postal_code, class: "form-label" do %>
+              Code postal*
+              <%= badge_prerempli(@form_data, :applicant_postal_code) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :applicant_postal_code,
+                value: preremplir_champ(@form_data, :applicant_postal_code, current_user.postal_code),
+                class: "form-control",
+                required: true %>
           </div>
           <div class="col-md-8">
-            <%= form.label :applicant_city, "Commune*", class: "form-label" %>
-            <%= form.text_field :applicant_city, class: "form-control", required: true %>
+            <%= form.label :applicant_city, class: "form-label" do %>
+              Commune*
+              <%= badge_prerempli(@form_data, :applicant_city) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :applicant_city,
+                value: preremplir_champ(@form_data, :applicant_city, current_user.city),
+                class: "form-control",
+                required: true %>
           </div>
         </div>
 
         <div class="row mb-3">
           <div class="col-md-6">
-            <%= form.label :applicant_phone, "Numéro de téléphone*", class: "form-label" %>
-            <%= form.text_field :applicant_phone, class: "form-control", required: true, type: "tel" %>
+            <%= form.label :applicant_phone, class: "form-label" do %>
+              Numéro de téléphone*
+              <%= badge_prerempli(@form_data, :applicant_phone) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :applicant_phone,
+                value: preremplir_champ(@form_data, :applicant_phone, current_user.phone),
+                class: "form-control",
+                required: true,
+                type: "tel" %>
           </div>
           <div class="col-md-6">
-            <%= form.label :applicant_email, "Adresse e-mail*", class: "form-label" %>
-            <%= form.email_field :applicant_email, class: "form-control", required: true %>
+            <%= form.label :applicant_email, class: "form-label" do %>
+              Adresse e-mail*
+              <%= badge_prerempli(@form_data, :applicant_email) if @form_data.present? %>
+            <% end %>
+            <%= form.email_field :applicant_email,
+                value: preremplir_champ(@form_data, :applicant_email, current_user.email),
+                class: "form-control",
+                required: true %>
           </div>
         </div>
 
         <div class="mb-3">
-          <%= form.label :applicant_national_number, "Numéro de registre national / Numéro d'entreprise*", class: "form-label" %>
-          <%= form.text_field :applicant_national_number, class: "form-control", required: true %>
+          <%= form.label :applicant_national_number, class: "form-label" do %>
+            Numéro de registre national / Numéro d'entreprise*
+            <%= badge_prerempli(@form_data, :applicant_national_number) if @form_data.present? %>
+          <% end %>
+          <%= form.text_field :applicant_national_number,
+              value: preremplir_champ(@form_data, :applicant_national_number, current_user.national_number),
+              class: "form-control",
+              required: true %>
           <small class="form-text text-muted">Pour les particuliers : numéro de registre national, pour les organisations : numéro d'entreprise</small>
         </div>
       </div>
@@ -112,27 +170,54 @@
       <div class="mb-4">
         <h6 class="border-bottom pb-2 mb-3">
           <i class="bi bi-house me-2"></i>2. Données du patrimoine protégé
+          <% if @form_data.present? %>
+            <%= indicateur_section_complete(@form_data, [:heritage_address, :heritage_number, :heritage_postal_code, :heritage_city]) %>
+          <% end %>
         </h6>
 
         <div class="row mb-3">
           <div class="col-md-8">
-            <%= form.label :heritage_address, "Adresse du patrimoine*", class: "form-label" %>
-            <%= form.text_field :heritage_address, class: "form-control", required: true %>
+            <%= form.label :heritage_address, class: "form-label" do %>
+              Adresse du patrimoine*
+              <%= badge_prerempli(@form_data, :heritage_address) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :heritage_address,
+                value: preremplir_champ(@form_data, :heritage_address),
+                class: "form-control",
+                required: true %>
           </div>
           <div class="col-md-4">
-            <%= form.label :heritage_number, "Numéro*", class: "form-label" %>
-            <%= form.text_field :heritage_number, class: "form-control", required: true %>
+            <%= form.label :heritage_number, class: "form-label" do %>
+              Numéro*
+              <%= badge_prerempli(@form_data, :heritage_number) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :heritage_number,
+                value: preremplir_champ(@form_data, :heritage_number),
+                class: "form-control",
+                required: true %>
           </div>
         </div>
 
         <div class="row mb-3">
           <div class="col-md-4">
-            <%= form.label :heritage_postal_code, "Code postal*", class: "form-label" %>
-            <%= form.text_field :heritage_postal_code, class: "form-control", required: true %>
+            <%= form.label :heritage_postal_code, class: "form-label" do %>
+              Code postal*
+              <%= badge_prerempli(@form_data, :heritage_postal_code) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :heritage_postal_code,
+                value: preremplir_champ(@form_data, :heritage_postal_code),
+                class: "form-control",
+                required: true %>
           </div>
           <div class="col-md-8">
-            <%= form.label :heritage_city, "Commune*", class: "form-label" %>
-            <%= form.text_field :heritage_city, class: "form-control", required: true %>
+            <%= form.label :heritage_city, class: "form-label" do %>
+              Commune*
+              <%= badge_prerempli(@form_data, :heritage_city) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :heritage_city,
+                value: preremplir_champ(@form_data, :heritage_city),
+                class: "form-control",
+                required: true %>
           </div>
         </div>
 

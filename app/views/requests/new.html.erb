@@ -21,6 +21,43 @@
     <% end %>
   </div>
 
+  <!-- Sélection de bien pour pré-remplissage -->
+  <% if current_user.properties.any? && params[:property_id].blank? %>
+    <div class="card border-warning mb-4">
+      <div class="card-header bg-warning text-dark">
+        <h6 class="mb-0">
+          <i class="bi bi-lightbulb me-2"></i>
+          Pré-remplissage automatique
+        </h6>
+      </div>
+      <div class="card-body">
+        <p class="mb-3">Pour pré-remplir automatiquement les champs avec vos données, sélectionnez d'abord un bien :</p>
+        <div class="row g-2">
+          <% current_user.properties.each do |property| %>
+            <div class="col-md-4">
+              <%= link_to new_request_path(property_id: property.id), class: "btn btn-outline-success btn-sm d-block" do %>
+                <i class="bi bi-house-door me-2"></i>
+                <%= property.name %>
+                <br><small class="text-muted"><%= property.full_address %></small>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+        <hr>
+        <small class="text-muted">
+          <i class="bi bi-info-circle me-1"></i>
+          Ou continuez sans sélection (vous devrez remplir manuellement)
+        </small>
+      </div>
+    </div>
+  <% elsif @property.present? %>
+    <div class="alert alert-success">
+      <i class="bi bi-check-circle me-2"></i>
+      <strong>Bien sélectionné :</strong> <%= @property.name %> - <%= @property.full_address %>
+      <small class="d-block mt-1">Les champs seront automatiquement pré-remplis avec vos données.</small>
+    </div>
+  <% end %>
+
   <!-- Formulaire complet -->
   <div class="row">
     <div class="col-12">

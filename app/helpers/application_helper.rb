@@ -1,4 +1,6 @@
 module ApplicationHelper
+  include FormulairePreremplissageHelper
+
   # Détermine si l'utilisateur actuel est un administrateur
   def current_user_admin?
     return false unless user_signed_in?
@@ -46,5 +48,40 @@ module ApplicationHelper
                  end
 
     content_tag :small, "(#{taux}%)", class: "#{color_class} fw-semibold"
+  end
+
+  # Helper pour obtenir les options de types de formulaires selon la région
+  def options_for_select_form_types(region = nil)
+    # Normaliser la région pour être case-insensitive
+    normalized_region = region&.downcase
+
+    case normalized_region
+    when 'wallonie'
+      [
+        ['audit', 'Prime Audit Énergétique'],
+        ['regionale', 'Prime Régionale'],
+        ['communale', 'Primes Communales'],
+        ['monument', 'Prime Monument & Site']
+      ]
+    when 'flandre'
+      [
+        ['regional', 'Formulaire régional'],
+        ['communal', 'Formulaires communaux'],
+        ['monuments', 'Monuments & Sites']
+      ]
+    when 'bruxelles'
+      [
+        ['regional', 'Formulaire régional'],
+        ['monuments', 'Monuments & Sites'],
+        ['petit_patrimoine', 'Petit patrimoine'],
+        ['communal', 'Primes communales']
+      ]
+    else
+      [
+        ['regional', 'Formulaire régional'],
+        ['communal', 'Formulaires communaux'],
+        ['monuments', 'Monuments & Sites']
+      ]
+    end
   end
 end

@@ -1,6 +1,6 @@
 class Request < ApplicationRecord
   belongs_to :user
-  belongs_to :property
+  belongs_to :property, optional: true
   belongs_to :project, optional: true
   belongs_to :simulation, optional: true
 
@@ -17,35 +17,35 @@ class Request < ApplicationRecord
   has_many_attached :document_autres
 
   validates :status, presence: true
-  validates :title, presence: true
-  validates :description, presence: true
-  validates :region, presence: true
+  validates :title, presence: true, unless: :draft?
+  validates :description, presence: true, unless: :draft?
+  validates :region, presence: true, unless: :draft?
 
-  # Validations spécifiques pour Flandre
-  validates :domicile, inclusion: { in: [true, false] }, if: :flandre?
-  validates :type_demandeur, presence: true, if: :flandre?
-  validates :registre_national, presence: true, if: :flandre?
-  validates :nom, presence: true, if: :flandre?
-  validates :prenom, presence: true, if: :flandre?
-  validates :telephone, presence: true, if: :flandre?
-  validates :email, presence: true, if: :flandre?
-  validates :adresse, presence: true, if: :flandre?
-  validates :code_postal, presence: true, if: :flandre?
-  validates :commune, presence: true, if: :flandre?
-  validates :type_bien, presence: true, if: :flandre?
-  validates :usage, presence: true, if: :flandre?
-  validates :chauffage_post_renovation, presence: true, if: :flandre?
-  validates :revenus_annuels, presence: true, numericality: { greater_than: 0 }, if: :flandre?
-  validates :personnes_charge, presence: true, numericality: { greater_than_or_equal_to: 0 }, if: :flandre?
-  validates :annee_aer, presence: true, if: :flandre?
-  validates :email_contact, presence: true, if: :flandre?
-  validates :confirmation_veracite, acceptance: true, if: :flandre?
-  validates :acceptation_conditions, acceptance: true, if: :flandre?
+  # Validations spécifiques pour Flandre (uniquement si pas brouillon)
+  validates :domicile, inclusion: { in: [true, false] }, if: -> { flandre? && !draft? }
+  validates :type_demandeur, presence: true, if: -> { flandre? && !draft? }
+  validates :registre_national, presence: true, if: -> { flandre? && !draft? }
+  validates :nom, presence: true, if: -> { flandre? && !draft? }
+  validates :prenom, presence: true, if: -> { flandre? && !draft? }
+  validates :telephone, presence: true, if: -> { flandre? && !draft? }
+  validates :email, presence: true, if: -> { flandre? && !draft? }
+  validates :adresse, presence: true, if: -> { flandre? && !draft? }
+  validates :code_postal, presence: true, if: -> { flandre? && !draft? }
+  validates :commune, presence: true, if: -> { flandre? && !draft? }
+  validates :type_bien, presence: true, if: -> { flandre? && !draft? }
+  validates :usage, presence: true, if: -> { flandre? && !draft? }
+  validates :chauffage_post_renovation, presence: true, if: -> { flandre? && !draft? }
+  validates :revenus_annuels, presence: true, numericality: { greater_than: 0 }, if: -> { flandre? && !draft? }
+  validates :personnes_charge, presence: true, numericality: { greater_than_or_equal_to: 0 }, if: -> { flandre? && !draft? }
+  validates :annee_aer, presence: true, if: -> { flandre? && !draft? }
+  validates :email_contact, presence: true, if: -> { flandre? && !draft? }
+  validates :confirmation_veracite, acceptance: true, if: -> { flandre? && !draft? }
+  validates :acceptation_conditions, acceptance: true, if: -> { flandre? && !draft? }
 
-  # Documents obligatoires pour Flandre - validations personnalisées
-  validate :document_devis_must_be_attached, if: :flandre?
-  validate :document_factures_must_be_attached, if: :flandre?
-  validate :document_aer_must_be_attached, if: :flandre?
+  # Documents obligatoires pour Flandre - validations personnalisées (uniquement si pas brouillon)
+  validate :document_devis_must_be_attached, if: -> { flandre? && !draft? }
+  validate :document_factures_must_be_attached, if: -> { flandre? && !draft? }
+  validate :document_aer_must_be_attached, if: -> { flandre? && !draft? }
 
   # Scope pour récupérer les demandes récentes
   scope :recent, -> { order(created_at: :desc) }
@@ -61,6 +61,10 @@ class Request < ApplicationRecord
 
   def flandre?
     region == 'flandre'
+  end
+
+  def draft?
+    status == 'draft'
   end
 
   private

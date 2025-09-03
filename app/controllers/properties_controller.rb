@@ -369,27 +369,50 @@ class PropertiesController < ApplicationController
 
   def build_formulaire_data(property)
     {
-      # Données administratives
+      # Données administratives du demandeur
       nom: current_user.last_name,
       prenom: current_user.first_name,
       email: current_user.email,
       telephone: current_user.phone,
       registre_national: current_user.national_number,
 
-      # Données du logement
-      ean: property.numero_ean,
+      # Données spécifiques pour les formulaires officiels
+      applicant_firstname: current_user.first_name,
+      applicant_lastname: current_user.last_name,
+      applicant_email: current_user.email,
+      applicant_phone: current_user.phone,
+      applicant_national_number: current_user.national_number,
+      applicant_address: current_user.street,
+      applicant_number: current_user.number,
+      applicant_postal_code: current_user.postal_code,
+      applicant_city: current_user.city,
+
+      # Champs combinés pour certains formulaires
+      applicant_full_name: "#{current_user.first_name} #{current_user.last_name}".strip,
+      applicant_full_address: "#{current_user.street} #{current_user.number}".strip,
+      applicant_postal_city: "#{current_user.postal_code} #{current_user.city}".strip,
+
+      # Données du logement/bien
+      ean: property.ean_flandre || property.numero_ean,
       adresse: "#{property.numero} #{property.rue}",
       code_postal: property.code_postal,
       commune: property.commune,
-      type_bien: property.type,
-      usage: property.occupation,
-      parcelle: property.numero_cadastre,
+      type_bien: map_property_type(property),
+      usage: map_property_usage(property),
+      parcelle: property.parcelle_flandre || property.numero_cadastre,
+
+      # Données spécifiques pour patrimoine
+      heritage_address: property.rue,
+      heritage_number: property.numero,
+      heritage_postal_code: property.code_postal,
+      heritage_city: property.commune,
 
       # Données techniques
       annee_construction: property.annee_construction,
       date_raccordement: property.date_raccordement_electrique,
       peb: property.peb,
       audit_energetique: property.audit_energetique,
+      chauffage_post_renovation: property.chauffage_post_renovation_flandre,
 
       # Travaux (à partir des simulations/demandes)
       travaux_toiture: property.has_travaux?('toiture'),
@@ -398,9 +421,64 @@ class PropertiesController < ApplicationController
       travaux_sol: property.has_travaux?('sol'),
       travaux_chauffage: property.has_travaux?('chauffage'),
 
+      # Données du projet associé (si disponible)
+      **build_project_data(property),
+
       # Documents
       documents_count: property.documents.approved.count,
       documents_complete: property.documents_completion_percentage >= 80
+    }
+  end
+
+  # Méthodes helper pour le mapping des données
+  def map_property_type(property)
+    case property.region&.downcase
+    when 'flandre'
+      property.type_bien_flandre
+    when 'wallonie'
+      property.type_propriete_wallonie
+    when 'bruxelles'
+      property.type_bien_bruxelles
+    else
+      property.type
+    end
+  end
+
+  def map_property_usage(property)
+    case property.region&.downcase
+    when 'flandre'
+      property.usage_flandre
+    else
+      property.usage || property.occupation
+    end
+  end
+
+  def build_project_data(property)
+    project = property.projects.first # Ou le projet actif
+    return {} unless project
+
+    {
+      # Données architecte
+      architecte_prenom: project.architecte_prenom,
+      architecte_nom: project.architecte_nom,
+      architecte_entreprise: project.architecte_entreprise,
+      architecte_telephone: project.architecte_telephone,
+      architecte_email: project.architecte_email,
+      architecte_numero_ordre: project.architecte_numero_ordre,
+      architecte_adresse: project.architecte_adresse,
+
+      # Données entrepreneur principal
+      entrepreneur_principal_nom: project.entrepreneur_principal_nom,
+      entrepreneur_principal_entreprise: project.entrepreneur_principal_entreprise,
+      entrepreneur_principal_telephone: project.entrepreneur_principal_telephone,
+      entrepreneur_principal_email: project.entrepreneur_principal_email,
+      entrepreneur_principal_numero_tva: project.entrepreneur_principal_numero_tva,
+      entrepreneur_principal_adresse: project.entrepreneur_principal_adresse,
+
+      # Autres professionnels
+      maitre_ouvrage_nom: project.maitre_ouvrage_nom,
+      maitre_ouvrage_contact: project.maitre_ouvrage_contact,
+      coordinateur_securite_nom: project.coordinateur_securite_nom
     }
   end
 end
