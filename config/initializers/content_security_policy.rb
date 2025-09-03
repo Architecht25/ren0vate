@@ -79,13 +79,18 @@ Rails.application.configure do
   end
 
   # Générer des nonces pour les scripts et styles inline autorisés
-  config.content_security_policy_nonce_generator = ->(request) {
-    # Utiliser l'ID de session pour générer le nonce
-    request.session.id.to_s
-  }
-
-  # Appliquer les nonces aux directives script-src et style-src
-  config.content_security_policy_nonce_directives = %w(script-src style-src)
+  # Temporairement désactivé en développement pour permettre les scripts inline
+  unless Rails.env.production?
+    config.content_security_policy_nonce_generator = nil
+    config.content_security_policy_nonce_directives = []
+  else
+    config.content_security_policy_nonce_generator = ->(request) {
+      # Utiliser l'ID de session pour générer le nonce
+      request.session.id.to_s
+    }
+    # Appliquer les nonces aux directives script-src et style-src
+    config.content_security_policy_nonce_directives = %w(script-src style-src)
+  end
 
   # Configuration environment-specific
   if Rails.env.production?
