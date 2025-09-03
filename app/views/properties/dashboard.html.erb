@@ -78,126 +78,55 @@
   <!-- Navigation rapide -->
   <div class="row g-3 mb-4">
     <div class="col-md-2">
-      <%= link_to edit_property_path(@property), class: "card border-0 shadow bg-primary-custom text-black text-decoration-none h-100" do %>
+      <%= link_to edit_property_path(@property), class: "card border-0 shadow-sm bg-light text-dark text-decoration-none h-100" do %>
         <div class="card-body text-center p-3">
-          <i class="bi bi-house-gear fs-4 mb-2"></i>
+          <i class="bi bi-house-gear fs-4 mb-2 text-primary"></i>
           <small class="d-block">Infos du bien</small>
         </div>
       <% end %>
     </div>
     <div class="col-md-2">
-      <%= link_to projects_path, class: "card border-0 shadow bg-warning text-white text-decoration-none h-100" do %>
+      <%= link_to projects_path, class: "card border-0 shadow-sm bg-light text-dark text-decoration-none h-100" do %>
         <div class="card-body text-center p-3">
-          <i class="bi bi-hammer fs-4 mb-2"></i>
+          <i class="bi bi-hammer fs-4 mb-2 text-warning"></i>
           <small class="d-block">Chantiers</small>
         </div>
       <% end %>
     </div>
     <div class="col-md-2">
-      <%= link_to simulations_path, class: "card border-0 shadow bg-info text-white text-decoration-none h-100" do %>
+      <%= link_to simulations_path, class: "card border-0 shadow-sm bg-light text-dark text-decoration-none h-100" do %>
         <div class="card-body text-center p-3">
-          <i class="bi bi-calculator fs-4 mb-2"></i>
+          <i class="bi bi-calculator fs-4 mb-2 text-info"></i>
           <small class="d-block">Simulations</small>
         </div>
       <% end %>
     </div>
     <div class="col-md-2">
-      <%= link_to property_documents_path(@property), class: "card border-0 shadow bg-success text-white text-decoration-none h-100" do %>
+      <%= link_to property_documents_path(@property), class: "card border-0 shadow-sm bg-light text-dark text-decoration-none h-100" do %>
         <div class="card-body text-center p-3">
-          <i class="bi bi-file-earmark-text fs-4 mb-2"></i>
+          <i class="bi bi-file-earmark-text fs-4 mb-2 text-success"></i>
           <small class="d-block">Documents</small>
         </div>
       <% end %>
     </div>
     <div class="col-md-2">
-      <%= link_to requests_path, class: "card border-0 shadow bg-purple text-white text-decoration-none h-100" do %>
+      <%= link_to requests_path, class: "card border-0 shadow-sm bg-light text-dark text-decoration-none h-100" do %>
         <div class="card-body text-center p-3">
-          <i class="bi bi-clipboard-check fs-4 mb-2"></i>
+          <i class="bi bi-clipboard-check fs-4 mb-2 text-purple"></i>
           <small class="d-block">Demandes</small>
         </div>
       <% end %>
     </div>
     <div class="col-md-2">
-      <%= link_to new_request_path(property_id: @property.id), class: "card border-0 shadow bg-secondary text-white text-decoration-none h-100" do %>
+      <%= link_to new_request_path(property_id: @property.id), class: "card border-0 shadow-sm bg-light text-dark text-decoration-none h-100" do %>
         <div class="card-body text-center p-3">
-          <i class="bi bi-plus-circle fs-4 mb-2"></i>
+          <i class="bi bi-plus-circle fs-4 mb-2 text-secondary"></i>
           <small class="d-block">Nouvelle demande</small>
         </div>
       <% end %>
     </div>
   </div>
 
-  <!-- Statistiques principales -->
-  <div class="row g-3 mb-4">
-    <div class="col-md-2">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-body text-center p-3">
-          <div class="icon-circle mx-auto mb-2">
-            <i class="bi bi-percent"></i>
-          </div>
-          <h4 class="text-primary-custom mb-1"><%= @completion_stats ? @completion_stats[:overall] : 0 %>%</h4>
-          <small class="text-muted-custom">Complétude</small>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-2">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-body text-center p-3">
-          <div class="icon-circle mx-auto mb-2">
-            <i class="bi bi-file-earmark-text"></i>
-          </div>
-          <h4 class="text-primary-custom mb-1"><%= @property.documents.count %></h4>
-          <small class="text-muted-custom">Documents</small>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-2">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-body text-center p-3">
-          <div class="icon-circle mx-auto mb-2">
-            <i class="bi bi-clipboard-check"></i>
-          </div>
-          <h4 class="text-primary-custom mb-1"><%= @property.requests.count %></h4>
-          <small class="text-muted-custom">Demandes</small>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-2">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-body text-center p-3">
-          <div class="icon-circle mx-auto mb-2">
-            <i class="bi bi-calculator"></i>
-          </div>
-          <h4 class="text-primary-custom mb-1"><%= @property.simulations.count %></h4>
-          <small class="text-muted-custom">Simulations</small>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-2">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-body text-center p-3">
-          <div class="icon-circle mx-auto mb-2">
-            <i class="bi bi-hammer"></i>
-          </div>
-          <h4 class="text-primary-custom mb-1"><%= @property.projects.count rescue 0 %></h4>
-          <small class="text-muted-custom">Chantiers</small>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-2">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-body text-center p-3">
-          <div class="icon-circle mx-auto mb-2">
-            <i class="bi bi-currency-euro"></i>
-          </div>
-          <h4 class="text-primary-custom mb-1">
-            <%= number_to_currency((@property.requests.sum(:montant_total) rescue 0), unit: "€", separator: ",", delimiter: " ") %>
-          </h4>
-          <small class="text-muted-custom">Primes obtenues</small>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- Sections principales épurées -->
   <div class="row g-4">

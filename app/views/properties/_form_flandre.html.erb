@@ -3,128 +3,146 @@
   <!-- Champ caché pour la région -->
   <%= f.hidden_field :region, value: "flandre" %>
 
-  <!-- Section Nom du bien -->
-  <div class="form-section mb-4">
-    <h5 class="text-primary-custom mb-3 fw-normal">
-      <i class="bi bi-tag me-2"></i>
-      Naam van de woning
-    </h5>
+  <!-- Sections Nom du bien et Adresse - côte à côte -->
+  <div class="row g-4 mb-4">
+    <!-- Section Nom du bien -->
+    <div class="col-lg-6">
+      <div class="form-section">
+        <h5 class="text-primary-custom mb-3 fw-normal">
+          <i class="bi bi-tag me-2"></i>
+          Naam van de woning
+        </h5>
 
-    <%= f.input :titre,
-        label: "Naam of titel van de woning",
-        placeholder: "ex. Mijn huis Vlaanderen, Appartement Gent, Gezinswoning...",
-        hint: "Geef een naam aan uw woning om deze gemakkelijk terug te vinden",
-        wrapper_html: { class: "mb-3" },
-        input_html: { class: "form-control-custom" } %>
-  </div>
-
-  <!-- Section Adresse -->
-  <div class="form-section mb-4">
-    <h5 class="text-primary-custom mb-3 fw-normal">
-      <i class="bi bi-geo-alt me-2"></i>
-      Informations sur le bien à rénover
-    </h5>
-
-    <%= f.input :rue,
-        label: "Rue*",
-        placeholder: "ex. Rue de l'Énergie",
-        wrapper_html: { class: "mb-3" },
-        input_html: { class: "form-control-custom" } %>
-
-    <div class="row g-3">
-      <div class="col-md-3">
-        <%= f.input :numero,
-            label: "Numéro*",
-            placeholder: "ex. 24",
-            wrapper_html: { class: "mb-0" },
+        <%= f.input :titre,
+            label: "Naam of titel van de woning",
+            placeholder: "ex. Mijn huis Vlaanderen, Appartement Gent, Gezinswoning...",
+            hint: "Geef een naam aan uw woning om deze gemakkelijk terug te vinden",
+            wrapper_html: { class: "mb-3" },
             input_html: { class: "form-control-custom" } %>
       </div>
+    </div>
 
-      <div class="col-md-3">
-        <%= f.input :code_postal,
-            label: "Code postal*",
-            placeholder: "ex. 9000",
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-control-custom" } %>
-      </div>
+    <!-- Section Adresse -->
+    <div class="col-lg-6">
+      <div class="form-section">
+        <h5 class="text-primary-custom mb-3 fw-normal">
+          <i class="bi bi-geo-alt me-2"></i>
+          Informations sur le bien à rénover
+        </h5>
 
-      <div class="col-md-4">
-        <%= f.input :commune,
-            label: "Commune*",
-            placeholder: "ex. Gand",
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-control-custom" } %>
+        <!-- Ligne 1: Rue et Numéro -->
+        <div class="row g-2 mb-3">
+          <div class="col-md-4">
+            <%= f.input :rue,
+                label: "Rue*",
+                placeholder: "ex. Rue de l'Énergie",
+                wrapper_html: { class: "mb-0" },
+                input_html: { class: "form-control-custom" } %>
+          </div>
+          <div class="col-md-4">
+            <%= f.input :numero,
+                label: "Numéro*",
+                placeholder: "ex. 24",
+                wrapper_html: { class: "mb-0" },
+                input_html: { class: "form-control-custom" } %>
+          </div>
+        </div>
+
+        <!-- Ligne 2: Code postal et Commune -->
+        <div class="row g-2">
+          <div class="col-md-4">
+            <%= f.input :code_postal,
+                label: "Code postal*",
+                placeholder: "ex. 9000",
+                wrapper_html: { class: "mb-0" },
+                input_html: { class: "form-control-custom" } %>
+          </div>
+          <div class="col-md-8">
+            <%= f.input :commune,
+                label: "Commune*",
+                placeholder: "ex. Gand",
+                wrapper_html: { class: "mb-0" },
+                input_html: { class: "form-control-custom" } %>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Section Type de bien -->
-  <div class="form-section mb-4">
-    <h5 class="text-primary-custom mb-3 fw-normal">
-      <i class="bi bi-building me-2"></i>
-      Type de logement
-    </h5>
+  <!-- Sections Type de bien et Informations d'achat - côte à côte -->
+  <div class="row g-4 mb-4">
+    <!-- Section Type de bien -->
+    <div class="col-lg-6">
+      <div class="form-section">
+        <h5 class="text-primary-custom mb-3 fw-normal">
+          <i class="bi bi-building me-2"></i>
+          Type de logement
+        </h5>
 
-    <div class="row g-3">
-      <div class="col-md-6">
-        <%= f.input :type_bien_flandre,
-            label: "Type de bien (Flandre)*",
-            as: :select,
-            collection: [
-              ["Maison unifamiliale", "maison"],
-              ["Appartement en copropriété", "appartement_copro"],
-              ["Appartement non en copropriété", "appartement"],
-              ["Immeuble à plusieurs unités d'habitation", "immeuble_appartements"],
-              ["Non logement", "non_logement"]
-            ],
-            prompt: "-- Sélectionnez le type de bien --",
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-control-custom" } %>
-      </div>
-      <div class="col-md-6">
-        <%= f.input :usage_flandre,
-            label: "Usage (Flandre)*",
-            as: :select,
-            collection: [
-              ["Résidence principale", "residence_principale"],
-              ["Logement loué", "location"],
-              ["Autre", "autre"]
-            ],
-            prompt: "-- Sélectionnez l'usage --",
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-control-custom" } %>
+        <div class="row g-3">
+          <div class="col-12">
+            <%= f.input :type_bien_flandre,
+                label: "Type de bien (Flandre)*",
+                as: :select,
+                collection: [
+                  ["Maison unifamiliale", "maison"],
+                  ["Appartement en copropriété", "appartement_copro"],
+                  ["Appartement non en copropriété", "appartement"],
+                  ["Immeuble à plusieurs unités d'habitation", "immeuble_appartements"],
+                  ["Non logement", "non_logement"]
+                ],
+                prompt: "-- Sélectionnez le type de bien --",
+                wrapper_html: { class: "mb-3" },
+                input_html: { class: "form-control-custom" } %>
+          </div>
+          <div class="col-12">
+            <%= f.input :usage_flandre,
+                label: "Usage (Flandre)*",
+                as: :select,
+                collection: [
+                  ["Résidence principale", "residence_principale"],
+                  ["Logement loué", "location"],
+                  ["Autre", "autre"]
+                ],
+                prompt: "-- Sélectionnez l'usage --",
+                wrapper_html: { class: "mb-0" },
+                input_html: { class: "form-control-custom" } %>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Section Informations d'achat -->
-  <div class="form-section mb-4">
-    <h5 class="text-primary-custom mb-3 fw-normal">
-      <i class="bi bi-credit-card me-2"></i>
-      Informations d'achat
-    </h5>
+    <!-- Section Informations d'achat -->
+    <div class="col-lg-6">
+      <div class="form-section">
+        <h5 class="text-primary-custom mb-3 fw-normal">
+          <i class="bi bi-credit-card me-2"></i>
+          Informations d'achat
+        </h5>
 
-    <div class="row g-3">
-      <div class="col-md-6">
-        <%= f.input :valeur_achat,
-            label: "Valeur d'achat (€)",
-            placeholder: "ex. 250000",
-            hint: "Prix d'achat du bien en euros",
-            wrapper_html: { class: "mb-0" },
-            input_html: {
-              class: "form-control-custom",
-              type: "number",
-              step: "0.01",
-              min: "0"
-            } %>
-      </div>
-      <div class="col-md-6">
-        <%= f.input :date_achat,
-            label: "Date d'achat",
-            hint: "Date d'acquisition du bien",
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-control-custom" },
-            as: :date %>
+        <div class="row g-3">
+          <div class="col-12">
+            <%= f.input :valeur_achat,
+                label: "Valeur d'achat (€)",
+                placeholder: "ex. 250000",
+                hint: "Prix d'achat du bien en euros",
+                wrapper_html: { class: "mb-3" },
+                input_html: {
+                  class: "form-control-custom",
+                  type: "number",
+                  step: "0.01",
+                  min: "0"
+                } %>
+          </div>
+          <div class="col-12">
+            <%= f.input :date_achat,
+                label: "Date d'achat",
+                hint: "Date d'acquisition du bien",
+                wrapper_html: { class: "mb-0" },
+                input_html: { class: "form-control-custom" },
+                as: :date %>
+          </div>
+        </div>
       </div>
     </div>
   </div>
