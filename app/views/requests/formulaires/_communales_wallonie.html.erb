@@ -1,0 +1,600 @@
+<div class="container" style="max-width: 80%;">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow-lg">
+        <div class="card-header bg-danger text-white text-center">
+          <h3 class="mb-0">
+            <i class="fas fa-city me-2"></i>
+            Primes communales - Wallonie
+          </h3>
+          <p class="mb-0 mt-2"><small>Primes complémentaires proposées par votre commune wallonne</small></p>
+        </div>
+
+        <div class="card-body">
+          <!-- Informations générales -->
+          <div class="alert alert-info">
+            <h5><i class="fas fa-info-circle"></i> Primes communales en Wallonie</h5>
+            <p class="mb-2">
+              En complément des primes régionales wallonnes, de nombreuses communes proposent des aides financières spécifiques :
+            </p>
+            <ul class="mb-2">
+              <li>Primes à l'embellissement de façades</li>
+              <li>Primes énergie complémentaires</li>
+              <li>Primes à la création d'espaces verts</li>
+              <li>Primes accessibilité et adaptation PMR</li>
+              <li>Primes à la rénovation de logements</li>
+              <li>Primes patrimoine et conservation</li>
+            </ul>
+            <p class="mb-0">
+              <strong>Important :</strong> Ces primes sont généralement cumulables avec les primes régionales wallonnes et peuvent représenter un complément significatif.
+            </p>
+          </div>
+
+          <%= form_with(model: @request, local: true, html: { class: "needs-validation", novalidate: true }) do |form| %>
+
+            <!-- Recherche de commune -->
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">1</span>
+                Recherche de votre commune wallonne
+              </h4>
+            </div>
+
+            <div class="card border-light bg-light p-3 mb-4">
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label for="wallonie_commune_search" class="form-label fw-bold">
+                    <i class="fas fa-search me-1"></i>Nom de votre commune
+                  </label>
+                  <input type="text"
+                         class="form-control"
+                         id="wallonie_commune_search"
+                         placeholder="ex: Liège, Charleroi, Namur, Mons..."
+                         onkeyup="searchWallonieCommune(this.value)">
+                  <small class="text-muted">Tapez le nom de votre commune pour voir les primes disponibles</small>
+                </div>
+                <div class="col-md-3">
+                  <label for="wallonie_postal_code" class="form-label fw-bold">
+                    <i class="fas fa-map-marker-alt me-1"></i>Code postal
+                  </label>
+                  <input type="text"
+                         class="form-control"
+                         id="wallonie_postal_code"
+                         placeholder="ex: 4000, 6000..."
+                         onkeyup="searchByPostalCode(this.value)">
+                </div>
+                <div class="col-md-3">
+                  <label for="wallonie_province" class="form-label fw-bold">Province</label>
+                  <select class="form-select" id="wallonie_province" onchange="filterByProvince(this.value)">
+                    <option value="">Toutes les provinces</option>
+                    <option value="brabant-wallon">Brabant wallon</option>
+                    <option value="hainaut">Hainaut</option>
+                    <option value="liege">Liège</option>
+                    <option value="luxembourg">Luxembourg</option>
+                    <option value="namur">Namur</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Résultats de recherche -->
+            <div id="wallonie_commune_results" style="display: none;" class="mb-4">
+              <!-- Les résultats seront affichés ici dynamiquement -->
+            </div>
+
+            <!-- Principales communes avec primes détaillées -->
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">2</span>
+                Principales communes avec primes disponibles
+              </h4>
+            </div>
+
+            <div class="row mb-4">
+              <!-- Liège -->
+              <div class="col-md-6 mb-3">
+                <div class="card border-primary h-100">
+                  <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="fas fa-building"></i> Liège</h6>
+                  </div>
+                  <div class="card-body">
+                    <h6><i class="fas fa-euro-sign text-success"></i> Primes disponibles :</h6>
+                    <ul class="small">
+                      <li>Prime façade (jusqu'à 75% des travaux)</li>
+                      <li>Prime énergie complémentaire</li>
+                      <li>Prime verdissement</li>
+                      <li>Prime accessibilité PMR</li>
+                      <li>Prime patrimoine</li>
+                    </ul>
+                    <div class="mt-2">
+                      <p class="small mb-1"><strong>Contact :</strong></p>
+                      <p class="small mb-1">📞 04/221.92.11</p>
+                      <p class="small mb-1">✉️ primes@liege.be</p>
+                    </div>
+                    <a href="https://www.liege.be/fr/vie-communale/services-communaux/urbanisme/primes"
+                       target="_blank" rel="noopener" class="btn btn-primary btn-sm">
+                      <i class="fas fa-external-link-alt"></i> Voir les primes
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Charleroi -->
+              <div class="col-md-6 mb-3">
+                <div class="card border-primary h-100">
+                  <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="fas fa-building"></i> Charleroi</h6>
+                  </div>
+                  <div class="card-body">
+                    <h6><i class="fas fa-euro-sign text-success"></i> Primes disponibles :</h6>
+                    <ul class="small">
+                      <li>Prime embellissement façade</li>
+                      <li>Prime isolation énergétique</li>
+                      <li>Prime commerce (façades commerciales)</li>
+                      <li>Prime logement social</li>
+                    </ul>
+                    <div class="mt-2">
+                      <p class="small mb-1"><strong>Contact :</strong></p>
+                      <p class="small mb-1">📞 071/86.11.11</p>
+                      <p class="small mb-1">✉️ urbanisme@charleroi.be</p>
+                    </div>
+                    <a href="https://www.charleroi.be/fr/ma-ville/services-communaux/urbanisme"
+                       target="_blank" rel="noopener" class="btn btn-primary btn-sm">
+                      <i class="fas fa-external-link-alt"></i> Voir les primes
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Namur -->
+              <div class="col-md-6 mb-3">
+                <div class="card border-primary h-100">
+                  <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="fas fa-building"></i> Namur</h6>
+                  </div>
+                  <div class="card-body">
+                    <h6><i class="fas fa-euro-sign text-success"></i> Primes disponibles :</h6>
+                    <ul class="small">
+                      <li>Prime rénovation façade</li>
+                      <li>Prime énergie (isolation, chauffage)</li>
+                      <li>Prime patrimoine architectural</li>
+                      <li>Prime verdissement urbain</li>
+                    </ul>
+                    <div class="mt-2">
+                      <p class="small mb-1"><strong>Contact :</strong></p>
+                      <p class="small mb-1">📞 081/24.64.11</p>
+                      <p class="small mb-1">✉️ urbanisme@ville.namur.be</p>
+                    </div>
+                    <a href="https://www.namur.be/fr/ma-ville/services-communaux/urbanisme/primes"
+                       target="_blank" rel="noopener" class="btn btn-primary btn-sm">
+                      <i class="fas fa-external-link-alt"></i> Voir les primes
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Mons -->
+              <div class="col-md-6 mb-3">
+                <div class="card border-primary h-100">
+                  <div class="card-header bg-primary text-white">
+                    <h6 class="mb-0"><i class="fas fa-building"></i> Mons</h6>
+                  </div>
+                  <div class="card-body">
+                    <h6><i class="fas fa-euro-sign text-success"></i> Primes disponibles :</h6>
+                    <ul class="small">
+                      <li>Prime façade et enseignes</li>
+                      <li>Prime efficacité énergétique</li>
+                      <li>Prime accessibilité</li>
+                      <li>Prime centre-ville</li>
+                    </ul>
+                    <div class="mt-2">
+                      <p class="small mb-1"><strong>Contact :</strong></p>
+                      <p class="small mb-1">📞 065/40.51.11</p>
+                      <p class="small mb-1">✉️ urbanisme@ville.mons.be</p>
+                    </div>
+                    <a href="https://www.mons.be/fr/ma-ville/services/urbanisme/primes"
+                       target="_blank" rel="noopener" class="btn btn-primary btn-sm">
+                      <i class="fas fa-external-link-alt"></i> Voir les primes
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Liste étendue des communes -->
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">3</span>
+                Autres communes wallonnes avec primes
+              </h4>
+            </div>
+
+            <div class="card border-info bg-info bg-opacity-10 p-3 mb-4">
+              <div class="row">
+                <div class="col-md-3">
+                  <h6><strong>Brabant wallon :</strong></h6>
+                  <ul class="small">
+                    <li>Wavre</li>
+                    <li>Ottignies-Louvain-la-Neuve</li>
+                    <li>Waterloo</li>
+                    <li>Braine-l'Alleud</li>
+                    <li>Nivelles</li>
+                  </ul>
+                </div>
+                <div class="col-md-3">
+                  <h6><strong>Hainaut :</strong></h6>
+                  <ul class="small">
+                    <li>Tournai</li>
+                    <li>La Louvière</li>
+                    <li>Mouscron</li>
+                    <li>Soignies</li>
+                    <li>Ath</li>
+                  </ul>
+                </div>
+                <div class="col-md-3">
+                  <h6><strong>Liège :</strong></h6>
+                  <ul class="small">
+                    <li>Seraing</li>
+                    <li>Verviers</li>
+                    <li>Herstal</li>
+                    <li>Huy</li>
+                    <li>Spa</li>
+                  </ul>
+                </div>
+                <div class="col-md-3">
+                  <h6><strong>Luxembourg :</strong></h6>
+                  <ul class="small">
+                    <li>Arlon</li>
+                    <li>Bastogne</li>
+                    <li>Marche-en-Famenne</li>
+                    <li>Virton</li>
+                    <li>Durbuy</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="mt-3">
+                <h6><strong>Province de Namur :</strong></h6>
+                <ul class="small mb-0">
+                  <li><strong>Dinant, Gembloux, Andenne, Ciney, Philippeville</strong> et bien d'autres...</li>
+                </ul>
+              </div>
+
+              <div class="alert alert-warning mt-3 mb-0">
+                <i class="fas fa-info-circle"></i>
+                <strong>Note :</strong> Chaque commune a ses propres critères, montants et procédures.
+                Il est recommandé de contacter directement le service urbanisme de votre commune.
+              </div>
+            </div>
+
+            <!-- Procédure générale -->
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">4</span>
+                Procédure générale pour les primes communales
+              </h4>
+            </div>
+
+            <div class="card border-success bg-success bg-opacity-10 p-3 mb-4">
+              <h6><i class="fas fa-list-check text-success"></i> Étapes recommandées :</h6>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <ol>
+                    <li><strong>Contact préalable</strong> - Renseignez-vous auprès de votre commune</li>
+                    <li><strong>Vérification des conditions</strong> - Éligibilité, zone géographique, etc.</li>
+                    <li><strong>Demande de devis</strong> - Obtenez des devis détaillés</li>
+                    <li><strong>Dépôt du dossier</strong> - Avant le début des travaux</li>
+                  </ol>
+                </div>
+                <div class="col-md-6">
+                  <ol start="5">
+                    <li><strong>Accusé de réception</strong> - Conservez les documents</li>
+                    <li><strong>Réalisation des travaux</strong> - Selon les conditions</li>
+                    <li><strong>Justificatifs</strong> - Factures, photos, etc.</li>
+                    <li><strong>Liquidation</strong> - Versement de la prime</li>
+                  </ol>
+                </div>
+              </div>
+
+              <div class="alert alert-info mt-3 mb-0">
+                <h6><i class="fas fa-lightbulb"></i> Conseils pratiques :</h6>
+                <ul class="mb-0">
+                  <li>Vérifiez les budgets disponibles en début d'année</li>
+                  <li>Coordonnez avec les primes régionales wallonnes</li>
+                  <li>Respectez les délais d'introduction</li>
+                  <li>Conservez tous les documents justificatifs</li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Ressources utiles -->
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">5</span>
+                Ressources et contacts utiles
+              </h4>
+            </div>
+
+            <div class="card border-primary p-3 mb-4">
+              <div class="row">
+                <div class="col-md-6">
+                  <h6><i class="fas fa-link text-primary"></i> Liens utiles :</h6>
+                  <ul class="small">
+                    <li><a href="https://energie.wallonie.be/fr/primes-et-incitants.html?IDC=9247" target="_blank">
+                      <i class="fas fa-external-link-alt"></i> Portail énergie Wallonie
+                    </a></li>
+                    <li><a href="https://www.wallonie.be/fr/demarches/demander-prime-communale-renovation" target="_blank">
+                      <i class="fas fa-external-link-alt"></i> Démarches Wallonie
+                    </a></li>
+                    <li><a href="https://www.uvcw.be/" target="_blank">
+                      <i class="fas fa-external-link-alt"></i> Union des Villes et Communes
+                    </a></li>
+                  </ul>
+                </div>
+                <div class="col-md-6">
+                  <h6><i class="fas fa-phone text-info"></i> Contacts généraux :</h6>
+                  <ul class="small">
+                    <li><strong>SPW Territoire :</strong> 081/33.21.11</li>
+                    <li><strong>Facilitateur rénovation :</strong> 0800/85.775</li>
+                    <li><strong>Guichet énergie :</strong> 081/77.36.90</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Accompagnement personnalisé -->
+            <div class="alert alert-success">
+              <h6><i class="fas fa-user-friends"></i> Accompagnement personnalisé</h6>
+              <p class="mb-2">Notre équipe peut vous accompagner dans vos démarches de primes communales :</p>
+              <ul class="mb-3">
+                <li>Identification des primes disponibles dans votre commune</li>
+                <li>Aide au montage de dossier</li>
+                <li>Coordination primes régionales + communales</li>
+                <li>Suivi administratif</li>
+              </ul>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-success btn-sm" onclick="contactWallonieSupport()">
+                  <i class="fas fa-envelope"></i> Demander un accompagnement
+                </button>
+                <button type="button" class="btn btn-outline-success btn-sm" onclick="planWallonieConsultation()">
+                  <i class="fas fa-calendar"></i> Planifier une consultation
+                </button>
+              </div>
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="text-center">
+              <button type="button" class="btn btn-danger btn-lg me-3" onclick="saveWallonieCommuneSelection()">
+                <i class="fas fa-save"></i> Sauvegarder ma sélection
+              </button>
+              <button type="button" class="btn btn-outline-danger btn-lg me-3" onclick="searchAllCommunesPrimes()">
+                <i class="fas fa-search"></i> Rechercher toutes les primes
+              </button>
+              <%= link_to "Retour aux formulaires", requests_path, class: "btn btn-secondary btn-lg" %>
+            </div>
+
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Base de données des communes wallonnes avec leurs informations
+const wallonieCommunesData = {
+  // Brabant wallon
+  'wavre': { province: 'brabant-wallon', cp: '1300', primes: ['façade', 'énergie'], phone: '010/23.03.11' },
+  'ottignies-louvain-la-neuve': { province: 'brabant-wallon', cp: '1348', primes: ['façade', 'énergie', 'verdissement'], phone: '010/43.61.11' },
+  'waterloo': { province: 'brabant-wallon', cp: '1410', primes: ['façade', 'patrimoine'], phone: '02/352.98.11' },
+  'nivelles': { province: 'brabant-wallon', cp: '1400', primes: ['façade', 'énergie', 'commerce'], phone: '067/88.22.11' },
+
+  // Hainaut
+  'charleroi': { province: 'hainaut', cp: '6000', primes: ['façade', 'énergie', 'commerce'], phone: '071/86.11.11', detailed: true },
+  'mons': { province: 'hainaut', cp: '7000', primes: ['façade', 'énergie', 'accessibilité'], phone: '065/40.51.11', detailed: true },
+  'tournai': { province: 'hainaut', cp: '7500', primes: ['façade', 'patrimoine'], phone: '069/33.33.11' },
+  'la-louviere': { province: 'hainaut', cp: '7100', primes: ['façade', 'énergie'], phone: '064/27.15.11' },
+  'mouscron': { province: 'hainaut', cp: '7700', primes: ['façade', 'commerce'], phone: '056/86.01.11' },
+
+  // Liège
+  'liege': { province: 'liege', cp: '4000', primes: ['façade', 'énergie', 'patrimoine', 'verdissement'], phone: '04/221.92.11', detailed: true },
+  'seraing': { province: 'liege', cp: '4100', primes: ['façade', 'énergie'], phone: '04/330.63.11' },
+  'verviers': { province: 'liege', cp: '4800', primes: ['façade', 'énergie', 'commerce'], phone: '087/32.53.11' },
+  'herstal': { province: 'liege', cp: '4040', primes: ['façade'], phone: '04/240.13.11' },
+  'huy': { province: 'liege', cp: '4500', primes: ['façade', 'patrimoine'], phone: '085/21.78.11' },
+
+  // Luxembourg
+  'arlon': { province: 'luxembourg', cp: '6700', primes: ['façade', 'énergie'], phone: '063/24.56.11' },
+  'bastogne': { province: 'luxembourg', cp: '6600', primes: ['façade', 'patrimoine'], phone: '061/21.08.11' },
+  'marche-en-famenne': { province: 'luxembourg', cp: '6900', primes: ['façade'], phone: '084/32.70.11' },
+  'virton': { province: 'luxembourg', cp: '6760', primes: ['façade', 'énergie'], phone: '063/57.88.11' },
+
+  // Namur
+  'namur': { province: 'namur', cp: '5000', primes: ['façade', 'énergie', 'patrimoine'], phone: '081/24.64.11', detailed: true },
+  'dinant': { province: 'namur', cp: '5500', primes: ['façade', 'patrimoine'], phone: '082/21.39.11' },
+  'gembloux': { province: 'namur', cp: '5030', primes: ['façade', 'énergie'], phone: '081/62.61.11' },
+  'andenne': { province: 'namur', cp: '5300', primes: ['façade'], phone: '085/84.96.11' },
+  'ciney': { province: 'namur', cp: '5590', primes: ['façade', 'énergie'], phone: '083/21.16.11' }
+};
+
+function searchWallonieCommune(searchTerm) {
+  if (searchTerm.length < 2) {
+    document.getElementById('wallonie_commune_results').style.display = 'none';
+    return;
+  }
+
+  const results = Object.keys(wallonieCommunesData).filter(commune =>
+    commune.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    wallonieCommunesData[commune].cp.includes(searchTerm)
+  );
+
+  displayWallonieCommuneResults(results);
+}
+
+function searchByPostalCode(postalCode) {
+  if (postalCode.length < 4) {
+    document.getElementById('wallonie_commune_results').style.display = 'none';
+    return;
+  }
+
+  const results = Object.keys(wallonieCommunesData).filter(commune =>
+    wallonieCommunesData[commune].cp.includes(postalCode)
+  );
+
+  displayWallonieCommuneResults(results);
+}
+
+function filterByProvince(province) {
+  if (!province) {
+    document.getElementById('wallonie_commune_results').style.display = 'none';
+    return;
+  }
+
+  const results = Object.keys(wallonieCommunesData).filter(commune =>
+    wallonieCommunesData[commune].province === province
+  );
+
+  displayWallonieCommuneResults(results);
+}
+
+function displayWallonieCommuneResults(results) {
+  const resultsDiv = document.getElementById('wallonie_commune_results');
+
+  if (results.length === 0) {
+    resultsDiv.style.display = 'none';
+    return;
+  }
+
+  let html = '<div class="card border-success"><div class="card-header bg-success text-white">';
+  html += `<h6 class="mb-0"><i class="fas fa-search"></i> ${results.length} commune(s) trouvée(s)</h6></div>`;
+  html += '<div class="card-body"><div class="row">';
+
+  results.forEach(commune => {
+    const data = wallonieCommunesData[commune];
+    const communeName = commune.charAt(0).toUpperCase() + commune.slice(1).replace(/-/g, '-');
+
+    html += `<div class="col-md-6 mb-3">
+      <div class="card border-light">
+        <div class="card-body p-3">
+          <h6 class="card-title">${communeName} (${data.cp})</h6>
+          <p class="small mb-2"><strong>Province :</strong> ${data.province.replace('-', ' ')}</p>
+          <p class="small mb-2"><strong>Primes :</strong> ${data.primes.join(', ')}</p>
+          <p class="small mb-2"><strong>Tél :</strong> ${data.phone}</p>
+          <button class="btn btn-success btn-sm" onclick="selectWallonieCommune('${commune}')">
+            <i class="fas fa-check"></i> Sélectionner
+          </button>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  html += '</div></div></div>';
+  resultsDiv.innerHTML = html;
+  resultsDiv.style.display = 'block';
+}
+
+function selectWallonieCommune(commune) {
+  const data = wallonieCommunesData[commune];
+  const communeName = commune.charAt(0).toUpperCase() + commune.slice(1).replace(/-/g, '-');
+
+  localStorage.setItem('selectedWallonieCommune', commune);
+
+  alert(`Commune sélectionnée : ${communeName}\n\nProchaines étapes :\n1. Contactez le service urbanisme : ${data.phone}\n2. Vérifiez les conditions spécifiques\n3. Préparez votre dossier de demande`);
+}
+
+function saveWallonieCommuneSelection() {
+  const searchTerm = document.getElementById('wallonie_commune_search').value;
+  const postalCode = document.getElementById('wallonie_postal_code').value;
+  const province = document.getElementById('wallonie_province').value;
+
+  if (!searchTerm && !postalCode && !province) {
+    alert('Veuillez d\'abord rechercher ou sélectionner une commune.');
+    return;
+  }
+
+  const selectionData = {
+    commune: searchTerm,
+    codePostal: postalCode,
+    province: province,
+    timestamp: new Date().toISOString()
+  };
+
+  localStorage.setItem('wallonieCommuneSelection', JSON.stringify(selectionData));
+
+  alert('Sélection sauvegardée !\n\nVous pouvez maintenant contacter directement votre commune pour connaître les primes disponibles.');
+}
+
+function searchAllCommunesPrimes() {
+  const searchUrl = 'https://www.google.com/search?q=prime+communale+renovation+wallonie+commune';
+  window.open(searchUrl, '_blank');
+}
+
+function contactWallonieSupport() {
+  const email = 'support@ren0vate.be';
+  const subject = 'Accompagnement primes communales Wallonie';
+  const body = 'Bonjour,\n\nJe souhaiterais être accompagné(e) dans mes démarches de primes communales en Wallonie.\n\nMa commune : \nMon projet : \n\nMerci de me recontacter.\n\nCordialement';
+
+  const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.location.href = mailtoLink;
+}
+
+function planWallonieConsultation() {
+  alert('Service de consultation personnalisée :\n\n📞 Contactez-nous au 0800/XXX.XXX\n📧 consultation@ren0vate.be\n\nNous vous rappellerons sous 24h pour planifier votre consultation gratuite.');
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+  // Restaurer la sélection précédente si elle existe
+  const savedSelection = localStorage.getItem('wallonieCommuneSelection');
+  if (savedSelection) {
+    const data = JSON.parse(savedSelection);
+    document.getElementById('wallonie_commune_search').value = data.commune || '';
+    document.getElementById('wallonie_postal_code').value = data.codePostal || '';
+    document.getElementById('wallonie_province').value = data.province || '';
+  }
+});
+</script>
+
+<style>
+.section-divider {
+  margin: 2rem 0 1.5rem 0;
+  border-bottom: 2px solid #dc3545;
+  padding-bottom: 0.5rem;
+}
+
+.section-title {
+  color: #dc3545;
+  font-weight: bold;
+  margin: 0;
+}
+
+.section-number {
+  background: #dc3545;
+  color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.card {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.btn-danger {
+  font-weight: 500;
+}
+
+.small {
+  font-size: 0.875em;
+}
+
+.commune-info {
+  transition: all 0.3s ease;
+}
+</style>

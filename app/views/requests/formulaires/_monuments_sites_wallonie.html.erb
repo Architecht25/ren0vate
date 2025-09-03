@@ -1,0 +1,1006 @@
+<div class="container" style="max-width: 80%;">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow-lg">
+        <div class="card-header bg-success text-white text-center">
+          <h3 class="mb-0">
+            <i class="fas fa-landmark me-2"></i>
+            Prime Monuments et Sites - Wallonie
+          </h3>
+          <p class="mb-0 mt-2"><small>Demande de prime pour la conservation du patrimoine classé en Wallonie</small></p>
+        </div>
+
+        <div class="card-body">
+          <!-- Informations importantes -->
+          <div class="alert alert-info">
+            <h5><i class="fas fa-info-circle"></i> À propos de cette prime</h5>
+            <p class="mb-2">
+              La Région wallonne octroie des subventions pour la conservation du patrimoine immobilier classé comme monument ou site, ou inscrit sur la liste de sauvegarde.
+            </p>
+            <ul class="mb-2">
+              <li><strong>Biens concernés :</strong> Monuments classés, sites classés, biens inscrits sur la liste de sauvegarde</li>
+              <li><strong>Travaux admissibles :</strong> Conservation, restauration, mise en valeur du patrimoine</li>
+              <li><strong>Taux de subvention :</strong> Jusqu'à 80% du coût des travaux selon la catégorie</li>
+              <li><strong>Procédure :</strong> Demande préalable obligatoire avant tout commencement des travaux</li>
+            </ul>
+            <p class="mb-0">
+              <strong>Important :</strong> Cette demande doit être introduite avant le commencement des travaux. Les travaux entrepris sans autorisation préalable ne sont pas subsidiables.
+            </p>
+          </div>
+
+          <%= form_with(model: @request, local: true, html: { class: "needs-validation", novalidate: true }) do |form| %>
+
+            <!-- Section 1: Identification du demandeur -->
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">1</span>
+                Identification du demandeur
+              </h4>
+            </div>
+
+            <div class="card border-light bg-light p-3 mb-4">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">
+                    <i class="fas fa-user me-1"></i>Type de demandeur*
+                  </label>
+                  <div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="wallonie_demandeur_type" id="wallonie_particulier" value="particulier" required>
+                      <label class="form-check-label" for="wallonie_particulier">
+                        Particulier (personne physique)
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="wallonie_demandeur_type" id="wallonie_personne_morale" value="personne_morale" required>
+                      <label class="form-check-label" for="wallonie_personne_morale">
+                        Personne morale (société, ASBL, etc.)
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="wallonie_demandeur_type" id="wallonie_collectivite" value="collectivite" required>
+                      <label class="form-check-label" for="wallonie_collectivite">
+                        Collectivité publique
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="wallonie_nom_prenom" class="form-label fw-bold">
+                    <i class="fas fa-id-card me-1"></i>Nom et prénom / Dénomination*
+                  </label>
+                  <input type="text" class="form-control" id="wallonie_nom_prenom" required>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-8 mb-3">
+                  <label for="wallonie_adresse_demandeur" class="form-label fw-bold">
+                    <i class="fas fa-home me-1"></i>Adresse complète*
+                  </label>
+                  <input type="text" class="form-control" id="wallonie_adresse_demandeur" placeholder="Rue, numéro, boîte" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label for="wallonie_cp_ville_demandeur" class="form-label fw-bold">Code postal et ville*</label>
+                  <input type="text" class="form-control" id="wallonie_cp_ville_demandeur" placeholder="ex: 5000 Namur" required>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-4 mb-3">
+                  <label for="wallonie_telephone_demandeur" class="form-label fw-bold">
+                    <i class="fas fa-phone me-1"></i>Téléphone*
+                  </label>
+                  <input type="tel" class="form-control" id="wallonie_telephone_demandeur" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label for="wallonie_email_demandeur" class="form-label fw-bold">
+                    <i class="fas fa-envelope me-1"></i>Email*
+                  </label>
+                  <input type="email" class="form-control" id="wallonie_email_demandeur" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label for="wallonie_numero_national" class="form-label fw-bold">Numéro national / BCE</label>
+                  <input type="text" class="form-control" id="wallonie_numero_national" placeholder="Pour personnes physiques/morales">
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 2: Identification du bien -->
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">2</span>
+                Identification du bien patrimonial
+              </h4>
+            </div>
+
+            <div class="card border-primary bg-primary bg-opacity-10 p-3 mb-4">
+              <div class="row">
+                <div class="col-md-8 mb-3">
+                  <label for="wallonie_adresse_bien" class="form-label fw-bold">
+                    <i class="fas fa-landmark me-1"></i>Adresse du bien classé*
+                  </label>
+                  <input type="text" class="form-control" id="wallonie_adresse_bien" placeholder="Adresse complète du monument ou site" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                  <label for="wallonie_cp_ville_bien" class="form-label fw-bold">Code postal et commune*</label>
+                  <input type="text" class="form-control" id="wallonie_cp_ville_bien" required>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">
+                    <i class="fas fa-certificate me-1"></i>Statut patrimonial*
+                  </label>
+                  <div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="wallonie_statut_patrimoine" id="wallonie_monument_classe" value="monument_classe" required>
+                      <label class="form-check-label" for="wallonie_monument_classe">
+                        Monument classé
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="wallonie_statut_patrimoine" id="wallonie_site_classe" value="site_classe" required>
+                      <label class="form-check-label" for="wallonie_site_classe">
+                        Site classé
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="wallonie_statut_patrimoine" id="wallonie_liste_sauvegarde" value="liste_sauvegarde" required>
+                      <label class="form-check-label" for="wallonie_liste_sauvegarde">
+                        Bien inscrit sur la liste de sauvegarde
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="wallonie_statut_patrimoine" id="wallonie_zone_protection" value="zone_protection" required>
+                      <label class="form-check-label" for="wallonie_zone_protection">
+                        Bien situé en zone de protection
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="wallonie_date_classement" class="form-label fw-bold">
+                    <i class="fas fa-calendar me-1"></i>Date de classement/inscription
+                  </label>
+                  <input type="date" class="form-control" id="wallonie_date_classement">
+
+                  <label for="wallonie_numero_classement" class="form-label fw-bold mt-2">
+                    <i class="fas fa-hashtag me-1"></i>Numéro de classement/inscription
+                  </label>
+                  <input type="text" class="form-control" id="wallonie_numero_classement" placeholder="Référence officielle">
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-12 mb-3">
+                  <label for="wallonie_description_bien" class="form-label fw-bold">
+                    <i class="fas fa-align-left me-1"></i>Description du bien*
+                  </label>
+                  <textarea class="form-control" id="wallonie_description_bien" rows="3"
+                            placeholder="Description détaillée du monument, site ou élément patrimonial concerné" required></textarea>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">
+                    <i class="fas fa-key me-1"></i>Qualité du demandeur*
+                  </label>
+                  <div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="wallonie_qualite_demandeur" id="wallonie_proprietaire" value="proprietaire" required>
+                      <label class="form-check-label" for="wallonie_proprietaire">
+                        Propriétaire
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="wallonie_qualite_demandeur" id="wallonie_usufruitier" value="usufruitier" required>
+                      <label class="form-check-label" for="wallonie_usufruitier">
+                        Usufruitier
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="wallonie_qualite_demandeur" id="wallonie_emphyteote" value="emphyteote" required>
+                      <label class="form-check-label" for="wallonie_emphyteote">
+                        Emphytéote
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="wallonie_qualite_demandeur" id="wallonie_autre_droit" value="autre_droit" required>
+                      <label class="form-check-label" for="wallonie_autre_droit">
+                        Autre droit réel
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="wallonie_reference_cadastrale" class="form-label fw-bold">
+                    <i class="fas fa-map me-1"></i>Référence cadastrale
+                  </label>
+                  <input type="text" class="form-control" id="wallonie_reference_cadastrale"
+                         placeholder="Division, section, numéro">
+
+                  <label for="wallonie_superficie" class="form-label fw-bold mt-2">
+                    <i class="fas fa-ruler-combined me-1"></i>Superficie concernée
+                  </label>
+                  <input type="text" class="form-control" id="wallonie_superficie" placeholder="en m² ou hectares">
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 3: Description des travaux -->
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">3</span>
+                Description des travaux de conservation
+              </h4>
+            </div>
+
+            <div class="card border-warning bg-warning bg-opacity-10 p-3 mb-4">
+              <div class="row">
+                <div class="col-md-12 mb-3">
+                  <label for="wallonie_nature_travaux" class="form-label fw-bold">
+                    <i class="fas fa-tools me-1"></i>Nature détaillée des travaux*
+                  </label>
+                  <textarea class="form-control" id="wallonie_nature_travaux" rows="4"
+                            placeholder="Décrivez précisément les travaux de conservation, restauration ou mise en valeur envisagés" required></textarea>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">
+                    <i class="fas fa-list-check me-1"></i>Catégorie de travaux*
+                  </label>
+                  <div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="wallonie_conservation" value="conservation">
+                      <label class="form-check-label" for="wallonie_conservation">
+                        Travaux de conservation
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="wallonie_restauration" value="restauration">
+                      <label class="form-check-label" for="wallonie_restauration">
+                        Travaux de restauration
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="wallonie_mise_valeur" value="mise_valeur">
+                      <label class="form-check-label" for="wallonie_mise_valeur">
+                        Travaux de mise en valeur
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="wallonie_securisation" value="securisation">
+                      <label class="form-check-label" for="wallonie_securisation">
+                        Travaux de sécurisation
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="wallonie_etudes" value="etudes">
+                      <label class="form-check-label" for="wallonie_etudes">
+                        Études préparatoires
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">
+                    <i class="fas fa-hammer me-1"></i>Éléments concernés*
+                  </label>
+                  <div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="wallonie_toiture" value="toiture">
+                      <label class="form-check-label" for="wallonie_toiture">
+                        Toiture et charpente
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="wallonie_facades" value="facades">
+                      <label class="form-check-label" for="wallonie_facades">
+                        Façades et parements
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="wallonie_menuiseries" value="menuiseries">
+                      <label class="form-check-label" for="wallonie_menuiseries">
+                        Menuiseries et fermetures
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="wallonie_structure" value="structure">
+                      <label class="form-check-label" for="wallonie_structure">
+                        Structure et gros œuvre
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="wallonie_decorations" value="decorations">
+                      <label class="form-check-label" for="wallonie_decorations">
+                        Éléments décoratifs
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="wallonie_abords" value="abords">
+                      <label class="form-check-label" for="wallonie_abords">
+                        Abords et espaces extérieurs
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="wallonie_justification" class="form-label fw-bold">
+                    <i class="fas fa-question-circle me-1"></i>Justification des travaux*
+                  </label>
+                  <textarea class="form-control" id="wallonie_justification" rows="3"
+                            placeholder="Expliquez la nécessité et l'urgence des travaux" required></textarea>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="wallonie_methodologie" class="form-label fw-bold">
+                    <i class="fas fa-cogs me-1"></i>Méthodologie envisagée
+                  </label>
+                  <textarea class="form-control" id="wallonie_methodologie" rows="3"
+                            placeholder="Techniques et méthodes de conservation prévues"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 4: Aspects financiers -->
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">4</span>
+                Aspects financiers
+              </h4>
+            </div>
+
+            <div class="card border-success bg-success bg-opacity-10 p-3 mb-4">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="wallonie_cout_total" class="form-label fw-bold">
+                    <i class="fas fa-calculator me-1"></i>Coût total estimé (HTVA)*
+                  </label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="wallonie_cout_total" step="0.01" min="0" required>
+                    <span class="input-group-text">€</span>
+                  </div>
+                  <small class="text-muted">Montant hors TVA basé sur les devis</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="wallonie_subvention_demandee" class="form-label fw-bold">
+                    <i class="fas fa-hand-holding-euro me-1"></i>Subvention demandée*
+                  </label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="wallonie_subvention_demandee" step="0.01" min="0" required>
+                    <span class="input-group-text">€</span>
+                  </div>
+                  <small class="text-muted">Montant de la subvention sollicitée</small>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="wallonie_pourcentage_demande" class="form-label fw-bold">
+                    <i class="fas fa-percent me-1"></i>Pourcentage demandé
+                  </label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="wallonie_pourcentage_demande" step="0.1" min="0" max="100" readonly>
+                    <span class="input-group-text">%</span>
+                  </div>
+                  <small class="text-muted">Calculé automatiquement</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="wallonie_financement_propre" class="form-label fw-bold">
+                    <i class="fas fa-piggy-bank me-1"></i>Financement propre
+                  </label>
+                  <div class="input-group">
+                    <input type="number" class="form-control" id="wallonie_financement_propre" step="0.01" min="0" readonly>
+                    <span class="input-group-text">€</span>
+                  </div>
+                  <small class="text-muted">Calculé automatiquement</small>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-12 mb-3">
+                  <label class="form-label fw-bold">
+                    <i class="fas fa-funding me-1"></i>Autres sources de financement
+                  </label>
+                  <div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="wallonie_prime_energie" value="prime_energie">
+                      <label class="form-check-label" for="wallonie_prime_energie">
+                        Prime énergie régionale
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="wallonie_prime_communale" value="prime_communale">
+                      <label class="form-check-label" for="wallonie_prime_communale">
+                        Prime communale
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="wallonie_fondation" value="fondation">
+                      <label class="form-check-label" for="wallonie_fondation">
+                        Fondation Roi Baudouin ou autre fondation
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="wallonie_feder" value="feder">
+                      <label class="form-check-label" for="wallonie_feder">
+                        Fonds européens (FEDER, etc.)
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" id="wallonie_autre_subvention" value="autre_subvention">
+                      <label class="form-check-label" for="wallonie_autre_subvention">
+                        Autre subvention
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row" id="wallonie_autre_subvention_details" style="display: none;">
+                <div class="col-md-12 mb-3">
+                  <label for="wallonie_detail_autres_financements" class="form-label fw-bold">
+                    <i class="fas fa-info me-1"></i>Détails des autres financements
+                  </label>
+                  <textarea class="form-control" id="wallonie_detail_autres_financements" rows="2"
+                            placeholder="Précisez les autres sources de financement"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 5: Planning et échéances -->
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">5</span>
+                Planning et échéances
+              </h4>
+            </div>
+
+            <div class="card border-info bg-info bg-opacity-10 p-3 mb-4">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="wallonie_debut_travaux" class="form-label fw-bold">
+                    <i class="fas fa-play-circle me-1"></i>Date prévue de début des travaux*
+                  </label>
+                  <input type="date" class="form-control" id="wallonie_debut_travaux" required>
+                  <small class="text-muted">Les travaux ne peuvent commencer avant l'octroi de la subvention</small>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="wallonie_fin_travaux" class="form-label fw-bold">
+                    <i class="fas fa-stop-circle me-1"></i>Date prévue de fin des travaux*
+                  </label>
+                  <input type="date" class="form-control" id="wallonie_fin_travaux" required>
+                  <small class="text-muted">Les travaux doivent être terminés dans les délais impartis</small>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="wallonie_duree_travaux" class="form-label fw-bold">
+                    <i class="fas fa-clock me-1"></i>Durée estimée des travaux
+                  </label>
+                  <select class="form-select" id="wallonie_duree_travaux">
+                    <option value="">-- Sélectionnez --</option>
+                    <option value="moins_3_mois">Moins de 3 mois</option>
+                    <option value="3_6_mois">3 à 6 mois</option>
+                    <option value="6_12_mois">6 mois à 1 an</option>
+                    <option value="1_2_ans">1 à 2 ans</option>
+                    <option value="plus_2_ans">Plus de 2 ans</option>
+                  </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="wallonie_urgence" class="form-label fw-bold">
+                    <i class="fas fa-exclamation-triangle me-1"></i>Degré d'urgence
+                  </label>
+                  <select class="form-select" id="wallonie_urgence">
+                    <option value="">-- Sélectionnez --</option>
+                    <option value="tres_urgent">Très urgent (péril imminent)</option>
+                    <option value="urgent">Urgent (dégradation rapide)</option>
+                    <option value="normal">Normal (conservation préventive)</option>
+                    <option value="programmable">Programmable (amélioration)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-12 mb-3">
+                  <label for="wallonie_contraintes_planning" class="form-label fw-bold">
+                    <i class="fas fa-calendar-alt me-1"></i>Contraintes de planning
+                  </label>
+                  <textarea class="form-control" id="wallonie_contraintes_planning" rows="2"
+                            placeholder="Contraintes particulières, saisons favorables, accès, etc."></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 6: Documents et autorisations -->
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">6</span>
+                Documents requis et autorisations
+              </h4>
+            </div>
+
+            <div class="card border-danger bg-danger bg-opacity-10 p-3 mb-4">
+              <div class="alert alert-warning">
+                <h6><i class="fas fa-exclamation-triangle"></i> Documents obligatoires</h6>
+                <p class="mb-2">Les documents suivants doivent accompagner votre demande :</p>
+                <ul class="small mb-0">
+                  <li>Plans et coupes de l'état existant et des transformations projetées</li>
+                  <li>Devis détaillés des entrepreneurs</li>
+                  <li>Rapport technique justifiant les travaux</li>
+                  <li>Preuves de propriété ou de droit réel</li>
+                  <li>Autorisation d'urbanisme si requise</li>
+                  <li>Photos de l'état actuel du bien</li>
+                </ul>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <h6><i class="fas fa-check-square text-success"></i> Documents techniques :</h6>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="wallonie_doc_plans">
+                    <label class="form-check-label" for="wallonie_doc_plans">
+                      Plans et coupes (échelle min. 1/100)
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="wallonie_doc_devis">
+                    <label class="form-check-label" for="wallonie_doc_devis">
+                      Devis détaillés et métrés
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="wallonie_doc_rapport">
+                    <label class="form-check-label" for="wallonie_doc_rapport">
+                      Rapport technique/diagnostic
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="wallonie_doc_photos">
+                    <label class="form-check-label" for="wallonie_doc_photos">
+                      Reportage photographique
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="wallonie_doc_historique">
+                    <label class="form-check-label" for="wallonie_doc_historique">
+                      Recherche historique et iconographique
+                    </label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <h6><i class="fas fa-file-alt text-primary"></i> Documents administratifs :</h6>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="wallonie_doc_propriete">
+                    <label class="form-check-label" for="wallonie_doc_propriete">
+                      Titre de propriété ou acte notarié
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="wallonie_doc_cadastre">
+                    <label class="form-check-label" for="wallonie_doc_cadastre">
+                      Extrait cadastral
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="wallonie_doc_urbanisme">
+                    <label class="form-check-label" for="wallonie_doc_urbanisme">
+                      Permis d'urbanisme (si requis)
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="wallonie_doc_identite">
+                    <label class="form-check-label" for="wallonie_doc_identite">
+                      Copie carte d'identité/statuts
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="wallonie_doc_situation_financiere">
+                    <label class="form-check-label" for="wallonie_doc_situation_financiere">
+                      Justificatifs situation financière
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mt-3">
+                <div class="col-md-12">
+                  <label for="wallonie_documents_complementaires" class="form-label fw-bold">
+                    <i class="fas fa-paperclip me-1"></i>Documents complémentaires
+                  </label>
+                  <textarea class="form-control" id="wallonie_documents_complementaires" rows="2"
+                            placeholder="Listez ici tout document complémentaire que vous joignez à votre demande"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 7: Engagement et déclaration -->
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">7</span>
+                Engagement et déclaration
+              </h4>
+            </div>
+
+            <div class="card border-warning bg-warning bg-opacity-10 p-3 mb-4">
+              <div class="alert alert-info">
+                <h6><i class="fas fa-info-circle"></i> Engagements du demandeur</h6>
+                <p class="mb-2">En introduisant cette demande, je m'engage à :</p>
+                <ul class="small mb-0">
+                  <li>Respecter les prescriptions techniques et patrimoniales</li>
+                  <li>Ne pas commencer les travaux avant l'octroi de la subvention</li>
+                  <li>Réaliser les travaux conformément au projet approuvé</li>
+                  <li>Permettre les contrôles et visites d'inspection</li>
+                  <li>Maintenir l'affectation du bien pendant 15 ans minimum</li>
+                  <li>Rembourser la subvention en cas de non-respect des conditions</li>
+                </ul>
+              </div>
+
+              <div class="row">
+                <div class="col-md-12 mb-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="wallonie_engagement_general" required>
+                    <label class="form-check-label fw-bold" for="wallonie_engagement_general">
+                      <i class="fas fa-hand-paper me-1"></i>
+                      Je déclare accepter toutes les conditions d'octroi de la subvention et m'engage à les respecter*
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-12 mb-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="wallonie_veracite_infos" required>
+                    <label class="form-check-label fw-bold" for="wallonie_veracite_infos">
+                      <i class="fas fa-check-circle me-1"></i>
+                      Je certifie que les informations fournies sont exactes et complètes*
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-12 mb-3">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="wallonie_autorisation_controle" required>
+                    <label class="form-check-label fw-bold" for="wallonie_autorisation_controle">
+                      <i class="fas fa-search me-1"></i>
+                      J'autorise les agents de la Région wallonne à effectuer toute vérification nécessaire*
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="wallonie_lieu_signature" class="form-label fw-bold">
+                    <i class="fas fa-map-marker-alt me-1"></i>Lieu*
+                  </label>
+                  <input type="text" class="form-control" id="wallonie_lieu_signature" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="wallonie_date_signature" class="form-label fw-bold">
+                    <i class="fas fa-calendar me-1"></i>Date*
+                  </label>
+                  <input type="date" class="form-control" id="wallonie_date_signature" required>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-12 mb-3">
+                  <label for="wallonie_signature" class="form-label fw-bold">
+                    <i class="fas fa-signature me-1"></i>Signature du demandeur*
+                  </label>
+                  <input type="text" class="form-control" id="wallonie_signature"
+                         placeholder="Nom et prénom ou dénomination + qualité du signataire" required>
+                  <small class="text-muted">Pour les personnes morales, préciser la qualité du signataire</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Informations de contact et aide -->
+            <div class="alert alert-success">
+              <h6><i class="fas fa-headset"></i> Besoin d'aide ?</h6>
+              <div class="row">
+                <div class="col-md-6">
+                  <p class="mb-2"><strong>Service Patrimoine - SPW Territoire :</strong></p>
+                  <ul class="small mb-2">
+                    <li>📞 081/33.21.11</li>
+                    <li>✉️ patrimoine.spw@wallonie.be</li>
+                    <li>🌐 <a href="https://patrimoine.wallonie.be" target="_blank">patrimoine.wallonie.be</a></li>
+                  </ul>
+                </div>
+                <div class="col-md-6">
+                  <p class="mb-2"><strong>Direction extérieure de votre province :</strong></p>
+                  <ul class="small mb-2">
+                    <li>Consultez le site web pour les contacts locaux</li>
+                    <li>Prise de rendez-vous conseillée</li>
+                    <li>Accompagnement technique disponible</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="d-flex gap-2 mt-2">
+                <button type="button" class="btn btn-success btn-sm" onclick="contactWalloniePatrimoine()">
+                  <i class="fas fa-envelope"></i> Contacter le service
+                </button>
+                <button type="button" class="btn btn-outline-success btn-sm" onclick="downloadWallonieGuide()">
+                  <i class="fas fa-download"></i> Télécharger le guide
+                </button>
+              </div>
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="text-center">
+              <button type="submit" class="btn btn-success btn-lg me-3">
+                <i class="fas fa-paper-plane"></i> Soumettre la demande
+              </button>
+              <button type="button" class="btn btn-outline-success btn-lg me-3" onclick="saveWallonieDraft()">
+                <i class="fas fa-save"></i> Sauvegarder en brouillon
+              </button>
+              <%= link_to "Retour aux formulaires", requests_path, class: "btn btn-secondary btn-lg" %>
+            </div>
+
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Calculs automatiques
+function calculateFinancialData() {
+  const coutTotal = parseFloat(document.getElementById('wallonie_cout_total').value) || 0;
+  const subventionDemandee = parseFloat(document.getElementById('wallonie_subvention_demandee').value) || 0;
+
+  // Calcul du pourcentage
+  const pourcentage = coutTotal > 0 ? (subventionDemandee / coutTotal * 100).toFixed(1) : 0;
+  document.getElementById('wallonie_pourcentage_demande').value = pourcentage;
+
+  // Calcul du financement propre
+  const financementPropre = Math.max(0, coutTotal - subventionDemandee).toFixed(2);
+  document.getElementById('wallonie_financement_propre').value = financementPropre;
+
+  // Validation du pourcentage (max 80% généralement)
+  const pourcentageField = document.getElementById('wallonie_pourcentage_demande');
+  if (pourcentage > 80) {
+    pourcentageField.classList.add('is-invalid');
+    if (!document.getElementById('wallonie_percentage_warning')) {
+      const warning = document.createElement('div');
+      warning.id = 'wallonie_percentage_warning';
+      warning.className = 'invalid-feedback';
+      warning.textContent = 'Le taux de subvention ne peut généralement pas dépasser 80%';
+      pourcentageField.parentNode.appendChild(warning);
+    }
+  } else {
+    pourcentageField.classList.remove('is-invalid');
+    const warning = document.getElementById('wallonie_percentage_warning');
+    if (warning) warning.remove();
+  }
+}
+
+// Gestion de l'affichage conditionnel
+function toggleAutresFinancements() {
+  const autreSubvention = document.getElementById('wallonie_autre_subvention').checked;
+  const detailsDiv = document.getElementById('wallonie_autre_subvention_details');
+  detailsDiv.style.display = autreSubvention ? 'block' : 'none';
+}
+
+// Validation des dates
+function validateDates() {
+  const dateDebut = new Date(document.getElementById('wallonie_debut_travaux').value);
+  const dateFin = new Date(document.getElementById('wallonie_fin_travaux').value);
+  const aujourdhui = new Date();
+
+  if (dateDebut <= aujourdhui) {
+    alert('La date de début des travaux doit être postérieure à aujourd\'hui.');
+    return false;
+  }
+
+  if (dateFin <= dateDebut) {
+    alert('La date de fin des travaux doit être postérieure à la date de début.');
+    return false;
+  }
+
+  return true;
+}
+
+// Fonctions d'aide et de contact
+function contactWalloniePatrimoine() {
+  const email = 'patrimoine.spw@wallonie.be';
+  const subject = 'Demande d\'information - Prime Monuments et Sites';
+  const body = 'Bonjour,\n\nJe souhaiterais obtenir des informations concernant une demande de prime pour monuments et sites en Wallonie.\n\nMon projet concerne :\n- Nature du bien : \n- Localisation : \n- Type de travaux : \n\nMerci de me recontacter.\n\nCordialement';
+
+  const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.location.href = mailtoLink;
+}
+
+function downloadWallonieGuide() {
+  const guideUrl = 'https://patrimoine.wallonie.be/fr/patrimoine-et-archeologie/primes-et-subventions';
+  window.open(guideUrl, '_blank');
+}
+
+function saveWallonieDraft() {
+  const formData = new FormData();
+
+  // Collecter toutes les données du formulaire
+  const inputs = document.querySelectorAll('input, select, textarea');
+  inputs.forEach(input => {
+    if (input.type === 'checkbox' || input.type === 'radio') {
+      if (input.checked) {
+        formData.append(input.name || input.id, input.value);
+      }
+    } else {
+      formData.append(input.name || input.id, input.value);
+    }
+  });
+
+  // Sauvegarder en localStorage comme brouillon
+  const draftData = {};
+  formData.forEach((value, key) => {
+    draftData[key] = value;
+  });
+
+  localStorage.setItem('wallonie_monuments_draft', JSON.stringify(draftData));
+
+  alert('Brouillon sauvegardé !\n\nVos données ont été conservées et seront restaurées lors de votre prochaine visite.');
+}
+
+function loadWallonieDraft() {
+  const draft = localStorage.getItem('wallonie_monuments_draft');
+  if (draft) {
+    const data = JSON.parse(draft);
+
+    Object.keys(data).forEach(key => {
+      const element = document.getElementById(key);
+      if (element) {
+        if (element.type === 'checkbox' || element.type === 'radio') {
+          element.checked = true;
+        } else {
+          element.value = data[key];
+        }
+      }
+    });
+
+    console.log('Brouillon restauré');
+  }
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+  // Calculs automatiques
+  document.getElementById('wallonie_cout_total').addEventListener('input', calculateFinancialData);
+  document.getElementById('wallonie_subvention_demandee').addEventListener('input', calculateFinancialData);
+
+  // Affichage conditionnel
+  document.getElementById('wallonie_autre_subvention').addEventListener('change', toggleAutresFinancements);
+
+  // Validation des dates
+  document.getElementById('wallonie_debut_travaux').addEventListener('change', validateDates);
+  document.getElementById('wallonie_fin_travaux').addEventListener('change', validateDates);
+
+  // Définir la date d'aujourd'hui par défaut pour la signature
+  document.getElementById('wallonie_date_signature').value = new Date().toISOString().split('T')[0];
+
+  // Charger le brouillon s'il existe
+  loadWallonieDraft();
+
+  // Sauvegarde automatique toutes les 2 minutes
+  setInterval(function() {
+    const inputs = document.querySelectorAll('input, select, textarea');
+    let hasData = false;
+    inputs.forEach(input => {
+      if (input.value && input.value.trim() !== '') {
+        hasData = true;
+      }
+    });
+
+    if (hasData) {
+      saveWallonieDraft();
+    }
+  }, 120000); // 2 minutes
+});
+
+// Validation du formulaire avant soumission
+document.querySelector('form').addEventListener('submit', function(e) {
+  if (!validateDates()) {
+    e.preventDefault();
+    return false;
+  }
+
+  // Vérifier que tous les champs requis sont remplis
+  const requiredFields = document.querySelectorAll('[required]');
+  let allValid = true;
+
+  requiredFields.forEach(field => {
+    if (!field.value || field.value.trim() === '') {
+      field.classList.add('is-invalid');
+      allValid = false;
+    } else {
+      field.classList.remove('is-invalid');
+    }
+  });
+
+  if (!allValid) {
+    alert('Veuillez remplir tous les champs obligatoires marqués d\'un astérisque (*).');
+    e.preventDefault();
+    return false;
+  }
+
+  // Supprimer le brouillon après soumission réussie
+  localStorage.removeItem('wallonie_monuments_draft');
+});
+</script>
+
+<style>
+.section-divider {
+  margin: 2rem 0 1.5rem 0;
+  border-bottom: 2px solid #198754;
+  padding-bottom: 0.5rem;
+}
+
+.section-title {
+  color: #198754;
+  font-weight: bold;
+  margin: 0;
+}
+
+.section-number {
+  background: #198754;
+  color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.card {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.btn-success {
+  font-weight: 500;
+}
+
+.form-check-input:checked {
+  background-color: #198754;
+  border-color: #198754;
+}
+
+.is-invalid {
+  border-color: #dc3545;
+}
+
+.invalid-feedback {
+  display: block;
+  color: #dc3545;
+  font-size: 0.875em;
+  margin-top: 0.25rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    max-width: 95% !important;
+  }
+
+  .section-number {
+    width: 25px;
+    height: 25px;
+    font-size: 0.875rem;
+  }
+}
+</style>

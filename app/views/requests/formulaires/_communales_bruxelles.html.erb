@@ -1,0 +1,507 @@
+<div class="container" style="max-width: 80%;">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow-lg">
+        <div class="card-header bg-warning text-dark text-center">
+          <h3 class="mb-0">
+            <i class="fas fa-city me-2"></i>
+            Primes communales - Région de Bruxelles-Capitale
+          </h3>
+          <p class="mb-0 mt-2"><small>Primes complémentaires proposées par votre commune</small></p>
+        </div>
+
+        <div class="card-body">
+          <!-- Informations générales -->
+          <div class="alert alert-info">
+            <h5><i class="fas fa-info-circle"></i> Primes communales à Bruxelles</h5>
+            <p class="mb-2">
+              En plus des primes régionales, chaque commune de la Région de Bruxelles-Capitale peut proposer des primes complémentaires pour :
+            </p>
+            <ul class="mb-2">
+              <li>Rénovation de façades</li>
+              <li>Amélioration énergétique</li>
+              <li>Embellissement d'espaces verts</li>
+              <li>Accessibilité PMR</li>
+              <li>Primes spécifiques au patrimoine local</li>
+            </ul>
+            <p class="mb-0">
+              <strong>Important :</strong> Ces primes sont cumulables avec les primes régionales dans la plupart des cas.
+            </p>
+          </div>
+
+          <%= form_with(model: @request, local: true, html: { class: "needs-validation", novalidate: true }) do |form| %>
+
+            <!-- Sélection de la commune -->
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">1</span>
+                Sélection de votre commune
+              </h4>
+            </div>
+
+            <div class="card border-light bg-light p-3 mb-4">
+              <div class="form-group mb-3">
+                <label class="form-label fw-bold">Commune concernée par votre projet *</label>
+                <select class="form-select" name="commune_bruxelles" id="commune-bruxelles-select" required
+                        onchange="showCommuneInfo(this.value)">
+                  <option value="">-- Sélectionnez votre commune --</option>
+                  <option value="anderlecht">Anderlecht</option>
+                  <option value="auderghem">Auderghem</option>
+                  <option value="berchem-sainte-agathe">Berchem-Sainte-Agathe</option>
+                  <option value="bruxelles">Bruxelles (Ville de)</option>
+                  <option value="etterbeek">Etterbeek</option>
+                  <option value="evere">Evere</option>
+                  <option value="forest">Forest</option>
+                  <option value="ganshoren">Ganshoren</option>
+                  <option value="ixelles">Ixelles</option>
+                  <option value="jette">Jette</option>
+                  <option value="koekelberg">Koekelberg</option>
+                  <option value="molenbeek-saint-jean">Molenbeek-Saint-Jean</option>
+                  <option value="saint-gilles">Saint-Gilles</option>
+                  <option value="saint-josse-ten-noode">Saint-Josse-ten-Noode</option>
+                  <option value="schaerbeek">Schaerbeek</option>
+                  <option value="uccle">Uccle</option>
+                  <option value="watermael-boitsfort">Watermael-Boitsfort</option>
+                  <option value="woluwe-saint-lambert">Woluwe-Saint-Lambert</option>
+                  <option value="woluwe-saint-pierre">Woluwe-Saint-Pierre</option>
+                </select>
+                <div class="invalid-feedback">
+                  Veuillez sélectionner votre commune.
+                </div>
+                <small class="form-text text-muted">
+                  Sélectionnez la commune où se situe votre propriété pour voir les primes disponibles.
+                </small>
+              </div>
+            </div>
+
+            <!-- Informations spécifiques par commune -->
+            <div id="commune-info-section" style="display: none;">
+
+              <!-- Anderlecht -->
+              <div id="info-anderlecht" class="commune-info" style="display: none;">
+                <div class="card border-primary">
+                  <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-building"></i> Commune d'Anderlecht</h5>
+                  </div>
+                  <div class="card-body">
+                    <h6><i class="fas fa-euro-sign text-success"></i> Primes disponibles :</h6>
+                    <ul>
+                      <li><strong>Prime à la rénovation de façade</strong> - Jusqu'à 80% des travaux</li>
+                      <li><strong>Prime énergie</strong> - Isolation, chauffage, panneaux solaires</li>
+                      <li><strong>Prime accessibilité</strong> - Adaptation PMR</li>
+                      <li><strong>Prime embellissement</strong> - Espaces verts privés</li>
+                    </ul>
+
+                    <div class="mt-3">
+                      <h6><i class="fas fa-phone text-info"></i> Contact :</h6>
+                      <p class="mb-1"><strong>Service Urbanisme</strong></p>
+                      <p class="mb-1">📍 Place du Conseil 1, 1070 Anderlecht</p>
+                      <p class="mb-1">📞 02/558.08.00</p>
+                      <p class="mb-1">✉️ urbanisme@anderlecht.brussels</p>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                      <a href="https://www.anderlecht.be/fr/logement-urbanisme/primes" target="_blank" rel="noopener"
+                         class="btn btn-primary">
+                        <i class="fas fa-external-link-alt"></i> Voir les primes communales
+                      </a>
+                      <a href="https://www.anderlecht.be/fr/logement-urbanisme/primes/formulaires" target="_blank" rel="noopener"
+                         class="btn btn-outline-primary">
+                        <i class="fas fa-file-download"></i> Télécharger les formulaires
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Auderghem -->
+              <div id="info-auderghem" class="commune-info" style="display: none;">
+                <div class="card border-primary">
+                  <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-building"></i> Commune d'Auderghem</h5>
+                  </div>
+                  <div class="card-body">
+                    <h6><i class="fas fa-euro-sign text-success"></i> Primes disponibles :</h6>
+                    <ul>
+                      <li><strong>Prime façade</strong> - Rénovation et embellissement</li>
+                      <li><strong>Prime énergie</strong> - Efficacité énergétique</li>
+                      <li><strong>Prime verdurisation</strong> - Espaces verts et toitures vertes</li>
+                    </ul>
+
+                    <div class="mt-3">
+                      <h6><i class="fas fa-phone text-info"></i> Contact :</h6>
+                      <p class="mb-1"><strong>Service Urbanisme</strong></p>
+                      <p class="mb-1">📍 Rue W. Grosemans 8, 1160 Auderghem</p>
+                      <p class="mb-1">📞 02/676.62.11</p>
+                      <p class="mb-1">✉️ urbanisme@auderghem.be</p>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                      <a href="https://www.auderghem.be/administration/services-communaux/urbanisme/primes" target="_blank" rel="noopener"
+                         class="btn btn-primary">
+                        <i class="fas fa-external-link-alt"></i> Voir les primes communales
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bruxelles Ville -->
+              <div id="info-bruxelles" class="commune-info" style="display: none;">
+                <div class="card border-primary">
+                  <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-building"></i> Ville de Bruxelles</h5>
+                  </div>
+                  <div class="card-body">
+                    <h6><i class="fas fa-euro-sign text-success"></i> Primes disponibles :</h6>
+                    <ul>
+                      <li><strong>Prime à la rénovation de façade</strong> - Jusqu'à 75% des travaux</li>
+                      <li><strong>Prime énergie</strong> - Isolation, chauffage écologique</li>
+                      <li><strong>Prime patrimoine</strong> - Conservation éléments remarquables</li>
+                      <li><strong>Prime accessibilité</strong> - Adaptation logement PMR</li>
+                      <li><strong>Prime commerce</strong> - Embellissement façade commerciale</li>
+                    </ul>
+
+                    <div class="mt-3">
+                      <h6><i class="fas fa-phone text-info"></i> Contact :</h6>
+                      <p class="mb-1"><strong>Service Urbanisme - Primes</strong></p>
+                      <p class="mb-1">📍 Rue de l'Écuyer 10, 1000 Bruxelles</p>
+                      <p class="mb-1">📞 02/279.22.22</p>
+                      <p class="mb-1">✉️ primes@bruxelles.be</p>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                      <a href="https://www.bruxelles.be/logement-et-energie/renovation-de-mon-logement/primes" target="_blank" rel="noopener"
+                         class="btn btn-primary">
+                        <i class="fas fa-external-link-alt"></i> Voir les primes communales
+                      </a>
+                      <a href="https://www.bruxelles.be/sites/default/files/bxl/formulaires.pdf" target="_blank" rel="noopener"
+                         class="btn btn-outline-primary">
+                        <i class="fas fa-file-download"></i> Télécharger les formulaires
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Ixelles -->
+              <div id="info-ixelles" class="commune-info" style="display: none;">
+                <div class="card border-primary">
+                  <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-building"></i> Commune d'Ixelles</h5>
+                  </div>
+                  <div class="card-body">
+                    <h6><i class="fas fa-euro-sign text-success"></i> Primes disponibles :</h6>
+                    <ul>
+                      <li><strong>Prime façade Art Nouveau</strong> - Conservation patrimoine architectural</li>
+                      <li><strong>Prime isolation</strong> - Amélioration énergétique</li>
+                      <li><strong>Prime verdurisation</strong> - Création espaces verts</li>
+                      <li><strong>Prime accessibilité</strong> - Adaptation PMR</li>
+                    </ul>
+
+                    <div class="mt-3">
+                      <h6><i class="fas fa-phone text-info"></i> Contact :</h6>
+                      <p class="mb-1"><strong>Service Urbanisme</strong></p>
+                      <p class="mb-1">📍 Rue Jean Van Volsem 24, 1050 Ixelles</p>
+                      <p class="mb-1">📞 02/515.60.00</p>
+                      <p class="mb-1">✉️ urbanisme@ixelles.brussels</p>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                      <a href="https://www.ixelles.be/site/vivre-a-ixelles/logement/primes" target="_blank" rel="noopener"
+                         class="btn btn-primary">
+                        <i class="fas fa-external-link-alt"></i> Voir les primes communales
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Schaerbeek -->
+              <div id="info-schaerbeek" class="commune-info" style="display: none;">
+                <div class="card border-primary">
+                  <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-building"></i> Commune de Schaerbeek</h5>
+                  </div>
+                  <div class="card-body">
+                    <h6><i class="fas fa-euro-sign text-success"></i> Primes disponibles :</h6>
+                    <ul>
+                      <li><strong>Prime embellissement façade</strong> - Rénovation et peinture</li>
+                      <li><strong>Prime énergie</strong> - Isolation et chauffage</li>
+                      <li><strong>Prime commerce</strong> - Façades commerciales</li>
+                      <li><strong>Prime verdurisation</strong> - Espaces verts privés</li>
+                    </ul>
+
+                    <div class="mt-3">
+                      <h6><i class="fas fa-phone text-info"></i> Contact :</h6>
+                      <p class="mb-1"><strong>Service Urbanisme</strong></p>
+                      <p class="mb-1">📍 Place Colignon, 1030 Schaerbeek</p>
+                      <p class="mb-1">📞 02/244.75.11</p>
+                      <p class="mb-1">✉️ urbanisme@schaerbeek.be</p>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                      <a href="https://www.schaerbeek.be/vivre-schaerbeek/logement-urbanisme/primes" target="_blank" rel="noopener"
+                         class="btn btn-primary">
+                        <i class="fas fa-external-link-alt"></i> Voir les primes communales
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Template générique pour les autres communes -->
+              <div id="info-generic" class="commune-info" style="display: none;">
+                <div class="card border-primary">
+                  <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0" id="commune-name-header"><i class="fas fa-building"></i> Commune sélectionnée</h5>
+                  </div>
+                  <div class="card-body">
+                    <h6><i class="fas fa-info-circle text-info"></i> Informations générales</h6>
+                    <p>Les primes communales varient selon chaque commune. Nous vous invitons à contacter directement votre administration communale pour connaître :</p>
+
+                    <ul>
+                      <li>Les types de primes disponibles</li>
+                      <li>Les conditions d'éligibilité</li>
+                      <li>Les montants octroyés</li>
+                      <li>Les formulaires à compléter</li>
+                      <li>Les délais de traitement</li>
+                    </ul>
+
+                    <div class="alert alert-warning">
+                      <i class="fas fa-exclamation-triangle"></i>
+                      <strong>Important :</strong> Certaines primes communales peuvent avoir des conditions spécifiques ou des budgets limités.
+                      Il est recommandé de s'informer avant de commencer les travaux.
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                      <button type="button" class="btn btn-primary" onclick="searchCommuneWebsite()">
+                        <i class="fas fa-search"></i> Rechercher les primes de ma commune
+                      </button>
+                      <button type="button" class="btn btn-outline-primary" onclick="showCommuneContact()">
+                        <i class="fas fa-phone"></i> Voir les contacts
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section informations complémentaires -->
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">2</span>
+                Informations complémentaires
+              </h4>
+            </div>
+
+            <div class="card border-info bg-info bg-opacity-10 p-3 mb-3">
+              <h6><i class="fas fa-lightbulb text-warning"></i> Conseils pour optimiser vos demandes</h6>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <h6>Avant de commencer :</h6>
+                  <ul class="small">
+                    <li>Vérifiez la disponibilité des budgets communaux</li>
+                    <li>Demandez un pré-accord si possible</li>
+                    <li>Coordonnez avec les primes régionales</li>
+                    <li>Respectez les délais d'introduction</li>
+                  </ul>
+                </div>
+                <div class="col-md-6">
+                  <h6>Optimisation financière :</h6>
+                  <ul class="small">
+                    <li>Cumulez primes régionales + communales</li>
+                    <li>Groupez les travaux pour maximiser les aides</li>
+                    <li>Vérifiez les avantages fiscaux complémentaires</li>
+                    <li>Considérez l'échelonnement des travaux</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            <!-- Zone de contact -->
+            <div class="alert alert-primary">
+              <h6><i class="fas fa-question-circle"></i> Besoin d'aide ?</h6>
+              <p class="mb-2">Notre équipe peut vous accompagner dans vos démarches :</p>
+              <ul class="mb-2">
+                <li>Analyse de votre éligibilité aux différentes primes</li>
+                <li>Coordination entre primes régionales et communales</li>
+                <li>Accompagnement dans le montage de dossier</li>
+                <li>Suivi administratif de vos demandes</li>
+              </ul>
+              <div class="d-flex gap-2">
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="contactSupport()">
+                  <i class="fas fa-envelope"></i> Contacter notre équipe
+                </button>
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="planConsultation()">
+                  <i class="fas fa-calendar"></i> Planifier une consultation
+                </button>
+              </div>
+            </div>
+
+            <!-- Boutons d'action -->
+            <div class="text-center">
+              <button type="button" class="btn btn-warning btn-lg me-3" onclick="saveSelectionAndContinue()">
+                <i class="fas fa-save"></i> Sauvegarder la sélection
+              </button>
+              <%= link_to "Retour aux formulaires", requests_path, class: "btn btn-secondary btn-lg" %>
+            </div>
+
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showCommuneInfo(communeValue) {
+  // Masquer toutes les infos de communes
+  const allCommuneInfos = document.querySelectorAll('.commune-info');
+  allCommuneInfos.forEach(info => info.style.display = 'none');
+
+  const infoSection = document.getElementById('commune-info-section');
+
+  if (communeValue) {
+    infoSection.style.display = 'block';
+
+    // Communes avec infos détaillées
+    const detailedCommunes = ['anderlecht', 'auderghem', 'bruxelles', 'ixelles', 'schaerbeek'];
+
+    if (detailedCommunes.includes(communeValue)) {
+      document.getElementById(`info-${communeValue}`).style.display = 'block';
+    } else {
+      // Afficher le template générique
+      const genericInfo = document.getElementById('info-generic');
+      const communeHeader = document.getElementById('commune-name-header');
+
+      // Mettre à jour le nom de la commune
+      const communeName = getCommuneDisplayName(communeValue);
+      communeHeader.innerHTML = `<i class="fas fa-building"></i> ${communeName}`;
+
+      genericInfo.style.display = 'block';
+    }
+  } else {
+    infoSection.style.display = 'none';
+  }
+}
+
+function getCommuneDisplayName(value) {
+  const communeNames = {
+    'berchem-sainte-agathe': 'Berchem-Sainte-Agathe',
+    'etterbeek': 'Etterbeek',
+    'evere': 'Evere',
+    'forest': 'Forest',
+    'ganshoren': 'Ganshoren',
+    'jette': 'Jette',
+    'koekelberg': 'Koekelberg',
+    'molenbeek-saint-jean': 'Molenbeek-Saint-Jean',
+    'saint-gilles': 'Saint-Gilles',
+    'saint-josse-ten-noode': 'Saint-Josse-ten-Noode',
+    'uccle': 'Uccle',
+    'watermael-boitsfort': 'Watermael-Boitsfort',
+    'woluwe-saint-lambert': 'Woluwe-Saint-Lambert',
+    'woluwe-saint-pierre': 'Woluwe-Saint-Pierre'
+  };
+
+  return communeNames[value] || value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function searchCommuneWebsite() {
+  const selectedCommune = document.getElementById('commune-bruxelles-select').value;
+  if (selectedCommune) {
+    const searchUrl = `https://www.google.com/search?q=prime+renovation+commune+${selectedCommune}+bruxelles`;
+    window.open(searchUrl, '_blank');
+  }
+}
+
+function showCommuneContact() {
+  const selectedCommune = document.getElementById('commune-bruxelles-select').value;
+  if (selectedCommune) {
+    alert(`Pour obtenir les coordonnées précises de la commune de ${getCommuneDisplayName(selectedCommune)}, veuillez consulter le site officiel de la commune ou contactez le 1718 (Service d'information communal).`);
+  }
+}
+
+function saveSelectionAndContinue() {
+  const selectedCommune = document.getElementById('commune-bruxelles-select').value;
+
+  if (!selectedCommune) {
+    alert('Veuillez d\'abord sélectionner une commune.');
+    return;
+  }
+
+  // Simuler la sauvegarde
+  localStorage.setItem('selectedCommuneBruxelles', selectedCommune);
+
+  alert(`Sélection sauvegardée : ${getCommuneDisplayName(selectedCommune)}\n\nVous pouvez maintenant consulter les informations de contact et les liens fournis pour poursuivre votre demande de prime communale.`);
+}
+
+function contactSupport() {
+  // Simuler contact avec l'équipe support
+  const email = 'support@ren0vate.be';
+  const subject = 'Demande d\'accompagnement - Primes communales Bruxelles';
+  const body = 'Bonjour,\n\nJe souhaiterais être accompagné(e) dans mes démarches de demande de primes communales à Bruxelles.\n\nMerci de me recontacter.\n\nCordialement';
+
+  const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.location.href = mailtoLink;
+}
+
+function planConsultation() {
+  alert('Fonctionnalité de planification en cours de développement.\n\nPour planifier une consultation, veuillez nous contacter directement par email ou téléphone.');
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+  // Charger la sélection précédente si elle existe
+  const savedCommune = localStorage.getItem('selectedCommuneBruxelles');
+  if (savedCommune) {
+    document.getElementById('commune-bruxelles-select').value = savedCommune;
+    showCommuneInfo(savedCommune);
+  }
+});
+</script>
+
+<style>
+.section-divider {
+  margin: 2rem 0 1.5rem 0;
+  border-bottom: 2px solid #ffc107;
+  padding-bottom: 0.5rem;
+}
+
+.section-title {
+  color: #ffc107;
+  font-weight: bold;
+  margin: 0;
+}
+
+.section-number {
+  background: #ffc107;
+  color: #212529;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.commune-info {
+  transition: all 0.3s ease;
+}
+
+.card {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.btn-warning {
+  color: #212529;
+  font-weight: 500;
+}
+
+.btn-warning:hover {
+  color: #000;
+}
+</style>

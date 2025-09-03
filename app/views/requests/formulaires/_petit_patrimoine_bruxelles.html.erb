@@ -1,0 +1,824 @@
+<div class="container" style="max-width: 80%;">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow-lg">
+        <div class="card-header bg-success text-white text-center">
+          <h3 class="mb-0">
+            <i class="fas fa-monument me-2"></i>
+            Demande de subvention pour des frais de conservation relatifs au petit patrimoine
+          </h3>
+          <p class="mb-0 mt-2"><small>Région de Bruxelles-Capitale</small></p>
+        </div>
+
+        <div class="card-body">
+          <!-- Informations légales -->
+          <div class="alert alert-info">
+            <p class="mb-2"><strong>Arrêté du Gouvernement de la Région de Bruxelles-Capitale du 24 juin 2010</strong> modifié par les arrêtés du 31 janvier 2013 et 11 mars 2021.</p>
+
+            <div class="alert alert-success mt-2 mb-0">
+              <i class="fas fa-info-circle"></i>
+              <strong>Petit patrimoine :</strong> Éléments architecturaux ou décoratifs de façade (portes, fenêtres, ferronneries, sculptures, etc.) contribuant à la qualité patrimoniale du bâtiment.
+            </div>
+          </div>
+
+          <%= form_with(model: @request, local: true, html: { class: "needs-validation", novalidate: true }) do |form| %>
+
+            <!-- CADRE I: Identité du bénéficiaire -->
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">I</span>
+                Identité du bénéficiaire
+              </h4>
+            </div>
+
+            <!-- Type de bénéficiaire -->
+            <div class="form-group mb-4">
+              <label class="form-label fw-bold">Type de bénéficiaire *</label>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-check">
+                    <%= radio_button_tag 'petit_patrimoine_beneficiaire_type', 'personne_physique', true,
+                        class: 'form-check-input',
+                        onchange: 'togglePetitPatrimoineBeneficiaireType(this.value)' %>
+                    <label class="form-check-label">
+                      <i class="fas fa-user"></i> A. Personne physique
+                    </label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-check">
+                    <%= radio_button_tag 'petit_patrimoine_beneficiaire_type', 'personne_morale', false,
+                        class: 'form-check-input',
+                        onchange: 'togglePetitPatrimoineBeneficiaireType(this.value)' %>
+                    <label class="form-check-label">
+                      <i class="fas fa-building"></i> B. Personne morale
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- PERSONNE PHYSIQUE -->
+            <div id="petit_patrimoine_personne_physique_section" class="beneficiaire-section">
+              <div class="card border-light bg-light p-3 mb-3">
+                <h5><i class="fas fa-user"></i> Personne physique</h5>
+
+                <div class="row mb-3">
+                  <div class="col-md-3">
+                    <label class="form-label">Civilité *</label>
+                    <select class="form-select" name="petit_patrimoine_civilite" required>
+                      <option value="">Sélectionner...</option>
+                      <option value="madame">Madame</option>
+                      <option value="monsieur">Monsieur</option>
+                      <option value="x">X</option>
+                    </select>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">Nom *</label>
+                    <%= form.text_field :petit_patrimoine_nom, class: "form-control", required: true %>
+                  </div>
+                  <div class="col-md-5">
+                    <label class="form-label">Prénom *</label>
+                    <%= form.text_field :petit_patrimoine_prenom, class: "form-control", required: true %>
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-4">
+                    <label class="form-label">N° National *</label>
+                    <%= form.text_field :petit_patrimoine_numero_national, class: "form-control", required: true %>
+                  </div>
+                  <div class="col-md-8">
+                    <label class="form-label">Adresse *</label>
+                    <%= form.text_field :petit_patrimoine_adresse, class: "form-control", required: true %>
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-3">
+                    <label class="form-label">Code postal *</label>
+                    <%= form.text_field :petit_patrimoine_code_postal, class: "form-control", required: true %>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Commune *</label>
+                    <%= form.text_field :petit_patrimoine_commune, class: "form-control", required: true %>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Téléphone *</label>
+                    <%= form.telephone_field :petit_patrimoine_telephone, class: "form-control", required: true %>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label">Courriel *</label>
+                    <%= form.email_field :petit_patrimoine_email, class: "form-control", required: true %>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- PERSONNE MORALE -->
+            <div id="petit_patrimoine_personne_morale_section" class="beneficiaire-section" style="display: none;">
+              <div class="card border-light bg-light p-3 mb-3">
+                <h5><i class="fas fa-building"></i> Personne morale</h5>
+
+                <div class="row mb-3">
+                  <div class="col-md-8">
+                    <label class="form-label">Nom et raison sociale *</label>
+                    <%= form.text_field :petit_patrimoine_raison_sociale, class: "form-control" %>
+                  </div>
+                  <div class="col-md-4">
+                    <label class="form-label">N° d'entreprise BCE *</label>
+                    <%= form.text_field :petit_patrimoine_numero_bce, class: "form-control" %>
+                  </div>
+                </div>
+
+                <h6>Représenté par</h6>
+                <div class="row mb-3">
+                  <div class="col-md-2">
+                    <label class="form-label">Civilité *</label>
+                    <select class="form-select" name="petit_patrimoine_representant_civilite">
+                      <option value="">Sélectionner...</option>
+                      <option value="madame">Madame</option>
+                      <option value="monsieur">Monsieur</option>
+                      <option value="x">X</option>
+                    </select>
+                  </div>
+                  <div class="col-md-5">
+                    <label class="form-label">Nom, prénom et fonction du représentant légal *</label>
+                    <%= form.text_field :petit_patrimoine_representant_nom, class: "form-control" %>
+                  </div>
+                  <div class="col-md-5">
+                    <label class="form-label">Fonction *</label>
+                    <%= form.text_field :petit_patrimoine_representant_fonction, class: "form-control" %>
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-8">
+                    <label class="form-label">Adresse *</label>
+                    <%= form.text_field :petit_patrimoine_representant_adresse, class: "form-control" %>
+                  </div>
+                  <div class="col-md-2">
+                    <label class="form-label">Code postal *</label>
+                    <%= form.text_field :petit_patrimoine_representant_cp, class: "form-control" %>
+                  </div>
+                  <div class="col-md-2">
+                    <label class="form-label">Localité *</label>
+                    <%= form.text_field :petit_patrimoine_representant_localite, class: "form-control" %>
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <div class="col-md-6">
+                    <label class="form-label">Téléphone(s) *</label>
+                    <%= form.telephone_field :petit_patrimoine_representant_telephone, class: "form-control" %>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Courriel *</label>
+                    <%= form.email_field :petit_patrimoine_representant_email, class: "form-control" %>
+                  </div>
+                </div>
+
+                <!-- Personne de contact -->
+                <div class="card border-secondary p-3 mt-3">
+                  <h6>Personne de contact</h6>
+                  <div class="row">
+                    <div class="col-md-2">
+                      <label class="form-label">Civilité</label>
+                      <select class="form-select" name="petit_patrimoine_contact_civilite">
+                        <option value="">Sélectionner...</option>
+                        <option value="madame">Madame</option>
+                        <option value="monsieur">Monsieur</option>
+                        <option value="x">X</option>
+                      </select>
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label">Nom</label>
+                      <%= form.text_field :petit_patrimoine_contact_nom, class: "form-control" %>
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label">Prénom</label>
+                      <%= form.text_field :petit_patrimoine_contact_prenom, class: "form-control" %>
+                    </div>
+                    <div class="col-md-2">
+                      <label class="form-label">Téléphone</label>
+                      <%= form.telephone_field :petit_patrimoine_contact_telephone, class: "form-control" %>
+                    </div>
+                    <div class="col-md-2">
+                      <label class="form-label">Courriel</label>
+                      <%= form.email_field :petit_patrimoine_contact_email, class: "form-control" %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Titulaire d'un droit sur le bien -->
+            <div class="card border-warning bg-warning bg-opacity-10 p-3 mb-3">
+              <h6><i class="fas fa-key"></i> Titulaire d'un droit sur le bien (préciser) *</h6>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-check">
+                    <%= radio_button_tag 'petit_patrimoine_droit', 'propriete', false, class: 'form-check-input', required: true %>
+                    <label class="form-check-label">Propriété</label>
+                  </div>
+                  <div class="form-check">
+                    <%= radio_button_tag 'petit_patrimoine_droit', 'usufruit', false, class: 'form-check-input', required: true %>
+                    <label class="form-check-label">Usufruit</label>
+                  </div>
+                  <div class="form-check">
+                    <%= radio_button_tag 'petit_patrimoine_droit', 'emphyteose', false, class: 'form-check-input', required: true %>
+                    <label class="form-check-label">Emphytéose</label>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-check">
+                    <%= radio_button_tag 'petit_patrimoine_droit', 'superficie', false, class: 'form-check-input', required: true %>
+                    <label class="form-check-label">Superficie</label>
+                  </div>
+                  <div class="form-check">
+                    <%= radio_button_tag 'petit_patrimoine_droit', 'concession', false, class: 'form-check-input', required: true %>
+                    <label class="form-check-label">Concession</label>
+                  </div>
+                  <div class="form-check">
+                    <%= radio_button_tag 'petit_patrimoine_droit', 'bail_commercial', false, class: 'form-check-input', required: true %>
+                    <label class="form-check-label">Bail commercial</label>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-check">
+                    <%= radio_button_tag 'petit_patrimoine_droit', 'copropriete', false, class: 'form-check-input', required: true %>
+                    <label class="form-check-label">Copropriété <small class="text-muted">(joindre accord de la copropriété)</small></label>
+                  </div>
+                  <div class="form-check">
+                    <%= radio_button_tag 'petit_patrimoine_droit', 'autre_proprietaire', false, class: 'form-check-input', required: true %>
+                    <label class="form-check-label">Autre propriétaire ou titulaire de droit réel <small class="text-muted">(joindre l'accord)</small></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CADRE II: Localisation et nature du bien -->
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">II</span>
+                Localisation et nature du bien pour lequel la subvention est demandée
+              </h4>
+            </div>
+
+            <div class="card border-light bg-light p-3 mb-3">
+              <div class="row mb-3">
+                <div class="col-md-8">
+                  <label class="form-label">Rue *</label>
+                  <%= form.text_field :petit_patrimoine_bien_rue, class: "form-control", required: true %>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label">N° *</label>
+                  <%= form.text_field :petit_patrimoine_bien_numero, class: "form-control", required: true %>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-3">
+                  <label class="form-label">Code postal *</label>
+                  <%= form.text_field :petit_patrimoine_bien_cp, class: "form-control", required: true %>
+                </div>
+                <div class="col-md-9">
+                  <label class="form-label">Commune *</label>
+                  <%= form.text_field :petit_patrimoine_bien_commune, class: "form-control", required: true %>
+                </div>
+              </div>
+
+              <div class="row mb-3">
+                <div class="col-md-12">
+                  <label class="form-label">Cadastré : section, division, parcelle(s) n°</label>
+                  <%= form.text_field :petit_patrimoine_cadastre, class: "form-control", placeholder: "section : _____, ___ème division, parcelles(s) n° _____" %>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <div class="form-check">
+                  <%= check_box_tag 'petit_patrimoine_perimetre_revitalisation', '1', false, class: 'form-check-input' %>
+                  <label class="form-check-label">
+                    <i class="fas fa-map-marked-alt text-success"></i>
+                    Ce bien est repris dans un périmètre de revitalisation d'un quartier en vigueur
+                  </label>
+                </div>
+                <div class="form-check">
+                  <%= check_box_tag 'petit_patrimoine_liste_sauvegarde', '1', false, class: 'form-check-input' %>
+                  <label class="form-check-label">
+                    <i class="fas fa-shield-alt text-warning"></i>
+                    Ce bien figure sur la liste de sauvegarde ou fait l'objet d'un arrêté d'entame de procédure d'inscription
+                  </label>
+                </div>
+                <div class="mt-2" id="petit_patrimoine_sauvegarde_details" style="display: none;">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <label class="form-label">Arrêté du (liste de sauvegarde)</label>
+                      <%= date_field_tag 'petit_patrimoine_arrete_sauvegarde', '', class: 'form-control' %>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Arrêté du (entame de procédure)</label>
+                      <%= date_field_tag 'petit_patrimoine_arrete_entame', '', class: 'form-control' %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Nature du bien *</label>
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-check">
+                      <%= radio_button_tag 'petit_patrimoine_nature_bien', 'maison_unifamiliale', false, class: 'form-check-input', required: true %>
+                      <label class="form-check-label">Maison unifamiliale</label>
+                    </div>
+                    <div class="form-check">
+                      <%= radio_button_tag 'petit_patrimoine_nature_bien', 'maison_rapport', false, class: 'form-check-input', required: true %>
+                      <label class="form-check-label">Maison ou immeuble de rapport</label>
+                      <div class="ms-4 mt-1">
+                        <label class="form-label small">Nombre de logements :</label>
+                        <%= number_field_tag 'petit_patrimoine_nombre_logements', '', class: 'form-control form-control-sm', style: 'width: 80px; display: inline-block;' %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-check">
+                      <%= radio_button_tag 'petit_patrimoine_nature_bien', 'commerce', false, class: 'form-check-input', required: true %>
+                      <label class="form-check-label">Commerce</label>
+                    </div>
+                    <div class="form-check">
+                      <%= radio_button_tag 'petit_patrimoine_nature_bien', 'autre', false, class: 'form-check-input', required: true %>
+                      <label class="form-check-label">Autre :</label>
+                      <div class="ms-4 mt-1">
+                        <%= text_field_tag 'petit_patrimoine_nature_autre', '', class: 'form-control form-control-sm', placeholder: 'Préciser...' %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CADRE III: Nature et montant estimé des travaux -->
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">III</span>
+                Nature et montant estimé des travaux
+              </h4>
+            </div>
+
+            <div class="card border-light bg-light p-3 mb-3">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Les travaux *</label>
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="form-check">
+                      <%= check_box_tag 'petit_patrimoine_type_etude', '1', false, class: 'form-check-input' %>
+                      <label class="form-check-label">Étude</label>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-check">
+                      <%= check_box_tag 'petit_patrimoine_type_restauration', '1', false, class: 'form-check-input' %>
+                      <label class="form-check-label">Restauration</label>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="form-check">
+                      <%= check_box_tag 'petit_patrimoine_type_arbre', '1', false, class: 'form-check-input' %>
+                      <label class="form-check-label">Intervention sur un arbre repris à l'inventaire</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Décrire les éléments du petit patrimoine *</label>
+                <p class="text-muted small">Dénomination, matière, localisation et état actuel de(s) l'élément(s) à restaurer</p>
+                <%= form.text_area :petit_patrimoine_description_elements, class: "form-control", rows: 4, required: true,
+                    placeholder: "Ex: Porte d'entrée en chêne avec marquise en fonte, située au rez-de-chaussée, état de détérioration avancé..." %>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Description succincte des travaux à effectuer *</label>
+                <%= form.text_area :petit_patrimoine_description_travaux, class: "form-control", rows: 4, required: true,
+                    placeholder: "Ex: Décapage, ponçage et traitement du bois, remplacement des vitres, application de peinture de finition..." %>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <label class="form-label fw-bold">Montant estimé, hors TVA *</label>
+                  <div class="input-group">
+                    <%= form.number_field :petit_patrimoine_montant_estime, class: "form-control", step: 0.01, required: true %>
+                    <span class="input-group-text">€</span>
+                  </div>
+                  <small class="text-muted">Joindre le devis</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- CADRE IV: Calcul de la subvention -->
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">IV</span>
+                Calcul de la subvention
+              </h4>
+            </div>
+
+            <div class="card border-info bg-info bg-opacity-10 p-3 mb-3">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Type de bénéficiaire *</label>
+                <div class="form-check">
+                  <%= radio_button_tag 'petit_patrimoine_calcul_type', 'beneficiaire_prive', false, class: 'form-check-input', required: true %>
+                  <label class="form-check-label">
+                    Le demandeur est un bénéficiaire privé (personne physique ou morale)
+                  </label>
+                </div>
+                <div class="form-check">
+                  <%= radio_button_tag 'petit_patrimoine_calcul_type', 'revenus_inferieurs', false, class: 'form-check-input', required: true %>
+                  <label class="form-check-label">
+                    <i class="fas fa-plus-circle text-success"></i>
+                    Le demandeur est une personne physique dont les revenus sont inférieurs à 40.000 euros brut, augmentés de 2.500 euros par personne à charge
+                    <small class="text-muted d-block">Joindre : derniers avertissements-extraits de rôle, extrait matrice cadastrale, composition de ménage</small>
+                  </label>
+                </div>
+                <div class="form-check">
+                  <%= radio_button_tag 'petit_patrimoine_calcul_type', 'beneficiaire_public', false, class: 'form-check-input', required: true %>
+                  <label class="form-check-label">
+                    Le demandeur est un bénéficiaire public :
+                  </label>
+                </div>
+              </div>
+
+              <div id="petit_patrimoine_beneficiaire_public_details" style="display: none;" class="ms-4">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="form-check">
+                      <%= check_box_tag 'petit_patrimoine_public_commune', '1', false, class: 'form-check-input' %>
+                      <label class="form-check-label">Commune</label>
+                    </div>
+                    <div class="form-check">
+                      <%= check_box_tag 'petit_patrimoine_public_cpas', '1', false, class: 'form-check-input' %>
+                      <label class="form-check-label">CPAS</label>
+                    </div>
+                    <div class="form-check">
+                      <%= check_box_tag 'petit_patrimoine_public_sisp', '1', false, class: 'form-check-input' %>
+                      <label class="form-check-label">Société immobilière de service public</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="form-check">
+                      <%= check_box_tag 'petit_patrimoine_public_culte', '1', false, class: 'form-check-input' %>
+                      <label class="form-check-label">Administration chargée de la gestion du temporel d'un culte reconnu</label>
+                    </div>
+                    <div class="form-check">
+                      <%= check_box_tag 'petit_patrimoine_public_ecole', '1', false, class: 'form-check-input' %>
+                      <label class="form-check-label">École de l'enseignement organisé ou subventionné</label>
+                    </div>
+                    <div class="form-check">
+                      <%= check_box_tag 'petit_patrimoine_public_personne_morale', '1', false, class: 'form-check-input' %>
+                      <label class="form-check-label">Personne morale de droit public subordonnée de la Région</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CADRE V: Délégation (facultatif) -->
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">V</span>
+                Délégation (facultatif)
+              </h4>
+            </div>
+
+            <div class="card border-secondary p-3 mb-3">
+              <div class="form-check mb-3">
+                <%= check_box_tag 'petit_patrimoine_delegation_active', '1', false, class: 'form-check-input',
+                    onchange: 'togglePetitPatrimoineDelegation(this.checked)' %>
+                <label class="form-check-label fw-bold">
+                  Le demandeur délègue à une autre personne :
+                </label>
+              </div>
+
+              <div id="petit_patrimoine_delegation_section" style="display: none;">
+                <div class="mb-3">
+                  <label class="form-label fw-bold">Le demandeur délègue :</label>
+                  <div class="row">
+                    <div class="col-md-4">
+                      <div class="form-check">
+                        <%= check_box_tag 'petit_patrimoine_delegation_maitrise', '1', false, class: 'form-check-input' %>
+                        <label class="form-check-label">La maîtrise d'ouvrage</label>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-check">
+                        <%= check_box_tag 'petit_patrimoine_delegation_contacts', '1', false, class: 'form-check-input' %>
+                        <label class="form-check-label">Les contacts avec l'administration</label>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-check">
+                        <%= check_box_tag 'petit_patrimoine_delegation_benefice', '1', false, class: 'form-check-input' %>
+                        <label class="form-check-label">Le bénéfice de la subvention</label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Détails du délégué - Section étendue pour économiser l'espace -->
+                <div class="alert alert-secondary">
+                  <h6>À la personne décrite ci-dessous :</h6>
+
+                  <!-- Type de délégué -->
+                  <div class="mb-3">
+                    <div class="form-check form-check-inline">
+                      <%= radio_button_tag 'petit_patrimoine_delegue_type', 'personne_physique', true, class: 'form-check-input' %>
+                      <label class="form-check-label">Personne physique</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <%= radio_button_tag 'petit_patrimoine_delegue_type', 'personne_morale', false, class: 'form-check-input' %>
+                      <label class="form-check-label">Personne morale</label>
+                    </div>
+                  </div>
+
+                  <!-- Informations du délégué (version compacte) -->
+                  <div class="row">
+                    <div class="col-md-3">
+                      <label class="form-label">Nom, prénom</label>
+                      <%= text_field_tag 'petit_patrimoine_delegue_nom', '', class: 'form-control' %>
+                    </div>
+                    <div class="col-md-3">
+                      <label class="form-label">Adresse</label>
+                      <%= text_field_tag 'petit_patrimoine_delegue_adresse', '', class: 'form-control' %>
+                    </div>
+                    <div class="col-md-2">
+                      <label class="form-label">Code postal</label>
+                      <%= text_field_tag 'petit_patrimoine_delegue_cp', '', class: 'form-control' %>
+                    </div>
+                    <div class="col-md-2">
+                      <label class="form-label">Localité</label>
+                      <%= text_field_tag 'petit_patrimoine_delegue_localite', '', class: 'form-control' %>
+                    </div>
+                    <div class="col-md-2">
+                      <label class="form-label">Téléphone</label>
+                      <%= telephone_field_tag 'petit_patrimoine_delegue_telephone', '', class: 'form-control' %>
+                    </div>
+                  </div>
+
+                  <div class="row mt-2">
+                    <div class="col-md-6">
+                      <label class="form-label">Courriel</label>
+                      <%= email_field_tag 'petit_patrimoine_delegue_email', '', class: 'form-control' %>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Agissant en qualité de</label>
+                      <select class="form-select" name="petit_patrimoine_delegue_qualite">
+                        <option value="">Sélectionner...</option>
+                        <option value="locataire">Locataire</option>
+                        <option value="syndic">Représentant des copropriétaires (syndic)</option>
+                        <option value="autre">Autre (préciser)</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- CADRE VI: Liquidation de la subvention -->
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">VI</span>
+                Liquidation de la subvention
+              </h4>
+            </div>
+
+            <div class="card border-warning bg-warning bg-opacity-10 p-3 mb-3">
+              <div class="row">
+                <div class="col-md-8">
+                  <label class="form-label fw-bold">Numéro de compte bancaire (IBAN) *</label>
+                  <%= form.text_field :petit_patrimoine_iban, class: "form-control", required: true, placeholder: "BE__ ____ ____ ____" %>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label fw-bold">BIC</label>
+                  <%= form.text_field :petit_patrimoine_bic, class: "form-control" %>
+                </div>
+              </div>
+              <div class="mt-3">
+                <label class="form-label fw-bold">Nom et adresse du titulaire *</label>
+                <%= form.text_area :petit_patrimoine_titulaire_compte, class: "form-control", rows: 2, required: true %>
+              </div>
+            </div>
+
+            <!-- CADRE VII: Documents à joindre -->
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">VII</span>
+                Documents à joindre au présent formulaire
+              </h4>
+            </div>
+
+            <div class="card border-light bg-light p-3 mb-3">
+              <h5><i class="fas fa-file-upload"></i> Documents obligatoires</h5>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <ul class="list-unstyled">
+                    <li><i class="fas fa-paperclip text-primary"></i> Relevé d'identité bancaire (PDF)</li>
+                    <li><i class="fas fa-paperclip text-primary"></i> Description succincte de l'objet de la demande</li>
+                    <li><i class="fas fa-paperclip text-primary"></i> Copie du permis ou accusé de réception (si nécessaire)</li>
+                    <li><i class="fas fa-paperclip text-primary"></i> Au moins une photo couleur récente de la façade et du jardinet</li>
+                    <li><i class="fas fa-paperclip text-primary"></i> Au moins une photo récente de chaque élément du petit patrimoine concerné</li>
+                  </ul>
+                </div>
+                <div class="col-md-6">
+                  <ul class="list-unstyled">
+                    <li><i class="fas fa-paperclip text-primary"></i> Documents graphiques utiles à la compréhension</li>
+                    <li><i class="fas fa-paperclip text-primary"></i> Devis détaillé de l'entreprise ou bureau d'études</li>
+                    <li><i class="fas fa-paperclip text-primary"></i> Note explicative en cas de modification d'aspect</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="mt-3">
+                <h6>Documents pour taux majoré (si applicable) :</h6>
+                <ul class="list-unstyled">
+                  <li><i class="fas fa-paperclip text-success"></i> Derniers avertissements-extraits de rôle des membres du ménage</li>
+                  <li><i class="fas fa-paperclip text-success"></i> Composition de ménage (moins de 3 mois)</li>
+                  <li><i class="fas fa-paperclip text-success"></i> Extrait de la matrice cadastrale</li>
+                </ul>
+              </div>
+
+              <div class="mt-4">
+                <label class="form-label fw-bold">Upload des documents *</label>
+                <%= form.file_field :petit_patrimoine_documents, multiple: true, class: "form-control",
+                    accept: ".pdf,.doc,.docx,.jpg,.jpeg,.png", required: true %>
+                <small class="text-muted">Formats acceptés : PDF, DOC, DOCX, JPG, PNG. Plusieurs fichiers possibles.</small>
+              </div>
+            </div>
+
+            <!-- CADRE VIII: Déclarations complémentaires -->
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">VIII</span>
+                Déclarations complémentaires
+              </h4>
+            </div>
+
+            <div class="card border-warning bg-warning bg-opacity-10 p-3 mb-4">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Sollicitez-vous d'autre(s) aide(s) financière(s) publique(s) pour les mêmes travaux ? *</label>
+                <div class="form-check">
+                  <%= radio_button_tag 'petit_patrimoine_autres_aides', 'non', false, class: 'form-check-input', required: true %>
+                  <label class="form-check-label">NON</label>
+                </div>
+                <div class="form-check">
+                  <%= radio_button_tag 'petit_patrimoine_autres_aides', 'oui', false, class: 'form-check-input', required: true,
+                      onchange: 'togglePetitPatrimoineAutresAides(this.checked)' %>
+                  <label class="form-check-label">OUI</label>
+                </div>
+
+                <div id="petit_patrimoine_autres_aides_details" style="display: none;" class="mt-2">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <label class="form-label">Type d'aide</label>
+                      <%= text_field_tag 'petit_patrimoine_type_aide', '', class: 'form-control' %>
+                    </div>
+                    <div class="col-md-6">
+                      <label class="form-label">Date d'introduction de la demande</label>
+                      <%= date_field_tag 'petit_patrimoine_date_demande_aide', '', class: 'form-control' %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-check mb-3">
+                <%= check_box_tag 'petit_patrimoine_declaration_prescriptions', '1', false, class: 'form-check-input', required: true %>
+                <label class="form-check-label fw-bold">
+                  Je déclare avoir pris connaissance des prescriptions de l'arrêté et n'avoir relevé aucune contradiction entre ces dispositions et le présent projet. *
+                </label>
+              </div>
+
+              <div class="form-check mb-3">
+                <%= check_box_tag 'petit_patrimoine_certification_exactitude', '1', false, class: 'form-check-input', required: true %>
+                <label class="form-check-label fw-bold">
+                  Je certifie que les renseignements repris au présent formulaire sont sincères et exacts. *
+                </label>
+              </div>
+
+              <div class="alert alert-info mt-3">
+                <h6><i class="fas fa-shield-alt"></i> Protection des données personnelles</h6>
+                <p class="mb-0 small">
+                  Toutes les données à caractère personnel collectées via ce formulaire seront traitées en conformité avec la politique de confidentialité d'Urban Brussels.
+                  Ces informations sont collectées dans le cadre de la gestion de votre demande de subvention et seront utilisées uniquement à cet effet.
+                </p>
+              </div>
+            </div>
+
+            <!-- Contact et informations -->
+            <div class="alert alert-success">
+              <h6><i class="fas fa-info-circle"></i> Contact</h6>
+              <p class="mb-2">
+                <strong>Direction du Patrimoine Culturel</strong><br>
+                urban.brussels - Bruxelles Urbanisme et Patrimoine<br>
+                Arcadia – Mont des Arts 10-13, 1000 BRUXELLES
+              </p>
+              <p class="mb-0">
+                <i class="fas fa-envelope"></i> Email : <a href="mailto:petit.patrimoine@urban.brussels">petit.patrimoine@urban.brussels</a><br>
+                <i class="fas fa-globe"></i> Web : <a href="https://www.patrimoine.brussels" target="_blank">www.patrimoine.brussels</a>
+              </p>
+            </div>
+
+            <!-- Boutons de soumission -->
+            <div class="text-center">
+              <%= form.submit "Soumettre la demande de subvention", class: "btn btn-success btn-lg me-3" %>
+              <%= link_to "Annuler", requests_path, class: "btn btn-secondary btn-lg" %>
+            </div>
+
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function togglePetitPatrimoineBeneficiaireType(type) {
+  const personnePhysique = document.getElementById('petit_patrimoine_personne_physique_section');
+  const personneMorale = document.getElementById('petit_patrimoine_personne_morale_section');
+
+  if (type === 'personne_physique') {
+    personnePhysique.style.display = 'block';
+    personneMorale.style.display = 'none';
+  } else {
+    personnePhysique.style.display = 'none';
+    personneMorale.style.display = 'block';
+  }
+}
+
+function togglePetitPatrimoineDelegation(isChecked) {
+  const section = document.getElementById('petit_patrimoine_delegation_section');
+  section.style.display = isChecked ? 'block' : 'none';
+}
+
+function togglePetitPatrimoineAutresAides(isOui) {
+  const details = document.getElementById('petit_patrimoine_autres_aides_details');
+  details.style.display = isOui ? 'block' : 'none';
+}
+
+// Afficher/masquer les détails de la liste de sauvegarde
+document.querySelector('input[name="petit_patrimoine_liste_sauvegarde"]').addEventListener('change', function() {
+  const details = document.getElementById('petit_patrimoine_sauvegarde_details');
+  details.style.display = this.checked ? 'block' : 'none';
+});
+
+// Afficher/masquer les détails du bénéficiaire public
+document.querySelectorAll('input[name="petit_patrimoine_calcul_type"]').forEach(radio => {
+  radio.addEventListener('change', function() {
+    const details = document.getElementById('petit_patrimoine_beneficiaire_public_details');
+    details.style.display = this.value === 'beneficiaire_public' ? 'block' : 'none';
+  });
+});
+
+// Initialiser l'affichage
+document.addEventListener('DOMContentLoaded', function() {
+  togglePetitPatrimoineBeneficiaireType('personne_physique');
+});
+</script>
+
+<style>
+.section-divider {
+  margin: 2rem 0 1.5rem 0;
+  border-bottom: 2px solid #28a745;
+  padding-bottom: 0.5rem;
+}
+
+.section-title {
+  color: #28a745;
+  font-weight: bold;
+  margin: 0;
+}
+
+.section-number {
+  background: #28a745;
+  color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+}
+
+.beneficiaire-section {
+  transition: all 0.3s ease;
+}
+
+.form-check-label {
+  font-size: 0.95em;
+}
+
+.card {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+</style>
