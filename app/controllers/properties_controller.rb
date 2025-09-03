@@ -1,14 +1,14 @@
 class PropertiesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_property, only: [:show, :dashboard, :dashboard_clean, :edit, :update, :destroy, :documents_dashboard]
+  before_action :set_property, only: [:show, :dashboard, :edit, :update, :destroy, :documents_dashboard]
 
   def index
     @properties = current_user.properties
   end
 
   def show
-    # Redirection vers le dashboard clean unifié
-    redirect_to dashboard_clean_property_path(@property)
+    # Redirection vers le dashboard unifié
+    redirect_to dashboard_property_path(@property)
   end
 
   def new
@@ -119,29 +119,6 @@ class PropertiesController < ApplicationController
       accordees: @request_progresses.where(status_administratif: 'accorde').count,
       montant_total_demande: @request_progresses.sum(:montant_demande) || 0,
       montant_total_accorde: @request_progresses.sum(:montant_accorde) || 0
-    }
-
-    # Test temporaire du nouveau dashboard
-    render 'dashboard_clean'
-  end
-
-  def dashboard_clean
-    # Données pour le dashboard unifié
-    @completion_stats = {
-      admin: @property.admin_completion_percentage,
-      chantier: @property.chantier_completion_percentage,
-      primes: @property.primes_completion_percentage,
-      overall: @property.completion_percentage
-    }
-
-    # Requests et simulations liées à ce bien
-    @recent_requests = @property.requests.recent.limit(3) if @property.respond_to?(:requests)
-    @recent_simulations = @property.simulations.recent.limit(3) if @property.respond_to?(:simulations)
-
-    # Actions disponibles
-    @actions_available = {
-      can_request: @property.ready_for_request?,
-      missing_fields: @property.missing_required_fields
     }
   end
 
