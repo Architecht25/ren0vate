@@ -38,6 +38,7 @@ import EligibilityCheckerController from "controllers/eligibility_checker_contro
 import AidCalculatorController from "controllers/aid_calculator_controller"
 import LanguageController from "controllers/language_controller"
 import RenopackWallonieController from "controllers/renopack_wallonie_controller"
+import RequestFormController from "controllers/request_form_controller"
 
 application.register("user_type", UserTypeController)
 application.register("test-eligibilite", TestEligibiliteController)
@@ -61,5 +62,6 @@ application.register("eligibility-checker", EligibilityCheckerController)
 application.register("aid-calculator", AidCalculatorController)
 application.register("language", LanguageController)
 application.register("renopack-wallonie", RenopackWallonieController)
+application.register("request-form", RequestFormController)
 
 export { application }
