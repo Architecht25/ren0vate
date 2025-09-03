@@ -112,22 +112,29 @@ export default class extends Controller {
 
   // Simulation du prêt
   calculateLoan() {
-    const montantTravaux = parseFloat(this.montantTravauxTarget.value) || 0
+    const montantInput = this.montantTravauxTarget.value
+    const montantTravaux = parseFloat(montantInput) || 0
     const revenus = parseFloat(this.revenusTarget.value) || 0
 
-    if (!montantTravaux || !revenus) {
+    if (!montantTravaux || !revenus || isNaN(montantTravaux) || isNaN(revenus)) {
       this.hideResultSection()
       return
     }
 
-    // Vérifications des limites Rénopack
+    // Vérifications strictes des limites Rénopack
     if (montantTravaux < 1000) {
       this.showError("Le montant minimum des travaux est de 1 000 €")
       return
     }
 
     if (montantTravaux > 60000) {
-      this.showError("Le montant maximum du prêt Rénopack est de 60 000 €")
+      this.showError("Le montant maximum du prêt Rénopack est de 60 000 €. Veuillez saisir un montant entre 1 000 € et 60 000 €.")
+      return
+    }
+
+    // Validation supplémentaire pour éviter les montants aberrants
+    if (montantTravaux > 100000) {
+      this.showError("Montant trop élevé. Le prêt Rénopack est plafonné à 60 000 €.")
       return
     }
 
