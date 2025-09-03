@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_03_091500) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_03_100450) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -223,7 +223,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_03_091500) do
     t.integer "order_position"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "commune_name"
+    t.text "postal_codes"
+    t.string "region"
+    t.string "external_url"
+    t.boolean "is_external_form", default: false
+    t.text "contact_info"
+    t.index ["commune_name"], name: "index_prime_document_templates_on_commune_name"
     t.index ["prime_id"], name: "index_prime_document_templates_on_prime_id"
+    t.index ["region"], name: "index_prime_document_templates_on_region"
   end
 
   create_table "prime_submissions", force: :cascade do |t|

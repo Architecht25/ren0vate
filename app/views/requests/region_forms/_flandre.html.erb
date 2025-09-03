@@ -1,11 +1,12 @@
 <!-- Formulaire spécifique pour la Flandre -->
-<div class="alert alert-info">
-  <i class="bi bi-info-circle me-2"></i>
-  <strong>Formulaire pour la Région Flandre</strong>
-  <p class="mb-0 small">Primes disponibles : Primes régionales flamandes (énergie + rénovation)</p>
-</div>
+<div class="container" style="max-width: 80%;">
+  <div class="alert alert-info">
+    <i class="bi bi-info-circle me-2"></i>
+    <strong>Formulaire pour la Région Flandre</strong>
+    <p class="mb-0 small">Primes disponibles : Primes régionales flamandes (énergie + rénovation)</p>
+  </div>
 
-<div class="flandre-specific-fields">
+  <div class="flandre-specific-fields">
 
   <!-- SECTION 0 – Conditions préalables -->
   <div class="card mb-4">
@@ -381,6 +382,115 @@
     </div>
   </div>
 
+  <!-- SECTION MONUMENTS & SITES -->
+  <div class="card mb-4">
+    <div class="card-header bg-info text-white">
+      <h5 class="mb-0"><i class="bi bi-bank me-2"></i>Formulaire Monuments & Sites (optionnel)</h5>
+    </div>
+    <div class="card-body">
+      <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        <strong>Pour les biens classés ou situés dans des zones protégées</strong><br>
+        Si votre bien est un monument classé ou situé dans une zone protégée, vous pouvez bénéficier de primes spécifiques plus avantageuses.
+      </div>
+
+      <div class="text-center">
+        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#monumentsModal">
+          <i class="bi bi-bank me-2"></i>
+          Ouvrir le formulaire Monuments & Sites
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION FORMULAIRES COMMUNAUX -->
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0"><i class="bi bi-building me-2"></i>Formulaires Communaux (optionnel)</h5>
+    </div>
+    <div class="card-body">
+      <div class="alert alert-primary">
+        <i class="bi bi-info-circle me-2"></i>
+        <strong>Primes complémentaires de votre commune</strong><br>
+        Certaines communes offrent des primes complémentaires aux primes régionales. Vérifiez si votre commune propose des formulaires spécifiques.
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label for="commune_search" class="form-label">Rechercher votre commune</label>
+            <input type="text"
+                   class="form-control"
+                   id="commune_search"
+                   placeholder="ex: Antwerpen, Gent, Brugge...">
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <label for="postal_code_search" class="form-label">Code postal</label>
+            <input type="text"
+                   class="form-control"
+                   id="postal_code_search"
+                   placeholder="ex: 2000, 9000...">
+          </div>
+        </div>
+      </div>
+
+      <div id="commune_results" class="mt-3" style="display: none;">
+        <h6>Formulaires disponibles pour votre commune :</h6>
+        <div id="commune_forms_list"></div>
+      </div>
+
+      <!-- Quelques communes principales -->
+      <div class="mt-4">
+        <h6>Principales communes avec formulaires :</h6>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="list-group">
+              <a href="https://www.antwerpen.be/nl/info/52da4497b56e38600d78c1b7/premies-en-leningen-voor-wonen"
+                 target="_blank"
+                 class="list-group-item list-group-item-action">
+                <i class="bi bi-link-45deg me-2"></i>Antwerpen
+              </a>
+              <a href="https://stad.gent/nl/wonen-bouwen/subsidies-en-premies"
+                 target="_blank"
+                 class="list-group-item list-group-item-action">
+                <i class="bi bi-link-45deg me-2"></i>Gent
+              </a>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="list-group">
+              <a href="https://www.brugge.be/wonen-en-bouwen/premies-en-subsidies"
+                 target="_blank"
+                 class="list-group-item list-group-item-action">
+                <i class="bi bi-link-45deg me-2"></i>Brugge
+              </a>
+              <a href="https://www.leuven.be/premies-en-subsidies"
+                 target="_blank"
+                 class="list-group-item list-group-item-action">
+                <i class="bi bi-link-45deg me-2"></i>Leuven
+              </a>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="list-group">
+              <a href="https://www.hasselt.be/premies"
+                 target="_blank"
+                 class="list-group-item list-group-item-action">
+                <i class="bi bi-link-45deg me-2"></i>Hasselt
+              </a>
+              <small class="text-muted mt-2 d-block">
+                <i class="bi bi-plus-circle me-1"></i>
+                D'autres communes seront ajoutées progressivement
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- SECTION 6 – Soumission de la demande -->
   <div class="card mb-4">
     <div class="card-header bg-success text-white">
@@ -453,7 +563,39 @@
         </div>
       </div>
 
-      <div id="message-soumission" class="mt-3 fw-bold text-success"></div>
+            <div id="message-soumission" class="mt-3 fw-bold text-success"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal Formulaire Monuments & Sites -->
+<div class="modal fade" id="monumentsModal" tabindex="-1" aria-labelledby="monumentsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="monumentsModalLabel">
+          <i class="bi bi-bank me-2"></i>Formulaire Monuments & Sites - Onroerend Erfgoed
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-0">
+        <%= render 'requests/formulaires/monuments_sites_flandre' %>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+        <a href="https://loket.onroerenderfgoed.be/aanvragen/premies/"
+           target="_blank"
+           class="btn btn-primary">
+          <i class="bi bi-box-arrow-up-right me-2"></i>
+          Ouvrir dans un nouvel onglet
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
     </div>
   </div>
 
@@ -461,4 +603,5 @@
     </div>
   </div>
 
+</div>
 </div>

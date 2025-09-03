@@ -41,9 +41,44 @@
     </small>
   </div>
 
+  <!-- Sélection du type de formulaire (affiché après sélection de région) -->
+  <div id="form-type-section" class="mb-3" style="display: none;">
+    <%= form.label :form_type, "Type de formulaire*", class: "form-label" %>
+    <%= form.select :form_type,
+        [],
+        { include_blank: "-- Sélectionnez le type de formulaire --" },
+        { class: "form-select", required: true, id: "form-type-select" } %>
+    <div class="invalid-feedback">
+      Veuillez sélectionner le type de formulaire.
+    </div>
+    <small class="form-text text-muted" id="form-type-description">
+      Choisissez le type de formulaire adapté à votre situation.
+    </small>
+  </div>
+
   <!-- Section Flandre -->
   <div id="flandre-section" class="region-section" style="display: none;">
     <%= render 'requests/region_forms/flandre', form: form %>
+  </div>
+
+  <!-- Section Monuments & Sites Flandre -->
+  <div id="flandre-monuments-section" class="region-section" style="display: none;">
+    <div class="alert alert-info">
+      <i class="bi bi-info-circle me-2"></i>
+      <strong>Formulaire spécialisé Monuments & Sites - Flandre</strong>
+      <p class="mb-0 small">Pour les biens classés ou situés dans des zones protégées en Flandre</p>
+    </div>
+    <%= render 'requests/formulaires/monuments_sites_flandre' %>
+  </div>
+
+  <!-- Section Formulaires Communaux Flandre -->
+  <div id="flandre-communal-section" class="region-section" style="display: none;">
+    <div class="alert alert-primary">
+      <i class="bi bi-info-circle me-2"></i>
+      <strong>Formulaires Communaux - Flandre</strong>
+      <p class="mb-0 small">Primes complémentaires proposées par votre commune</p>
+    </div>
+    <%= render 'requests/formulaires/communaux_flandre' %>
   </div>
 
   <!-- Section Bruxelles -->
@@ -51,9 +86,29 @@
     <%= render 'requests/region_forms/bruxelles', form: form %>
   </div>
 
+  <!-- Section Monuments & Sites Bruxelles -->
+  <div id="bruxelles-monuments-section" class="region-section" style="display: none;">
+    <div class="alert alert-info">
+      <i class="bi bi-info-circle me-2"></i>
+      <strong>Formulaire spécialisé Monuments & Sites - Bruxelles</strong>
+      <p class="mb-0 small">Pour les biens classés ou situés dans des zones protégées à Bruxelles</p>
+    </div>
+    <p class="text-muted">Section en cours de développement...</p>
+  </div>
+
   <!-- Section Wallonie -->
   <div id="wallonie-section" class="region-section" style="display: none;">
     <%= render 'requests/region_forms/wallonie', form: form %>
+  </div>
+
+  <!-- Section Monuments & Sites Wallonie -->
+  <div id="wallonie-monuments-section" class="region-section" style="display: none;">
+    <div class="alert alert-info">
+      <i class="bi bi-info-circle me-2"></i>
+      <strong>Formulaire spécialisé Monuments & Sites - Wallonie</strong>
+      <p class="mb-0 small">Pour les biens classés ou situés dans des zones protégées en Wallonie</p>
+    </div>
+    <p class="text-muted">Section en cours de développement...</p>
   </div>
 
   <!-- Boutons d'action -->
@@ -127,97 +182,181 @@
       return;
     }
 
-    function showRegionSection() {
-      const selectedRegion = regionSelect.value;
-      console.log('Showing region section for:', selectedRegion);
+  function showRegionalSection() {
+    const selectedRegion = regionSelect.value;
+    console.log('Selected region:', selectedRegion);
 
-      // Masquer toutes les sections
-      sections.forEach(section => {
-        section.style.display = 'none';
-        console.log('Hiding section:', section.id);
+    // Masquer toutes les sections régionales
+    sections.forEach(section => {
+      section.style.display = 'none';
+    });
+
+    // Afficher/masquer la section de sélection de type de formulaire
+    const formTypeSection = document.getElementById('form-type-section');
+    const formTypeSelect = document.getElementById('form-type-select');
+    const formTypeDescription = document.getElementById('form-type-description');
+
+    if (selectedRegion) {
+      // Afficher la section de type de formulaire
+      formTypeSection.style.display = 'block';
+
+      // Mettre à jour les options selon la région
+      updateFormTypeOptions(selectedRegion, formTypeSelect, formTypeDescription);
+    } else {
+      // Masquer la section de type de formulaire
+      formTypeSection.style.display = 'none';
+      formTypeSelect.innerHTML = '<option value="">-- Sélectionnez le type de formulaire --</option>';
+    }
+  }
+
+  function updateFormTypeOptions(region, selectElement, descriptionElement) {
+    // Vider les options existantes
+    selectElement.innerHTML = '<option value="">-- Sélectionnez le type de formulaire --</option>';
+
+    // Définir les options selon la région
+    const formTypes = {
+      'flandre': [
+        { value: 'regional', text: 'Formulaire régional', description: 'Prime régionale flamande standard' },
+        { value: 'communal', text: 'Formulaires communaux', description: 'Primes complémentaires de votre commune' },
+        { value: 'monuments', text: 'Monuments & Sites', description: 'Prime spéciale pour biens classés' }
+      ],
+      'bruxelles': [
+        { value: 'regional', text: 'Formulaire régional', description: 'Prime régionale bruxelloise standard' },
+        { value: 'monuments', text: 'Monuments & Sites', description: 'Prime spéciale pour biens classés' }
+      ],
+      'wallonie': [
+        { value: 'audit', text: 'Prime Audit Énergétique', description: 'Remboursement partiel de l\'audit énergétique' },
+        { value: 'regionale', text: 'Prime Régionale', description: 'Primes habitation + énergie' },
+        { value: 'communale', text: 'Primes Communales', description: 'Primes spécifiques de votre commune' },
+        { value: 'monument', text: 'Prime Monument & Site', description: 'Primes pour biens classés ou en zone protégée' }
+      ]
+    };
+
+    // Ajouter les options pour la région sélectionnée
+    if (formTypes[region]) {
+      formTypes[region].forEach(option => {
+        const optionElement = document.createElement('option');
+        optionElement.value = option.value;
+        optionElement.textContent = option.text;
+        optionElement.dataset.description = option.description;
+        selectElement.appendChild(optionElement);
       });
+    }
 
-      // Gérer l'affichage des boutons spécifiques aux régions
-      const flandreBtn = document.getElementById('flandre-continue-btn');
-      const wallonieBtn = document.getElementById('wallonie-continue-btn');
-      const bruxellesBtn = document.getElementById('bruxelles-continue-btn');
+    // Mettre à jour la description
+    descriptionElement.textContent = 'Choisissez le type de formulaire adapté à votre situation.';
+  }
 
-      if (flandreBtn) {
-        flandreBtn.style.display = selectedRegion === 'flandre' ? 'inline-block' : 'none';
-      }
-      if (wallonieBtn) {
-        wallonieBtn.style.display = selectedRegion === 'wallonie' ? 'inline-block' : 'none';
-      }
-      if (bruxellesBtn) {
-        bruxellesBtn.style.display = selectedRegion === 'bruxelles' ? 'inline-block' : 'none';
-      }
+  function showFormTypeSection() {
+    const selectedFormType = document.getElementById('form-type-select').value;
+    const selectedRegion = regionSelect.value;
 
-      // Afficher la section correspondante
-      if (selectedRegion) {
-        const targetSection = document.getElementById(selectedRegion + '-section');
-        console.log('Looking for section:', selectedRegion + '-section');
+    console.log('Selected form type:', selectedFormType, 'for region:', selectedRegion);
+
+    // Masquer toutes les sections régionales
+    sections.forEach(section => {
+      section.style.display = 'none';
+    });
+
+    // Masquer toutes les sections wallonnes spécifiquement
+    const wallonieSections = document.querySelectorAll('.wallonie-prime-section');
+    wallonieSections.forEach(section => {
+      section.style.display = 'none';
+    });
+
+    // Afficher la section appropriée selon le type et la région
+    if (selectedFormType && selectedRegion) {
+      let targetSectionId = '';
+
+      // Logique spéciale pour la Wallonie
+      if (selectedRegion === 'wallonie') {
+        // Afficher d'abord la section wallonie-section
+        const wallonieMasterSection = document.getElementById('wallonie-section');
+        if (wallonieMasterSection) {
+          wallonieMasterSection.style.display = 'block';
+          console.log('Showing wallonie master section');
+        }
+
+        // Puis afficher la sous-section spécifique selon le type
+        if (selectedFormType === 'audit' || selectedFormType === 'regionale' ||
+            selectedFormType === 'communale' || selectedFormType === 'monument') {
+          const targetSection = document.getElementById(selectedFormType + '-section');
+          if (targetSection) {
+            targetSection.style.display = 'block';
+            console.log('Showing wallonie subsection:', selectedFormType + '-section');
+          }
+        }
+      } else {
+        // Pour les autres régions, logique normale
+        if (selectedFormType === 'regional') {
+          targetSectionId = selectedRegion + '-section';
+        } else if (selectedFormType === 'communal') {
+          targetSectionId = selectedRegion + '-communal-section';
+        } else if (selectedFormType === 'monuments') {
+          targetSectionId = selectedRegion + '-monuments-section';
+        }
+
+        const targetSection = document.getElementById(targetSectionId);
         if (targetSection) {
           targetSection.style.display = 'block';
-          console.log('Showing section:', selectedRegion + '-section', targetSection);
-
-          // Si c'est la Wallonie, initialiser le système de sélection de primes
-          if (selectedRegion === 'wallonie') {
-            initializeWalloniePrimeSelection();
-          }
+          console.log('Showing section:', targetSectionId);
         } else {
-          console.log('Section not found:', selectedRegion + '-section');
+          // Fallback vers la section régionale principale
+          const fallbackSection = document.getElementById(selectedRegion + '-section');
+          if (fallbackSection) {
+            fallbackSection.style.display = 'block';
+            console.log('Fallback to regional section:', selectedRegion + '-section');
+          }
         }
       }
     }
 
-    // Initialiser immédiatement
-    console.log('Initial region value:', regionSelect.value);
-    showRegionSection();
+    // Mettre à jour la description selon l'option sélectionnée
+    const formTypeSelect = document.getElementById('form-type-select');
+    const selectedOption = formTypeSelect.querySelector(`option[value="${selectedFormType}"]`);
+    const descriptionElement = document.getElementById('form-type-description');
 
-    // Écouter les changements
-    regionSelect.addEventListener('change', showRegionSection);
+    if (selectedOption && selectedOption.dataset.description) {
+      descriptionElement.textContent = selectedOption.dataset.description;
+    }
+
+    // Gérer l'affichage des boutons spécifiques aux régions
+    updateRegionalButtons(selectedRegion, selectedFormType);
+  }
+
+  function updateRegionalButtons(region, formType) {
+    // Masquer tous les boutons régionaux
+    const buttons = ['flandre-continue-btn', 'wallonie-continue-btn', 'bruxelles-continue-btn'];
+    buttons.forEach(btnId => {
+      const btn = document.getElementById(btnId);
+      if (btn) btn.style.display = 'none';
+    });
+
+    // Afficher le bouton approprié pour le formulaire régional
+    if (formType === 'regional' && region) {
+      const targetBtn = document.getElementById(region + '-continue-btn');
+      if (targetBtn) {
+        targetBtn.style.display = 'inline-block';
+      }
+    }
+  }    // Initialiser immédiatement
+    console.log('Initial region value:', regionSelect.value);
+    showRegionalSection();
+
+    // Écouter les changements sur le sélecteur de région
+    regionSelect.addEventListener('change', showRegionalSection);
+
+    // Écouter les changements sur le sélecteur de type de formulaire
+    const formTypeSelect = document.getElementById('form-type-select');
+    if (formTypeSelect) {
+      formTypeSelect.addEventListener('change', showFormTypeSection);
+    }
 
     // Réessayer après un court délai pour s'assurer que tout est chargé
     setTimeout(function() {
       console.log('Delayed initialization - region value:', regionSelect.value);
-      showRegionSection();
+      showRegionalSection();
     }, 100);
-  }
-
-  // Fonction pour initialiser la sélection des primes Wallonie
-  function initializeWalloniePrimeSelection() {
-    const primeTypeSelect = document.getElementById('wallonie-prime-type');
-    const wallonieSections = document.querySelectorAll('.wallonie-prime-section');
-
-    if (!primeTypeSelect) {
-      console.log('Wallonie prime type select not found');
-      return;
-    }
-
-    function showWalloniePrimeSection() {
-      const selectedType = primeTypeSelect.value;
-      console.log('Wallonie - Showing prime section for:', selectedType);
-
-      // Masquer toutes les sections Wallonie
-      wallonieSections.forEach(section => {
-        section.style.display = 'none';
-      });
-
-      // Afficher la section correspondante
-      if (selectedType) {
-        const targetSection = document.getElementById(selectedType + '-section');
-        if (targetSection) {
-          targetSection.style.display = 'block';
-          console.log('Wallonie - Showing section:', selectedType + '-section');
-        }
-      }
-    }
-
-    // Écouter les changements sur le sélecteur de prime Wallonie
-    primeTypeSelect.addEventListener('change', showWalloniePrimeSection);
-
-    // Initialiser l'état si une option est déjà sélectionnée
-    showWalloniePrimeSection();
   }
 
   // Initialiser au chargement de la page

@@ -1,0 +1,352 @@
+<!-- Formulaire officiel Prime Patrimoine - Monuments & Sites Flandre -->
+<div class="container" style="max-width: 80%;">
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">
+        <i class="bi bi-bank me-2"></i>
+        Demande de Prime Patrimoine - Procédure Standard
+      </h5>
+      <small>Agence du Patrimoine Immobilier - Gouvernement Flamand</small>
+    </div>
+
+  <div class="card-body">
+    <!-- Alerte d'information -->
+    <div class="alert alert-info">
+      <i class="bi bi-info-circle me-2"></i>
+      <strong>Prime patrimoine pour le patrimoine immobilier protégé</strong><br>
+      <small>Cette prime est destinée aux travaux d'entretien (périodiques), de gestion et petits projets globaux sur le patrimoine protégé.</small>
+    </div>
+
+    <%= form_with model: @request, url: requests_path, local: true, html: { class: "needs-validation", novalidate: true } do |form| %>
+
+      <!-- Section 1: Informations du demandeur -->
+      <div class="mb-4">
+        <h6 class="border-bottom pb-2 mb-3">
+          <i class="bi bi-person me-2"></i>1. Données du demandeur
+        </h6>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <%= form.label :applicant_title, "Titre*", class: "form-label" %>
+            <%= form.select :applicant_title,
+                [
+                  ["M.", "dhr"],
+                  ["Mme", "mevr"],
+                  ["Organisation", "organisatie"]
+                ],
+                { include_blank: "-- Sélectionner --" },
+                { class: "form-select", required: true } %>
+          </div>
+          <div class="col-md-6">
+            <%= form.label :applicant_type, "Type de demandeur*", class: "form-label" %>
+            <%= form.select :applicant_type,
+                [
+                  ["Particulier", "particulier"],
+                  ["Personne morale", "rechtspersoon"],
+                  ["Institution publique", "openbaar"]
+                ],
+                { include_blank: "-- Sélectionner --" },
+                { class: "form-select", required: true } %>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <%= form.label :applicant_firstname, "Prénom*", class: "form-label" %>
+            <%= form.text_field :applicant_firstname, class: "form-control", required: true %>
+          </div>
+          <div class="col-md-6">
+            <%= form.label :applicant_lastname, "Nom de famille*", class: "form-label" %>
+            <%= form.text_field :applicant_lastname, class: "form-control", required: true %>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-12">
+            <%= form.label :applicant_organization, "Nom de l'organisation (si applicable)", class: "form-label" %>
+            <%= form.text_field :applicant_organization, class: "form-control" %>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-8">
+            <%= form.label :applicant_address, "Adresse*", class: "form-label" %>
+            <%= form.text_field :applicant_address, class: "form-control", required: true %>
+          </div>
+          <div class="col-md-4">
+            <%= form.label :applicant_number, "Numéro*", class: "form-label" %>
+            <%= form.text_field :applicant_number, class: "form-control", required: true %>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <%= form.label :applicant_postal_code, "Code postal*", class: "form-label" %>
+            <%= form.text_field :applicant_postal_code, class: "form-control", required: true %>
+          </div>
+          <div class="col-md-8">
+            <%= form.label :applicant_city, "Commune*", class: "form-label" %>
+            <%= form.text_field :applicant_city, class: "form-control", required: true %>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <%= form.label :applicant_phone, "Numéro de téléphone*", class: "form-label" %>
+            <%= form.text_field :applicant_phone, class: "form-control", required: true, type: "tel" %>
+          </div>
+          <div class="col-md-6">
+            <%= form.label :applicant_email, "Adresse e-mail*", class: "form-label" %>
+            <%= form.email_field :applicant_email, class: "form-control", required: true %>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <%= form.label :applicant_national_number, "Numéro de registre national / Numéro d'entreprise*", class: "form-label" %>
+          <%= form.text_field :applicant_national_number, class: "form-control", required: true %>
+          <small class="form-text text-muted">Pour les particuliers : numéro de registre national, pour les organisations : numéro d'entreprise</small>
+        </div>
+      </div>
+
+      <!-- Section 2: Informations sur le bien -->
+      <div class="mb-4">
+        <h6 class="border-bottom pb-2 mb-3">
+          <i class="bi bi-house me-2"></i>2. Données du patrimoine protégé
+        </h6>
+
+        <div class="row mb-3">
+          <div class="col-md-8">
+            <%= form.label :heritage_address, "Adresse du patrimoine*", class: "form-label" %>
+            <%= form.text_field :heritage_address, class: "form-control", required: true %>
+          </div>
+          <div class="col-md-4">
+            <%= form.label :heritage_number, "Numéro*", class: "form-label" %>
+            <%= form.text_field :heritage_number, class: "form-control", required: true %>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <%= form.label :heritage_postal_code, "Code postal*", class: "form-label" %>
+            <%= form.text_field :heritage_postal_code, class: "form-control", required: true %>
+          </div>
+          <div class="col-md-8">
+            <%= form.label :heritage_city, "Commune*", class: "form-label" %>
+            <%= form.text_field :heritage_city, class: "form-control", required: true %>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <%= form.label :heritage_protection_id, "ID de protection*", class: "form-label" %>
+            <%= form.text_field :heritage_protection_id, class: "form-control", required: true %>
+            <small class="form-text text-muted">À trouver sur <a href="https://inventaris.onroerenderfgoed.be/" target="_blank">inventaris.onroerenderfgoed.be</a></small>
+          </div>
+          <div class="col-md-6">
+            <%= form.label :heritage_type, "Type de patrimoine*", class: "form-label" %>
+            <%= form.select :heritage_type,
+                [
+                  ["Monument", "monument"],
+                  ["Paysage culturel historique", "landschap"],
+                  ["Paysage patrimonial", "erfgoedlandschap"],
+                  ["Zone de transition", "overgangszone"]
+                ],
+                { include_blank: "-- Sélectionner --" },
+                { class: "form-select", required: true } %>
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <%= form.label :heritage_description, "Brève description du patrimoine*", class: "form-label" %>
+          <%= form.text_area :heritage_description, class: "form-control", rows: 3, required: true %>
+        </div>
+      </div>
+
+      <!-- Section 3: Informations sur les travaux -->
+      <div class="mb-4">
+        <h6 class="border-bottom pb-2 mb-3">
+          <i class="bi bi-tools me-2"></i>3. Données des travaux
+        </h6>
+
+        <div class="mb-3">
+          <%= form.label :work_type, "Type de travaux*", class: "form-label" %>
+          <%= form.select :work_type,
+              [
+                ["Travaux d'entretien", "onderhoud"],
+                ["Travaux de restauration", "herstelling"],
+                ["Travaux de gestion", "beheer"],
+                ["Petit projet global", "totaalproject"]
+              ],
+              { include_blank: "-- Sélectionner --" },
+              { class: "form-select", required: true } %>
+        </div>
+
+        <div class="mb-3">
+          <%= form.label :work_description, "Description détaillée des travaux*", class: "form-label" %>
+          <%= form.text_area :work_description, class: "form-control", rows: 4, required: true %>
+          <small class="form-text text-muted">Décrivez quels travaux vous voulez effectuer et pourquoi</small>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <%= form.label :work_start_date, "Date de début prévue des travaux", class: "form-label" %>
+            <%= form.date_field :work_start_date, class: "form-control" %>
+          </div>
+          <div class="col-md-6">
+            <%= form.label :work_end_date, "Date de fin prévue des travaux", class: "form-label" %>
+            <%= form.date_field :work_end_date, class: "form-control" %>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <%= form.label :work_cost_estimate, "Estimation des coûts (hors TVA)*", class: "form-label" %>
+            <div class="input-group">
+              <%= form.number_field :work_cost_estimate, class: "form-control", step: 0.01, required: true %>
+              <span class="input-group-text">€</span>
+            </div>
+            <small class="form-text text-muted">Maximum 250.000 € éligible pour la prime</small>
+          </div>
+          <div class="col-md-6">
+            <%= form.label :requested_premium_percentage, "Pourcentage de prime demandé*", class: "form-label" %>
+            <%= form.select :requested_premium_percentage,
+                [
+                  ["40% (standard)", "40"],
+                  ["50% (majoré pour certaines catégories)", "50"],
+                  ["60% (majoré pour patrimoine spécifique)", "60"]
+                ],
+                { include_blank: "-- Sélectionner --" },
+                { class: "form-select", required: true } %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Documents annexes -->
+      <div class="mb-4">
+        <h6 class="border-bottom pb-2 mb-3">
+          <i class="bi bi-paperclip me-2"></i>4. Annexes
+        </h6>
+
+        <div class="alert alert-warning">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          <strong>Documents obligatoires :</strong>
+          <ul class="mb-0 mt-2">
+            <li>Estimation détaillée des coûts ou devis</li>
+            <li>Plans et description technique des travaux</li>
+            <li>Copie de la carte d'identité du demandeur</li>
+            <li>Acte de propriété ou preuve de propriété</li>
+            <li>Plan de gestion (si applicable)</li>
+          </ul>
+        </div>
+
+        <div class="mb-3">
+          <%= form.label :documents, "Télécharger les documents", class: "form-label" %>
+          <%= form.file_field :documents, class: "form-control", multiple: true, accept: ".pdf,.doc,.docx,.jpg,.jpeg,.png" %>
+          <small class="form-text text-muted">Formats autorisés : PDF, Word, JPG, PNG (max. 10MB par fichier)</small>
+        </div>
+      </div>
+
+      <!-- Section 5: Déclarations -->
+      <div class="mb-4">
+        <h6 class="border-bottom pb-2 mb-3">
+          <i class="bi bi-check-square me-2"></i>5. Déclarations et engagements
+        </h6>
+
+        <div class="form-check mb-3">
+          <%= form.check_box :declaration_owner, class: "form-check-input", required: true %>
+          <%= form.label :declaration_owner, "Je déclare être propriétaire du patrimoine ou être autorisé(e) à agir au nom du propriétaire.*", class: "form-check-label" %>
+        </div>
+
+        <div class="form-check mb-3">
+          <%= form.check_box :declaration_accuracy, class: "form-check-input", required: true %>
+          <%= form.label :declaration_accuracy, "Je déclare que toutes les informations fournies sont exactes et complètes.*", class: "form-check-label" %>
+        </div>
+
+        <div class="form-check mb-3">
+          <%= form.check_box :declaration_conditions, class: "form-check-input", required: true %>
+          <%= form.label :declaration_conditions, "Je déclare avoir pris connaissance des conditions pour les primes patrimoine et m'engage à les respecter.*", class: "form-check-label" %>
+        </div>
+
+        <div class="form-check mb-3">
+          <%= form.check_box :declaration_no_start, class: "form-check-input", required: true %>
+          <%= form.label :declaration_no_start, "Je m'engage à ne pas commencer les travaux avant que la prime ne soit accordée.*", class: "form-check-label" %>
+        </div>
+
+        <div class="form-check mb-3">
+          <%= form.check_box :declaration_quality, class: "form-check-input", required: true %>
+          <%= form.label :declaration_quality, "Je m'engage à exécuter les travaux selon les règles de l'art et conformément aux valeurs patrimoniales.*", class: "form-check-label" %>
+        </div>
+      </div>
+
+      <!-- Section 6: Signature -->
+      <div class="mb-4">
+        <h6 class="border-bottom pb-2 mb-3">
+          <i class="bi bi-pen me-2"></i>6. Signature
+        </h6>
+
+        <div class="row">
+          <div class="col-md-6">
+            <%= form.label :signature_place, "Lieu de signature*", class: "form-label" %>
+            <%= form.text_field :signature_place, class: "form-control", required: true %>
+          </div>
+          <div class="col-md-6">
+            <%= form.label :signature_date, "Date de signature*", class: "form-label" %>
+            <%= form.date_field :signature_date, class: "form-control", value: Date.current, required: true %>
+          </div>
+        </div>
+
+        <div class="mt-3">
+          <p class="text-muted small">
+            En soumettant ce formulaire, vous confirmez électroniquement votre signature conformément à la législation sur les signatures électroniques.
+          </p>
+        </div>
+      </div>
+
+      <!-- Boutons d'action -->
+      <div class="d-flex justify-content-between">
+        <%= link_to "Annuler", requests_path, class: "btn btn-secondary" %>
+        <div>
+          <%= form.submit "Sauvegarder comme brouillon", name: "save_draft", class: "btn btn-outline-primary me-2" %>
+          <%= form.submit "Soumettre", class: "btn btn-primary" %>
+        </div>
+      </div>
+
+    <% end %>
+  </div>
+
+  <!-- Informations complémentaires -->
+  <div class="card-footer">
+    <div class="row">
+      <div class="col-md-6">
+        <h6><i class="bi bi-info-circle me-2"></i>Informations importantes</h6>
+        <ul class="small mb-0">
+          <li>Pourcentage de prime : généralement 40%, majoré possible</li>
+          <li>Montant maximum subventionnable : 250.000 €</li>
+          <li>Délai de décision : 120 jours</li>
+          <li>Durée de validité de l'octroi : 1 an (renouvelable)</li>
+          <li>Délai de paiement : 3 ans après l'octroi</li>
+        </ul>
+      </div>
+      <div class="col-md-6">
+        <h6><i class="bi bi-telephone me-2"></i>Contact</h6>
+        <ul class="small mb-0">
+          <li><strong>Email :</strong> <a href="mailto:info@onroerenderfgoed.be">info@onroerenderfgoed.be</a></li>
+          <li><strong>Téléphone :</strong> +32 2 553 16 50</li>
+          <li><strong>Site web :</strong> <a href="https://www.onroerenderfgoed.be" target="_blank">www.onroerenderfgoed.be</a></li>
+          <li><strong>Heures de bureau :</strong> Lu-Ve 9h-12h et 14h-17h</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bouton d'action externe -->
+    <div class="text-center mt-3">
+      <a href="https://loket.onroerenderfgoed.be/aanvragen/premies/"
+         target="_blank"
+         class="btn btn-primary">
+        <i class="bi bi-box-arrow-up-right me-2"></i>
+        Ouvrir dans un nouvel onglet
+      </a>
+    </div>
+  </div>
+</div>
+</div>
