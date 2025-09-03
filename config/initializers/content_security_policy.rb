@@ -9,10 +9,11 @@ Rails.application.configure do
     # Sources de base
     policy.default_src :self
 
-    # Scripts : permettre nos scripts + CDNs de confiance + nonces pour inline
+    # Scripts : permettre nos scripts + CDNs de confiance + nonces pour inline + eval pour Turbo
     policy.script_src  :self,
                        :https,
                        "'unsafe-inline'", # Temporaire pour les onclick handlers
+                       "'unsafe-eval'",   # Nécessaire pour Turbo Rails
                        "https://cdn.jsdelivr.net",
                        "https://cdnjs.cloudflare.com",
                        "https://unpkg.com"
@@ -33,6 +34,15 @@ Rails.application.configure do
                           "https://cdnjs.cloudflare.com"
 
     policy.style_src_attr "'unsafe-inline'" # Pour les attributs style="" nécessaires aux composants UI
+
+    # Directive spécifique pour les éléments <script>
+    policy.script_src_elem :self,
+                           :https,
+                           "'unsafe-inline'",
+                           "'unsafe-eval'",   # Nécessaire pour Turbo Rails
+                           "https://cdn.jsdelivr.net",
+                           "https://cdnjs.cloudflare.com",
+                           "https://unpkg.com"
 
     policy.script_src_attr "'unsafe-inline'" # Pour les event handlers onclick, onload, etc. dans les attributs
 
@@ -79,25 +89,25 @@ Rails.application.configure do
   end
 
   # Générer des nonces pour les scripts et styles inline autorisés
-  # Temporairement désactivé en développement pour permettre les scripts inline
-  unless Rails.env.production?
-    config.content_security_policy_nonce_generator = nil
-    config.content_security_policy_nonce_directives = []
-  else
-    config.content_security_policy_nonce_generator = ->(request) {
-      # Utiliser l'ID de session pour générer le nonce
-      request.session.id.to_s
-    }
-    # Appliquer les nonces aux directives script-src et style-src
-    config.content_security_policy_nonce_directives = %w(script-src style-src)
-  end
+  config.content_security_policy_nonce_generator = ->(request) {
+    # Utiliser un générateur de nonce sécurisé
+    SecureRandom.base64(16)
+  }
+
+  # Appliquer les nonces aux directives script-src et style-src
+  config.content_security_policy_nonce_directives = %w(script-src style-src)
 
   # Configuration environment-specific
-  if Rails.env.production?
-    # En production, être plus strict et activer l'enforcement
-    config.content_security_policy_report_only = false
-  else
-    # En développement/test, mode rapport uniquement pour identifier les problèmes
+  # CSP stricte activée par défaut en développement ET production
+  # pour détecter les problèmes tôt dans le cycle de développement
+  config.content_security_policy_report_only = false
+
+  # Option pour désactiver temporairement en développement si nécessaire
+  # Utilisez: CSP_REPORT_ONLY=true rails server
+  if Rails.env.development? && ENV['CSP_REPORT_ONLY'] == 'true'
     config.content_security_policy_report_only = true
+    Rails.logger.info "🔓 CSP en mode rapport uniquement (développement)"
+  else
+    Rails.logger.info "🔒 CSP en mode strict (#{Rails.env})"
   end
 end

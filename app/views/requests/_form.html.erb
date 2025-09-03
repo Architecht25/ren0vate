@@ -1,4 +1,4 @@
-<%= form_with model: @request, local: true, class: "needs-validation", novalidate: true do |form| %>
+<%= form_with model: @request, local: true, class: "needs-validation", novalidate: true, data: { controller: "request-form" } do |form| %>
   <div class="mb-3">
     <%= form.label :title, "Titre de la demande*", class: "form-label" %>
     <%= form.text_field :title, class: "form-control", placeholder: "Ex: Demande de prime pour isolation toiture", required: true %>
@@ -24,7 +24,7 @@
           ["Wallonie", "wallonie"]
         ],
         { include_blank: "-- Sélectionnez votre région --" },
-        { class: "form-select", required: true, id: "region-select" } %>
+        { class: "form-select", required: true, id: "region-select", data: { request_form_target: "regionSelect", action: "change->request-form#regionChanged" } } %>
     <div class="invalid-feedback">
       Veuillez sélectionner votre région.
     </div>
@@ -42,16 +42,16 @@
   </div>
 
   <!-- Sélection du type de formulaire (affiché après sélection de région) -->
-  <div id="form-type-section" class="mb-3" style="display: none;">
+  <div id="form-type-section" class="mb-3" style="display: none;" data-request-form-target="formTypeSection">
     <%= form.label :form_type, "Type de formulaire*", class: "form-label" %>
     <%= form.select :form_type,
         [],
         { include_blank: "-- Sélectionnez le type de formulaire --" },
-        { class: "form-select", required: true, id: "form-type-select" } %>
+        { class: "form-select", required: true, id: "form-type-select", data: { request_form_target: "formTypeSelect", action: "change->request-form#formTypeChanged" } } %>
     <div class="invalid-feedback">
       Veuillez sélectionner le type de formulaire.
     </div>
-    <small class="form-text text-muted" id="form-type-description">
+    <small class="form-text text-muted" id="form-type-description" data-request-form-target="formTypeDescription">
       Choisissez le type de formulaire adapté à votre situation.
     </small>
   </div>
@@ -195,225 +195,3 @@
     <% end %>
   </div>
 <% end %>
-
-<script>
-  // Fonction pour initialiser les formulaires régionaux
-  function initializeRegionalForms() {
-    const regionSelect = document.getElementById('region-select');
-    const sections = document.querySelectorAll('.region-section');
-
-    console.log('Found sections:', sections.length);
-    sections.forEach((section, index) => {
-      console.log(`Section ${index}:`, section.id, section);
-    });
-
-    if (!regionSelect) {
-      console.log('Region select not found');
-      return;
-    }
-
-  function showRegionalSection() {
-    const selectedRegion = regionSelect.value;
-    console.log('Selected region:', selectedRegion);
-
-    // Masquer toutes les sections régionales
-    sections.forEach(section => {
-      section.style.display = 'none';
-    });
-
-    // Afficher/masquer la section de sélection de type de formulaire
-    const formTypeSection = document.getElementById('form-type-section');
-    const formTypeSelect = document.getElementById('form-type-select');
-    const formTypeDescription = document.getElementById('form-type-description');
-
-    if (selectedRegion) {
-      // Afficher la section de type de formulaire
-      formTypeSection.style.display = 'block';
-
-      // Mettre à jour les options selon la région
-      updateFormTypeOptions(selectedRegion, formTypeSelect, formTypeDescription);
-    } else {
-      // Masquer la section de type de formulaire
-      formTypeSection.style.display = 'none';
-      formTypeSelect.innerHTML = '<option value="">-- Sélectionnez le type de formulaire --</option>';
-    }
-  }
-
-  function updateFormTypeOptions(region, selectElement, descriptionElement) {
-    // Vider les options existantes
-    selectElement.innerHTML = '<option value="">-- Sélectionnez le type de formulaire --</option>';
-
-    // Définir les options selon la région
-    const formTypes = {
-      'flandre': [
-        { value: 'regional', text: 'Formulaire régional', description: 'Prime régionale flamande standard' },
-        { value: 'communal', text: 'Formulaires communaux', description: 'Primes complémentaires de votre commune' },
-        { value: 'monuments', text: 'Monuments & Sites', description: 'Prime spéciale pour biens classés' }
-      ],
-      'bruxelles': [
-        { value: 'regional', text: 'Formulaire régional', description: 'Prime régionale bruxelloise standard' },
-        { value: 'monuments', text: 'Monuments & Sites', description: 'Prime spéciale pour biens classés' },
-        { value: 'petit_patrimoine', text: 'Petit patrimoine', description: 'Prime pour éléments du petit patrimoine non protégé' },
-        { value: 'communal', text: 'Primes communales', description: 'Primes complémentaires proposées par votre commune' }
-      ],
-      'wallonie': [
-        { value: 'audit', text: 'Prime Audit Énergétique', description: 'Remboursement partiel de l\'audit énergétique' },
-        { value: 'regionale', text: 'Prime Régionale', description: 'Primes habitation + énergie' },
-        { value: 'communale', text: 'Primes Communales', description: 'Primes spécifiques de votre commune' },
-        { value: 'monument', text: 'Prime Monument & Site', description: 'Primes pour biens classés ou en zone protégée' }
-      ]
-    };
-
-    // Ajouter les options pour la région sélectionnée
-    if (formTypes[region]) {
-      formTypes[region].forEach(option => {
-        const optionElement = document.createElement('option');
-        optionElement.value = option.value;
-        optionElement.textContent = option.text;
-        optionElement.dataset.description = option.description;
-        selectElement.appendChild(optionElement);
-      });
-    }
-
-    // Mettre à jour la description
-    descriptionElement.textContent = 'Choisissez le type de formulaire adapté à votre situation.';
-  }
-
-  function showFormTypeSection() {
-    const selectedFormType = document.getElementById('form-type-select').value;
-    const selectedRegion = regionSelect.value;
-
-    console.log('Selected form type:', selectedFormType, 'for region:', selectedRegion);
-
-    // Masquer toutes les sections régionales
-    sections.forEach(section => {
-      section.style.display = 'none';
-    });
-
-    // Masquer toutes les sections wallonnes spécifiquement
-    const wallonieSections = document.querySelectorAll('.wallonie-prime-section');
-    wallonieSections.forEach(section => {
-      section.style.display = 'none';
-    });
-
-    // Afficher la section appropriée selon le type et la région
-    if (selectedFormType && selectedRegion) {
-      let targetSectionId = '';
-
-      // Logique spéciale pour la Wallonie
-      if (selectedRegion === 'wallonie') {
-        // Pour la Wallonie, on affiche directement la section spécifique
-        if (selectedFormType === 'communale') {
-          targetSectionId = 'wallonie-communal-section';
-        } else if (selectedFormType === 'monument') {
-          targetSectionId = 'wallonie-monuments-section';
-        } else {
-          // Pour audit et regionale, on affiche la section wallonie principale
-          const wallonieMasterSection = document.getElementById('wallonie-section');
-          if (wallonieMasterSection) {
-            wallonieMasterSection.style.display = 'block';
-            console.log('Showing wallonie master section');
-          }
-
-          // Puis afficher la sous-section spécifique selon le type
-          if (selectedFormType === 'audit' || selectedFormType === 'regionale') {
-            const targetSection = document.getElementById(selectedFormType + '-section');
-            if (targetSection) {
-              targetSection.style.display = 'block';
-              console.log('Showing wallonie subsection:', selectedFormType + '-section');
-            }
-          }
-        }
-
-        // Afficher la section spécifique si targetSectionId est défini pour la Wallonie
-        if (targetSectionId) {
-          const targetSection = document.getElementById(targetSectionId);
-          if (targetSection) {
-            targetSection.style.display = 'block';
-            console.log('Showing wallonie specific section:', targetSectionId);
-          }
-        }
-      } else {
-        // Pour les autres régions, logique normale
-        if (selectedFormType === 'regional') {
-          targetSectionId = selectedRegion + '-section';
-        } else if (selectedFormType === 'communal') {
-          targetSectionId = selectedRegion + '-communal-section';
-        } else if (selectedFormType === 'monuments') {
-          targetSectionId = selectedRegion + '-monuments-section';
-        } else if (selectedFormType === 'petit_patrimoine') {
-          targetSectionId = selectedRegion + '-petit_patrimoine-section';
-        }
-
-        const targetSection = document.getElementById(targetSectionId);
-        if (targetSection) {
-          targetSection.style.display = 'block';
-          console.log('Showing section:', targetSectionId);
-        } else {
-          // Fallback vers la section régionale principale
-          const fallbackSection = document.getElementById(selectedRegion + '-section');
-          if (fallbackSection) {
-            fallbackSection.style.display = 'block';
-            console.log('Fallback to regional section:', selectedRegion + '-section');
-          }
-        }
-      }
-    }
-
-    // Mettre à jour la description selon l'option sélectionnée
-    const formTypeSelect = document.getElementById('form-type-select');
-    const selectedOption = formTypeSelect.querySelector(`option[value="${selectedFormType}"]`);
-    const descriptionElement = document.getElementById('form-type-description');
-
-    if (selectedOption && selectedOption.dataset.description) {
-      descriptionElement.textContent = selectedOption.dataset.description;
-    }
-
-    // Gérer l'affichage des boutons spécifiques aux régions
-    updateRegionalButtons(selectedRegion, selectedFormType);
-  }
-
-  function updateRegionalButtons(region, formType) {
-    // Masquer tous les boutons régionaux
-    const buttons = ['flandre-continue-btn', 'wallonie-continue-btn', 'bruxelles-continue-btn'];
-    buttons.forEach(btnId => {
-      const btn = document.getElementById(btnId);
-      if (btn) btn.style.display = 'none';
-    });
-
-    // Afficher le bouton approprié pour le formulaire régional
-    if (formType === 'regional' && region) {
-      const targetBtn = document.getElementById(region + '-continue-btn');
-      if (targetBtn) {
-        targetBtn.style.display = 'inline-block';
-      }
-    }
-  }    // Initialiser immédiatement
-    console.log('Initial region value:', regionSelect.value);
-    showRegionalSection();
-
-    // Écouter les changements sur le sélecteur de région
-    regionSelect.addEventListener('change', showRegionalSection);
-
-    // Écouter les changements sur le sélecteur de type de formulaire
-    const formTypeSelect = document.getElementById('form-type-select');
-    if (formTypeSelect) {
-      formTypeSelect.addEventListener('change', showFormTypeSection);
-    }
-
-    // Réessayer après un court délai pour s'assurer que tout est chargé
-    setTimeout(function() {
-      console.log('Delayed initialization - region value:', regionSelect.value);
-      showRegionalSection();
-    }, 100);
-  }
-
-  // Initialiser au chargement de la page
-  document.addEventListener('DOMContentLoaded', initializeRegionalForms);
-
-  // Réessayer avec Turbo (Rails 7+)
-  document.addEventListener('turbo:load', initializeRegionalForms);
-
-  // Fallback pour les anciennes versions de Rails
-  document.addEventListener('page:load', initializeRegionalForms);
-</script>

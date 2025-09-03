@@ -28,8 +28,8 @@ export default class extends Controller {
     const type = this.hasSelectTarget ? this.selectTarget.value : null;
     const categorie = window.categorieId || "1";
 
-    // 🎯 Recherche de la prime dans window.primes
-    const prime = window.primes.find(p => p.slug === slug);
+    // 🎯 Recherche de la prime dans window.primes avec vérification de sécurité
+    const prime = window.primes && Array.isArray(window.primes) ? window.primes.find(p => p.slug === slug) : null;
 
     if (prime && this.hasInputTarget) {
       const placeholderTexte = prime.placeholder?.[categorie];

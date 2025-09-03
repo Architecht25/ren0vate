@@ -9,6 +9,8 @@ class RequestsController < ApplicationController
 
   def new
     @request = Request.new
+    # Charger les primes pour le prime_card_controller
+    @primes = Prime.all
   end
 
   def create

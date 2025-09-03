@@ -1,4 +1,12 @@
 <div class="container-fluid px-4 py-4">
+  <!-- Initialisation des données globales pour JavaScript -->
+  <%= content_for :head do %>
+    <script nonce="<%= content_security_policy_nonce %>">
+      window.primes = <%= raw(@primes.to_json(only: [:id, :nom, :slug, :placeholder, :montant_max, :region])) if @primes.present? %> || [];
+      window.categorieId = "1"; // Catégorie par défaut
+    </script>
+  <% end %>
+
   <!-- Header épuré -->
   <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
     <div class="d-flex align-items-center">

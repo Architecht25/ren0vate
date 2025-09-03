@@ -1,4 +1,5 @@
 import "@hotwired/turbo-rails"
+import "./turbo_csp_config"
 // import "bootstrap" // Commenté car on utilise Bootstrap via CDN
 import "sweetalert2"
 
