@@ -383,7 +383,9 @@
 
 <script nonce="<%= content_security_policy_nonce %>">
 // Base de données des communes wallonnes avec leurs informations
-const wallonieCommunesData = {
+// Éviter la redéclaration lors des rechargements Turbo
+if (typeof wallonieCommunesData === 'undefined') {
+  var wallonieCommunesData = {
   // Brabant wallon
   'wavre': { province: 'brabant-wallon', cp: '1300', primes: ['façade', 'énergie'], phone: '010/23.03.11' },
   'ottignies-louvain-la-neuve': { province: 'brabant-wallon', cp: '1348', primes: ['façade', 'énergie', 'verdissement'], phone: '010/43.61.11' },
@@ -416,7 +418,8 @@ const wallonieCommunesData = {
   'gembloux': { province: 'namur', cp: '5030', primes: ['façade', 'énergie'], phone: '081/62.61.11' },
   'andenne': { province: 'namur', cp: '5300', primes: ['façade'], phone: '085/84.96.11' },
   'ciney': { province: 'namur', cp: '5590', primes: ['façade', 'énergie'], phone: '083/21.16.11' }
-};
+  };
+}
 
 function searchWallonieCommune(searchTerm) {
   if (searchTerm.length < 2) {

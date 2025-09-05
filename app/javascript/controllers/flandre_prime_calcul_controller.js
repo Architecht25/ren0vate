@@ -227,6 +227,18 @@ export default class extends Controller {
   }
 
   saveToDatabase() {
+    // Vérifier si la restauration est en cours
+    if (window.isRestoringValues) {
+      console.log('🔄 Sauvegarde Flandre ignorée: restauration en cours');
+      return;
+    }
+
+    // Protection supplémentaire contre les blocages
+    if (window.restorationStartTime && (Date.now() - window.restorationStartTime) > 10000) {
+      console.log('⚠️ Restauration Flandre bloquée depuis > 10s, forçage de la réinitialisation');
+      window.isRestoringValues = false;
+    }
+
     if (!this.simulationId) return
 
     // Collecter toutes les données des inputs
@@ -242,6 +254,8 @@ export default class extends Controller {
 
     // Sauvegarder via API
     if (Object.keys(userInputs).length > 0) {
+      console.log('💾 Sauvegarde Flandre des données:', Object.keys(userInputs).length, 'saisies');
+
       fetch(`/fr/simulations/${this.simulationId}/update_prime_inputs`, {
         method: 'PATCH',
         headers: {
@@ -254,10 +268,15 @@ export default class extends Controller {
       .then(data => {
         if (data.success) {
           console.log("✅ Auto-save Flandre réussi:", data.total_amount, "€")
+          this.showSaveIndicator('success');
+        } else {
+          console.error("❌ Erreur auto-save Flandre:", data.error)
+          this.showSaveIndicator('error');
         }
       })
       .catch(error => {
         console.error("❌ Erreur auto-save Flandre:", error)
+        this.showSaveIndicator('error');
       })
     }
   }
@@ -268,6 +287,12 @@ export default class extends Controller {
     const slug = input.dataset.slug
 
     if (!slug || !this.simulationId) return
+
+    // Vérifier si la restauration est en cours
+    if (window.isRestoringValues) {
+      console.log('🔄 Sauvegarde input Flandre ignorée: restauration en cours');
+      return;
+    }
 
     const userInputs = { [slug]: input.value }
 
@@ -288,5 +313,32 @@ export default class extends Controller {
     .catch(error => {
       console.error("❌ Erreur auto-save:", error)
     })
+  }
+
+  // Indicateur visuel de sauvegarde
+  showSaveIndicator(status) {
+    const indicator = document.getElementById('save-indicator') || this.createSaveIndicator();
+
+    indicator.className = `position-fixed top-0 end-0 m-3 alert alert-${status === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+    indicator.style.zIndex = '9999';
+    indicator.innerHTML = `
+      <i class="bi bi-${status === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+      ${status === 'success' ? 'Simulation Flandre sauvegardée' : 'Erreur sauvegarde Flandre'}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+
+    // Masquer automatiquement après 3 secondes
+    setTimeout(() => {
+      if (indicator.parentNode) {
+        indicator.remove();
+      }
+    }, 3000);
+  }
+
+  createSaveIndicator() {
+    const indicator = document.createElement('div');
+    indicator.id = 'save-indicator';
+    document.body.appendChild(indicator);
+    return indicator;
   }
 }

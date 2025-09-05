@@ -31,6 +31,12 @@
   </div>
 </div>
 
+<!-- Bouton de sauvegarde flottant -->
+<%= render 'shared/save_simulation_button' %>
+
+<!-- Auto-save discret en arrière-plan -->
+<%= render 'shared/simple_autosave' %>
+
 <div class="container-fluid">
   <div class="row">
     <!-- Contenu principal - pleine largeur -->
@@ -154,11 +160,14 @@
 
           // Marquer temporairement qu'on est en phase de restauration
           window.isRestoringValues = true;
+          window.restorationStartTime = Date.now(); // Timer de sécurité
 
           function restoreSavedInputs() {
             // Éviter les restaurations multiples sur la même page
             if (restorationApplied) {
               console.log('🔄 Restauration déjà appliquée, ignorée');
+              // S'assurer que isRestoringValues est réinitialisé même si on skip
+              window.isRestoringValues = false;
               return;
             }
 
@@ -240,11 +249,11 @@
                 console.log(`🎉 Restauration terminée: ${restoredCount} valeurs restaurées`);
               }
 
-              // Marquer la fin de la restauration
+              // Marquer la fin de la restauration avec un délai de sécurité plus court
               setTimeout(() => {
                 window.isRestoringValues = false;
                 console.log('🔄 Restauration terminée, auto-save réactivé');
-              }, 500);
+              }, 200); // Réduire de 500ms à 200ms
 
               return restoredCount;
             }
@@ -264,12 +273,13 @@
                     clearInterval(retryInterval);
                     if (retryRestored === 0) {
                       console.log('❌ Aucune valeur n\'a pu être restaurée après 3 tentatives');
+                      // Force la réinitialisation même en cas d'échec
                       window.isRestoringValues = false;
                     }
                   }
                 }, 500);
               }
-            }, 1500);
+            }, 1000); // Réduire de 1500ms à 1000ms
           }
 
           // Écouter les événements de navigation

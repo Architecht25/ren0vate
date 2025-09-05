@@ -80,7 +80,14 @@
           } %>
 
       <div class="col-md-12">
-        <!-- Sélection du type de formulaire pour propriété pré-sélectionnée -->
+        <% if @request.persisted? %>
+          <div class="alert alert-info mb-3">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>Modification du brouillon</strong> - Région: <%= @request.region.capitalize %>
+          </div>
+        <% end %>
+
+        <!-- Sélection des formulaires toujours visible (création et édition) -->
         <div id="form-type-section" class="mb-3" style="display: block;" data-request-form-target="formTypeSection">
           <%= form.label :form_type, "Type de formulaire*", class: "form-label mb-3" %>
 
@@ -104,12 +111,14 @@
   </div>
 
   <!-- Section Flandre -->
-  <div id="flandre-section" class="region-section" style="display: none;">
+  <div id="flandre-section" class="region-section"
+       style="<%= @request.persisted? && @request.property&.region == 'Flandre' ? 'display: block;' : 'display: none;' %>">
     <%= render 'requests/region_forms/flandre', form: form, form_data: @form_data %>
   </div>
 
   <!-- Section Monuments & Sites Flandre -->
-  <div id="flandre-monuments-section" class="region-section" style="display: none;">
+  <div id="flandre-monuments-section" class="region-section"
+       style="display: none;">
     <div class="alert alert-info">
       <i class="bi bi-info-circle me-2"></i>
       <strong>Formulaire spécialisé Monuments & Sites - Flandre</strong>
@@ -119,7 +128,8 @@
   </div>
 
   <!-- Section Formulaires Communaux Flandre -->
-  <div id="flandre-communal-section" class="region-section" style="display: none;">
+  <div id="flandre-communal-section" class="region-section"
+       style="<%= @request.persisted? && @request.property&.region == 'flandre' && @request.form_type == 'flandre-communal' ? 'display: block;' : 'display: none;' %>">
     <div class="alert alert-primary">
       <i class="bi bi-info-circle me-2"></i>
       <strong>Formulaires Communaux - Flandre</strong>
@@ -129,12 +139,14 @@
   </div>
 
   <!-- Section Bruxelles -->
-  <div id="bruxelles-section" class="region-section" style="display: none;">
+  <div id="bruxelles-section" class="region-section"
+       style="<%= @request.persisted? && @request.property&.region == 'Bruxelles-Capitale' ? 'display: block;' : 'display: none;' %>">
     <%= render 'requests/region_forms/bruxelles', form: form, form_data: @form_data %>
   </div>
 
   <!-- Section Monuments & Sites Bruxelles -->
-  <div id="bruxelles-monuments-section" class="region-section" style="display: none;">
+  <div id="bruxelles-monuments-section" class="region-section"
+       style="display: none;">
     <div class="alert alert-info">
       <i class="bi bi-info-circle me-2"></i>
       <strong>Formulaire spécialisé Monuments & Sites - Bruxelles</strong>
@@ -144,7 +156,8 @@
   </div>
 
   <!-- Section Petit Patrimoine Bruxelles -->
-  <div id="bruxelles-petit_patrimoine-section" class="region-section" style="display: none;">
+  <div id="bruxelles-petit_patrimoine-section" class="region-section"
+       style="<%= @request.persisted? && @request.property&.region == 'bruxelles' && @request.form_type == 'bruxelles-petit_patrimoine' ? 'display: block;' : 'display: none;' %>">
     <div class="alert alert-success">
       <i class="bi bi-info-circle me-2"></i>
       <strong>Formulaire spécialisé Petit Patrimoine - Bruxelles</strong>
@@ -154,7 +167,8 @@
   </div>
 
   <!-- Section Primes Communales Bruxelles -->
-  <div id="bruxelles-communal-section" class="region-section" style="display: none;">
+  <div id="bruxelles-communal-section" class="region-section"
+       style="<%= @request.persisted? && @request.property&.region == 'bruxelles' && @request.form_type == 'bruxelles-communal' ? 'display: block;' : 'display: none;' %>">
     <div class="alert alert-warning">
       <i class="bi bi-info-circle me-2"></i>
       <strong>Primes Communales - Bruxelles</strong>
@@ -164,12 +178,14 @@
   </div>
 
   <!-- Section Wallonie -->
-  <div id="wallonie-section" class="region-section" style="display: none;">
+  <div id="wallonie-section" class="region-section"
+       style="<%= @request.persisted? && @request.property&.region == 'Wallonie' ? 'display: block;' : 'display: none;' %>">
     <%= render 'requests/region_forms/wallonie', form: form, form_data: @form_data %>
   </div>
 
   <!-- Section Monuments & Sites Wallonie -->
-  <div id="wallonie-monuments-section" class="region-section" style="display: none;">
+  <div id="wallonie-monuments-section" class="region-section"
+       style="display: none;">
     <div class="alert alert-info">
       <i class="bi bi-info-circle me-2"></i>
       <strong>Formulaire spécialisé Monuments & Sites - Wallonie</strong>
@@ -179,7 +195,8 @@
   </div>
 
   <!-- Section Primes Communales Wallonie -->
-  <div id="wallonie-communal-section" class="region-section" style="display: none;">
+  <div id="wallonie-communal-section" class="region-section"
+       style="<%= @request.persisted? && @request.property&.region == 'wallonie' && @request.form_type == 'wallonie-communal' ? 'display: block;' : 'display: none;' %>">
     <div class="alert alert-success">
       <i class="bi bi-info-circle me-2"></i>
       <strong>Primes Communales - Wallonie</strong>
@@ -189,7 +206,7 @@
   </div>
 
   <!-- Boutons d'action -->
-  <div class="d-flex gap-2 mt-4" id="submission-buttons" <% if @property.blank? %>style="display: none !important;"<% end %>>
+  <div class="d-flex gap-2 mt-4" id="submission-buttons" style="display: flex;">
     <% if @request.persisted? %>
       <% if @request.draft? %>
         <!-- Brouillon existant - permet encore de sauvegarder ou de soumettre -->
@@ -207,6 +224,13 @@
         tu parles de ca?
       <% end %>
     <% else %>
+      <!-- Nouvelles demandes - boutons de soumission -->
+      <%= form.submit "Créer la demande", class: "btn btn-primary-custom px-4" %>
+      <%= form.submit "Sauvegarder en brouillon",
+          name: "commit",
+          value: "Sauvegarder en brouillon",
+          class: "btn btn-outline-primary-custom px-4",
+          formnovalidate: true %>
 
       <!-- Bouton spécifique pour la Flandre -->
       <a href="https://www.vlaanderen.be/premies-pour-renovation/mijn-verbouwpremie"
@@ -244,9 +268,6 @@
     <% end %>
   </div>
   <% end %>
-
-  <!-- Target invisible pour JavaScript (compatibilité) -->
-  <div id="form-type-section" data-request-form-target="formTypeSection" style="display: none;"></div>
 
   <% if @property.present? %>
   <!-- Script pour initialiser automatiquement le formulaire avec bien pré-sélectionné -->

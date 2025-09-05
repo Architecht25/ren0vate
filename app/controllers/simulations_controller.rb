@@ -229,10 +229,6 @@ class SimulationsController < ApplicationController
     end
   end
 
-  def test_autosave
-    @simulation = Simulation.find(params[:id])
-  end
-
   private
 
   # Helper pour parser les paramètres de simulation de manière sécurisée

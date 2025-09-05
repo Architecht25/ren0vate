@@ -2,6 +2,9 @@ class ApplicationController < ActionController::Base
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
 
+  # Protection CSRF
+  protect_from_forgery with: :exception
+
   # Configuration I18n pour la Belgique
   before_action :set_locale
   around_action :switch_locale

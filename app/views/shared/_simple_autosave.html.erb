@@ -1,0 +1,79 @@
+<!-- Auto-save simplifié en arrière-plan -->
+<script nonce="<%= content_security_policy_nonce %>">
+(function() {
+  // Auto-save simplifié (moins agressif)
+  let autoSaveTimeout;
+  let lastSaveData = null;
+  const simulationId = '<%= @simulation&.id %>';
+
+  function simpleAutoSave() {
+    // Skip si pas d'ID de simulation
+    if (!simulationId) return;
+
+    // Skip si une sauvegarde manuelle est en cours
+    const saveButton = document.getElementById('save-simulation-btn');
+    if (saveButton && saveButton.disabled) return;
+
+    // Collecter les données (réutiliser la fonction du bouton)
+    if (typeof collectAllUserInputs === 'function') {
+      const userInputs = collectAllUserInputs();
+      const dataString = JSON.stringify(userInputs);
+
+      // Skip si aucun changement depuis la dernière sauvegarde
+      if (dataString === lastSaveData) return;
+
+      // Skip si aucune donnée
+      if (Object.keys(userInputs).length === 0) return;
+
+      lastSaveData = dataString;
+
+      // Sauvegarde discrète
+      fetch(`/simulations/${simulationId}/update_prime_inputs`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ user_inputs: userInputs })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          console.log('💾 Auto-save discret réussi:', data.total_amount + '€');
+
+          // Mise à jour discrète du bouton de sauvegarde
+          if (saveButton) {
+            const hasChanges = saveButton.classList.contains('btn-warning');
+            if (hasChanges) {
+              saveButton.classList.remove('btn-warning');
+              saveButton.classList.add('btn-success');
+              saveButton.querySelector('.save-text').textContent = 'Enregistrer ma simulation';
+              window.hasUnsavedChanges = false;
+            }
+          }
+        }
+      })
+      .catch(error => {
+        console.log('⚠️ Auto-save discret échoué:', error.message);
+        // Pas d'alerte utilisateur pour l'auto-save discret
+      });
+    }
+  }
+
+  // Déclencher l'auto-save avec un délai plus long (5 secondes)
+  function debouncedAutoSave() {
+    clearTimeout(autoSaveTimeout);
+    autoSaveTimeout = setTimeout(simpleAutoSave, 5000);
+  }
+
+  // Écouter les modifications avec un délai plus long
+  document.addEventListener('input', function(e) {
+    if (e.target.matches('[data-controller*="prime-card"] input, [data-controller*="prime-card"] select')) {
+      debouncedAutoSave();
+    }
+  });
+
+  console.log('🔄 Auto-save discret activé (délai: 5s)');
+})();
+</script>

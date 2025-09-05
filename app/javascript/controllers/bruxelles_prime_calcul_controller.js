@@ -6,6 +6,10 @@ export default class extends Controller {
   connect() {
     console.log("🎯 Bruxelles Prime Calcul controller connected")
 
+    // Récupérer l'ID de simulation
+    this.simulationId = this.getSimulationId();
+    this.saveTimeout = null;
+
     // Forcer la catégorie I par défaut pour harmoniser dev/prod
     if (!localStorage.getItem("bruxellesCategorieEstimee")) {
       localStorage.setItem("bruxellesCategorieEstimee", "1")
@@ -15,6 +19,7 @@ export default class extends Controller {
     this.setupPrimesData()
     this.setupEventListeners()
     this.updateTotalGlobal()
+    this.setupAutoSaveListeners()
   }
 
   setupEventListeners() {
@@ -27,7 +32,49 @@ export default class extends Controller {
     // Écouter les mises à jour des cartes enfants
     document.addEventListener('bruxelles:card:updated', () => {
       this.updateTotalGlobal()
+      this.debouncedAutoSave() // Déclencher l'auto-save
     })
+  }
+
+  // Configuration des événements d'auto-save
+  setupAutoSaveListeners() {
+    // Écouter les changements sur tous les inputs
+    this.element.addEventListener('input', (event) => {
+      if (event.target.matches('input[data-slug], select[data-slug]')) {
+        console.log('📝 Input Bruxelles changé:', event.target.dataset.slug, event.target.value);
+        this.debouncedAutoSave();
+      }
+    });
+
+    this.element.addEventListener('change', (event) => {
+      if (event.target.matches('input[data-slug], select[data-slug]')) {
+        console.log('🔄 Change Bruxelles détecté:', event.target.dataset.slug, event.target.value);
+        this.debouncedAutoSave();
+      }
+    });
+  }
+
+  // Récupérer l'ID de simulation depuis l'URL ou les données
+  getSimulationId() {
+    // Méthode 1: Depuis l'URL
+    const pathParts = window.location.pathname.split('/');
+    const simulationIndex = pathParts.indexOf('simulations');
+    if (simulationIndex !== -1 && pathParts[simulationIndex + 1]) {
+      return pathParts[simulationIndex + 1];
+    }
+
+    // Méthode 2: Depuis un script de données
+    const categoryData = document.getElementById('simulation-category-data');
+    if (categoryData) {
+      try {
+        const data = JSON.parse(categoryData.textContent);
+        return data.simulationId;
+      } catch (e) {
+        console.warn('Impossible de parser simulation-category-data');
+      }
+    }
+
+    return null;
 
     // Ajouter les événements d'écoute pour les champs spécifiques
     this.addSpecificFieldListeners()
@@ -568,10 +615,108 @@ export default class extends Controller {
     return selectedPrimes
   }
 
-  // Méthode d'auto-save (à implémenter si nécessaire)
+  // Méthode d'auto-save complète
   autoSave() {
-    // Logique d'auto-save similaire à Flandre/Wallonie
-    console.log("🔄 Auto-save Bruxelles (à implémenter)")
+    // Vérifier si la restauration est en cours
+    if (window.isRestoringValues) {
+      console.log('🔄 Sauvegarde Bruxelles ignorée: restauration en cours');
+      return;
+    }
+
+    // Protection supplémentaire contre les blocages
+    if (window.restorationStartTime && (Date.now() - window.restorationStartTime) > 10000) {
+      console.log('⚠️ Restauration Bruxelles bloquée depuis > 10s, forçage de la réinitialisation');
+      window.isRestoringValues = false;
+    }
+
+    if (!this.simulationId) return;
+
+    // Collecter toutes les données des inputs
+    const userInputs = {};
+    const allInputs = this.element.querySelectorAll('input[data-slug], select[data-slug]');
+
+    allInputs.forEach(input => {
+      const slug = input.dataset.slug;
+      if (slug) {
+        let value = null;
+
+        if (input.type === 'checkbox') {
+          value = input.checked ? 1 : 0;
+        } else if (input.type === 'number') {
+          value = parseFloat(input.value) || 0;
+        } else if (input.tagName === 'SELECT') {
+          value = input.value;
+        } else {
+          value = input.value;
+        }
+
+        if (value !== null && value !== '' && value !== '0') {
+          userInputs[slug] = value;
+        }
+      }
+    });
+
+    // Sauvegarder via API
+    if (Object.keys(userInputs).length > 0) {
+      console.log('💾 Sauvegarde Bruxelles des données:', Object.keys(userInputs).length, 'saisies');
+
+      fetch(`/fr/simulations/${this.simulationId}/update_prime_inputs`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ user_inputs: userInputs })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          console.log("✅ Auto-save Bruxelles réussi:", data.total_amount, "€");
+          this.showSaveIndicator('success');
+        } else {
+          console.error("❌ Erreur auto-save Bruxelles:", data.error);
+          this.showSaveIndicator('error');
+        }
+      })
+      .catch(error => {
+        console.error("❌ Erreur auto-save Bruxelles:", error);
+        this.showSaveIndicator('error');
+      });
+    }
+  }
+
+  // Sauvegarde débounced pour éviter trop d'appels
+  debouncedAutoSave() {
+    clearTimeout(this.saveTimeout);
+    this.saveTimeout = setTimeout(() => this.autoSave(), 1000);
+  }
+
+  // Indicateur visuel de sauvegarde
+  showSaveIndicator(status) {
+    const indicator = document.getElementById('save-indicator') || this.createSaveIndicator();
+
+    indicator.className = `position-fixed top-0 end-0 m-3 alert alert-${status === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+    indicator.style.zIndex = '9999';
+    indicator.innerHTML = `
+      <i class="bi bi-${status === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
+      ${status === 'success' ? 'Simulation Bruxelles sauvegardée' : 'Erreur sauvegarde Bruxelles'}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+
+    // Masquer automatiquement après 3 secondes
+    setTimeout(() => {
+      if (indicator.parentNode) {
+        indicator.remove();
+      }
+    }, 3000);
+  }
+
+  createSaveIndicator() {
+    const indicator = document.createElement('div');
+    indicator.id = 'save-indicator';
+    document.body.appendChild(indicator);
+    return indicator;
   }
 
   // Méthode pour mettre à jour l'affichage de la catégorie

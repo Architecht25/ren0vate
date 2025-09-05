@@ -127,6 +127,7 @@ Rails.application.routes.draw do
   resources :requests do
     # Documents liés à une demande
     resources :documents, shallow: true
+
   end
 
   resources :simulations do
@@ -136,7 +137,6 @@ Rails.application.routes.draw do
       post :calculate_primes    # Étape 3: Calcul des primes
       patch :update_prime_inputs # Sauvegarde des saisies utilisateur
       get :restore_prime_inputs # Restauration des saisies utilisateur
-      get :test_autosave       # Page de test pour l'auto-save
     end
     # Documents liés à une simulation
     resources :documents, shallow: true

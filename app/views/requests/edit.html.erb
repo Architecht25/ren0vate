@@ -53,6 +53,74 @@
       }, false);
     });
 })();
+
+// Initialisation spécifique pour l'édition
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🔧 Initialisation page d\'édition');
+  console.log('   Région du brouillon: <%= @request.region %>');
+
+  // Fonction d'initialisation pour affichage direct du formulaire
+  function initializeEditForm() {
+    const region = '<%= @request.region %>';
+    if (!region) return;
+
+    console.log('   Affichage direct du formulaire pour région:', region);
+
+    // Masquer toutes les sections régionales d'abord
+    const sections = document.querySelectorAll('.region-section');
+    sections.forEach(section => {
+      section.style.display = 'none';
+    });
+
+    // Afficher directement la section appropriée
+    if (region === 'wallonie') {
+      // Pour Wallonie, afficher la section principale et la sous-section régionale
+      const wallonieSection = document.getElementById('wallonie-section');
+      if (wallonieSection) {
+        wallonieSection.style.display = 'block';
+        console.log('   ✅ Section Wallonie affichée');
+
+        // Afficher aussi la sous-section régionale par défaut
+        setTimeout(() => {
+          const regionaleSection = document.getElementById('regionale-section');
+          if (regionaleSection) {
+            regionaleSection.style.display = 'block';
+            console.log('   ✅ Sous-section régionale affichée');
+          }
+        }, 100);
+      }
+    } else if (region === 'flandre') {
+      const flandreSection = document.getElementById('flandre-section');
+      if (flandreSection) {
+        flandreSection.style.display = 'block';
+        console.log('   ✅ Section Flandre affichée');
+      }
+    } else if (region === 'bruxelles') {
+      const bruxellesSection = document.getElementById('bruxelles-section');
+      if (bruxellesSection) {
+        bruxellesSection.style.display = 'block';
+        console.log('   ✅ Section Bruxelles affichée');
+      }
+    }
+
+    // Afficher les boutons de soumission
+    const buttonSection = document.getElementById('submission-buttons');
+    if (buttonSection) {
+      buttonSection.style.display = 'flex';
+      console.log('   ✅ Boutons de soumission affichés');
+    }
+
+    return true;
+  }
+
+  // Lancer l'initialisation immédiatement
+  if (!initializeEditForm()) {
+    // Si ça échoue, réessayer avec un délai
+    setTimeout(() => {
+      initializeEditForm();
+    }, 200);
+  }
+});
 </script>
 
 <!-- Utilise le fichier CSS externe properties.css -->

@@ -82,6 +82,19 @@ class RequestsController < ApplicationController
 
   def edit
     @request = Request.find(params[:id])
+
+    # Charger les primes pour le prime_card_controller
+    @primes = Prime.all
+
+    # Charger la propriété associée pour les données de pré-remplissage
+    @property = @request.property
+
+    # Préparer les données de formulaire si une propriété est associée
+    if @property.present?
+      @form_data = build_formulaire_data(@property)
+    else
+      @form_data = build_user_data
+    end
   end
 
   def update

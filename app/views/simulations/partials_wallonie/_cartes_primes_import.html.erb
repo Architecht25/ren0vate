@@ -1193,6 +1193,14 @@ document.addEventListener('DOMContentLoaded', function() {
   // Écouter les saisies dans les champs numériques
   document.addEventListener('input', function(event) {
     if (event.target.type === 'number' && event.target.closest('[data-controller="wallonie-prime-card"]')) {
+      // Debug: vérifier l'état de restauration
+      if (window.isRestoringValues) {
+        console.log('🔍 Input détecté pendant restauration, vérification...', {
+          isRestoring: window.isRestoringValues,
+          timeSinceRestore: window.restorationStartTime ? Date.now() - window.restorationStartTime : 'N/A'
+        });
+      }
+
       // Délai court pour laisser le contrôleur mettre à jour les montants
       setTimeout(() => {
         updateSelectedPrimesSummary();
@@ -1207,6 +1215,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if (window.isRestoringValues) {
       console.log('🔄 Sauvegarde ignorée: restauration en cours');
       return;
+    }
+
+    // Protection supplémentaire: vérifier si la restauration est bloquée depuis trop longtemps
+    if (window.restorationStartTime && (Date.now() - window.restorationStartTime) > 10000) {
+      console.log('⚠️ Restauration bloquée depuis > 10s, forçage de la réinitialisation');
+      window.isRestoringValues = false;
     }
 
     const simulationId = '<%= @simulation&.id %>';
@@ -1274,6 +1288,18 @@ document.addEventListener('DOMContentLoaded', function() {
       timeoutId = setTimeout(saveSimulationData, 1000); // 1 seconde de délai
     };
   })();
+
+  // Vérification périodique pour débloquer l'auto-save si nécessaire
+  setInterval(() => {
+    if (window.isRestoringValues && window.restorationStartTime) {
+      const timeSinceRestore = Date.now() - window.restorationStartTime;
+      if (timeSinceRestore > 15000) { // 15 secondes
+        console.log('🚨 Auto-save bloqué depuis 15s, forçage de déblocage');
+        window.isRestoringValues = false;
+        delete window.restorationStartTime;
+      }
+    }
+  }, 5000); // Vérifier toutes les 5 secondes
 
   // Indicateur visuel de sauvegarde
   function showSaveIndicator(status) {
