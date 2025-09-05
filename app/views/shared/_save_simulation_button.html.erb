@@ -145,6 +145,27 @@ function collectAllUserInputs() {
     }
   });
 
+  // Entreprises Bruxelles - gestion spécifique
+  document.querySelectorAll('[data-controller="bruxelles-entreprise-calcul"] input, [data-controller="bruxelles-entreprise-calcul"] select').forEach(input => {
+    // Collecter les sélects de configuration entreprise
+    if (input.matches('[data-bruxelles-entreprise-calcul-target="tailleEntreprise"], [data-bruxelles-entreprise-calcul-target="ageEntreprise"]')) {
+      const fieldName = input.matches('[data-bruxelles-entreprise-calcul-target="tailleEntreprise"]') ? 'entreprise_taille' : 'entreprise_age';
+      if (input.value) {
+        userInputs[fieldName] = input.value;
+      }
+    }
+
+    // Collecter les inputs avec data-slug (montants investis)
+    if (input.dataset.slug && input.value && input.value !== '0' && input.value !== '') {
+      userInputs[input.dataset.slug] = input.value;
+    }
+
+    // Collecter les inputs avec name (pour compatibilité)
+    if (input.name && input.value && input.value !== '0' && input.value !== '' && !input.dataset.slug) {
+      userInputs[`bruxelles_entreprise_${input.name}`] = input.value;
+    }
+  });
+
   return userInputs;
 }
 

@@ -153,10 +153,25 @@ class SimulationsController < ApplicationController
   def update_prime_inputs
     @simulation = Simulation.find(params[:id])
 
-    # Permettre tous les paramètres user_inputs
-    user_inputs = params.require(:user_inputs).permit!.to_h
+    # Permettre tous les paramètres user_inputs, gérer le cas des données vides pour l'auto-save
+    user_inputs = if params[:user_inputs].present?
+      params.require(:user_inputs).permit!.to_h
+    else
+      {}
+    end
 
     Rails.logger.info "🔄 Updating prime inputs for simulation #{@simulation.id} with #{user_inputs.keys.length} inputs"
+
+    # Si pas de données, retourner succès sans traitement (pour l'auto-save vide)
+    if user_inputs.empty?
+      Rails.logger.info "📝 Auto-save avec données vides ignoré pour simulation #{@simulation.id}"
+      render json: {
+        success: true,
+        message: "Aucune donnée à sauvegarder",
+        total_amount: @simulation.total_simule || 0
+      }
+      return
+    end
 
     begin
       # Utiliser le service pour mettre à jour les données

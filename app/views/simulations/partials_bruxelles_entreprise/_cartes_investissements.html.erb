@@ -41,7 +41,10 @@
               <div class="row g-3">
                 <div class="col-md-6">
                   <label class="form-label small">Taille de l'entreprise :</label>
-                  <select class="form-select form-select-sm" data-bruxelles-entreprise-calcul-target="tailleEntreprise">
+                  <select class="form-select form-select-sm"
+                          data-bruxelles-entreprise-calcul-target="tailleEntreprise"
+                          data-slug="entreprise_taille"
+                          data-action="change->bruxelles-entreprise-calcul#tailleEntrepriseChanged">
                     <option value="">-- Sélectionnez --</option>
                     <option value="tpe">TPE (0-9 salariés)</option>
                     <option value="pme">PME (10-49 salariés)</option>
@@ -50,7 +53,10 @@
                 </div>
                 <div class="col-md-6">
                   <label class="form-label small">Âge de l'entreprise :</label>
-                  <select class="form-select form-select-sm" data-bruxelles-entreprise-calcul-target="ageEntreprise">
+                  <select class="form-select form-select-sm"
+                          data-bruxelles-entreprise-calcul-target="ageEntreprise"
+                          data-slug="entreprise_age"
+                          data-action="change->bruxelles-entreprise-calcul#ageEntrepriseChanged">
                     <option value="">-- Sélectionnez --</option>
                     <option value="starter">Starter (moins de 4 ans)</option>
                     <option value="etablie">Établie (plus de 4 ans)</option>
@@ -67,9 +73,7 @@
         <!-- CATÉGORIE 1: TRANSITION ÉCONOMIQUE -->
         <div class="col-lg-6 col-md-12">
           <div class="card border-0 shadow h-100"
-               data-controller="bruxelles-entreprise-card"
-               data-bruxelles-entreprise-card-slug-value="transition_economique"
-               data-type-entreprise='["tpe", "pme"]'>
+               data-aide-card="transition_energetique">
             <div class="card-body">
               <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -87,10 +91,9 @@
                   <label class="form-label small">Consultance transition (€) :</label>
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="€"
-                           data-bruxelles-entreprise-card-target="inputConsultanceTransition"
-                           data-bruxelles-entreprise-card-slug="bruxelles_transition_consultance">
-                    <span class="badge bg-success ms-2"
-                          data-bruxelles-entreprise-card-target="resultConsultanceTransition">0 €</span>
+                           name="consultance_transition"
+                           data-slug="bruxelles_entreprise_consultance_transition">
+                    <span class="badge bg-success ms-2 result-display">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 15.000€/an - Taux 50% (max 80%)</small>
                 </div>
@@ -100,10 +103,9 @@
                   <label class="form-label small">Investissements transition (€) :</label>
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="€"
-                           data-bruxelles-entreprise-card-target="inputInvestissementsTransition"
-                           data-bruxelles-entreprise-card-slug="bruxelles_investissements_transition_economique">
-                    <span class="badge bg-success ms-2"
-                          data-bruxelles-entreprise-card-target="resultInvestissementsTransition">0 €</span>
+                           name="investissements_transition"
+                           data-slug="bruxelles_entreprise_investissements_transition">
+                    <span class="badge bg-success ms-2 result-display">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 50.000€/an - Taux 30% (max 50%)</small>
                 </div>
@@ -113,10 +115,9 @@
                   <label class="form-label small">Mobilité vélo-cargo (€) :</label>
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="€"
-                           data-bruxelles-entreprise-card-target="inputMobiliteVelo"
-                           data-bruxelles-entreprise-card-slug="bruxelles_mobilite_velo_cargo">
-                    <span class="badge bg-success ms-2"
-                          data-bruxelles-entreprise-card-target="resultMobiliteVelo">0 €</span>
+                           name="mobilite_velo"
+                           data-slug="bruxelles_entreprise_mobilite_velo">
+                    <span class="badge bg-success ms-2 result-display">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 12.000€/an - Taux 40% (max 70%)</small>
                 </div>
@@ -126,7 +127,7 @@
               <div class="mt-3 pt-2 border-top">
                 <div class="d-flex justify-content-between align-items-center">
                   <strong class="text-success">Total Transition :</strong>
-                  <span class="badge bg-success fs-6" data-bruxelles-entreprise-card-target="total">
+                  <span class="badge bg-success fs-6 total-card">
                     0 €
                   </span>
                 </div>
