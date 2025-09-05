@@ -36,20 +36,20 @@ class RequestsController < ApplicationController
     end
 
     # Debug logs
-    Rails.logger.info "REQUEST DEBUG: All params = #{params.inspect}"
-    Rails.logger.info "REQUEST DEBUG: commit param = '#{params[:commit]}'"
-    Rails.logger.info "REQUEST DEBUG: Request params = #{request_params}"
-    Rails.logger.info "REQUEST DEBUG: Request attributes = #{@request.attributes}"
-    Rails.logger.info "REQUEST DEBUG: Valid? = #{@request.valid?}"
-    Rails.logger.info "REQUEST DEBUG: Errors = #{@request.errors.full_messages}" unless @request.valid?
+    # Rails.logger.info "REQUEST DEBUG: All params = #{params.inspect}"
+    # Rails.logger.info "REQUEST DEBUG: commit param = '#{params[:commit]}'"
+    # Rails.logger.info "REQUEST DEBUG: Request params = #{request_params}"
+    # Rails.logger.info "REQUEST DEBUG: Request attributes = #{@request.attributes}"
+    # Rails.logger.info "REQUEST DEBUG: Valid? = #{@request.valid?}"
+    # Rails.logger.info "REQUEST DEBUG: Errors = #{@request.errors.full_messages}" unless @request.valid?
 
     if @request.save
       # Redirection selon le type d'action
-      Rails.logger.info "REQUEST DEBUG: Checking commit param: '#{params[:commit]}' == 'Sauvegarder en brouillon' ? #{params[:commit] == 'Sauvegarder en brouillon'}"
+      # Rails.logger.info "REQUEST DEBUG: Checking commit param: '#{params[:commit]}' == 'Sauvegarder en brouillon' ? #{params[:commit] == 'Sauvegarder en brouillon'}"
 
       if params[:commit] == "Sauvegarder en brouillon"
         @request.update(status: 'draft')
-        Rails.logger.info "REQUEST DEBUG: Saving as draft and redirecting to requests_path"
+        # Rails.logger.info "REQUEST DEBUG: Saving as draft and redirecting to requests_path"
         redirect_to requests_path, notice: 'Brouillon sauvegardé avec succès.'
       else
         # "Créer la demande" - Marquer comme soumise et rediriger vers le site officiel

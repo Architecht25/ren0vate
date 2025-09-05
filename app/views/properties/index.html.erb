@@ -12,7 +12,7 @@
     <div class="row g-4">
       <% @properties.each do |property| %>
         <div class="col-xl-3 col-lg-4 col-md-6">
-          <div class="card border-0 shadow-sm h-100 property-card-enhanced">
+          <div class="card border-0 shadow-sm h-100 property-card-enhanced<%= ' property-card-entreprise' if property.is_entreprise? %>">
             <div class="card-body p-0">
               <div class="row g-0 h-100">
                 <!-- Photo du bien à gauche -->
@@ -22,7 +22,7 @@
                       <%= image_tag property.photo, class: "img-fluid h-100 w-100", style: "object-fit: cover;" %>
                     <% else %>
                       <div class="h-100 w-100 d-flex align-items-center justify-content-center bg-light">
-                        <i class="bi bi-house-door text-muted fs-4"></i>
+                        <i class="bi bi-<%= property.is_entreprise? ? 'building' : 'house-door' %> text-muted fs-4"></i>
                       </div>
                     <% end %>
                   </div>

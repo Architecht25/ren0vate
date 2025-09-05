@@ -89,6 +89,14 @@ class Property < ApplicationRecord
     simulations.any? ? 100 : 0
   end
 
+  # Méthode pour identifier les biens d'entreprises
+  def is_entreprise?
+    # Une propriété est considérée comme entreprise si :
+    # 1. Elle a le type "entreprise" dans la propriété elle-même, OU
+    # 2. Elle a des simulations avec category = 'entreprise'
+    type == 'entreprise' || simulations.where(category: 'entreprise').exists?
+  end
+
   def ready_for_request?
     completion_percentage >= 80
   end

@@ -12,11 +12,11 @@
     <div class="row g-3">
       <% @simulations.each do |simulation| %>
         <div class="col-xl-3 col-lg-4 col-md-6">
-          <div class="card border-0 bg-light-custom h-100 property-card">
+          <div class="card border-0 bg-light-custom h-100 property-card<%= ' property-card-entreprise' if simulation.property&.is_entreprise? %>">
             <div class="card-body p-4">
               <div class="d-flex align-items-center mb-3">
                 <div class="icon-circle me-3">
-                  <i class="bi bi-calculator"></i>
+                  <i class="bi bi-<%= simulation.property&.is_entreprise? ? 'building' : 'calculator' %>"></i>
                 </div>
                 <div class="flex-grow-1">
                   <h5 class="card-title text-dark mb-1 fw-normal"><%= simulation.titre %></h5>

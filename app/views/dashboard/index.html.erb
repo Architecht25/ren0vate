@@ -10,6 +10,18 @@
     border-color: var(--bs-primary);
   }
 
+  /* Styles pour les cartes entreprises - teinte bleue légère */
+  .property-card-entreprise {
+    background: linear-gradient(135deg, #f8fbff 0%, #e8f4fd 100%);
+    border-color: #b3d9ff !important;
+  }
+
+  .property-card-entreprise:hover {
+    background: linear-gradient(135deg, #f0f8ff 0%, #dbeafe 100%);
+    border-color: #2563eb !important;
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.15) !important;
+  }
+
   .icon-circle {
     width: 40px;
     height: 40px;
@@ -189,11 +201,11 @@
             <% @properties.each do |property| %>
               <div class="col-lg-3 col-md-6">
                 <%= link_to dashboard_property_path(property), class: "text-decoration-none" do %>
-                  <div class="card border-0 shadow-sm h-100 property-card">
+                  <div class="card border-0 shadow-sm h-100 property-card<%= ' property-card-entreprise' if property.is_entreprise? %>">
                     <div class="card-body p-3">
                       <div class="d-flex align-items-center mb-3">
                         <div class="icon-circle me-3 bg-primary-custom">
-                          <i class="bi bi-house-door text-white"></i>
+                          <i class="bi bi-<%= property.is_entreprise? ? 'building' : 'house-door' %> text-white"></i>
                         </div>
                         <div class="flex-grow-1">
                           <h6 class="mb-0 fw-normal text-dark">

@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Script de nettoyage des logs pour Ren0vate
+# Usage: bin/clean_logs
+
+cd "$(dirname "$0")/.."
+
+echo "🧹 Nettoyage des logs de développement..."
+
+# Vider le fichier development.log
+truncate -s 0 log/development.log
+echo "✅ development.log vidé"
+
+# Supprimer les fichiers de log temporaires ou bizarres
+find log/ -name "*.log.*" -delete 2>/dev/null || true
+find log/ -name "*simulation*" -delete 2>/dev/null || true
+find log/ -name "*\$*" -delete 2>/dev/null || true
+echo "✅ Fichiers de log temporaires supprimés"
+
+# Afficher la taille actuelle
+echo "📊 Taille actuelle des logs:"
+ls -lh log/*.log 2>/dev/null || echo "Aucun fichier de log trouvé"
+
+echo "🎉 Nettoyage terminé!"

@@ -20,10 +20,10 @@ class PropertiesController < ApplicationController
   def create
     @property = current_user.properties.new(property_params)
 
-    Rails.logger.info "Creating property with params: #{property_params.inspect}"
-    Rails.logger.info "Property region: #{@property.region}"
-    Rails.logger.info "Property valid?: #{@property.valid?}"
-    Rails.logger.info "Property errors: #{@property.errors.full_messages}" unless @property.valid?
+    # Rails.logger.info "Creating property with params: #{property_params.inspect}"
+    # Rails.logger.info "Property region: #{@property.region}"
+    # Rails.logger.info "Property valid?: #{@property.valid?}"
+    # Rails.logger.info "Property errors: #{@property.errors.full_messages}" unless @property.valid?
 
     if @property.save
       redirect_to @property, notice: t('notices.property_created')
@@ -38,13 +38,13 @@ class PropertiesController < ApplicationController
   end
 
   def update
-    Rails.logger.info "[PROPERTY UPDATE] 🔄 Tentative de mise à jour pour propriété ID: #{@property.id}"
-    Rails.logger.info "[PROPERTY UPDATE] 📊 Paramètres reçus: #{property_params.inspect}"
-    Rails.logger.info "[PROPERTY UPDATE] 🌍 Région actuelle: #{@property.region}"
+    # Rails.logger.info "[PROPERTY UPDATE] 🔄 Tentative de mise à jour pour propriété ID: #{@property.id}"
+    # Rails.logger.info "[PROPERTY UPDATE] 📊 Paramètres reçus: #{property_params.inspect}"
+    # Rails.logger.info "[PROPERTY UPDATE] 🌍 Région actuelle: #{@property.region}"
 
     if @property.update(property_params)
-      Rails.logger.info "[PROPERTY UPDATE] ✅ Mise à jour réussie pour propriété ID: #{@property.id}"
-      Rails.logger.info "[PROPERTY UPDATE] 🔧 Nouvelles valeurs: region=#{@property.region}, ean_flandre=#{@property.ean_flandre}, certificat_peb_flandre=#{@property.certificat_peb_flandre}"
+      # Rails.logger.info "[PROPERTY UPDATE] ✅ Mise à jour réussie pour propriété ID: #{@property.id}"
+      # Rails.logger.info "[PROPERTY UPDATE] 🔧 Nouvelles valeurs: region=#{@property.region}, ean_flandre=#{@property.ean_flandre}, certificat_peb_flandre=#{@property.certificat_peb_flandre}"
 
       redirect_to @property, notice: t('notices.property_updated')
     else
@@ -60,7 +60,7 @@ class PropertiesController < ApplicationController
     property_name = @property.name || "Bien ##{@property.id}"
 
     begin
-      Rails.logger.info "Attempting to delete property '#{property_name}' (ID: #{@property.id})"
+      # Rails.logger.info "Attempting to delete property '#{property_name}' (ID: #{@property.id})"
 
       # Vérifier les associations avant suppression pour debug
       simulations_count = @property.simulations.count
@@ -68,11 +68,11 @@ class PropertiesController < ApplicationController
       requests_count = @property.requests.count
       documents_count = @property.documents.count
 
-      Rails.logger.info "Property has #{simulations_count} simulations, #{projects_count} projects, #{requests_count} requests, #{documents_count} documents"
+      # Rails.logger.info "Property has #{simulations_count} simulations, #{projects_count} projects, #{requests_count} requests, #{documents_count} documents"
 
       @property.destroy!
 
-      Rails.logger.info "Successfully deleted property '#{property_name}'"
+      # Rails.logger.info "Successfully deleted property '#{property_name}'"
       redirect_to properties_path, notice: t('notices.property_deleted', name: property_name)
 
     rescue => e
