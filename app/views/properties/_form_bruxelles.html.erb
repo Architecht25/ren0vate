@@ -37,33 +37,36 @@
         <!-- Ligne 1: Rue et Numéro -->
         <div class="row g-2 mb-3">
           <div class="col-md-4">
-            <%= f.input :rue,
-                label: "Rue*",
+            <%= f.input :rue, **apply_required_styling({
+                label: "Rue",
                 placeholder: "ex. Rue de l'Énergie",
                 wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom" } %>
+                input_html: { class: "form-control-custom" }
+              }, Property, :rue, property) %>
           </div>
           <div class="col-md-4">
-            <%= f.input :numero,
-                label: "Numéro*",
+            <%= f.input :numero, **apply_required_styling({
+                label: "Numéro",
                 placeholder: "ex. 24",
                 wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom" } %>
+                input_html: { class: "form-control-custom" }
+              }, Property, :numero, property) %>
           </div>
         </div>
 
         <!-- Ligne 2: Code postal et Commune -->
         <div class="row g-2">
           <div class="col-md-4">
-            <%= f.input :code_postal,
-                label: "Code postal*",
+            <%= f.input :code_postal, **apply_required_styling({
+                label: "Code postal",
                 placeholder: "ex. 1190",
                 wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom" } %>
+                input_html: { class: "form-control-custom" }
+              }, Property, :code_postal, property) %>
           </div>
           <div class="col-md-4">
-            <%= f.input :commune,
-                label: "Commune*",
+            <%= f.input :commune, **apply_required_styling({
+                label: "Commune",
                 as: :select,
                 collection: [
                   "Anderlecht", "Auderghem", "Berchem-Sainte-Agathe", "Bruxelles-Ville",
@@ -73,7 +76,8 @@
                 ],
                 prompt: "-- Sélectionnez --",
                 wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom" } %>
+                input_html: { class: "form-control-custom" }
+              }, Property, :commune, property) %>
           </div>
         </div>
       </div>

@@ -23,7 +23,7 @@ private
 
   def user_params
   params.require(:user).permit(
-    :first_name, :last_name, :email, :phone, :iban,
+    :first_name, :last_name, :email, :phone, :iban, :national_number,
     :street, :number, :postal_code, :city, :region,
     :protected_client,
     :situation_familiale, :revenu_demandeur, :annee_revenus_demandeur,

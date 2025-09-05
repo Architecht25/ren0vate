@@ -7,6 +7,9 @@ class Property < ApplicationRecord
   has_many :requests, dependent: :destroy
   has_many :documents, dependent: :destroy
 
+  # Active Storage pour les images
+  has_one_attached :photo
+
   # Relations pour les phases de documents
   has_many :document_phase_statuses, dependent: :destroy
   has_many :document_phases, through: :document_phase_statuses

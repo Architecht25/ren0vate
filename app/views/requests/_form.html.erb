@@ -1,29 +1,31 @@
 <%= form_with model: @request, local: true, class: "needs-validation", novalidate: true, data: { controller: "request-form" } do |form| %>
   <!-- Rangée 1 : Titre et Description -->
-  <div class="row mb-3">
-    <div class="col-md-6">
-      <div class="mb-3">
-        <%= form.label :title, "Titre de la demande*", class: "form-label" %>
-        <%= form.text_field :title, class: "form-control", placeholder: "Ex: Demande de prime pour isolation toiture", required: true %>
-        <div class="invalid-feedback">
-          Veuillez entrer un titre pour votre demande.
-        </div>
-      </div>
-    </div>
-    <div class="col-md-6">
-      <div class="mb-3">
-        <%= form.label :description, "Description de la demande*", class: "form-label" %>
-        <%= form.text_area :description, rows: 2, class: "form-control", placeholder: "Décrivez brièvement votre demande de prime...", required: true %>
-        <div class="invalid-feedback">
-          Veuillez entrer une description pour votre demande.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Champs région et propriété (masqués si bien pré-sélectionné) -->
   <% if @property.blank? %>
     <div class="row mb-3">
+      <div class="col-md-6">
+        <div class="mb-3">
+          <%= form.label :title, "Titre de la demande*", class: "form-label" %>
+          <%= form.text_field :title, class: "form-control", placeholder: "Ex: Demande de prime pour isolation toiture", required: true %>
+          <div class="invalid-feedback">
+            Veuillez entrer un titre pour votre demande.
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="mb-3">
+          <%= form.label :description, "Description de la demande*", class: "form-label" %>
+          <%= form.text_area :description, rows: 2, class: "form-control", placeholder: "Décrivez brièvement votre demande de prime...", required: true %>
+          <div class="invalid-feedback">
+            Veuillez entrer une description pour votre demande.
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Champs région et propriété -->
+  <div class="row mb-3">
+    <% if @property.blank? %>
       <div class="col-md-4">
         <div class="mb-3">
           <%= form.label :region, "Région*", class: "form-label" %>
@@ -34,7 +36,12 @@
                 ["Wallonie", "wallonie"]
               ],
               { include_blank: "-- Sélectionnez votre région --" },
-              { class: "form-select", required: true, id: "region-select", data: { request_form_target: "regionSelect", action: "change->request-form#regionChanged" } } %>
+              {
+                class: "form-select",
+                required: true,
+                id: "region-select",
+                data: { request_form_target: "regionSelect", action: "change->request-form#regionChanged" }
+              } %>
           <div class="invalid-feedback">
             Veuillez sélectionner votre région.
           </div>
@@ -55,14 +62,37 @@
       </div>
 
       <div class="col-md-4">
-        <!-- Sélection du type de formulaire (affiché après sélection de région OU si bien pré-sélectionné) -->
-        <div id="form-type-section" class="mb-3" style="display: none;" data-request-form-target="formTypeSection">
-          <%= form.label :form_type, "Type de formulaire*", class: "form-label" %>
-          <%= form.select :form_type,
-              [],
-              { include_blank: "-- Sélectionnez le type de formulaire --" },
-              { class: "form-select", required: true, id: "form-type-select", data: { request_form_target: "formTypeSelect", action: "change->request-form#formTypeChanged" } } %>
-          <div class="invalid-feedback">
+        <!-- Sélection du type de formulaire sera gérée par la version avec propriété pré-sélectionnée -->
+      </div>
+    <% else %>
+      <!-- Champs cachés pour propriété pré-sélectionnée -->
+      <%= form.hidden_field :region, value: @property.region %>
+      <%= form.hidden_field :property_id, value: @property.id %>
+
+      <!-- Sélecteur caché pour que le JavaScript fonctionne -->
+      <%= form.select :region,
+          [[@property.region.capitalize, @property.region]],
+          { selected: @property.region },
+          {
+            class: "form-select d-none",
+            id: "region-select",
+            data: { request_form_target: "regionSelect", action: "change->request-form#regionChanged" }
+          } %>
+
+      <div class="col-md-12">
+        <!-- Sélection du type de formulaire pour propriété pré-sélectionnée -->
+        <div id="form-type-section" class="mb-3" style="display: block;" data-request-form-target="formTypeSection">
+          <%= form.label :form_type, "Type de formulaire*", class: "form-label mb-3" %>
+
+          <!-- Champ caché pour stocker la valeur sélectionnée -->
+          <%= form.hidden_field :form_type, id: "form-type-select", data: { request_form_target: "formTypeSelect" } %>
+
+          <!-- Boutons de sélection de formulaire -->
+          <div class="row g-3" data-request-form-target="formTypeButtons">
+            <!-- Les boutons seront ajoutés dynamiquement par JavaScript -->
+          </div>
+
+          <div class="invalid-feedback d-block" id="form-type-error" style="display: none;">
             Veuillez sélectionner le type de formulaire.
           </div>
           <small class="form-text text-muted" id="form-type-description" data-request-form-target="formTypeDescription">
@@ -70,33 +100,8 @@
           </small>
         </div>
       </div>
-    </div>
-  <% else %>
-    <!-- Champs cachés pour bien pré-sélectionné -->
-    <%= form.hidden_field :region, value: @property.region %>
-    <%= form.hidden_field :property_id, value: @property.id %>
-
-    <div class="alert alert-info mb-3">
-            form_type_options,
-            { include_blank: "-- Sélectionnez le type de formulaire --" },
-            { class: "form-select", required: true, id: "form-type-select", data: { request_form_target: "formTypeSelect", action: "change->request-form#formTypeChanged" } } %>
-        <div class="invalid-feedback">
-          Veuillez sélectionner le type de formulaire.
-        </div>
-        <small class="form-text text-muted" id="form-type-description" data-request-form-target="formTypeDescription">
-          Type adapté à votre situation.
-        </small>
-      </div>
     <% end %>
   </div>
-
-  <% if @property.present? %>
-    <div class="alert alert-info mb-3">
-      <i class="bi bi-info-circle me-2"></i>
-      <strong>Bien sélectionné :</strong> <%= @property.name %> (<%= @property.region.capitalize %>)<br>
-      <small><%= @property.full_address %></small>
-    </div>
-  <% end %>
 
   <!-- Section Flandre -->
   <div id="flandre-section" class="region-section" style="display: none;">

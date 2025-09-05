@@ -181,6 +181,7 @@ class RequestsController < ApplicationController
       email: current_user.email,
       telephone: current_user.phone,
       registre_national: current_user.national_number,
+      profil_demandeur: property.profil_demandeur,
 
       # Variations pour formulaires officiels
       applicant_firstname: current_user.first_name,

@@ -1,0 +1,118 @@
+/* Styles pour les champs requis/obligatoires dans les formulaires */
+
+/* Champ requis - bordure gauche verte subtile */
+.required-field {
+  border-left: 3px solid #28a745 !important;
+  background-color: rgba(40, 167, 69, 0.05) !important;
+  transition: all 0.3s ease;
+}
+
+.required-field:focus {
+  border-left: 3px solid #20c997 !important;
+  background-color: rgba(40, 167, 69, 0.08) !important;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.15);
+}
+
+/* Label pour champ requis */
+.required-label {
+  font-weight: 600;
+  color: #155724;
+}
+
+.required-label::after {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background-color: #28a745;
+  border-radius: 50%;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+/* Variante plus subtile pour un design épuré */
+.form-control.required-field {
+  border-left-width: 2px;
+  background-color: rgba(40, 167, 69, 0.03);
+}
+
+/* Style pour les select requis */
+.form-select.required-field {
+  border-left: 3px solid #28a745 !important;
+  background-color: rgba(40, 167, 69, 0.05) !important;
+}
+
+/* Style pour les textarea requis */
+.form-control.required-field[rows] {
+  border-left: 3px solid #28a745 !important;
+  background-color: rgba(40, 167, 69, 0.05) !important;
+}
+
+/* Indicateur visuel pour les champs requis vides */
+.required-field.is-invalid {
+  border-left: 3px solid #dc3545 !important;
+  background-color: rgba(220, 53, 69, 0.05) !important;
+}
+
+/* Tooltip informatif pour les champs requis */
+.required-tooltip {
+  position: relative;
+}
+
+.required-tooltip::before {
+  content: "Ce champ est obligatoire";
+  position: absolute;
+  top: -35px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #28a745;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  z-index: 1000;
+}
+
+.required-tooltip:hover::before {
+  opacity: 1;
+}
+
+/* Style pour les groupes de champs requis */
+.required-field-group {
+  border: 1px solid rgba(40, 167, 69, 0.3);
+  border-radius: 8px;
+  padding: 1rem;
+  background-color: rgba(40, 167, 69, 0.02);
+  margin-bottom: 1rem;
+}
+
+.required-field-group .form-label {
+  color: #155724;
+  font-weight: 500;
+}
+
+/* Animation d'attention pour les champs requis non remplis */
+@keyframes required-attention {
+  0%, 100% { border-left-color: #28a745; }
+  50% { border-left-color: #ffc107; }
+}
+
+.required-field:invalid {
+  animation: required-attention 2s infinite;
+}
+
+/* Responsive - adaptation mobile */
+@media (max-width: 768px) {
+  .required-field {
+    border-left-width: 2px;
+  }
+
+  .required-tooltip::before {
+    font-size: 11px;
+    padding: 3px 6px;
+  }
+}

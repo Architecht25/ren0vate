@@ -63,6 +63,94 @@ module FormulairePreremplissageHelper
     end
   end
 
+  # Badge intelligent qui vérifie les données de formulaire ET de propriété
+  def badge_prerempli_intelligent(form_data, field_name, property_value)
+    if form_data&.dig(field_name).present? || property_value.present?
+      content_tag :span, "✅ Pré-rempli", class: "badge bg-success ms-2"
+    else
+      content_tag :span, "⚠️ À compléter", class: "badge bg-warning ms-2"
+    end
+  end
+
+  # Helper pour détecter si un champ est requis selon les validations du modèle (version simplifiée)
+  def field_required?(model_class, field_name, instance = nil)
+    return false unless model_class.respond_to?(:validators_on)
+
+    validators = model_class.validators_on(field_name)
+    validators.any? do |validator|
+      if validator.is_a?(ActiveModel::Validations::PresenceValidator)
+        # Pour l'instant, on ignore les conditions complexes et on retourne true pour les champs avec validation presence
+        # Cela peut être affiné plus tard
+        true
+      end
+    end
+  end
+
+  # Helper pour ajouter des classes CSS aux champs requis
+  def form_field_classes(model_class, field_name, base_classes = "form-control", instance = nil)
+    classes = base_classes
+    if field_required?(model_class, field_name, instance)
+      classes += " required-field"
+    end
+    classes
+  end
+
+  # Helper pour créer un label avec indicateur de champ requis
+  def required_label(form, field_name, text, model_class = nil, instance = nil, options = {})
+    model_class ||= form.object.class if form.respond_to?(:object)
+
+    label_classes = options[:class] || "form-label"
+
+    if model_class && field_required?(model_class, field_name, instance)
+      label_classes += " required-label"
+      text = "#{text} *".html_safe
+    end
+
+    form.label field_name, text, class: label_classes
+  end
+
+  # Helper spécifique pour simple_form - ajoute automatiquement les classes requis
+  def simple_form_input_html_classes(model_class, field_name, base_classes = {}, instance = nil)
+    classes = base_classes[:class] || "form-control-custom"
+
+    if field_required?(model_class, field_name, instance)
+      classes += " required-field"
+    end
+
+    base_classes.merge(class: classes)
+  end
+
+  # Helper pour modifier automatiquement les options de simple_form
+  def apply_required_styling(options, model_class, field_name, instance = nil)
+    # Copie les options pour ne pas modifier l'original
+    styled_options = options.dup
+
+    # Modifie les classes CSS du champ input
+    if styled_options[:input_html]
+      styled_options[:input_html] = simple_form_input_html_classes(
+        model_class,
+        field_name,
+        styled_options[:input_html],
+        instance
+      )
+    else
+      styled_options[:input_html] = simple_form_input_html_classes(
+        model_class,
+        field_name,
+        {},
+        instance
+      )
+    end
+
+    # Ajoute un astérisque au label si requis
+    if field_required?(model_class, field_name, instance) && styled_options[:label]
+      original_label = styled_options[:label]
+      styled_options[:label] = "#{original_label} *" unless original_label.include?("*")
+    end
+
+    styled_options
+  end
+
   # Vérifie si une section du formulaire est complètement remplie
   def indicateur_section_complete(form_data, section_fields)
     return nil unless form_data.present?

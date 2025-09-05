@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["regionSelect", "formTypeSection", "formTypeSelect", "formTypeDescription"]
+  static targets = ["regionSelect", "formTypeSection", "formTypeSelect", "formTypeDescription", "formTypeButtons"]
 
   connect() {
     console.log('🚀 Request form controller connecté');
@@ -109,52 +109,135 @@ export default class extends Controller {
   }
 
   updateFormTypeOptions(region) {
-    if (!this.hasFormTypeSelectTarget || !this.hasFormTypeDescriptionTarget) return;
+    console.log('🔄 updateFormTypeOptions appelée pour région:', region);
+    console.log('Type de region:', typeof region);
+    console.log('Région brute:', JSON.stringify(region));
+    console.log('hasFormTypeButtonsTarget:', this.hasFormTypeButtonsTarget);
+    console.log('hasFormTypeDescriptionTarget:', this.hasFormTypeDescriptionTarget);
 
-    // Vider les options existantes
-    this.formTypeSelectTarget.innerHTML = '<option value="">-- Sélectionnez le type de formulaire --</option>';
+    // Debug spécial pour la Wallonie
+    if (region === 'wallonie') {
+      console.log('🔍 WALLONIE DÉTECTÉE - région exacte:', region);
+      console.log('🔍 WALLONIE - longueur région:', region.length);
+      console.log('🔍 WALLONIE - codes char:', [...region].map(c => c.charCodeAt(0)));
+    }
 
-    // Définir les options selon la région
-    const formTypes = {
+    if (!this.hasFormTypeButtonsTarget || !this.hasFormTypeDescriptionTarget) {
+      console.log('❌ Targets manquants pour updateFormTypeOptions');
+      return;
+    }
+
+    console.log('✅ Début mise à jour des boutons de formulaire');
+
+    // Normaliser la région en minuscules pour la correspondance
+    const normalizedRegion = region.toLowerCase();
+    console.log('🔧 Région normalisée:', normalizedRegion);
+
+    // Configurations des formulaires par région avec icônes
+    const formOptions = {
       'flandre': [
-        { value: 'regional', text: 'Formulaire régional', description: 'Prime régionale flamande standard' },
-        { value: 'communal', text: 'Formulaires communaux', description: 'Primes complémentaires de votre commune' },
-        { value: 'monuments', text: 'Monuments & Sites', description: 'Prime spéciale pour biens classés' }
+        { value: 'regional', label: 'Primes régionales flamandes', icon: '🏠', description: 'Primes régionales (énergie + rénovation)' },
+        { value: 'monuments', label: 'Monuments & Sites', icon: '🏛️', description: 'Monuments et sites classés' },
+        { value: 'communal', label: 'Primes communales', icon: '🏛️', description: 'Primes complémentaires de votre commune' }
       ],
       'bruxelles': [
-        { value: 'regional', text: 'Formulaire régional', description: 'Prime régionale bruxelloise standard' },
-        { value: 'monuments', text: 'Monuments & Sites', description: 'Prime spéciale pour biens classés' },
-        { value: 'petit_patrimoine', text: 'Petit patrimoine', description: 'Prime pour éléments du petit patrimoine non protégé' },
-        { value: 'communal', text: 'Primes communales', description: 'Primes complémentaires proposées par votre commune' }
+        { value: 'regional', label: 'Primes Énergie Bruxelles', icon: '🏢', description: 'Primes régionales bruxelloises' },
+        { value: 'monuments', label: 'Monuments & Sites', icon: '🏛️', description: 'Primes pour biens classés' },
+        { value: 'petit_patrimoine', label: 'Petit patrimoine', icon: '🎨', description: 'Éléments du petit patrimoine non protégé' },
+        { value: 'communal', label: 'Primes communales', icon: '🏛️', description: 'Primes complémentaires de votre commune' }
       ],
       'wallonie': [
-        { value: 'audit', text: 'Prime Audit Énergétique', description: 'Remboursement partiel de l\'audit énergétique' },
-        { value: 'regionale', text: 'Prime Régionale', description: 'Primes habitation + énergie' },
-        { value: 'communale', text: 'Primes Communales', description: 'Primes spécifiques de votre commune' },
-        { value: 'monument', text: 'Prime Monument & Site', description: 'Primes pour biens classés ou en zone protégée' }
+        { value: 'regional', label: 'Primes régionales wallonnes', icon: '🏡', description: 'Primes habitation + énergie' },
+        { value: 'audit', label: 'Audit énergétique', icon: '⚡', description: 'Remboursement partiel de l\'audit énergétique' },
+        { value: 'monuments', label: 'Monuments & Sites', icon: '🏛️', description: 'Primes pour biens classés ou en zone protégée' },
+        { value: 'communal', label: 'Primes communales', icon: '🏛️', description: 'Primes spécifiques de votre commune' }
       ]
     };
 
-    // Ajouter les options pour la région sélectionnée
-    if (formTypes[region]) {
-      formTypes[region].forEach(option => {
-        const optionElement = document.createElement('option');
-        optionElement.value = option.value;
-        optionElement.textContent = option.text;
-        optionElement.dataset.description = option.description;
-        this.formTypeSelectTarget.appendChild(optionElement);
+    console.log('Configuration trouvée pour', normalizedRegion, ':', formOptions[normalizedRegion]);
+    console.log('Toutes les clés disponibles:', Object.keys(formOptions));
+    console.log('Test égalité avec "wallonie":', normalizedRegion === 'wallonie');
+    console.log('Test égalité avec "flandre":', normalizedRegion === 'flandre');
+    console.log('Test égalité avec "bruxelles":', normalizedRegion === 'bruxelles');
+
+    // Debug spécial pour la configuration Wallonie
+    console.log('🔍 Configuration Wallonie directe:', formOptions['wallonie']);
+    console.log('🔍 Clé région nettoyée:', normalizedRegion.trim().toLowerCase());
+
+    // Vider le container des boutons
+    this.formTypeButtonsTarget.innerHTML = '';
+
+    // Créer les boutons pour la région sélectionnée
+    if (formOptions[normalizedRegion]) {
+      console.log('✅ Création des boutons pour', normalizedRegion);
+
+      formOptions[normalizedRegion].forEach((option, index) => {
+        console.log(`Création bouton ${index}:`, option);
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'form-type-btn col-md-6 mb-3';
+        button.dataset.formType = option.value;
+        button.innerHTML = `
+          <div class="btn-content">
+            <div class="btn-icon">${option.icon}</div>
+            <div class="btn-text">
+              <h5>${option.label}</h5>
+              <p>${option.description}</p>
+            </div>
+          </div>
+        `;
+
+        // Ajouter l'écouteur d'événement
+        button.addEventListener('click', () => {
+          console.log('🎯 Bouton cliqué:', option.value);
+          this.selectFormType(option.value);
+        });
+
+        this.formTypeButtonsTarget.appendChild(button);
       });
+
+      console.log('✅ Boutons créés avec succès');
+
+      // Mettre à jour la description
+      this.formTypeDescriptionTarget.textContent = 'Choisissez le type de formulaire adapté à votre situation.';
+    } else {
+      console.log('❌ Aucune configuration trouvée pour la région:', normalizedRegion);
+      this.formTypeDescriptionTarget.textContent = 'Aucun formulaire disponible pour cette région.';
+    }
+  }
+
+  selectFormType(formType) {
+    console.log('🎯 selectFormType appelée avec:', formType);
+
+    // Mettre à jour le champ caché pour le type de formulaire
+    if (this.hasFormTypeSelectTarget) {
+      this.formTypeSelectTarget.value = formType;
+      console.log('✅ Type de formulaire mis à jour:', formType);
     }
 
-    // Mettre à jour la description
-    this.formTypeDescriptionTarget.textContent = 'Choisissez le type de formulaire adapté à votre situation.';
+    // Mettre à jour les classes visuelles des boutons
+    const buttons = this.formTypeButtonsTarget.querySelectorAll('.form-type-btn');
+    buttons.forEach(btn => {
+      btn.classList.remove('selected');
+      if (btn.dataset.formType === formType) {
+        btn.classList.add('selected');
+      }
+    });
+
+    // Déclencher l'affichage de la section appropriée
+    this.showFormTypeSection();
   }
 
   showFormTypeSection() {
     const selectedFormType = this.formTypeSelectTarget.value;
     const selectedRegion = this.regionSelectTarget.value;
 
+    // Normaliser la région pour comparaison cohérente
+    const normalizedRegion = selectedRegion ? selectedRegion.toLowerCase() : '';
+
     console.log('Selected form type:', selectedFormType, 'for region:', selectedRegion);
+    console.log('Normalized region for section logic:', normalizedRegion);
 
     // Masquer toutes les sections régionales
     const sections = document.querySelectorAll('.region-section');
@@ -173,14 +256,14 @@ export default class extends Controller {
       let targetSectionId = '';
 
       // Logique spéciale pour la Wallonie
-      if (selectedRegion === 'wallonie') {
+      if (normalizedRegion === 'wallonie') {
         // Pour la Wallonie, on affiche directement la section spécifique
-        if (selectedFormType === 'communale') {
+        if (selectedFormType === 'communal') {
           targetSectionId = 'wallonie-communal-section';
-        } else if (selectedFormType === 'monument') {
+        } else if (selectedFormType === 'monuments') {
           targetSectionId = 'wallonie-monuments-section';
         } else {
-          // Pour audit et regionale, on affiche la section wallonie principale
+          // Pour audit et regional, on affiche la section wallonie principale
           const wallonieMasterSection = document.getElementById('wallonie-section');
           if (wallonieMasterSection) {
             wallonieMasterSection.style.display = 'block';
@@ -188,11 +271,17 @@ export default class extends Controller {
           }
 
           // Puis afficher la sous-section spécifique selon le type
-          if (selectedFormType === 'audit' || selectedFormType === 'regionale') {
-            const targetSection = document.getElementById(selectedFormType + '-section');
+          if (selectedFormType === 'audit') {
+            const targetSection = document.getElementById('audit-section');
             if (targetSection) {
               targetSection.style.display = 'block';
-              console.log('Showing wallonie subsection:', selectedFormType + '-section');
+              console.log('Showing wallonie subsection: audit-section');
+            }
+          } else if (selectedFormType === 'regional') {
+            const targetSection = document.getElementById('regionale-section');
+            if (targetSection) {
+              targetSection.style.display = 'block';
+              console.log('Showing wallonie subsection: regionale-section');
             }
           }
         }
@@ -208,13 +297,13 @@ export default class extends Controller {
       } else {
         // Pour les autres régions, logique normale
         if (selectedFormType === 'regional') {
-          targetSectionId = selectedRegion + '-section';
+          targetSectionId = normalizedRegion + '-section';
         } else if (selectedFormType === 'communal') {
-          targetSectionId = selectedRegion + '-communal-section';
+          targetSectionId = normalizedRegion + '-communal-section';
         } else if (selectedFormType === 'monuments') {
-          targetSectionId = selectedRegion + '-monuments-section';
+          targetSectionId = normalizedRegion + '-monuments-section';
         } else if (selectedFormType === 'petit_patrimoine') {
-          targetSectionId = selectedRegion + '-petit_patrimoine-section';
+          targetSectionId = normalizedRegion + '-petit_patrimoine-section';
         }
 
         const targetSection = document.getElementById(targetSectionId);
@@ -223,10 +312,10 @@ export default class extends Controller {
           console.log('Showing section:', targetSectionId);
         } else {
           // Fallback vers la section régionale principale
-          const fallbackSection = document.getElementById(selectedRegion + '-section');
+          const fallbackSection = document.getElementById(normalizedRegion + '-section');
           if (fallbackSection) {
             fallbackSection.style.display = 'block';
-            console.log('Fallback to regional section:', selectedRegion + '-section');
+            console.log('Fallback to regional section:', normalizedRegion + '-section');
           }
         }
       }
@@ -256,6 +345,9 @@ export default class extends Controller {
   }
 
   updateRegionalButtons(region, formType) {
+    // Normaliser la région pour les comparaisons
+    const normalizedRegion = region ? region.toLowerCase() : '';
+
     // Masquer tous les boutons régionaux
     const buttons = ['flandre-continue-btn', 'wallonie-continue-btn', 'bruxelles-continue-btn'];
     buttons.forEach(btnId => {
@@ -264,10 +356,11 @@ export default class extends Controller {
     });
 
     // Afficher le bouton approprié pour le formulaire régional
-    if (formType === 'regional' && region) {
-      const targetBtn = document.getElementById(region + '-continue-btn');
+    if (formType === 'regional' && normalizedRegion) {
+      const targetBtn = document.getElementById(normalizedRegion + '-continue-btn');
       if (targetBtn) {
         targetBtn.style.display = 'inline-block';
+        console.log('✅ Bouton régional affiché:', normalizedRegion + '-continue-btn');
       }
     }
   }
