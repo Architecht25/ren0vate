@@ -27,6 +27,8 @@ class PropertiesController < ApplicationController
     @property = current_user.properties.new
     # Préserver le paramètre région s'il est passé
     @property.region = params[:region] if params[:region].present?
+    # Préserver le paramètre type s'il est passé (pour les entreprises)
+    @property.type = params[:type] if params[:type].present?
   end
 
   def create
