@@ -1,0 +1,78 @@
+<!-- Indicateur d'auto-save permanent -->
+<div id="auto-save-status" style="position: fixed; bottom: 20px; left: 20px; z-index: 1000;
+     background: rgba(255,255,255,0.95); border: 1px solid #ddd; border-radius: 8px;
+     padding: 10px 15px; font-size: 13px; display: none; backdrop-filter: blur(5px);">
+  <div class="d-flex align-items-center">
+    <div class="me-2">
+      <i id="save-icon" class="bi bi-cloud-check text-success"></i>
+    </div>
+    <div>
+      <div id="save-status" class="fw-medium">Auto-save actif</div>
+      <div id="save-details" class="text-muted small">Sauvegarde locale en cours...</div>
+    </div>
+  </div>
+</div>
+
+<script nonce="<%= content_security_policy_nonce %>">
+document.addEventListener('DOMContentLoaded', function() {
+  const statusBox = document.getElementById('auto-save-status')
+  const statusText = document.getElementById('save-status')
+  const statusDetails = document.getElementById('save-details')
+  const statusIcon = document.getElementById('save-icon')
+
+  // Afficher l'indicateur au bout de 2 secondes
+  setTimeout(() => {
+    statusBox.style.display = 'block'
+    statusBox.style.opacity = '0'
+    statusBox.style.transition = 'opacity 0.3s'
+    setTimeout(() => statusBox.style.opacity = '1', 100)
+  }, 2000)
+
+  // Écouter les événements d'auto-save
+  let hideTimeout
+
+  window.addEventListener('autosave-success', () => {
+    statusIcon.className = 'bi bi-check-circle text-success'
+    statusText.textContent = 'Données sauvegardées'
+    statusDetails.textContent = 'Sauvegarde locale réussie'
+
+    clearTimeout(hideTimeout)
+    statusBox.style.opacity = '1'
+
+    hideTimeout = setTimeout(() => {
+      statusBox.style.opacity = '0.7'
+      statusText.textContent = 'Auto-save actif'
+      statusDetails.textContent = 'Sauvegarde automatique activée'
+      statusIcon.className = 'bi bi-cloud-check text-success'
+    }, 3000)
+  })
+
+  window.addEventListener('autosave-restored', () => {
+    statusIcon.className = 'bi bi-arrow-clockwise text-info'
+    statusText.textContent = 'Données restaurées'
+    statusDetails.textContent = 'Formulaire pré-rempli depuis le cache'
+
+    clearTimeout(hideTimeout)
+    hideTimeout = setTimeout(() => {
+      statusBox.style.opacity = '0.7'
+      statusText.textContent = 'Auto-save actif'
+      statusDetails.textContent = 'Sauvegarde automatique activée'
+      statusIcon.className = 'bi bi-cloud-check text-success'
+    }, 5000)
+  })
+
+  window.addEventListener('autosave-error', () => {
+    statusIcon.className = 'bi bi-exclamation-triangle text-warning'
+    statusText.textContent = 'Erreur de sauvegarde'
+    statusDetails.textContent = 'Vérifiez votre connexion'
+
+    clearTimeout(hideTimeout)
+    hideTimeout = setTimeout(() => {
+      statusBox.style.opacity = '0.7'
+      statusText.textContent = 'Auto-save actif'
+      statusDetails.textContent = 'Sauvegarde automatique activée'
+      statusIcon.className = 'bi bi-cloud-check text-success'
+    }, 5000)
+  })
+})
+</script>

@@ -1,4 +1,12 @@
-<%= form_with model: @request, local: true, class: "needs-validation", novalidate: true, data: { controller: "request-form" } do |form| %>
+<%= form_with model: @request, local: true, class: "needs-validation", novalidate: true, data: {
+  controller: "request-form request-autosave",
+  request_autosave_target: "form",
+  request_id: @request.persisted? ? @request.id : 'new'
+} do |form| %>
+
+  <!-- Indicateur de progression -->
+  <%= render 'requests/progress_indicator' if @request.persisted? %>
+
   <!-- Rangée 1 : Titre et Description -->
   <% if @property.blank? %>
     <div class="row mb-3">
@@ -221,7 +229,7 @@
         <%= form.submit "Mettre à jour", class: "btn btn-primary-custom px-4" %>
       <% end %>
       <%= link_to @request, class: "btn btn-outline-secondary" do %>
-        tu parles de ca?
+        <i class="bi bi-eye me-2"></i>Voir
       <% end %>
     <% else %>
       <!-- Nouvelles demandes - boutons de soumission -->
@@ -231,6 +239,13 @@
           value: "Sauvegarder en brouillon",
           class: "btn btn-outline-primary-custom px-4",
           formnovalidate: true %>
+
+      <!-- Bouton de sauvegarde locale pour test -->
+      <button type="button"
+              onclick="document.querySelector('[data-controller*=request-autosave]').requestAutosaveController.performAutoSave()"
+              class="btn btn-outline-success px-4">
+        <i class="bi bi-floppy me-2"></i>Sauvegarder (Local)
+      </button>
 
       <!-- Bouton spécifique pour la Flandre -->
       <a href="https://www.vlaanderen.be/premies-pour-renovation/mijn-verbouwpremie"
@@ -267,9 +282,12 @@
 
     <% end %>
   </div>
-  <% end %>
+<% end %>
 
-  <% if @property.present? %>
+<!-- Indicateur d'auto-save -->
+<%= render 'shared/auto_save_status' %>
+
+<% if @property.present? %>
   <!-- Script pour initialiser automatiquement le formulaire avec bien pré-sélectionné -->
   <script nonce="<%= content_security_policy_nonce %>">
     document.addEventListener('DOMContentLoaded', function() {

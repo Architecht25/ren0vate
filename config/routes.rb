@@ -128,6 +128,9 @@ Rails.application.routes.draw do
     # Documents liés à une demande
     resources :documents, shallow: true
 
+    member do
+      patch :autosave  # Endpoint pour l'auto-save AJAX
+    end
   end
 
   resources :simulations do

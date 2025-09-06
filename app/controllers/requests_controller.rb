@@ -16,32 +16,58 @@ class RequestsController < ApplicationController
   end
 
   def new
-    @request = Request.new
-    # Charger les primes pour le prime_card_controller
-    @primes = Prime.all
+    # Créer automatiquement un brouillon pour permettre l'auto-save
+    @request = current_user.requests.build(
+      status: 'draft',
+      title: "Brouillon #{Time.current.strftime('%d/%m/%Y %H:%M')}",
+      description: "Brouillon en cours de rédaction"
+    )
 
     # Préparer les données de pré-remplissage si une propriété est sélectionnée
     if params[:property_id].present?
       @property = current_user.properties.find(params[:property_id])
+      @request.region = @property.region
+      @request.property = @property
       @form_data = build_formulaire_data(@property)
     else
+      @property = nil
       @form_data = build_user_data
     end
+
+    # Sauvegarder le brouillon sans validation pour créer l'ID
+    if @request.save(validate: false)
+      Rails.logger.info "✅ Brouillon auto-créé: ID #{@request.id}"
+    else
+      Rails.logger.error "❌ Erreur création brouillon: #{@request.errors.full_messages}"
+      # En cas d'erreur, créer quand même l'objet sans le sauvegarder
+      @request = Request.new
+    end
+
+    # Charger les primes pour le prime_card_controller
+    @primes = Prime.all
   end
 
   def create
-    @request = Request.new(request_params)
-    @request.user = current_user  # Assigner l'utilisateur connecté
+    # Vérifier si nous mettons à jour un brouillon existant
+    if params[:id].present?
+      @request = current_user.requests.find(params[:id])
+      @request.assign_attributes(request_params)
+    else
+      @request = Request.new(request_params)
+      @request.user = current_user
+    end
 
     # Pour les brouillons, assigner des valeurs par défaut si nécessaire
     if params[:commit] == "Sauvegarder en brouillon"
       @request.status = 'draft'
       @request.title = @request.title.present? ? @request.title : "Brouillon #{Time.current.strftime('%d/%m/%Y %H:%M')}"
       @request.description = @request.description.present? ? @request.description : "Brouillon en cours de rédaction"
-      @request.region = @request.region.present? ? @request.region : nil
     else
       @request.status = 'draft' if @request.status.blank?  # Statut par défaut
     end
+
+    # Pour les nouvelles demandes, toujours créer en brouillon d'abord
+    @request.status = 'draft' unless params[:commit] == "Créer la demande"
 
     # Debug logs
     # Rails.logger.info "REQUEST DEBUG: All params = #{params.inspect}"
@@ -51,40 +77,77 @@ class RequestsController < ApplicationController
     # Rails.logger.info "REQUEST DEBUG: Valid? = #{@request.valid?}"
     # Rails.logger.info "REQUEST DEBUG: Errors = #{@request.errors.full_messages}" unless @request.valid?
 
-    if @request.save
+    if @request.save(validate: false)  # Sauvegarder sans validation pour commencer
       # Redirection selon le type d'action
       # Rails.logger.info "REQUEST DEBUG: Checking commit param: '#{params[:commit]}' == 'Sauvegarder en brouillon' ? #{params[:commit] == 'Sauvegarder en brouillon'}"
 
-      if params[:commit] == "Sauvegarder en brouillon"
-        @request.update(status: 'draft')
-        # Rails.logger.info "REQUEST DEBUG: Saving as draft and redirecting to requests_path"
-        redirect_to requests_path, notice: 'Brouillon sauvegardé avec succès.'
-      else
-        # "Créer la demande" - Marquer comme soumise et rediriger vers le site officiel
-        @request.update(status: 'submitted')
+      if params[:commit] == "Créer la demande"
+        # Valider avant de marquer comme soumise
+        @request.status = 'submitted'
+        if @request.valid?
+          @request.save!
 
-        # URL selon la région
-        official_url = case @request.region
-                      when 'flandre'
-                        'https://www.vlaanderen.be/premies-pour-renovation/mijn-verbouwpremie'
-                      when 'wallonie'
-                        'https://energie.wallonie.be/fr/aides-et-primes.html?IDC=10717'
-                      when 'bruxelles'
-                        'https://www.brussels.be/logement-et-energie/renovation-de-mon-logement/primes'
-                      else
-                        requests_path
-                      end
+          # URL selon la région
+          official_url = case @request.region
+                        when 'flandre'
+                          'https://www.vlaanderen.be/premies-pour-renovation/mijn-verbouwpremie'
+                        when 'wallonie'
+                          'https://energie.wallonie.be/fr/aides-et-primes.html?IDC=10717'
+                        when 'bruxelles'
+                          'https://www.brussels.be/logement-et-energie/renovation-de-mon-logement/primes'
+                        else
+                          requests_path
+                        end
 
-        if official_url == requests_path
-          redirect_to requests_path, notice: 'Demande créée avec succès.'
+          if official_url == requests_path
+            redirect_to requests_path, notice: 'Demande créée avec succès.'
+          else
+            redirect_to official_url, notice: 'Demande créée avec succès. Vous êtes redirigé vers le site officiel pour finaliser votre dépôt.', allow_other_host: true
+          end
         else
-          redirect_to official_url, notice: 'Demande créée avec succès. Vous êtes redirigé vers le site officiel pour finaliser votre dépôt.', allow_other_host: true
+          # Erreurs de validation - rester en brouillon
+          @request.status = 'draft'
+          @request.save(validate: false)
+          flash.now[:alert] = "Votre demande a été sauvegardée en brouillon. Veuillez compléter les champs manquants : #{@request.errors.full_messages.join(', ')}"
+
+          # Charger les données nécessaires pour la vue
+          @primes = Prime.all
+          if params[:property_id].present?
+            @property = current_user.properties.find(params[:property_id])
+            @form_data = build_formulaire_data(@property)
+          else
+            @form_data = build_user_data
+          end
+
+          render :new, status: :unprocessable_entity
+        end
+      else
+        # Sauvegarde en brouillon ou création par défaut
+        respond_to do |format|
+          format.html { redirect_to edit_request_path(@request), notice: 'Brouillon créé avec succès. Vous pouvez continuer à le compléter.' }
+          format.json { render json: { success: true, request_id: @request.id, redirect: edit_request_url(@request) } }
         end
       end
     else
       Rails.logger.error "REQUEST SAVE FAILED: #{@request.errors.full_messages}"
-      flash.now[:alert] = "Erreurs: #{@request.errors.full_messages.join(', ')}"
-      render :new, status: :unprocessable_entity
+
+      respond_to do |format|
+        format.html do
+          flash.now[:alert] = "Erreurs: #{@request.errors.full_messages.join(', ')}"
+
+          # Charger les données nécessaires pour la vue
+          @primes = Prime.all
+          if params[:property_id].present?
+            @property = current_user.properties.find(params[:property_id])
+            @form_data = build_formulaire_data(@property)
+          else
+            @form_data = build_user_data
+          end
+
+          render :new, status: :unprocessable_entity
+        end
+        format.json { render json: { success: false, errors: @request.errors.full_messages } }
+      end
     end
   end
 
@@ -168,6 +231,55 @@ class RequestsController < ApplicationController
 
     @request.destroy
     redirect_to requests_path, notice: "Demande supprimée avec succès."
+  end
+
+  # Endpoint pour l'auto-save AJAX
+  def autosave
+    @request = Request.find(params[:id])
+
+    # Vérifier les permissions
+    unless @request.user == current_user
+      render json: { success: false, error: "Non autorisé" }, status: :forbidden
+      return
+    end
+
+    # Permettre l'auto-save uniquement pour les brouillons
+    unless @request.draft? || @request.can_be_edited?
+      render json: { success: false, error: "Demande non modifiable" }, status: :unprocessable_entity
+      return
+    end
+
+    # Filtrer les paramètres pour l'auto-save (paramètres permis mais flexibles)
+    autosave_params = params.require(:request).permit!.to_h
+
+    # Assurer que le statut reste en brouillon pour l'auto-save
+    autosave_params['status'] = 'draft'
+
+    begin
+      # Mise à jour sans validation stricte pour l'auto-save
+      @request.assign_attributes(autosave_params)
+
+      # Sauvegarder sans validations pour l'auto-save
+      if @request.save(validate: false)
+        render json: {
+          success: true,
+          message: "Auto-save réussi",
+          updated_at: @request.updated_at
+        }
+      else
+        render json: {
+          success: false,
+          error: "Erreur lors de la sauvegarde",
+          errors: @request.errors.full_messages
+        }
+      end
+    rescue => e
+      Rails.logger.error "Erreur auto-save request #{@request.id}: #{e.message}"
+      render json: {
+        success: false,
+        error: "Erreur serveur lors de l'auto-save"
+      }
+    end
   end
 
   private
