@@ -1,6 +1,14 @@
 class RequestsController < ApplicationController
   def index
-    @requests = current_user.requests.order(created_at: :desc)
+    # Récupérer et trier les demandes par région de la propriété (Flandre → Bruxelles → Wallonie)
+    @requests = current_user.requests.includes(:property).order(created_at: :desc).sort_by do |request|
+      case request.property&.region&.downcase
+      when 'flandre' then 1
+      when 'bruxelles' then 2
+      when 'wallonie' then 3
+      else 4 # Demandes sans propriété ou sans région en dernier
+      end
+    end
   end
 
   def show

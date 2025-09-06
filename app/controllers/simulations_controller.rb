@@ -4,7 +4,15 @@ class SimulationsController < ApplicationController
   skip_before_action :authenticate_user!, only: [:show, :update_prime_inputs, :restore_prime_inputs]
 
   def index
-    @simulations = Simulation.all
+    # Récupérer et trier les simulations par région (Flandre → Bruxelles → Wallonie)
+    @simulations = Simulation.all.sort_by do |simulation|
+      case simulation.region&.downcase
+      when 'flandre' then 1
+      when 'bruxelles' then 2
+      when 'wallonie' then 3
+      else 4 # Autres régions en dernier
+      end
+    end
   end
 
   def show

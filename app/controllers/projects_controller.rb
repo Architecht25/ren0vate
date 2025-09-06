@@ -3,7 +3,15 @@ class ProjectsController < ApplicationController
   before_action :set_project, only: [:show, :edit, :update, :destroy]
 
   def index
-    @projects = current_user.projects.includes(:property).order(created_at: :desc)
+    # Récupérer et trier les projets par région de la propriété (Flandre → Bruxelles → Wallonie)
+    @projects = current_user.projects.includes(:property).order(created_at: :desc).sort_by do |project|
+      case project.property&.region&.downcase
+      when 'flandre' then 1
+      when 'bruxelles' then 2
+      when 'wallonie' then 3
+      else 4 # Projets sans propriété ou sans région en dernier
+      end
+    end
   end
 
   def show

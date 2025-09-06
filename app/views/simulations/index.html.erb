@@ -9,8 +9,35 @@
 
   <!-- Liste des simulations -->
   <% if @simulations.any? %>
-    <div class="row g-3">
-      <% @simulations.each do |simulation| %>
+    <%
+      # Grouper les simulations par région pour afficher les séparateurs
+      grouped_simulations = @simulations.group_by { |s| s.region&.downcase || 'autre' }
+      region_order = ['flandre', 'bruxelles', 'wallonie', 'autre']
+      region_names = {
+        'flandre' => 'Flandre',
+        'bruxelles' => 'Bruxelles',
+        'wallonie' => 'Wallonie',
+        'autre' => 'Autres régions'
+      }
+    %>
+
+    <% region_order.each do |region_key| %>
+      <% if grouped_simulations[region_key]&.any? %>
+        <!-- Séparateur de région -->
+        <div class="row mb-3">
+          <div class="col-12">
+            <div class="d-flex align-items-center">
+              <h5 class="text-muted mb-0 me-3">
+                <i class="bi bi-geo-alt me-2"></i><%= region_names[region_key] %>
+              </h5>
+              <hr class="flex-grow-1 my-0 text-muted">
+              <span class="badge bg-light text-dark ms-3"><%= grouped_simulations[region_key].count %> simulation<%= 's' if grouped_simulations[region_key].count > 1 %></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-3 mb-5">
+          <% grouped_simulations[region_key].each do |simulation| %>
         <div class="col-xl-3 col-lg-4 col-md-6">
           <div class="card border-0 bg-light-custom h-100 property-card<%= ' property-card-entreprise' if simulation.property&.is_entreprise? %>">
             <div class="card-body p-4">
@@ -71,8 +98,10 @@
             </div>
           </div>
         </div>
+          <% end %>
+        </div>
       <% end %>
-    </div>
+    <% end %>
   <% else %>
     <!-- État vide minimaliste -->
     <div class="text-center py-5 mt-5">
