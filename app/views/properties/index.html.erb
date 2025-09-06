@@ -23,7 +23,7 @@
 
     <% region_order.each do |region_key| %>
       <% if grouped_properties[region_key]&.any? %>
- 
+
 
         <div class="row g-4 mb-5">
           <% grouped_properties[region_key].each do |property| %>
@@ -33,9 +33,12 @@
               <div class="row g-0 h-100">
                 <!-- Photo du bien à gauche -->
                 <div class="col-4">
-                  <div class="property-photo h-100">
+                  <div class="property-photo h-100 position-relative overflow-hidden">
                     <% if property.photo.attached? %>
-                      <%= image_tag property.photo, class: "img-fluid h-100 w-100", style: "object-fit: cover;" %>
+                      <%= image_tag property.photo,
+                          class: "img-fluid h-100 w-100",
+                          style: "object-fit: cover; transition: transform 0.3s ease;",
+                          alt: "Photo de #{property.titre || 'ce bien'}" %>
                     <% else %>
                       <div class="h-100 w-100 d-flex align-items-center justify-content-center bg-light">
                         <i class="bi bi-<%= property.is_entreprise? ? 'building' : 'house-door' %> text-muted fs-4"></i>

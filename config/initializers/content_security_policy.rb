@@ -58,7 +58,11 @@ Rails.application.configure do
     policy.img_src     :self,
                        :https,
                        :data,
-                       "https://res.cloudinary.com", # Cloudinary
+                       "http://localhost:3000", # Pour Active Storage en développement
+                       "http://localhost:3000/rails/active_storage/*", # Routes Active Storage avec wildcards
+                       "https://res.cloudinary.com", # Cloudinary principal
+                       "https://res-2.cloudinary.com", # Cloudinary CDN secondaire
+                       "https://res-1.cloudinary.com", # Cloudinary CDN alternatif
                        "https://via.placeholder.com" # Pour les placeholders éventuels
 
     # Connections (XHR/fetch) : notre app + APIs externes utilisées
@@ -98,16 +102,20 @@ Rails.application.configure do
   config.content_security_policy_nonce_directives = %w(script-src style-src)
 
   # Configuration environment-specific
-  # CSP stricte activée par défaut en développement ET production
-  # pour détecter les problèmes tôt dans le cycle de développement
-  config.content_security_policy_report_only = false
-
-  # Option pour désactiver temporairement en développement si nécessaire
-  # Utilisez: CSP_REPORT_ONLY=true rails server
-  if Rails.env.development? && ENV['CSP_REPORT_ONLY'] == 'true'
+  if Rails.env.development?
+    # En développement, on assouplit pour Active Storage et localhost
     config.content_security_policy_report_only = true
     Rails.logger.info "🔓 CSP en mode rapport uniquement (développement)"
   else
+    # En production, CSP stricte
+    config.content_security_policy_report_only = false
     Rails.logger.info "🔒 CSP en mode strict (#{Rails.env})"
+  end
+
+  # Option pour forcer le mode strict en développement si nécessaire
+  # Utilisez: CSP_ENFORCE=true rails server
+  if Rails.env.development? && ENV['CSP_ENFORCE'] == 'true'
+    config.content_security_policy_report_only = false
+    Rails.logger.info "� CSP forcé en mode strict (développement)"
   end
 end

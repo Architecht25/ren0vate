@@ -1,6 +1,27 @@
 module ApplicationHelper
   include FormulairePreremplissageHelper
 
+  # Helper pour les URLs d'images Active Storage sans paramètre locale
+  def image_url_without_locale(attachment)
+    return nil unless attachment.attached?
+
+    # Générer l'URL sans paramètres de locale
+    Rails.application.routes.url_helpers.rails_blob_url(attachment, only_path: false, host: request.host_with_port)
+  end
+
+  # Helper pour les images de propriétés avec fallback
+  def property_image_tag(property, options = {})
+    if property.photo.attached?
+      image_tag image_url_without_locale(property.photo), options
+    else
+      # Icône par défaut si pas de photo
+      icon_class = property.is_entreprise? ? 'building' : 'house-door'
+      content_tag :div, class: "h-100 w-100 d-flex align-items-center justify-content-center bg-light #{options[:class]}" do
+        content_tag :i, '', class: "bi bi-#{icon_class} text-muted fs-4"
+      end
+    end
+  end
+
   # Détermine si l'utilisateur actuel est un administrateur
   def current_user_admin?
     return false unless user_signed_in?

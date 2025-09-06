@@ -178,6 +178,12 @@ Rails.application.routes.draw do
   # Route pour les rapports de violation CSP (hors scope locale)
   post '/csp-violation-report-endpoint', to: 'security#csp_violation_report'
 
-  # Route de redirection pour les URLs sans locale
-  get '/*path', to: redirect("/fr/%{path}"), constraints: lambda { |req| !req.path.starts_with?("/fr") && !req.path.starts_with?("/nl") && !req.path.starts_with?("/en") }
+  # Route de redirection pour les URLs sans locale (mais pas pour Active Storage)
+  get '/*path', to: redirect("/fr/%{path}"), constraints: lambda { |req|
+    !req.path.starts_with?("/fr") &&
+    !req.path.starts_with?("/nl") &&
+    !req.path.starts_with?("/en") &&
+    !req.path.starts_with?("/rails/active_storage") &&
+    !req.path.starts_with?("/assets")
+  }
 end

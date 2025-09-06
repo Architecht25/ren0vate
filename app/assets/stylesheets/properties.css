@@ -138,14 +138,26 @@
 .property-photo {
   position: relative;
   overflow: hidden;
+  border-radius: 8px 0 0 8px;
 }
 
 .property-photo .card-img-top {
-  transition: transform 0.3s ease;
+  object-fit: cover;
 }
 
 .property-photo:hover .card-img-top {
   transform: scale(1.05);
+}
+
+/* Effet au survol pour les images dans les cartes */
+.property-photo:hover img {
+  transform: scale(1.05);
+}
+
+/* Amélioration du style des icônes par défaut */
+.property-photo .bg-light {
+  border-radius: 8px 0 0 8px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
 }
 
 .card {
@@ -375,4 +387,46 @@
     flex: 0 0 100%;
     max-width: 100%;
   }
+}
+
+/* Styles pour la prévisualisation d'image dans les formulaires */
+#image-preview {
+  border: 2px dashed var(--border-custom);
+  border-radius: 8px;
+  padding: 10px;
+  text-align: center;
+  background-color: #f8f9fa;
+  transition: border-color 0.3s ease;
+}
+
+#image-preview:hover {
+  border-color: var(--primary-custom);
+}
+
+#preview-img {
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Style pour les champs file input */
+input[type="file"].form-control-custom {
+  border: 2px dashed var(--border-custom);
+  padding: 0.75rem;
+  background-color: #f8f9fa;
+  transition: border-color 0.3s ease;
+}
+
+input[type="file"].form-control-custom:hover,
+input[type="file"].form-control-custom:focus {
+  border-color: var(--primary-custom);
+  background-color: white;
+}
+
+/* Style pour afficher les photos existantes */
+.existing-photo {
+  border: 1px solid var(--border-custom);
+  border-radius: 6px;
+  padding: 5px;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }

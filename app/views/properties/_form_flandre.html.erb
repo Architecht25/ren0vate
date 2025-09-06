@@ -19,6 +19,38 @@
             hint: "Geef een naam aan uw woning om deze gemakkelijk terug te vinden",
             wrapper_html: { class: "mb-3" },
             input_html: { class: "form-control-custom" } %>
+
+        <!-- Champ pour la photo du bien -->
+        <div data-controller="image-preview">
+          <%= f.input :photo,
+              as: :file,
+              label: "Foto van de woning",
+              hint: "Voeg een foto van uw woning toe (JPG, PNG, max 5MB)",
+              wrapper_html: { class: "mb-3" },
+              input_html: {
+                class: "form-control-custom",
+                accept: "image/*",
+                data: {
+                  image_preview_target: "input",
+                  action: "change->image-preview#previewImage"
+                }
+              } %>
+
+          <!-- Zone de prévisualisation de l'image -->
+          <div data-image-preview-target="preview" class="mb-3" style="display: none;">
+            <img data-image-preview-target="previewImg" src="" alt="Voorbeeld" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
+          </div>
+        </div>
+
+        <!-- Afficher la photo existante si elle existe -->
+        <% if property.photo.attached? %>
+          <div class="mb-3">
+            <label class="form-label">Huidige foto</label>
+            <div>
+              <%= image_tag property.photo, class: "img-thumbnail", style: "max-width: 200px; max-height: 150px;" %>
+            </div>
+          </div>
+        <% end %>
       </div>
     </div>
 

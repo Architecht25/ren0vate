@@ -356,6 +356,9 @@ class PropertiesController < ApplicationController
       :date_peb_avant_travaux, :date_peb_apres_travaux,
       :titre, :surface_totale, :usage, :primes_recues,
 
+      # Photo du bien
+      :photo,
+
       # Informations d'achat
       :valeur_achat, :date_achat,
 
