@@ -85,10 +85,6 @@ Rails.application.configure do
   # Only use :id for inspections in production.
   config.active_record.attributes_for_inspect = [ :id ]
 
-  # Assets configuration for better performance (Rails 8 + Propshaft)
-  # Disable runtime compilation of assets in production for better performance
-  config.assets.compile = false
-
   # Enable DNS rebinding protection and other `Host` header attacks.
   # config.hosts = [
   #   "example.com",     # Allow requests from example.com
