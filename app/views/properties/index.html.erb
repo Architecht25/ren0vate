@@ -9,10 +9,37 @@
 
   <!-- Liste améliorée -->
   <% if @properties.any? %>
-    <div class="row g-4">
-      <% @properties.each do |property| %>
+    <%
+      # Grouper les propriétés par région pour afficher les séparateurs
+      grouped_properties = @properties.group_by { |p| p.region&.downcase || 'autre' }
+      region_order = ['flandre', 'bruxelles', 'wallonie', 'autre']
+      region_names = {
+        'flandre' => 'Flandre',
+        'bruxelles' => 'Bruxelles',
+        'wallonie' => 'Wallonie',
+        'autre' => 'Autres régions'
+      }
+    %>
+
+    <% region_order.each do |region_key| %>
+      <% if grouped_properties[region_key]&.any? %>
+        <!-- Séparateur de région -->
+        <div class="row mb-3">
+          <div class="col-12">
+            <div class="d-flex align-items-center">
+              <h5 class="text-muted mb-0 me-3">
+                <i class="bi bi-geo-alt me-2"></i><%= region_names[region_key] %>
+              </h5>
+              <hr class="flex-grow-1 my-0 text-muted">
+              <span class="badge bg-light text-dark ms-3"><%= grouped_properties[region_key].count %> bien<%= 's' if grouped_properties[region_key].count > 1 %></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+          <% grouped_properties[region_key].each do |property| %>
         <div class="col-xl-3 col-lg-4 col-md-6">
-          <div class="card border-0 shadow-sm h-100 property-card-enhanced<%= ' property-card-entreprise' if property.is_entreprise? %>">
+          <div class="card border-0 shadow-sm property-card-enhanced<%= ' property-card-entreprise' if property.is_entreprise? %>">
             <div class="card-body p-0">
               <div class="row g-0 h-100">
                 <!-- Photo du bien à gauche -->
@@ -30,13 +57,13 @@
 
                 <!-- Contenu à droite -->
                 <div class="col-8">
-                  <div class="p-3 h-100 d-flex flex-column">
+                  <div class="p-2 h-100 d-flex flex-column">
                     <!-- Header avec badge région et complétude -->
-                    <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center justify-content-between mb-1">
                       <!-- Badge région à gauche -->
                       <div class="flex-shrink-0">
                         <% if property.region %>
-                          <span class="badge bg-<%= property.region == 'wallonie' ? 'warning' : property.region == 'flandre' ? 'success' : 'info' %>" style="font-size: 0.65rem;">
+                          <span class="badge bg-<%= property.region == 'Wallonie' ? 'danger' : property.region == 'flandre' ? 'black' : 'warning' %>" style="font-size: 0.65rem;">
                             <%= property.region.humanize %>
                           </span>
                         <% else %>
@@ -57,20 +84,20 @@
                     </div>
 
                     <!-- Titre -->
-                    <div class="mb-2">
-                      <h6 class="card-title text-dark mb-0 fw-semibold" style="font-size: 0.85rem; line-height: 1.2;"><%= property.titre || "Bien sans nom" %></h6>
+                    <div class="mb-1">
+                      <h6 class="card-title text-dark mb-0 fw-semibold" style="font-size: 0.8rem; line-height: 1.1;"><%= property.titre || "Bien sans nom" %></h6>
                     </div>
 
                     <!-- Adresse compacte -->
-                    <div class="address-section mb-2">
+                    <div class="address-section mb-1">
                       <% if property.rue && property.numero && property.commune %>
-                        <p class="text-muted mb-0" style="font-size: 0.75rem; line-height: 1.2;">
+                        <p class="text-muted mb-0" style="font-size: 0.7rem; line-height: 1.1;">
                           <i class="bi bi-geo-alt me-1 text-muted"></i>
                           <%= property.rue %> <%= property.numero %><br>
                           <%= property.code_postal %> <%= property.commune %>
                         </p>
                       <% else %>
-                        <p class="text-warning mb-0" style="font-size: 0.75rem;">
+                        <p class="text-warning mb-0" style="font-size: 0.7rem;">
                           <i class="bi bi-exclamation-triangle me-1"></i>
                           Adresse incomplète
                         </p>
@@ -104,15 +131,15 @@
                     <!-- Actions compactes -->
                     <div class="actions-section mt-auto">
                       <div class="d-flex gap-1">
-                        <%= link_to dashboard_property_path(property), class: "btn btn-primary-custom btn-sm flex-fill py-1", style: "font-size: 0.7rem;" do %>
+                        <%= link_to dashboard_property_path(property), class: "btn btn-primary-custom btn-sm flex-fill", style: "font-size: 0.65rem; padding: 0.2rem 0.3rem;" do %>
                           <i class="bi bi-speedometer2"></i>
                         <% end %>
-                        <%= link_to edit_property_path(property), class: "btn btn-outline-secondary btn-sm flex-fill py-1", style: "font-size: 0.7rem;" do %>
+                        <%= link_to edit_property_path(property), class: "btn btn-outline-secondary btn-sm flex-fill", style: "font-size: 0.65rem; padding: 0.2rem 0.3rem;" do %>
                           <i class="bi bi-pencil"></i>
                         <% end %>
                         <%= link_to property_path(property),
-                            class: "btn btn-outline-danger btn-sm flex-fill py-1",
-                            style: "font-size: 0.7rem;",
+                            class: "btn btn-outline-danger btn-sm flex-fill",
+                            style: "font-size: 0.65rem; padding: 0.2rem 0.3rem;",
                             data: {
                               confirm: "Êtes-vous sûr de vouloir supprimer ce bien ? Cette action est irréversible.",
                               turbo_method: :delete
@@ -127,8 +154,10 @@
             </div>
           </div>
         </div>
+          <% end %>
+        </div>
       <% end %>
-    </div>
+    <% end %>
   <% else %>
     <!-- État vide minimaliste -->
     <div class="text-center py-5 mt-5">

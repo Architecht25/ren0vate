@@ -3,7 +3,19 @@ class PropertiesController < ApplicationController
   before_action :set_property, only: [:show, :dashboard, :edit, :update, :destroy, :documents_dashboard]
 
   def index
-    @properties = current_user.properties
+    # Tri des propriétés par région : Flandre -> Bruxelles -> Wallonie
+    @properties = current_user.properties.sort_by do |property|
+      case property.region&.downcase
+      when 'flandre'
+        1
+      when 'bruxelles'
+        2
+      when 'wallonie'
+        3
+      else
+        4 # Pour les propriétés sans région définie
+      end
+    end
   end
 
   def show
