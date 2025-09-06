@@ -16,12 +16,8 @@ class RequestsController < ApplicationController
   end
 
   def new
-    # Créer automatiquement un brouillon pour permettre l'auto-save
-    @request = current_user.requests.build(
-      status: 'draft',
-      title: "Brouillon #{Time.current.strftime('%d/%m/%Y %H:%M')}",
-      description: "Brouillon en cours de rédaction"
-    )
+    # Ne créer qu'un objet en mémoire, pas de sauvegarde automatique
+    @request = current_user.requests.build(status: 'draft')
 
     # Préparer les données de pré-remplissage si une propriété est sélectionnée
     if params[:property_id].present?
@@ -34,28 +30,13 @@ class RequestsController < ApplicationController
       @form_data = build_user_data
     end
 
-    # Sauvegarder le brouillon sans validation pour créer l'ID
-    if @request.save(validate: false)
-      Rails.logger.info "✅ Brouillon auto-créé: ID #{@request.id}"
-    else
-      Rails.logger.error "❌ Erreur création brouillon: #{@request.errors.full_messages}"
-      # En cas d'erreur, créer quand même l'objet sans le sauvegarder
-      @request = Request.new
-    end
-
     # Charger les primes pour le prime_card_controller
     @primes = Prime.all
   end
 
   def create
-    # Vérifier si nous mettons à jour un brouillon existant
-    if params[:id].present?
-      @request = current_user.requests.find(params[:id])
-      @request.assign_attributes(request_params)
-    else
-      @request = Request.new(request_params)
-      @request.user = current_user
-    end
+    @request = Request.new(request_params)
+    @request.user = current_user
 
     # Pour les brouillons, assigner des valeurs par défaut si nécessaire
     if params[:commit] == "Sauvegarder en brouillon"

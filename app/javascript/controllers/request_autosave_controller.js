@@ -79,27 +79,71 @@ export default class extends Controller {
   }
 
   saveToDatabase(formData) {
-    fetch(`/requests/${this.requestId}/autosave`, {
-      method: 'PATCH',
+    // Pour les nouvelles demandes, créer d'abord la demande
+    if (this.requestId === 'new' || !this.requestId) {
+      this.createNewRequest(formData)
+    } else {
+      // Pour les demandes existantes, utiliser l'endpoint autosave
+      fetch(`/requests/${this.requestId}/autosave`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ request: formData })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          console.log("✅ Auto-save DB réussi")
+          // Effacer le localStorage une fois sauvé en DB
+          localStorage.removeItem(this.storageKey)
+        } else {
+          console.error("❌ Erreur auto-save DB:", data.error)
+        }
+      })
+      .catch(error => {
+        console.error("❌ Erreur réseau auto-save DB:", error)
+      })
+    }
+  }
+
+  createNewRequest(formData) {
+    // Créer une nouvelle demande via l'endpoint create
+    fetch('/requests', {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
         'Accept': 'application/json'
       },
-      body: JSON.stringify({ request: formData })
+      body: JSON.stringify({ 
+        request: {
+          ...formData,
+          status: 'draft',
+          title: formData.title || `Brouillon ${new Date().toLocaleDateString('fr-FR')} ${new Date().toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'})}`,
+          description: formData.description || "Brouillon en cours de rédaction"
+        },
+        commit: "Sauvegarder en brouillon"
+      })
     })
     .then(response => response.json())
     .then(data => {
-      if (data.success) {
-        console.log("✅ Auto-save DB réussi")
-        // Effacer le localStorage une fois sauvé en DB
-        localStorage.removeItem(this.storageKey)
+      if (data.success && data.request_id) {
+        console.log("✅ Nouvelle demande créée:", data.request_id)
+        // Mettre à jour l'ID pour les futures sauvegardes
+        this.requestId = data.request_id
+        this.element.dataset.requestId = data.request_id
+        this.storageKey = `request_draft_${data.request_id}`
+        // Effacer le localStorage de 'new'
+        localStorage.removeItem('request_draft_new')
       } else {
-        console.error("❌ Erreur auto-save DB:", data.error)
+        console.error("❌ Erreur création demande:", data.error)
       }
     })
     .catch(error => {
-      console.error("❌ Erreur réseau auto-save DB:", error)
+      console.error("❌ Erreur réseau création demande:", error)
     })
   }
 
