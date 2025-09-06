@@ -33,8 +33,15 @@
       <div class="card-body">
         <p class="mb-3">Pour pré-remplir automatiquement les champs avec vos données, sélectionnez d'abord un bien :</p>
         <div class="row g-3">
-          <% current_user.properties.each do |property| %>
-            <div class="col-md-6 col-lg-4">
+          <% current_user.properties.sort_by { |property|
+            case property.region&.downcase
+            when 'flandre' then 1
+            when 'bruxelles' then 2
+            when 'wallonie' then 3
+            else 4
+            end
+          }.each do |property| %>
+            <div class="col-md-6 col-lg-2">
               <%= link_to new_request_path(property_id: property.id), class: "btn btn-outline-success d-block py-3 px-4 text-start text-decoration-none" do %>
                 <div class="row align-items-center">
                   <div class="col-4">

@@ -176,7 +176,7 @@ export default class extends Controller {
 
         const button = document.createElement('button');
         button.type = 'button';
-        button.className = 'form-type-btn col-md-6 mb-3';
+        button.className = 'form-type-btn col-md-3 mb-3';
         button.dataset.formType = option.value;
         button.innerHTML = `
           <div class="btn-content">
