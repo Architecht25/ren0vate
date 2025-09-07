@@ -55,28 +55,51 @@
   </div>
 
   <div class="row">
-    <!-- Informations générales -->
-    <div class="col-lg-8">
-      <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body p-4">
-          <h5 class="card-title text-primary-custom mb-3">
-            <i class="bi bi-info-circle me-2"></i>Informations générales
-          </h5>
+    <!-- Colonne latérale - Actions rapides -->
+    <div class="col-lg-4 order-lg-2">
+      <!-- Actions rapides -->
+      <div class="form-section bg-light-subtle border rounded-3 p-4 mb-4">
+        <div class="d-flex align-items-center mb-3">
+          <div class="icon-circle me-3">
+            <i class="bi bi-lightning-charge"></i>
+          </div>
+          <h5 class="mb-0 fw-normal text-primary-custom">Actions rapides</h5>
+        </div>
+        <div class="d-grid gap-2">
+          <%= link_to projects_path, class: "btn btn-outline-primary-custom mb-2" do %>
+            <i class="bi bi-file-earmark-pdf me-2"></i>Exporter en PDF
+          <% end %>
+          <%= link_to projects_path, class: "btn btn-outline-primary-custom" do %>
+            <i class="bi bi-share me-2"></i>Partager avec un artisan
+          <% end %>
+        </div>
+      </div>
+    </div>
 
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label class="form-label text-muted-custom small">Nom du chantier</label>
-                <p class="mb-0 fs-5"><%= @project.nom %></p>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label class="form-label text-muted-custom small">Date de création</label>
-                <p class="mb-0"><%= @project.created_at.strftime("%d/%m/%Y") %></p>
-              </div>
+    <!-- Informations générales -->
+    <div class="col-lg-8 order-lg-1">
+      <div class="form-section bg-light-subtle border rounded-3 p-4 mb-4">
+        <div class="d-flex align-items-center mb-3">
+          <div class="icon-circle me-3">
+            <i class="bi bi-info-circle"></i>
+          </div>
+          <h5 class="mb-0 fw-normal text-primary-custom">Informations générales</h5>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label text-muted-custom small">Nom du chantier</label>
+              <p class="mb-0 fs-5"><%= @project.nom %></p>
             </div>
           </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label text-muted-custom small">Date de création</label>
+              <p class="mb-0"><%= @project.created_at.strftime("%d/%m/%Y") %></p>
+            </div>
+          </div>
+        </div>
 
           <% if @project.property.present? %>
             <div class="mb-3">
@@ -152,9 +175,6 @@
           <% end %>
         </div>
       </div>
-
-      <!-- Informations des professionnels -->
-      <%= render 'projects/partials_general/professionals_display' %>
 
       <!-- Informations pour l'éligibilité aux primes -->
       <% if @project.bce_number.present? || @project.invoice_date.present? || @project.work_completion_date.present? %>
@@ -238,24 +258,10 @@
       <% end %>
     </div>
 
-    <!-- Colonne latérale -->
-    <div class="col-lg-4">
-      <!-- Actions rapides -->
-      <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body p-4">
-          <h5 class="card-title text-primary-custom mb-3">
-            <i class="bi bi-lightning-charge me-2"></i>Actions rapides
-          </h5>
-          <div class="d-grid gap-2">
-            <%= link_to projects_path, class: "btn btn-outline-primary-custom mb-2" do %>
-              <i class="bi bi-file-earmark-pdf me-2"></i>Exporter en PDF
-            <% end %>
-            <%= link_to projects_path, class: "btn btn-outline-primary-custom" do %>
-              <i class="bi bi-share me-2"></i>Partager avec un artisan
-            <% end %>
-          </div>
-        </div>
-      </div>
+    <!-- Section Équipe projet & Professionnels dans la même row -->
+    <div class="col-lg-8 order-lg-1">
+      <!-- Informations des professionnels -->
+      <%= render 'projects/partials_general/professionals_display' %>
     </div>
   </div>
 </div>
