@@ -381,7 +381,15 @@ class PropertiesController < ApplicationController
       :profil_demandeur,
 
       # Champs spécifiques Bruxelles
-      :type_bien_bruxelles, :certificat_peb_bruxelles
+      :type_bien_bruxelles, :certificat_peb_bruxelles,
+
+      # Champs spécifiques Entreprise
+      :nombre_salaries, :date_creation,
+      :code_nace_1, :code_nace_2, :code_nace_3, :code_nace_4, :code_nace_5,
+
+      # Champs d'adresse d'exploitation
+      :rue_exploitation, :numero_exploitation, :code_postal_exploitation,
+      :commune_exploitation, :meme_adresse_exploitation
     )
   end
 

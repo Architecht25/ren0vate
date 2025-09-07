@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_04_054946) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_07_113018) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -389,6 +389,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_04_054946) do
     t.decimal "valeur_achat", precision: 10, scale: 2
     t.date "date_achat"
     t.string "profil_demandeur"
+    t.integer "nombre_salaries"
+    t.string "rue_exploitation"
+    t.string "numero_exploitation"
+    t.string "code_postal_exploitation"
+    t.string "commune_exploitation"
+    t.boolean "meme_adresse_exploitation"
+    t.date "date_creation"
+    t.string "code_nace_1"
+    t.string "code_nace_2"
+    t.string "code_nace_3"
+    t.string "code_nace_4"
+    t.string "code_nace_5"
     t.index ["user_id"], name: "index_properties_on_user_id"
   end
 
