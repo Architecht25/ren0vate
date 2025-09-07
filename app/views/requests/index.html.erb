@@ -38,83 +38,111 @@
 
         <div class="row g-3 mb-5">
           <% grouped_requests[region_key].each do |request| %>
-        <div class="col-lg-3">
-          <div class="card border-0 bg-light-custom h-100 property-card<%= ' property-card-entreprise' if request.property&.is_entreprise? %>">
-            <div class="card-body p-4">
-              <div class="d-flex align-items-center mb-3">
-                <div class="icon-circle me-3">
-                  <i class="bi bi-file-earmark-text"></i>
-                </div>
-                <div class="flex-grow-1">
-                  <h5 class="card-title text-dark mb-1 fw-normal">
-                    <%= link_to request.title, request_path(request), class: "text-decoration-none text-dark" %>
-                  </h5>
-                  <p class="text-muted-custom mb-0 small">
-                    <i class="bi bi-calendar me-1"></i>
-                    <%= request.created_at.strftime("%d/%m/%Y") %>
-                  </p>
-                </div>
-              </div>
-              <div class="mt-3">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                  <% status_class = case request.status
-                       when 'draft' then 'secondary'
-                       when 'pending' then 'warning'
-                       when 'submitted' then 'primary'
-                       when 'in_progress' then 'info'
-                       when 'completed' then 'success'
-                       else 'secondary'
-                     end %>
-                  <span class="badge bg-<%= status_class %> rounded-pill px-3 py-2">
-                    <% case request.status
-                       when 'draft' then 'Brouillon'
-                       when 'pending' then 'En attente'
-                       when 'submitted' then 'Soumise'
-                       when 'in_progress' then 'En cours'
-                       when 'completed' then 'Terminée'
-                       else 'Brouillon'
-                     end %>
-                  </span>
-                  <small class="text-muted-custom">
-                    <i class="bi bi-clock me-1"></i>
-                    <%= time_ago_in_words(request.updated_at) %>
-                  </small>
-                </div>
-
-                <!-- Actions pour les demandes -->
-                <div class="d-flex gap-2">
-                  <%= link_to request_path(request), class: "btn btn-sm btn-outline-primary-custom" do %>
-                    <i class="bi bi-eye"></i>
+        <div class="col-xl-4 col-lg-6 col-md-12">
+          <div class="card border-0 bg-light-custom h-100 property-card position-relative<%= ' property-card-entreprise' if request.property&.is_entreprise? %>">
+            <!-- Menu actions trois points -->
+            <div class="position-absolute top-0 end-0 m-2" style="z-index: 10;">
+              <div class="dropdown dropup">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="bi bi-three-dots-vertical"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow" style="z-index: 1050;">
+                  <li>
+                    <%= link_to request_path(request), class: "dropdown-item" do %>
+                      <i class="bi bi-eye me-2"></i>Voir les détails
+                    <% end %>
+                  </li>
+                  <% if request.status != 'submitted' %>
+                    <li>
+                      <%= link_to edit_request_path(request), class: "dropdown-item" do %>
+                        <i class="bi bi-pencil me-2"></i>Modifier
+                      <% end %>
+                    </li>
                   <% end %>
-
                   <% if request.status == 'submitted' %>
-                    <!-- Bouton pour continuer sur le site officiel -->
-                    <% official_url = case request.region
-                         when 'flandre' then 'https://www.vlaanderen.be/premies-pour-renovation/mijn-verbouwpremie'
-                         when 'wallonie' then 'https://energie.wallonie.be/fr/aides-et-primes.html?IDC=10717'
-                         when 'bruxelles' then 'https://www.brussels.be/logement-et-energie/renovation-de-mon-logement/primes'
-                         else '#'
-                       end %>
-                    <%= link_to official_url, target: "_blank", rel: "noopener noreferrer", class: "btn btn-sm btn-info" do %>
-                      <i class="bi bi-box-arrow-up-right"></i>
-                    <% end %>
-                  <% else %>
-                    <%= link_to edit_request_path(request), class: "btn btn-sm btn-outline-secondary" do %>
-                      <i class="bi bi-pencil"></i>
-                    <% end %>
+                    <li>
+                      <% official_url = case request.region
+                           when 'flandre' then 'https://www.vlaanderen.be/premies-pour-renovation/mijn-verbouwpremie'
+                           when 'wallonie' then 'https://energie.wallonie.be/fr/aides-et-primes.html?IDC=10717'
+                           when 'bruxelles' then 'https://www.brussels.be/logement-et-energie/renovation-de-mon-logement/primes'
+                           else '#'
+                         end %>
+                      <%= link_to official_url, target: "_blank", rel: "noopener noreferrer", class: "dropdown-item" do %>
+                        <i class="bi bi-box-arrow-up-right me-2"></i>Site officiel
+                      <% end %>
+                    </li>
                   <% end %>
-
-                  <%= link_to request_path(request), method: :delete,
-                              data: {
-                                confirm: "Supprimer cette demande ?",
-                                turbo_method: :delete
-                              },
-                              class: "btn btn-sm btn-outline-danger" do %>
-                    <i class="bi bi-trash"></i>
-                  <% end %>
-                </div>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <%= link_to request_path(request), method: :delete,
+                        data: {
+                          confirm: "Supprimer cette demande ?",
+                          turbo_method: :delete
+                        },
+                        class: "dropdown-item text-danger" do %>
+                      <i class="bi bi-trash me-2"></i>Supprimer
+                    <% end %>
+                  </li>
+                </ul>
               </div>
             </div>
+
+            <%= link_to request_path(request), class: "text-decoration-none" do %>
+              <div class="row g-0 h-100">
+                <!-- Image à gauche -->
+                <div class="col-4 d-flex align-items-center justify-content-center bg-white rounded-start" style="min-height: 140px;">
+                  <%= image_tag "form.jpg",
+                      alt: "Illustration formulaire",
+                      class: "img-fluid",
+                      style: "max-height: 100px; width: auto; opacity: 0.8;" %>
+                </div>
+
+                <!-- Contenu à droite -->
+                <div class="col-8">
+                  <div class="card-body p-3 h-100 d-flex flex-column">
+                    <div class="d-flex align-items-center mb-2">
+                      <div class="icon-circle-small me-2">
+                        <i class="bi bi-file-earmark-text"></i>
+                      </div>
+                      <div class="flex-grow-1">
+                        <h6 class="card-title text-dark mb-1 fw-normal"><%= request.title %></h6>
+                        <p class="text-muted-custom mb-0 small">
+                          <i class="bi bi-calendar me-1"></i>
+                          <%= request.created_at.strftime("%d/%m/%Y") %>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="mt-auto">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <% status_class = case request.status
+                             when 'draft' then 'secondary'
+                             when 'pending' then 'warning'
+                             when 'submitted' then 'primary'
+                             when 'in_progress' then 'info'
+                             when 'completed' then 'success'
+                             else 'secondary'
+                           end %>
+                        <span class="badge bg-<%= status_class %> rounded-pill px-2 py-1 small">
+                          <% case request.status
+                             when 'draft' then 'Brouillon'
+                             when 'pending' then 'En attente'
+                             when 'submitted' then 'Soumise'
+                             when 'in_progress' then 'En cours'
+                             when 'completed' then 'Terminée'
+                             else 'Brouillon'
+                           end %>
+                        </span>
+                        <small class="text-muted-custom">
+                          <i class="bi bi-clock me-1"></i>
+                          <%= time_ago_in_words(request.updated_at) %>
+                        </small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
           </div>
         </div>
           <% end %>

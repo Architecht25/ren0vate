@@ -38,64 +38,82 @@
 
         <div class="row g-3 mb-5">
           <% grouped_simulations[region_key].each do |simulation| %>
-        <div class="col-xl-3 col-lg-4 col-md-6">
-          <div class="card border-0 bg-light-custom h-100 property-card<%= ' property-card-entreprise' if simulation.property&.is_entreprise? %>">
-            <div class="card-body p-4">
-              <div class="d-flex align-items-center mb-3">
-                <div class="icon-circle me-3">
-                  <i class="bi bi-<%= simulation.property&.is_entreprise? ? 'building' : 'calculator' %>"></i>
-                </div>
-                <div class="flex-grow-1">
-                  <h5 class="card-title text-dark mb-1 fw-normal"><%= simulation.titre %></h5>
-                  <p class="text-muted-custom mb-0 small">
-                    <i class="bi bi-geo-alt me-1"></i>
-                    <%= simulation.region.capitalize if simulation.region.present? %>
-                  </p>
-                </div>
-                <div class="dropdown dropup">
-                  <button class="btn btn-sm btn-outline-secondary border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="bi bi-three-dots-vertical"></i>
-                  </button>
-                  <ul class="dropdown-menu dropdown-menu-end shadow" style="z-index: 1050;">
-                    <li>
-                      <%= link_to simulation_path(simulation), class: "dropdown-item" do %>
-                        <i class="bi bi-eye me-2"></i>Voir les détails
-                      <% end %>
-                    </li>
-                    <li>
-                      <%= link_to edit_simulation_path(simulation), class: "dropdown-item" do %>
-                        <i class="bi bi-pencil me-2"></i>Modifier
-                      <% end %>
-                    </li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li>
-                      <%= link_to simulation_path(simulation), method: :delete,
-                          class: "dropdown-item text-danger",
-                          confirm: "Êtes-vous sûr de vouloir supprimer cette simulation ? Cette action est irréversible.",
-                          data: {
-                            turbo_method: :delete,
-                            turbo_confirm: "Êtes-vous sûr de vouloir supprimer la simulation '#{simulation.titre}' ? Cette action est irréversible."
-                          } do %>
-                        <i class="bi bi-trash me-2"></i>Supprimer
-                      <% end %>
-                    </li>
-                  </ul>
-                </div>
+        <div class="col-xl-4 col-lg-6 col-md-12">
+          <div class="card border-0 bg-light-custom h-100 property-card position-relative<%= ' property-card-entreprise' if simulation.property&.is_entreprise? %>">
+            <!-- Menu actions trois points -->
+            <div class="position-absolute top-0 end-0 m-2" style="z-index: 10;">
+              <div class="dropdown dropup">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <i class="bi bi-three-dots-vertical"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow" style="z-index: 1050;">
+                  <li>
+                    <%= link_to simulation_path(simulation), class: "dropdown-item" do %>
+                      <i class="bi bi-eye me-2"></i>Voir les détails
+                    <% end %>
+                  </li>
+                  <li>
+                    <%= link_to edit_simulation_path(simulation), class: "dropdown-item" do %>
+                      <i class="bi bi-pencil me-2"></i>Modifier
+                    <% end %>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <%= link_to simulation_path(simulation), method: :delete,
+                        class: "dropdown-item text-danger",
+                        confirm: "Êtes-vous sûr de vouloir supprimer cette simulation ? Cette action est irréversible.",
+                        data: {
+                          turbo_method: :delete,
+                          turbo_confirm: "Êtes-vous sûr de vouloir supprimer la simulation '#{simulation.titre}' ? Cette action est irréversible."
+                        } do %>
+                      <i class="bi bi-trash me-2"></i>Supprimer
+                    <% end %>
+                  </li>
+                </ul>
               </div>
-              <%= link_to simulation_path(simulation), class: "text-decoration-none" do %>
-                <div class="mt-3">
-                  <div class="d-flex justify-content-between align-items-center">
-                    <span class="badge bg-primary-custom rounded-pill px-3 py-2">
-                      <%= simulation.primes.count %> primes
-                    </span>
-                    <% total = simulation.total_simule || simulation.total_primes_amount || 0 %>
-                    <span class="text-primary-custom fw-bold">
-                      <%= number_to_currency(total, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
-                    </span>
+            </div>
+
+            <%= link_to simulation_path(simulation), class: "text-decoration-none" do %>
+              <div class="row g-0 h-100">
+                <!-- Image à gauche -->
+                <div class="col-4 d-flex align-items-center justify-content-center bg-white rounded-start" style="min-height: 140px;">
+                  <%= image_tag "image.png",
+                      alt: "Illustration simulation",
+                      class: "img-fluid",
+                      style: "max-height: 100px; width: auto; opacity: 0.8;" %>
+                </div>
+
+                <!-- Contenu à droite -->
+                <div class="col-8">
+                  <div class="card-body p-3 h-100 d-flex flex-column">
+                    <div class="d-flex align-items-center mb-2">
+                      <div class="icon-circle-small me-2">
+                        <i class="bi bi-<%= simulation.property&.is_entreprise? ? 'building' : 'calculator' %>"></i>
+                      </div>
+                      <div class="flex-grow-1">
+                        <h6 class="card-title text-dark mb-1 fw-normal"><%= simulation.titre %></h6>
+                        <p class="text-muted-custom mb-0 small">
+                          <i class="bi bi-geo-alt me-1"></i>
+                          <%= simulation.region.capitalize if simulation.region.present? %>
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="mt-auto">
+                      <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-primary-custom rounded-pill px-2 py-1 small">
+                          <%= simulation.primes.count %> primes
+                        </span>
+                        <% total = simulation.total_simule || simulation.total_primes_amount || 0 %>
+                        <span class="text-primary-custom fw-bold small">
+                          <%= number_to_currency(total, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              <% end %>
-            </div>
+              </div>
+            <% end %>
           </div>
         </div>
           <% end %>
