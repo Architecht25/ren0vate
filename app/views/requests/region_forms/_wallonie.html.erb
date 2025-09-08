@@ -1,12 +1,6 @@
 <!-- Formulaire spécifique pour la Wallonie - Prime Régionale -->
-<div class="alert alert-info">
-  <i class="bi bi-info-circle me-2"></i>
-  <strong>Prime Régionale Wallonne</strong>
-  <p class="mb-0 small">Primes disponibles : Prime Habitation (logement + énergie)</p>
-</div>
-
+<div class="container" style="max-width: 80%;">
 <div class="wallonie-specific-fields">
-
 
   <!-- SECTION 0 – Informations AUDIT -->
   <div class="card mb-4">
@@ -21,20 +15,37 @@
       <div class="row">
         <div class="col-md-4">
           <div class="mb-3">
-            <label class="form-label">Numéro d'audit</label>
-            <%= form.text_field :numero_audit, placeholder: "A20....", class: "form-control" %>
+            <%= form.label :numero_audit, class: "form-label" do %>
+              Numéro d'audit
+              <%= badge_prerempli_intelligent(@form_data, :numero_audit, @property&.projects&.last&.numero_audit) %>
+            <% end %>
+            <%= form.text_field :numero_audit,
+                value: preremplir_champ(@form_data, :numero_audit, @property&.projects&.last&.numero_audit),
+                placeholder: "A20....",
+                class: "form-control" %>
           </div>
         </div>
         <div class="col-md-4">
           <div class="mb-3">
-            <label class="form-label">Date de l'audit</label>
-            <%= form.date_field :date_audit, class: "form-control" %>
+            <%= form.label :date_audit, class: "form-label" do %>
+              Date de l'audit
+              <%= badge_prerempli_intelligent(@form_data, :date_audit, @property&.projects&.last&.date_audit) %>
+            <% end %>
+            <%= form.date_field :date_audit,
+                value: preremplir_champ(@form_data, :date_audit, @property&.projects&.last&.date_audit),
+                class: "form-control" %>
           </div>
         </div>
         <div class="col-md-4">
           <div class="mb-3">
-            <label class="form-label">Numéro d'agrément de l'auditeur</label>
-            <%= form.text_field :numero_agrement_auditeur, placeholder: "PAE2 - PX-XXXXX", class: "form-control" %>
+            <%= form.label :numero_agrement_auditeur, class: "form-label" do %>
+              Numéro d'agrément de l'auditeur
+              <%= badge_prerempli_intelligent(@form_data, :numero_agrement_auditeur, @property&.projects&.last&.numero_agrement_auditeur) %>
+            <% end %>
+            <%= form.text_field :numero_agrement_auditeur,
+                value: preremplir_champ(@form_data, :numero_agrement_auditeur, @property&.projects&.last&.numero_agrement_auditeur),
+                placeholder: "PAE2 - PX-XXXXX",
+                class: "form-control" %>
           </div>
         </div>
       </div>
@@ -288,14 +299,23 @@
     </div>
     <div class="card-body">
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-4">
           <div class="mb-3">
             <label class="form-label">Des personnes handicapées font-elles partie de votre ménage ?</label>
             <%= form.select :handicape, options_for_select([['Sélectionnez', ''], ['Oui', 'Oui'], ['Non', 'Non']]), {}, { class: "form-control" } %>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="mb-3">
             <label class="form-label">Des enfants font-ils partie de votre ménage ?</label>
             <%= form.select :enfants, options_for_select([['Sélectionnez', ''], ['Oui', 'Oui'], ['Non', 'Non']]), {}, { class: "form-control" } %>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="mb-3">
             <label class="form-label">Des personnes de plus de 60 ans font-elles partie de votre ménage ?</label>
             <%= form.select :plus_de_60_ans, options_for_select([['Sélectionnez', ''], ['Oui', 'Oui'], ['Non', 'Non']]), {}, { class: "form-control" } %>
+          </div>
         </div>
       </div>
     </div>
@@ -369,6 +389,7 @@
         </div>
       </div>
     </div>
+  </div>
 
   <!-- SECTION 6 – Documents à joindre -->
   <div class="card mb-4">
@@ -423,111 +444,6 @@
       </div>
     </div>
   </div>
-</div>
-
-<!-- Section pour Primes Communales -->
-<div id="communale-section" class="wallonie-prime-section" style="display: none;">
-  <div class="card border-0 shadow-sm">
-    <div class="card-body p-4">
-      <h4 class="text-info mb-4">
-        <i class="bi bi-building me-2"></i>
-        Primes Communales
-      </h4>
-      <div class="alert alert-info">
-        <i class="bi bi-info-circle me-2"></i>
-        <strong>Information</strong>
-        <p class="mb-0">Les primes communales varient selon votre commune. Veuillez contacter directement votre administration communale pour connaître les primes disponibles et leurs conditions d'octroi.</p>
-      </div>
-      <div class="text-center">
-        <i class="bi bi-tools fs-1 text-muted mb-3"></i>
-        <p class="text-muted">Cette section sera développée prochainement avec les formulaires spécifiques par commune.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Section pour Prime Monument et Site -->
-<div id="monument-section" class="wallonie-prime-section" style="display: none;">
-  <div class="card border-0 shadow-sm">
-    <div class="card-body p-4">
-      <h4 class="text-warning mb-4">
-        <i class="bi bi-building-gear me-2"></i>
-        Prime Monument et Site
-      </h4>
-      <div class="alert alert-warning">
-        <i class="bi bi-exclamation-triangle me-2"></i>
-        <strong>Bâtiments protégés</strong>
-        <p class="mb-0">Cette prime concerne les bâtiments classés, inscrits sur la liste de sauvegarde ou situés en zone de protection. Des conditions spécifiques s'appliquent.</p>
-      </div>
-      <div class="text-center">
-        <i class="bi bi-tools fs-1 text-muted mb-3"></i>
-        <p class="text-muted">Cette section sera développée prochainement avec le formulaire spécifique pour les monuments et sites.</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- JavaScript géré dans _form.html.erb pour éviter les conflits -->
-
-<!-- Styles CSS personnalisés -->
-<style>
-.bg-gradient-success {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-}
-
-.icon-circle {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-}
-
-.wallonie-prime-section {
-  margin-top: 1.5rem;
-}
-
-.card {
-  transition: transform 0.2s ease-in-out;
-}
-
-.card:hover {
-  transform: translateY(-2px);
-}
-
-.form-select-lg {
-  font-size: 1.1rem;
-  padding: 0.75rem 1rem;
-}
-</style>
-
-      <!-- Email de contact -->
-      <div class="mb-3">
-        <label class="form-label">
-          <i class="bi bi-envelope me-2"></i>Adresse email pour le suivi de la demande *
-        </label>
-        <%= form.email_field :email_contact, class: "form-control", placeholder: "Ex : nom@email.com", required: true %>
-      </div>
-
-      <!-- Message de validation -->
-      <div id="message-soumission" class="mt-3 fw-bold text-success"></div>
-
-      <!-- Informations complémentaires -->
-      <div class="mt-4">
-        <div class="alert alert-info">
-          <i class="bi bi-info-circle me-2"></i>
-          <strong>Après soumission :</strong>
-          <ul class="mb-0 mt-2">
-            <li>Vous recevrez un accusé de réception par email</li>
-            <li>Le traitement de votre demande peut prendre jusqu'à 4 mois</li>
-            <li>Vous serez contacté si des informations complémentaires sont nécessaires</li>
-            <li>Le paiement sera effectué sur le compte bancaire mentionné</li>
-          </ul>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- Section de soumission Wallonie -->
@@ -576,3 +492,38 @@
 
 </div>
 </div>
+
+
+<!-- Styles CSS personnalisés -->
+<style>
+.bg-gradient-success {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.icon-circle {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.wallonie-prime-section {
+  margin-top: 1.5rem;
+}
+
+.card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.form-select-lg {
+  font-size: 1.1rem;
+  padding: 0.75rem 1rem;
+}
+</style>

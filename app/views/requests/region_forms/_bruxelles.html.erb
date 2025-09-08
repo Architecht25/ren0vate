@@ -1,476 +1,451 @@
 <!-- Formulaire spécifique pour Bruxelles -->
 <div class="container" style="max-width: 80%;">
-  <div class="alert alert-info">
-    <i class="bi bi-info-circle me-2"></i>
-    <strong>Formulaire pour la Région de Bruxelles-Capitale</strong>
-    <p class="mb-0 small">Primes disponibles : Prime Habitation, Prime Énergie, Prime Rénovation</p>
-  </div>
+  <div class="bruxelles-specific-fields">
 
-  <div class="alert alert-warning">
-    <i class="bi bi-construction me-2"></i>
-    <strong>Formulaire en cours de développement</strong>
-    <p class="mb-0">Le formulaire spécifique pour Bruxelles sera disponible prochainement. En attendant, vous pouvez consulter le site officiel.</p>
-  </div>
-
-<!-- Formulaire complet miroir - Primes RENOLUTION Bruxelles -->
-
-<div class="bruxelles-specific-fields">
-
-  <!-- 1. Informations sur le demandeur -->
-  <div class="card mb-4">
-    <div class="card-header bg-primary text-white">
-      <h5 class="mb-0">
-        <i class="bi bi-person-circle me-2"></i>1. Informations sur le demandeur
-        <%= indicateur_section_complete(@form_data, champs_identite_utilisateur) if @form_data.present? %>
-      </h5>
-    </div>
-    <div class="card-body">
-      <% if @property.present? %>
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :profil_demandeur, "Profil du demandeur *", class: "form-label" %>
-            <div class="form-control-plaintext fw-bold text-primary">
-              <%= @property&.profil_demandeur&.humanize || "Non défini" %>
+    <!-- 1. Informations sur le demandeur -->
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+          <i class="bi bi-person-circle me-2"></i>1. Informations sur le demandeur
+          <%= indicateur_section_complete(@form_data, champs_identite_utilisateur) if @form_data.present? %>
+        </h5>
+      </div>
+      <div class="card-body">
+        <% if @property.present? %>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :profil_demandeur, "Profil du demandeur *", class: "form-label" %>
+              <div class="form-control-plaintext fw-bold text-primary">
+                <%= @property&.profil_demandeur&.humanize || "Non défini" %>
+              </div>
+              <%= form.hidden_field :profil_demandeur, value: @property&.profil_demandeur %>
             </div>
-            <%= form.hidden_field :profil_demandeur, value: @property&.profil_demandeur %>
+          </div>
+          <div class="col-md-6">
+            <!-- Espace pour équilibrer la mise en page -->
           </div>
         </div>
-        <div class="col-md-6">
-          <!-- Espace pour équilibrer la mise en page -->
-        </div>
-      </div>
-      <% end %>
+        <% end %>
 
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :nom, class: "form-label" do %>
-              Nom
-              <%= badge_prerempli(@form_data, :applicant_last_name) if @form_data.present? %>
-            <% end %>
-            <%= form.text_field :nom,
-                value: preremplir_champ(@form_data, :applicant_last_name, current_user.last_name),
-                class: "form-control" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :prenom, class: "form-label" do %>
-              Prénom
-              <%= badge_prerempli(@form_data, :applicant_first_name) if @form_data.present? %>
-            <% end %>
-            <%= form.text_field :prenom,
-                value: preremplir_champ(@form_data, :applicant_first_name, current_user.first_name),
-                class: "form-control" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Date de naissance</label>
-            <%= form.date_field :date_naissance, class: "form-control" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :num_registre_national, class: "form-label" do %>
-              Numéro de registre national
-              <%= badge_prerempli(@form_data, :applicant_national_number) if @form_data.present? %>
-            <% end %>
-            <%= form.text_field :num_registre_national,
-                value: preremplir_champ(@form_data, :applicant_national_number, current_user.national_number),
-                class: "form-control" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :email, class: "form-label" do %>
-              Email
-              <%= badge_prerempli(@form_data, :applicant_email) if @form_data.present? %>
-            <% end %>
-            <%= form.email_field :email,
-                value: preremplir_champ(@form_data, :applicant_email, current_user.email),
-                class: "form-control" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :telephone, class: "form-label" do %>
-              Téléphone
-              <%= badge_prerempli(@form_data, :applicant_phone) if @form_data.present? %>
-            <% end %>
-            <%= form.text_field :telephone,
-                value: preremplir_champ(@form_data, :applicant_phone, current_user.phone),
-                class: "form-control" %>
-          </div>
-        </div>
-        <div class="col-md-12">
-          <div class="mb-3">
-            <label class="form-label">Statut du demandeur</label>
-            <%= form.select :statut_demandeur,
-                  options_for_select([
-                    ['Propriétaire occupant', 'proprietaire_occupant'],
-                    ['Bailleur', 'bailleur'],
-                    ['Copropriété', 'copropriete'],
-                    ['Locataire', 'locataire'],
-                    ['AIS', 'ais'],
-                    ['ASBL / Société', 'asbl_societe']
-                  ]),
-                  { prompt: 'Sélectionnez' },
-                  { class: "form-select" } %>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 2. Informations sur le bien -->
-  <div class="card mb-4">
-    <div class="card-header bg-success text-white">
-      <h5 class="mb-0">
-        <i class="bi bi-house me-2"></i>2. Informations sur le bien immobilier
-        <%= indicateur_section_complete(@form_data, champs_adresse_propriete) if @form_data.present? %>
-      </h5>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-12">
-          <div class="mb-3">
-            <%= form.label :adresse_bien, class: "form-label" do %>
-              Adresse du bien
-              <%= badge_prerempli_intelligent(@form_data, :property_street, @property&.address) %>
-            <% end %>
-            <%= form.text_field :adresse_bien,
-                value: preremplir_champ(@form_data, :property_street, @property&.address),
-                class: "form-control" %>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="mb-3">
-            <%= form.label :code_postal, class: "form-label" do %>
-              Code postal
-              <%= badge_prerempli_intelligent(@form_data, :property_postal_code, @property&.code_postal) %>
-            <% end %>
-            <%= form.text_field :code_postal,
-                value: preremplir_champ(@form_data, :property_postal_code, @property&.code_postal),
-                class: "form-control" %>
-          </div>
-        </div>
-        <div class="col-md-8">
-          <div class="mb-3">
-            <%= form.label :commune, class: "form-label" do %>
-              Commune
-              <%= badge_prerempli_intelligent(@form_data, :property_city, @property&.commune) %>
-            <% end %>
-            <%= form.text_field :commune,
-                value: preremplir_champ(@form_data, :property_city, @property&.commune),
-                class: "form-control" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Type de bien</label>
-            <%= form.select :type_bien,
-                  options_for_select([
-                    ['Maison unifamiliale', 'maison_unifamiliale'],
-                    ['Appartement', 'appartement'],
-                    ['Partie commune', 'partie_commune'],
-                    ['Bâtiment mixte', 'batiment_mixte']
-                  ]),
-                  { prompt: 'Sélectionnez' },
-                  { class: "form-select" } %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Année de construction</label>
-            <%= form.number_field :annee_construction, class: "form-control" %>
-          </div>
-        </div>
-        <div class="col-md-12">
-          <div class="mb-3">
-            <label class="form-label">Référence cadastrale</label>
-            <%= form.text_field :reference_cadastre, class: "form-control" %>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 3. Travaux concernés -->
-  <div class="card mb-4">
-    <div class="card-header bg-warning text-dark">
-      <h5 class="mb-0"><i class="bi bi-tools me-2"></i>3. Travaux concernés</h5>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Année de la facture de solde</label>
-            <%= form.select :annee_facture,
-                  options_for_select([
-                    ['2024', '2024'],
-                    ['2025', '2025']
-                  ]),
-                  { prompt: 'Sélectionnez' },
-                  { class: "form-select" } %>
-          </div>
-        </div>
-        <div class="col-md-12">
-          <div class="mb-3">
-            <label class="form-label">Primes souhaitées</label>
-            <div class="row">
-              <% ["A1 - Audit énergétique", "A5 - Certificat PEB", "C1 - Isolation toiture", "C2 - Isolation murs", "D1 - Isolation sol", "E1 - Châssis", "F1 - Chauffage", "G1 - Ventilation", "H1 - Préparatifs", "I3 - Sécurité incendie"].each do |prime| %>
-                <div class="col-md-6">
-                  <div class="form-check">
-                    <%= form.check_box :primes_souhaitees, { multiple: true, class: "form-check-input" }, prime, "" %>
-                    <%= form.label :primes_souhaitees, prime, class: "form-check-label" %>
-                  </div>
-                </div>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :nom, class: "form-label" do %>
+                Nom
+                <%= badge_prerempli(@form_data, :applicant_last_name) if @form_data.present? %>
               <% end %>
+              <%= form.text_field :nom,
+                  value: preremplir_champ(@form_data, :applicant_last_name, current_user.last_name),
+                  class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :prenom, class: "form-label" do %>
+                Prénom
+                <%= badge_prerempli(@form_data, :applicant_first_name) if @form_data.present? %>
+              <% end %>
+              <%= form.text_field :prenom,
+                  value: preremplir_champ(@form_data, :applicant_first_name, current_user.first_name),
+                  class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Date de naissance</label>
+              <%= form.date_field :date_naissance, class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :num_registre_national, class: "form-label" do %>
+                Numéro de registre national
+                <%= badge_prerempli(@form_data, :applicant_national_number) if @form_data.present? %>
+              <% end %>
+              <%= form.text_field :num_registre_national,
+                  value: preremplir_champ(@form_data, :applicant_national_number, current_user.national_number),
+                  class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :email, class: "form-label" do %>
+                Email
+                <%= badge_prerempli(@form_data, :applicant_email) if @form_data.present? %>
+              <% end %>
+              <%= form.email_field :email,
+                  value: preremplir_champ(@form_data, :applicant_email, current_user.email),
+                  class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :telephone, class: "form-label" do %>
+                Téléphone
+                <%= badge_prerempli(@form_data, :applicant_phone) if @form_data.present? %>
+              <% end %>
+              <%= form.text_field :telephone,
+                  value: preremplir_champ(@form_data, :applicant_phone, current_user.phone),
+                  class: "form-control" %>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- 4. Détails techniques -->
-  <div class="card mb-4">
-    <div class="card-header bg-info text-white">
-      <h5 class="mb-0"><i class="bi bi-gear me-2"></i>4. Détails techniques</h5>
+    <!-- 2. Informations sur le bien -->
+    <div class="card mb-4">
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0">
+          <i class="bi bi-house me-2"></i>2. Informations sur le bien immobilier
+          <%= indicateur_section_complete(@form_data, champs_adresse_propriete) if @form_data.present? %>
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :adresse_bien, class: "form-label" do %>
+                Adresse du bien
+                <%= badge_prerempli_intelligent(@form_data, :property_street, @property&.address) %>
+              <% end %>
+              <%= form.text_field :adresse_bien,
+                  value: preremplir_champ(@form_data, :property_street, @property&.address),
+                  class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :code_postal, class: "form-label" do %>
+                Code postal
+                <%= badge_prerempli_intelligent(@form_data, :property_postal_code, @property&.code_postal) %>
+              <% end %>
+              <%= form.text_field :code_postal,
+                  value: preremplir_champ(@form_data, :property_postal_code, @property&.code_postal),
+                  class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :commune, class: "form-label" do %>
+                Commune
+                <%= badge_prerempli_intelligent(@form_data, :property_city, @property&.commune) %>
+              <% end %>
+              <%= form.text_field :commune,
+                  value: preremplir_champ(@form_data, :property_city, @property&.commune),
+                  class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Type de bien</label>
+              <%= form.select :type_bien,
+                    options_for_select([
+                      ['Maison unifamiliale', 'maison_unifamiliale'],
+                      ['Appartement', 'appartement'],
+                      ['Partie commune', 'partie_commune'],
+                      ['Bâtiment mixte', 'batiment_mixte']
+                    ]),
+                    { prompt: 'Sélectionnez' },
+                    { class: "form-select" } %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :annee_construction, class: "form-label" do %>
+                Année de construction
+                <%= badge_prerempli_intelligent(@form_data, :property_construction_year, @property&.annee_construction) %>
+              <% end %>
+              <%= form.text_field :annee_construction,
+                  value: preremplir_champ(@form_data, :property_construction_year, @property&.annee_construction),
+                  class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Référence cadastrale</label>
+              <%= form.text_field :reference_cadastre, class: "form-control" %>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Surface isolée totale (m²)</label>
-            <%= form.number_field :surface_isolee_m2, step: 0.01, class: "form-control" %>
+
+    <!-- 3. Revenus et composition du ménage -->
+    <div class="card mb-4">
+      <div class="card-header bg-secondary text-white">
+        <h5 class="mb-0"><i class="bi bi-currency-euro me-2"></i>5. Revenus et composition du ménage</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="mb-3">
+              <label class="form-label">Revenu imposable - demandeur(€)</label>
+              <%= form.number_field :revenu_reference, class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <div class="mb-3">
+              <label class="form-label">Année des revenus</label>
+              <%= form.number_field :annee_revenus, class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label">Revenu imposable - conjoint(€)</label>
+              <%= form.number_field :revenu_reference_conjoint, class: "form-control" %>
+          </div>
+
+          <div class="col-md-2">
+            <div class="mb-3">
+              <label class="form-label">Année des revenus</label>
+              <%= form.number_field :annee_revenus_conjoint, class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Nombre de personnes dans le ménage</label>
+              <%= form.number_field :composition_menage, class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Catégorie de revenus</label>
+              <%= form.select :categorie_revenus,
+                    options_for_select([
+                      ['I - Revenu < 43.200 €', 'categorie_1'],
+                      ['II - Revenu entre 43.200 et 85.800 €', 'categorie_2'],
+                      ['III - Revenu > 85.800 €', 'categorie_3']
+                    ]),
+                    { prompt: 'Sélectionnez' },
+                    { class: "form-select" } %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Justificatif de revenus (AER ou avis d'imposition)</label>
+              <%= form.file_field :justificatif_revenus_pdf, class: "form-control", accept: ".pdf" %>
+            </div>
           </div>
         </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Valeur R de l'isolation (m²K/W)</label>
-            <%= form.number_field :valeur_r_isolation, step: 0.01, class: "form-control" %>
+      </div>
+    </div>
+
+    <!-- 4. Travaux concernés -->
+    <div class="card mb-4">
+      <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0"><i class="bi bi-tools me-2"></i>3. Travaux concernés</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-3">
+            <div class="mb-3">
+              <label class="form-label">Année de la facture de solde</label>
+              <%= form.select :annee_facture,
+                    options_for_select([
+                      ['2024', '2024'],
+                      ['2025', '2025']
+                    ]),
+                    { prompt: 'Sélectionnez' },
+                    { class: "form-select" } %>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="mb-3">
+              <label class="form-label">Primes souhaitées</label>
+              <div class="row">
+                <% ["A1 - Audit énergétique", "A5 - Certificat PEB", "C1 - Isolation toiture", "C2 - Isolation murs", "D1 - Isolation sol", "E1 - Châssis", "F1 - Chauffage", "G1 - Ventilation", "H1 - Préparatifs", "I3 - Sécurité incendie"].each do |prime| %>
+                  <div class="col-md-6">
+                    <div class="form-check">
+                      <%= form.check_box :primes_souhaitees, { multiple: true, class: "form-check-input" }, prime, "" %>
+                      <%= form.label :primes_souhaitees, prime, class: "form-check-label" %>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Valeur Uw des nouveaux châssis (W/m²K)</label>
-            <%= form.number_field :valeur_uw_chassis, step: 0.01, class: "form-control" %>
+      </div>
+    </div>
+
+    <!-- 5. Détails techniques -->
+    <div class="card mb-4">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0"><i class="bi bi-gear me-2"></i>4. Détails techniques</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Surface isolée totale (m²)</label>
+              <%= form.number_field :surface_isolee_m2, step: 0.01, class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Valeur R de l'isolation (m²K/W)</label>
+              <%= form.number_field :valeur_r_isolation, step: 0.01, class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Valeur Uw des nouveaux châssis (W/m²K)</label>
+              <%= form.number_field :valeur_uw_chassis, step: 0.01, class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Type de chaudière</label>
+              <%= form.select :type_chaudiere,
+                    options_for_select([
+                      ['Condensation gaz', 'condensation_gaz'],
+                      ['Pompe à chaleur', 'pompe_chaleur'],
+                      ['Chaudière biomasse', 'chaudiere_biomasse']
+                    ]),
+                    { prompt: 'Sélectionnez' },
+                    { class: "form-select" } %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Surface totale de châssis remplacés (m²)</label>
+              <%= form.number_field :surface_chassis_m2, step: 0.01, class: "form-control" %>
+            </div>
           </div>
         </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Type de chaudière</label>
-            <%= form.select :type_chaudiere,
+      </div>
+    </div>
+
+    <!-- 6. Coordonnées bancaires -->
+    <div class="card mb-4">
+      <div class="card-header bg-dark text-white">
+        <h5 class="mb-0"><i class="bi bi-bank me-2"></i>6. Coordonnées bancaires</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">IBAN du demandeur</label>
+              <%= form.text_field :iban_demandeur, class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">IBAN du bénéficiaire (si différent)</label>
+              <%= form.text_field :iban_tiers, class: "form-control" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Justificatifs à joindre -->
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-paperclip me-2"></i>7. Justificatifs à joindre</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Factures (PDF)</label>
+              <%= form.file_field :factures_pdf, class: "form-control", accept: ".pdf" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Preuves de paiement (PDF)</label>
+              <%= form.file_field :preuves_paiement_pdf, class: "form-control", accept: ".pdf" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Attestation entrepreneur (volet général)</label>
+              <%= form.file_field :attestation_entrepreneur_pdf, class: "form-control", accept: ".pdf" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Attestation technique (par prime)</label>
+              <%= form.file_field :attestation_technique_pdf, class: "form-control", accept: ".pdf" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Certificat PEB (si prime A5)</label>
+              <%= form.file_field :certificat_peb_pdf, class: "form-control", accept: ".pdf" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Attestation conformité électrique (si concerné)</label>
+              <%= form.file_field :attestation_conformite_elec_pdf, class: "form-control", accept: ".pdf" %>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="mb-3">
+              <label class="form-label">Photos couleur de la façade (si primes F4/F5)</label>
+              <%= form.file_field :photos_façade_pdf, class: "form-control", accept: ".pdf" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. Mandats éventuels -->
+    <div class="card mb-4">
+      <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>8. Mandats (si applicables)</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Mandat de signature (si introduit par tiers)</label>
+              <%= form.file_field :mandat_signature_pdf, class: "form-control", accept: ".pdf" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Mandat de paiement (si tiers perçoit la prime)</label>
+              <%= form.file_field :mandat_paiement_pdf, class: "form-control", accept: ".pdf" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section de soumission Bruxelles -->
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="bi bi-check-circle me-2"></i>Soumission de la demande</h5>
+      </div>
+
+      <div class="card-body">
+        <div class = "row">
+          <div class="col-md-6">
+            <%= form.label :status, "Statut de la demande", class: "form-label" %>
+            <%= form.select :status,
                   options_for_select([
-                    ['Condensation gaz', 'condensation_gaz'],
-                    ['Pompe à chaleur', 'pompe_chaleur'],
-                    ['Chaudière biomasse', 'chaudiere_biomasse']
-                  ]),
-                  { prompt: 'Sélectionnez' },
-                  { class: "form-select" } %>
-          </div>
+                    ['Brouillon', 'draft'],
+                    ['En attente', 'pending'],
+                  ['En cours', 'in_progress'],
+                  ['Terminée', 'completed']
+                ], @request.status || 'draft'),
+                {},
+                { class: "form-select" } %>
         </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Surface totale de châssis remplacés (m²)</label>
-            <%= form.number_field :surface_chassis_m2, step: 0.01, class: "form-control" %>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- 5. Revenus et composition du ménage -->
-  <div class="card mb-4">
-    <div class="card-header bg-secondary text-white">
-      <h5 class="mb-0"><i class="bi bi-currency-euro me-2"></i>5. Revenus et composition du ménage</h5>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Revenu imposable de référence (€)</label>
-            <%= form.number_field :revenu_reference, class: "form-control" %>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div class="text-muted">
+            <small>
+              <i class="bi bi-shield-check me-1"></i>
+              Vos données sont traitées de manière sécurisée
+            </small>
           </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Année des revenus</label>
-            <%= form.number_field :annee_revenus, class: "form-control" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Nombre de personnes dans le ménage</label>
-            <%= form.number_field :composition_menage, class: "form-control" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Catégorie de revenus</label>
-            <%= form.select :categorie_revenus,
-                  options_for_select([
-                    ['I - Revenu < 43.200 €', 'categorie_1'],
-                    ['II - Revenu entre 43.200 et 85.800 €', 'categorie_2'],
-                    ['III - Revenu > 85.800 €', 'categorie_3']
-                  ]),
-                  { prompt: 'Sélectionnez' },
-                  { class: "form-select" } %>
-          </div>
-        </div>
-        <div class="col-md-12">
-          <div class="mb-3">
-            <label class="form-label">Justificatif de revenus (AER ou avis d'imposition)</label>
-            <%= form.file_field :justificatif_revenus_pdf, class: "form-control", accept: ".pdf" %>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- 6. Coordonnées bancaires -->
-  <div class="card mb-4">
-    <div class="card-header bg-dark text-white">
-      <h5 class="mb-0"><i class="bi bi-bank me-2"></i>6. Coordonnées bancaires</h5>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">IBAN du demandeur</label>
-            <%= form.text_field :iban_demandeur, class: "form-control" %>
-          </div>
         </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">IBAN du bénéficiaire (si différent)</label>
-            <%= form.text_field :iban_tiers, class: "form-control" %>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 7. Justificatifs à joindre -->
-  <div class="card mb-4">
-    <div class="card-header bg-primary text-white">
-      <h5 class="mb-0"><i class="bi bi-paperclip me-2"></i>7. Justificatifs à joindre</h5>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Factures (PDF)</label>
-            <%= form.file_field :factures_pdf, class: "form-control", accept: ".pdf" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Preuves de paiement (PDF)</label>
-            <%= form.file_field :preuves_paiement_pdf, class: "form-control", accept: ".pdf" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Attestation entrepreneur (volet général)</label>
-            <%= form.file_field :attestation_entrepreneur_pdf, class: "form-control", accept: ".pdf" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Attestation technique (par prime)</label>
-            <%= form.file_field :attestation_technique_pdf, class: "form-control", accept: ".pdf" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Certificat PEB (si prime A5)</label>
-            <%= form.file_field :certificat_peb_pdf, class: "form-control", accept: ".pdf" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Attestation conformité électrique (si concerné)</label>
-            <%= form.file_field :attestation_conformite_elec_pdf, class: "form-control", accept: ".pdf" %>
-          </div>
-        </div>
-        <div class="col-md-12">
-          <div class="mb-3">
-            <label class="form-label">Photos couleur de la façade (si primes F4/F5)</label>
-            <%= form.file_field :photos_façade_pdf, class: "form-control", accept: ".pdf" %>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 8. Mandats éventuels -->
-  <div class="card mb-4">
-    <div class="card-header bg-warning text-dark">
-      <h5 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>8. Mandats (si applicables)</h5>
-    </div>
-    <div class="card-body">
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Mandat de signature (si introduit par tiers)</label>
-            <%= form.file_field :mandat_signature_pdf, class: "form-control", accept: ".pdf" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Mandat de paiement (si tiers perçoit la prime)</label>
-            <%= form.file_field :mandat_paiement_pdf, class: "form-control", accept: ".pdf" %>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-</div>
-
-<!-- Section de soumission Bruxelles -->
-<div class="card mb-4">
-  <div class="card-header bg-primary text-white">
-    <h5 class="mb-0"><i class="bi bi-check-circle me-2"></i>Soumission de la demande</h5>
-  </div>
-  <div class="card-body">
-
-    <div class="mb-4">
-      <%= form.label :status, "Statut de la demande", class: "form-label" %>
-      <%= form.select :status,
-            options_for_select([
-              ['Brouillon', 'draft'],
-              ['En attente', 'pending'],
-              ['En cours', 'in_progress'],
-              ['Terminée', 'completed']
-            ], @request.status || 'draft'),
-            {},
-            { class: "form-select" } %>
-    </div>
-
-    <div class="d-flex justify-content-between align-items-center mb-4">
-      <div class="text-muted">
-        <small>
-          <i class="bi bi-shield-check me-1"></i>
-          Vos données sont traitées de manière sécurisée
-        </small>
-      </div>
-
-      <!-- Les boutons de soumission sont maintenant centralisés dans _form.html.erb -->
-
-      <div>
-        <a href="https://www.brussels.be/logement-et-energie/renovation-de-mon-logement/primes"
-           target="_blank"
-           rel="noopener noreferrer"
-           class="btn btn-outline-info btn-sm"
-           id="bruxelles-continue-btn">
-          <i class="bi bi-link-45deg me-1"></i>
-          Site officiel Bruxelles
-        </a>
       </div>
     </div>
   </div>

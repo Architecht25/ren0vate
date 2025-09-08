@@ -1,5 +1,5 @@
 <!-- Formulaire officiel Prime Patrimoine - Monuments & Sites Flandre -->
-<div class="container" style="max-width: 80%;">
+<div class="container">
   <div class="card mb-4">
     <div class="card-header bg-primary text-white">
       <h5 class="mb-0">
@@ -77,14 +77,14 @@
         </div>
 
         <div class="row mb-3">
-          <div class="col-md-12">
+          <div class="col-md-6">
             <%= form.label :applicant_organization, "Nom de l'organisation (si applicable)", class: "form-label" %>
             <%= form.text_field :applicant_organization, class: "form-control" %>
           </div>
         </div>
 
         <div class="row mb-3">
-          <div class="col-md-8">
+          <div class="col-md-6">
             <%= form.label :applicant_address, class: "form-label" do %>
               Adresse*
               <%= badge_prerempli(@form_data, :applicant_address) if @form_data.present? %>
@@ -94,7 +94,7 @@
                 class: "form-control",
                 required: true %>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-6">
             <%= form.label :applicant_number, class: "form-label" do %>
               Numéro*
               <%= badge_prerempli(@form_data, :applicant_number) if @form_data.present? %>
@@ -107,7 +107,7 @@
         </div>
 
         <div class="row mb-3">
-          <div class="col-md-4">
+          <div class="col-md-6">
             <%= form.label :applicant_postal_code, class: "form-label" do %>
               Code postal*
               <%= badge_prerempli(@form_data, :applicant_postal_code) if @form_data.present? %>
@@ -117,7 +117,7 @@
                 class: "form-control",
                 required: true %>
           </div>
-          <div class="col-md-8">
+          <div class="col-md-6">
             <%= form.label :applicant_city, class: "form-label" do %>
               Commune*
               <%= badge_prerempli(@form_data, :applicant_city) if @form_data.present? %>
@@ -153,16 +153,18 @@
           </div>
         </div>
 
-        <div class="mb-3">
-          <%= form.label :applicant_national_number, class: "form-label" do %>
-            Numéro de registre national / Numéro d'entreprise*
-            <%= badge_prerempli(@form_data, :applicant_national_number) if @form_data.present? %>
-          <% end %>
-          <%= form.text_field :applicant_national_number,
-              value: preremplir_champ(@form_data, :applicant_national_number, current_user.national_number),
-              class: "form-control",
-              required: true %>
-          <small class="form-text text-muted">Pour les particuliers : numéro de registre national, pour les organisations : numéro d'entreprise</small>
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <%= form.label :applicant_national_number, class: "form-label" do %>
+              Numéro de registre national / Numéro d'entreprise*
+              <%= badge_prerempli(@form_data, :applicant_national_number) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :applicant_national_number,
+                value: preremplir_champ(@form_data, :applicant_national_number, current_user.national_number),
+                class: "form-control",
+                required: true %>
+            <small class="form-text text-muted">Pour les particuliers : numéro de registre national, pour les organisations : numéro d'entreprise</small>
+          </div>
         </div>
       </div>
 
@@ -176,7 +178,7 @@
         </h6>
 
         <div class="row mb-3">
-          <div class="col-md-8">
+          <div class="col-md-6">
             <%= form.label :heritage_address, class: "form-label" do %>
               Adresse du patrimoine*
               <%= badge_prerempli(@form_data, :heritage_address) if @form_data.present? %>
@@ -186,7 +188,7 @@
                 class: "form-control",
                 required: true %>
           </div>
-          <div class="col-md-4">
+          <div class="col-md-6">
             <%= form.label :heritage_number, class: "form-label" do %>
               Numéro*
               <%= badge_prerempli(@form_data, :heritage_number) if @form_data.present? %>
@@ -199,7 +201,7 @@
         </div>
 
         <div class="row mb-3">
-          <div class="col-md-4">
+          <div class="col-md-6">
             <%= form.label :heritage_postal_code, class: "form-label" do %>
               Code postal*
               <%= badge_prerempli(@form_data, :heritage_postal_code) if @form_data.present? %>
@@ -209,7 +211,7 @@
                 class: "form-control",
                 required: true %>
           </div>
-          <div class="col-md-8">
+          <div class="col-md-6">
             <%= form.label :heritage_city, class: "form-label" do %>
               Commune*
               <%= badge_prerempli(@form_data, :heritage_city) if @form_data.present? %>
