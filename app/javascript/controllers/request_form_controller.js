@@ -15,18 +15,15 @@ export default class extends Controller {
     this.initializeRegionalForms();
   }
 
-  // Gestionnaire pour bien pré-sélectionné
+  // Gestionnaire pour l'événement de bien pré-sélectionné
   handlePropertyPreselected(event) {
-    const region = event.detail.region;
-    console.log('🏠 Bien pré-sélectionné pour région:', region);
-
-    // Initialiser directement avec cette région
+    const { region } = event.detail;
+    console.log('🏠 Bien pré-sélectionné - région:', region);
     this.initializeForRegion(region);
   }
 
-  // Initialiser pour une région spécifique
   initializeForRegion(region) {
-    console.log('🎯 Initialisation pour région:', region);
+    console.log('🔧 initializeForRegion appelée avec:', region);
 
     if (this.hasFormTypeSectionTarget) {
       // Afficher la section de type de formulaire
@@ -58,19 +55,18 @@ export default class extends Controller {
     });
 
     if (!this.hasRegionSelectTarget) {
-      console.log('Region select not found');
+      console.log('❌ regionSelectTarget non trouvé');
       return;
     }
 
-    // Initialiser immédiatement
-    console.log('Initial region value:', this.regionSelectTarget.value);
-    this.showRegionalSection();
+    const selectedRegion = this.regionSelectTarget.value;
+    console.log('Selected region:', selectedRegion);
 
-    // Réessayer après un court délai pour s'assurer que tout est chargé
-    setTimeout(() => {
-      console.log('Delayed initialization - region value:', this.regionSelectTarget.value);
-      this.showRegionalSection();
-    }, 100);
+    if (selectedRegion) {
+      this.initializeForRegion(selectedRegion);
+    } else {
+      console.log('❌ Aucune région sélectionnée au démarrage');
+    }
   }
 
   regionChanged() {
@@ -82,9 +78,8 @@ export default class extends Controller {
   }
 
   showRegionalSection() {
-    // Pour les cas où on a un select de région visible
     if (!this.hasRegionSelectTarget) {
-      console.log('No region select found');
+      console.log('❌ regionSelectTarget non trouvé');
       return;
     }
 
@@ -118,35 +113,30 @@ export default class extends Controller {
     // Debug spécial pour la Wallonie
     if (region === 'wallonie') {
       console.log('🔍 WALLONIE DÉTECTÉE - région exacte:', region);
-      console.log('🔍 WALLONIE - longueur région:', region.length);
-      console.log('🔍 WALLONIE - codes char:', [...region].map(c => c.charCodeAt(0)));
     }
 
-    if (!this.hasFormTypeButtonsTarget || !this.hasFormTypeDescriptionTarget) {
-      console.log('❌ Targets manquants pour updateFormTypeOptions');
+    if (!this.hasFormTypeButtonsTarget) {
+      console.log('❌ formTypeButtonsTarget non trouvé');
       return;
     }
 
-    console.log('✅ Début mise à jour des boutons de formulaire');
-
-    // Normaliser la région en minuscules pour la correspondance
-    const normalizedRegion = region.toLowerCase();
+    // Nettoyer et normaliser la région
+    const normalizedRegion = region ? region.toLowerCase().trim() : '';
     console.log('🔧 Région normalisée:', normalizedRegion);
 
-    // Configurations des formulaires par région avec icônes
     const formOptions = {
-      'flandre': [
-        { value: 'regional', label: 'Primes régionales flamandes', icon: '🏠', description: 'Primes régionales (énergie + rénovation)' },
-        { value: 'monuments', label: 'Monuments & Sites', icon: '🏛️', description: 'Monuments et sites classés' },
-        { value: 'communal', label: 'Primes communales', icon: '🏛️', description: 'Primes complémentaires de votre commune' }
+      flandre: [
+        { value: 'regional', label: 'Primes régionales flamandes', icon: '�', description: 'Primes My Renovation Premium' },
+        { value: 'monuments', label: 'Monuments & Sites', icon: '🏛️', description: 'Primes pour biens protégés' },
+        { value: 'communal', label: 'Primes communales', icon: '🏛️', description: 'Primes spécifiques de votre commune' }
       ],
-      'bruxelles': [
-        { value: 'regional', label: 'Primes Énergie Bruxelles', icon: '🏢', description: 'Primes régionales bruxelloises' },
-        { value: 'monuments', label: 'Monuments & Sites', icon: '🏛️', description: 'Primes pour biens classés' },
-        { value: 'petit_patrimoine', label: 'Petit patrimoine', icon: '🎨', description: 'Éléments du petit patrimoine non protégé' },
-        { value: 'communal', label: 'Primes communales', icon: '🏛️', description: 'Primes complémentaires de votre commune' }
+      bruxelles: [
+        { value: 'regional', label: 'Primes régionales bruxelloises', icon: '�', description: 'Primes Renolution' },
+        { value: 'monuments', label: 'Monuments & Sites', icon: '🏛️', description: 'Conservation du patrimoine classé' },
+        { value: 'petit_patrimoine', label: 'Petit patrimoine', icon: '�️', description: 'Conservation patrimoine non protégé' },
+        { value: 'communal', label: 'Primes communales', icon: '🏛️', description: 'Primes des 19 communes' }
       ],
-      'wallonie': [
+      wallonie: [
         { value: 'regional', label: 'Primes régionales wallonnes', icon: '🏡', description: 'Primes habitation + énergie' },
         { value: 'audit', label: 'Audit énergétique', icon: '⚡', description: 'Remboursement partiel de l\'audit énergétique' },
         { value: 'monuments', label: 'Monuments & Sites', icon: '🏛️', description: 'Primes pour biens classés ou en zone protégée' },
@@ -178,75 +168,98 @@ export default class extends Controller {
         button.type = 'button';
         button.className = 'form-type-btn col-md-3 mb-3';
         button.dataset.formType = option.value;
+
         button.innerHTML = `
-          <div class="btn-content">
-            <div class="btn-icon">${option.icon}</div>
-            <div class="btn-text">
-              <h5>${option.label}</h5>
-              <p>${option.description}</p>
+          <div class="card h-100 border-primary shadow-sm" style="cursor: pointer; transition: transform 0.2s;">
+            <div class="card-body text-center d-flex flex-column">
+              <div class="display-4 mb-3">${option.icon}</div>
+              <h5 class="card-title">${option.label}</h5>
+              <p class="card-text small text-muted flex-grow-1">${option.description}</p>
             </div>
           </div>
         `;
 
-        // Ajouter l'écouteur d'événement
+        // Effet hover
+        button.addEventListener('mouseenter', () => {
+          button.querySelector('.card').style.transform = 'translateY(-2px)';
+        });
+        button.addEventListener('mouseleave', () => {
+          button.querySelector('.card').style.transform = 'translateY(0)';
+        });
+
+        // Gestionnaire de clic
         button.addEventListener('click', () => {
-          console.log('🎯 Bouton cliqué:', option.value);
           this.selectFormType(option.value);
         });
 
         this.formTypeButtonsTarget.appendChild(button);
       });
 
-      console.log('✅ Boutons créés avec succès');
-
-      // Mettre à jour la description
-      this.formTypeDescriptionTarget.textContent = 'Choisissez le type de formulaire adapté à votre situation.';
+      console.log('✅ Tous les boutons créés pour', normalizedRegion);
     } else {
       console.log('❌ Aucune configuration trouvée pour la région:', normalizedRegion);
-      this.formTypeDescriptionTarget.textContent = 'Aucun formulaire disponible pour cette région.';
     }
   }
 
   selectFormType(formType) {
-    console.log('🎯 selectFormType appelée avec:', formType);
+    console.log('🎯 Type de formulaire sélectionné:', formType);
+    console.log('🎯 Region actuelle:', this.hasRegionSelectTarget ? this.regionSelectTarget.value : 'AUCUNE');
 
-    // Mettre à jour le champ caché pour le type de formulaire
-    if (this.hasFormTypeSelectTarget) {
-      this.formTypeSelectTarget.value = formType;
-      console.log('✅ Type de formulaire mis à jour:', formType);
-    }
-
-    // Mettre à jour les classes visuelles des boutons
-    const buttons = this.formTypeButtonsTarget.querySelectorAll('.form-type-btn');
-    buttons.forEach(btn => {
-      btn.classList.remove('selected');
-      if (btn.dataset.formType === formType) {
-        btn.classList.add('selected');
-      }
+    // Marquer le bouton comme sélectionné
+    this.formTypeButtonsTarget.querySelectorAll('.form-type-btn').forEach(btn => {
+      const card = btn.querySelector('.card');
+      card.classList.remove('border-success', 'bg-light');
+      card.classList.add('border-primary');
     });
 
+    const selectedButton = this.formTypeButtonsTarget.querySelector(`[data-form-type="${formType}"]`);
+    if (selectedButton) {
+      const card = selectedButton.querySelector('.card');
+      card.classList.remove('border-primary');
+      card.classList.add('border-success', 'bg-light');
+      console.log('✅ Bouton sélectionné visuellement:', formType);
+    } else {
+      console.log('❌ Bouton non trouvé pour:', formType);
+    }
+
+    // Mettre à jour le champ caché
+    if (this.hasFormTypeSelectTarget) {
+      this.formTypeSelectTarget.value = formType;
+      console.log('✅ Champ caché mis à jour:', this.formTypeSelectTarget.value);
+    } else {
+      console.log('❌ Champ caché formTypeSelect non trouvé');
+    }
+
     // Déclencher l'affichage de la section appropriée
+    console.log('🔄 Appel de showFormTypeSection...');
     this.showFormTypeSection();
   }
 
   showFormTypeSection() {
-    const selectedFormType = this.formTypeSelectTarget.value;
-    const selectedRegion = this.regionSelectTarget.value;
+    const selectedFormType = this.hasFormTypeSelectTarget ? this.formTypeSelectTarget.value : null;
+    const selectedRegion = this.hasRegionSelectTarget ? this.regionSelectTarget.value : null;
 
-    // Normaliser la région pour comparaison cohérente
-    const normalizedRegion = selectedRegion ? selectedRegion.toLowerCase() : '';
+    console.log('📋 showFormTypeSection - Type:', selectedFormType, 'Région:', selectedRegion);
 
-    console.log('Selected form type:', selectedFormType, 'for region:', selectedRegion);
-    console.log('Normalized region for section logic:', normalizedRegion);
+    if (!selectedFormType || !selectedRegion) {
+      console.log('❌ Type de formulaire ou région manquant');
+      return;
+    }
 
-    // Masquer toutes les sections régionales
-    const sections = document.querySelectorAll('.region-section');
-    sections.forEach(section => {
+    // Normaliser la région
+    const normalizedRegion = selectedRegion.toLowerCase();
+
+    // Masquer toutes les sections
+    const flandreSections = document.querySelectorAll('#flandre-section, #flandre-monuments-section, #flandre-communal-section');
+    const bruxellesSections = document.querySelectorAll('#bruxelles-section, #bruxelles-monuments-section, #bruxelles-petit_patrimoine-section, #bruxelles-communal-section');
+    const wallonieSections = document.querySelectorAll('#wallonie-section, #wallonie-audit-section, #wallonie-monuments-section, #wallonie-communal-section');
+
+    flandreSections.forEach(section => {
       section.style.display = 'none';
     });
-
-    // Masquer toutes les sections wallonnes spécifiquement
-    const wallonieSections = document.querySelectorAll('.wallonie-prime-section');
+    bruxellesSections.forEach(section => {
+      section.style.display = 'none';
+    });
     wallonieSections.forEach(section => {
       section.style.display = 'none';
     });
@@ -255,68 +268,57 @@ export default class extends Controller {
     if (selectedFormType && selectedRegion) {
       let targetSectionId = '';
 
-      // Logique spéciale pour la Wallonie
-      if (normalizedRegion === 'wallonie') {
-        // Pour la Wallonie, on affiche directement la section spécifique
-        if (selectedFormType === 'communal') {
-          targetSectionId = 'wallonie-communal-section';
-        } else if (selectedFormType === 'monuments') {
-          targetSectionId = 'wallonie-monuments-section';
-        } else {
-          // Pour audit et regional, on affiche la section wallonie principale
-          const wallonieMasterSection = document.getElementById('wallonie-section');
-          if (wallonieMasterSection) {
-            wallonieMasterSection.style.display = 'block';
-            console.log('Showing wallonie master section');
-          }
+      console.log('🔍 DEBUG - selectedFormType:', selectedFormType);
+      console.log('🔍 DEBUG - selectedRegion:', selectedRegion);
+      console.log('🔍 DEBUG - normalizedRegion:', normalizedRegion);
 
-          // Puis afficher la sous-section spécifique selon le type
-          if (selectedFormType === 'audit') {
-            const targetSection = document.getElementById('audit-section');
-            if (targetSection) {
-              targetSection.style.display = 'block';
-              console.log('Showing wallonie subsection: audit-section');
-            }
-          } else if (selectedFormType === 'regional') {
-            const targetSection = document.getElementById('regionale-section');
-            if (targetSection) {
-              targetSection.style.display = 'block';
-              console.log('Showing wallonie subsection: regionale-section');
-            }
-          }
-        }
+      // Logique uniforme pour toutes les régions
+      if (selectedFormType === 'regional') {
+        targetSectionId = normalizedRegion + '-section';
+      } else if (selectedFormType === 'audit') {
+        targetSectionId = normalizedRegion + '-audit-section';
+      } else if (selectedFormType === 'communal') {
+        targetSectionId = normalizedRegion + '-communal-section';
+      } else if (selectedFormType === 'monuments') {
+        targetSectionId = normalizedRegion + '-monuments-section';
+      } else if (selectedFormType === 'petit_patrimoine') {
+        targetSectionId = normalizedRegion + '-petit_patrimoine-section';
+      }
 
-        // Afficher la section spécifique si targetSectionId est défini pour la Wallonie
-        if (targetSectionId) {
-          const targetSection = document.getElementById(targetSectionId);
-          if (targetSection) {
-            targetSection.style.display = 'block';
-            console.log('Showing wallonie specific section:', targetSectionId);
-          }
-        }
+      console.log('🔍 DEBUG - targetSectionId calculé:', targetSectionId);
+
+      const targetSection = document.getElementById(targetSectionId);
+      console.log('🔍 DEBUG - targetSection trouvé:', !!targetSection);
+
+      if (targetSection) {
+        console.log('🔍 DEBUG - avant affichage, style.display:', targetSection.style.display);
+        targetSection.style.display = 'block';
+        console.log('🔍 DEBUG - après affichage, style.display:', targetSection.style.display);
+        console.log('🔍 DEBUG - computed style:', window.getComputedStyle(targetSection).display);
+
+        // Test immédiat pour voir si quelque chose remet display: none
+        setTimeout(() => {
+          console.log('🔍 DEBUG - style après 100ms:', targetSection.style.display);
+          console.log('🔍 DEBUG - computed style après 100ms:', window.getComputedStyle(targetSection).display);
+        }, 100);
+
+        console.log('✅ Section affichée:', targetSectionId);
+        console.log('🔍 Section DOM element:', targetSection);
+        console.log('🔍 Section visibility:', window.getComputedStyle(targetSection).display);
+        console.log('🔍 Section HTML preview:', targetSection.innerHTML.substring(0, 200) + '...');
+
+        // Force l'affichage avec !important
+        targetSection.style.setProperty('display', 'block', 'important');
+        console.log('🔍 DEBUG - après setProperty important:', window.getComputedStyle(targetSection).display);
       } else {
-        // Pour les autres régions, logique normale
-        if (selectedFormType === 'regional') {
-          targetSectionId = normalizedRegion + '-section';
-        } else if (selectedFormType === 'communal') {
-          targetSectionId = normalizedRegion + '-communal-section';
-        } else if (selectedFormType === 'monuments') {
-          targetSectionId = normalizedRegion + '-monuments-section';
-        } else if (selectedFormType === 'petit_patrimoine') {
-          targetSectionId = normalizedRegion + '-petit_patrimoine-section';
-        }
+        console.log('❌ Section non trouvée:', targetSectionId);
+        console.log('🔍 Sections disponibles:', Array.from(document.querySelectorAll('.region-section')).map(s => s.id));
 
-        const targetSection = document.getElementById(targetSectionId);
-        if (targetSection) {
-          targetSection.style.display = 'block';
-          console.log('Showing section:', targetSectionId);
-        } else {
-          // Fallback vers la section régionale principale
-          const fallbackSection = document.getElementById(normalizedRegion + '-section');
-          if (fallbackSection) {
-            fallbackSection.style.display = 'block';
-            console.log('Fallback to regional section:', normalizedRegion + '-section');
-          }
+        // Fallback vers la section régionale principale
+        const fallbackSection = document.getElementById(normalizedRegion + '-section');
+        if (fallbackSection) {
+          fallbackSection.style.display = 'block';
+          console.log('✅ Fallback vers section régionale:', normalizedRegion + '-section');
         }
       }
     }

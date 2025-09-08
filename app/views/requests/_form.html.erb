@@ -120,7 +120,7 @@
 
   <!-- Section Flandre -->
   <div id="flandre-section" class="region-section"
-       style="<%= @request.persisted? && @request.property&.region == 'Flandre' ? 'display: block;' : 'display: none;' %>">
+       style="display: none;">
     <%= render 'requests/region_forms/flandre', form: form, form_data: @form_data %>
   </div>
 
@@ -137,7 +137,7 @@
 
   <!-- Section Formulaires Communaux Flandre -->
   <div id="flandre-communal-section" class="region-section"
-       style="<%= @request.persisted? && @request.property&.region == 'flandre' && @request.form_type == 'flandre-communal' ? 'display: block;' : 'display: none;' %>">
+       style="display: none;">
     <div class="alert alert-primary">
       <i class="bi bi-info-circle me-2"></i>
       <strong>Formulaires Communaux - Flandre</strong>
@@ -148,7 +148,7 @@
 
   <!-- Section Bruxelles -->
   <div id="bruxelles-section" class="region-section"
-       style="<%= @request.persisted? && @request.property&.region == 'Bruxelles-Capitale' ? 'display: block;' : 'display: none;' %>">
+       style="display: none;">
     <%= render 'requests/region_forms/bruxelles', form: form, form_data: @form_data %>
   </div>
 
@@ -165,7 +165,7 @@
 
   <!-- Section Petit Patrimoine Bruxelles -->
   <div id="bruxelles-petit_patrimoine-section" class="region-section"
-       style="<%= @request.persisted? && @request.property&.region == 'bruxelles' && @request.form_type == 'bruxelles-petit_patrimoine' ? 'display: block;' : 'display: none;' %>">
+       style="display: none;">
     <div class="alert alert-success">
       <i class="bi bi-info-circle me-2"></i>
       <strong>Formulaire spécialisé Petit Patrimoine - Bruxelles</strong>
@@ -176,7 +176,7 @@
 
   <!-- Section Primes Communales Bruxelles -->
   <div id="bruxelles-communal-section" class="region-section"
-       style="<%= @request.persisted? && @request.property&.region == 'bruxelles' && @request.form_type == 'bruxelles-communal' ? 'display: block;' : 'display: none;' %>">
+       style="display: none;">
     <div class="alert alert-warning">
       <i class="bi bi-info-circle me-2"></i>
       <strong>Primes Communales - Bruxelles</strong>
@@ -185,32 +185,28 @@
     <%= render 'requests/formulaires/communales_bruxelles' %>
   </div>
 
-  <!-- Section Wallonie -->
+  <!-- Section Wallonie Regional -->
   <div id="wallonie-section" class="region-section"
-       style="<%= @request.persisted? && @request.property&.region == 'Wallonie' ? 'display: block;' : 'display: none;' %>">
+       style="display: none;">
     <%= render 'requests/region_forms/wallonie', form: form, form_data: @form_data %>
+  </div>
+
+  <!-- Section Audit Énergétique Wallonie -->
+  <div id="wallonie-audit-section" class="region-section"
+       style="display: none;">
+    <%= render 'requests/region_forms/audit_energetique_wallonie', form: form %>
   </div>
 
   <!-- Section Monuments & Sites Wallonie -->
   <div id="wallonie-monuments-section" class="region-section"
        style="display: none;">
-    <div class="alert alert-info">
-      <i class="bi bi-info-circle me-2"></i>
-      <strong>Formulaire spécialisé Monuments & Sites - Wallonie</strong>
-      <p class="mb-0 small">Pour les biens classés ou situés dans des zones protégées en Wallonie</p>
-    </div>
-    <%= render 'requests/formulaires/monuments_sites_wallonie' %>
+    <%= render 'requests/formulaires/monuments_sites_wallonie', form: form %>
   </div>
 
   <!-- Section Primes Communales Wallonie -->
   <div id="wallonie-communal-section" class="region-section"
-       style="<%= @request.persisted? && @request.property&.region == 'wallonie' && @request.form_type == 'wallonie-communal' ? 'display: block;' : 'display: none;' %>">
-    <div class="alert alert-success">
-      <i class="bi bi-info-circle me-2"></i>
-      <strong>Primes Communales - Wallonie</strong>
-      <p class="mb-0 small">Primes complémentaires proposées par les communes wallonnes</p>
-    </div>
-    <%= render 'requests/formulaires/communales_wallonie' %>
+       style="display: none;">
+    <%= render 'requests/formulaires/communales_wallonie', form: form %>
   </div>
 
   <!-- Boutons d'action -->

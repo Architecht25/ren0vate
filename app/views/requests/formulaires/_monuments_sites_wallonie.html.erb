@@ -28,8 +28,6 @@
             </p>
           </div>
 
-          <%= form_with(model: @request, local: true, html: { class: "needs-validation", novalidate: true }) do |form| %>
-
             <!-- Section 1: Identification du demandeur -->
             <div class="section-divider">
               <h4 class="section-title">
@@ -49,19 +47,19 @@
                   </label>
                   <div>
                     <div class="form-check">
-                      <input class="form-check-input" type="radio" name="wallonie_demandeur_type" id="wallonie_particulier" value="particulier" required>
+                      <input class="form-check-input" type="radio" name="wallonie_demandeur_type" id="wallonie_particulier" value="particulier" required/>
                       <label class="form-check-label" for="wallonie_particulier">
                         Particulier (personne physique)
                       </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="radio" name="wallonie_demandeur_type" id="wallonie_personne_morale" value="personne_morale" required>
+                      <input class="form-check-input" type="radio" name="wallonie_demandeur_type" id="wallonie_personne_morale" value="personne_morale" required/>
                       <label class="form-check-label" for="wallonie_personne_morale">
                         Personne morale (société, ASBL, etc.)
                       </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="radio" name="wallonie_demandeur_type" id="wallonie_collectivite" value="collectivite" required>
+                      <input class="form-check-input" type="radio" name="wallonie_demandeur_type" id="wallonie_collectivite" value="collectivite" required/>
                       <label class="form-check-label" for="wallonie_collectivite">
                         Collectivité publique
                       </label>
@@ -152,12 +150,27 @@
                 <div class="col-md-8 mb-3">
                   <label for="wallonie_adresse_bien" class="form-label fw-bold">
                     <i class="fas fa-landmark me-1"></i>Adresse du bien classé*
+                    <%= badge_prerempli_intelligent(@form_data, :heritage_address, @property&.address) if @form_data.present? %>
                   </label>
-                  <input type="text" class="form-control" id="wallonie_adresse_bien" placeholder="Adresse complète du monument ou site" required>
+                  <input type="text"
+                         class="form-control"
+                         id="wallonie_adresse_bien"
+                         name="heritage_address"
+                         value="<%= preremplir_champ(@form_data, :heritage_address, @property&.address) %>"
+                         placeholder="Adresse complète du monument ou site"
+                         required/>
                 </div>
                 <div class="col-md-4 mb-3">
-                  <label for="wallonie_cp_ville_bien" class="form-label fw-bold">Code postal et commune*</label>
-                  <input type="text" class="form-control" id="wallonie_cp_ville_bien" required>
+                  <label for="wallonie_cp_ville_bien" class="form-label fw-bold">
+                    Code postal et commune*
+                    <%= badge_prerempli_intelligent(@form_data, :heritage_postal_city, "#{@property&.code_postal} #{@property&.commune}".strip) if @form_data.present? %>
+                  </label>
+                  <input type="text"
+                         class="form-control"
+                         id="wallonie_cp_ville_bien"
+                         name="heritage_postal_city"
+                         value="<%= preremplir_champ(@form_data, :heritage_postal_city, "#{@property&.code_postal} #{@property&.commune}".strip) %>"
+                         required/>
                 </div>
               </div>
 
@@ -168,25 +181,25 @@
                   </label>
                   <div>
                     <div class="form-check">
-                      <input class="form-check-input" type="radio" name="wallonie_statut_patrimoine" id="wallonie_monument_classe" value="monument_classe" required>
+                      <input class="form-check-input" type="radio" name="wallonie_statut_patrimoine" id="wallonie_monument_classe" value="monument_classe" required/>
                       <label class="form-check-label" for="wallonie_monument_classe">
                         Monument classé
                       </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="radio" name="wallonie_statut_patrimoine" id="wallonie_site_classe" value="site_classe" required>
+                      <input class="form-check-input" type="radio" name="wallonie_statut_patrimoine" id="wallonie_site_classe" value="site_classe" required/>
                       <label class="form-check-label" for="wallonie_site_classe">
                         Site classé
                       </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="radio" name="wallonie_statut_patrimoine" id="wallonie_liste_sauvegarde" value="liste_sauvegarde" required>
+                      <input class="form-check-input" type="radio" name="wallonie_statut_patrimoine" id="wallonie_liste_sauvegarde" value="liste_sauvegarde" required/>
                       <label class="form-check-label" for="wallonie_liste_sauvegarde">
                         Bien inscrit sur la liste de sauvegarde
                       </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="radio" name="wallonie_statut_patrimoine" id="wallonie_zone_protection" value="zone_protection" required>
+                      <input class="form-check-input" type="radio" name="wallonie_statut_patrimoine" id="wallonie_zone_protection" value="zone_protection" required/>
                       <label class="form-check-label" for="wallonie_zone_protection">
                         Bien situé en zone de protection
                       </label>
@@ -197,12 +210,12 @@
                   <label for="wallonie_date_classement" class="form-label fw-bold">
                     <i class="fas fa-calendar me-1"></i>Date de classement/inscription
                   </label>
-                  <input type="date" class="form-control" id="wallonie_date_classement">
+                  <input type="date" class="form-control" id="wallonie_date_classement"/>
 
                   <label for="wallonie_numero_classement" class="form-label fw-bold mt-2">
                     <i class="fas fa-hashtag me-1"></i>Numéro de classement/inscription
                   </label>
-                  <input type="text" class="form-control" id="wallonie_numero_classement" placeholder="Référence officielle">
+                  <input type="text" class="form-control" id="wallonie_numero_classement" placeholder="Référence officielle"/>
                 </div>
               </div>
 
@@ -223,25 +236,25 @@
                   </label>
                   <div>
                     <div class="form-check">
-                      <input class="form-check-input" type="radio" name="wallonie_qualite_demandeur" id="wallonie_proprietaire" value="proprietaire" required>
+                      <input class="form-check-input" type="radio" name="wallonie_qualite_demandeur" id="wallonie_proprietaire" value="proprietaire" required/>
                       <label class="form-check-label" for="wallonie_proprietaire">
                         Propriétaire
                       </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="radio" name="wallonie_qualite_demandeur" id="wallonie_usufruitier" value="usufruitier" required>
+                      <input class="form-check-input" type="radio" name="wallonie_qualite_demandeur" id="wallonie_usufruitier" value="usufruitier" required/>
                       <label class="form-check-label" for="wallonie_usufruitier">
                         Usufruitier
                       </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="radio" name="wallonie_qualite_demandeur" id="wallonie_emphyteote" value="emphyteote" required>
+                      <input class="form-check-input" type="radio" name="wallonie_qualite_demandeur" id="wallonie_emphyteote" value="emphyteote" required/>
                       <label class="form-check-label" for="wallonie_emphyteote">
                         Emphytéote
                       </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="radio" name="wallonie_qualite_demandeur" id="wallonie_autre_droit" value="autre_droit" required>
+                      <input class="form-check-input" type="radio" name="wallonie_qualite_demandeur" id="wallonie_autre_droit" value="autre_droit" required/>
                       <label class="form-check-label" for="wallonie_autre_droit">
                         Autre droit réel
                       </label>
@@ -251,14 +264,19 @@
                 <div class="col-md-6 mb-3">
                   <label for="wallonie_reference_cadastrale" class="form-label fw-bold">
                     <i class="fas fa-map me-1"></i>Référence cadastrale
+                    <%= badge_prerempli_intelligent(@form_data, :heritage_cadastre, @property&.numero_cadastre) if @form_data.present? %>
                   </label>
-                  <input type="text" class="form-control" id="wallonie_reference_cadastrale"
+                  <input type="text"
+                         class="form-control"
+                         id="wallonie_reference_cadastrale"
+                         name="heritage_cadastre"
+                         value="<%= preremplir_champ(@form_data, :heritage_cadastre, @property&.numero_cadastre) %>"
                          placeholder="Division, section, numéro">
 
                   <label for="wallonie_superficie" class="form-label fw-bold mt-2">
                     <i class="fas fa-ruler-combined me-1"></i>Superficie concernée
                   </label>
-                  <input type="text" class="form-control" id="wallonie_superficie" placeholder="en m² ou hectares">
+                  <input type="text" class="form-control" id="wallonie_superficie" placeholder="en m² ou hectares"/>
                 </div>
               </div>
             </div>
@@ -289,31 +307,31 @@
                   </label>
                   <div>
                     <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="wallonie_conservation" value="conservation">
+                      <input class="form-check-input" type="checkbox" id="wallonie_conservation" value="conservation"/>
                       <label class="form-check-label" for="wallonie_conservation">
                         Travaux de conservation
                       </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="wallonie_restauration" value="restauration">
+                      <input class="form-check-input" type="checkbox" id="wallonie_restauration" value="restauration"/>
                       <label class="form-check-label" for="wallonie_restauration">
                         Travaux de restauration
                       </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="wallonie_mise_valeur" value="mise_valeur">
+                      <input class="form-check-input" type="checkbox" id="wallonie_mise_valeur" value="mise_valeur"/>
                       <label class="form-check-label" for="wallonie_mise_valeur">
                         Travaux de mise en valeur
                       </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="wallonie_securisation" value="securisation">
+                      <input class="form-check-input" type="checkbox" id="wallonie_securisation" value="securisation"/>
                       <label class="form-check-label" for="wallonie_securisation">
                         Travaux de sécurisation
                       </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="wallonie_etudes" value="etudes">
+                      <input class="form-check-input" type="checkbox" id="wallonie_etudes" value="etudes"/>
                       <label class="form-check-label" for="wallonie_etudes">
                         Études préparatoires
                       </label>
@@ -326,37 +344,37 @@
                   </label>
                   <div>
                     <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="wallonie_toiture" value="toiture">
+                      <input class="form-check-input" type="checkbox" id="wallonie_toiture" value="toiture"/>
                       <label class="form-check-label" for="wallonie_toiture">
                         Toiture et charpente
                       </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="wallonie_facades" value="facades">
+                      <input class="form-check-input" type="checkbox" id="wallonie_facades" value="facades"/>
                       <label class="form-check-label" for="wallonie_facades">
                         Façades et parements
                       </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="wallonie_menuiseries" value="menuiseries">
+                      <input class="form-check-input" type="checkbox" id="wallonie_menuiseries" value="menuiseries"/>
                       <label class="form-check-label" for="wallonie_menuiseries">
                         Menuiseries et fermetures
                       </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="wallonie_structure" value="structure">
+                      <input class="form-check-input" type="checkbox" id="wallonie_structure" value="structure"/>
                       <label class="form-check-label" for="wallonie_structure">
                         Structure et gros œuvre
                       </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="wallonie_decorations" value="decorations">
+                      <input class="form-check-input" type="checkbox" id="wallonie_decorations" value="decorations"/>
                       <label class="form-check-label" for="wallonie_decorations">
                         Éléments décoratifs
                       </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="wallonie_abords" value="abords">
+                      <input class="form-check-input" type="checkbox" id="wallonie_abords" value="abords"/>
                       <label class="form-check-label" for="wallonie_abords">
                         Abords et espaces extérieurs
                       </label>
@@ -398,7 +416,7 @@
                     <i class="fas fa-calculator me-1"></i>Coût total estimé (HTVA)*
                   </label>
                   <div class="input-group">
-                    <input type="number" class="form-control" id="wallonie_cout_total" step="0.01" min="0" required>
+                    <input type="number" class="form-control" id="wallonie_cout_total" step="0.01" min="0" required/>
                     <span class="input-group-text">€</span>
                   </div>
                   <small class="text-muted">Montant hors TVA basé sur les devis</small>
@@ -408,7 +426,7 @@
                     <i class="fas fa-hand-holding-euro me-1"></i>Subvention demandée*
                   </label>
                   <div class="input-group">
-                    <input type="number" class="form-control" id="wallonie_subvention_demandee" step="0.01" min="0" required>
+                    <input type="number" class="form-control" id="wallonie_subvention_demandee" step="0.01" min="0" required/>
                     <span class="input-group-text">€</span>
                   </div>
                   <small class="text-muted">Montant de la subvention sollicitée</small>
@@ -421,7 +439,7 @@
                     <i class="fas fa-percent me-1"></i>Pourcentage demandé
                   </label>
                   <div class="input-group">
-                    <input type="number" class="form-control" id="wallonie_pourcentage_demande" step="0.1" min="0" max="100" readonly>
+                    <input type="number" class="form-control" id="wallonie_pourcentage_demande" step="0.1" min="0" max="100" readonly/>
                     <span class="input-group-text">%</span>
                   </div>
                   <small class="text-muted">Calculé automatiquement</small>
@@ -431,7 +449,7 @@
                     <i class="fas fa-piggy-bank me-1"></i>Financement propre
                   </label>
                   <div class="input-group">
-                    <input type="number" class="form-control" id="wallonie_financement_propre" step="0.01" min="0" readonly>
+                    <input type="number" class="form-control" id="wallonie_financement_propre" step="0.01" min="0" readonly/>
                     <span class="input-group-text">€</span>
                   </div>
                   <small class="text-muted">Calculé automatiquement</small>
@@ -445,31 +463,31 @@
                   </label>
                   <div>
                     <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="wallonie_prime_energie" value="prime_energie">
+                      <input class="form-check-input" type="checkbox" id="wallonie_prime_energie" value="prime_energie"/>
                       <label class="form-check-label" for="wallonie_prime_energie">
                         Prime énergie régionale
                       </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="wallonie_prime_communale" value="prime_communale">
+                      <input class="form-check-input" type="checkbox" id="wallonie_prime_communale" value="prime_communale"/>
                       <label class="form-check-label" for="wallonie_prime_communale">
                         Prime communale
                       </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="wallonie_fondation" value="fondation">
+                      <input class="form-check-input" type="checkbox" id="wallonie_fondation" value="fondation"/>
                       <label class="form-check-label" for="wallonie_fondation">
                         Fondation Roi Baudouin ou autre fondation
                       </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="wallonie_feder" value="feder">
+                      <input class="form-check-input" type="checkbox" id="wallonie_feder" value="feder"/>
                       <label class="form-check-label" for="wallonie_feder">
                         Fonds européens (FEDER, etc.)
                       </label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="wallonie_autre_subvention" value="autre_subvention">
+                      <input class="form-check-input" type="checkbox" id="wallonie_autre_subvention" value="autre_subvention"/>
                       <label class="form-check-label" for="wallonie_autre_subvention">
                         Autre subvention
                       </label>
@@ -503,14 +521,14 @@
                   <label for="wallonie_debut_travaux" class="form-label fw-bold">
                     <i class="fas fa-play-circle me-1"></i>Date prévue de début des travaux*
                   </label>
-                  <input type="date" class="form-control" id="wallonie_debut_travaux" required>
+                  <input type="date" class="form-control" id="wallonie_debut_travaux" required/>
                   <small class="text-muted">Les travaux ne peuvent commencer avant l'octroi de la subvention</small>
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="wallonie_fin_travaux" class="form-label fw-bold">
                     <i class="fas fa-stop-circle me-1"></i>Date prévue de fin des travaux*
                   </label>
-                  <input type="date" class="form-control" id="wallonie_fin_travaux" required>
+                  <input type="date" class="form-control" id="wallonie_fin_travaux" required/>
                   <small class="text-muted">Les travaux doivent être terminés dans les délais impartis</small>
                 </div>
               </div>
@@ -580,31 +598,31 @@
                 <div class="col-md-6">
                   <h6><i class="fas fa-check-square text-success"></i> Documents techniques :</h6>
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="wallonie_doc_plans">
+                    <input class="form-check-input" type="checkbox" id="wallonie_doc_plans"/>
                     <label class="form-check-label" for="wallonie_doc_plans">
                       Plans et coupes (échelle min. 1/100)
                     </label>
                   </div>
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="wallonie_doc_devis">
+                    <input class="form-check-input" type="checkbox" id="wallonie_doc_devis"/>
                     <label class="form-check-label" for="wallonie_doc_devis">
                       Devis détaillés et métrés
                     </label>
                   </div>
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="wallonie_doc_rapport">
+                    <input class="form-check-input" type="checkbox" id="wallonie_doc_rapport"/>
                     <label class="form-check-label" for="wallonie_doc_rapport">
                       Rapport technique/diagnostic
                     </label>
                   </div>
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="wallonie_doc_photos">
+                    <input class="form-check-input" type="checkbox" id="wallonie_doc_photos"/>
                     <label class="form-check-label" for="wallonie_doc_photos">
                       Reportage photographique
                     </label>
                   </div>
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="wallonie_doc_historique">
+                    <input class="form-check-input" type="checkbox" id="wallonie_doc_historique"/>
                     <label class="form-check-label" for="wallonie_doc_historique">
                       Recherche historique et iconographique
                     </label>
@@ -613,31 +631,31 @@
                 <div class="col-md-6">
                   <h6><i class="fas fa-file-alt text-primary"></i> Documents administratifs :</h6>
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="wallonie_doc_propriete">
+                    <input class="form-check-input" type="checkbox" id="wallonie_doc_propriete"/>
                     <label class="form-check-label" for="wallonie_doc_propriete">
                       Titre de propriété ou acte notarié
                     </label>
                   </div>
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="wallonie_doc_cadastre">
+                    <input class="form-check-input" type="checkbox" id="wallonie_doc_cadastre"/>
                     <label class="form-check-label" for="wallonie_doc_cadastre">
                       Extrait cadastral
                     </label>
                   </div>
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="wallonie_doc_urbanisme">
+                    <input class="form-check-input" type="checkbox" id="wallonie_doc_urbanisme"/>
                     <label class="form-check-label" for="wallonie_doc_urbanisme">
                       Permis d'urbanisme (si requis)
                     </label>
                   </div>
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="wallonie_doc_identite">
+                    <input class="form-check-input" type="checkbox" id="wallonie_doc_identite"/>
                     <label class="form-check-label" for="wallonie_doc_identite">
                       Copie carte d'identité/statuts
                     </label>
                   </div>
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="wallonie_doc_situation_financiere">
+                    <input class="form-check-input" type="checkbox" id="wallonie_doc_situation_financiere"/>
                     <label class="form-check-label" for="wallonie_doc_situation_financiere">
                       Justificatifs situation financière
                     </label>
@@ -681,7 +699,7 @@
               <div class="row">
                 <div class="col-md-12 mb-3">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="wallonie_engagement_general" required>
+                    <input class="form-check-input" type="checkbox" id="wallonie_engagement_general" required/>
                     <label class="form-check-label fw-bold" for="wallonie_engagement_general">
                       <i class="fas fa-hand-paper me-1"></i>
                       Je déclare accepter toutes les conditions d'octroi de la subvention et m'engage à les respecter*
@@ -693,7 +711,7 @@
               <div class="row">
                 <div class="col-md-12 mb-3">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="wallonie_veracite_infos" required>
+                    <input class="form-check-input" type="checkbox" id="wallonie_veracite_infos" required/>
                     <label class="form-check-label fw-bold" for="wallonie_veracite_infos">
                       <i class="fas fa-check-circle me-1"></i>
                       Je certifie que les informations fournies sont exactes et complètes*
@@ -705,7 +723,7 @@
               <div class="row">
                 <div class="col-md-12 mb-3">
                   <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="wallonie_autorisation_controle" required>
+                    <input class="form-check-input" type="checkbox" id="wallonie_autorisation_controle" required/>
                     <label class="form-check-label fw-bold" for="wallonie_autorisation_controle">
                       <i class="fas fa-search me-1"></i>
                       J'autorise les agents de la Région wallonne à effectuer toute vérification nécessaire*
@@ -719,13 +737,13 @@
                   <label for="wallonie_lieu_signature" class="form-label fw-bold">
                     <i class="fas fa-map-marker-alt me-1"></i>Lieu*
                   </label>
-                  <input type="text" class="form-control" id="wallonie_lieu_signature" required>
+                  <input type="text" class="form-control" id="wallonie_lieu_signature" required/>
                 </div>
                 <div class="col-md-6 mb-3">
                   <label for="wallonie_date_signature" class="form-label fw-bold">
                     <i class="fas fa-calendar me-1"></i>Date*
                   </label>
-                  <input type="date" class="form-control" id="wallonie_date_signature" required>
+                  <input type="date" class="form-control" id="wallonie_date_signature" required/>
                 </div>
               </div>
 
@@ -783,12 +801,13 @@
               <%= link_to "Retour aux formulaires", requests_path, class: "btn btn-secondary btn-lg" %>
             </div>
 
-          <% end %>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+
 
 <script nonce="<%= content_security_policy_nonce %>">
 // Calculs automatiques
