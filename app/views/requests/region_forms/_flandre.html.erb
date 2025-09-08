@@ -113,7 +113,9 @@
         </div>
       </div>
     </div>
-  </div>  <!-- SECTION 2 – Données du logement -->
+  </div>
+
+  <!-- SECTION 2 – Données du logement -->
   <div class="card mb-4">
     <div class="card-header bg-info text-white">
       <h5 class="mb-0">
@@ -265,7 +267,60 @@
     </div>
   </div>
 
-  <!-- SECTION 3 – Travaux à déclarer -->
+  <!-- SECTION 3 – Revenus et composition du ménage -->
+  <div class="card mb-4">
+    <div class="card-header bg-warning text-dark">
+      <h5 class="mb-0"><i class="bi bi-currency-euro me-2"></i>Revenus et composition du ménage</h5>
+    </div>
+    <div class="card-body">
+      <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        Ces informations sont nécessaires pour déterminer le montant de la prime éligible.
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :revenus_annuels, "Revenus annuels imposables (ménage complet) *", class: "form-label" %>
+            <%= form.number_field :revenus_annuels, class: "form-control", min: 0, step: 100, placeholder: "Ex : 42 000", required: true %>
+            <div class="form-text">Montant total des revenus imposables du ménage</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :personnes_charge, "Nombre de personnes à charge *", class: "form-label" %>
+            <%= form.number_field :personnes_charge, class: "form-control", min: 0, max: 10, value: 0, required: true %>
+            <div class="form-text">Nombre de personnes à charge fiscalement</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :annee_aer, "Année de l'avertissement extrait de rôle utilisé *", class: "form-label" %>
+            <%= form.select :annee_aer,
+                [
+                  ["2023 (revenus 2022)", "2023"],
+                  ["2022 (revenus 2021)", "2022"],
+                  ["2021 (revenus 2020)", "2021"]
+                ],
+                { prompt: "-- Sélectionnez une année --" },
+                { class: "form-select", required: true } %>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :compte_bancaire, "Compte bancaire (IBAN)", class: "form-label" %>
+            <%= form.text_field :compte_bancaire, class: "form-control", placeholder: "BE XX XXXX XXXX XXXX" %>
+            <div class="form-text">Compte pour le versement de la prime</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4 – Travaux à déclarer -->
   <div class="card mb-4">
     <div class="card-header bg-primary text-white">
       <h5 class="mb-0"><i class="bi bi-tools me-2"></i>Travaux à déclarer</h5>
@@ -431,59 +486,6 @@
               </div>
 
             </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SECTION 4 – Revenus et composition du ménage -->
-  <div class="card mb-4">
-    <div class="card-header bg-warning text-dark">
-      <h5 class="mb-0"><i class="bi bi-currency-euro me-2"></i>Revenus et composition du ménage</h5>
-    </div>
-    <div class="card-body">
-      <div class="alert alert-info">
-        <i class="bi bi-info-circle me-2"></i>
-        Ces informations sont nécessaires pour déterminer le montant de la prime éligible.
-      </div>
-
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :revenus_annuels, "Revenus annuels imposables (ménage complet) *", class: "form-label" %>
-            <%= form.number_field :revenus_annuels, class: "form-control", min: 0, step: 100, placeholder: "Ex : 42 000", required: true %>
-            <div class="form-text">Montant total des revenus imposables du ménage</div>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :personnes_charge, "Nombre de personnes à charge *", class: "form-label" %>
-            <%= form.number_field :personnes_charge, class: "form-control", min: 0, max: 10, value: 0, required: true %>
-            <div class="form-text">Nombre de personnes à charge fiscalement</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :annee_aer, "Année de l'avertissement extrait de rôle utilisé *", class: "form-label" %>
-            <%= form.select :annee_aer,
-                [
-                  ["2023 (revenus 2022)", "2023"],
-                  ["2022 (revenus 2021)", "2022"],
-                  ["2021 (revenus 2020)", "2021"]
-                ],
-                { prompt: "-- Sélectionnez une année --" },
-                { class: "form-select", required: true } %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :compte_bancaire, "Compte bancaire (IBAN)", class: "form-label" %>
-            <%= form.text_field :compte_bancaire, class: "form-control", placeholder: "BE XX XXXX XXXX XXXX" %>
-            <div class="form-text">Compte pour le versement de la prime</div>
           </div>
         </div>
       </div>

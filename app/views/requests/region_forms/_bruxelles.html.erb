@@ -175,7 +175,7 @@
     <!-- 3. Revenus et composition du ménage -->
     <div class="card mb-4">
       <div class="card-header bg-secondary text-white">
-        <h5 class="mb-0"><i class="bi bi-currency-euro me-2"></i>5. Revenus et composition du ménage</h5>
+        <h5 class="mb-0"><i class="bi bi-currency-euro me-2"></i>3. Revenus et composition du ménage</h5>
       </div>
       <div class="card-body">
         <div class="row">
@@ -231,10 +231,33 @@
       </div>
     </div>
 
+        <!-- 6. Coordonnées bancaires -->
+    <div class="card mb-4">
+      <div class="card-header bg-dark text-white">
+        <h5 class="mb-0"><i class="bi bi-bank me-2"></i>4. Coordonnées bancaires</h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">IBAN du demandeur</label>
+              <%= form.text_field :iban_demandeur, class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">IBAN du bénéficiaire (si différent)</label>
+              <%= form.text_field :iban_tiers, class: "form-control" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- 4. Travaux concernés -->
     <div class="card mb-4">
       <div class="card-header bg-warning text-dark">
-        <h5 class="mb-0"><i class="bi bi-tools me-2"></i>3. Travaux concernés</h5>
+        <h5 class="mb-0"><i class="bi bi-tools me-2"></i>5. Travaux concernés</h5>
       </div>
       <div class="card-body">
         <div class="row">
@@ -254,14 +277,351 @@
             <div class="mb-3">
               <label class="form-label">Primes souhaitées</label>
               <div class="row">
-                <% ["A1 - Audit énergétique", "A5 - Certificat PEB", "C1 - Isolation toiture", "C2 - Isolation murs", "D1 - Isolation sol", "E1 - Châssis", "F1 - Chauffage", "G1 - Ventilation", "H1 - Préparatifs", "I3 - Sécurité incendie"].each do |prime| %>
-                  <div class="col-md-6">
-                    <div class="form-check">
-                      <%= form.check_box :primes_souhaitees, { multiple: true, class: "form-check-input" }, prime, "" %>
-                      <%= form.label :primes_souhaitees, prime, class: "form-check-label" %>
+                <div class="col-md-4">
+                  <h6 class="text-primary">Études et audits</h6>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_a1_audit_energetique, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_a1_audit_energetique) %>">
+                      A1 - Audit énergétique
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_a2_etude_acoustique, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_a2_etude_acoustique) %>">
+                      A2 - Étude acoustique
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_a3_etude_materiaux_totem, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_a3_etude_materiaux_totem) %>">
+                      A3 - Étude matériaux de construction (TOTEM)
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_a4_suivi_architecte_ingenieur, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_a4_suivi_architecte_ingenieur) %>">
+                      A4 - Suivi architecte et ingénieur
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_a5_certificat_peb, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_a5_certificat_peb) %>">
+                      A5 - Certificat PEB
+                    </label>
+                  </div>
+
+                  <h6 class="text-primary mt-3">Structure et gros œuvre</h6>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_b1_echafaudage, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_b1_echafaudage) %>">
+                      B1 - Échafaudage
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_c1_structures_portantes, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_c1_structures_portantes) %>">
+                      C1 - Structures portantes + travaux de démolition
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_c2_egouts, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_c2_egouts) %>">
+                      C2 - Égouts
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_c3_recuperation_eau_pluie, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_c3_recuperation_eau_pluie) %>">
+                      C3 - Récupération d'eau de pluie
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_c4_demolition_permeabiliser, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_c4_demolition_permeabiliser) %>">
+                      C4 - Démolition pour perméabiliser le sol
+                    </label>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <h6 class="text-primary">Humidité et nuisibles</h6>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_d1_probleme_humidite, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_d1_probleme_humidite) %>">
+                      D1 - Problème d'humidité
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_d2_champignons_moisissures, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_d2_champignons_moisissures) %>">
+                      D2 - Champignons, moisissures et insectes
+                    </label>
+                  </div>
+
+                  <h6 class="text-primary mt-3">Toiture</h6>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_e1_structure_toiture, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_e1_structure_toiture) %>">
+                      E1 - Structure de la toiture
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_e2_couverture_etancheite, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_e2_couverture_etancheite) %>">
+                      E2 - Couverture et étanchéité
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_e3_isolation_toiture, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_e3_isolation_toiture) %>">
+                      E3 - Isolation thermique de la toiture
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_e4_accessoires_toiture, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_e4_accessoires_toiture) %>">
+                      E4 - Accessoires de toiture
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_e5_toiture_vegetalisee, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_e5_toiture_vegetalisee) %>">
+                      E5 - Toiture végétalisée ou stockante en eau
+                    </label>
+                  </div>
+
+                  <h6 class="text-primary mt-3">Façades</h6>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_f1_isolation_facades, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_f1_isolation_facades) %>">
+                      F1 - Isolation thermique des façades
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_f2_bardage, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_f2_bardage) %>">
+                      F2 - Bardage
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_f3_enduit, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_f3_enduit) %>">
+                      F3 - Enduit
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_f4_embellissement_avant, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_f4_embellissement_avant) %>">
+                      F4 - Embellissement avant
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_f5_embellissement_arriere, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_f5_embellissement_arriere) %>">
+                      F5 - Embellissement arrière et latéral
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_f6_isolation_acoustique_murs, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_f6_isolation_acoustique_murs) %>">
+                      F6 - Isolation acoustique des murs
+                    </label>
+                  </div>
+                </div>
+
+                <div class="col-md-4">
+                  <h6 class="text-primary">Portes et fenêtres</h6>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_g1_portes_fenetres, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_g1_portes_fenetres) %>">
+                      G1 - Placement et remplacement de portes et fenêtres
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_g2_reparation_fenetre, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_g2_reparation_fenetre) %>">
+                      G2 - Réparation et adaptation de fenêtre
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_g3_reparation_porte, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_g3_reparation_porte) %>">
+                      G3 - Réparation de porte
+                    </label>
+                  </div>
+
+                  <h6 class="text-primary mt-3">Sols et planchers</h6>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_h1_isolation_sol, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_h1_isolation_sol) %>">
+                      H1 - Isolation thermique de sol et plancher
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_h2_isolation_acoustique_plancher, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_h2_isolation_acoustique_plancher) %>">
+                      H2 - Isolation acoustique de plancher
+                    </label>
+                  </div>
+
+                  <h6 class="text-primary mt-3">Équipements</h6>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_i1_escalier, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_i1_escalier) %>">
+                      I1 - Escalier
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_i2_emplacement_velo, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_i2_emplacement_velo) %>">
+                      I2 - Emplacement vélo
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_i3_protection_incendie, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_i3_protection_incendie) %>">
+                      I3 - Protection incendie
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_i4_accessibilite, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_i4_accessibilite) %>">
+                      I4 - Personnes handicapées ou à mobilité réduite
+                    </label>
+                  </div>
+
+                  <h6 class="text-primary mt-3">Chauffage et eau chaude</h6>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_j4_chauffage_pompe_chaleur, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_j4_chauffage_pompe_chaleur) %>">
+                      J4 - Chauffage via pompe à chaleur
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_j5_radiateurs_basse_temperature, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_j5_radiateurs_basse_temperature) %>">
+                      J5 - Radiateurs basse température
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_j6_regulation_thermique, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_j6_regulation_thermique) %>">
+                      J6 - Régulation thermique
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_j8_chauffe_eau_solaire, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_j8_chauffe_eau_solaire) %>">
+                      J8 - Chauffe-eau solaire thermique
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_j9_chauffe_eau_pompe_chaleur, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_j9_chauffe_eau_pompe_chaleur) %>">
+                      J9 - Chauffe-eau via pompe à chaleur
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_j10_reseau_chaleur, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_j10_reseau_chaleur) %>">
+                      J10 - Réseau de chaleur
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row mt-3">
+                <div class="col-md-4">
+                  <h6 class="text-primary">Installations techniques</h6>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_k1_equipements_installation, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_k1_equipements_installation) %>">
+                      K1 - Équipements et installation
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_l1_conformite_electrique, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_l1_conformite_electrique) %>">
+                      L1 - Conformité de l'installation électrique
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_m1_systeme_c_ventilation, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_m1_systeme_c_ventilation) %>">
+                      M1 - Système C (bloc moteur centralisé)
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :prime_m2_systeme_d_ventilation, { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="<%= form.field_id(:prime_m2_systeme_d_ventilation) %>">
+                      M2 - Système D
+                    </label>
+                  </div>
+                </div>
+
+                <div class="col-md-8">
+                  <h6 class="text-primary">Matériaux durables et bonus</h6>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-check mb-2">
+                        <%= form.check_box :prime_z1_materiau_isolation_durable, { class: "form-check-input" }, "1", "0" %>
+                        <label class="form-check-label" for="<%= form.field_id(:prime_z1_materiau_isolation_durable) %>">
+                          Z1 - Matériau d'isolation durable
+                        </label>
+                      </div>
+                      <div class="form-check mb-2">
+                        <%= form.check_box :prime_z2_materiau_couverture_durable, { class: "form-check-input" }, "1", "0" %>
+                        <label class="form-check-label" for="<%= form.field_id(:prime_z2_materiau_couverture_durable) %>">
+                          Z2 - Matériau de couverture durable
+                        </label>
+                      </div>
+                      <div class="form-check mb-2">
+                        <%= form.check_box :prime_z3_bardage_durable, { class: "form-check-input" }, "1", "0" %>
+                        <label class="form-check-label" for="<%= form.field_id(:prime_z3_bardage_durable) %>">
+                          Z3 - Bardage durable
+                        </label>
+                      </div>
+                      <div class="form-check mb-2">
+                        <%= form.check_box :prime_z4_portes_fenetres_durables, { class: "form-check-input" }, "1", "0" %>
+                        <label class="form-check-label" for="<%= form.field_id(:prime_z4_portes_fenetres_durables) %>">
+                          Z4 - Portes et fenêtres durables
+                        </label>
+                      </div>
+                      <div class="form-check mb-2">
+                        <%= form.check_box :prime_z5_portes_fenetres_acoustiques, { class: "form-check-input" }, "1", "0" %>
+                        <label class="form-check-label" for="<%= form.field_id(:prime_z5_portes_fenetres_acoustiques) %>">
+                          Z5 - Portes et fenêtres acoustiques
+                        </label>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-check mb-2">
+                        <%= form.check_box :prime_z6_reemploi_equipements_sanitaires, { class: "form-check-input" }, "1", "0" %>
+                        <label class="form-check-label" for="<%= form.field_id(:prime_z6_reemploi_equipements_sanitaires) %>">
+                          Z6 - Réemploi d'équipements sanitaires
+                        </label>
+                      </div>
+                      <div class="form-check mb-2">
+                        <%= form.check_box :prime_z7_capacite_tampon_citerne, { class: "form-check-input" }, "1", "0" %>
+                        <label class="form-check-label" for="<%= form.field_id(:prime_z7_capacite_tampon_citerne) %>">
+                          Z7 - Capacité tampon de citerne d'eau de pluie
+                        </label>
+                      </div>
+                      <div class="form-check mb-2">
+                        <%= form.check_box :prime_z9_sortie_mazout_charbon, { class: "form-check-input" }, "1", "0" %>
+                        <label class="form-check-label" for="<%= form.field_id(:prime_z9_sortie_mazout_charbon) %>">
+                          Z9 - Sortie mazout et charbon
+                        </label>
+                      </div>
+                      <div class="form-check mb-2">
+                        <%= form.check_box :prime_z10_plusieurs_travaux, { class: "form-check-input" }, "1", "0" %>
+                        <label class="form-check-label" for="<%= form.field_id(:prime_z10_plusieurs_travaux) %>">
+                          Z10 - Plusieurs travaux
+                        </label>
+                      </div>
                     </div>
                   </div>
-                <% end %>
+                </div>
               </div>
             </div>
           </div>
@@ -272,7 +632,7 @@
     <!-- 5. Détails techniques -->
     <div class="card mb-4">
       <div class="card-header bg-info text-white">
-        <h5 class="mb-0"><i class="bi bi-gear me-2"></i>4. Détails techniques</h5>
+        <h5 class="mb-0"><i class="bi bi-gear me-2"></i>6. Détails techniques</h5>
       </div>
       <div class="card-body">
         <div class="row">
@@ -317,28 +677,6 @@
       </div>
     </div>
 
-    <!-- 6. Coordonnées bancaires -->
-    <div class="card mb-4">
-      <div class="card-header bg-dark text-white">
-        <h5 class="mb-0"><i class="bi bi-bank me-2"></i>6. Coordonnées bancaires</h5>
-      </div>
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-6">
-            <div class="mb-3">
-              <label class="form-label">IBAN du demandeur</label>
-              <%= form.text_field :iban_demandeur, class: "form-control" %>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="mb-3">
-              <label class="form-label">IBAN du bénéficiaire (si différent)</label>
-              <%= form.text_field :iban_tiers, class: "form-control" %>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <!-- 7. Justificatifs à joindre -->
     <div class="card mb-4">
@@ -387,29 +725,6 @@
             <div class="mb-3">
               <label class="form-label">Photos couleur de la façade (si primes F4/F5)</label>
               <%= form.file_field :photos_façade_pdf, class: "form-control", accept: ".pdf" %>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 8. Mandats éventuels -->
-    <div class="card mb-4">
-      <div class="card-header bg-warning text-dark">
-        <h5 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>8. Mandats (si applicables)</h5>
-      </div>
-      <div class="card-body">
-        <div class="row">
-          <div class="col-md-6">
-            <div class="mb-3">
-              <label class="form-label">Mandat de signature (si introduit par tiers)</label>
-              <%= form.file_field :mandat_signature_pdf, class: "form-control", accept: ".pdf" %>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="mb-3">
-              <label class="form-label">Mandat de paiement (si tiers perçoit la prime)</label>
-              <%= form.file_field :mandat_paiement_pdf, class: "form-control", accept: ".pdf" %>
             </div>
           </div>
         </div>
