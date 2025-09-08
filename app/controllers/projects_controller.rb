@@ -87,6 +87,8 @@ class ProjectsController < ApplicationController
       :maitre_ouvrage_nom, :maitre_ouvrage_contact, :coordinateur_securite_nom, :coordinateur_securite_contact,
       # Champs assurances
       :assurance_decennale_architecte, :assurance_decennale_entrepreneur, :garanties_travaux,
+      # Champs audit énergétique (Wallonie)
+      :numero_audit, :date_audit, :numero_agrement_auditeur, :prix_audit,
       # Corps de métiers (JSON)
       :corps_metiers
     )

@@ -26,53 +26,137 @@
           1. Informations sur le demandeur
         </h5>
 
-        <div class="row g-3">
-          <div class="col-md-6">
-            <%= f.input :nom,
-                label: "Nom*",
-                wrapper_html: { class: "mb-3" },
-                input_html: { class: "form-control", required: true } %>
-            <%= f.input :prenom,
-                label: "Prénom*",
-                wrapper_html: { class: "mb-3" },
-                input_html: { class: "form-control", required: true } %>
-            <%= f.input :email,
-                label: "Adresse e-mail*",
-                wrapper_html: { class: "mb-3" },
-                input_html: { class: "form-control", type: "email", required: true } %>
-            <%= f.input :telephone,
-                label: "Numéro de téléphone*",
-                wrapper_html: { class: "mb-3" },
-                input_html: { class: "form-control", required: true } %>
-            <%= f.input :registre_national,
-                label: "N° de registre national*",
-                hint: "Ex : 83.07.15-123.45",
-                wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control", required: true } %>
+
+       <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= f.label :nom, class: "form-label" do %>
+              Nom complet
+              <%= badge_prerempli(@form_data, :applicant_last_name) if @form_data.present? %>
+            <% end %>
+            <%= f.text_field :nom,
+                value: preremplir_champ(@form_data, :applicant_last_name, current_user.last_name),
+                placeholder: "Nom complet",
+                class: "form-control" %>
           </div>
-          <div class="col-md-6">
-            <%= f.input :adresse,
-                label: "Rue et numéro*",
-                wrapper_html: { class: "mb-3" },
-                input_html: { class: "form-control", required: true } %>
-            <div class="row g-2">
-              <div class="col-4">
-                <%= f.input :code_postal,
-                    label: "Code postal*",
-                    wrapper_html: { class: "mb-3" },
-                    input_html: { class: "form-control", required: true, pattern: "[0-9]{4}" } %>
-              </div>
-              <div class="col-8">
-                <%= f.input :commune,
-                    label: "Commune*",
-                    wrapper_html: { class: "mb-3" },
-                    input_html: { class: "form-control", required: true } %>
-              </div>
-            </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :prenom, class: "form-label" do %>
+              Prénom
+              <%= badge_prerempli(@form_data, :applicant_first_name) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :prenom,
+                value: preremplir_champ(@form_data, :applicant_first_name, current_user.first_name),
+                placeholder: "Prénom",
+                class: "form-control" %>
+          </div>
+        </div>
+        </div>
+        <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :numero_registre_national, class: "form-label" do %>
+              Numéro de registre national
+              <%= badge_prerempli(@form_data, :applicant_national_number) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :numero_registre_national,
+                value: preremplir_champ(@form_data, :applicant_national_number, current_user.national_number),
+                placeholder: "Numéro de registre national",
+                class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :compte_bancaire, class: "form-label" do %>
+              Compte bancaire du demandeur
+              <%= badge_prerempli(@form_data, :iban) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :compte_bancaire,
+                value: preremplir_champ(@form_data, :iban, current_user.iban),
+                placeholder: "IBAN BE...",
+                class: "form-control" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :email, class: "form-label" do %>
+              Adresse e-mail
+              <%= badge_prerempli(@form_data, :applicant_email) if @form_data.present? %>
+            <% end %>
+            <%= form.email_field :email,
+                value: preremplir_champ(@form_data, :applicant_email, current_user.email),
+                placeholder: "Adresse e-mail",
+                class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :phone, class: "form-label" do %>
+              Numéro de téléphone
+              <%= badge_prerempli(@form_data, :applicant_phone) if @form_data.present? %>
+            <% end %>
+            <%= form.phone_field :phone,
+                value: preremplir_champ(@form_data, :applicant_phone, current_user.phone),
+                placeholder: "Numéro de téléphone",
+                class: "form-control" %>
+          </div>
+        </div>
+      </div>
+
+      <h6 class="text-muted mb-3">Adresse du demandeur</h6>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :adresse_demandeur, class: "form-label" do %>
+              Adresse
+              <%= badge_prerempli(@form_data, :applicant_address) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :adresse_demandeur,
+                value: preremplir_champ(@form_data, :applicant_address, current_user.street),
+                placeholder: "Adresse",
+                class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :code_postal_demandeur, class: "form-label" do %>
+              Code postal
+              <%= badge_prerempli(@form_data, :applicant_postal_code) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :code_postal_demandeur,
+                value: preremplir_champ(@form_data, :applicant_postal_code, current_user.postal_code),
+                placeholder: "Code postal",
+                class: "form-control" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :city, class: "form-label" do %>
+              Commune
+              <%= badge_prerempli(@form_data, :applicant_city) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :city,
+                value: preremplir_champ(@form_data, :applicant_city, current_user.city),
+                placeholder: "Commune",
+                class: "form-control" %>
+          </div>
+        </div>
+         <div class="col-md-6">
+          <div class="mb-3">
+            <label class="form-label">Région</label>
+            <%= form.text_field :region, value: "Wallonie", class: "form-control", disabled: true %>
           </div>
         </div>
       </div>
     </div>
+  </div>
 
     <!-- Section 2: Informations sur le bien à auditer -->
     <div class="card border-0 shadow-sm mb-4">
@@ -89,7 +173,7 @@
               <strong>Note :</strong> Si le bien à auditer est différent de votre adresse personnelle, veuillez le préciser dans la description.
             </div>
           </div>
-          <div class="col-md-6">
+          <div class="col-md-4">
             <%= f.input :type_bien,
                 as: :select,
                 collection: ["Maison unifamiliale", "Appartement", "Immeuble à appartements", "Autre"],
@@ -98,17 +182,7 @@
                 wrapper_html: { class: "mb-3" },
                 input_html: { class: "form-select", required: true } %>
           </div>
-          <div class="col-md-6">
-            <label class="form-label">Année de construction approximative*</label>
-            <%= f.number_field :revenus_annuels,
-                placeholder: "ex. 1985",
-                class: "form-control",
-                min: 1800,
-                max: Date.current.year,
-                required: true %>
-            <div class="form-text">Nous utilisons temporairement ce champ pour l'année de construction</div>
-          </div>
-          <div class="col-md-12">
+          <div class="col-md-4">
             <%= f.input :usage,
                 as: :select,
                 collection: ["Résidence principale", "Logement locatif", "Autre"],
@@ -116,6 +190,17 @@
                 prompt: "-- Sélectionnez l'affectation --",
                 wrapper_html: { class: "mb-0" },
                 input_html: { class: "form-select", required: true } %>
+          </div>
+          <div class="col-md-4">
+          <div class="mb-3">
+            <%= form.label :annee_construction, class: "form-label" do %>
+              Année de construction
+              <%= badge_prerempli_intelligent(@form_data, :property_year_built, @property&.annee_construction) %>
+            <% end %>
+            <%= form.text_field :annee_construction,
+                value: preremplir_champ(@form_data, :property_year_built, @property&.annee_construction),
+                placeholder: "Année de construction",
+                class: "form-control" %>
           </div>
         </div>
       </div>
@@ -136,17 +221,67 @@
               <strong>Information importante :</strong> Veuillez renseigner les détails de l'audit dans la description ci-dessous.
             </div>
           </div>
+
+          <div class="col-md-3">
+            <div class="mb-3">
+              <%= form.label :numero_audit, class: "form-label" do %>
+                Numéro d'audit
+                <%= badge_prerempli_intelligent(@form_data, :audit_number, @property&.projects&.first&.numero_audit) %>
+              <% end %>
+              <%= form.text_field :numero_audit,
+                  value: preremplir_champ(@form_data, :audit_number, @property&.projects&.first&.numero_audit),
+                  placeholder: "A20....",
+                  class: "form-control" %>
+              <div class="form-text">Numéro d'audit obligatoire</div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="mb-3">
+              <%= form.label :date_audit, class: "form-label" do %>
+                Date de l'audit
+                <%= badge_prerempli_intelligent(@form_data, :audit_date, @property&.projects&.first&.date_audit) %>
+              <% end %>
+              <%= form.date_field :date_audit,
+                  value: preremplir_champ(@form_data, :audit_date, @property&.projects&.first&.date_audit),
+                  class: "form-control" %>
+              <div class="form-text">Date de réalisation</div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="mb-3">
+              <%= form.label :numero_agrement_auditeur, class: "form-label" do %>
+                Numéro d'agrément
+                <%= badge_prerempli_intelligent(@form_data, :auditor_license_number, @property&.projects&.first&.numero_agrement_auditeur) %>
+              <% end %>
+              <%= form.text_field :numero_agrement_auditeur,
+                  value: preremplir_champ(@form_data, :auditor_license_number, @property&.projects&.first&.numero_agrement_auditeur),
+                  placeholder: "PAE2 - PX-XXXXX",
+                  class: "form-control" %>
+              <div class="form-text">Agrément auditeur</div>
+            </div>
+          </div>
+
+          <div class="col-md-3">
+            <div class="mb-3">
+              <%= form.label :prix_audit, class: "form-label" do %>
+                Prix de l'audit
+                <%= badge_prerempli_intelligent(@form_data, :audit_price, @property&.projects&.first&.prix_audit) %>
+              <% end %>
+              <%= form.text_field :prix_audit,
+                  value: preremplir_champ(@form_data, :audit_price, @property&.projects&.first&.prix_audit),
+                  placeholder: "0.00",
+                  class: "form-control" %>
+              <div class="form-text">Prix de l'audit en euros</div>
+            </div>
+          </div>
+
           <div class="col-12">
-            <%= f.input :description,
-                as: :text,
-                label: "Informations relatives à l'audit*",
-                placeholder: "Veuillez indiquer :
-- Nom de l'auditeur agréé
-- Numéro d'agrément
-- Date de réalisation de l'audit
-- Montant payé pour l'audit (TVAC)",
-                wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control", rows: 6, required: true } %>
+            <div class="alert alert-info small">
+              <i class="bi bi-info-circle me-2"></i>
+              Ces informations sont automatiquement récupérées depuis les données du projet si elles ont été saisies précédemment.
+            </div>
           </div>
         </div>
       </div>
@@ -161,7 +296,7 @@
         </h5>
 
         <div class="row g-3">
-          <div class="col-md-6">
+          <div class="col-md-3">
             <label class="form-label">Preuve de paiement de l'audit*</label>
             <%= f.file_field :document_factures,
                 class: "form-control",
@@ -170,7 +305,7 @@
                 multiple: true %>
             <div class="form-text">Formats acceptés: PDF, JPG, PNG (max 5 MB)</div>
           </div>
-          <div class="col-md-6">
+          <div class="col-md-3">
             <label class="form-label">Rapport d'audit énergétique complet*</label>
             <%= f.file_field :document_autres,
                 class: "form-control",
@@ -179,7 +314,7 @@
                 multiple: true %>
             <div class="form-text">Format PDF uniquement</div>
           </div>
-          <div class="col-md-6">
+          <div class="col-md-3">
             <label class="form-label">Copie de la carte d'identité (recto-verso)*</label>
             <%= f.file_field :document_attestations,
                 class: "form-control",
@@ -188,7 +323,7 @@
                 multiple: true %>
             <div class="form-text">Recto et verso en un seul fichier</div>
           </div>
-          <div class="col-md-6">
+          <div class="col-md-3">
             <label class="form-label">Certificat PEB (si disponible)</label>
             <%= f.file_field :document_peb,
                 class: "form-control",

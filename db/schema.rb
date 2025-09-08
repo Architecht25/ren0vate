@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_07_113018) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_08_071257) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -331,6 +331,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_07_113018) do
     t.string "assurance_decennale_architecte"
     t.string "assurance_decennale_entrepreneur"
     t.text "garanties_travaux"
+    t.string "numero_audit"
+    t.date "date_audit"
+    t.string "numero_agrement_auditeur"
+    t.decimal "prix_audit", precision: 10, scale: 2
     t.index ["property_id"], name: "index_projects_on_property_id"
     t.index ["user_id"], name: "index_projects_on_user_id"
   end

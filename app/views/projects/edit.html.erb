@@ -25,9 +25,6 @@
           <%= form_with model: @project, local: true do |form| %>
             <%= render 'projects/partials_general/basic_fields', form: form %>
 
-            <!-- Nouveau: Informations des professionnels -->
-            <%= render 'projects/partials_general/professionals_fields', form: form %>
-
             <% if @project.property&.region.present? %>
               <%= render "projects/partials_#{@project.property.region.downcase}/eligibility_fields", form: form %>
             <% end %>
@@ -38,6 +35,11 @@
                 <%= form.collection_select :property_id, Property.all, :id, :name, { include_blank: "Sélectionner un bien..." }, class: "form-select" %>
               </div>
             <% end %>
+
+            <!-- Nouveau: Informations des professionnels -->
+            <%= render 'projects/partials_general/professionals_fields', form: form %>
+
+
 
             <div class="d-flex justify-content-end mt-4">
               <%= link_to "Annuler", project_path(@project), class: "btn btn-outline-secondary me-2" %>
