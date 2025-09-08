@@ -29,7 +29,11 @@ class Document < ApplicationRecord
     dossier_prime: 'dossier_prime',
     certificat_protection: 'certificat_protection',
     acte_notarial: 'acte_notarial',
-    compromis: 'compromis'
+    compromis: 'compromis',
+    # Documents audit énergétique
+    preuve_paiement_audit: 'preuve_paiement_audit',
+    rapport_audit_energetique: 'rapport_audit_energetique',
+    copie_carte_identite: 'copie_carte_identite'
   }
 
   # Status est une colonne string dans la DB, pas un enum integer
