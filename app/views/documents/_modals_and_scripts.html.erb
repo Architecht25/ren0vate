@@ -1,0 +1,91 @@
+<!-- Modal de prévisualisation -->
+<div class="modal fade" id="previewModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Prévisualisation du document</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div id="preview-content" class="text-center">
+          <div class="spinner-border" role="status">
+            <span class="visually-hidden">Chargement...</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.card {
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+}
+
+.badge-sm {
+  font-size: 0.7rem;
+  padding: 0.25em 0.5em;
+}
+
+.alert-sm {
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.preview-btn:hover {
+  transform: scale(1.1);
+}
+</style>
+
+<script nonce="<%= content_security_policy_nonce %>">
+document.addEventListener('turbo:load', function() {
+  // Gestion de la prévisualisation
+  const previewButtons = document.querySelectorAll('.preview-btn');
+  const previewModal = new bootstrap.Modal(document.getElementById('previewModal'));
+  const previewContent = document.getElementById('preview-content');
+
+  previewButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const documentId = this.dataset.documentId;
+
+      previewContent.innerHTML = `
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+      `;
+
+      previewModal.show();
+
+      fetch(`/documents/${documentId}/preview`)
+        .then(response => response.json())
+        .then(data => {
+          console.log('Preview data received:', data);
+          if (data.type === 'image') {
+            previewContent.innerHTML = `<img src="${data.url}" class="img-fluid" alt="Prévisualisation">`;
+          } else if (data.type === 'pdf') {
+            // Utilisation d'iframe au lieu d'embed pour une meilleure compatibilité
+            previewContent.innerHTML = `
+              <iframe src="${data.url}"
+                      width="100%"
+                      height="600px"
+                      style="border: none;"
+                      title="Prévisualisation PDF">
+              </iframe>
+            `;
+          } else {
+            previewContent.innerHTML = `<div class="alert alert-warning">${data.message || 'Prévisualisation non disponible'}</div>`;
+          }
+        })
+        .catch(error => {
+          console.error('Preview error:', error);
+          previewContent.innerHTML = `<div class="alert alert-danger">Erreur lors du chargement de la prévisualisation</div>`;
+        });
+    });
+  });
+});
+</script>

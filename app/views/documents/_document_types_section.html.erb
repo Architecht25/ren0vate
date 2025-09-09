@@ -1,0 +1,45 @@
+<div class="mb-4">
+  <h6 class="text-<%= class_color %> mb-3">
+    <i class="bi bi-<%= icon %> me-2"></i><%= title %>
+  </h6>
+  <div class="row">
+    <% document_types.each do |doc_type| %>
+      <% docs_of_type = @documents.select { |d| d.type_document == doc_type } %>
+      <% if is_required %>
+        <% has_approved = docs_of_type.any? { |d| d.status == 'approved' } %>
+        <% card_border_class = has_approved ? 'success' : 'danger' %>
+        <% icon_class = has_approved ? 'check-circle-fill text-success' : 'exclamation-circle-fill text-danger' %>
+      <% else %>
+        <% has_docs = docs_of_type.any? %>
+        <% card_border_class = has_docs ? 'info' : 'secondary' %>
+        <% icon_class = has_docs ? 'file-earmark-check text-info' : 'file-earmark-plus text-muted' %>
+      <% end %>
+
+      <div class="col-lg-2 col-md-4 col-sm-6 mb-3">
+        <div class="card border-<%= card_border_class %> h-100">
+          <div class="card-body text-center">
+            <div class="mb-2">
+              <i class="bi bi-<%= icon_class %>" style="font-size: 2rem;"></i>
+            </div>
+            <h6 class="card-title">
+              <%= doc_type.humanize %>
+              <% if doc_type == 'attestation_entrepreneur' %>
+                <span class="badge bg-info ms-1">
+                  <i class="bi bi-download me-1"></i>Officiels
+                </span>
+              <% end %>
+            </h6>
+            <p class="small text-muted mb-2"><%= docs_of_type.count %> document(s)</p>
+
+            <div class="d-flex gap-1 justify-content-center">
+              <%= render 'document_type_actions',
+                         doc_type: doc_type,
+                         docs_of_type: docs_of_type,
+                         is_required: is_required %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

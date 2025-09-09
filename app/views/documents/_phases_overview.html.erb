@@ -1,0 +1,110 @@
+<!-- Mini vue des phases -->
+<div class="row mb-5">
+  <div class="col-12 mb-4">
+    <div class="d-flex align-items-center justify-content-between">
+      <div>
+        <h4 class="mb-1 fw-600" style="color: var(--neutral-800);">
+          <i class="bi bi-kanban me-2 text-primary"></i>Progression par phases
+        </h4>
+        <p class="text-muted mb-0 small">
+          <% if @property %>
+            Avancement spécifique pour <%= @property.name %>
+          <% else %>
+            Vue d'ensemble de vos documents
+          <% end %>
+        </p>
+      </div>
+    </div>
+  </div>
+  <% @phases_data.each do |phase_data| %>
+    <% phase = phase_data[:phase] %>
+    <% docs_in_phase = @documents.select { |d| d.document_phase == phase } %>
+    <% completion_class = phase_data[:completion_percentage] >= 80 ? 'high' : phase_data[:completion_percentage] >= 50 ? 'medium' : 'low' %>
+
+    <div class="col-lg-3 col-md-6 mb-4">
+      <div class="card document-phase-card h-100 <%= phase.category == 'investissement' ? 'phase-card-investissement' : 'phase-card-chantier' %>">
+        <div class="card-body p-4 text-center position-relative">
+          <div class="position-absolute top-0 end-0 m-3">
+            <span class="completion-badge <%= completion_class %>">
+              <%= phase_data[:completion_percentage] %>%
+            </span>
+          </div>
+
+          <div class="mb-4 mt-2">
+            <div class="phase-icon-circle mx-auto mb-3">
+              <%= phase.icon %>
+            </div>
+          </div>
+
+          <h5 class="card-title mb-2 fw-600" style="color: var(--neutral-800);">
+            <%= phase.name.gsub('Phase ', '') %>
+          </h5>
+          <p class="text-muted small mb-4 lh-sm"><%= phase.description %></p>
+
+          <div class="mb-4">
+            <div class="small text-muted mb-2">
+              <%= docs_in_phase.count %> document<%= docs_in_phase.count > 1 ? 's' : '' %>
+            </div>
+            <!-- Progress bar moderne -->
+            <div class="progress mb-3" style="height: 8px; border-radius: 10px; background-color: var(--neutral-100);">
+              <div class="progress-bar"
+                   style="width: <%= phase_data[:completion_percentage] %>%;
+                          background: linear-gradient(90deg,
+                            <%= completion_class == 'high' ? 'var(--success-color)' :
+                                completion_class == 'medium' ? 'var(--warning-color)' :
+                                'var(--danger-color)' %>,
+                            <%= completion_class == 'high' ? '#10b981' :
+                                completion_class == 'medium' ? '#f59e0b' :
+                                '#ef4444' %>);
+                          border-radius: 10px;"></div>
+            </div>
+          </div>
+
+          <!-- Documents requis/optionnels -->
+          <div class="small text-center">
+            <div class="d-flex justify-content-center gap-3">
+              <span class="text-muted">
+                <strong class="text-dark"><%= phase.required_document_types.count %></strong> requis
+              </span>
+              <span class="text-muted">
+                <strong class="text-dark"><%= phase.optional_document_types.count %></strong> optionnels
+              </span>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="d-flex justify-content-center gap-2">
+            <%= link_to documents_path(
+                          property_id: @property&.id,
+                          project_id: @project&.id,
+                          filter_phase: phase.id
+                        ),
+                       class: "btn btn-outline-primary btn-sm" do %>
+              <i class="bi bi-folder2-open me-1"></i>Voir détails
+            <% end %>
+            <% if phase_data[:missing_required]&.any? %>
+              <%= link_to new_document_path(
+                            property_id: @property&.id,
+                            project_id: @project&.id,
+                            type_document: phase_data[:missing_required].first,
+                            upload_mode: 'ocr'
+                          ),
+                         class: "btn btn-success btn-sm" do %>
+                <i class="bi bi-plus me-1"></i>Ajouter
+              <% end %>
+            <% else %>
+              <%= link_to new_document_path(
+                            property_id: @property&.id,
+                            project_id: @project&.id,
+                            type_document: phase.required_document_types.first
+                          ),
+                         class: "btn btn-outline-secondary btn-sm" do %>
+                <i class="bi bi-plus me-1"></i>Nouveau
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

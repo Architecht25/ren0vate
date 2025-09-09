@@ -1,0 +1,145 @@
+<!-- Section pour l'affichage des documents filtrés par type -->
+<% if params[:type_document].present? %>
+  <div class="container-fluid px-4 py-4">
+    <% if @documents.any? %>
+      <!-- Affichage des documents filtrés par type -->
+      <h6 class="text-primary mb-3 d-flex align-items-center">
+        <i class="bi bi-files me-2"></i>
+        Documents de type "<%= document_type_name(params[:type_document]) %>" (<%= @documents.count %>)
+      </h6>
+      <div class="row">
+        <% @documents.each do |document| %>
+          <div class="col-lg-2 col-md-3 col-sm-4 col-6 mb-3">
+            <div class="card border-0 shadow-sm h-100 document-card">
+              <div class="card-body">
+                <div class="d-flex align-items-start mb-2">
+                  <div class="me-3">
+                    <% if document.file.attached? && document.file.content_type&.start_with?('image/') %>
+                      <i class="bi bi-image text-success" style="font-size: 1.5rem;"></i>
+                    <% elsif document.file.attached? && document.file.content_type == 'application/pdf' %>
+                      <i class="bi bi-file-earmark-pdf text-danger" style="font-size: 1.5rem;"></i>
+                    <% else %>
+                      <i class="bi bi-file-earmark text-primary" style="font-size: 1.5rem;"></i>
+                    <% end %>
+                  </div>
+                  <div class="flex-grow-1">
+                    <h6 class="card-title mb-1">
+                      <%= if document.file.attached?
+                            document.file.filename.to_s
+                          else
+                            "#{document.type_document&.humanize || 'Document'} - #{document.id}"
+                          end %>
+                    </h6>
+                    <small class="text-muted d-block">
+                      <%= document.type_document&.humanize || "Type non défini" %>
+                    </small>
+                    <small class="text-muted d-block">
+                      <i class="bi bi-calendar3 me-1"></i>
+                      <%= l(document.created_at, format: :short) %>
+                    </small>
+                  </div>
+                </div>
+
+                <!-- Prévisualisation du document -->
+                <% if document.file.attached? %>
+                  <div class="mb-3">
+                    <div class="document-preview text-center">
+                      <%= link_to view_document_path(document), target: "_blank", class: "text-decoration-none" do %>
+                        <% if document.file.content_type&.start_with?('image/') %>
+                          <!-- Prévisualisation IMAGE -->
+                          <%= image_tag rails_blob_url(document.file),
+                              class: "img-fluid rounded shadow-sm document-thumbnail",
+                              style: "max-height: 200px; max-width: 100%; object-fit: cover; cursor: pointer;",
+                              alt: document.file.filename.to_s,
+                              loading: "lazy" %>
+                          <div class="small text-muted mt-2">
+                            <i class="bi bi-zoom-in me-1"></i>Cliquer pour agrandir
+                          </div>
+                        <% elsif document.file.content_type == 'application/pdf' %>
+                          <!-- Prévisualisation PDF -->
+                          <div class="pdf-preview-box p-3">
+                            <div class="pdf-icon-large mb-2">
+                              <i class="bi bi-file-earmark-pdf text-danger" style="font-size: 3rem;"></i>
+                            </div>
+                            <div class="small text-muted">
+                              <strong><%= document.file.filename %></strong><br>
+                              <i class="bi bi-file-earmark-pdf me-1"></i>Document PDF<br>
+                              <% if document.file.byte_size %>
+                                <i class="bi bi-hdd me-1"></i><%= number_to_human_size(document.file.byte_size) %>
+                              <% end %>
+                            </div>
+                            <div class="small text-primary mt-2">
+                              <i class="bi bi-eye me-1"></i>Cliquer pour ouvrir
+                            </div>
+                          </div>
+                        <% else %>
+                          <!-- Prévisualisation AUTRES DOCUMENTS -->
+                          <div class="file-preview-box p-3">
+                            <div class="file-icon-large mb-2">
+                              <% case document.file.content_type %>
+                              <% when /word|msword|officedocument.wordprocessingml/ %>
+                                <i class="bi bi-file-earmark-word text-primary" style="font-size: 3rem;"></i>
+                              <% when /excel|spreadsheet/ %>
+                                <i class="bi bi-file-earmark-excel text-success" style="font-size: 3rem;"></i>
+                              <% when /powerpoint|presentation/ %>
+                                <i class="bi bi-file-earmark-ppt text-warning" style="font-size: 3rem;"></i>
+                              <% when /text\// %>
+                                <i class="bi bi-file-earmark-text text-secondary" style="font-size: 3rem;"></i>
+                              <% when /zip|rar|7z|tar/ %>
+                                <i class="bi bi-file-earmark-zip text-info" style="font-size: 3rem;"></i>
+                              <% else %>
+                                <i class="bi bi-file-earmark text-dark" style="font-size: 3rem;"></i>
+                              <% end %>
+                            </div>
+                            <div class="small text-muted">
+                              <strong><%= document.file.filename %></strong><br>
+                              <i class="bi bi-file-earmark me-1"></i><%= document.file.content_type || "Type inconnu" %><br>
+                              <% if document.file.byte_size %>
+                                <i class="bi bi-hdd me-1"></i><%= number_to_human_size(document.file.byte_size) %>
+                              <% end %>
+                            </div>
+                            <div class="small text-primary mt-2">
+                              <i class="bi bi-box-arrow-up-right me-1"></i>Cliquer pour ouvrir
+                            </div>
+                          </div>
+                        <% end %>
+                      <% end %>
+                    </div>
+                  </div>
+                <% end %>
+
+                <!-- Actions pour le document -->
+                <div class="d-flex gap-2">
+                  <%= link_to document, class: "btn btn-outline-primary btn-sm" do %>
+                    <i class="bi bi-eye me-1"></i>Voir
+                  <% end %>
+                  <% if document.file.attached? %>
+                    <%= link_to download_document_path(document), class: "btn btn-outline-success btn-sm" do %>
+                      <i class="bi bi-download me-1"></i>Télécharger
+                    <% end %>
+                  <% end %>
+                  <%= link_to document_path(document,
+                        type_document: params[:type_document],
+                        filter_phase: params[:filter_phase]),
+                      method: :delete,
+                      class: "btn btn-outline-danger btn-sm",
+                      data: {
+                        confirm: "Êtes-vous sûr de vouloir supprimer ce document ?",
+                        turbo_method: :delete
+                      } do %>
+                    <i class="bi bi-trash me-1"></i>Supprimer
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="alert alert-warning">
+        <i class="bi bi-info-circle me-2"></i>
+        Aucun document de type "<%= document_type_name(params[:type_document]) %>" trouvé.
+      </div>
+    <% end %>
+  </div>
+<% end %>

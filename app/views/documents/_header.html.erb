@@ -1,0 +1,67 @@
+<!-- Header épuré -->
+<div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+  <div>
+    <h1 class="h3 text-primary-custom mb-1 fw-normal">
+      <i class="bi bi-folder2 me-2"></i>
+      Documents
+      <% if @property %>
+        - <%= @property.titre || "Bien sans nom" %>
+      <% elsif @project %>
+        - <%= @project.nom || "Projet sans nom" %>
+      <% end %>
+    </h1>
+    <p class="text-muted-custom mb-0">
+      <% if @selected_document_type %>
+        Documents de type "<%= document_type_name(@selected_document_type) %>" • <%= @documents.count %> document(s)
+        <% if @selected_phase %>
+          <span class="badge bg-<%= @selected_phase.color %> ms-2"><%= @selected_phase.name %></span>
+        <% end %>
+      <% elsif @selected_phase %>
+        Documents de la <%= @selected_phase.name.downcase %> • <%= @documents.count %> document(s)
+      <% elsif params[:type_document].present? %>
+        <span class="text-success">
+          <i class="bi bi-filter me-1"></i>Documents de type "<%= document_type_name(params[:type_document]) %>" • <%= @documents.count %> document(s)
+        </span>
+        <br>
+        <small class="text-muted">
+          Affichage filtré par type de document uniquement.
+          <%= link_to "Voir tous les documents",
+                     (@property ? property_documents_path(@property) :
+                      @project ? project_documents_path(@project) :
+                      documents_path),
+                     class: "text-primary" %> pour revenir à la vue complète.
+        </small>
+      <% else %>
+        Gestion de vos documents • <%= @documents.count %> document(s)
+      <% end %>
+    </p>
+  </div>
+  <div class="d-flex gap-2">
+    <%= link_to new_document_path(
+          property_id: @property&.id,
+          project_id: @project&.id
+        ),
+        class: "btn btn-primary-custom px-4",
+        style: "background-color: #2c5282 !important; border-color: #2c5282 !important; color: white !important;" do %>
+      <i class="bi bi-plus-lg me-2"></i>Nouveau document
+    <% end %>
+    <% if @property %>
+      <%= link_to documents_phases_dashboard_property_path(@property),
+                  class: "btn btn-outline-primary-custom" do %>
+        <i class="bi bi-kanban me-1"></i>Vue phases
+      <% end %>
+      <%= link_to dashboard_property_path(@property),
+                  class: "btn btn-outline-secondary" do %>
+        <i class="bi bi-arrow-left me-1"></i>Dashboard bien
+      <% end %>
+    <% elsif @project %>
+      <%= link_to @project, class: "btn btn-outline-secondary" do %>
+        <i class="bi bi-arrow-left me-1"></i>Retour projet
+      <% end %>
+    <% else %>
+      <%= link_to properties_path, class: "btn btn-outline-secondary" do %>
+        <i class="bi bi-arrow-left me-1"></i>Mes biens
+      <% end %>
+    <% end %>
+  </div>
+</div>

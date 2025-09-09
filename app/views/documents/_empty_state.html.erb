@@ -1,0 +1,22 @@
+<div class="text-center py-5">
+  <div class="mb-4" style="font-size: 4rem; color: #e3e3e3;">
+    <i class="bi bi-folder2-open"></i>
+  </div>
+  <h5 class="text-muted-custom mb-3">Aucun document</h5>
+  <p class="text-muted-custom mb-4">
+    <% if @selected_phase %>
+      Aucun document n'est associé à cette phase.
+    <% elsif @selected_document_type %>
+      Aucun document de ce type n'a été trouvé.
+    <% else %>
+      Vous n'avez pas encore ajouté de documents.
+    <% end %>
+  </p>
+  <%= link_to new_document_path(
+        property_id: @property&.id,
+        project_id: @project&.id
+      ),
+      class: "btn btn-primary-custom px-4" do %>
+    <i class="bi bi-plus-lg me-2"></i>Ajouter votre premier document
+  <% end %>
+</div>

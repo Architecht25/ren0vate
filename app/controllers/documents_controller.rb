@@ -1,6 +1,6 @@
 class DocumentsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_document, only: [:show, :edit, :update, :download, :destroy]
+  before_action :set_document, only: [:show, :edit, :update, :download, :preview, :view, :debug, :destroy]
   before_action :set_context, only: [:index, :new, :create]
 
   # GET /documents ou /properties/:property_id/documents ou /projects/:project_id/documents
@@ -18,7 +18,7 @@ class DocumentsController < ApplicationController
       @documents = @documents.by_phase(@selected_phase)
     end
 
-    # Filtrage par type de document
+        # Filtrage par type de document
     if params[:type_document].present?
       @documents = @documents.where(type_document: params[:type_document])
     end
@@ -226,6 +226,61 @@ class DocumentsController < ApplicationController
     end
   end
 
+  # GET /documents/:id/debug - Diagnostic du fichier
+  def debug
+    unless can_access_document?(@document)
+      render json: { error: "Accès non autorisé" }, status: :forbidden
+      return
+    end
+
+    if @document.file.attached?
+      begin
+        file_data = @document.file.download
+
+        # Informations de diagnostic
+        debug_info = {
+          filename: @document.file.filename.to_s,
+          content_type: @document.file.content_type,
+          byte_size: @document.file.byte_size,
+          downloaded_size: file_data.bytesize,
+          file_url: @document.file_url,
+          cloudinary_key: @document.file.key,
+          service_name: @document.file.service_name,
+          is_pdf: file_data.start_with?('%PDF'),
+          first_bytes: file_data[0..20].bytes.map(&:chr).join.inspect,
+          last_bytes: file_data[-20..-1]&.bytes&.map(&:chr)&.join&.inspect
+        }
+
+        render json: debug_info
+      rescue => e
+        render json: { error: e.message, backtrace: e.backtrace.first(5) }
+      end
+    else
+      render json: { error: "Aucun fichier attaché" }
+    end
+  end
+  def view
+    unless can_access_document?(@document)
+      redirect_to root_path, alert: "Accès non autorisé"
+      return
+    end
+
+    if @document.file.attached?
+      begin
+        # Avec Active Storage local, utiliser rails_blob_path avec disposition inline
+        redirect_to rails_blob_path(@document.file, disposition: "inline")
+      rescue => e
+        Rails.logger.error "Error accessing file: #{e.message}"
+        redirect_back(fallback_location: root_path, alert: "Erreur lors du chargement du fichier")
+      end
+    elsif @document.file_url.present?
+      # Fallback vers URL externe
+      redirect_to @document.file_url, allow_other_host: true
+    else
+      redirect_back(fallback_location: root_path, alert: "Fichier non trouvé")
+    end
+  end
+
   # DELETE /documents/:id
   def destroy
     unless can_access_document?(@document)
@@ -267,6 +322,8 @@ class DocumentsController < ApplicationController
 
   def set_document
     @document = Document.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    redirect_to documents_path, alert: "Document non trouvé"
   end
 
   def set_context
@@ -282,10 +339,23 @@ class DocumentsController < ApplicationController
   end
 
   def can_access_document?(document)
+    return false if document.nil?
+    return false if current_user.nil?
+
     # Vérification que l'utilisateur peut accéder au document
-    document.user == current_user ||
-    (document.property && document.property.user == current_user) ||
-    (document.project && document.project.user == current_user)
+    # 1. Document appartient directement à l'utilisateur
+    return true if document.user_id == current_user.id
+
+    # 2. Document lié à une propriété de l'utilisateur
+    return true if document.property&.user_id == current_user.id
+
+    # 3. Document lié à un projet de l'utilisateur
+    return true if document.project&.user_id == current_user.id
+
+    # 4. Document lié à une simulation de l'utilisateur
+    return true if document.simulation&.user_id == current_user.id
+
+    false
   end
 
   def document_json(document)
@@ -302,12 +372,17 @@ class DocumentsController < ApplicationController
   end
 
   def redirect_to_context_or_default(options = {})
+    # Préserver les paramètres de filtrage
+    redirect_params = {}
+    redirect_params[:type_document] = params[:type_document] if params[:type_document].present?
+    redirect_params[:filter_phase] = params[:filter_phase] if params[:filter_phase].present?
+
     if @project
-      redirect_to project_documents_path(@project), options
+      redirect_to project_documents_path(@project, redirect_params), options
     elsif @property
-      redirect_to property_documents_path(@property), options
+      redirect_to property_documents_path(@property, redirect_params), options
     else
-      redirect_to documents_path, options
+      redirect_to documents_path(redirect_params), options
     end
   end
 

@@ -1,5 +1,5 @@
 class Document < ApplicationRecord
-  belongs_to :user
+  belongs_to :user, optional: true
   belongs_to :property, optional: true
   belongs_to :request, optional: true
   belongs_to :project, optional: true

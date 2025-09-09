@@ -35,3 +35,13 @@ local:
 cloudinary:
   service: Cloudinary
   folder: <%= Rails.env %>
+  # Options pour les fichiers - utiliser raw pour éviter les transformations
+  upload_options:
+    resource_type: "raw"
+  use_filename: true
+  unique_filename: false
+
+# Service local pour les PDFs pour éviter les problèmes Cloudinary
+local_pdfs:
+  service: Disk
+  root: <%= Rails.root.join("storage") %>

@@ -76,6 +76,8 @@ Rails.application.routes.draw do
     member do
       get :download
       get :preview
+      get :view
+      get :debug
     end
   end
 
