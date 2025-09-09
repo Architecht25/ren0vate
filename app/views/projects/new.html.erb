@@ -46,17 +46,23 @@
             <!-- Champs de base communs -->
             <%= render 'projects/partials_general/basic_fields', form: form %>
 
+            <!-- Sélection de propriété avec détection de région -->
+            <%= render 'projects/partials_general/property_selection', form: form %>
+
             <!-- Nouveau: Informations des professionnels -->
             <%= render 'projects/partials_general/professionals_fields', form: form %>
 
-            <!-- Sélection de propriété avec détection de région -->
-            <%= render 'projects/partials_general/property_selection', form: form %>
 
             <!-- Champs spécifiques par région (affichés dynamiquement, seulement pour les rénovations) -->
             <% if @project.renovation? %>
               <%= render 'projects/partials_wallonie/eligibility_fields', form: form %>
               <%= render 'projects/partials_flandre/eligibility_fields', form: form %>
               <%= render 'projects/partials_bruxelles/eligibility_fields', form: form %>
+            <% end %>
+
+            <!-- Champs spécifiques aux investissements d'entreprise -->
+            <% if @project.investment? %>
+              <%= render 'projects/partials_entreprise/investment_fields', form: form %>
             <% end %>
 
             <div class="d-flex justify-content-end mt-4">

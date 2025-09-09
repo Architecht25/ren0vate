@@ -205,12 +205,15 @@
                 } %>
           </div>
           <div class="col-12">
-            <%= f.input :date_achat,
-                label: "Date d'achat",
-                hint: "Date d'acquisition du bien",
-                wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom" },
-                as: :date %>
+            <div class="mb-0">
+              <%= f.label :date_achat, "Date d'achat", class: "form-label" %>
+              <%= f.date_field :date_achat,
+                  class: "form-control form-control-custom",
+                  min: "1900-01-01",
+                  max: "2030-12-31",
+                  placeholder: "jj/mm/aaaa" %>
+              <div class="form-text">Date d'acquisition du bien</div>
+            </div>
           </div>
         </div>
       </div>
@@ -237,12 +240,15 @@
             input_html: { class: "form-control-custom" } %>
       </div>
       <div class="col-md-4">
-        <%= f.input :date_peb_avant_travaux,
-            label: "Date du certificat PEB",
-            hint: "Date d'établissement du certificat",
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-control-custom" },
-            as: :date %>
+        <div class="mb-0">
+          <%= f.label :date_peb_avant_travaux, "Date du certificat PEB", class: "form-label" %>
+          <%= f.date_field :date_peb_avant_travaux,
+              class: "form-control form-control-custom",
+              min: "1990-01-01",
+              max: "2030-12-31",
+              placeholder: "jj/mm/aaaa" %>
+          <div class="form-text">Date d'établissement du certificat</div>
+        </div>
       </div>
       <div class="col-md-4">
         <%= f.input :annee_construction,

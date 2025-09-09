@@ -1,67 +1,256 @@
-// Navbar styling
+// Variables CSS modernes pour la navbar
 :root {
-  --primary-custom: #2c5282;
+  --primary-custom: #667eea;
+  --secondary-custom: #764ba2;
+  --accent-custom: #f093fb;
   --light-custom: #f8fafc;
   --muted-custom: #718096;
   --border-custom: #e2e8f0;
+  --navbar-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #667eea 100%);
+  --hover-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
 }
 
+// Base navbar styling avec gradient
 .navbar {
-  border-bottom: 1px solid var(--border-custom);
+  background: var(--navbar-gradient) !important;
+  background-size: 200% 200%;
+  border: none;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
 }
 
+// Animation du gradient de fond
+.navbar {
+  animation: gradientFlow 8s ease infinite;
+}
+
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+// Liens de navigation modernes
 .navbar .nav-link {
-  color: var(--muted-custom);
+  color: white !important;
   font-weight: 500;
-  transition: all 0.2s ease;
+  border-radius: 25px;
+  margin: 0 5px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
 
+// Effet de survol avec transformation
 .navbar .nav-link:hover {
-  color: var(--primary-custom);
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3);
+  color: white !important;
 }
 
+// Effet de brillance au survol
+.navbar .nav-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s;
+}
+
+.navbar .nav-link:hover::before {
+  left: 100%;
+}
+
+// Logo de la marque avec effet
 .navbar .navbar-brand {
-  color: var(--primary-custom);
-  font-weight: 600;
+  color: white !important;
+  font-weight: 700;
+  padding: 8px 16px;
+  border-radius: 50px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
 }
 
+.navbar .navbar-brand:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
+  color: white !important;
+}
+
+// Icônes avec animations
+.navbar .nav-link i {
+  transition: all 0.3s ease;
+}
+
+.navbar .nav-link:hover i {
+  transform: scale(1.2) rotate(5deg);
+}
+
+// Bouton primaire moderne
 .btn-primary-custom {
-  background-color: var(--primary-custom);
-  border-color: var(--primary-custom);
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  border: none;
+  border-radius: 25px;
   color: white;
-  border-radius: 6px;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  font-weight: 600;
+  padding: 10px 20px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .btn-primary-custom:hover {
-  background-color: #2a4e7c;
-  border-color: #2a4e7c;
+  background: linear-gradient(135deg, #f5576c 0%, #f093fb 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(245, 87, 108, 0.4);
   color: white;
-  transform: translateY(-1px);
 }
 
+// Effet shimmer pour le bouton
+.btn-primary-custom::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+// Badges modernes
+.badge {
+  border-radius: 10px;
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  animation: pulse-badge 2s ease-in-out infinite;
+}
+
+@keyframes pulse-badge {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+// Menu dropdown moderne
 .dropdown-item:active {
-  background-color: var(--primary-custom);
+  background: var(--hover-gradient);
+  color: white;
 }
 
+.dropdown-menu {
+  border: none;
+  border-radius: 15px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.dropdown-item {
+  border-radius: 10px;
+  margin: 2px 5px;
+  transition: all 0.3s ease;
+}
+
+.dropdown-item:hover {
+  background: var(--primary-custom);
+  color: white;
+  transform: translateX(5px);
+}
+
+// Classes utilitaires pour les couleurs
 .text-primary-custom {
   color: var(--primary-custom) !important;
 }
 
+.bg-primary-custom {
+  background-color: var(--primary-custom) !important;
+}
+
+// Responsive design amélioré
 @media (max-width: 992px) {
+  .navbar {
+    background: var(--primary-custom) !important;
+  }
+
   .navbar .nav-link {
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-radius: 15px;
+    margin: 2px 0;
+  }
+
+  .navbar .navbar-brand {
+    font-size: 1.1rem;
   }
 
   .navbar .dropdown-menu {
     border: none;
     padding-top: 0;
     padding-bottom: 0;
+    background: rgba(102, 126, 234, 0.95);
   }
 
   .navbar .dropdown-item {
     padding: 0.75rem 1rem;
+    color: white;
   }
+
+  .navbar .dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+// Animation d'entrée pour les éléments de navigation
+.nav-item {
+  animation: slideInFromTop 0.6s ease forwards;
+}
+
+.nav-item:nth-child(1) { animation-delay: 0.1s; }
+.nav-item:nth-child(2) { animation-delay: 0.2s; }
+.nav-item:nth-child(3) { animation-delay: 0.3s; }
+.nav-item:nth-child(4) { animation-delay: 0.4s; }
+.nav-item:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Effets spéciaux pour les éléments importants
+.nav-link.special {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white !important;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+}
+
+.nav-link.special:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(245, 87, 108, 0.6);
+}
+
+// Micro-interactions
+.nav-link:active {
+  transform: scale(0.95);
+}
+
+.btn-primary-custom:active {
+  transform: scale(0.95) translateY(-1px);
 }

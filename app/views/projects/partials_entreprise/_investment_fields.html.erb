@@ -1,0 +1,25 @@
+<!-- Partial des champs d'investissement pour les entreprises -->
+
+<!-- Champ Finalité spécifique aux entreprises -->
+<div class="mb-3">
+  <%= form.label :finalite, "Finalité du projet*", class: "form-label" %>
+  <%= form.select :finalite,
+      options_for_select([
+        ['Résidentielle - Pour un usage d\'habitation', 'residentielle'],
+        ['Économique - Pour une activité professionnelle/commerciale', 'economique']
+      ], form.object.finalite || 'economique'),
+      { include_blank: false },
+      { class: "form-select" } %>
+  <div class="form-text">
+    <i class="bi bi-info-circle me-1"></i>
+    <strong>Résidentielle :</strong> Travaux sur un logement (appartement, maison).
+    <strong>Économique :</strong> Travaux ou investissements pour une activité professionnelle.
+  </div>
+</div>
+
+<div class="alert alert-success text-center">
+  <i class="bi bi-building me-2"></i>
+  <strong>Partial Investment Fields pour Entreprises</strong>
+  <br>
+  <small>Vous êtes bien sur le partial spécifique aux investissements d'entreprise</small>
+</div>

@@ -25,8 +25,13 @@
           <%= form_with model: @project, local: true do |form| %>
             <%= render 'projects/partials_general/basic_fields', form: form %>
 
-            <% if @project.property&.region.present? %>
+            <% if @project.renovation? && @project.property&.region.present? %>
               <%= render "projects/partials_#{@project.property.region.downcase}/eligibility_fields", form: form %>
+            <% end %>
+
+            <!-- Champs spécifiques aux investissements d'entreprise -->
+            <% if @project.investment? %>
+              <%= render 'projects/partials_entreprise/investment_fields', form: form %>
             <% end %>
 
             <% if @project.respond_to?(:property_id) && defined?(Property) %>
