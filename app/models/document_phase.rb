@@ -7,8 +7,11 @@ class DocumentPhase < ApplicationRecord
   validates :description, presence: true
   validates :color, presence: true
   validates :icon, presence: true
+  validates :category, presence: true, inclusion: { in: %w[chantier investissement] }
 
   scope :ordered, -> { order(:position) }
+  scope :chantier, -> { where(category: 'chantier') }
+  scope :investissement, -> { where(category: 'investissement') }
 
   # Les colonnes JSON sont automatiquement gérées par Rails 8
   # Plus besoin de serialize pour les colonnes JSON

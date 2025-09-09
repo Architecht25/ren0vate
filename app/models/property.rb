@@ -98,6 +98,20 @@ class Property < ApplicationRecord
     type == 'entreprise' || simulations.where(category: 'entreprise').exists?
   end
 
+  # Méthodes d'aide pour l'éligibilité des entreprises
+  def is_pme?
+    return true if nombre_salaries.nil? # Si pas spécifié, on considère comme PME
+    nombre_salaries < 250
+  end
+
+  def has_nace_codes?
+    [code_nace_1, code_nace_2, code_nace_3, code_nace_4, code_nace_5].any?(&:present?)
+  end
+
+  def primary_nace_code
+    code_nace_1
+  end
+
   def ready_for_request?
     completion_percentage >= 80
   end
@@ -249,7 +263,11 @@ class Property < ApplicationRecord
 
   # Récupère toutes les phases avec leurs statuts pour cette propriété
   def phases_with_status
-    DocumentPhase.ordered.includes(:document_phase_statuses).map do |phase|
+    phases_scope = determine_phase_category == 'investissement' ?
+                     DocumentPhase.investissement.ordered :
+                     DocumentPhase.chantier.ordered
+
+    phases_scope.includes(:document_phase_statuses).map do |phase|
       {
         phase: phase,
         status: phase_status_for(phase),
@@ -258,6 +276,16 @@ class Property < ApplicationRecord
         missing_required: phase.missing_required_documents_for_property(self),
         missing_optional: phase.missing_optional_documents_for_property(self)
       }
+    end
+  end
+
+  # Détermine si cette propriété utilise les phases chantier ou investissement
+  def determine_phase_category
+    # Si c'est une entreprise avec des projets économiques, on utilise les phases investissement
+    if is_entreprise? && projects.where(finalite: 'economique').exists?
+      'investissement'
+    else
+      'chantier'
     end
   end
 

@@ -1,321 +1,53 @@
-<!-- Test d'éligibilité simplifié pour entreprises Bruxelles dans les simulations -->
-<div class="eligibility-test-entreprise" data-controller="test-eligibilite-entreprises">
-  <div class="card border-0 shadow-sm mb-4">
-    <div class="card-body p-4">
-      <div class="row align-items-center">
-        <div class="col-lg-8">
-          <h5 class="text-primary-custom mb-3">
-            <i class="bi bi-list-check me-2"></i>Test d'éligibilité investissement entreprise
-          </h5>
-          <p class="text-muted-custom small mb-3">
-            Vérifiez rapidement votre éligibilité aux aides aux entreprises de la Région de Bruxelles-Capitale
-          </p>
+<!-- ÉTAPE 1: Test d'éligibilité Bruxelles Entreprise -->
+<div class="card border-0 shadow-sm mb-4 h-100" id="eligibility-step">
+  <div class="card-body p-4 d-flex flex-column">
+    <h5 class="card-title text-primary-custom mb-3">
+      <i class="bi bi-shield-check me-2"></i>Étape 1 : Test d'éligibilité (Entreprise Bruxelles)
+    </h5>
 
-          <!-- Questions d'éligibilité simplifiées -->
-          <div class="row g-3">
-
-            <!-- Question 1: Localisation -->
-            <div class="col-12">
-              <div class="mb-3 p-3 border rounded bg-light">
-                <h6 class="mb-3 text-dark">
-                  <i class="bi bi-geo-alt text-primary me-2"></i>
-                  Votre entreprise a-t-elle un siège d'exploitation en Région de Bruxelles-Capitale ?
-                </h6>
-                <div class="d-flex gap-3">
-                  <div class="form-check">
-                    <input type="radio" class="form-check-input" name="localisation" value="oui"
-                           data-action="click->test-eligibilite-entreprises#handleAnswer" id="localisation_oui">
-                    <label class="form-check-label" for="localisation_oui">
-                      <i class="bi bi-check-circle text-success me-1"></i>Oui
-                    </label>
-                  </div>
-                  <div class="form-check">
-                    <input type="radio" class="form-check-input" name="localisation" value="non"
-                           data-action="click->test-eligibilite-entreprises#handleAnswer" id="localisation_non">
-                    <label class="form-check-label" for="localisation_non">
-                      <i class="bi bi-x-circle text-danger me-1"></i>Non
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Question 2: Taille entreprise -->
-            <div class="col-12">
-              <div class="mb-3 p-3 border rounded bg-light">
-                <h6 class="mb-3 text-dark">
-                  <i class="bi bi-people text-primary me-2"></i>
-                  Quelle est la taille de votre entreprise ?
-                </h6>
-                <div class="row g-2">
-                  <div class="col-md-3">
-                    <div class="form-check">
-                      <input type="radio" class="form-check-input" name="taille_entreprise" value="micro"
-                             data-action="click->test-eligibilite-entreprises#handleAnswer" id="taille_micro">
-                      <label class="form-check-label" for="taille_micro">
-                        Micro (&lt; 10 employés)
-                      </label>
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <div class="form-check">
-                      <input type="radio" class="form-check-input" name="taille_entreprise" value="petite"
-                             data-action="click->test-eligibilite-entreprises#handleAnswer" id="taille_petite">
-                      <label class="form-check-label" for="taille_petite">
-                        Petite (&lt; 50 employés)
-                      </label>
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <div class="form-check">
-                      <input type="radio" class="form-check-input" name="taille_entreprise" value="moyenne"
-                             data-action="click->test-eligibilite-entreprises#handleAnswer" id="taille_moyenne">
-                      <label class="form-check-label" for="taille_moyenne">
-                        Moyenne (&lt; 250 employés)
-                      </label>
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <div class="form-check">
-                      <input type="radio" class="form-check-input" name="taille_entreprise" value="grande"
-                             data-action="click->test-eligibilite-entreprises#handleAnswer" id="taille_grande">
-                      <label class="form-check-label" for="taille_grande">
-                        Grande (&gt; 250 employés)
-                      </label>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Question 3: Secteur éligible -->
-            <div class="col-12">
-              <div class="mb-3 p-3 border rounded bg-light">
-                <h6 class="mb-3 text-dark">
-                  <i class="bi bi-briefcase text-primary me-2"></i>
-                  Votre entreprise est-elle active dans un secteur d'activité éligible ?
-                </h6>
-                <div class="d-flex gap-3">
-                  <div class="form-check">
-                    <input type="radio" class="form-check-input" name="secteur_eligible" value="oui"
-                           data-action="click->test-eligibilite-entreprises#handleAnswer" id="secteur_oui">
-                    <label class="form-check-label" for="secteur_oui">
-                      <i class="bi bi-check-circle text-success me-1"></i>Oui
-                    </label>
-                  </div>
-                  <div class="form-check">
-                    <input type="radio" class="form-check-input" name="secteur_eligible" value="non"
-                           data-action="click->test-eligibilite-entreprises#handleAnswer" id="secteur_non">
-                    <label class="form-check-label" for="secteur_non">
-                      <i class="bi bi-x-circle text-danger me-1"></i>Non
-                    </label>
-                  </div>
-                </div>
-                <small class="text-muted">
-                  <i class="bi bi-info-circle me-1"></i>
-                  La plupart des secteurs commerciaux et industriels sont éligibles
-                </small>
-              </div>
-            </div>
-
-            <!-- Question 4: Finalité économique -->
-            <div class="col-12">
-              <div class="mb-3 p-3 border rounded bg-light">
-                <h6 class="mb-3 text-dark">
-                  <i class="bi bi-graph-up text-primary me-2"></i>
-                  Votre entreprise a-t-elle une finalité économique et n'est-elle pas publique ?
-                </h6>
-                <div class="d-flex gap-3">
-                  <div class="form-check">
-                    <input type="radio" class="form-check-input" name="finalite_economique" value="oui"
-                           data-action="click->test-eligibilite-entreprises#handleAnswer" id="finalite_oui">
-                    <label class="form-check-label" for="finalite_oui">
-                      <i class="bi bi-check-circle text-success me-1"></i>Oui
-                    </label>
-                  </div>
-                  <div class="form-check">
-                    <input type="radio" class="form-check-input" name="finalite_economique" value="non"
-                           data-action="click->test-eligibilite-entreprises#handleAnswer" id="finalite_non">
-                    <label class="form-check-label" for="finalite_non">
-                      <i class="bi bi-x-circle text-danger me-1"></i>Non
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Question 5: Numéro BCE -->
-            <div class="col-12">
-              <div class="mb-3 p-3 border rounded bg-light">
-                <h6 class="mb-3 text-dark">
-                  <i class="bi bi-file-text text-primary me-2"></i>
-                  Votre entreprise dispose-t-elle d'un numéro d'entreprise BCE valide ?
-                </h6>
-                <div class="d-flex gap-3">
-                  <div class="form-check">
-                    <input type="radio" class="form-check-input" name="numero_bce" value="oui"
-                           data-action="click->test-eligibilite-entreprises#handleAnswer" id="bce_oui">
-                    <label class="form-check-label" for="bce_oui">
-                      <i class="bi bi-check-circle text-success me-1"></i>Oui
-                    </label>
-                  </div>
-                  <div class="form-check">
-                    <input type="radio" class="form-check-input" name="numero_bce" value="non"
-                           data-action="click->test-eligibilite-entreprises#handleAnswer" id="bce_non">
-                    <label class="form-check-label" for="bce_non">
-                      <i class="bi bi-x-circle text-danger me-1"></i>Non
-                    </label>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- Bouton de validation (caché par défaut) -->
-          <div class="mt-4 text-center" data-test-eligibilite-entreprises-target="validateSection" style="display: none;">
-            <button type="button" class="btn btn-success px-4"
-                    data-action="click->test-eligibilite-entreprises#validateTest">
-              <i class="bi bi-check-lg me-2"></i>Valider le test d'éligibilité
-            </button>
-          </div>
-
-        </div>
-        <div class="col-lg-4">
-          <div class="text-center">
-            <div class="eligibility-icon mb-3">
-              <i class="bi bi-clipboard-check display-4 text-primary-custom"></i>
-            </div>
-            <h6 class="text-primary-custom mb-2">Test rapide</h6>
-            <p class="text-muted-custom small mb-0">
-              Complétez ce questionnaire pour vérifier votre éligibilité aux aides aux entreprises
-            </p>
+    <div id="eligibility-status">
+      <% if @simulation.respond_to?(:eligible) && @simulation.eligible? %>
+        <div class="alert alert-success d-flex align-items-center" role="alert">
+          <i class="bi bi-check-circle-fill me-3 fs-4"></i>
+          <div>
+            <h6 class="alert-heading mb-1">✅ Votre entreprise est éligible !</h6>
+            <p class="mb-0">Vous remplissez les conditions pour bénéficier des aides aux entreprises de Bruxelles.</p>
+            <% if @simulation.respond_to?(:category_description) && @simulation.category_description.present? %>
+              <small class="text-muted">Détails : <%= @simulation.category_description %></small>
+            <% end %>
           </div>
         </div>
-      </div>
-
-      <!-- Zone de résultat -->
-      <div class="mt-4" data-test-eligibilite-entreprises-target="resultSection" style="display: none;">
-        <div class="alert" data-test-eligibilite-entreprises-target="resultAlert">
-          <div class="d-flex">
-            <div class="flex-shrink-0">
-              <i class="bi bi-info-circle me-3 fs-4" data-test-eligibilite-entreprises-target="resultIcon"></i>
-            </div>
-            <div class="flex-grow-1">
-              <div data-test-eligibilite-entreprises-target="resultMessage"></div>
-              <div class="mt-2" data-test-eligibilite-entreprises-target="recommendations"></div>
-            </div>
+      <% elsif @simulation.respond_to?(:eligible) && !@simulation.eligible? %>
+        <div class="alert alert-danger d-flex align-items-center" role="alert">
+          <i class="bi bi-x-circle-fill me-3 fs-4"></i>
+          <div>
+            <h6 class="alert-heading mb-1">❌ Votre entreprise n'est pas éligible</h6>
+            <p class="mb-0">Certaines conditions ne sont pas remplies pour les aides aux entreprises Bruxelles.</p>
+            <% if @simulation.respond_to?(:ineligibility_reason) && @simulation.ineligibility_reason.present? %>
+              <small class="text-muted">Raison : <%= @simulation.ineligibility_reason %></small>
+            <% end %>
           </div>
         </div>
-      </div>
-
+      <% else %>
+        <div class="alert alert-info d-flex align-items-center" role="alert">
+          <i class="bi bi-hourglass-split me-3 fs-4"></i>
+          <div>
+            <h6 class="alert-heading mb-1">🔄 Test d'éligibilité prêt</h6>
+            <p class="mb-0">Cliquez sur le bouton ci-dessous pour vérifier l'éligibilité de votre entreprise selon les critères Bruxelles.</p>
+            <small class="text-muted d-block mt-1">
+              Vérification automatique basée sur vos données d'entreprise (localisation, secteur, BCE, etc.)
+            </small>
+          </div>
+        </div>
+      <% end %>
     </div>
-  </div>
-</div>
-                       data-bruxelles-entreprise-eligibility-target="siegeBruxelles"
-                       id="siegeBruxelles">
-                <label class="form-check-label small" for="siegeBruxelles">
-                  Siège d'exploitation en Région de Bruxelles-Capitale
-                </label>
-              </div>
-            </div>
 
-            <div class="col-md-6">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox"
-                       data-bruxelles-entreprise-eligibility-target="finaliteEconomique"
-                       id="finaliteEconomique">
-                <label class="form-check-label small" for="finaliteEconomique">
-                  Finalité économique et commerciale
-                </label>
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox"
-                       data-bruxelles-entreprise-eligibility-target="comptesOrdre"
-                       id="comptesOrdre">
-                <label class="form-check-label small" for="comptesOrdre">
-                  En ordre avec publication des comptes annuels
-                </label>
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox"
-                       data-bruxelles-entreprise-eligibility-target="pasDifficulte"
-                       id="pasDifficulte">
-                <label class="form-check-label small" for="pasDifficulte">
-                  Pas en difficulté ni en procédure de recouvrement
-                </label>
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox"
-                       data-bruxelles-entreprise-eligibility-target="plafondAides"
-                       id="plafondAides">
-                <label class="form-check-label small" for="plafondAides">
-                  < 300.000€ d'aides de minimis sur 3 dernières années
-                </label>
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox"
-                       data-bruxelles-entreprise-eligibility-target="demandeAvant"
-                       id="demandeAvant">
-                <label class="form-check-label small" for="demandeAvant">
-                  Demande avant début des investissements
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-lg-4">
-          <div class="text-center">
-            <!-- Résultat d'éligibilité -->
-            <div class="eligibility-result p-3 rounded"
-                 data-bruxelles-entreprise-eligibility-target="result"
-                 style="display: none;">
-              <div class="eligible-result" data-bruxelles-entreprise-eligibility-target="eligibleContent" style="display: none;">
-                <div class="icon-circle-large mx-auto mb-3 bg-success text-white">
-                  <i class="bi bi-check-circle"></i>
-                </div>
-                <h6 class="text-success mb-2">Éligible !</h6>
-                <p class="text-muted-custom small mb-0">
-                  Votre entreprise semble éligible aux aides. Passez aux simulations !
-                </p>
-              </div>
-
-              <div class="not-eligible-result" data-bruxelles-entreprise-eligibility-target="notEligibleContent" style="display: none;">
-                <div class="icon-circle-large mx-auto mb-3 bg-warning text-white">
-                  <i class="bi bi-exclamation-triangle"></i>
-                </div>
-                <h6 class="text-warning mb-2">Critères manquants</h6>
-                <p class="text-muted-custom small mb-0">
-                  Vérifiez les critères non cochés. Contactez les services d'aide pour clarification.
-                </p>
-              </div>
-            </div>
-
-            <!-- État initial -->
-            <div data-bruxelles-entreprise-eligibility-target="initialState">
-              <div class="icon-circle-large mx-auto mb-3 bg-light text-muted">
-                <i class="bi bi-question-circle"></i>
-              </div>
-              <p class="text-muted-custom small mb-0">
-                Cochez les cases pour vérifier votre éligibilité
-              </p>
-            </div>
-          </div>
-        </div>
+    <% unless @simulation.respond_to?(:eligible) && @simulation.eligible? %>
+      <div class="mt-3">
+        <button id="check-eligibility-btn" class="btn btn-primary-custom">
+          <i class="bi bi-shield-check me-2"></i>Vérifier l'éligibilité Entreprise Bruxelles
+        </button>
       </div>
-    </div>
+    <% end %>
   </div>
 </div>

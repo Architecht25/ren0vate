@@ -11,6 +11,23 @@
       placeholder: form.object.investment? ? "Ex: Acquisition et aménagement bureau" : "Ex: Rénovation complète appartement" %>
 </div>
 
+<!-- Nouveau champ: Finalité du projet -->
+<div class="mb-3">
+  <%= form.label :finalite, "Finalité du projet*", class: "form-label" %>
+  <%= form.select :finalite,
+      options_for_select([
+        ['Résidentielle - Pour un usage d\'habitation', 'residentielle'],
+        ['Économique - Pour une activité professionnelle/commerciale', 'economique']
+      ], form.object.finalite || 'residentielle'),
+      { include_blank: false },
+      { class: "form-select" } %>
+  <div class="form-text">
+    <i class="bi bi-info-circle me-1"></i>
+    <strong>Résidentielle :</strong> Travaux sur un logement (appartement, maison).
+    <strong>Économique :</strong> Travaux ou investissements pour une activité professionnelle.
+  </div>
+</div>
+
 <div class="mb-3">
   <%= form.label :description, "Description", class: "form-label" %>
   <%= form.text_area :description, rows: 4, class: "form-control",

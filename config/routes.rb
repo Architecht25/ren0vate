@@ -135,7 +135,9 @@ Rails.application.routes.draw do
 
   resources :simulations do
     member do
-      post :check_eligibility  # Étape 1: Vérification éligibilité
+      post :check_eligibility  # Étape 1: Vérification éligibilité (simple)
+      post :check_eligibility_investment  # Étape 1a: Vérification éligibilité investissements (double)
+      post :check_eligibility_renolution  # Étape 1b: Vérification éligibilité RENOLUTION (double)
       post :calculate_category  # Étape 2: Calcul de catégorie
       post :calculate_primes    # Étape 3: Calcul des primes
       patch :update_prime_inputs # Sauvegarde des saisies utilisateur

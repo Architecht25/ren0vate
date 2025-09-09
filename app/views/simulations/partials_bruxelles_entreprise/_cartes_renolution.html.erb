@@ -1,0 +1,614 @@
+<!-- Section Primes Bruxelles RENOLUTION - 13 cartes principales par catégorie -->
+<div class="primes-section-bruxelles" data-controller="bruxelles-prime-calcul">
+
+  <!-- Injection des données de primes depuis la base de données -->
+  <script id="bruxelles-primes-data" type="application/json">
+    <%= raw Prime.where(region: "bruxelles").map { |prime|
+      [prime.slug, {
+        nom: prime.titre,
+        valeurs_par_categorie: {
+          "bruxelles_cat1" => prime.valeurs_par_categorie&.dig("bruxelles_cat1") || {},
+          "bruxelles_cat2" => prime.valeurs_par_categorie&.dig("bruxelles_cat2") || {},
+          "bruxelles_cat3" => prime.valeurs_par_categorie&.dig("bruxelles_cat3") || {}
+        }
+      }]
+    }.to_h.to_json %>
+  </script>
+
+  <div class="card border-0 shadow mb-4">
+    <div class="card-header bg-success bg-opacity-10">
+      <h4 class="card-title mb-0">
+        <i class="bi bi-calculator text-success me-2"></i>
+        <span data-bruxelles-prime-calcul-target="sectionTitle">
+          Vos primes RENOLUTION Bruxelles - Catégorie I à III
+        </span>
+      </h4>
+      <p class="text-muted small mb-0 mt-1">
+        💡 Les montants s'ajustent automatiquement selon votre catégorie de revenus
+      </p>
+    </div>
+    <div class="card-body">
+
+      <div class="row g-3">
+
+        <!-- CARTE 1: A1 - AUDIT ÉNERGÉTIQUE -->
+        <div class="col-2">
+          <div class="card border-0 shadow h-100"
+               data-controller="bruxelles-prime-card"
+               data-bruxelles-prime-card-slug-value="bruxelles_prime_a_global"
+               data-statut-compatible='["residentiel", "mixte"]'>
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                  <i class="bi bi-clipboard-data fs-5 text-primary"></i>
+                </div>
+                <div>
+                  <h6 class="card-title mb-1">A1 - Audit énergétique</h6>
+                  <small class="text-muted">Audit énergétique maison</small>
+                </div>
+              </div>
+
+              <div class="row g-2">
+                <!-- Audit énergétique maison -->
+                <div class="col-md-12">
+                  <label class="form-label small">A1 - Audit énergétique :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-bruxelles-prime-card-target="inputAuditMaison"
+                            data-action="change->bruxelles-prime-card#calculate">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-primary text-white"
+                          data-bruxelles-prime-card-target="resultAuditMaison">0 €</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Total -->
+              <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong class="text-primary">Total :</strong>
+                  <span class="badge bg-primary fs-6" data-bruxelles-prime-card-target="total">
+                    0 €
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARTE 2: E3 - ISOLATION THERMIQUE TOITURE -->
+        <div class="col-2">
+          <div class="card border-0 shadow h-100"
+               data-controller="bruxelles-prime-card"
+               data-bruxelles-prime-card-slug-value="bruxelles_prime_e_global"
+               data-statut-compatible='["residentiel", "mixte"]'>
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                  <i class="bi bi-house-up fs-5 text-success"></i>
+                </div>
+                <div>
+                  <h6 class="card-title mb-1">E3 - Isolation toiture</h6>
+                  <small class="text-muted">Isolation thermique</small>
+                </div>
+              </div>
+
+              <div class="row g-2">
+                <!-- Isolation thermique toiture -->
+                <div class="col-md-12">
+                  <label class="form-label small">E3 - Isolation thermique :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputIsolationThermiqueToiture"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-success text-white"
+                          data-bruxelles-prime-card-target="resultIsolationThermiqueToiture">0 €</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Total -->
+              <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong class="text-success">Total :</strong>
+                  <span class="badge bg-success fs-6" data-bruxelles-prime-card-target="total">
+                    0 €
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARTE 3: F1 - ISOLATION FAÇADE -->
+        <div class="col-2">
+          <div class="card border-0 shadow h-100"
+               data-controller="bruxelles-prime-card"
+               data-bruxelles-prime-card-slug-value="bruxelles_prime_f_global"
+               data-statut-compatible='["residentiel", "mixte"]'>
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                  <i class="bi bi-house fs-5 text-secondary"></i>
+                </div>
+                <div>
+                  <h6 class="card-title mb-1">F1 - Isolation façade</h6>
+                  <small class="text-muted">Intérieure, extérieure, coulisse</small>
+                </div>
+              </div>
+
+              <div class="row g-2">
+                <!-- Isolation intérieure façade -->
+                <div class="col-md-12">
+                  <label class="form-label small">F1 - Isolation intérieure :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputIsolationInterieure"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-secondary text-white"
+                          data-bruxelles-prime-card-target="resultIsolationInterieure">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Isolation extérieure façade -->
+                <div class="col-md-12">
+                  <label class="form-label small">F1 - Isolation extérieure :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputIsolationExterieure"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-secondary text-white"
+                          data-bruxelles-prime-card-target="resultIsolationExterieure">0 €</span>
+                  </div>
+                </div>
+
+                <!-- Isolation coulisse -->
+                <div class="col-md-12">
+                  <label class="form-label small">F1 - Isolation coulisse :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputIsolationCoulisse"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-secondary text-white"
+                          data-bruxelles-prime-card-target="resultIsolationCoulisse">0 €</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Total -->
+              <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong class="text-secondary">Total :</strong>
+                  <span class="badge bg-secondary fs-6" data-bruxelles-prime-card-target="total">
+                    0 €
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARTE 4: G1 + G2 - FENÊTRES -->
+        <div class="col-2">
+          <div class="card border-0 shadow h-100"
+               data-controller="bruxelles-prime-card"
+               data-bruxelles-prime-card-slug-value="bruxelles_prime_g_global"
+               data-statut-compatible='["residentiel", "mixte"]'>
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                  <i class="bi bi-window fs-5 text-primary"></i>
+                </div>
+                <div>
+                  <h6 class="card-title mb-1">G1 + G2 - Fenêtres</h6>
+                  <small class="text-muted">Remplacement et réparation</small>
+                </div>
+              </div>
+
+              <div class="row g-2">
+                <!-- G1 - Remplacement fenêtres bois -->
+                <div class="col-md-12">
+                  <label class="form-label small">G1 - Fenêtres bois :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputFenetresBois"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-primary text-white"
+                          data-bruxelles-prime-card-target="resultFenetresBois">0 €</span>
+                  </div>
+                </div>
+
+                <!-- G1 - Remplacement fenêtres PVC/alu -->
+                <div class="col-md-12">
+                  <label class="form-label small">G1 - Fenêtres PVC/alu :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputFenetresPvcAlu"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-primary text-white"
+                          data-bruxelles-prime-card-target="resultFenetresPvcAlu">0 €</span>
+                  </div>
+                </div>
+
+                <!-- G2 - Réparation fenêtres -->
+                <div class="col-md-12">
+                  <label class="form-label small">G2 - Réparation fenêtres :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputReparationFenetres"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-primary text-white"
+                          data-bruxelles-prime-card-target="resultReparationFenetres">0 €</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Total -->
+              <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong class="text-primary">Total :</strong>
+                  <span class="badge bg-primary fs-6" data-bruxelles-prime-card-target="total">
+                    0 €
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARTE 5: H1 - ISOLATION SOLS -->
+        <div class="col-2">
+          <div class="card border-0 shadow h-100"
+               data-controller="bruxelles-prime-card"
+               data-bruxelles-prime-card-slug-value="bruxelles_prime_h_global"
+               data-statut-compatible='["residentiel", "mixte"]'>
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="bg-dark bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                  <i class="bi bi-square fs-5 text-dark"></i>
+                </div>
+                <div>
+                  <h6 class="card-title mb-1">H1 - Isolation sols</h6>
+                  <small class="text-muted">Isolation thermique</small>
+                </div>
+              </div>
+
+              <div class="row g-2">
+                <!-- Isolation thermique sols -->
+                <div class="col-md-12">
+                  <label class="form-label small">H1 - Isolation thermique :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="m²"
+                           data-bruxelles-prime-card-target="inputIsolationThermiqueSols"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-dark text-white"
+                          data-bruxelles-prime-card-target="resultIsolationThermiqueSols">0 €</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Total -->
+              <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong class="text-dark">Total :</strong>
+                  <span class="badge bg-dark fs-6" data-bruxelles-prime-card-target="total">
+                    0 €
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SECONDE LIGNE: 5 cartes J4, J6, J8, J10, M2 -->
+      <div class="row g-3 mt-1">
+
+        <!-- CARTE 6: J4 - PAC CHAUFFAGE -->
+        <div class="col-2">
+          <div class="card border-0 shadow h-100"
+               data-controller="bruxelles-prime-card"
+               data-bruxelles-prime-card-slug-value="bruxelles_prime_j_global"
+               data-statut-compatible='["residentiel", "mixte"]'>
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                  <i class="bi bi-thermometer-half fs-5 text-danger"></i>
+                </div>
+                <div>
+                  <h6 class="card-title mb-1">J4 - PAC chauffage</h6>
+                  <small class="text-muted">Pompe à chaleur</small>
+                </div>
+              </div>
+
+              <div class="row g-2">
+                <!-- PAC chauffage -->
+                <div class="col-md-12">
+                  <label class="form-label small">J4 - PAC chauffage :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-bruxelles-prime-card-target="inputPacChauffage"
+                            data-action="change->bruxelles-prime-card#calculate">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-danger text-white"
+                          data-bruxelles-prime-card-target="resultPacChauffage">0 €</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Total -->
+              <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong class="text-danger">Total :</strong>
+                  <span class="badge bg-danger fs-6" data-bruxelles-prime-card-target="total">
+                    0 €
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARTE 7: J6 - RADIATEURS -->
+        <div class="col-2">
+          <div class="card border-0 shadow h-100"
+               data-controller="bruxelles-prime-card"
+               data-bruxelles-prime-card-slug-value="bruxelles_prime_j_global"
+               data-statut-compatible='["residentiel", "mixte"]'>
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                  <i class="bi bi-radioactive fs-5 text-warning"></i>
+                </div>
+                <div>
+                  <h6 class="card-title mb-1">J6 - Radiateurs</h6>
+                  <small class="text-muted">Basse température</small>
+                </div>
+              </div>
+
+              <div class="row g-2">
+                <!-- Radiateurs basse température -->
+                <div class="col-md-12">
+                  <label class="form-label small">J6 - Radiateurs :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="Nb"
+                           data-bruxelles-prime-card-target="inputRadiateurs"
+                           data-action="input->bruxelles-prime-card#calculate">
+                    <span class="input-group-text bg-warning text-white"
+                          data-bruxelles-prime-card-target="resultRadiateurs">0 €</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Total -->
+              <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong class="text-warning">Total :</strong>
+                  <span class="badge bg-warning fs-6" data-bruxelles-prime-card-target="total">
+                    0 €
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARTE 8: J8 - CHAUFFE-EAU THERMODYNAMIQUE -->
+        <div class="col-2">
+          <div class="card border-0 shadow h-100"
+               data-controller="bruxelles-prime-card"
+               data-bruxelles-prime-card-slug-value="bruxelles_prime_j_global"
+               data-statut-compatible='["residentiel", "mixte"]'>
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                  <i class="bi bi-droplet fs-5 text-info"></i>
+                </div>
+                <div>
+                  <h6 class="card-title mb-1">J8 - Chauffe-eau thermo</h6>
+                  <small class="text-muted">Thermodynamique</small>
+                </div>
+              </div>
+
+              <div class="row g-2">
+                <!-- Chauffe-eau thermodynamique -->
+                <div class="col-md-12">
+                  <label class="form-label small">J8 - Chauffe-eau :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-bruxelles-prime-card-target="inputChauffeEauThermo"
+                            data-action="change->bruxelles-prime-card#calculate">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-info text-white"
+                          data-bruxelles-prime-card-target="resultChauffeEauThermo">0 €</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Total -->
+              <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong class="text-info">Total :</strong>
+                  <span class="badge bg-info fs-6" data-bruxelles-prime-card-target="total">
+                    0 €
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARTE 9: J10 - CHAUFFE-EAU SOLAIRE -->
+        <div class="col-2">
+          <div class="card border-0 shadow h-100"
+               data-controller="bruxelles-prime-card"
+               data-bruxelles-prime-card-slug-value="bruxelles_prime_j_global"
+               data-statut-compatible='["residentiel", "mixte"]'>
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                  <i class="bi bi-sun fs-5 text-success"></i>
+                </div>
+                <div>
+                  <h6 class="card-title mb-1">J10 - Chauffe-eau solaire</h6>
+                  <small class="text-muted">Énergie solaire</small>
+                </div>
+              </div>
+
+              <div class="row g-2">
+                <!-- Chauffe-eau solaire -->
+                <div class="col-md-12">
+                  <label class="form-label small">J10 - Chauffe-eau solaire :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-bruxelles-prime-card-target="inputChauffeEauSolaire"
+                            data-action="change->bruxelles-prime-card#calculate">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-success text-white"
+                          data-bruxelles-prime-card-target="resultChauffeEauSolaire">0 €</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Total -->
+              <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong class="text-success">Total :</strong>
+                  <span class="badge bg-success fs-6" data-bruxelles-prime-card-target="total">
+                    0 €
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARTE 10: M2 - VENTILATION -->
+        <div class="col-2">
+          <div class="card border-0 shadow h-100"
+               data-controller="bruxelles-prime-card"
+               data-bruxelles-prime-card-slug-value="bruxelles_prime_m_global"
+               data-statut-compatible='["residentiel", "mixte"]'>
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                  <i class="bi bi-wind fs-5 text-secondary"></i>
+                </div>
+                <div>
+                  <h6 class="card-title mb-1">M2 - Ventilation</h6>
+                  <small class="text-muted">Système ventilation</small>
+                </div>
+              </div>
+
+              <div class="row g-2">
+                <!-- Ventilation -->
+                <div class="col-md-12">
+                  <label class="form-label small">M2 - Ventilation :</label>
+                  <div class="input-group input-group-sm">
+                    <select class="form-control"
+                            data-bruxelles-prime-card-target="inputVentilation"
+                            data-action="change->bruxelles-prime-card#calculate">
+                      <option value="0">Non</option>
+                      <option value="1">Oui</option>
+                    </select>
+                    <span class="input-group-text bg-secondary text-white"
+                          data-bruxelles-prime-card-target="resultVentilation">0 €</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Total -->
+              <div class="mt-3 pt-2 border-top">
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong class="text-secondary">Total :</strong>
+                  <span class="badge bg-secondary fs-6" data-bruxelles-prime-card-target="total">
+                    0 €
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Résultats Bruxelles -->
+      <div class="mt-5">
+        <div class="card border-0 shadow-lg">
+          <div class="card-body p-4">
+            <div class="text-center mb-4">
+              <h4 class="text-primary mb-2">
+                <i class="bi bi-calculator me-2"></i>
+                Total estimé de vos primes Bruxelles
+              </h4>
+              <p class="text-muted small">Les montants s'ajustent automatiquement selon votre catégorie de revenus</p>
+            </div>
+
+            <!-- Affichage du total principal -->
+            <div class="bg-primary bg-opacity-10 rounded-3 p-4 text-center mb-4">
+              <div class="row align-items-center">
+                <div class="col-md-8 mb-3 mb-md-0">
+                  <h2 class="display-4 fw-bold text-primary mb-1" data-bruxelles-prime-calcul-target="totalGeneral">0,00 €</h2>
+                  <p class="text-muted mb-0">
+                    <span data-bruxelles-prime-calcul-target="currentCategory">Catégorie non définie</span>
+                    • Estimation selon votre profil de revenus
+                  </p>
+                </div>
+                <div class="col-md-4">
+                  <div class="bg-white rounded-2 p-3">
+                    <i class="bi bi-info-circle text-primary fs-4 mb-2"></i>
+                    <p class="small text-muted mb-0">Ce montant est une estimation basée sur vos travaux sélectionnés</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Résumé des primes sélectionnées -->
+            <div class="card border-0 bg-light">
+              <div class="card-body p-4">
+                <h6 class="fw-bold text-dark mb-3">
+                  <i class="bi bi-list-check me-2"></i>
+                  Résumé de vos primes sélectionnées
+                </h6>
+
+                <!-- Liste dynamique des primes sélectionnées -->
+                <div id="selected-primes-summary-bruxelles" data-bruxelles-prime-calcul-target="selectedPrimesSummary">
+                  <div class="text-muted text-center py-3">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Sélectionnez des travaux dans les cartes ci-dessus pour voir le détail de vos primes
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Note informative -->
+            <div class="alert alert-info mt-4 mb-0">
+              <div class="d-flex align-items-start">
+                <i class="bi bi-lightbulb me-3 mt-1 fs-5"></i>
+                <div>
+                  <h6 class="alert-heading mb-2">Bon à savoir</h6>
+                  <p class="mb-2">Ces montants sont des estimations basées sur les grilles tarifaires officielles de Bruxelles Environnement.</p>
+                  <ul class="mb-0 small">
+                    <li>Les primes varient selon votre catégorie de revenus (Cat 1, Cat 2, Cat 3)</li>
+                    <li>Certaines primes sont forfaitaires, d'autres calculées au m² ou par unité</li>
+                    <li>Des conditions techniques et d'éligibilité spécifiques s'appliquent</li>
+                    <li>Le recours à un entrepreneur agréé avec numéro BCE valide est obligatoire</li>
+                    <li>Il est recommandé de vérifier votre éligibilité sur le site officiel de Bruxelles Environnement</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

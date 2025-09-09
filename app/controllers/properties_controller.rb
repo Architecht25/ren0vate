@@ -285,7 +285,31 @@ class PropertiesController < ApplicationController
   def documents_phases_dashboard
     @property = current_user.properties.find(params[:id])
 
-    # Nouveau système de phases de documents
+    # Données pour les phases chantier
+    @phases_chantier = DocumentPhase.chantier.ordered.includes(:document_phase_statuses).map do |phase|
+      {
+        phase: phase,
+        status: @property.phase_status_for(phase),
+        completion_percentage: phase.completion_percentage_for_property(@property),
+        phase_status: phase.status_for_property(@property),
+        missing_required: phase.missing_required_documents_for_property(@property),
+        missing_optional: phase.missing_optional_documents_for_property(@property)
+      }
+    end
+
+    # Données pour les phases investissement
+    @phases_investissement = DocumentPhase.investissement.ordered.includes(:document_phase_statuses).map do |phase|
+      {
+        phase: phase,
+        status: @property.phase_status_for(phase),
+        completion_percentage: phase.completion_percentage_for_property(@property),
+        phase_status: phase.status_for_property(@property),
+        missing_required: phase.missing_required_documents_for_property(@property),
+        missing_optional: phase.missing_optional_documents_for_property(@property)
+      }
+    end
+
+    # Données actuelles basées sur le type de projet
     @phases_data = @property.phases_with_status
     @phase_calculator = DocumentPhaseCalculatorService.new(@property)
     @comprehensive_metrics = @phase_calculator.calculate_comprehensive_metrics
@@ -384,7 +408,7 @@ class PropertiesController < ApplicationController
       :type_bien_bruxelles, :certificat_peb_bruxelles,
 
       # Champs spécifiques Entreprise
-      :nombre_salaries, :date_creation,
+      :nombre_salaries, :date_creation, :regle_minimis,
       :code_nace_1, :code_nace_2, :code_nace_3, :code_nace_4, :code_nace_5,
 
       # Champs d'adresse d'exploitation

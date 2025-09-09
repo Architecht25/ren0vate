@@ -61,21 +61,17 @@
           </div>
         <% when 'bruxelles' %>
           <%
-            # Détecter si c'est une simulation d'entreprise
-            is_enterprise_simulation = @simulation.project&.investment? ||
-                                     params[:type] == 'entreprise'
+            # Détecter la finalité du projet pour orienter les étapes d'éligibilité
+            project_finalite = @simulation.project&.finalite || 'residentielle'
           %>
 
-          <% if is_enterprise_simulation %>
-            <!-- Simulation pour entreprise -->
-            <div class="col-lg-6">
-              <%= render 'simulations/partials_bruxelles_entreprise/eligibility_step' %>
-            </div>
-            <div class="col-lg-6">
-              <%= render 'simulations/partials_bruxelles_entreprise/category_step' %>
+          <% if project_finalite == 'economique' %>
+            <!-- Finalité économique : double éligibilité (investissements + RENOLUTION) -->
+            <div class="col-12">
+              <%= render 'simulations/partials_bruxelles_entreprise/eligibility_dual_step' %>
             </div>
           <% else %>
-            <!-- Simulation pour particuliers -->
+            <!-- Finalité résidentielle : étapes particuliers -->
             <div class="col-lg-6">
               <%= render 'simulations/partials_bruxelles/eligibility_step' %>
             </div>
@@ -381,16 +377,21 @@
       </div>
     <% when 'bruxelles' %>
       <%
-        # Détecter si c'est une simulation d'entreprise
-        is_enterprise_simulation = @simulation.project&.investment? ||
-                                 params[:type] == 'entreprise'
+        # Détecter la finalité du projet pour orienter l'affichage
+        project_finalite = @simulation.project&.finalite || 'residentielle'
       %>
 
-      <% if is_enterprise_simulation %>
-        <!-- Cartes d'investissements pour entreprise -->
+      <% if project_finalite == 'economique' %>
+        <!-- Finalité économique : afficher les deux types de cartes -->
+
+        <!-- Cartes d'investissements pour entreprise (actifs meubles/immeubles) -->
         <%= render 'simulations/partials_bruxelles_entreprise/cartes_investissements' %>
+
+        <!-- Cartes Renolution pour entreprise (travaux sur le bâti) -->
+        <%= render 'simulations/partials_bruxelles_entreprise/cartes_renolution' %>
+
       <% else %>
-        <!-- Cartes de primes pour particuliers -->
+        <!-- Finalité résidentielle : afficher uniquement les cartes RENOLUTION -->
         <%= render 'simulations/partials_bruxelles/cartes_primes_import' %>
 
         <!-- Cartes spécialisées Bruxelles -->
@@ -497,13 +498,6 @@
 
           <!-- Les 2 boutons restants sur une seule ligne - poussés vers le bas -->
           <div class="mt-auto">
-            <div class="row g-2 mb-3">
-              <div class="col-12">
-                <button type="button" class="btn btn-outline-info btn-sm w-100" data-bs-toggle="modal" data-bs-target="#quickOcrModal">
-                  <i class="bi bi-eye me-1"></i>Scan OCR rapide
-                </button>
-              </div>
-            </div>
             <div class="row g-2">
               <div class="col-6">
                 <%= link_to "#", class: "btn btn-outline-primary-custom btn-sm w-100" do %>
@@ -525,297 +519,6 @@
   <!-- Section Prochaines étapes -->
   <%= render 'simulations/partials_general/next_steps_section', simulation: @simulation %>
 </div>
-
-<!-- Modal OCR rapide -->
-<div class="modal fade" id="quickOcrModal" tabindex="-1" aria-labelledby="quickOcrModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header bg-info text-white">
-        <h5 class="modal-title" id="quickOcrModalLabel">
-          <i class="bi bi-eye me-2"></i>Scan OCR rapide
-        </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <!-- Zone de scan -->
-        <div class="ocr-scan-zone mb-4" id="ocr-scan-zone">
-          <div class="upload-zone-modal" id="upload-zone-modal">
-            <div class="text-center p-4">
-              <i class="bi bi-eye text-info" style="font-size: 3rem;"></i>
-              <h6 class="mt-3 text-info">Glissez votre document ici</h6>
-              <p class="text-muted">ou cliquez pour sélectionner un fichier</p>
-              <small class="text-muted">PDF, JPEG, PNG acceptés</small>
-            </div>
-            <input type="file" class="upload-input-modal" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
-          </div>
-        </div>
-
-        <!-- Résultat OCR -->
-        <div class="ocr-modal-result" id="ocr-modal-result" style="display: none;">
-          <div class="card border-info">
-            <div class="card-header bg-info-subtle">
-              <div class="d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-eye text-info me-2"></i>Texte extrait</span>
-                <span class="badge bg-info" id="ocr-modal-confidence"></span>
-              </div>
-            </div>
-            <div class="card-body">
-              <div class="form-floating mb-3">
-                <textarea class="form-control" id="ocr-modal-text" style="height: 200px;" readonly></textarea>
-                <label for="ocr-modal-text">Texte extrait par OCR</label>
-              </div>
-              <div class="d-flex justify-content-between">
-                <small class="text-muted">
-                  <i class="bi bi-clock me-1"></i>
-                  <span id="ocr-modal-processing-time"></span>
-                </small>
-                <div>
-                  <button type="button" class="btn btn-sm btn-outline-info" id="copy-ocr-modal">
-                    <i class="bi bi-clipboard me-1"></i>Copier
-                  </button>
-                  <button type="button" class="btn btn-sm btn-info ms-2" id="create-document-from-ocr">
-                    <i class="bi bi-file-plus me-1"></i>Créer document
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Indicateur de traitement -->
-        <div class="ocr-modal-processing text-center" id="ocr-modal-processing" style="display: none;">
-          <div class="spinner-border text-info" role="status"></div>
-          <p class="mt-2 text-info">Analyse OCR en cours...</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<style>
-.upload-zone-modal {
-  border: 2px dashed #0dcaf0;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  background: rgba(13, 202, 240, 0.05);
-}
-
-.upload-zone-modal:hover,
-.upload-zone-modal.dragover {
-  border-color: #0dcaf0;
-  background: rgba(13, 202, 240, 0.1);
-  transform: scale(1.02);
-}
-</style>
-
-<script nonce="<%= content_security_policy_nonce %>">
-document.addEventListener('DOMContentLoaded', function() {
-  const quickOcrModal = document.getElementById('quickOcrModal');
-  const uploadZoneModal = document.getElementById('upload-zone-modal');
-  const uploadInputModal = document.querySelector('.upload-input-modal');
-  const ocrModalResult = document.getElementById('ocr-modal-result');
-  const ocrModalProcessing = document.getElementById('ocr-modal-processing');
-  const copyOcrModal = document.getElementById('copy-ocr-modal');
-  const createDocumentFromOcr = document.getElementById('create-document-from-ocr');
-
-  let currentModalOcrText = '';
-
-  if (!uploadZoneModal || !uploadInputModal) return;
-
-  // Drag & Drop handlers pour la modal
-  uploadZoneModal.addEventListener('dragover', function(e) {
-    e.preventDefault();
-    this.classList.add('dragover');
-  });
-
-  uploadZoneModal.addEventListener('dragleave', function(e) {
-    e.preventDefault();
-    this.classList.remove('dragover');
-  });
-
-  uploadZoneModal.addEventListener('drop', function(e) {
-    e.preventDefault();
-    this.classList.remove('dragover');
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      processModalOcr(files[0]);
-    }
-  });
-
-  uploadZoneModal.addEventListener('click', function() {
-    uploadInputModal.click();
-  });
-
-  uploadInputModal.addEventListener('change', function(e) {
-    if (e.target.files.length > 0) {
-      processModalOcr(e.target.files[0]);
-    }
-  });
-
-  // Copier le texte OCR
-  if (copyOcrModal) {
-    copyOcrModal.addEventListener('click', function() {
-      const ocrText = document.getElementById('ocr-modal-text');
-      ocrText.select();
-      document.execCommand('copy');
-
-      this.innerHTML = '<i class="bi bi-check me-1"></i>Copié!';
-      this.classList.add('btn-success');
-      this.classList.remove('btn-outline-info');
-
-      setTimeout(() => {
-        this.innerHTML = '<i class="bi bi-clipboard me-1"></i>Copier';
-        this.classList.remove('btn-success');
-        this.classList.add('btn-outline-info');
-      }, 2000);
-    });
-  }
-
-  // Créer un document à partir du texte OCR
-  if (createDocumentFromOcr) {
-    createDocumentFromOcr.addEventListener('click', function() {
-      if (!currentModalOcrText) return;
-
-      this.disabled = true;
-      this.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Création...';
-
-      const formData = new FormData();
-      formData.append('file', uploadInputModal.files[0]);
-      formData.append('type_document', 'facture');
-      formData.append('simulation_id', '<%= @simulation.id %>');
-
-      fetch('/ocr/scan_and_create_document', {
-        method: 'POST',
-        headers: {
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          // Fermer la modal
-          const modal = bootstrap.Modal.getInstance(quickOcrModal);
-          modal.hide();
-
-          // Afficher une notification de succès
-          showNotification('Document créé avec succès !', 'success');
-
-          // Optionnel : rediriger vers la liste des documents
-          setTimeout(() => {
-            window.location.href = '/documents';
-          }, 1500);
-        } else {
-          showNotification(data.error || 'Erreur lors de la création du document', 'error');
-        }
-      })
-      .catch(error => {
-        console.error('Erreur:', error);
-        showNotification('Erreur de connexion', 'error');
-      })
-      .finally(() => {
-        this.disabled = false;
-        this.innerHTML = '<i class="bi bi-file-plus me-1"></i>Créer document';
-      });
-    });
-  }
-
-  function processModalOcr(file) {
-    // Validation
-    const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
-    if (!allowedTypes.includes(file.type)) {
-      showNotification('Format non supporté. Utilisez JPEG, PNG ou PDF.', 'error');
-      return;
-    }
-
-    const maxSize = 10 * 1024 * 1024; // 10MB
-    if (file.size > maxSize) {
-      showNotification('Fichier trop volumineux (max 10MB)', 'error');
-      return;
-    }
-
-    // Afficher l'indicateur de traitement
-    ocrModalResult.style.display = 'none';
-    ocrModalProcessing.style.display = 'block';
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    fetch('/ocr/scan', {
-      method: 'POST',
-      headers: {
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-      },
-      body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-      ocrModalProcessing.style.display = 'none';
-
-      if (data.success) {
-        showModalOcrResult(data);
-      } else {
-        showNotification(data.error || 'Erreur lors du traitement OCR', 'error');
-      }
-    })
-    .catch(error => {
-      ocrModalProcessing.style.display = 'none';
-      console.error('Erreur OCR:', error);
-      showNotification('Erreur de connexion lors du traitement OCR', 'error');
-    });
-  }
-
-  function showModalOcrResult(data) {
-    currentModalOcrText = data.text;
-
-    document.getElementById('ocr-modal-text').value = data.text;
-    document.getElementById('ocr-modal-confidence').textContent = `${data.confidence}% confiance`;
-    document.getElementById('ocr-modal-processing-time').textContent = `Traité en ${data.processing_time}s`;
-
-    ocrModalResult.style.display = 'block';
-  }
-
-  function showNotification(message, type) {
-    // Créer une notification toast Bootstrap
-    const toastContainer = document.querySelector('.toast-container') || createToastContainer();
-
-    const toastHtml = `
-      <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header bg-${type === 'success' ? 'success' : 'danger'} text-white">
-          <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
-          <strong class="me-auto">${type === 'success' ? 'Succès' : 'Erreur'}</strong>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
-        </div>
-        <div class="toast-body">
-          ${message}
-        </div>
-      </div>
-    `;
-
-    toastContainer.insertAdjacentHTML('beforeend', toastHtml);
-    const toast = new bootstrap.Toast(toastContainer.lastElementChild);
-    toast.show();
-  }
-
-  function createToastContainer() {
-    const container = document.createElement('div');
-    container.className = 'toast-container position-fixed top-0 end-0 p-3';
-    container.style.zIndex = '1050';
-    document.body.appendChild(container);
-    return container;
-  }
-
-  // Réinitialiser la modal quand elle se ferme
-  quickOcrModal.addEventListener('hidden.bs.modal', function() {
-    ocrModalResult.style.display = 'none';
-    ocrModalProcessing.style.display = 'none';
-    uploadInputModal.value = '';
-    currentModalOcrText = '';
-    uploadZoneModal.classList.remove('dragover');
-  });
-});
-</script>
 
 <!-- Utilise le fichier CSS externe properties.css -->
 <%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>

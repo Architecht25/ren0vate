@@ -107,6 +107,38 @@ class SimulationsController < ApplicationController
     end
   end
 
+  # Nouveau endpoint pour l'éligibilité investissements (finalité économique)
+  def check_eligibility_investment
+    @simulation = Simulation.find(params[:id])
+    perform_investment_eligibility_test(@simulation)
+
+    respond_to do |format|
+      format.json {
+        render json: {
+          eligible: @simulation.eligible_investment,
+          message: @simulation.eligible_investment? ? "Éligible aux aides aux investissements" : @simulation.investment_ineligibility_reason,
+          next_step: @simulation.eligible_investment? ? 'majorations' : nil
+        }
+      }
+    end
+  end
+
+  # Nouveau endpoint pour l'éligibilité RENOLUTION (finalité économique)
+  def check_eligibility_renolution
+    @simulation = Simulation.find(params[:id])
+    perform_renolution_eligibility_test(@simulation)
+
+    respond_to do |format|
+      format.json {
+        render json: {
+          eligible: @simulation.eligible_renolution,
+          message: @simulation.eligible_renolution? ? "Éligible aux primes RENOLUTION" : @simulation.renolution_ineligibility_reason,
+          next_step: @simulation.eligible_renolution? ? 'category' : nil
+        }
+      }
+    end
+  end
+
   def calculate_category
     @simulation = Simulation.find(params[:id])
     perform_category_determination(@simulation)
@@ -394,6 +426,68 @@ class SimulationsController < ApplicationController
       simulation.update(
         eligible: false,
         ineligibility_reason: result[:message]
+      )
+    end
+  end
+
+  # NOUVELLES MÉTHODES pour la double éligibilité (finalité économique)
+
+  # Test d'éligibilité pour les investissements entreprise
+  def perform_investment_eligibility_test(simulation)
+    Rails.logger.info "=== PERFORM_INVESTMENT_ELIGIBILITY_TEST ==="
+
+    return unless simulation.property.present? && simulation.project.present?
+    return unless simulation.region&.downcase == 'bruxelles'
+    return unless simulation.project.finalite_economique?
+
+    # Utiliser le service d'éligibilité entreprise Bruxelles
+    eligibility_service = Entreprises::BruxellesEntreprisesEligibilityService.new({
+      property_id: simulation.property_id,
+      project_id: simulation.project_id,
+      user: current_user
+    })
+
+    result = eligibility_service.check_eligibility
+
+    if result[:eligible]
+      simulation.update(
+        eligible_investment: true
+      )
+    else
+      simulation.update(
+        eligible_investment: false,
+        investment_ineligibility_reason: result[:message]
+      )
+    end
+  end
+
+  # Test d'éligibilité pour les primes RENOLUTION
+  def perform_renolution_eligibility_test(simulation)
+    Rails.logger.info "=== PERFORM_RENOLUTION_ELIGIBILITY_TEST ==="
+
+    return unless simulation.property.present? && simulation.project.present?
+    return unless simulation.region&.downcase == 'bruxelles'
+
+    # Utiliser le service d'éligibilité Bruxelles classique (particulier)
+    eligibility_service = Regions::Bruxelles::BruxellesEligibilityService.new(
+      {
+        property_id: simulation.property_id,
+        project_id: simulation.project_id,
+        simulation_type: 'particulier' # Force le type particulier pour RENOLUTION
+      },
+      user: current_user
+    )
+
+    result = eligibility_service.check_eligibility
+
+    if result[:eligible]
+      simulation.update(
+        eligible_renolution: true
+      )
+    else
+      simulation.update(
+        eligible_renolution: false,
+        renolution_ineligibility_reason: result[:message]
       )
     end
   end

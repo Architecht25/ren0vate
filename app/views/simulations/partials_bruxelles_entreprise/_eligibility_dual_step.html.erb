@@ -1,0 +1,208 @@
+<!-- ÉTAPE 1: Double test d'éligibilité pour finalité économique -->
+<div class="row g-3">
+  <!-- Éligibilité pour les aides aux investissements -->
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm h-100" id="eligibility-step-investment">
+      <div class="card-body p-4 d-flex flex-column">
+        <h5 class="card-title text-primary-custom mb-3">
+          <i class="bi bi-building me-2"></i>Éligibilité Aides aux Investissements
+        </h5>
+
+        <div id="eligibility-status-investment">
+          <% if @simulation.respond_to?(:eligible_investment) && @simulation.eligible_investment? %>
+            <div class="alert alert-success d-flex align-items-center" role="alert">
+              <i class="bi bi-check-circle-fill me-3 fs-4"></i>
+              <div>
+                <h6 class="alert-heading mb-1">✅ Éligible aux aides investissements !</h6>
+                <p class="mb-0">Votre entreprise peut bénéficier des aides aux investissements.</p>
+              </div>
+            </div>
+          <% elsif @simulation.respond_to?(:eligible_investment) && !@simulation.eligible_investment? %>
+            <div class="alert alert-danger d-flex align-items-center" role="alert">
+              <i class="bi bi-x-circle-fill me-3 fs-4"></i>
+              <div>
+                <h6 class="alert-heading mb-1">❌ Non éligible aux investissements</h6>
+                <p class="mb-0">Certaines conditions ne sont pas remplies.</p>
+              </div>
+            </div>
+          <% else %>
+            <div class="alert alert-info d-flex align-items-center" role="alert">
+              <i class="bi bi-hourglass-split me-3 fs-4"></i>
+              <div>
+                <h6 class="alert-heading mb-1">🔄 Test d'éligibilité investissements</h6>
+                <p class="mb-0">Vérification basée sur vos données d'entreprise (BCE, secteur, etc.)</p>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <% unless @simulation.respond_to?(:eligible_investment) && @simulation.eligible_investment? %>
+          <div class="mt-3">
+            <button id="check-eligibility-investment-btn" class="btn btn-primary-custom w-100">
+              <i class="bi bi-building me-2"></i>Vérifier éligibilité investissements
+            </button>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Éligibilité pour les primes RENOLUTION -->
+  <div class="col-lg-6">
+    <div class="card border-0 shadow-sm h-100" id="eligibility-step-renolution">
+      <div class="card-body p-4 d-flex flex-column">
+        <h5 class="card-title text-success mb-3">
+          <i class="bi bi-house-gear me-2"></i>Éligibilité Primes RENOLUTION
+        </h5>
+
+        <div id="eligibility-status-renolution">
+          <% if @simulation.respond_to?(:eligible_renolution) && @simulation.eligible_renolution? %>
+            <div class="alert alert-success d-flex align-items-center" role="alert">
+              <i class="bi bi-check-circle-fill me-3 fs-4"></i>
+              <div>
+                <h6 class="alert-heading mb-1">✅ Éligible aux primes RENOLUTION !</h6>
+                <p class="mb-0">Votre bien peut bénéficier des primes RENOLUTION.</p>
+              </div>
+            </div>
+          <% elsif @simulation.respond_to?(:eligible_renolution) && !@simulation.eligible_renolution? %>
+            <div class="alert alert-danger d-flex align-items-center" role="alert">
+              <i class="bi bi-x-circle-fill me-3 fs-4"></i>
+              <div>
+                <h6 class="alert-heading mb-1">❌ Non éligible RENOLUTION</h6>
+                <p class="mb-0">Le bien ne remplit pas les conditions RENOLUTION.</p>
+              </div>
+            </div>
+          <% else %>
+            <div class="alert alert-info d-flex align-items-center" role="alert">
+              <i class="bi bi-hourglass-split me-3 fs-4"></i>
+              <div>
+                <h6 class="alert-heading mb-1">🔄 Test d'éligibilité RENOLUTION</h6>
+                <p class="mb-0">Vérification basée sur les caractéristiques du bien (âge, localisation, etc.)</p>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <% unless @simulation.respond_to?(:eligible_renolution) && @simulation.eligible_renolution? %>
+          <div class="mt-3">
+            <button id="check-eligibility-renolution-btn" class="btn btn-success w-100">
+              <i class="bi bi-house-gear me-2"></i>Vérifier éligibilité RENOLUTION
+            </button>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript pour gérer les boutons de double éligibilité -->
+<script nonce="<%= content_security_policy_nonce %>">
+document.addEventListener('DOMContentLoaded', function() {
+  const simulationId = '<%= @simulation.id %>';
+
+  // Bouton pour vérifier l'éligibilité investissements
+  const checkInvestmentBtn = document.getElementById('check-eligibility-investment-btn');
+  if (checkInvestmentBtn) {
+    checkInvestmentBtn.addEventListener('click', function() {
+      this.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Vérification en cours...';
+      this.disabled = true;
+
+      fetch(`/simulations/${simulationId}/check_eligibility_investment`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+          'Accept': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.eligible) {
+          this.innerHTML = '<i class="bi bi-check-circle me-2"></i>Éligible aux investissements';
+          this.classList.remove('btn-primary-custom');
+          this.classList.add('btn-success');
+          // Mettre à jour l'affichage d'éligibilité
+          updateEligibilityStatus('investment', true, data.message);
+        } else {
+          this.innerHTML = '<i class="bi bi-x-circle me-2"></i>Non éligible';
+          this.classList.remove('btn-primary-custom');
+          this.classList.add('btn-danger');
+          updateEligibilityStatus('investment', false, data.message);
+        }
+        this.disabled = true;
+      })
+      .catch(error => {
+        console.error('Erreur:', error);
+        this.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Erreur - Réessayer';
+        this.disabled = false;
+      });
+    });
+  }
+
+  // Bouton pour vérifier l'éligibilité RENOLUTION
+  const checkRenolutionBtn = document.getElementById('check-eligibility-renolution-btn');
+  if (checkRenolutionBtn) {
+    checkRenolutionBtn.addEventListener('click', function() {
+      this.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Vérification en cours...';
+      this.disabled = true;
+
+      fetch(`/simulations/${simulationId}/check_eligibility_renolution`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+          'Accept': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.eligible) {
+          this.innerHTML = '<i class="bi bi-check-circle me-2"></i>Éligible RENOLUTION';
+          this.classList.remove('btn-success');
+          this.classList.add('btn-success');
+          updateEligibilityStatus('renolution', true, data.message);
+        } else {
+          this.innerHTML = '<i class="bi bi-x-circle me-2"></i>Non éligible';
+          this.classList.remove('btn-success');
+          this.classList.add('btn-danger');
+          updateEligibilityStatus('renolution', false, data.message);
+        }
+        this.disabled = true;
+      })
+      .catch(error => {
+        console.error('Erreur:', error);
+        this.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Erreur - Réessayer';
+        this.disabled = false;
+      });
+    });
+  }
+
+  // Fonction pour mettre à jour l'affichage d'éligibilité
+  function updateEligibilityStatus(type, eligible, message) {
+    const statusDiv = document.getElementById(`eligibility-status-${type}`);
+    if (statusDiv) {
+      if (eligible) {
+        statusDiv.innerHTML = `
+          <div class="alert alert-success d-flex align-items-center" role="alert">
+            <i class="bi bi-check-circle-fill me-3 fs-4"></i>
+            <div>
+              <h6 class="alert-heading mb-1">✅ ${message}</h6>
+              <p class="mb-0">Vous pouvez maintenant configurer les ${type === 'investment' ? 'investissements' : 'primes RENOLUTION'}.</p>
+            </div>
+          </div>
+        `;
+      } else {
+        statusDiv.innerHTML = `
+          <div class="alert alert-danger d-flex align-items-center" role="alert">
+            <i class="bi bi-x-circle-fill me-3 fs-4"></i>
+            <div>
+              <h6 class="alert-heading mb-1">❌ Non éligible</h6>
+              <p class="mb-0">${message}</p>
+            </div>
+          </div>
+        `;
+      }
+    }
+  }
+});
+</script>

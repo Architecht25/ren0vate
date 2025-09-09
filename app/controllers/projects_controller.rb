@@ -69,7 +69,7 @@ class ProjectsController < ApplicationController
 
   def project_params
     params.require(:project).permit(
-      :nom, :description, :date_début, :date_fin, :statut, :property_id, :project_type,
+      :nom, :description, :date_début, :date_fin, :statut, :property_id, :project_type, :finalite,
       :bce_number, :invoice_date, :work_completion_date,
       # Champs spécifiques Flandre
       :type_travaux, :reconstruction_demolition, :tva_reduit_6_pourcent,

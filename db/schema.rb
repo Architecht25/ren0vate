@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_08_075603) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_09_091907) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -146,6 +146,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_08_075603) do
     t.json "optional_document_types", default: []
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "category", default: "chantier", null: false, comment: "Type de projet: chantier ou investissement"
+    t.index ["category"], name: "index_document_phases_on_category"
     t.index ["name"], name: "index_document_phases_on_name", unique: true
     t.index ["position"], name: "index_document_phases_on_position", unique: true
   end
@@ -335,6 +337,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_08_075603) do
     t.date "date_audit"
     t.string "numero_agrement_auditeur"
     t.decimal "prix_audit", precision: 10, scale: 2
+    t.string "finalite", default: "residentielle", null: false
+    t.index ["finalite"], name: "index_projects_on_finalite"
     t.index ["property_id"], name: "index_projects_on_property_id"
     t.index ["user_id"], name: "index_projects_on_user_id"
   end
@@ -405,6 +409,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_08_075603) do
     t.string "code_nace_3"
     t.string "code_nace_4"
     t.string "code_nace_5"
+    t.boolean "regle_minimis", default: false, null: false, comment: "L'entreprise a-t-elle reçu plus de 300.000€ d'aides de minimis sur 3 ans ?"
     t.index ["user_id"], name: "index_properties_on_user_id"
   end
 
@@ -539,6 +544,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_08_075603) do
     t.text "parameters"
     t.string "source"
     t.bigint "project_id"
+    t.boolean "eligible_investment"
+    t.text "investment_ineligibility_reason"
+    t.boolean "eligible_renolution"
+    t.text "renolution_ineligibility_reason"
+    t.index ["eligible_investment"], name: "index_simulations_on_eligible_investment"
+    t.index ["eligible_renolution"], name: "index_simulations_on_eligible_renolution"
     t.index ["project_id"], name: "index_simulations_on_project_id"
     t.index ["property_id"], name: "index_simulations_on_property_id"
     t.index ["user_id"], name: "index_simulations_on_user_id"

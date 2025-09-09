@@ -216,22 +216,27 @@
         </div>
       <% end %>
 
-      <!-- Cartes des phases -->
-      <div class="row g-4" id="phases-dashboard">
-        <% @phases_data.each do |phase_data| %>
-          <% phase = phase_data[:phase] %>
-          <% completion = phase_data[:completion_percentage] %>
-          <% status = phase_data[:phase_status] %>
-          <% missing_required = phase_data[:missing_required] %>
-          <% missing_optional = phase_data[:missing_optional] %>
+      <!-- Phases Chantier -->
+      <div class="mb-5">
+        <div class="d-flex align-items-center mb-3">
+          <h4 class="text-primary mb-0">
+            <i class="bi bi-hammer text-warning me-2"></i>
+            Phases Chantier
+          </h4>
+          <span class="badge bg-primary ms-3">4 phases</span>
+        </div>
 
-          <div class="col-lg-6 col-xl-3">
-            <div class="phase-card card h-100 border-0 shadow-sm position-relative
-                        <%= 'border-success' if status == 'complete' %>
-                        <%= 'border-warning' if ['in_progress', 'started'].include?(status) %>
-                        <%= 'border-danger' if ['not_started', 'blocked'].include?(status) %>">
+        <div class="row g-4" id="phases-chantier">
+          <% @phases_chantier.each do |phase_data| %>
+            <% phase = phase_data[:phase] %>
+            <% completion = phase_data[:completion_percentage] %>
+            <% status = phase_data[:phase_status] %>
 
-              <!-- Badge de statut -->
+            <div class="col-lg-6 col-xl-3">
+              <div class="phase-card card h-100 border-0 shadow-sm position-relative phase-card-chantier
+                          <%= 'border-success' if status == 'complete' %>
+                          <%= 'border-warning' if ['in_progress', 'started'].include?(status) %>
+                          <%= 'border-danger' if ['not_started', 'blocked'].include?(status) %>">              <!-- Badge de statut -->
               <div class="position-absolute top-0 end-0 m-2">
                 <span class="badge bg-<%=
                   case status
@@ -372,6 +377,98 @@
             </div>
           </div>
         <% end %>
+      </div>
+
+      <!-- Phases Investissement -->
+      <div class="mb-5">
+        <div class="d-flex align-items-center mb-3">
+          <h4 class="text-success mb-0">
+            <i class="bi bi-graph-up-arrow text-success me-2"></i>
+            Phases Investissement
+          </h4>
+          <span class="badge bg-success ms-3">4 phases</span>
+        </div>
+
+        <div class="row g-4" id="phases-investissement">
+          <% @phases_investissement.each do |phase_data| %>
+            <% phase = phase_data[:phase] %>
+            <% completion = phase_data[:completion_percentage] %>
+            <% status = phase_data[:phase_status] %>
+
+            <div class="col-lg-6 col-xl-3">
+              <div class="phase-card card h-100 border-0 shadow-sm position-relative phase-card-investissement
+                          <%= 'border-success' if status == 'complete' %>
+                          <%= 'border-warning' if ['in_progress', 'started'].include?(status) %>
+                          <%= 'border-danger' if ['not_started', 'blocked'].include?(status) %>">
+
+                <!-- Badge de statut -->
+                <div class="position-absolute top-0 end-0 m-2">
+                  <span class="badge bg-<%=
+                    case status
+                    when 'complete' then 'success'
+                    when 'nearly_complete' then 'success'
+                    when 'in_progress' then 'warning'
+                    when 'started' then 'info'
+                    when 'blocked' then 'danger'
+                    else 'secondary'
+                    end
+                  %>">
+                    <%= phase.status_icon_for_property(@property) %>
+                    <%=
+                      case status
+                      when 'complete' then 'Terminé'
+                      when 'nearly_complete' then 'Presque terminé'
+                      when 'in_progress' then 'En cours'
+                      when 'started' then 'Démarré'
+                      when 'blocked' then 'Bloqué'
+                      else 'Non démarré'
+                      end
+                    %>
+                  </span>
+                </div>
+
+                <div class="card-body d-flex flex-column">
+                  <!-- En-tête de phase -->
+                  <div class="text-center mb-3">
+                    <div class="phase-icon mb-2" style="font-size: 3rem;">
+                      <%= phase.icon %>
+                    </div>
+                    <h5 class="card-title text-<%= phase.color %> mb-1"><%= phase.name %></h5>
+                    <p class="text-muted small mb-0"><%= phase.description %></p>
+                  </div>
+
+                  <!-- Barre de progression -->
+                  <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <small class="text-muted">Progression</small>
+                      <small class="fw-semibold"><%= completion %>%</small>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                      <div class="progress-bar bg-<%=
+                            completion >= 80 ? 'success' :
+                            completion >= 50 ? 'warning' : 'danger'
+                          %>"
+                           role="progressbar"
+                           style="width: <%= completion %>%">
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Actions -->
+                  <div class="mt-auto">
+                    <div class="d-flex gap-2">
+                      <%= link_to documents_path(property_id: @property.id, filter_phase: phase.id),
+                                 class: "btn btn-outline-#{phase.color} btn-sm flex-grow-1" do %>
+                        <i class="bi bi-folder2-open me-1"></i>
+                        Voir docs
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
       </div>
 
       <!-- Section d'actions rapides OCR -->

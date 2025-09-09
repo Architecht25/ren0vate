@@ -275,6 +275,111 @@
                       </div>
                     </div>
                   <% end %>
+
+                  <!-- Liste des documents importés dans cette phase -->
+                  <% if @documents.any? %>
+                    <div class="mt-4">
+                      <h6 class="text-primary mb-3">
+                        <i class="bi bi-files me-2"></i>Documents importés (<%= @documents.count %>)
+                      </h6>
+                      <div class="row">
+                        <% @documents.each do |document| %>
+                          <div class="col-lg-4 col-md-6 mb-3">
+                            <div class="card border-0 shadow-sm h-100 document-card">
+                              <div class="card-body">
+                                <div class="d-flex align-items-start mb-2">
+                                  <div class="me-3">
+                                    <% if document.file.attached? && document.file.content_type&.start_with?('image/') %>
+                                      <i class="bi bi-image text-success" style="font-size: 1.5rem;"></i>
+                                    <% elsif document.file.attached? && document.file.content_type == 'application/pdf' %>
+                                      <i class="bi bi-file-earmark-pdf text-danger" style="font-size: 1.5rem;"></i>
+                                    <% else %>
+                                      <i class="bi bi-file-earmark text-primary" style="font-size: 1.5rem;"></i>
+                                    <% end %>
+                                  </div>
+                                  <div class="flex-grow-1">
+                                    <h6 class="card-title mb-1">
+                                      <%= if document.file.attached?
+                                            document.file.filename.to_s
+                                          else
+                                            "#{document.type_document&.humanize || 'Document'} - #{document.id}"
+                                          end %>
+                                    </h6>
+                                    <small class="text-muted d-block">
+                                      <%= document.type_document&.humanize || "Type non défini" %>
+                                    </small>
+                                    <small class="text-muted d-block">
+                                      <i class="bi bi-calendar3 me-1"></i>
+                                      <%= l(document.created_at, format: :short) %>
+                                    </small>
+                                  </div>
+                                  <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                                      <i class="bi bi-three-dots"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                      <li>
+                                        <%= link_to document, class: "dropdown-item" do %>
+                                          <i class="bi bi-eye me-2"></i>Voir détails
+                                        <% end %>
+                                      </li>
+                                      <% if document.file.attached? %>
+                                        <li>
+                                          <%= link_to rails_blob_path(document.file, disposition: "attachment"), class: "dropdown-item" do %>
+                                            <i class="bi bi-download me-2"></i>Télécharger
+                                          <% end %>
+                                        </li>
+                                      <% end %>
+                                      <li>
+                                        <%= link_to edit_document_path(document), class: "dropdown-item" do %>
+                                          <i class="bi bi-pencil me-2"></i>Modifier
+                                        <% end %>
+                                      </li>
+                                      <li><hr class="dropdown-divider"></li>
+                                      <li>
+                                        <%= link_to document, method: :delete,
+                                                   class: "dropdown-item text-danger",
+                                                   confirm: "Êtes-vous sûr de vouloir supprimer ce document ?" do %>
+                                          <i class="bi bi-trash me-2"></i>Supprimer
+                                        <% end %>
+                                      </li>
+                                    </ul>
+                                  </div>
+                                </div>
+
+                                <!-- Status badge -->
+                                <div class="mb-2">
+                                  <% case document.status %>
+                                  <% when 'approved' %>
+                                    <span class="badge bg-success">
+                                      <i class="bi bi-check-circle me-1"></i>Approuvé
+                                    </span>
+                                  <% when 'pending' %>
+                                    <span class="badge bg-warning">
+                                      <i class="bi bi-clock me-1"></i>En attente
+                                    </span>
+                                  <% when 'rejected' %>
+                                    <span class="badge bg-danger">
+                                      <i class="bi bi-x-circle me-1"></i>Rejeté
+                                    </span>
+                                  <% else %>
+                                    <span class="badge bg-secondary">
+                                      <i class="bi bi-question-circle me-1"></i>Non défini
+                                    </span>
+                                  <% end %>
+                                </div>
+
+                                <!-- Description si présente -->
+                                <% if document.notes.present? %>
+                                  <p class="small text-muted mb-2"><%= truncate(document.notes, length: 100) %></p>
+                                <% end %>
+                              </div>
+                            </div>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+                  <% end %>
                 </div>
               </div>
             </div>
@@ -299,7 +404,7 @@
             <% docs_in_phase = @documents.select { |d| d.document_phase == phase } %>
 
             <div class="col-lg-3 col-md-6 mb-3">
-              <div class="card border-0 shadow-sm h-100 document-phase-card">
+              <div class="card border-0 shadow-sm h-100 document-phase-card <%= phase.category == 'investissement' ? 'phase-card-investissement' : 'phase-card-chantier' %>">
                 <div class="card-body p-4 text-center">
                   <div class="mb-3">
                     <div class="phase-icon-circle mx-auto mb-2">
@@ -368,263 +473,6 @@
           <% end %>
         </div>
         <% end %>
-      <% end %>      <!-- Liste des documents -->
-      <% if @documents.any? %>
-        <% if params[:type_document].present? || @selected_phase.present? %>
-          <!-- Vue détaillée pour les documents filtrés -->
-          <div class="row g-3">
-            <% @documents.order(created_at: :desc).each do |document| %>
-              <div class="col-xl-3 col-lg-4 col-md-6">
-                <div class="card border-0 bg-light-custom h-100 property-card<%= ' property-card-entreprise' if document.property&.is_entreprise? %>">
-                  <div class="card-body p-4">
-                    <div class="d-flex align-items-center mb-3">
-                      <div class="icon-circle me-3">
-                        <i class="bi bi-file-earmark-text"></i>
-                      </div>
-                      <div class="flex-grow-1">
-                        <h5 class="card-title text-dark mb-1 fw-normal">
-                          <%= truncate(document.type_document.humanize, length: 25) %>
-                        </h5>
-                        <p class="text-muted-custom mb-0 small">
-                          <% if document.respond_to?(:document_phase) && document.document_phase %>
-                            <%= document.document_phase.icon %> <%= document.document_phase.name.gsub('Phase ', '') %>
-                          <% else %>
-                            <i class="bi bi-question-circle me-1"></i>Non classé
-                          <% end %>
-                        </p>
-                      </div>
-                      <div class="dropdown dropup">
-                        <button class="btn btn-sm btn-outline-secondary border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          <i class="bi bi-three-dots-vertical"></i>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow" style="z-index: 1050;">
-                          <li>
-                            <% if document.file.attached? %>
-                              <%= link_to rails_blob_path(document.file, disposition: "attachment"),
-                                          class: "dropdown-item",
-                                          target: "_blank" do %>
-                                <i class="bi bi-download me-2"></i>Télécharger
-                              <% end %>
-                            <% end %>
-                          </li>
-                          <li>
-                            <%= link_to edit_document_path(document), class: "dropdown-item" do %>
-                              <i class="bi bi-pencil me-2"></i>Modifier
-                            <% end %>
-                          </li>
-                          <li><hr class="dropdown-divider"></li>
-                          <li>
-                            <%= link_to document_path(document), method: :delete,
-                                class: "dropdown-item text-danger",
-                                confirm: "Êtes-vous sûr de vouloir supprimer ce document ?",
-                                data: {
-                                  turbo_method: :delete,
-                                  turbo_confirm: "Êtes-vous sûr de vouloir supprimer ce document ? Cette action est irréversible."
-                                } do %>
-                              <i class="bi bi-trash me-2"></i>Supprimer
-                            <% end %>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-
-                    <div class="mb-3">
-                      <!-- Badge de statut -->
-                      <span class="badge bg-<%=
-                        case document.status
-                        when 'approved' then 'success'
-                        when 'pending' then 'warning'
-                        when 'rejected' then 'danger'
-                        else 'secondary'
-                        end
-                      %>">
-                        <%=
-                          case document.status
-                          when 'approved' then '✓ Approuvé'
-                          when 'pending' then '⏳ En attente'
-                          when 'rejected' then '✗ Rejeté'
-                          else 'Non défini'
-                          end
-                        %>
-                      </span>
-                    </div>
-
-                    <!-- Informations du fichier -->
-                    <% if document.file.attached? %>
-                      <div class="small text-muted-custom mb-2">
-                        <i class="bi bi-paperclip me-1"></i>
-                        <%= truncate(document.file.filename.to_s, length: 30) %>
-                      </div>
-                      <div class="small text-muted-custom mb-3">
-                        <i class="bi bi-hdd me-1"></i>
-                        <%= number_to_human_size(document.file.byte_size) %>
-                      </div>
-                    <% end %>
-
-                    <!-- Date -->
-                    <div class="small text-muted-custom mb-3">
-                      <i class="bi bi-clock me-1"></i>
-                      Ajouté <%= time_ago_in_words(document.created_at) %>
-                    </div>
-
-                    <!-- Actions -->
-                    <div class="d-grid">
-                      <% if document.file.attached? %>
-                        <%= link_to rails_blob_path(document.file, disposition: "attachment"),
-                                    class: "btn btn-outline-primary-custom btn-sm",
-                                    target: "_blank" do %>
-                          <i class="bi bi-eye me-1"></i>Voir le document
-                        <% end %>
-                      <% else %>
-                        <span class="btn btn-outline-secondary btn-sm disabled">
-                          <i class="bi bi-x-circle me-1"></i>Aucun fichier
-                        </span>
-                      <% end %>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            <% end %>
-          </div>
-        <% else %>
-          <!-- Vue allégée pour l'index principal -->
-          <div class="card border-0 shadow-sm">
-            <div class="card-header bg-light border-0">
-              <h6 class="mb-0">
-                <i class="bi bi-files me-2"></i>Derniers documents uploadés
-              </h6>
-            </div>
-            <div class="card-body p-0">
-              <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                  <thead class="table-light">
-                    <tr>
-                      <th class="border-0">Document</th>
-                      <th class="border-0">Type</th>
-                      <th class="border-0">Phase</th>
-                      <th class="border-0">Statut</th>
-                      <th class="border-0">Date</th>
-                      <th class="border-0 text-end">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <% @documents.order(created_at: :desc).limit(10).each do |document| %>
-                      <tr>
-                        <td>
-                          <div class="d-flex align-items-center">
-                            <i class="bi bi-file-earmark-text text-primary me-2"></i>
-                            <div>
-                              <div class="fw-medium">
-                                <%= document.file.attached? ? document.file.filename : 'Document sans fichier' %>
-                              </div>
-                              <% if document.file.attached? %>
-                                <small class="text-muted">
-                                  <%= number_to_human_size(document.file.byte_size) %>
-                                </small>
-                              <% end %>
-                            </div>
-                          </div>
-                        </td>
-                        <td>
-                          <span class="badge bg-light text-dark">
-                            <%= document.type_document.humanize %>
-                          </span>
-                        </td>
-                        <td>
-                          <% if document.respond_to?(:document_phase) && document.document_phase %>
-                            <small class="text-muted">
-                              <%= document.document_phase.icon %> <%= document.document_phase.name.gsub('Phase ', '') %>
-                            </small>
-                          <% else %>
-                            <small class="text-muted">Non classé</small>
-                          <% end %>
-                        </td>
-                        <td>
-                          <span class="badge bg-<%=
-                            case document.status
-                            when 'approved' then 'success'
-                            when 'pending' then 'warning'
-                            when 'rejected' then 'danger'
-                            else 'secondary'
-                            end
-                          %>">
-                            <%=
-                              case document.status
-                              when 'approved' then '✓'
-                              when 'pending' then '⏳'
-                              when 'rejected' then '✗'
-                              else '?'
-                              end
-                            %>
-                          </span>
-                        </td>
-                        <td>
-                          <small class="text-muted">
-                            <%= time_ago_in_words(document.created_at) %>
-                          </small>
-                        </td>
-                        <td class="text-end">
-                          <div class="btn-group btn-group-sm">
-                            <% if document.file.attached? && (document.file.content_type.start_with?('image/') || document.file.content_type == 'application/pdf') %>
-                              <button class="btn btn-outline-info preview-btn"
-                                      data-document-id="<%= document.id %>"
-                                      title="Prévisualiser">
-                                <i class="bi bi-eye"></i>
-                              </button>
-                            <% end %>
-                            <%= link_to document, class: "btn btn-outline-primary", title: "Voir détails" do %>
-                              <i class="bi bi-info-circle"></i>
-                            <% end %>
-                            <%= link_to edit_document_path(document), class: "btn btn-outline-secondary", title: "Modifier" do %>
-                              <i class="bi bi-pencil"></i>
-                            <% end %>
-                          </div>
-                        </td>
-                      </tr>
-                    <% end %>
-                  </tbody>
-                </table>
-              </div>
-              <% if @documents.count > 10 %>
-                <div class="card-footer bg-light border-0 text-center">
-                  <small class="text-muted">
-                    Affichage des 10 derniers documents sur <%= @documents.count %> total
-                  </small>
-                </div>
-              <% end %>
-            </div>
-          </div>
-        <% end %>
-      <% else %>
-        <!-- Message si aucun document -->
-        <div class="text-center py-5">
-          <div class="mb-4">
-            <i class="bi bi-files display-1 text-muted"></i>
-          </div>
-          <h4 class="text-muted mb-3">Aucun document trouvé</h4>
-          <p class="text-muted mb-4">
-            <% if params[:type_document].present? %>
-              Aucun document de type "<%= params[:type_document].humanize %>" n'a été trouvé.
-            <% elsif @selected_phase %>
-              Aucun document trouvé pour la <%= @selected_phase.name.downcase %>.
-            <% else %>
-              Commencez par ajouter vos premiers documents.
-            <% end %>
-          </p>
-          <% if @property %>
-            <%= link_to new_property_document_path(@property), class: "btn btn-primary" do %>
-              <i class="bi bi-plus-circle me-2"></i>Ajouter un document
-            <% end %>
-          <% elsif @project %>
-            <%= link_to new_project_document_path(@project), class: "btn btn-primary" do %>
-              <i class="bi bi-plus-circle me-2"></i>Ajouter un document
-            <% end %>
-          <% else %>
-            <%= link_to new_document_path, class: "btn btn-primary" do %>
-              <i class="bi bi-plus-circle me-2"></i>Ajouter un document
-            <% end %>
-          <% end %>
-        </div>
       <% end %>
     </div>
   </div>
@@ -711,6 +559,49 @@ document.addEventListener('turbo:load', function() {
 </script>
 
 <style>
+/* === CARTES DE PHASES COLORÉES === */
+/* Vert sauge pastel pour les phases chantier/rénovation */
+.phase-card-chantier {
+  background: linear-gradient(135deg, #f8fffe 0%, #f0f9f6 100%) !important;
+}
+
+.phase-card-chantier:hover {
+  background: linear-gradient(135deg, #f0f9f6 0%, #e8f5f0 100%) !important;
+  transform: translateY(-8px);
+  transition: all 0.3s ease;
+}
+
+.phase-card-chantier .card-body {
+  background: rgba(156, 175, 136, 0.03) !important;
+}
+
+.phase-card-chantier .phase-icon-circle {
+  background: rgba(156, 175, 136, 0.2) !important;
+  border-color: rgba(156, 175, 136, 0.4) !important;
+  color: #5a6b4a !important;
+}
+
+/* Bleu léger pastel pour les phases investissement */
+.phase-card-investissement {
+  background: linear-gradient(135deg, #fafaff 0%, #f0f4fd 100%) !important;
+}
+
+.phase-card-investissement:hover {
+  background: linear-gradient(135deg, #f0f4fd 0%, #e8f0fc 100%) !important;
+  transform: translateY(-8px);
+  transition: all 0.3s ease;
+}
+
+.phase-card-investissement .card-body {
+  background: rgba(123, 179, 240, 0.03) !important;
+}
+
+.phase-card-investissement .phase-icon-circle {
+  background: rgba(123, 179, 240, 0.2) !important;
+  border-color: rgba(123, 179, 240, 0.4) !important;
+  color: #4a6fa5 !important;
+}
+
 /* === EFFETS HOVER POUR LES CARTES DE PHASES === */
 .document-phase-card {
   transition: all 0.3s ease;
@@ -720,7 +611,6 @@ document.addEventListener('turbo:load', function() {
 }
 
 .document-phase-card:hover {
-  transform: translateY(-8px);
   box-shadow: 0 12px 40px rgba(44, 82, 130, 0.15) !important;
 }
 
@@ -747,18 +637,15 @@ document.addEventListener('turbo:load', function() {
 .phase-icon-circle {
   width: 60px;
   height: 60px;
-  background: rgba(var(--bs-primary-rgb), 0.1);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.5rem;
-  color: var(--bs-primary);
   transition: all 0.3s ease;
 }
 
 .document-phase-card:hover .phase-icon-circle {
-  background: rgba(var(--bs-primary-rgb), 0.2);
   transform: scale(1.1);
 }
 
