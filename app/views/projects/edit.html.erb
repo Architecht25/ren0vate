@@ -41,10 +41,12 @@
               </div>
             <% end %>
 
-            <!-- Nouveau: Informations des professionnels -->
-            <%= render 'projects/partials_general/professionals_fields', form: form %>
-
-
+            <!-- Informations des professionnels/consultants selon le type de projet -->
+            <% if @project.renovation? %>
+              <%= render 'projects/partials_general/professionals_fields', form: form %>
+            <% elsif @project.investment? %>
+              <%= render 'projects/partials_entreprise/consultants_fields', form: form %>
+            <% end %>
 
             <div class="d-flex justify-content-end mt-4">
               <%= link_to "Annuler", project_path(@project), class: "btn btn-outline-secondary me-2" %>
