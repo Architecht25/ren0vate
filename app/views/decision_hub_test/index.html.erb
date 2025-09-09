@@ -1,0 +1,163 @@
+<% content_for :title, "Test Decision Hub - Carrefour Conseil IA" %>
+
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h3 class="mb-0">
+            🎯 Test Decision Hub - Carrefour Conseil IA
+          </h3>
+          <small>Interface de test pour visualiser le nouveau concept</small>
+        </div>
+
+        <div class="card-body">
+          <div class="alert alert-info">
+            <h5><i class="bi bi-info-circle me-2"></i>À propos du Decision Hub</h5>
+            <p class="mb-2">Le <strong>Decision Hub</strong> est le nouveau "carrefour conseil" qui se positionne entre vos simulations et les formulaires administratifs.</p>
+            <p class="mb-0">Il transforme vos résultats de simulation en plan d'action concret avec accompagnement IA.</p>
+          </div>
+
+          <% if @simulations.any? %>
+            <h5>Vos simulations disponibles :</h5>
+            <div class="row g-3">
+              <% @simulations.each do |simulation| %>
+                <div class="col-md-6 col-lg-4">
+                  <div class="card border-primary">
+                    <div class="card-body">
+                      <h6 class="card-title">
+                        <i class="bi bi-calculator text-primary me-1"></i>
+                        <%= simulation.titre || "Simulation #{simulation.id}" %>
+                      </h6>
+                      <div class="card-text">
+                        <div class="d-flex justify-content-between mb-2">
+                          <span class="text-muted">Région :</span>
+                          <span class="badge bg-secondary"><%= simulation.region&.capitalize %></span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                          <span class="text-muted">Total primes :</span>
+                          <span class="fw-bold text-success"><%= number_to_currency(simulation.total_simule, unit: "€", precision: 0) %></span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                          <span class="text-muted">Créée le :</span>
+                          <span><%= simulation.created_at.strftime("%d/%m/%Y") %></span>
+                        </div>
+                      </div>
+
+                      <div class="d-flex gap-2">
+                        <%= link_to decision_hub_short_path(simulation), class: "btn btn-primary btn-sm flex-fill" do %>
+                          🎯 Carrefour Conseil
+                        <% end %>
+                        <%= link_to simulation_path(simulation), class: "btn btn-outline-secondary btn-sm" do %>
+                          <i class="bi bi-eye"></i>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="alert alert-warning">
+              <h5><i class="bi bi-exclamation-triangle me-2"></i>Aucune simulation trouvée</h5>
+              <p class="mb-2">Vous devez d'abord créer une simulation avec des résultats pour tester le Decision Hub.</p>
+              <p class="mb-0">
+                <%= link_to "Créer une simulation", new_simulation_path, class: "btn btn-primary" %>
+              </p>
+            </div>
+          <% end %>
+
+          <!-- Démonstration avec données mockées -->
+          <hr class="my-4">
+          <h5>Ou testez avec des données de démonstration :</h5>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="card border-success">
+                <div class="card-body">
+                  <h6 class="card-title">
+                    <i class="bi bi-gear text-success me-1"></i>
+                    Démo Wallonie - Rénovation Complète
+                  </h6>
+                  <div class="card-text">
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-muted">Région :</span>
+                      <span class="badge bg-success">Wallonie</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-muted">Total primes :</span>
+                      <span class="fw-bold text-success">12,450€</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                      <span class="text-muted">Primes :</span>
+                      <span>5 éligibles</span>
+                    </div>
+                  </div>
+
+                  <%= link_to decision_hub_short_path('demo'), class: "btn btn-success w-100" do %>
+                    🎯 Tester avec démo Wallonie
+                  <% end %>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="card border-info">
+                <div class="card-body">
+                  <h6 class="card-title">
+                    <i class="bi bi-building text-info me-1"></i>
+                    Démo Bruxelles - Isolation
+                  </h6>
+                  <div class="card-text">
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-muted">Région :</span>
+                      <span class="badge bg-info">Bruxelles</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                      <span class="text-muted">Total primes :</span>
+                      <span class="fw-bold text-success">8,750€</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                      <span class="text-muted">Primes :</span>
+                      <span>3 éligibles</span>
+                    </div>
+                  </div>
+
+                  <%= link_to decision_hub_short_path('demo-bruxelles'), class: "btn btn-info w-100" do %>
+                    🎯 Tester avec démo Bruxelles
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Instructions -->
+          <div class="mt-4 p-3 bg-light rounded">
+            <h6><i class="bi bi-lightbulb text-warning me-1"></i> Comment tester :</h6>
+            <ol class="mb-0">
+              <li>Cliquez sur un bouton "🎯 Carrefour Conseil" ci-dessus</li>
+              <li>Explorez les 3 panneaux : Synthèse, Feuille de Route, Planning</li>
+              <li>Testez le bouton "🤖 Consulter l'IA" pour voir le chatbot mocké</li>
+              <li>Interagissez avec les checkboxes et boutons pour voir l'interactivité</li>
+              <li>Testez les questions prédéfinies dans la modal IA</li>
+            </ol>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.card {
+  transition: transform 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+}
+
+.alert h5 {
+  color: inherit;
+}
+</style>

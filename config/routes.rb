@@ -142,10 +142,28 @@ Rails.application.routes.draw do
       post :calculate_primes    # Étape 3: Calcul des primes
       patch :update_prime_inputs # Sauvegarde des saisies utilisateur
       get :restore_prime_inputs # Restauration des saisies utilisateur
+
+      # Decision Hub - Carrefour Conseil IA
+      get :decision_hub  # Vue principale du carrefour conseil
+      post :ai_consultation  # Endpoint pour les questions IA
     end
     # Documents liés à une simulation
     resources :documents, shallow: true
   end
+
+  # Routes raccourcies pour le Decision Hub
+  get '/conseil/:simulation_id', to: 'decision_hub#show', as: :decision_hub_short
+  post '/conseil/:simulation_id/ia', to: 'decision_hub#ai_consultation', as: :decision_hub_ai
+
+  # Decision Hub - Carrefour Conseil (page principale)
+  resources :decision_hub, only: [:index] do
+    collection do
+      get :guide  # Guide d'utilisation
+    end
+  end
+
+  # Route temporaire de test pour le Decision Hub
+  get '/test-decision-hub', to: 'decision_hub_test#index', as: :decision_hub_test
 
   resources :users
 
