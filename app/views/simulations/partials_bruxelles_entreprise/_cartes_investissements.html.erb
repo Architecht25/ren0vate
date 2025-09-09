@@ -30,43 +30,6 @@
     </div>
     <div class="card-body">
 
-      <!-- Sélection du type d'entreprise -->
-      <div class="row mb-4">
-        <div class="col-12">
-          <div class="card border-primary">
-            <div class="card-body p-3">
-              <h6 class="card-title mb-3">
-                <i class="bi bi-building-gear me-2"></i>Type et taille de votre entreprise
-              </h6>
-              <div class="row g-3">
-                <div class="col-md-6">
-                  <label class="form-label small">Taille de l'entreprise :</label>
-                  <select class="form-select form-select-sm"
-                          data-bruxelles-entreprise-calcul-target="tailleEntreprise"
-                          data-slug="entreprise_taille"
-                          data-action="change->bruxelles-entreprise-calcul#tailleEntrepriseChanged">
-                    <option value="">-- Sélectionnez --</option>
-                    <option value="tpe">TPE (0-9 salariés)</option>
-                    <option value="pme">PME (10-49 salariés)</option>
-                    <option value="moyenne">Moyenne entreprise (50-249 salariés)</option>
-                  </select>
-                </div>
-                <div class="col-md-6">
-                  <label class="form-label small">Âge de l'entreprise :</label>
-                  <select class="form-select form-select-sm"
-                          data-bruxelles-entreprise-calcul-target="ageEntreprise"
-                          data-slug="entreprise_age"
-                          data-action="change->bruxelles-entreprise-calcul#ageEntrepriseChanged">
-                    <option value="">-- Sélectionnez --</option>
-                    <option value="starter">Starter (moins de 4 ans)</option>
-                    <option value="etablie">Établie (plus de 4 ans)</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <div class="row g-3">
 
@@ -87,39 +50,63 @@
 
               <div class="row g-2">
                 <!-- Consultance transition -->
-                <div class="col-12">
+                <div class="col-8">
                   <label class="form-label small">Consultance transition (€) :</label>
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="€"
                            name="consultance_transition"
                            data-slug="bruxelles_entreprise_consultance_transition">
-                    <span class="badge bg-success ms-2 result-display">0 €</span>
+                    <span class="input-group-text bg-success text-white">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 15.000€/an - Taux 50% (max 80%)</small>
                 </div>
 
                 <!-- Investissements transition -->
-                <div class="col-12">
+                <div class="col-8">
                   <label class="form-label small">Investissements transition (€) :</label>
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="€"
                            name="investissements_transition"
                            data-slug="bruxelles_entreprise_investissements_transition">
-                    <span class="badge bg-success ms-2 result-display">0 €</span>
+                    <span class="input-group-text bg-success text-white">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 50.000€/an - Taux 30% (max 50%)</small>
                 </div>
 
                 <!-- Mobilité vélo-cargo -->
-                <div class="col-12">
+                <div class="col-8">
                   <label class="form-label small">Mobilité vélo-cargo (€) :</label>
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="€"
                            name="mobilite_velo"
                            data-slug="bruxelles_entreprise_mobilite_velo">
-                    <span class="badge bg-success ms-2 result-display">0 €</span>
+                    <span class="input-group-text bg-success text-white">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 12.000€/an - Taux 40% (max 70%)</small>
+                </div>
+
+                <!-- Utilitaires électriques -->
+                <div class="col-8">
+                  <label class="form-label small">Utilitaires électriques (€) :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="€"
+                           name="utilitaires_electriques"
+                           data-slug="bruxelles_entreprise_utilitaires_electriques">
+                    <span class="input-group-text bg-success text-white">0 €</span>
+                  </div>
+                  <small class="text-muted">Jusqu'à 25.000€/véhicule - Taux 30% (max 50%)</small>
+                </div>
+
+                <!-- Utilitaire retrofit -->
+                <div class="col-8">
+                  <label class="form-label small">Utilitaire retrofit (€) :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="€"
+                           name="utilitaire_retrofit"
+                           data-slug="bruxelles_entreprise_utilitaire_retrofit">
+                    <span class="input-group-text bg-success text-white">0 €</span>
+                  </div>
+                  <small class="text-muted">Jusqu'à 15.000€/véhicule - Taux 40% (max 60%)</small>
                 </div>
               </div>
 
@@ -155,42 +142,68 @@
 
               <div class="row g-2">
                 <!-- Matériel et travaux -->
-                <div class="col-12">
+                <div class="col-8">
                   <label class="form-label small">Matériel et travaux (€) :</label>
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="€"
                            data-bruxelles-entreprise-card-target="inputMaterielTravaux"
                            data-bruxelles-entreprise-card-slug="bruxelles_prime_materiel_travaux">
-                    <span class="badge bg-primary ms-2"
+                    <span class="input-group-text bg-primary text-white"
                           data-bruxelles-entreprise-card-target="resultMaterielTravaux">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 500.000€ - Taux 5% (micro/petite)</small>
                 </div>
 
                 <!-- Conformité -->
-                <div class="col-12">
+                <div class="col-8">
                   <label class="form-label small">Conformité (€) :</label>
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="€"
                            data-bruxelles-entreprise-card-target="inputConformite"
                            data-bruxelles-entreprise-card-slug="bruxelles_prime_conformite">
-                    <span class="badge bg-primary ms-2"
+                    <span class="input-group-text bg-primary text-white"
                           data-bruxelles-entreprise-card-target="resultConformite">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 40.000€ - Taux 30% (max 60%)</small>
                 </div>
 
                 <!-- Sécurisation -->
-                <div class="col-12">
+                <div class="col-8">
                   <label class="form-label small">Sécurisation établissement (€) :</label>
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="€"
                            data-bruxelles-entreprise-card-target="inputSecurisation"
                            data-bruxelles-entreprise-card-slug="bruxelles_prime_securisation">
-                    <span class="badge bg-primary ms-2"
+                    <span class="input-group-text bg-primary text-white"
                           data-bruxelles-entreprise-card-target="resultSecurisation">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 10.000€ - Taux 40% (max 60%)</small>
+                </div>
+
+                <!-- Immobilier -->
+                <div class="col-8">
+                  <label class="form-label small">Immobilier (€) :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="€"
+                           data-bruxelles-entreprise-card-target="inputImmobilier"
+                           data-bruxelles-entreprise-card-slug="bruxelles_prime_immobilier">
+                    <span class="input-group-text bg-primary text-white"
+                          data-bruxelles-entreprise-card-target="resultImmobilier">0 €</span>
+                  </div>
+                  <small class="text-muted">Jusqu'à 200.000€ - Taux 15% (max 30%)</small>
+                </div>
+
+                <!-- Accessibilité -->
+                <div class="col-8">
+                  <label class="form-label small">Accessibilité (€) :</label>
+                  <div class="input-group input-group-sm">
+                    <input type="number" class="form-control" placeholder="€"
+                           data-bruxelles-entreprise-card-target="inputAccessibilite"
+                           data-bruxelles-entreprise-card-slug="bruxelles_prime_accessibilite">
+                    <span class="input-group-text bg-primary text-white"
+                          data-bruxelles-entreprise-card-target="resultAccessibilite">0 €</span>
+                  </div>
+                  <small class="text-muted">Jusqu'à 50.000€ - Taux 50% (max 70%)</small>
                 </div>
               </div>
 
@@ -226,26 +239,26 @@
 
               <div class="row g-2">
                 <!-- Recrutement -->
-                <div class="col-12">
+                <div class="col-8">
                   <label class="form-label small">Aides au recrutement (€) :</label>
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="€"
                            data-bruxelles-entreprise-card-target="inputRecrutement"
                            data-bruxelles-entreprise-card-slug="bruxelles_aide_recrutement">
-                    <span class="badge bg-warning ms-2"
+                    <span class="input-group-text bg-warning text-white"
                           data-bruxelles-entreprise-card-target="resultRecrutement">0 €</span>
                   </div>
                   <small class="text-muted">Forfaitaire selon profil recruté</small>
                 </div>
 
                 <!-- Formation -->
-                <div class="col-12">
+                <div class="col-8">
                   <label class="form-label small">Formation du personnel (€) :</label>
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="€"
                            data-bruxelles-entreprise-card-target="inputFormation"
                            data-bruxelles-entreprise-card-slug="bruxelles_prime_formation">
-                    <span class="badge bg-warning ms-2"
+                    <span class="input-group-text bg-warning text-white"
                           data-bruxelles-entreprise-card-target="resultFormation">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 20.000€/an - Taux 40% (max 80%)</small>
@@ -284,29 +297,29 @@
 
               <div class="row g-2">
                 <!-- Consultance générale -->
-                <div class="col-12">
+                <div class="col-8">
                   <label class="form-label small">Consultance générale (€) :</label>
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="€"
                            data-bruxelles-entreprise-card-target="inputConsultance"
                            data-bruxelles-entreprise-card-slug="bruxelles_prime_consultance">
-                    <span class="badge bg-info ms-2"
+                    <span class="input-group-text bg-info text-white"
                           data-bruxelles-entreprise-card-target="resultConsultance">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 7.500€/an - Taux 25% (max 70%)</small>
                 </div>
 
-                <!-- Services expertise -->
-                <div class="col-12">
-                  <label class="form-label small">Services d'expertise (€) :</label>
+                <!-- Consultance digitalisation -->
+                <div class="col-8">
+                  <label class="form-label small">Consultance digitalisation (€) :</label>
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="€"
-                           data-bruxelles-entreprise-card-target="inputExpertise"
-                           data-bruxelles-entreprise-card-slug="bruxelles_services_expertise">
-                    <span class="badge bg-info ms-2"
-                          data-bruxelles-entreprise-card-target="resultExpertise">0 €</span>
+                           data-bruxelles-entreprise-card-target="inputDigitalisation"
+                           data-bruxelles-entreprise-card-slug="bruxelles_consultance_digitalisation">
+                    <span class="input-group-text bg-info text-white"
+                          data-bruxelles-entreprise-card-target="resultDigitalisation">0 €</span>
                   </div>
-                  <small class="text-muted">Selon mission - Taux variable</small>
+                  <small class="text-muted">Jusqu'à 10.000€/an - Taux 50% (max 70%)</small>
                 </div>
               </div>
 
@@ -329,77 +342,79 @@
   </div>
 
   <!-- Section Résultats Totaux Entreprise -->
-  <div class="mt-5">
-    <div class="card border-0 shadow-lg">
-      <div class="card-body p-4">
-        <div class="text-center mb-4">
-          <h4 class="text-primary-custom mb-2">
-            <i class="bi bi-calculator me-2"></i>
-            Total estimé de vos aides aux entreprises
-          </h4>
-          <p class="text-muted-custom small">Les montants s'ajustent automatiquement selon le type d'entreprise et les majorations</p>
-        </div>
+  <div class="mt-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-3">
 
-        <!-- Affichage du total principal -->
-        <div class="text-center p-4 bg-light rounded mb-4">
-          <h2 class="display-4 text-primary-custom mb-2" data-bruxelles-entreprise-calcul-target="totalGeneral">
-            0 €
-          </h2>
-          <p class="text-muted-custom mb-0">
-            <span data-bruxelles-entreprise-calcul-target="categorieEntreprise">Type d'entreprise</span>
-            • Simulation créée le <%= Date.current.strftime("%d/%m/%Y") %>
-          </p>
-        </div>
+        <div class="row align-items-center">
+          <!-- Colonne gauche: Détail par catégorie -->
+          <div class="col-md-5">
+            <h6 class="text-muted mb-2">Détail par catégorie</h6>
+            <div class="row g-2">
+              <div class="col-6">
+                <div class="p-2 bg-success bg-opacity-10 rounded text-center">
+                  <small class="text-success fw-bold">Transition</small><br>
+                  <span class="text-success fw-bold" data-bruxelles-entreprise-calcul-target="totalTransition">0 €</span>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="p-2 bg-primary bg-opacity-10 rounded text-center">
+                  <small class="text-primary fw-bold">Investissements</small><br>
+                  <span class="text-primary fw-bold" data-bruxelles-entreprise-calcul-target="totalInvestissements">0 €</span>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="p-2 bg-warning bg-opacity-10 rounded text-center">
+                  <small class="text-warning fw-bold">RH</small><br>
+                  <span class="text-warning fw-bold" data-bruxelles-entreprise-calcul-target="totalRH">0 €</span>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="p-2 bg-info bg-opacity-10 rounded text-center">
+                  <small class="text-info fw-bold">Services</small><br>
+                  <span class="text-info fw-bold" data-bruxelles-entreprise-calcul-target="totalServices">0 €</span>
+                </div>
+              </div>
+            </div>
+          </div>
 
-        <!-- Détail par catégorie -->
-        <div class="row text-center mb-4">
-          <div class="col-md-3">
-            <div class="p-3 bg-success bg-opacity-10 rounded">
-              <h6 class="text-success mb-1">Transition</h6>
-              <span class="h5 text-success" data-bruxelles-entreprise-calcul-target="totalTransition">0 €</span>
+          <!-- Colonne milieu: Total principal -->
+          <div class="col-md-3 text-center">
+            <div class="p-3 bg-light rounded">
+              <h6 class="text-muted mb-2">
+                <i class="bi bi-calculator me-1"></i>
+                Total estimé
+              </h6>
+              <h3 class="text-primary mb-2" data-bruxelles-entreprise-calcul-target="totalGeneral">0 €</h3>
+              <small class="text-muted">
+                <span data-bruxelles-entreprise-calcul-target="categorieEntreprise">Type d'entreprise</span><br>
+                Simulation du <%= Date.current.strftime("%d/%m/%Y") %>
+              </small>
             </div>
           </div>
-          <div class="col-md-3">
-            <div class="p-3 bg-primary bg-opacity-10 rounded">
-              <h6 class="text-primary mb-1">Investissements</h6>
-              <span class="h5 text-primary" data-bruxelles-entreprise-calcul-target="totalInvestissements">0 €</span>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="p-3 bg-warning bg-opacity-10 rounded">
-              <h6 class="text-warning mb-1">RH</h6>
-              <span class="h5 text-warning" data-bruxelles-entreprise-calcul-target="totalRH">0 €</span>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="p-3 bg-info bg-opacity-10 rounded">
-              <h6 class="text-info mb-1">Services</h6>
-              <span class="h5 text-info" data-bruxelles-entreprise-calcul-target="totalServices">0 €</span>
-            </div>
-          </div>
-        </div>
 
-        <!-- Informations importantes -->
-        <div class="row">
-          <div class="col-12">
-            <div class="alert alert-info">
-              <div class="d-flex">
-                <i class="bi bi-info-circle me-3 mt-1 fs-5"></i>
+          <!-- Colonne droite: Informations importantes -->
+          <div class="col-md-4">
+            <div class="alert alert-info py-2 mb-0">
+              <div class="d-flex align-items-start">
+                <i class="bi bi-info-circle me-2 mt-1"></i>
                 <div>
-                  <h6 class="alert-heading mb-2">Informations importantes</h6>
-                  <p class="mb-2">Ces montants sont des estimations basées sur les programmes d'aide aux entreprises de la Région de Bruxelles-Capitale.</p>
-                  <ul class="mb-0 small">
-                    <li>Les aides varient selon la taille d'entreprise (TPE, PME, Moyenne)</li>
-                    <li>Majorations possibles : Starter (+15-25%), Exemplaire environnemental (+15-30%), Exemplaire social (+15-30%)</li>
-                    <li>Plafond de minimis : 300.000€ maximum sur 3 ans</li>
-                    <li>Demandes à introduire AVANT le début des investissements/missions</li>
-                    <li>Consultez economie-emploi.brussels pour les conditions détaillées</li>
-                  </ul>
+                  <h6 class="alert-heading mb-1">Informations importantes</h6>
+                  <small>
+                    Estimations basées sur les programmes d'aide de la Région de Bruxelles-Capitale.
+                    Les aides varient selon la taille d'entreprise et les majorations possibles.
+                  </small>
+                  <div class="mt-1">
+                    <small>
+                      <a href="#" class="text-decoration-none">Voir les conditions détaillées</a>
+                    </small>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </div>

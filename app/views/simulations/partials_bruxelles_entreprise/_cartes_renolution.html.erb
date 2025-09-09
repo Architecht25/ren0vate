@@ -541,71 +541,79 @@
       </div>
 
       <!-- Section Résultats Bruxelles -->
-      <div class="mt-5">
-        <div class="card border-0 shadow-lg">
-          <div class="card-body p-4">
-            <div class="text-center mb-4">
-              <h4 class="text-primary mb-2">
-                <i class="bi bi-calculator me-2"></i>
-                Total estimé de vos primes Bruxelles
-              </h4>
-              <p class="text-muted small">Les montants s'ajustent automatiquement selon votre catégorie de revenus</p>
-            </div>
+      <div class="mt-4">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-3">
 
-            <!-- Affichage du total principal -->
-            <div class="bg-primary bg-opacity-10 rounded-3 p-4 text-center mb-4">
-              <div class="row align-items-center">
-                <div class="col-md-8 mb-3 mb-md-0">
-                  <h2 class="display-4 fw-bold text-primary mb-1" data-bruxelles-prime-calcul-target="totalGeneral">0,00 €</h2>
-                  <p class="text-muted mb-0">
-                    <span data-bruxelles-prime-calcul-target="currentCategory">Catégorie non définie</span>
-                    • Estimation selon votre profil de revenus
-                  </p>
+            <div class="row align-items-center">
+              <!-- Colonne gauche: Détail par catégorie -->
+              <div class="col-md-5">
+                <h6 class="text-muted mb-2">Résumé de vos primes</h6>
+                <div class="row g-2">
+                  <div class="col-6">
+                    <div class="p-2 bg-primary bg-opacity-10 rounded text-center">
+                      <small class="text-primary fw-bold">Audit & Études</small><br>
+                      <span class="text-primary fw-bold" data-bruxelles-prime-calcul-target="totalAudit">0 €</span>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="p-2 bg-success bg-opacity-10 rounded text-center">
+                      <small class="text-success fw-bold">Isolation</small><br>
+                      <span class="text-success fw-bold" data-bruxelles-prime-calcul-target="totalIsolation">0 €</span>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="p-2 bg-warning bg-opacity-10 rounded text-center">
+                      <small class="text-warning fw-bold">Chauffage</small><br>
+                      <span class="text-warning fw-bold" data-bruxelles-prime-calcul-target="totalChauffage">0 €</span>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="p-2 bg-info bg-opacity-10 rounded text-center">
+                      <small class="text-info fw-bold">Autres</small><br>
+                      <span class="text-info fw-bold" data-bruxelles-prime-calcul-target="totalAutres">0 €</span>
+                    </div>
+                  </div>
                 </div>
-                <div class="col-md-4">
-                  <div class="bg-white rounded-2 p-3">
-                    <i class="bi bi-info-circle text-primary fs-4 mb-2"></i>
-                    <p class="small text-muted mb-0">Ce montant est une estimation basée sur vos travaux sélectionnés</p>
+              </div>
+
+              <!-- Colonne milieu: Total principal -->
+              <div class="col-md-3 text-center">
+                <div class="p-3 bg-light rounded">
+                  <h6 class="text-muted mb-2">
+                    <i class="bi bi-calculator me-1"></i>
+                    Total estimé
+                  </h6>
+                  <h3 class="text-primary mb-2" data-bruxelles-prime-calcul-target="totalGeneral">0 €</h3>
+                  <small class="text-muted">
+                    <span data-bruxelles-prime-calcul-target="currentCategory">Catégorie non définie</span><br>
+                    Simulation du <%= Date.current.strftime("%d/%m/%Y") %>
+                  </small>
+                </div>
+              </div>
+
+              <!-- Colonne droite: Informations importantes -->
+              <div class="col-md-4">
+                <div class="alert alert-info py-2 mb-0">
+                  <div class="d-flex align-items-start">
+                    <i class="bi bi-lightbulb me-2 mt-1"></i>
+                    <div>
+                      <h6 class="alert-heading mb-1">Bon à savoir</h6>
+                      <small>
+                        Ces montants sont des estimations basées sur les grilles tarifaires officielles de Bruxelles Environnement.
+                        Les primes varient selon votre catégorie de revenus (Cat 1, Cat 2, Cat 3).
+                      </small>
+                      <div class="mt-1">
+                        <small>
+                          <a href="#" class="text-decoration-none">Vérifier votre éligibilité</a>
+                        </small>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Résumé des primes sélectionnées -->
-            <div class="card border-0 bg-light">
-              <div class="card-body p-4">
-                <h6 class="fw-bold text-dark mb-3">
-                  <i class="bi bi-list-check me-2"></i>
-                  Résumé de vos primes sélectionnées
-                </h6>
-
-                <!-- Liste dynamique des primes sélectionnées -->
-                <div id="selected-primes-summary-bruxelles" data-bruxelles-prime-calcul-target="selectedPrimesSummary">
-                  <div class="text-muted text-center py-3">
-                    <i class="bi bi-info-circle me-2"></i>
-                    Sélectionnez des travaux dans les cartes ci-dessus pour voir le détail de vos primes
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Note informative -->
-            <div class="alert alert-info mt-4 mb-0">
-              <div class="d-flex align-items-start">
-                <i class="bi bi-lightbulb me-3 mt-1 fs-5"></i>
-                <div>
-                  <h6 class="alert-heading mb-2">Bon à savoir</h6>
-                  <p class="mb-2">Ces montants sont des estimations basées sur les grilles tarifaires officielles de Bruxelles Environnement.</p>
-                  <ul class="mb-0 small">
-                    <li>Les primes varient selon votre catégorie de revenus (Cat 1, Cat 2, Cat 3)</li>
-                    <li>Certaines primes sont forfaitaires, d'autres calculées au m² ou par unité</li>
-                    <li>Des conditions techniques et d'éligibilité spécifiques s'appliquent</li>
-                    <li>Le recours à un entrepreneur agréé avec numéro BCE valide est obligatoire</li>
-                    <li>Il est recommandé de vérifier votre éligibilité sur le site officiel de Bruxelles Environnement</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
