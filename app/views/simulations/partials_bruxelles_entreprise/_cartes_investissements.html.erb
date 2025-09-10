@@ -10,11 +10,176 @@
           taux_aide: aide.taux_aide || 25.0,
           montant_min: aide.montant_min || 500,
           montant_max: aide.montant_max || 10000,
+          montant_investissement_min_requis: aide.montant_investissement_min_requis,
           tailles_eligibles: aide.tailles_eligibles || ["tpe", "pme"]
         }]
       }.to_h
     }.to_json %>
   </script>
+
+  <%
+    # Helper pour récupérer le placeholder calculé pour une aide
+    def placeholder_for_aide(slug)
+      aide = EntrepriseAide.find_by(slug: slug)
+      if aide&.montant_investissement_min_requis
+        "#{aide.montant_investissement_min_requis}€ min"
+      else
+        "€"
+      end
+    end
+
+    # Helper pour récupérer le titre d'une aide
+    def titre_aide(slug)
+      aide = EntrepriseAide.find_by(slug: slug)
+      aide&.titre || "Aide"
+    end
+
+    # Helper pour récupérer la description d'une aide
+    def description_aide(slug)
+      aide = EntrepriseAide.find_by(slug: slug)
+      aide&.description || ""
+    end
+
+    # Helper pour générer les badges de taille d'entreprise
+    def badges_tailles_aide(slug)
+      aide = EntrepriseAide.find_by(slug: slug)
+      return "" unless aide&.tailles_eligibles.present?
+
+      badges = aide.tailles_eligibles.map do |taille|
+        case taille
+        when "tpe"
+          '<span class="badge bg-success text-white border me-1 px-2 py-1" style="font-weight: 600;">TPE</span>'
+        when "pme"
+          '<span class="badge bg-primary text-white border me-1 px-2 py-1" style="font-weight: 600;">PME</span>'
+        when "moyenne"
+          '<span class="badge bg-warning text-dark border me-1 px-2 py-1" style="font-weight: 600;">Moyenne</span>'
+        when "grande"
+          '<span class="badge bg-danger text-white border me-1 px-2 py-1" style="font-weight: 600;">Grande</span>'
+        else
+          '<span class="badge bg-secondary text-white border me-1 px-2 py-1" style="font-weight: 600;">' + taille.upcase + '</span>'
+        end
+      end
+
+      badges.join.html_safe
+    end
+
+    # Helper pour les infobulles d'éligibilité
+    def infobulle_aide(slug)
+      aide = EntrepriseAide.find_by(slug: slug)
+      return "" unless aide
+
+      # Définition des tailles d'entreprise
+      definitions_tailles = {
+        "tpe" => "TPE : < 10 salariés et < 2M€ CA",
+        "pme" => "PME : < 50 salariés et < 10M€ CA",
+        "moyenne" => "Moyenne : < 250 salariés et < 50M€ CA",
+        "grande" => "Grande : ≥ 250 salariés ou ≥ 50M€ CA"
+      }
+
+      tailles_texte = ""
+      if aide.tailles_eligibles.present?
+        tailles_list = aide.tailles_eligibles.map { |t| definitions_tailles[t] }.compact
+        tailles_texte = "👥 Tailles éligibles :<br>• " + tailles_list.join("<br>• ")
+      end
+
+      # Conditions de la mission (info spécifique)
+      mission_texte = ""
+      if aide.conditions_eligibilite.present?
+        # Chercher les conditions spécifiques à la mission
+        if aide.conditions_eligibilite["mission"].present?
+          missions = aide.conditions_eligibilite["mission"].first(2)
+          mission_texte = "<br><br>📋 Conditions mission :<br>• " + missions.join("<br>• ")
+        elsif aide.conditions_eligibilite["missions_eligibles"].present?
+          missions = aide.conditions_eligibilite["missions_eligibles"].first(2)
+          mission_texte = "<br><br>📋 Missions éligibles :<br>• " + missions.join("<br>• ")
+        elsif aide.conditions_eligibilite["missions_digitalisation"].present?
+          missions = aide.conditions_eligibilite["missions_digitalisation"].first(2)
+          mission_texte = "<br><br>📋 Missions éligibles :<br>• " + missions.join("<br>• ")
+        elsif aide.conditions_eligibilite["investissements_eligibles"].present?
+          investissements = aide.conditions_eligibilite["investissements_eligibles"].first(2)
+          mission_texte = "<br><br>📋 Investissements éligibles :<br>• " + investissements.join("<br>• ")
+        end
+      end
+
+      # Conditions du consultant (info spécifique)
+      consultant_texte = ""
+      if aide.conditions_eligibilite.present? && aide.conditions_eligibilite["consultant"].present?
+        consultants = aide.conditions_eligibilite["consultant"].first(2)
+        consultant_texte = "<br><br>👨‍💼 Conditions consultant :<br>• " + consultants.join("<br>• ")
+      elsif aide.delais_procedures.present? && aide.delais_procedures["profil_consultant"].present?
+        # Extraire les conditions les plus importantes du profil consultant
+        profil = aide.delais_procedures["profil_consultant"]
+        conditions_consultant = []
+        conditions_consultant << profil["experience"] if profil["experience"].present?
+        conditions_consultant << profil["specialisation"] if profil["specialisation"].present?
+        if conditions_consultant.any?
+          consultant_texte = "<br><br>👨‍💼 Profil consultant :<br>• " + conditions_consultant.first(2).join("<br>• ")
+        end
+      end
+
+      # URL officielle
+      url_texte = ""
+      if aide.url_officielle.present?
+        url_texte = "<br><br>🔗 Plus d'infos :<br>#{aide.url_officielle}"
+      end
+
+      tooltip_content = tailles_texte + mission_texte + consultant_texte + url_texte
+
+      %{<i class="bi bi-info-circle-fill text-muted ms-1"
+           data-bs-toggle="tooltip"
+           data-bs-placement="top"
+           data-bs-html="true"
+           title="#{tooltip_content.gsub('"', '&quot;')}"
+           style="cursor: help;"></i>}.html_safe
+    end
+
+    # Helper pour l'infobulle délais et procédures
+    def infobulle_delais_aide(slug)
+      aide = EntrepriseAide.find_by(slug: slug)
+      return "" unless aide
+
+      # Délais critiques
+      delais_texte = ""
+      if aide.modalites_paiement.present? && aide.modalites_paiement["delais"].present?
+        delais = aide.modalites_paiement["delais"]
+        delais_texte = "⏱️ Délais critiques :"
+        delais_texte += "<br>• Demande : #{delais['demande']}" if delais["demande"].present?
+        delais_texte += "<br>• Décision : #{delais['decision']}" if delais["decision"].present?
+        delais_texte += "<br>• Justificatifs : #{delais['justificatifs']}" if delais["justificatifs"].present?
+      end
+
+      # Étapes procédurales
+      etapes_texte = ""
+      if aide.delais_procedures.present?
+        etapes_texte = "<br><br>📋 Étapes clés :"
+        etapes_texte += "<br>• Demande via plateforme MonBEE"
+        etapes_texte += "<br>• Validation administrative (4 mois max)"
+        etapes_texte += "<br>• Réalisation mission/investissement"
+        etapes_texte += "<br>• Envoi justificatifs et paiement"
+      end
+
+      # Fréquence/limites
+      limites_texte = ""
+      if aide.modalites_paiement.present?
+        if aide.modalites_paiement["frequence"].present?
+          limites_texte = "<br><br>� Fréquence :<br>• #{aide.modalites_paiement['frequence']}"
+        elsif aide.modalites_paiement["frequence_missions"].present?
+          limites_texte = "<br><br>🔄 Fréquence :<br>• #{aide.modalites_paiement['frequence_missions']}"
+        end
+      end
+
+      tooltip_content = delais_texte + etapes_texte + limites_texte
+
+      return "" if tooltip_content.blank?
+
+      %{<i class="bi bi-clock-fill text-muted ms-1"
+           data-bs-toggle="tooltip"
+           data-bs-placement="top"
+           data-bs-html="true"
+           title="#{tooltip_content.gsub('"', '&quot;')}"
+           style="cursor: help;"></i>}.html_safe
+    end
+  %>
 
   <div class="card border-0 shadow mb-4">
     <div class="card-header bg-primary bg-opacity-10">
@@ -50,63 +215,128 @@
 
               <div class="row g-2">
                 <!-- Consultance transition -->
-                <div class="col-8">
-                  <label class="form-label small">Consultance transition (€) :</label>
+                <div class="col-12">
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+                    <label class="form-label small mb-0">
+                      <%= titre_aide('bruxelles_transition_consultance') %> (€) :
+                      <%= infobulle_aide('bruxelles_transition_consultance') %>
+                      <%= infobulle_delais_aide('bruxelles_transition_consultance') %>
+                    </label>
+                    <div class="text-end">
+                      <%= badges_tailles_aide('bruxelles_transition_consultance') %>
+                    </div>
+                  </div>
                   <div class="input-group input-group-sm">
-                    <input type="number" class="form-control" placeholder="€"
+                    <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_transition_consultance') %>"
                            name="consultance_transition"
                            data-slug="bruxelles_entreprise_consultance_transition">
                     <span class="input-group-text bg-success text-white">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 15.000€/an - Taux 50% (max 80%)</small>
+                  <p class="text-success small mt-1 mb-2">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= description_aide('bruxelles_transition_consultance').truncate(120) %>
+                  </p>
                 </div>
 
                 <!-- Investissements transition -->
-                <div class="col-8">
-                  <label class="form-label small">Investissements transition (€) :</label>
+                <div class="col-12">
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+                    <label class="form-label small mb-0">
+                      <%= titre_aide('bruxelles_investissements_transition_economique') %> (€) :
+                      <%= infobulle_aide('bruxelles_investissements_transition_economique') %>
+                      <%= infobulle_delais_aide('bruxelles_investissements_transition_economique') %>
+                    </label>
+                    <div class="text-end">
+                      <%= badges_tailles_aide('bruxelles_investissements_transition_economique') %>
+                    </div>
+                  </div>
                   <div class="input-group input-group-sm">
-                    <input type="number" class="form-control" placeholder="€"
+                    <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_investissements_transition_economique') %>"
                            name="investissements_transition"
                            data-slug="bruxelles_entreprise_investissements_transition">
                     <span class="input-group-text bg-success text-white">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 50.000€/an - Taux 30% (max 50%)</small>
+                  <p class="text-success small mt-1 mb-2">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= description_aide('bruxelles_investissements_transition_economique').truncate(120) %>
+                  </p>
                 </div>
 
                 <!-- Mobilité vélo-cargo -->
-                <div class="col-8">
-                  <label class="form-label small">Mobilité vélo-cargo (€) :</label>
+                <div class="col-12">
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+                    <label class="form-label small mb-0">
+                      <%= titre_aide('bruxelles_mobilite_velo_cargo') %> (€) :
+                      <%= infobulle_aide('bruxelles_mobilite_velo_cargo') %>
+                      <%= infobulle_delais_aide('bruxelles_mobilite_velo_cargo') %>
+                    </label>
+                    <div class="text-end">
+                      <%= badges_tailles_aide('bruxelles_mobilite_velo_cargo') %>
+                    </div>
+                  </div>
                   <div class="input-group input-group-sm">
-                    <input type="number" class="form-control" placeholder="€"
+                    <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_mobilite_velo_cargo') %>"
                            name="mobilite_velo"
                            data-slug="bruxelles_entreprise_mobilite_velo">
                     <span class="input-group-text bg-success text-white">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 12.000€/an - Taux 40% (max 70%)</small>
+                  <p class="text-success small mt-1 mb-2">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= description_aide('bruxelles_mobilite_velo_cargo').truncate(120) %>
+                  </p>
                 </div>
 
                 <!-- Utilitaires électriques -->
-                <div class="col-8">
-                  <label class="form-label small">Utilitaires électriques (€) :</label>
+                <div class="col-12">
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+                    <label class="form-label small mb-0">
+                      <%= titre_aide('bruxelles_mobilite_utilitaire_electrique') %> (€) :
+                      <%= infobulle_aide('bruxelles_mobilite_utilitaire_electrique') %>
+                      <%= infobulle_delais_aide('bruxelles_mobilite_utilitaire_electrique') %>
+                    </label>
+                    <div class="text-end">
+                      <%= badges_tailles_aide('bruxelles_mobilite_utilitaire_electrique') %>
+                    </div>
+                  </div>
                   <div class="input-group input-group-sm">
-                    <input type="number" class="form-control" placeholder="€"
+                    <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_mobilite_utilitaire_electrique') %>"
                            name="utilitaires_electriques"
                            data-slug="bruxelles_entreprise_utilitaires_electriques">
                     <span class="input-group-text bg-success text-white">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 25.000€/véhicule - Taux 30% (max 50%)</small>
+                  <p class="text-success small mt-1 mb-2">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= description_aide('bruxelles_mobilite_utilitaire_electrique').truncate(120) %>
+                  </p>
                 </div>
 
                 <!-- Utilitaire retrofit -->
-                <div class="col-8">
-                  <label class="form-label small">Utilitaire retrofit (€) :</label>
+                <div class="col-12">
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+                    <label class="form-label small mb-0">
+                      <%= titre_aide('bruxelles_mobilite_utilitaire_retrofit') %> (€) :
+                      <%= infobulle_aide('bruxelles_mobilite_utilitaire_retrofit') %>
+                      <%= infobulle_delais_aide('bruxelles_mobilite_utilitaire_retrofit') %>
+                    </label>
+                    <div class="text-end">
+                      <%= badges_tailles_aide('bruxelles_mobilite_utilitaire_retrofit') %>
+                    </div>
+                  </div>
                   <div class="input-group input-group-sm">
-                    <input type="number" class="form-control" placeholder="€"
+                    <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_mobilite_utilitaire_retrofit') %>"
                            name="utilitaire_retrofit"
                            data-slug="bruxelles_entreprise_utilitaire_retrofit">
                     <span class="input-group-text bg-success text-white">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 15.000€/véhicule - Taux 40% (max 60%)</small>
+                  <p class="text-success small mt-1 mb-2">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= description_aide('bruxelles_mobilite_utilitaire_retrofit').truncate(120) %>
+                  </p>
                 </div>
               </div>
 
@@ -142,68 +372,133 @@
 
               <div class="row g-2">
                 <!-- Matériel et travaux -->
-                <div class="col-8">
-                  <label class="form-label small">Matériel et travaux (€) :</label>
+                <div class="col-12">
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+                    <label class="form-label small mb-0">
+                      <%= titre_aide('bruxelles_prime_materiel_travaux') %> (€) :
+                      <%= infobulle_aide('bruxelles_prime_materiel_travaux') %>
+                      <%= infobulle_delais_aide('bruxelles_prime_materiel_travaux') %>
+                    </label>
+                    <div class="text-end">
+                      <%= badges_tailles_aide('bruxelles_prime_materiel_travaux') %>
+                    </div>
+                  </div>
                   <div class="input-group input-group-sm">
-                    <input type="number" class="form-control" placeholder="€"
+                    <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_prime_materiel_travaux') %>"
                            data-bruxelles-entreprise-card-target="inputMaterielTravaux"
                            data-bruxelles-entreprise-card-slug="bruxelles_prime_materiel_travaux">
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-entreprise-card-target="resultMaterielTravaux">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 500.000€ - Taux 5% (micro/petite)</small>
+                  <p class="text-primary small mt-1 mb-2">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= description_aide('bruxelles_prime_materiel_travaux').truncate(120) %>
+                  </p>
                 </div>
 
                 <!-- Conformité -->
-                <div class="col-8">
-                  <label class="form-label small">Conformité (€) :</label>
+                <div class="col-12">
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+                    <label class="form-label small mb-0">
+                      <%= titre_aide('bruxelles_prime_conformite_normes') %> (€) :
+                      <%= infobulle_aide('bruxelles_prime_conformite_normes') %>
+                      <%= infobulle_delais_aide('bruxelles_prime_conformite_normes') %>
+                    </label>
+                    <div class="text-end">
+                      <%= badges_tailles_aide('bruxelles_prime_conformite_normes') %>
+                    </div>
+                  </div>
                   <div class="input-group input-group-sm">
-                    <input type="number" class="form-control" placeholder="€"
+                    <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_prime_conformite_normes') %>"
                            data-bruxelles-entreprise-card-target="inputConformite"
                            data-bruxelles-entreprise-card-slug="bruxelles_prime_conformite">
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-entreprise-card-target="resultConformite">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 40.000€ - Taux 30% (max 60%)</small>
+                  <p class="text-primary small mt-1 mb-2">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= description_aide('bruxelles_prime_conformite_normes').truncate(120) %>
+                  </p>
                 </div>
 
                 <!-- Sécurisation -->
-                <div class="col-8">
-                  <label class="form-label small">Sécurisation établissement (€) :</label>
+                <div class="col-12">
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+                    <label class="form-label small mb-0">
+                      <%= titre_aide('bruxelles_prime_securisation') %> (€) :
+                      <%= infobulle_aide('bruxelles_prime_securisation') %>
+                      <%= infobulle_delais_aide('bruxelles_prime_securisation') %>
+                    </label>
+                    <div class="text-end">
+                      <%= badges_tailles_aide('bruxelles_prime_securisation') %>
+                    </div>
+                  </div>
                   <div class="input-group input-group-sm">
-                    <input type="number" class="form-control" placeholder="€"
+                    <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_prime_securisation') %>"
                            data-bruxelles-entreprise-card-target="inputSecurisation"
                            data-bruxelles-entreprise-card-slug="bruxelles_prime_securisation">
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-entreprise-card-target="resultSecurisation">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 10.000€ - Taux 40% (max 60%)</small>
+                  <p class="text-primary small mt-1 mb-2">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= description_aide('bruxelles_prime_securisation').truncate(120) %>
+                  </p>
                 </div>
 
                 <!-- Immobilier -->
-                <div class="col-8">
-                  <label class="form-label small">Immobilier (€) :</label>
+                <div class="col-12">
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+                    <label class="form-label small mb-0">
+                      <%= titre_aide('bruxelles_prime_immobilier') %> (€) :
+                      <%= infobulle_aide('bruxelles_prime_immobilier') %>
+                      <%= infobulle_delais_aide('bruxelles_prime_immobilier') %>
+                    </label>
+                    <div class="text-end">
+                      <%= badges_tailles_aide('bruxelles_prime_immobilier') %>
+                    </div>
+                  </div>
                   <div class="input-group input-group-sm">
-                    <input type="number" class="form-control" placeholder="€"
+                    <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_prime_immobilier') %>"
                            data-bruxelles-entreprise-card-target="inputImmobilier"
                            data-bruxelles-entreprise-card-slug="bruxelles_prime_immobilier">
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-entreprise-card-target="resultImmobilier">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 200.000€ - Taux 15% (max 30%)</small>
+                  <p class="text-primary small mt-1 mb-2">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= description_aide('bruxelles_prime_immobilier').truncate(120) %>
+                  </p>
                 </div>
 
                 <!-- Accessibilité -->
-                <div class="col-8">
-                  <label class="form-label small">Accessibilité (€) :</label>
+                <div class="col-12">
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+                    <label class="form-label small mb-0">
+                      <%= titre_aide('bruxelles_prime_accessibilite') %> (€) :
+                      <%= infobulle_aide('bruxelles_prime_accessibilite') %>
+                      <%= infobulle_delais_aide('bruxelles_prime_accessibilite') %>
+                    </label>
+                    <div class="text-end">
+                      <%= badges_tailles_aide('bruxelles_prime_accessibilite') %>
+                    </div>
+                  </div>
                   <div class="input-group input-group-sm">
-                    <input type="number" class="form-control" placeholder="€"
+                    <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_prime_accessibilite') %>"
                            data-bruxelles-entreprise-card-target="inputAccessibilite"
                            data-bruxelles-entreprise-card-slug="bruxelles_prime_accessibilite">
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-entreprise-card-target="resultAccessibilite">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 50.000€ - Taux 50% (max 70%)</small>
+                  <p class="text-primary small mt-1 mb-2">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= description_aide('bruxelles_prime_accessibilite').truncate(120) %>
+                  </p>
                 </div>
               </div>
 
@@ -239,29 +534,55 @@
 
               <div class="row g-2">
                 <!-- Recrutement -->
-                <div class="col-8">
-                  <label class="form-label small">Aides au recrutement (€) :</label>
+                <div class="col-12">
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+                    <label class="form-label small mb-0">
+                      <%= titre_aide('bruxelles_prime_recrutement') %> (€) :
+                      <%= infobulle_aide('bruxelles_prime_recrutement') %>
+                      <%= infobulle_delais_aide('bruxelles_prime_recrutement') %>
+                    </label>
+                    <div class="text-end">
+                      <%= badges_tailles_aide('bruxelles_prime_recrutement') %>
+                    </div>
+                  </div>
                   <div class="input-group input-group-sm">
-                    <input type="number" class="form-control" placeholder="€"
+                    <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_prime_recrutement') %>"
                            data-bruxelles-entreprise-card-target="inputRecrutement"
                            data-bruxelles-entreprise-card-slug="bruxelles_aide_recrutement">
                     <span class="input-group-text bg-warning text-white"
                           data-bruxelles-entreprise-card-target="resultRecrutement">0 €</span>
                   </div>
                   <small class="text-muted">Forfaitaire selon profil recruté</small>
+                  <p class="text-warning small mt-1 mb-2">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= description_aide('bruxelles_prime_recrutement').truncate(120) %>
+                  </p>
                 </div>
 
                 <!-- Formation -->
-                <div class="col-8">
-                  <label class="form-label small">Formation du personnel (€) :</label>
+                <div class="col-12">
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+                    <label class="form-label small mb-0">
+                      <%= titre_aide('bruxelles_prime_formation') %> (€) :
+                      <%= infobulle_aide('bruxelles_prime_formation') %>
+                      <%= infobulle_delais_aide('bruxelles_prime_formation') %>
+                    </label>
+                    <div class="text-end">
+                      <%= badges_tailles_aide('bruxelles_prime_formation') %>
+                    </div>
+                  </div>
                   <div class="input-group input-group-sm">
-                    <input type="number" class="form-control" placeholder="€"
+                    <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_prime_formation') %>"
                            data-bruxelles-entreprise-card-target="inputFormation"
                            data-bruxelles-entreprise-card-slug="bruxelles_prime_formation">
                     <span class="input-group-text bg-warning text-white"
                           data-bruxelles-entreprise-card-target="resultFormation">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 20.000€/an - Taux 40% (max 80%)</small>
+                  <p class="text-warning small mt-1 mb-2">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= description_aide('bruxelles_prime_formation').truncate(120) %>
+                  </p>
                 </div>
               </div>
 
@@ -297,29 +618,55 @@
 
               <div class="row g-2">
                 <!-- Consultance générale -->
-                <div class="col-8">
-                  <label class="form-label small">Consultance générale (€) :</label>
+                <div class="col-12">
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+                    <label class="form-label small mb-0">
+                      <%= titre_aide('bruxelles_prime_consultance') %> (€) :
+                      <%= infobulle_aide('bruxelles_prime_consultance') %>
+                      <%= infobulle_delais_aide('bruxelles_prime_consultance') %>
+                    </label>
+                    <div class="text-end">
+                      <%= badges_tailles_aide('bruxelles_prime_consultance') %>
+                    </div>
+                  </div>
                   <div class="input-group input-group-sm">
-                    <input type="number" class="form-control" placeholder="€"
+                    <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_prime_consultance') %>"
                            data-bruxelles-entreprise-card-target="inputConsultance"
                            data-bruxelles-entreprise-card-slug="bruxelles_prime_consultance">
                     <span class="input-group-text bg-info text-white"
                           data-bruxelles-entreprise-card-target="resultConsultance">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 7.500€/an - Taux 25% (max 70%)</small>
+                  <p class="text-info small mt-1 mb-2">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= description_aide('bruxelles_prime_consultance').truncate(120) %>
+                  </p>
                 </div>
 
                 <!-- Consultance digitalisation -->
-                <div class="col-8">
-                  <label class="form-label small">Consultance digitalisation (€) :</label>
+                <div class="col-12">
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+                    <label class="form-label small mb-0">
+                      <%= titre_aide('bruxelles_prime_digitalisation') %> (€) :
+                      <%= infobulle_aide('bruxelles_prime_digitalisation') %>
+                      <%= infobulle_delais_aide('bruxelles_prime_digitalisation') %>
+                    </label>
+                    <div class="text-end">
+                      <%= badges_tailles_aide('bruxelles_prime_digitalisation') %>
+                    </div>
+                  </div>
                   <div class="input-group input-group-sm">
-                    <input type="number" class="form-control" placeholder="€"
+                    <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_prime_digitalisation') %>"
                            data-bruxelles-entreprise-card-target="inputDigitalisation"
                            data-bruxelles-entreprise-card-slug="bruxelles_consultance_digitalisation">
                     <span class="input-group-text bg-info text-white"
                           data-bruxelles-entreprise-card-target="resultDigitalisation">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 10.000€/an - Taux 50% (max 70%)</small>
+                  <p class="text-info small mt-1 mb-2">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= description_aide('bruxelles_prime_digitalisation').truncate(120) %>
+                  </p>
                 </div>
               </div>
 
@@ -341,43 +688,10 @@
     </div>
   </div>
 
-  <!-- Section Résultats Totaux Entreprise -->
-  <div class="mt-4">
-    <div class="card border-0 shadow-sm">
-      <div class="card-body p-3">
-
-        <div class="row align-items-center">
-          <!-- Colonne gauche: Détail par catégorie -->
-          <div class="col-md-5">
-            <h6 class="text-muted mb-2">Détail par catégorie</h6>
-            <div class="row g-2">
-              <div class="col-6">
-                <div class="p-2 bg-success bg-opacity-10 rounded text-center">
-                  <small class="text-success fw-bold">Transition</small><br>
-                  <span class="text-success fw-bold" data-bruxelles-entreprise-calcul-target="totalTransition">0 €</span>
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="p-2 bg-primary bg-opacity-10 rounded text-center">
-                  <small class="text-primary fw-bold">Investissements</small><br>
-                  <span class="text-primary fw-bold" data-bruxelles-entreprise-calcul-target="totalInvestissements">0 €</span>
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="p-2 bg-warning bg-opacity-10 rounded text-center">
-                  <small class="text-warning fw-bold">RH</small><br>
-                  <span class="text-warning fw-bold" data-bruxelles-entreprise-calcul-target="totalRH">0 €</span>
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="p-2 bg-info bg-opacity-10 rounded text-center">
-                  <small class="text-info fw-bold">Services</small><br>
-                  <span class="text-info fw-bold" data-bruxelles-entreprise-calcul-target="totalServices">0 €</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
+    <!-- Section Résultats Totaux Entreprise -->
+    <div class="mt-4">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-3">
           <!-- Colonne milieu: Total principal -->
           <div class="col-md-3 text-center">
             <div class="p-3 bg-light rounded">
@@ -392,30 +706,22 @@
               </small>
             </div>
           </div>
-
-          <!-- Colonne droite: Informations importantes -->
-          <div class="col-md-4">
-            <div class="alert alert-info py-2 mb-0">
-              <div class="d-flex align-items-start">
-                <i class="bi bi-info-circle me-2 mt-1"></i>
-                <div>
-                  <h6 class="alert-heading mb-1">Informations importantes</h6>
-                  <small>
-                    Estimations basées sur les programmes d'aide de la Région de Bruxelles-Capitale.
-                    Les aides varient selon la taille d'entreprise et les majorations possibles.
-                  </small>
-                  <div class="mt-1">
-                    <small>
-                      <a href="#" class="text-decoration-none">Voir les conditions détaillées</a>
-                    </small>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
-
       </div>
     </div>
   </div>
 </div>
+
+<!-- Initialisation des tooltips Bootstrap -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialisation des tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl, {
+        trigger: 'hover',
+        delay: { show: 300, hide: 100 }
+      });
+    });
+  });
+</script>

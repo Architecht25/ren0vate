@@ -20,6 +20,14 @@ class EntrepriseAide < ApplicationRecord
     aide_calculee
   end
 
+  def montant_investissement_min_requis
+    return nil if montant_min.blank? || taux_aide.blank? || taux_aide.zero?
+
+    # Calcul : montant_min / (taux_aide / 100)
+    # Exemple : 500€ / (50% / 100) = 1000€
+    (montant_min / (taux_aide / 100)).round
+  end
+
   def compatible_avec_secteur?(code_nace)
     # Logique de compatibilité avec secteurs NACE
     # À implémenter selon les exclusions spécifiques
