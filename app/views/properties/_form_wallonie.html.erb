@@ -1,316 +1,512 @@
 <% property ||= @property %>
-<%= simple_form_for property, local: true do |f| %>
-  <!-- Champ caché pour la région -->
-  <%= f.hidden_field :region, value: "Wallonie" %>
-
-  <!-- Sections Nom du bien et Adresse - côte à côte -->
-  <div class="row g-4 mb-4">
-    <!-- Section Nom du bien -->
-    <div class="col-lg-6">
-      <div class="form-section bg-light-subtle border rounded-3 p-4">
-        <h5 class="text-primary-custom mb-3 fw-normal">
-          <i class="bi bi-tag me-2"></i>
-          Nom du bien
-        </h5>
-
-        <%= f.input :titre,
-            label: "Nom ou titre du bien",
-            placeholder: "ex. Maison Wallonie, Appartement Liège, Gîte familial...",
-            hint: "Donnez un nom à votre bien pour le retrouver facilement",
-            wrapper_html: { class: "mb-3" },
-            input_html: { class: "form-control-custom" } %>
-
-        <!-- Champ pour la photo du bien -->
-        <div data-controller="image-preview">
-          <%= f.input :photo,
-              as: :file,
-              label: "Photo du bien",
-              hint: "Ajoutez une photo de votre bien (JPG, PNG, max 5MB)",
-              wrapper_html: { class: "mb-3" },
-              input_html: {
-                class: "form-control-custom",
-                accept: "image/*",
-                data: {
-                  image_preview_target: "input",
-                  action: "change->image-preview#previewImage"
-                }
-              } %>
-
-          <!-- Zone de prévisualisation de l'image -->
-          <div data-image-preview-target="preview" class="mb-3" style="display: none;">
-            <img data-image-preview-target="previewImg" src="" alt="Aperçu" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
-          </div>
+<div class="container-fluid px-4 py-3">
+  <!-- Header compact avec avatar -->
+  <div class="row justify-content-center mb-3">
+    <div class="col-lg-10">
+      <div class="text-center">
+        <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
+          <i class="bi bi-mountain text-white fs-4"></i>
         </div>
-
-        <!-- Afficher la photo existante si elle existe -->
-        <% if property.photo.attached? %>
-          <div class="mb-3">
-            <label class="form-label">Photo actuelle</label>
-            <div>
-              <%= image_tag property.photo, class: "img-thumbnail", style: "max-width: 200px; max-height: 150px;" %>
-            </div>
-          </div>
-        <% end %>
-      </div>
-    </div>
-
-    <!-- Section Adresse -->
-    <div class="col-lg-6">
-      <div class="form-section bg-light-subtle border rounded-3 p-4">
-        <h5 class="text-primary-custom mb-3 fw-normal">
-          <i class="bi bi-geo-alt me-2"></i>
-          Adresse du bien
-        </h5>
-
-        <!-- Ligne 1: Rue et Numéro -->
-        <div class="row g-2 mb-3">
-          <div class="col-md-4">
-            <%= f.input :rue, **apply_required_styling({
-                label: "Rue",
-                placeholder: "ex. Rue de l'Énergie",
-                wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom" }
-              }, Property, :rue, property) %>
-          </div>
-          <div class="col-md-4">
-            <%= f.input :numero, **apply_required_styling({
-                label: "Numéro",
-                placeholder: "ex. 24",
-                wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom" }
-              }, Property, :numero, property) %>
-          </div>
-        </div>
-
-        <!-- Ligne 2: Code postal et Commune -->
-        <div class="row g-2">
-          <div class="col-md-4">
-            <%= f.input :code_postal, **apply_required_styling({
-                label: "Code postal",
-                placeholder: "ex. 5000",
-                wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom" }
-              }, Property, :code_postal, property) %>
-          </div>
-          <div class="col-md-8">
-            <%= f.input :commune, **apply_required_styling({
-                label: "Commune",
-                placeholder: "ex. Namur",
-                wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom" }
-              }, Property, :commune, property) %>
-          </div>
-        </div>
+        <h1 class="h3 text-dark fw-light mb-1">Propriété en Wallonie</h1>
+        <p class="text-muted small">Informations sur votre bien à rénover</p>
       </div>
     </div>
   </div>
 
-  <!-- Sections Type de bien et Informations d'achat - côte à côte -->
-  <div class="row g-4 mb-4">
-    <!-- Section Type de bien -->
-    <div class="col-lg-6">
-      <div class="form-section bg-light-subtle border rounded-3 p-4">
-        <h5 class="text-primary-custom mb-3 fw-normal">
-          <i class="bi bi-building me-2"></i>
-          Type de bien
-        </h5>
+  <%= simple_form_for property, local: true, html: { class: "needs-validation", novalidate: true } do |f| %>
+    <!-- Champ caché pour la région -->
+    <%= f.hidden_field :region, value: "Wallonie" %>
 
+    <!-- Première rangée: Nom du bien et Adresse -->
+    <div class="row justify-content-center mb-3">
+      <div class="col-lg-10">
         <div class="row g-3">
-          <div class="col-12">
-            <%= f.input :type_propriete_wallonie, **apply_required_styling({
-                label: "Type de propriété (Wallonie)",
-                as: :select,
-                collection: [
-                  ["Propriétaire à 100%", "propriétaire_occupant"],
-                  ["Copropriétaire avec mon conjoint", "copropriétaire"],
-                  ["Nu propriétaire", "nu_proprietaire"],
-                  ["Usufruitier", "usufruitier"],
-                  ["Plein propriétaire", "plein_proprietaire"]
-                ],
-                prompt: "-- Sélectionnez le type de propriété --",
-                wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom" }
-              }, Property, :type_propriete_wallonie, property) %>
-          </div>
-        </div>
 
-        <div class="row g-3">
-          <div class="col-12">
-            <%= f.input :profil_demandeur,
-                label: "Profil du demandeur*",
-                as: :select,
-                collection: [
-                  ["Propriétaire occupant ou futur occupant", "propriétaire_occupant_ou_futur_occupant"],
-                  ["Syndic de copropriété", "syndic_copropriété"],
-                  ["Bailleur social", "bailleur_social"],
-                ],
-                prompt: "-- Sélectionnez le type de propriété --",
-                wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom" } %>
-          </div>
-        </div>
-      </div>
-    </div>
+          <!-- Carte 1: Nom du bien -->
+          <div class="col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+              <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex align-items-center">
+                  <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                    <i class="bi bi-tag text-white fs-6"></i>
+                  </div>
+                  <div>
+                    <h5 class="card-title mb-0 text-dark fw-normal">Nom du bien</h5>
+                    <p class="text-muted small mb-0">Identification de votre propriété</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 py-3">
+                <div class="row g-2">
+                  <div class="col-12">
+                    <%= f.input :titre,
+                        label: '<i class="bi bi-tag me-2 text-primary"></i>Nom ou titre du bien'.html_safe,
+                        placeholder: "ex. Maison Wallonie, Appartement Liège, Gîte familial...",
+                        hint: '<i class="bi bi-info-circle me-1"></i>Donnez un nom à votre bien pour le retrouver facilement'.html_safe,
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                        } %>
+                  </div>
 
-    <!-- Section Informations d'achat -->
-    <div class="col-lg-6">
-      <div class="form-section bg-light-subtle border rounded-3 p-4">
-        <h5 class="text-primary-custom mb-3 fw-normal">
-          <i class="bi bi-credit-card me-2"></i>
-          Informations d'achat
-        </h5>
+                  <!-- Photo du bien -->
+                  <div class="col-12" data-controller="image-preview">
+                    <%= f.input :photo,
+                        as: :file,
+                        label: '<i class="bi bi-camera me-2 text-primary"></i>Photo du bien'.html_safe,
+                        hint: '<i class="bi bi-info-circle me-1"></i>Ajoutez une photo de votre bien (JPG, PNG, max 5MB)'.html_safe,
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          accept: "image/*",
+                          data: {
+                            image_preview_target: "input",
+                            action: "change->image-preview#previewImage"
+                          }
+                        } %>
 
-        <div class="row g-3">
-          <div class="col-12">
-            <%= f.input :valeur_achat,
-                label: "Valeur d'achat (€)",
-                placeholder: "ex. 250000",
-                hint: "Prix d'achat du bien en euros",
-                wrapper_html: { class: "mb-3" },
-                input_html: {
-                  class: "form-control-custom",
-                  type: "number",
-                  step: "0.01",
-                  min: "0"
-                } %>
+                    <!-- Zone de prévisualisation -->
+                    <div data-image-preview-target="preview" class="mt-2" style="display: none;">
+                      <img data-image-preview-target="previewImg" src="" alt="Aperçu" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
+                    </div>
+
+                    <!-- Photo existante -->
+                    <% if property.photo.attached? %>
+                      <div class="mt-2">
+                        <small class="form-text text-muted d-block">Photo actuelle:</small>
+                        <%= image_tag property.photo, class: "img-thumbnail", style: "max-width: 200px; max-height: 150px;" %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="col-12">
-            <div class="mb-0">
-              <%= f.label :date_achat, "Date d'achat", class: "form-label" %>
-              <%= f.date_field :date_achat,
-                  class: "form-control form-control-custom",
-                  min: "1900-01-01",
-                  max: "2030-12-31",
-                  placeholder: "jj/mm/aaaa" %>
-              <div class="form-text">Date d'acquisition du bien</div>
+
+          <!-- Carte 2: Adresse du bien -->
+          <div class="col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+              <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex align-items-center">
+                  <div class="bg-info bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                    <i class="bi bi-geo-alt text-white fs-6"></i>
+                  </div>
+                  <div>
+                    <h5 class="card-title mb-0 text-dark fw-normal">Adresse du bien</h5>
+                    <p class="text-muted small mb-0">Localisation de votre propriété</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 py-3">
+                <div class="row g-2">
+                  <div class="col-6">
+                    <%= f.input :rue,
+                        label: '<i class="bi bi-signpost me-2 text-info"></i>Rue'.html_safe,
+                        placeholder: "ex. Rue de l'Énergie",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          required: true
+                        } %>
+                  </div>
+                  <div class="col-6">
+                    <%= f.input :numero,
+                        label: '<i class="bi bi-hash me-2 text-info"></i>Numéro'.html_safe,
+                        placeholder: "ex. 24",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          required: true
+                        } %>
+                  </div>
+                  <div class="col-6">
+                    <%= f.input :code_postal,
+                        label: '<i class="bi bi-mailbox me-2 text-info"></i>Code postal'.html_safe,
+                        placeholder: "ex. 5000",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          required: true
+                        } %>
+                  </div>
+                  <div class="col-6">
+                    <%= f.input :commune,
+                        label: '<i class="bi bi-geo me-2 text-info"></i>Commune'.html_safe,
+                        placeholder: "ex. Namur",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          required: true
+                        } %>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- Section Occupation et usage (pour éligibilité aux primes) -->
-  <div class="form-section mb-4 bg-light-subtle border rounded-3 p-4">
-    <h5 class="text-primary-custom mb-3 fw-normal">
-      <i class="bi bi-house-check me-2"></i>
-      Occupation et usage du bien
-    </h5>
-
-    <div class="card border-0 shadow-sm mb-4">
-      <div class="card-body p-4">
-        <h6 class="text-success mb-3 fw-semibold">
-          <i class="bi bi-award me-2"></i>
-          Informations pour l'éligibilité aux primes Wallonie
-        </h6>
-
+    <!-- Deuxième rangée: Type de bien et Informations d'achat -->
+    <div class="row justify-content-center mb-3">
+      <div class="col-lg-10">
         <div class="row g-3">
-          <div class="col-md-6">
-            <%= f.input :occupation,
-                label: "Type d'occupation",
-                as: :select,
-                collection: [
-                  ["Résidence principale", "residence_principale"],
-                  ["Résidence secondaire", "residence_secondaire"],
-                  ["Investissement locatif", "investissement"]
-                ],
-                prompt: "-- Sélectionnez le type d'occupation --",
-                wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom" } %>
-            <div class="form-text text-muted">
-              <i class="bi bi-info-circle me-1"></i>
-              La résidence principale est généralement requise pour les primes
+
+          <!-- Carte 3: Type de bien -->
+          <div class="col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+              <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex align-items-center">
+                  <div class="bg-secondary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                    <i class="bi bi-building text-white fs-6"></i>
+                  </div>
+                  <div>
+                    <h5 class="card-title mb-0 text-dark fw-normal">Type de bien</h5>
+                    <p class="text-muted small mb-0">Classification de votre propriété</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 py-3">
+                <div class="row g-2">
+                  <div class="col-12">
+                    <%= f.input :type_propriete_wallonie,
+                        label: '<i class="bi bi-building me-2 text-secondary"></i>Type de propriété (Wallonie)'.html_safe,
+                        collection: [
+                          ["Propriétaire à 100%", "propriétaire_occupant"],
+                          ["Copropriétaire avec mon conjoint", "copropriétaire"],
+                          ["Nu propriétaire", "nu_proprietaire"],
+                          ["Usufruitier", "usufruitier"],
+                          ["Plein propriétaire", "plein_proprietaire"]
+                        ],
+                        include_blank: "Sélectionnez le type de propriété",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-select border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          required: true
+                        } %>
+                  </div>
+                  <div class="col-12">
+                    <%= f.input :profil_demandeur,
+                        label: '<i class="bi bi-person me-2 text-secondary"></i>Profil du demandeur'.html_safe,
+                        collection: [
+                          ["Propriétaire occupant ou futur occupant", "propriétaire_occupant_ou_futur_occupant"],
+                          ["Syndic de copropriété", "syndic_copropriété"],
+                          ["Bailleur social", "bailleur_social"]
+                        ],
+                        include_blank: "Sélectionnez votre profil",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-select border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          required: true
+                        } %>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="col-md-6">
-            <%= f.input :habitation_percentage,
-                label: "Pourcentage d'habitation (%)",
-                placeholder: "ex. 100",
-                wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom", type: "number", min: "0", max: "100", step: "1" } %>
-            <div class="form-text text-muted">
-              <i class="bi bi-info-circle me-1"></i>
-              Minimum 50% requis pour l'éligibilité aux primes Wallonie
+
+          <!-- Carte 4: Informations d'achat -->
+          <div class="col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+              <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex align-items-center">
+                  <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                    <i class="bi bi-credit-card text-white fs-6"></i>
+                  </div>
+                  <div>
+                    <h5 class="card-title mb-0 text-dark fw-normal">Informations d'achat</h5>
+                    <p class="text-muted small mb-0">Détails financiers</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 py-3">
+                <div class="row g-2">
+                  <div class="col-12">
+                    <%= f.input :valeur_achat,
+                        label: '<i class="bi bi-currency-euro me-2 text-success"></i>Valeur d\'achat (€)'.html_safe,
+                        placeholder: "ex. 250000",
+                        hint: "Prix d'achat du bien en euros",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          type: "number",
+                          step: "0.01",
+                          min: "0"
+                        } %>
+                  </div>
+                  <div class="col-12">
+                    <%= f.input :date_achat,
+                        label: '<i class="bi bi-calendar me-2 text-success"></i>Date d\'achat'.html_safe,
+                        placeholder: "jj/mm/aaaa",
+                        hint: "Date d'acquisition du bien",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          type: "date",
+                          min: "1900-01-01",
+                          max: "2030-12-31"
+                        } %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Troisième rangée: Occupation et usage -->
+    <div class="row justify-content-center mb-3">
+      <div class="col-lg-10">
+        <div class="card border-0 shadow-lg rounded-4">
+          <div class="card-header bg-white border-0 py-3">
+            <div class="d-flex align-items-center">
+              <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                <i class="bi bi-house-check text-white fs-6"></i>
+              </div>
+              <div>
+                <h5 class="card-title mb-0 text-dark fw-normal">Occupation et usage du bien</h5>
+                <p class="text-muted small mb-0">Informations pour l'éligibilité aux primes Wallonie</p>
+              </div>
+            </div>
+          </div>
+          <div class="card-body px-4 py-3">
+            <div class="row g-2">
+              <div class="col-6">
+                <%= f.input :occupation,
+                    label: '<i class="bi bi-house me-2 text-warning"></i>Type d\'occupation'.html_safe,
+                    collection: [
+                      ["Résidence principale", "residence_principale"],
+                      ["Résidence secondaire", "residence_secondaire"],
+                      ["Investissement locatif", "investissement"]
+                    ],
+                    include_blank: "Sélectionnez le type d'occupation",
+                    wrapper_html: { class: "mb-3" },
+                    label_html: { class: "form-label text-dark fw-medium mb-1" },
+                    input_html: {
+                      class: "form-select border-2 rounded-3 px-3",
+                      style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                    } %>
+                <small class="text-muted">
+                  <i class="bi bi-info-circle me-1"></i>
+                  La résidence principale est généralement requise pour les primes
+                </small>
+              </div>
+              <div class="col-6">
+                <%= f.input :habitation_percentage,
+                    label: '<i class="bi bi-percent me-2 text-warning"></i>Pourcentage d\'habitation (%)'.html_safe,
+                    placeholder: "ex. 100",
+                    wrapper_html: { class: "mb-3" },
+                    label_html: { class: "form-label text-dark fw-medium mb-1" },
+                    input_html: {
+                      class: "form-control border-2 rounded-3 px-3",
+                      style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                      type: "number",
+                      min: "0",
+                      max: "100",
+                      step: "1"
+                    } %>
+                <small class="text-muted">
+                  <i class="bi bi-info-circle me-1"></i>
+                  Minimum 50% requis pour l'éligibilité aux primes Wallonie
+                </small>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Section Caractéristiques spécifiques à la Wallonie -->
-  <div class="form-section mb-4 bg-light-subtle border rounded-3 p-4">
-    <h5 class="text-primary-custom mb-4 fw-normal">
-      <i class="bi bi-flag-fill me-2 text-warning"></i>
-      Caractéristiques spécifiques à la Wallonie
-    </h5>
-
-    <!-- Sous-section Performance énergétique -->
-    <div class="card border-0 shadow-sm mb-4">
-      <div class="card-body p-4">
-        <h6 class="text-success mb-3 fw-semibold">
-          <i class="bi bi-lightning-charge me-2"></i>
-          Performance énergétique
-        </h6>
-        <div class="row g-3">
-          <div class="col-md-4">
-            <%= f.input :certificat_peb_wallonie,
-                label: "Certificat PEB",
-                placeholder: "ex. 350 kWh/m²/an",
-                wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom" } %>
-          </div>
-          <div class="col-md-4">
-            <div class="mb-0">
-              <%= f.label :date_peb_avant_travaux, "Date du certificat PEB", class: "form-label" %>
-              <%= f.date_field :date_peb_avant_travaux,
-                  class: "form-control form-control-custom",
-                  min: "1990-01-01",
-                  max: "2030-12-31",
-                  placeholder: "jj/mm/aaaa" %>
+    <!-- Quatrième rangée: Caractéristiques spécifiques à la Wallonie -->
+    <div class="row justify-content-center mb-3">
+      <div class="col-lg-10">
+        <div class="card border-0 shadow-lg rounded-4">
+          <div class="card-header bg-white border-0 py-3">
+            <div class="d-flex align-items-center">
+              <div class="bg-danger bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                <i class="bi bi-flag-fill text-white fs-6"></i>
+              </div>
+              <div>
+                <h5 class="card-title mb-0 text-dark fw-normal">Caractéristiques spécifiques à la Wallonie</h5>
+                <p class="text-muted small mb-0">Performance énergétique et caractéristiques du bâtiment</p>
+              </div>
             </div>
           </div>
-          <div class="col-md-4">
-            <%= f.input :audit_energetique,
-                label: "Audit énergétique",
-                placeholder: "ex. 280 kWh/m²/an",
-                wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom" } %>
+          <div class="card-body px-4 py-3">
+
+            <!-- Performance énergétique -->
+            <div class="mb-4">
+              <div class="d-flex align-items-center mb-3">
+                <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px;">
+                  <i class="bi bi-lightning-charge text-white" style="font-size: 0.7rem;"></i>
+                </div>
+                <h6 class="mb-0 text-success fw-medium">Performance énergétique</h6>
+              </div>
+              <div class="row g-2">
+                <div class="col-md-4">
+                  <%= f.input :certificat_peb_wallonie,
+                      label: '<i class="bi bi-file-earmark-text me-2 text-success"></i>Certificat PEB'.html_safe,
+                      placeholder: "ex. 350 kWh/m²/an",
+                      wrapper_html: { class: "mb-3" },
+                      label_html: { class: "form-label text-dark fw-medium mb-1" },
+                      input_html: {
+                        class: "form-control border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                      } %>
+                </div>
+                <div class="col-md-4">
+                  <%= f.input :date_peb_avant_travaux,
+                      label: '<i class="bi bi-calendar me-2 text-success"></i>Date du certificat PEB'.html_safe,
+                      placeholder: "jj/mm/aaaa",
+                      wrapper_html: { class: "mb-3" },
+                      label_html: { class: "form-label text-dark fw-medium mb-1" },
+                      input_html: {
+                        class: "form-control border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                        type: "date",
+                        min: "1990-01-01",
+                        max: "2030-12-31"
+                      } %>
+                </div>
+                <div class="col-md-4">
+                  <%= f.input :audit_energetique,
+                      label: '<i class="bi bi-search me-2 text-success"></i>Audit énergétique'.html_safe,
+                      placeholder: "ex. 280 kWh/m²/an",
+                      wrapper_html: { class: "mb-3" },
+                      label_html: { class: "form-label text-dark fw-medium mb-1" },
+                      input_html: {
+                        class: "form-control border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                      } %>
+                </div>
+              </div>
+            </div>
+
+            <!-- Caractéristiques du bâtiment -->
+            <div class="mb-4">
+              <div class="d-flex align-items-center mb-3">
+                <div class="bg-info bg-gradient rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px;">
+                  <i class="bi bi-rulers text-white" style="font-size: 0.7rem;"></i>
+                </div>
+                <h6 class="mb-0 text-info fw-medium">Caractéristiques du bâtiment</h6>
+              </div>
+              <div class="row g-2">
+                <div class="col-6">
+                  <%= f.input :surface_habitable_wallonie,
+                      label: '<i class="bi bi-rulers me-2 text-info"></i>Surface habitable'.html_safe,
+                      placeholder: "ex. 120",
+                      wrapper_html: { class: "mb-3" },
+                      label_html: { class: "form-label text-dark fw-medium mb-1" },
+                      input_html: {
+                        class: "form-control border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                        type: "number",
+                        min: "1",
+                        step: "1"
+                      } %>
+                </div>
+                <div class="col-6">
+                  <%= f.input :annee_construction,
+                      label: '<i class="bi bi-calendar3 me-2 text-info"></i>Année de construction'.html_safe,
+                      placeholder: "ex. 1985",
+                      wrapper_html: { class: "mb-3" },
+                      label_html: { class: "form-label text-dark fw-medium mb-1" },
+                      input_html: {
+                        class: "form-control border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                        type: "number",
+                        min: "1800",
+                        max: Date.current.year,
+                        required: true
+                      } %>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Sous-section Caractéristiques du bâtiment -->
-    <div class="card border-0 shadow-sm mb-4">
-      <div class="card-body p-4">
-        <h6 class="text-info mb-3 fw-semibold">
-          <i class="bi bi-rulers me-2"></i>
-          Caractéristiques du bâtiment
-        </h6>
-        <div class="row g-3">
-          <div class="col-md-4">
-            <%= f.input :surface_habitable_wallonie,
-                label: "Surface habitable",
-                placeholder: "ex. 120",
-                wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom", type: "number", min: "1", step: "1" } %>
+    <!-- Boutons d'action modernes -->
+    <div class="row justify-content-center mb-5">
+      <div class="col-lg-10">
+        <div class="card border-0 shadow-lg rounded-4">
+          <div class="card-header bg-white border-0 py-3">
+            <div class="d-flex align-items-center">
+              <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                <i class="bi bi-gear text-white fs-6"></i>
+              </div>
+              <div>
+                <h5 class="card-title mb-0 text-dark fw-normal">Actions</h5>
+                <p class="text-muted small mb-0">Gérer votre propriété</p>
+              </div>
+            </div>
           </div>
-          <div class="col-md-4">
-            <%= f.input :annee_construction,
-                label: "Année de construction*",
-                placeholder: "ex. 1985",
-                wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom", type: "number", min: "1800", max: Date.current.year } %>
+          <div class="card-body px-4 py-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <%= link_to properties_path, class: "btn btn-outline-secondary rounded-3 py-2" do %>
+                <i class="bi bi-arrow-left me-2"></i>Annuler
+              <% end %>
+              <%= f.submit "Ajouter le bien", class: 'btn btn-primary rounded-3 py-2 fw-medium' %>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Boutons d'action -->
-  <div class="d-flex justify-content-end mt-4">
-    <%= link_to "Annuler", properties_path, class: "btn btn-outline-secondary me-2" %>
-    <%= f.submit "Ajouter le bien", class: "btn btn-primary-custom" %>
+    <% end %>
   </div>
-<% end %>
+</div>
+
+<!-- CSS personnalisé pour le design professionnel -->
+<style>
+  .form-control:focus, .form-select:focus {
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15) !important;
+  }
+
+  .card {
+    transition: all 0.3s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+  }
+
+  .btn {
+    transition: all 0.2s ease;
+  }
+
+  .btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+
+  .bg-light {
+    background-color: #f8f9fa !important;
+  }
+
+  .form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+  }
+</style>

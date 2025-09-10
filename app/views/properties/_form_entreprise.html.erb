@@ -1,345 +1,174 @@
 <% property ||= @property %>
-<%= simple_form_for property, local: true do |f| %>
-  <!-- Champ caché pour marquer comme entreprise -->
-  <%= f.hidden_field :type, value: "entreprise" %>
-
-  <!-- Première rangée : Informations de l'entreprise + Informations d'investissement -->
-  <div class="row g-4 mb-4">
-    <!-- Section Informations de l'entreprise -->
-    <div class="col-lg-8">
-      <div class="form-section bg-light-subtle border rounded-3 p-4 h-100">
-        <div class="d-flex align-items-center mb-3">
-          <div class="icon-circle me-3">
-            <i class="bi bi-building"></i>
-          </div>
-          <h5 class="mb-0 fw-normal text-primary-custom">Informations de l'entreprise</h5>
+<div class="container-fluid px-4 py-3">
+  <!-- Header compact avec avatar -->
+  <div class="row justify-content-center mb-3">
+    <div class="col-lg-10">
+      <div class="text-center">
+        <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
+          <i class="bi bi-building-gear text-white fs-4"></i>
         </div>
-
-        <%= f.input :titre, **apply_required_styling({
-            label: "Nom de l'entreprise ou du projet",
-            placeholder: "ex. ACME Solutions - Bureaux Bruxelles",
-            wrapper_html: { class: "mb-3" },
-            input_html: { class: "form-control-custom" }
-          }, Property, :titre, property) %>
-
-        <!-- Champ pour la photo du bien -->
-        <div data-controller="image-preview">
-          <%= f.input :photo,
-              as: :file,
-              label: "Photo du bien",
-              hint: "Ajoutez une photo de votre bien d'entreprise (JPG, PNG, max 5MB)",
-              wrapper_html: { class: "mb-3" },
-              input_html: {
-                class: "form-control-custom",
-                accept: "image/*",
-                data: {
-                  image_preview_target: "input",
-                  action: "change->image-preview#previewImage"
-                }
-              } %>
-
-          <!-- Zone de prévisualisation de l'image -->
-          <div data-image-preview-target="preview" class="mb-3" style="display: none;">
-            <img data-image-preview-target="previewImg" src="" alt="Aperçu" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
-          </div>
-        </div>
-
-        <!-- Afficher la photo existante si elle existe -->
-        <% if property.photo.attached? %>
-          <div class="mb-3">
-            <label class="form-label">Photo actuelle</label>
-            <div>
-              <%= image_tag property.photo, class: "img-thumbnail", style: "max-width: 200px; max-height: 150px;" %>
-            </div>
-          </div>
-        <% end %>
-
-        <div class="row g-3">
-          <div class="col-6">
-            <%= f.input :numero_ean,
-                label: "Numéro d'entreprise (BCE)",
-                placeholder: "ex. 0123.456.789",
-                wrapper_html: { class: "mb-3" },
-                input_html: { class: "form-control-custom" } %>
-          </div>
-          <div class="col-6">
-            <%= f.input :occupation,
-                label: "Type d'activité*",
-                collection: [
-                  ['Commerce de détail', 'commerce_detail'],
-                  ['Commerce de gros', 'commerce_gros'],
-                  ['Services', 'services'],
-                  ['Industrie', 'industrie'],
-                  ['Construction', 'construction'],
-                  ['Technologie', 'technologie'],
-                  ['Restauration', 'restauration'],
-                  ['Santé', 'sante'],
-                  ['Autre', 'autre']
-                ],
-                include_blank: "Sélectionnez une activité",
-                wrapper_html: { class: "mb-3" },
-                input_html: { class: "form-select-custom" } %>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Section Informations d'investissement -->
-    <div class="col-lg-4">
-      <div class="form-section bg-light-subtle border rounded-3 p-4 h-100">
-        <div class="d-flex align-items-center mb-3">
-          <div class="icon-circle me-3">
-            <i class="bi bi-credit-card"></i>
-          </div>
-          <h5 class="mb-0 fw-normal text-primary-custom">Informations d'investissement</h5>
-        </div>
-
-        <div class="row g-3">
-          <div class="col-12">
-            <%= f.input :valeur_achat,
-                label: "Valeur d'investissement (€)",
-                placeholder: "ex. 500000",
-                hint: "",
-                wrapper_html: { class: "mb-3" },
-                input_html: {
-                  class: "form-control-custom",
-                  type: "number",
-                  step: "0.01",
-                  min: "0"
-                } %>
-          </div>
-          <div class="col-4">
-            <div class="mb-3">
-              <%= f.label :date_achat, "Date d'acquisition du siège", class: "form-label" %>
-              <%= f.date_field :date_achat,
-                  class: "form-control form-control-custom",
-                  min: "1900-01-01",
-                  max: "2030-12-31",
-                  placeholder: "jj/mm/aaaa" %>
-
-            </div>
-          </div>
-        </div>
+        <h1 class="h3 text-dark fw-light mb-1">Propriété Entreprise</h1>
+        <p class="text-muted small">Informations sur votre bien d'entreprise</p>
       </div>
     </div>
   </div>
 
-  <!-- Section Adresses de l'entreprise - Optimisée -->
-  <div class="form-section bg-light-subtle border rounded-3 p-4 mb-4">
-    <div class="d-flex align-items-center mb-3">
-      <div class="icon-circle me-3">
-        <i class="bi bi-geo-alt"></i>
-      </div>
-      <h5 class="mb-0 fw-normal text-primary-custom">Adresses de l'entreprise</h5>
-    </div>
+  <%= simple_form_for property, local: true, html: { class: "needs-validation", novalidate: true } do |f| %>
+    <!-- Champ caché pour marquer comme entreprise -->
+    <%= f.hidden_field :type, value: "entreprise" %>
 
-    <!-- Siège social - Disposition compacte -->
-    <div class="mb-4">
-      <h6 class="text-primary-custom mb-3 fw-semibold">
-        <i class="bi bi-building me-2"></i>Siège social
-      </h6>
-
-      <!-- Première ligne : Rue + Numéro + Code postal + Commune -->
-      <div class="row g-2 mb-3">
-        <div class="col-md-3">
-          <%= f.input :rue, **apply_required_styling({
-              label: "Rue",
-              placeholder: "ex. Avenue des Entreprises",
-              wrapper_html: { class: "mb-0" },
-              input_html: { class: "form-control-custom" }
-            }, Property, :rue, property) %>
-        </div>
-        <div class="col-md-2">
-          <%= f.input :numero, **apply_required_styling({
-              label: "N°",
-              placeholder: "42",
-              wrapper_html: { class: "mb-0" },
-              input_html: { class: "form-control-custom" }
-            }, Property, :numero, property) %>
-        </div>
-        <div class="col-md-2">
-          <%= f.input :code_postal, **apply_required_styling({
-              label: "CP",
-              placeholder: "1000",
-              wrapper_html: { class: "mb-0" },
-              input_html: { class: "form-control-custom" }
-            }, Property, :code_postal, property) %>
-        </div>
-        <div class="col-md-3">
-          <%= f.input :commune, **apply_required_styling({
-              label: "Commune",
-              placeholder: "ex. Bruxelles",
-              wrapper_html: { class: "mb-0" },
-              input_html: { class: "form-control-custom" }
-            }, Property, :commune, property) %>
-        </div>
-
-        <div class="col-md-2">
-          <%= f.input :region,
-              label: "Région*",
-              collection: [
-                ['Bruxelles-Capitale', 'bruxelles'],
-                ['Wallonie', 'wallonie'],
-                ['Flandre', 'flandre']
-              ],
-              include_blank: "Sélectionnez une région",
-              wrapper_html: { class: "mb-0" },
-              input_html: { class: "form-select-custom" } %>
-        </div>
-      </div>
-    </div>
-
-    <!-- Siège d'exploitation - Disposition compacte -->
-    <div class="mb-3">
-      <h6 class="text-primary-custom mb-3 fw-semibold">
-        <i class="bi bi-tools me-2"></i>Siège d'exploitation
-      </h6>
-
-      <!-- Case à cocher pour indiquer si l'adresse d'exploitation est identique -->
-      <div class="mb-3">
-        <div class="form-check">
-          <%= f.check_box :meme_adresse_exploitation, class: "form-check-input",
-              data: { action: "change->address-copy#toggle" } %>
-          <%= f.label :meme_adresse_exploitation, "Même adresse que le siège social",
-              class: "form-check-label text-muted" %>
-        </div>
-      </div>
-
-      <div data-controller="address-copy" data-address-copy-same-target="container">
-        <!-- Première ligne : Rue + Numéro + Code postal + Commune -->
-        <div class="row g-2 mb-3">
-          <div class="col-md-3">
-            <%= f.input :rue_exploitation, **apply_required_styling({
-                label: "Rue",
-                placeholder: "ex. Zone industrielle Sud",
-                wrapper_html: { class: "mb-0" },
-                input_html: {
-                  class: "form-control-custom",
-                  data: { address_copy_target: "rueExploitation" }
-                }
-              }, Property, :rue_exploitation, property) %>
-          </div>
-          <div class="col-md-2">
-            <%= f.input :numero_exploitation, **apply_required_styling({
-                label: "N°",
-                placeholder: "15",
-                wrapper_html: { class: "mb-0" },
-                input_html: {
-                  class: "form-control-custom",
-                  data: { address_copy_target: "numeroExploitation" }
-                }
-              }, Property, :numero_exploitation, property) %>
-          </div>
-          <div class="col-md-2">
-            <%= f.input :code_postal_exploitation, **apply_required_styling({
-                label: "CP",
-                placeholder: "1200",
-                wrapper_html: { class: "mb-0" },
-                input_html: {
-                  class: "form-control-custom",
-                  data: { address_copy_target: "codePostalExploitation" }
-                }
-              }, Property, :code_postal_exploitation, property) %>
-          </div>
-          <div class="col-md-4">
-            <%= f.input :commune_exploitation, **apply_required_styling({
-                label: "Commune",
-                placeholder: "ex. Woluwe-Saint-Lambert",
-                wrapper_html: { class: "mb-0" },
-                input_html: {
-                  class: "form-control-custom",
-                  data: { address_copy_target: "communeExploitation" }
-                }
-              }, Property, :commune_exploitation, property) %>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Deuxième rangée : Caractéristiques du bien + Codes NACE -->
-  <div class="row g-4 mb-4">
-    <!-- Section Caractéristiques du bien d'entreprise -->
-    <div class="col-lg-6">
-      <div class="form-section bg-light-subtle border rounded-3 p-4 h-100">
-        <div class="d-flex align-items-center mb-3">
-          <div class="icon-circle me-3">
-            <i class="bi bi-diagram-3"></i>
-          </div>
-          <h5 class="mb-0 fw-normal text-primary-custom">Caractéristiques du bien</h5>
-        </div>
-
+    <!-- Première rangée: Informations entreprise et Photo -->
+    <div class="row justify-content-center mb-3">
+      <div class="col-lg-10">
         <div class="row g-3">
-          <div class="col-6">
-            <%= f.input :type_propriete,
-                label: "Type de bien*",
-                collection: [
-                  ['Bureau', 'bureau'],
-                  ['Local commercial', 'local_commercial'],
-                  ['Entrepôt', 'entrepot'],
-                  ['Atelier', 'atelier'],
-                  ['Usine', 'usine'],
-                  ['Local mixte', 'local_mixte'],
-                  ['Autre', 'autre']
-                ],
-                include_blank: "Sélectionnez un type",
-                wrapper_html: { class: "mb-3" },
-                input_html: { class: "form-select-custom" } %>
-          </div>
-          <div class="col-6">
-            <%= f.input :usage,
-                label: "Usage principal",
-                collection: [
-                  ['Siège social', 'siege_social'],
-                  ['Point de vente', 'point_vente'],
-                  ['Production', 'production'],
-                  ['Stockage', 'stockage'],
-                  ['Services', 'services'],
-                  ['Location', 'location'],
-                  ['Autre', 'autre']
-                ],
-                include_blank: "Sélectionnez un usage",
-                wrapper_html: { class: "mb-3" },
-                input_html: { class: "form-select-custom" } %>
-          </div>
-          <div class="col-6">
-            <%= f.input :surface_totale,
-                label: "Surface totale (m²)*",
-                placeholder: "ex. 250",
-                wrapper_html: { class: "mb-3" },
-                input_html: { class: "form-control-custom", type: "number", min: "1" } %>
+
+          <!-- Carte 1: Informations de l'entreprise -->
+          <div class="col-lg-8">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+              <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex align-items-center">
+                  <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                    <i class="bi bi-building text-white fs-6"></i>
+                  </div>
+                  <div>
+                    <h5 class="card-title mb-0 text-dark fw-normal">Informations de l'entreprise</h5>
+                    <p class="text-muted small mb-0">Détails de votre société</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 py-3">
+                <div class="row g-2">
+                  <div class="col-12">
+                    <%= f.input :titre,
+                        label: '<i class="bi bi-building-check me-2 text-primary"></i>Nom de l\'entreprise ou du projet'.html_safe,
+                        placeholder: "ex. ACME Solutions - Bureaux Bruxelles",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          required: true
+                        } %>
+                  </div>
+
+                  <!-- Photo du bien -->
+                  <div class="col-12" data-controller="image-preview">
+                    <%= f.input :photo,
+                        as: :file,
+                        label: '<i class="bi bi-camera me-2 text-primary"></i>Photo du bien'.html_safe,
+                        hint: '<i class="bi bi-info-circle me-1"></i>Ajoutez une photo de votre bien d\'entreprise (JPG, PNG, max 5MB)'.html_safe,
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          accept: "image/*",
+                          data: {
+                            image_preview_target: "input",
+                            action: "change->image-preview#previewImage"
+                          }
+                        } %>
+
+                    <!-- Zone de prévisualisation -->
+                    <div data-image-preview-target="preview" class="mt-2" style="display: none;">
+                      <img data-image-preview-target="previewImg" src="" alt="Aperçu" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
+                    </div>
+
+                    <!-- Photo existante -->
+                    <% if property.photo.attached? %>
+                      <div class="mt-2">
+                        <small class="form-text text-muted d-block">Photo actuelle:</small>
+                        <%= image_tag property.photo, class: "img-thumbnail", style: "max-width: 200px; max-height: 150px;" %>
+                      </div>
+                    <% end %>
+                  </div>
+
+                  <!-- Informations entreprise -->
+                  <div class="col-6">
+                    <%= f.input :numero_ean,
+                        label: '<i class="bi bi-card-text me-2 text-primary"></i>Numéro d\'entreprise (BCE)'.html_safe,
+                        placeholder: "ex. 0123.456.789",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                        } %>
+                  </div>
+                  <div class="col-6">
+                    <%= f.input :occupation,
+                        label: '<i class="bi bi-briefcase me-2 text-primary"></i>Type d\'activité'.html_safe,
+                        collection: [
+                          ['Commerce de détail', 'commerce_detail'],
+                          ['Commerce de gros', 'commerce_gros'],
+                          ['Services', 'services'],
+                          ['Industrie', 'industrie'],
+                          ['Construction', 'construction'],
+                          ['Technologie', 'technologie'],
+                          ['Restauration', 'restauration'],
+                          ['Santé', 'sante'],
+                          ['Autre', 'autre']
+                        ],
+                        include_blank: "Sélectionnez une activité",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-select border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          required: true
+                        } %>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Nombre de salariés -->
-          <div class="col-6">
-            <%= f.input :nombre_salaries,
-                label: "Nombre de salariés",
-                placeholder: "ex. 10",
-                wrapper_html: { class: "mb-3" },
-                input_html: { class: "form-control-custom", type: "number", min: "1" } %>
-          </div>
-
-          <!-- Règle de minimis -->
-          <div class="col-12">
-            <%= f.input :regle_minimis,
-                as: :boolean,
-                label: "Aides de minimis dépassées",
-                hint: "Cochez si votre entreprise a reçu plus de 300.000€ d'aides de minimis sur les 3 dernières années",
-                wrapper_html: { class: "mb-3" },
-                input_html: { class: "form-check-input" } %>
-          </div>
-        </div>
-
-        <div class="row g-3">
-          <div class="col-4">
-            <div class="mb-3">
-              <%= f.label :date_creation, "Date d'inscription BCE", class: "form-label" %>
-              <%= f.date_field :date_creation,
-                  class: "form-control form-control-custom",
-                  min: "1930-01-01",
-                  max: "2030-12-31",
-                  placeholder: "jj/mm/aaaa" %>
-              <div class="form-text">Date d'inscription à la Banque Carrefour des Entreprises</div>
+          <!-- Carte 2: Informations d'investissement -->
+          <div class="col-lg-4">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+              <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex align-items-center">
+                  <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                    <i class="bi bi-credit-card text-white fs-6"></i>
+                  </div>
+                  <div>
+                    <h5 class="card-title mb-0 text-dark fw-normal">Informations d'investissement</h5>
+                    <p class="text-muted small mb-0">Détails financiers</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 py-3">
+                <div class="row g-2">
+                  <div class="col-12">
+                    <%= f.input :valeur_achat,
+                        label: '<i class="bi bi-currency-euro me-2 text-success"></i>Valeur d\'investissement (€)'.html_safe,
+                        placeholder: "ex. 500000",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          type: "number",
+                          step: "0.01",
+                          min: "0"
+                        } %>
+                  </div>
+                  <div class="col-12">
+                    <%= f.input :date_achat,
+                        label: '<i class="bi bi-calendar me-2 text-success"></i>Date d\'acquisition du siège'.html_safe,
+                        placeholder: "jj/mm/aaaa",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          type: "date",
+                          min: "1900-01-01",
+                          max: "2030-12-31"
+                        } %>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -347,169 +176,516 @@
       </div>
     </div>
 
-    <!-- Section Codes NACE -->
-    <div class="col-lg-6">
-      <div class="form-section bg-light-subtle border rounded-3 p-4 h-100">
-        <div class="d-flex align-items-center mb-3">
-          <div class="icon-circle me-3">
-            <i class="bi bi-list-ol"></i>
-          </div>
-          <h5 class="mb-0 fw-normal text-primary-custom">Codes NACE d'activité</h5>
-        </div>
+      <!-- Carte 3: Adresses de l'entreprise -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card border-0 shadow-lg rounded-4">
+            <div class="card-header bg-white border-0 py-3">
+              <div class="d-flex align-items-center">
+                <div class="bg-info bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                  <i class="bi bi-geo-alt text-white fs-6"></i>
+                </div>
+                <div>
+                  <h5 class="card-title mb-0 text-dark fw-normal">Adresses de l'entreprise</h5>
+                  <p class="text-muted small mb-0">Localisation et implantation</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-body px-4 py-3">
+              <!-- Siège social -->
+              <div class="mb-4">
+                <div class="d-flex align-items-center mb-3">
+                  <div class="bg-info bg-gradient rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px;">
+                    <i class="bi bi-building text-white" style="font-size: 0.7rem;"></i>
+                  </div>
+                  <h6 class="mb-0 text-primary fw-medium">Siège social</h6>
+                </div>
 
-        <div class="alert alert-info mb-4">
-          <i class="bi bi-info-circle me-2"></i>
-          <strong>Codes NACE :</strong> Sélectionnez jusqu'à 5 codes d'activité économique qui correspondent aux activités de votre entreprise.
-          Ces codes sont utilisés pour l'identification statistique des activités économiques.
-        </div>
+                <div class="row g-2 mb-3">
+                  <div class="col-md-4">
+                    <%= f.input :rue,
+                        label: '<i class="bi bi-signpost me-2 text-info"></i>Rue'.html_safe,
+                        placeholder: "ex. Avenue des Entreprises",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          required: true
+                        } %>
+                  </div>
+                  <div class="col-md-2">
+                    <%= f.input :numero,
+                        label: '<i class="bi bi-hash me-2 text-info"></i>N°'.html_safe,
+                        placeholder: "42",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          required: true
+                        } %>
+                  </div>
+                  <div class="col-md-2">
+                    <%= f.input :code_postal,
+                        label: '<i class="bi bi-mailbox me-2 text-info"></i>Code postal'.html_safe,
+                        placeholder: "1000",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          required: true
+                        } %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= f.input :commune,
+                        label: '<i class="bi bi-geo me-2 text-info"></i>Commune'.html_safe,
+                        placeholder: "ex. Bruxelles",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          required: true
+                        } %>
+                  </div>
+                </div>
 
-        <div class="row g-3">
-          <div class="col-12">
-            <%= f.input :code_nace_1,
-                label: "Code NACE principal*",
-                collection: [
-                  ['01.11 - Culture de céréales', '01.11'],
-                  ['10.71 - Fabrication de pain et de pâtisserie fraîche', '10.71'],
-                  ['41.20 - Construction de bâtiments résidentiels et non résidentiels', '41.20'],
-                  ['46.90 - Commerce de gros non spécialisé', '46.90'],
-                  ['47.11 - Commerce de détail en magasin non spécialisé', '47.11'],
-                  ['56.10 - Restaurants et services de restauration mobile', '56.10'],
-                  ['62.01 - Programmation informatique', '62.01'],
-                  ['68.10 - Achat et vente de biens immobiliers propres', '68.10'],
-                  ['69.10 - Activités juridiques', '69.10'],
-                  ['70.22 - Conseil pour les affaires et autres conseils de gestion', '70.22'],
-                  ['71.12 - Activités d\'ingénierie et conseils techniques', '71.12'],
-                  ['73.11 - Activités des agences de publicité', '73.11'],
-                  ['82.99 - Autres services de soutien aux entreprises', '82.99'],
-                  ['85.59 - Enseignements divers', '85.59'],
-                  ['86.90 - Autres activités pour la santé humaine', '86.90'],
-                  ['96.02 - Coiffure et autres soins de beauté', '96.02']
-                ],
-                include_blank: "Sélectionnez un code NACE",
-                wrapper_html: { class: "mb-3" },
-                input_html: { class: "form-select-custom" } %>
-          </div>
-          <div class="col-12">
-            <%= f.input :code_nace_2,
-                label: "Code NACE secondaire",
-                collection: [
-                  ['01.11 - Culture de céréales', '01.11'],
-                  ['10.71 - Fabrication de pain et de pâtisserie fraîche', '10.71'],
-                  ['41.20 - Construction de bâtiments résidentiels et non résidentiels', '41.20'],
-                  ['46.90 - Commerce de gros non spécialisé', '46.90'],
-                  ['47.11 - Commerce de détail en magasin non spécialisé', '47.11'],
-                  ['56.10 - Restaurants et services de restauration mobile', '56.10'],
-                  ['62.01 - Programmation informatique', '62.01'],
-                  ['68.10 - Achat et vente de biens immobiliers propres', '68.10'],
-                  ['69.10 - Activités juridiques', '69.10'],
-                  ['70.22 - Conseil pour les affaires et autres conseils de gestion', '70.22'],
-                  ['71.12 - Activités d\'ingénierie et conseils techniques', '71.12'],
-                  ['73.11 - Activités des agences de publicité', '73.11'],
-                  ['82.99 - Autres services de soutien aux entreprises', '82.99'],
-                  ['85.59 - Enseignements divers', '85.59'],
-                  ['86.90 - Autres activités pour la santé humaine', '86.90'],
-                  ['96.02 - Coiffure et autres soins de beauté', '96.02']
-                ],
-                include_blank: "Sélectionnez un code NACE (optionnel)",
-                wrapper_html: { class: "mb-3" },
-                input_html: { class: "form-select-custom" } %>
-          </div>
-        </div>
+                <!-- Bouton de copie d'adresse -->
+                <div class="d-flex gap-2 mb-3">
+                  <button type="button"
+                          class="btn btn-outline-info btn-sm rounded-3"
+                          data-controller="address-copy"
+                          data-action="click->address-copy#copyAddress"
+                          data-address-copy-source-target="copyButton">
+                    <i class="bi bi-copy me-1"></i>Utiliser cette adresse pour l'exploitation
+                  </button>
+                </div>
+              </div>
+              <!-- Section adresse d'exploitation -->
+              <div class="mb-4">
+                <div class="d-flex align-items-center mb-3">
+                  <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px;">
+                    <i class="bi bi-shop text-white" style="font-size: 0.7rem;"></i>
+                  </div>
+                  <h6 class="mb-0 text-primary fw-medium">Adresse d'exploitation (si différente)</h6>
+                </div>
 
-        <div class="row g-3">
-          <div class="col-12">
-            <%= f.input :code_nace_3,
-                label: "Code NACE 3",
-                collection: [
-                  ['01.11 - Culture de céréales', '01.11'],
-                  ['10.71 - Fabrication de pain et de pâtisserie fraîche', '10.71'],
-                  ['41.20 - Construction de bâtiments résidentiels et non résidentiels', '41.20'],
-                  ['46.90 - Commerce de gros non spécialisé', '46.90'],
-                  ['47.11 - Commerce de détail en magasin non spécialisé', '47.11'],
-                  ['56.10 - Restaurants et services de restauration mobile', '56.10'],
-                  ['62.01 - Programmation informatique', '62.01'],
-                  ['68.10 - Achat et vente de biens immobiliers propres', '68.10'],
-                  ['69.10 - Activités juridiques', '69.10'],
-                  ['70.22 - Conseil pour les affaires et autres conseils de gestion', '70.22'],
-                  ['71.12 - Activités d\'ingénierie et conseils techniques', '71.12'],
-                  ['73.11 - Activités des agences de publicité', '73.11'],
-                  ['82.99 - Autres services de soutien aux entreprises', '82.99'],
-                  ['85.59 - Enseignements divers', '85.59'],
-                  ['86.90 - Autres activités pour la santé humaine', '86.90'],
-                  ['96.02 - Coiffure et autres soins de beauté', '96.02']
-                ],
-                include_blank: "Sélectionnez un code NACE (optionnel)",
-                wrapper_html: { class: "mb-3" },
-                input_html: { class: "form-select-custom" } %>
-          </div>
-          <div class="col-12">
-            <%= f.input :code_nace_4,
-                label: "Code NACE 4",
-                collection: [
-                  ['01.11 - Culture de céréales', '01.11'],
-                  ['10.71 - Fabrication de pain et de pâtisserie fraîche', '10.71'],
-                  ['41.20 - Construction de bâtiments résidentiels et non résidentiels', '41.20'],
-                  ['46.90 - Commerce de gros non spécialisé', '46.90'],
-                  ['47.11 - Commerce de détail en magasin non spécialisé', '47.11'],
-                  ['56.10 - Restaurants et services de restauration mobile', '56.10'],
-                  ['62.01 - Programmation informatique', '62.01'],
-                  ['68.10 - Achat et vente de biens immobiliers propres', '68.10'],
-                  ['69.10 - Activités juridiques', '69.10'],
-                  ['70.22 - Conseil pour les affaires et autres conseils de gestion', '70.22'],
-                  ['71.12 - Activités d\'ingénierie et conseils techniques', '71.12'],
-                  ['73.11 - Activités des agences de publicité', '73.11'],
-                  ['82.99 - Autres services de soutien aux entreprises', '82.99'],
-                  ['85.59 - Enseignements divers', '85.59'],
-                  ['86.90 - Autres activités pour la santé humaine', '86.90'],
-                  ['96.02 - Coiffure et autres soins de beauté', '96.02']
-                ],
-                include_blank: "Sélectionnez un code NACE (optionnel)",
-                wrapper_html: { class: "mb-3" },
-                input_html: { class: "form-select-custom" } %>
-          </div>
-          <div class="col-12">
-            <%= f.input :code_nace_5,
-                label: "Code NACE 5",
-                collection: [
-                  ['01.11 - Culture de céréales', '01.11'],
-                  ['10.71 - Fabrication de pain et de pâtisserie fraîche', '10.71'],
-                  ['41.20 - Construction de bâtiments résidentiels et non résidentiels', '41.20'],
-                  ['46.90 - Commerce de gros non spécialisé', '46.90'],
-                  ['47.11 - Commerce de détail en magasin non spécialisé', '47.11'],
-                  ['56.10 - Restaurants et services de restauration mobile', '56.10'],
-                  ['62.01 - Programmation informatique', '62.01'],
-                  ['68.10 - Achat et vente de biens immobiliers propres', '68.10'],
-                  ['69.10 - Activités juridiques', '69.10'],
-                  ['70.22 - Conseil pour les affaires et autres conseils de gestion', '70.22'],
-                  ['71.12 - Activités d\'ingénierie et conseils techniques', '71.12'],
-                  ['73.11 - Activités des agences de publicité', '73.11'],
-                  ['82.99 - Autres services de soutien aux entreprises', '82.99'],
-                  ['85.59 - Enseignements divers', '85.59'],
-                  ['86.90 - Autres activités pour la santé humaine', '86.90'],
-                  ['96.02 - Coiffure et autres soins de beauté', '96.02']
-                ],
-                include_blank: "Sélectionnez un code NACE (optionnel)",
-                wrapper_html: { class: "mb-3" },
-                input_html: { class: "form-select-custom" } %>
-          </div>
-        </div>
+                <div class="row g-2">
+                  <div class="col-md-4">
+                    <%= f.input :rue_exploitation,
+                        label: '<i class="bi bi-signpost me-2 text-warning"></i>Rue'.html_safe,
+                        placeholder: "ex. Rue du Commerce",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                        } %>
+                  </div>
+                  <div class="col-md-2">
+                    <%= f.input :numero_exploitation,
+                        label: '<i class="bi bi-hash me-2 text-warning"></i>N°'.html_safe,
+                        placeholder: "12",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                        } %>
+                  </div>
+                  <div class="col-md-2">
+                    <%= f.input :code_postal_exploitation,
+                        label: '<i class="bi bi-mailbox me-2 text-warning"></i>Code postal'.html_safe,
+                        placeholder: "1000",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                        } %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= f.input :commune_exploitation,
+                        label: '<i class="bi bi-geo me-2 text-warning"></i>Commune'.html_safe,
+                        placeholder: "ex. Bruxelles",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                        } %>
+                  </div>
+                </div>
 
-        <div class="mt-3">
-          <small class="text-muted">
-            <i class="bi bi-lightbulb me-1"></i>
-            <strong>Conseil :</strong> Le code NACE principal doit correspondre à l'activité générant le plus de revenus.
-            Les codes secondaires peuvent être utilisés pour des activités complémentaires.
-          </small>
+                <!-- Région -->
+                <div class="row g-2 mt-2">
+                  <div class="col-md-6">
+                    <%= f.input :region,
+                        label: '<i class="bi bi-map me-2 text-warning"></i>Région d\'exploitation'.html_safe,
+                        collection: [['Bruxelles', 'bruxelles'], ['Wallonie', 'wallonie'], ['Flandre', 'flandre']],
+                        include_blank: "Sélectionnez une région",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-select border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                        } %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+
+      <!-- Carte 4: Caractéristiques du bien -->
+      <div class="row mb-4">
+        <div class="col-lg-6">
+          <div class="card border-0 shadow-lg rounded-4 h-100">
+            <div class="card-header bg-white border-0 py-3">
+              <div class="d-flex align-items-center">
+                <div class="bg-secondary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                  <i class="bi bi-diagram-3 text-white fs-6"></i>
+                </div>
+                <div>
+                  <h5 class="card-title mb-0 text-dark fw-normal">Caractéristiques du bien</h5>
+                  <p class="text-muted small mb-0">Description technique</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-body px-4 py-3">
+              <div class="row g-2">
+                <div class="col-6">
+                  <%= f.input :surface_totale,
+                      label: '<i class="bi bi-rulers me-2 text-secondary"></i>Surface totale (m²)'.html_safe,
+                      placeholder: "ex. 250",
+                      wrapper_html: { class: "mb-3" },
+                      label_html: { class: "form-label text-dark fw-medium mb-1" },
+                      input_html: {
+                        class: "form-control border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                        type: "number",
+                        step: "0.01",
+                        min: "0"
+                      } %>
+                </div>
+                <div class="col-6">
+                  <%= f.input :surface_habitable,
+                      label: '<i class="bi bi-box-seam me-2 text-secondary"></i>Surface utilisable (m²)'.html_safe,
+                      placeholder: "ex. 500",
+                      wrapper_html: { class: "mb-3" },
+                      label_html: { class: "form-label text-dark fw-medium mb-1" },
+                      input_html: {
+                        class: "form-control border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                        type: "number",
+                        step: "0.01",
+                        min: "0"
+                      } %>
+                </div>
+                <div class="col-6">
+                  <%= f.input :habitation_percentage,
+                      label: '<i class="bi bi-gear me-2 text-secondary"></i>% usage professionnel'.html_safe,
+                      placeholder: "ex. 80",
+                      hint: "Pourcentage du bien utilisé à des fins professionnelles",
+                      wrapper_html: { class: "mb-3" },
+                      label_html: { class: "form-label text-dark fw-medium mb-1" },
+                      input_html: {
+                        class: "form-control border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                        type: "number",
+                        min: "0",
+                        max: "100"
+                      } %>
+                </div>
+                <div class="col-6">
+                  <%= f.input :nombre_salaries,
+                      label: '<i class="bi bi-people me-2 text-secondary"></i>Nombre de salariés'.html_safe,
+                      placeholder: "ex. 25",
+                      wrapper_html: { class: "mb-3" },
+                      label_html: { class: "form-label text-dark fw-medium mb-1" },
+                      input_html: {
+                        class: "form-control border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                        type: "number",
+                        min: "0"
+                      } %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Carte 5: Codes NACE -->
+        <div class="col-lg-6">
+          <div class="card border-0 shadow-lg rounded-4 h-100">
+            <div class="card-header bg-white border-0 py-3">
+              <div class="d-flex align-items-center">
+                <div class="bg-dark bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                  <i class="bi bi-tags text-white fs-6"></i>
+                </div>
+                <div>
+                  <h5 class="card-title mb-0 text-dark fw-normal">Codes NACE</h5>
+                  <p class="text-muted small mb-0">Classification d'activité</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-body px-4 py-3">
+              <div class="row g-2">
+                <div class="col-12">
+                  <%= f.input :code_nace_1,
+                      label: '<i class="bi bi-tag me-2 text-dark"></i>Code NACE principal'.html_safe,
+                      placeholder: "ex. 47.11 (Commerce de détail)",
+                      wrapper_html: { class: "mb-3" },
+                      label_html: { class: "form-label text-dark fw-medium mb-1" },
+                      input_html: {
+                        class: "form-control border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                      } %>
+                </div>
+                <div class="col-12">
+                  <%= f.input :code_nace_2,
+                      label: '<i class="bi bi-tags me-2 text-dark"></i>Code NACE secondaire'.html_safe,
+                      placeholder: "ex. 47.19 (optionnel)",
+                      wrapper_html: { class: "mb-3" },
+                      label_html: { class: "form-label text-dark fw-medium mb-1" },
+                      input_html: {
+                        class: "form-control border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                      } %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Carte 6: Type et usage -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card border-0 shadow-lg rounded-4">
+            <div class="card-header bg-white border-0 py-3">
+              <div class="d-flex align-items-center">
+                <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                  <i class="bi bi-building text-white fs-6"></i>
+                </div>
+                <div>
+                  <h5 class="card-title mb-0 text-dark fw-normal">Type et usage</h5>
+                  <p class="text-muted small mb-0">Classification du bien</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-body px-4 py-3">
+              <div class="row g-2">
+                <div class="col-lg-4">
+                  <%= f.input :type_propriete,
+                      label: '<i class="bi bi-building me-2 text-success"></i>Type de bien'.html_safe,
+                      collection: [
+                        ['Bureau', 'bureau'],
+                        ['Local commercial', 'local_commercial'],
+                        ['Entrepôt', 'entrepot'],
+                        ['Atelier', 'atelier'],
+                        ['Usine', 'usine'],
+                        ['Local mixte', 'local_mixte'],
+                        ['Autre', 'autre']
+                      ],
+                      include_blank: "Sélectionnez un type",
+                      wrapper_html: { class: "mb-3" },
+                      label_html: { class: "form-label text-dark fw-medium mb-1" },
+                      input_html: {
+                        class: "form-select border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                        required: true
+                      } %>
+                </div>
+                <div class="col-lg-6">
+                  <%= f.input :usage,
+                      label: '<i class="bi bi-gear me-2 text-success"></i>Usage principal'.html_safe,
+                      collection: [
+                        ['Siège social', 'siege_social'],
+                        ['Point de vente', 'point_vente'],
+                        ['Production', 'production'],
+                        ['Stockage', 'stockage'],
+                        ['Services', 'services'],
+                        ['Location', 'location'],
+                        ['Autre', 'autre']
+                      ],
+                      include_blank: "Sélectionnez un usage",
+                      wrapper_html: { class: "mb-3" },
+                      label_html: { class: "form-label text-dark fw-medium mb-1" },
+                      input_html: {
+                        class: "form-select border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                      } %>
+                </div>
+                <div class="col-lg-6">
+                  <%= f.input :profil_demandeur,
+                      label: '<i class="bi bi-key me-2 text-success"></i>Statut d\'occupation'.html_safe,
+                      collection: [
+                        ['Propriétaire', 'proprietaire'],
+                        ['Locataire', 'locataire'],
+                        ['Usufruitier', 'usufruitier'],
+                        ['Autre', 'autre']
+                      ],
+                      include_blank: "Sélectionnez un statut",
+                      wrapper_html: { class: "mb-3" },
+                      label_html: { class: "form-label text-dark fw-medium mb-1" },
+                      input_html: {
+                        class: "form-select border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                      } %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Carte 7: Informations administratives -->
+      <div class="row mb-4">
+        <div class="col-12">
+          <div class="card border-0 shadow-lg rounded-4">
+            <div class="card-header bg-white border-0 py-3">
+              <div class="d-flex align-items-center">
+                <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                  <i class="bi bi-info-circle text-white fs-6"></i>
+                </div>
+                <div>
+                  <h5 class="card-title mb-0 text-dark fw-normal">Informations administratives</h5>
+                  <p class="text-muted small mb-0">Détails réglementaires</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-body px-4 py-3">
+              <div class="row g-2">
+                <div class="col-lg-6">
+                  <%= f.input :date_creation,
+                      label: '<i class="bi bi-calendar me-2 text-warning"></i>Date d\'inscription BCE'.html_safe,
+                      placeholder: "jj/mm/aaaa",
+                      hint: "Date d'inscription à la Banque Carrefour des Entreprises",
+                      wrapper_html: { class: "mb-3" },
+                      label_html: { class: "form-label text-dark fw-medium mb-1" },
+                      input_html: {
+                        class: "form-control border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                        type: "date",
+                        min: "1930-01-01",
+                        max: "2030-12-31"
+                      } %>
+                </div>
+                <div class="col-lg-6">
+                  <div class="d-flex align-items-center h-100">
+                    <div class="form-check form-switch">
+                      <%= f.check_box :regle_minimis,
+                          class: "form-check-input",
+                          style: "transform: scale(1.2);" %>
+                      <%= f.label :regle_minimis,
+                          '<i class="bi bi-exclamation-triangle me-2 text-warning"></i>Aides de minimis dépassées'.html_safe,
+                          class: "form-check-label text-dark fw-medium" %>
+                      <small class="text-muted d-block mt-1">
+                        Cochez si votre entreprise a reçu plus de 300.000€ d'aides de minimis sur les 3 dernières années
+                      </small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row justify-content-center mb-5">
+        <div class="col-lg-10">
+          <div class="card border-0 shadow-lg rounded-4">
+            <div class="card-header bg-white border-0 py-3">
+              <div class="d-flex align-items-center">
+                <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                  <i class="bi bi-gear text-white fs-6"></i>
+                </div>
+                <div>
+                  <h5 class="card-title mb-0 text-dark fw-normal">Actions</h5>
+                  <p class="text-muted small mb-0">Gérer votre bien d'entreprise</p>
+                </div>
+              </div>
+            </div>
+            <div class="card-body px-4 py-3">
+              <div class="d-flex justify-content-between align-items-center">
+                <%= link_to property.persisted? ? property_path(property) : new_property_path, class: "btn btn-outline-secondary rounded-3 py-2" do %>
+                  <i class="bi bi-arrow-left me-2"></i>Annuler
+                <% end %>
+                <%= f.submit property.persisted? ? "Mettre à jour les données" : "Créer le bien d'entreprise", class: 'btn btn-primary rounded-3 py-2 fw-medium px-4' %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <% end %>
   </div>
+</div>
 
+<!-- CSS personnalisé pour le design moderne -->
+<style>
+  .form-control:focus, .form-select:focus {
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+  }
 
+  .card {
+    transition: all 0.3s ease;
+  }
 
-  <!-- Actions -->
-  <div class="d-flex justify-content-between align-items-center">
-    <%= link_to "Annuler", property.persisted? ? property_path(property) : new_property_path, class: "btn btn-outline-secondary" %>
-    <%= f.button :submit, property.persisted? ? "Mettre à jour les données" : "Créer le bien d'entreprise", class: "btn btn-primary-custom px-4" %>
-  </div>
-<% end %>
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+  }
+
+  .btn {
+    transition: all 0.3s ease;
+  }
+
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .bg-gradient {
+    background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-primary-dark) 100%) !important;
+  }
+
+  .form-control, .form-select {
+    transition: all 0.3s ease;
+  }
+
+  .form-control:hover, .form-select:hover {
+    background-color: #fff !important;
+    border-color: #ced4da !important;
+  }
+</style>
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15) !important;
+  }
+
+  .card {
+    transition: all 0.3s ease;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+  }
+
+  .btn {
+    transition: all 0.2s ease;
+  }
+
+  .btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+  }
+
+  .bg-light {
+    background-color: #f8f9fa !important;
+  }
+
+  .form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+  }
+</style>

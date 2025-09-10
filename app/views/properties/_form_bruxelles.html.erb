@@ -1,368 +1,520 @@
 <% property ||= @property %>
-<%= simple_form_for property, local: true do |f| %>
-  <!-- Champ caché pour la région -->
-  <%= f.hidden_field :region, value: "bruxelles" %>
-
-  <!-- Sections Nom du bien et Adresse - côte à côte -->
-  <div class="row g-4 mb-4">
-    <!-- Section Nom du bien -->
-    <div class="col-lg-6">
-      <div class="form-section bg-light-subtle border rounded-3 p-4">
-        <div class="d-flex align-items-center mb-3">
-          <div class="icon-circle me-3">
-            <i class="bi bi-tag"></i>
-          </div>
-          <h5 class="mb-0 fw-normal text-primary-custom">Nom du bien</h5>
+<div class="container-fluid px-4 py-3">
+  <!-- Header compact avec avatar -->
+  <div class="row justify-content-center mb-3">
+    <div class="col-lg-10">
+      <div class="text-center">
+        <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
+          <i class="bi bi-building text-white fs-4"></i>
         </div>
-
-        <%= f.input :titre,
-            label: "Nom ou titre du bien",
-            placeholder: "ex. Mon appartement Bruxelles, Bureau principal, Maison familiale...",
-            hint: "Donnez un nom à votre bien pour le retrouver facilement",
-            wrapper_html: { class: "mb-3" },
-            input_html: { class: "form-control-custom" } %>
-
-        <!-- Champ pour la photo du bien -->
-        <div data-controller="image-preview">
-          <%= f.input :photo,
-              as: :file,
-              label: "Photo du bien",
-              hint: "Ajoutez une photo de votre bien (JPG, PNG, max 5MB)",
-              wrapper_html: { class: "mb-3" },
-              input_html: {
-                class: "form-control-custom",
-                accept: "image/*",
-                data: {
-                  image_preview_target: "input",
-                  action: "change->image-preview#previewImage"
-                }
-              } %>
-
-          <!-- Zone de prévisualisation de l'image -->
-          <div data-image-preview-target="preview" class="mb-3" style="display: none;">
-            <img data-image-preview-target="previewImg" src="" alt="Aperçu" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
-          </div>
-        </div>
-
-        <!-- Afficher la photo existante si elle existe -->
-        <% if property.photo.attached? %>
-          <div class="mb-3">
-            <label class="form-label">Photo actuelle</label>
-            <div>
-              <%= image_tag property.photo, class: "img-thumbnail", style: "max-width: 200px; max-height: 150px;" %>
-            </div>
-          </div>
-        <% end %>
-      </div>
-    </div>
-
-    <!-- Section Adresse -->
-    <div class="col-lg-6">
-      <div class="form-section bg-light-subtle border rounded-3 p-4">
-        <div class="d-flex align-items-center mb-3">
-          <div class="icon-circle me-3">
-            <i class="bi bi-geo-alt"></i>
-          </div>
-          <h5 class="mb-0 fw-normal text-primary-custom">Adresse du bien</h5>
-        </div>
-
-        <!-- Ligne 1: Rue et Numéro -->
-        <div class="row g-2 mb-3">
-          <div class="col-md-4">
-            <%= f.input :rue, **apply_required_styling({
-                label: "Rue",
-                placeholder: "ex. Rue de l'Énergie",
-                wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom" }
-              }, Property, :rue, property) %>
-          </div>
-          <div class="col-md-4">
-            <%= f.input :numero, **apply_required_styling({
-                label: "Numéro",
-                placeholder: "ex. 24",
-                wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom" }
-              }, Property, :numero, property) %>
-          </div>
-        </div>
-
-        <!-- Ligne 2: Code postal et Commune -->
-        <div class="row g-2">
-          <div class="col-md-4">
-            <%= f.input :code_postal, **apply_required_styling({
-                label: "Code postal",
-                placeholder: "ex. 1190",
-                wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom" }
-              }, Property, :code_postal, property) %>
-          </div>
-          <div class="col-md-4">
-            <%= f.input :commune, **apply_required_styling({
-                label: "Commune",
-                as: :select,
-                collection: [
-                  "Anderlecht", "Auderghem", "Berchem-Sainte-Agathe", "Bruxelles-Ville",
-                  "Etterbeek", "Evere", "Forest", "Ganshoren", "Ixelles", "Jette",
-                  "Koekelberg", "Molenbeek-Saint-Jean", "Saint-Gilles", "Saint-Josse-ten-Noode",
-                  "Schaerbeek", "Uccle", "Watermael-Boitsfort", "Woluwe-Saint-Lambert", "Woluwe-Saint-Pierre"
-                ],
-                prompt: "-- Sélectionnez --",
-                wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom" }
-              }, Property, :commune, property) %>
-          </div>
-        </div>
+        <h1 class="h3 text-dark fw-light mb-1">Propriété à Bruxelles-Capitale</h1>
+        <p class="text-muted small">Informations sur votre bien à rénover</p>
       </div>
     </div>
   </div>
 
-  <!-- Sections Type de bien et Informations d'achat - côte à côte -->
-  <div class="row g-4 mb-4">
-    <!-- Section Type de bien -->
-    <div class="col-lg-6">
-      <div class="form-section bg-light-subtle border rounded-3 p-4">
-        <div class="d-flex align-items-center mb-3">
-          <div class="icon-circle me-3">
-            <i class="bi bi-building"></i>
-          </div>
-          <h5 class="mb-0 fw-normal text-primary-custom">Type de bien</h5>
-        </div>
+  <%= simple_form_for property, local: true, html: { class: "needs-validation", novalidate: true } do |f| %>
+    <!-- Champ caché pour la région -->
+    <%= f.hidden_field :region, value: "bruxelles" %>
 
+    <!-- Première rangée: Nom du bien et Adresse -->
+    <div class="row justify-content-center mb-3">
+      <div class="col-lg-10">
         <div class="row g-3">
-          <div class="col-12">
-            <%= f.input :type_propriete,
-                label: "Type de propriété",
-                as: :select,
-                collection: [
-                  ["Propriétaire à 100%", "propriétaire complet"],
-                  ["Copropriétaire avec mon conjoint", "copropriétaire"],
-                  ["Nu propriétaire", "nu-propriétaire"],
-                  ["Usufruitier", "usufruitier"]
-                ],
-                prompt: "-- Sélectionnez --",
-                wrapper_html: { class: "mb-3" },
-                input_html: { class: "form-control-custom" } %>
+
+          <!-- Carte 1: Nom du bien -->
+          <div class="col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+              <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex align-items-center">
+                  <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                    <i class="bi bi-tag text-white fs-6"></i>
+                  </div>
+                  <div>
+                    <h5 class="card-title mb-0 text-dark fw-normal">Nom du bien</h5>
+                    <p class="text-muted small mb-0">Identification de votre propriété</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 py-3">
+                <div class="row g-2">
+                  <div class="col-12">
+                    <%= f.input :titre,
+                        label: '<i class="bi bi-tag me-2 text-primary"></i>Nom ou titre du bien'.html_safe,
+                        placeholder: "ex. Mon appartement Bruxelles, Bureau principal, Maison familiale...",
+                        hint: '<i class="bi bi-info-circle me-1"></i>Donnez un nom à votre bien pour le retrouver facilement'.html_safe,
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          required: true
+                        } %>
+                  </div>
+
+                  <!-- Photo du bien -->
+                  <div class="col-12" data-controller="image-preview">
+                    <%= f.input :photo,
+                        as: :file,
+                        label: '<i class="bi bi-camera me-2 text-primary"></i>Photo du bien'.html_safe,
+                        hint: '<i class="bi bi-info-circle me-1"></i>Ajoutez une photo de votre bien (JPG, PNG, max 5MB)'.html_safe,
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          accept: "image/*",
+                          data: {
+                            image_preview_target: "input",
+                            action: "change->image-preview#previewImage"
+                          }
+                        } %>
+
+                    <!-- Zone de prévisualisation -->
+                    <div data-image-preview-target="preview" class="mt-2" style="display: none;">
+                      <img data-image-preview-target="previewImg" src="" alt="Aperçu" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
+                    </div>
+
+                    <!-- Photo existante -->
+                    <% if property.photo.attached? %>
+                      <div class="mt-2">
+                        <small class="form-text text-muted d-block">Photo actuelle:</small>
+                        <%= image_tag property.photo, class: "img-thumbnail", style: "max-width: 200px; max-height: 150px;" %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="col-12">
-            <%= f.input :type,
-                label: "Type de bien*",
-                as: :select,
-                collection: [
-                  ["Maison unifamiliale", "maison"],
-                  ["Appartement", "appartement"],
-                  ["Immeuble avec plusieurs unités", "immeuble de rapport"]
-                ],
-                prompt: "-- Sélectionnez --",
-                wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom" } %>
+
+          <!-- Carte 2: Adresse -->
+          <div class="col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+              <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex align-items-center">
+                  <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                    <i class="bi bi-geo-alt text-white fs-6"></i>
+                  </div>
+                  <div>
+                    <h5 class="card-title mb-0 text-dark fw-normal">Adresse du bien</h5>
+                    <p class="text-muted small mb-0">Localisation de votre propriété</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 py-3">
+                <div class="row g-2">
+                  <div class="col-md-8">
+                    <%= f.input :rue,
+                        label: '<i class="bi bi-signpost me-2 text-success"></i>Rue'.html_safe,
+                        placeholder: "ex. Rue de l'Énergie",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          required: true
+                        } %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= f.input :numero,
+                        label: '<i class="bi bi-hash me-2 text-success"></i>Numéro'.html_safe,
+                        placeholder: "ex. 24",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          required: true
+                        } %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= f.input :code_postal,
+                        label: '<i class="bi bi-mailbox me-2 text-success"></i>Code postal'.html_safe,
+                        placeholder: "ex. 1000",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          required: true
+                        } %>
+                  </div>
+                  <div class="col-md-8">
+                    <%= f.input :commune,
+                        label: '<i class="bi bi-building me-2 text-success"></i>Commune'.html_safe,
+                        placeholder: "ex. Bruxelles",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          required: true
+                        } %>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="col-12">
-            <%= f.input :profil_demandeur,
-                label: "Profil du demandeur*",
-                as: :select,
-                collection: [
+        </div>
+      </div>
+    </div>
+    <!-- Deuxième rangée: Type de bien et Informations d'achat -->
+    <div class="row justify-content-center mb-3">
+      <div class="col-lg-10">
+        <div class="row g-3">
+
+          <!-- Carte 3: Type de bien -->
+          <div class="col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+              <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex align-items-center">
+                  <div class="bg-secondary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                    <i class="bi bi-building text-white fs-6"></i>
+                  </div>
+                  <div>
+                    <h5 class="card-title mb-0 text-dark fw-normal">Type de bien</h5>
+                    <p class="text-muted small mb-0">Classification de votre propriété</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 py-3">
+                <div class="row g-2">
+                  <div class="col-12">
+                    <%= f.input :type_propriete,
+                        label: '<i class="bi bi-building me-2 text-secondary"></i>Type de propriété'.html_safe,
+                        collection: [
+                          ["Propriétaire à 100%", "propriétaire complet"],
+                          ["Copropriétaire avec mon conjoint", "copropriétaire"],
+                          ["Nu propriétaire", "nu-propriétaire"],
+                          ["Usufruitier", "usufruitier"]
+                        ],
+                        include_blank: "Sélectionnez le type de propriété",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-select border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          required: true
+                        } %>
+                  </div>
+                  <div class="col-12">
+                    <%= f.input :type_bien_bruxelles,
+                        label: '<i class="bi bi-house me-2 text-secondary"></i>Type de bien'.html_safe,
+                        collection: [
+                          ["Maison unifamiliale", "maison"],
+                          ["Appartement", "appartement"],
+                          ["Immeuble avec plusieurs unités", "immeuble de rapport"]
+                        ],
+                        include_blank: "Sélectionnez le type de bien",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-select border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          required: true
+                        } %>
+                  </div>
+                  <div class="col-12">
+                    <%= f.input :profil_demandeur,
+                        label: '<i class="bi bi-person me-2 text-secondary"></i>Profil du demandeur'.html_safe,
+                        collection: [
                   ["Propriétaire occupant ou futur occupant", "proprietaire_occupant_ou_futur_occupant"],
-                  ["Entreprise", "entreprise"],
-                  ["Syndic de copropriété, ACP, Copropriété forcée", "syndic_de_copropriete_acp_copropriete_forcee"],
-                  ["Propriétaire en indivision", "proprietaire_en_indivision"],
-                  ["Copropriétaire volontaire ou fortuit", "coproprietaire_volontaire_ou_fortuit"],
-                  ["Locataire", "locataire"],
-                  ["Propriétaire bailleur", "proprietaire_bailleur"],
-                  ["Propriétaire bailleur via AIS", "proprietaire_bailleur_via_ais"],
-                  ["ASBL/Coopérative", "asbl_cooperative"],
-                  ["Amphythéote", "amphyteote"]
-                ],
-                prompt: "-- Sélectionnez le profil --",
-                wrapper_html: { class: "mb-0" },
-                input_html: { class: "form-control-custom" } %>
+                          ["Entreprise", "entreprise"],
+                          ["Syndic de copropriété, ACP, Copropriété forcée", "syndic_de_copropriete_acp_copropriete_forcee"],
+                          ["Propriétaire en indivision", "proprietaire_en_indivision"],
+                          ["Copropriétaire volontaire ou fortuit", "coproprietaire_volontaire_ou_fortuit"],
+                          ["Locataire", "locataire"],
+                          ["Propriétaire bailleur", "proprietaire_bailleur"],
+                          ["Propriétaire bailleur via AIS", "proprietaire_bailleur_via_ais"],
+                          ["ASBL/Coopérative", "asbl_cooperative"],
+                          ["Amphythéote", "amphyteote"]
+                        ],
+                        include_blank: "Sélectionnez le profil",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-select border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          required: true
+                        } %>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+
+          <!-- Carte 4: Informations d'achat -->
+          <div class="col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+              <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex align-items-center">
+                  <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                    <i class="bi bi-credit-card text-white fs-6"></i>
+                  </div>
+                  <div>
+                    <h5 class="card-title mb-0 text-dark fw-normal">Informations d'achat</h5>
+                    <p class="text-muted small mb-0">Détails financiers</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 py-3">
+                <div class="row g-2">
+                  <div class="col-12">
+                    <%= f.input :valeur_achat,
+                        label: '<i class="bi bi-currency-euro me-2 text-success"></i>Valeur d\'achat (€)'.html_safe,
+                        placeholder: "ex. 250000",
+                        hint: "Prix d'achat du bien en euros",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          type: "number",
+                          step: "0.01",
+                          min: "0"
+                        } %>
+                  </div>
+                  <div class="col-12">
+                    <%= f.input :date_achat,
+                        label: '<i class="bi bi-calendar me-2 text-success"></i>Date d\'achat'.html_safe,
+                        placeholder: "jj/mm/aaaa",
+                        hint: "Date d'acquisition du bien",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          type: "date",
+                          min: "1900-01-01",
+                          max: "2030-12-31"
+                        } %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
 
-    <!-- Section Informations d'achat -->
-    <div class="col-lg-6">
-      <div class="form-section bg-light-subtle border rounded-3 p-4">
-        <div class="d-flex align-items-center mb-3">
-          <div class="icon-circle me-3">
-            <i class="bi bi-credit-card"></i>
+    <!-- Troisième rangée: Caractéristiques et Statuts -->
+    <div class="row justify-content-center mb-3">
+      <div class="col-lg-10">
+        <div class="row g-3">
+
+          <!-- Section Caractéristiques spécifiques à Bruxelles -->
+          <div class="col-12 mb-3">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+              <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex align-items-center">
+                  <div class="bg-info bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                    <i class="bi bi-rulers text-white fs-6"></i>
+                  </div>
+                  <div>
+                    <h5 class="card-title mb-0 text-dark fw-normal">Caractéristiques spécifiques à Bruxelles</h5>
+                    <p class="text-muted small mb-0">Informations techniques du bien</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 py-3">
+                <div class="row g-2">
+                  <div class="col-md-4">
+                    <%= f.input :certificat_peb_bruxelles,
+                        label: '<i class="bi bi-speedometer2 me-2 text-primary"></i>Classe PEB'.html_safe,
+                        as: :select,
+                        collection: ["A+", "A", "B", "C", "D", "E", "F", "G"],
+                        prompt: "-- Sélectionnez --",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                        } %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= f.input :date_peb_avant_travaux,
+                        label: '<i class="bi bi-calendar3 me-2 text-primary"></i>Date du certificat PEB'.html_safe,
+                        as: :date,
+                        hint: '<i class="bi bi-info-circle me-1"></i>Date d\'établissement du certificat'.html_safe,
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          min: "1990-01-01",
+                          max: "2030-12-31",
+                          placeholder: "jj/mm/aaaa"
+                        } %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= f.input :annee_construction,
+                        label: '<i class="bi bi-calendar-event me-2 text-primary"></i>Année de construction*'.html_safe,
+                        placeholder: "ex. 1985",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                        } %>
+                  </div>
+                </div>
+
+                <div class="row g-2 mt-2">
+                  <div class="col-md-6">
+                    <%= f.input :usage,
+                        label: '<i class="bi bi-house-door me-2 text-primary"></i>Usage du bien*'.html_safe,
+                        as: :select,
+                        collection: [
+                          ["Résidentiel uniquement", "residentiel"],
+                          ["Mixte (résidentiel + professionnel)", "mixte"]
+                        ],
+                        prompt: "-- Sélectionnez --",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                        } %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= f.input :occupation,
+                        label: '<i class="bi bi-person-check me-2 text-primary"></i>Type d\'occupation*'.html_safe,
+                        as: :select,
+                        collection: [
+                          ["Résidence principale", "residence_principale"],
+                          ["Résidence secondaire", "residence_secondaire"],
+                          ["Investissement locatif", "investissement"]
+                        ],
+                        prompt: "-- Sélectionnez --",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                        } %>
+                  </div>
+                </div>
+
+                <div class="row g-2 mt-2">
+                  <div class="col-md-6">
+                    <%= f.input :surface_totale,
+                        label: '<i class="bi bi-arrows-fullscreen me-2 text-primary"></i>Surface totale (m²)'.html_safe,
+                        placeholder: "ex. 120",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                        } %>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-          <h5 class="mb-0 fw-normal text-primary-custom">Informations d'achat</h5>
         </div>
 
-        <div class="row g-3">
-          <div class="col-12">
-            <%= f.input :valeur_achat,
-                label: "Valeur d'achat (€)",
-                placeholder: "ex. 250000",
-                hint: "Prix d'achat du bien en euros",
-                wrapper_html: { class: "mb-3" },
-                input_html: {
-                  class: "form-control-custom",
-                  type: "number",
-                  step: "0.01",
-                  min: "0"
-                } %>
-          </div>
-          <div class="col-12">
-            <div class="mb-0">
-              <%= f.label :date_achat, "Date d'achat", class: "form-label" %>
-              <%= f.date_field :date_achat,
-                  class: "form-control form-control-custom",
-                  min: "1900-01-01",
-                  max: "2030-12-31",
-                  placeholder: "jj/mm/aaaa" %>
-              <div class="form-text">Date d'acquisition du bien</div>
+          <!-- Section Statuts spéciaux -->
+          <div class="col-12 mb-3">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+              <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex align-items-center">
+                  <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                    <i class="bi bi-star text-white fs-6"></i>
+                  </div>
+                  <div>
+                    <h5 class="card-title mb-0 text-dark fw-normal">Statuts particuliers</h5>
+                    <p class="text-muted small mb-0">Statuts spéciaux du bien</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 py-3">
+                <div class="row g-2">
+                  <div class="col-md-4">
+                    <%= f.input :domiciliation,
+                        as: :boolean,
+                        label: '<i class="bi bi-house-check me-2 text-primary"></i>Domicilié à cette adresse'.html_safe,
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: { class: "form-check-input" } %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= f.input :nouvelle_construction,
+                        as: :boolean,
+                        label: '<i class="bi bi-building-add me-2 text-primary"></i>Nouvelle construction'.html_safe,
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: { class: "form-check-input" } %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= f.input :primes_recues,
+                        as: :boolean,
+                        label: '<i class="bi bi-cash-coin me-2 text-primary"></i>Primes déjà reçues pour ce bien'.html_safe,
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: { class: "form-check-input" } %>
+                  </div>
+                </div>
+
+                <div class="row g-2 mt-2">
+                  <div class="col-md-4">
+                    <%= f.input :bien_classe,
+                        as: :boolean,
+                        label: '<i class="bi bi-shield-check me-2 text-primary"></i>Bien classé ou protégé'.html_safe,
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: { class: "form-check-input" } %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= f.input :petit_patrimoine,
+                        as: :boolean,
+                        label: '<i class="bi bi-gem me-2 text-primary"></i>Éléments petit patrimoine'.html_safe,
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: { class: "form-check-input" } %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= f.input :facade_patrimoine,
+                        as: :boolean,
+                        label: '<i class="bi bi-building me-2 text-primary"></i>Façade avec patrimoine'.html_safe,
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: { class: "form-check-input" } %>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Section Caractéristiques spécifiques à Bruxelles -->
-  <div class="form-section bg-light-subtle border rounded-3 p-4 mb-4">
-    <div class="d-flex align-items-center mb-3">
-      <div class="icon-circle me-3">
-        <i class="bi bi-info-circle"></i>
-      </div>
-      <h5 class="mb-0 fw-normal text-primary-custom">Caractéristiques spécifiques à Bruxelles</h5>
-    </div>
-
-    <div class="row g-3">
-      <div class="col-md-4">
-        <%= f.input :peb,
-            label: "Classe PEB",
-            as: :select,
-            collection: ["A+", "A", "B", "C", "D", "E", "F", "G"],
-            prompt: "-- Sélectionnez --",
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-control-custom" } %>
-      </div>
-      <div class="col-md-4">
-        <div class="mb-0">
-          <%= f.label :date_peb_avant_travaux, "Date du certificat PEB", class: "form-label" %>
-          <%= f.date_field :date_peb_avant_travaux,
-              class: "form-control form-control-custom",
-              min: "1990-01-01",
-              max: "2030-12-31",
-              placeholder: "jj/mm/aaaa" %>
-          <div class="form-text">Date d'établissement du certificat</div>
+    <!-- Boutons d'action modernes -->
+    <div class="row justify-content-center mb-3">
+      <div class="col-lg-10">
+        <div class="card border-0 shadow-lg rounded-4">
+          <div class="card-header bg-white border-0 py-3">
+            <div class="d-flex align-items-center">
+              <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                <i class="bi bi-gear text-white fs-6"></i>
+              </div>
+              <div>
+                <h5 class="card-title mb-0 text-dark fw-normal">Actions</h5>
+                <p class="text-muted small mb-0">Gérer votre propriété</p>
+              </div>
+            </div>
+          </div>
+          <div class="card-body px-4 py-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <%= link_to properties_path, class: "btn btn-outline-secondary rounded-3 py-2" do %>
+                <i class="bi bi-arrow-left me-2"></i>Annuler
+              <% end %>
+              <%= f.submit "Ajouter le bien", class: 'btn btn-primary rounded-3 py-2 fw-medium' %>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="col-md-4">
-        <%= f.input :annee_construction,
-            label: "Année de construction*",
-            placeholder: "ex. 1985",
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-control-custom" } %>
-      </div>
     </div>
-
-    <div class="row g-3 mt-2">
-      <div class="col-md-6">
-        <%= f.input :usage,
-            label: "Usage du bien*",
-            as: :select,
-            collection: [
-              ["Résidentiel uniquement", "residentiel"],
-              ["Mixte (résidentiel + professionnel)", "mixte"]
-            ],
-            prompt: "-- Sélectionnez --",
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-control-custom" } %>
-      </div>
-      <div class="col-md-6">
-        <%= f.input :occupation,
-            label: "Type d'occupation*",
-            as: :select,
-            collection: [
-              ["Résidence principale", "residence_principale"],
-              ["Résidence secondaire", "residence_secondaire"],
-              ["Investissement locatif", "investissement"]
-            ],
-            prompt: "-- Sélectionnez --",
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-control-custom" } %>
-      </div>
-    </div>
-
-    <div class="row g-3 mt-2">
-      <div class="col-md-6">
-        <%= f.input :surface_totale,
-            label: "Surface totale (m²)",
-            placeholder: "ex. 120",
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-control-custom" } %>
-      </div>
-    </div>
-  </div>
-
-  <!-- Section Statuts spéciaux -->
-  <div class="form-section bg-light-subtle border rounded-3 p-4 mb-4">
-    <div class="d-flex align-items-center mb-3">
-      <div class="icon-circle me-3">
-        <i class="bi bi-star"></i>
-      </div>
-      <h5 class="mb-0 fw-normal text-primary-custom">Statuts particuliers</h5>
-    </div>
-
-    <div class="row g-3">
-      <div class="col-md-4">
-        <%= f.input :domiciliation,
-            as: :boolean,
-            label: "Domicilié à cette adresse",
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-check-input" } %>
-      </div>
-      <div class="col-md-4">
-        <%= f.input :nouvelle_construction,
-            as: :boolean,
-            label: "Nouvelle construction",
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-check-input" } %>
-      </div>
-      <div class="col-md-4">
-        <%= f.input :primes_recues,
-            as: :boolean,
-            label: "Primes déjà reçues pour ce bien",
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-check-input" } %>
-      </div>
-    </div>
-
-    <div class="row g-3 mt-2">
-      <div class="col-md-4">
-        <%= f.input :bien_classe,
-            as: :boolean,
-            label: "Bien classé ou protégé",
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-check-input" } %>
-      </div>
-      <div class="col-md-4">
-        <%= f.input :petit_patrimoine,
-            as: :boolean,
-            label: "Éléments petit patrimoine",
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-check-input" } %>
-      </div>
-      <div class="col-md-4">
-        <%= f.input :facade_patrimoine,
-            as: :boolean,
-            label: "Façade avec patrimoine",
-            wrapper_html: { class: "mb-0" },
-            input_html: { class: "form-check-input" } %>
-      </div>
-    </div>
-  </div>
-
-  <!-- Boutons d'action -->
-  <div class="d-flex justify-content-end mt-4">
-    <%= link_to properties_path, class: 'btn btn-light me-2' do %>
-      <i class="bi bi-arrow-left me-1"></i>Annuler
-    <% end %>
-    <%= f.button "submit", class: 'btn btn-primary-custom px-4' do %>
-      <i class="bi bi-check-lg me-1"></i>Ajouter le bien
-    <% end %>
-  </div>
-<% end %>
+  <% end %>
+</div>
