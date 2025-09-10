@@ -12,6 +12,8 @@ export default class extends Controller {
     // Exposer la méthode pour accès externe
     this.element.initializeForRegion = this.initializeForRegion.bind(this);
 
+    // Note: selectConsultanceForm est maintenant définie directement dans le HTML
+
     this.initializeRegionalForms();
   }
 
@@ -154,10 +156,54 @@ export default class extends Controller {
     console.log('🔍 Configuration Wallonie directe:', formOptions['wallonie']);
     console.log('🔍 Clé région nettoyée:', normalizedRegion.trim().toLowerCase());
 
+    // Vérifier si c'est un profil entreprise
+    const profilField = document.querySelector('input[name*="profil_demandeur"]');
+    const isEntreprise = profilField && profilField.value === 'entreprise';
+
+    console.log('🏢 Profil détecté lors updateFormTypeOptions:', profilField ? profilField.value : 'non trouvé');
+    console.log('🏢 Est entreprise lors updateFormTypeOptions:', isEntreprise);
+
     // Vider le container des boutons
     this.formTypeButtonsTarget.innerHTML = '';
 
-    // Créer les boutons pour la région sélectionnée
+    // Si c'est une entreprise, afficher seulement les formulaires entreprises
+    if (isEntreprise) {
+      console.log('🏢 Création des boutons pour entreprises');
+
+      const entrepriseOptions = [
+        { value: 'entreprise', label: 'Formulaires Entreprises', icon: '🏢', description: 'Aides spécialisées pour entreprises (consultance, investissements, etc.)' }
+      ];
+
+      entrepriseOptions.forEach((option, index) => {
+        console.log(`Création bouton entreprise ${index}:`, option);
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'form-type-btn col-md-6 mb-3'; // Plus large pour moins d'options
+        button.dataset.formType = option.value;
+        button.innerHTML = `
+          <div class="card border-success h-100 text-center hover-shadow">
+            <div class="card-body d-flex flex-column justify-content-center">
+              <div class="text-success mb-3 fs-2">${option.icon}</div>
+              <h6 class="card-title text-success">${option.label}</h6>
+              <p class="card-text small text-muted">${option.description}</p>
+            </div>
+          </div>
+        `;
+
+        // Gestionnaire de clic
+        button.addEventListener('click', () => {
+          this.selectFormType(option.value);
+        });
+
+        this.formTypeButtonsTarget.appendChild(button);
+      });
+
+      console.log('✅ Boutons entreprises créés');
+      return; // Sortir de la fonction pour ne pas créer les boutons régionaux
+    }
+
+    // Créer les boutons pour la région sélectionnée (particuliers)
     if (formOptions[normalizedRegion]) {
       console.log('✅ Création des boutons pour', normalizedRegion);
 
@@ -216,7 +262,7 @@ export default class extends Controller {
     if (selectedButton) {
       const card = selectedButton.querySelector('.card');
       card.classList.remove('border-primary');
-      card.classList.add('border-success', 'bg-light');
+      card.classList.add('border-success', 'border');
       console.log('✅ Bouton sélectionné visuellement:', formType);
     } else {
       console.log('❌ Bouton non trouvé pour:', formType);
@@ -241,6 +287,25 @@ export default class extends Controller {
 
     console.log('📋 showFormTypeSection - Type:', selectedFormType, 'Région:', selectedRegion);
 
+    // Gérer le cas spécial entreprise
+    if (selectedFormType === 'entreprise') {
+      console.log('🏢 Affichage section entreprise directement');
+
+      // Masquer toutes les sections
+      const allSections = document.querySelectorAll('.region-section, .entreprise-section');
+      allSections.forEach(section => {
+        section.style.display = 'none';
+      });
+
+      // Afficher la section entreprise
+      const entrepriseSection = document.getElementById('entreprise-section');
+      if (entrepriseSection) {
+        entrepriseSection.style.display = 'block';
+        console.log('✅ Section entreprises affichée');
+      }
+      return;
+    }
+
     if (!selectedFormType || !selectedRegion) {
       console.log('❌ Type de formulaire ou région manquant');
       return;
@@ -253,6 +318,7 @@ export default class extends Controller {
     const flandreSections = document.querySelectorAll('#flandre-section, #flandre-monuments-section, #flandre-communal-section');
     const bruxellesSections = document.querySelectorAll('#bruxelles-section, #bruxelles-monuments-section, #bruxelles-petit_patrimoine-section, #bruxelles-communal-section');
     const wallonieSections = document.querySelectorAll('#wallonie-section, #wallonie-audit-section, #wallonie-monuments-section, #wallonie-communal-section');
+    const entrepriseSections = document.querySelectorAll('#entreprise-section');
 
     flandreSections.forEach(section => {
       section.style.display = 'none';
@@ -263,6 +329,27 @@ export default class extends Controller {
     wallonieSections.forEach(section => {
       section.style.display = 'none';
     });
+    entrepriseSections.forEach(section => {
+      section.style.display = 'none';
+    });
+
+    // Vérifier si c'est un profil entreprise
+    const profilField = document.querySelector('input[name*="profil_demandeur"]');
+    const isEntreprise = profilField && profilField.value === 'entreprise';
+
+    console.log('🏢 Profil détecté:', profilField ? profilField.value : 'non trouvé');
+    console.log('🏢 Est entreprise:', isEntreprise);
+
+    // Si c'est une entreprise, afficher la section entreprises et ignorer les formulaires régionaux
+    if (isEntreprise) {
+      console.log('🏢 Affichage de la section entreprises');
+      const entrepriseSection = document.getElementById('entreprise-section');
+      if (entrepriseSection) {
+        entrepriseSection.style.display = 'block';
+        console.log('✅ Section entreprises affichée');
+      }
+      return; // Sortir de la fonction pour ne pas afficher les sections régionales
+    }
 
     // Afficher la section appropriée selon le type et la région
     if (selectedFormType && selectedRegion) {

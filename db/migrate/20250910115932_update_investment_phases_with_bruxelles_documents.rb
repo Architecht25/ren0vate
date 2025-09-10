@@ -1,9 +1,9 @@
 class UpdateInvestmentPhasesWithBruxellesDocuments < ActiveRecord::Migration[8.0]
   def up
     # Mise à jour des phases d'investissement avec les documents des aides Bruxelles
-    
+
     # Phase 1: Administrative & Éligibilité
-    phase1 = DocumentPhase.find_by(name: 'Administrative (Investissement)') || 
+    phase1 = DocumentPhase.find_by(name: 'Administrative (Investissement)') ||
              DocumentPhase.find_by(position: 5, category: 'investissement')
     if phase1
       phase1.update!(
@@ -11,7 +11,7 @@ class UpdateInvestmentPhasesWithBruxellesDocuments < ActiveRecord::Migration[8.0
         description: 'Validation de l\'éligibilité entreprise et préparation administrative complète',
         required_document_types: [
           'attestation_bancaire_rib',
-          'justificatifs_eligibilite_entreprise', 
+          'justificatifs_eligibilite_entreprise',
           'numero_entreprise_bce',
           'comptes_annuels_conformes'
         ],
@@ -28,7 +28,7 @@ class UpdateInvestmentPhasesWithBruxellesDocuments < ActiveRecord::Migration[8.0
     end
 
     # Phase 2: Demande & Autorisations Préalables
-    phase2 = DocumentPhase.find_by(name: 'Introduction Préalable') || 
+    phase2 = DocumentPhase.find_by(name: 'Introduction Préalable') ||
              DocumentPhase.find_by(position: 6, category: 'investissement')
     if phase2
       phase2.update!(
@@ -57,7 +57,7 @@ class UpdateInvestmentPhasesWithBruxellesDocuments < ActiveRecord::Migration[8.0
     end
 
     # Phase 3: Exécution & Justificatifs de Réalisation
-    phase3 = DocumentPhase.find_by(name: 'Exécution (Investissement)') || 
+    phase3 = DocumentPhase.find_by(name: 'Exécution (Investissement)') ||
              DocumentPhase.find_by(position: 7, category: 'investissement')
     if phase3
       phase3.update!(
@@ -91,7 +91,7 @@ class UpdateInvestmentPhasesWithBruxellesDocuments < ActiveRecord::Migration[8.0
     end
 
     # Phase 4: Liquidation & Finalisation
-    phase4 = DocumentPhase.find_by(name: 'Introduction Finale') || 
+    phase4 = DocumentPhase.find_by(name: 'Introduction Finale') ||
              DocumentPhase.find_by(position: 8, category: 'investissement')
     if phase4
       phase4.update!(
@@ -105,7 +105,7 @@ class UpdateInvestmentPhasesWithBruxellesDocuments < ActiveRecord::Migration[8.0
         ],
         optional_document_types: [
           'rapport_mission_livrables',
-          'preuves_mise_oeuvre_recommandations', 
+          'preuves_mise_oeuvre_recommandations',
           'attestation_conformite',
           'garantie_equipements',
           'manuel_utilisation',

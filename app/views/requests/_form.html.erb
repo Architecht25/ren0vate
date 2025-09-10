@@ -185,6 +185,196 @@
     <%= render 'requests/formulaires/communales_wallonie', form: form %>
   </div>
 
+  <!-- SECTION FORMULAIRES ENTREPRISES -->
+  <div id="entreprise-section" class="entreprise-section"
+       style="display: none;"
+       data-controller="entreprise-forms">
+    <div class="card mb-4">
+      <div class="card-header bg-success text-white">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <h5 class="mb-0">
+              <i class="bi bi-building me-2"></i>
+              Formulaires pour entreprises
+            </h5>
+            <p class="mb-0 small opacity-75">Sélectionnez le type d'aide dont vous avez besoin</p>
+          </div>
+          <div class="col-md-4 text-end">
+            <div class="badge bg-light text-success">
+              <i class="bi bi-briefcase me-1"></i>
+              Entreprise
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-body p-4">
+        <!-- Sélecteur de type d'aide entreprise -->
+        <div class="alert alert-info mb-4">
+          <div class="row">
+            <div class="col-md-8">
+              <h6 class="alert-heading">
+                <i class="bi bi-info-circle me-1"></i>
+                Types d'aides disponibles
+              </h6>
+              <p class="small mb-0">
+                Ces aides sont disponibles pour toutes les entreprises situées en Région de Bruxelles-Capitale,
+                indépendamment de la région de votre bien immobilier.
+              </p>
+            </div>
+            <div class="col-md-4">
+              <div class="text-center">
+                <i class="bi bi-geo-alt text-success fs-2 mb-2"></i>
+                <p class="small mb-0 fw-bold">Valable dans toute la Belgique</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Types de formulaires entreprise -->
+        <div class="row g-3 mb-4">
+
+          <!-- Consultance -->
+          <div class="col-md-6">
+            <div class="card h-100 border-primary form-selector-card"
+                 data-form-type="consultance"
+                 style="cursor: pointer; transition: all 0.2s ease;"
+                 onclick="selectConsultanceForm()">
+              <div class="card-body text-center p-4">
+                <div class="text-primary mb-3">
+                  <i class="bi bi-person-workspace fs-1"></i>
+                </div>
+                <h6 class="card-title text-primary">Consultance</h6>
+                <p class="card-text small text-muted mb-3">
+                  Aide pour missions de conseil spécialisé :<br>
+                  • Digitalisation, sécurisation IT<br>
+                  • Études de marché, faisabilité<br>
+                  • Gouvernance, plan de diversité
+                </p>
+                <div class="badge bg-success">Max 10.000€/an</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Investissements (à venir) -->
+          <div class="col-md-6">
+            <div class="card h-100 border-warning form-selector-card opacity-50"
+                 style="cursor: not-allowed;">
+              <div class="card-body text-center p-4">
+                <div class="text-warning mb-3">
+                  <i class="bi bi-gear-wide-connected fs-1"></i>
+                </div>
+                <h6 class="card-title text-warning">Investissements</h6>
+                <p class="card-text small text-muted mb-3">
+                  Aide pour équipements et technologies :<br>
+                  • Machines, équipements productifs<br>
+                  • Technologies numériques<br>
+                  • Équipements écologiques
+                </p>
+                <div class="badge bg-secondary">Bientôt disponible</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Innovation (à venir) -->
+          <div class="col-md-6">
+            <div class="card h-100 border-info form-selector-card opacity-50"
+                 style="cursor: not-allowed;">
+              <div class="card-body text-center p-4">
+                <div class="text-info mb-3">
+                  <i class="bi bi-lightbulb fs-1"></i>
+                </div>
+                <h6 class="card-title text-info">Innovation</h6>
+                <p class="card-text small text-muted mb-3">
+                  Aide pour projets d'innovation :<br>
+                  • R&D, prototypage<br>
+                  • Propriété intellectuelle<br>
+                  • Projets collaboratifs
+                </p>
+                <div class="badge bg-secondary">Bientôt disponible</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Formation (à venir) -->
+          <div class="col-md-6">
+            <div class="card h-100 border-secondary form-selector-card opacity-50"
+                 style="cursor: not-allowed;">
+              <div class="card-body text-center p-4">
+                <div class="text-secondary mb-3">
+                  <i class="bi bi-mortarboard fs-1"></i>
+                </div>
+                <h6 class="card-title text-secondary">Formation</h6>
+                <p class="card-text small text-muted mb-3">
+                  Aide pour formation du personnel :<br>
+                  • Formation continue<br>
+                  • Mise à niveau compétences<br>
+                  • Formation spécialisée
+                </p>
+                <div class="badge bg-secondary">Bientôt disponible</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Message d'instruction -->
+        <div id="form-selection-message" class="alert alert-warning">
+          <i class="bi bi-hand-index me-2"></i>
+          <strong>Sélectionnez un type d'aide</strong> en cliquant sur l'une des cartes ci-dessus pour afficher le formulaire correspondant.
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Formulaire Consultance -->
+    <div id="consultance-form-section" style="display: none;">
+      <%= render 'requests/partials_bruxelles_entreprise/consultance', form: form %>
+    </div>
+
+    <!-- Formulaires à venir -->
+    <div id="coming-soon-section" style="display: none;">
+      <div class="card border-secondary">
+        <div class="card-body text-center py-5">
+          <i class="bi bi-hourglass-split text-secondary fs-1 mb-3"></i>
+          <h5>Formulaire en développement</h5>
+          <p class="text-muted">Ce formulaire sera disponible prochainement.</p>
+          <small class="text-muted">
+            En attendant, vous pouvez nous contacter directement pour ce type d'aide.
+          </small>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <!-- FIN SECTION FORMULAIRES ENTREPRISES -->
+
+  <!-- Script pour gérer l'affichage du formulaire consultance -->
+  <script>
+    function selectConsultanceForm() {
+      console.log('🏢 Affichage du formulaire consultance');
+
+      // Afficher le formulaire consultance
+      const consultanceSection = document.getElementById('consultance-form-section');
+      if (consultanceSection) {
+        consultanceSection.style.display = 'block';
+        console.log('✅ Formulaire consultance affiché');
+      } else {
+        console.error('❌ Section consultance non trouvée');
+        console.log('DOM elements disponibles:', document.querySelectorAll('[id*="consultance"]'));
+      }
+
+      // Mettre à jour le champ form_type
+      const formTypeSelect = document.querySelector('select[name="request[form_type]"]');
+      if (formTypeSelect) {
+        formTypeSelect.value = 'consultance';
+        console.log('✅ Form type mis à jour');
+      }
+
+      return false;
+    }
+  </script>
+
   <!-- Boutons d'action -->
   <div class="d-flex gap-2 mt-4" id="submission-buttons" style="display: flex;">
     <% if @request.persisted? %>

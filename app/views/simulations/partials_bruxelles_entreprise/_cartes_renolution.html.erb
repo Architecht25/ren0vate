@@ -1,11 +1,13 @@
 <!-- Section Primes Bruxelles RENOLUTION - 13 cartes principales par catégorie -->
 <div class="primes-section-bruxelles" data-controller="bruxelles-prime-calcul">
 
-  <!-- Injection des données de primes depuis la base de données -->
+  <!-- Injection enrichie des données de primes depuis la base de données -->
   <script id="bruxelles-primes-data" type="application/json">
     <%= raw Prime.where(region: "bruxelles").map { |prime|
       [prime.slug, {
         nom: prime.titre,
+        condition: prime.condition,
+        conseil: prime.conseil,
         valeurs_par_categorie: {
           "bruxelles_cat1" => prime.valeurs_par_categorie&.dig("bruxelles_cat1") || {},
           "bruxelles_cat2" => prime.valeurs_par_categorie&.dig("bruxelles_cat2") || {},
@@ -62,6 +64,22 @@
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-prime-card-target="resultAuditMaison">0 €</span>
                   </div>
+
+                  <!-- Informations contextuelles depuis la base de données -->
+                  <div class="mt-2">
+                    <small class="text-muted d-block"
+                           data-bruxelles-prime-card-target="condition"
+                           data-prime-slug="bruxelles_audit_energetique_maison">
+                      <i class="bi bi-info-circle me-1"></i>
+                      Conditions : Chargement...
+                    </small>
+                    <small class="text-success d-block mt-1"
+                           data-bruxelles-prime-card-target="conseil"
+                           data-prime-slug="bruxelles_audit_energetique_maison">
+                      <i class="bi bi-lightbulb me-1"></i>
+                      Conseil : Chargement...
+                    </small>
+                  </div>
                 </div>
               </div>
 
@@ -105,6 +123,22 @@
                            data-action="input->bruxelles-prime-card#calculate">
                     <span class="input-group-text bg-success text-white"
                           data-bruxelles-prime-card-target="resultIsolationThermiqueToiture">0 €</span>
+                  </div>
+
+                  <!-- Informations contextuelles depuis la base de données -->
+                  <div class="mt-2">
+                    <small class="text-muted d-block"
+                           data-bruxelles-prime-card-target="condition"
+                           data-prime-slug="bruxelles_isolation_toiture_etancheite">
+                      <i class="bi bi-info-circle me-1"></i>
+                      Conditions : Chargement...
+                    </small>
+                    <small class="text-success d-block mt-1"
+                           data-bruxelles-prime-card-target="conseil"
+                           data-prime-slug="bruxelles_isolation_toiture_etancheite">
+                      <i class="bi bi-lightbulb me-1"></i>
+                      Conseil : Chargement...
+                    </small>
                   </div>
                 </div>
               </div>
@@ -175,6 +209,22 @@
                           data-bruxelles-prime-card-target="resultIsolationCoulisse">0 €</span>
                   </div>
                 </div>
+
+                <!-- Informations contextuelles depuis la base de données -->
+                <div class="col-12 mt-2">
+                  <small class="text-muted d-block"
+                         data-bruxelles-prime-card-target="condition"
+                         data-prime-slug="bruxelles_isolation_interieure_facade">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Conditions : Chargement...
+                  </small>
+                  <small class="text-success d-block mt-1"
+                         data-bruxelles-prime-card-target="conseil"
+                         data-prime-slug="bruxelles_isolation_interieure_facade">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    Conseil : Chargement...
+                  </small>
+                </div>
               </div>
 
               <!-- Total -->
@@ -243,6 +293,22 @@
                           data-bruxelles-prime-card-target="resultReparationFenetres">0 €</span>
                   </div>
                 </div>
+
+                <!-- Informations contextuelles depuis la base de données -->
+                <div class="col-12 mt-2">
+                  <small class="text-muted d-block"
+                         data-bruxelles-prime-card-target="condition"
+                         data-prime-slug="bruxelles_remplacement_fenetres_bois">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Conditions : Chargement...
+                  </small>
+                  <small class="text-success d-block mt-1"
+                         data-bruxelles-prime-card-target="conseil"
+                         data-prime-slug="bruxelles_remplacement_fenetres_bois">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    Conseil : Chargement...
+                  </small>
+                </div>
               </div>
 
               <!-- Total -->
@@ -286,6 +352,22 @@
                     <span class="input-group-text bg-dark text-white"
                           data-bruxelles-prime-card-target="resultIsolationThermiqueSols">0 €</span>
                   </div>
+                </div>
+
+                <!-- Informations contextuelles depuis la base de données -->
+                <div class="col-12 mt-2">
+                  <small class="text-muted d-block"
+                         data-bruxelles-prime-card-target="condition"
+                         data-prime-slug="bruxelles_isolation_thermique_sols">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Conditions : Chargement...
+                  </small>
+                  <small class="text-success d-block mt-1"
+                         data-bruxelles-prime-card-target="conseil"
+                         data-prime-slug="bruxelles_isolation_thermique_sols">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    Conseil : Chargement...
+                  </small>
                 </div>
               </div>
 
@@ -338,6 +420,22 @@
                     <span class="input-group-text bg-danger text-white"
                           data-bruxelles-prime-card-target="resultPacChauffage">0 €</span>
                   </div>
+                </div>
+
+                <!-- Informations contextuelles depuis la base de données -->
+                <div class="col-12 mt-2">
+                  <small class="text-muted d-block"
+                         data-bruxelles-prime-card-target="condition"
+                         data-prime-slug="bruxelles_pac_chauffage">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Conditions : Chargement...
+                  </small>
+                  <small class="text-success d-block mt-1"
+                         data-bruxelles-prime-card-target="conseil"
+                         data-prime-slug="bruxelles_pac_chauffage">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    Conseil : Chargement...
+                  </small>
                 </div>
               </div>
 
@@ -546,38 +644,7 @@
           <div class="card-body p-3">
 
             <div class="row align-items-center">
-              <!-- Colonne gauche: Détail par catégorie -->
-              <div class="col-md-5">
-                <h6 class="text-muted mb-2">Résumé de vos primes</h6>
-                <div class="row g-2">
-                  <div class="col-6">
-                    <div class="p-2 bg-primary bg-opacity-10 rounded text-center">
-                      <small class="text-primary fw-bold">Audit & Études</small><br>
-                      <span class="text-primary fw-bold" data-bruxelles-prime-calcul-target="totalAudit">0 €</span>
-                    </div>
-                  </div>
-                  <div class="col-6">
-                    <div class="p-2 bg-success bg-opacity-10 rounded text-center">
-                      <small class="text-success fw-bold">Isolation</small><br>
-                      <span class="text-success fw-bold" data-bruxelles-prime-calcul-target="totalIsolation">0 €</span>
-                    </div>
-                  </div>
-                  <div class="col-6">
-                    <div class="p-2 bg-warning bg-opacity-10 rounded text-center">
-                      <small class="text-warning fw-bold">Chauffage</small><br>
-                      <span class="text-warning fw-bold" data-bruxelles-prime-calcul-target="totalChauffage">0 €</span>
-                    </div>
-                  </div>
-                  <div class="col-6">
-                    <div class="p-2 bg-info bg-opacity-10 rounded text-center">
-                      <small class="text-info fw-bold">Autres</small><br>
-                      <span class="text-info fw-bold" data-bruxelles-prime-calcul-target="totalAutres">0 €</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Colonne milieu: Total principal -->
+                            <!-- Colonne milieu: Total principal -->
               <div class="col-md-3 text-center">
                 <div class="p-3 bg-light rounded">
                   <h6 class="text-muted mb-2">
@@ -592,26 +659,6 @@
                 </div>
               </div>
 
-              <!-- Colonne droite: Informations importantes -->
-              <div class="col-md-4">
-                <div class="alert alert-info py-2 mb-0">
-                  <div class="d-flex align-items-start">
-                    <i class="bi bi-lightbulb me-2 mt-1"></i>
-                    <div>
-                      <h6 class="alert-heading mb-1">Bon à savoir</h6>
-                      <small>
-                        Ces montants sont des estimations basées sur les grilles tarifaires officielles de Bruxelles Environnement.
-                        Les primes varient selon votre catégorie de revenus (Cat 1, Cat 2, Cat 3).
-                      </small>
-                      <div class="mt-1">
-                        <small>
-                          <a href="#" class="text-decoration-none">Vérifier votre éligibilité</a>
-                        </small>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
             </div>
 
           </div>
@@ -620,3 +667,97 @@
     </div>
   </div>
 </div>
+
+<!-- Script pour enrichir les cartes avec les données de la base -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Récupération des données enrichies depuis la base
+  const primesDataElement = document.getElementById('bruxelles-primes-data');
+  if (!primesDataElement) return;
+
+  try {
+    const primesData = JSON.parse(primesDataElement.textContent);
+
+    // Enrichissement automatique de toutes les cartes RENOLUTION
+    document.querySelectorAll('[data-controller="bruxelles-prime-card"]').forEach(card => {
+      const slug = card.dataset.bruxellesPrimeCardSlugValue;
+
+      // Mapping des slugs des cartes vers les vrais slugs de la base
+      const slugMapping = {
+        'bruxelles_prime_a_global': 'bruxelles_audit_energetique_maison',
+        'bruxelles_prime_e_global': 'bruxelles_isolation_toiture_etancheite',
+        'bruxelles_prime_f_global': 'bruxelles_isolation_interieure_facade',
+        'bruxelles_prime_g_global': 'bruxelles_remplacement_fenetres_bois',
+        'bruxelles_prime_h_global': 'bruxelles_isolation_thermique_sols',
+        'bruxelles_prime_j_global': 'bruxelles_pac_chauffage',
+        'bruxelles_prime_m_global': 'bruxelles_ventilation_systeme_c'
+      };
+
+      const realSlug = slugMapping[slug] || slug;
+      const primeInfo = primesData[realSlug];
+
+      if (primeInfo) {
+        // Chercher ou créer un container pour les informations contextuelles
+        let infoContainer = card.querySelector('.row.g-2');
+        if (infoContainer) {
+          // Vérifier s'il y a déjà des infos contextuelles
+          let existingInfo = infoContainer.querySelector('[data-bruxelles-prime-card-target="condition"]');
+
+          if (!existingInfo && (primeInfo.condition || primeInfo.conseil)) {
+            // Créer un nouveau conteneur d'informations
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'col-12 mt-2';
+
+            let infoHTML = '';
+            if (primeInfo.condition) {
+              infoHTML += `
+                <small class="text-muted d-block" data-bruxelles-prime-card-target="condition">
+                  <i class="bi bi-info-circle me-1"></i>Conditions : ${primeInfo.condition.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}
+                </small>
+              `;
+            }
+            if (primeInfo.conseil) {
+              infoHTML += `
+                <small class="text-success d-block mt-1" data-bruxelles-prime-card-target="conseil">
+                  <i class="bi bi-lightbulb me-1"></i>Conseil : ${primeInfo.conseil.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}
+                </small>
+              `;
+            }
+
+            infoDiv.innerHTML = infoHTML;
+            infoContainer.appendChild(infoDiv);
+          }
+        }
+      }
+    });
+
+    // Enrichissement des éléments existants avec data-prime-slug
+    document.querySelectorAll('[data-bruxelles-prime-card-target="condition"]').forEach(element => {
+      const primeSlug = element.dataset.primeSlug;
+      const primeInfo = primesData[primeSlug];
+
+      if (primeInfo && primeInfo.condition) {
+        element.innerHTML = `<i class="bi bi-info-circle me-1"></i>Conditions : ${primeInfo.condition.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}`;
+      } else {
+        element.style.display = 'none';
+      }
+    });
+
+    document.querySelectorAll('[data-bruxelles-prime-card-target="conseil"]').forEach(element => {
+      const primeSlug = element.dataset.primeSlug;
+      const primeInfo = primesData[primeSlug];
+
+      if (primeInfo && primeInfo.conseil) {
+        element.innerHTML = `<i class="bi bi-lightbulb me-1"></i>Conseil : ${primeInfo.conseil.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}`;
+      } else {
+        element.style.display = 'none';
+      }
+    });
+
+    console.log('✅ Enrichissement automatique des cartes RENOLUTION réussi');
+    console.log('📊 Données enrichies pour', Object.keys(primesData).length, 'primes');
+  } catch (error) {
+    console.error('❌ Erreur lors de l\'enrichissement des cartes:', error);
+  }
+});
+</script>
