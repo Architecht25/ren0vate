@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_09_091907) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_10_095253) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -338,7 +338,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_09_091907) do
     t.string "numero_agrement_auditeur"
     t.decimal "prix_audit", precision: 10, scale: 2
     t.string "finalite", default: "residentielle", null: false
+    t.boolean "demande_avant_debut", default: true, comment: "Demande introduite avant début de mission/investissement"
+    t.boolean "finalite_economique_confirmee", default: true, comment: "Finalité économique et commerciale confirmée"
+    t.index ["demande_avant_debut"], name: "index_projects_on_demande_avant_debut"
     t.index ["finalite"], name: "index_projects_on_finalite"
+    t.index ["finalite_economique_confirmee"], name: "index_projects_on_finalite_economique_confirmee"
     t.index ["property_id"], name: "index_projects_on_property_id"
     t.index ["user_id"], name: "index_projects_on_user_id"
   end
@@ -410,6 +414,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_09_091907) do
     t.string "code_nace_4"
     t.string "code_nace_5"
     t.boolean "regle_minimis", default: false, null: false, comment: "L'entreprise a-t-elle reçu plus de 300.000€ d'aides de minimis sur 3 ans ?"
+    t.boolean "comptes_annuels_conformes", default: true, comment: "En ordre avec obligations de publication des comptes annuels"
+    t.boolean "plan_diversite_actif", default: false, comment: "Plan de diversité obligatoire si > 50 travailleurs"
+    t.decimal "pourcentage_financement_public", precision: 5, scale: 2, comment: "Pourcentage de financement public (max 75%)"
+    t.index ["comptes_annuels_conformes"], name: "index_properties_on_comptes_annuels_conformes"
+    t.index ["plan_diversite_actif"], name: "index_properties_on_plan_diversite_actif"
     t.index ["user_id"], name: "index_properties_on_user_id"
   end
 

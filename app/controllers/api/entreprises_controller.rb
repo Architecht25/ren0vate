@@ -110,7 +110,94 @@ class Api::EntreprisesController < ApplicationController
     render json: aids
   end
 
+  def calculate_bruxelles_majorations
+    # Récupérer les paramètres
+    property_id = params[:property_id]
+    project_id = params[:project_id]
+    aide_slug = params[:aide_slug]
+    montant_investissement = params[:montant_investissement].to_f
+
+    return render json: { error: "Paramètres manquants" }, status: 400 unless property_id && project_id && aide_slug && montant_investissement > 0
+
+    begin
+      # Récupérer les objets
+      property = Property.find(property_id)
+      project = Project.find(project_id)
+      aide = EntrepriseAide.find_by!(slug: aide_slug, region: "bruxelles")
+
+      # Vérifier que l'utilisateur a accès à ces objets (si authentifié)
+      if current_user
+        property = current_user.properties.find(property_id)
+        project = current_user.projects.find(project_id)
+      end
+
+      # Calculer avec majorations
+      majorations_service = Entreprises::BruxellesMajorationsService.new(property, project, aide)
+      result = majorations_service.calculate_prime_with_majorations(montant_investissement)
+
+      render json: {
+        success: true,
+        aide: {
+          titre: aide.titre,
+          slug: aide.slug,
+          taux_base: aide.taux_aide
+        },
+        calcul: result,
+        entreprise: {
+          nombre_salaries: property.nombre_salaries,
+          taille: determine_company_size(property),
+          date_creation: property.date_creation,
+          age_entreprise: property.date_creation ? ((Date.current - property.date_creation) / 365.25).round(1) : nil
+        }
+      }
+    rescue ActiveRecord::RecordNotFound => e
+      render json: { error: "Ressource non trouvée: #{e.message}" }, status: 404
+    rescue StandardError => e
+      Rails.logger.error "Erreur calcul majorations: #{e.message}"
+      render json: { error: "Erreur lors du calcul: #{e.message}" }, status: 500
+    end
+  end
+
+  def get_majorations_details
+    property_id = params[:property_id]
+    project_id = params[:project_id]
+    aide_slug = params[:aide_slug]
+
+    return render json: { error: "Paramètres manquants" }, status: 400 unless property_id && project_id && aide_slug
+
+    begin
+      property = Property.find(property_id)
+      project = Project.find(project_id)
+      aide = EntrepriseAide.find_by!(slug: aide_slug, region: "bruxelles")
+
+      if current_user
+        property = current_user.properties.find(property_id)
+        project = current_user.projects.find(project_id)
+      end
+
+      majorations_service = Entreprises::BruxellesMajorationsService.new(property, project, aide)
+      majorations_details = majorations_service.calculate_majorations
+
+      render json: {
+        success: true,
+        aide: aide.titre,
+        majorations: majorations_details
+      }
+    rescue ActiveRecord::RecordNotFound => e
+      render json: { error: "Ressource non trouvée: #{e.message}" }, status: 404
+    rescue StandardError => e
+      render json: { error: "Erreur lors du calcul: #{e.message}" }, status: 500
+    end
+  end
+
   private
+
+  def determine_company_size(property)
+    return "micro" if property.nombre_salaries.nil? || property.nombre_salaries < 10
+    return "petite" if property.nombre_salaries < 50
+    return "moyenne" if property.nombre_salaries < 250
+    "grande"
+  end
 
   # Méthode de simulation conservée pour référence en cas de besoin
   # def simulate_bce_response(numero_bce)

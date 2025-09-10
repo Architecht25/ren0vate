@@ -410,6 +410,7 @@ class PropertiesController < ApplicationController
       # Champs spécifiques Entreprise
       :nombre_salaries, :date_creation, :regle_minimis,
       :code_nace_1, :code_nace_2, :code_nace_3, :code_nace_4, :code_nace_5,
+      :comptes_annuels_conformes, :plan_diversite_actif, :pourcentage_financement_public,
 
       # Champs d'adresse d'exploitation
       :rue_exploitation, :numero_exploitation, :code_postal_exploitation,

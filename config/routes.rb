@@ -14,6 +14,8 @@ Rails.application.routes.draw do
     namespace :api do
       get 'entreprises/bce/:numero_bce', to: 'entreprises#bce_lookup'
       get 'entreprises/bruxelles/aides', to: 'entreprises#bruxelles_aides'
+      post 'entreprises/bruxelles/majorations', to: 'entreprises#calculate_bruxelles_majorations'
+      get 'entreprises/bruxelles/majorations-details', to: 'entreprises#get_majorations_details'
 
       # API pour les préférences utilisateur
       patch 'users/language-preference', to: 'users#update_language_preference'

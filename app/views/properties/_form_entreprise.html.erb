@@ -589,6 +589,61 @@
                   </div>
                 </div>
               </div>
+
+              <!-- Section Conformité et Éligibilité -->
+              <div class="row g-3 mt-3 pt-3 border-top">
+                <div class="col-12 mb-2">
+                  <h6 class="text-dark fw-medium mb-0">
+                    <i class="bi bi-shield-check me-2 text-success"></i>Conformité et Éligibilité
+                  </h6>
+                  <small class="text-muted">Conditions requises pour les aides de Bruxelles</small>
+                </div>
+
+                <div class="col-lg-6">
+                  <div class="form-check form-switch">
+                    <%= f.check_box :comptes_annuels_conformes,
+                        class: "form-check-input",
+                        style: "transform: scale(1.2);" %>
+                    <%= f.label :comptes_annuels_conformes,
+                        '<i class="bi bi-file-earmark-text me-2 text-info"></i>Comptes annuels en ordre'.html_safe,
+                        class: "form-check-label text-dark fw-medium" %>
+                    <small class="text-muted d-block mt-1">
+                      Entreprise en ordre avec les obligations de publication des comptes annuels
+                    </small>
+                  </div>
+                </div>
+
+                <div class="col-lg-6">
+                  <div class="form-check form-switch">
+                    <%= f.check_box :plan_diversite_actif,
+                        class: "form-check-input",
+                        style: "transform: scale(1.2);" %>
+                    <%= f.label :plan_diversite_actif,
+                        '<i class="bi bi-people-fill me-2 text-primary"></i>Plan de diversité actif'.html_safe,
+                        class: "form-check-label text-dark fw-medium" %>
+                    <small class="text-muted d-block mt-1">
+                      Obligatoire pour les entreprises de plus de 50 travailleurs
+                    </small>
+                  </div>
+                </div>
+
+                <div class="col-lg-6">
+                  <%= f.input :pourcentage_financement_public,
+                      label: '<i class="bi bi-percent me-2 text-warning"></i>% Financement public'.html_safe,
+                      placeholder: "ex. 25.5",
+                      wrapper_html: { class: "mb-3" },
+                      label_html: { class: "form-label text-dark fw-medium mb-1" },
+                      input_html: {
+                        class: "form-control border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                        type: "number",
+                        step: "0.01",
+                        min: "0",
+                        max: "100"
+                      },
+                      hint: "Maximum 75% pour être éligible aux aides Bruxelles" %>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -619,10 +674,9 @@
           </div>
         </div>
       </div>
-
-    <% end %>
-  </div>
+  <% end %>
 </div>
+
 
 <!-- CSS personnalisé pour le design moderne -->
 <style>
@@ -659,33 +713,5 @@
   .form-control:hover, .form-select:hover {
     background-color: #fff !important;
     border-color: #ced4da !important;
-  }
-</style>
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15) !important;
-  }
-
-  .card {
-    transition: all 0.3s ease;
-  }
-
-  .card:hover {
-    transform: translateY(-2px);
-  }
-
-  .btn {
-    transition: all 0.2s ease;
-  }
-
-  .btn:hover:not(:disabled) {
-    transform: translateY(-1px);
-  }
-
-  .bg-light {
-    background-color: #f8f9fa !important;
-  }
-
-  .form-check-input:checked {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
   }
 </style>

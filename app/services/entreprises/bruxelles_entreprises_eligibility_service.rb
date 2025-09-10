@@ -18,12 +18,17 @@ module Entreprises
       return ineligible("❌ Propriété non trouvée") unless property
       return ineligible("❌ Projet non trouvé") unless project
 
-      # Vérifications automatiques basées sur les données
+      # Vérifications automatiques basées sur les conditions d'éligibilité officielles
       return ineligible("❌ Le siège d'exploitation doit être situé en Région de Bruxelles-Capitale") unless property_in_bruxelles?(property)
       return ineligible("❌ Un numéro d'entreprise BCE valide est requis") unless project.bce_number.present?
       return ineligible("❌ L'entreprise doit être une PME (moins de 250 employés)") unless is_pme?(property)
       return ineligible("❌ L'entreprise ne peut pas avoir reçu plus de 300.000€ d'aides de minimis sur 3 ans") if violates_de_minimis_rule?(property)
-      return ineligible("❌ L'activité de l'entreprise doit être dans un secteur éligible") unless eligible_sector?(property)
+      return ineligible("❌ L'activité de l'entreprise doit être dans un secteur éligible selon les codes NACE-BEL 2025") unless eligible_sector?(property)
+      return ineligible("❌ L'entreprise doit avoir une finalité économique et commerciale") unless has_economic_purpose?(project)
+      return ineligible("❌ Le financement public total ne peut pas dépasser 75%") if exceeds_public_funding_limit?(property)
+      return ineligible("❌ L'entreprise doit être en ordre avec les obligations de publication des comptes annuels") unless compliant_with_annual_accounts?(property)
+      return ineligible("❌ Un plan de diversité est obligatoire pour les entreprises de plus de 50 travailleurs") unless has_diversity_plan_if_required?(property)
+      return ineligible("❌ La demande doit être introduite AVANT le début de la mission/investissement") unless application_before_start?(project)
 
       # Si toutes les vérifications passent, l'entreprise est éligible
       eligible_result = {
@@ -66,8 +71,7 @@ module Entreprises
     end
 
     def eligible_sector?(property)
-      # Pour l'instant, on accepte tous les secteurs
-      # TODO: Implémenter la logique des secteurs éligibles basée sur les codes NACE
+      # Vérification basée sur les secteurs éligibles selon NACE-BEL 2025
       return true if property.code_nace_1.blank?
 
       # Liste des secteurs éligibles (codes NACE principaux)
@@ -78,6 +82,41 @@ module Entreprises
        property.code_nace_4, property.code_nace_5].compact.any? do |nace_code|
         eligible_nace_codes.include?(nace_code&.first(2)) # Vérification sur les 2 premiers chiffres
       end
+    end
+
+    def has_economic_purpose?(project)
+      # Vérifier que l'entreprise a une finalité économique et commerciale
+      return false unless project.finalite_economique_confirmee
+      return true if project.finalite.blank? # Si pas spécifié, on se base sur la confirmation
+      project.finalite == 'economique' || project.finalite == 'commercial'
+    end
+
+    def exceeds_public_funding_limit?(property)
+      # Vérifier que le financement public ne dépasse pas 75%
+      return false if property.pourcentage_financement_public.nil? # Si pas spécifié, on considère comme conforme
+      property.pourcentage_financement_public > 75.0
+    end
+
+    def compliant_with_annual_accounts?(property)
+      # Vérifier que l'entreprise est en ordre avec les obligations de publication
+      property.comptes_annuels_conformes
+    end
+
+    def has_diversity_plan_if_required?(property)
+      # Plan de diversité obligatoire si > 50 travailleurs
+      return true if property.nombre_salaries.nil? || property.nombre_salaries <= 50
+
+      # Si > 50 employés, vérifier qu'un plan de diversité est actif
+      property.plan_diversite_actif
+    end
+
+    def application_before_start?(project)
+      # Vérifier que la demande est faite avant le début de la mission
+      return project.demande_avant_debut if project.demande_avant_debut.present?
+      return true if project.date_début.blank? # Si pas de date de début, on considère OK
+
+      # Si le projet a déjà commencé, non éligible
+      project.date_début > Date.current
     end
 
     def get_eligible_nace_codes
@@ -158,12 +197,26 @@ module Entreprises
     end
 
     def build_recommendations(project)
+      property = get_property
       recommendations = []
-      recommendations << "🏢 Votre entreprise répond aux critères d'éligibilité de base"
+
+      recommendations << "✅ Votre entreprise répond aux critères d'éligibilité de base"
+      recommendations << "🏢 Siège d'exploitation confirmé en Région de Bruxelles-Capitale"
       recommendations << "📋 Assurez-vous que votre entreprise est bien inscrite à la BCE"
-      recommendations << "💼 Les montants des primes correspondent à la grille tarifaire entreprise"
-      recommendations << "📅 Les demandes doivent être introduites AVANT le début des investissements"
+
+      # Recommandations spécifiques selon la taille
+      if property&.nombre_salaries.present? && property.nombre_salaries > 50
+        recommendations << "👥 Plan de diversité obligatoire (> 50 travailleurs) - vérifiez sa mise en place"
+      end
+
+      recommendations << "💰 Vérifiez que vous n'avez pas dépassé 300.000€ d'aides de minimis sur 3 ans"
+      recommendations << "📊 Maximum 75% de financement public pour votre projet"
+      recommendations << "� Soyez en ordre avec vos obligations de publication des comptes annuels"
+      recommendations << "🎯 Confirmez la finalité économique et commerciale de votre entreprise"
+      recommendations << "⏰ Introduisez votre demande AVANT le début de la mission/investissement"
+      recommendations << "🔍 Vérifiez que votre code NACE est éligible selon la réglementation 2025"
       recommendations << "🌐 Consultez economie-emploi.brussels pour les conditions détaillées"
+
       recommendations
     end
 
