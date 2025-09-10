@@ -349,7 +349,17 @@
           <div class="mb-3">
             <label class="form-label">Type de travaux</label>
             <div class="row">
+              <!-- Audit énergétique -->
               <div class="col-md-6">
+                <h6 class="text-primary">Audit énergétique</h6>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_audit_energetique, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_audit_energetique) %>">
+                    Audit énergétique
+                  </label>
+                </div>
+
+                <h6 class="text-primary mt-3">Travaux Toiture</h6>
                 <div class="form-check mb-2">
                   <%= form.check_box :travaux_remplacement_couverture_toiture, { class: "form-check-input" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_couverture_toiture) %>">
@@ -374,6 +384,8 @@
                     Isolation de la toiture
                   </label>
                 </div>
+
+                <h6 class="text-primary mt-3">Travaux Murs</h6>
                 <div class="form-check mb-2">
                   <%= form.check_box :travaux_assechement_infiltrations, { class: "form-check-input" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_assechement_infiltrations) %>">
@@ -398,6 +410,8 @@
                     Isolation des murs
                   </label>
                 </div>
+
+                <h6 class="text-primary mt-3">Travaux Sols</h6>
                 <div class="form-check mb-2">
                   <%= form.check_box :travaux_refection_supports, { class: "form-check-input" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_refection_supports) %>">
@@ -410,18 +424,24 @@
                     Isolation thermique des sols
                   </label>
                 </div>
+
+                <h6 class="text-primary mt-3">Installation électrique</h6>
                 <div class="form-check mb-2">
                   <%= form.check_box :travaux_conformite_electrique, { class: "form-check-input" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_conformite_electrique) %>">
                     Mise en conformité de l'installation électrique
                   </label>
                 </div>
+
+                <h6 class="text-primary mt-3">Installation Gaz</h6>
                 <div class="form-check mb-2">
                   <%= form.check_box :travaux_conformite_gaz, { class: "form-check-input" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_conformite_gaz) %>">
                     Mise en conformité de l'installation de gaz
                   </label>
                 </div>
+
+                <h6 class="text-primary mt-3">Autres travaux</h6>
                 <div class="form-check mb-2">
                   <%= form.check_box :travaux_elimination_merule, { class: "form-check-input" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_elimination_merule) %>">
@@ -434,22 +454,22 @@
                     Élimination du radon
                   </label>
                 </div>
+                
+                <h6 class="text-primary">Menuiseries</h6>
                 <div class="form-check mb-2">
                   <%= form.check_box :travaux_remplacement_chassis, { class: "form-check-input" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_chassis) %>">
                     Remplacement des châssis et vitrages
                   </label>
                 </div>
+              </div>
+
+              <div class="col-md-6">
+                <h6 class="text-primary mt-3">Systèmes Chauffage</h6>
                 <div class="form-check mb-2">
                   <%= form.check_box :travaux_pompe_chaleur_chauffage, { class: "form-check-input" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_pompe_chaleur_chauffage) %>">
                     Installation de pompe à chaleur pour chauffage
-                  </label>
-                </div>
-                <div class="form-check mb-2">
-                  <%= form.check_box :travaux_pompe_chaleur_ecs, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_pompe_chaleur_ecs) %>">
-                    Installation de pompe à chaleur pour production d'eau chaude sanitaire
                   </label>
                 </div>
                 <div class="form-check mb-2">
@@ -458,12 +478,18 @@
                     Installation de chaudière biomasse
                   </label>
                 </div>
-              </div>
-              <div class="col-md-6">
                 <div class="form-check mb-2">
                   <%= form.check_box :travaux_poele_biomasse, { class: "form-check-input" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_poele_biomasse) %>">
                     Installation de poêle biomasse
+                  </label>
+                </div>
+
+                <h6 class="text-primary mt-3">Eau Chaude Sanitaire</h6>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_pompe_chaleur_ecs, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_pompe_chaleur_ecs) %>">
+                    Installation de pompe à chaleur pour production d'eau chaude sanitaire
                   </label>
                 </div>
                 <div class="form-check mb-2">
@@ -472,6 +498,8 @@
                     Installation d'un chauffe-eau solaire
                   </label>
                 </div>
+
+                <h6 class="text-primary mt-3">Ventilation</h6>
                 <div class="form-check mb-2">
                   <%= form.check_box :travaux_ventilation_simple_flux, { class: "form-check-input" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_ventilation_simple_flux) %>">
@@ -484,6 +512,8 @@
                     Installation ou remplacement d'un système de ventilation double flux avec récupération de chaleur
                   </label>
                 </div>
+
+                <h6 class="text-primary mt-3">Améliorations</h6>
                 <div class="form-check mb-2">
                   <%= form.check_box :travaux_isolation_ballons_500l, { class: "form-check-input" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_ballons_500l) %>">
@@ -560,6 +590,12 @@
                   <%= form.check_box :travaux_isolation_echangeur_ecs, { class: "form-check-input" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_echangeur_ecs) %>">
                     Isolation d'un échangeur externe ECS
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_audit_energetique, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_audit_energetique) %>">
+                    Audit énergétique
                   </label>
                 </div>
               </div>
