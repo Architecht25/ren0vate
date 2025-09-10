@@ -43,6 +43,7 @@ import RequestAutosaveController from "controllers/request_autosave_controller"
 import BruxellesEntrepriseCalculController from "controllers/bruxelles_entreprise_calcul_controller"
 import ImagePreviewController from "controllers/image_preview_controller"
 import AddressCopyController from "controllers/address_copy_controller"
+import TooltipController from "controllers/tooltip_controller"
 
 application.register("user_type", UserTypeController)
 application.register("test-eligibilite", TestEligibiliteController)
@@ -71,5 +72,6 @@ application.register("request-autosave", RequestAutosaveController)
 application.register("bruxelles-entreprise-calcul", BruxellesEntrepriseCalculController)
 application.register("image-preview", ImagePreviewController)
 application.register("address-copy", AddressCopyController)
+application.register("tooltip", TooltipController)
 
 export { application }
