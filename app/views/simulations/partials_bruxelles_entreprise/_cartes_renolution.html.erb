@@ -17,6 +17,20 @@
     }.to_h.to_json %>
   </script>
 
+  <%
+    # Helper pour récupérer la condition d'une prime
+    def condition_prime(slug)
+      prime = Prime.find_by(slug: slug)
+      prime&.condition || "Conditions en cours de chargement..."
+    end
+
+    # Helper pour récupérer le conseil d'une prime
+    def conseil_prime(slug)
+      prime = Prime.find_by(slug: slug)
+      prime&.conseil || "Conseil en cours de chargement..."
+    end
+  %>
+
   <div class="card border-0 shadow mb-4">
     <div class="card-header bg-success bg-opacity-10">
       <h4 class="card-title mb-0">
@@ -67,17 +81,13 @@
 
                   <!-- Informations contextuelles depuis la base de données -->
                   <div class="mt-2">
-                    <small class="text-muted d-block"
-                           data-bruxelles-prime-card-target="condition"
-                           data-prime-slug="bruxelles_audit_energetique_maison">
+                    <small class="text-muted d-block">
                       <i class="bi bi-info-circle me-1"></i>
-                      Conditions : Chargement...
+                      Conditions : <%= condition_prime("bruxelles_audit_energetique_maison") %>
                     </small>
-                    <small class="text-success d-block mt-1"
-                           data-bruxelles-prime-card-target="conseil"
-                           data-prime-slug="bruxelles_audit_energetique_maison">
+                    <small class="text-success d-block mt-1">
                       <i class="bi bi-lightbulb me-1"></i>
-                      Conseil : Chargement...
+                      Conseil : <%= conseil_prime("bruxelles_audit_energetique_maison") %>
                     </small>
                   </div>
                 </div>
@@ -127,17 +137,13 @@
 
                   <!-- Informations contextuelles depuis la base de données -->
                   <div class="mt-2">
-                    <small class="text-muted d-block"
-                           data-bruxelles-prime-card-target="condition"
-                           data-prime-slug="bruxelles_isolation_toiture_etancheite">
+                    <small class="text-muted d-block">
                       <i class="bi bi-info-circle me-1"></i>
-                      Conditions : Chargement...
+                      Conditions : <%= condition_prime("bruxelles_isolation_toiture_etancheite") %>
                     </small>
-                    <small class="text-success d-block mt-1"
-                           data-bruxelles-prime-card-target="conseil"
-                           data-prime-slug="bruxelles_isolation_toiture_etancheite">
+                    <small class="text-success d-block mt-1">
                       <i class="bi bi-lightbulb me-1"></i>
-                      Conseil : Chargement...
+                      Conseil : <%= conseil_prime("bruxelles_isolation_toiture_etancheite") %>
                     </small>
                   </div>
                 </div>
@@ -212,17 +218,13 @@
 
                 <!-- Informations contextuelles depuis la base de données -->
                 <div class="col-12 mt-2">
-                  <small class="text-muted d-block"
-                         data-bruxelles-prime-card-target="condition"
-                         data-prime-slug="bruxelles_isolation_interieure_facade">
+                  <small class="text-muted d-block">
                     <i class="bi bi-info-circle me-1"></i>
-                    Conditions : Chargement...
+                    Conditions : <%= condition_prime("bruxelles_isolation_interieure_facade") %>
                   </small>
-                  <small class="text-success d-block mt-1"
-                         data-bruxelles-prime-card-target="conseil"
-                         data-prime-slug="bruxelles_isolation_interieure_facade">
+                  <small class="text-success d-block mt-1">
                     <i class="bi bi-lightbulb me-1"></i>
-                    Conseil : Chargement...
+                    Conseil : <%= conseil_prime("bruxelles_isolation_interieure_facade") %>
                   </small>
                 </div>
               </div>
@@ -296,17 +298,13 @@
 
                 <!-- Informations contextuelles depuis la base de données -->
                 <div class="col-12 mt-2">
-                  <small class="text-muted d-block"
-                         data-bruxelles-prime-card-target="condition"
-                         data-prime-slug="bruxelles_remplacement_fenetres_bois">
+                  <small class="text-muted d-block">
                     <i class="bi bi-info-circle me-1"></i>
-                    Conditions : Chargement...
+                    Conditions : <%= condition_prime("bruxelles_remplacement_fenetres_bois") %>
                   </small>
-                  <small class="text-success d-block mt-1"
-                         data-bruxelles-prime-card-target="conseil"
-                         data-prime-slug="bruxelles_remplacement_fenetres_bois">
+                  <small class="text-success d-block mt-1">
                     <i class="bi bi-lightbulb me-1"></i>
-                    Conseil : Chargement...
+                    Conseil : <%= conseil_prime("bruxelles_remplacement_fenetres_bois") %>
                   </small>
                 </div>
               </div>
@@ -356,17 +354,13 @@
 
                 <!-- Informations contextuelles depuis la base de données -->
                 <div class="col-12 mt-2">
-                  <small class="text-muted d-block"
-                         data-bruxelles-prime-card-target="condition"
-                         data-prime-slug="bruxelles_isolation_thermique_sols">
+                  <small class="text-muted d-block">
                     <i class="bi bi-info-circle me-1"></i>
-                    Conditions : Chargement...
+                    Conditions : <%= condition_prime("bruxelles_isolation_thermique_sols") %>
                   </small>
-                  <small class="text-success d-block mt-1"
-                         data-bruxelles-prime-card-target="conseil"
-                         data-prime-slug="bruxelles_isolation_thermique_sols">
+                  <small class="text-success d-block mt-1">
                     <i class="bi bi-lightbulb me-1"></i>
-                    Conseil : Chargement...
+                    Conseil : <%= conseil_prime("bruxelles_isolation_thermique_sols") %>
                   </small>
                 </div>
               </div>
@@ -424,17 +418,13 @@
 
                 <!-- Informations contextuelles depuis la base de données -->
                 <div class="col-12 mt-2">
-                  <small class="text-muted d-block"
-                         data-bruxelles-prime-card-target="condition"
-                         data-prime-slug="bruxelles_pac_chauffage">
+                  <small class="text-muted d-block">
                     <i class="bi bi-info-circle me-1"></i>
-                    Conditions : Chargement...
+                    Conditions : <%= condition_prime("bruxelles_pac_chauffage") %>
                   </small>
-                  <small class="text-success d-block mt-1"
-                         data-bruxelles-prime-card-target="conseil"
-                         data-prime-slug="bruxelles_pac_chauffage">
+                  <small class="text-success d-block mt-1">
                     <i class="bi bi-lightbulb me-1"></i>
-                    Conseil : Chargement...
+                    Conseil : <%= conseil_prime("bruxelles_pac_chauffage") %>
                   </small>
                 </div>
               </div>
@@ -479,6 +469,18 @@
                            data-action="input->bruxelles-prime-card#calculate">
                     <span class="input-group-text bg-warning text-white"
                           data-bruxelles-prime-card-target="resultRadiateurs">0 €</span>
+                  </div>
+
+                  <!-- Informations contextuelles depuis la base de données -->
+                  <div class="mt-2">
+                    <small class="text-muted d-block">
+                      <i class="bi bi-info-circle me-1"></i>
+                      Conditions : <%= condition_prime("bruxelles_radiateurs_basse_temperature") %>
+                    </small>
+                    <small class="text-success d-block mt-1">
+                      <i class="bi bi-lightbulb me-1"></i>
+                      Conseil : <%= conseil_prime("bruxelles_radiateurs_basse_temperature") %>
+                    </small>
                   </div>
                 </div>
               </div>
@@ -527,6 +529,18 @@
                     <span class="input-group-text bg-info text-white"
                           data-bruxelles-prime-card-target="resultChauffeEauThermo">0 €</span>
                   </div>
+
+                  <!-- Informations contextuelles depuis la base de données -->
+                  <div class="mt-2">
+                    <small class="text-muted d-block">
+                      <i class="bi bi-info-circle me-1"></i>
+                      Conditions : <%= condition_prime("bruxelles_chauffe_eau_pac") %>
+                    </small>
+                    <small class="text-success d-block mt-1">
+                      <i class="bi bi-lightbulb me-1"></i>
+                      Conseil : <%= conseil_prime("bruxelles_chauffe_eau_pac") %>
+                    </small>
+                  </div>
                 </div>
               </div>
 
@@ -573,6 +587,18 @@
                     </select>
                     <span class="input-group-text bg-success text-white"
                           data-bruxelles-prime-card-target="resultChauffeEauSolaire">0 €</span>
+                  </div>
+
+                  <!-- Informations contextuelles depuis la base de données -->
+                  <div class="mt-2">
+                    <small class="text-muted d-block">
+                      <i class="bi bi-info-circle me-1"></i>
+                      Conditions : <%= condition_prime("bruxelles_chauffe_eau_solaire") %>
+                    </small>
+                    <small class="text-success d-block mt-1">
+                      <i class="bi bi-lightbulb me-1"></i>
+                      Conseil : <%= conseil_prime("bruxelles_chauffe_eau_solaire") %>
+                    </small>
                   </div>
                 </div>
               </div>
@@ -621,6 +647,18 @@
                     <span class="input-group-text bg-secondary text-white"
                           data-bruxelles-prime-card-target="resultVentilation">0 €</span>
                   </div>
+
+                  <!-- Informations contextuelles depuis la base de données -->
+                  <div class="mt-2">
+                    <small class="text-muted d-block">
+                      <i class="bi bi-info-circle me-1"></i>
+                      Conditions : <%= condition_prime("bruxelles_ventilation_systeme_c") %>
+                    </small>
+                    <small class="text-success d-block mt-1">
+                      <i class="bi bi-lightbulb me-1"></i>
+                      Conseil : <%= conseil_prime("bruxelles_ventilation_systeme_c") %>
+                    </small>
+                  </div>
                 </div>
               </div>
 
@@ -667,97 +705,3 @@
     </div>
   </div>
 </div>
-
-<!-- Script pour enrichir les cartes avec les données de la base -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Récupération des données enrichies depuis la base
-  const primesDataElement = document.getElementById('bruxelles-primes-data');
-  if (!primesDataElement) return;
-
-  try {
-    const primesData = JSON.parse(primesDataElement.textContent);
-
-    // Enrichissement automatique de toutes les cartes RENOLUTION
-    document.querySelectorAll('[data-controller="bruxelles-prime-card"]').forEach(card => {
-      const slug = card.dataset.bruxellesPrimeCardSlugValue;
-
-      // Mapping des slugs des cartes vers les vrais slugs de la base
-      const slugMapping = {
-        'bruxelles_prime_a_global': 'bruxelles_audit_energetique_maison',
-        'bruxelles_prime_e_global': 'bruxelles_isolation_toiture_etancheite',
-        'bruxelles_prime_f_global': 'bruxelles_isolation_interieure_facade',
-        'bruxelles_prime_g_global': 'bruxelles_remplacement_fenetres_bois',
-        'bruxelles_prime_h_global': 'bruxelles_isolation_thermique_sols',
-        'bruxelles_prime_j_global': 'bruxelles_pac_chauffage',
-        'bruxelles_prime_m_global': 'bruxelles_ventilation_systeme_c'
-      };
-
-      const realSlug = slugMapping[slug] || slug;
-      const primeInfo = primesData[realSlug];
-
-      if (primeInfo) {
-        // Chercher ou créer un container pour les informations contextuelles
-        let infoContainer = card.querySelector('.row.g-2');
-        if (infoContainer) {
-          // Vérifier s'il y a déjà des infos contextuelles
-          let existingInfo = infoContainer.querySelector('[data-bruxelles-prime-card-target="condition"]');
-
-          if (!existingInfo && (primeInfo.condition || primeInfo.conseil)) {
-            // Créer un nouveau conteneur d'informations
-            const infoDiv = document.createElement('div');
-            infoDiv.className = 'col-12 mt-2';
-
-            let infoHTML = '';
-            if (primeInfo.condition) {
-              infoHTML += `
-                <small class="text-muted d-block" data-bruxelles-prime-card-target="condition">
-                  <i class="bi bi-info-circle me-1"></i>Conditions : ${primeInfo.condition.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}
-                </small>
-              `;
-            }
-            if (primeInfo.conseil) {
-              infoHTML += `
-                <small class="text-success d-block mt-1" data-bruxelles-prime-card-target="conseil">
-                  <i class="bi bi-lightbulb me-1"></i>Conseil : ${primeInfo.conseil.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}
-                </small>
-              `;
-            }
-
-            infoDiv.innerHTML = infoHTML;
-            infoContainer.appendChild(infoDiv);
-          }
-        }
-      }
-    });
-
-    // Enrichissement des éléments existants avec data-prime-slug
-    document.querySelectorAll('[data-bruxelles-prime-card-target="condition"]').forEach(element => {
-      const primeSlug = element.dataset.primeSlug;
-      const primeInfo = primesData[primeSlug];
-
-      if (primeInfo && primeInfo.condition) {
-        element.innerHTML = `<i class="bi bi-info-circle me-1"></i>Conditions : ${primeInfo.condition.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}`;
-      } else {
-        element.style.display = 'none';
-      }
-    });
-
-    document.querySelectorAll('[data-bruxelles-prime-card-target="conseil"]').forEach(element => {
-      const primeSlug = element.dataset.primeSlug;
-      const primeInfo = primesData[primeSlug];
-
-      if (primeInfo && primeInfo.conseil) {
-        element.innerHTML = `<i class="bi bi-lightbulb me-1"></i>Conseil : ${primeInfo.conseil.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}`;
-      } else {
-        element.style.display = 'none';
-      }
-    });
-
-    console.log('✅ Enrichissement automatique des cartes RENOLUTION réussi');
-    console.log('📊 Données enrichies pour', Object.keys(primesData).length, 'primes');
-  } catch (error) {
-    console.error('❌ Erreur lors de l\'enrichissement des cartes:', error);
-  }
-});
-</script>
