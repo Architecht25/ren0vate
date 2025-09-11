@@ -3,18 +3,12 @@ class RequestProgress < ApplicationRecord
   belongs_to :prime
 
   # Attachements pour les documents de suivi
-  has_one_attached :document_suivi_pdf do |attachable|
-    attachable.variant :thumb, resize_to_limit: [200, 200]
-  end
-  has_one_attached :document_suivi_photo do |attachable|
-    attachable.variant :thumb, resize_to_limit: [200, 200]
-  end
+  has_one_attached :document_suivi_pdf    # PDF reçu de l'administration
+  has_one_attached :document_suivi_photo  # Photo du courrier (Wallonie)
 
-  # Validations pour les attachements
-  validates :document_suivi_pdf, content_type: { in: %w[application/pdf],
-    message: 'must be a PDF file' }, size: { less_than: 10.megabytes }, allow_blank: true
-  validates :document_suivi_photo, content_type: { in: %w[image/jpeg image/jpg image/png image/gif],
-    message: 'must be an image file' }, size: { less_than: 5.megabytes }, allow_blank: true
+  # Validations personnalisées pour les fichiers
+  validate :validate_document_suivi_pdf, if: -> { document_suivi_pdf.attached? }
+  validate :validate_document_suivi_photo, if: -> { document_suivi_photo.attached? }
 
   validates :step, :pourcentage, presence: true
   validates :email_suivi, presence: true, uniqueness: true
@@ -85,5 +79,29 @@ class RequestProgress < ApplicationRecord
 
   def update_date_derniere_maj
     self.date_derniere_maj = Date.current
+  end
+
+  def validate_document_suivi_pdf
+    return unless document_suivi_pdf.attached?
+
+    if document_suivi_pdf.blob.byte_size > 10.megabytes
+      errors.add(:document_suivi_pdf, 'must be less than 10MB')
+    end
+
+    unless document_suivi_pdf.blob.content_type == 'application/pdf'
+      errors.add(:document_suivi_pdf, 'must be a PDF file')
+    end
+  end
+
+  def validate_document_suivi_photo
+    return unless document_suivi_photo.attached?
+
+    if document_suivi_photo.blob.byte_size > 5.megabytes
+      errors.add(:document_suivi_photo, 'must be less than 5MB')
+    end
+
+    unless %w[image/jpeg image/jpg image/png image/gif].include?(document_suivi_photo.blob.content_type)
+      errors.add(:document_suivi_photo, 'must be an image file (JPEG, PNG, or GIF)')
+    end
   end
 end
