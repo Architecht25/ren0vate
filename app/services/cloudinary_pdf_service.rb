@@ -25,7 +25,9 @@ class CloudinaryPdfService
         Rails.logger.error "Error generating PDF URL for #{public_id}: #{e.message}"
         nil
       end
-    end    def generate_preview_url(public_id, options = {})
+    end
+
+    def generate_preview_url(public_id, options = {})
       # Pour les PDFs, on peut générer une image de la première page
       default_options = {
         resource_type: :image,  # Important: pas raw pour la preview
