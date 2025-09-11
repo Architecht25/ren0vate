@@ -5,6 +5,9 @@ class ApplicationController < ActionController::Base
   # Protection CSRF
   protect_from_forgery with: :exception
 
+  # Include Cloudinary helper for static images
+  include CloudinaryHelper
+
   # Configuration I18n pour la Belgique
   before_action :set_locale
   around_action :switch_locale
