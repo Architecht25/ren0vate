@@ -42,14 +42,11 @@ cloudinary:
   api_key: <%= ENV.fetch('CLOUDINARY_API_KEY', '') %>
   api_secret: <%= ENV.fetch('CLOUDINARY_API_SECRET', '') %>
   folder: <%= Rails.env %>
-  # Configuration optimisée pour tous types de fichiers
+  # Configuration optimisée - laissons Active Storage gérer automatiquement
   upload_options:
-    # Pas de resource_type fixe, laissons Cloudinary détecter automatiquement
-    quality: "auto:eco"   # Compression automatique économique
-    fetch_format: "auto"  # Format optimal pour chaque client
     use_filename: true
-    unique_filename: true  # Important pour éviter les conflits
-  # Cache optimisé pour réduire la bande passante
+    unique_filename: true
+    # Pas de resource_type fixe - sera déterminé par le content_type
   cache_control: "public, max-age=#{1.year.to_i}"
 
 # Service local pour les PDFs pour éviter les problèmes Cloudinary

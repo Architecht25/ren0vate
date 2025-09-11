@@ -68,6 +68,7 @@ Rails.application.configure do
     # Connections (XHR/fetch) : notre app + APIs externes utilisées
     policy.connect_src :self,
                        :https,
+                       "http://localhost:3000", # Pour les requêtes AJAX en développement
                        "https://geo.onroerenderfgoed.be", # API monuments Flandre
                        "https://www.premiezoeker.be"      # API primes communales
 

@@ -25,7 +25,7 @@ end
 puts "\n2. Test de connexion Cloudinary:"
 begin
   require 'cloudinary'
-  
+
   # Configuration
   Cloudinary.config do |config|
     config.cloud_name = cloud_name
@@ -33,12 +33,12 @@ begin
     config.api_secret = api_secret
     config.secure = true
   end
-  
+
   # Test simple
   result = Cloudinary::Api.ping
   puts "   ✅ Connexion Cloudinary: OK"
   puts "   Cloud: #{cloud_name}"
-  
+
 rescue => e
   puts "   ❌ Erreur de connexion Cloudinary: #{e.message}"
   exit 1
@@ -66,7 +66,7 @@ if pdf_count > 0
   puts "     - Service: #{latest_pdf.file.service_name}"
   puts "     - Key: #{latest_pdf.file.key}"
   puts "     - URL: #{Rails.application.routes.url_helpers.rails_blob_url(latest_pdf.file)}"
-  
+
   # Test d'accès au fichier
   begin
     latest_pdf.file.download(limit: 1024)

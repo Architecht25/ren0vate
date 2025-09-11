@@ -7,6 +7,9 @@ class Document < ApplicationRecord
 
   has_one_attached :file
 
+  # Callback pour personnaliser l'upload Cloudinary selon le type de fichier
+  before_save :configure_cloudinary_upload
+
   # Validations améliorées pour l'upload
   validates :type_document, presence: true
   validates :file_url, presence: true, unless: -> { file.attached? }
@@ -253,6 +256,44 @@ class Document < ApplicationRecord
 
     unless ALL_ALLOWED_FORMATS.include?(file.content_type)
       errors.add(:file, "format non autorisé. Formats acceptés: PDF, images (JPEG, PNG, GIF, WebP), documents Word/Excel")
+    end
+  end
+
+  private
+
+  # Configure l'upload Cloudinary selon le type de fichier
+  def configure_cloudinary_upload
+    return unless file.attached? && Rails.application.config.active_storage.service == :cloudinary
+
+    # Pour les PDFs, on force resource_type: raw
+    if file.content_type == 'application/pdf'
+      Rails.logger.info "📄 PDF détecté pour document #{id || 'nouveau'} - Configuration resource_type: raw"
+      
+      # Cette configuration sera utilisée par Active Storage lors de l'upload
+      file.blob.metadata['cloudinary_options'] = {
+        resource_type: 'raw',
+        use_filename: true,
+        unique_filename: true,
+        tags: ['pdf', 'document']
+      }
+    elsif file.content_type&.start_with?('image/')
+      Rails.logger.info "🖼️ Image détectée pour document #{id || 'nouveau'} - Configuration resource_type: image"
+      
+      file.blob.metadata['cloudinary_options'] = {
+        resource_type: 'image',
+        use_filename: true,
+        unique_filename: true,
+        tags: ['image', 'document']
+      }
+    else
+      Rails.logger.info "📎 Autre fichier détecté pour document #{id || 'nouveau'} - Configuration resource_type: raw"
+      
+      file.blob.metadata['cloudinary_options'] = {
+        resource_type: 'raw',
+        use_filename: true,
+        unique_filename: true,
+        tags: ['document']
+      }
     end
   end
 end
