@@ -9,7 +9,23 @@
         valeurs_par_categorie: prime.valeurs_par_categorie || {}
       }]
     }.to_h.to_json %>
-  </script>      <!-- Affichage du total principal -->
+  </script>
+
+  <%
+    # Helper pour récupérer la condition d'une prime
+    def condition_prime(slug)
+      prime = Prime.find_by(slug: slug)
+      prime&.condition || "Conditions en cours de chargement..."
+    end
+
+    # Helper pour récupérer le conseil d'une prime
+    def conseil_prime(slug)
+      prime = Prime.find_by(slug: slug)
+      prime&.conseil || "Conseil en cours de chargement..."
+    end
+  %>
+
+  <!-- Affichage du total principal -->
       <div class="bg-primary bg-opacity-10 rounded-3 p-4 text-center mb-4">
         <div class="row align-items-center">
           <div class="col-md-8 mb-3 mb-md-0">
@@ -50,7 +66,9 @@
               <i class="bi bi-house fs-5 text-warning"></i>
             </div>
             <div>
-              <h6 class="card-title mb-1">Isolation de la toiture</h6>
+              <h6 class="card-title mb-1">
+                Isolation de la toiture
+              </h6>
               <small class="text-muted">Par m²</small>
             </div>
           </div>
@@ -60,6 +78,18 @@
             <label class="form-label small">Surface (m²) :</label>
             <input type="number" class="form-control form-control-sm" placeholder="0" min="0" step="0.1"
                    data-flandre-prime-card-target="input" data-action="input->flandre-prime-card#calculate">
+
+            <!-- Informations contextuelles depuis la base de données -->
+            <div class="mt-2" style="border: 2px solid red; padding: 10px; background-color: yellow;">
+              <small class="text-dark d-block" style="font-weight: bold;">
+                <i class="bi bi-info-circle me-1"></i>
+                CONDITIONS: R ≥ 4.5 m²K/W pour toiture inclinée, plate et grenier
+              </small>
+              <small class="text-dark d-block mt-1" style="font-weight: bold;">
+                <i class="bi bi-lightbulb me-1"></i>
+                CONSEIL: Utiliser un isolant certifié (laine minérale, PIR, etc.) et vérifier l'étanchéité.
+              </small>
+            </div>
           </div>
 
           <div class="mt-auto">
@@ -83,7 +113,9 @@
               <i class="bi bi-bricks fs-5 text-primary"></i>
             </div>
             <div>
-              <h6 class="card-title mb-1">Isolation murs (cat. 1-2)</h6>
+              <h6 class="card-title mb-1">
+                Isolation murs (cat. 1-2)
+              </h6>
               <small class="text-muted">Par m²</small>
             </div>
           </div>

@@ -9,6 +9,20 @@
   </div>
 </div>
 
+<%
+  # Helper pour récupérer la condition d'une prime
+  def condition_prime(slug)
+    prime = Prime.find_by(slug: slug)
+    prime&.condition || "Conditions en cours de chargement..."
+  end
+
+  # Helper pour récupérer le conseil d'une prime
+  def conseil_prime(slug)
+    prime = Prime.find_by(slug: slug)
+    prime&.conseil || "Conseil en cours de chargement..."
+  end
+%>
+
 <!-- Simulation des primes -->
 <div class="primes-section" data-controller="prime-calcul">
   <div class="card border-0 shadow-sm mb-4">
@@ -59,6 +73,18 @@
                   </span>
                 </div>
 
+                <!-- Informations contextuelles depuis la base de données -->
+                <div class="mt-2">
+                  <small class="text-muted d-block">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Conditions : <%= condition_prime(prime.slug) %>
+                  </small>
+                  <small class="text-success d-block mt-1">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    Conseil : <%= conseil_prime(prime.slug) %>
+                  </small>
+                </div>
+
               <% elsif prime.slug == "warmtepomp" %>
 
                 <div class="d-flex justify-content-between align-items-center gap-2">
@@ -80,6 +106,18 @@
                   </span>
                 </div>
 
+                <!-- Informations contextuelles depuis la base de données -->
+                <div class="mt-2">
+                  <small class="text-muted d-block">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Conditions : <%= condition_prime(prime.slug) %>
+                  </small>
+                  <small class="text-success d-block mt-1">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    Conseil : <%= conseil_prime(prime.slug) %>
+                  </small>
+                </div>
+
               <% else %>
                 <!-- Logique générale pour les autres primes -->
                 <div class="d-flex justify-content-between align-items-center gap-2">
@@ -94,6 +132,18 @@
                         data-slug="<%= prime.slug %>">
                     0 €
                   </span>
+                </div>
+
+                <!-- Informations contextuelles depuis la base de données -->
+                <div class="mt-2">
+                  <small class="text-muted d-block">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Conditions : <%= condition_prime(prime.slug) %>
+                  </small>
+                  <small class="text-success d-block mt-1">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    Conseil : <%= conseil_prime(prime.slug) %>
+                  </small>
                 </div>
               <% end %>
             </div>

@@ -1,3 +1,16 @@
+<%
+  # Helpers pour accéder aux données de conditions et conseils depuis la base de données
+  def condition_prime(slug)
+    prime = Prime.find_by(slug: slug)
+    prime&.condition || ""
+  end
+
+  def conseil_prime(slug)
+    prime = Prime.find_by(slug: slug)
+    prime&.conseil || ""
+  end
+%>
+
 <!-- Section Primes Bruxelles RENOLUTION - 13 cartes principales par catégorie -->
 <div class="primes-section-bruxelles" data-controller="bruxelles-prime-calcul">
 
@@ -62,6 +75,29 @@
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-prime-card-target="resultAuditMaison">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_audit_energetique_maison") %>
+                  <% conseil_text = conseil_prime("bruxelles_audit_energetique_maison") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
                 </div>
 
                 <!-- Audit énergétique bâtiment -->
@@ -77,6 +113,29 @@
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-prime-card-target="resultAuditBatiment">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_audit_energetique_batiment") %>
+                  <% conseil_text = conseil_prime("bruxelles_audit_energetique_batiment") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
                 </div>
 
                 <!-- Certificat PEB -->
@@ -92,6 +151,29 @@
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-prime-card-target="resultCertificatPeb">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_certificat_peb") %>
+                  <% conseil_text = conseil_prime("bruxelles_certificat_peb") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
                 </div>
 
                 <!-- Étude acoustique -->
@@ -104,6 +186,29 @@
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-prime-card-target="resultEtudeAcoustique">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_etude_acoustique") %>
+                  <% conseil_text = conseil_prime("bruxelles_etude_acoustique") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
                 </div>
 
                 <!-- Étude TOTEM -->
@@ -119,6 +224,29 @@
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-prime-card-target="resultEtudeTotem">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_etude_totem") %>
+                  <% conseil_text = conseil_prime("bruxelles_etude_totem") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
                 </div>
 
                 <!-- Suivi architecte -->
@@ -131,6 +259,29 @@
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-prime-card-target="resultSuiviArchitecte">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_suivi_architecte") %>
+                  <% conseil_text = conseil_prime("bruxelles_suivi_architecte") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
                 </div>
 
                 <!-- Suivi ingénieur stabilité -->
@@ -143,6 +294,29 @@
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-prime-card-target="resultSuiviIngenieur">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_suivi_ingenieur_stabilite") %>
+                  <% conseil_text = conseil_prime("bruxelles_suivi_ingenieur_stabilite") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
                 </div>
 
                 <!-- Suivi expert façade -->
@@ -155,6 +329,29 @@
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-prime-card-target="resultSuiviExpertFacade">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_suivi_expert_facade") %>
+                  <% conseil_text = conseil_prime("bruxelles_suivi_expert_facade") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
                 </div>
               </div>
 
@@ -198,6 +395,29 @@
                   <span class="input-group-text bg-warning text-white"
                         data-bruxelles-prime-card-target="resultProtectionEchafaudages">0 €</span>
                 </div>
+                <!-- Informations de la prime -->
+                <% condition_text = condition_prime("bruxelles_protection_echafaudages") %>
+                <% conseil_text = conseil_prime("bruxelles_protection_echafaudages") %>
+                <% if condition_text.present? || conseil_text.present? %>
+                  <div class="mt-1">
+                    <% if condition_text.present? %>
+                      <div class="mb-1">
+                        <small class="text-muted">
+                          <i class="bi bi-info-circle me-1"></i>
+                          <%= condition_text %>
+                        </small>
+                      </div>
+                    <% end %>
+                    <% if conseil_text.present? %>
+                      <div>
+                        <small class="text-success">
+                          <i class="bi bi-lightbulb me-1"></i>
+                          <%= conseil_text %>
+                        </small>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
               </div>
 
               <!-- Total Installations -->
@@ -241,6 +461,29 @@
                     <span class="input-group-text bg-info text-white"
                           data-bruxelles-prime-card-target="resultStructurePortante">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_structure_portante") %>
+                  <% conseil_text = conseil_prime("bruxelles_structure_portante") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
                 </div>
 
                 <!-- Gestion égouts -->
@@ -274,6 +517,29 @@
                     <span class="input-group-text bg-info text-white d-inline-block"
                           data-bruxelles-prime-card-target="resultGestionEgouts">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_gestion_egouts") %>
+                  <% conseil_text = conseil_prime("bruxelles_gestion_egouts") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
                 </div>
 
                 <!-- Récupération eau de pluie -->
@@ -289,6 +555,29 @@
                     <span class="input-group-text bg-info text-white"
                           data-bruxelles-prime-card-target="resultRecuperationEauPluie">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_recuperation_eau_pluie") %>
+                  <% conseil_text = conseil_prime("bruxelles_recuperation_eau_pluie") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
                 </div>
 
                 <!-- Démolition perméabilisation -->
@@ -301,6 +590,29 @@
                     <span class="input-group-text bg-info text-white"
                           data-bruxelles-prime-card-target="resultDemolitionPermeabilisation">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_demolition_permeabilisation") %>
+                  <% conseil_text = conseil_prime("bruxelles_demolition_permeabilisation") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
                 </div>
               </div>
 
@@ -348,6 +660,29 @@
                     <span class="input-group-text bg-danger text-white"
                           data-bruxelles-prime-card-target="resultTraitementHumiditeSol">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_traitement_humidite_sol") %>
+                  <% conseil_text = conseil_prime("bruxelles_traitement_humidite_sol") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
                 </div>
 
                 <!-- Traitement fongique/insectes -->
@@ -360,6 +695,29 @@
                     <span class="input-group-text bg-danger text-white"
                           data-bruxelles-prime-card-target="resultTraitementFongiqueInsectes">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_traitement_fongique_insectes") %>
+                  <% conseil_text = conseil_prime("bruxelles_traitement_fongique_insectes") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
                 </div>
               </div>
 
@@ -404,6 +762,29 @@
                     <span class="input-group-text bg-success text-white"
                           data-bruxelles-prime-card-target="resultStructureToiture">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_structure_toiture") %>
+                  <% conseil_text = conseil_prime("bruxelles_structure_toiture") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
                 </div>
 
                 <!-- Isolation toiture/étanchéité -->
@@ -416,6 +797,29 @@
                     <span class="input-group-text bg-success text-white"
                           data-bruxelles-prime-card-target="resultIsolationToitureEtancheite">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_isolation_toiture_etancheite") %>
+                  <% conseil_text = conseil_prime("bruxelles_isolation_toiture_etancheite") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
                 </div>
 
                 <!-- Isolation thermique toiture -->
@@ -428,6 +832,30 @@
                     <span class="input-group-text bg-success text-white"
                           data-bruxelles-prime-card-target="resultIsolationThermiqueToiture">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_isolation_thermique_toiture") %>
+                  <% conseil_text = conseil_prime("bruxelles_isolation_thermique_toiture") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Accessoires toiture -->
@@ -440,6 +868,30 @@
                     <span class="input-group-text bg-success text-white"
                           data-bruxelles-prime-card-target="resultAccessoiresToiture">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_accessoires_toiture") %>
+                  <% conseil_text = conseil_prime("bruxelles_accessoires_toiture") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Toiture végétale -->
@@ -452,6 +904,30 @@
                     <span class="input-group-text bg-success text-white"
                           data-bruxelles-prime-card-target="resultToitureVegetale">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_toiture_vegetale") %>
+                  <% conseil_text = conseil_prime("bruxelles_toiture_vegetale") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
               </div>
 
@@ -496,6 +972,30 @@
                     <span class="input-group-text bg-secondary text-white"
                           data-bruxelles-prime-card-target="resultIsolationInterieure">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_isolation_interieure_facade") %>
+                  <% conseil_text = conseil_prime("bruxelles_isolation_interieure_facade") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Isolation extérieure façade -->
@@ -508,6 +1008,30 @@
                     <span class="input-group-text bg-secondary text-white"
                           data-bruxelles-prime-card-target="resultIsolationExterieure">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_isolation_exterieure_facade") %>
+                  <% conseil_text = conseil_prime("bruxelles_isolation_exterieure_facade") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Isolation coulisse -->
@@ -520,6 +1044,30 @@
                     <span class="input-group-text bg-secondary text-white"
                           data-bruxelles-prime-card-target="resultIsolationCoulisse">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_isolation_coulisse") %>
+                  <% conseil_text = conseil_prime("bruxelles_isolation_coulisse") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Bardage façade -->
@@ -532,6 +1080,30 @@
                     <span class="input-group-text bg-secondary text-white"
                           data-bruxelles-prime-card-target="resultBardageFacade">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_bardage_facade") %>
+                  <% conseil_text = conseil_prime("bruxelles_bardage_facade") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Enduit façade -->
@@ -544,6 +1116,30 @@
                     <span class="input-group-text bg-secondary text-white"
                           data-bruxelles-prime-card-target="resultEnduitFacade">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_enduit_facade") %>
+                  <% conseil_text = conseil_prime("bruxelles_enduit_facade") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Embellissement façade avant -->
@@ -556,6 +1152,30 @@
                     <span class="input-group-text bg-secondary text-white"
                           data-bruxelles-prime-card-target="resultEmbellissementAvant">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_embellissement_facade_avant") %>
+                  <% conseil_text = conseil_prime("bruxelles_embellissement_facade_avant") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Façades arrière/latérales -->
@@ -568,6 +1188,30 @@
                     <span class="input-group-text bg-secondary text-white"
                           data-bruxelles-prime-card-target="resultFacadesArriere">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_facades_arriere_laterales") %>
+                  <% conseil_text = conseil_prime("bruxelles_facades_arriere_laterales") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Isolation acoustique murs -->
@@ -580,6 +1224,30 @@
                     <span class="input-group-text bg-secondary text-white"
                           data-bruxelles-prime-card-target="resultIsolationAcoustique">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_isolation_acoustique_murs") %>
+                  <% conseil_text = conseil_prime("bruxelles_isolation_acoustique_murs") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
               </div>
 
@@ -624,6 +1292,30 @@
                     <span class="input-group-text bg-dark text-white"
                           data-bruxelles-prime-card-target="resultIsolationThermiqueSols">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_isolation_thermique_sols") %>
+                  <% conseil_text = conseil_prime("bruxelles_isolation_thermique_sols") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Isolation acoustique sols -->
@@ -636,6 +1328,30 @@
                     <span class="input-group-text bg-dark text-white"
                           data-bruxelles-prime-card-target="resultIsolationAcoustiqueSols">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_isolation_acoustique_sols") %>
+                  <% conseil_text = conseil_prime("bruxelles_isolation_acoustique_sols") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
               </div>
 
@@ -683,6 +1399,30 @@
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-prime-card-target="resultFenetresBois">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_remplacement_fenetres_bois") %>
+                  <% conseil_text = conseil_prime("bruxelles_remplacement_fenetres_bois") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Remplacement fenêtres PVC/alu -->
@@ -695,6 +1435,30 @@
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-prime-card-target="resultFenetresPvcAlu">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_remplacement_fenetres_pvc_alu") %>
+                  <% conseil_text = conseil_prime("bruxelles_remplacement_fenetres_pvc_alu") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Réparation fenêtres -->
@@ -707,6 +1471,30 @@
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-prime-card-target="resultReparationFenetres">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_reparation_fenetres") %>
+                  <% conseil_text = conseil_prime("bruxelles_reparation_fenetres") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Réparation portes -->
@@ -719,6 +1507,30 @@
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-prime-card-target="resultReparationPortes">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_reparation_portes") %>
+                  <% conseil_text = conseil_prime("bruxelles_reparation_portes") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
               </div>
 
@@ -763,6 +1575,30 @@
                     <span class="input-group-text bg-warning text-white"
                           data-bruxelles-prime-card-target="resultEscaliers">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_escaliers") %>
+                  <% conseil_text = conseil_prime("bruxelles_escaliers") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Emplacement vélo -->
@@ -775,6 +1611,30 @@
                     <span class="input-group-text bg-warning text-white"
                           data-bruxelles-prime-card-target="resultEmplacementVelo">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_emplacement_velo") %>
+                  <% conseil_text = conseil_prime("bruxelles_emplacement_velo") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Protection incendie -->
@@ -787,6 +1647,30 @@
                     <span class="input-group-text bg-warning text-white"
                           data-bruxelles-prime-card-target="resultProtectionIncendie">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_protection_incendie") %>
+                  <% conseil_text = conseil_prime("bruxelles_protection_incendie") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Aménagement PMR -->
@@ -802,6 +1686,30 @@
                     <span class="input-group-text bg-warning text-white"
                           data-bruxelles-prime-card-target="resultAmenagementPmr">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_amenagement_pmr") %>
+                  <% conseil_text = conseil_prime("bruxelles_amenagement_pmr") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
               </div>
 
@@ -849,6 +1757,30 @@
                     <span class="input-group-text bg-danger text-white"
                           data-bruxelles-prime-card-target="resultPacChauffage">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_pac_chauffage") %>
+                  <% conseil_text = conseil_prime("bruxelles_pac_chauffage") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Radiateurs basse température -->
@@ -861,6 +1793,30 @@
                     <span class="input-group-text bg-danger text-white"
                           data-bruxelles-prime-card-target="resultRadiateursBT">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_radiateurs_basse_temperature") %>
+                  <% conseil_text = conseil_prime("bruxelles_radiateurs_basse_temperature") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Thermostat -->
@@ -873,6 +1829,30 @@
                     <span class="input-group-text bg-danger text-white"
                           data-bruxelles-prime-card-target="resultThermostat">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_thermostat") %>
+                  <% conseil_text = conseil_prime("bruxelles_thermostat") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Vannes thermostatiques -->
@@ -885,6 +1865,30 @@
                     <span class="input-group-text bg-danger text-white"
                           data-bruxelles-prime-card-target="resultVannesThermostatiques">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_vannes_thermostatiques") %>
+                  <% conseil_text = conseil_prime("bruxelles_vannes_thermostatiques") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Chauffe-eau solaire -->
@@ -900,6 +1904,30 @@
                     <span class="input-group-text bg-danger text-white"
                           data-bruxelles-prime-card-target="resultChauffeEauSolaire">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_chauffe_eau_solaire") %>
+                  <% conseil_text = conseil_prime("bruxelles_chauffe_eau_solaire") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Chauffe-eau PAC -->
@@ -915,6 +1943,30 @@
                     <span class="input-group-text bg-danger text-white"
                           data-bruxelles-prime-card-target="resultChauffeEauPac">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_chauffe_eau_pac") %>
+                  <% conseil_text = conseil_prime("bruxelles_chauffe_eau_pac") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Raccordement réseau chaleur -->
@@ -930,6 +1982,30 @@
                     <span class="input-group-text bg-danger text-white"
                           data-bruxelles-prime-card-target="resultRaccordementReseau">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_raccordement_reseau_chaleur") %>
+                  <% conseil_text = conseil_prime("bruxelles_raccordement_reseau_chaleur") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
               </div>
 
@@ -977,6 +2053,30 @@
                     <span class="input-group-text bg-info text-white"
                           data-bruxelles-prime-card-target="resultAppareilSanitaire">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_appareil_sanitaire") %>
+                  <% conseil_text = conseil_prime("bruxelles_appareil_sanitaire") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Mise aux normes électriques -->
@@ -994,6 +2094,30 @@
                     <span class="input-group-text bg-info text-white"
                           data-bruxelles-prime-card-target="resultMiseNormesElecGaz">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_mise_normes_electricite_gaz") %>
+                  <% conseil_text = conseil_prime("bruxelles_mise_normes_electricite_gaz") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
               </div>
 
@@ -1041,6 +2165,30 @@
                     <span class="input-group-text bg-success text-white"
                           data-bruxelles-prime-card-target="resultVentilationC">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_ventilation_systeme_c") %>
+                  <% conseil_text = conseil_prime("bruxelles_ventilation_systeme_c") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
 
                 <!-- Ventilation système D -->
@@ -1056,6 +2204,30 @@
                     <span class="input-group-text bg-success text-white"
                           data-bruxelles-prime-card-target="resultVentilationD">0 €</span>
                   </div>
+                  <!-- Informations de la prime -->
+                  <% condition_text = condition_prime("bruxelles_ventilation_systeme_d") %>
+                  <% conseil_text = conseil_prime("bruxelles_ventilation_systeme_d") %>
+                  <% if condition_text.present? || conseil_text.present? %>
+                    <div class="mt-1">
+                      <% if condition_text.present? %>
+                        <div class="mb-1">
+                          <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= condition_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                      <% if conseil_text.present? %>
+                        <div>
+                          <small class="text-success">
+                            <i class="bi bi-lightbulb me-1"></i>
+                            <%= conseil_text %>
+                          </small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+
                 </div>
               </div>
 
@@ -1110,6 +2282,31 @@
                     <span class="input-group-text bg-warning text-white"
                           data-bruxelles-prime-card-target="total">0 €</span>
                   </div>
+                  <!-- Informations de la prime --><!-- Informations de la prime -->
+<% condition_text = condition_prime("bruxelles_bonus_z1") %>
+<% conseil_text = conseil_prime("bruxelles_bonus_z1") %>
+<% if condition_text.present? || conseil_text.present? %>
+  <div class="mt-1">
+    <% if condition_text.present? %>
+      <div class="mb-1">
+        <small class="text-muted">
+          <i class="bi bi-info-circle me-1"></i>
+          <%= condition_text %>
+        </small>
+      </div>
+    <% end %>
+    <% if conseil_text.present? %>
+      <div>
+        <small class="text-success">
+          <i class="bi bi-lightbulb me-1"></i>
+          <%= conseil_text %>
+        </small>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+
                 </div>
               </div>
             </div>
@@ -1137,6 +2334,31 @@
                     <span class="input-group-text bg-warning text-white"
                           data-bruxelles-prime-card-target="total">0 €</span>
                   </div>
+                  <!-- Informations de la prime --><!-- Informations de la prime -->
+<% condition_text = condition_prime("bruxelles_bonus_z2") %>
+<% conseil_text = conseil_prime("bruxelles_bonus_z2") %>
+<% if condition_text.present? || conseil_text.present? %>
+  <div class="mt-1">
+    <% if condition_text.present? %>
+      <div class="mb-1">
+        <small class="text-muted">
+          <i class="bi bi-info-circle me-1"></i>
+          <%= condition_text %>
+        </small>
+      </div>
+    <% end %>
+    <% if conseil_text.present? %>
+      <div>
+        <small class="text-success">
+          <i class="bi bi-lightbulb me-1"></i>
+          <%= conseil_text %>
+        </small>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+
                 </div>
               </div>
             </div>
@@ -1164,6 +2386,31 @@
                     <span class="input-group-text bg-warning text-white"
                           data-bruxelles-prime-card-target="total">0 €</span>
                   </div>
+                  <!-- Informations de la prime --><!-- Informations de la prime -->
+<% condition_text = condition_prime("bruxelles_bonus_z3") %>
+<% conseil_text = conseil_prime("bruxelles_bonus_z3") %>
+<% if condition_text.present? || conseil_text.present? %>
+  <div class="mt-1">
+    <% if condition_text.present? %>
+      <div class="mb-1">
+        <small class="text-muted">
+          <i class="bi bi-info-circle me-1"></i>
+          <%= condition_text %>
+        </small>
+      </div>
+    <% end %>
+    <% if conseil_text.present? %>
+      <div>
+        <small class="text-success">
+          <i class="bi bi-lightbulb me-1"></i>
+          <%= conseil_text %>
+        </small>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+
                 </div>
               </div>
             </div>
@@ -1191,6 +2438,31 @@
                     <span class="input-group-text bg-warning text-white"
                           data-bruxelles-prime-card-target="total">0 €</span>
                   </div>
+                  <!-- Informations de la prime --><!-- Informations de la prime -->
+<% condition_text = condition_prime("bruxelles_bonus_z4") %>
+<% conseil_text = conseil_prime("bruxelles_bonus_z4") %>
+<% if condition_text.present? || conseil_text.present? %>
+  <div class="mt-1">
+    <% if condition_text.present? %>
+      <div class="mb-1">
+        <small class="text-muted">
+          <i class="bi bi-info-circle me-1"></i>
+          <%= condition_text %>
+        </small>
+      </div>
+    <% end %>
+    <% if conseil_text.present? %>
+      <div>
+        <small class="text-success">
+          <i class="bi bi-lightbulb me-1"></i>
+          <%= conseil_text %>
+        </small>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+
                 </div>
               </div>
             </div>
@@ -1219,6 +2491,31 @@
                     <span class="input-group-text bg-warning text-white"
                           data-bruxelles-prime-card-target="total">0 €</span>
                   </div>
+                  <!-- Informations de la prime --><!-- Informations de la prime -->
+<% condition_text = condition_prime("bruxelles_bonus_z5") %>
+<% conseil_text = conseil_prime("bruxelles_bonus_z5") %>
+<% if condition_text.present? || conseil_text.present? %>
+  <div class="mt-1">
+    <% if condition_text.present? %>
+      <div class="mb-1">
+        <small class="text-muted">
+          <i class="bi bi-info-circle me-1"></i>
+          <%= condition_text %>
+        </small>
+      </div>
+    <% end %>
+    <% if conseil_text.present? %>
+      <div>
+        <small class="text-success">
+          <i class="bi bi-lightbulb me-1"></i>
+          <%= conseil_text %>
+        </small>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+
                 </div>
               </div>
             </div>
@@ -1247,6 +2544,31 @@
                     <span class="input-group-text bg-warning text-white"
                           data-bruxelles-prime-card-target="total">0 €</span>
                   </div>
+                  <!-- Informations de la prime --><!-- Informations de la prime -->
+<% condition_text = condition_prime("bruxelles_bonus_z6") %>
+<% conseil_text = conseil_prime("bruxelles_bonus_z6") %>
+<% if condition_text.present? || conseil_text.present? %>
+  <div class="mt-1">
+    <% if condition_text.present? %>
+      <div class="mb-1">
+        <small class="text-muted">
+          <i class="bi bi-info-circle me-1"></i>
+          <%= condition_text %>
+        </small>
+      </div>
+    <% end %>
+    <% if conseil_text.present? %>
+      <div>
+        <small class="text-success">
+          <i class="bi bi-lightbulb me-1"></i>
+          <%= conseil_text %>
+        </small>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+
                 </div>
               </div>
             </div>
@@ -1277,6 +2599,31 @@
                     <span class="input-group-text bg-warning text-white"
                           data-bruxelles-prime-card-target="total">0 €</span>
                   </div>
+                  <!-- Informations de la prime --><!-- Informations de la prime -->
+<% condition_text = condition_prime("bruxelles_bonus_z7") %>
+<% conseil_text = conseil_prime("bruxelles_bonus_z7") %>
+<% if condition_text.present? || conseil_text.present? %>
+  <div class="mt-1">
+    <% if condition_text.present? %>
+      <div class="mb-1">
+        <small class="text-muted">
+          <i class="bi bi-info-circle me-1"></i>
+          <%= condition_text %>
+        </small>
+      </div>
+    <% end %>
+    <% if conseil_text.present? %>
+      <div>
+        <small class="text-success">
+          <i class="bi bi-lightbulb me-1"></i>
+          <%= conseil_text %>
+        </small>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+
                 </div>
               </div>
             </div>
@@ -1307,6 +2654,31 @@
                     <span class="input-group-text bg-warning text-white"
                           data-bruxelles-prime-card-target="total">0 €</span>
                   </div>
+                  <!-- Informations de la prime --><!-- Informations de la prime -->
+<% condition_text = condition_prime("bruxelles_bonus_z9") %>
+<% conseil_text = conseil_prime("bruxelles_bonus_z9") %>
+<% if condition_text.present? || conseil_text.present? %>
+  <div class="mt-1">
+    <% if condition_text.present? %>
+      <div class="mb-1">
+        <small class="text-muted">
+          <i class="bi bi-info-circle me-1"></i>
+          <%= condition_text %>
+        </small>
+      </div>
+    <% end %>
+    <% if conseil_text.present? %>
+      <div>
+        <small class="text-success">
+          <i class="bi bi-lightbulb me-1"></i>
+          <%= conseil_text %>
+        </small>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+
                 </div>
               </div>
             </div>
@@ -1343,6 +2715,31 @@
                       Pourcentage appliqué sur le total des autres primes principales
                     </small>
                   </div>
+                  <!-- Informations de la prime --><!-- Informations de la prime -->
+<% condition_text = condition_prime("bruxelles_bonus_z10") %>
+<% conseil_text = conseil_prime("bruxelles_bonus_z10") %>
+<% if condition_text.present? || conseil_text.present? %>
+  <div class="mt-1">
+    <% if condition_text.present? %>
+      <div class="mb-1">
+        <small class="text-muted">
+          <i class="bi bi-info-circle me-1"></i>
+          <%= condition_text %>
+        </small>
+      </div>
+    <% end %>
+    <% if conseil_text.present? %>
+      <div>
+        <small class="text-success">
+          <i class="bi bi-lightbulb me-1"></i>
+          <%= conseil_text %>
+        </small>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+
                 </div>
               </div>
             </div>
