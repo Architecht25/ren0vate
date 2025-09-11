@@ -42,13 +42,13 @@ cloudinary:
   api_key: <%= ENV.fetch('CLOUDINARY_API_KEY', '') %>
   api_secret: <%= ENV.fetch('CLOUDINARY_API_SECRET', '') %>
   folder: <%= Rails.env %>
-  # Optimisations pour la phase de construction
+  # Configuration optimisée pour tous types de fichiers
   upload_options:
-    resource_type: "raw"  # Évite les transformations inutiles
+    # Pas de resource_type fixe, laissons Cloudinary détecter automatiquement
     quality: "auto:eco"   # Compression automatique économique
     fetch_format: "auto"  # Format optimal pour chaque client
-  use_filename: true
-  unique_filename: false
+    use_filename: true
+    unique_filename: true  # Important pour éviter les conflits
   # Cache optimisé pour réduire la bande passante
   cache_control: "public, max-age=#{1.year.to_i}"
 

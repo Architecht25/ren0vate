@@ -205,36 +205,23 @@ class DocumentsController < ApplicationController
     if @document.file.attached?
       begin
         if @document.is_image?
-          url = @document.cloudinary_url || rails_blob_url(@document.file)
           render json: {
             type: 'image',
-            url: url,
+            url: rails_blob_url(@document.file),
             filename: @document.file_name
           }
         elsif @document.is_pdf?
-          # Pour les PDFs, essayons d'abord la preview Cloudinary
-          preview_url = @document.cloudinary_preview_url
-          pdf_url = @document.cloudinary_url || rails_blob_url(@document.file, disposition: "inline")
-
-          if preview_url
-            render json: {
-              type: 'pdf_with_preview',
-              preview_url: preview_url,
-              pdf_url: pdf_url,
-              filename: @document.file_name
-            }
-          else
-            render json: {
-              type: 'pdf',
-              url: pdf_url,
-              filename: @document.file_name
-            }
-          end
+          # Pour les PDFs, utilisons toujours l'URL Active Storage standard
+          render json: {
+            type: 'pdf',
+            url: rails_blob_url(@document.file, disposition: "inline"),
+            filename: @document.file_name
+          }
         else
           render json: {
             type: 'unsupported',
             message: 'Prévisualisation non disponible pour ce type de fichier',
-            download_url: @document.cloudinary_url || rails_blob_url(@document.file, disposition: "attachment")
+            download_url: rails_blob_url(@document.file, disposition: "attachment")
           }
         end
       rescue => e
@@ -245,9 +232,15 @@ class DocumentsController < ApplicationController
             content_type: @document.file.content_type,
             service: @document.file.service_name,
             size: @document.file.byte_size,
-            key: @document.file.key
+            key: @document.file.key,
+            error: e.message
           }
         }, status: :internal_server_error
+      end
+    else
+      render json: { error: "Fichier non trouvé" }, status: :not_found
+    end
+  end
       end
     else
       render json: { error: "Fichier non trouvé" }, status: :not_found
