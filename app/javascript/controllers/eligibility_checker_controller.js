@@ -9,20 +9,27 @@ export default class extends Controller {
 
   connect() {
     console.log("Eligibility Checker controller connected")
-    // Simuler des données d'entreprise pour le test
-    this.companyValue = {
-      denomination: "RenovaTech Solutions SPRL",
-      numero_bce: "0833618097",
-      statut: "ACTIF",
-      code_nace: "71121",
-      forme_juridique: "Société privée à responsabilité limitée",
-      nombre_employes: 75, // Pour déclencher des améliorations potentielles
-      date_creation: "2022-01-01", // Entreprise récente
-      adresse: {
-        code_postal: "1000" // Bruxelles
+
+    // Ne charger les aides automatiquement que sur la page entreprises Bruxelles
+    // Pour les simulations, on attend l'action manuelle
+    if (window.location.pathname.includes('bruxelles-entreprises')) {
+      // Simuler des données d'entreprise pour le test
+      this.companyValue = {
+        denomination: "RenovaTech Solutions SPRL",
+        numero_bce: "0833618097",
+        statut: "ACTIF",
+        code_nace: "71121",
+        forme_juridique: "Société privée à responsabilité limitée",
+        nombre_employes: 75, // Pour déclencher des améliorations potentielles
+        date_creation: "2022-01-01", // Entreprise récente
+        adresse: {
+          code_postal: "1000" // Bruxelles
+        }
       }
+      this.loadAids()
+    } else {
+      console.log("Eligibility checker en mode simulation - attente d'action manuelle")
     }
-    this.loadAids()
   }
 
   async loadAids() {
@@ -80,6 +87,13 @@ export default class extends Controller {
   }
 
   checkEligibility() {
+    // Vérifier que nous sommes sur la bonne page avec les éléments nécessaires
+    const resultDiv = this.element.querySelector('#eligibility_result')
+    if (!resultDiv) {
+      console.log("Element #eligibility_result non trouvé - probable page de simulation sans analyse automatique")
+      return
+    }
+
     if (!this.companyValue || !this.aidsValue) {
       console.warn("Données manquantes pour l'analyse:", {
         company: !!this.companyValue,
@@ -300,6 +314,13 @@ export default class extends Controller {
   }
 
   displayResults(eligible, potential, ineligible) {
+    // Vérifier que nous sommes sur la page avec les éléments nécessaires
+    const resultsElement = document.getElementById('eligibility-results')
+    if (!resultsElement) {
+      console.log("Elements d'affichage non trouvés - probable page de simulation")
+      return
+    }
+
     // Afficher toutes les aides ensemble d'abord
     this.displayAllAids(eligible, potential, ineligible)
 
@@ -309,10 +330,13 @@ export default class extends Controller {
     }
 
     // Afficher les résultats
-    document.getElementById('eligibility-results').style.display = 'block'
+    resultsElement.style.display = 'block'
 
     // Activer le bouton suivant
-    document.getElementById('proceed-to-calculator').disabled = false
+    const proceedButton = document.getElementById('proceed-to-calculator')
+    if (proceedButton) {
+      proceedButton.disabled = false
+    }
 
     // 🎯 Transmettre les données au calculateur d'aides
     this.passDataToCalculator(eligible, potential)
@@ -503,18 +527,83 @@ export default class extends Controller {
   }
 
   showLoading() {
-    document.getElementById('eligibility-loading').style.display = 'block'
-    document.getElementById('eligibility-results').style.display = 'none'
+    const loadingElement = document.getElementById('eligibility-loading')
+    const resultsElement = document.getElementById('eligibility-results')
+
+    if (loadingElement) loadingElement.style.display = 'block'
+    if (resultsElement) resultsElement.style.display = 'none'
   }
 
   hideLoading() {
-    document.getElementById('eligibility-loading').style.display = 'none'
+    const loadingElement = document.getElementById('eligibility-loading')
+    if (loadingElement) loadingElement.style.display = 'none'
   }
 
   // Méthode appelée depuis le workflow
   companyValueChanged() {
     if (this.companyValue && this.aidsValue) {
       this.checkEligibility()
+    }
+  }
+
+  // Nouvelle méthode pour l'analyse détaillée d'éligibilité
+  async launchDetailedAnalysis(event) {
+    const button = event.currentTarget
+    const originalText = button.innerHTML
+    const simulationId = button.dataset.simulationId
+    const propertyId = button.dataset.propertyId
+    const projectId = button.dataset.projectId
+
+    try {
+      // Afficher le loading sur le bouton
+      button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Analyse en cours...'
+      button.disabled = true
+
+      // Créer un FormData pour envoyer les paramètres
+      const formData = new FormData()
+      formData.append('simulation_id', simulationId)
+      formData.append('property_id', propertyId)
+      formData.append('project_id', projectId)
+
+      // Appel vers notre nouveau service
+      const response = await fetch('/bruxelles-entreprises/detailed-analysis', {
+        method: 'POST',
+        headers: {
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+          'Accept': 'text/vnd.turbo-stream.html'
+        },
+        body: formData
+      })
+
+      if (response.ok) {
+        const turboStreamResponse = await response.text()
+
+        // Exécuter la réponse Turbo Stream
+        Turbo.renderStreamMessage(turboStreamResponse)
+
+        // Cacher le bouton une fois l'analyse affichée
+        button.style.display = 'none'
+      } else {
+        throw new Error(`Erreur HTTP: ${response.status}`)
+      }
+
+    } catch (error) {
+      console.error('Erreur lors de l\'analyse détaillée:', error)
+
+      // Afficher une erreur dans la zone de résultat
+      const resultDiv = document.getElementById('detailed_eligibility_result')
+      if (resultDiv) {
+        resultDiv.innerHTML = `
+          <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            Une erreur est survenue lors de l'analyse. Veuillez réessayer.
+          </div>
+        `
+      }
+    } finally {
+      // Restaurer le bouton
+      button.innerHTML = originalText
+      button.disabled = false
     }
   }
 }

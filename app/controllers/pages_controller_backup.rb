@@ -309,57 +309,6 @@ class PagesController < ApplicationController
     end
   end
 
-  # Analyse détaillée d'éligibilité entreprises Bruxelles
-  def detailed_business_eligibility_check
-    Rails.logger.info "🔍 Début analyse détaillée d'éligibilité entreprise Bruxelles"
-    Rails.logger.info "Params reçus: #{params.inspect}"
-
-    begin
-      # Créer les paramètres pour le service
-      service_params = {
-        property_id: params[:property_id],
-        project_id: params[:project_id]
-      }
-
-      # Utilisation du service d'éligibilité détaillée
-      eligibility_service = Entreprises::BruxellesEntreprisesDetailedEligibilityService.new(current_user, service_params)
-      @eligibility_analysis = eligibility_service.check_detailed_eligibility
-
-      Rails.logger.info "Detailed business eligibility result: #{@eligibility_analysis.keys}"
-
-      respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: turbo_stream.update("detailed_eligibility_result",
-            partial: "shared/detailed_eligibility_analysis",
-            locals: { eligibility_analysis: @eligibility_analysis }
-          )
-        end
-        format.html { redirect_to bruxelles_entreprises_path }
-      end
-    rescue => e
-      Rails.logger.error "Error in detailed business eligibility check: #{e.message}"
-      Rails.logger.error e.backtrace.join("\n")
-
-      respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: turbo_stream.update("detailed_eligibility_result",
-            partial: "shared/detailed_eligibility_analysis",
-            locals: {
-              eligibility_analysis: {
-                error: "❌ Une erreur est survenue lors de l'analyse détaillée. Veuillez réessayer.",
-                eligible: false,
-                criteria: [],
-                summary: "Erreur système",
-                actions: []
-              }
-            }
-          )
-        end
-        format.html { redirect_to bruxelles_entreprises_path }
-      end
-    end
-  end
-
   private
 
   def handle_eligible_profile
@@ -596,6 +545,57 @@ class PagesController < ApplicationController
   def wallonie_entreprises
     # Page d'information sur les aides aux entreprises en Wallonie
     # Simple page de redirection vers les sites officiels wallons
+  end
+
+  # Analyse détaillée d'éligibilité entreprises Bruxelles
+  def detailed_business_eligibility_check
+    Rails.logger.info "🔍 Début analyse détaillée d'éligibilité entreprise Bruxelles"
+    Rails.logger.info "Params reçus: #{params.inspect}"
+    
+    begin
+      # Créer les paramètres pour le service
+      service_params = {
+        property_id: params[:property_id],
+        project_id: params[:project_id]
+      }
+      
+      # Utilisation du service d'éligibilité détaillée
+      eligibility_service = Entreprises::BruxellesEntreprisesDetailedEligibilityService.new(current_user, service_params)
+      @eligibility_analysis = eligibility_service.check_detailed_eligibility
+      
+      Rails.logger.info "Detailed business eligibility result: #{@eligibility_analysis.keys}"
+
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.update("detailed_eligibility_result",
+            partial: "shared/detailed_eligibility_analysis",
+            locals: { eligibility_analysis: @eligibility_analysis }
+          )
+        end
+        format.html { redirect_to bruxelles_entreprises_path }
+      end
+    rescue => e
+      Rails.logger.error "Error in detailed business eligibility check: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+
+      respond_to do |format|
+        format.turbo_stream do
+          render turbo_stream: turbo_stream.update("detailed_eligibility_result",
+            partial: "shared/detailed_eligibility_analysis",
+            locals: { 
+              eligibility_analysis: {
+                error: "❌ Une erreur est survenue lors de l'analyse détaillée. Veuillez réessayer.",
+                eligible: false,
+                criteria: [],
+                summary: "Erreur système",
+                actions: []
+              }
+            }
+          )
+        end
+        format.html { redirect_to bruxelles_entreprises_path }
+      end
+    end
   end
 
   private

@@ -97,6 +97,43 @@
               <strong>Important :</strong> Les demandes doivent être introduites AVANT le début des investissements ou missions.
             </small>
           </div>
+        <% else %>
+          <!-- Analyse détaillée pour les non-éligibles -->
+          <div class="mt-4 p-3 bg-light rounded border-start border-3 border-info">
+            <h6 class="text-info mb-2">
+              <i class="bi bi-search me-2"></i>
+              Voulez-vous savoir exactement pourquoi et comment corriger ?
+            </h6>
+            <p class="small text-muted mb-3">
+              Notre analyse détaillée vous montre point par point les critères d'éligibilité
+              et vous guide pour corriger les éléments manquants.
+            </p>
+
+            <!-- Contenant pour l'analyse détaillée -->
+            <div id="detailed_result" class="mb-3"></div>
+
+            <!-- Bouton pour lancer l'analyse détaillée -->
+            <%= form_with url: detailed_business_eligibility_check_path, local: false, data: { turbo_frame: "detailed_result" } do |form| %>
+              <% if params[:property_id].present? %>
+                <%= form.hidden_field :property_id, value: params[:property_id] %>
+              <% end %>
+              <% if params[:project_id].present? %>
+                <%= form.hidden_field :project_id, value: params[:project_id] %>
+              <% end %>
+
+              <div class="d-grid gap-2 d-md-flex">
+                <%= form.submit "🔍 Lancer l'analyse détaillée",
+                    class: "btn btn-info btn-sm me-md-2",
+                    data: { turbo_method: :post } %>
+                <a href="https://economie-emploi.brussels"
+                   target="_blank"
+                   class="btn btn-outline-info btn-sm">
+                  <i class="bi bi-arrow-up-right-square me-1"></i>
+                  Site officiel BEE
+                </a>
+              </div>
+            <% end %>
+          </div>
         <% end %>
       </div>
     </div>
