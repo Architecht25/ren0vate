@@ -3,8 +3,18 @@ class RequestProgress < ApplicationRecord
   belongs_to :prime
 
   # Attachements pour les documents de suivi
-  has_one_attached :document_suivi_pdf    # PDF reçu de l'administration
-  has_one_attached :document_suivi_photo  # Photo du courrier (Wallonie)
+  has_one_attached :document_suivi_pdf do |attachable|
+    attachable.variant :thumb, resize_to_limit: [200, 200]
+  end
+  has_one_attached :document_suivi_photo do |attachable|
+    attachable.variant :thumb, resize_to_limit: [200, 200]
+  end
+
+  # Validations pour les attachements
+  validates :document_suivi_pdf, content_type: { in: %w[application/pdf],
+    message: 'must be a PDF file' }, size: { less_than: 10.megabytes }, allow_blank: true
+  validates :document_suivi_photo, content_type: { in: %w[image/jpeg image/jpg image/png image/gif],
+    message: 'must be an image file' }, size: { less_than: 5.megabytes }, allow_blank: true
 
   validates :step, :pourcentage, presence: true
   validates :email_suivi, presence: true, uniqueness: true
