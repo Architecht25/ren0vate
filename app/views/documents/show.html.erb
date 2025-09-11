@@ -107,31 +107,7 @@
           <% if @document.file.attached? %>
             <div class="mb-3">
               <label class="form-label text-muted-custom">Fichier attaché</label>
-              <div class="d-flex align-items-center bg-light p-3 rounded">
-                <div class="me-3">
-                  <% case @document.file.content_type %>
-                  <% when /image/ %>
-                    <i class="bi bi-file-earmark-image text-success fs-3"></i>
-                  <% when 'application/pdf' %>
-                    <i class="bi bi-file-earmark-pdf text-danger fs-3"></i>
-                  <% when /word/ %>
-                    <i class="bi bi-file-earmark-word text-primary fs-3"></i>
-                  <% when /excel|sheet/ %>
-                    <i class="bi bi-file-earmark-excel text-success fs-3"></i>
-                  <% else %>
-                    <i class="bi bi-file-earmark text-muted fs-3"></i>
-                  <% end %>
-                </div>
-                <div class="flex-grow-1">
-                  <div class="fw-medium"><%= @document.file.filename %></div>
-                  <small class="text-muted"><%= number_to_human_size(@document.file.byte_size) %></small>
-                </div>
-                <div>
-                  <%= link_to download_document_path(@document), class: "btn btn-sm btn-outline-primary", target: "_blank" do %>
-                    <i class="bi bi-download me-1"></i>Télécharger
-                  <% end %>
-                </div>
-              </div>
+              <%= render 'document_preview', document: @document %>
             </div>
           <% end %>
 

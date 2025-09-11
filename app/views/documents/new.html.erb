@@ -140,7 +140,7 @@
                 </div>
               </div>
 
-              <div class="upload-zone" id="upload-zone">
+              <div class="upload-zone" id="upload-zone" data-controller="document-preview">
                 <div class="upload-content">
                   <i class="bi bi-cloud-upload upload-icon" id="upload-icon"></i>
                   <h6 class="upload-title" id="upload-title">Glissez-déposez votre fichier ici</h6>
@@ -155,23 +155,29 @@
                 <%= form.file_field :file,
                     class: "upload-input",
                     accept: ".pdf,.jpg,.jpeg,.png,.gif,.webp,.doc,.docx,.xls,.xlsx",
-                    required: true %>
+                    required: true,
+                    data: {
+                      "document-preview-target": "input",
+                      action: "change->document-preview#previewFile"
+                    } %>
                 <div class="invalid-feedback">
                   Veuillez sélectionner un fichier.
                 </div>
               </div>
 
-              <!-- Prévisualisation du fichier -->
-              <div class="file-preview" id="file-preview" style="display: none;">
-                <div class="d-flex align-items-center p-3 bg-light rounded">
-                  <i class="bi bi-file-earmark me-3 text-primary-custom"></i>
-                  <div class="flex-grow-1">
-                    <div class="file-name fw-medium"></div>
-                    <div class="file-size text-muted small"></div>
+              <!-- Prévisualisation du fichier améliorée -->
+              <div data-document-preview-target="previewContainer" style="display: none;">
+                <div class="card mt-3">
+                  <div class="card-header">
+                    <h6 class="mb-0">
+                      <i class="bi bi-eye me-2"></i>Prévisualisation
+                    </h6>
                   </div>
-                  <button type="button" class="btn btn-sm btn-outline-danger" id="remove-file">
-                    <i class="bi bi-trash"></i>
-                  </button>
+                  <div class="card-body">
+                    <div data-document-preview-target="preview">
+                      <!-- Le contenu de la prévisualisation sera inséré ici par JavaScript -->
+                    </div>
+                  </div>
                 </div>
               </div>
 

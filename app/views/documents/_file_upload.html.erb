@@ -1,0 +1,31 @@
+<div data-controller="document-preview">
+  <div class="mb-3">
+    <%= form.label :file, "Fichier", class: "form-label" %>
+    <%= form.file_field :file,
+        class: "form-control",
+        accept: ".pdf,.jpg,.jpeg,.png,.gif,.webp,.doc,.docx,.xls,.xlsx",
+        data: {
+          "document-preview-target": "input",
+          action: "change->document-preview#previewFile"
+        } %>
+    <div class="form-text">
+      Formats acceptés : PDF, images (JPEG, PNG, GIF, WebP), documents Word/Excel (max 10MB)
+    </div>
+  </div>
+
+  <!-- Zone de prévisualisation pour nouveaux fichiers -->
+  <div data-document-preview-target="previewContainer" style="display: none;">
+    <div class="card mb-3">
+      <div class="card-header">
+        <h6 class="mb-0">
+          <i class="bi bi-eye me-2"></i>Prévisualisation
+        </h6>
+      </div>
+      <div class="card-body">
+        <div data-document-preview-target="preview">
+          <!-- Le contenu de la prévisualisation sera inséré ici par JavaScript -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

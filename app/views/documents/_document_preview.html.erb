@@ -1,0 +1,95 @@
+<div data-controller="document-preview"
+     data-document-preview-preview-url-value="<%= preview_document_path(document) if document.persisted? %>"
+     data-document-preview-download-url-value="<%= download_document_path(document) if document.persisted? %>"
+     data-document-preview-debug-url-value="<%= debug_document_path(document) if document.persisted? %>">
+
+  <!-- Informations du fichier existant -->
+  <% if document.file.attached? %>
+    <div class="card mb-3">
+      <div class="card-body">
+        <div class="d-flex align-items-center">
+          <div class="me-3">
+            <i data-document-preview-target="fileIcon"
+               class="<%= case document.file.content_type
+                          when /image/ then 'bi bi-file-earmark-image text-success fs-3'
+                          when 'application/pdf' then 'bi bi-file-earmark-pdf text-danger fs-3'
+                          when /word/ then 'bi bi-file-earmark-word text-primary fs-3'
+                          when /excel|sheet/ then 'bi bi-file-earmark-excel text-success fs-3'
+                          else 'bi bi-file-earmark text-muted fs-3'
+                          end %>"></i>
+          </div>
+          <div class="flex-grow-1">
+            <div class="fw-medium" data-document-preview-target="fileName">
+              <%= document.file.filename %>
+            </div>
+            <small class="text-muted" data-document-preview-target="fileSize">
+              <%= number_to_human_size(document.file.byte_size) %>
+            </small>
+          </div>
+          <div class="btn-group" role="group">
+            <% if document.preview_available? %>
+              <button type="button"
+                      class="btn btn-sm btn-outline-primary"
+                      data-document-preview-target="previewBtn"
+                      data-action="click->document-preview#showRemotePreview">
+                <i class="bi bi-eye me-1"></i>Prévisualiser
+              </button>
+            <% end %>
+            <button type="button"
+                    class="btn btn-sm btn-outline-secondary"
+                    data-document-preview-target="downloadBtn"
+                    data-action="click->document-preview#downloadFile">
+              <i class="bi bi-download me-1"></i>Télécharger
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Zone de prévisualisation -->
+  <div data-document-preview-target="previewContainer" style="display: none;">
+    <div class="card">
+      <div class="card-header">
+        <h6 class="mb-0">
+          <i class="bi bi-eye me-2"></i>Prévisualisation
+        </h6>
+      </div>
+      <div class="card-body">
+        <div data-document-preview-target="preview">
+          <!-- Le contenu de la prévisualisation sera inséré ici par JavaScript -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.pdf-preview-container,
+.pdf-info-container,
+.document-info-container {
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-upload-zone {
+  border: 2px dashed #dee2e6;
+  border-radius: 0.375rem;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.file-upload-zone:hover {
+  border-color: #0d6efd;
+  background-color: #f8f9ff;
+}
+
+.file-upload-zone.dragover {
+  border-color: #0d6efd;
+  background-color: #e7f1ff;
+}
+</style>

@@ -92,7 +92,35 @@ class Document < ApplicationRecord
   end
 
   def preview_available?
+    return false unless file.attached?
     is_image? || is_pdf?
+  end
+
+  def cloudinary_url
+    return nil unless file.attached?
+    return nil unless file.service_name.to_s == 'cloudinary'
+
+    if is_pdf?
+      # URL spéciale pour les PDFs
+      CloudinaryPdfService.generate_pdf_url(file.key)
+    else
+      # URL standard pour les autres fichiers
+      rails_blob_url(file)
+    end
+  rescue => e
+    Rails.logger.error "Error generating Cloudinary URL for document #{id}: #{e.message}"
+    rails_blob_url(file) # Fallback
+  end
+
+  def cloudinary_preview_url
+    return nil unless file.attached?
+    return nil unless file.service_name.to_s == 'cloudinary'
+    return nil unless is_pdf?
+
+    CloudinaryPdfService.generate_preview_url(file.key)
+  rescue => e
+    Rails.logger.warn "Could not generate PDF preview for document #{id}: #{e.message}"
+    nil
   end
 
   def self.completion_stats_for_property(property)

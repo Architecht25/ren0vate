@@ -203,23 +203,51 @@ class DocumentsController < ApplicationController
     end
 
     if @document.file.attached?
-      if @document.is_image?
+      begin
+        if @document.is_image?
+          url = @document.cloudinary_url || rails_blob_url(@document.file)
+          render json: {
+            type: 'image',
+            url: url,
+            filename: @document.file_name
+          }
+        elsif @document.is_pdf?
+          # Pour les PDFs, essayons d'abord la preview Cloudinary
+          preview_url = @document.cloudinary_preview_url
+          pdf_url = @document.cloudinary_url || rails_blob_url(@document.file, disposition: "inline")
+
+          if preview_url
+            render json: {
+              type: 'pdf_with_preview',
+              preview_url: preview_url,
+              pdf_url: pdf_url,
+              filename: @document.file_name
+            }
+          else
+            render json: {
+              type: 'pdf',
+              url: pdf_url,
+              filename: @document.file_name
+            }
+          end
+        else
+          render json: {
+            type: 'unsupported',
+            message: 'Prévisualisation non disponible pour ce type de fichier',
+            download_url: @document.cloudinary_url || rails_blob_url(@document.file, disposition: "attachment")
+          }
+        end
+      rescue => e
+        Rails.logger.error "Preview error for document #{@document.id}: #{e.message}"
         render json: {
-          type: 'image',
-          url: rails_blob_url(@document.file),
-          filename: @document.file_name
-        }
-      elsif @document.is_pdf?
-        render json: {
-          type: 'pdf',
-          url: rails_blob_url(@document.file),
-          filename: @document.file_name
-        }
-      else
-        render json: {
-          type: 'unsupported',
-          message: 'Prévisualisation non disponible pour ce type de fichier'
-        }
+          error: "Erreur lors de la génération de la prévisualisation",
+          debug_info: {
+            content_type: @document.file.content_type,
+            service: @document.file.service_name,
+            size: @document.file.byte_size,
+            key: @document.file.key
+          }
+        }, status: :internal_server_error
       end
     else
       render json: { error: "Fichier non trouvé" }, status: :not_found
@@ -267,17 +295,26 @@ class DocumentsController < ApplicationController
 
     if @document.file.attached?
       begin
-        # Avec Active Storage local, utiliser rails_blob_path avec disposition inline
-        redirect_to rails_blob_path(@document.file, disposition: "inline")
+        # Avec Active Storage, utiliser rails_blob_path avec disposition inline
+        if @document.is_pdf? || @document.is_image?
+          redirect_to rails_blob_path(@document.file, disposition: "inline")
+        else
+          # Pour les autres types, forcer le téléchargement
+          redirect_to rails_blob_path(@document.file, disposition: "attachment")
+        end
+      rescue ActiveStorage::FileNotFoundError => e
+        Rails.logger.error "File not found for document #{@document.id}: #{e.message}"
+        redirect_back(fallback_location: root_path, alert: "Fichier non trouvé sur le serveur de stockage")
       rescue => e
-        Rails.logger.error "Error accessing file: #{e.message}"
+        Rails.logger.error "Error accessing file for document #{@document.id}: #{e.message}"
+        Rails.logger.error "Service: #{@document.file.service_name}, Key: #{@document.file.key}"
         redirect_back(fallback_location: root_path, alert: "Erreur lors du chargement du fichier")
       end
     elsif @document.file_url.present?
       # Fallback vers URL externe
       redirect_to @document.file_url, allow_other_host: true
     else
-      redirect_back(fallback_location: root_path, alert: "Fichier non trouvé")
+      redirect_back(fallback_location: root_path, alert: "Aucun fichier associé à ce document")
     end
   end
 
