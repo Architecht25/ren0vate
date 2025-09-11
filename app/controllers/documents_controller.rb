@@ -241,11 +241,6 @@ class DocumentsController < ApplicationController
       render json: { error: "Fichier non trouvé" }, status: :not_found
     end
   end
-      end
-    else
-      render json: { error: "Fichier non trouvé" }, status: :not_found
-    end
-  end
 
   # GET /documents/:id/debug - Diagnostic du fichier
   def debug
