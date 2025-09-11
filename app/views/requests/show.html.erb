@@ -11,6 +11,9 @@
       <%= link_to edit_request_path(@request), class: "btn btn-outline-primary-custom me-2" do %>
         <i class="bi bi-pencil me-2"></i>Modifier
       <% end %>
+      <%= link_to request_request_progresses_path(@request), class: "btn btn-outline-info me-2" do %>
+        <i class="bi bi-clipboard-check me-2"></i>Suivis
+      <% end %>
       <% if @request.can_be_deleted? %>
         <%= link_to request_path(@request), method: :delete,
                     data: {
@@ -98,6 +101,11 @@
 
     <!-- Sidebar -->
     <div class="col-lg-4">
+      <!-- Suivis de demandes -->
+      <div class="mb-4">
+        <%= render 'request_progresses/summary', request: @request %>
+      </div>
+
       <div class="card border-0 bg-light-custom">
         <div class="card-body p-4">
           <h6 class="card-title text-primary-custom mb-3">

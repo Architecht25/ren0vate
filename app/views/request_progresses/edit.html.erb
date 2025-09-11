@@ -1,0 +1,223 @@
+<% content_for :title, "Modifier le suivi" %>
+
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0">Modifier le suivi #<%= @request_progress.id %></h4>
+          <p class="text-muted mb-0">
+            Demande pour : <%= @request.property.address %> -
+            Prime : <%= @request_progress.prime.nom %>
+          </p>
+        </div>
+        <div class="card-body">
+          <%= form_with model: @request_progress, local: true do |form| %>
+            <% if @request_progress.errors.any? %>
+              <div class="alert alert-danger">
+                <h6>Erreurs détectées :</h6>
+                <ul class="mb-0">
+                  <% @request_progress.errors.full_messages.each do |message| %>
+                    <li><%= message %></li>
+                  <% end %>
+                </ul>
+              </div>
+            <% end %>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :prime_id, "Prime", class: "form-label" %>
+                  <%= form.select :prime_id,
+                                  options_from_collection_for_select(@primes, :id, :nom, @request_progress.prime_id),
+                                  { prompt: "Sélectionnez une prime" },
+                                  { class: "form-select", required: true } %>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :status_administratif, "Statut administratif", class: "form-label" %>
+                  <%= form.select :status_administratif,
+                                  options_from_collection_for_select(
+                                    RequestProgress.status_administratifs.keys.map { |k| [k, t("request_progress.status.#{k}")] },
+                                    :first, :second, @request_progress.status_administratif
+                                  ),
+                                  { prompt: "Sélectionnez un statut" },
+                                  { class: "form-select", required: true } %>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :step, "Étape", class: "form-label" %>
+                  <%= form.text_field :step,
+                                      class: "form-control",
+                                      placeholder: "Ex: Dépôt initial, Instruction, Décision..." %>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :pourcentage, "Pourcentage d'avancement", class: "form-label" %>
+                  <div class="input-group">
+                    <%= form.number_field :pourcentage,
+                                          class: "form-control",
+                                          min: 0,
+                                          max: 100,
+                                          step: 5 %>
+                    <span class="input-group-text">%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :montant_demande, "Montant demandé", class: "form-label" %>
+                  <div class="input-group">
+                    <span class="input-group-text">€</span>
+                    <%= form.number_field :montant_demande,
+                                          class: "form-control",
+                                          min: 0,
+                                          step: 0.01,
+                                          placeholder: "0.00" %>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :montant_accorde, "Montant accordé", class: "form-label" %>
+                  <div class="input-group">
+                    <span class="input-group-text">€</span>
+                    <%= form.number_field :montant_accorde,
+                                          class: "form-control",
+                                          min: 0,
+                                          step: 0.01,
+                                          placeholder: "0.00" %>
+                  </div>
+                  <div class="form-text">Laisser vide si pas encore connu</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :date_soumission, "Date de soumission", class: "form-label" %>
+                  <%= form.date_field :date_soumission, class: "form-control" %>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :numero_dossier_administratif, "N° de dossier administratif", class: "form-label" %>
+                  <%= form.text_field :numero_dossier_administratif,
+                                      class: "form-control",
+                                      placeholder: "Ex: 2024/12345" %>
+                  <div class="form-text">Optionnel - à remplir quand reçu de l'administration</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <%= form.label :commentaire_administratif, "Commentaire administratif", class: "form-label" %>
+              <%= form.text_area :commentaire_administratif,
+                                 class: "form-control",
+                                 rows: 4,
+                                 placeholder: "Commentaires, observations, notes..." %>
+            </div>
+
+            <div class="mb-3">
+              <div class="form-check">
+                <%= form.check_box :document_recu, class: "form-check-input" %>
+                <%= form.label :document_recu, "Document de suivi reçu", class: "form-check-label" %>
+              </div>
+            </div>
+
+            <!-- Affichage des documents existants -->
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <h6>Document PDF actuel</h6>
+                <% if @request_progress.document_suivi_pdf.attached? %>
+                  <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-file-pdf text-danger me-2"></i>
+                    <%= link_to @request_progress.document_suivi_pdf.filename,
+                                @request_progress.document_suivi_pdf,
+                                target: "_blank",
+                                class: "text-decoration-none" %>
+                  </div>
+                <% end %>
+                <%= form.label :document_suivi_pdf, "Nouveau document PDF", class: "form-label" %>
+                <%= form.file_field :document_suivi_pdf,
+                                    class: "form-control",
+                                    accept: ".pdf" %>
+                <div class="form-text">Laissez vide pour conserver le document actuel</div>
+              </div>
+              <div class="col-md-6">
+                <h6>Photo actuelle</h6>
+                <% if @request_progress.document_suivi_photo.attached? %>
+                  <div class="d-flex align-items-center mb-2">
+                    <i class="fas fa-image text-primary me-2"></i>
+                    <%= link_to @request_progress.document_suivi_photo.filename,
+                                @request_progress.document_suivi_photo,
+                                target: "_blank",
+                                class: "text-decoration-none" %>
+                  </div>
+                <% end %>
+                <%= form.label :document_suivi_photo, "Nouvelle photo", class: "form-label" %>
+                <%= form.file_field :document_suivi_photo,
+                                    class: "form-control",
+                                    accept: "image/*" %>
+                <div class="form-text">Laissez vide pour conserver la photo actuelle</div>
+              </div>
+            </div>
+
+            <!-- Informations de suivi automatique -->
+            <div class="alert alert-info">
+              <h6><i class="fas fa-info-circle"></i> Informations de suivi</h6>
+              <p class="mb-1"><strong>Email de suivi :</strong> <code><%= @request_progress.email_suivi %></code></p>
+              <p class="mb-1"><strong>Créé le :</strong> <%= l(@request_progress.created_at, format: :long) %></p>
+              <% if @request_progress.date_derniere_maj %>
+                <p class="mb-0"><strong>Dernière modification :</strong> <%= l(@request_progress.date_derniere_maj, format: :long) %></p>
+              <% end %>
+            </div>
+
+            <hr>
+
+            <div class="d-flex justify-content-between">
+              <%= link_to "Annuler",
+                          @request_progress,
+                          class: "btn btn-outline-secondary" %>
+              <%= form.submit "Mettre à jour",
+                              class: "btn btn-primary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Auto-calcul du pourcentage basé sur le statut
+document.getElementById('request_progress_status_administratif').addEventListener('change', function() {
+  const status = this.value;
+  const pourcentageField = document.getElementById('request_progress_pourcentage');
+
+  const statusPercentages = {
+    'en_preparation': 10,
+    'soumis': 25,
+    'en_cours': 50,
+    'complet': 75,
+    'incomplet': 40,
+    'accorde': 100,
+    'refuse': 100,
+    'annule': 0
+  };
+
+  if (statusPercentages[status] !== undefined && pourcentageField.value == '') {
+    pourcentageField.value = statusPercentages[status];
+  }
+});
+</script>

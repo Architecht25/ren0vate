@@ -1,0 +1,237 @@
+<% content_for :title, t('request_progress.index_title') %>
+
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 mb-0">
+          <%= t('request_progress.index_title') %>
+          <% if @request %>
+            - <%= @request.property.address %>
+          <% end %>
+        </h1>
+
+        <% if @request %>
+          <%= link_to t('request_progress.new'),
+                      new_request_request_progress_path(@request),
+                      class: "btn btn-primary" %>
+        <% end %>
+      </div>
+
+      <!-- Statistiques -->
+      <div class="row mb-4">
+        <div class="col-md-2">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title text-primary"><%= @stats[:total] %></h5>
+              <p class="card-text small">Total</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title text-warning"><%= @stats[:en_attente] %></h5>
+              <p class="card-text small">En attente</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title text-success"><%= @stats[:accordees] %></h5>
+              <p class="card-text small">Accordées</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title text-info"><%= number_to_currency(@stats[:montant_total_demande]) %></h5>
+              <p class="card-text small">Montant demandé</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-center">
+            <div class="card-body">
+              <h5 class="card-title text-success"><%= number_to_currency(@stats[:montant_total_accorde]) %></h5>
+              <p class="card-text small">Montant accordé</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtres -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <%= form_with url: request.path, method: :get, local: true, class: "row g-3" do |form| %>
+            <div class="col-md-3">
+              <%= form.select :status,
+                              options_from_collection_for_select(
+                                RequestProgress.status_administratifs.keys.map { |k| [k, t("request_progress.status.#{k}")] },
+                                :first, :second, params[:status]
+                              ),
+                              { prompt: "Tous les statuts" },
+                              { class: "form-select" } %>
+            </div>
+            <div class="col-md-3">
+              <%= form.select :region,
+                              options_for_select([
+                                ['Wallonie', 'wallonie'],
+                                ['Bruxelles', 'bruxelles'],
+                                ['Flandre', 'flandre']
+                              ], params[:region]),
+                              { prompt: "Toutes les régions" },
+                              { class: "form-select" } %>
+            </div>
+            <div class="col-md-2">
+              <%= form.submit "Filtrer", class: "btn btn-outline-primary" %>
+            </div>
+            <div class="col-md-2">
+              <%= link_to "Réinitialiser", request.path, class: "btn btn-outline-secondary" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Liste des suivis -->
+      <div class="card">
+        <div class="card-header">
+          <h5 class="mb-0">Suivis des demandes de primes</h5>
+        </div>
+        <div class="card-body p-0">
+          <% if @request_progresses.any? %>
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Propriété</th>
+                    <th>Prime</th>
+                    <th>Statut</th>
+                    <th>Progression</th>
+                    <th>Montant demandé</th>
+                    <th>Montant accordé</th>
+                    <th>Dernière MAJ</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @request_progresses.each do |progress| %>
+                    <tr>
+                      <td>
+                        <div class="d-flex flex-column">
+                          <span class="fw-bold"><%= progress.property.address %></span>
+                          <small class="text-muted"><%= progress.region.capitalize %></small>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="d-flex flex-column">
+                          <span><%= progress.prime.nom %></span>
+                          <small class="text-muted"><%= progress.prime.region.capitalize %></small>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge bg-<%= progress.status_administratif == 'accorde' ? 'success' :
+                                                  progress.status_administratif == 'refuse' ? 'danger' :
+                                                  progress.status_administratif == 'en_cours' ? 'warning' : 'secondary' %>">
+                          <%= t("request_progress.status.#{progress.status_administratif}") %>
+                        </span>
+                      </td>
+                      <td>
+                        <div class="progress" style="height: 8px;">
+                          <div class="progress-bar"
+                               role="progressbar"
+                               style="width: <%= progress.pourcentage %>%"
+                               aria-valuenow="<%= progress.pourcentage %>"
+                               aria-valuemin="0"
+                               aria-valuemax="100">
+                          </div>
+                        </div>
+                        <small class="text-muted"><%= progress.pourcentage %>%</small>
+                      </td>
+                      <td>
+                        <%= number_to_currency(progress.montant_demande) if progress.montant_demande %>
+                      </td>
+                      <td>
+                        <%= number_to_currency(progress.montant_accorde) if progress.montant_accorde %>
+                        <% if progress.montant_demande&.positive? && progress.montant_accorde %>
+                          <br><small class="text-muted">(<%= progress.taux_octroi %>%)</small>
+                        <% end %>
+                      </td>
+                      <td>
+                        <%= l(progress.date_derniere_maj, format: :short) if progress.date_derniere_maj %>
+                      </td>
+                      <td>
+                        <div class="btn-group btn-group-sm">
+                          <%= link_to t('show'), progress, class: "btn btn-outline-primary btn-sm" %>
+                          <%= link_to t('edit'), edit_request_progress_path(progress), class: "btn btn-outline-secondary btn-sm" %>
+                          <%= link_to t('delete'), progress,
+                                      method: :delete,
+                                      data: { confirm: t('are_you_sure') },
+                                      class: "btn btn-outline-danger btn-sm" %>
+                        </div>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="card-footer d-flex justify-content-between align-items-center">
+              <div class="text-muted">
+                Affichage de <%= (@offset + 1) %> à <%= [@offset + @per_page, @total_count].min %> sur <%= @total_count %> résultats
+              </div>
+              <% if @total_count > @per_page %>
+                <nav>
+                  <ul class="pagination pagination-sm mb-0">
+                    <% if @page > 1 %>
+                      <li class="page-item">
+                        <%= link_to "Précédent", request.params.merge(page: @page - 1), class: "page-link" %>
+                      </li>
+                    <% end %>
+
+                    <% total_pages = (@total_count.to_f / @per_page).ceil %>
+                    <% if total_pages > 1 %>
+                      <% [1, @page - 2, @page - 1, @page, @page + 1, @page + 2, total_pages].uniq.select { |p| p > 0 && p <= total_pages }.each do |page_num| %>
+                        <li class="page-item <%= 'active' if page_num == @page %>">
+                          <%= link_to page_num, request.params.merge(page: page_num), class: "page-link" %>
+                        </li>
+                      <% end %>
+                    <% end %>
+
+                    <% if @page < total_pages %>
+                      <li class="page-item">
+                        <%= link_to "Suivant", request.params.merge(page: @page + 1), class: "page-link" %>
+                      </li>
+                    <% end %>
+                  </ul>
+                </nav>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="text-center py-5">
+              <div class="mb-3">
+                <i class="fas fa-clipboard-list fa-3x text-muted"></i>
+              </div>
+              <h5 class="text-muted">Aucun suivi de demande</h5>
+              <p class="text-muted">
+                <% if @request %>
+                  Aucun suivi n'a encore été créé pour cette demande.
+                <% else %>
+                  Aucun suivi de demande n'a encore été créé.
+                <% end %>
+              </p>
+              <% if @request %>
+                <%= link_to t('request_progress.new'),
+                            new_request_request_progress_path(@request),
+                            class: "btn btn-primary" %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
