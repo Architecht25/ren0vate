@@ -1,7 +1,7 @@
-<!-- ÉTAPE 1: Double test d'éligibilité pour finalité économique -->
+<!-- ÉTAPE 1: Éligibilité et Majorations pour les entreprises -->
 <div class="row g-3">
   <!-- Éligibilité pour les aides aux investissements -->
-  <div class="col-lg-6">
+  <div class="col-lg-4">
     <div class="card border-0 shadow-sm h-100" id="eligibility-step-investment">
       <div class="card-body p-4 d-flex flex-column">
         <h5 class="card-title text-primary-custom mb-3">
@@ -65,19 +65,105 @@
           <% end %>
         </div>
 
-        <% unless @simulation.respond_to?(:eligible_investment) && @simulation.eligible_investment? %>
-          <div class="mt-3">
-            <button id="check-eligibility-investment-btn" class="btn btn-primary-custom w-100">
-              <i class="bi bi-building me-2"></i>Vérifier éligibilité investissements
-            </button>
+        <!-- Affichage automatique de l'éligibilité (sans bouton superflu) -->
+        <div class="text-center text-muted small mt-auto">
+          <i class="bi bi-info-circle me-1"></i>
+          L'éligibilité est calculée automatiquement selon vos paramètres
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section Majorations Disponibles -->
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm h-100" id="majorations-section">
+      <div class="card-body p-4">
+        <h5 class="card-title text-warning mb-3">
+          <i class="bi bi-star me-2"></i>Majorations Disponibles
+        </h5>
+
+        <p class="text-muted small mb-3">
+          Optimisez vos aides grâce aux majorations selon les critères de votre entreprise
+        </p>
+
+        <!-- Majoration Starter -->
+        <div class="mb-2 p-2 border border-primary border-opacity-25 rounded bg-primary bg-opacity-5">
+          <div class="d-flex align-items-center justify-content-between mb-1">
+            <h6 class="text-primary mb-0 small">
+              <i class="bi bi-rocket me-1"></i>Starter
+            </h6>
+            <span class="badge bg-primary text-white">+10% à +15%</span>
           </div>
-        <% end %>
+          <p class="small text-muted mb-1">
+            Entreprise créée depuis moins de 4 ans
+          </p>
+          <% if @simulation.respond_to?(:property) && @simulation.property&.date_creation %>
+            <% company_age = ((Date.current - @simulation.property.date_creation) / 365.25).round(1) %>
+            <% if company_age < 4 %>
+              <div class="text-success small">
+                <i class="bi bi-check-circle me-1"></i>
+                ✅ Éligible (entreprise de <%= company_age %> an<%= 's' if company_age > 1 %>)
+              </div>
+            <% else %>
+              <div class="text-muted small">
+                <i class="bi bi-x-circle me-1"></i>
+                Non éligible (entreprise de <%= company_age %> ans)
+              </div>
+            <% end %>
+          <% else %>
+            <div class="text-info small">
+              <i class="bi bi-info-circle me-1"></i>
+              Renseignez la date de création de votre entreprise pour vérifier
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Majoration Exemplarité Environnementale -->
+        <div class="mb-2 p-2 border border-success border-opacity-25 rounded bg-success bg-opacity-5">
+          <div class="d-flex align-items-center justify-content-between mb-1">
+            <h6 class="text-success mb-0 small">
+              <i class="bi bi-leaf me-1"></i>Exemplarité Environnementale
+            </h6>
+            <span class="badge bg-success">+10% à +20%</span>
+          </div>
+          <p class="small text-muted mb-1">
+            Certifications environnementales (ISO 14001, EMAS, etc.)
+          </p>
+          <div class="text-info small">
+            <i class="bi bi-info-circle me-1"></i>
+            Fournissez vos certifications pour bénéficier de cette majoration
+          </div>
+        </div>
+
+        <!-- Majoration Exemplarité Sociale -->
+        <div class="mb-2 p-2 border border-info border-opacity-25 rounded bg-info bg-opacity-5">
+          <div class="d-flex align-items-center justify-content-between mb-1">
+            <h6 class="text-info mb-0 small">
+              <i class="bi bi-people me-1"></i>Exemplarité Sociale
+            </h6>
+            <span class="badge bg-info">+10% à +20%</span>
+          </div>
+          <p class="small text-muted mb-1">
+            Insertion professionnelle, économie sociale, diversité
+          </p>
+          <div class="text-info small">
+            <i class="bi bi-info-circle me-1"></i>
+            Documentez vos actions sociales pour cette majoration
+          </div>
+        </div>
+
+        <div class="alert alert-light border-0 mt-3 py-2">
+          <small class="text-muted">
+            <i class="bi bi-lightbulb me-1"></i>
+            <strong>Conseil :</strong> Les majorations peuvent se cumuler jusqu'à 80% maximum.
+          </small>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Éligibilité pour les primes RENOLUTION -->
-  <div class="col-lg-6">
+  <div class="col-lg-4">
     <div class="card border-0 shadow-sm h-100" id="eligibility-step-renolution">
       <div class="card-body p-4 d-flex flex-column">
         <h5 class="card-title text-success mb-3">
@@ -112,13 +198,11 @@
           <% end %>
         </div>
 
-        <% unless @simulation.respond_to?(:eligible_renolution) && @simulation.eligible_renolution? %>
-          <div class="mt-3">
-            <button id="check-eligibility-renolution-btn" class="btn btn-success w-100">
-              <i class="bi bi-house-gear me-2"></i>Vérifier éligibilité RENOLUTION
-            </button>
-          </div>
-        <% end %>
+        <!-- Affichage automatique de l'éligibilité (sans bouton superflu) -->
+        <div class="text-center text-muted small mt-auto">
+          <i class="bi bi-info-circle me-1"></i>
+          L'éligibilité RENOLUTION est calculée automatiquement
+        </div>
       </div>
     </div>
   </div>
