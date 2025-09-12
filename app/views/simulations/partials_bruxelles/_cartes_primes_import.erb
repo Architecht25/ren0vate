@@ -28,6 +28,27 @@
     }.to_h.to_json %>
   </script>
 
+  <!-- Styles pour les cartes améliorées -->
+  <style>
+    .drop-shadow {
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .card-premium {
+      transition: all 0.3s ease;
+    }
+
+    .card-premium:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+    }
+
+    .image-overlay {
+      background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));
+      backdrop-filter: blur(1px);
+    }
+  </style>
+
   <div class="card border-0 shadow mb-4">
     <div class="card-header bg-success bg-opacity-10">
       <h4 class="card-title mb-0">
@@ -439,16 +460,18 @@
                data-controller="bruxelles-prime-card"
                data-bruxelles-prime-card-slug-value="bruxelles_prime_c_global"
                data-statut-compatible='["residentiel"]'>
-            <div class="card-body">
-              <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                  <i class="bi bi-columns fs-5 text-info"></i>
-                </div>
-                <div>
-                  <h6 class="card-title mb-1">Prime C - Structure et gros œuvre</h6>
-                  <small class="text-muted">Structure, égouts, récupération</small>
+            <!-- Image de fond avec overlay -->
+            <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_600,h_120,q_auto,f_auto/gros_oeuvre-scaled_g8jgzv'); background-size: cover; background-position: center;">
+              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
+                <div class="text-center text-white">
+                  <i class="bi bi-columns fs-3 mb-2 drop-shadow"></i>
+                  <h6 class="fw-bold mb-0 drop-shadow">Prime C - Structure et gros œuvre</h6>
+                  <small class="opacity-90">Structure, égouts, récupération</small>
                 </div>
               </div>
+            </div>
+
+            <div class="card-body">
 
               <div class="row g-2">
                 <!-- Structures portantes -->
@@ -740,16 +763,18 @@
                data-controller="bruxelles-prime-card"
                data-bruxelles-prime-card-slug-value="bruxelles_prime_e_global"
                data-statut-compatible='["residentiel", "mixte"]'>
-            <div class="card-body">
-              <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                  <i class="bi bi-house-up fs-5 text-success"></i>
-                </div>
-                <div>
-                  <h6 class="card-title mb-1">Prime E - Toiture</h6>
-                  <small class="text-muted">Isolation, structure, végétale</small>
+            <!-- Image de fond avec overlay -->
+            <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/renovation_toiture_guwknw'); background-size: cover; background-position: center;">
+              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
+                <div class="text-center text-white">
+                  <i class="bi bi-house-up fs-3 mb-2 drop-shadow"></i>
+                  <h6 class="fw-bold mb-0 drop-shadow">Prime E - Toiture</h6>
+                  <small class="opacity-90">Isolation, structure, végétale</small>
                 </div>
               </div>
+            </div>
+
+            <div class="card-body">
 
               <div class="row g-2">
                 <!-- Structure toiture -->
@@ -950,16 +975,18 @@
                data-controller="bruxelles-prime-card"
                data-bruxelles-prime-card-slug-value="bruxelles_prime_f_global"
                data-statut-compatible='["residentiel", "mixte"]'>
-            <div class="card-body">
-              <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="bg-secondary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                  <i class="bi bi-house fs-5 text-secondary"></i>
-                </div>
-                <div>
-                  <h6 class="card-title mb-1">Prime F - Façades</h6>
-                  <small class="text-muted">Isolation, bardage, embellissement</small>
+            <!-- Image de fond avec overlay -->
+            <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/isolation_murs_ext_ahbpat'); background-size: cover; background-position: center;">
+              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
+                <div class="text-center text-white">
+                  <i class="bi bi-house fs-3 mb-2 drop-shadow"></i>
+                  <h6 class="fw-bold mb-0 drop-shadow">Prime F - Façades</h6>
+                  <small class="opacity-90">Isolation, bardage, embellissement</small>
                 </div>
               </div>
+            </div>
+
+            <div class="card-body">
 
               <div class="row g-2">
                 <!-- Isolation intérieure façade -->
@@ -1270,16 +1297,18 @@
                data-controller="bruxelles-prime-card"
                data-bruxelles-prime-card-slug-value="bruxelles_prime_h_global"
                data-statut-compatible='["residentiel", "mixte"]'>
-            <div class="card-body">
-              <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="bg-dark bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                  <i class="bi bi-square fs-5 text-dark"></i>
-                </div>
-                <div>
-                  <h6 class="card-title mb-1">Prime H - Sols et planchers</h6>
-                  <small class="text-muted">Isolation thermique, acoustique</small>
+            <!-- Image de fond avec overlay -->
+            <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/renovation_sol_wwxrx7'); background-size: cover; background-position: center;">
+              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
+                <div class="text-center text-white">
+                  <i class="bi bi-square fs-3 mb-2 drop-shadow"></i>
+                  <h6 class="fw-bold mb-0 drop-shadow">Prime H - Sols et planchers</h6>
+                  <small class="opacity-90">Isolation thermique, acoustique</small>
                 </div>
               </div>
+            </div>
+
+            <div class="card-body">
 
               <div class="row g-2">
                 <!-- Isolation thermique sols -->

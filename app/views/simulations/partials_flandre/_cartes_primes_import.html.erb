@@ -21,6 +21,27 @@
     }
   </script>
 
+  <!-- Styles pour les cartes améliorées -->
+  <style>
+    .drop-shadow {
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .card-premium {
+      transition: all 0.3s ease;
+    }
+
+    .card-premium:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+    }
+
+    .image-overlay {
+      background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));
+      backdrop-filter: blur(1px);
+    }
+  </style>
+
   <%
     # Helper pour récupérer la condition d'une prime
     def condition_prime(slug)
@@ -58,17 +79,31 @@
 
           <!-- Carte: Isolation Toiture -->
           <div class="col-lg-2 col-md-4 col-sm-6">
-            <div class="card border-0 shadow-sm h-100"
+            <div class="card border-0 shadow-sm h-100 overflow-hidden card-premium"
                  data-controller="flandre-prime-card"
                  data-flandre-prime-card-slug-value="isolation_toiture">
-              <div class="card-body">
-                <div class="d-flex align-items-center gap-3 mb-3">
-                  <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                    <i class="bi bi-house-door fs-5 text-warning"></i>
+
+              <!-- Image de fond avec overlay -->
+              <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/isolation_toiture_chi7l5'); background-size: cover; background-position: center;">
+                <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
+                  <div class="text-center text-white">
+                    <i class="bi bi-house-door fs-3 mb-2 drop-shadow"></i>
+                    <h6 class="fw-bold mb-0 drop-shadow">Isolation toiture</h6>
+                    <small class="opacity-90">Par m²</small>
                   </div>
-                  <div>
-                    <h6 class="card-title mb-1 small">Isolation toiture</h6>
-                    <small class="text-muted">Par m²</small>
+                </div>
+              </div>
+
+              <div class="card-body">
+                <!-- Badge informatif -->
+                <div class="mb-3">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <span class="badge bg-warning bg-opacity-20 text-warning rounded-pill px-3">
+                      <i class="bi bi-thermometer-half me-1"></i>Toiture
+                    </span>
+                    <small class="text-muted">
+                      <i class="bi bi-lightning-charge text-success me-1"></i>Économie d'énergie
+                    </small>
                   </div>
                 </div>
 
@@ -108,17 +143,31 @@
 
           <!-- Carte: Isolation Murs Cat 1-2 -->
           <div class="col-lg-2 col-md-4 col-sm-6">
-            <div class="card border-0 shadow-sm h-100"
+            <div class="card border-0 shadow-sm h-100 overflow-hidden card-premium"
                  data-controller="flandre-prime-card"
                  data-flandre-prime-card-slug-value="isolation_murs_cat12">
-              <div class="card-body">
-                <div class="d-flex align-items-center gap-3 mb-3">
-                  <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                    <i class="bi bi-bricks fs-5 text-success"></i>
+
+              <!-- Image de fond avec overlay -->
+              <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/renovation_murs_chbucn'); background-size: cover; background-position: center;">
+                <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
+                  <div class="text-center text-white">
+                    <i class="bi bi-bricks fs-3 mb-2 drop-shadow"></i>
+                    <h6 class="fw-bold mb-0 drop-shadow">Murs (cat. 1-2)</h6>
+                    <small class="opacity-90">Type + surface</small>
                   </div>
-                  <div>
-                    <h6 class="card-title mb-1 small">Murs (cat. 1-2)</h6>
-                    <small class="text-muted">Type + surface</small>
+                </div>
+              </div>
+
+              <div class="card-body">
+                <!-- Badge informatif -->
+                <div class="mb-3">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <span class="badge bg-success bg-opacity-20 text-success rounded-pill px-3">
+                      <i class="bi bi-bricks me-1"></i>Murs
+                    </span>
+                    <small class="text-muted">
+                      <i class="bi bi-shield-check text-success me-1"></i>Isolation thermique
+                    </small>
                   </div>
                 </div>
 
@@ -171,17 +220,31 @@
 
           <!-- Carte: Isolation Murs Cat 3-4 -->
           <div class="col-lg-2 col-md-4 col-sm-6">
-            <div class="card border-0 shadow-sm h-100"
+            <div class="card border-0 shadow-sm h-100 overflow-hidden card-premium"
                  data-controller="flandre-prime-card"
                  data-flandre-prime-card-slug-value="isolation_murs_cat34">
-              <div class="card-body">
-                <div class="d-flex align-items-center gap-3 mb-3">
-                  <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                    <i class="bi bi-bricks fs-5 text-primary"></i>
+
+              <!-- Image de fond avec overlay -->
+              <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/renovation_murs_chbucn'); background-size: cover; background-position: center;">
+                <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
+                  <div class="text-center text-white">
+                    <i class="bi bi-bricks fs-3 mb-2 drop-shadow"></i>
+                    <h6 class="fw-bold mb-0 drop-shadow">Murs (cat. 3-4)</h6>
+                    <small class="opacity-90">Par m²</small>
                   </div>
-                  <div>
-                    <h6 class="card-title mb-1 small">Murs (cat. 3-4)</h6>
-                    <small class="text-muted">Par m²</small>
+                </div>
+              </div>
+
+              <div class="card-body">
+                <!-- Badge informatif -->
+                <div class="mb-3">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <span class="badge bg-primary bg-opacity-20 text-primary rounded-pill px-3">
+                      <i class="bi bi-bricks me-1"></i>Murs
+                    </span>
+                    <small class="text-muted">
+                      <i class="bi bi-shield-check text-primary me-1"></i>Isolation thermique
+                    </small>
                   </div>
                 </div>
 
@@ -221,17 +284,31 @@
 
           <!-- Carte: Isolation Sol -->
           <div class="col-lg-2 col-md-4 col-sm-6">
-            <div class="card border-0 shadow-sm h-100"
+            <div class="card border-0 shadow-sm h-100 overflow-hidden card-premium"
                  data-controller="flandre-prime-card"
                  data-flandre-prime-card-slug-value="isolation_sol">
-              <div class="card-body">
-                <div class="d-flex align-items-center gap-3 mb-3">
-                  <div class="bg-dark bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                    <i class="bi bi-layers fs-5 text-dark"></i>
+
+              <!-- Image de fond avec overlay -->
+              <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/isolation_sol_rdrj3r'); background-size: cover; background-position: center;">
+                <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
+                  <div class="text-center text-white">
+                    <i class="bi bi-layers fs-3 mb-2 drop-shadow"></i>
+                    <h6 class="fw-bold mb-0 drop-shadow">Isolation sol</h6>
+                    <small class="opacity-90">Par m²</small>
                   </div>
-                  <div>
-                    <h6 class="card-title mb-1 small">Isolation sol</h6>
-                    <small class="text-muted">Par m²</small>
+                </div>
+              </div>
+
+              <div class="card-body">
+                <!-- Badge informatif -->
+                <div class="mb-3">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <span class="badge bg-dark bg-opacity-20 text-dark rounded-pill px-3">
+                      <i class="bi bi-layers me-1"></i>Sol
+                    </span>
+                    <small class="text-muted">
+                      <i class="bi bi-arrow-up text-dark me-1"></i>Confort thermique
+                    </small>
                   </div>
                 </div>
 
@@ -271,17 +348,31 @@
 
           <!-- Carte: Châssis et Portes -->
           <div class="col-lg-2 col-md-4 col-sm-6">
-            <div class="card border-0 shadow-sm h-100"
+            <div class="card border-0 shadow-sm h-100 overflow-hidden card-premium"
                  data-controller="flandre-prime-card"
                  data-flandre-prime-card-slug-value="ramen_deuren">
-              <div class="card-body">
-                <div class="d-flex align-items-center gap-3 mb-3">
-                  <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                    <i class="bi bi-window fs-5 text-info"></i>
+
+              <!-- Image de fond avec overlay -->
+              <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/remplacement_chassis_lrszxo'); background-size: cover; background-position: center;">
+                <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
+                  <div class="text-center text-white">
+                    <i class="bi bi-window fs-3 mb-2 drop-shadow"></i>
+                    <h6 class="fw-bold mb-0 drop-shadow">Châssis/portes</h6>
+                    <small class="opacity-90">Par m²</small>
                   </div>
-                  <div>
-                    <h6 class="card-title mb-1 small">Châssis/portes</h6>
-                    <small class="text-muted">Par m²</small>
+                </div>
+              </div>
+
+              <div class="card-body">
+                <!-- Badge informatif -->
+                <div class="mb-3">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <span class="badge bg-info bg-opacity-20 text-info rounded-pill px-3">
+                      <i class="bi bi-window me-1"></i>Châssis
+                    </span>
+                    <small class="text-muted">
+                      <i class="bi bi-eye text-info me-1"></i>Luminosité & isolation
+                    </small>
                   </div>
                 </div>
 
@@ -321,17 +412,31 @@
 
           <!-- Carte: Pompe à Chaleur -->
           <div class="col-lg-2 col-md-4 col-sm-6">
-            <div class="card border-0 shadow-sm h-100"
+            <div class="card border-0 shadow-sm h-100 overflow-hidden card-premium"
                  data-controller="flandre-prime-card"
                  data-flandre-prime-card-slug-value="warmtepomp">
-              <div class="card-body">
-                <div class="d-flex align-items-center gap-3 mb-3">
-                  <div class="bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                    <i class="bi bi-thermometer fs-5 text-danger"></i>
+
+              <!-- Image de fond avec overlay -->
+              <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/pac_géothermique_cj7l2y'); background-size: cover; background-position: center;">
+                <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
+                  <div class="text-center text-white">
+                    <i class="bi bi-thermometer fs-3 mb-2 drop-shadow"></i>
+                    <h6 class="fw-bold mb-0 drop-shadow">Pompe à chaleur</h6>
+                    <small class="opacity-90">Type + facture</small>
                   </div>
-                  <div>
-                    <h6 class="card-title mb-1 small">Pompe chaleur</h6>
-                    <small class="text-muted">Type + facture</small>
+                </div>
+              </div>
+
+              <div class="card-body">
+                <!-- Badge informatif -->
+                <div class="mb-3">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <span class="badge bg-danger bg-opacity-20 text-danger rounded-pill px-3">
+                      <i class="bi bi-thermometer me-1"></i>PAC
+                    </span>
+                    <small class="text-muted">
+                      <i class="bi bi-lightning-charge text-danger me-1"></i>Énergie verte
+                    </small>
                   </div>
                 </div>
 

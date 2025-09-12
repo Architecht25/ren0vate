@@ -1,4 +1,33 @@
 <!-- Section Investissements Entreprise Bruxelles - 4 catégories basées sur les données réelles -->
+
+<!-- Styles pour les cartes avec images de fond -->
+<style>
+  .card-premium {
+    transition: all 0.3s ease;
+    overflow: hidden;
+  }
+
+  .card-premium:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+  }
+
+  .image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%);
+    z-index: 1;
+  }
+
+  .card-premium .card-body {
+    position: relative;
+    z-index: 2;
+  }
+</style>
+
 <div class="investissements-section-bruxelles-entreprise"
      data-controller="bruxelles-entreprise-calcul tooltip">
 
@@ -201,19 +230,19 @@
 
         <!-- CATÉGORIE 1: TRANSITION ÉCONOMIQUE -->
         <div class="col-lg-3 col-md-12">
-          <div class="card border-0 shadow h-100"
+          <div class="card border-0 shadow h-100 card-premium position-relative"
                data-aide-card="transition_energetique">
-            <div class="card-body">
-              <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                  <i class="bi bi-arrow-repeat fs-5 text-success"></i>
-                </div>
-                <div>
-                  <h6 class="card-title mb-1">Transition Économique</h6>
-                  <small class="text-muted">Consultance, investissements verts, mobilité</small>
+            <!-- Image de fond avec overlay -->
+            <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/Les-enjeux-economiques-de-la-transition-vers-la-neutralite-carbone-min_pnxl9b'); background-size: cover; background-position: center;">
+              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
+                <div class="text-center text-white">
+                  <i class="bi bi-arrow-repeat fs-3 mb-2 drop-shadow"></i>
+                  <h6 class="fw-bold mb-0 drop-shadow">Transition Économique</h6>
+                  <small class="opacity-90">Consultance, investissements verts, mobilité</small>
                 </div>
               </div>
-
+            </div>
+            <div class="card-body">
               <div class="row g-2">
                 <!-- Consultance transition -->
                 <div class="col-12">
@@ -356,21 +385,21 @@
 
         <!-- CATÉGORIE 2: INVESTISSEMENTS MATÉRIELS -->
         <div class="col-lg-3 col-md-12">
-          <div class="card border-0 shadow h-100"
+          <div class="card border-0 shadow h-100 card-premium position-relative"
                data-controller="bruxelles-entreprise-card"
                data-bruxelles-entreprise-card-slug-value="investissements"
                data-type-entreprise='["tpe", "pme", "moyenne"]'>
-            <div class="card-body">
-              <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                  <i class="bi bi-gear-wide-connected fs-5 text-primary"></i>
-                </div>
-                <div>
-                  <h6 class="card-title mb-1">Investissements Matériels</h6>
-                  <small class="text-muted">Matériel, travaux, conformité, sécurisation</small>
+            <!-- Image de fond avec overlay -->
+            <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/financement-dequipement-comment-reduire-les-couts-dinvestissement-1024x683_l1zath'); background-size: cover; background-position: center;">
+              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
+                <div class="text-center text-white">
+                  <i class="bi bi-gear-wide-connected fs-3 mb-2 drop-shadow"></i>
+                  <h6 class="fw-bold mb-0 drop-shadow">Investissements Matériels</h6>
+                  <small class="opacity-90">Matériel, travaux, conformité, sécurisation</small>
                 </div>
               </div>
-
+            </div>
+            <div class="card-body">
               <div class="row g-2">
                 <!-- Matériel et travaux -->
                 <div class="col-12">
@@ -518,21 +547,22 @@
 
         <!-- CATÉGORIE 3: RECRUTEMENT ET FORMATION -->
         <div class="col-lg-3 col-md-12">
-          <div class="card border-0 shadow h-100"
+          <div class="card border-0 shadow h-100 card-premium position-relative"
                data-controller="bruxelles-entreprise-card"
                data-bruxelles-entreprise-card-slug-value="recrutement_formation"
                data-type-entreprise='["tpe", "pme", "moyenne"]'>
-            <div class="card-body">
-              <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                  <i class="bi bi-people fs-5 text-warning"></i>
-                </div>
-                <div>
-                  <h6 class="card-title mb-1">Recrutement & Formation</h6>
-                  <small class="text-muted">Aides à l'embauche, formation personnel</small>
+            <!-- Image de fond avec overlay -->
+                        <!-- Image de fond avec overlay -->
+            <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/on_recrute_cmceil'); background-size: cover; background-position: center;">
+              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
+                <div class="text-center text-white">
+                  <i class="bi bi-people fs-3 mb-2 drop-shadow"></i>
+                  <h6 class="fw-bold mb-0 drop-shadow">Recrutement & Formation</h6>
+                  <small class="opacity-90">Aides à l'embauche, formation personnel</small>
                 </div>
               </div>
-
+            </div>
+            <div class="card-body">
               <div class="row g-2">
                 <!-- Recrutement -->
                 <div class="col-12">
@@ -602,21 +632,21 @@
 
         <!-- CATÉGORIE 4: EXPERTISES ET SERVICES EXTERNES -->
         <div class="col-lg-3 col-md-12">
-          <div class="card border-0 shadow h-100"
+          <div class="card border-0 shadow h-100 card-premium position-relative"
                data-controller="bruxelles-entreprise-card"
                data-bruxelles-entreprise-card-slug-value="expertises_services_externes"
                data-type-entreprise='["tpe", "pme", "moyenne"]'>
-            <div class="card-body">
-              <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                  <i class="bi bi-briefcase fs-5 text-info"></i>
-                </div>
-                <div>
-                  <h6 class="card-title mb-1">Expertises & Services</h6>
-                  <small class="text-muted">Consultance, études, audits externes</small>
+            <!-- Image de fond avec overlay -->
+            <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/consultant_uup0sz'); background-size: cover; background-position: center;">
+              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
+                <div class="text-center text-white">
+                  <i class="bi bi-briefcase fs-3 mb-2 drop-shadow"></i>
+                  <h6 class="fw-bold mb-0 drop-shadow">Expertises & Services</h6>
+                  <small class="opacity-90">Consultance, études, audits externes</small>
                 </div>
               </div>
-
+            </div>
+            <div class="card-body">
               <div class="row g-2">
                 <!-- Consultance générale -->
                 <div class="col-12">
