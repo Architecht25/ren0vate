@@ -17,26 +17,26 @@ puts "   Autre: #{other_doc ? "ID #{other_doc.id} - #{other_doc.file.filename}" 
 
 def test_document_urls(doc, type_name)
   return unless doc&.file&.attached?
-  
+
   puts "\n🔗 Test #{type_name} (ID: #{doc.id}):"
   puts "   Content-Type: #{doc.file.content_type}"
   puts "   Service: #{doc.file.service_name}"
-  
+
   begin
     # URL de base
     base_url = doc.file.url
     puts "   ✅ URL de base: #{base_url[0..80]}..."
-    
+
     # Test des routes Rails
     puts "   Routes Rails:"
     puts "     - View: /fr/documents/#{doc.id}/view"
-    puts "     - Download: /fr/documents/#{doc.id}/download"  
+    puts "     - Download: /fr/documents/#{doc.id}/download"
     puts "     - Preview: /fr/documents/#{doc.id}/preview"
-    
+
     # Test spécifique pour PDF
     if doc.file.content_type == 'application/pdf'
       puts "   🔍 Tests spécifiques PDF:"
-      
+
       # Test URL avec disposition inline vs attachment
       begin
         inline_url = doc.file.url(disposition: :inline)
@@ -44,14 +44,14 @@ def test_document_urls(doc, type_name)
       rescue => e
         puts "     ❌ Erreur URL inline: #{e.message}"
       end
-      
+
       begin
         attachment_url = doc.file.url(disposition: :attachment)
         puts "     ✅ URL attachment: #{attachment_url[0..60]}..."
       rescue => e
         puts "     ❌ Erreur URL attachment: #{e.message}"
       end
-      
+
       # Test Cloudinary spécifique pour PDF
       if base_url.include?('cloudinary.com')
         puts "     📊 Analyse URL Cloudinary:"
@@ -60,7 +60,7 @@ def test_document_urls(doc, type_name)
         puts "       - Resource type détecté: #{base_url.match(/\/(image|video|raw|auto)\/upload/) ? $1 : 'non détecté'}"
       end
     end
-    
+
   rescue => e
     puts "   ❌ Erreur: #{e.message}"
   end
@@ -80,14 +80,14 @@ puts "   Controller chargé: #{controller.class}"
 # Simulation de paramètres
 if pdf_doc
   puts "\n   Test simulation controller pour PDF #{pdf_doc.id}:"
-  
+
   # Créer un contexte de requête fictif
   class FakeRequest
     def format
       Mime::Type.lookup('application/json')
     end
   end
-  
+
   class FakeResponse
     attr_accessor :body, :status
     def initialize
@@ -95,20 +95,20 @@ if pdf_doc
       @status = 200
     end
   end
-  
+
   controller.instance_variable_set(:@document, pdf_doc)
   controller.request = FakeRequest.new
   controller.response = FakeResponse.new
-  
+
   begin
     # Test de la logique de preview
     puts "     Test logique preview..."
-    
+
     # Vérification des conditions
     puts "       - Document trouvé: #{controller.instance_variable_get(:@document) ? 'Oui' : 'Non'}"
     puts "       - Fichier attaché: #{pdf_doc.file.attached? ? 'Oui' : 'Non'}"
     puts "       - Content type: #{pdf_doc.file.content_type}"
-    
+
   rescue => e
     puts "     ❌ Erreur simulation: #{e.message}"
   end

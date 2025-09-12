@@ -16,26 +16,26 @@ pdf_documents.each do |doc|
   puts "\n📄 Document ID: #{doc.id}"
   puts "   Nom: #{doc.file.filename}"
   puts "   Clé Cloudinary: #{doc.file.key}"
-  
+
   begin
     # URL actuelle (probablement avec resource_type: image)
     current_url = doc.file.url
     puts "   ❌ URL actuelle (image): #{current_url[0..80]}..."
-    
+
     # URL corrigée avec resource_type: raw
     corrected_url = CloudinaryPdfService.generate_pdf_url(doc.file.key)
     if corrected_url
       puts "   ✅ URL corrigée (raw): #{corrected_url[0..80]}..."
-      
+
       # Test si l'URL corrigée est accessible
       require 'net/http'
       require 'uri'
-      
+
       begin
         uri = URI(corrected_url)
         response = Net::HTTP.get_response(uri)
         puts "   🌐 Test d'accès URL corrigée: #{response.code} #{response.message}"
-        
+
         if response.code == '200'
           puts "   ✅ PDF accessible avec resource_type: raw !"
         else
@@ -44,15 +44,15 @@ pdf_documents.each do |doc|
       rescue => e
         puts "   ⚠️  Erreur test URL: #{e.message}"
       end
-      
+
     else
       puts "   ❌ Impossible de générer l'URL corrigée"
     end
-    
+
   rescue => e
     puts "   ❌ Erreur: #{e.message}"
   end
-  
+
   puts "   " + "-" * 50
 end
 

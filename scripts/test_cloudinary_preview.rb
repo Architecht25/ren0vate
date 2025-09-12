@@ -20,13 +20,13 @@ if document&.file&.attached?
   puts "   Type: #{document.file.content_type}"
   puts "   Service: #{document.file.service_name}"
   puts "   Taille: #{document.file.byte_size} bytes"
-  
+
   # Test 3: URL de prévisualisation
   puts "\n3. Test des URLs :"
   begin
     url = document.file.url
     puts "   ✅ URL Active Storage: #{url[0..80]}..."
-    
+
     # Test si c'est une URL Cloudinary
     if url.include?('cloudinary.com')
       puts "   ✅ Utilise bien Cloudinary !"
@@ -36,7 +36,7 @@ if document&.file&.attached?
   rescue => e
     puts "   ❌ Erreur URL: #{e.message}"
   end
-  
+
   # Test 4: URL spécifique pour PDF preview
   if document.file.content_type == 'application/pdf'
     puts "\n4. Test PDF preview :"
@@ -46,15 +46,15 @@ if document&.file&.attached?
         cloudinary_url = document.cloudinary_pdf_url
         puts "   URL PDF Cloudinary: #{cloudinary_url[0..80]}..." if cloudinary_url
       end
-      
+
       # Test via le controller
       puts "   Route preview: /fr/documents/#{document.id}/preview"
-      
+
     rescue => e
       puts "   ❌ Erreur PDF: #{e.message}"
     end
   end
-  
+
 else
   puts "\n❌ Aucun document avec fichier attaché trouvé"
   puts "   Vous pouvez en uploader un via l'interface web pour tester"

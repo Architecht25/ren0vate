@@ -184,9 +184,23 @@ class DocumentsController < ApplicationController
       return
     end
 
+    Rails.logger.info "⬇️ Download demandé pour document #{@document.id} (#{@document.file.content_type})"
+
     if @document.file.attached?
-      # Download sécurisé avec Active Storage
-      redirect_to rails_blob_path(@document.file, disposition: "attachment")
+      # Utiliser l'URL Cloudinary si disponible, sinon fallback Active Storage
+      if @document.file.service_name.to_s == 'cloudinary'
+        cloudinary_url = @document.cloudinary_url
+        if cloudinary_url
+          Rails.logger.info "☁️ Redirection vers Cloudinary: #{cloudinary_url}"
+          redirect_to cloudinary_url, allow_other_host: true
+        else
+          Rails.logger.warn "⚠️ Cloudinary URL indisponible, fallback Active Storage"
+          redirect_to rails_blob_path(@document.file, disposition: "attachment"), allow_other_host: true
+        end
+      else
+        # Service local ou autre
+        redirect_to rails_blob_path(@document.file, disposition: "attachment"), allow_other_host: true
+      end
     elsif @document.file_url.present?
       # Fallback pour les URLs externes
       redirect_to @document.file_url
@@ -204,28 +218,39 @@ class DocumentsController < ApplicationController
 
     if @document.file.attached?
       begin
+        Rails.logger.info "🔍 Preview demandée pour document #{@document.id} (#{@document.file.content_type})"
+
         if @document.is_image?
+          url = @document.cloudinary_url || rails_blob_url(@document.file)
+          Rails.logger.info "🖼️ URL image générée: #{url}"
           render json: {
             type: 'image',
-            url: rails_blob_url(@document.file),
+            url: url,
             filename: @document.file_name
           }
         elsif @document.is_pdf?
-          # Pour les PDFs, utilisons toujours l'URL Active Storage standard
+          # Utiliser directement l'URL Cloudinary corrigée
+          pdf_url = @document.cloudinary_url
+          preview_url = @document.cloudinary_preview_url
+
+          Rails.logger.info "📄 URLs PDF - Principal: #{pdf_url}"
+          Rails.logger.info "📄 URLs PDF - Preview: #{preview_url}"
+
           render json: {
             type: 'pdf',
-            url: rails_blob_url(@document.file, disposition: "inline"),
+            url: pdf_url || rails_blob_url(@document.file),
+            preview_url: preview_url,
             filename: @document.file_name
           }
         else
           render json: {
             type: 'unsupported',
             message: 'Prévisualisation non disponible pour ce type de fichier',
-            download_url: rails_blob_url(@document.file, disposition: "attachment")
+            download_url: download_document_url(@document)
           }
         end
       rescue => e
-        Rails.logger.error "Preview error for document #{@document.id}: #{e.message}"
+        Rails.logger.error "❌ Erreur preview document #{@document.id}: #{e.message}"
         render json: {
           error: "Erreur lors de la génération de la prévisualisation",
           debug_info: {
@@ -282,22 +307,8 @@ class DocumentsController < ApplicationController
     end
 
     if @document.file.attached?
-      begin
-        # Avec Active Storage, utiliser rails_blob_path avec disposition inline
-        if @document.is_pdf? || @document.is_image?
-          redirect_to rails_blob_path(@document.file, disposition: "inline")
-        else
-          # Pour les autres types, forcer le téléchargement
-          redirect_to rails_blob_path(@document.file, disposition: "attachment")
-        end
-      rescue ActiveStorage::FileNotFoundError => e
-        Rails.logger.error "File not found for document #{@document.id}: #{e.message}"
-        redirect_back(fallback_location: root_path, alert: "Fichier non trouvé sur le serveur de stockage")
-      rescue => e
-        Rails.logger.error "Error accessing file for document #{@document.id}: #{e.message}"
-        Rails.logger.error "Service: #{@document.file.service_name}, Key: #{@document.file.key}"
-        redirect_back(fallback_location: root_path, alert: "Erreur lors du chargement du fichier")
-      end
+      # Redirection Active Storage standard pour TOUS les types de fichiers
+      redirect_to rails_blob_path(@document.file, disposition: "inline"), allow_other_host: true
     elsif @document.file_url.present?
       # Fallback vers URL externe
       redirect_to @document.file_url, allow_other_host: true

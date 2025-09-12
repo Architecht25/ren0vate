@@ -14,15 +14,17 @@ class CloudinaryPdfService
 
     def generate_pdf_url(public_id, options = {})
       default_options = {
-        resource_type: :raw,
+        resource_type: :raw,  # CORRECT: Utiliser :raw pour les PDFs comme à l'upload !
         secure: Rails.env.production?,
-        sign_url: true  # Important pour l'authentification
+        sign_url: false  # URLs publiques pour les PDFs
       }
 
       begin
-        Cloudinary::Utils.cloudinary_url(public_id, default_options.merge(options))
+        url = Cloudinary::Utils.cloudinary_url(public_id, default_options.merge(options))
+        Rails.logger.info "🔗 URL PDF générée avec resource_type: raw - #{url}"
+        url
       rescue => e
-        Rails.logger.error "Error generating PDF URL for #{public_id}: #{e.message}"
+        Rails.logger.error "❌ Erreur génération URL PDF pour #{public_id}: #{e.message}"
         nil
       end
     end

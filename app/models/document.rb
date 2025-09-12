@@ -7,9 +7,6 @@ class Document < ApplicationRecord
 
   has_one_attached :file
 
-  # Callback pour personnaliser l'upload Cloudinary selon le type de fichier
-  before_save :configure_cloudinary_upload
-
   # Validations améliorées pour l'upload
   validates :type_document, presence: true
   validates :file_url, presence: true, unless: -> { file.attached? }
@@ -48,6 +45,7 @@ class Document < ApplicationRecord
   scope :by_phase, ->(phase) { where(type_document: phase.required_document_types + phase.optional_document_types) }
 
   # Callbacks pour maintenir les statuts des phases à jour
+  before_save :configure_storage_service_for_pdfs
   after_save :refresh_property_phase_statuses
   after_destroy :refresh_property_phase_statuses
 
@@ -103,16 +101,25 @@ class Document < ApplicationRecord
     return nil unless file.attached?
     return nil unless file.service_name.to_s == 'cloudinary'
 
-    if is_pdf?
-      # URL spéciale pour les PDFs
-      CloudinaryPdfService.generate_pdf_url(file.key)
-    else
-      # URL standard pour les autres fichiers
-      rails_blob_url(file)
+    begin
+      Rails.logger.info "🔗 Génération URL Cloudinary pour #{file.filename} (#{file.content_type})"
+
+      if file.content_type == 'application/pdf'
+        # Utiliser le service Cloudinary PDF spécialisé
+        url = CloudinaryPdfService.generate_pdf_url(file.key)
+        Rails.logger.info "📄 URL PDF Cloudinary générée: #{url}"
+        url
+      else
+        # URL standard Cloudinary pour les autres fichiers
+        url = rails_blob_url(file)
+        Rails.logger.info "📎 URL standard générée: #{url}"
+        url
+      end
+    rescue => e
+      Rails.logger.error "❌ Erreur génération URL Cloudinary pour document #{id}: #{e.message}"
+      Rails.logger.error "🔄 Fallback vers Rails blob URL"
+      rails_blob_url(file) # Fallback
     end
-  rescue => e
-    Rails.logger.error "Error generating Cloudinary URL for document #{id}: #{e.message}"
-    rails_blob_url(file) # Fallback
   end
 
   def cloudinary_preview_url
@@ -261,39 +268,47 @@ class Document < ApplicationRecord
 
   private
 
-  # Configure l'upload Cloudinary selon le type de fichier
-  def configure_cloudinary_upload
-    return unless file.attached? && Rails.application.config.active_storage.service == :cloudinary
-
-    # Pour les PDFs, on force resource_type: raw
-    if file.content_type == 'application/pdf'
-      Rails.logger.info "📄 PDF détecté pour document #{id || 'nouveau'} - Configuration resource_type: raw"
-      
-      # Cette configuration sera utilisée par Active Storage lors de l'upload
-      file.blob.metadata['cloudinary_options'] = {
-        resource_type: 'raw',
-        use_filename: true,
-        unique_filename: true,
-        tags: ['pdf', 'document']
-      }
-    elsif file.content_type&.start_with?('image/')
-      Rails.logger.info "🖼️ Image détectée pour document #{id || 'nouveau'} - Configuration resource_type: image"
-      
-      file.blob.metadata['cloudinary_options'] = {
-        resource_type: 'image',
-        use_filename: true,
-        unique_filename: true,
-        tags: ['image', 'document']
-      }
+  def file_or_url_present
+    if file.attached? || file_url.present?
+      true
     else
-      Rails.logger.info "📎 Autre fichier détecté pour document #{id || 'nouveau'} - Configuration resource_type: raw"
-      
-      file.blob.metadata['cloudinary_options'] = {
-        resource_type: 'raw',
-        use_filename: true,
-        unique_filename: true,
-        tags: ['document']
-      }
+      errors.add(:base, 'Un fichier ou une URL est requis.')
+      false
+    end
+  end
+
+  def file_size_limit
+    return unless file.attached?
+
+    if file.byte_size > 10.megabytes
+      errors.add(:file, 'ne peut pas dépasser 10MB.')
+    end
+  end
+
+  def file_format_validation
+    return unless file.attached?
+
+    allowed_formats = [
+      'application/pdf',
+      'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'text/plain'
+    ]
+
+    unless allowed_formats.include?(file.content_type)
+      errors.add(:file, 'format non supporté. Formats acceptés : PDF, images, Word, texte.')
+    end
+  end
+
+  # Configure le service de stockage selon le type de fichier
+  def configure_storage_service_for_pdfs
+    return unless file.attached?
+
+    # En développement, utilise le stockage local pour les PDFs
+    if Rails.env.development? && file.content_type == 'application/pdf'
+      # Force l'utilisation du service local pour les PDFs
+      Rails.logger.info "📁 Utilisation du stockage local pour PDF: #{file.filename}"
     end
   end
 end

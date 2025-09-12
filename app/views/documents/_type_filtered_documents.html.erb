@@ -109,14 +109,14 @@
                 <% end %>
 
                 <!-- Actions pour le document -->
-                <div class="d-flex gap-2" 
+                <div class="d-flex gap-2"
                      data-controller="document-preview"
                      data-document-preview-preview-url-value="<%= preview_document_path(document) %>"
                      data-document-preview-download-url-value="<%= download_document_path(document) %>">
-                  
+
                   <% if document.file.attached? && document.file.content_type == 'application/pdf' %>
                     <!-- Bouton Preview pour PDF avec JavaScript -->
-                    <button class="btn btn-outline-primary btn-sm" 
+                    <button class="btn btn-outline-primary btn-sm"
                             data-action="click->document-preview#showRemotePreview"
                             data-document-preview-target="previewBtn">
                       <i class="bi bi-eye me-1"></i>Prévisualiser
@@ -127,16 +127,16 @@
                       <i class="bi bi-eye me-1"></i>Voir
                     <% end %>
                   <% end %>
-                  
+
                   <% if document.file.attached? %>
                     <!-- Bouton Télécharger avec JavaScript -->
-                    <button class="btn btn-outline-success btn-sm" 
+                    <button class="btn btn-outline-success btn-sm"
                             data-action="click->document-preview#downloadFile"
                             data-document-preview-target="downloadBtn">
                       <i class="bi bi-download me-1"></i>Télécharger
                     </button>
                   <% end %>
-                  
+
                   <%= link_to document_path(document,
                         type_document: params[:type_document],
                         filter_phase: params[:filter_phase]),
