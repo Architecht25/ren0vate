@@ -29,9 +29,6 @@ Rails.application.routes.draw do
     # Dashboard routes
     get '/dashboard', to: 'dashboard#index', as: :dashboard
 
-    # Test I18n route
-    get '/i18n-test', to: 'i18n_test#index', as: :i18n_test
-
   # Regulations - Base de connaissance réglementaire
   resources :regulations, only: [:index] do
     collection do
@@ -176,9 +173,6 @@ Rails.application.routes.draw do
       get :guide  # Guide d'utilisation
     end
   end
-
-  # Route temporaire de test pour le Decision Hub
-  get '/test-decision-hub', to: 'decision_hub_test#index', as: :decision_hub_test
 
   resources :users
 
