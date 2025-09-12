@@ -1,11 +1,11 @@
 puts "🏴󠁢󠁥󠁷󠁡󠁬󠁿 Création des primes Wallonie..."
 
-# Mode sécurisé : ne supprime que si pas en production ou si explicitement demandé
-if Rails.env.development? || ENV['FORCE_PRIME_RESET'] == 'true'
+# Mode sécurisé : ne supprime que si explicitement demandé
+if ENV['FORCE_PRIME_RESET'] == 'true'
   puts "🗑️  Nettoyage des primes Wallonie existantes (#{Rails.env})..."
   Prime.where(region: "wallonie").delete_all
 else
-  puts "🔒 Mode production : conservation des primes existantes"
+  puts "🔒 Mode sécurisé : conservation des primes existantes (utilisez FORCE_PRIME_RESET=true pour réinitialiser)"
 end
 
 # === AUDIT ===
@@ -140,15 +140,15 @@ Prime.find_or_initialize_by(slug: "wallonie_toiture_isolation_thermique").update
   type_de_valeur: "dynamique",
   eligible_categories: ["wallonie_r1", "wallonie_r2", "wallonie_r3", "wallonie_r4", "wallonie_r5"],
   valeurs_par_categorie: JSON.parse('{
-    "wallonie_r1": {"type": "montant_m2", "montant_m2": 120, "condition": "R ≥ 4,5 m²K/W"},
-    "wallonie_r2": {"type": "montant_m2", "montant_m2": 80, "condition": "R ≥ 4,5 m²K/W"},
-    "wallonie_r3": {"type": "montant_m2", "montant_m2": 60, "condition": "R ≥ 4,5 m²K/W"},
-    "wallonie_r4": {"type": "montant_m2", "montant_m2": 40, "condition": "R ≥ 4,5 m²K/W"},
-    "wallonie_r5": {"type": "montant_m2", "montant_m2": 20, "condition": "R ≥ 4,5 m²K/W"}
+    "wallonie_r1": {"type": "montant_m2", "montant_m2": 120, "condition": "R ≥ 5,00 m²K/W"},
+    "wallonie_r2": {"type": "montant_m2", "montant_m2": 80, "condition": "R ≥ 5,00 m²K/W"},
+    "wallonie_r3": {"type": "montant_m2", "montant_m2": 60, "condition": "R ≥ 5,00 m²K/W"},
+    "wallonie_r4": {"type": "montant_m2", "montant_m2": 40, "condition": "R ≥ 5,00 m²K/W"},
+    "wallonie_r5": {"type": "montant_m2", "montant_m2": 20, "condition": "R ≥ 5,00 m²K/W"}
   }'),
-  condition: "Résistance thermique R ≥ 4,5 m²K/W. Matériaux certifiés.",
-  conseil: "Vérifier continuité isolation et étanchéité air.",
-  document: "Factures + certificats matériaux + attestation entrepreneur",
+  condition: "• Travaux réalisés par entrepreneur BCE enregistré\n• Isolation thermique du toit/combles en contact avec extérieur, espace non chauffé à l'abri du gel ou non à l'abri du gel, ou sol\n• Coefficient de résistance thermique R ≥ 5,00 m²K/W\n• Isolant placé en plusieurs couches : somme des résistances ≥ 5,00 m²K/W\n• Seuls matériaux de la demande comptabilisés (couche existante exclue)\n• Valeurs lambda (λ) certifiées par ATG, ETA, marquage CE ou base EPBD (www.epbd.be)\n• À défaut : valeurs Annexe B1 Arrêté 15/05/2014 ou norme NBN B 62-002\n• Paroi isolée existante au jour de visite auditeur",
+  conseil: "Si audit mentionne 'travaux liés' sur même paroi, demande unique obligatoire. Travaux salubrité liés possibles : remplacement couverture, appropriation charpente, remplacement dispositifs collecte/évacuation eaux pluviales (hors stockage). Vérifier continuité isolation et étanchéité air.",
+  document: "• Copie ensemble des factures (montants détaillés des éléments, liste travaux éligibles sur https://energie.wallonie.be)\n• Annexe technique 1 administration complétée, datée et signée par entrepreneur\n• Photos explicites avant, pendant et après travaux\n• Certificats matériaux isolants (ATG, ETA, marquage CE ou EPBD)\n• Attestation entrepreneur BCE",
   specifique: "Wallonie - Primes Habitation",
   placeholder: JSON.parse('{
     "wallonie_r1": "surface en m²",
