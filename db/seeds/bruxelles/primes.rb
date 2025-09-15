@@ -30,6 +30,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_audit_energetique_maison").update!(
   condition: "Audit énergétique pour maison individuelle selon normes Renolution",
   conseil: "Étape préalable recommandée avant travaux de rénovation énergétique",
   document: "Rapport d\'audit + facture auditeur agréé",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Forfaitaire - 1 ou 0",
@@ -57,6 +58,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_audit_energetique_batiment").update
   condition: "Audit énergétique pour bâtiment complet selon normes Renolution",
   conseil: "Nécessaire pour les bâtiments collectifs et copropriétés",
   document: "Rapport d\'audit + facture auditeur agréé",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Forfaitaire - 1 ou 0",
@@ -84,6 +86,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_etude_acoustique").update!(
   condition: "Étude acoustique obligatoire en complément des travaux d'isolation F6-H2",
   conseil: "2% du montant de la prime d'isolation (F6-H2) si travaux d'isolation acoustique réalisés",
   document: "Rapport d'étude acoustique + facture du bureau d'études agréé",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Montant des travaux d isolation acoustique",
@@ -111,6 +114,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_etude_totem").update!(
   condition: "L\'étude doit être menée via la plateforme TOTEM (Tool to Optimise the Total Environmental impact of Materials)",
   conseil: "L\'étude permet d'objectiver l'impact environnemental des matériaux avant chantier",
   document: "Rapport d\'étude TOTEM + facture du prestataire",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Forfait - 1 si réalisée, 0 sinon",
@@ -152,6 +156,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_suivi_architecte").update!(
   condition: "Suivi technique des travaux par un architecte agréé",
   conseil: "L\'architecte assure le suivi général de votre projet de rénovation",
   document: "Contrat d\'architecture + facture des honoraires de suivi",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Montant des honoraires architecte (€)",
@@ -191,6 +196,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_suivi_ingenieur_stabilite").update!
   condition: "Suivi des travaux de stabilité par un ingénieur agréé",
   conseil: "Indispensable pour les travaux touchant à la structure du bâtiment",
   document: "Contrat d\'ingénierie + facture des honoraires de suivi structurel",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Montant des honoraires ingénieur (€)",
@@ -230,6 +236,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_suivi_expert_facade").update!(
   condition: "Suivi des travaux de façade par un expert spécialisé",
   conseil: "Recommandé pour les travaux complexes d\'isolation et d\'embellissement de façades",
   document: "Contrat d\'expertise + facture des honoraires de suivi façade",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Montant des honoraires expert (€)",
@@ -259,6 +266,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_certificat_peb").update!(
   condition: "Certificat PEB établi par un certificateur agréé (résidentiel) – uniquement pour les ménages de catégorie III",
   conseil: "Regroupez vos demandes pour atteindre le seuil minimal de 250 € de primes afin de pouvoir introduire cette prime",
   document: "Certificat PEB + facture du certificateur agréé",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat3": "Forfait par logement (150 €)"
@@ -288,6 +296,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_protection_echafaudages").update!(
   condition: "Installation de protection et échafaudages pour travaux résidentiels",
   conseil: "Indispensable pour la sécurité lors de travaux en hauteur",
   document: "Facture détaillée + métré des surfaces",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface en m²",
@@ -331,6 +340,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_structure_portante").update!(
   condition: "Travaux touchant aux murs porteurs, planchers portants, structures métalliques ou en béton, nécessaires pour stabiliser ou modifier le bâtiment",
   conseil: "Faites réaliser une étude préalable par un professionnel pour vérifier l'impact structurel",
   document: "Devis + facture + preuve de l'intervention structurelle (ex : plans, photos, rapports)",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Pourcentage du montant total - ex : 30%",
@@ -385,6 +395,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_gestion_egouts").update!(
   condition: "Prime octroyée pour la réfection, la séparation ou le raccordement conforme à l'égouttage public",
   conseil: "Vérifiez auprès de Vivaqua si un séparateur ou une mise aux normes est exigée",
   document: "Factures détaillées + plan de l'égouttage + photos avant/après",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Indiquer le nombre de mètres, chambres, avaloirs, etc.",
@@ -412,6 +423,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_recuperation_eau_pluie").update!(
   condition: "Installation complète de récupération d\'eau de pluie",
   conseil: "Permet de réduire la consommation d\'eau potable et gérer les eaux pluviales",
   document: "Facture installation + plan technique",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Forfaitaire - par logement",
@@ -439,6 +451,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_demolition_permeabilisation").updat
   condition: "Démolition d\'éléments pour améliorer la perméabilisation du sol",
   conseil: "Améliore la gestion des eaux de pluie et réduit le ruissellement",
   document: "Facture détaillée + plan des surfaces démolies + preuve perméabilisation",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface en m²",
@@ -482,6 +495,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_traitement_humidite_sol").update!(
   condition: "Travaux de traitement de l'humidité d'origine souterraine, justifiés par un diagnostic ou des signes visibles",
   conseil: "Un diagnostic préalable par un professionnel est vivement recommandé avant d'engager les travaux",
   document: "Rapport ou photos + facture détaillée des travaux",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Pourcentage du montant total - ex : 80%",
@@ -521,6 +535,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_traitement_fongique_insectes").upda
   condition: "Traitement chimique ou thermique appliqué aux zones contaminées ou menacées, à l'intérieur du bâtiment",
   conseil: "Un diagnostic professionnel est conseillé pour confirmer la présence de pathologies biologiques",
   document: "Rapport ou photos + facture descriptive précisant les zones et techniques utilisées",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Pourcentage du montant total - ex : 80%",
@@ -564,6 +579,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_structure_toiture").update!(
   condition: "Intervention sur les éléments porteurs de la toiture, comme les chevrons, poutres ou fermes, en lien avec une rénovation ou consolidation",
   conseil: "Vérifiez si une intervention sur la structure est requise avant d'isoler ou réétanchéifier la toiture",
   document: "Facture détaillée + photos ou plans de la structure rénovée",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Pourcentage du montant total - ex : 50%",
@@ -591,6 +607,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_toiture_etancheite").upda
   condition: "Isolation thermique et étanchéité de toiture selon normes",
   conseil: "Combine isolation et étanchéité pour une performance optimale",
   document: "Facture détaillée + certificat de performance + plan d\'exécution",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface en m²",
@@ -618,6 +635,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_thermique_toiture").updat
   condition: "Isolation thermique de toiture selon normes de performance",
   conseil: "Améliore significativement l\'efficacité énergétique du bâtiment",
   document: "Facture + certificat de résistance thermique + attestation pose",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface en m²",
@@ -657,6 +675,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_accessoires_toiture").update!(
   condition: "Éléments complémentaires à la toiture permettant l'éclairage naturel, la ventilation ou l'accès, mais hors couverture ou isolation",
   conseil: "Peut être combiné avec les primes toiture, mais doit figurer comme ligne distincte dans la facture",
   document: "Facture détaillée précisant la nature et la localisation des accessoires",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Pourcentage du montant total - ex : 50%",
@@ -684,6 +703,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_toiture_vegetale").update!(
   condition: "Installation de toiture végétale extensive ou intensive",
   conseil: "Améliore l\'isolation, la gestion des eaux pluviales et la biodiversité",
   document: "Facture + plan d\'exécution + garantie étanchéité + plan plantation",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface en m²",
@@ -715,6 +735,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_interieure_facade").updat
   condition: "Isolation intérieure des murs de façade selon normes de performance",
   conseil: "Solution pratique quand l\'isolation extérieure n'est pas possible",
   document: "Facture + certificat de résistance thermique + plan de pose",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface en m²",
@@ -742,6 +763,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_exterieure_facade").updat
   condition: "Isolation extérieure des murs de façade avec finition",
   conseil: "Solution optimale pour performance thermique et suppression ponts thermiques",
   document: "Facture + certificat + plan architectural + autorisation urbanisme si requis",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface en m²",
@@ -769,6 +791,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_coulisse").update!(
   condition: "Isolation par injection ou insufflation dans coulisse existante",
   conseil: "Solution économique pour murs creux sans démolition",
   document: "Facture + rapport d\'inspection coulisse + certificat matériau",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface en m²",
@@ -808,6 +831,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_bardage_facade").update!(
   condition: "Travaux de recouvrement extérieur des façades à l'aide d\'un bardage neuf, ventilé et durable",
   conseil: "Le bardage peut améliorer l'aspect esthétique et protéger la façade tout en renforçant l\'isolation",
   document: "Facture mentionnant le type de matériau + surface + photos avant/après",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface en m²",
@@ -847,6 +871,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_enduit_facade").update!(
   condition: "Travaux de finition extérieure par enduit minéral ou organique, en une ou plusieurs couches, appliqué manuellement ou mécaniquement",
   conseil: "Un bon enduit protège contre les intempéries et valorise esthétiquement le bâtiment",
   document: "Facture mentionnant surface, type d'enduit, technique d'application + photos avant/après",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface en m²",
@@ -874,6 +899,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_embellissement_facade_avant").updat
   condition: "Embellissement de façade avant visible depuis l\'espace public",
   conseil: "Améliore l\'esthétique urbaine, bonus forfaitaire par logement",
   document: "Facture + photos avant/après + plan façade + autorisation si requis",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface en m² + nb logements",
@@ -901,6 +927,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_facades_arriere_laterales").update!
   condition: "Rénovation des façades arrière et latérales non visibles depuis l\'espace public",
   conseil: "Permet d\'améliorer l\'esthétique et l'étanchéité de toutes les façades",
   document: "Facture détaillée + photos avant/après + plan des façades",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface en m²",
@@ -940,6 +967,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_acoustique_murs").update!
   condition: "Isolation acoustique des murs intérieurs selon normes Renolution",
   conseil: "Combinez avec l’étude acoustique (A2) pour maximiser votre confort intérieur",
   document: "Facture précisant la surface traitée et la performance acoustique certifiée",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface en m²",
@@ -972,6 +1000,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_remplacement_fenetres_bois").update
   condition: "Remplacement par fenêtres bois haute performance énergétique",
   conseil: "Matériau écologique avec excellentes performances thermiques",
   document: "Facture + certificat de performance + attestation pose + métrés",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface en m²",
@@ -999,6 +1028,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_remplacement_fenetres_pvc_alu").upd
   condition: "Remplacement par fenêtres PVC ou aluminium haute performance",
   conseil: "Solution durable avec bon rapport qualité-prix",
   document: "Facture + certificat de performance + attestation pose + métrés",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface en m²",
@@ -1026,6 +1056,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_reparation_fenetres").update!(
   condition: "Réparation de fenêtres existantes pour améliorer leurs performances",
   conseil: "Alternative économique au remplacement pour fenêtres de qualité",
   document: "Facture détaillée + rapport d\'état avant/après + garantie travaux",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface en m²",
@@ -1053,6 +1084,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_reparation_portes").update!(
   condition: "Réparation de portes existantes pour améliorer isolation et sécurité",
   conseil: "Permet de conserver le patrimoine architectural tout en améliorant les performances",
   document: "Facture détaillée + rapport d\'état avant/après + garantie travaux",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface en m²",
@@ -1084,6 +1116,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_thermique_sols").update!(
   condition: "Isolation thermique des sols et planchers selon normes de performance",
   conseil: "Réduit les pertes de chaleur par le sol et améliore le confort",
   document: "Facture + certificat de résistance thermique + plan de pose",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface en m²",
@@ -1111,6 +1144,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_isolation_acoustique_sols").update!
   condition: "Isolation acoustique des sols et planchers pour réduire les nuisances sonores",
   conseil: "Améliore significativement le confort acoustique entre logements",
   document: "Facture + certificat de performance acoustique + mesures avant/après",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface en m²",
@@ -1142,6 +1176,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_escaliers").update!(
   condition: "Rénovation ou installation d\'escaliers intérieurs ou extérieurs",
   conseil: "Améliore la sécurité et l'accessibilité du logement",
   document: "Facture détaillée + plan d\'exécution + photos avant/après",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Nombre de marches",
@@ -1169,6 +1204,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_emplacement_velo").update!(
   condition: "Aménagement d'emplacement sécurisé pour vélos",
   conseil: "Encourage la mobilité douce et répond aux obligations urbanistiques",
   document: "Facture + plan d'aménagement + photos de réalisation",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Nombre de vélos (max 2/logement)",
@@ -1208,6 +1244,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_protection_incendie").update!(
   condition: "Pose ou mise à niveau d’éléments passifs ou actifs de protection incendie (portes coupe-feu, détecteurs, cloisons, revêtements RF, etc.)",
   conseil: "Renseignez-vous sur les normes SIAMU / Règlement de sécurité incendie en vigueur selon le type de bâtiment",
   document: "Facture + preuve de conformité (attestation ou fiche technique du fabricant)",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Pourcentage du montant total – ex : 80%",
@@ -1235,6 +1272,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_amenagement_pmr").update!(
   condition: "Aménagement pour personne à mobilité réduite selon normes d'accessibilité",
   conseil: "Améliore l'accessibilité et maintien à domicile, montant forfaitaire élevé",
   document: "Facture + plan d'aménagement + certificat de conformité accessibilité",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Forfaitaire - par logement",
@@ -1278,6 +1316,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_pac_chauffage").update!(
   condition: "La pompe à chaleur doit être dimensionnée pour couvrir les besoins en chauffage du logement, avec un COP conforme aux normes PEB",
   conseil: "Vérifie que ton logement est bien isolé avant d'installer une PAC. Combine-la avec des émetteurs basse température",
   document: "Facture avec marque, modèle, COP + attestation de remplacement de système précédent",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Montant forfaitaire par logement",
@@ -1317,6 +1356,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_radiateurs_basse_temperature").upda
   condition: "Les radiateurs doivent être certifiés basse température et compatibles avec un système de chauffage performant",
   conseil: "Combine cette prime avec celle pour pompe à chaleur ou chaudière à condensation",
   document: "Facture précisant le type et le nombre de radiateurs + preuve de compatibilité",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Nombre d\'unités",
@@ -1356,6 +1396,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_thermostat").update!(
   condition: "Thermostats d'ambiance permettant la régulation de température par zone",
   conseil: "Permet un contrôle précis de la température et des économies d'énergie significatives",
   document: "Facture précisant le nombre et type de thermostats + attestation d'installation",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Nombre de thermostats",
@@ -1395,6 +1436,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_vannes_thermostatiques").update!(
   condition: "Vannes thermostatiques permettant la régulation individuelle par radiateur",
   conseil: "Complément idéal aux thermostats d'ambiance pour un contrôle fin par radiateur",
   document: "Facture précisant le nombre de vannes + certificat de performance",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Nombre de vannes",
@@ -1434,6 +1476,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_chauffe_eau_solaire").update!(
   condition: "Installation d\'un système solaire thermique dédié à la production d\'eau chaude sanitaire",
   conseil: "Vérifiez l'orientation et l'inclinaison des capteurs pour optimiser le rendement",
   document: "Facture + attestation du prestataire précisant capacité et certification",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Forfait par logement",
@@ -1473,6 +1516,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_chauffe_eau_pac").update!(
   condition: "Système de production d’eau chaude sanitaire basé sur une pompe à chaleur dédiée",
   conseil: "Vérifie la compatibilité avec le système de chauffage existant et l’isolation du ballon",
   document: "Facture + certificat du fabricant précisant les performances",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Forfait par logement",
@@ -1512,6 +1556,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_raccordement_reseau_chaleur").updat
   condition: "Installation conforme via un fournisseur agrée de réseau de chaleur",
   conseil: "Vérifier la disponibilité et l'admissibilité auprès du gestionnaire de réseau local",
   document: "Facture + attestation de raccordement du gestionnaire du réseau",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Forfait par logement",
@@ -1543,6 +1588,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_appareil_sanitaire").update!(
   condition: "Installation d\'appareils sanitaires performants (WC, lavabo, douche, etc.)",
   conseil: "Améliore le confort et l'hygiène, choisir équipements économes en eau",
   document: "Facture détaillée + fiches techniques + certificat d'installation",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Nombre d\'appareils",
@@ -1574,6 +1620,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_mise_normes_electricite_gaz").updat
   condition: "Mise aux normes des installations électriques et gaz selon réglementation",
   conseil: "Obligatoire pour la sécurité, intervention par professionnel agréé requise",
   document: "Facture + certificat de conformité + rapport de contrôle + PV réception",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Coût total des travaux",
@@ -1605,6 +1652,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_ventilation_systeme_c").update!(
   condition: "Installation de ventilation mécanique système C (extraction mécanique)",
   conseil: "Améliore la qualité de l'air intérieur et évacue l'humidité",
   document: "Facture + plan de ventilation + certificat de performance + test débit",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Forfaitaire - par logement",
@@ -1632,6 +1680,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_ventilation_systeme_d").update!(
   condition: "Installation VMC double flux avec récupération de chaleur",
   conseil: "Solution haut de gamme pour qualité d'air optimale et économies d'énergie",
   document: "Facture + plan ventilation + certificat performance + mesure rendement récupération",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Forfaitaire - par logement",
@@ -1663,6 +1712,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z1").update!(
   condition: "Matériaux naturels : cellulose, liège, fibres végétales (chanvre, bois, lin, paille, coton) ou animales (plumes, laine, duvet)",
   conseil: "Privilégier des matériaux certifiés écologiques avec au moins 85% de composants renouvelables",
   document: "Facture + certificat du fournisseur attestant de la composition du matériau",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface en m²",
@@ -1690,6 +1740,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z2").update!(
   condition: "Matériaux de couverture durables selon le type de toiture (pente ou plate)",
   conseil: "Choisissez des matériaux adaptés au type de toiture pour optimiser la durabilité",
   document: "Facture + fiche technique du matériau + attestation de pose conforme",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface de couverture en m²",
@@ -1717,6 +1768,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z3").update!(
   condition: "Pose d’un bardage extérieur en matériaux labellisés écologiques ou issus du réemploi",
   conseil: "Privilégiez des matériaux durables certifiés (FSC, PEFC, etc.) ou réemployés localement",
   document: "Facture + attestation ou fiche technique prouvant la durabilité ou le label du matériau",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution - Bonus Z3",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Majoration automatique si matériau certifié",
@@ -1744,6 +1796,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z4").update!(
     condition: "Matériaux de châssis durables (bois local, métaux recyclés)",
     conseil: "Privilégiez des châssis avec certification environnementale",
   document: "Facture + certificat d'origine du matériau + fiche technique",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Surface de châssis en m²",
@@ -1771,6 +1824,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z5").update!(
     condition: "Isolation acoustique certifiée pour chaque vitrage ou bâti",
     conseil: "Utilisez des vitrages multi-couches avec intercalaire acoustique",
     document: "Facture détaillant le type et la performance acoustique + certificat",
+  échéances: "12 mois à partir de la date de facture de solde",
     specifique: "Bruxelles - Renolution",
     placeholder: JSON.parse('{
       "bruxelles_cat1": "Surface en m² – max 50",
@@ -1798,6 +1852,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z6").update!(
   condition: "Lavabos, baignoires ou WC remis en état ou repris d'un autre projet",
   conseil: "Vérifiez la conformité sanitaire avant réemploi. Maximum 5 appareils",
   document: "Facture ou bon de cession + certificat de remise en état",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Nombre d appareils réemployés (max 5)",
@@ -1825,6 +1880,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z7").update!(
   condition: "Citerne enterrée ou aérienne avec capacité tampon minimale de 3 000 litres",
   conseil: "Vérifiez l'espace disponible et la stabilité du terrain avant installation",
   document: "Facture + fiche technique citerne précisant capacité",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Forfait pour citerne ≥ 3000L",
@@ -1852,6 +1908,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z9").update!(
   condition: "Enlèvement complet et dépollution du site de stockage de mazout ou charbon",
   conseil: "Engagez un spécialiste agréé pour assurer la conformité environnementale",
   document: "Rapport d'enlèvement + facture du prestataire",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Forfait nettoyage cuve",
@@ -1879,6 +1936,7 @@ Prime.find_or_initialize_by(slug: "bruxelles_bonus_z10").update!(
   condition: "Regroupement de trois travaux ou plus dans la même demande",
   conseil: "Réunissez vos travaux pour maximiser la prime globale",
   document: "Factures pour chaque type de travaux + récapitulatif",
+  échéances: "12 mois à partir de la date de facture de solde",
   specifique: "Bruxelles - Renolution",
   placeholder: JSON.parse('{
     "bruxelles_cat1": "Pourcentage de majoration appliqué",
