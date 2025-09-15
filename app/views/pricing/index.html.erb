@@ -1,0 +1,478 @@
+<% content_for :title, "Choisissez votre formule - Ren0vate" %>
+
+<div class="container-fluid bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 20vh;">
+  <div class="container py-5">
+    <div class="row justify-content-center text-center text-white">
+      <div class="col-lg-8">
+        <h1 class="display-4 fw-bold mb-3">
+          <i class="bi bi-star-fill text-warning me-3"></i>
+          Choisissez votre formule
+        </h1>
+        <p class="lead">
+          Optimisez vos primes énergétiques avec notre plateforme IA spécialisée pour les 3 régions belges
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container py-5"
+     data-controller="pricing"
+     data-pricing-user-context-value="<%= @current_user_context.to_json if defined?(@current_user_context) %>">
+
+  <!-- Segmentation B2C / B2B -->
+  <div class="row mb-5">
+    <div class="col-12 text-center">
+      <div class="btn-group" role="group" aria-label="Segmentation">
+        <input type="radio" class="btn-check" name="segment" id="segment-b2c" autocomplete="off" checked
+               data-pricing-target="segmentB2c" data-action="change->pricing#toggleSegment">
+        <label class="btn btn-outline-primary btn-lg px-4" for="segment-b2c">
+          <i class="bi bi-house-heart me-2"></i>
+          Particuliers (B2C)
+        </label>
+
+        <input type="radio" class="btn-check" name="segment" id="segment-b2b" autocomplete="off"
+               data-pricing-target="segmentB2b" data-action="change->pricing#toggleSegment">
+        <label class="btn btn-outline-primary btn-lg px-4" for="segment-b2b">
+          <i class="bi bi-building me-2"></i>
+          Professionnels (B2B)
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pricing Cards B2C -->
+  <div data-pricing-target="b2cTiers" class="row g-4 mb-5 pricing-tiers">
+    <!-- Freemium -->
+    <div class="col-lg-3 col-md-6">
+      <div class="card h-100 border-0 shadow-sm">
+        <div class="card-header bg-light text-center py-3">
+          <h3 class="card-title mb-0">
+            <span class="badge bg-secondary mb-2">Gratuit</span><br>
+            <%= @pricing_tiers[:freemium][:name] %>
+          </h3>
+          <div class="pricing-price">
+            <span class="h2 fw-bold">0€</span>
+            <span class="text-muted">/mois</span>
+          </div>
+          <p class="text-muted small"><%= @pricing_tiers[:freemium][:description] %></p>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled">
+            <% @pricing_tiers[:freemium][:features].each do |feature| %>
+              <li class="mb-2">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                <%= feature %>
+              </li>
+            <% end %>
+          </ul>
+
+          <hr>
+          <p class="text-muted small mb-3">
+            <strong>Limitations :</strong>
+          </p>
+          <ul class="list-unstyled text-muted small">
+            <% @pricing_tiers[:freemium][:limitations].each do |limitation| %>
+              <li class="mb-1">
+                <i class="bi bi-x-circle text-danger me-2"></i>
+                <%= limitation %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+        <div class="card-footer bg-transparent text-center">
+          <% if user_signed_in? %>
+            <span class="btn btn-secondary btn-lg w-100" disabled>
+              <i class="bi bi-check-circle me-2"></i>
+              Formule actuelle
+            </span>
+          <% else %>
+            <%= link_to new_user_registration_path, class: "btn btn-secondary btn-lg w-100" do %>
+              <i class="bi bi-play-circle me-2"></i>
+              <%= @pricing_tiers[:freemium][:cta] %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Individual (Popular) -->
+    <div class="col-lg-3 col-md-6">
+      <div class="card h-100 border-primary shadow position-relative pricing-card"
+           data-tier="individual"
+           data-price="<%= @pricing_tiers[:individual][:price] %>"
+           data-action="mouseenter->pricing#animateCardHover mouseleave->pricing#animateCardLeave">
+        <div class="position-absolute top-0 start-50 translate-middle">
+          <span class="badge bg-primary px-3 py-2">
+            <i class="bi bi-star-fill me-1"></i>
+            B2C Individual • Le plus populaire
+          </span>
+        </div>
+        <div class="card-header bg-primary text-white text-center py-3 mt-3">
+          <h3 class="card-title mb-0">
+            <%= @pricing_tiers[:individual][:name] %>
+          </h3>
+          <div class="pricing-price">
+            <span class="h2 fw-bold"><%= @pricing_tiers[:individual][:price] %>€</span>
+            <span>/mois</span>
+          </div>
+          <p class="small mb-0"><%= @pricing_tiers[:individual][:description] %></p>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled">
+            <% @pricing_tiers[:individual][:features].each do |feature| %>
+              <li class="mb-2">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                <%= feature %>
+              </li>
+            <% end %>
+          </ul>
+
+          <div class="alert alert-success bg-light border-success">
+            <small><strong>ROI :</strong> <%= @pricing_tiers[:individual][:roi] %></small>
+          </div>
+        </div>
+        <div class="card-footer bg-transparent text-center">
+          <% if user_signed_in? %>
+            <%= link_to pricing_summary_path(tier: :individual),
+                class: "btn btn-primary btn-lg w-100" do %>
+              <i class="bi bi-credit-card me-2"></i>
+              <%= @pricing_tiers[:individual][:cta] %>
+            <% end %>
+          <% else %>
+            <%= link_to new_user_registration_path, class: "btn btn-primary btn-lg w-100" do %>
+              <i class="bi bi-person-plus me-2"></i>
+              Créer un compte
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Portfolio -->
+    <div class="col-lg-3 col-md-6">
+      <div class="card h-100 border-0 shadow-sm">
+        <div class="card-header bg-warning text-dark text-center py-3">
+          <h3 class="card-title mb-0">
+            <%= @pricing_tiers[:portfolio][:name] %>
+          </h3>
+          <div class="pricing-price">
+            <span class="h2 fw-bold"><%= @pricing_tiers[:portfolio][:price] %>€</span>
+            <span>/mois</span>
+          </div>
+          <p class="small mb-0"><%= @pricing_tiers[:portfolio][:description] %></p>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled">
+            <% @pricing_tiers[:portfolio][:features].take(6).each do |feature| %>
+              <li class="mb-2">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                <%= feature %>
+              </li>
+            <% end %>
+            <li class="text-muted">
+              <small>+ <%= @pricing_tiers[:portfolio][:features].length - 6 %> autres fonctionnalités</small>
+            </li>
+          </ul>
+
+          <div class="alert alert-warning bg-light border-warning">
+            <small><strong>ROI :</strong> <%= @pricing_tiers[:portfolio][:roi] %></small>
+          </div>
+        </div>
+        <div class="card-footer bg-transparent text-center">
+          <% if user_signed_in? %>
+            <%= link_to pricing_checkout_path(tier: :portfolio), method: :post,
+                class: "btn btn-warning btn-lg w-100 text-dark" do %>
+              <i class="bi bi-credit-card me-2"></i>
+              <%= @pricing_tiers[:portfolio][:cta] %>
+            <% end %>
+          <% else %>
+            <%= link_to new_user_registration_path, class: "btn btn-warning btn-lg w-100 text-dark" do %>
+              <i class="bi bi-person-plus me-2"></i>
+              Créer un compte
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Enterprise -->
+    <div class="col-lg-3 col-md-6">
+      <div class="card h-100 border-0 shadow-sm">
+        <div class="card-header bg-dark text-white text-center py-3">
+          <h3 class="card-title mb-0">Enterprise</h3>
+          <div class="pricing-price">
+            <span class="h4">Sur mesure</span>
+          </div>
+          <p class="small mb-0">Solutions personnalisées</p>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled">
+            <li class="mb-2">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>
+              Propriétés illimitées
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>
+              IA consultant dédié
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>
+              Intégrations sur-mesure
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>
+              Support 24/7 humain
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>
+              SLA garantie 99.9%
+            </li>
+          </ul>
+        </div>
+        <div class="card-footer bg-transparent text-center">
+          <a href="mailto:hello@ren0vate.be" class="btn btn-dark btn-lg w-100">
+            <i class="bi bi-envelope me-2"></i>
+            Nous contacter
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pricing Cards B2B (Hidden by default) -->
+  <div data-pricing-target="b2bTiers" class="row g-4 mb-5 pricing-tiers" style="display: none;">
+    <!-- Professional -->
+    <div class="col-lg-4 col-md-6">
+      <div class="card h-100 border-success shadow">
+        <div class="card-header bg-success text-white text-center py-3">
+          <h3 class="card-title mb-0">
+            <%= @pricing_tiers[:professional][:name] %>
+          </h3>
+          <div class="pricing-price">
+            <span class="h2 fw-bold"><%= @pricing_tiers[:professional][:price] %>€</span>
+            <span>/mois</span>
+          </div>
+          <p class="small mb-0"><%= @pricing_tiers[:professional][:description] %></p>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled">
+            <% @pricing_tiers[:professional][:features].take(7).each do |feature| %>
+              <li class="mb-2">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                <%= feature %>
+              </li>
+            <% end %>
+            <li class="text-muted">
+              <small>+ <%= @pricing_tiers[:professional][:features].length - 7 %> autres fonctionnalités</small>
+            </li>
+          </ul>
+
+          <div class="alert alert-success bg-light border-success">
+            <small><strong>ROI :</strong> <%= @pricing_tiers[:professional][:roi] %></small>
+          </div>
+        </div>
+        <div class="card-footer bg-transparent text-center">
+          <% if user_signed_in? %>
+            <%= link_to pricing_checkout_path(tier: :professional), method: :post,
+                class: "btn btn-success btn-lg w-100" do %>
+              <i class="bi bi-credit-card me-2"></i>
+              <%= @pricing_tiers[:professional][:cta] %>
+            <% end %>
+          <% else %>
+            <%= link_to new_user_registration_path, class: "btn btn-success btn-lg w-100" do %>
+              <i class="bi bi-person-plus me-2"></i>
+              Créer un compte
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enterprise -->
+    <div class="col-lg-4 col-md-6">
+      <div class="card h-100 border-dark shadow">
+        <div class="card-header bg-dark text-white text-center py-3">
+          <h3 class="card-title mb-0">
+            <%= @pricing_tiers[:enterprise][:name] %>
+          </h3>
+          <div class="pricing-price">
+            <span class="h2 fw-bold"><%= @pricing_tiers[:enterprise][:price] %>€</span>
+            <span>/mois</span>
+          </div>
+          <p class="small mb-0"><%= @pricing_tiers[:enterprise][:description] %></p>
+        </div>
+        <div class="card-body">
+          <ul class="list-unstyled">
+            <% @pricing_tiers[:enterprise][:features].take(7).each do |feature| %>
+              <li class="mb-2">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                <%= feature %>
+              </li>
+            <% end %>
+            <li class="text-muted">
+              <small>+ <%= @pricing_tiers[:enterprise][:features].length - 7 %> autres fonctionnalités</small>
+            </li>
+          </ul>
+
+          <div class="alert alert-dark bg-light border-dark">
+            <small><strong>ROI :</strong> <%= @pricing_tiers[:enterprise][:roi] %></small>
+          </div>
+        </div>
+        <div class="card-footer bg-transparent text-center">
+          <% if user_signed_in? %>
+            <%= link_to pricing_checkout_path(tier: :enterprise), method: :post,
+                class: "btn btn-dark btn-lg w-100" do %>
+              <i class="bi bi-credit-card me-2"></i>
+              <%= @pricing_tiers[:enterprise][:cta] %>
+            <% end %>
+          <% else %>
+            <%= link_to new_user_registration_path, class: "btn btn-dark btn-lg w-100" do %>
+              <i class="bi bi-person-plus me-2"></i>
+              Créer un compte
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Custom -->
+    <div class="col-lg-4 col-md-12">
+      <div class="card h-100 border-info shadow">
+        <div class="card-header bg-info text-white text-center py-3">
+          <h3 class="card-title mb-0">Sur mesure</h3>
+          <div class="pricing-price">
+            <span class="h4">Devis personnalisé</span>
+          </div>
+          <p class="small mb-0">Solutions spécifiques</p>
+        </div>
+        <div class="card-body text-center">
+          <p class="lead">Vous avez des besoins spécifiques ?</p>
+          <ul class="list-unstyled text-start">
+            <li class="mb-2">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>
+              Architecture personnalisée
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>
+              Développements dédiés
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>
+              Formation équipe
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle-fill text-success me-2"></i>
+              Support dédié
+            </li>
+          </ul>
+        </div>
+        <div class="card-footer bg-transparent text-center">
+          <a href="mailto:hello@ren0vate.be" class="btn btn-info btn-lg w-100">
+            <i class="bi bi-envelope me-2"></i>
+            Demander un devis
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ Section -->
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <h2 class="text-center mb-4">Questions fréquentes</h2>
+
+      <div class="accordion" id="pricingFAQ">
+        <div class="accordion-item">
+          <h3 class="accordion-header">
+            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+              Puis-je changer de formule à tout moment ?
+            </button>
+          </h3>
+          <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#pricingFAQ">
+            <div class="accordion-body">
+              Oui, vous pouvez upgrader ou downgrader votre formule à tout moment. Les changements prennent effet immédiatement et la facturation est ajustée au prorata.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+              Les fonctionnalités IA sont-elles déjà disponibles ?
+            </button>
+          </h3>
+          <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#pricingFAQ">
+            <div class="accordion-body">
+              Ren0Chat et Ren0Bot sont en cours de développement et seront déployés progressivement au Q1 2026. Les utilisateurs payants auront un accès prioritaire en bêta.
+            </div>
+          </div>
+        </div>
+
+        <div class="accordion-item">
+          <h3 class="accordion-header">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+              Y a-t-il une garantie de remboursement ?
+            </button>
+          </h3>
+          <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#pricingFAQ">
+            <div class="accordion-body">
+              Nous offrons une garantie de remboursement de 30 jours sans questions pour tous nos plans payants.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style nonce="<%= content_security_policy_nonce %>">
+.pricing-price {
+  margin: 1rem 0;
+}
+
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.bg-gradient {
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-gradient::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+.btn-check:checked + .btn {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .card {
+    margin-bottom: 2rem;
+  }
+
+  .btn-group {
+    flex-direction: column;
+  }
+
+  .btn-group .btn {
+    border-radius: 0.375rem !important;
+    margin-bottom: 0.5rem;
+  }
+}
+</style>

@@ -16,6 +16,7 @@ class User < ApplicationRecord
   has_many :requests, dependent: :destroy
   has_many :notifications, dependent: :destroy
   has_many :documents, dependent: :destroy
+  has_many :subscriptions, dependent: :destroy
 
   belongs_to :last_active_simulation, class_name: "Simulation", optional: true
 
@@ -118,6 +119,77 @@ class User < ApplicationRecord
     # Pour le moment, retournons 0 car ce champ n'existe pas encore dans le schéma
     # TODO: Ajouter ce champ à la table users si nécessaire
     0
+  end
+
+  # === SUBSCRIPTION METHODS ===
+
+  def current_subscription
+    subscriptions.active.order(created_at: :desc).first
+  end
+
+  def subscription_tier
+    current_subscription&.tier || 'freemium'
+  end
+
+  def subscription_tier_name
+    current_subscription&.tier_name || 'Découverte'
+  end
+
+  def has_active_subscription?
+    current_subscription&.active? || false
+  end
+
+  def subscription_days_remaining
+    current_subscription&.current_period_days_remaining || 0
+  end
+
+  def can_access_feature?(feature)
+    tier = subscription_tier
+
+    case feature
+    when :unlimited_properties
+      %w[individual portfolio professional enterprise].include?(tier)
+    when :ren0chat
+      %w[individual portfolio professional enterprise].include?(tier)
+    when :ren0bot
+      %w[portfolio professional enterprise].include?(tier)
+    when :decision_hub
+      %w[portfolio professional enterprise].include?(tier)
+    when :analytics
+      %w[individual portfolio professional enterprise].include?(tier)
+    when :priority_support
+      %w[individual portfolio professional enterprise].include?(tier)
+    when :api_access
+      %w[portfolio professional enterprise].include?(tier)
+    else
+      false
+    end
+  end
+
+  def property_limit
+    case subscription_tier
+    when 'freemium' then 1
+    when 'individual' then 3
+    when 'portfolio' then 10
+    when 'professional', 'enterprise' then Float::INFINITY
+    else 1
+    end
+  end
+
+  def simulation_limit
+    case subscription_tier
+    when 'freemium' then 1
+    else Float::INFINITY
+    end
+  end
+
+  def ren0chat_monthly_limit
+    case subscription_tier
+    when 'individual' then 50
+    when 'portfolio' then 150
+    when 'professional', 'enterprise' then Float::INFINITY
+    else 0
+    end
   end
 
   private

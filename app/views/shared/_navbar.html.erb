@@ -40,7 +40,7 @@
               <span>🧪 Decision Hub</span>
             <% end %>
           </li>
-     
+
           <li class="nav-item">
             <%= link_to documents_path, class: "nav-link px-3 d-flex align-items-center" do %>
               <i class="bi bi-file-earmark-text me-2" style="color: #7c3aed;"></i> Mes documents
@@ -62,6 +62,19 @@
               <%= unread_notifications_badge(current_user) %>
             <% end %>
           </li>
+
+          <!-- Pricing / Upgrade -->
+          <li class="nav-item">
+            <%= link_to pricing_select_path, class: "nav-link px-3 d-flex align-items-center" do %>
+              <i class="bi bi-gem me-2" style="color: #f59e0b;"></i>
+              <% if defined?(tier_upgrade_available?) && tier_upgrade_available? %>
+                <span class="badge bg-warning text-dark"><%= upgrade_badge_text %></span>
+              <% else %>
+                <span class="badge bg-primary">Premium</span>
+              <% end %>
+            <% end %>
+          </li>
+
           <!-- Séparateur pour mobile -->
           <li class="d-lg-none"><hr class="dropdown-divider"></li>
 

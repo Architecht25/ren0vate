@@ -1,0 +1,269 @@
+class PricingController < ApplicationController
+  before_action :authenticate_user!, except: [:index]
+
+  def index
+    # Page principale du pricing - accessible sans connexion
+    @pricing_tiers = pricing_tiers_data
+  end
+
+  def select
+    # Page de sélection de profil pour utilisateurs connectés
+    @pricing_tiers = pricing_tiers_data
+    @current_user_context = build_user_context
+  end
+
+  def summary
+    # Page de résumé d'abonnement (Subscription Summary)
+    @tier = params[:tier].to_sym
+
+    unless valid_tier?(@tier)
+      redirect_to pricing_select_path, alert: "Tier de pricing invalide"
+      return
+    end
+
+    @pricing_tiers = pricing_tiers_data
+    @selected_tier = @pricing_tiers[@tier]
+    @current_user_context = build_user_context if user_signed_in?
+  end
+
+  def success
+    # Page de confirmation après paiement réussi
+    @tier = params[:tier]
+    @session_id = params[:session_id]
+  end
+
+  def cancel
+    # Page si utilisateur annule le paiement
+    redirect_to pricing_select_path, notice: "Paiement annulé. Vous pouvez réessayer quand vous voulez."
+  end
+
+  def checkout
+    # Création d'une session Stripe Checkout pour abonnement
+    tier = params[:tier].to_sym
+    billing_cycle = params[:billing_cycle] || 'monthly'
+
+    unless valid_tier?(tier)
+      redirect_to pricing_select_path, alert: "Tier de pricing invalide"
+      return
+    end
+
+    # Si pas de clés Stripe configurées, rediriger vers une démo
+    unless stripe_configured?
+      redirect_to pricing_success_path(tier: tier, session_id: 'demo_session'),
+                  notice: "Mode démo : Paiement simulé avec succès !"
+      return
+    end
+
+    begin
+      # Configuration de la session Stripe
+      session = Stripe::Checkout::Session.create(
+        payment_method_types: ['card'],
+        mode: 'subscription',
+        customer_email: current_user&.email,
+
+        line_items: [{
+          price_data: {
+            currency: 'eur',
+            product_data: {
+              name: pricing_tiers_data[tier][:name],
+              description: pricing_tiers_data[tier][:description],
+            },
+            unit_amount: (pricing_tiers_data[tier][:price] * 100).to_i, # Stripe utilise les centimes
+            recurring: {
+              interval: billing_cycle == 'yearly' ? 'year' : 'month',
+            }
+          },
+          quantity: 1,
+        }],
+
+        metadata: {
+          user_id: current_user&.id,
+          tier: tier.to_s,
+          billing_cycle: billing_cycle
+        },
+
+        success_url: pricing_success_url(tier: tier, session_id: '{CHECKOUT_SESSION_ID}'),
+        cancel_url: pricing_cancel_url,
+
+        automatic_tax: { enabled: true },
+
+        subscription_data: {
+          metadata: {
+            user_id: current_user&.id,
+            tier: tier.to_s
+          }
+        }
+      )
+
+      redirect_to session.url, allow_other_host: true
+
+    rescue Stripe::StripeError => e
+      redirect_to pricing_summary_path(tier: tier), alert: "Erreur lors de la création du paiement : #{e.message}"
+    end
+  end
+
+  private
+
+  def pricing_tiers_data
+    {
+      freemium: {
+        name: "Découverte",
+        price: 0,
+        period: "gratuit",
+        description: "Parfait pour débuter",
+        features: [
+          "1 propriété enregistrée",
+          "1 projet de rénovation",
+          "1 simulation complète",
+          "Consultation primes disponibles",
+          "Recherche BCE limitée (5/mois)",
+          "Support email basique (48h)"
+        ],
+        limitations: [
+          "Pas de multi-propriétés",
+          "Pas d'accès IA",
+          "Pas de Decision Hub",
+          "Pas de support prioritaire"
+        ],
+        cta: "Commencer gratuitement",
+        popular: false,
+        target: "Découverte"
+      },
+
+      individual: {
+        name: "Propriétaire",
+        price: 39,
+        period: "mois",
+        description: "Pour particuliers 1-3 propriétés",
+        features: [
+          "Jusqu'à 3 propriétés",
+          "Projets illimités par propriété",
+          "Simulations illimitées",
+          "Ren0Chat : 50 questions/mois (9h-17h)",
+          "Dashboard comparatif propriétés",
+          "Analytics de base ROI/completion",
+          "Recherche BCE illimitée",
+          "Support prioritaire (24h)",
+          "Export données (PDF reports)"
+        ],
+        roi: "ROI minimum : 107% • ROI réaliste : 327%",
+        cta: "Choisir Propriétaire",
+        popular: true,
+        target: "B2C Particuliers"
+      },
+
+      portfolio: {
+        name: "Investisseur",
+        price: 89,
+        period: "mois",
+        description: "Multi-propriétaires 4-10 biens",
+        features: [
+          "Jusqu'à 10 propriétés",
+          "Ren0Chat : 150 questions/mois",
+          "Ren0Bot : Support 24/7 illimité",
+          "Decision Hub : Optimisation portfolio",
+          "Business Intelligence dashboard",
+          "Priorisation IA investissements",
+          "Optimiseur fiscal multi-propriétés",
+          "Predictive analytics énergétique",
+          "Support concierge (12h)",
+          "API access pour intégrations",
+          "Webinaires formation exclusifs"
+        ],
+        roi: "ROI minimum : 187% • ROI réaliste : 649%",
+        cta: "Choisir Investisseur",
+        popular: false,
+        target: "B2C Multi-propriétaires"
+      },
+
+      professional: {
+        name: "Expert",
+        price: 149,
+        period: "mois",
+        description: "Architectes, entrepreneurs, bureaux d'études",
+        features: [
+          "Propriétés clients illimitées",
+          "Multi-utilisateurs équipe (5 comptes)",
+          "White-label interface (logo client)",
+          "Reporting clients automatisé",
+          "API IA pour intégrations CRM",
+          "Hotline directe expert (4h)",
+          "Tools B2B (bulk operations)",
+          "Analytics multi-clients",
+          "Account manager dédié",
+          "Intégrations comptabilité"
+        ],
+        roi: "Break-even : 2-9 clients aidés/an • Scaling 10x+ ROI",
+        cta: "Choisir Expert",
+        popular: false,
+        target: "B2B Professionnels"
+      },
+
+      enterprise: {
+        name: "Platform",
+        price: 299,
+        period: "mois",
+        description: "Grandes entreprises, gestionnaires patrimoine",
+        features: [
+          "Gestion propriétés illimitée",
+          "Utilisateurs illimités",
+          "IA consultant dédié (fine-tuned)",
+          "Développements spécifiques",
+          "Intégrations sur-mesure",
+          "Business Intelligence custom",
+          "Support multi-régional",
+          "Support 24/7 human",
+          "SLA garantie (99.9% uptime)",
+          "Success fee négociée"
+        ],
+        roi: "ROI minimum : 1293% • Scaling unlimited",
+        cta: "Nous contacter",
+        popular: false,
+        target: "B2B Enterprise"
+      }
+    }
+  end
+
+  def build_user_context
+    return {} unless user_signed_in?
+
+    {
+      properties_count: current_user.properties.count,
+      simulations_count: current_user.simulations.count,
+      projects_count: current_user.projects.count,
+      current_tier: detect_current_tier,
+      recommended_tier: recommend_tier_for_user
+    }
+  end
+
+  def detect_current_tier
+    # Utiliser les vraies données d'abonnement
+    return :freemium unless user_signed_in?
+
+    current_user.subscription_tier.to_sym
+  end
+
+  def recommend_tier_for_user
+    properties_count = current_user.properties.count
+
+    case properties_count
+    when 0..1
+      :individual
+    when 2..3
+      :individual
+    when 4..10
+      :portfolio
+    else
+      :professional
+    end
+  end
+
+  def valid_tier?(tier)
+    pricing_tiers_data.keys.map(&:to_s).include?(tier.to_s)
+  end
+
+  def stripe_configured?
+    stripe_key = ENV['STRIPE_SECRET_KEY'] || Rails.application.credentials.stripe_secret_key
+    stripe_key.present? && stripe_key != 'sk_test_dummy_key_for_development' && !stripe_key.include?('dummy')
+  end
+end

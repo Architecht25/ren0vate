@@ -10,7 +10,16 @@ Rails.application.routes.draw do
   scope "(:locale)", locale: /fr|nl|en/ do
     root "pages#home"
 
-    # API routes for enterprise aids
+  # Pricing routes
+  get '/pricing', to: 'pricing#index'
+  get '/pricing/select', to: 'pricing#select'
+  get '/pricing/summary/:tier', to: 'pricing#summary', as: 'pricing_summary'
+  post '/pricing/checkout', to: 'pricing#checkout'
+  get '/pricing/success', to: 'pricing#success'
+  get '/pricing/cancel', to: 'pricing#cancel'
+
+  # Webhook routes
+  post '/webhooks/stripe', to: 'webhooks#stripe'    # API routes for enterprise aids
     namespace :api do
       get 'entreprises/bce/:numero_bce', to: 'entreprises#bce_lookup'
       get 'entreprises/bruxelles/aides', to: 'entreprises#bruxelles_aides'

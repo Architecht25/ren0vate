@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_10_115932) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_15_112636) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -564,6 +564,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_10_115932) do
     t.index ["user_id"], name: "index_simulations_on_user_id"
   end
 
+  create_table "subscriptions", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "stripe_subscription_id"
+    t.string "tier"
+    t.string "status"
+    t.datetime "current_period_start"
+    t.datetime "current_period_end"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_subscriptions_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "nom"
     t.string "email"
@@ -646,4 +658,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_10_115932) do
   add_foreign_key "simulations", "projects"
   add_foreign_key "simulations", "properties"
   add_foreign_key "simulations", "users"
+  add_foreign_key "subscriptions", "users"
 end

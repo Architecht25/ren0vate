@@ -45,6 +45,7 @@ import ImagePreviewController from "controllers/image_preview_controller"
 import DocumentPreviewController from "controllers/document_preview_controller"
 import AddressCopyController from "controllers/address_copy_controller"
 import TooltipController from "controllers/tooltip_controller"
+import PricingController from "controllers/pricing_controller"
 
 application.register("user_type", UserTypeController)
 application.register("test-eligibilite", TestEligibiliteController)
@@ -75,5 +76,6 @@ application.register("image-preview", ImagePreviewController)
 application.register("document-preview", DocumentPreviewController)
 application.register("address-copy", AddressCopyController)
 application.register("tooltip", TooltipController)
+application.register("pricing", PricingController)
 
 export { application }

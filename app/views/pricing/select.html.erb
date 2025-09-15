@@ -1,0 +1,417 @@
+<% content_for :title, "Sélectionnez votre profil - Ren0vate" %>
+
+<div class="container py-5">
+  <!-- Header avec contexte utilisateur -->
+  <div class="row mb-5">
+    <div class="col-lg-8 mx-auto text-center">
+      <h1 class="display-5 fw-bold mb-3">
+        <i class="bi bi-person-gear text-primary me-3"></i>
+        Bonjour <%= current_user.first_name || 'cher utilisateur' %> !
+      </h1>
+      <p class="lead text-muted">
+        Choisissez la formule qui correspond le mieux à votre profil pour optimiser vos primes énergétiques
+      </p>
+
+      <!-- Contexte utilisateur actuel -->
+      <div class="row mt-4">
+        <div class="col-md-4">
+          <div class="bg-light p-3 rounded">
+            <h5 class="text-primary mb-1"><%= @current_user_context[:properties_count] %></h5>
+            <small class="text-muted">Propriété<%= 's' if @current_user_context[:properties_count] > 1 %></small>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="bg-light p-3 rounded">
+            <h5 class="text-success mb-1"><%= @current_user_context[:simulations_count] %></h5>
+            <small class="text-muted">Simulation<%= 's' if @current_user_context[:simulations_count] > 1 %></small>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="bg-light p-3 rounded">
+            <h5 class="text-warning mb-1"><%= @current_user_context[:projects_count] %></h5>
+            <small class="text-muted">Projet<%= 's' if @current_user_context[:projects_count] > 1 %></small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formule actuelle -->
+  <div class="row mb-4">
+    <div class="col-lg-6 mx-auto">
+      <div class="alert alert-info d-flex align-items-center">
+        <i class="bi bi-info-circle-fill me-3 fs-4"></i>
+        <div>
+          <strong>Formule actuelle :</strong>
+          <%= @pricing_tiers[@current_user_context[:current_tier]][:name] %>
+          (<%= @pricing_tiers[@current_user_context[:current_tier]][:price] %>€/mois)
+          <br>
+          <small class="text-muted">
+            Formule recommandée pour vous :
+            <strong><%= @pricing_tiers[@current_user_context[:recommended_tier]][:name] %></strong>
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Offres B2C -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="text-center mb-4">
+        <h3 class="fw-bold text-primary">
+          <i class="bi bi-house-heart me-2"></i>
+          Offres Particuliers B2C
+        </h3>
+        <p class="text-muted">Choisissez selon le nombre de propriétés à gérer</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 justify-content-center">
+
+    <!-- Freemium (formule actuelle) -->
+    <div class="col-lg-4 col-md-6">
+      <div class="card h-100 border-secondary position-relative">
+        <% if @current_user_context[:current_tier] == :freemium %>
+          <div class="position-absolute top-0 end-0 m-2">
+            <span class="badge bg-secondary">
+              <i class="bi bi-check-circle me-1"></i>
+              Actuel
+            </span>
+          </div>
+        <% end %>
+        <div class="card-header bg-secondary text-white text-center py-3">
+          <h3 class="card-title mb-2"><%= @pricing_tiers[:freemium][:name] %></h3>
+          <div class="pricing-price">
+            <span class="h3 fw-bold">0€</span>
+            <span>/mois</span>
+          </div>
+          <p class="small mb-0"><%= @pricing_tiers[:freemium][:target] %></p>
+        </div>
+        <div class="card-body">
+          <h6 class="text-success mb-3">
+            <i class="bi bi-check-circle-fill me-2"></i>
+            Fonctionnalités :
+          </h6>
+          <ul class="list-unstyled">
+            <% @pricing_tiers[:freemium][:features].take(4).each do |feature| %>
+              <li class="mb-2">
+                <i class="bi bi-check text-success me-2"></i>
+                <%= feature %>
+              </li>
+            <% end %>
+          </ul>
+
+          <h6 class="text-danger mb-3 mt-4">
+            <i class="bi bi-x-circle-fill me-2"></i>
+            Limitations :
+          </h6>
+          <ul class="list-unstyled text-muted">
+            <% @pricing_tiers[:freemium][:limitations].take(3).each do |limitation| %>
+              <li class="mb-2">
+                <i class="bi bi-x text-danger me-2"></i>
+                <%= limitation %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+        <div class="card-footer bg-transparent text-center">
+          <% if @current_user_context[:current_tier] == :freemium %>
+            <button class="btn btn-secondary btn-lg w-100" disabled>
+              <i class="bi bi-check-circle me-2"></i>
+              Formule actuelle
+            </button>
+          <% else %>
+            <button class="btn btn-outline-secondary btn-lg w-100" disabled>
+              <i class="bi bi-arrow-down me-2"></i>
+              Downgrade
+            </button>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- B2C Individual - Propriétaire (39€/mois) -->
+    <div class="col-lg-4 col-md-6">
+      <% individual = @pricing_tiers[:individual] %>
+      <div class="card h-100 <%= @current_user_context[:recommended_tier] == :individual ? 'border-primary shadow-lg' : 'border-primary' %> position-relative"
+           <%= 'style=transform:scale(1.05);'.html_safe if @current_user_context[:recommended_tier] == :individual %>>
+
+        <% if @current_user_context[:recommended_tier] == :individual %>
+          <div class="position-absolute top-0 start-50 translate-middle">
+            <span class="badge bg-primary px-4 py-2 fs-6">
+              <i class="bi bi-star-fill me-1"></i>
+              Recommandé pour vous
+            </span>
+          </div>
+        <% elsif @current_user_context[:current_tier] == :individual %>
+          <div class="position-absolute top-0 end-0 m-2">
+            <span class="badge bg-primary">
+              <i class="bi bi-check-circle me-1"></i>
+              Actuel
+            </span>
+          </div>
+        <% else %>
+          <div class="position-absolute top-0 start-50 translate-middle">
+            <span class="badge bg-primary px-3 py-2">
+              <i class="bi bi-star-fill me-1"></i>
+              Le plus populaire
+            </span>
+          </div>
+        <% end %>
+
+        <div class="card-header bg-primary text-white text-center py-3 <%= 'mt-3' if @current_user_context[:recommended_tier] == :individual %>">
+          <h3 class="card-title mb-2"><%= individual[:name] %></h3>
+          <div class="pricing-price">
+            <span class="h3 fw-bold"><%= individual[:price] %>€</span>
+            <span>/mois</span>
+          </div>
+          <p class="small mb-0"><%= individual[:target] %></p>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-primary bg-light border-primary mb-3">
+            <small>
+              <i class="bi bi-calculator me-1"></i>
+              <strong>ROI estimé :</strong> <%= individual[:roi] %>
+            </small>
+          </div>
+
+          <h6 class="text-primary mb-3">
+            <i class="bi bi-plus-circle-fill me-2"></i>
+            Fonctionnalités B2C Individual :
+          </h6>
+          <ul class="list-unstyled">
+            <% individual[:features].take(6).each do |feature| %>
+              <li class="mb-2">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                <%= feature %>
+              </li>
+            <% end %>
+            <% if individual[:features].length > 6 %>
+              <li class="text-muted">
+                <small>+ <%= individual[:features].length - 6 %> autres fonctionnalités</small>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+        <div class="card-footer bg-transparent text-center">
+          <% if @current_user_context[:current_tier] == :individual %>
+            <button class="btn btn-primary btn-lg w-100" disabled>
+              <i class="bi bi-check-circle me-2"></i>
+              Formule actuelle
+            </button>
+          <% else %>
+            <%= link_to pricing_summary_path(tier: :individual),
+                class: "btn btn-primary btn-lg w-100 shadow" do %>
+              <i class="bi bi-rocket-takeoff me-2"></i>
+              <%= @current_user_context[:current_tier] == :freemium ? 'Choisir Propriétaire' : 'Changer pour Propriétaire' %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- B2C Portfolio - Investisseur (89€/mois) -->
+    <div class="col-lg-4 col-md-6">
+      <% portfolio = @pricing_tiers[:portfolio] %>
+      <div class="card h-100 <%= @current_user_context[:recommended_tier] == :portfolio ? 'border-warning shadow-lg' : 'border-warning' %> position-relative"
+           <%= 'style=transform:scale(1.05);'.html_safe if @current_user_context[:recommended_tier] == :portfolio %>>
+
+        <% if @current_user_context[:recommended_tier] == :portfolio %>
+          <div class="position-absolute top-0 start-50 translate-middle">
+            <span class="badge bg-warning text-dark px-4 py-2 fs-6">
+              <i class="bi bi-star-fill me-1"></i>
+              Recommandé pour vous
+            </span>
+          </div>
+        <% elsif @current_user_context[:current_tier] == :portfolio %>
+          <div class="position-absolute top-0 end-0 m-2">
+            <span class="badge bg-warning text-dark">
+              <i class="bi bi-check-circle me-1"></i>
+              Actuel
+            </span>
+          </div>
+        <% end %>
+
+        <div class="card-header bg-warning text-dark text-center py-3 <%= 'mt-3' if @current_user_context[:recommended_tier] == :portfolio %>">
+          <h3 class="card-title mb-2"><%= portfolio[:name] %></h3>
+          <div class="pricing-price">
+            <span class="h3 fw-bold"><%= portfolio[:price] %>€</span>
+            <span>/mois</span>
+          </div>
+          <p class="small mb-0"><%= portfolio[:target] %></p>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-warning bg-light border-warning mb-3">
+            <small>
+              <i class="bi bi-graph-up-arrow me-1"></i>
+              <strong>ROI investisseurs :</strong> <%= portfolio[:roi] %>
+            </small>
+          </div>
+
+          <h6 class="text-warning mb-3">
+            <i class="bi bi-gem me-2"></i>
+            Fonctionnalités Premium :
+          </h6>
+          <ul class="list-unstyled">
+            <% portfolio[:features].take(5).each do |feature| %>
+              <li class="mb-2">
+                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                <%= feature %>
+              </li>
+            <% end %>
+            <li class="text-muted">
+              <small>+ <%= portfolio[:features].length - 5 %> autres fonctionnalités</small>
+            </li>
+          </ul>
+        </div>
+        <div class="card-footer bg-transparent text-center">
+          <% if @current_user_context[:current_tier] == :portfolio %>
+            <button class="btn btn-warning btn-lg w-100 text-dark" disabled>
+              <i class="bi bi-check-circle me-2"></i>
+              Formule actuelle
+            </button>
+          <% else %>
+            <%= link_to pricing_summary_path(tier: :portfolio),
+                class: "btn btn-warning btn-lg w-100 text-dark" do %>
+              <i class="bi bi-crown me-2"></i>
+              Choisir Investisseur
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section B2B si applicable -->
+  <% if @current_user_context[:properties_count] >= 5 %>
+    <div class="row mt-5">
+      <div class="col-lg-8 mx-auto">
+        <div class="alert alert-info">
+          <h5 class="alert-heading">
+            <i class="bi bi-building me-2"></i>
+            Utilisateur professionnel ?
+          </h5>
+          <p class="mb-3">
+            Avec <%= @current_user_context[:properties_count] %> propriétés, vous pourriez bénéficier de nos formules professionnelles.
+          </p>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="card border-success">
+                <div class="card-body text-center">
+                  <h6 class="card-title text-success">Expert (149€/mois)</h6>
+                  <p class="small text-muted">Pour architectes, entrepreneurs</p>
+                  <%= link_to pricing_checkout_path(tier: :professional),
+                      method: :post,
+                      class: "btn btn-success btn-sm" do %>
+                    Découvrir Expert
+                  <% end %>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="card border-dark">
+                <div class="card-body text-center">
+                  <h6 class="card-title text-dark">Platform (299€/mois)</h6>
+                  <p class="small text-muted">Enterprise solutions</p>
+                  <a href="mailto:hello@ren0vate.be" class="btn btn-dark btn-sm">
+                    Nous contacter
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- CTA Section -->
+  <div class="row mt-5">
+    <div class="col-lg-6 mx-auto text-center">
+      <div class="bg-light p-4 rounded-3">
+        <h4 class="mb-3">
+          <i class="bi bi-shield-check text-success me-2"></i>
+          Garantie 30 jours
+        </h4>
+        <p class="text-muted">
+          Testez votre nouvelle formule sans risque. Remboursement intégral sous 30 jours si vous n'êtes pas satisfait.
+        </p>
+
+        <div class="row mt-4">
+          <div class="col-4">
+            <i class="bi bi-lightning-charge text-warning fs-3"></i>
+            <div class="small text-muted">Activation immédiate</div>
+          </div>
+          <div class="col-4">
+            <i class="bi bi-arrow-up-circle text-success fs-3"></i>
+            <div class="small text-muted">Upgrade facile</div>
+          </div>
+          <div class="col-4">
+            <i class="bi bi-headset text-primary fs-3"></i>
+            <div class="small text-muted">Support dédié</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Questions Section -->
+  <div class="row mt-5">
+    <div class="col-lg-8 mx-auto text-center">
+      <h5 class="mb-3">Des questions sur votre upgrade ?</h5>
+      <p class="text-muted mb-4">
+        Notre équipe est là pour vous aider à choisir la formule parfaite pour vos besoins.
+      </p>
+      <div class="btn-group" role="group">
+        <a href="mailto:hello@ren0vate.be" class="btn btn-outline-primary">
+          <i class="bi bi-envelope me-2"></i>
+          Nous écrire
+        </a>
+        <a href="tel:+32123456789" class="btn btn-outline-primary">
+          <i class="bi bi-telephone me-2"></i>
+          Nous appeler
+        </a>
+        <%= link_to pricing_path, class: "btn btn-outline-secondary" do %>
+          <i class="bi bi-arrow-left me-2"></i>
+          Voir tous les tarifs
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style nonce="<%= content_security_policy_nonce %>">
+.card {
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.pricing-price {
+  margin: 1rem 0;
+}
+
+@media (max-width: 768px) {
+  .card {
+    transform: none !important;
+    margin-bottom: 2rem;
+  }
+
+  .card:hover {
+    transform: translateY(-2px);
+  }
+}
+
+.bg-light {
+  background-color: #f8f9fa !important;
+}
+
+.shadow-lg {
+  box-shadow: 0 1rem 3rem rgba(0,0,0,.175) !important;
+}
+</style>
