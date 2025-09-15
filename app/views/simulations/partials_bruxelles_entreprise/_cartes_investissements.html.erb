@@ -29,7 +29,7 @@
 </style>
 
 <div class="investissements-section-bruxelles-entreprise"
-     data-controller="bruxelles-entreprise-calcul tooltip">
+     data-controller="bruxelles-entreprise-cartes tooltip">
 
   <!-- Injection des données d'investissements depuis la base de données -->
   <script id="bruxelles-entreprise-data" type="application/json">
@@ -39,7 +39,7 @@
           nom: aide.titre,
           taux_aide: aide.taux_aide || 25.0,
           montant_min: aide.montant_min || 500,
-          montant_max: aide.montant_max || 10000,
+          montant_max: aide.montant_max, # Respecter le vrai plafond (peut être nil = sans plafond)
           montant_investissement_min_requis: aide.montant_investissement_min_requis,
           tailles_eligibles: aide.tailles_eligibles || ["tpe", "pme"]
         }]
@@ -231,6 +231,8 @@
         <!-- CATÉGORIE 1: TRANSITION ÉCONOMIQUE -->
         <div class="col-lg-3 col-md-12">
           <div class="card border-0 shadow h-100 card-premium position-relative"
+               data-controller="bruxelles-entreprise-card"
+               data-bruxelles-entreprise-card-slug-value="transition_energetique"
                data-aide-card="transition_energetique">
             <!-- Image de fond avec overlay -->
             <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/Les-enjeux-economiques-de-la-transition-vers-la-neutralite-carbone-min_pnxl9b'); background-size: cover; background-position: center;">
@@ -259,8 +261,11 @@
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_transition_consultance') %>"
                            name="consultance_transition"
-                           data-slug="bruxelles_entreprise_consultance_transition">
-                    <span class="input-group-text bg-success text-white">0 €</span>
+                           data-bruxelles-entreprise-card-slug="bruxelles_transition_consultance"
+                           data-bruxelles-entreprise-card-target="inputConsultanceTransition"
+                           data-action="input->bruxelles-entreprise-card#handleInput">
+                    <span class="input-group-text bg-success text-white"
+                          data-bruxelles-entreprise-card-target="resultConsultanceTransition">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 15.000€/an - Taux 50% (max 80%)</small>
                   <p class="text-success small mt-1 mb-2">
@@ -284,8 +289,11 @@
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_investissements_transition_economique') %>"
                            name="investissements_transition"
-                           data-slug="bruxelles_entreprise_investissements_transition">
-                    <span class="input-group-text bg-success text-white">0 €</span>
+                           data-bruxelles-entreprise-card-slug="bruxelles_investissements_transition_economique"
+                           data-bruxelles-entreprise-card-target="inputInvestissementsTransition"
+                           data-action="input->bruxelles-entreprise-card#handleInput">
+                    <span class="input-group-text bg-success text-white"
+                          data-bruxelles-entreprise-card-target="resultInvestissementsTransition">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 50.000€/an - Taux 30% (max 50%)</small>
                   <p class="text-success small mt-1 mb-2">
@@ -309,8 +317,11 @@
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_mobilite_velo_cargo') %>"
                            name="mobilite_velo"
-                           data-slug="bruxelles_entreprise_mobilite_velo">
-                    <span class="input-group-text bg-success text-white">0 €</span>
+                           data-bruxelles-entreprise-card-slug="bruxelles_mobilite_velo_cargo"
+                           data-bruxelles-entreprise-card-target="inputMobiliteVeloCargo"
+                           data-action="input->bruxelles-entreprise-card#handleInput">
+                    <span class="input-group-text bg-success text-white"
+                          data-bruxelles-entreprise-card-target="resultMobiliteVeloCargo">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 12.000€/an - Taux 40% (max 70%)</small>
                   <p class="text-success small mt-1 mb-2">
@@ -334,8 +345,11 @@
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_mobilite_utilitaire_electrique') %>"
                            name="utilitaires_electriques"
-                           data-slug="bruxelles_entreprise_utilitaires_electriques">
-                    <span class="input-group-text bg-success text-white">0 €</span>
+                           data-bruxelles-entreprise-card-slug="bruxelles_mobilite_utilitaire_electrique"
+                           data-bruxelles-entreprise-card-target="inputMobiliteUtilitaireElectrique"
+                           data-action="input->bruxelles-entreprise-card#handleInput">
+                    <span class="input-group-text bg-success text-white"
+                          data-bruxelles-entreprise-card-target="resultMobiliteUtilitaireElectrique">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 25.000€/véhicule - Taux 30% (max 50%)</small>
                   <p class="text-success small mt-1 mb-2">
@@ -359,8 +373,11 @@
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_mobilite_utilitaire_retrofit') %>"
                            name="utilitaire_retrofit"
-                           data-slug="bruxelles_entreprise_utilitaire_retrofit">
-                    <span class="input-group-text bg-success text-white">0 €</span>
+                           data-bruxelles-entreprise-card-slug="bruxelles_mobilite_utilitaire_retrofit"
+                           data-bruxelles-entreprise-card-target="inputMobiliteUtilitaireRetrofit"
+                           data-action="input->bruxelles-entreprise-card#handleInput">
+                    <span class="input-group-text bg-success text-white"
+                          data-bruxelles-entreprise-card-target="resultMobiliteUtilitaireRetrofit">0 €</span>
                   </div>
                   <small class="text-muted">Jusqu'à 15.000€/véhicule - Taux 40% (max 60%)</small>
                   <p class="text-success small mt-1 mb-2">
@@ -374,7 +391,7 @@
               <div class="mt-3 pt-2 border-top">
                 <div class="d-flex justify-content-between align-items-center">
                   <strong class="text-success">Total Transition :</strong>
-                  <span class="badge bg-success fs-6 total-card">
+                  <span class="badge bg-success fs-6" data-bruxelles-entreprise-card-target="total">
                     0 €
                   </span>
                 </div>
@@ -416,7 +433,8 @@
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_prime_materiel_travaux') %>"
                            data-bruxelles-entreprise-card-target="inputMaterielTravaux"
-                           data-bruxelles-entreprise-card-slug="bruxelles_prime_materiel_travaux">
+                           data-bruxelles-entreprise-card-slug="bruxelles_prime_materiel_travaux"
+                           data-action="input->bruxelles-entreprise-card#handleInput">
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-entreprise-card-target="resultMaterielTravaux">0 €</span>
                   </div>
@@ -442,7 +460,8 @@
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_prime_conformite_normes') %>"
                            data-bruxelles-entreprise-card-target="inputConformite"
-                           data-bruxelles-entreprise-card-slug="bruxelles_prime_conformite">
+                           data-bruxelles-entreprise-card-slug="bruxelles_prime_conformite_normes"
+                           data-action="input->bruxelles-entreprise-card#handleInput">
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-entreprise-card-target="resultConformite">0 €</span>
                   </div>
@@ -468,7 +487,8 @@
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_prime_securisation') %>"
                            data-bruxelles-entreprise-card-target="inputSecurisation"
-                           data-bruxelles-entreprise-card-slug="bruxelles_prime_securisation">
+                           data-bruxelles-entreprise-card-slug="bruxelles_prime_securisation"
+                           data-action="input->bruxelles-entreprise-card#handleInput">
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-entreprise-card-target="resultSecurisation">0 €</span>
                   </div>
@@ -494,7 +514,8 @@
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_prime_immobilier') %>"
                            data-bruxelles-entreprise-card-target="inputImmobilier"
-                           data-bruxelles-entreprise-card-slug="bruxelles_prime_immobilier">
+                           data-bruxelles-entreprise-card-slug="bruxelles_prime_immobilier"
+                           data-action="input->bruxelles-entreprise-card#handleInput">
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-entreprise-card-target="resultImmobilier">0 €</span>
                   </div>
@@ -520,7 +541,8 @@
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_prime_accessibilite') %>"
                            data-bruxelles-entreprise-card-target="inputAccessibilite"
-                           data-bruxelles-entreprise-card-slug="bruxelles_prime_accessibilite">
+                           data-bruxelles-entreprise-card-slug="bruxelles_prime_accessibilite"
+                           data-action="input->bruxelles-entreprise-card#handleInput">
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-entreprise-card-target="resultAccessibilite">0 €</span>
                   </div>
@@ -579,7 +601,8 @@
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_prime_recrutement') %>"
                            data-bruxelles-entreprise-card-target="inputRecrutement"
-                           data-bruxelles-entreprise-card-slug="bruxelles_aide_recrutement">
+                           data-bruxelles-entreprise-card-slug="bruxelles_aide_recrutement"
+                           data-action="input->bruxelles-entreprise-card#handleInput">
                     <span class="input-group-text bg-warning text-white"
                           data-bruxelles-entreprise-card-target="resultRecrutement">0 €</span>
                   </div>
@@ -605,7 +628,8 @@
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_prime_formation') %>"
                            data-bruxelles-entreprise-card-target="inputFormation"
-                           data-bruxelles-entreprise-card-slug="bruxelles_prime_formation">
+                           data-bruxelles-entreprise-card-slug="bruxelles_prime_formation"
+                           data-action="input->bruxelles-entreprise-card#handleInput">
                     <span class="input-group-text bg-warning text-white"
                           data-bruxelles-entreprise-card-target="resultFormation">0 €</span>
                   </div>
@@ -663,7 +687,8 @@
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_prime_consultance') %>"
                            data-bruxelles-entreprise-card-target="inputConsultance"
-                           data-bruxelles-entreprise-card-slug="bruxelles_prime_consultance">
+                           data-bruxelles-entreprise-card-slug="bruxelles_prime_consultance"
+                           data-action="input->bruxelles-entreprise-card#handleInput">
                     <span class="input-group-text bg-info text-white"
                           data-bruxelles-entreprise-card-target="resultConsultance">0 €</span>
                   </div>
@@ -689,7 +714,8 @@
                   <div class="input-group input-group-sm">
                     <input type="number" class="form-control" placeholder="<%= placeholder_for_aide('bruxelles_prime_digitalisation') %>"
                            data-bruxelles-entreprise-card-target="inputDigitalisation"
-                           data-bruxelles-entreprise-card-slug="bruxelles_consultance_digitalisation">
+                           data-bruxelles-entreprise-card-slug="bruxelles_prime_digitalisation"
+                           data-action="input->bruxelles-entreprise-card#handleInput">
                     <span class="input-group-text bg-info text-white"
                           data-bruxelles-entreprise-card-target="resultDigitalisation">0 €</span>
                   </div>
@@ -730,9 +756,9 @@
                 <i class="bi bi-calculator me-1"></i>
                 Total estimé
               </h6>
-              <h3 class="text-primary mb-2" data-bruxelles-entreprise-calcul-target="totalGeneral">0 €</h3>
+              <h3 class="text-primary mb-2" data-bruxelles-entreprise-cartes-target="totalGeneral">0 €</h3>
               <small class="text-muted">
-                <span data-bruxelles-entreprise-calcul-target="categorieEntreprise">Type d'entreprise</span><br>
+                <span data-bruxelles-entreprise-cartes-target="categorieEntreprise">Type d'entreprise</span><br>
                 Simulation du <%= Date.current.strftime("%d/%m/%Y") %>
               </small>
             </div>
