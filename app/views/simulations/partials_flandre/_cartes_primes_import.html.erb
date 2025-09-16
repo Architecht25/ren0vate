@@ -21,6 +21,154 @@
     }
   </script>
 
+  <%
+    # Préparer les valeurs sauvegardées pour restauration
+    saved_flandre_inputs = {}
+    if @simulation.parameters.present?
+      begin
+        params_data = JSON.parse(@simulation.parameters)
+        if params_data['prime_cards'].present?
+          params_data['prime_cards'].each do |category_key, category_data|
+            next unless category_data['primes']
+            category_data['primes'].each do |prime|
+              if prime['user_input_value'].present? && prime['user_input_value'] != 0 && prime['user_input_value'] != "0"
+                saved_flandre_inputs[prime['slug']] = prime['user_input_value']
+              end
+            end
+          end
+        end
+      rescue JSON::ParserError
+        # Si le JSON est invalide, on ignore
+      end
+    end
+  %>
+
+  <!-- Script pour injecter les valeurs sauvegardées dans les inputs Flandre -->
+  <% if saved_flandre_inputs.any? %>
+  <script nonce="<%= request.content_security_policy_nonce %>">
+    // Variables globales pour la restauration Flandre
+    window.flandreSavedInputs = <%= saved_flandre_inputs.to_json.html_safe %>;
+    window.flandrePendingRestore = true;
+
+    console.log('🔄 Données Flandre à restaurer:', window.flandreSavedInputs);
+
+    function restoreFlandreInputs() {
+      if (!window.flandrePendingRestore) return;
+
+      const savedInputs = window.flandreSavedInputs;
+      let restoredCount = 0;
+
+      console.log('🔄 Tentative de restauration Flandre:', Object.keys(savedInputs).length, 'valeurs');
+
+      // Marquer qu'on est en restauration pour éviter les auto-saves
+      window.isRestoringValues = true;
+
+      Object.entries(savedInputs).forEach(([slug, value]) => {
+        // Chercher l'input par data-slug
+        const input = document.querySelector(`input[data-slug="${slug}"], select[data-slug="${slug}"]`);
+        if (input) {
+          // Injecter dans data-saved-value pour le système restoreValues()
+          input.dataset.savedValue = value;
+
+          // Remplir la valeur
+          input.value = value;
+          restoredCount++;
+
+          console.log(`✅ Valeur restaurée pour ${slug}: ${value}`);
+
+        } else {
+          console.log(`⚠️ Input non trouvé pour slug: ${slug}`);
+        }
+      });
+
+      // Maintenant déclencher tous les calculs après avoir restauré toutes les valeurs
+      if (restoredCount > 0) {
+        console.log(`🎉 Restauration Flandre: ${restoredCount}/${Object.keys(savedInputs).length} valeurs restaurées`);
+
+        // Attendre un peu puis déclencher les calculs
+        setTimeout(() => {
+          console.log('🔢 Déclenchement des recalculs...');
+
+          // Déclencher les événements sur chaque input restauré
+          Object.keys(savedInputs).forEach(slug => {
+            const input = document.querySelector(`input[data-slug="${slug}"], select[data-slug="${slug}"]`);
+            if (input && input.value) {
+              // Déclencher les événements de calcul
+              input.dispatchEvent(new Event('input', { bubbles: true }));
+              input.dispatchEvent(new Event('change', { bubbles: true }));
+
+              // Forcer le recalcul du contrôleur de carte
+              const card = input.closest('[data-controller*="flandre-prime-card"]');
+              if (card) {
+                const controller = window.application?.getControllerForElementAndIdentifier(card, 'flandre-prime-card');
+                if (controller && controller.calculate) {
+                  console.log(`🔢 Force calcul pour carte: ${slug}`);
+                  controller.calculate();
+                }
+              }
+            }
+          });
+
+          // Déclencher la mise à jour du total global
+          setTimeout(() => {
+            const globalController = document.querySelector('[data-controller*="flandre-prime-calcul"]');
+            if (globalController) {
+              const controller = window.application?.getControllerForElementAndIdentifier(globalController, 'flandre-prime-calcul');
+              if (controller) {
+                console.log('🔢 Force mise à jour total global');
+                if (controller.updateTotalGlobal) {
+                  controller.updateTotalGlobal();
+                }
+                if (controller.cardUpdated) {
+                  controller.cardUpdated();
+                }
+              }
+            }
+
+            // Réactiver les auto-saves
+            window.isRestoringValues = false;
+            window.flandrePendingRestore = false;
+
+            console.log('✅ Restauration Flandre terminée avec recalculs');
+          }, 300);
+
+        }, 200);
+
+      } else {
+        console.log('❌ Aucune valeur Flandre n\'a pu être restaurée, nouvelle tentative dans 1s');
+        setTimeout(() => {
+          window.isRestoringValues = false;
+          restoreFlandreInputs();
+        }, 1000);
+      }
+    }
+
+    // Essayer la restauration à différents moments
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(restoreFlandreInputs, 500);
+    });
+
+    document.addEventListener('turbo:load', () => {
+      setTimeout(restoreFlandreInputs, 500);
+    });
+
+    // Attendre que tous les contrôleurs Stimulus soient connectés
+    document.addEventListener('stimulus:connect', function(event) {
+      if (event.detail.controller.identifier === 'flandre-prime-calcul') {
+        setTimeout(restoreFlandreInputs, 200);
+      }
+    });
+
+    // Fallback robuste : essayer après 3 secondes
+    setTimeout(() => {
+      if (window.flandrePendingRestore) {
+        console.log('🔄 Fallback: tentative finale de restauration Flandre après 3s');
+        restoreFlandreInputs();
+      }
+    }, 3000);
+  </script>
+  <% end %>
+
   <!-- Styles pour les cartes améliorées -->
   <style>
     .drop-shadow {
@@ -971,6 +1119,12 @@ document.addEventListener('DOMContentLoaded', function() {
         updateSelectedPrimesSummaryFlandre();
       }, 150);
     }
+  });
+
+  // ✨ CORRECTION: Écouter l'événement spécifique du contrôleur
+  document.addEventListener('flandre:card:updated', function(event) {
+    console.log('🎯 Événement flandre:card:updated reçu:', event.detail);
+    updateSelectedPrimesSummaryFlandre();
   });
 
   // Mise à jour initiale

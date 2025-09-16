@@ -29,16 +29,28 @@ class SimulationsController < ApplicationController
     # Extraire les données des primes et le total depuis les paramètres
     if @simulation.parameters.present?
       params_data = safe_parse_simulation_parameters(@simulation)
-      @prime_cards = params_data['prime_cards'] || []
+      @prime_cards = params_data['prime_cards'] || {}
       @total_amount = @simulation.total_simule || 0
     else
-      @prime_cards = []
+      @prime_cards = {}
       @total_amount = 0
     end
 
-    # Rendre les variables disponibles dans la vue
-    prime_cards = @prime_cards
-    total_amount = @total_amount
+    # S'assurer que total_simule est cohérent avec les paramètres
+    if @simulation.total_simule.nil? || @simulation.total_simule == 0
+      if @simulation.parameters.present?
+        params_data = safe_parse_simulation_parameters(@simulation)
+        calculated_total = params_data['total_general'] || params_data['total'] || 0
+        if calculated_total > 0
+          @simulation.update_column(:total_simule, calculated_total)
+          @total_amount = calculated_total
+        end
+      end
+    end
+
+    # Rendre les variables disponibles dans la vue pour compatibilité
+    @prime_cards_data = @prime_cards
+    @simulation_total = @total_amount
   end
 
   def new
@@ -202,12 +214,12 @@ class SimulationsController < ApplicationController
 
     # Rails.logger.info "🔄 Updating prime inputs for simulation #{@simulation.id} with #{user_inputs.keys.length} inputs"
 
-    # Si pas de données, retourner succès sans traitement (pour l'auto-save vide)
-    if user_inputs.empty?
-      # Rails.logger.info "📝 Auto-save avec données vides ignoré pour simulation #{@simulation.id}"
+    # Si pas de données ET aucune donnée existante, retourner succès (pour l'auto-save vide initial)
+    if user_inputs.empty? && @simulation.total_simule.present? && @simulation.total_simule > 0
+      # Rails.logger.info "📝 Auto-save vide ignoré pour simulation #{@simulation.id} avec données existantes"
       render json: {
         success: true,
-        message: "Aucune donnée à sauvegarder",
+        message: "Aucune nouvelle donnée à sauvegarder",
         total_amount: @simulation.total_simule || 0
       }
       return
