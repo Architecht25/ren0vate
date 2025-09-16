@@ -22,6 +22,9 @@ export default class extends Controller {
 
     // Écouter les changements des paramètres d'entreprise
     this.setupParameterListeners()
+
+    // Mettre à jour les placeholders adaptatifs dès la connexion
+    this.updateAdaptivePlaceholders()
   }
 
   setupEventListeners() {
@@ -126,6 +129,9 @@ export default class extends Controller {
   recalculateAllCards() {
     console.log("🔄 Recalcul de toutes les cartes suite au changement de paramètres")
 
+    // Mettre à jour les placeholders adaptatifs
+    this.updateAdaptivePlaceholders()
+
     // Déclencher un recalcul sur toutes les cartes
     const cards = this.element.querySelectorAll('[data-controller*="bruxelles-entreprise-card"]')
     cards.forEach(card => {
@@ -140,6 +146,94 @@ export default class extends Controller {
         })
       }
     })
+  }
+
+  updateAdaptivePlaceholders() {
+    const tailleEntreprise = this.hasTailleEntrepriseTarget ? this.tailleEntrepriseTarget.value : null
+    const ageEntreprise = this.hasAgeEntrepriseTarget ? this.ageEntrepriseTarget.value : null
+
+    console.log("🏷️ Mise à jour placeholders adaptatifs:", { tailleEntreprise, ageEntreprise })
+
+    // Mettre à jour le placeholder pour la Prime Matériel ou Travaux
+    const materielTravauxInput = this.element.querySelector('input[data-bruxelles-entreprise-card-slug="bruxelles_prime_materiel_travaux"]')
+    if (materielTravauxInput) {
+      const montantMin = this.calculateMinimumForMaterielTravaux(tailleEntreprise, ageEntreprise)
+      materielTravauxInput.placeholder = `${montantMin.toLocaleString('fr-FR')}€ min`
+      console.log("📝 Placeholder mis à jour pour Prime Matériel/Travaux:", `${montantMin.toLocaleString('fr-FR')}€ min`)
+    }
+
+    // Mettre à jour les autres placeholders avec montants fixes
+    this.updateStaticPlaceholders()
+  }
+
+  updateStaticPlaceholders() {
+    const staticPlaceholders = {
+      'bruxelles_prime_immobilier': '100.000€ min',
+      'bruxelles_prime_conformite_normes': '5.000€ min',
+      'bruxelles_prime_securisation': '2.000€ min',
+      'bruxelles_prime_accessibilite': '1.000€ min',
+      'bruxelles_investissements_transition_economique': '2.000€ min',
+      'bruxelles_mobilite_velo_cargo': '500€ min',
+      'bruxelles_prime_consultance': '500€ min',
+      'bruxelles_prime_digitalisation': '500€ min'
+    }
+
+    Object.entries(staticPlaceholders).forEach(([slug, placeholder]) => {
+      const input = this.element.querySelector(`input[data-bruxelles-entreprise-card-slug="${slug}"]`)
+      if (input) {
+        input.placeholder = placeholder
+        console.log(`📝 Placeholder mis à jour pour ${slug}:`, placeholder)
+      }
+    })
+  }
+
+  getAdaptiveMinimumAmount(aideSlug, tailleEntreprise, ageEntreprise) {
+    switch (aideSlug) {
+      case 'bruxelles_prime_materiel_travaux':
+        return this.calculateMinimumForMaterielTravaux(tailleEntreprise, ageEntreprise)
+      case 'bruxelles_prime_immobilier':
+        return 100000
+      case 'bruxelles_prime_conformite_normes':
+        return 5000
+      case 'bruxelles_prime_securisation':
+        return 2000
+      case 'bruxelles_prime_accessibilite':
+        return 1000
+      case 'bruxelles_investissements_transition_economique':
+        return 2000
+      case 'bruxelles_mobilite_velo_cargo':
+        return 500
+      case 'bruxelles_prime_consultance':
+        return 500
+      case 'bruxelles_prime_digitalisation':
+        return 500
+      default:
+        return null // Utiliser le montant par défaut des données JSON
+    }
+  }
+
+  calculateMinimumForMaterielTravaux(tailleEntreprise, ageEntreprise) {
+    // Déterminer si c'est une entreprise "starter" (< 4 ans)
+    const isStarter = ageEntreprise === "moins_4_ans" || ageEntreprise === "moins_3_ans"
+
+    // Si c'est une starter, minimum 5.000€ indépendamment de la taille
+    if (isStarter) {
+      return 5000
+    }
+
+    // Sinon, selon la taille d'entreprise
+    switch (tailleEntreprise) {
+      case "tpe":
+      case "micro":
+        return 7500  // Micro > 4 ans
+      case "pme":
+      case "petite":
+        return 15000 // Petite > 4 ans
+      case "moyenne":
+        return 50000 // Moyenne > 4 ans
+      default:
+        return 5000  // Valeur par défaut
+    }
   }
 
   // Méthodes appelées depuis le template

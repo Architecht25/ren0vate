@@ -140,7 +140,14 @@ export default class extends Controller {
       'inputRecrutement': 'bruxelles_prime_recrutement',
       'inputFormation': 'bruxelles_prime_formation',
       'inputConseil': 'bruxelles_prime_consultance',
-      'inputCoworking': 'bruxelles_prime_consultance' // Pas de coworking spécifique
+      'inputCoworking': 'bruxelles_prime_consultance', // Pas de coworking spécifique
+      'inputInvestissementsTransition': 'bruxelles_investissements_transition_economique',
+      'inputMobiliteVeloCargo': 'bruxelles_mobilite_velo_cargo',
+      'inputMobiliteUtilitaireElectrique': 'bruxelles_mobilite_utilitaire_electrique',
+      'inputMobiliteUtilitaireRetrofit': 'bruxelles_mobilite_utilitaire_retrofit',
+      'inputMaterielTravaux': 'bruxelles_prime_materiel_travaux',
+      'inputConformite': 'bruxelles_prime_conformite_normes',
+      'inputSecurisation': 'bruxelles_prime_securisation'
     }
 
     return mapping[targetName]
@@ -165,6 +172,11 @@ export default class extends Controller {
 
     console.log(`✅ Aide trouvée:`, aide)
 
+    // Obtenir les paramètres d'entreprise depuis le controller coordinateur
+    const coordinatorController = this.getCoordinatorController()
+    const tailleEntreprise = coordinatorController?.hasTailleEntrepriseTarget ? coordinatorController.tailleEntrepriseTarget.value : null
+    const ageEntreprise = coordinatorController?.hasAgeEntrepriseTarget ? coordinatorController.ageEntrepriseTarget.value : null
+
     // Calculer la prime en fonction du taux_aide et des plafonds
     const tauxAide = aide.taux_aide || 25.0
     let montantPrime = montantInvesti * (tauxAide / 100)
@@ -174,9 +186,16 @@ export default class extends Controller {
       montantPrime = Math.min(montantPrime, aide.montant_max)
     }
 
-    // Vérifier le montant minimum
-    if (aide.montant_min && montantPrime < aide.montant_min) {
+    // Vérifier le montant minimum adaptatif
+    const montantMinAdaptatif = this.getAdaptiveMinimumInvestment(aideSlug, tailleEntreprise, ageEntreprise)
+    if (montantMinAdaptatif && montantInvesti < montantMinAdaptatif) {
+      console.log(`❌ Montant investi (${montantInvesti}€) inférieur au minimum requis (${montantMinAdaptatif}€)`)
       montantPrime = 0
+    } else {
+      // Vérifier le montant minimum de prime (fallback)
+      if (aide.montant_min && montantPrime < aide.montant_min) {
+        montantPrime = 0
+      }
     }
 
     console.log(`💰 Calcul final: ${montantInvesti}€ × ${tauxAide}% = ${Math.round(montantPrime)}€`)
@@ -288,5 +307,63 @@ export default class extends Controller {
 
   hasTarget(targetName) {
     return this.targets.findAll(targetName).length > 0
+  }
+
+  getCoordinatorController() {
+    // Récupérer le controller coordinateur (parent)
+    const coordinatorElement = this.element.closest('[data-controller*="bruxelles-entreprise-cartes"]')
+    if (coordinatorElement) {
+      return this.application.getControllerForElementAndIdentifier(coordinatorElement, 'bruxelles-entreprise-cartes')
+    }
+    return null
+  }
+
+  getAdaptiveMinimumInvestment(aideSlug, tailleEntreprise, ageEntreprise) {
+    switch (aideSlug) {
+      case 'bruxelles_prime_materiel_travaux':
+        return this.calculateMinimumForMaterielTravaux(tailleEntreprise, ageEntreprise)
+      case 'bruxelles_prime_immobilier':
+        return 100000
+      case 'bruxelles_prime_conformite_normes':
+        return 5000
+      case 'bruxelles_prime_securisation':
+        return 2000
+      case 'bruxelles_prime_accessibilite':
+        return 1000
+      case 'bruxelles_investissements_transition_economique':
+        return 2000
+      case 'bruxelles_mobilite_velo_cargo':
+        return 500
+      case 'bruxelles_prime_consultance':
+        return 500
+      case 'bruxelles_prime_digitalisation':
+        return 500
+      default:
+        return null // Utiliser le montant par défaut des données JSON
+    }
+  }
+
+  calculateMinimumForMaterielTravaux(tailleEntreprise, ageEntreprise) {
+    // Déterminer si c'est une entreprise "starter" (< 4 ans)
+    const isStarter = ageEntreprise === "moins_4_ans" || ageEntreprise === "moins_3_ans"
+
+    // Si c'est une starter, minimum 5.000€ indépendamment de la taille
+    if (isStarter) {
+      return 5000
+    }
+
+    // Sinon, selon la taille d'entreprise
+    switch (tailleEntreprise) {
+      case "tpe":
+      case "micro":
+        return 7500  // Micro > 4 ans
+      case "pme":
+      case "petite":
+        return 15000 // Petite > 4 ans
+      case "moyenne":
+        return 50000 // Moyenne > 4 ans
+      default:
+        return 5000  // Valeur par défaut
+    }
   }
 }

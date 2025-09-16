@@ -284,7 +284,7 @@ EntrepriseAide.find_or_create_by(slug: "bruxelles_mobilite_velo_cargo") do |aide
     "limites" => {
       "montant_max_velo_cargo" => "4.000€",
       "montant_max_remorque" => "2.000€",
-      "montant_max_annuel_total" => "12.000€",
+      "montant_max_annuel_total" => "3×4.000€/an",
       "vehicules_max_annuel" => "3 vélos-cargo/remorques",
       "facture_minimum" => "500€"
     }

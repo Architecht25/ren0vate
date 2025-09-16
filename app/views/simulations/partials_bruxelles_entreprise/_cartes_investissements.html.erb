@@ -51,7 +51,34 @@
     # Helper pour récupérer le placeholder calculé pour une aide
     def placeholder_for_aide(slug)
       aide = EntrepriseAide.find_by(slug: slug)
-      if aide&.montant_investissement_min_requis
+      if aide&.slug == "bruxelles_prime_materiel_travaux"
+        # Pour cette aide, le placeholder sera mis à jour dynamiquement via JavaScript
+        "5.000€ min"
+      elsif aide&.slug == "bruxelles_prime_immobilier"
+        # Pour la prime immobilier, montant minimum statique de 100.000€
+        "100.000€ min"
+      elsif aide&.slug == "bruxelles_prime_conformite_normes"
+        # Pour la prime conformité, montant minimum statique de 5.000€
+        "5.000€ min"
+      elsif aide&.slug == "bruxelles_prime_securisation"
+        # Pour la prime sécurisation, montant minimum statique de 2.000€
+        "2.000€ min"
+      elsif aide&.slug == "bruxelles_prime_accessibilite"
+        # Pour la prime accessibilité, montant minimum statique de 1.000€
+        "1.000€ min"
+      elsif aide&.slug == "bruxelles_investissements_transition_economique"
+        # Pour les investissements transition économique, montant minimum statique de 2.000€
+        "2.000€ min"
+      elsif aide&.slug == "bruxelles_mobilite_velo_cargo"
+        # Pour la prime mobilité vélo cargo, montant minimum statique de 500€
+        "500€ min"
+      elsif aide&.slug == "bruxelles_prime_consultance"
+        # Pour la prime consultance, montant minimum statique de 500€
+        "500€ min"
+      elsif aide&.slug == "bruxelles_prime_digitalisation"
+        # Pour la prime digitalisation, montant minimum statique de 500€
+        "500€ min"
+      elsif aide&.montant_investissement_min_requis
         "#{aide.montant_investissement_min_requis}€ min"
       else
         "€"
@@ -323,7 +350,7 @@
                     <span class="input-group-text bg-success text-white"
                           data-bruxelles-entreprise-card-target="resultMobiliteVeloCargo">0 €</span>
                   </div>
-                  <small class="text-muted">Jusqu'à 12.000€/an - Taux 40% (max 70%)</small>
+                  <small class="text-muted">Jusqu'à 3×4.000€/an - Taux 40% (max 70%)</small>
                   <p class="text-success small mt-1 mb-2">
                     <i class="bi bi-info-circle me-1"></i>
                     <%= description_aide('bruxelles_mobilite_velo_cargo').truncate(120) %>
@@ -351,7 +378,7 @@
                     <span class="input-group-text bg-success text-white"
                           data-bruxelles-entreprise-card-target="resultMobiliteUtilitaireElectrique">0 €</span>
                   </div>
-                  <small class="text-muted">Jusqu'à 25.000€/véhicule - Taux 30% (max 50%)</small>
+                  <small class="text-muted">Jusqu'à 3*16.000€/véhicule - Taux 5% (max 40%)</small>
                   <p class="text-success small mt-1 mb-2">
                     <i class="bi bi-info-circle me-1"></i>
                     <%= description_aide('bruxelles_mobilite_utilitaire_electrique').truncate(120) %>
@@ -379,7 +406,7 @@
                     <span class="input-group-text bg-success text-white"
                           data-bruxelles-entreprise-card-target="resultMobiliteUtilitaireRetrofit">0 €</span>
                   </div>
-                  <small class="text-muted">Jusqu'à 15.000€/véhicule - Taux 40% (max 60%)</small>
+                  <small class="text-muted">Jusqu'à 3*16.000€/véhicule - Taux 5% (max 70%)</small>
                   <p class="text-success small mt-1 mb-2">
                     <i class="bi bi-info-circle me-1"></i>
                     <%= description_aide('bruxelles_mobilite_utilitaire_retrofit').truncate(120) %>
@@ -465,7 +492,7 @@
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-entreprise-card-target="resultConformite">0 €</span>
                   </div>
-                  <small class="text-muted">Jusqu'à 40.000€ - Taux 30% (max 60%)</small>
+                  <small class="text-muted">Jusqu'à 40.000€ - Taux 40%</small>
                   <p class="text-primary small mt-1 mb-2">
                     <i class="bi bi-info-circle me-1"></i>
                     <%= description_aide('bruxelles_prime_conformite_normes').truncate(120) %>
@@ -519,7 +546,7 @@
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-entreprise-card-target="resultImmobilier">0 €</span>
                   </div>
-                  <small class="text-muted">Jusqu'à 200.000€ - Taux 15% (max 30%)</small>
+                  <small class="text-muted">Jusqu'à 500.000€ - Taux 5% (max 20%)</small>
                   <p class="text-primary small mt-1 mb-2">
                     <i class="bi bi-info-circle me-1"></i>
                     <%= description_aide('bruxelles_prime_immobilier').truncate(120) %>
@@ -546,7 +573,7 @@
                     <span class="input-group-text bg-primary text-white"
                           data-bruxelles-entreprise-card-target="resultAccessibilite">0 €</span>
                   </div>
-                  <small class="text-muted">Jusqu'à 50.000€ - Taux 50% (max 70%)</small>
+                  <small class="text-muted">Jusqu'à 80.000€ - Taux 50% (max 70%)</small>
                   <p class="text-primary small mt-1 mb-2">
                     <i class="bi bi-info-circle me-1"></i>
                     <%= description_aide('bruxelles_prime_accessibilite').truncate(120) %>
@@ -606,7 +633,7 @@
                     <span class="input-group-text bg-warning text-white"
                           data-bruxelles-entreprise-card-target="resultRecrutement">0 €</span>
                   </div>
-                  <small class="text-muted">Forfaitaire selon profil recruté</small>
+                  <small class="text-muted">Jusqu'à 15.000€ - Taux 100%</small>
                   <p class="text-warning small mt-1 mb-2">
                     <i class="bi bi-info-circle me-1"></i>
                     <%= description_aide('bruxelles_prime_recrutement').truncate(120) %>
@@ -719,7 +746,7 @@
                     <span class="input-group-text bg-info text-white"
                           data-bruxelles-entreprise-card-target="resultDigitalisation">0 €</span>
                   </div>
-                  <small class="text-muted">Jusqu'à 10.000€/an - Taux 50% (max 70%)</small>
+                  <small class="text-muted">Jusqu'à 10.000€/an - Taux 25% (max 70%)</small>
                   <p class="text-info small mt-1 mb-2">
                     <i class="bi bi-info-circle me-1"></i>
                     <%= description_aide('bruxelles_prime_digitalisation').truncate(120) %>

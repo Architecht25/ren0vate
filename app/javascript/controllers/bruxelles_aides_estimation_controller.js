@@ -17,7 +17,7 @@ export default class extends Controller {
       },
       investissements: {
         materiels_equipements: { rate: 0.25, max: 200000 },
-        travaux_immobiliers: { rate: 0.25, max: 200000 },
+        travaux_immobiliers: { rate: 0.25, max: 100000 },
         conformite_reglementaire: { rate: 0.50, max: 100000 }
       },
       recrutement_formation: {
