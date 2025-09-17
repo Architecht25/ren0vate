@@ -48,6 +48,7 @@ Rails.application.routes.draw do
   end
 
   resources :primes
+  resources :entreprise_aides, path: 'entreprises/aides', only: [:show]
   resources :categories
 
   # Routes de test pour la nouvelle architecture de calculs

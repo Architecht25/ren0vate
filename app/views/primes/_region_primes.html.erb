@@ -2,7 +2,15 @@
   <div class="row g-3 justify-content-center">
     <% primes.each do |prime| %>
       <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
-        <%= link_to prime_path(prime), class: "text-decoration-none" do %>
+        <% # Déterminer le lien selon le type d'objet
+           if prime.is_a?(EntrepriseAide)
+             link_path = entreprise_aide_path(prime)
+             link_options = {}
+           else
+             link_path = prime_path(prime)
+             link_options = {}
+           end %>
+        <%= link_to link_path, class: "text-decoration-none", **link_options do %>
           <div class="prime-card bg-white border rounded-3 overflow-hidden h-100 shadow-sm">
             <div class="d-flex align-items-stretch h-100">
               <!-- Image côté gauche qui occupe toute la hauteur -->
@@ -24,8 +32,18 @@
                       'Housing-Ventilation-Shutterstock-16-9-1920x1080px_uxckrq'
                     when /rénovation.*globale/
                       'renovation_toiture_guwknw'
+                    # Images spécifiques entreprises
+                    when /consultant|audit|conseil/
+                      'consultant_uup0sz'
+                    when /formation|recrutement|emploi/
+                      'on_recrute_cmceil'
+                    when /transition|économique|stratégique/
+                      'Les-enjeux-economiques-de-la-transition-vers-la-neutralite-carbone-min_pnxl9b'
+                    when /investissement|équipement|financement/
+                      'financement-dequipement-comment-reduire-les-couts-dinvestissement-1024x683_l1zath'
                     else
-                      'bureau_etude_renovation_energetique_4_yswh8x'
+                      # Image par défaut selon le type d'objet
+                      prime.is_a?(EntrepriseAide) ? 'consultant_uup0sz' : 'bureau_etude_renovation_energetique_4_yswh8x'
                     end %>
                 <div class="h-100 w-100"
                      style="background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_160,h_120,q_auto,f_auto/<%= cloudinary_id %>');
@@ -42,8 +60,8 @@
 
                 <!-- Petite indication du type ou région -->
                 <small class="text-muted d-flex align-items-center">
-                  <i class="bi bi-<%= prime.icon_name.present? ? prime.icon_name : 'award' %> me-1" style="font-size: 12px;"></i>
-                  <%= case color_class when 'primary' then 'Flandre' when 'success' then 'Wallonie' when 'warning' then 'Bruxelles' else 'Prime' end %>
+                  <i class="bi bi-<%= prime.respond_to?(:icon_name) && prime.icon_name.present? ? prime.icon_name : (prime.is_a?(EntrepriseAide) ? 'building' : 'award') %> me-1" style="font-size: 12px;"></i>
+                  <%= case color_class when 'primary' then 'Flandre' when 'success' then 'Wallonie' when 'warning' then 'Bruxelles' when 'info' then 'Entreprises' else region_name end %>
                 </small>
               </div>
             </div>
