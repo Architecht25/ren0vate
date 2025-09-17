@@ -1,0 +1,101 @@
+// Styles pour les cartes de primes compactes
+
+.prime-card {
+  transition: all 0.3s ease;
+  min-height: 100px;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+  }
+}
+
+.prime-image-left {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.05) 100%);
+    pointer-events: none;
+  }
+}
+
+.prime-title {
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+
+// Version responsive
+@media (max-width: 576px) {
+  .prime-card {
+    min-height: 80px;
+  }
+
+  .prime-image-left {
+    width: 120px !important;
+  }
+
+  .prime-title {
+    font-size: 0.85rem;
+  }
+}
+
+// Style pour l'affichage compact horizontal
+.prime-card .d-flex {
+  min-height: 60px;
+  align-items: center;
+}
+
+// Couleurs régionales spécifiques
+.text-primary {
+  color: #0066cc !important;
+}
+
+.text-success {
+  color: #28a745 !important;
+}
+
+.text-secondary {
+  color: #6c757d !important;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .prime-image-small {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .prime-title {
+    font-size: 0.8rem;
+  }
+
+  .prime-card {
+    margin-bottom: 0.75rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .prime-card .d-flex {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+
+    .prime-image-small {
+      margin-right: 0 !important;
+      margin-bottom: 0.5rem;
+      align-self: center;
+    }
+
+    .flex-grow-1 {
+      text-align: center;
+      width: 100%;
+    }
+  }
+}

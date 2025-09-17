@@ -105,4 +105,122 @@ module ApplicationHelper
       ]
     end
   end
+
+  # Génère l'URL d'image Cloudinary pour une prime spécifique
+  def prime_specific_image_url(prime, transformations = {})
+    return nil unless prime
+
+    # Mapping des types de primes vers leurs IDs Cloudinary spécifiques
+    cloudinary_image_mapping = {
+      # Isolation toiture - mots-clés spécifiques
+      'isolation thermique de la toiture' => 'isolation_toiture_f9r4hs',
+      'isolation de la toiture' => 'isolation_toiture_f9r4hs',
+      'isolation thermique du toit' => 'isolation_toiture_f9r4hs',
+      'isolation.*toiture' => 'isolation_toiture_f9r4hs',
+      'toiture.*isolation' => 'isolation_toiture_f9r4hs',
+
+      # Isolation murs
+      'isolation.*murs' => 'isolation_murs_ext_ahbpat',
+      'murs.*isolation' => 'isolation_murs_ext_ahbpat',
+      'isolation.*façade' => 'isolation_murs_ext_ahbpat',
+      'façade.*isolation' => 'isolation_murs_ext_ahbpat',
+
+      # Isolation sols
+      'isolation.*sol' => 'isolation_sol_kokpgs',
+      'sol.*isolation' => 'isolation_sol_kokpgs',
+      'isolation.*plancher' => 'isolation_sol_kokpgs',
+      'plancher.*isolation' => 'isolation_sol_kokpgs',
+
+      # Chauffage et énergie
+      'pompe.*chaleur' => 'pac_géothermique_cj7l2y',
+      'pac' => 'pac_géothermique_cj7l2y',
+      'chauffe.*eau' => 'pac_géothermique_cj7l2y',
+      'chauffage' => 'pac_géothermique_cj7l2y',
+      'hybride' => 'pac_hybride_ukmzp8',
+      'solaire' => 'aurostep-plus-avec-capteurs-solaire-389237-format-flex-height_yzlwxc',
+
+      # Ouvertures
+      'châssis' => 'remplacement_chassis_lrszxo',
+      'chassis' => 'remplacement_chassis_lrszxo',
+      'fenêtre' => 'remplacement_chassis_lrszxo',
+      'fenetre' => 'remplacement_chassis_lrszxo',
+      'porte' => 'remplacement_chassis_lrszxo',
+
+      # Ventilation
+      'ventilation' => 'Housing-Ventilation-Shutterstock-16-9-1920x1080px_uxckrq',
+
+      # Rénovation
+      'rénovation.*toiture' => 'renovation_toiture_guwknw',
+      'renovation.*toiture' => 'renovation_toiture_guwknw',
+      'structure.*toiture' => 'renovation_toiture_guwknw',
+      'couverture' => 'renovation_toiture_guwknw',
+
+      # Efficacité énergétique
+      'efficacité' => 'efficacite-energetique-batiment_mlgdaj',
+      'efficacite' => 'efficacite-energetique-batiment_mlgdaj',
+      'audit' => 'efficacite-energetique-batiment_mlgdaj'
+    }
+
+    # Déterminer l'ID Cloudinary basé sur le titre ou slug de la prime
+    cloudinary_id = determine_cloudinary_id_for_prime(prime, cloudinary_image_mapping)
+
+    # Debug en développement
+    Rails.logger.debug "Prime: #{prime.titre} -> Cloudinary ID: #{cloudinary_id}" if Rails.env.development?
+
+    default_transformations = {
+      width: 48,
+      height: 48
+    }
+
+    build_cloudinary_url(cloudinary_id, default_transformations.merge(transformations))
+  end
+
+  private
+
+  def determine_cloudinary_id_for_prime(prime, mapping)
+    title_lower = prime.titre.downcase
+    slug_lower = prime.slug.downcase if prime.respond_to?(:slug)
+
+    # Debug: afficher le titre pour comprendre le mapping
+    Rails.logger.debug "Prime titre: #{prime.titre}" if Rails.env.development?
+
+    # Rechercher par mots-clés dans le titre et slug
+    mapping.each do |pattern, cloudinary_id|
+      # Utiliser regex si le pattern contient des caractères regex
+      if pattern.include?('.*')
+        regex = Regexp.new(pattern, Regexp::IGNORECASE)
+        if title_lower.match?(regex) || (slug_lower && slug_lower.match?(regex))
+          Rails.logger.debug "Matched pattern: #{pattern} -> #{cloudinary_id}" if Rails.env.development?
+          return cloudinary_id
+        end
+      else
+        # Recherche simple par inclusion
+        if title_lower.include?(pattern) || (slug_lower && slug_lower.include?(pattern))
+          Rails.logger.debug "Matched keyword: #{pattern} -> #{cloudinary_id}" if Rails.env.development?
+          return cloudinary_id
+        end
+      end
+    end
+
+    # Image par défaut si aucune correspondance
+    Rails.logger.debug "No match found, using default image" if Rails.env.development?
+    'efficacite-energetique-batiment_mlgdaj'
+  end
+
+  def build_cloudinary_url(cloudinary_id, transformations = {})
+    # Utiliser la même approche que dans les cartes de simulation
+    cloud_name = ENV['CLOUDINARY_CLOUD_NAME'] || 'dyfkqjv3r'  # fallback
+
+    # Format des transformations pour correspondre à l'exemple
+    transform_params = []
+    transform_params << "c_fill"
+    transform_params << "w_#{transformations[:width] || 48}"
+    transform_params << "h_#{transformations[:height] || 48}"
+    transform_params << "q_auto"
+    transform_params << "f_auto"
+
+    transform_string = transform_params.join(',')
+
+    "https://res.cloudinary.com/#{cloud_name}/image/upload/#{transform_string}/#{cloudinary_id}"
+  end
 end

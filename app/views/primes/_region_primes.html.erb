@@ -1,20 +1,52 @@
 <% if primes.any? %>
-  <div class="row g-4 justify-content-center">
+  <div class="row g-3 justify-content-center">
     <% primes.each do |prime| %>
-      <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+      <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
         <%= link_to prime_path(prime), class: "text-decoration-none" do %>
-          <div class="bg-light p-4 rounded text-center h-100">
-            <!-- Icône circulaire centrée avec couleur régionale -->
-            <div class="icon-circle mx-auto mb-3" style="width: 50px; height: 50px; background-color: <%= case color_class when 'primary' then '#2c5282' when 'success' then '#38a169' when 'warning' then '#6c757d' else '#2c5282' end %>; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-              <% if prime.icon_name.present? %>
-                <i class="bi bi-<%= prime.icon_name %>" style="color: white; font-size: 20px;"></i>
-              <% else %>
-                <i class="bi bi-award" style="color: white; font-size: 20px;"></i>
-              <% end %>
-            </div>
+          <div class="prime-card bg-white border rounded-3 overflow-hidden h-100 shadow-sm">
+            <div class="d-flex align-items-stretch h-100">
+              <!-- Image côté gauche qui occupe toute la hauteur -->
+              <div class="prime-image-left" style="width: 160px; min-height: 100px;">
+                <% cloudinary_id = case prime.titre&.downcase
+                    when /isolation.*toiture/
+                      'isolation_toiture_f9r4hs'
+                    when /isolation.*murs/
+                      'isolation_murs_ext_ahbpat'
+                    when /isolation.*sols?/
+                      'isolation_sol_kokpgs'
+                    when /chassis|fenêtres?/
+                      'remplacement_chassis_lrszxo'
+                    when /pac|pompe.*chaleur/
+                      'pac_hybride_ukmzp8'
+                    when /chauffage|chaudière/
+                      'efficacite-energetique-batiment_mlgdaj'
+                    when /ventilation/
+                      'Housing-Ventilation-Shutterstock-16-9-1920x1080px_uxckrq'
+                    when /rénovation.*globale/
+                      'renovation_toiture_guwknw'
+                    else
+                      'bureau_etude_renovation_energetique_4_yswh8x'
+                    end %>
+                <div class="h-100 w-100"
+                     style="background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_160,h_120,q_auto,f_auto/<%= cloudinary_id %>');
+                            background-size: cover;
+                            background-position: center;">
+                </div>
+              </div>
 
-            <!-- Titre centré avec couleur régionale -->
-            <h6 class="<%= case color_class when 'primary' then 'text-primary' when 'success' then 'text-success' when 'warning' then 'text-secondary' else 'text-primary' end %> mb-0 fw-bold"><%= prime.titre %></h6>
+              <div class="flex-grow-1 p-3 d-flex flex-column justify-content-center">
+                <!-- Titre de la prime -->
+                <h6 class="prime-title mb-1 <%= case color_class when 'primary' then 'text-primary' when 'success' then 'text-success' when 'warning' then 'text-secondary' else 'text-primary' end %> fw-semibold lh-sm">
+                  <%= prime.titre %>
+                </h6>
+
+                <!-- Petite indication du type ou région -->
+                <small class="text-muted d-flex align-items-center">
+                  <i class="bi bi-<%= prime.icon_name.present? ? prime.icon_name : 'award' %> me-1" style="font-size: 12px;"></i>
+                  <%= case color_class when 'primary' then 'Flandre' when 'success' then 'Wallonie' when 'warning' then 'Bruxelles' else 'Prime' end %>
+                </small>
+              </div>
+            </div>
           </div>
         <% end %>
       </div>
