@@ -11,6 +11,26 @@ def conseil_prime(slug)
 end
 %>
 
+<style>
+  .drop-shadow {
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  }
+
+  .card-premium {
+    transition: all 0.3s ease;
+  }
+
+  .card-premium:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+  }
+
+  .image-overlay {
+    background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));
+    backdrop-filter: blur(1px);
+  }
+</style>
+
 <!-- Section Primes Wallonie - 10 cartes permanentes -->
 <div data-controller="wallonie-prime-calcul"<% if defined?(local_assigns) && local_assigns[:simulation_category] %> data-simulation-category="<%= local_assigns[:simulation_category] %>"<% end %>>
   <h4 class="mb-3">
@@ -26,15 +46,29 @@ end
   <div class="row g-3">
         <!-- CARTE 1: AUDIT - Simple (1 input) -->
         <div class="col-lg-3 col-md-4 col-sm-6">
-          <div class="card border-0 shadow h-100" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_realisation_audit_logement">
-            <div class="card-body">
-              <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                  <i class="bi bi-search fs-5 text-info"></i>
+          <div class="card border-0 shadow h-100 overflow-hidden card-premium" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_realisation_audit_logement">
+
+            <!-- Image de fond avec overlay -->
+            <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/audit-logement_me3bcs'); background-size: cover; background-position: center;">
+              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(13, 110, 253, 0.7), rgba(13, 110, 253, 0.4));">
+                <div class="text-center text-white">
+                  <i class="bi bi-search fs-3 mb-2 drop-shadow"></i>
+                  <h6 class="fw-bold mb-0 drop-shadow">Audit énergétique</h6>
+                  <small class="opacity-90">Forfaitaire</small>
                 </div>
-                <div>
-                  <h6 class="card-title mb-1">Audit énergétique</h6>
-                  <small class="text-muted">Forfaitaire</small>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <!-- Badge informatif -->
+              <div class="mb-3">
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="badge bg-info bg-opacity-20 text-info rounded-pill px-3">
+                    <i class="bi bi-search me-1"></i>Audit
+                  </span>
+                  <small class="text-muted">
+                    <i class="bi bi-house me-1"></i>Logement
+                  </small>
                 </div>
               </div>
 
@@ -86,7 +120,7 @@ end
 
         <!-- CARTE 2: TOITURE - Complexe (5 inputs) -->
         <div class="col-lg-3 col-md-4 col-sm-6">
-          <div class="card border-0 shadow h-100" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_toiture_global">
+          <div class="card border-0 shadow h-100 overflow-hidden card-premium" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_toiture_global">
             <!-- Image de fond avec overlay -->
             <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/renovation_toiture_guwknw'); background-size: cover; background-position: center;">
               <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
@@ -99,6 +133,17 @@ end
             </div>
 
             <div class="card-body">
+              <!-- Badge informatif -->
+              <div class="mb-3">
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="badge bg-warning bg-opacity-20 text-warning rounded-pill px-3">
+                    <i class="bi bi-house-door me-1"></i>Toiture
+                  </span>
+                  <small class="text-muted">
+                    <i class="bi bi-tools me-1"></i>5 primes
+                  </small>
+                </div>
+              </div>
 
               <div class="row g-3">
                 <!-- Remplacement couverture -->
@@ -309,7 +354,7 @@ end
 
         <!-- CARTE 3: MURS - Complexe (7 inputs) -->
         <div class="col-lg-3 col-md-4 col-sm-6">
-          <div class="card border-0 shadow h-100" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_murs_global">
+          <div class="card border-0 shadow h-100 overflow-hidden card-premium" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_murs_global">
             <!-- Image de fond avec overlay -->
             <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/isolation_murs_ext_ahbpat'); background-size: cover; background-position: center;">
               <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
@@ -322,6 +367,17 @@ end
             </div>
 
             <div class="card-body">
+              <!-- Badge informatif -->
+              <div class="mb-3">
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="badge bg-success bg-opacity-20 text-success rounded-pill px-3">
+                    <i class="bi bi-bricks me-1"></i>Murs
+                  </span>
+                  <small class="text-muted">
+                    <i class="bi bi-tools me-1"></i>7 primes
+                  </small>
+                </div>
+              </div>
 
               <div class="row g-3">
                 <!-- 1. Assèchement infiltration (14,4€/m²) -->
@@ -608,9 +664,9 @@ end
 
         <!-- CARTE 4: SOLS - Complexe (4 inputs) -->
         <div class="col-lg-3 col-md-4 col-sm-6">
-          <div class="card border-0 shadow h-100" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_sols_global">
+          <div class="card border-0 shadow h-100 overflow-hidden card-premium" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_sols_global">
             <!-- Image de fond avec overlay -->
-            <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/renovation_sol_wwxrx7'); background-size: cover; background-position: center;">
+            <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/renovation_sol_nswlc0'); background-size: cover; background-position: center;">
               <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
                 <div class="text-center text-white">
                   <i class="bi bi-layers fs-3 mb-2 drop-shadow"></i>
@@ -621,6 +677,17 @@ end
             </div>
 
             <div class="card-body">
+              <!-- Badge informatif -->
+              <div class="mb-3">
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="badge bg-secondary bg-opacity-20 text-secondary rounded-pill px-3">
+                    <i class="bi bi-layers me-1"></i>Sols
+                  </span>
+                  <small class="text-muted">
+                    <i class="bi bi-tools me-1"></i>4 primes
+                  </small>
+                </div>
+              </div>
 
               <div class="row g-3">
                 <!-- Isolation sols -->
@@ -791,15 +858,29 @@ end
 
         <!-- CARTE 5: VENTILATION - Complexe (4 inputs) -->
         <div class="col-lg-3 col-md-4 col-sm-6">
-          <div class="card border-0 shadow h-100" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_ventilation_global">
-            <div class="card-body">
-              <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                  <i class="bi bi-wind fs-5 text-primary"></i>
+          <div class="card border-0 shadow h-100 overflow-hidden card-premium" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_ventilation_global">
+
+            <!-- Image de fond avec overlay -->
+            <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/Housing-Ventilation-Shutterstock-16-9-1920x1080px_uxckrq'); background-size: cover; background-position: center;">
+              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(13, 110, 253, 0.7), rgba(13, 110, 253, 0.4));">
+                <div class="text-center text-white">
+                  <i class="bi bi-wind fs-3 mb-2 drop-shadow"></i>
+                  <h6 class="fw-bold mb-0 drop-shadow">Ventilation</h6>
+                  <small class="opacity-90">4 types VMC</small>
                 </div>
-                <div>
-                  <h6 class="card-title mb-1">Ventilation</h6>
-                  <small class="text-muted">4 types VMC</small>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <!-- Badge informatif -->
+              <div class="mb-3">
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="badge bg-primary bg-opacity-20 text-primary rounded-pill px-3">
+                    <i class="bi bi-wind me-1"></i>Ventilation
+                  </span>
+                  <small class="text-muted">
+                    <i class="bi bi-tools me-1"></i>4 types VMC
+                  </small>
                 </div>
               </div>
 
@@ -976,15 +1057,29 @@ end
 
         <!-- CARTE 6: CHAUDIÈRE - Complexe (5 inputs) -->
         <div class="col-lg-3 col-md-4 col-sm-6">
-          <div class="card border-0 shadow h-100" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_chaudiere_global">
-            <div class="card-body">
-              <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                  <i class="bi bi-thermometer fs-5 text-danger"></i>
+          <div class="card border-0 shadow h-100 overflow-hidden card-premium" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_chaudiere_global">
+
+            <!-- Image de fond avec overlay -->
+            <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/pac_hybride_ukmzp8'); background-size: cover; background-position: center;">
+              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(220, 53, 69, 0.35), rgba(220, 53, 69, 0.2));">
+                <div class="text-center text-white">
+                  <i class="bi bi-thermometer fs-3 mb-2 drop-shadow"></i>
+                  <h6 class="fw-bold mb-0 drop-shadow">Systèmes Chauffage</h6>
+                  <small class="opacity-90">5 types de systèmes</small>
                 </div>
-                <div>
-                  <h6 class="card-title mb-1">Systèmes Chauffage</h6>
-                  <small class="text-muted">5 types de systèmes</small>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <!-- Badge informatif -->
+              <div class="mb-3">
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="badge bg-danger bg-opacity-20 text-danger rounded-pill px-3">
+                    <i class="bi bi-thermometer me-1"></i>Chauffage
+                  </span>
+                  <small class="text-muted">
+                    <i class="bi bi-tools me-1"></i>5 systèmes
+                  </small>
                 </div>
               </div>
 
@@ -1320,15 +1415,29 @@ end
 
         <!-- CARTE 7: AMÉLIORATION CHAUFFAGE - Très complexe (9 inputs) -->
         <div class="col-lg-6 col-md-4 col-sm-6">
-          <div class="card border-0 shadow h-100" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_amelioration_chauffage_global">
-            <div class="card-body">
-              <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                  <i class="bi bi-gear fs-5 text-warning"></i>
+          <div class="card border-0 shadow h-100 overflow-hidden card-premium" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_amelioration_chauffage_global">
+
+            <!-- Image de fond avec overlay -->
+            <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/efficacite-energetique-batiment_mlgdaj'); background-size: cover; background-position: center;">
+              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(255, 193, 7, 0.35), rgba(255, 193, 7, 0.2));">
+                <div class="text-center text-white">
+                  <i class="bi bi-gear fs-3 mb-2 drop-shadow"></i>
+                  <h6 class="fw-bold mb-0 drop-shadow">Améliorations</h6>
+                  <small class="opacity-90">9 améliorations</small>
                 </div>
-                <div>
-                  <h6 class="card-title mb-1">Améliorations</h6>
-                  <small class="text-muted">9 améliorations</small>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <!-- Badge informatif -->
+              <div class="mb-3">
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="badge bg-warning bg-opacity-20 text-warning rounded-pill px-3">
+                    <i class="bi bi-gear me-1"></i>Améliorations
+                  </span>
+                  <small class="text-muted">
+                    <i class="bi bi-tools me-1"></i>9 types
+                  </small>
                 </div>
               </div>
 
@@ -1988,15 +2097,29 @@ end
       <div class="row g-3 mt-3">
         <!-- CARTE 8: EAU CHAUDE SANITAIRE - Complexe (6 inputs authentiques DB) -->
         <div class="col-lg-3 col-md-4 col-sm-6">
-          <div class="card border-0 shadow h-100" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_eau_chaude_sanitaire_global">
-            <div class="card-body">
-              <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                  <i class="bi bi-droplet fs-5 text-info"></i>
+          <div class="card border-0 shadow h-100 overflow-hidden card-premium" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_eau_chaude_sanitaire_global">
+
+            <!-- Image de fond avec overlay -->
+            <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/schema-production-eau-chaude-sanitaire-avec-stockage-scaled_kwbpig'); background-size: cover; background-position: center;">
+              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(13, 202, 240, 0.175), rgba(13, 202, 240, 0.1));">
+                <div class="text-center text-white">
+                  <i class="bi bi-droplet fs-3 mb-2 drop-shadow"></i>
+                  <h6 class="fw-bold mb-0 drop-shadow">Eau Chaude Sanitaire</h6>
+                  <small class="opacity-90">6 types d'équipements</small>
                 </div>
-                <div>
-                  <h6 class="card-title mb-1">Eau Chaude Sanitaire</h6>
-                  <small class="text-muted">6 types d'équipements</small>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <!-- Badge informatif -->
+              <div class="mb-3">
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="badge bg-info bg-opacity-20 text-info rounded-pill px-3">
+                    <i class="bi bi-droplet me-1"></i>Eau Chaude
+                  </span>
+                  <small class="text-muted">
+                    <i class="bi bi-tools me-1"></i>6 équipements
+                  </small>
                 </div>
               </div>
 
@@ -2011,7 +2134,7 @@ end
                         <option value="0">Non</option>
                         <option value="1">Oui</option>
                       </select>
-                      <span class="input-group-text bg-warning text-white"
+                      <span class="input-group-text bg-info text-white"
                             data-wallonie-prime-card-target="resultRemplacementBallon500">0 €</span>
                     </div>
                 <!-- Informations de la prime -->
@@ -2137,7 +2260,7 @@ end
                         <option value="0">Non</option>
                         <option value="1">Oui</option>
                       </select>
-                      <span class="input-group-text bg-warning text-white"
+                      <span class="input-group-text bg-info text-white"
                             data-wallonie-prime-card-target="resultIsolationConduites">0 €</span>
                     </div>
                 <!-- Informations de la prime -->
@@ -2263,7 +2386,7 @@ end
                         <option value="0">Non</option>
                         <option value="1">Oui</option>
                       </select>
-                      <span class="input-group-text bg-warning text-white"
+                      <span class="input-group-text bg-info text-white"
                             data-wallonie-prime-card-target="resultIsolationBallon500">0 €</span>
                     </div>
                 <!-- Informations de la prime -->
@@ -2395,15 +2518,29 @@ end
 
           <!-- CARTE 9: MENUISERIES - Simple (1 input) -->
           <div class="col-lg-3 col-md-4 col-sm-6">
-            <div class="card border-0 shadow h-100" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_menuiseries_vitrages">
-              <div class="card-body">
-                <div class="d-flex align-items-center gap-3 mb-3">
-                  <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                    <i class="bi bi-window fs-5 text-success"></i>
+            <div class="card border-0 shadow h-100 overflow-hidden card-premium" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_menuiseries_vitrages">
+
+              <!-- Image de fond avec overlay -->
+              <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/remplacement_chassis_lrszxo'); background-size: cover; background-position: center;">
+                <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(25, 135, 84, 0.0875), rgba(25, 135, 84, 0.05));">
+                  <div class="text-center text-white">
+                    <i class="bi bi-window fs-3 mb-2 drop-shadow"></i>
+                    <h6 class="fw-bold mb-0 drop-shadow">Menuiseries</h6>
+                    <small class="opacity-90">Fenêtres + Vitrages</small>
                   </div>
-                  <div>
-                    <h6 class="card-title mb-1">Menuiseries</h6>
-                    <small class="text-muted">Fenêtres + Vitrages</small>
+                </div>
+              </div>
+
+              <div class="card-body">
+                <!-- Badge informatif -->
+                <div class="mb-3">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <span class="badge bg-success bg-opacity-20 text-success rounded-pill px-3">
+                      <i class="bi bi-window me-1"></i>Menuiseries
+                    </span>
+                    <small class="text-muted">
+                      <i class="bi bi-house-door me-1"></i>Fenêtres
+                    </small>
                   </div>
                 </div>
 
@@ -2478,17 +2615,31 @@ end
 
         <!-- CARTE 10: INSTALLATIONS - Simples (2 inputs) -->
         <div class="col-lg-3 col-md-4 col-sm-6">
-          <div class="card border-0 shadow h-100" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_installation_electrique">
+          <div class="card border-0 shadow h-100 overflow-hidden card-premium" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_installation_electrique">
+
+            <!-- Image de fond avec overlay -->
+            <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/electricité_eydyhu'); background-size: cover; background-position: center;">
+              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(255, 193, 7, 0.0875), rgba(255, 193, 7, 0.05));">
+                <div class="text-center text-white">
+                  <i class="bi bi-lightning fs-3 mb-2 drop-shadow"></i>
+                  <h6 class="fw-bold mb-0 drop-shadow">Installation électrique</h6>
+                  <small class="opacity-90">Remise en conformité</small>
+                </div>
+              </div>
+            </div>
+
             <div class="card-body">
-              <div class="d-flex align-items-center gap-3 mb-3">
-                <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                  <i class="bi bi-lightning fs-5 text-warning"></i>
+              <!-- Badge informatif -->
+              <div class="mb-3">
+                <div class="d-flex align-items-center justify-content-between">
+                  <span class="badge bg-warning bg-opacity-20 text-warning rounded-pill px-3">
+                    <i class="bi bi-lightning me-1"></i>Électricité
+                  </span>
+                  <small class="text-muted">
+                    <i class="bi bi-tools me-1"></i>Conformité
+                  </small>
                 </div>
-                  <div>
-                    <h6 class="card-title mb-1">Installation électrique</h6>
-                    <small class="text-muted">Remise en conformité</small>
-                  </div>
-                </div>
+              </div>
 
                 <!-- Input oui/non -->
                 <div class="mb-3">
@@ -2562,15 +2713,29 @@ end
 
         <!-- CARTE 11: INSTALLATION GAZ -->
         <div class="col-lg-3 col-md-4 col-sm-6">
-          <div class="card border-0 shadow h-100" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_installation_gaz">
+          <div class="card border-0 shadow h-100 overflow-hidden card-premium" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_installation_gaz">
+
+            <!-- Image de fond avec overlay -->
+            <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/controle-gaz-scaled_h7gthk'); background-size: cover; background-position: center;">
+              <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(220, 53, 69, 0.0875), rgba(220, 53, 69, 0.05));">
+                <div class="text-center text-white">
+                  <i class="bi bi-fire fs-3 mb-2 drop-shadow"></i>
+                  <h6 class="fw-bold mb-0 drop-shadow">Installation gaz</h6>
+                  <small class="opacity-90">Remise en conformité</small>
+                </div>
+              </div>
+            </div>
+
               <div class="card-body">
-                <div class="d-flex align-items-center gap-3 mb-3">
-                  <div class="bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-                    <i class="bi bi-fire fs-5 text-danger"></i>
-                  </div>
-                  <div>
-                    <h6 class="card-title mb-1">Installation gaz</h6>
-                    <small class="text-muted">Remise en conformité</small>
+                <!-- Badge informatif -->
+                <div class="mb-3">
+                  <div class="d-flex align-items-center justify-content-between">
+                    <span class="badge bg-danger bg-opacity-20 text-danger rounded-pill px-3">
+                      <i class="bi bi-fire me-1"></i>Gaz
+                    </span>
+                    <small class="text-muted">
+                      <i class="bi bi-tools me-1"></i>Conformité
+                    </small>
                   </div>
                 </div>
 
@@ -2657,58 +2822,63 @@ end
               <p class="text-muted-custom small">Les montants s'ajustent automatiquement selon votre catégorie de revenus</p>
             </div>
 
-            <!-- Affichage du total principal -->
-            <div class="bg-primary bg-opacity-10 rounded-3 p-4 text-center mb-4">
-              <div class="row align-items-center">
-                <div class="col-md-8 mb-3 mb-md-0">
-                  <h2 class="display-4 fw-bold text-primary mb-1" data-wallonie-prime-calcul-target="grandTotal">0,00 €</h2>
-                  <p class="text-muted mb-0">
+            <!-- Organisation en 3 colonnes -->
+            <div class="row g-4">
+
+              <!-- Colonne 1: Affichage du total principal -->
+              <div class="col-12 col-lg-4">
+                <div class="bg-primary bg-opacity-10 rounded-3 p-4 text-center h-100 d-flex flex-column justify-content-center">
+                  <h2 class="display-5 fw-bold text-primary mb-2" data-wallonie-prime-calcul-target="grandTotal">0,00 €</h2>
+                  <p class="text-muted mb-2">
                     <span data-wallonie-prime-calcul-target="currentCategory">Catégorie non définie</span>
-                    • Estimation selon votre profil de revenus
                   </p>
-                </div>
-                <div class="col-md-4">
-                  <div class="bg-white rounded-2 p-3">
-                    <i class="bi bi-info-circle text-primary fs-4 mb-2"></i>
+                  <small class="text-muted">Estimation selon votre profil de revenus</small>
+                  <div class="mt-3">
+                    <i class="bi bi-info-circle text-primary fs-5 mb-2"></i>
                     <p class="small text-muted mb-0">Ce montant est une estimation basée sur vos travaux sélectionnés</p>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Résumé des primes sélectionnées -->
-            <div class="card border-0 bg-light">
-              <div class="card-body p-4">
-                <h6 class="fw-bold text-dark mb-3">
-                  <i class="bi bi-list-check me-2"></i>
-                  Résumé de vos primes sélectionnées
-                </h6>
+              <!-- Colonne 2: Résumé des primes sélectionnées -->
+              <div class="col-12 col-lg-4">
+                <div class="card border-0 bg-light h-100">
+                  <div class="card-body p-4">
+                    <h6 class="fw-bold text-dark mb-3">
+                      <i class="bi bi-list-check me-2"></i>
+                      Résumé de vos primes sélectionnées
+                    </h6>
 
-                <!-- Liste dynamique des primes sélectionnées -->
-                <div id="selected-primes-summary" data-wallonie-prime-calcul-target="selectedPrimesSummary">
-                  <div class="text-muted text-center py-3">
-                    <i class="bi bi-info-circle me-2"></i>
-                    Sélectionnez des travaux dans les cartes ci-dessus pour voir le détail de vos primes
+                    <!-- Liste dynamique des primes sélectionnées -->
+                    <div id="selected-primes-summary" data-wallonie-prime-calcul-target="selectedPrimesSummary">
+                      <div class="text-muted text-center py-3">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Sélectionnez des travaux dans les cartes ci-dessus pour voir le détail de vos primes
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Note informative -->
-            <div class="alert alert-info mt-4 mb-0">
-              <div class="d-flex align-items-start">
-                <i class="bi bi-lightbulb me-3 mt-1 fs-5"></i>
-                <div>
-                  <h6 class="alert-heading mb-2">Bon à savoir</h6>
-                  <p class="mb-2">Ces montants sont des estimations basées sur les grilles tarifaires officielles de la Wallonie.</p>
-                  <ul class="mb-0 small">
-                    <li>Les primes varient selon votre catégorie de revenus (R1 à R4)</li>
-                    <li>Certaines primes sont forfaitaires, d'autres calculées au m² ou en pourcentage</li>
-                    <li>Des conditions techniques spécifiques peuvent s'appliquer</li>
-                    <li>Il est recommandé de vérifier votre éligibilité auprès des organismes officiels</li>
-                  </ul>
+              <!-- Colonne 3: Note informative -->
+              <div class="col-12 col-lg-4">
+                <div class="alert alert-info mb-0 h-100">
+                  <div class="d-flex align-items-start h-100">
+                    <i class="bi bi-lightbulb me-3 mt-1 fs-5 flex-shrink-0"></i>
+                    <div>
+                      <h6 class="alert-heading mb-2">Bon à savoir</h6>
+                      <p class="mb-2 small">Ces montants sont des estimations basées sur les grilles tarifaires officielles de la Wallonie.</p>
+                      <ul class="mb-0 small">
+                        <li>Les primes varient selon votre catégorie de revenus (R1 à R4)</li>
+                        <li>Certaines primes sont forfaitaires, d'autres calculées au m² ou en pourcentage</li>
+                        <li>Des conditions techniques spécifiques peuvent s'appliquer</li>
+                        <li>Il est recommandé de vérifier votre éligibilité auprès des organismes officiels</li>
+                      </ul>
+                    </div>
+                  </div>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
