@@ -1,0 +1,181 @@
+<!-- Partial pour la section documents -->
+<div class="documents-content">
+
+  <!-- Liste des documents principaux -->
+  <div class="key-documents mb-4">
+    <h6 class="fw-bold mb-3">
+      <i class="bi bi-file-earmark-check me-1"></i>
+      Documents principaux requis
+    </h6>
+
+    <% hub_data[:documents][:key_documents]&.each do |doc| %>
+      <div class="document-item d-flex align-items-center p-3 mb-2 border rounded bg-<%= doc[:status] == 'completed' ? 'success' : doc[:status] == 'pending' ? 'warning' : 'light' %> bg-opacity-10">
+        <div class="status-icon me-3">
+          <i class="bi bi-<%= doc[:status] == 'completed' ? 'check-circle-fill text-success' : doc[:status] == 'pending' ? 'clock text-warning' : 'x-circle text-danger' %> fs-4"></i>
+        </div>
+        <div class="flex-grow-1">
+          <div class="fw-medium"><%= doc[:name] %></div>
+          <small class="text-muted">
+            <i class="bi bi-bookmark me-1"></i>
+            <%= doc[:category].humanize %>
+            <% if doc[:deadline].present? %>
+              • <i class="bi bi-calendar me-1"></i>
+              Échéance: <%= doc[:deadline] %>
+            <% end %>
+          </small>
+          <% if doc[:description].present? %>
+            <div class="small text-muted mt-1"><%= doc[:description] %></div>
+          <% end %>
+        </div>
+        <div class="action-zone ms-2">
+          <% if doc[:status] == 'completed' %>
+            <span class="badge bg-success">✓ Reçu</span>
+          <% elsif doc[:status] == 'pending' %>
+            <span class="badge bg-warning">📋 En attente</span>
+          <% else %>
+            <span class="badge bg-danger">❌ Manquant</span>
+          <% end %>
+          <% if doc[:urgent] %>
+            <div class="small text-danger mt-1">
+              <i class="bi bi-exclamation-triangle me-1"></i>
+              Urgent
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Statut global condensé -->
+  <div class="status-overview mb-4">
+    <div class="row g-2">
+      <div class="col-md-4">
+        <div class="text-center p-2 bg-success bg-opacity-10 rounded">
+          <div class="fw-bold text-success"><%= hub_data[:documents][:completed].count %></div>
+          <small class="text-muted">Collectés</small>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="text-center p-2 bg-warning bg-opacity-10 rounded">
+          <div class="fw-bold text-warning"><%= hub_data[:documents][:missing].count %></div>
+          <small class="text-muted">Manquants</small>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="text-center p-2 bg-danger bg-opacity-10 rounded">
+          <div class="fw-bold text-danger"><%= hub_data[:documents][:urgent].count %></div>
+          <small class="text-muted">Urgents</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <span class="fw-medium">Progression documents</span>
+      <span class="badge bg-primary"><%= hub_data[:documents][:completion_rate] %>%</span>
+    </div>
+    <div class="progress" style="height: 8px;">
+      <div class="progress-bar"
+           style="width: <%= hub_data[:documents][:completion_rate] %>%"></div>
+    </div>
+  </div>
+
+  <!-- Liste des documents -->
+  <div class="documents-list">
+    <% if hub_data[:documents][:required_documents].any? %>
+      <% hub_data[:documents][:required_documents].each_with_index do |doc, index| %>
+        <div class="document-item d-flex align-items-center p-3 mb-2 rounded border
+                    <%= doc[:status] == 'completed' ? 'bg-success bg-opacity-10 border-success' : 'bg-light border-warning' %>">
+
+          <input class="form-check-input me-3"
+                 type="checkbox"
+                 id="doc<%= index %>"
+                 <%= 'checked' if doc[:status] == 'completed' %>>
+
+          <label class="form-check-label flex-grow-1" for="doc<%= index %>">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <div class="fw-medium">
+                  <%= doc[:name] %>
+                  <% if doc[:urgency] == 'critical' %>
+                    <span class="badge bg-danger ms-1">🚨 Critique</span>
+                  <% elsif doc[:urgency] == 'high' %>
+                    <span class="badge bg-warning ms-1">⚠️ Important</span>
+                  <% end %>
+                </div>
+                <small class="text-muted d-block">
+                  Échéance: <%= doc[:deadline] %> •
+                  Catégorie: <%= doc[:category].capitalize %>
+                </small>
+                <% if doc[:details].present? %>
+                  <small class="text-info d-block mt-1">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= doc[:details] %>
+                  </small>
+                <% end %>
+              </div>
+              <div class="text-end">
+                <% case doc[:status] %>
+                <% when 'completed' %>
+                  <small class="text-success">✅ Collecté</small>
+                <% when 'missing' %>
+                  <% if doc[:urgency] == 'critical' %>
+                    <small class="text-danger">🚨 Urgent</small>
+                  <% else %>
+                    <small class="text-warning">📋 À obtenir</small>
+                  <% end %>
+                <% end %>
+              </div>
+            </div>
+          </label>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="text-center py-4">
+        <i class="bi bi-check-circle text-success fs-1"></i>
+        <p class="mt-2 text-muted">Tous les documents sont collectés !</p>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Actions et conseils -->
+  <div class="actions-section mt-4">
+    <% if hub_data[:documents][:urgent].any? %>
+      <div class="alert alert-warning">
+        <h6 class="alert-heading">
+          <i class="bi bi-exclamation-triangle me-1"></i>
+          Documents urgents à obtenir
+        </h6>
+        <p class="mb-2">Ces documents sont critiques pour vos primes :</p>
+        <ul class="mb-3">
+          <% hub_data[:documents][:urgent].each do |urgent_doc| %>
+            <li><strong><%= urgent_doc %></strong></li>
+          <% end %>
+        </ul>
+        <button class="btn btn-warning btn-sm quick-question"
+                data-question="Comment obtenir rapidement mes documents urgents ?">
+          <i class="bi bi-question-circle me-1"></i>
+          Comment les obtenir ?
+        </button>
+      </div>
+    <% end %>
+
+    <div class="d-flex gap-2 flex-wrap">
+      <button class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-download me-1"></i>
+        Check-list PDF
+      </button>
+      <button class="btn btn-outline-info btn-sm quick-question"
+              data-question="Où trouver mes documents manquants ?">
+        <i class="bi bi-search me-1"></i>
+        Aide localisation
+      </button>
+      <button class="btn btn-outline-success btn-sm">
+        <i class="bi bi-cloud-upload me-1"></i>
+        Téléverser documents
+      </button>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,155 @@
+<!-- Partial pour la section résumé -->
+<div class="resume-content">
+
+  <!-- Vue d'ensemble rapide -->
+  <div class="overview-header mb-3">
+    <div class="row g-2">
+      <div class="col-md-6">
+        <div class="d-flex align-items-center p-2 bg-success bg-opacity-10 rounded">
+          <i class="bi bi-award text-success me-2"></i>
+          <div>
+            <div class="small fw-bold">Total estimé</div>
+            <div class="fw-bold text-success">
+              <%= number_to_currency(hub_data[:resume][:total_amount], unit: "", precision: 0) %>€
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="d-flex align-items-center p-2 bg-primary bg-opacity-10 rounded">
+          <i class="bi bi-list-check text-primary me-2"></i>
+          <div>
+            <div class="small fw-bold">Primes éligibles</div>
+            <div class="fw-bold text-primary"><%= hub_data[:resume][:primes].count %></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Liste détaillée des primes -->
+  <div class="primes-list mb-3">
+    <% hub_data[:resume][:primes].each do |prime| %>
+      <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded-3 mb-2 border-start border-3 border-<%= prime[:status] == 'confirmed' ? 'success' : prime[:status] == 'conditional' ? 'warning' : 'secondary' %>">
+        <div class="flex-grow-1">
+          <div class="fw-medium"><%= prime[:name] %></div>
+          <small class="text-muted">
+            <i class="bi bi-geo-alt me-1"></i>
+            <%= hub_data[:resume][:region] %> •
+            <span class="badge badge-sm bg-<%= prime[:status] == 'confirmed' ? 'success' : prime[:status] == 'conditional' ? 'warning' : 'secondary' %>">
+              <%= prime[:status].capitalize %>
+            </span>
+            <% if prime[:urgency] && prime[:urgency] != 'normal' %>
+              • <span class="text-<%= prime[:urgency] == 'high' ? 'danger' : 'warning' %>">
+                <i class="bi bi-<%= prime[:urgency] == 'high' ? 'exclamation-triangle' : 'clock' %> me-1"></i>
+                <%= prime[:urgency].capitalize %>
+              </span>
+            <% end %>
+          </small>
+        </div>
+        <div class="text-end">
+          <div class="fw-bold text-<%= prime[:status] == 'confirmed' ? 'success' : prime[:status] == 'conditional' ? 'warning' : 'muted' %> fs-6">
+            <%= number_to_currency(prime[:amount], unit: "", precision: 0) %>€
+          </div>
+          <small class="text-muted">
+            <i class="bi bi-tag me-1"></i>
+            <%= prime[:category].capitalize %>
+          </small>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Résumé par statut -->
+  <div class="status-breakdown mb-3">
+    <div class="row g-2 text-center">
+      <div class="col-4">
+        <div class="p-2 bg-success bg-opacity-10 rounded">
+          <div class="fw-bold text-success">
+            <%= hub_data[:resume][:primes].count { |p| p[:status] == 'confirmed' } %>
+          </div>
+          <div class="small text-muted">Confirmées</div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="p-2 bg-warning bg-opacity-10 rounded">
+          <div class="fw-bold text-warning">
+            <%= hub_data[:resume][:primes].count { |p| p[:status] == 'conditional' } %>
+          </div>
+          <div class="small text-muted">Conditionnelles</div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="p-2 bg-info bg-opacity-10 rounded">
+          <div class="fw-bold text-info">
+            <%= hub_data[:resume][:completion_status][:overall] %>%
+          </div>
+          <div class="small text-muted">Avancement</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+
+  <!-- Progress détaillé par section -->
+  <div class="progress-breakdown">
+    <div class="row text-center">
+      <div class="col-4">
+        <div class="progress-circle">
+          <div class="small text-muted mb-1">Documents</div>
+          <div class="fw-bold text-<%= hub_data[:documents][:completion_rate] >= 80 ? 'success' : hub_data[:documents][:completion_rate] >= 50 ? 'warning' : 'danger' %>">
+            <%= hub_data[:documents][:completion_rate] %>%
+          </div>
+          <div class="progress mt-1" style="height: 4px;">
+            <div class="progress-bar bg-<%= hub_data[:documents][:completion_rate] >= 80 ? 'success' : hub_data[:documents][:completion_rate] >= 50 ? 'warning' : 'danger' %>"
+                 style="width: <%= hub_data[:documents][:completion_rate] %>%"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="progress-circle">
+          <div class="small text-muted mb-1">Technique</div>
+          <div class="fw-bold text-<%= hub_data[:technical][:compliance_score] >= 80 ? 'success' : hub_data[:technical][:compliance_score] >= 50 ? 'warning' : 'danger' %>">
+            <%= hub_data[:technical][:compliance_score] %>%
+          </div>
+          <div class="progress mt-1" style="height: 4px;">
+            <div class="progress-bar bg-<%= hub_data[:technical][:compliance_score] >= 80 ? 'success' : hub_data[:technical][:compliance_score] >= 50 ? 'warning' : 'danger' %>"
+                 style="width: <%= hub_data[:technical][:compliance_score] %>%"></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-4">
+        <div class="progress-circle">
+          <div class="small text-muted mb-1">Global</div>
+          <div class="fw-bold text-<%= hub_data[:resume][:completion_status][:overall] >= 80 ? 'success' : hub_data[:resume][:completion_status][:overall] >= 50 ? 'warning' : 'danger' %>">
+            <%= hub_data[:resume][:completion_status][:overall] %>%
+          </div>
+          <div class="progress mt-1" style="height: 4px;">
+            <div class="progress-bar bg-<%= hub_data[:resume][:completion_status][:overall] >= 80 ? 'success' : hub_data[:resume][:completion_status][:overall] >= 50 ? 'warning' : 'danger' %>"
+                 style="width: <%= hub_data[:resume][:completion_status][:overall] %>%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions rapides -->
+  <div class="mt-4">
+    <div class="d-flex gap-2 flex-wrap">
+      <button class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-arrow-clockwise me-1"></i>
+        Recalculer
+      </button>
+      <button class="btn btn-outline-success btn-sm">
+        <i class="bi bi-plus-circle me-1"></i>
+        Ajouter prime
+      </button>
+      <button class="btn btn-outline-info btn-sm quick-question"
+              data-question="Comment optimiser mes primes ?">
+        <i class="bi bi-lightbulb me-1"></i>
+        Optimiser
+      </button>
+    </div>
+  </div>
+</div>

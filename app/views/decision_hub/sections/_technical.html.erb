@@ -1,0 +1,225 @@
+<!-- Partial pour la section obligations techniques -->
+<div class="technical-content">
+
+  <!-- Vue d'ensemble conformité -->
+  <div class="compliance-overview mb-4">
+    <div class="row">
+      <div class="col-md-4">
+        <div class="d-flex align-items-center p-3 bg-success bg-opacity-10 rounded">
+          <i class="bi bi-shield-check fs-3 text-success me-3"></i>
+          <div>
+            <div class="fw-bold">Conformité globale</div>
+            <div class="h5 mb-0 text-success"><%= hub_data[:technical][:compliance_score] %>%</div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="d-flex align-items-center p-3 bg-warning bg-opacity-10 rounded">
+          <i class="bi bi-exclamation-diamond fs-3 text-warning me-3"></i>
+          <div>
+            <div class="fw-bold">Points d'attention</div>
+            <div class="h5 mb-0 text-warning"><%= hub_data[:technical][:warnings].count %></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="d-flex align-items-center p-3 bg-info bg-opacity-10 rounded">
+          <i class="bi bi-tools fs-3 text-info me-3"></i>
+          <div>
+            <div class="fw-bold">Vérifications requises</div>
+            <div class="h5 mb-0 text-info"><%= hub_data[:technical][:required_checks].count %></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alertes critiques -->
+  <% if hub_data[:technical][:critical_alerts].any? %>
+    <div class="critical-alerts mb-4">
+      <h6 class="fw-bold text-danger mb-3">
+        <i class="bi bi-exclamation-triangle-fill me-1"></i>
+        Alertes critiques
+      </h6>
+      <% hub_data[:technical][:critical_alerts].each do |alert| %>
+        <div class="alert alert-danger d-flex align-items-start" role="alert">
+          <i class="bi bi-shield-x fs-4 me-3 mt-1"></i>
+          <div class="flex-grow-1">
+            <div class="fw-medium"><%= alert[:title] %></div>
+            <div class="small mt-1"><%= alert[:description] %></div>
+            <% if alert[:action_required].present? %>
+              <div class="mt-2">
+                <span class="badge bg-dark">Action requise:</span>
+                <small class="ms-2"><%= alert[:action_required] %></small>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Obligations par catégorie -->
+  <div class="obligations-categories mb-4">
+    <h6 class="fw-bold mb-3">
+      <i class="bi bi-list-check me-1"></i>
+      Obligations techniques par catégorie
+    </h6>
+
+    <% hub_data[:technical][:obligations_by_category].each do |category_key, category_data| %>
+      <div class="category-section mb-3">
+        <div class="category-header d-flex justify-content-between align-items-center p-2 bg-light rounded-top border">
+          <h6 class="mb-0">
+            <i class="bi bi-<%= category_data[:icon] %> me-2"></i>
+            <%= category_data[:name] %>
+          </h6>
+          <span class="badge bg-<%= category_data[:compliance] >= 80 ? 'success' : category_data[:compliance] >= 60 ? 'warning' : 'danger' %>">
+            <%= category_data[:compliance] %>% conforme
+          </span>
+        </div>
+
+        <div class="obligations-list border border-top-0 rounded-bottom">
+          <% category_data[:obligations].each do |obligation| %>
+            <div class="obligation-item p-3 border-bottom">
+              <div class="d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                  <div class="fw-medium mb-1">
+                    <i class="bi bi-<%= obligation[:status] == 'compliant' ? 'check-circle text-success' :
+                                      obligation[:status] == 'partial' ? 'exclamation-circle text-warning' :
+                                      'x-circle text-danger' %> me-1"></i>
+                    <%= obligation[:title] %>
+                  </div>
+                  <div class="small text-muted mb-2"><%= obligation[:description] %></div>
+
+                  <% if obligation[:requirements].present? %>
+                    <div class="requirements small">
+                      <strong>Exigences:</strong>
+                      <ul class="mb-2">
+                        <% obligation[:requirements].each do |req| %>
+                          <li class="text-<%= req[:met] ? 'success' : 'danger' %>">
+                            <i class="bi bi-<%= req[:met] ? 'check' : 'x' %> me-1"></i>
+                            <%= req[:description] %>
+                          </li>
+                        <% end %>
+                      </ul>
+                    </div>
+                  <% end %>
+                </div>
+
+                <div class="text-end ms-3">
+                  <span class="badge bg-<%= obligation[:priority] == 'high' ? 'danger' :
+                                            obligation[:priority] == 'medium' ? 'warning' : 'info' %>">
+                    <%= obligation[:priority].capitalize %>
+                  </span>
+                  <% if obligation[:deadline].present? %>
+                    <div class="small text-muted mt-1">
+                      <i class="bi bi-calendar me-1"></i>
+                      <%= obligation[:deadline].strftime("%d/%m/%Y") %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+
+              <% if obligation[:action_needed].present? %>
+                <div class="action-needed mt-2 p-2 bg-warning bg-opacity-10 rounded">
+                  <div class="small">
+                    <strong>Action nécessaire:</strong> <%= obligation[:action_needed] %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Recommandations techniques -->
+  <% if hub_data[:technical][:recommendations].any? %>
+    <div class="technical-recommendations mb-4">
+      <h6 class="fw-bold text-primary mb-3">
+        <i class="bi bi-lightbulb me-1"></i>
+        Recommandations techniques
+      </h6>
+      <% hub_data[:technical][:recommendations].each do |rec| %>
+        <div class="recommendation-item p-3 mb-2 border border-primary rounded bg-primary bg-opacity-5">
+          <div class="d-flex align-items-start">
+            <div class="flex-shrink-0 me-3">
+              <i class="bi bi-<%= rec[:type] %> fs-4 text-primary"></i>
+            </div>
+            <div class="flex-grow-1">
+              <div class="fw-medium mb-1"><%= rec[:title] %></div>
+              <div class="small text-muted mb-2"><%= rec[:description] %></div>
+              <% if rec[:benefits].present? %>
+                <div class="benefits small">
+                  <strong>Bénéfices:</strong>
+                  <ul class="mb-0">
+                    <% rec[:benefits].each do |benefit| %>
+                      <li class="text-success"><%= benefit %></li>
+                    <% end %>
+                  </ul>
+                </div>
+              <% end %>
+            </div>
+            <div class="text-end">
+              <span class="badge bg-<%= rec[:impact] == 'high' ? 'success' :
+                                    rec[:impact] == 'medium' ? 'warning' : 'info' %>">
+                Impact <%= rec[:impact] %>
+              </span>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Vérifications automatiques -->
+  <div class="automatic-checks mb-4">
+    <h6 class="fw-bold mb-3">
+      <i class="bi bi-gear me-1"></i>
+      Vérifications automatiques disponibles
+    </h6>
+    <% hub_data[:technical][:automatic_checks].each do |check| %>
+      <div class="check-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded">
+        <div>
+          <div class="fw-medium small"><%= check[:name] %></div>
+          <small class="text-muted"><%= check[:description] %></small>
+        </div>
+        <div>
+          <% if check[:available] %>
+            <button class="btn btn-outline-primary btn-sm" data-check="<%= check[:id] %>">
+              <i class="bi bi-play me-1"></i>
+              Vérifier
+            </button>
+          <% else %>
+            <span class="badge bg-secondary">Indisponible</span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Actions section -->
+  <div class="actions-section mt-4">
+    <div class="d-flex gap-2 flex-wrap">
+      <button class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-clipboard-check me-1"></i>
+        Audit complet
+      </button>
+      <button class="btn btn-outline-info btn-sm quick-question"
+              data-question="Quelles sont mes obligations techniques les plus urgentes ?">
+        <i class="bi bi-question-circle me-1"></i>
+        Priorités techniques
+      </button>
+      <button class="btn btn-outline-warning btn-sm quick-question"
+              data-question="Comment améliorer ma conformité technique ?">
+        <i class="bi bi-arrow-up-circle me-1"></i>
+        Améliorer conformité
+      </button>
+      <button class="btn btn-outline-success btn-sm">
+        <i class="bi bi-file-earmark-text me-1"></i>
+        Rapport technique
+      </button>
+    </div>
+  </div>
+</div>

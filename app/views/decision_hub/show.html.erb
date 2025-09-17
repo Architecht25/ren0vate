@@ -30,7 +30,7 @@
       <div class="row g-3">
 
         <!-- PANNEAU 1: Synthèse Simulation (Plus compact) -->
-        <div class="col-xl-3 col-lg-4">
+        <div class="col-xl-3 col-lg-6 col-md-12">
           <div class="panel synthesis-panel">
             <div class="panel-header">
               <h3>
@@ -135,7 +135,7 @@
         </div>
 
         <!-- PANNEAU 2: Obligations & Recommandations (Plus large) -->
-        <div class="col-xl-6 col-lg-8">
+        <div class="col-xl-3 col-lg-6 col-md-12">
           <div class="panel obligations-panel">
             <div class="panel-header">
               <h3>
@@ -229,8 +229,144 @@
           </div>
         </div>
 
-        <!-- PANNEAU 3: Timeline & Actions (Optimisé) -->
-        <div class="col-xl-3 col-lg-12">
+        <!-- PANNEAU 3: Obligations Techniques & Administratives (Nouveau) -->
+        <div class="col-xl-3 col-lg-6 col-md-12">
+          <div class="panel technical-obligations-panel">
+            <div class="panel-header">
+              <h3>
+                <i class="bi bi-tools text-primary me-2"></i>
+                Obligations Techniques
+              </h3>
+              <span class="panel-badge">Critiques</span>
+            </div>
+
+            <div class="panel-body compact-panel">
+              <!-- Obligations Techniques -->
+              <div class="technical-section mb-3">
+                <h5 class="section-title">
+                  <i class="bi bi-gear-fill text-primary me-1"></i>
+                  Spécifications Techniques
+                </h5>
+
+                <div class="technical-checklist">
+                  <% technical_obligations = @hub_data[:obligations].select { |o| o[:type] == "technical" } %>
+                  <% technical_obligations.each_with_index do |obligation, index| %>
+                    <div class="tech-item <%= obligation[:importance] %>-importance"
+                         data-type="<%= obligation[:type] %>"
+                         data-importance="<%= obligation[:importance] %>">
+                      <input type="checkbox"
+                             id="tech<%= index + 1 %>"
+                             class="form-check-input"
+                             <%= 'checked' if obligation[:completed] %>>
+                      <label for="tech<%= index + 1 %>" class="tech-label">
+                        <span class="tech-title">
+                          <%= obligation[:description] %>
+                          <% if obligation[:importance] == 'critical' %>
+                            <span class="badge bg-danger ms-1">⚠️ Critique</span>
+                          <% elsif obligation[:importance] == 'high' %>
+                            <span class="badge bg-warning ms-1">🔶 Important</span>
+                          <% else %>
+                            <span class="badge bg-info ms-1">ℹ️ Standard</span>
+                          <% end %>
+                        </span>
+                        <span class="tech-timing">📅 <%= obligation[:deadline] %></span>
+                        <% if obligation[:details] %>
+                          <span class="tech-details">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <%= obligation[:details] %>
+                          </span>
+                        <% end %>
+                      </label>
+                    </div>
+                  <% end %>
+                </div>
+
+                <!-- Actions techniques -->
+                <div class="tech-actions mt-3">
+                  <button class="btn btn-outline-primary btn-sm w-100 mb-2">
+                    <i class="bi bi-download me-1"></i>
+                    Télécharger spécifications PDF
+                  </button>
+                  <button class="btn btn-outline-info btn-sm w-100">
+                    <i class="bi bi-calculator me-1"></i>
+                    Calculateur résistance thermique
+                  </button>
+                </div>
+              </div>
+
+              <!-- Obligations Administratives -->
+              <div class="administrative-section">
+                <h5 class="section-title">
+                  <i class="bi bi-file-text text-warning me-1"></i>
+                  Démarches Administratives
+                </h5>
+
+                <div class="admin-checklist">
+                  <% admin_obligations = @hub_data[:obligations].select { |o| o[:type] == "administrative" } %>
+                  <% admin_obligations.each_with_index do |obligation, index| %>
+                    <div class="admin-item <%= obligation[:importance] %>-importance"
+                         data-type="<%= obligation[:type] %>"
+                         data-importance="<%= obligation[:importance] %>">
+                      <input type="checkbox"
+                             id="admin<%= index + 1 %>"
+                             class="form-check-input"
+                             <%= 'checked' if obligation[:completed] %>>
+                      <label for="admin<%= index + 1 %>" class="admin-label">
+                        <span class="admin-title">
+                          <%= obligation[:description] %>
+                          <% if obligation[:importance] == 'critical' %>
+                            <span class="badge bg-danger ms-1">🚨 Urgent</span>
+                          <% elsif obligation[:importance] == 'high' %>
+                            <span class="badge bg-warning ms-1">⚡ Priorité</span>
+                          <% else %>
+                            <span class="badge bg-secondary ms-1">📋 Standard</span>
+                          <% end %>
+                        </span>
+                        <span class="admin-timing">⏰ <%= obligation[:deadline] %></span>
+                        <% if obligation[:details] %>
+                          <span class="admin-details">
+                            <i class="bi bi-arrow-right me-1"></i>
+                            <%= obligation[:details] %>
+                          </span>
+                        <% end %>
+                      </label>
+                    </div>
+                  <% end %>
+                </div>
+
+                <!-- Actions administratives -->
+                <div class="admin-actions mt-3">
+                  <button class="btn btn-outline-warning btn-sm w-100 mb-2">
+                    <i class="bi bi-clipboard-check me-1"></i>
+                    Check-list administrative
+                  </button>
+                  <button class="btn btn-outline-success btn-sm w-100">
+                    <i class="bi bi-globe me-1"></i>
+                    Accéder aux portails officiels
+                  </button>
+                </div>
+              </div>
+
+              <!-- Statut global -->
+              <div class="compliance-status mt-3 p-2 rounded">
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="fw-bold">Conformité Globale:</span>
+                  <span class="badge bg-warning">68% Complete</span>
+                </div>
+                <div class="progress mt-2" style="height: 6px;">
+                  <div class="progress-bar bg-warning" style="width: 68%"></div>
+                </div>
+                <small class="text-muted d-block mt-1">
+                  <i class="bi bi-exclamation-triangle me-1"></i>
+                  5 obligations critiques restantes
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANNEAU 4: Timeline & Actions (Optimisé) -->
+        <div class="col-xl-3 col-lg-6 col-md-12">
           <div class="panel timeline-panel">
             <div class="panel-header">
               <h3>
@@ -756,6 +892,180 @@
 }
 
 .administrative-obligation {
+  border-left: 4px solid #007bff;
+}
+
+.financial-obligation {
+  border-left: 4px solid #ffc107;
+}
+
+/* === NOUVEAU PANNEAU OBLIGATIONS TECHNIQUES === */
+.technical-obligations-panel .panel-header {
+  background: linear-gradient(135deg, #6c757d, #495057);
+}
+
+/* Obligations techniques */
+.technical-section .tech-item {
+  background: #f8fff8;
+  border: 1px solid #d4edda;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  border-left: 4px solid #28a745;
+  transition: all 0.2s ease;
+}
+
+.tech-item:hover {
+  transform: translateX(2px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.tech-item.critical-importance {
+  border-left-color: #dc3545;
+  background: #fff5f5;
+}
+
+.tech-item.high-importance {
+  border-left-color: #fd7e14;
+  background: #fff8f0;
+}
+
+.tech-label {
+  display: block;
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+.tech-title {
+  display: block;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  margin-bottom: 0.3rem;
+}
+
+.tech-timing {
+  display: block;
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-bottom: 0.3rem;
+}
+
+.tech-details {
+  display: block;
+  font-size: 0.75rem;
+  color: #495057;
+  background: rgba(40, 167, 69, 0.1);
+  padding: 0.4rem;
+  border-radius: 4px;
+  margin-top: 0.3rem;
+  border-left: 3px solid #28a745;
+}
+
+/* Obligations administratives */
+.administrative-section .admin-item {
+  background: #f8f9ff;
+  border: 1px solid #d1ecf1;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  border-left: 4px solid #007bff;
+  transition: all 0.2s ease;
+}
+
+.admin-item:hover {
+  transform: translateX(2px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.admin-item.critical-importance {
+  border-left-color: #dc3545;
+  background: #fff5f5;
+}
+
+.admin-item.high-importance {
+  border-left-color: #ffc107;
+  background: #fffbf0;
+}
+
+.admin-label {
+  display: block;
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+.admin-title {
+  display: block;
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
+  line-height: 1.3;
+  margin-bottom: 0.3rem;
+}
+
+.admin-timing {
+  display: block;
+  font-size: 0.8rem;
+  color: #6c757d;
+  margin-bottom: 0.3rem;
+}
+
+.admin-details {
+  display: block;
+  font-size: 0.75rem;
+  color: #495057;
+  background: rgba(0, 123, 255, 0.1);
+  padding: 0.4rem;
+  border-radius: 4px;
+  margin-top: 0.3rem;
+  border-left: 3px solid #007bff;
+}
+
+/* Actions techniques et administratives */
+.tech-actions .btn,
+.admin-actions .btn {
+  font-size: 0.8rem;
+  padding: 0.4rem 0.8rem;
+}
+
+/* Statut de conformité */
+.compliance-status {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border: 1px solid #dee2e6;
+}
+
+.compliance-status .badge {
+  font-size: 0.75rem;
+  padding: 0.3rem 0.6rem;
+}
+
+/* Importance badges dans le nouveau panneau */
+.tech-item .badge,
+.admin-item .badge {
+  font-size: 0.7rem;
+  padding: 0.2rem 0.4rem;
+  vertical-align: top;
+}
+
+/* Responsive pour le nouveau panneau */
+@media (max-width: 1199px) {
+  .technical-obligations-panel {
+    margin-bottom: 1rem;
+  }
+
+  .tech-item,
+  .admin-item {
+    padding: 0.5rem;
+  }
+
+  .tech-title,
+  .admin-title {
+    font-size: 0.85rem;
+  }
+}
+
+/* === FIN NOUVEAU PANNEAU === */
   border-left: 4px solid #007bff;
 }
 

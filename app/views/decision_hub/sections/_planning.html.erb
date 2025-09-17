@@ -1,0 +1,239 @@
+<!-- Partial pour la section planning -->
+<div class="planning-content">
+
+  <!-- Étapes cruciales - Vue compacte -->
+  <div class="critical-steps mb-4">
+    <h6 class="fw-bold mb-3">
+      <i class="bi bi-list-ol me-1"></i>
+      Étapes cruciales à venir
+    </h6>
+
+    <% hub_data[:planning][:critical_steps]&.each_with_index do |step, index| %>
+      <div class="step-item d-flex align-items-center p-3 mb-2 border-start border-4 border-<%= step[:status] == 'completed' ? 'success' : step[:status] == 'current' ? 'primary' : step[:urgent] ? 'danger' : 'secondary' %> bg-light rounded">
+        <div class="step-number me-3">
+          <div class="rounded-circle bg-<%= step[:status] == 'completed' ? 'success' : step[:status] == 'current' ? 'primary' : step[:urgent] ? 'danger' : 'secondary' %> text-white d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;">
+            <% if step[:status] == 'completed' %>
+              <i class="bi bi-check"></i>
+            <% else %>
+              <%= index + 1 %>
+            <% end %>
+          </div>
+        </div>
+        <div class="flex-grow-1">
+          <div class="fw-medium"><%= step[:name] %></div>
+          <small class="text-muted">
+            <i class="bi bi-clock me-1"></i>
+            <%= step[:duration] %>
+            <% if step[:deadline].present? %>
+              • <i class="bi bi-calendar me-1"></i>
+              Échéance: <%= step[:deadline].strftime("%d/%m") %>
+            <% end %>
+          </small>
+          <% if step[:description].present? %>
+            <div class="small text-muted mt-1"><%= step[:description] %></div>
+          <% end %>
+        </div>
+        <div class="step-status ms-2">
+          <% if step[:status] == 'completed' %>
+            <span class="badge bg-success">✓ Terminé</span>
+          <% elsif step[:status] == 'current' %>
+            <span class="badge bg-primary">🔄 En cours</span>
+          <% elsif step[:urgent] %>
+            <span class="badge bg-danger">🚨 Urgent</span>
+          <% else %>
+            <span class="badge bg-secondary">⏳ À venir</span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Prochaine échéance urgente -->
+  <% if hub_data[:planning][:next_deadline].present? %>
+    <div class="next-deadline mb-4">
+      <div class="alert alert-<%= hub_data[:planning][:next_deadline][:urgency] == 'high' ? 'danger' : 'warning' %> d-flex align-items-center">
+        <i class="bi bi-<%= hub_data[:planning][:next_deadline][:urgency] == 'high' ? 'exclamation-triangle-fill' : 'clock' %> fs-4 me-3"></i>
+        <div class="flex-grow-1">
+          <div class="fw-bold">Prochaine échéance : <%= hub_data[:planning][:next_deadline][:name] %></div>
+          <small>
+            <%= hub_data[:planning][:next_deadline][:date].strftime("%d/%m/%Y") %>
+            (<%= time_ago_in_words(hub_data[:planning][:next_deadline][:date]) %>)
+          </small>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Durée totale et statut condensé -->
+  <div class="planning-overview mb-4">
+    <div class="row g-2">
+      <div class="col-md-6">
+        <div class="d-flex align-items-center p-2 bg-info bg-opacity-10 rounded">
+          <i class="bi bi-clock text-info me-2"></i>
+          <div>
+            <div class="small fw-bold">Durée totale</div>
+            <div class="fw-bold text-info"><%= hub_data[:planning][:total_duration] %></div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="d-flex align-items-center p-2 bg-warning bg-opacity-10 rounded">
+          <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+          <div>
+            <div class="small fw-bold">Échéances urgentes</div>
+            <div class="fw-bold text-warning"><%= hub_data[:planning][:urgent_deadlines].count %></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Échéances critiques -->
+  <% if hub_data[:planning][:urgent_deadlines].any? %>
+    <div class="urgent-deadlines mb-4">
+      <h6 class="fw-bold text-danger mb-3">
+        <i class="bi bi-alarm me-1"></i>
+        Échéances critiques
+      </h6>
+      <% hub_data[:planning][:urgent_deadlines].each do |deadline| %>
+        <div class="deadline-item p-3 mb-2 border border-warning rounded bg-warning bg-opacity-10">
+          <div class="d-flex justify-content-between align-items-start">
+            <div class="flex-grow-1">
+              <div class="fw-medium"><%= deadline[:description] %></div>
+              <small class="text-muted">
+                <i class="bi bi-calendar me-1"></i>
+                <%= deadline[:date].strftime("%d/%m/%Y") %>
+                (<%= time_ago_in_words(deadline[:date]) %>)
+              </small>
+            </div>
+            <div class="text-end">
+              <span class="badge bg-<%= deadline[:urgency] == 'high' ? 'danger' : 'warning' %>">
+                <%= deadline[:urgency] == 'high' ? '🚨' : '⚠️' %>
+                <%= deadline[:urgency].capitalize %>
+              </span>
+              <% if deadline[:benefit].present? %>
+                <div class="small text-success mt-1">
+                  <i class="bi bi-gift me-1"></i>
+                  <%= deadline[:benefit] %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Timeline des phases -->
+  <div class="timeline-phases mb-4">
+    <h6 class="fw-bold mb-3">
+      <i class="bi bi-list-ol me-1"></i>
+      Phases du projet
+    </h6>
+
+    <% if hub_data[:planning][:timeline].any? %>
+      <div class="timeline">
+        <% hub_data[:planning][:timeline].each_with_index do |phase, index| %>
+          <div class="timeline-item d-flex">
+            <div class="timeline-marker me-3">
+              <div class="timeline-dot bg-<%= phase[:status] == 'active' ? 'primary' : phase[:status] == 'completed' ? 'success' : 'secondary' %>
+                          text-white rounded-circle d-flex align-items-center justify-content-center"
+                   style="width: 40px; height: 40px;">
+                <%= index + 1 %>
+              </div>
+              <% unless index == hub_data[:planning][:timeline].count - 1 %>
+                <div class="timeline-line bg-secondary" style="width: 2px; height: 60px; margin-left: 19px;"></div>
+              <% end %>
+            </div>
+
+            <div class="timeline-content flex-grow-1 pb-4">
+              <div class="card border-0 bg-light">
+                <div class="card-body p-3">
+                  <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="mb-1"><%= phase[:name] %></h6>
+                    <span class="badge bg-<%= phase[:status] == 'active' ? 'primary' : phase[:status] == 'completed' ? 'success' : 'secondary' %>">
+                      <%= phase[:status].capitalize %>
+                    </span>
+                  </div>
+                  <p class="text-muted small mb-2">
+                    <i class="bi bi-clock me-1"></i>
+                    Durée: <%= phase[:duration] %>
+                  </p>
+
+                  <% if phase[:actions].present? %>
+                    <div class="actions-list">
+                      <% phase[:actions].each do |action| %>
+                        <div class="action-item small d-flex justify-content-between align-items-center py-1">
+                          <span>• <%= action[:description] %></span>
+                          <small class="text-muted"><%= action[:duration] %></small>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="text-center py-4">
+        <i class="bi bi-calendar-check text-muted fs-1"></i>
+        <p class="mt-2 text-muted">Planning en cours de génération...</p>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Timing optimal -->
+  <% if hub_data[:planning][:optimal_timing].present? %>
+    <div class="optimal-timing mb-4">
+      <h6 class="fw-bold text-success mb-3">
+        <i class="bi bi-target me-1"></i>
+        Timing optimal recommandé
+      </h6>
+      <% hub_data[:planning][:optimal_timing].each do |timing| %>
+        <div class="timing-item p-2 mb-2 border border-success rounded bg-success bg-opacity-10">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <div class="fw-medium small"><%= timing[:prime] %></div>
+              <small class="text-muted">
+                <i class="bi bi-calendar-range me-1"></i>
+                <%= timing[:optimal_period] %>
+              </small>
+            </div>
+            <div class="text-end">
+              <span class="badge bg-<%= timing[:priority] == 'high' ? 'danger' : timing[:priority] == 'medium' ? 'warning' : 'info' %>">
+                <%= timing[:priority].capitalize %>
+              </span>
+              <div class="small text-muted mt-1"><%= timing[:reason] %></div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Actions planning -->
+  <div class="actions-section mt-4">
+    <div class="d-flex gap-2 flex-wrap">
+      <button class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-calendar-plus me-1"></i>
+        Planifier dépôt
+      </button>
+      <button class="btn btn-outline-info btn-sm quick-question"
+              data-question="Comment optimiser mon planning ?">
+        <i class="bi bi-speedometer2 me-1"></i>
+        Optimiser timing
+      </button>
+      <button class="btn btn-outline-warning btn-sm quick-question"
+              data-question="Y a-t-il des délais urgents à respecter ?">
+        <i class="bi bi-alarm me-1"></i>
+        Vérifier délais
+      </button>
+      <button class="btn btn-outline-success btn-sm">
+        <i class="bi bi-download me-1"></i>
+        Planning PDF
+      </button>
+    </div>
+  </div>
+</div>

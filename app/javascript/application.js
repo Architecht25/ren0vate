@@ -48,6 +48,7 @@ import DocumentPreviewController from "controllers/document_preview_controller"
 import AddressCopyController from "controllers/address_copy_controller"
 import TooltipController from "controllers/tooltip_controller"
 import PricingController from "controllers/pricing_controller"
+import DecisionHubController from "controllers/decision_hub_controller"
 
 application.register("user_type", UserTypeController)
 application.register("test-eligibilite", TestEligibiliteController)
@@ -81,5 +82,6 @@ application.register("document-preview", DocumentPreviewController)
 application.register("address-copy", AddressCopyController)
 application.register("tooltip", TooltipController)
 application.register("pricing", PricingController)
+application.register("decision-hub", DecisionHubController)
 
 export { application }

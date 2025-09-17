@@ -180,6 +180,8 @@ Rails.application.routes.draw do
   resources :decision_hub, only: [:index] do
     collection do
       get :guide  # Guide d'utilisation
+      get 'load_simulation/:simulation_id', to: 'decision_hub#load_simulation_data', as: 'load_simulation'
+      post 'ai_consultation/:simulation_id', to: 'decision_hub#ai_consultation', as: 'ai_consultation'
     end
   end
 
