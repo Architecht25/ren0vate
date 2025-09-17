@@ -121,13 +121,13 @@
                     <tr>
                       <td>
                         <div class="d-flex flex-column">
-                          <span class="fw-bold"><%= progress.property.address %></span>
+                          <span class="fw-bold"><%= progress.property&.address || "Adresse non renseignée" %></span>
                           <small class="text-muted"><%= progress.region.capitalize %></small>
                         </div>
                       </td>
                       <td>
                         <div class="d-flex flex-column">
-                          <span><%= progress.prime.nom %></span>
+                          <span><%= progress.prime.titre %></span>
                           <small class="text-muted"><%= progress.prime.region.capitalize %></small>
                         </div>
                       </td>
@@ -164,11 +164,11 @@
                       </td>
                       <td>
                         <div class="btn-group btn-group-sm">
-                          <%= link_to t('show'), progress, class: "btn btn-outline-primary btn-sm" %>
-                          <%= link_to t('edit'), edit_request_progress_path(progress), class: "btn btn-outline-secondary btn-sm" %>
-                          <%= link_to t('delete'), progress,
+                          <%= link_to "Voir", progress, class: "btn btn-outline-primary btn-sm" %>
+                          <%= link_to t('common.edit'), edit_request_progress_path(progress), class: "btn btn-outline-secondary btn-sm" %>
+                          <%= link_to t('common.delete'), progress,
                                       method: :delete,
-                                      data: { confirm: t('are_you_sure') },
+                                      data: { confirm: t('common.confirm') },
                                       class: "btn btn-outline-danger btn-sm" %>
                         </div>
                       </td>
