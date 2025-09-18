@@ -12,6 +12,11 @@ class RequestsController < ApplicationController
   end
 
   def show
+    # Éviter de traiter 'new' comme un ID
+    if params[:id] == 'new'
+      redirect_to new_request_path and return
+    end
+
     @request = Request.find(params[:id])
   end
 
@@ -19,24 +24,40 @@ class RequestsController < ApplicationController
     # Ne créer qu'un objet en mémoire, pas de sauvegarde automatique
     @request = current_user.requests.build(status: 'draft')
 
-    # Préparer les données de pré-remplissage si une propriété est sélectionnée
-    if params[:property_id].present?
+    # Si form_type et property_id sont spécifiés, préparer le formulaire directement
+    if params[:form_type].present? && params[:property_id].present?
       @property = current_user.properties.find(params[:property_id])
+      @request.form_type = params[:form_type]
+      @request.template_version = '1.0'
       @request.region = @property.region
       @request.property = @property
       @form_data = build_formulaire_data(@property)
-    else
-      @property = nil
-      @form_data = build_user_data
+
+      # Charger les primes pour le prime_card_controller
+      @primes = Prime.all
+      return
     end
 
-    # Charger les primes pour le prime_card_controller
-    @primes = Prime.all
+    # Sinon, afficher la sélection de biens et formulaires
+    @properties = current_user.properties.includes(:projects, :requests)
+    @properties_by_region = @properties.group_by(&:region)
+
+    # Charger la configuration des formulaires pour chaque région
+    @available_forms = {}
+    @properties_by_region.each do |region, properties|
+      @available_forms[region] = get_available_forms_for_region(region)
+    end
   end
 
   def create
     @request = Request.new(request_params)
     @request.user = current_user
+
+    # Debug: Vérifier que form_data est bien rempli
+    Rails.logger.info "=== REQUEST CREATE DEBUG ==="
+    Rails.logger.info "Form type: #{@request.form_type}"
+    Rails.logger.info "Form data: #{@request.form_data}"
+    Rails.logger.info "All request params: #{request_params.inspect}"
 
     # Pour les brouillons, assigner des valeurs par défaut si nécessaire
     if params[:commit] == "Sauvegarder en brouillon"
@@ -263,14 +284,78 @@ class RequestsController < ApplicationController
     end
   end
 
+  def get_available_forms_for_property(property)
+    forms = []
+
+    # Si property est nil, retourner tous les formulaires pour toutes les régions
+    if property.nil?
+      # Formulaires Bruxelles
+      forms += [
+        { id: :regional_bruxelles, name: 'Prime régionale habitation', region: 'bruxelles', category: 'Rénovation' },
+        { id: :monuments_bruxelles, name: 'Monuments & Sites classés', region: 'bruxelles', category: 'Patrimoine' },
+        { id: :patrimoine_bruxelles, name: 'Petit patrimoine populaire', region: 'bruxelles', category: 'Patrimoine' },
+        { id: :communal_bruxelles, name: 'Primes communales', region: 'bruxelles', category: 'Communal' }
+      ]
+
+      # Formulaires Wallonie
+      forms += [
+        { id: :regional_wallonie, name: 'Prime régionale habitation', region: 'wallonie', category: 'Rénovation' },
+        { id: :audit_wallonie, name: 'Audit énergétique', region: 'wallonie', category: 'Audit' },
+        { id: :monuments_wallonie, name: 'Monuments & Sites classés', region: 'wallonie', category: 'Patrimoine' },
+        { id: :communal_wallonie, name: 'Primes communales', region: 'wallonie', category: 'Communal' }
+      ]
+
+      # Formulaires Flandre
+      forms += [
+        { id: :regional_flandre, name: 'Prime régionale habitation', region: 'flandre', category: 'Rénovation' },
+        { id: :monuments_flandre, name: 'Monuments & Sites', region: 'flandre', category: 'Patrimoine' },
+        { id: :communal_flandre, name: 'Primes communales', region: 'flandre', category: 'Communal' }
+      ]
+
+      return forms
+    end
+
+    # Logique spécifique à la propriété (si nécessaire)
+    case property.region&.downcase
+    when 'bruxelles'
+      forms += [
+        { id: :regional_bruxelles, name: 'Prime régionale habitation', region: 'bruxelles', category: 'Rénovation', eligible: true },
+        { id: :monuments_bruxelles, name: 'Monuments & Sites classés', region: 'bruxelles', category: 'Patrimoine', eligible: true },
+        { id: :patrimoine_bruxelles, name: 'Petit patrimoine populaire', region: 'bruxelles', category: 'Patrimoine', eligible: true },
+        { id: :communal_bruxelles, name: 'Primes communales', region: 'bruxelles', category: 'Communal', eligible: true }
+      ]
+    when 'wallonie'
+      forms += [
+        { id: :regional_wallonie, name: 'Prime régionale habitation', region: 'wallonie', category: 'Rénovation', eligible: true },
+        { id: :audit_wallonie, name: 'Audit énergétique', region: 'wallonie', category: 'Audit', eligible: true },
+        { id: :monuments_wallonie, name: 'Monuments & Sites classés', region: 'wallonie', category: 'Patrimoine', eligible: true },
+        { id: :communal_wallonie, name: 'Primes communales', region: 'wallonie', category: 'Communal', eligible: true }
+      ]
+    when 'flandre'
+      forms += [
+        { id: :regional_flandre, name: 'Prime régionale habitation', region: 'flandre', category: 'Rénovation', eligible: true },
+        { id: :monuments_flandre, name: 'Monuments & Sites', region: 'flandre', category: 'Patrimoine', eligible: true },
+        { id: :communal_flandre, name: 'Primes communales', region: 'flandre', category: 'Communal', eligible: true }
+      ]
+    end
+
+    forms
+  end
+
+  def get_available_forms_for_region(region)
+    forms = get_available_forms_for_property(nil) # Récupérer tous les formulaires
+    forms.select { |form| form[:region] == region }
+  end
+
   private
 
   def request_params
-    params.require(:request).permit(:title, :description, :status, :region, :property_id,
+    permitted_params = params.require(:request).permit(:title, :description, :status, :region, :property_id, :form_type, :template_version,
                                    # Paramètres Bruxelles
                                    :revenus_menage, :nombre_personnes, :type_travaux, :surface_travaux, :cout_estime,
                                    # Paramètres Wallonie
                                    :revenus_reference, :composition_menage, :categories_travaux, :logement_principal, :montant_travaux,
+                                   :numero_audit, :date_audit, :numero_agrement_auditeur, :nom_auditeur, :adresse_auditeur,
                                    # Paramètres Flandre originaux
                                    :inkomen_gezin, :gezinssamenstelling, :type_renovatie, :eigenaar_bewoner, :kostprijs_werken,
                                    # Nouveaux paramètres Flandre optimisés
@@ -284,11 +369,35 @@ class RequestsController < ApplicationController
                                    :document_devis, :document_factures, :document_aer, :document_peb,
                                    :document_attestations, :document_photos, :document_autres,
                                    document_devis: [], document_factures: [], document_attestations: [], document_photos: [], document_autres: [])
+
+    # Extraire les données de formulaire et les stocker dans form_data
+    extract_form_data_from_params(permitted_params)
+  end
+
+  def extract_form_data_from_params(permitted_params)
+    # Champs de base du modèle Request (ne vont pas dans form_data)
+    base_fields = [:title, :description, :status, :region, :property_id, :form_type, :template_version]
+
+    # Champs de fichiers (ne vont pas dans form_data)
+    file_fields = [:document_devis, :document_factures, :document_aer, :document_peb,
+                   :document_attestations, :document_photos, :document_autres]
+
+    # Extraire les données de formulaire (tous les autres champs)
+    form_data_fields = permitted_params.except(*base_fields, *file_fields).reject { |k, v| v.blank? }
+
+    # Ajouter form_data aux paramètres si il y a des données
+    if form_data_fields.any?
+      permitted_params[:form_data] = form_data_fields
+    end
+
+    # Retourner seulement les champs de base + form_data + fichiers
+    permitted_params.slice(*base_fields, *file_fields, :form_data)
   end
 
   # Méthodes de pré-remplissage
   def build_formulaire_data(property)
-    {
+    # Données de base de pré-remplissage
+    base_data = {
       # Données du demandeur
       nom: current_user.last_name,
       prenom: current_user.first_name,
@@ -334,11 +443,18 @@ class RequestsController < ApplicationController
       travaux_photovoltaique: false,
       travaux_chauffe_eau: false
     }
+
+    # Fusionner avec les données existantes du form_data si présentes
+    if @request.present? && @request.form_data.present?
+      base_data.merge(@request.form_data.deep_symbolize_keys)
+    else
+      base_data
+    end
   end
 
   def build_user_data
-    {
-      # Données de base de l'utilisateur
+    # Données de base de l'utilisateur
+    base_data = {
       nom: current_user.last_name,
       prenom: current_user.first_name,
       email: current_user.email,
@@ -356,6 +472,13 @@ class RequestsController < ApplicationController
       applicant_postal_code: current_user.postal_code,
       applicant_city: current_user.city
     }
+
+    # Fusionner avec les données existantes du form_data si présentes
+    if @request.present? && @request.form_data.present?
+      base_data.merge(@request.form_data.deep_symbolize_keys)
+    else
+      base_data
+    end
   end
 
   def map_property_type(property)

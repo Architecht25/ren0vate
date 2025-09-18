@@ -1,0 +1,369 @@
+<% content_for :title, "Sélection du formulaire" %>
+
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+              <h1 class="h3 mb-1">
+                <i class="bi bi-file-earmark-text text-primary me-2"></i>
+                Sélection du formulaire de demande
+              </h1>
+              <p class="text-muted mb-0">
+                <strong><%= @property.address %></strong> - <%= @property.region.capitalize %>
+              </p>
+            </div>
+            <%= link_to property_dashboard_path(@property), class: "btn btn-outline-secondary" do %>
+              <i class="bi bi-arrow-left me-2"></i>Retour au dashboard
+            <% end %>
+          </div>
+
+          <!-- Filtres -->
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label small text-muted">Filtrer par catégorie</label>
+              <select class="form-select" id="categoryFilter" data-action="change->forms-selector#filterByCategory">
+                <option value="all">Toutes les catégories</option>
+                <option value="Rénovation">Rénovation</option>
+                <option value="Patrimoine">Patrimoine</option>
+                <option value="Audit">Audit</option>
+                <option value="Communal">Communal</option>
+                <option value="Entreprise">Entreprise</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label small text-muted">Affichage</label>
+              <select class="form-select" id="eligibilityFilter" data-action="change->forms-selector#filterByEligibility">
+                <option value="all">Tous les formulaires</option>
+                <option value="eligible">Formulaires éligibles uniquement</option>
+                <option value="ineligible">Formulaires non éligibles</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <div class="form-check mt-4">
+                <input class="form-check-input" type="checkbox" id="showExisting" data-action="change->forms-selector#toggleExisting">
+                <label class="form-check-label" for="showExisting">
+                  Afficher les formulaires déjà créés
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulaires existants -->
+  <% if @existing_requests.any? %>
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card border-success">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+              <i class="bi bi-check-circle me-2"></i>
+              Vos formulaires en cours (<%= @existing_requests.count %>)
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <% @existing_requests.each do |request| %>
+                <div class="col-md-6 col-lg-4">
+                  <div class="card border-success h-100">
+                    <div class="card-body p-3">
+                      <div class="d-flex align-items-start mb-2">
+                        <div class="me-3">
+                          <div class="progress-circle-small" style="--progress: <%= request.form_completion_percentage %>%">
+                            <span class="progress-text"><%= request.form_completion_percentage %>%</span>
+                          </div>
+                        </div>
+                        <div class="flex-grow-1">
+                          <h6 class="mb-1"><%= request.title || "Formulaire #{request.form_type.humanize}" %></h6>
+                          <p class="small text-muted mb-2">
+                            <span class="badge bg-<%= request.status == 'draft' ? 'warning' : 'primary' %>">
+                              <%= request.status.humanize %>
+                            </span>
+                          </p>
+                          <p class="small mb-0">
+                            Dernière modification : <%= l(request.updated_at, format: :short) %>
+                          </p>
+                        </div>
+                      </div>
+                      <div class="d-grid gap-2">
+                        <%= link_to "Continuer", edit_request_path(request),
+                            class: "btn btn-success btn-sm" %>
+                        <% if request.ready_for_submission? %>
+                          <%= link_to "Soumettre", request_path(request),
+                              class: "btn btn-outline-success btn-sm" %>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Grid des formulaires disponibles -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">
+            <i class="bi bi-grid-3x3-gap me-2"></i>
+            Formulaires disponibles
+          </h5>
+        </div>
+        <div class="card-body" data-controller="forms-selector">
+          <div class="row g-3" id="formsGrid">
+            <% @available_forms.each do |form| %>
+              <div class="col-md-6 col-lg-4 form-card"
+                   data-category="<%= form[:category] %>"
+                   data-eligible="<%= form[:eligible] %>"
+                   data-existing="<%= @existing_form_types.include?(form[:code]) %>">
+                <div class="card h-100 <%= form[:eligible] ? 'border-primary' : 'border-light' %> form-selector-card"
+                     style="cursor: pointer; transition: all 0.2s ease;"
+                     data-form-code="<%= form[:code] %>"
+                     data-action="click->forms-selector#selectForm">
+
+                  <!-- Badge d'éligibilité -->
+                  <% unless form[:eligible] %>
+                    <div class="position-absolute top-0 start-0 m-2">
+                      <span class="badge bg-secondary">Non éligible</span>
+                    </div>
+                  <% end %>
+
+                  <!-- Badge "Déjà créé" -->
+                  <% if @existing_form_types.include?(form[:code]) %>
+                    <div class="position-absolute top-0 end-0 m-2">
+                      <span class="badge bg-success">Déjà créé</span>
+                    </div>
+                  <% end %>
+
+                  <div class="card-body text-center p-4">
+                    <!-- Icône -->
+                    <div class="mb-3">
+                      <i class="<%= form[:icon] %> fs-1 text-<%= form[:eligible] ? 'primary' : 'muted' %>"></i>
+                    </div>
+
+                    <!-- Contenu -->
+                    <h6 class="card-title mb-2"><%= form[:title] %></h6>
+                    <p class="card-text small text-muted mb-3">
+                      <%= form[:description] %>
+                    </p>
+
+                    <!-- Catégorie -->
+                    <span class="badge bg-light text-dark mb-3"><%= form[:category] %></span>
+
+                    <!-- Actions -->
+                    <div class="d-grid gap-2">
+                      <% if form[:eligible] %>
+                        <% if @existing_form_types.include?(form[:code]) %>
+                          <button type="button" class="btn btn-outline-success btn-sm">
+                            <i class="bi bi-pencil me-1"></i>Modifier
+                          </button>
+                        <% else %>
+                          <button type="button" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-circle me-1"></i>Créer
+                          </button>
+                        <% end %>
+                      <% else %>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" disabled>
+                          <i class="bi bi-info-circle me-1"></i>Voir conditions
+                        </button>
+                      <% end %>
+
+                      <!-- Lien externe -->
+                      <% if form[:external_url].present? %>
+                        <%= link_to form[:external_url], target: "_blank", rel: "noopener",
+                            class: "btn btn-outline-primary btn-sm" do %>
+                          <i class="bi bi-external-link me-1"></i>Site officiel
+                        <% end %>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Aide et informations -->
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card border-0 bg-light">
+        <div class="card-body">
+          <h6 class="text-primary mb-3">
+            <i class="bi bi-lightbulb me-2"></i>Conseils
+          </h6>
+          <ul class="list-unstyled mb-0">
+            <li class="mb-2">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              Vous pouvez créer plusieurs formulaires pour le même bien
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              Les formulaires sont sauvegardés automatiquement en brouillon
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              Vérifiez l'éligibilité avant de commencer un formulaire
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card border-warning">
+        <div class="card-body">
+          <h6 class="text-warning mb-3">
+            <i class="bi bi-exclamation-triangle me-2"></i>Attention
+          </h6>
+          <p class="small mb-0">
+            Certains formulaires nécessitent des conditions spécifiques
+            (bien classé, audit énergétique, etc.). Consultez les sites
+            officiels pour plus d'informations.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.form-selector-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+.form-card[data-eligible="false"] {
+  opacity: 0.7;
+}
+
+.form-card[data-existing="true"] .card {
+  border-left: 4px solid #198754;
+}
+
+.progress-circle-small {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: conic-gradient(#198754 calc(var(--progress) * 1%), #e9ecef 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.progress-circle-small::before {
+  content: '';
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: white;
+  position: absolute;
+}
+
+.progress-circle-small .progress-text {
+  font-size: 10px;
+  font-weight: bold;
+  color: #198754;
+  position: relative;
+  z-index: 1;
+}
+</style>
+
+<script>
+// Contrôleur Stimulus pour la sélection des formulaires
+class FormsSelectorController extends Controller {
+  selectForm(event) {
+    const formCode = event.currentTarget.dataset.formCode;
+    const isEligible = event.currentTarget.closest('.form-card').dataset.eligible === 'true';
+    const isExisting = event.currentTarget.closest('.form-card').dataset.existing === 'true';
+
+    if (!isEligible) {
+      // Afficher modal d'information sur l'éligibilité
+      this.showEligibilityInfo(formCode);
+      return;
+    }
+
+    if (isExisting) {
+      // Rediriger vers l'édition de la demande existante
+      const existingRequest = this.findExistingRequest(formCode);
+      if (existingRequest) {
+        window.location.href = `/requests/${existingRequest.id}/edit`;
+      }
+    } else {
+      // Créer nouvelle demande
+      window.location.href = `/requests/new?property_id=<%= @property.id %>&form_type=${formCode}`;
+    }
+  }
+
+  filterByCategory(event) {
+    const category = event.target.value;
+    const formCards = document.querySelectorAll('.form-card');
+
+    formCards.forEach(card => {
+      if (category === 'all' || card.dataset.category === category) {
+        card.style.display = 'block';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  }
+
+  filterByEligibility(event) {
+    const filter = event.target.value;
+    const formCards = document.querySelectorAll('.form-card');
+
+    formCards.forEach(card => {
+      const isEligible = card.dataset.eligible === 'true';
+      let show = true;
+
+      if (filter === 'eligible' && !isEligible) show = false;
+      if (filter === 'ineligible' && isEligible) show = false;
+
+      card.style.display = show ? 'block' : 'none';
+    });
+  }
+
+  toggleExisting(event) {
+    const showExisting = event.target.checked;
+    const formCards = document.querySelectorAll('.form-card');
+
+    formCards.forEach(card => {
+      const isExisting = card.dataset.existing === 'true';
+
+      if (!showExisting && isExisting) {
+        card.style.display = 'none';
+      } else {
+        card.style.display = 'block';
+      }
+    });
+  }
+
+  showEligibilityInfo(formCode) {
+    // TODO: Afficher modal avec informations d'éligibilité
+    alert(`Ce formulaire n'est pas éligible pour votre bien. Consultez les conditions sur le site officiel.`);
+  }
+
+  findExistingRequest(formCode) {
+    // TODO: Logique pour trouver la demande existante
+    return null;
+  }
+}
+
+// Enregistrer le contrôleur
+if (typeof Stimulus !== 'undefined') {
+  Stimulus.register('forms-selector', FormsSelectorController);
+}
+</script>

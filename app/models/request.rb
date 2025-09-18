@@ -20,6 +20,43 @@ class Request < ApplicationRecord
   validates :title, presence: true, unless: -> { draft? || autosave_mode? }
   validates :description, presence: true, unless: -> { draft? || autosave_mode? }
   validates :region, presence: true, unless: -> { draft? || autosave_mode? }
+  validates :form_type, presence: true, unless: -> { draft? || autosave_mode? }
+
+  # Enum pour les types de formulaires (25 formulaires)
+  enum :form_type, {
+    # BRUXELLES (4 formulaires)
+    regional_bruxelles: 'regional_bruxelles',
+    monuments_bruxelles: 'monuments_bruxelles',
+    patrimoine_bruxelles: 'patrimoine_bruxelles',
+    communal_bruxelles: 'communal_bruxelles',
+
+    # WALLONIE (4 formulaires)
+    regional_wallonie: 'regional_wallonie',
+    audit_wallonie: 'audit_wallonie',
+    monuments_wallonie: 'monuments_wallonie',
+    communal_wallonie: 'communal_wallonie',
+
+    # FLANDRE (3 formulaires)
+    regional_flandre: 'regional_flandre',
+    monuments_flandre: 'monuments_flandre',
+    communal_flandre: 'communal_flandre',
+
+    # ENTREPRISES (14 formulaires - à compléter selon besoins)
+    consultance_bruxelles: 'consultance_bruxelles',
+    investissement_bruxelles: 'investissement_bruxelles',
+    formation_bruxelles: 'formation_bruxelles',
+    recherche_bruxelles: 'recherche_bruxelles',
+    export_bruxelles: 'export_bruxelles',
+    innovation_bruxelles: 'innovation_bruxelles',
+    transition_bruxelles: 'transition_bruxelles',
+    consultance_wallonie: 'consultance_wallonie',
+    investissement_wallonie: 'investissement_wallonie',
+    consultance_flandre: 'consultance_flandre',
+    investissement_flandre: 'investissement_flandre',
+    formation_flandre: 'formation_flandre',
+    innovation_flandre: 'innovation_flandre',
+    transition_flandre: 'transition_flandre'
+  }
 
   # Validations spécifiques pour Flandre (uniquement si pas brouillon)
   validates :domicile, inclusion: { in: [true, false] }, if: -> { flandre? && !draft? && !autosave_mode? }
@@ -49,6 +86,8 @@ class Request < ApplicationRecord
 
   # Scope pour récupérer les demandes récentes
   scope :recent, -> { order(created_at: :desc) }
+  scope :by_form_type, ->(type) { where(form_type: type) }
+  scope :for_property, ->(property) { where(property: property) }
 
   # Attribut pour désactiver les validations pendant l'auto-save
   attr_accessor :autosave_mode
@@ -72,6 +111,84 @@ class Request < ApplicationRecord
 
   def autosave_mode?
     @autosave_mode == true
+  end
+
+  # Méthodes pour les nouveaux types de formulaires
+  def form_region
+    return 'entreprise' if entreprise_form?
+    form_type&.split('_')&.last
+  end
+
+  def entreprise_form?
+    form_type&.include?('consultance') || form_type&.include?('investissement') ||
+    form_type&.include?('formation') || form_type&.include?('recherche') ||
+    form_type&.include?('export') || form_type&.include?('innovation') ||
+    form_type&.include?('transition')
+  end
+
+  def regional_form?
+    form_type&.start_with?('regional_')
+  end
+
+  def monuments_form?
+    form_type&.start_with?('monuments_')
+  end
+
+  def patrimoine_form?
+    form_type&.start_with?('patrimoine_')
+  end
+
+  def communal_form?
+    form_type&.start_with?('communal_')
+  end
+
+  def audit_form?
+    form_type&.start_with?('audit_')
+  end
+
+  # Gestion des form_data
+  def form_data_value(key)
+    form_data[key.to_s]
+  end
+
+  def set_form_data(key, value)
+    self.form_data = form_data.merge(key.to_s => value)
+  end
+
+  def form_completion_percentage
+    return 0 if form_type.blank?
+
+    required_fields = get_required_fields_for_form_type
+    return 100 if required_fields.empty?
+
+    completed_fields = required_fields.count { |field| form_data_value(field).present? }
+    (completed_fields.to_f / required_fields.size * 100).round
+  end
+
+  def ready_for_submission?
+    form_completion_percentage >= 80 && valid?
+  end
+
+  private
+
+  def get_required_fields_for_form_type
+    # Configuration des champs requis selon le type de formulaire
+    case form_type
+    when 'regional_bruxelles', 'regional_wallonie', 'regional_flandre'
+      %w[nom prenom email telephone adresse travaux_description budget_estime]
+    when 'monuments_bruxelles', 'monuments_wallonie', 'monuments_flandre'
+      %w[nom prenom email telephone adresse bien_classe description_travaux]
+    when 'patrimoine_bruxelles'
+      %w[nom prenom email telephone adresse elements_patrimoine]
+    when 'audit_wallonie'
+      %w[nom prenom email telephone adresse type_audit]
+    when /consultance_/
+      %w[denomination numero_entreprise contact_nom contact_email projet_description]
+    when /investissement_/
+      %w[denomination numero_entreprise investissement_description montant_investissement]
+    else
+      []
+    end
   end
 
   private

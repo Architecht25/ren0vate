@@ -365,6 +365,23 @@ class PropertiesController < ApplicationController
     end
   end
 
+  def select_form
+    @property = current_user.properties.find(params[:id])
+
+    # Charger les requests existantes pour cette propriété
+    @existing_requests = @property.requests.includes(:request_progresses)
+                                            .order(created_at: :desc)
+
+    # Grouper par form_type pour éviter les doublons
+    @existing_form_types = @existing_requests.pluck(:form_type).compact.uniq
+
+    # Configuration des formulaires disponibles selon la région et le type de bien
+    @available_forms = get_available_forms_for_property(@property)
+
+    # Statistiques de complétude
+    @completion_stats = calculate_forms_completion_stats(@existing_requests)
+  end
+
   private
 
   def set_property
@@ -531,5 +548,165 @@ class PropertiesController < ApplicationController
       maitre_ouvrage_contact: project.maitre_ouvrage_contact,
       coordinateur_securite_nom: project.coordinateur_securite_nom
     }
+  end
+
+  # Méthodes pour le sélecteur de formulaires
+  def get_available_forms_for_property(property)
+    forms = []
+
+    case property.region&.downcase
+    when 'bruxelles'
+      forms += [
+        {
+          code: 'regional_bruxelles',
+          title: 'Prime régionale habitation',
+          description: 'Primes pour travaux de rénovation énergétique',
+          icon: 'bi-house-gear',
+          category: 'Rénovation',
+          eligible: true,
+          external_url: 'https://www.bruxelles.be/logement-et-energie/renovation-de-mon-logement/primes'
+        },
+        {
+          code: 'monuments_bruxelles',
+          title: 'Monuments & Sites classés',
+          description: 'Subventions pour conservation de biens classés',
+          icon: 'bi-building-check',
+          category: 'Patrimoine',
+          eligible: property.monument_classe? || property.site_classe?,
+          external_url: 'https://urban.brussels/patrimoine'
+        },
+        {
+          code: 'patrimoine_bruxelles',
+          title: 'Petit patrimoine populaire',
+          description: 'Conservation du petit patrimoine architectural',
+          icon: 'bi-gem',
+          category: 'Patrimoine',
+          eligible: property.petit_patrimoine?,
+          external_url: 'https://urban.brussels/patrimoine'
+        },
+        {
+          code: 'communal_bruxelles',
+          title: 'Primes communales',
+          description: 'Primes spécifiques à votre commune bruxelloise',
+          icon: 'bi-geo-alt',
+          category: 'Communal',
+          eligible: true,
+          external_url: 'https://www.bruxelles.be/logement-et-energie/renovation-de-mon-logement/primes'
+        }
+      ]
+    when 'wallonie'
+      forms += [
+        {
+          code: 'regional_wallonie',
+          title: 'Prime régionale habitation',
+          description: 'Primes habitation de la Région wallonne',
+          icon: 'bi-house-gear',
+          category: 'Rénovation',
+          eligible: true,
+          external_url: 'https://energie.wallonie.be/fr/aides-et-primes.html?IDC=10717'
+        },
+        {
+          code: 'audit_wallonie',
+          title: 'Audit énergétique',
+          description: 'Prime pour audit énergétique en Wallonie',
+          icon: 'bi-clipboard-data',
+          category: 'Audit',
+          eligible: property.needs_audit?,
+          external_url: 'https://energie.wallonie.be/fr/aides-et-primes.html?IDC=10717'
+        },
+        {
+          code: 'monuments_wallonie',
+          title: 'Monuments & Sites classés',
+          description: 'Patrimoine classé et sites archéologiques',
+          icon: 'bi-building-check',
+          category: 'Patrimoine',
+          eligible: property.monument_classe? || property.site_classe?,
+          external_url: 'https://patrimoine.wallonie.be/'
+        },
+        {
+          code: 'communal_wallonie',
+          title: 'Primes communales',
+          description: 'Primes spécifiques à votre commune wallonne',
+          icon: 'bi-geo-alt',
+          category: 'Communal',
+          eligible: true,
+          external_url: 'https://energie.wallonie.be/fr/aides-et-primes.html?IDC=10717'
+        }
+      ]
+    when 'flandre'
+      forms += [
+        {
+          code: 'regional_flandre',
+          title: 'Prime régionale habitation',
+          description: 'Verbouwpremie - Primes de rénovation flamandes',
+          icon: 'bi-house-gear',
+          category: 'Rénovation',
+          eligible: true,
+          external_url: 'https://www.vlaanderen.be/premies-pour-renovation/mijn-verbouwpremie'
+        },
+        {
+          code: 'monuments_flandre',
+          title: 'Monuments & Sites (Onroerend Erfgoed)',
+          description: 'Primes restauration patrimoine flamand',
+          icon: 'bi-building-check',
+          category: 'Patrimoine',
+          eligible: property.monument_classe? || property.site_classe?,
+          external_url: 'https://www.onroerenderfgoed.be/'
+        },
+        {
+          code: 'communal_flandre',
+          title: 'Primes communales',
+          description: 'Primes spécifiques à votre commune flamande',
+          icon: 'bi-geo-alt',
+          category: 'Communal',
+          eligible: true,
+          external_url: 'https://www.vlaanderen.be/premies-pour-renovation/'
+        }
+      ]
+    end
+
+    # Ajouter formulaires entreprises si applicable
+    if current_user.entreprise?
+      forms += get_enterprise_forms
+    end
+
+    forms
+  end
+
+  def get_enterprise_forms
+    [
+      {
+        code: 'consultance_bruxelles',
+        title: 'Aide Consultance (Bruxelles)',
+        description: 'Aide pour consultance externe',
+        icon: 'bi-person-workspace',
+        category: 'Entreprise',
+        eligible: true,
+        external_url: 'https://www.economie-emploi.brussels/'
+      },
+      {
+        code: 'investissement_bruxelles',
+        title: 'Prime Investissements Généraux',
+        description: 'Aide aux investissements généraux',
+        icon: 'bi-graph-up-arrow',
+        category: 'Entreprise',
+        eligible: true,
+        external_url: 'https://www.economie-emploi.brussels/'
+      }
+      # ... autres formulaires entreprises
+    ]
+  end
+
+  def calculate_forms_completion_stats(requests)
+    stats = {}
+    requests.each do |request|
+      next if request.form_type.blank?
+      stats[request.form_type] = {
+        completion: request.form_completion_percentage,
+        status: request.status,
+        updated_at: request.updated_at
+      }
+    end
+    stats
   end
 end

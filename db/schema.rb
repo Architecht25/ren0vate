@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_18_140000) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_18_181500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -557,6 +557,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_18_140000) do
     t.string "telephone_contact"
     t.boolean "confirmation_veracite"
     t.boolean "acceptation_conditions"
+    t.string "form_type"
+    t.jsonb "form_data", default: {}
+    t.string "template_version", default: "1.0"
+    t.index ["form_data"], name: "index_requests_on_form_data", using: :gin
+    t.index ["form_type"], name: "index_requests_on_form_type"
     t.index ["project_id"], name: "index_requests_on_project_id"
     t.index ["property_id"], name: "index_requests_on_property_id"
     t.index ["simulation_id"], name: "index_requests_on_simulation_id"

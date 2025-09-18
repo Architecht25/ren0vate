@@ -124,6 +124,16 @@ Rails.application.routes.draw do
       get :formulaire_miroir  # Formulaire miroir pré-rempli
       post :submit_prime  # Soumission vers l'administration
       delete :destroy  # Route de suppression explicite
+
+      # Nouvelle route pour sélecteur formulaires
+      get :select_form, to: 'requests#select_form'
+    end
+
+    # Routes pour les requests liées à une propriété
+    resources :requests, except: [:index, :show], shallow: true do
+      member do
+        patch :autosave  # Sauvegarde progressive AJAX
+      end
     end
     # Documents liés à une propriété
     resources :documents, shallow: true

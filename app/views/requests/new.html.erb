@@ -1,13 +1,5 @@
 <div class="container-fluid px-4 py-4">
-  <!-- Initialisation des données globales pour JavaScript -->
-  <%= content_for :head do %>
-    <script nonce="<%= content_security_policy_nonce %>">
-      window.primes = <%= raw(@primes.to_json(only: [:id, :nom, :slug, :placeholder, :montant_max, :region])) if @primes.present? %> || [];
-      window.categorieId = "1"; // Catégorie par défaut
-    </script>
-  <% end %>
-
-  <!-- Header épuré -->
+  <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
     <div class="d-flex align-items-center">
       <div class="icon-circle me-3">
@@ -21,95 +13,223 @@
     <% end %>
   </div>
 
-  <!-- Sélection de bien pour pré-remplissage -->
-  <% if current_user.properties.any? && params[:property_id].blank? %>
-    <div class="card border-warning mb-4">
-      <div class="card-header bg-warning text-dark">
-        <h6 class="mb-0">
-          <i class="bi bi-lightbulb me-2"></i>
-          Pré-remplissage automatique
-        </h6>
-      </div>
-      <div class="card-body">
-        <p class="mb-3">Pour pré-remplir automatiquement les champs avec vos données, sélectionnez d'abord un bien :</p>
-        <div class="row g-3">
-          <% current_user.properties.sort_by { |property|
-            case property.region&.downcase
-            when 'flandre' then 1
-            when 'bruxelles' then 2
-            when 'wallonie' then 3
-            else 4
-            end
-          }.each do |property| %>
-            <div class="col-md-6 col-lg-2">
-              <%= link_to new_request_path(property_id: property.id), class: "btn btn-outline-success d-block py-3 px-4 text-start text-decoration-none" do %>
-                <div class="row align-items-center">
-                  <div class="col-4">
-                    <% if property.photo.attached? %>
-                      <%= image_tag property.photo, class: "img-fluid rounded", style: "height: 60px; width: 100%; object-fit: cover;" %>
-                    <% else %>
-                      <div class="bg-light rounded d-flex align-items-center justify-content-center" style="height: 60px;">
-                        <i class="bi bi-house-door text-muted fs-4"></i>
-                      </div>
-                    <% end %>
-                  </div>
-                  <div class="col-8">
-                    <div class="mb-1">
-                      <strong><%= property.name %></strong>
-                    </div>
-                    <small class="text-muted d-block"><%= property.full_address %></small>
-                  </div>
-                </div>
-              <% end %>
-            </div>
-          <% end %>
-        </div>
-        <hr>
-        <small class="text-muted">
-          <i class="bi bi-info-circle me-1"></i>
-          Ou continuez sans sélection (vous devrez remplir manuellement)
-        </small>
-      </div>
-    </div>
-  <% elsif @property.present? %>
-    <div class="alert alert-success">
-      <i class="bi bi-check-circle me-2"></i>
-      <strong>Bien sélectionné :</strong> <%= @property.name %> - <%= @property.full_address %>
-      <small class="d-block mt-1">Les champs seront automatiquement pré-remplis avec vos données.</small>
-    </div>
-  <% end %>
+  <% if @property.present? && @request.form_type.present? %>
+    <!-- MODE FORMULAIRE DIRECT -->
 
-  <!-- Formulaire régional -->
-  <% if @property.present? || params[:property_id].present? %>
-    <div class="row justify-content-center">
-      <div class="col-8">
-        <div class="card border-0 shadow-sm mb-4">
-          <div class="card-body p-4">
-            <%= render 'form' %>
+    <!-- Debug temporaire -->
+    <% if Rails.env.development? %>
+      <div class="alert alert-info">
+        <strong>Debug formulaire direct:</strong><br>
+        @request.form_type = '<%= @request.form_type %>'<br>
+        @property.full_address = '<%= @property.full_address %>'
+      </div>
+    <% end %>
+
+    <%= content_for :head do %>
+      <script nonce="<%= content_security_policy_nonce %>">
+        window.primes = <%= raw(@primes.to_json(only: [:id, :nom, :slug, :placeholder, :montant_max, :region])) if @primes.present? %> || [];
+        window.categorieId = "1";
+      </script>
+    <% end %>
+
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><%= link_to "Mes Biens", properties_path, class: "text-decoration-none" %></li>
+        <li class="breadcrumb-item"><%= @property.full_address %></li>
+        <li class="breadcrumb-item active"><%= @request.form_type.humanize %></li>
+      </ol>
+    </nav>
+
+    <!-- Formulaire direct -->
+    <%= render 'form' %>
+
+  <% else %>
+    <!-- MODE SÉLECTION BIEN ET FORMULAIRE -->
+    <div class="row">
+      <div class="col-12">
+        <div class="alert alert-info d-flex align-items-center mb-4">
+          <i class="bi bi-info-circle me-3 fs-4"></i>
+          <div>
+            <h6 class="mb-1">Créer une nouvelle demande</h6>
+            <p class="mb-0">Sélectionnez un bien immobilier, puis choisissez le type de formulaire adapté à votre région.</p>
           </div>
         </div>
+
+        <% if @properties.blank? %>
+          <!-- Aucun bien -->
+          <div class="text-center py-5">
+            <i class="bi bi-house-slash text-muted" style="font-size: 4rem;"></i>
+            <h4 class="text-muted mt-3">Aucun bien enregistré</h4>
+            <p class="text-muted">Vous devez d'abord ajouter un bien immobilier pour créer une demande.</p>
+            <%= link_to new_property_path, class: "btn btn-primary-custom btn-lg mt-3" do %>
+              <i class="bi bi-plus-circle me-2"></i>
+              Ajouter un bien
+            <% end %>
+          </div>
+        <% else %>
+          <!-- Liste des biens par région -->
+          <% @properties_by_region.each do |region, properties| %>
+            <div class="mb-5">
+              <div class="d-flex align-items-center mb-3">
+                <h4 class="text-primary-custom mb-0 me-3">
+                  <% case region&.downcase %>
+                  <% when 'flandre' %>
+                    <i class="bi bi-geo-alt-fill text-warning me-2"></i>Flandre
+                  <% when 'bruxelles' %>
+                    <i class="bi bi-building text-info me-2"></i>Bruxelles
+                  <% when 'wallonie' %>
+                    <i class="bi bi-tree text-success me-2"></i>Wallonie
+                  <% else %>
+                    <i class="bi bi-question-circle text-secondary me-2"></i><%= region&.capitalize || 'Non défini' %>
+                  <% end %>
+                </h4>
+                <span class="badge bg-light text-dark"><%= properties.count %> bien<%= 's' if properties.count > 1 %></span>
+              </div>
+
+              <div class="row g-4">
+                <% properties.each do |property| %>
+                  <div class="col-lg-4 col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                      <div class="card-body">
+                        <!-- En-tête du bien -->
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                          <div class="d-flex">
+                            <% if property.photo.attached? %>
+                              <%= image_tag property.photo, class: "rounded me-3", style: "width: 60px; height: 60px; object-fit: cover;" %>
+                            <% else %>
+                              <div class="bg-light rounded me-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                <i class="bi bi-house text-muted"></i>
+                              </div>
+                            <% end %>
+                            <div class="flex-grow-1">
+                              <h6 class="mb-1 fw-semibold"><%= property.full_address %></h6>
+                              <small class="text-muted">
+                                <%=
+                                  case property.region&.downcase
+                                  when 'wallonie'
+                                    property.type_propriete_wallonie&.humanize || 'Bien'
+                                  when 'flandre'
+                                    property.type_bien_flandre&.humanize || 'Bien'
+                                  when 'bruxelles'
+                                    property.type_bien_bruxelles&.humanize || 'Bien'
+                                  else
+                                    property.type&.humanize || 'Bien'
+                                  end
+                                %> •
+                                <%= property.annee_construction || 'Année inconnue' %>
+                              </small>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Projets en cours -->
+                        <% if property.projects.any? %>
+                          <div class="mb-3">
+                            <small class="text-muted fw-semibold d-block mb-2">Projets en cours :</small>
+                            <% property.projects.limit(3).each do |project| %>
+                              <span class="badge bg-warning text-dark me-1 mb-1">
+                                <i class="bi bi-tools me-1"></i><%= project.nom %>
+                              </span>
+                            <% end %>
+                            <% if property.projects.count > 3 %>
+                              <span class="badge bg-light text-dark">+<%= property.projects.count - 3 %> autres</span>
+                            <% end %>
+                          </div>
+                        <% end %>
+
+                        <!-- Demandes existantes -->
+                        <% existing_requests = property.requests.where.not(status: ['cancelled', 'rejected']).limit(3) %>
+                        <% if existing_requests.any? %>
+                          <div class="mb-3">
+                            <small class="text-muted fw-semibold d-block mb-2">Demandes actives :</small>
+                            <% existing_requests.each do |request| %>
+                              <span class="badge bg-info text-white me-1 mb-1">
+                                <%= request.form_type&.humanize || 'En cours' %>
+                              </span>
+                            <% end %>
+                          </div>
+                        <% end %>
+
+                        <!-- Formulaires disponibles -->
+                        <div class="mt-3 pt-3 border-top">
+                          <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="d-flex align-items-center">
+                              <div class="icon-circle-small bg-primary-custom me-2">
+                                <i class="bi bi-file-earmark-plus text-white"></i>
+                              </div>
+                              <span class="fw-bold text-dark">Formulaires disponibles</span>
+                            </div>
+                            <% available_forms = @available_forms[region] || [] %>
+                            <span class="badge bg-primary-custom px-2 py-1"><%= available_forms.count %></span>
+                          </div>
+
+                          <% if available_forms.any? %>
+                            <div class="bg-light rounded p-3">
+                              <div class="d-grid gap-2">
+                                <% available_forms.first(4).each do |form| %>
+                                  <%= link_to new_request_path(property_id: property.id, form_type: form[:id]),
+                                      class: "btn btn-outline-primary-custom text-start d-flex align-items-center" do %>
+                                    <i class="bi bi-file-earmark-text me-3 text-primary"></i>
+                                    <div class="flex-grow-1">
+                                      <div class="fw-semibold"><%= form[:name] %></div>
+                                      <% if form[:description] %>
+                                        <small class="text-muted"><%= form[:description] %></small>
+                                      <% end %>
+                                    </div>
+                                    <i class="bi bi-arrow-right text-primary"></i>
+                                  <% end %>
+                                <% end %>
+                                <% if available_forms.count > 4 %>
+                                  <%= link_to select_form_property_path(property),
+                                      class: "btn btn-outline-secondary d-flex align-items-center justify-content-center" do %>
+                                    <i class="bi bi-grid-3x3-gap me-2"></i>
+                                    Voir tous les formulaires (<%= available_forms.count %>)
+                                    <i class="bi bi-arrow-right ms-2"></i>
+                                  <% end %>
+                                <% end %>
+                              </div>
+                            </div>
+                          <% else %>
+                            <div class="bg-light rounded p-3 text-center">
+                              <i class="bi bi-exclamation-triangle text-warning fs-4 mb-2"></i>
+                              <div class="text-muted">Aucun formulaire disponible pour cette région</div>
+                            </div>
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
       </div>
     </div>
   <% end %>
 </div>
 
-<script nonce="<%= content_security_policy_nonce %>">
-// Validation Bootstrap
-(function() {
-  'use strict';
-  var forms = document.querySelectorAll('.needs-validation');
-  Array.prototype.slice.call(forms)
-    .forEach(function(form) {
-      form.addEventListener('submit', function(event) {
-        if (!form.checkValidity()) {
-          event.preventDefault();
-          event.stopPropagation();
-        }
-        form.classList.add('was-validated');
-      }, false);
-    });
-})();
-</script>
+<style>
+.icon-circle {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.25rem;
+}
 
-<!-- Utilise le fichier CSS externe properties.css -->
-<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>
+.icon-circle-small {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+}
+</style>
