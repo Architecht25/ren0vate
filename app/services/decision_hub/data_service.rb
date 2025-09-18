@@ -12,6 +12,7 @@ class DecisionHub::DataService
       documents: DecisionHub::DocumentRequirementsService.for_simulation(@simulation),
       planning: DecisionHub::PlanningService.for_simulation(@simulation),
       technical: DecisionHub::TechnicalRequirementsService.for_simulation(@simulation),
+      factures: generate_factures_data,
       ai_context: build_ai_context
     }
   end
@@ -140,5 +141,52 @@ class DecisionHub::DataService
   def has_urgent_deadlines?
     # Logique pour détecter les délais urgents
     @selected_primes.any? { |prime| prime[:urgency] == "critical" || prime[:urgency] == "high" }
+  end
+
+  def generate_factures_data
+    # Récupérer les factures liées à la simulation via le projet
+    project = @simulation.project
+
+    if project
+      factures = project.factures
+      total_factures = factures.sum(:montant_euros) || 0
+      budget_simulation = @simulation.total_simule || 0
+
+      # Vérification délai 12 mois
+      derniere_facture = factures.order(:date_facture).last
+      delai_ok = if derniere_facture
+                   (Date.current - derniere_facture.date_facture) <= 365.days
+                 else
+                   true # Pas de facture = délai OK
+                 end
+
+      # Calcul confiance OCR moyenne
+      ocr_confidence = if factures.any?
+                         factures.average(:confiance_ocr)&.round || 85
+                       else
+                         85
+                       end
+
+      {
+        budget_ok: total_factures <= budget_simulation * 1.1, # Tolérance 10%
+        delai_ok: delai_ok,
+        ocr_confidence: ocr_confidence,
+        total_factures: total_factures,
+        completion_rate: factures.any? ? 100 : 0,
+        nb_factures: factures.count,
+        derniere_facture_date: derniere_facture&.date_facture
+      }
+    else
+      # Pas de projet = données par défaut
+      {
+        budget_ok: true,
+        delai_ok: true,
+        ocr_confidence: 85,
+        total_factures: 0,
+        completion_rate: 0,
+        nb_factures: 0,
+        derniere_facture_date: nil
+      }
+    end
   end
 end

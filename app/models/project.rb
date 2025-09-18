@@ -5,6 +5,11 @@ class Project < ApplicationRecord
   has_many :documents, dependent: :destroy
   has_many :simulations, dependent: :destroy  # Ajouter cette ligne
 
+  # Relations pour les factures
+  has_many :factures, dependent: :destroy
+  has_many :factures_devis, -> { where(type_facture: 'devis') }, class_name: 'Facture'
+  has_many :factures_travaux, -> { where(type_facture: ['facture', 'acompte', 'solde']) }, class_name: 'Facture'
+
   validates :nom, presence: true
   validates :property_id, presence: true
   validates :project_type, presence: true, inclusion: { in: %w[renovation investment],

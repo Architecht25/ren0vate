@@ -133,6 +133,17 @@ Rails.application.routes.draw do
   resources :projects do
     # Documents liés à un chantier
     resources :documents, shallow: true
+
+    # Routes pour les factures et leur analyse
+    resources :factures, except: [:create] do
+      member do
+        patch :validate_facture
+      end
+    end
+
+    # Routes spéciales pour l'analyse de factures
+    get :factures_dashboard, to: 'factures#dashboard'
+    post :upload_facture, to: 'factures#upload_facture'
   end
 
   resources :requests do

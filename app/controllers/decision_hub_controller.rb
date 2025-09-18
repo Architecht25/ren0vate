@@ -177,6 +177,15 @@ class DecisionHubController < ApplicationController
         critical_issues: [],
         warnings: []
       },
+      factures: {
+        budget_ok: false,
+        delai_ok: true,
+        ocr_confidence: 85,
+        total_factures: 0,
+        completion_rate: 0,
+        nb_factures: 0,
+        derniere_facture_date: nil
+      },
       ai_context: {}
     }
   end

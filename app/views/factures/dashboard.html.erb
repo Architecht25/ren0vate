@@ -1,0 +1,535 @@
+<div class="container-fluid px-4 py-4">
+  <!-- Header du dashboard -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-calculator"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">Analyse Factures & Devis</h1>
+        <small class="text-muted"><%= @project.display_name %></small>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <%= link_to project_path(@project), class: "btn btn-outline-secondary" do %>
+        <i class="bi bi-arrow-left me-2"></i>Retour projet
+      <% end %>
+      <%= link_to project_factures_path(@project), class: "btn btn-outline-primary" do %>
+        <i class="bi bi-list me-2"></i>Liste factures
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Alertes critiques en haut -->
+  <% if @analyse[:alertes_delais][:status] == 'critique' || @analyse[:alertes_delais][:status] == 'expire' %>
+    <div class="alert alert-danger d-flex align-items-center mb-4">
+      <i class="bi bi-exclamation-triangle-fill me-3"></i>
+      <div>
+        <strong>URGENT - Délai de demande de prime !</strong><br>
+        <%= @analyse[:alertes_delais][:message] %>
+      </div>
+    </div>
+  <% elsif @analyse[:alertes_delais][:status] == 'attention' %>
+    <div class="alert alert-warning d-flex align-items-center mb-4">
+      <i class="bi bi-clock-fill me-3"></i>
+      <div>
+        <strong>Attention au délai</strong><br>
+        <%= @analyse[:alertes_delais][:message] %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="row">
+    <!-- Comparaison Devis vs Factures -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h5 class="card-title mb-0">
+            <i class="bi bi-graph-up me-2 text-primary"></i>
+            Comparaison Budgétaire
+          </h5>
+        </div>
+        <div class="card-body">
+          <% if @analyse[:comparaison_devis][:status] != 'no_devis' && @analyse[:comparaison_devis][:status] != 'no_factures' %>
+            <div class="row align-items-center mb-4">
+              <div class="col-md-4">
+                <div class="text-center">
+                  <div class="h4 text-info mb-1">
+                    <%= number_to_currency(@analyse[:comparaison_devis][:montant_devis], unit: '€ ', precision: 2) %>
+                  </div>
+                  <small class="text-muted">Montant Devis</small>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="text-center">
+                  <div class="progress mb-2" style="height: 10px;">
+                    <% pourcentage = (@analyse[:comparaison_devis][:total_factures] / @analyse[:comparaison_devis][:montant_devis] * 100).round(1) %>
+                    <div class="progress-bar
+                      <%= 'bg-success' if @analyse[:comparaison_devis][:status] == 'conforme' %>
+                      <%= 'bg-warning' if @analyse[:comparaison_devis][:status] == 'ecart_acceptable' %>
+                      <%= 'bg-danger' if @analyse[:comparaison_devis][:status] == 'depassement_important' %>
+                      <%= 'bg-info' if @analyse[:comparaison_devis][:status] == 'sous_evaluation' %>"
+                      style="width: <%= [pourcentage, 100].min %>%">
+                    </div>
+                  </div>
+                  <small class="text-muted"><%= pourcentage %>% réalisé</small>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="text-center">
+                  <div class="h4 mb-1
+                    <%= 'text-success' if @analyse[:comparaison_devis][:ecart] == 0 %>
+                    <%= 'text-warning' if @analyse[:comparaison_devis][:ecart].abs <= (@analyse[:comparaison_devis][:montant_devis] * 0.15) %>
+                    <%= 'text-danger' if @analyse[:comparaison_devis][:ecart].abs > (@analyse[:comparaison_devis][:montant_devis] * 0.15) %>">
+                    <%= number_to_currency(@analyse[:comparaison_devis][:total_factures], unit: '€ ', precision: 2) %>
+                  </div>
+                  <small class="text-muted">Total Factures</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Résumé de l'écart -->
+            <div class="alert
+              <%= 'alert-success' if @analyse[:comparaison_devis][:status] == 'conforme' %>
+              <%= 'alert-warning' if @analyse[:comparaison_devis][:status] == 'ecart_acceptable' %>
+              <%= 'alert-danger' if @analyse[:comparaison_devis][:status] == 'depassement_important' %>
+              <%= 'alert-info' if @analyse[:comparaison_devis][:status] == 'sous_evaluation' %>
+              d-flex align-items-center">
+              <i class="bi
+                <%= 'bi-check-circle-fill' if @analyse[:comparaison_devis][:status] == 'conforme' %>
+                <%= 'bi-exclamation-triangle-fill' if @analyse[:comparaison_devis][:status] == 'ecart_acceptable' %>
+                <%= 'bi-x-circle-fill' if @analyse[:comparaison_devis][:status] == 'depassement_important' %>
+                <%= 'bi-info-circle-fill' if @analyse[:comparaison_devis][:status] == 'sous_evaluation' %>
+                me-3"></i>
+              <div>
+                <strong><%= @analyse[:comparaison_devis][:message] %></strong>
+                <% if @analyse[:comparaison_devis][:ecart] != 0 %>
+                  <br><small>Écart: <%= @analyse[:comparaison_devis][:pourcentage_ecart] %>%</small>
+                <% end %>
+              </div>
+            </div>
+
+            <!-- Détail des factures -->
+            <h6 class="mt-4 mb-3">Détail des factures (<%= @analyse[:comparaison_devis][:details][:nombre_factures] %>)</h6>
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Montant</th>
+                    <th>Date</th>
+                    <th>Entreprise</th>
+                    <th>Confiance</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @analyse[:comparaison_devis][:details][:factures].each do |facture| %>
+                    <tr>
+                      <td>
+                        <span class="badge <%= facture[:type] == 'devis' ? 'bg-info' : 'bg-primary' %>">
+                          <%= facture[:type].humanize %>
+                        </span>
+                      </td>
+                      <td><%= number_to_currency(facture[:montant], unit: '€ ') %></td>
+                      <td><%= facture[:date]&.strftime('%d/%m/%Y') || 'N/A' %></td>
+                      <td><%= facture[:entreprise] || 'Non extraite' %></td>
+                      <td>
+                        <% if facture[:confiance] %>
+                          <span class="badge <%= facture[:confiance] >= 75 ? 'bg-success' : 'bg-warning' %>">
+                            <%= facture[:confiance].round(1) %>%
+                          </span>
+                        <% else %>
+                          <span class="badge bg-secondary">N/A</span>
+                        <% end %>
+                      </td>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          <% else %>
+            <div class="text-center py-4">
+              <i class="bi bi-exclamation-circle text-muted" style="font-size: 3rem;"></i>
+              <h6 class="mt-3 text-muted">
+                <%= @analyse[:comparaison_devis][:message] %>
+              </h6>
+              <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                <i class="bi bi-cloud-upload me-2"></i>Uploader des factures
+              </button>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar avec statistiques et alertes -->
+    <div class="col-lg-4">
+      <!-- Statistiques rapides -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h6 class="card-title mb-0">
+            <i class="bi bi-bar-chart me-2"></i>Statistiques
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-6">
+              <div class="text-center">
+                <div class="h5 text-primary mb-1"><%= @stats[:nombre_factures] %></div>
+                <small class="text-muted">Factures</small>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="text-center">
+                <div class="h5 text-success mb-1"><%= @stats[:factures_validees] %></div>
+                <small class="text-muted">Validées</small>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="text-center">
+                <div class="h5 text-info mb-1"><%= @stats[:extraction_moyenne] %>%</div>
+                <small class="text-muted">Confiance OCR moyenne</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Alertes délais -->
+      <% if @analyse[:alertes_delais][:status] != 'no_solde' %>
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-light">
+            <h6 class="card-title mb-0">
+              <i class="bi bi-clock me-2"></i>Délais Prime
+            </h6>
+          </div>
+          <div class="card-body">
+            <% if @analyse[:alertes_delais][:facture_solde] %>
+              <div class="d-flex align-items-center mb-3">
+                <div class="me-3">
+                  <i class="bi bi-receipt text-success" style="font-size: 1.5rem;"></i>
+                </div>
+                <div>
+                  <div class="fw-medium">Facture de solde détectée</div>
+                  <small class="text-muted">
+                    <%= @analyse[:alertes_delais][:facture_solde][:montant] %> € -
+                    <%= Date.parse(@analyse[:alertes_delais][:facture_solde][:date]).strftime('%d/%m/%Y') %>
+                  </small>
+                </div>
+              </div>
+
+              <div class="alert alert-<%= @analyse[:alertes_delais][:status] == 'ok' ? 'success' : @analyse[:alertes_delais][:status] == 'attention' ? 'warning' : 'danger' %> mb-3">
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-calendar-event me-2"></i>
+                  <div>
+                    <strong>Délai limite:</strong><br>
+                    <%= Date.parse(@analyse[:alertes_delais][:date_limite]).strftime('%d/%m/%Y') %>
+                    <% if @analyse[:alertes_delais][:jours_restants] >= 0 %>
+                      <br><small>Dans <%= @analyse[:alertes_delais][:jours_restants] %> jours</small>
+                    <% else %>
+                      <br><small class="text-danger">Expiré depuis <%= @analyse[:alertes_delais][:jours_restants].abs %> jours</small>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Actions recommandées -->
+              <% if @analyse[:alertes_delais][:actions_recommandees].any? %>
+                <h6 class="mb-2">Actions recommandées:</h6>
+                <ul class="list-unstyled">
+                  <% @analyse[:alertes_delais][:actions_recommandees].each do |action| %>
+                    <li class="mb-2">
+                      <i class="bi bi-check2 text-success me-2"></i>
+                      <small><%= action %></small>
+                    </li>
+                  <% end %>
+                </ul>
+              <% end %>
+            <% else %>
+              <div class="text-muted text-center py-3">
+                <i class="bi bi-info-circle mb-2" style="font-size: 2rem;"></i>
+                <div>Aucune facture de solde détectée</div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Actions rapides -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-light">
+          <h6 class="card-title mb-0">
+            <i class="bi bi-lightning me-2"></i>Actions rapides
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="d-grid gap-2">
+            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#uploadModal">
+              <i class="bi bi-cloud-upload me-2"></i>Uploader facture
+            </button>
+            <a href="<%= project_factures_path(@project) %>" class="btn btn-outline-secondary btn-sm">
+              <i class="bi bi-list me-2"></i>Voir toutes les factures
+            </a>
+            <% if @factures_travaux.any? { |f| !f.valide_manuellement } %>
+              <button type="button" class="btn btn-outline-warning btn-sm" onclick="ouvrirValidationEnMasse()">
+                <i class="bi bi-check-all me-2"></i>Validation en masse
+              </button>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Anomalies détectées -->
+  <% if @analyse[:anomalies].any? || @analyse[:factures_manquantes].any? %>
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-header bg-light">
+        <h5 class="card-title mb-0">
+          <i class="bi bi-exclamation-triangle me-2 text-warning"></i>
+          Anomalies et Points d'attention
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <% if @analyse[:factures_manquantes].any? %>
+            <div class="col-md-6">
+              <h6 class="text-danger">Documents manquants:</h6>
+              <% @analyse[:factures_manquantes].each do |anomalie| %>
+                <div class="alert alert-<%= anomalie[:severite] == 'haute' ? 'danger' : 'warning' %> alert-sm">
+                  <i class="bi bi-exclamation-circle me-2"></i>
+                  <%= anomalie[:message] %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+
+          <% if @analyse[:anomalies].any? %>
+            <div class="col-md-6">
+              <h6 class="text-warning">Anomalies détectées:</h6>
+              <% @analyse[:anomalies].each do |anomalie| %>
+                <div class="alert alert-<%= anomalie[:severite] == 'haute' ? 'danger' : anomalie[:severite] == 'moyenne' ? 'warning' : 'info' %> alert-sm">
+                  <i class="bi bi-info-circle me-2"></i>
+                  <%= anomalie[:message] %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Recommandations -->
+  <% if @analyse[:recommandations].any? %>
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-light">
+        <h5 class="card-title mb-0">
+          <i class="bi bi-lightbulb me-2 text-success"></i>
+          Recommandations
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <% @analyse[:recommandations].each do |rec| %>
+            <div class="col-md-6 mb-3">
+              <div class="border-start border-<%= rec[:priorite] == 'urgente' ? 'danger' : rec[:priorite] == 'haute' ? 'warning' : 'info' %> border-3 ps-3">
+                <h6 class="text-<%= rec[:priorite] == 'urgente' ? 'danger' : rec[:priorite] == 'haute' ? 'warning' : 'info' %>">
+                  <%= rec[:action] %>
+                </h6>
+                <small class="text-muted"><%= rec[:description] %></small>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<!-- Modal d'upload de facture -->
+<div class="modal fade" id="uploadModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          <i class="bi bi-cloud-upload me-2"></i>
+          Uploader une facture
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="upload-zone-facture text-center p-4 border border-dashed rounded" id="upload-zone-facture">
+          <i class="bi bi-receipt text-primary" style="font-size: 3rem;"></i>
+          <h6 class="mt-3 text-primary">Glissez votre facture ici</h6>
+          <p class="text-muted">ou cliquez pour sélectionner un fichier</p>
+          <small class="text-muted">Formats: PDF, JPEG, PNG • Extraction automatique des données</small>
+        </div>
+        <input type="file" class="upload-input-facture" accept=".pdf,.jpg,.jpeg,.png" style="display: none;">
+
+        <!-- Zone de résultat OCR -->
+        <div id="ocr-facture-result" style="display: none;" class="mt-4"></div>
+        <div id="ocr-facture-processing" style="display: none;" class="mt-4">
+          <div class="text-center">
+            <div class="spinner-border text-primary" role="status"></div>
+            <div class="mt-2">Analyse de la facture en cours...</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.upload-zone-facture {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.upload-zone-facture:hover,
+.upload-zone-facture.dragover {
+  border-color: var(--bs-primary);
+  background-color: rgba(var(--bs-primary-rgb), 0.05);
+  transform: scale(1.02);
+}
+
+.icon-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: rgba(var(--bs-primary-rgb), 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bs-primary);
+}
+
+.alert-sm {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+</style>
+
+<script nonce="<%= content_security_policy_nonce %>">
+document.addEventListener('turbo:load', function() {
+  // Configuration upload de factures
+  const uploadZone = document.getElementById('upload-zone-facture');
+  const uploadInput = document.querySelector('.upload-input-facture');
+  const ocrResult = document.getElementById('ocr-facture-result');
+  const ocrProcessing = document.getElementById('ocr-facture-processing');
+
+  if (!uploadZone || !uploadInput) return;
+
+  // Drag & Drop handlers
+  uploadZone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    this.classList.add('dragover');
+  });
+
+  uploadZone.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    this.classList.remove('dragover');
+  });
+
+  uploadZone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    this.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      processFactureUpload(files[0]);
+    }
+  });
+
+  uploadZone.addEventListener('click', function() {
+    uploadInput.click();
+  });
+
+  uploadInput.addEventListener('change', function(e) {
+    if (e.target.files.length > 0) {
+      processFactureUpload(e.target.files[0]);
+    }
+  });
+
+  function processFactureUpload(file) {
+    showProcessing();
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    fetch('<%= project_upload_facture_path(@project) %>', {
+      method: 'POST',
+      headers: {
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      },
+      body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+      hideProcessing();
+      if (data.success) {
+        showSuccess(data);
+        // Recharger la page après 2 secondes pour voir les nouvelles données
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
+      } else {
+        showError(data.error || 'Erreur lors du traitement');
+      }
+    })
+    .catch(error => {
+      hideProcessing();
+      showError('Erreur de connexion');
+      console.error('Erreur:', error);
+    });
+  }
+
+  function showProcessing() {
+    ocrProcessing.style.display = 'block';
+    ocrResult.style.display = 'none';
+  }
+
+  function hideProcessing() {
+    ocrProcessing.style.display = 'none';
+  }
+
+  function showSuccess(data) {
+    const facture = data.facture;
+    const html = `
+      <div class="alert alert-success">
+        <h6><i class="bi bi-check-circle me-2"></i>Facture analysée avec succès!</h6>
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <strong>Montant:</strong> ${facture.montant_formate}<br>
+            <strong>Type:</strong> ${facture.type_facture}<br>
+            <strong>Date:</strong> ${facture.date_facture_display}
+          </div>
+          <div class="col-md-6">
+            <strong>Entreprise:</strong> ${facture.nom_entreprise || 'Non extraite'}<br>
+            <strong>N° Facture:</strong> ${facture.numero_facture || 'Non extrait'}<br>
+            <strong>Confiance:</strong> ${facture.confiance_display}
+          </div>
+        </div>
+      </div>
+    `;
+    ocrResult.innerHTML = html;
+    ocrResult.style.display = 'block';
+  }
+
+  function showError(message) {
+    const html = `
+      <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        <strong>Erreur:</strong> ${message}
+      </div>
+    `;
+    ocrResult.innerHTML = html;
+    ocrResult.style.display = 'block';
+  }
+});
+
+function ouvrirValidationEnMasse() {
+  // Fonction pour ouvrir un modal de validation en masse
+  // À implémenter selon vos besoins
+  alert('Fonctionnalité de validation en masse à venir');
+}
+</script>

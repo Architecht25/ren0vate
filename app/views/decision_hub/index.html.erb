@@ -77,8 +77,6 @@
     </div>
   </div>
 
-
-
   <!-- Contenu principal avec sections dynamiques + Sidebar IA -->
   <div class="row g-4">
 
@@ -103,7 +101,7 @@
               <div class="card-body p-0">
                 <div class="row g-0">
                   <!-- Étape 1: Résumé -->
-                  <div class="col-md-3">
+                  <div class="col-md">
                     <div class="p-3 text-center border-end position-relative step-tab active"
                          data-section="resume"
                          data-action="click->decision-hub#switchSection"
@@ -216,39 +214,195 @@
 
                   <!-- Étape 4: Technique -->
                   <div class="col-md-3">
-                    <div class="p-3 text-center step-tab"
+                    <div class="p-3 text-center border-end position-relative step-tab"
                          data-section="technical"
                          data-action="click->decision-hub#switchSection"
                          style="cursor: pointer;">
-                      <div class="step-number bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
-                        <i class="bi bi-tools fs-5"></i>
+                      <div class="step-number bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                        <i class="bi bi-gear fs-5"></i>
                       </div>
                       <h6 class="mb-2">Technique</h6>
 
-                      <!-- Aperçu des obligations techniques -->
+                      <!-- Aperçu des exigences techniques -->
                       <div class="text-start mb-2">
-                        <% @hub_data[:technical][:top_obligations].first(3).each do |obligation| %>
-                          <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="text-muted"><%= obligation[:name] %></small>
-                            <% if obligation[:status] == 'verified' %>
-                              <i class="bi bi-check-circle-fill text-success"></i>
-                            <% elsif obligation[:status] == 'pending' %>
-                              <i class="bi bi-clock text-warning"></i>
-                            <% elsif obligation[:critical] %>
-                              <i class="bi bi-exclamation-triangle-fill text-danger"></i>
-                            <% else %>
-                              <i class="bi bi-x-circle text-danger"></i>
-                            <% end %>
-                          </div>
-                        <% end %>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <small class="text-muted">Isolation thermique</small>
+                          <% if @hub_data[:technical][:isolation_compliant] %>
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                          <% else %>
+                            <i class="bi bi-exclamation-triangle text-warning"></i>
+                          <% end %>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <small class="text-muted">Ventilation PEB</small>
+                          <% if @hub_data[:technical][:ventilation_compliant] %>
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                          <% else %>
+                            <i class="bi bi-exclamation-triangle text-warning"></i>
+                          <% end %>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <small class="text-muted">Performance énerg.</small>
+                          <% if @hub_data[:technical][:energy_performance_ok] %>
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                          <% else %>
+                            <i class="bi bi-exclamation-triangle text-warning"></i>
+                          <% end %>
+                        </div>
                       </div>
 
-                      <div class="fw-bold text-primary mb-2">
-                        Score: <%= @hub_data[:technical][:compliance_score] %>%
+                      <div class="fw-bold text-secondary mb-2">
+                        <i class="bi bi-award me-1"></i>
+                        <%= @hub_data[:technical][:compliance_score] %>% conforme
                       </div>
 
                       <div class="progress mt-2" style="height: 3px;">
                         <div class="progress-bar bg-<%= @hub_data[:technical][:compliance_score] > 80 ? 'success' : @hub_data[:technical][:compliance_score] > 50 ? 'warning' : 'danger' %>" style="width: <%= @hub_data[:technical][:compliance_score] %>%" data-decision-hub-target="technicalProgress"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Étape 5: Factures -->
+                  <div class="col-md-3">
+                    <div class="p-3 text-center border-end position-relative step-tab"
+                         data-section="factures"
+                         data-action="click->decision-hub#switchSection"
+                         style="cursor: pointer;">
+                      <div class="step-number bg-warning text-dark rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                        <i class="bi bi-receipt-cutoff fs-5"></i>
+                      </div>
+                      <h6 class="mb-2">Factures</h6>
+
+                      <!-- Aperçu des factures -->
+                      <div class="text-start mb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <small class="text-muted">Budget vs Réel</small>
+                          <% if @hub_data.dig(:factures, :budget_ok) %>
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                          <% else %>
+                            <i class="bi bi-exclamation-triangle text-warning"></i>
+                          <% end %>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <small class="text-muted">Délai 12 mois</small>
+                          <% if @hub_data.dig(:factures, :delai_ok) %>
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                          <% else %>
+                            <i class="bi bi-clock text-danger"></i>
+                          <% end %>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <small class="text-muted">OCR validé</small>
+                          <span class="badge bg-info text-white small"><%= @hub_data.dig(:factures, :ocr_confidence) || 85 %>%</span>
+                        </div>
+                      </div>
+
+                      <div class="fw-bold text-warning mb-2">
+                        <i class="bi bi-calculator me-1"></i>
+                        <%= @hub_data.dig(:factures, :total_factures) || 0 %>€
+                      </div>
+
+                      <div class="progress mt-2" style="height: 3px;">
+                        <div class="progress-bar bg-warning" style="width: <%= @hub_data.dig(:factures, :completion_rate) || 0 %>%" data-decision-hub-target="facturesProgress"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Étape 6: Conseils Factures -->
+                  <div class="col-md-3">
+                    <div class="p-3 text-center border-end position-relative step-tab"
+                         data-section="conseils-factures"
+                         data-action="click->decision-hub#switchSection"
+                         style="cursor: pointer;">
+                      <div class="step-number bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                        <i class="bi bi-receipt fs-5"></i>
+                      </div>
+                      <h6 class="mb-2">Conseils Factures</h6>
+
+                      <!-- Aperçu des conseils factures -->
+                      <div class="text-start mb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <small class="text-muted">Format obligatoire</small>
+                          <i class="bi bi-check-circle text-success"></i>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <small class="text-muted">Mentions requises</small>
+                          <i class="bi bi-list-check text-info"></i>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <small class="text-muted">Délais à respecter</small>
+                          <i class="bi bi-clock text-warning"></i>
+                        </div>
+                      </div>
+
+                      <div class="progress mt-2" style="height: 3px;">
+                        <div class="progress-bar bg-success" style="width: 100%;"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Étape 6: Conseils ACP -->
+                  <div class="col-md-3">
+                    <div class="p-3 text-center position-relative step-tab"
+                         data-section="conseils-acp"
+                         data-action="click->decision-hub#switchSection"
+                         style="cursor: pointer;">
+                      <div class="step-number bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                        <i class="bi bi-building fs-5"></i>
+                      </div>
+                      <h6 class="mb-2">Conseils ACP</h6>
+
+                      <!-- Aperçu des conseils ACP -->
+                      <div class="text-start mb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <small class="text-muted">Documents admin.</small>
+                          <i class="bi bi-folder-check text-success"></i>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <small class="text-muted">Assemblée générale</small>
+                          <i class="bi bi-people text-info"></i>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <small class="text-muted">Gestion financière</small>
+                          <i class="bi bi-calculator text-warning"></i>
+                        </div>
+                      </div>
+
+                      <div class="progress mt-2" style="height: 3px;">
+                        <div class="progress-bar bg-primary" style="width: 100%;"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Étape 8: Conseils Entrepreneurs -->
+                  <div class="col-md-3">
+                    <div class="p-3 text-center position-relative step-tab"
+                         data-section="conseils-entrepreneurs"
+                         data-action="click->decision-hub#switchSection"
+                         style="cursor: pointer;">
+                      <div class="step-number bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                        <i class="bi bi-hammer fs-5"></i>
+                      </div>
+                      <h6 class="mb-2">Conseils Entrepreneurs</h6>
+
+                      <!-- Aperçu des conseils entrepreneurs -->
+                      <div class="text-start mb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <small class="text-muted">Sélection RGE</small>
+                          <i class="bi bi-shield-check text-success"></i>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <small class="text-muted">Devis & négociation</small>
+                          <i class="bi bi-handshake text-info"></i>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <small class="text-muted">Suivi chantier</small>
+                          <i class="bi bi-clipboard-check text-warning"></i>
+                        </div>
+                      </div>
+
+                      <div class="progress mt-2" style="height: 3px;">
+                        <div class="progress-bar bg-info" style="width: 100%;"></div>
                       </div>
                     </div>
                   </div>
@@ -309,6 +463,46 @@
                     <%= render 'decision_hub/sections/technical', hub_data: @hub_data %>
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section Factures -->
+          <div class="section-content" data-section="factures" data-decision-hub-target="facturesSection">
+            <div class="row g-4">
+              <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                  <div class="card-body">
+                    <%= render 'factures/dashboard' %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section Conseils Factures -->
+          <div class="section-content" data-section="conseils-factures" data-decision-hub-target="conseilsFacturesSection">
+            <div class="row g-4">
+              <div class="col-12">
+                <%= render 'decision_hub/info_cards/bonne_facture' %>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section Conseils ACP -->
+          <div class="section-content" data-section="conseils-acp" data-decision-hub-target="conseilsAcpSection">
+            <div class="row g-4">
+              <div class="col-12">
+                <%= render 'decision_hub/info_cards/acp_preparation' %>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section Conseils Entrepreneurs -->
+          <div class="section-content" data-section="conseils-entrepreneurs" data-decision-hub-target="conseilsEntrepreneursSection">
+            <div class="row g-4">
+              <div class="col-12">
+                <%= render 'decision_hub/info_cards/conseils_entrepreneurs' %>
               </div>
             </div>
           </div>

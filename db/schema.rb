@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_15_112636) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_18_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -191,6 +191,43 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_15_112636) do
     t.datetime "updated_at", null: false
     t.jsonb "modalites_paiement"
     t.jsonb "delais_procedures"
+  end
+
+  create_table "factures", force: :cascade do |t|
+    t.bigint "document_id", null: false
+    t.bigint "project_id", null: false
+    t.bigint "property_id"
+    t.decimal "montant", precision: 10, scale: 2, comment: "Montant total de la facture"
+    t.string "numero_facture", comment: "Numéro de facture extrait"
+    t.date "date_facture", comment: "Date de la facture"
+    t.date "date_echeance", comment: "Date d'échéance si présente"
+    t.string "type_facture", default: "facture", comment: "Type: devis, facture, acompte, solde"
+    t.string "statut_paiement", default: "non_paye", comment: "Statut: non_paye, paye, partiel"
+    t.string "nom_entreprise", comment: "Nom de l'entreprise facturatrice"
+    t.string "numero_tva_entreprise", comment: "Numéro TVA extrait"
+    t.string "numero_bce_entreprise", comment: "Numéro BCE si trouvé"
+    t.decimal "montant_ht", precision: 10, scale: 2, comment: "Montant hors TVA"
+    t.decimal "montant_tva", precision: 10, scale: 2, comment: "Montant TVA"
+    t.decimal "taux_tva", precision: 5, scale: 2, comment: "Taux TVA en %"
+    t.decimal "confiance_ocr", precision: 5, scale: 2, comment: "Niveau de confiance OCR (0-100%)"
+    t.boolean "valide_manuellement", default: false, comment: "Validé manuellement par l'utilisateur"
+    t.boolean "extraction_complete", default: false, comment: "Toutes les données ont été extraites"
+    t.boolean "facture_solde", default: false, comment: "Identifiée comme facture de solde"
+    t.date "date_limite_prime", comment: "Date limite calculée pour la demande de prime (date_facture + 12 mois)"
+    t.integer "jours_avant_expiration", comment: "Nombre de jours avant expiration délai prime"
+    t.text "texte_ocr_brut", comment: "Texte complet extrait par OCR"
+    t.json "donnees_extraites", comment: "Données structurées extraites en JSON"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["date_facture"], name: "index_factures_on_date_facture"
+    t.index ["date_limite_prime"], name: "index_factures_on_date_limite_prime"
+    t.index ["document_id"], name: "index_factures_on_document_id"
+    t.index ["extraction_complete"], name: "index_factures_on_extraction_complete"
+    t.index ["facture_solde"], name: "index_factures_on_facture_solde"
+    t.index ["jours_avant_expiration"], name: "index_factures_on_jours_avant_expiration"
+    t.index ["project_id", "type_facture"], name: "index_factures_on_project_id_and_type_facture"
+    t.index ["project_id"], name: "index_factures_on_project_id"
+    t.index ["property_id"], name: "index_factures_on_property_id"
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -635,6 +672,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_15_112636) do
   add_foreign_key "documents", "requests"
   add_foreign_key "documents", "simulations"
   add_foreign_key "documents", "users"
+  add_foreign_key "factures", "documents"
+  add_foreign_key "factures", "projects"
+  add_foreign_key "factures", "properties"
   add_foreign_key "notifications", "projects"
   add_foreign_key "notifications", "properties"
   add_foreign_key "notifications", "simulations"

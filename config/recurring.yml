@@ -8,3 +8,21 @@
 #     command: "SoftDeletedRecord.due.delete_all"
 #     priority: 2
 #     schedule: at 5am every day
+
+# Vérifications des alertes factures
+production:
+  facture_alerts_daily:
+    class: FactureAlertJob
+    queue: default
+    schedule: at 9am every day
+
+  facture_alerts_urgent:
+    class: FactureAlertJob
+    queue: default
+    schedule: every 6 hours
+
+development:
+  facture_alerts_dev:
+    class: FactureAlertJob
+    queue: default
+    schedule: every 30 minutes

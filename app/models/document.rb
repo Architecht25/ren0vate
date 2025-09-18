@@ -5,6 +5,9 @@ class Document < ApplicationRecord
   belongs_to :project, optional: true
   belongs_to :simulation, optional: true
 
+  # Relation avec les données de facture extraites
+  has_one :facture, dependent: :destroy
+
   has_one_attached :file
 
   # Validations améliorées pour l'upload

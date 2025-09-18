@@ -1,0 +1,272 @@
+class FactureOcrService < OcrService
+  # Patterns regex pour extraction de données de factures
+  MONTANT_PATTERNS = [
+    /(?:total|montant|somme|due?|à payer|total général|total ttc)\s*:?\s*([0-9]{1,3}(?:\s?[0-9]{3})*(?:[.,][0-9]{1,2})?)\s*[€€]/i,
+    /([0-9]{1,3}(?:\s?[0-9]{3})*(?:[.,][0-9]{1,2})?)\s*[€€]\s*(?:ttc|total|due?)/i,
+    /(\d{1,3}(?:[.,\s]\d{3})*(?:[.,]\d{2})?)\s*(?:€|EUR|euros?)/i
+  ].freeze
+
+  DATE_PATTERNS = [
+    /(?:date|facturé le|émise? le|du)\s*:?\s*([0-3]?[0-9][\/\-\.][0-1]?[0-9][\/\-\.](?:20)?[0-9]{2})/i,
+    /([0-3]?[0-9][\/\-\.][0-1]?[0-9][\/\-\.](?:20)?[0-9]{2})/,
+    /(?:date de facturation|date d'émission)\s*:?\s*([0-3]?[0-9][\/\-\.][0-1]?[0-9][\/\-\.](?:20)?[0-9]{2})/i
+  ].freeze
+
+  NUMERO_FACTURE_PATTERNS = [
+    /(?:facture|fact|n°|numéro|num|ref|référence)\s*:?\s*([A-Z0-9\-\/]+)/i,
+    /(?:invoice|bill)\s*(?:number|no|#)\s*:?\s*([A-Z0-9\-\/]+)/i,
+    /(?:^|\s)([A-Z]{1,3}[0-9]{4,}[A-Z0-9]*)/
+  ].freeze
+
+  TVA_PATTERNS = [
+    /(?:t\.?v\.?a\.?|tva)\s*:?\s*([0-9]{1,2}(?:[.,][0-9]{1,2})?)\s*%?/i,
+    /(?:vat|btw)\s*:?\s*([0-9]{1,2}(?:[.,][0-9]{1,2})?)\s*%?/i,
+    /([0-9]{1,2}(?:[.,][0-9]{1,2})?)\s*%\s*(?:t\.?v\.?a\.?|tva)/i
+  ].freeze
+
+  ENTREPRISE_PATTERNS = [
+    /(?:^|\n)([A-Z][A-Za-z\s&\-\.]{3,50})\s*(?:s\.?[pa]\.?r\.?l\.?|s\.?a\.?|ltd|limited|inc)/i,
+    /(?:société|entreprise|company)\s*:?\s*([A-Za-z\s&\-\.]{3,50})/i,
+    /^([A-Z][A-Za-z\s&\-\.]{10,50})$/m
+  ].freeze
+
+  BCE_PATTERNS = [
+    /(?:bce|entreprise|company)\s*(?:n°|number|num)?\s*:?\s*([0-9]{4}[.\s]?[0-9]{3}[.\s]?[0-9]{3})/i,
+    /([0-9]{4}[.\s]?[0-9]{3}[.\s]?[0-9]{3})/,
+    /(?:n°\s*bce|bce\s*n°)\s*:?\s*([0-9\.]{12,15})/i
+  ].freeze
+
+  TYPE_FACTURE_KEYWORDS = {
+    'devis' => ['devis', 'estimation', 'quote', 'offre', 'proposition'],
+    'facture' => ['facture', 'invoice', 'bill', 'note'],
+    'acompte' => ['acompte', 'avance', 'advance', 'deposit', 'provision'],
+    'solde' => ['solde', 'final', 'finale', 'balance', 'remainder', 'complément']
+  }.freeze
+
+  def initialize(file, language: 'fra+eng')
+    super(file, language)
+  end
+
+  def extraire_donnees_facture
+    # Effectuer d'abord l'OCR standard
+    ocr_result = super.call
+    return ocr_result unless ocr_result[:success]
+
+    texte = ocr_result[:text]
+
+    # Extraire les données spécifiques aux factures
+    donnees_extraites = {
+      montant: extraire_montant(texte),
+      date_facture: extraire_date(texte),
+      numero_facture: extraire_numero_facture(texte),
+      nom_entreprise: extraire_nom_entreprise(texte),
+      numero_bce: extraire_numero_bce(texte),
+      taux_tva: extraire_taux_tva(texte),
+      type_facture: detecter_type_facture(texte),
+      montant_ht: extraire_montant_ht(texte),
+      montant_tva: extraire_montant_tva(texte)
+    }
+
+    # Calculer le niveau de confiance global
+    confiance_extraction = calculer_confiance_extraction(donnees_extraites, ocr_result[:confidence])
+
+    # Retourner le résultat enrichi
+    ocr_result.merge({
+      donnees_facture: donnees_extraites,
+      confiance_extraction: confiance_extraction,
+      extraction_complete: extraction_complete?(donnees_extraites),
+      texte_brut: texte
+    })
+  end
+
+  private
+
+  def extraire_montant(texte)
+    MONTANT_PATTERNS.each do |pattern|
+      match = texte.match(pattern)
+      if match
+        montant_str = match[1].gsub(/[\s]/, '').gsub(',', '.')
+        montant = montant_str.to_f
+        return montant if montant > 0 && montant < 1_000_000 # Validation basique
+      end
+    end
+    nil
+  end
+
+  def extraire_date(texte)
+    DATE_PATTERNS.each do |pattern|
+      match = texte.match(pattern)
+      if match
+        date_str = match[1]
+        begin
+          # Essayer différents formats de date
+          date = Date.strptime(date_str, '%d/%m/%Y') rescue nil
+          date ||= Date.strptime(date_str, '%d-%m-%Y') rescue nil
+          date ||= Date.strptime(date_str, '%d.%m.%Y') rescue nil
+          date ||= Date.strptime(date_str, '%d/%m/%y') rescue nil
+          return date if date && date > Date.new(2020) && date <= Date.current + 1.year
+        rescue
+          next
+        end
+      end
+    end
+    nil
+  end
+
+  def extraire_numero_facture(texte)
+    NUMERO_FACTURE_PATTERNS.each do |pattern|
+      match = texte.match(pattern)
+      if match
+        numero = match[1].strip
+        return numero if numero.length >= 3 && numero.length <= 20
+      end
+    end
+    nil
+  end
+
+  def extraire_nom_entreprise(texte)
+    lignes = texte.split("\n").map(&:strip).reject(&:empty?)
+
+    # Chercher dans les premières lignes (généralement l'en-tête)
+    lignes[0..5].each do |ligne|
+      ENTREPRISE_PATTERNS.each do |pattern|
+        match = ligne.match(pattern)
+        if match
+          nom = match[1].strip
+          return nom if nom.length >= 3 && nom.length <= 100
+        end
+      end
+    end
+
+    # Fallback: première ligne non vide qui ressemble à un nom d'entreprise
+    lignes[0..3].each do |ligne|
+      if ligne.length > 5 && ligne.match?(/[A-Z]/) && !ligne.match?(/\d{4,}/)
+        return ligne.strip
+      end
+    end
+
+    nil
+  end
+
+  def extraire_numero_bce(texte)
+    BCE_PATTERNS.each do |pattern|
+      match = texte.match(pattern)
+      if match
+        bce = match[1].gsub(/[\.\s]/, '')
+        return bce if bce.match?(/^\d{10}$/)
+      end
+    end
+    nil
+  end
+
+  def extraire_taux_tva(texte)
+    TVA_PATTERNS.each do |pattern|
+      match = texte.match(pattern)
+      if match
+        taux = match[1].gsub(',', '.').to_f
+        return taux if taux >= 0 && taux <= 30 # TVA valide entre 0 et 30%
+      end
+    end
+    nil
+  end
+
+  def detecter_type_facture(texte)
+    texte_lower = texte.downcase
+
+    TYPE_FACTURE_KEYWORDS.each do |type, keywords|
+      if keywords.any? { |keyword| texte_lower.include?(keyword) }
+        return type
+      end
+    end
+
+    # Heuristique basée sur la structure
+    if texte_lower.include?('estimation') || texte_lower.include?('proposons')
+      return 'devis'
+    elsif texte_lower.include?('acompte') || texte_lower.include?('provision')
+      return 'acompte'
+    elsif texte_lower.include?('solde') || texte_lower.include?('final')
+      return 'solde'
+    else
+      return 'facture' # Par défaut
+    end
+  end
+
+  def extraire_montant_ht(texte)
+    patterns_ht = [
+      /(?:total ht|montant ht|sous.total)\s*:?\s*([0-9]{1,3}(?:\s?[0-9]{3})*(?:[.,][0-9]{1,2})?)\s*[€€]/i,
+      /([0-9]{1,3}(?:\s?[0-9]{3})*(?:[.,][0-9]{1,2})?)\s*[€€]\s*ht/i
+    ]
+
+    patterns_ht.each do |pattern|
+      match = texte.match(pattern)
+      if match
+        montant_str = match[1].gsub(/[\s]/, '').gsub(',', '.')
+        montant = montant_str.to_f
+        return montant if montant > 0
+      end
+    end
+    nil
+  end
+
+  def extraire_montant_tva(texte)
+    patterns_tva = [
+      /(?:tva|t\.v\.a\.)\s*:?\s*([0-9]{1,3}(?:\s?[0-9]{3})*(?:[.,][0-9]{1,2})?)\s*[€€]/i,
+      /([0-9]{1,3}(?:\s?[0-9]{3})*(?:[.,][0-9]{1,2})?)\s*[€€]\s*(?:tva|t\.v\.a\.)/i
+    ]
+
+    patterns_tva.each do |pattern|
+      match = texte.match(pattern)
+      if match
+        montant_str = match[1].gsub(/[\s]/, '').gsub(',', '.')
+        montant = montant_str.to_f
+        return montant if montant > 0
+      end
+    end
+    nil
+  end
+
+  def calculer_confiance_extraction(donnees, confiance_ocr)
+    # Calculer la confiance basée sur les données extraites
+    points = 0
+    total = 0
+
+    # Montant (crucial)
+    total += 40
+    points += 40 if donnees[:montant].present?
+
+    # Date (crucial)
+    total += 30
+    points += 30 if donnees[:date_facture].present?
+
+    # Numéro de facture (important)
+    total += 15
+    points += 15 if donnees[:numero_facture].present?
+
+    # Nom entreprise (important)
+    total += 10
+    points += 10 if donnees[:nom_entreprise].present?
+
+    # Type de facture détecté
+    total += 5
+    points += 5 if donnees[:type_facture].present?
+
+    confiance_donnees = (points.to_f / total * 100).round(1)
+
+    # Combiner avec la confiance OCR
+    if confiance_ocr
+      (confiance_donnees * 0.6 + confiance_ocr * 0.4).round(1)
+    else
+      confiance_donnees
+    end
+  end
+
+  def extraction_complete?(donnees)
+    # Une extraction est considérée comme complète si on a au minimum:
+    # - Le montant
+    # - La date ou le numéro de facture
+    # - Le type de document
+    donnees[:montant].present? &&
+    (donnees[:date_facture].present? || donnees[:numero_facture].present?) &&
+    donnees[:type_facture].present?
+  end
+end
