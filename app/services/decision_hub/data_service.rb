@@ -149,7 +149,7 @@ class DecisionHub::DataService
 
     if project
       factures = project.factures
-      total_factures = factures.sum(:montant_euros) || 0
+      total_factures = factures.sum(:montant) || 0
       budget_simulation = @simulation.total_simule || 0
 
       # Vérification délai 12 mois
