@@ -1,0 +1,225 @@
+<%# Carte E - Prime Toiture %>
+<%# Isolation, structure, végétale, accessoires %>
+
+<!-- CARTE 5: TOITURE (PRIME E) -->
+<div class="col-12 col-md-6 col-lg-4">
+  <div class="card border-0 shadow h-100 overflow-hidden card-premium"
+       data-controller="bruxelles-prime-card"
+       data-bruxelles-prime-card-slug-value="bruxelles_prime_e_global"
+       data-statut-compatible='["residentiel", "mixte"]'>
+    <!-- Image de fond avec overlay -->
+    <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/renovation_toiture_guwknw'); background-size: cover; background-position: center;">
+      <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
+        <div class="text-center text-white">
+          <i class="bi bi-house-up fs-3 mb-2 drop-shadow"></i>
+          <h6 class="fw-bold mb-0 drop-shadow">Prime E - Toiture</h6>
+          <small class="opacity-90">Isolation, structure, végétale</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <!-- Badge informatif -->
+      <div class="mb-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <span class="badge bg-success bg-opacity-20 text-success rounded-pill px-3">
+            <i class="bi bi-house-up me-1"></i>Toiture
+          </span>
+          <small class="text-muted">
+            <i class="bi bi-umbrella text-success me-1"></i>Protection & isolation
+          </small>
+        </div>
+      </div>
+
+      <div class="row g-2">
+        <!-- Structure toiture -->
+        <div class="col-md-6">
+          <label class="form-label small">E1 - Structure toiture :</label>
+          <div class="input-group input-group-sm">
+            <input type="number" class="form-control" placeholder="Montant €"
+                   data-bruxelles-prime-card-target="inputStructureToiture"
+                   data-action="input->bruxelles-prime-card#calculate">
+            <span class="input-group-text bg-success text-white"
+                  data-bruxelles-prime-card-target="resultStructureToiture">0 €</span>
+          </div>
+          <!-- Informations de la prime -->
+          <% condition_text = condition_prime("bruxelles_structure_toiture") %>
+          <% conseil_text = conseil_prime("bruxelles_structure_toiture") %>
+          <% if condition_text.present? || conseil_text.present? %>
+            <div class="mt-1">
+              <% if condition_text.present? %>
+                <div class="mb-1">
+                  <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= condition_text %>
+                  </small>
+                </div>
+              <% end %>
+              <% if conseil_text.present? %>
+                <div>
+                  <small class="text-success">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    <%= conseil_text %>
+                  </small>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Isolation toiture/étanchéité -->
+        <div class="col-md-6">
+          <label class="form-label small">E2 - Couverture/étanchéité :</label>
+          <div class="input-group input-group-sm">
+            <input type="number" class="form-control" placeholder="m²"
+                   data-bruxelles-prime-card-target="inputIsolationToitureEtancheite"
+                   data-action="input->bruxelles-prime-card#calculate">
+            <span class="input-group-text bg-success text-white"
+                  data-bruxelles-prime-card-target="resultIsolationToitureEtancheite">0 €</span>
+          </div>
+          <!-- Informations de la prime -->
+          <% condition_text = condition_prime("bruxelles_isolation_toiture_etancheite") %>
+          <% conseil_text = conseil_prime("bruxelles_isolation_toiture_etancheite") %>
+          <% if condition_text.present? || conseil_text.present? %>
+            <div class="mt-1">
+              <% if condition_text.present? %>
+                <div class="mb-1">
+                  <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= condition_text %>
+                  </small>
+                </div>
+              <% end %>
+              <% if conseil_text.present? %>
+                <div>
+                  <small class="text-success">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    <%= conseil_text %>
+                  </small>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Isolation thermique toiture -->
+        <div class="col-md-6">
+          <label class="form-label small">E3 - Isolation thermique :</label>
+          <div class="input-group input-group-sm">
+            <input type="number" class="form-control" placeholder="m²"
+                   data-bruxelles-prime-card-target="inputIsolationThermiqueToiture"
+                   data-action="input->bruxelles-prime-card#calculate">
+            <span class="input-group-text bg-success text-white"
+                  data-bruxelles-prime-card-target="resultIsolationThermiqueToiture">0 €</span>
+          </div>
+          <!-- Informations de la prime -->
+          <% condition_text = condition_prime("bruxelles_isolation_thermique_toiture") %>
+          <% conseil_text = conseil_prime("bruxelles_isolation_thermique_toiture") %>
+          <% if condition_text.present? || conseil_text.present? %>
+            <div class="mt-1">
+              <% if condition_text.present? %>
+                <div class="mb-1">
+                  <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= condition_text %>
+                  </small>
+                </div>
+              <% end %>
+              <% if conseil_text.present? %>
+                <div>
+                  <small class="text-success">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    <%= conseil_text %>
+                  </small>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+
+        </div>
+
+        <!-- Accessoires toiture -->
+        <div class="col-md-6">
+          <label class="form-label small">E4 - Accessoires :</label>
+          <div class="input-group input-group-sm">
+            <input type="number" class="form-control" placeholder="Montant €"
+                   data-bruxelles-prime-card-target="inputAccessoiresToiture"
+                   data-action="input->bruxelles-prime-card#calculate">
+            <span class="input-group-text bg-success text-white"
+                  data-bruxelles-prime-card-target="resultAccessoiresToiture">0 €</span>
+          </div>
+          <!-- Informations de la prime -->
+          <% condition_text = condition_prime("bruxelles_accessoires_toiture") %>
+          <% conseil_text = conseil_prime("bruxelles_accessoires_toiture") %>
+          <% if condition_text.present? || conseil_text.present? %>
+            <div class="mt-1">
+              <% if condition_text.present? %>
+                <div class="mb-1">
+                  <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= condition_text %>
+                  </small>
+                </div>
+              <% end %>
+              <% if conseil_text.present? %>
+                <div>
+                  <small class="text-success">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    <%= conseil_text %>
+                  </small>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+
+        </div>
+
+        <!-- Toiture végétale -->
+        <div class="col-md-12">
+          <label class="form-label small">E5 - Toiture végétale :</label>
+          <div class="input-group input-group-sm">
+            <input type="number" class="form-control" placeholder="m²"
+                   data-bruxelles-prime-card-target="inputToitureVegetale"
+                   data-action="input->bruxelles-prime-card#calculate">
+            <span class="input-group-text bg-success text-white"
+                  data-bruxelles-prime-card-target="resultToitureVegetale">0 €</span>
+          </div>
+          <!-- Informations de la prime -->
+          <% condition_text = condition_prime("bruxelles_toiture_vegetale") %>
+          <% conseil_text = conseil_prime("bruxelles_toiture_vegetale") %>
+          <% if condition_text.present? || conseil_text.present? %>
+            <div class="mt-1">
+              <% if condition_text.present? %>
+                <div class="mb-1">
+                  <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= condition_text %>
+                  </small>
+                </div>
+              <% end %>
+              <% if conseil_text.present? %>
+                <div>
+                  <small class="text-success">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    <%= conseil_text %>
+                  </small>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+
+        </div>
+      </div>
+
+      <!-- Total Toiture -->
+      <div class="mt-3 pt-2 border-top">
+        <div class="d-flex justify-content-between align-items-center">
+          <strong class="text-success">Total Toiture :</strong>
+          <span class="badge bg-success fs-6" data-bruxelles-prime-card-target="total">
+            0 €
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

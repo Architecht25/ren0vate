@@ -1,0 +1,305 @@
+<%# Carte J - Prime Chauffage & Chauffe-eau %>
+<%# PAC, radiateurs basse température, thermostat, chauffe-eau solaire/PAC %>
+
+<!-- CARTE 10: CHAUFFAGE & CHAUFFE-EAU (PRIME J) -->
+<div class="col-12 col-md-6 col-lg-4">
+  <div class="card border-0 shadow h-100 overflow-hidden card-premium"
+       data-controller="bruxelles-prime-card"
+       data-bruxelles-prime-card-slug-value="bruxelles_prime_j_global"
+       data-statut-compatible='["residentiel", "mixte"]'>
+
+    <!-- Image de fond avec overlay -->
+    <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/pac_hybride_ukmzp8'); background-size: cover; background-position: center;">
+      <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
+        <div class="text-center text-white">
+          <i class="bi bi-thermometer-half fs-3 mb-2 drop-shadow"></i>
+          <h6 class="fw-bold mb-0 drop-shadow">Prime J - Chauffage et eau chaude</h6>
+          <small class="opacity-90">PAC, radiateurs, chauffe-eau</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <!-- Badge informatif -->
+      <div class="mb-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <span class="badge bg-danger bg-opacity-20 text-danger rounded-pill px-3">
+            <i class="bi bi-thermometer-half me-1"></i>Chauffage
+          </span>
+          <small class="text-muted">
+            <i class="bi bi-fire text-danger me-1"></i>Énergie verte & efficace
+          </small>
+        </div>
+      </div>
+
+      <div class="row g-2">
+        <!-- PAC chauffage -->
+        <div class="col-lg-6 col-md-6">
+          <label class="form-label small">J4 - PAC chauffage :</label>
+          <div class="input-group input-group-sm">
+            <select class="form-control"
+                    data-bruxelles-prime-card-target="inputPacChauffage"
+                    data-action="change->bruxelles-prime-card#calculate">
+              <option value="0">Non</option>
+              <option value="1">Oui</option>
+            </select>
+            <span class="input-group-text bg-danger text-white"
+                  data-bruxelles-prime-card-target="resultPacChauffage">0 €</span>
+          </div>
+          <!-- Informations de la prime -->
+          <% condition_text = condition_prime("bruxelles_pac_chauffage") %>
+          <% conseil_text = conseil_prime("bruxelles_pac_chauffage") %>
+          <% if condition_text.present? || conseil_text.present? %>
+            <div class="mt-1">
+              <% if condition_text.present? %>
+                <div class="mb-1">
+                  <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= condition_text %>
+                  </small>
+                </div>
+              <% end %>
+              <% if conseil_text.present? %>
+                <div>
+                  <small class="text-success">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    <%= conseil_text %>
+                  </small>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Radiateurs basse température -->
+        <div class="col-lg-6 col-md-6">
+          <label class="form-label small">J5 - Radiateurs BT :</label>
+          <div class="input-group input-group-sm">
+            <input type="number" class="form-control" placeholder="Nombre"
+                   data-bruxelles-prime-card-target="inputRadiateursBT"
+                   data-action="input->bruxelles-prime-card#calculate">
+            <span class="input-group-text bg-danger text-white"
+                  data-bruxelles-prime-card-target="resultRadiateursBT">0 €</span>
+          </div>
+          <!-- Informations de la prime -->
+          <% condition_text = condition_prime("bruxelles_radiateurs_basse_temperature") %>
+          <% conseil_text = conseil_prime("bruxelles_radiateurs_basse_temperature") %>
+          <% if condition_text.present? || conseil_text.present? %>
+            <div class="mt-1">
+              <% if condition_text.present? %>
+                <div class="mb-1">
+                  <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= condition_text %>
+                  </small>
+                </div>
+              <% end %>
+              <% if conseil_text.present? %>
+                <div>
+                  <small class="text-success">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    <%= conseil_text %>
+                  </small>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Thermostat -->
+        <div class="col-lg-6 col-md-6">
+          <label class="form-label small">J6 - Thermostat :</label>
+          <div class="input-group input-group-sm">
+            <input type="number" class="form-control" placeholder="Nombre"
+                   data-bruxelles-prime-card-target="inputThermostat"
+                   data-action="input->bruxelles-prime-card#calculate">
+            <span class="input-group-text bg-danger text-white"
+                  data-bruxelles-prime-card-target="resultThermostat">0 €</span>
+          </div>
+          <!-- Informations de la prime -->
+          <% condition_text = condition_prime("bruxelles_thermostat") %>
+          <% conseil_text = conseil_prime("bruxelles_thermostat") %>
+          <% if condition_text.present? || conseil_text.present? %>
+            <div class="mt-1">
+              <% if condition_text.present? %>
+                <div class="mb-1">
+                  <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= condition_text %>
+                  </small>
+                </div>
+              <% end %>
+              <% if conseil_text.present? %>
+                <div>
+                  <small class="text-success">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    <%= conseil_text %>
+                  </small>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Vannes thermostatiques -->
+        <div class="col-lg-6 col-md-6">
+          <label class="form-label small">J6 - Vannes thermostat. :</label>
+          <div class="input-group input-group-sm">
+            <input type="number" class="form-control" placeholder="Nombre"
+                   data-bruxelles-prime-card-target="inputVannesThermostatiques"
+                   data-action="input->bruxelles-prime-card#calculate">
+            <span class="input-group-text bg-danger text-white"
+                  data-bruxelles-prime-card-target="resultVannesThermostatiques">0 €</span>
+          </div>
+          <!-- Informations de la prime -->
+          <% condition_text = condition_prime("bruxelles_vannes_thermostatiques") %>
+          <% conseil_text = conseil_prime("bruxelles_vannes_thermostatiques") %>
+          <% if condition_text.present? || conseil_text.present? %>
+            <div class="mt-1">
+              <% if condition_text.present? %>
+                <div class="mb-1">
+                  <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= condition_text %>
+                  </small>
+                </div>
+              <% end %>
+              <% if conseil_text.present? %>
+                <div>
+                  <small class="text-success">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    <%= conseil_text %>
+                  </small>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Chauffe-eau solaire -->
+        <div class="col-lg-6 col-md-6">
+          <label class="form-label small">J8 - Chauffe-eau solaire :</label>
+          <div class="input-group input-group-sm">
+            <select class="form-control"
+                    data-bruxelles-prime-card-target="inputChauffeEauSolaire"
+                    data-action="change->bruxelles-prime-card#calculate">
+              <option value="0">Non</option>
+              <option value="1">Oui</option>
+            </select>
+            <span class="input-group-text bg-danger text-white"
+                  data-bruxelles-prime-card-target="resultChauffeEauSolaire">0 €</span>
+          </div>
+          <!-- Informations de la prime -->
+          <% condition_text = condition_prime("bruxelles_chauffe_eau_solaire") %>
+          <% conseil_text = conseil_prime("bruxelles_chauffe_eau_solaire") %>
+          <% if condition_text.present? || conseil_text.present? %>
+            <div class="mt-1">
+              <% if condition_text.present? %>
+                <div class="mb-1">
+                  <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= condition_text %>
+                  </small>
+                </div>
+              <% end %>
+              <% if conseil_text.present? %>
+                <div>
+                  <small class="text-success">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    <%= conseil_text %>
+                  </small>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Chauffe-eau PAC -->
+        <div class="col-lg-6 col-md-6">
+          <label class="form-label small">J9 - Chauffe-eau PAC :</label>
+          <div class="input-group input-group-sm">
+            <select class="form-control"
+                    data-bruxelles-prime-card-target="inputChauffeEauPac"
+                    data-action="change->bruxelles-prime-card#calculate">
+              <option value="0">Non</option>
+              <option value="1">Oui</option>
+            </select>
+            <span class="input-group-text bg-danger text-white"
+                  data-bruxelles-prime-card-target="resultChauffeEauPac">0 €</span>
+          </div>
+          <!-- Informations de la prime -->
+          <% condition_text = condition_prime("bruxelles_chauffe_eau_pac") %>
+          <% conseil_text = conseil_prime("bruxelles_chauffe_eau_pac") %>
+          <% if condition_text.present? || conseil_text.present? %>
+            <div class="mt-1">
+              <% if condition_text.present? %>
+                <div class="mb-1">
+                  <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= condition_text %>
+                  </small>
+                </div>
+              <% end %>
+              <% if conseil_text.present? %>
+                <div>
+                  <small class="text-success">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    <%= conseil_text %>
+                  </small>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Raccordement réseau chaleur -->
+        <div class="col-lg-6 col-md-6">
+          <label class="form-label small">J10 - Raccordement réseau :</label>
+          <div class="input-group input-group-sm">
+            <select class="form-control"
+                    data-bruxelles-prime-card-target="inputRaccordementReseau"
+                    data-action="change->bruxelles-prime-card#calculate">
+              <option value="0">Non</option>
+              <option value="1">Oui</option>
+            </select>
+            <span class="input-group-text bg-danger text-white"
+                  data-bruxelles-prime-card-target="resultRaccordementReseau">0 €</span>
+          </div>
+          <!-- Informations de la prime -->
+          <% condition_text = condition_prime("bruxelles_raccordement_reseau_chaleur") %>
+          <% conseil_text = conseil_prime("bruxelles_raccordement_reseau_chaleur") %>
+          <% if condition_text.present? || conseil_text.present? %>
+            <div class="mt-1">
+              <% if condition_text.present? %>
+                <div class="mb-1">
+                  <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= condition_text %>
+                  </small>
+                </div>
+              <% end %>
+              <% if conseil_text.present? %>
+                <div>
+                  <small class="text-success">
+                    <i class="bi bi-lightbulb me-1"></i>
+                    <%= conseil_text %>
+                  </small>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Total Chauffage -->
+      <div class="mt-3 pt-2 border-top">
+        <div class="d-flex justify-content-between align-items-center">
+          <strong class="text-danger">Total Chauffage :</strong>
+          <span class="badge bg-danger fs-6" data-bruxelles-prime-card-target="total">
+            0 €
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -14,10 +14,10 @@ export default class extends Controller {
   }
 
   // ========== ROUTEUR VERS LES CONTRÔLEURS RÉGIONAUX ==========
-  // 
+  //
   // Ce contrôleur sert maintenant de routeur principal.
   // La logique spécifique à chaque région a été extraite dans :
-  // 
+  //
   // 🟠 test_eligibilite_flandre_controller.js (méthodes Flandre)
   // 🟡 test_eligibilite_wallonie_controller.js (méthodes Wallonie - 5 profils)
   // 🟢 test_eligibilite_bruxelles_controller.js (méthodes Bruxelles - tous profils)
@@ -38,7 +38,7 @@ export default class extends Controller {
     console.warn("⚠️ showResult appelée sur le routeur principal");
     console.warn("💡 Utilisez plutôt un contrôleur régional spécifique :");
     console.warn("   - test-eligibilite-flandre");
-    console.warn("   - test-eligibilite-wallonie"); 
+    console.warn("   - test-eligibilite-wallonie");
     console.warn("   - test-eligibilite-bruxelles");
   }
 
