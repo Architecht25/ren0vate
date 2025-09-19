@@ -1,4 +1,65 @@
 module DocumentsHelper
+  # Service pour la logique conditionnelle
+  def document_display_service
+    @document_display_service ||= Documents::ConditionalDisplayService.new(
+      @property,
+      @simulation_data
+    )
+  end
+
+  # Raccourcis pour les conditions les plus courantes
+  def show_urban_permit_section?
+    document_display_service.requires_urban_permit?
+  end
+
+  def show_peb_certificate_section?
+    document_display_service.requires_peb_certificate?
+  end
+
+  def show_energy_audit_section?
+    document_display_service.requires_energy_audit?
+  end
+
+  def show_electrical_documents_section?
+    document_display_service.requires_electrical_documents?
+  end
+
+  # Pour les messages conditionnels
+  def conditional_document_message(document_type)
+    case document_type
+    when 'urban_permit'
+      if show_urban_permit_section?
+        "📋 Permis d'urbanisme requis selon votre projet"
+      else
+        "ℹ️ Aucun permis d'urbanisme nécessaire pour ce projet"
+      end
+    when 'peb_certificate'
+      "🏠 Certificat PEB obligatoire pour tous les biens résidentiels"
+    when 'energy_audit'
+      if show_energy_audit_section?
+        "🔍 Audit énergétique recommandé pour vos primes"
+      else
+        "💡 Audit énergétique non requis pour ce projet"
+      end
+    end
+  end
+
+  # Pour styler conditionnellement les cartes
+  def document_card_classes(document_type, base_classes = "")
+    classes = base_classes.split(' ')
+
+    case document_type
+    when 'required'
+      classes << 'border-red-200 bg-red-50'
+    when 'conditional'
+      classes << 'border-yellow-200 bg-yellow-50'
+    when 'optional'
+      classes << 'border-green-200 bg-green-50'
+    end
+
+    classes.join(' ')
+  end
+
   # Rendu du bouton d'upload contextuel
   def upload_document_button(context_object, options = {})
     default_options = {

@@ -1,0 +1,65 @@
+<!-- Exemple d'utilisation dans _phase_detail.html.erb -->
+<div class="phase-administrative-documents">
+  <!-- TOUJOURS AFFICHÉ - PEB obligatoire pour résidentiel -->
+  <% if show_peb_certificate_section? %>
+    <div class="<%= document_card_classes('required', 'card mb-3') %>">
+      <div class="card-header bg-red-500 text-white">
+        <h5 class="mb-0">📋 Certificat PEB - OBLIGATOIRE</h5>
+      </div>
+      <div class="card-body">
+        <p><%= conditional_document_message('peb_certificate') %></p>
+        <!-- Contenu spécifique PEB -->
+      </div>
+    </div>
+  <% end %>
+
+  <!-- CONDITIONNEL - Permis d'urbanisme -->
+  <% if show_urban_permit_section? %>
+    <div class="<%= document_card_classes('conditional', 'card mb-3') %>">
+      <div class="card-header bg-yellow-500 text-white">
+        <h5 class="mb-0">🏛️ Permis d'Urbanisme - REQUIS</h5>
+      </div>
+      <div class="card-body">
+        <p><%= conditional_document_message('urban_permit') %></p>
+        <div class="alert alert-info">
+          <strong>Détecté :</strong> Votre projet nécessite un permis d'urbanisme
+        </div>
+        <!-- Contenu spécifique permis -->
+      </div>
+    </div>
+  <% else %>
+    <!-- Message informatif si pas requis -->
+    <div class="card mb-3 border-success">
+      <div class="card-body text-center text-success">
+        <i class="bi bi-check-circle me-2"></i>
+        Aucun permis d'urbanisme requis pour votre projet
+      </div>
+    </div>
+  <% end %>
+
+  <!-- CONDITIONNEL - Audit énergétique -->
+  <% if show_energy_audit_section? %>
+    <div class="<%= document_card_classes('conditional', 'card mb-3') %>">
+      <div class="card-header bg-blue-500 text-white">
+        <h5 class="mb-0">🔍 Audit Énergétique - RECOMMANDÉ</h5>
+      </div>
+      <div class="card-body">
+        <p><%= conditional_document_message('energy_audit') %></p>
+        <!-- Contenu spécifique audit -->
+      </div>
+    </div>
+  <% end %>
+
+  <!-- CONDITIONNEL - Documents électriques -->
+  <% if show_electrical_documents_section? %>
+    <div class="<%= document_card_classes('conditional', 'card mb-3') %>">
+      <div class="card-header bg-orange-500 text-white">
+        <h5 class="mb-0">⚡ Conformité Électrique - REQUIS</h5>
+      </div>
+      <div class="card-body">
+        <p>Documents électriques requis pour vos travaux</p>
+        <!-- Contenu spécifique électricité -->
+      </div>
+    </div>
+  <% end %>
+</div>
