@@ -4,6 +4,7 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = [
     "simulationSelector",
+    "selectionPrimesSection",
     "resumeSection",
     "documentsSection",
     "planningSection",
@@ -11,6 +12,8 @@ export default class extends Controller {
     "facturesSection",
     "conseilsFacturesSection",
     "conseilsAcpSection",
+    "conseilsExemplariteSection",
+    "verificationConsultanceSection",
     "conseilsEntrepreneursSection",
     "aiMessages",
     "aiInput",

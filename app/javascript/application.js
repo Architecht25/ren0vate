@@ -49,6 +49,8 @@ import AddressCopyController from "controllers/address_copy_controller"
 import TooltipController from "controllers/tooltip_controller"
 import PricingController from "controllers/pricing_controller"
 import DecisionHubController from "controllers/decision_hub_controller"
+import ConsultationVerificationController from "controllers/consultation_verification_controller"
+import PrimeSelectionController from "controllers/prime_selection_controller"
 
 application.register("user_type", UserTypeController)
 application.register("test-eligibilite", TestEligibiliteController)
@@ -83,5 +85,7 @@ application.register("address-copy", AddressCopyController)
 application.register("tooltip", TooltipController)
 application.register("pricing", PricingController)
 application.register("decision-hub", DecisionHubController)
+application.register("consultation-verification", ConsultationVerificationController)
+application.register("prime-selection", PrimeSelectionController)
 
 export { application }

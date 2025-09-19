@@ -1,0 +1,362 @@
+<div class="card border-0 shadow-sm" data-controller="consultation-verification">
+  <div class="card-header bg-gradient bg-primary text-white">
+    <div class="d-flex align-items-center">
+      <i class="bi bi-shield-check fs-4 me-3"></i>
+      <div>
+        <h5 class="mb-0">Vérification Éligibilité Consultant</h5>
+        <small class="opacity-75">Validation BCE pour consultants agréés entreprises Bruxelles</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <!-- Formulaire de recherche consultant -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card bg-light">
+          <div class="card-body">
+            <h6 class="card-title">
+              <i class="bi bi-search me-2"></i>Rechercher un consultant
+            </h6>
+            <div class="row g-3">
+              <div class="col-md-8">
+                <label for="consultant-bce" class="form-label">Numéro BCE du consultant</label>
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="bi bi-building"></i>
+                  </span>
+                  <input type="text"
+                         class="form-control"
+                         id="consultant-bce"
+                         placeholder="Ex: 0123.456.789"
+                         pattern="[0-9]{4}\.[0-9]{3}\.[0-9]{3}"
+                         data-consultation-verification-target="bceInput"
+                         data-action="input->consultation-verification#formatBceNumber">
+                  <button class="btn btn-primary"
+                          type="button"
+                          id="verify-consultant-btn"
+                          data-action="click->consultation-verification#verifyConsultant">
+                    <i class="bi bi-search me-1"></i>Vérifier
+                  </button>
+                </div>
+                <small class="text-muted">Format: 0123.456.789</small>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Type de consultant</label>
+                <select class="form-select" id="consultant-type" data-consultation-verification-target="consultantType">
+                  <option value="">Tous les types</option>
+                  <option value="71.11">Architecte</option>
+                  <option value="71.12">Bureau d'études/Ingénierie</option>
+                  <option value="70.22">Conseil en gestion</option>
+                  <option value="74.90">Consultant spécialisé</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone de résultats -->
+    <div id="consultant-verification-result" class="mb-4" style="display: none;" data-consultation-verification-target="result">
+      <!-- Résultats dynamiques ici -->
+    </div>
+
+    <!-- Critères d'éligibilité -->
+    <div class="accordion" id="consultationAccordion">
+
+      <!-- Critères BCE obligatoires -->
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="criteresHeader">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#criteresCollapse">
+            <i class="bi bi-checklist text-success me-3"></i>
+            <strong>1. Critères d'éligibilité BCE</strong>
+          </button>
+        </h2>
+        <div id="criteresCollapse" class="accordion-collapse collapse show" data-bs-parent="#consultationAccordion">
+          <div class="accordion-body">
+            <div class="row g-4">
+              <div class="col-md-6">
+                <h6 class="text-success mb-3">
+                  <i class="bi bi-shield-check me-2"></i>Critères obligatoires
+                </h6>
+                <div class="list-group list-group-flush">
+                  <div class="list-group-item">
+                    <div class="d-flex align-items-center">
+                      <i class="bi bi-building text-primary me-3"></i>
+                      <div>
+                        <strong>Entreprise bruxelloise active</strong><br>
+                        <small class="text-muted">Siège social à Bruxelles, statut "ACTIF"</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="list-group-item">
+                    <div class="d-flex align-items-center">
+                      <i class="bi bi-diagram-3 text-info me-3"></i>
+                      <div>
+                        <strong>Code NACE éligible</strong><br>
+                        <small class="text-muted">Architecture, ingénierie, conseil technique</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="list-group-item">
+                    <div class="d-flex align-items-center">
+                      <i class="bi bi-calendar-check text-warning me-3"></i>
+                      <div>
+                        <strong>Ancienneté minimum</strong><br>
+                        <small class="text-muted">Au moins 2 ans d'activité</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <h6 class="text-info mb-3">
+                  <i class="bi bi-award me-2"></i>Codes NACE acceptés
+                </h6>
+                <div class="card bg-light">
+                  <div class="card-body">
+                    <ul class="list-unstyled mb-0 small">
+                      <li class="mb-2">
+                        <span class="badge bg-primary me-2">71.11</span>
+                        <strong>Services d'architecture</strong>
+                      </li>
+                      <li class="mb-2">
+                        <span class="badge bg-primary me-2">71.12</span>
+                        <strong>Services d'ingénierie</strong>
+                      </li>
+                      <li class="mb-2">
+                        <span class="badge bg-primary me-2">70.22</span>
+                        <strong>Conseil en gestion</strong>
+                      </li>
+                      <li class="mb-2">
+                        <span class="badge bg-primary me-2">74.90</span>
+                        <strong>Autres services professionnels</strong>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="alert alert-info mt-3">
+                  <i class="bi bi-info-circle me-2"></i>
+                  <strong>Note :</strong> Le consultant doit avoir au moins un de ces codes NACE comme activité principale ou secondaire.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Certifications et qualifications -->
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="qualificationsHeader">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qualificationsCollapse">
+            <i class="bi bi-patch-check text-primary me-3"></i>
+            <strong>2. Certifications et qualifications</strong>
+          </button>
+        </h2>
+        <div id="qualificationsCollapse" class="accordion-collapse collapse" data-bs-parent="#consultationAccordion">
+          <div class="accordion-body">
+            <div class="row g-4">
+              <div class="col-md-4">
+                <div class="card border-primary h-100">
+                  <div class="card-header bg-primary text-white text-center">
+                    <i class="bi bi-mortarboard fs-4"></i>
+                    <h6 class="mt-2 mb-0">Architectes</h6>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-unstyled small">
+                      <li class="mb-2">
+                        <i class="bi bi-check text-success me-2"></i>
+                        Inscription Ordre des Architectes
+                      </li>
+                      <li class="mb-2">
+                        <i class="bi bi-check text-success me-2"></i>
+                        Assurance responsabilité civile
+                      </li>
+                      <li class="mb-2">
+                        <i class="bi bi-check text-success me-2"></i>
+                        Spécialisation énergétique (recommandée)
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card border-info h-100">
+                  <div class="card-header bg-info text-white text-center">
+                    <i class="bi bi-gear fs-4"></i>
+                    <h6 class="mt-2 mb-0">Ingénieurs</h6>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-unstyled small">
+                      <li class="mb-2">
+                        <i class="bi bi-check text-success me-2"></i>
+                        Diplôme ingénieur reconnu
+                      </li>
+                      <li class="mb-2">
+                        <i class="bi bi-check text-success me-2"></i>
+                        Assurance responsabilité civile
+                      </li>
+                      <li class="mb-2">
+                        <i class="bi bi-check text-success me-2"></i>
+                        Expertise thermique/énergétique
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card border-warning h-100">
+                  <div class="card-header bg-warning text-dark text-center">
+                    <i class="bi bi-person-badge fs-4"></i>
+                    <h6 class="mt-2 mb-0">Consultants</h6>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-unstyled small">
+                      <li class="mb-2">
+                        <i class="bi bi-check text-success me-2"></i>
+                        Qualification professionnelle
+                      </li>
+                      <li class="mb-2">
+                        <i class="bi bi-check text-success me-2"></i>
+                        Assurance responsabilité civile
+                      </li>
+                      <li class="mb-2">
+                        <i class="bi bi-check text-success me-2"></i>
+                        Références projets similaires
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="alert alert-warning mt-4">
+              <h6 class="alert-heading">
+                <i class="bi bi-exclamation-triangle me-2"></i>Vérifications recommandées
+              </h6>
+              <ul class="mb-0">
+                <li>Demander les attestations d'assurance en cours de validité</li>
+                <li>Vérifier les références sur des projets de rénovation énergétique</li>
+                <li>Consulter les avis clients et certifications qualité</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Processus de validation -->
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="processusHeader">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#processusCollapse">
+            <i class="bi bi-list-check text-warning me-3"></i>
+            <strong>3. Processus de validation</strong>
+          </button>
+        </h2>
+        <div id="processusCollapse" class="accordion-collapse collapse" data-bs-parent="#consultationAccordion">
+          <div class="accordion-body">
+            <div class="row g-3">
+              <div class="col-md-3">
+                <div class="text-center">
+                  <div class="bg-primary text-white rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <span class="fw-bold">1</span>
+                  </div>
+                  <h6 class="text-primary">Saisie BCE</h6>
+                  <p class="small text-muted">Entrer le numéro BCE du consultant</p>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="text-center">
+                  <div class="bg-info text-white rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <span class="fw-bold">2</span>
+                  </div>
+                  <h6 class="text-info">Vérification</h6>
+                  <p class="small text-muted">Validation automatique des critères</p>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="text-center">
+                  <div class="bg-warning text-dark rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <span class="fw-bold">3</span>
+                  </div>
+                  <h6 class="text-warning">Résultat</h6>
+                  <p class="small text-muted">Éligibilité et recommandations</p>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="text-center">
+                  <div class="bg-success text-white rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <span class="fw-bold">4</span>
+                  </div>
+                  <h6 class="text-success">Validation</h6>
+                  <p class="small text-muted">Enregistrement pour votre dossier</p>
+                </div>
+              </div>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="card bg-light">
+                  <div class="card-body">
+                    <h6 class="card-title text-success">
+                      <i class="bi bi-check-circle me-2"></i>Consultant éligible
+                    </h6>
+                    <ul class="small mb-0">
+                      <li>✅ Entreprise active à Bruxelles</li>
+                      <li>✅ Code NACE compatible</li>
+                      <li>✅ Ancienneté suffisante</li>
+                      <li>✅ Peut facturer ses services pour votre projet</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card bg-light">
+                  <div class="card-body">
+                    <h6 class="card-title text-danger">
+                      <i class="bi bi-x-circle me-2"></i>Consultant non éligible
+                    </h6>
+                    <ul class="small mb-0">
+                      <li>❌ Entreprise non active</li>
+                      <li>❌ Siège social hors Bruxelles</li>
+                      <li>❌ Code NACE incompatible</li>
+                      <li>❌ Ne peut pas facturer pour ce type de projet</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="mt-4 p-3 bg-light rounded">
+      <h6 class="text-muted mb-3">
+        <i class="bi bi-lightning me-2"></i>Actions rapides
+      </h6>
+      <div class="row g-2">
+        <div class="col-md-4">
+          <a href="https://kbopub.economie.fgov.be" target="_blank" class="btn btn-outline-primary btn-sm w-100">
+            <i class="bi bi-building me-1"></i>Recherche BCE officielle
+          </a>
+        </div>
+        <div class="col-md-4">
+          <a href="https://www.architectes.be" target="_blank" class="btn btn-outline-info btn-sm w-100">
+            <i class="bi bi-mortarboard me-1"></i>Ordre des Architectes
+          </a>
+        </div>
+        <div class="col-md-4">
+          <button type="button" class="btn btn-outline-success btn-sm w-100" data-action="click->consultation-verification#saveConsultant">
+            <i class="bi bi-save me-1"></i>Sauvegarder consultant
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

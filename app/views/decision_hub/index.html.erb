@@ -100,6 +100,39 @@
             <div class="card border-0 shadow-sm">
               <div class="card-body p-0">
                 <div class="row g-0">
+                  <!-- Étape 0: Sélection Primes -->
+                  <div class="col-md">
+                    <div class="p-3 text-center border-end position-relative step-tab"
+                         data-section="selection-primes"
+                         data-action="click->decision-hub#switchSection"
+                         style="cursor: pointer;">
+                      <div class="step-number bg-warning text-dark rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                        <i class="bi bi-check2-square fs-5"></i>
+                      </div>
+                      <h6 class="mb-2">Sélection Primes</h6>
+
+                      <!-- Aperçu sélection vs simulation -->
+                      <div class="text-start mb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <small class="text-muted">Simulation</small>
+                          <small class="fw-bold text-primary"><%= @hub_data[:resume][:primes].length %> primes</small>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <small class="text-muted">Sélectionnées</small>
+                          <small class="fw-bold text-success">1 prime</small>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <small class="text-muted">Optimisation</small>
+                          <small class="fw-bold text-warning">En cours</small>
+                        </div>
+                      </div>
+
+                      <div class="progress mt-2" style="height: 3px;">
+                        <div class="progress-bar bg-warning" style="width: 20%;"></div>
+                      </div>
+                    </div>
+                  </div>
+
                   <!-- Étape 1: Résumé -->
                   <div class="col-md">
                     <div class="p-3 text-center border-end position-relative step-tab active"
@@ -374,7 +407,78 @@
                     </div>
                   </div>
 
-                  <!-- Étape 8: Conseils Entrepreneurs -->
+                  <!-- Étape 8: Conseils Exemplarité (TEMPORAIRE: Toujours affiché pour test) -->
+                  <!-- DEBUG: @simulation&.region = <%= @simulation&.region %>, @simulation&.property&.is_entreprise? = <%= @simulation&.property&.is_entreprise? if @simulation&.property %> -->
+                  <% if true # Temporaire pour test : @simulation&.region == 'bruxelles' && @simulation&.property&.is_entreprise? %>
+                    <div class="col-md-3">
+                      <div class="p-3 text-center border-end position-relative step-tab"
+                           data-section="conseils-exemplarite"
+                           data-action="click->decision-hub#switchSection"
+                           style="cursor: pointer;">
+                        <div class="step-number bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                          <i class="bi bi-award fs-5"></i>
+                        </div>
+                        <h6 class="mb-2">Conseils Exemplarité</h6>
+
+                        <!-- Aperçu des gains potentiels -->
+                        <div class="text-start mb-2">
+                          <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="text-muted">Gain environnemental</small>
+                            <span class="badge bg-success text-white small">+30%</span>
+                          </div>
+                          <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="text-muted">Gain social</small>
+                            <span class="badge bg-primary text-white small">+30%</span>
+                          </div>
+                          <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="text-muted">Taux maximum</small>
+                            <span class="badge bg-warning text-dark small">80%</span>
+                          </div>
+                        </div>
+
+                        <div class="progress mt-2" style="height: 3px;">
+                          <div class="progress-bar bg-success" style="width: 100%;"></div>
+                        </div>
+                      </div>
+                    </div>
+                  <% end %>
+
+                  <!-- Étape 9: Vérification Consultance (pour entreprises bruxelloises) -->
+                  <% if true # Temporaire pour test : @simulation&.region == 'bruxelles' && @simulation&.property&.is_entreprise? %>
+                    <div class="col-md-3">
+                      <div class="p-3 text-center border-end position-relative step-tab"
+                           data-section="verification-consultance"
+                           data-action="click->decision-hub#switchSection"
+                           style="cursor: pointer;">
+                        <div class="step-number bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                          <i class="bi bi-shield-check fs-5"></i>
+                        </div>
+                        <h6 class="mb-2">Vérification Consultance</h6>
+
+                        <!-- Aperçu vérification consultant -->
+                        <div class="text-start mb-2">
+                          <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="text-muted">Éligibilité BCE</small>
+                            <i class="bi bi-building text-primary"></i>
+                          </div>
+                          <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="text-muted">Code NACE validé</small>
+                            <i class="bi bi-check-square text-success"></i>
+                          </div>
+                          <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="text-muted">Qualifications</small>
+                            <i class="bi bi-award text-warning"></i>
+                          </div>
+                        </div>
+
+                        <div class="progress mt-2" style="height: 3px;">
+                          <div class="progress-bar bg-primary" style="width: 100%;"></div>
+                        </div>
+                      </div>
+                    </div>
+                  <% end %>
+
+                  <!-- Étape 10: Conseils Entrepreneurs -->
                   <div class="col-md-3">
                     <div class="p-3 text-center position-relative step-tab"
                          data-section="conseils-entrepreneurs"
@@ -414,6 +518,15 @@
 
         <!-- Contenu des sections -->
         <div class="sections-content">
+
+          <!-- Section Sélection Primes -->
+          <div class="section-content" data-section="selection-primes" data-decision-hub-target="selectionPrimesSection">
+            <div class="row g-4">
+              <div class="col-12">
+                <%= render 'decision_hub/info_cards/selection_primes' %>
+              </div>
+            </div>
+          </div>
 
           <!-- Actions rapides pour la simulation -->
           <div class="section-content" data-section="resume" data-decision-hub-target="resumeSection">
@@ -497,6 +610,29 @@
               </div>
             </div>
           </div>
+
+          <!-- Section Conseils Exemplarité (TEMPORAIRE: Toujours affichée pour test) -->
+          <!-- DEBUG: @simulation&.region = <%= @simulation&.region %>, @simulation&.property&.is_entreprise? = <%= @simulation&.property&.is_entreprise? if @simulation&.property %> -->
+          <% if true # Temporaire pour test : @simulation&.region == 'bruxelles' && @simulation&.property&.is_entreprise? %>
+            <div class="section-content" data-section="conseils-exemplarite" data-decision-hub-target="conseilsExemplariteSection">
+              <div class="row g-4">
+                <div class="col-12">
+                  <%= render 'decision_hub/info_cards/conseils_exemplarite' %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Section Vérification Consultance (pour entreprises bruxelloises) -->
+          <% if true # Temporaire pour test : @simulation&.region == 'bruxelles' && @simulation&.property&.is_entreprise? %>
+            <div class="section-content" data-section="verification-consultance" data-decision-hub-target="verificationConsultanceSection">
+              <div class="row g-4">
+                <div class="col-12">
+                  <%= render 'decision_hub/info_cards/verification_consultance' %>
+                </div>
+              </div>
+            </div>
+          <% end %>
 
           <!-- Section Conseils Entrepreneurs -->
           <div class="section-content" data-section="conseils-entrepreneurs" data-decision-hub-target="conseilsEntrepreneursSection">

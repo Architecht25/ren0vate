@@ -7,7 +7,7 @@ class DecisionHub::DataService
   end
 
   def generate_dynamic_data
-    {
+    data = {
       resume: generate_resume_data,
       documents: DecisionHub::DocumentRequirementsService.for_simulation(@simulation),
       planning: DecisionHub::PlanningService.for_simulation(@simulation),
@@ -15,9 +15,55 @@ class DecisionHub::DataService
       factures: generate_factures_data,
       ai_context: build_ai_context
     }
+
+    # Ajouter les données d'exemplarité pour les entreprises bruxelloises
+    if is_bruxelles_entreprise?
+      data[:exemplarite] = DecisionHub::ExemplariteCalculatorService.new(@simulation).calculate_exemplarite_potential
+    end
+
+    data
   end
 
   private
+
+  def extract_category_from_slug(slug)
+    # Extraire la catégorie depuis le slug de la prime
+    case slug
+    when /isolation|toiture|mur|sol/i then "isolation"
+    when /chauffage|pompe|chaudiere/i then "chauffage"
+    when /ventilation|vmc/i then "ventilation"
+    when /menuiserie|chassis|fenetre/i then "menuiserie"
+    when /audit|pae/i then "audit"
+    when /eclairage|led/i then "eclairage"
+    else "autre"
+    end
+  end
+
+  def determine_prime_status(prime)
+    # Déterminer le statut basé sur les données de la prime
+    return "conditional" if prime["conditions"].present?
+    return "eligible" if prime["calculated_amount"].to_f > 0
+    "pending"
+  end
+
+  def determine_prime_urgency(prime)
+    # Déterminer l'urgence basée sur le type de prime
+    category = extract_category_from_slug(prime["slug"])
+    case category
+    when "audit" then "critical"
+    when "isolation", "chauffage" then "high"
+    when "ventilation" then "medium"
+    else "low"
+    end
+  end
+
+  def build_prime_details(prime)
+    # Construire une description détaillée de la prime
+    details = []
+    details << "#{prime['user_input_value']} #{prime['unite']}" if prime['user_input_value'].present?
+    details << prime['conseil'] if prime['conseil'].present?
+    details.join(" • ")
+  end
 
   def generate_resume_data
     {
@@ -31,8 +77,52 @@ class DecisionHub::DataService
   end
 
   def extract_selected_primes
-    # Pour le moment, on utilise des données mock basées sur la région
-    # Plus tard, on intégrera les vraies primes sélectionnées
+    # Récupérer les vraies primes de la simulation depuis les paramètres JSON
+    if @simulation.parameters.present?
+      begin
+        params_data = JSON.parse(@simulation.parameters)
+        return extract_primes_from_simulation_data(params_data)
+      rescue JSON::ParserError
+        Rails.logger.warn "Failed to parse simulation parameters for Decision Hub"
+      end
+    end
+
+    # Fallback vers les données mock basées sur la région
+    extract_mock_primes_by_region
+  end
+
+  def extract_primes_from_simulation_data(params_data)
+    selected_primes = []
+
+    if params_data["prime_cards"].present?
+      params_data["prime_cards"].each do |category_key, category_data|
+        next unless category_data["primes"].present?
+
+        category_data["primes"].each do |prime|
+          # Prendre seulement les primes avec montant > 0
+          amount = (prime["calculated_amount"] || prime["amount"] || 0).to_f
+
+          if amount > 0
+            selected_primes << {
+              name: prime["titre"] || prime["name"],
+              amount: amount.round(0),
+              category: prime["category"] || extract_category_from_slug(prime["slug"]),
+              slug: prime["slug"],
+              status: determine_prime_status(prime),
+              urgency: determine_prime_urgency(prime),
+              user_input: prime["user_input_value"] || 0,
+              details: prime["description"] || build_prime_details(prime)
+            }
+          end
+        end
+      end
+    end
+
+    # Si aucune prime trouvée, utiliser le fallback
+    selected_primes.empty? ? extract_mock_primes_by_region : selected_primes
+  end
+
+  def extract_mock_primes_by_region
     if @region == "bruxelles"
       [
         {
@@ -188,5 +278,9 @@ class DecisionHub::DataService
         derniere_facture_date: nil
       }
     end
+  end
+
+  def is_bruxelles_entreprise?
+    @region == 'bruxelles' && @simulation&.property&.is_entreprise?
   end
 end

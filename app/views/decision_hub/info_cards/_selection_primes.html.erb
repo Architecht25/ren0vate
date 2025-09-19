@@ -1,0 +1,256 @@
+<div class="card border-0 shadow-sm" data-controller="prime-selection">
+  <div class="card-header bg-gradient bg-warning text-dark">
+    <div class="d-flex align-items-center">
+      <i class="bi bi-check2-square fs-4 me-3"></i>
+      <div>
+        <h5 class="mb-0">Sélection & Priorisation des Primes</h5>
+        <small class="opacity-75">Affinez votre choix final : de la simulation aux demandes réelles</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <!-- Résumé de la simulation vs sélection -->
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <div class="card bg-light border-primary">
+          <div class="card-body text-center">
+            <i class="bi bi-calculator-fill text-primary fs-2 mb-2"></i>
+            <h6 class="text-primary mb-1">Simulation Initiale</h6>
+            <div class="h4 mb-0" data-prime-selection-target="simulationTotal">
+              <%= @hub_data[:resume][:total_amount] %>€
+            </div>
+            <small class="text-muted">
+              <span data-prime-selection-target="simulationCount"><%= @hub_data[:resume][:primes].length %></span> primes éligibles
+            </small>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card bg-light border-success">
+          <div class="card-body text-center">
+            <i class="bi bi-check-circle-fill text-success fs-2 mb-2"></i>
+            <h6 class="text-success mb-1">Sélection Finale</h6>
+            <div class="h4 mb-0" data-prime-selection-target="selectedTotal">0€</div>
+            <small class="text-muted">
+              <span data-prime-selection-target="selectedCount">0</span> primes sélectionnées
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Liste des primes avec sélection -->
+    <div class="row g-3" data-prime-selection-target="primesList">
+      <% @hub_data[:resume][:primes].each_with_index do |prime, index| %>
+        <% prime_slug = prime[:slug] || "prime_#{index}" %>
+        <div class="col-12">
+          <div class="card border <%= index == 0 ? 'border-success' : 'border-light' %> prime-item"
+               data-prime-slug="<%= prime_slug %>"
+               data-prime-amount="<%= prime[:amount] %>">
+            <div class="card-body">
+              <div class="row align-items-center">
+                <!-- Checkbox de sélection -->
+                <div class="col-md-1 text-center">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox"
+                           id="prime_<%= index %>"
+                           data-action="change->prime-selection#togglePrime"
+                           data-prime-slug="<%= prime_slug %>"
+                           <%= index == 0 ? 'checked' : '' %>>
+                    <label class="form-check-label" for="prime_<%= index %>"></label>
+                  </div>
+                </div>
+
+                <!-- Informations de la prime -->
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-<%= get_prime_icon(prime[:category]) %> text-<%= get_prime_color(prime[:category]) %> me-3 fs-5"></i>
+                    <div>
+                      <h6 class="mb-1"><%= prime[:name] %></h6>
+                      <small class="text-muted">
+                        <%= prime[:category]&.capitalize %>
+                        <% if prime[:details].present? %>
+                          • <%= prime[:details] %>
+                        <% end %>
+                      </small>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Montant -->
+                <div class="col-md-2 text-center">
+                  <div class="fw-bold text-success fs-5"><%= prime[:amount] %>€</div>
+                </div>
+
+                <!-- Indicateurs -->
+                <div class="col-md-3">
+                  <div class="row g-1">
+                    <!-- Urgence -->
+                    <div class="col-4 text-center">
+                      <% urgency_class = case prime[:urgency]
+                           when 'critical' then 'danger'
+                           when 'high' then 'warning'
+                           when 'medium' then 'info'
+                           else 'secondary'
+                         end %>
+                      <span class="badge bg-<%= urgency_class %> small">
+                        <%= prime[:urgency]&.capitalize || 'Standard' %>
+                      </span>
+                    </div>
+
+                    <!-- Complexité (simulation) -->
+                    <div class="col-4 text-center">
+                      <% complexity = rand(1..3) # Simulation, à remplacer par vraie logique %>
+                      <div class="small text-muted">Complexité</div>
+                      <% complexity.times do %>
+                        <i class="bi bi-star-fill text-warning small"></i>
+                      <% end %>
+                      <% (3 - complexity).times do %>
+                        <i class="bi bi-star text-muted small"></i>
+                      <% end %>
+                    </div>
+
+                    <!-- ROI -->
+                    <div class="col-4 text-center">
+                      <% roi = (prime[:amount] / 100).round(1) %>
+                      <div class="small text-muted">ROI</div>
+                      <div class="small fw-bold text-success"><%= roi %>%</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Détails supplémentaires (masqués par défaut) -->
+              <div class="collapse mt-3" id="details_<%= index %>">
+                <hr class="my-2">
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <h6 class="small text-muted mb-1">CONDITIONS</h6>
+                    <ul class="small mb-0">
+                      <li>Entrepreneur RGE obligatoire</li>
+                      <li>Respect normes techniques</li>
+                      <% if prime[:category] == 'audit' %>
+                        <li>À réaliser avant travaux</li>
+                      <% end %>
+                    </ul>
+                  </div>
+                  <div class="col-md-4">
+                    <h6 class="small text-muted mb-1">DÉLAIS</h6>
+                    <div class="small">
+                      <div>📋 Dossier: 2-4 semaines</div>
+                      <div>🔧 Travaux: 4-8 semaines</div>
+                      <div>💰 Paiement: 3-6 mois</div>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <h6 class="small text-muted mb-1">IMPACT</h6>
+                    <div class="small">
+                      <div>🌱 Économie: <%= (prime[:amount] * 0.8).round(0) %>€/an</div>
+                      <div>♻️ CO₂: -<%= (prime[:amount] / 50).round(1) %> tonnes</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mt-2">
+                  <button type="button" class="btn btn-sm btn-outline-primary me-2">
+                    <i class="bi bi-info-circle me-1"></i>Plus d'infos
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-success">
+                    <i class="bi bi-calculator me-1"></i>Recalculer
+                  </button>
+                </div>
+              </div>
+
+              <!-- Toggle pour détails -->
+              <div class="text-center mt-2">
+                <button class="btn btn-sm btn-link text-muted"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#details_<%= index %>"
+                        aria-expanded="false">
+                  <small>Voir détails <i class="bi bi-chevron-down"></i></small>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Actions et recommandations -->
+    <div class="mt-4">
+      <div class="row g-3">
+        <!-- Recommandations IA -->
+        <div class="col-md-8">
+          <div class="alert alert-info">
+            <h6 class="alert-heading">
+              <i class="bi bi-lightbulb me-2"></i>Recommandations intelligentes
+            </h6>
+            <div data-prime-selection-target="recommendations">
+              <div class="mb-2">
+                <strong>Optimisation détectée :</strong> Commencer par l'audit PAE pour maximiser les autres primes.
+              </div>
+              <div class="mb-2">
+                <strong>Timing :</strong> Grouper isolation + ventilation pour réduire les coûts de chantier.
+              </div>
+              <div>
+                <strong>Budget :</strong> Votre sélection respecte un étalement optimal sur 18 mois.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Résumé financier -->
+        <div class="col-md-4">
+          <div class="card bg-success bg-opacity-10 border-success">
+            <div class="card-body">
+              <h6 class="text-success mb-3">Résumé financier</h6>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Total primes :</span>
+                <strong data-prime-selection-target="selectedTotal">0€</strong>
+              </div>
+              <div class="d-flex justify-content-between mb-2">
+                <span>Investissement estimé :</span>
+                <span data-prime-selection-target="estimatedInvestment">0€</span>
+              </div>
+              <hr class="my-2">
+              <div class="d-flex justify-content-between">
+                <span><strong>Reste à charge :</strong></span>
+                <strong class="text-success" data-prime-selection-target="remainingCost">0€</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions finales -->
+    <div class="mt-4 p-3 bg-light rounded">
+      <h6 class="text-muted mb-3">
+        <i class="bi bi-lightning me-2"></i>Actions avec votre sélection
+      </h6>
+      <div class="row g-2">
+        <div class="col-md-3">
+          <button type="button" class="btn btn-success w-100" data-action="click->prime-selection#saveSelection">
+            <i class="bi bi-save me-1"></i>Sauvegarder sélection
+          </button>
+        </div>
+        <div class="col-md-3">
+          <button type="button" class="btn btn-outline-primary w-100" data-action="click->prime-selection#generatePlan">
+            <i class="bi bi-calendar me-1"></i>Générer planning
+          </button>
+        </div>
+        <div class="col-md-3">
+          <button type="button" class="btn btn-outline-info w-100" data-action="click->prime-selection#exportDocuments">
+            <i class="bi bi-download me-1"></i>Exporter documents
+          </button>
+        </div>
+        <div class="col-md-3">
+          <button type="button" class="btn btn-outline-warning w-100" data-action="click->prime-selection#resetSelection">
+            <i class="bi bi-arrow-clockwise me-1"></i>Tout sélectionner
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

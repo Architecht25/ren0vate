@@ -22,6 +22,7 @@ Rails.application.routes.draw do
   post '/webhooks/stripe', to: 'webhooks#stripe'    # API routes for enterprise aids
     namespace :api do
       get 'entreprises/bce/:numero_bce', to: 'entreprises#bce_lookup'
+      post 'entreprises/bce_lookup', to: 'entreprises#bce_lookup'
       get 'entreprises/bruxelles/aides', to: 'entreprises#bruxelles_aides'
       post 'entreprises/bruxelles/majorations', to: 'entreprises#calculate_bruxelles_majorations'
       get 'entreprises/bruxelles/majorations-details', to: 'entreprises#get_majorations_details'
