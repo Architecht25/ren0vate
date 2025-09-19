@@ -1,0 +1,71 @@
+<!-- CARTE 9: MENUISERIES - Simple (1 input) -->
+<div class="col-lg-3 col-md-4 col-sm-6">
+  <div class="card border-0 shadow h-100 overflow-hidden card-premium" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_menuiseries_vitrages">
+
+    <!-- Image de fond avec overlay -->
+    <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/remplacement_chassis_lrszxo'); background-size: cover; background-position: center;">
+      <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(25, 135, 84, 0.0875), rgba(25, 135, 84, 0.05));">
+        <div class="text-center text-white">
+          <i class="bi bi-window fs-3 mb-2 drop-shadow"></i>
+          <h6 class="fw-bold mb-0 drop-shadow">Menuiseries</h6>
+          <small class="opacity-90">Fenêtres + Vitrages</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <!-- Badge informatif -->
+      <div class="mb-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <span class="badge bg-success bg-opacity-20 text-success rounded-pill px-3">
+            <i class="bi bi-window me-1"></i>Menuiseries
+          </span>
+          <small class="text-muted">
+            <i class="bi bi-house-door me-1"></i>Fenêtres
+          </small>
+        </div>
+      </div>
+
+      <!-- Input surface -->
+      <div class="mb-3">
+        <label class="form-label small">Surface vitrages (m²) :</label>
+        <input type="number"
+               class="form-control form-control-sm"
+               placeholder="Surface m²"
+               data-wallonie-prime-card-target="inputMenuiseries"
+               data-action="input->wallonie-prime-card#calculateMenuiseries">
+      </div>
+      <!-- Informations de la prime -->
+      <% condition_text = condition_prime("wallonie_menuiseries_vitrages") %>
+      <% conseil_text = conseil_prime("wallonie_menuiseries_vitrages") %>
+      <% if condition_text.present? || conseil_text.present? %>
+        <div class="mt-1">
+          <% if condition_text.present? %>
+            <div class="mb-1">
+              <small class="text-muted">
+                <i class="bi bi-info-circle me-1"></i>
+                <%= condition_text %>
+              </small>
+            </div>
+          <% end %>
+          <% if conseil_text.present? %>
+            <div>
+              <small class="text-success">
+                <i class="bi bi-lightbulb me-1"></i>
+                <%= conseil_text %>
+              </small>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <!-- Résultat -->
+      <div class="d-flex justify-content-between align-items-center">
+        <span class="text-muted small">Prime calculée :</span>
+        <span class="badge bg-success fs-6" data-wallonie-prime-card-target="resultMenuiseries">
+          0 €
+        </span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,72 @@
+<!-- CARTE 11: INSTALLATION GAZ -->
+<div class="col-lg-3 col-md-4 col-sm-6">
+  <div class="card border-0 shadow h-100 overflow-hidden card-premium" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_installation_gaz">
+
+    <!-- Image de fond avec overlay -->
+    <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/controle-gaz-scaled_h7gthk'); background-size: cover; background-position: center;">
+      <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(220, 53, 69, 0.0875), rgba(220, 53, 69, 0.05));">
+        <div class="text-center text-white">
+          <i class="bi bi-fire fs-3 mb-2 drop-shadow"></i>
+          <h6 class="fw-bold mb-0 drop-shadow">Installation gaz</h6>
+          <small class="opacity-90">Remise en conformité</small>
+        </div>
+      </div>
+    </div>
+
+      <div class="card-body">
+        <!-- Badge informatif -->
+        <div class="mb-3">
+          <div class="d-flex align-items-center justify-content-between">
+            <span class="badge bg-danger bg-opacity-20 text-danger rounded-pill px-3">
+              <i class="bi bi-fire me-1"></i>Gaz
+            </span>
+            <small class="text-muted">
+              <i class="bi bi-tools me-1"></i>Conformité
+            </small>
+          </div>
+        </div>
+
+        <!-- Input oui/non -->
+        <div class="mb-3">
+          <label class="form-label small">Remise en conformité :</label>
+          <select class="form-select form-select-sm"
+                  data-wallonie-prime-card-target="inputGaz"
+                  data-action="change->wallonie-prime-card#calculateGaz">
+            <option value="0">Non</option>
+            <option value="1">Oui</option>
+          </select>
+        </div>
+        <!-- Informations de la prime -->
+        <% condition_text = condition_prime("wallonie_installation_gaz") %>
+        <% conseil_text = conseil_prime("wallonie_installation_gaz") %>
+        <% if condition_text.present? || conseil_text.present? %>
+          <div class="mt-1">
+            <% if condition_text.present? %>
+              <div class="mb-1">
+                <small class="text-muted">
+                  <i class="bi bi-info-circle me-1"></i>
+                  <%= condition_text %>
+                </small>
+              </div>
+            <% end %>
+            <% if conseil_text.present? %>
+              <div>
+                <small class="text-success">
+                  <i class="bi bi-lightbulb me-1"></i>
+                  <%= conseil_text %>
+                </small>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
+        <!-- Résultat -->
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="text-muted small">Prime calculée :</span>
+          <span class="badge bg-danger fs-6" data-wallonie-prime-card-target="resultGaz">
+            0 €
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>

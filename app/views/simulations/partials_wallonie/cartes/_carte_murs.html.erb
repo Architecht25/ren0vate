@@ -1,0 +1,309 @@
+<!-- CARTE 3: MURS - Complexe (7 inputs) -->
+<div class="col-lg-3 col-md-4 col-sm-6">
+  <div class="card border-0 shadow h-100 overflow-hidden card-premium" data-controller="wallonie-prime-card" data-wallonie-prime-card-slug-value="wallonie_murs_global">
+    <!-- Image de fond avec overlay -->
+    <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/isolation_murs_ext_ahbpat'); background-size: cover; background-position: center;">
+      <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
+        <div class="text-center text-white">
+          <i class="bi bi-bricks fs-3 mb-2 drop-shadow"></i>
+          <h6 class="fw-bold mb-0 drop-shadow">Travaux Murs</h6>
+          <small class="opacity-90">7 types de primes</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <!-- Badge informatif -->
+      <div class="mb-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <span class="badge bg-success bg-opacity-20 text-success rounded-pill px-3">
+            <i class="bi bi-bricks me-1"></i>Murs
+          </span>
+          <small class="text-muted">
+            <i class="bi bi-tools me-1"></i>7 primes
+          </small>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <!-- 1. Assèchement infiltration (14,4€/m²) -->
+        <div class="col-md-4 col-sm-6">
+          <label class="form-label small">Assèchement infiltration (m²) :</label>
+          <div class="input-group input-group-sm">
+            <input type="number"
+                   class="form-control"
+                   placeholder="Surface m²"
+                   data-wallonie-prime-card-target="inputInfiltration"
+                   data-action="input->wallonie-prime-card#calculateMurs">
+            <span class="input-group-text bg-success text-white"
+                  data-wallonie-prime-card-target="resultInfiltration">0 €</span>
+          </div>
+        <!-- Informations de la prime -->
+        <% condition_text = condition_prime("wallonie_assechement_murs_infiltration") %>
+        <% conseil_text = conseil_prime("wallonie_assechement_murs_infiltration") %>
+        <% if condition_text.present? || conseil_text.present? %>
+          <div class="mt-1">
+            <% if condition_text.present? %>
+              <div class="mb-1">
+                <small class="text-muted">
+                  <i class="bi bi-info-circle me-1"></i>
+                  <%= condition_text %>
+                </small>
+              </div>
+            <% end %>
+            <% if conseil_text.present? %>
+              <div>
+                <small class="text-success">
+                  <i class="bi bi-lightbulb me-1"></i>
+                  <%= conseil_text %>
+                </small>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
+        </div>
+
+        <!-- 2. Assèchement humidité ascensionnelle (19,2€/m²) -->
+        <div class="col-md-4 col-sm-6">
+          <label class="form-label small">Assèchement humidité (m²) :</label>
+          <div class="input-group input-group-sm">
+            <input type="number"
+                   class="form-control"
+                   placeholder="Surface m²"
+                   data-wallonie-prime-card-target="inputHumidite"
+                   data-action="input->wallonie-prime-card#calculateMurs">
+            <span class="input-group-text bg-success text-white"
+                  data-wallonie-prime-card-target="resultHumidite">0 €</span>
+          </div>
+        <!-- Informations de la prime -->
+        <% condition_text = condition_prime("wallonie_assechement_murs_humidite") %>
+        <% conseil_text = conseil_prime("wallonie_assechement_murs_humidite") %>
+        <% if condition_text.present? || conseil_text.present? %>
+          <div class="mt-1">
+            <% if condition_text.present? %>
+              <div class="mb-1">
+                <small class="text-muted">
+                  <i class="bi bi-info-circle me-1"></i>
+                  <%= condition_text %>
+                </small>
+              </div>
+            <% end %>
+            <% if conseil_text.present? %>
+              <div>
+                <small class="text-success">
+                  <i class="bi bi-lightbulb me-1"></i>
+                  <%= conseil_text %>
+                </small>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
+        </div>
+
+        <!-- 3. Renforcement murs (19,2€/m²) -->
+        <div class="col-md-4 col-sm-6">
+          <label class="form-label small">Renforcement murs (m²) :</label>
+          <div class="input-group input-group-sm">
+            <input type="number"
+                   class="form-control"
+                   placeholder="Surface m²"
+                   data-wallonie-prime-card-target="inputRenforcement"
+                   data-action="input->wallonie-prime-card#calculateMurs">
+            <span class="input-group-text bg-success text-white"
+                  data-wallonie-prime-card-target="resultRenforcement">0 €</span>
+          </div>
+        <!-- Informations de la prime -->
+        <% condition_text = condition_prime("wallonie_renforcement_murs") %>
+        <% conseil_text = conseil_prime("wallonie_renforcement_murs") %>
+        <% if condition_text.present? || conseil_text.present? %>
+          <div class="mt-1">
+            <% if condition_text.present? %>
+              <div class="mb-1">
+                <small class="text-muted">
+                  <i class="bi bi-info-circle me-1"></i>
+                  <%= condition_text %>
+                </small>
+              </div>
+            <% end %>
+            <% if conseil_text.present? %>
+              <div>
+                <small class="text-success">
+                  <i class="bi bi-lightbulb me-1"></i>
+                  <%= conseil_text %>
+                </small>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
+        </div>
+
+        <!-- 4. Élimination mérule (840€ forfait) -->
+        <div class="col-md-4 col-sm-6">
+          <label class="form-label small">Élimination mérule :</label>
+          <div class="input-group input-group-sm">
+            <select class="form-control"
+                    data-wallonie-prime-card-target="inputMerule"
+                    data-action="change->wallonie-prime-card#calculateMurs">
+              <option value="0">Non</option>
+              <option value="1">Oui</option>
+            </select>
+            <span class="input-group-text bg-success text-white"
+                  data-wallonie-prime-card-target="resultMerule">0 €</span>
+          </div>
+        <!-- Informations de la prime -->
+        <% condition_text = condition_prime("wallonie_elimination_merule") %>
+        <% conseil_text = conseil_prime("wallonie_elimination_merule") %>
+        <% if condition_text.present? || conseil_text.present? %>
+          <div class="mt-1">
+            <% if condition_text.present? %>
+              <div class="mb-1">
+                <small class="text-muted">
+                  <i class="bi bi-info-circle me-1"></i>
+                  <%= condition_text %>
+                </small>
+              </div>
+            <% end %>
+            <% if conseil_text.present? %>
+              <div>
+                <small class="text-success">
+                  <i class="bi bi-lightbulb me-1"></i>
+                  <%= conseil_text %>
+                </small>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
+        </div>
+
+        <!-- 5. Élimination radon (840€ forfait) -->
+        <div class="col-md-4 col-sm-6">
+          <label class="form-label small">Élimination radon :</label>
+          <div class="input-group input-group-sm">
+            <select class="form-control"
+                    data-wallonie-prime-card-target="inputRadon"
+                    data-action="change->wallonie-prime-card#calculateMurs">
+              <option value="0">Non</option>
+              <option value="1">Oui</option>
+            </select>
+            <span class="input-group-text bg-success text-white"
+                  data-wallonie-prime-card-target="resultRadon">0 €</span>
+          </div>
+        <!-- Informations de la prime -->
+        <% condition_text = condition_prime("wallonie_elimination_radon") %>
+        <% conseil_text = conseil_prime("wallonie_elimination_radon") %>
+        <% if condition_text.present? || conseil_text.present? %>
+          <div class="mt-1">
+            <% if condition_text.present? %>
+              <div class="mb-1">
+                <small class="text-muted">
+                  <i class="bi bi-info-circle me-1"></i>
+                  <%= condition_text %>
+                </small>
+              </div>
+            <% end %>
+            <% if conseil_text.present? %>
+              <div>
+                <small class="text-success">
+                  <i class="bi bi-lightbulb me-1"></i>
+                  <%= conseil_text %>
+                </small>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
+        </div>
+
+        <!-- 6. Isolation thermique murs (52,8€/m²) -->
+        <div class="col-md-4 col-sm-6">
+          <label class="form-label small">Isolation thermique (m²) :</label>
+          <div class="input-group input-group-sm">
+            <input type="number"
+                   class="form-control"
+                   placeholder="Surface m²"
+                   data-wallonie-prime-card-target="inputIsolationThermique"
+                   data-action="input->wallonie-prime-card#calculateToiture">
+            <span class="input-group-text bg-warning text-white"
+                  data-wallonie-prime-card-target="resultIsolationThermique">0 €</span>
+          </div>
+        <!-- Informations de la prime -->
+        <% condition_text = condition_prime("wallonie_toiture_isolation_thermique") %>
+        <% conseil_text = conseil_prime("wallonie_toiture_isolation_thermique") %>
+        <% if condition_text.present? || conseil_text.present? %>
+          <div class="mt-1">
+            <% if condition_text.present? %>
+              <div class="mb-1">
+                <small class="text-muted">
+                  <i class="bi bi-info-circle me-1"></i>
+                  <%= condition_text %>
+                </small>
+              </div>
+            <% end %>
+            <% if conseil_text.present? %>
+              <div>
+                <small class="text-success">
+                  <i class="bi bi-lightbulb me-1"></i>
+                  <%= conseil_text %>
+                </small>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
+        </div>
+
+        <!-- 7. Isolation biosourcée murs (72€/m²) -->
+        <div class="col-md-4 col-sm-6">
+          <label class="form-label small">Isolation biosourcée (m²) :</label>
+          <div class="input-group input-group-sm">
+            <input type="number"
+                   class="form-control"
+                   placeholder="Surface m²"
+                   data-wallonie-prime-card-target="inputIsolationBiosource"
+                   data-action="input->wallonie-prime-card#calculateToiture">
+            <span class="input-group-text bg-warning text-white"
+                  data-wallonie-prime-card-target="resultIsolationBiosource">0 €</span>
+          </div>
+        <!-- Informations de la prime -->
+        <% condition_text = condition_prime("wallonie_toiture_isolation_biosource") %>
+        <% conseil_text = conseil_prime("wallonie_toiture_isolation_biosource") %>
+        <% if condition_text.present? || conseil_text.present? %>
+          <div class="mt-1">
+            <% if condition_text.present? %>
+              <div class="mb-1">
+                <small class="text-muted">
+                  <i class="bi bi-info-circle me-1"></i>
+                  <%= condition_text %>
+                </small>
+              </div>
+            <% end %>
+            <% if conseil_text.present? %>
+              <div>
+                <small class="text-success">
+                  <i class="bi bi-lightbulb me-1"></i>
+                  <%= conseil_text %>
+                </small>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
+        </div>
+      </div>
+
+      <!-- Total Murs -->
+      <div class="mt-3 pt-2 border-top">
+        <div class="d-flex justify-content-between align-items-center">
+          <strong class="text-success">Total Murs :</strong>
+          <span class="badge bg-success fs-5" data-wallonie-prime-card-target="totalMurs">
+            0 €
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
