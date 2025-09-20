@@ -51,6 +51,7 @@ import PricingController from "controllers/pricing_controller"
 import DecisionHubController from "controllers/decision_hub_controller"
 import ConsultationVerificationController from "controllers/consultation_verification_controller"
 import PrimeSelectionController from "controllers/prime_selection_controller"
+import PrimesCommunalesController from "controllers/primes_communales_controller"
 
 application.register("user_type", UserTypeController)
 application.register("test-eligibilite", TestEligibiliteController)
@@ -87,5 +88,6 @@ application.register("pricing", PricingController)
 application.register("decision-hub", DecisionHubController)
 application.register("consultation-verification", ConsultationVerificationController)
 application.register("prime-selection", PrimeSelectionController)
+application.register("primes-communales", PrimesCommunalesController)
 
 export { application }

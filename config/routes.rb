@@ -27,6 +27,18 @@ Rails.application.routes.draw do
       post 'entreprises/bruxelles/majorations', to: 'entreprises#calculate_bruxelles_majorations'
       get 'entreprises/bruxelles/majorations-details', to: 'entreprises#get_majorations_details'
 
+      # API pour les primes communales Flandre
+      resources :primes_communales, only: [] do
+        collection do
+          get :index          # GET /api/primes_communales?code_postal=9000
+          post :calculate     # POST /api/primes_communales/calculate
+          get :communes       # GET /api/primes_communales/communes
+          get :search         # GET /api/primes_communales/search?q=isolation
+          get :categories     # GET /api/primes_communales/categories
+          get :stats          # GET /api/primes_communales/stats
+        end
+      end
+
       # API pour les préférences utilisateur
       patch 'users/language-preference', to: 'users#update_language_preference'
 

@@ -13,21 +13,21 @@ Extension de Ren0vate pour intégrer architectes et entrepreneurs dans les proje
 class ProjectCollaboration < ApplicationRecord
   belongs_to :property
   belongs_to :collaborator, class_name: 'User'
-  
+
   enum role: {
     architect: 'architect',
-    contractor: 'contractor', 
+    contractor: 'contractor',
     engineer: 'engineer',
     consultant: 'consultant'
   }
-  
+
   enum status: {
     invited: 'invited',
-    active: 'active', 
+    active: 'active',
     suspended: 'suspended',
     completed: 'completed'
   }
-  
+
   # Permissions granulaires
   jsonb :permissions, default: {}
   # { "documents": ["read", "write"], "simulations": ["read"], "timeline": ["read", "write"] }
@@ -40,12 +40,12 @@ end
 class User < ApplicationRecord
   enum user_type: {
     particulier: 'particulier',
-    entreprise: 'entreprise', 
+    entreprise: 'entreprise',
     architect: 'architect',
     contractor: 'contractor',
     consultant: 'consultant'
   }
-  
+
   # Profil professionnel
   has_one :professional_profile
   has_many :project_collaborations, foreign_key: 'collaborator_id'
@@ -58,14 +58,14 @@ end
 # app/models/professional_profile.rb
 class ProfessionalProfile < ApplicationRecord
   belongs_to :user
-  
+
   # Informations professionnelles
   string :company_name
   string :registration_number  # Numéro d'ordre architecte/entrepreneur
   string :specialization
   text :certifications
   string :insurance_number
-  
+
   # Validation métier
   validates :registration_number, presence: true, if: :architect_or_contractor?
 end
@@ -78,7 +78,7 @@ end
 class ProjectCollaborationService
   def invite_professional(property, professional_email, role, permissions)
     professional = find_or_create_professional(professional_email, role)
-    
+
     collaboration = ProjectCollaboration.create!(
       property: property,
       collaborator: professional,
@@ -86,18 +86,18 @@ class ProjectCollaborationService
       permissions: permissions,
       status: 'invited'
     )
-    
+
     send_invitation_email(collaboration)
     collaboration
   end
-  
+
   def accept_invitation(collaboration, professional)
     collaboration.update!(status: 'active')
     setup_professional_dashboard(collaboration)
   end
-  
+
   private
-  
+
   def default_permissions_for_role(role)
     case role
     when 'architect'
@@ -128,21 +128,21 @@ end
 class ProfessionalDashboardController < ApplicationController
   before_action :authenticate_professional!
   before_action :load_active_projects
-  
+
   def index
     @projects = current_user.collaborative_properties
                            .joins(:project_collaborations)
                            .where(project_collaborations: { status: 'active' })
-    
+
     @pending_tasks = load_pending_tasks_by_role
     @recent_updates = load_recent_project_updates
   end
-  
+
   def project_detail
     @property = find_authorized_property(params[:id])
     @collaboration = current_collaboration(@property)
     @permissions = @collaboration.permissions
-    
+
     case current_user.user_type
     when 'architect'
       render 'architect_project_view'
@@ -150,9 +150,9 @@ class ProfessionalDashboardController < ApplicationController
       render 'contractor_project_view'
     end
   end
-  
+
   private
-  
+
   def find_authorized_property(property_id)
     current_user.collaborative_properties.find(property_id)
   end
@@ -173,13 +173,13 @@ end
           <h5>📐 Plans et Documents Techniques</h5>
         </div>
         <div class="card-body">
-          <%= render 'documents/technical_plans', 
+          <%= render 'documents/technical_plans',
                      documents: @property.documents.technical,
                      can_edit: can_write?('plans') %>
         </div>
       </div>
     </div>
-    
+
     <!-- Réglementations et contraintes -->
     <div class="col-md-6">
       <div class="card">
@@ -192,11 +192,11 @@ end
       </div>
     </div>
   </div>
-  
+
   <!-- Timeline collaborative -->
   <div class="row mt-4">
     <div class="col-12">
-      <%= render 'shared/collaborative_timeline', 
+      <%= render 'shared/collaborative_timeline',
                  property: @property,
                  role: 'architect' %>
     </div>
@@ -214,12 +214,12 @@ end
       <h5>📸 Suivi Photographique</h5>
     </div>
     <div class="card-body">
-      <%= render 'construction_photos', 
+      <%= render 'construction_photos',
                  photos: @property.construction_photos,
                  can_upload: can_write?('photos') %>
     </div>
   </div>
-  
+
   <!-- Factures et matériaux -->
   <div class="row">
     <div class="col-md-8">
@@ -240,20 +240,20 @@ class CollaborativeNotification < ApplicationRecord
   belongs_to :property
   belongs_to :sender, class_name: 'User'
   belongs_to :recipient, class_name: 'User'
-  
+
   enum notification_type: {
     document_uploaded: 'document_uploaded',
     milestone_reached: 'milestone_reached',
     approval_requested: 'approval_requested',
     meeting_scheduled: 'meeting_scheduled'
   }
-  
+
   scope :unread, -> { where(read_at: nil) }
-  
+
   def notify_collaborators!
     property.project_collaborations.active.each do |collaboration|
       next if collaboration.collaborator == sender
-      
+
       CollaborativeNotificationMailer
         .new_notification(self, collaboration.collaborator)
         .deliver_later
@@ -272,23 +272,23 @@ class PermissionService
     @property = property
     @collaboration = find_collaboration
   end
-  
+
   def can?(action, resource)
     return true if @property.user == @user  # Propriétaire
     return false unless @collaboration&.active?
-    
+
     permissions = @collaboration.permissions
     permissions.dig(resource.to_s, "permissions")&.include?(action.to_s)
   end
-  
+
   def can_read?(resource)
     can?('read', resource)
   end
-  
+
   def can_write?(resource)
     can?('write', resource)
   end
-  
+
   def can_delete?(resource)
     can?('delete', resource)
   end
@@ -302,13 +302,13 @@ module CollaborationHelper
   def can_read?(resource)
     permission_service.can_read?(resource)
   end
-  
+
   def can_write?(resource)
     permission_service.can_write?(resource)
   end
-  
+
   private
-  
+
   def permission_service
     @permission_service ||= PermissionService.new(current_user, @property)
   end
@@ -325,7 +325,7 @@ end
 
 ### Phase 2 : Espaces de travail spécialisés
 - [ ] Dashboard architecte
-- [ ] Dashboard entrepreneur  
+- [ ] Dashboard entrepreneur
 - [ ] Gestion documents par rôle
 - [ ] Upload spécialisé (plans, photos, factures)
 
