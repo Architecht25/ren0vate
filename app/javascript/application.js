@@ -53,6 +53,7 @@ import ConsultationVerificationController from "controllers/consultation_verific
 import PrimeSelectionController from "controllers/prime_selection_controller"
 import PrimesCommunalesController from "controllers/primes_communales_controller"
 import PrimesCommunalesBruxellesController from "controllers/primes_communales_bruxelles_controller"
+import PrimesCommunalesWallonieController from "controllers/primes_communales_wallonie_controller"
 
 application.register("user_type", UserTypeController)
 application.register("test-eligibilite", TestEligibiliteController)
@@ -91,5 +92,6 @@ application.register("consultation-verification", ConsultationVerificationContro
 application.register("prime-selection", PrimeSelectionController)
 application.register("primes-communales", PrimesCommunalesController)
 application.register("primes-communales-bruxelles", PrimesCommunalesBruxellesController)
+application.register("primes-communales-wallonie", PrimesCommunalesWallonieController)
 
 export { application }

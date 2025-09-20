@@ -51,6 +51,17 @@ Rails.application.routes.draw do
         end
       end
 
+      # API pour les primes communales Wallonie
+      resources :primes_communales_wallonie, only: [] do
+        collection do
+          get :index          # GET /api/primes_communales_wallonie?code_postal=4000
+          post :calculate     # POST /api/primes_communales_wallonie/calculate
+          get :communes       # GET /api/primes_communales_wallonie/communes
+          get :search         # GET /api/primes_communales_wallonie/search?q=isolation
+          get :metadata       # GET /api/primes_communales_wallonie/metadata
+        end
+      end
+
       # API pour les préférences utilisateur
       patch 'users/language-preference', to: 'users#update_language_preference'
 

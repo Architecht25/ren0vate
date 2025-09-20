@@ -1,70 +1,97 @@
-<div class="card shadow-sm border-0 p-3 text-center mb-3 h-100">
+<div class="card shadow-sm border-0 p-3 text-center mb-3 h-100"
+     data-controller="primes-communales-wallonie"
+     data-primes-communales-wallonie-api-base-url-value="/api/primes_communales_wallonie"
+     data-primes-communales-wallonie-debounce-delay-value="800">
+
   <div class="card-body d-flex flex-column align-items-center gap-3">
+    <!-- Icône et titre -->
     <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
       <i class="bi bi-building fs-5 text-warning"></i>
     </div>
     <h6 class="card-title mb-2">Primes Communales</h6>
 
-      <!-- Formulaire de vérification -->
-      <div class="w-100" style="max-width: 300px;">
-        <div class="mb-3">
-          <label for="code_postal_communales" class="form-label text-start w-100 small">Code postal</label>
-          <input type="text"
-                 class="form-control form-control-sm"
-                 id="code_postal_communales"
-                 placeholder="ex: 4000, 5000, 6000..."
-                 pattern="[0-9]{4}"
-                 maxlength="4">
-          <small class="text-muted">Saisissez votre code postal pour découvrir les primes disponibles</small>
-        </div>
+    <!-- Formulaire de vérification -->
+    <div class="w-100" style="max-width: 300px;">
 
-        <!-- Loading indicator -->
-        <div class="mb-3" id="loading_communales" style="display: none;">
-          <div class="d-flex align-items-center justify-content-center gap-2">
-            <div class="spinner-border spinner-border-sm text-warning" role="status"></div>
-            <small class="text-muted">Recherche en cours...</small>
-          </div>
-        </div>
-
-        <!-- Statut de vérification -->
-        <div class="mb-3" id="status_communales" style="display: none;">
-          <div class="d-flex align-items-center justify-content-center gap-2">
-            <i id="status_icon_communales" class="bi"></i>
-            <small id="status_text_communales" class="fw-bold"></small>
-          </div>
-        </div>
-
-        <!-- Sélection des primes (si disponibles) -->
-        <div class="mb-3" id="primes_selection" style="display: none;">
-          <label for="prime_communale_select" class="form-label text-start w-100 small">Sélectionnez une prime</label>
-          <select class="form-select form-select-sm" id="prime_communale_select">
-            <option value="">Choisir une prime...</option>
-          </select>
-        </div>
-
-        <!-- Champ montant travaux (si prime sélectionnée) -->
-        <div class="mb-3" id="montant_section_communales" style="display: none;">
-          <label for="montant_travaux_communales" class="form-label text-start w-100 small">Montant des travaux (€)</label>
-          <input type="number"
-                 class="form-control form-control-sm"
-                 id="montant_travaux_communales"
-                 placeholder="0"
-                 min="0"
-                 step="0.01">
-        </div>
-
-        <!-- Résultat -->
-        <div class="alert alert-warning alert-sm mb-2" id="result_section_communales" style="display: none;" role="alert">
-          <small class="fw-bold">Prime estimée : </small>
-          <span class="fw-bold prime-result" id="result_communales">0.00 €</span>
-          <div class="mt-1">
-            <small id="prime_details_communales" class="text-muted"></small>
-          </div>
-        </div>
-
-        <small class="text-muted d-block">
-          Les primes communales varient selon votre commune et le type de travaux
-        </small>
+      <!-- Code postal -->
+      <div class="mb-3">
+        <label for="code_postal_communales_wallonie" class="form-label text-start w-100 small">Code postal</label>
+        <input type="text"
+               class="form-control form-control-sm"
+               id="code_postal_communales_wallonie"
+               data-primes-communales-wallonie-target="codePostal"
+               data-action="input->primes-communales-wallonie#checkPrimes"
+               placeholder="ex: 4000, 5000, 6000..."
+               pattern="[0-9]{4}"
+               maxlength="4">
+        <small class="text-muted">Saisissez votre code postal wallon pour découvrir les primes disponibles</small>
       </div>
+
+      <!-- Loading indicator -->
+      <div class="mb-3"
+           data-primes-communales-wallonie-target="loading"
+           style="display: none;">
+        <div class="d-flex align-items-center justify-content-center gap-2">
+          <div class="spinner-border spinner-border-sm text-warning" role="status"></div>
+          <small class="text-muted">Recherche en cours...</small>
+        </div>
+      </div>
+
+      <!-- Statut de vérification -->
+      <div class="mb-3"
+           data-primes-communales-wallonie-target="status"
+           style="display: none;">
+        <div class="d-flex align-items-center justify-content-center gap-2">
+          <i data-primes-communales-wallonie-target="statusIcon" class="bi"></i>
+          <small data-primes-communales-wallonie-target="statusText" class="fw-bold"></small>
+        </div>
+      </div>
+
+      <!-- Sélection des primes (si disponibles) -->
+      <div class="mb-3"
+           data-primes-communales-wallonie-target="primesSelection"
+           style="display: none;">
+        <label for="prime_communale_select_wallonie" class="form-label text-start w-100 small">Sélectionnez une prime</label>
+        <select class="form-select form-select-sm"
+                id="prime_communale_select_wallonie"
+                data-primes-communales-wallonie-target="primeSelect"
+                data-action="change->primes-communales-wallonie#selectPrime">
+          <option value="">Choisir une prime...</option>
+        </select>
+      </div>
+
+      <!-- Champ montant travaux (si prime sélectionnée) -->
+      <div class="mb-3"
+           data-primes-communales-wallonie-target="montantSection"
+           style="display: none;">
+        <label for="montant_travaux_communales_wallonie" class="form-label text-start w-100 small">Montant des travaux (€)</label>
+        <input type="number"
+               class="form-control form-control-sm"
+               id="montant_travaux_communales_wallonie"
+               data-primes-communales-wallonie-target="montantInput"
+               data-action="input->primes-communales-wallonie#calculatePrime"
+               placeholder="0"
+               min="0"
+               step="0.01">
+      </div>
+
+      <!-- Résultat -->
+      <div class="alert alert-warning alert-sm mb-2"
+           data-primes-communales-wallonie-target="resultSection"
+           style="display: none;"
+           role="alert">
+        <small class="fw-bold">Prime estimée : </small>
+        <span class="fw-bold prime-result"
+              data-primes-communales-wallonie-target="result">0.00 €</span>
+        <div class="mt-1">
+          <small data-primes-communales-wallonie-target="details"
+                 class="text-muted"></small>
+        </div>
+      </div>
+
+      <small class="text-muted d-block">
+        Les primes communales varient selon votre commune wallonne et le type de travaux
+      </small>
     </div>
   </div>
+</div>
