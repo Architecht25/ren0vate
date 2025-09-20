@@ -39,6 +39,18 @@ Rails.application.routes.draw do
         end
       end
 
+      # API pour les primes communales Bruxelles
+      resources :primes_communales_bruxelles, only: [] do
+        collection do
+          get :index          # GET /api/primes_communales_bruxelles?code_postal=1000
+          post :calculate     # POST /api/primes_communales_bruxelles/calculate
+          get :communes       # GET /api/primes_communales_bruxelles/communes
+          get :search         # GET /api/primes_communales_bruxelles/search?q=isolation
+          get :categories     # GET /api/primes_communales_bruxelles/categories
+          get :stats          # GET /api/primes_communales_bruxelles/stats
+        end
+      end
+
       # API pour les préférences utilisateur
       patch 'users/language-preference', to: 'users#update_language_preference'
 
