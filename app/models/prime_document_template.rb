@@ -24,6 +24,7 @@ class PrimeDocumentTemplate < ApplicationRecord
   scope :required_docs, -> { where(is_required: true) }
   scope :by_order, -> { order(:order_position, :title) }
   scope :by_type, ->(type) { where(type_document: type) }
+  scope :by_region, ->(region) { joins(:prime).where(primes: { region: region }) }
 
   # Méthodes
   def file_available?

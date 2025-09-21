@@ -17,6 +17,11 @@ class PrimeDocumentTemplatesController < ApplicationController
     if params[:type_document].present?
       @templates = @templates.by_type(params[:type_document])
     end
+
+    # Filtrage par région si spécifié
+    if params[:region].present?
+      @templates = @templates.by_region(params[:region])
+    end
   end
 
   # GET /prime_document_templates/:id

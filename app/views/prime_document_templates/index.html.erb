@@ -21,19 +21,29 @@
       <div class="card mb-4">
         <div class="card-body">
           <%= form_with url: prime_document_templates_path, method: :get, local: true, class: "row g-3" do |form| %>
-            <div class="col-md-4">
+            <div class="col-md-3">
+              <%= form.select :region,
+                    options_for_select([
+                      ['Bruxelles', 'bruxelles'],
+                      ['Wallonie', 'wallonie'],
+                      ['Flandre', 'flandre']
+                    ], params[:region]),
+                    { prompt: "Toutes les régions" },
+                    { class: "form-select" } %>
+            </div>
+            <div class="col-md-3">
               <%= form.select :prime_id,
                     options_from_collection_for_select(Prime.par_ordre_affichage, :id, :titre, params[:prime_id]),
                     { prompt: "Toutes les primes" },
                     { class: "form-select" } %>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
               <%= form.select :type_document,
                     options_for_select(PrimeDocumentTemplate.type_documents.map { |k,v| [k.humanize, v] }, params[:type_document]),
                     { prompt: "Tous types" },
                     { class: "form-select" } %>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
               <%= form.submit "Filtrer", class: "btn btn-primary" %>
               <%= link_to "Réinitialiser", prime_document_templates_path, class: "btn btn-outline-secondary ms-2" %>
             </div>

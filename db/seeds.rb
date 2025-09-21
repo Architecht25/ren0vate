@@ -131,3 +131,11 @@ if File.exist?(entreprises_bruxelles_path)
   puts "🔹 Chargement de : #{entreprises_bruxelles_path}"
   load entreprises_bruxelles_path
 end
+
+# ➤ DOCUMENTS OFFICIELS - Chargement des seeds
+puts "\n📋 === DOCUMENTS OFFICIELS ==="
+prime_documents_path = Rails.root.join("db", "seeds", "prime_documents.rb")
+if File.exist?(prime_documents_path)
+  puts "🔹 Chargement de : #{prime_documents_path}"
+  load prime_documents_path
+end
