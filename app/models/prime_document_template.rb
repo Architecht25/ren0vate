@@ -48,7 +48,8 @@ class PrimeDocumentTemplate < ApplicationRecord
 
   def download_url
     if document_file.attached?
-      Rails.application.routes.url_helpers.rails_blob_url(document_file, only_path: false)
+      # Utiliser only_path: true pour éviter les problèmes d'host en développement
+      Rails.application.routes.url_helpers.rails_blob_path(document_file)
     else
       file_url
     end
