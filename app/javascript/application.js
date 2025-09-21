@@ -18,6 +18,9 @@ import "./logic/prime_inputs_handlers"
 // Import et register tous les contrôleurs manuellement et simplement
 import UserTypeController from "controllers/user_type_controller"
 import TestEligibiliteController from "controllers/test_eligibilite_controller"
+import TestEligibiliteBruxellesController from "controllers/test_eligibilite_bruxelles_controller"
+import TestEligibiliteFlandreController from "controllers/test_eligibilite_flandre_controller"
+import TestEligibiliteWallonieController from "controllers/test_eligibilite_wallonie_controller"
 import CategorieEstimationController from "controllers/categorie_estimation_controller"
 import PrimeCardController from "controllers/prime_card_controller"
 import PrimeCalculController from "controllers/prime_calcul_controller"
@@ -57,6 +60,9 @@ import PrimesCommunalesWallonieController from "controllers/primes_communales_wa
 
 application.register("user_type", UserTypeController)
 application.register("test-eligibilite", TestEligibiliteController)
+application.register("test-eligibilite-bruxelles", TestEligibiliteBruxellesController)
+application.register("test-eligibilite-flandre", TestEligibiliteFlandreController)
+application.register("test-eligibilite-wallonie", TestEligibiliteWallonieController)
 application.register("categorie-estimation", CategorieEstimationController)
 application.register("prime-card", PrimeCardController)
 application.register("prime-calcul", PrimeCalculController)

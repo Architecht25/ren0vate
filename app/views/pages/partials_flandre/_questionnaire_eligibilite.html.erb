@@ -1,5 +1,5 @@
 <!-- Test d'éligibilité -->
-<div id="eligibility-test" data-controller="test-eligibilite">
+<div id="eligibility-test" data-controller="test-eligibilite-flandre">
   <div class="card border-0 shadow-sm">
     <div class="card-header bg-light">
       <h4 class="card-title mb-0">
@@ -8,7 +8,7 @@
       </h4>
     </div>
     <div class="card-body">
-      <form id="eligibilityForm" name="eligibilityForm" data-test-eligibilite-target="form">
+      <form id="eligibilityForm" name="eligibilityForm" data-test-eligibilite-flandre-target="form">
         <%# Répète cette structure pour chaque step %>
         <% steps = {
           "usage" => "Le bien est-il destiné à être habité ?",
@@ -28,17 +28,17 @@
         } %>
 
         <% steps.each do |key, question| %>
-          <div class="mb-3 p-3 border rounded bg-light" data-test-eligibilite-target="formCard">
+          <div class="mb-3 p-3 border rounded bg-light" data-test-eligibilite-flandre-target="formCard">
             <h6 class="mb-3 text-dark"><%= question %></h6>
             <div class="d-flex gap-3">
               <div class="form-check">
-                <input type="radio" class="form-check-input" name="<%= key %>" value="oui" data-action="click->test-eligibilite#handleAnswer" id="<%= key %>_oui">
+                <input type="radio" class="form-check-input" name="<%= key %>" value="oui" data-action="click->test-eligibilite-flandre#handleAnswer" id="<%= key %>_oui">
                 <label class="form-check-label" for="<%= key %>_oui">
                   <i class="bi bi-check-circle text-success me-1"></i>Oui
                 </label>
               </div>
               <div class="form-check">
-                <input type="radio" class="form-check-input" name="<%= key %>" value="non" data-action="click->test-eligibilite#handleAnswer" id="<%= key %>_non">
+                <input type="radio" class="form-check-input" name="<%= key %>" value="non" data-action="click->test-eligibilite-flandre#handleAnswer" id="<%= key %>_non">
                 <label class="form-check-label" for="<%= key %>_non">
                   <i class="bi bi-x-circle text-danger me-1"></i>Non
                 </label>
@@ -52,15 +52,15 @@
       <div class="text-center mt-4">
         <button type="button"
                 class="btn btn-success btn-lg"
-                data-action="click->test-eligibilite#validateTest"
-                data-test-eligibilite-target="validateButton"
+                data-action="click->test-eligibilite-flandre#validateTest"
+                data-test-eligibilite-flandre-target="validateButton"
                 style="display: none;">
           <i class="bi bi-check2-circle me-2"></i>Valider mon test d'éligibilité
         </button>
       </div>
 
       <div id="result"
-        data-test-eligibilite-target="result"
+        data-test-eligibilite-flandre-target="result"
         class="alert alert-info mt-4 text-center"
         style="display: none;">
       </div>
