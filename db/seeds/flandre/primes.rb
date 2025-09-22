@@ -276,3 +276,22 @@ Prime.find_or_initialize_by(slug: "renovation_sol").update!(
   region: "flandre",
   category_id: Category.find_by(code: "categorie_4").id
 )
+
+# Prime amiante - Ajoutée pour cohérence avec les documents attestation_entrepreneur
+Prime.find_or_initialize_by(slug: "amiante").update!(
+  titre: "Prime amiante",
+  ordre_affichage: 13,
+  icon_name: "exclamation-triangle",
+  unite: "€",
+  type_de_valeur: "surface",
+  eligible_categories: ["1", "2", "3", "4"],
+  condition: "Travaux de désamiantage obligatoires lors d'isolation",
+  conseil: "Cette attestation doit toujours accompagner une attestation de toiture ou de mur.",
+  document: "Attestation de l'entrepreneur spécialisé + certificat de désamiantage",
+  échéances: "12 mois à partir de la date de facture de solde",
+  specifique: "Obligatoire seulement si présence d'amiante détectée",
+  placeholder: JSON.parse('{"1": "Surface désamiantée en m²", "2": "Surface désamiantée en m²", "3": "Surface désamiantée en m²", "4": "Surface désamiantée en m²"}'),
+  image: "images/amiante.webp",
+  region: "flandre",
+  category_id: Category.find_by(code: "categorie_4").id
+)

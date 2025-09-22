@@ -67,7 +67,7 @@ class RequestProgressesController < ApplicationController
   def update
     # Convertir les chaînes vides en nil pour respecter la contrainte d'unicité
     params[:request_progress][:numero_dossier] = nil if params[:request_progress][:numero_dossier].blank?
-    
+
     if @request_progress.update(request_progress_params)
       redirect_to @request_progress, notice: t('request_progress.updated_successfully')
     else

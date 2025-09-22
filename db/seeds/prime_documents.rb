@@ -22,13 +22,24 @@ Prime.includes(:category).find_each do |prime|
   )
 
   if attestation.new_record?
-    attestation.assign_attributes(
-      title: "Attestation entrepreneur - #{prime.titre}",
-      description: "Document obligatoire à faire remplir et signer par l'entrepreneur qui réalise les travaux. Ce document atteste de la conformité des travaux aux exigences de la prime.",
-      is_required: true,
-      order_position: 1,
-      file_url: "/data/prime_documents/#{prime.slug}_attestation_entrepreneur.pdf"
-    )
+    # Titre et description spéciaux pour la prime amiante
+    if prime.slug == 'amiante'
+      attestation.assign_attributes(
+        title: "L'attestation pour l'amiante (accompagne toujours une attestation de toiture ou de mur)",
+        description: "Document obligatoire pour le désamiantage en combinaison avec isolation. Cette attestation ne se demande jamais seule et doit toujours accompagner une attestation de toiture ou de mur.",
+        is_required: true,
+        order_position: 8,
+        file_url: "https://res.cloudinary.com/dtdelexhd/image/upload/Attest_Asbestverwijdering_In_combinatie_met_Isolatie_dak-en_of_Buitenmuur_jybksm.pdf"
+      )
+    else
+      attestation.assign_attributes(
+        title: "Attestation entrepreneur - #{prime.titre}",
+        description: "Document obligatoire à faire remplir et signer par l'entrepreneur qui réalise les travaux. Ce document atteste de la conformité des travaux aux exigences de la prime.",
+        is_required: true,
+        order_position: 1,
+        file_url: "/data/prime_documents/#{prime.slug}_attestation_entrepreneur.pdf"
+      )
+    end
 
     if attestation.save
       created_count += 1
