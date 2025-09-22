@@ -162,6 +162,8 @@ export default class extends Controller {
 
     // Stocker la catégorie dans localStorage (seulement R1-R4 maintenant)
     localStorage.setItem("wallonie_categorie", "R1-R4");
+    // Aussi stocker pour le calculateur avec une catégorie par défaut R2
+    localStorage.setItem('selectedWallonieCategory', 'wallonie_r2');
 
     this.showResultWallonieParticulier(message, true, recommendations);
   }
@@ -256,6 +258,7 @@ export default class extends Controller {
     ];
 
     localStorage.setItem("wallonie_categorie", "entreprise");
+    // Pas de selectedWallonieCategory pour les entreprises
     this.showResultWallonieEntreprise(message, true, recommendations);
   }
 
@@ -338,6 +341,8 @@ export default class extends Controller {
     // Définir explicitement la catégorie R5 pour les syndics
     localStorage.setItem("wallonie_categorie", "R5");
     localStorage.setItem("wallonie_profile_type", "syndic");
+    // Aussi stocker pour le calculateur
+    localStorage.setItem('selectedWallonieCategory', 'wallonie_r5');
     this.showResultWallonieSyndic(message, true, recommendations);
   }
 
@@ -423,6 +428,7 @@ export default class extends Controller {
     ];
 
     localStorage.setItem("wallonie_categorie", "asbl");
+    // Pas de selectedWallonieCategory pour les ASBL
     this.showResultWallonieAsbl(message, true, recommendations);
   }
 
@@ -508,6 +514,7 @@ export default class extends Controller {
     ];
 
     localStorage.setItem("wallonie_categorie", "bailleur");
+    // Pas de selectedWallonieCategory pour les bailleurs
     this.showResultWallonieBailleur(message, true, recommendations);
   }
 

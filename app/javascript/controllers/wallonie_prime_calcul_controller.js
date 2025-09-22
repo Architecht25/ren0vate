@@ -40,6 +40,13 @@ export default class extends Controller {
       storedCategory = 'wallonie_' + storedCategory
     }
 
+    // CORRECTION TEMPORAIRE: Forcer le bon format si on a wallonie_2 -> wallonie_r2
+    if (storedCategory === 'wallonie_2') {
+      storedCategory = 'wallonie_r2'
+      localStorage.setItem('selectedWallonieCategory', storedCategory)
+      console.log("🔧 Correction automatique: wallonie_2 -> wallonie_r2")
+    }
+
     this.currentCategory = storedCategory
     console.log("Catégorie Wallonie actuelle:", this.currentCategory)
 

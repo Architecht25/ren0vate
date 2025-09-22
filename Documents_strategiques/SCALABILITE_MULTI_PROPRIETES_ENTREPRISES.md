@@ -10,7 +10,7 @@ L'architecture actuelle permet à un utilisateur de créer théoriquement :
 ```ruby
 User (1) ---> (n) Properties
               ├── type: "maison" (région: bruxelles)
-              ├── type: "appartement" (région: wallonie) 
+              ├── type: "appartement" (région: wallonie)
               ├── type: "entreprise" (numero_ean: 0123456789)
               ├── type: "entreprise" (numero_ean: 0987654321)
               └── ... (jusqu'à 100+ propriétés au total)
@@ -66,7 +66,7 @@ end
 #### Requêtes optimisées
 ```ruby
 # Property model - ajouter ces scopes
-scope :with_stats, -> { 
+scope :with_stats, -> {
   includes(:projects, :simulations)
   .select('properties.*, COUNT(projects.id) as projects_count')
   .left_joins(:projects)
@@ -87,10 +87,10 @@ class Company < ApplicationRecord
   belongs_to :user
   has_many :properties, foreign_key: :company_id
   has_many :projects, through: :properties
-  
+
   validates :bce_number, uniqueness: { scope: :user_id }
   validates :name, presence: true
-  
+
   def display_name
     "#{name} (#{bce_number})"
   end
@@ -109,7 +109,7 @@ class CreateCompanies < ActiveRecord::Migration[8.0]
       t.date :creation_date
       t.timestamps
     end
-    
+
     add_index :companies, [:user_id, :bce_number], unique: true
     add_column :properties, :company_id, :bigint
     add_foreign_key :properties, :companies
@@ -119,11 +119,11 @@ end
 # Property model - ajout
 class Property < ApplicationRecord
   belongs_to :company, optional: true
-  
+
   def company_bce_number
     company&.bce_number || numero_ean
   end
-  
+
   def is_company_property?
     company_id.present? || type == 'entreprise'
   end
@@ -137,7 +137,7 @@ end
 <!-- Dans les formulaires de création de projet -->
 <div class="form-group">
   <%= f.label :company_id, "Entreprise associée" %>
-  <%= f.select :company_id, 
+  <%= f.select :company_id,
       options_from_collection_for_select(current_user.companies, :id, :display_name),
       { include_blank: "Nouvelle entreprise..." },
       { class: "select2", data: { placeholder: "Rechercher une entreprise..." } } %>
@@ -192,41 +192,41 @@ $('.select2').select2({
 ```ruby
 # User model - ajouter
 class User < ApplicationRecord
-  enum subscription_tier: { 
-    free: 0, 
-    basic: 1, 
-    pro: 2, 
-    enterprise: 3 
+  enum subscription_tier: {
+    free: 0,
+    basic: 1,
+    pro: 2,
+    enterprise: 3
   }
-  
+
   def max_properties
     case subscription_tier
     when 'free' then 3
     when 'basic' then 10
-    when 'pro' then 50  
+    when 'pro' then 50
     when 'enterprise' then 500
     else 3
     end
   end
-  
+
   def max_companies
     case subscription_tier
     when 'free' then 1
     when 'basic' then 3
-    when 'pro' then 15  
+    when 'pro' then 15
     when 'enterprise' then 100
     else 1
     end
   end
-  
+
   def can_add_property?
     properties.count < max_properties
   end
-  
+
   def can_add_company?
     companies.count < max_companies
   end
-  
+
   def properties_usage_percentage
     (properties.count.to_f / max_properties * 100).round
   end
@@ -242,7 +242,7 @@ private
 
 def check_property_limit
   unless current_user.can_add_property?
-    redirect_to properties_path, 
+    redirect_to properties_path,
                 alert: "Limite de #{current_user.max_properties} propriétés atteinte. Upgradez votre compte."
   end
 end
@@ -257,7 +257,7 @@ class User < ApplicationRecord
   def stats_cache_key
     "user_#{id}_stats_#{properties.maximum(:updated_at)&.to_i}"
   end
-  
+
   def cached_stats
     Rails.cache.fetch(stats_cache_key, expires_in: 1.hour) do
       {
@@ -274,9 +274,9 @@ end
 class Property < ApplicationRecord
   after_save :invalidate_user_stats_cache
   after_destroy :invalidate_user_stats_cache
-  
+
   private
-  
+
   def invalidate_user_stats_cache
     Rails.cache.delete(user.stats_cache_key)
   end
@@ -290,11 +290,11 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   static targets = ["container", "loadMore"]
-  
+
   loadMore(event) {
     event.preventDefault()
     const nextPage = parseInt(this.loadMoreTarget.dataset.page) + 1
-    
+
     fetch(`/properties?page=${nextPage}`, {
       headers: { "Accept": "application/json" }
     })
@@ -302,7 +302,7 @@ export default class extends Controller {
     .then(data => {
       this.containerTarget.insertAdjacentHTML('beforeend', data.html)
       this.loadMoreTarget.dataset.page = nextPage
-      
+
       if (data.has_next_page) {
         this.loadMoreTarget.style.display = 'block'
       } else {
@@ -322,17 +322,17 @@ class PropertyGroup < ApplicationRecord
   belongs_to :user
   has_many :property_group_memberships, dependent: :destroy
   has_many :properties, through: :property_group_memberships
-  
+
   validates :name, presence: true, uniqueness: { scope: :user_id }
   validates :color, presence: true
-  
+
   scope :ordered, -> { order(:name) }
 end
 
 class PropertyGroupMembership < ApplicationRecord
   belongs_to :property
   belongs_to :property_group
-  
+
   validates :property_id, uniqueness: { scope: :property_group_id }
 end
 
@@ -346,15 +346,15 @@ class CreatePropertyGroups < ActiveRecord::Migration[8.0]
       t.text :description
       t.timestamps
     end
-    
+
     create_table :property_group_memberships do |t|
       t.references :property, null: false, foreign_key: true
       t.references :property_group, null: false, foreign_key: true
       t.timestamps
     end
-    
+
     add_index :property_groups, [:user_id, :name], unique: true
-    add_index :property_group_memberships, [:property_id, :property_group_id], 
+    add_index :property_group_memberships, [:property_id, :property_group_id],
               unique: true, name: 'index_property_group_memberships_unique'
   end
 end
@@ -365,19 +365,19 @@ end
 <!-- Vue pour gérer les groupes -->
 <div class="property-groups">
   <h3>Mes dossiers</h3>
-  
+
   <% current_user.property_groups.ordered.each do |group| %>
     <div class="group-card" style="border-left: 4px solid <%= group.color %>">
       <h5><%= group.name %> (<%= group.properties.count %>)</h5>
       <p class="text-muted"><%= group.description %></p>
-      
+
       <div class="group-actions">
         <%= link_to "Voir", properties_path(group_id: group.id), class: "btn btn-sm btn-outline-primary" %>
         <%= link_to "Modifier", edit_property_group_path(group), class: "btn btn-sm btn-outline-secondary" %>
       </div>
     </div>
   <% end %>
-  
+
   <%= link_to "Nouveau dossier", new_property_group_path, class: "btn btn-primary" %>
 </div>
 ```
@@ -458,7 +458,7 @@ portfolio: {
 investisseur_pro: {
   name: "Investisseur Pro",
   price: 169,
-  period: "mois", 
+  period: "mois",
   description: "Gros portefeuilles 25-100 propriétés",
   features: [
     "Jusqu'à 100 propriétés",
@@ -483,7 +483,7 @@ investisseur_pro: {
 ### Segmentation Optimale Proposée
 ```
 🆓 Découverte (0€)      → 1 propriété, 0 entreprise
-🏠 Propriétaire (39€)   → 1-3 propriétés, 0 entreprise  
+🏠 Propriétaire (39€)   → 1-3 propriétés, 0 entreprise
 🏢 Investisseur (89€)   → 4-25 propriétés, 5-10 entreprises
 💼 Investisseur Pro (169€) → 25-100 propriétés, 10-30 entreprises
 🏛️ Enterprise (299€)   → Illimité + développements custom
@@ -495,7 +495,7 @@ investisseur_pro: {
 def recommend_tier_for_user
   properties_count = current_user.properties.count
   companies_count = current_user.properties.entreprises.count
-  
+
   case
   when properties_count <= 1 && companies_count == 0
     :individual
@@ -547,7 +547,7 @@ end
 
 ---
 
-**Date de création** : 21 septembre 2025  
-**Status** : En attente d'implémentation  
-**Priorité** : Haute (gap pricing identifié)  
+**Date de création** : 21 septembre 2025
+**Status** : En attente d'implémentation
+**Priorité** : Haute (gap pricing identifié)
 **ROI estimé** : +40% revenus segment premium
