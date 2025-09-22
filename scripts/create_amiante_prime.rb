@@ -14,7 +14,7 @@ if existing_prime
   puts "   Titre: #{existing_prime.titre}"
 else
   puts '📝 Création de la Prime amiante...'
-  
+
   # Créer la prime basée sur celle du développement
   amiante_prime = Prime.create!(
     titre: "Prime amiante",
@@ -32,16 +32,16 @@ else
     specifique: "Obligatoire seulement si présence d'amiante détectée",
     category_id: Category.find_by(code: "categorie_4")&.id
   )
-  
+
   puts "✅ Prime amiante créée!"
   puts "   ID: #{amiante_prime.id}"
   puts "   Titre: #{amiante_prime.titre}"
   puts "   Slug: #{amiante_prime.slug}"
-  
+
   # Créer le document attestation_entrepreneur associé
   puts
   puts '📄 Création du document attestation_entrepreneur...'
-  
+
   doc = PrimeDocumentTemplate.create!(
     prime: amiante_prime,
     type_document: 'attestation_entrepreneur',
@@ -51,7 +51,7 @@ else
     order_position: 8,
     file_url: "/data/prime_documents/amiante_attestation_entrepreneur.pdf"
   )
-  
+
   puts "✅ Document créé!"
   puts "   ID: #{doc.id}"
   puts "   Titre: #{doc.title}"

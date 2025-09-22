@@ -32,7 +32,7 @@ puts "📊 Documents actuels: #{templates.count}"
 expected_prime_titles = [
   "Isolation du sol / plancher bas et sol cave",
   "Isolation des murs extérieurs (cat. 3-4)",
-  "Remplacement des châssis et portes extérieures", 
+  "Remplacement des châssis et portes extérieures",
   "Pompe à chaleur",
   "Isolation des murs extérieurs (cat. 1-2)",
   "Chauffe-eau thermodynamique",
@@ -99,10 +99,10 @@ if docs_to_remove.any?
     puts "🚨 MODE SIMULATION - Ces #{docs_to_remove.count} documents seraient supprimés"
   else
     puts "🗑️  Suppression de #{docs_to_remove.count} documents..."
-    
+
     deleted_count = 0
     failed_count = 0
-    
+
     docs_to_remove.each do |doc|
       begin
         doc.destroy!
@@ -113,18 +113,18 @@ if docs_to_remove.any?
         puts "  ❌ Erreur ID #{doc.id}: #{e.message}"
       end
     end
-    
+
     puts
     puts "📊 Résultats:"
     puts "  - Documents supprimés: #{deleted_count}"
     puts "  - Échecs: #{failed_count}"
-    
+
     # Vérification finale
     remaining_templates = PrimeDocumentTemplate.joins(:prime)
                                              .where(primes: { region: 'flandre' }, type_document: 'attestation_entrepreneur')
-    
+
     puts "  - Documents restants: #{remaining_templates.count}"
-    
+
     if remaining_templates.count == 8
       puts "🎉 SUCCÈS! Il y a maintenant exactement 8 documents comme en développement"
     else

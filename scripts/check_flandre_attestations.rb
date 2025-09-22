@@ -74,7 +74,7 @@ puts "🎯 Recommandations pour avoir exactement 8 documents:"
 if templates.count > 8
   excess_count = templates.count - 8
   puts "❌ Il y a #{excess_count} document(s) en trop à supprimer"
-  
+
   # Suggérer les documents à supprimer (les plus récents ou doublons)
   duplicate_docs = []
   primes_with_docs.each do |prime, docs|
@@ -85,14 +85,14 @@ if templates.count > 8
       duplicate_docs.concat(others)
     end
   end
-  
+
   if duplicate_docs.any?
     puts "📝 Documents suggérés pour suppression (doublons):"
     duplicate_docs.each do |doc|
       puts "  - ID #{doc.id}: #{doc.title} (Prime: #{doc.prime.titre})"
     end
   end
-  
+
 elsif templates.count < 8
   missing_count = 8 - templates.count
   puts "📈 Il manque #{missing_count} document(s) pour atteindre 8"
