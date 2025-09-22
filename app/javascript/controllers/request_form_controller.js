@@ -17,6 +17,18 @@ export default class extends Controller {
     this.initializeRegionalForms();
   }
 
+  // Nouvelle méthode pour gérer les clics de soumission
+  handleSubmit(event) {
+    const button = event.target;
+    const debugType = button.dataset.debug;
+
+    console.log('🔴 BOUTON CLIQUÉ:', debugType);
+    console.log('📋 Form data avant soumission:', new FormData(this.element));
+
+    // Laisser la soumission normale se poursuivre
+    return true;
+  }
+
   // Gestionnaire pour l'événement de bien pré-sélectionné
   handlePropertyPreselected(event) {
     const { region } = event.detail;

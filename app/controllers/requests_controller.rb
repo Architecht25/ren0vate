@@ -31,10 +31,24 @@ class RequestsController < ApplicationController
       @request.template_version = '1.0'
       @request.region = @property.region
       @request.property = @property
+
+      # Valeurs par défaut pour éviter les erreurs de validation
+      @request.title = "Demande #{params[:form_type].humanize} - #{@property.full_address}"
+      @request.description = "Demande de prime pour #{params[:form_type].humanize}"
+
       @form_data = build_formulaire_data(@property)
 
       # Charger les primes pour le prime_card_controller
       @primes = Prime.all
+
+      # S'assurer que @request n'est PAS persisté
+      Rails.logger.info "=== NEW REQUEST DEBUG ==="
+      Rails.logger.info "Request persisted? #{@request.persisted?}"
+      Rails.logger.info "Request ID: #{@request.id}"
+      Rails.logger.info "Property: #{@property.id} - #{@property.full_address}"
+      Rails.logger.info "Form type: #{@request.form_type}"
+      Rails.logger.info "Region: #{@request.region}"
+
       return
     end
 
@@ -57,36 +71,43 @@ class RequestsController < ApplicationController
     Rails.logger.info "=== REQUEST CREATE DEBUG ==="
     Rails.logger.info "Form type: #{@request.form_type}"
     Rails.logger.info "Form data: #{@request.form_data}"
+    Rails.logger.info "Commit param: #{params[:commit]}"
     Rails.logger.info "All request params: #{request_params.inspect}"
 
-    # Pour les brouillons, assigner des valeurs par défaut si nécessaire
-    if params[:commit] == "Sauvegarder en brouillon"
+    # Déterminer le statut selon l'action
+    case params[:commit]
+    when "Sauvegarder en brouillon"
       @request.status = 'draft'
       @request.title = @request.title.present? ? @request.title : "Brouillon #{Time.current.strftime('%d/%m/%Y %H:%M')}"
       @request.description = @request.description.present? ? @request.description : "Brouillon en cours de rédaction"
+    when "Créer la demande"
+      @request.status = 'submitted'
+      # S'assurer que title et description sont présents pour une demande soumise
+      unless @request.title.present?
+        @request.title = "Demande #{@request.form_type&.humanize} - #{Time.current.strftime('%d/%m/%Y')}"
+      end
+      unless @request.description.present?
+        @request.description = "Demande de prime pour #{@request.form_type&.humanize}"
+      end
     else
-      @request.status = 'draft' if @request.status.blank?  # Statut par défaut
+      # Par défaut, créer en brouillon
+      @request.status = 'draft'
+      @request.title = @request.title.present? ? @request.title : "Brouillon #{Time.current.strftime('%d/%m/%Y %H:%M')}"
+      @request.description = @request.description.present? ? @request.description : "Brouillon en cours de rédaction"
     end
 
-    # Pour les nouvelles demandes, toujours créer en brouillon d'abord
-    @request.status = 'draft' unless params[:commit] == "Créer la demande"
-
-    # Debug logs
-    # Rails.logger.info "REQUEST DEBUG: All params = #{params.inspect}"
-    # Rails.logger.info "REQUEST DEBUG: commit param = '#{params[:commit]}'"
-    # Rails.logger.info "REQUEST DEBUG: Request params = #{request_params}"
-    # Rails.logger.info "REQUEST DEBUG: Request attributes = #{@request.attributes}"
-    # Rails.logger.info "REQUEST DEBUG: Valid? = #{@request.valid?}"
-    # Rails.logger.info "REQUEST DEBUG: Errors = #{@request.errors.full_messages}" unless @request.valid?
-
-    if @request.save(validate: false)  # Sauvegarder sans validation pour commencer
-      # Redirection selon le type d'action
-      # Rails.logger.info "REQUEST DEBUG: Checking commit param: '#{params[:commit]}' == 'Sauvegarder en brouillon' ? #{params[:commit] == 'Sauvegarder en brouillon'}"
-
-      if params[:commit] == "Créer la demande"
-        # Valider avant de marquer comme soumise
-        @request.status = 'submitted'
+    # Sauvegarder la demande
+    if @request.save
+      case params[:commit]
+      when "Sauvegarder en brouillon"
+        respond_to do |format|
+          format.html { redirect_to edit_request_path(@request), notice: 'Formulaire sauvegardé avec succès. Vous pouvez continuer à le compléter.' }
+          format.json { render json: { success: true, request_id: @request.id, redirect: edit_request_url(@request) } }
+        end
+      when "Créer la demande"
+        # Pour une demande soumise, rediriger vers la liste ou le site officiel
         if @request.valid?
+          @request.submitted_at = Time.current
           @request.save!
 
           # URL selon la région
@@ -107,7 +128,7 @@ class RequestsController < ApplicationController
             redirect_to official_url, notice: 'Demande créée avec succès. Vous êtes redirigé vers le site officiel pour finaliser votre dépôt.', allow_other_host: true
           end
         else
-          # Erreurs de validation - rester en brouillon
+          # S'il y a des erreurs de validation, rester en brouillon
           @request.status = 'draft'
           @request.save(validate: false)
           flash.now[:alert] = "Votre demande a été sauvegardée en brouillon. Veuillez compléter les champs manquants : #{@request.errors.full_messages.join(', ')}"
@@ -124,11 +145,8 @@ class RequestsController < ApplicationController
           render :new, status: :unprocessable_entity
         end
       else
-        # Sauvegarde en brouillon ou création par défaut
-        respond_to do |format|
-          format.html { redirect_to edit_request_path(@request), notice: 'Brouillon créé avec succès. Vous pouvez continuer à le compléter.' }
-          format.json { render json: { success: true, request_id: @request.id, redirect: edit_request_url(@request) } }
-        end
+        # Autres cas - rediriger vers l'édition
+        redirect_to edit_request_path(@request), notice: 'Demande créée avec succès.'
       end
     else
       Rails.logger.error "REQUEST SAVE FAILED: #{@request.errors.full_messages}"
@@ -370,6 +388,13 @@ class RequestsController < ApplicationController
                                    :document_attestations, :document_photos, :document_autres,
                                    document_devis: [], document_factures: [], document_attestations: [], document_photos: [], document_autres: [])
 
+    Rails.logger.info "=== REQUEST_PARAMS DEBUG ==="
+    Rails.logger.info "Permitted params keys: #{permitted_params.keys}"
+    Rails.logger.info "Title: #{permitted_params[:title]}"
+    Rails.logger.info "Form type: #{permitted_params[:form_type]}"
+    Rails.logger.info "Region: #{permitted_params[:region]}"
+    Rails.logger.info "Property ID: #{permitted_params[:property_id]}"
+
     # Extraire les données de formulaire et les stocker dans form_data
     extract_form_data_from_params(permitted_params)
   end
@@ -386,7 +411,7 @@ class RequestsController < ApplicationController
     form_data_fields = permitted_params.except(*base_fields, *file_fields).reject { |k, v| v.blank? }
 
     # Ajouter form_data aux paramètres si il y a des données
-    if form_data_fields.any?
+    if form_data_fields.present?
       permitted_params[:form_data] = form_data_fields
     end
 

@@ -1,8 +1,7 @@
-<%= form_with model: @request, local: true, class: "needs-validation", novalidate: true, data: {
-  controller: "request-form request-autosave",
-  request_autosave_target: "form",
-  request_id: @request.persisted? ? @request.id : 'new'
-} do |form| %>
+<%= form_with model: @request, local: true, class: "needs-validation request-form", novalidate: true, id: "request-form-main", authenticity_token: true do |form| %>
+
+  <!-- Token CSRF explicite (au cas où) -->
+  <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
 
   <!-- Indicateur de progression -->
   <%= render 'requests/progress_indicator' if @request.persisted? %>
@@ -672,74 +671,59 @@
     }
   </script>
 
-  <!-- Boutons d'action -->
-  <div class="d-flex gap-2 mt-4" id="submission-buttons" style="display: flex;">
-    <% if @request.persisted? %>
-      <% if @request.draft? %>
-        <!-- Brouillon existant - permet encore de sauvegarder ou de soumettre -->
-        <%= form.submit "Créer la demande", class: "btn btn-primary-custom px-4" %>
-        <%= form.submit "Sauvegarder en brouillon",
-            name: "commit",
-            value: "Sauvegarder en brouillon",
-            class: "btn btn-outline-primary-custom px-4",
-            formnovalidate: true %>
-      <% else %>
-        <!-- Demande déjà soumise - mise à jour simple -->
-        <%= form.submit "Mettre à jour", class: "btn btn-primary-custom px-4" %>
-      <% end %>
-      <%= link_to @request, class: "btn btn-outline-secondary" do %>
-        <i class="bi bi-eye me-2"></i>Voir
-      <% end %>
-    <% else %>
-      <!-- Nouvelles demandes - boutons de soumission -->
-      <%= form.submit "Créer la demande", class: "btn btn-primary-custom px-4" %>
-      <%= form.submit "Sauvegarder en brouillon",
-          name: "commit",
-          value: "Sauvegarder en brouillon",
-          class: "btn btn-outline-primary-custom px-4",
-          formnovalidate: true %>
+  <!-- Boutons d'action - Version simplifiée -->
+  <div class="row mt-5 mb-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <div class="d-flex align-items-center justify-content-between">
+            <div>
+              <h5 class="mb-1 text-dark">
+                <i class="bi bi-check-circle me-2 text-success"></i>
+                Finaliser votre demande
+              </h5>
+              <p class="text-muted mb-0 small">
+                Choisissez l'action que vous souhaitez effectuer avec ce formulaire
+              </p>
+            </div>
+            <div class="d-flex gap-3">
+              <% if @request.persisted? %>
+                <% if @request.draft? %>
+                  <!-- Brouillon existant -->
+                  <input type="submit"
+                         name="commit"
+                         value="Sauvegarder en brouillon"
+                         class="btn btn-outline-primary btn-lg px-4 py-2"
+                         formnovalidate="formnovalidate">
+                  <input type="submit"
+                         name="commit"
+                         value="Créer la demande"
+                         class="btn btn-success btn-lg px-4 py-2">
+                <% else %>
+                  <!-- Demande déjà soumise -->
+                  <input type="submit"
+                         value="Mettre à jour"
+                         class="btn btn-primary btn-lg px-4 py-2">
+                <% end %>
+              <% else %>
+                <!-- Nouvelles demandes -->
+                <button type="button"
+                        onclick="document.getElementById('request-form-main').submit();"
+                        class="btn btn-outline-primary btn-lg px-4 py-2 me-2">
+                  <i class="bi bi-file-earmark me-2"></i>Sauvegarder en brouillon
+                </button>
 
-      <!-- Bouton de sauvegarde locale pour test -->
-      <button type="button"
-              onclick="document.querySelector('[data-controller*=request-autosave]').requestAutosaveController.performAutoSave()"
-              class="btn btn-outline-success px-4">
-        <i class="bi bi-floppy me-2"></i>Sauvegarder (Local)
-      </button>
-
-      <!-- Bouton spécifique pour la Flandre -->
-      <a href="https://www.vlaanderen.be/premies-pour-renovation/mijn-verbouwpremie"
-         target="_blank"
-         rel="noopener noreferrer"
-         class="btn btn-info px-4"
-         id="flandre-continue-btn"
-         style="display: none;">
-        <i class="bi bi-box-arrow-up-right me-2"></i>
-        Continuer sur le site Vlaanderen
-      </a>
-
-      <!-- Bouton spécifique pour la Wallonie -->
-      <a href="https://energie.wallonie.be/fr/aides-et-primes.html?IDC=10717"
-         target="_blank"
-         rel="noopener noreferrer"
-         class="btn btn-info px-4"
-         id="wallonie-continue-btn"
-         style="display: none;">
-        <i class="bi bi-box-arrow-up-right me-2"></i>
-        Continuer sur le site Wallonie
-      </a>
-
-      <!-- Bouton spécifique pour Bruxelles -->
-      <a href="https://www.brussels.be/logement-et-energie/renovation-de-mon-logement/primes"
-         target="_blank"
-         rel="noopener noreferrer"
-         class="btn btn-info px-4"
-         id="bruxelles-continue-btn"
-         style="display: none;">
-        <i class="bi bi-box-arrow-up-right me-2"></i>
-        Continuer sur le site Bruxelles
-      </a>
-
-    <% end %>
+                <button type="button"
+                        onclick="document.getElementById('request-form-main').submit();"
+                        class="btn btn-success btn-lg px-4 py-2">
+                  <i class="bi bi-check-circle me-2"></i>Créer la demande
+                </button>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 <% end %>
 
