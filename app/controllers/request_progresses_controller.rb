@@ -49,8 +49,11 @@ class RequestProgressesController < ApplicationController
     @request_progress = @request.request_progresses.build(request_progress_params)
     @primes = Prime.where(region: @request.region)
 
+    # Convertir les chaînes vides en nil pour respecter la contrainte d'unicité
+    @request_progress.numero_dossier = nil if @request_progress.numero_dossier.blank?
+
     if @request_progress.save
-      redirect_to [@request, @request_progress], notice: t('request_progress.created_successfully')
+      redirect_to @request_progress, notice: t('request_progress.created_successfully')
     else
       render :new, status: :unprocessable_entity
     end
@@ -62,6 +65,9 @@ class RequestProgressesController < ApplicationController
   end
 
   def update
+    # Convertir les chaînes vides en nil pour respecter la contrainte d'unicité
+    params[:request_progress][:numero_dossier] = nil if params[:request_progress][:numero_dossier].blank?
+    
     if @request_progress.update(request_progress_params)
       redirect_to @request_progress, notice: t('request_progress.updated_successfully')
     else
@@ -99,7 +105,7 @@ class RequestProgressesController < ApplicationController
     if @request_progress && params[:status].present?
       @request_progress.update(
         status_administratif: params[:status],
-        commentaire_administratif: params[:commentaire],
+        commentaires_admin: params[:commentaire],
         date_derniere_maj: Date.current
       )
 
@@ -123,8 +129,8 @@ class RequestProgressesController < ApplicationController
     params.require(:request_progress).permit(
       :prime_id, :step, :pourcentage, :status_administratif,
       :montant_demande, :montant_accorde, :date_soumission,
-      :date_derniere_maj, :commentaire_administratif, :document_recu,
-      :numero_dossier_administratif, :document_suivi_pdf, :document_suivi_photo
+      :date_derniere_maj, :commentaires_admin, :document_recu,
+      :numero_dossier, :document_suivi_pdf, :document_suivi_photo
     )
   end
 end
