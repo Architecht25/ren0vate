@@ -24,16 +24,7 @@ class PrimeDocumentTemplate < ApplicationRecord
   scope :required_docs, -> { where(is_required: true) }
   scope :by_order, -> {
     joins(:prime).order(
-      Arel.sql("
-        CASE
-          WHEN primes.titre ~ '^[A-Z][0-9]' THEN
-            CONCAT(
-              SUBSTRING(primes.titre FROM '^([A-Z])'),
-              LPAD(SUBSTRING(primes.titre FROM '^[A-Z]([0-9]+)'), 3, '0')
-            )
-          ELSE primes.titre
-        END
-      "),
+      'primes.ordre_affichage ASC',
       :order_position,
       :title
     )
