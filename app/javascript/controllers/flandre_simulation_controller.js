@@ -376,10 +376,10 @@ export default class extends Controller {
       .then(data => {
         if (data.success) {
           console.log("✅ Auto-save Flandre réussi:", data.total_amount, "€");
-          
+
           // Distribuer les montants calculés aux cartes individuelles
           this.updateCardsWithCalculatedAmounts(data.updated_cards);
-          
+
           this.showSaveIndicator('success', data.total_amount);
         } else {
           console.error("❌ Erreur auto-save Flandre:", data.error);

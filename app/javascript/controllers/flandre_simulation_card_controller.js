@@ -9,7 +9,7 @@ export default class extends Controller {
 
     // Écouter les changements de catégorie
     this.element.addEventListener('flandre:category:changed', this.recalculate.bind(this))
-    
+
     // Écouter les événements de recalcul forcé
     this.element.addEventListener('flandre:force:recalculate', this.forceRecalculate.bind(this))
 
@@ -292,7 +292,7 @@ export default class extends Controller {
     // Trouver le contrôleur parent flandre-simulation en remontant dans le DOM
     let element = this.element.parentElement
     while (element) {
-      // Chercher un élément avec data-controller qui contient exactement 'flandre-simulation' 
+      // Chercher un élément avec data-controller qui contient exactement 'flandre-simulation'
       // mais pas 'flandre-simulation-card'
       const controllers = element.dataset.controller
       if (controllers && controllers.includes('flandre-simulation') && !controllers.includes('flandre-simulation-card')) {
@@ -320,7 +320,7 @@ export default class extends Controller {
   // Action déclenchée par les inputs
   onInputChange() {
     console.log(`⌨️ onInputChange appelé pour ${this.slugValue}`)
-    
+
     // Plus besoin de calculer ici, juste déclencher la sauvegarde
     // Le contrôleur parent s'occupera de tout
     const parentController = this.getParentController()
