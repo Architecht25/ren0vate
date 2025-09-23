@@ -2,15 +2,15 @@
 class DecisionHub::DataService
   def initialize(simulation)
     @simulation = simulation
-    
+
     # Validation de la simulation
     unless @simulation
       raise ArgumentError, "Simulation ne peut pas être nil"
     end
-    
+
     @region = simulation&.region&.downcase || "wallonie"
     @selected_primes = []
-    
+
     begin
       @selected_primes = extract_selected_primes
     rescue StandardError => e
