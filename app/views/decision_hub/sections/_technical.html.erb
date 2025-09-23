@@ -9,7 +9,7 @@
           <i class="bi bi-shield-check fs-3 text-success me-3"></i>
           <div>
             <div class="fw-bold">Conformité globale</div>
-            <div class="h5 mb-0 text-success"><%= hub_data[:technical][:compliance_score] %>%</div>
+            <div class="h5 mb-0 text-success"><%= hub_data.dig(:technical, :compliance_score) || 0 %>%</div>
           </div>
         </div>
       </div>
@@ -18,7 +18,7 @@
           <i class="bi bi-exclamation-diamond fs-3 text-warning me-3"></i>
           <div>
             <div class="fw-bold">Points d'attention</div>
-            <div class="h5 mb-0 text-warning"><%= hub_data[:technical][:warnings].count %></div>
+            <div class="h5 mb-0 text-warning"><%= (hub_data.dig(:technical, :warnings) || []).count %></div>
           </div>
         </div>
       </div>
@@ -27,7 +27,7 @@
           <i class="bi bi-tools fs-3 text-info me-3"></i>
           <div>
             <div class="fw-bold">Vérifications requises</div>
-            <div class="h5 mb-0 text-info"><%= hub_data[:technical][:required_checks].count %></div>
+            <div class="h5 mb-0 text-info"><%= (hub_data.dig(:technical, :required_checks) || []).count %></div>
           </div>
         </div>
       </div>
@@ -35,13 +35,13 @@
   </div>
 
   <!-- Alertes critiques -->
-  <% if hub_data[:technical][:critical_alerts].any? %>
+  <% if (hub_data.dig(:technical, :critical_alerts) || []).any? %>
     <div class="critical-alerts mb-4">
       <h6 class="fw-bold text-danger mb-3">
         <i class="bi bi-exclamation-triangle-fill me-1"></i>
         Alertes critiques
       </h6>
-      <% hub_data[:technical][:critical_alerts].each do |alert| %>
+      <% (hub_data.dig(:technical, :critical_alerts) || []).each do |alert| %>
         <div class="alert alert-danger d-flex align-items-start" role="alert">
           <i class="bi bi-shield-x fs-4 me-3 mt-1"></i>
           <div class="flex-grow-1">
@@ -66,7 +66,7 @@
       Obligations techniques par catégorie
     </h6>
 
-    <% hub_data[:technical][:obligations_by_category].each do |category_key, category_data| %>
+    <% (hub_data.dig(:technical, :obligations_by_category) || {}).each do |category_key, category_data| %>
       <div class="category-section mb-3">
         <div class="category-header d-flex justify-content-between align-items-center p-2 bg-light rounded-top border">
           <h6 class="mb-0">
@@ -135,13 +135,13 @@
   </div>
 
   <!-- Recommandations techniques -->
-  <% if hub_data[:technical][:recommendations].any? %>
+  <% if (hub_data.dig(:technical, :recommendations) || []).any? %>
     <div class="technical-recommendations mb-4">
       <h6 class="fw-bold text-primary mb-3">
         <i class="bi bi-lightbulb me-1"></i>
         Recommandations techniques
       </h6>
-      <% hub_data[:technical][:recommendations].each do |rec| %>
+      <% (hub_data.dig(:technical, :recommendations) || []).each do |rec| %>
         <div class="recommendation-item p-3 mb-2 border border-primary rounded bg-primary bg-opacity-5">
           <div class="d-flex align-items-start">
             <div class="flex-shrink-0 me-3">
@@ -179,7 +179,7 @@
       <i class="bi bi-gear me-1"></i>
       Vérifications automatiques disponibles
     </h6>
-    <% hub_data[:technical][:automatic_checks].each do |check| %>
+    <% (hub_data.dig(:technical, :automatic_checks) || []).each do |check| %>
       <div class="check-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded">
         <div>
           <div class="fw-medium small"><%= check[:name] %></div>
