@@ -10,7 +10,7 @@
           <div>
             <div class="small fw-bold">Total estimé</div>
             <div class="fw-bold text-success">
-              <%= number_to_currency(hub_data[:resume][:total_amount], unit: "", precision: 0) %>€
+              <%= number_to_currency((hub_data.dig(:resume, :total_amount) || 0), unit: "", precision: 0) %>€
             </div>
           </div>
         </div>
@@ -20,7 +20,7 @@
           <i class="bi bi-list-check text-primary me-2"></i>
           <div>
             <div class="small fw-bold">Primes éligibles</div>
-            <div class="fw-bold text-primary"><%= hub_data[:resume][:primes].count %></div>
+                        <div class="fw-bold text-primary"><%= (hub_data.dig(:resume, :primes) || []).count %></div>
           </div>
         </div>
       </div>
@@ -29,13 +29,13 @@
 
   <!-- Liste détaillée des primes -->
   <div class="primes-list mb-3">
-    <% hub_data[:resume][:primes].each do |prime| %>
+        <% (hub_data.dig(:resume, :primes) || []).each do |prime| %>
       <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded-3 mb-2 border-start border-3 border-<%= prime[:status] == 'confirmed' ? 'success' : prime[:status] == 'conditional' ? 'warning' : 'secondary' %>">
         <div class="flex-grow-1">
           <div class="fw-medium"><%= prime[:name] %></div>
           <small class="text-muted">
             <i class="bi bi-geo-alt me-1"></i>
-            <%= hub_data[:resume][:region] %> •
+                        <%= hub_data.dig(:resume, :region) || 'Non défini' %> •
             <span class="badge badge-sm bg-<%= prime[:status] == 'confirmed' ? 'success' : prime[:status] == 'conditional' ? 'warning' : 'secondary' %>">
               <%= prime[:status].capitalize %>
             </span>
@@ -66,7 +66,7 @@
       <div class="col-4">
         <div class="p-2 bg-success bg-opacity-10 rounded">
           <div class="fw-bold text-success">
-            <%= hub_data[:resume][:primes].count { |p| p[:status] == 'confirmed' } %>
+                        <%= (hub_data.dig(:resume, :primes) || []).count { |p| p[:status] == 'confirmed' } %>
           </div>
           <div class="small text-muted">Confirmées</div>
         </div>
@@ -74,7 +74,7 @@
       <div class="col-4">
         <div class="p-2 bg-warning bg-opacity-10 rounded">
           <div class="fw-bold text-warning">
-            <%= hub_data[:resume][:primes].count { |p| p[:status] == 'conditional' } %>
+                        <%= (hub_data.dig(:resume, :primes) || []).count { |p| p[:status] == 'conditional' } %>
           </div>
           <div class="small text-muted">Conditionnelles</div>
         </div>
@@ -98,36 +98,36 @@
       <div class="col-4">
         <div class="progress-circle">
           <div class="small text-muted mb-1">Documents</div>
-          <div class="fw-bold text-<%= hub_data[:documents][:completion_rate] >= 80 ? 'success' : hub_data[:documents][:completion_rate] >= 50 ? 'warning' : 'danger' %>">
-            <%= hub_data[:documents][:completion_rate] %>%
+          <div class="fw-bold text-<%= (hub_data.dig(:documents, :completion_rate) || 0) >= 80 ? 'success' : (hub_data.dig(:documents, :completion_rate) || 0) >= 50 ? 'warning' : 'danger' %>">
+            <%= hub_data.dig(:documents, :completion_rate) || 0 %>%
           </div>
           <div class="progress mt-1" style="height: 4px;">
-            <div class="progress-bar bg-<%= hub_data[:documents][:completion_rate] >= 80 ? 'success' : hub_data[:documents][:completion_rate] >= 50 ? 'warning' : 'danger' %>"
-                 style="width: <%= hub_data[:documents][:completion_rate] %>%"></div>
+            <div class="progress-bar bg-<%= (hub_data.dig(:documents, :completion_rate) || 0) >= 80 ? 'success' : (hub_data.dig(:documents, :completion_rate) || 0) >= 50 ? 'warning' : 'danger' %>"
+                 style="width: <%= hub_data.dig(:documents, :completion_rate) || 0 %>%"></div>
           </div>
         </div>
       </div>
       <div class="col-4">
         <div class="progress-circle">
           <div class="small text-muted mb-1">Technique</div>
-          <div class="fw-bold text-<%= hub_data[:technical][:compliance_score] >= 80 ? 'success' : hub_data[:technical][:compliance_score] >= 50 ? 'warning' : 'danger' %>">
-            <%= hub_data[:technical][:compliance_score] %>%
+          <div class="fw-bold text-<%= (hub_data.dig(:technical, :compliance_score) || 0) >= 80 ? 'success' : (hub_data.dig(:technical, :compliance_score) || 0) >= 50 ? 'warning' : 'danger' %>">
+            <%= hub_data.dig(:technical, :compliance_score) || 0 %>%
           </div>
           <div class="progress mt-1" style="height: 4px;">
-            <div class="progress-bar bg-<%= hub_data[:technical][:compliance_score] >= 80 ? 'success' : hub_data[:technical][:compliance_score] >= 50 ? 'warning' : 'danger' %>"
-                 style="width: <%= hub_data[:technical][:compliance_score] %>%"></div>
+            <div class="progress-bar bg-<%= (hub_data.dig(:technical, :compliance_score) || 0) >= 80 ? 'success' : (hub_data.dig(:technical, :compliance_score) || 0) >= 50 ? 'warning' : 'danger' %>"
+                 style="width: <%= hub_data.dig(:technical, :compliance_score) || 0 %>%"></div>
           </div>
         </div>
       </div>
       <div class="col-4">
         <div class="progress-circle">
           <div class="small text-muted mb-1">Global</div>
-          <div class="fw-bold text-<%= hub_data[:resume][:completion_status][:overall] >= 80 ? 'success' : hub_data[:resume][:completion_status][:overall] >= 50 ? 'warning' : 'danger' %>">
-            <%= hub_data[:resume][:completion_status][:overall] %>%
+          <div class="fw-bold text-<%= (hub_data.dig(:resume, :completion_status, :overall) || 0) >= 80 ? 'success' : (hub_data.dig(:resume, :completion_status, :overall) || 0) >= 50 ? 'warning' : 'danger' %>">
+            <%= hub_data.dig(:resume, :completion_status, :overall) || 0 %>%
           </div>
           <div class="progress mt-1" style="height: 4px;">
-            <div class="progress-bar bg-<%= hub_data[:resume][:completion_status][:overall] >= 80 ? 'success' : hub_data[:resume][:completion_status][:overall] >= 50 ? 'warning' : 'danger' %>"
-                 style="width: <%= hub_data[:resume][:completion_status][:overall] %>%"></div>
+            <div class="progress-bar bg-<%= (hub_data.dig(:resume, :completion_status, :overall) || 0) >= 80 ? 'success' : (hub_data.dig(:resume, :completion_status, :overall) || 0) >= 50 ? 'warning' : 'danger' %>"
+                 style="width: <%= hub_data.dig(:resume, :completion_status, :overall) || 0 %>%"></div>
           </div>
         </div>
       </div>
