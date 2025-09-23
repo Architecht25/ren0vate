@@ -136,11 +136,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectedPrimes = [];
 
     // Parcourir toutes les cartes de primes pour trouver les montants > 0
-    document.querySelectorAll('[data-controller="wallonie-prime-card"]').forEach(card => {
+    document.querySelectorAll('[data-controller="wallonie-simulation-card"]').forEach(card => {
       const primeTitle = card.querySelector('.card-title')?.textContent?.trim() || 'Prime';
 
       // Chercher tous les éléments de résultat dans la carte
-      const resultElements = card.querySelectorAll('[data-wallonie-prime-card-target*="result"]');
+      const resultElements = card.querySelectorAll('[data-wallonie-simulation-card-target*="result"], [data-wallonie-simulation-card-target*="total"]');
 
       resultElements.forEach(resultElement => {
         const amountText = resultElement.textContent?.trim() || '0 €';
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (amount > 0) {
           // Trouver l'input correspondant pour obtenir la description
           let description = 'Sélectionné';
-          const targetName = resultElement.getAttribute('data-wallonie-prime-card-target');
+          const targetName = resultElement.getAttribute('data-wallonie-simulation-card-target');
 
           // Chercher l'input associé à ce résultat
           let associatedInput = null;
@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
           if (targetName) {
             // Méthode 1: chercher par nom de target similaire
             const inputTargetName = targetName.replace('result', 'input');
-            associatedInput = card.querySelector(`[data-wallonie-prime-card-target="${inputTargetName}"]`);
+            associatedInput = card.querySelector(`[data-wallonie-simulation-card-target="${inputTargetName}"]`);
           }
 
           if (!associatedInput) {
@@ -265,7 +265,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Écouter les changements sur tous les inputs de primes
   document.addEventListener('change', function(event) {
-    if (event.target.closest('[data-controller="wallonie-prime-card"]')) {
+    if (event.target.closest('[data-controller="wallonie-simulation-card"]')) {
       // Délai court pour laisser le contrôleur mettre à jour les montants
       setTimeout(() => {
         updateSelectedPrimesSummary();
@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Écouter les saisies dans les champs numériques
   document.addEventListener('input', function(event) {
-    if (event.target.type === 'number' && event.target.closest('[data-controller="wallonie-prime-card"]')) {
+    if (event.target.type === 'number' && event.target.closest('[data-controller="wallonie-simulation-card"]')) {
       // Debug: vérifier l'état de restauration
       if (window.isRestoringValues) {
         console.log('🔍 Input détecté pendant restauration, vérification...', {
@@ -313,11 +313,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const userInputs = {};
 
     // Collecter toutes les saisies utilisateur
-    document.querySelectorAll('[data-controller="wallonie-prime-card"]').forEach(card => {
+    document.querySelectorAll('[data-controller="wallonie-simulation-card"]').forEach(card => {
       const inputs = card.querySelectorAll('input, select');
 
       inputs.forEach(input => {
-        const primeSlug = input.closest('[data-wallonie-prime-card-slug-value]')?.getAttribute('data-wallonie-prime-card-slug-value');
+        const primeSlug = input.closest('[data-wallonie-simulation-card-slug-value]')?.getAttribute('data-wallonie-simulation-card-slug-value');
         if (!primeSlug) return;
 
         let value = null;

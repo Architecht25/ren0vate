@@ -8,9 +8,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectedPrimes = [];
 
     // Parcourir toutes les cartes de primes pour trouver les montants > 0
-    document.querySelectorAll('[data-controller="flandre-prime-card"]').forEach(card => {
-      const resultSpan = card.querySelector('[data-flandre-prime-card-target="result"]');
-      const slug = card.dataset.flandrePrimeCardSlugValue;
+    document.querySelectorAll('[data-controller="flandre-simulation-card"]').forEach(card => {
+      const resultSpan = card.querySelector('[data-flandre-simulation-card-target="result"]');
+      const slug = card.dataset.flandreSimulationCardSlugValue;
 
       if (resultSpan && slug) {
         const amountText = resultSpan.textContent.trim();
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Écouter les changements sur tous les inputs de primes
   document.addEventListener('change', function(event) {
-    if (event.target.closest('[data-controller="flandre-prime-card"]')) {
+    if (event.target.closest('[data-controller="flandre-simulation-card"]')) {
       // Délai court pour laisser le contrôleur mettre à jour les montants
       setTimeout(() => {
         updateSelectedPrimesSummaryFlandre();
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Écouter les saisies dans les champs numériques
   document.addEventListener('input', function(event) {
-    if (event.target.closest('[data-controller="flandre-prime-card"]')) {
+    if (event.target.closest('[data-controller="flandre-simulation-card"]')) {
       setTimeout(() => {
         updateSelectedPrimesSummaryFlandre();
       }, 150);

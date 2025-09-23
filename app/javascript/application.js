@@ -29,12 +29,15 @@ import PetitPatrimoineBruxellesController from "controllers/petit_patrimoine_bru
 import WalloniePrimeCalculController from "controllers/wallonie_prime_calcul_controller"
 import WalloniePrimeCardController from "controllers/wallonie_prime_card_controller"
 import WallonieSimulationController from "controllers/wallonie_simulation_controller"
+import WallonieSimulationCardController from "controllers/wallonie_simulation_card_controller"
 import BruxellesPrimeCardController from "controllers/bruxelles_prime_card_controller"
 import BruxellesPrimeCalculController from "controllers/bruxelles_prime_calcul_controller"
 import BruxellesSimulationController from "controllers/bruxelles_simulation_controller"
+import BruxellesSimulationCardController from "controllers/bruxelles_simulation_card_controller"
 import FlandrePrimeCardController from "controllers/flandre_prime_card_controller"
 import FlandrePrimeCalculController from "controllers/flandre_prime_calcul_controller"
 import FlandreSimulationController from "controllers/flandre_simulation_controller"
+import FlandreSimulationCardController from "controllers/flandre_simulation_card_controller"
 import BceSearchController from "controllers/bce_search_controller"
 import LogoutModalController from "controllers/logout_modal_controller"
 import BruxellesAidesEstimationController from "controllers/bruxelles_aides_estimation_controller"
@@ -74,12 +77,15 @@ application.register("petit-patrimoine-bruxelles", PetitPatrimoineBruxellesContr
 application.register("wallonie-prime-calcul", WalloniePrimeCalculController)
 application.register("wallonie-prime-card", WalloniePrimeCardController)
 application.register("wallonie-simulation", WallonieSimulationController)
+application.register("wallonie-simulation-card", WallonieSimulationCardController)
 application.register("bruxelles-prime-card", BruxellesPrimeCardController)
 application.register("bruxelles-prime-calcul", BruxellesPrimeCalculController)
 application.register("bruxelles-simulation", BruxellesSimulationController)
+application.register("bruxelles-simulation-card", BruxellesSimulationCardController)
 application.register("flandre-prime-card", FlandrePrimeCardController)
 application.register("flandre-prime-calcul", FlandrePrimeCalculController)
 application.register("flandre-simulation", FlandreSimulationController)
+application.register("flandre-simulation-card", FlandreSimulationCardController)
 application.register("bce-search", BceSearchController)
 application.register("logout-modal", LogoutModalController)
 application.register("bruxelles-aides-estimation", BruxellesAidesEstimationController)
