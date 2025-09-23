@@ -158,7 +158,7 @@
                       </div>
 
                       <div class="fw-bold text-primary mb-2">
-                        Total: <%= @hub_data[:resume][:total_amount] %>€
+                        Total: <%= @hub_data[:resume][:total_amount] || 0 %>€
                       </div>
 
                       <div class="progress mt-2" style="height: 3px;">
@@ -200,7 +200,7 @@
                       </div>
 
                       <div class="progress mt-2" style="height: 3px;">
-                        <div class="progress-bar bg-warning" style="width: <%= @hub_data[:documents][:completion_rate] %>%" data-decision-hub-target="documentsProgress"></div>
+                        <div class="progress-bar bg-warning" style="width: <%= @hub_data[:documents][:completion_rate] || 0 %>%" data-decision-hub-target="documentsProgress"></div>
                       </div>
                     </div>
                   </div>
@@ -236,7 +236,7 @@
 
                       <div class="fw-bold text-info mb-2">
                         <i class="bi bi-clock me-1"></i>
-                        <%= @hub_data[:planning][:total_duration] %>
+                        <%= @hub_data[:planning][:total_duration] || 'Non défini' %>
                       </div>
 
                       <div class="progress mt-2" style="height: 3px;">
@@ -260,7 +260,7 @@
                       <div class="text-start mb-2">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                           <small class="text-muted">Isolation thermique</small>
-                          <% if @hub_data[:technical][:isolation_compliant] %>
+                          <% if @hub_data[:technical][:isolation_compliant] == true %>
                             <i class="bi bi-check-circle-fill text-success"></i>
                           <% else %>
                             <i class="bi bi-exclamation-triangle text-warning"></i>
@@ -268,7 +268,7 @@
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-1">
                           <small class="text-muted">Ventilation PEB</small>
-                          <% if @hub_data[:technical][:ventilation_compliant] %>
+                          <% if @hub_data[:technical][:ventilation_compliant] == true %>
                             <i class="bi bi-check-circle-fill text-success"></i>
                           <% else %>
                             <i class="bi bi-exclamation-triangle text-warning"></i>
@@ -276,7 +276,7 @@
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-1">
                           <small class="text-muted">Performance énerg.</small>
-                          <% if @hub_data[:technical][:energy_performance_ok] %>
+                          <% if @hub_data[:technical][:energy_performance_ok] == true %>
                             <i class="bi bi-check-circle-fill text-success"></i>
                           <% else %>
                             <i class="bi bi-exclamation-triangle text-warning"></i>
@@ -286,11 +286,12 @@
 
                       <div class="fw-bold text-secondary mb-2">
                         <i class="bi bi-award me-1"></i>
-                        <%= @hub_data[:technical][:compliance_score] %>% conforme
+                        <%= @hub_data[:technical][:compliance_score] || 0 %>% conforme
                       </div>
 
                       <div class="progress mt-2" style="height: 3px;">
-                        <div class="progress-bar bg-<%= @hub_data[:technical][:compliance_score] > 80 ? 'success' : @hub_data[:technical][:compliance_score] > 50 ? 'warning' : 'danger' %>" style="width: <%= @hub_data[:technical][:compliance_score] %>%" data-decision-hub-target="technicalProgress"></div>
+                        <% compliance_score = (@hub_data[:technical][:compliance_score] || 0).to_i %>
+                        <div class="progress-bar bg-<%= compliance_score > 80 ? 'success' : compliance_score > 50 ? 'warning' : 'danger' %>" style="width: <%= compliance_score %>%" data-decision-hub-target="technicalProgress"></div>
                       </div>
                     </div>
                   </div>
@@ -682,7 +683,7 @@
                       <strong>🤖 Bonjour !</strong><br>
                       Je suis votre expert IA spécialisé en primes énergétiques.<br><br>
                       <span data-decision-hub-target="aiWelcomeContext">
-                        J'ai analysé votre simulation : <strong><%= @hub_data[:resume][:total_amount] %>€</strong> de primes potentielles !
+                        J'ai analysé votre simulation : <strong><%= @hub_data[:resume][:total_amount] || 0 %>€</strong> de primes potentielles !
                       </span><br><br>
                       💬 Posez-moi vos questions ou cliquez sur une suggestion ci-dessous.
                     </div>
