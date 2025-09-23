@@ -81,9 +81,9 @@
 
         // Déclencher la mise à jour du total global
         setTimeout(() => {
-          const globalController = document.querySelector('[data-controller*="flandre-prime-calcul"]');
+          const globalController = document.querySelector('[data-controller*="flandre-simulation"]');
           if (globalController) {
-            const controller = window.application?.getControllerForElementAndIdentifier(globalController, 'flandre-prime-calcul');
+            const controller = window.application?.getControllerForElementAndIdentifier(globalController, 'flandre-simulation');
             if (controller) {
               console.log('🔢 Force mise à jour total global');
               if (controller.updateTotalGlobal) {
@@ -124,7 +124,7 @@
 
   // Attendre que tous les contrôleurs Stimulus soient connectés
   document.addEventListener('stimulus:connect', function(event) {
-    if (event.detail.controller.identifier === 'flandre-prime-calcul') {
+    if (event.detail.controller.identifier === 'flandre-simulation') {
       setTimeout(restoreFlandreInputs, 200);
     }
   });

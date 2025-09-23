@@ -212,11 +212,15 @@ class SimulationsController < ApplicationController
       {}
     end
 
-    # Rails.logger.info "🔄 Updating prime inputs for simulation #{@simulation.id} with #{user_inputs.keys.length} inputs"
+    # Récupérer le total calculé côté client si disponible
+    calculated_total = params[:calculated_total]&.to_f
+
+    Rails.logger.info "🔄 Updating simulation #{@simulation.id} with #{user_inputs.keys.length} inputs"
+    Rails.logger.info "📊 Total côté client: #{calculated_total}€" if calculated_total
 
     # Si pas de données ET aucune donnée existante, retourner succès (pour l'auto-save vide initial)
     if user_inputs.empty? && @simulation.total_simule.present? && @simulation.total_simule > 0
-      # Rails.logger.info "📝 Auto-save vide ignoré pour simulation #{@simulation.id} avec données existantes"
+      Rails.logger.info "📝 Auto-save vide ignoré pour simulation #{@simulation.id} avec données existantes"
       render json: {
         success: true,
         message: "Aucune nouvelle donnée à sauvegarder",
@@ -226,7 +230,35 @@ class SimulationsController < ApplicationController
     end
 
     begin
-      # Utiliser le service pour mettre à jour les données
+      # Si on a un total calculé côté client (pour Bruxelles/Wallonie), l'utiliser directement
+      if calculated_total && calculated_total > 0 && %w[bruxelles wallonie].include?(@simulation.region&.downcase)
+        Rails.logger.info "🚀 Utilisation du total côté client: #{calculated_total}€"
+
+        # Mettre à jour directement le total
+        @simulation.update!(total_simule: calculated_total)
+
+        # Optionnel: aussi mettre à jour les paramètres pour la cohérence
+        if @simulation.parameters.present?
+          begin
+            params_hash = JSON.parse(@simulation.parameters)
+            params_hash["total_general"] = calculated_total
+            params_hash["total"] = calculated_total
+            params_hash["last_update"] = Time.current.iso8601
+            @simulation.update!(parameters: params_hash.to_json)
+          rescue JSON::ParserError
+            # Ignorer si erreur de parsing
+          end
+        end
+
+        render json: {
+          success: true,
+          total_amount: calculated_total,
+          message: "Total mis à jour depuis côté client"
+        }
+        return
+      end
+
+      # Sinon utiliser l'ancienne méthode avec le service
       # Rails.logger.info "🔧 Creating SimulationPrimesUpdater for simulation #{@simulation.id}"
       updater = SimulationPrimesUpdater.new(@simulation)
 

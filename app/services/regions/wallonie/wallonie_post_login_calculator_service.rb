@@ -16,6 +16,59 @@ module Regions
         calculate_precise_primes(primes, category, user_property)
       end
 
+      # Méthode publique pour calculer toutes les primes avec inputs utilisateur
+      def calculate_all_primes(inputs)
+        # Stocker les inputs temporairement
+        @params = { user_inputs: inputs }
+
+        # Récupérer la catégorie et propriété utilisateur
+        category = @category || determine_user_category()
+        user_property = user_property()
+
+        return { prime_results: {}, total_general: 0 } unless user_property
+
+        # Récupérer toutes les primes Wallonie
+        primes = Prime.where(region: 'wallonie').order(:ordre_affichage)
+
+        results = {}
+        total_general = 0
+
+        primes.each do |prime|
+          next unless prime_eligible_for_category?(prime, category)
+
+          # Convertir R1, R2, etc. en wallonie_r1, wallonie_r2, etc.
+          wallonie_category = category.match?(/^R\d+$/) ? "wallonie_#{category.downcase}" : category
+          category_data = prime.valeurs_par_categorie&.[](wallonie_category)
+          next unless category_data
+
+          # Récupérer la saisie utilisateur pour cette prime
+          user_input_value = inputs[prime.slug] || inputs[prime.slug.to_s]
+
+          # Calculer le montant selon le type et la saisie utilisateur
+          calculated_amount = calculate_amount_with_user_input(
+            prime,
+            category_data,
+            user_property,
+            user_input_value
+          )
+
+          if calculated_amount > 0
+            results[prime.slug] = {
+              amount: calculated_amount,
+              prime_id: prime.id,
+              titre: prime.titre,
+              unite: prime.unite
+            }
+            total_general += calculated_amount
+          end
+        end
+
+        {
+          prime_results: results,
+          total_general: total_general
+        }
+      end
+
       private
 
       def calculate_precise_primes(primes, category, property)
@@ -379,6 +432,22 @@ module Regions
       end
 
       private
+
+      def determine_user_category
+        # Utiliser le WallonieCategoryService dédié pour le calcul de catégorie
+        return @category if @category.present?
+
+        category_service = Regions::Wallonie::WallonieCategoryService.new({}, user: @user)
+        result = category_service.determine_category
+
+        if result[:eligible] && result[:category]
+          @category = result[:category].to_s
+        else
+          @category = "R2" # Catégorie par défaut
+        end
+
+        @category
+      end
 
       def user_inputs
         # Récupérer les saisies utilisateur depuis les paramètres

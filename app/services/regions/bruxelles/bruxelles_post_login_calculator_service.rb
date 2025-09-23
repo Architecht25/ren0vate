@@ -16,7 +16,79 @@ module Regions
         calculate_precise_primes(primes, category, user_property)
       end
 
+      # Méthode publique pour calculer toutes les primes avec inputs utilisateur
+      def calculate_all_primes(inputs)
+        # Stocker les inputs temporairement
+        @params = { user_inputs: inputs }
+
+        # Récupérer la catégorie et propriété utilisateur
+        category = @category || determine_user_category()
+        user_property = user_property()
+
+        return { prime_results: {}, total_general: 0 } unless user_property
+
+        # Récupérer toutes les primes Bruxelles
+        primes = Prime.where(region: 'bruxelles').order(:ordre_affichage)
+
+        results = {}
+        total_general = 0
+
+        primes.each do |prime|
+          next unless prime_eligible_for_category?(prime, category)
+
+          category_data = prime.valeurs_par_categorie&.[](category)
+          next unless category_data
+
+          # Récupérer la saisie utilisateur pour cette prime
+          user_input_value = inputs[prime.slug] || inputs[prime.slug.to_s]
+
+          # Calculer le montant selon le type et la saisie utilisateur
+          calculated_amount = calculate_amount_with_user_input(
+            prime,
+            category_data,
+            user_property,
+            user_input_value
+          )
+
+          if calculated_amount > 0
+            results[prime.slug] = {
+              amount: calculated_amount,
+              prime_id: prime.id,
+              titre: prime.titre,
+              unite: prime.unite
+            }
+            total_general += calculated_amount
+          end
+        end
+
+        {
+          prime_results: results,
+          total_general: total_general
+        }
+      end
+
       private
+
+      def determine_user_category
+        # Utiliser le BruxellesCategoryService dédié pour le calcul de catégorie
+        return @category if @category.present?
+
+        category_service = Regions::Bruxelles::BruxellesCategoryService.new({}, user: @user)
+        result = category_service.determine_category
+
+        if result[:category]
+          @category = result[:category].to_s
+        else
+          @category = "2" # Catégorie par défaut
+        end
+
+        @category
+      end
+
+      def user_inputs
+        # Récupérer les saisies utilisateur depuis les paramètres
+        @params[:user_inputs] || {}
+      end
 
       def calculate_precise_primes(primes, category, property)
         calculated_primes = []
@@ -107,6 +179,58 @@ module Regions
           # Spécial chauffe-eau/pompe à chaleur
           calculate_forfait_with_invoice_limit(prime, category_data, property)
 
+        else
+          0
+        end
+      end
+
+      def calculate_amount_with_user_input(prime, category_data, property, user_input)
+        # Si pas de saisie utilisateur, retourner 0 (l'utilisateur doit interagir)
+        return 0 unless user_input.present?
+
+        case category_data["type"]
+        when "montant_fixe"
+          # 0 ou 1 (Non/Oui)
+          user_input.to_i == 1 ? (category_data["montant"] || 0) : 0
+        when "montant_m2"
+          # Surface saisie * montant au m²
+          surface = user_input.to_f
+          montant_m2 = category_data["montant_m2"] || 0
+          surface_max = category_data["surface_max"]
+
+          effective_surface = surface_max ? [surface, surface_max].min : surface
+          effective_surface * montant_m2
+        when "montant_unite"
+          # Quantité saisie * montant par unité
+          quantity = user_input.to_f
+          montant_unite = category_data["montant_unite"] || 0
+          limite = category_data["limite"]
+
+          effective_quantity = limite ? [quantity, limite].min : quantity
+          effective_quantity * montant_unite
+        when "pourcentage"
+          # Montant des travaux saisi * pourcentage
+          montant_travaux = user_input.to_f
+          pourcentage = category_data["pourcentage"] || 0
+          plafond = category_data["plafond"]
+
+          montant_calcule = (montant_travaux * pourcentage) / 100
+          plafond ? [montant_calcule, plafond].min : montant_calcule
+        when "montant_m2_bonus"
+          # Spécial embellissement façade avec surface saisie
+          surface = user_input.to_f
+          montant_m2 = category_data["montant_m2"] || 0
+          bonus_fixe = category_data["bonus_fixe"] || 0
+          nb_logements = property.housing_units || 1
+
+          (surface * montant_m2) + (bonus_fixe * nb_logements)
+        when "forfait_et_plafond_facture"
+          # Montant facture saisi avec plafond
+          montant_facture = user_input.to_f
+          plafond = category_data["plafond"] || 0
+          forfait = category_data["forfait"] || 0
+
+          [montant_facture, plafond].min + forfait
         else
           0
         end

@@ -288,9 +288,75 @@ class SimulationPrimesUpdater
     # S'assurer que la catégorie est à jour
     params["category_used"] = get_simulation_category
     category_used = params["category_used"]
-    total_general = 0.0
 
     @logger.info "💰 Recalcul avec catégorie: #{category_used}"
+
+    # Extraire les user_inputs depuis les prime_cards
+    user_inputs = extract_user_inputs_from_params(params)
+
+    # Utiliser nos nouvelles méthodes calculate_all_primes si disponibles
+    if user_inputs.present? && should_use_new_calculation_method?
+      @logger.info "🚀 Utilisation des nouvelles méthodes calculate_all_primes"
+
+      begin
+        service = get_regional_calculator_service
+        result = service.calculate_all_primes(user_inputs)
+
+        total_general = result[:total_general] || 0
+        params["total_general"] = total_general.round(2)
+        params["total"] = total_general.round(2) # Compatibilité
+        params["calculation_timestamp"] = Time.current.iso8601
+
+        @logger.info "✅ Total calculé avec nouvelles méthodes: #{total_general}€"
+        return
+
+      rescue => e
+        @logger.warn "⚠️ Erreur avec nouvelles méthodes, fallback vers ancien système: #{e.message}"
+        # Fallback vers l'ancienne méthode en cas d'erreur
+      end
+    end
+
+    # Ancienne méthode de calcul (fallback)
+    @logger.info "📊 Utilisation de l'ancienne méthode de calcul"
+    recalculate_amounts_legacy(params)
+  end
+
+  def extract_user_inputs_from_params(params)
+    user_inputs = {}
+    return user_inputs unless params["prime_cards"]
+
+    params["prime_cards"].each do |category_key, category_data|
+      next unless category_data["primes"]
+
+      category_data["primes"].each do |prime|
+        user_input = prime["user_input_value"]
+        if user_input.present? && user_input != 0 && user_input != "0"
+          user_inputs[prime["slug"]] = user_input
+        end
+      end
+    end
+
+    user_inputs
+  end
+
+  def should_use_new_calculation_method?
+    # Utiliser les nouvelles méthodes pour Bruxelles et Wallonie
+    %w[bruxelles wallonie].include?(@simulation.region&.downcase)
+  end
+
+  def get_regional_calculator_service
+    case @simulation.region&.downcase
+    when 'bruxelles'
+      Regions::Bruxelles::BruxellesPostLoginCalculatorService.new({}, user: @simulation.user)
+    when 'wallonie'
+      Regions::Wallonie::WalloniePostLoginCalculatorService.new({}, user: @simulation.user)
+    else
+      raise "Service non disponible pour la région: #{@simulation.region}"
+    end
+  end
+
+  def recalculate_amounts_legacy(params)
+    total_general = 0.0
 
     params["prime_cards"].each do |category_key, category_data|
       next unless category_data["primes"]
@@ -298,7 +364,7 @@ class SimulationPrimesUpdater
       category_total = 0.0
 
       category_data["primes"].each do |prime|
-        result = calculate_prime_amount(prime, category_used)
+        result = calculate_prime_amount(prime, params["category_used"])
         amount = result[:amount]
         calculation_params = result[:params]
 
@@ -319,7 +385,7 @@ class SimulationPrimesUpdater
     params["total"] = total_general.round(2) # Compatibilité
     params["calculation_timestamp"] = Time.current.iso8601
 
-    @logger.info "✅ Total général calculé: #{total_general}€"
+    @logger.info "✅ Total général calculé (legacy): #{total_general}€"
   end
 
   def calculate_prime_amount(prime, category_used)
