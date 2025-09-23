@@ -1,0 +1,76 @@
+<div class="col-lg-2 col-md-4 col-sm-6">
+  <div class="card border-0 shadow-sm h-100 overflow-hidden card-premium"
+       data-controller="flandre-prime-card"
+       data-flandre-prime-card-slug-value="warmtepomp">
+
+    <!-- Image de fond avec overlay -->
+    <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/pac_géothermique_cj7l2y'); background-size: cover; background-position: center;">
+      <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
+        <div class="text-center text-white">
+          <i class="bi bi-thermometer fs-3 mb-2 drop-shadow"></i>
+          <h6 class="fw-bold mb-0 drop-shadow">Pompe à chaleur</h6>
+          <small class="opacity-90">Type + facture</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <!-- Badge informatif -->
+      <div class="mb-3">
+        <div class="d-flex align-items-center justify-content-between">
+          <span class="badge bg-danger bg-opacity-20 text-danger rounded-pill px-3">
+            <i class="bi bi-thermometer me-1"></i>PAC
+          </span>
+          <small class="text-muted">
+            <i class="bi bi-lightning-charge text-danger me-1"></i>Énergie verte
+          </small>
+        </div>
+      </div>
+
+      <!-- Type de pompe -->
+      <div class="mb-2">
+        <label class="form-label small text-muted">Type :</label>
+        <select class="form-select form-select-sm mb-2"
+                data-flandre-prime-card-target="typePompe"
+                data-action="change->flandre-prime-card#onSelectChange change->flandre-prime-calcul#saveUserInput">
+          <option value="">Choisir</option>
+          <option value="geothermique">Géotherm.</option>
+          <option value="air_eau">Air/Eau</option>
+          <option value="air_air">Air/Air</option>
+          <option value="hybride">Hybride</option>
+        </select>
+      </div>
+
+      <!-- Montant facture -->
+      <div class="mb-3">
+        <label class="form-label small text-muted">Facture (€) :</label>
+        <input type="number"
+               class="form-control form-control-sm"
+               placeholder="0"
+               min="0"
+               step="1"
+               data-slug="warmtepomp"
+               data-flandre-prime-card-target="input"
+               data-action="input->flandre-prime-card#onInputChange input->flandre-prime-calcul#saveUserInput">
+
+        <!-- Informations contextuelles depuis la base de données -->
+        <div class="mt-2">
+          <small class="text-muted d-block">
+            <i class="bi bi-info-circle me-1"></i>
+            Conditions : <%= condition_prime("warmtepomp") %>
+          </small>
+          <small class="text-success d-block mt-1">
+            <i class="bi bi-lightbulb me-1"></i>
+            Conseil : <%= conseil_prime("warmtepomp") %>
+          </small>
+        </div>
+      </div>
+
+      <!-- Résultat -->
+      <div class="d-flex justify-content-between align-items-center">
+        <span class="text-muted small">Prime calculée :</span>
+        <span class="badge bg-danger fs-6" data-flandre-prime-card-target="result">0 €</span>
+      </div>
+    </div>
+  </div>
+</div>
