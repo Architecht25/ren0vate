@@ -9,11 +9,31 @@
       selected_primes = simulation.simulation_prime_cards.includes(:prime).map(&:prime)
     end
 
+    # Documents spécifiques aux primes sélectionnées
     available_templates = PrimeDocumentTemplate.joins(:prime)
                             .where(prime: selected_primes)
                             .required_docs
                             .by_order if selected_primes.any?
     available_templates ||= []
+
+    # Ajouter les documents généraux pour la région de la simulation
+    if simulation.respond_to?(:region) && simulation.region.present?
+      general_docs = PrimeDocumentTemplate.general_docs
+                       .where(type_document: 'attestation_generale')
+                       .where('title LIKE ?', "%#{simulation.region.capitalize}%")
+                       .required_docs
+      available_templates = available_templates + general_docs.to_a
+    elsif selected_primes.any?
+      # Si pas de méthode region sur simulation, déduire de la première prime
+      region = selected_primes.first&.region
+      if region.present?
+        general_docs = PrimeDocumentTemplate.general_docs
+                         .where(type_document: 'attestation_generale')
+                         .where('title LIKE ?', "%#{region.capitalize}%")
+                         .required_docs
+        available_templates = available_templates + general_docs.to_a
+      end
+    end
   %>
 
   <% if available_templates.any? %>

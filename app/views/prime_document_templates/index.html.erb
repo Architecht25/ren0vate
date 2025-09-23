@@ -96,13 +96,23 @@
                 <div class="card-header bg-light">
                   <div class="d-flex justify-content-between align-items-center">
                     <div>
-                      <h5 class="mb-1"><%= prime.titre %></h5>
-                      <small class="text-muted">Region: <%= prime.region&.capitalize %> • <%= templates.count %> document(s)</small>
+                      <% if prime.nil? %>
+                        <h5 class="mb-1">📋 Documents généraux</h5>
+                        <small class="text-muted">Documents applicables à toutes les demandes • <%= templates.count %> document(s)</small>
+                      <% else %>
+                        <h5 class="mb-1"><%= prime.titre %></h5>
+                        <small class="text-muted">Region: <%= prime.region&.capitalize %> • <%= templates.count %> document(s)</small>
+                      <% end %>
                     </div>
                     <% if templates.any? { |t| t.file_available? } %>
-                      <%= link_to download_documents_prime_path(id: prime.id),
-                            class: "btn btn-sm btn-outline-primary" do %>
-                        <i class="bi bi-download"></i> Télécharger tout
+                      <% if prime.present? %>
+                        <%= link_to download_documents_prime_path(id: prime.id),
+                              class: "btn btn-sm btn-outline-primary" do %>
+                          <i class="bi bi-download"></i> Télécharger tout
+                        <% end %>
+                      <% else %>
+                        <!-- Bouton téléchargement pour documents généraux à implémenter si nécessaire -->
+                        <span class="badge bg-info">Documents généraux</span>
                       <% end %>
                     <% end %>
                   </div>

@@ -57,6 +57,8 @@ module PrimeDocumentTemplatesHelper
     case type_document.to_s
     when 'attestation_entrepreneur'
       'bi-person-check'
+    when 'attestation_generale'
+      'bi-shield-check'
     when 'formulaire_demande'
       'bi-file-earmark-text'
     when 'annexe_technique'
@@ -77,6 +79,8 @@ module PrimeDocumentTemplatesHelper
     case type_document.to_s
     when 'attestation_entrepreneur'
       'primary'
+    when 'attestation_generale'
+      'warning'
     when 'formulaire_demande'
       'success'
     when 'annexe_technique'
