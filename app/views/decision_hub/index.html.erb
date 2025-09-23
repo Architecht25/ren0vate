@@ -200,7 +200,7 @@
                       </div>
 
                       <div class="progress mt-2" style="height: 3px;">
-                        <div class="progress-bar bg-warning" style="width: <%= @hub_data[:documents][:completion_rate] || 0 %>%" data-decision-hub-target="documentsProgress"></div>
+                        <div class="progress-bar bg-warning" style="width: <%= (@hub_data.dig(:documents, :completion_rate) || 0) %>%" data-decision-hub-target="documentsProgress"></div>
                       </div>
                     </div>
                   </div>
@@ -260,7 +260,7 @@
                       <div class="text-start mb-2">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                           <small class="text-muted">Isolation thermique</small>
-                          <% if @hub_data[:technical][:isolation_compliant] == true %>
+                          <% if @hub_data.dig(:technical, :isolation_compliant) == true %>
                             <i class="bi bi-check-circle-fill text-success"></i>
                           <% else %>
                             <i class="bi bi-exclamation-triangle text-warning"></i>
@@ -268,7 +268,7 @@
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-1">
                           <small class="text-muted">Ventilation PEB</small>
-                          <% if @hub_data[:technical][:ventilation_compliant] == true %>
+                          <% if @hub_data.dig(:technical, :ventilation_compliant) == true %>
                             <i class="bi bi-check-circle-fill text-success"></i>
                           <% else %>
                             <i class="bi bi-exclamation-triangle text-warning"></i>
@@ -276,7 +276,7 @@
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-1">
                           <small class="text-muted">Performance énerg.</small>
-                          <% if @hub_data[:technical][:energy_performance_ok] == true %>
+                          <% if @hub_data.dig(:technical, :energy_performance_ok) == true %>
                             <i class="bi bi-check-circle-fill text-success"></i>
                           <% else %>
                             <i class="bi bi-exclamation-triangle text-warning"></i>
@@ -284,13 +284,12 @@
                         </div>
                       </div>
 
-                      <div class="fw-bold text-secondary mb-2">
-                        <i class="bi bi-award me-1"></i>
-                        <%= @hub_data[:technical][:compliance_score] || 0 %>% conforme
+                                            <div class="fw-bold text-secondary mb-2">
+                        <%= (@hub_data.dig(:technical, :compliance_score) || 0) %>% conforme
                       </div>
 
                       <div class="progress mt-2" style="height: 3px;">
-                        <% compliance_score = (@hub_data[:technical][:compliance_score] || 0).to_i %>
+                        <% compliance_score = (@hub_data.dig(:technical, :compliance_score) || 0).to_i %>
                         <div class="progress-bar bg-<%= compliance_score > 80 ? 'success' : compliance_score > 50 ? 'warning' : 'danger' %>" style="width: <%= compliance_score %>%" data-decision-hub-target="technicalProgress"></div>
                       </div>
                     </div>
