@@ -320,7 +320,21 @@ class DecisionHub::DataService
     {
       status: "error",
       message: "Service temporairement indisponible",
-      data: []
+      required_documents: [],
+      key_documents: [],
+      completion_rate: 0,
+      completed: [],
+      missing: [],
+      urgent: [],
+      by_category: {},
+      critical_steps: [],
+      timeline: [],
+      urgent_deadlines: [],
+      total_duration: "Non défini",
+      technical_obligations: [],
+      compliance_rate: 0,
+      critical_issues: [],
+      warnings: []
     }
   end
 

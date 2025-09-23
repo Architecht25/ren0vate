@@ -115,7 +115,7 @@
                       <div class="text-start mb-2">
                         <div class="d-flex justify-content-between align-items-center mb-1">
                           <small class="text-muted">Simulation</small>
-                          <small class="fw-bold text-primary"><%= @hub_data[:resume][:primes].length %> primes</small>
+                          <small class="fw-bold text-primary"><%= (@hub_data[:resume][:primes] || []).length %> primes</small>
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-1">
                           <small class="text-muted">Sélectionnées</small>
@@ -146,14 +146,14 @@
 
                       <!-- Aperçu des primes principales -->
                       <div class="text-start mb-2">
-                        <% @hub_data[:resume][:primes].first(3).each do |prime| %>
+                        <% (@hub_data[:resume][:primes] || []).first(3).each do |prime| %>
                           <div class="d-flex justify-content-between align-items-center mb-1">
                             <small class="text-muted"><%= prime[:name].truncate(20) %></small>
                             <small class="fw-bold text-success"><%= prime[:amount] %>€</small>
                           </div>
                         <% end %>
-                        <% if @hub_data[:resume][:primes].count > 3 %>
-                          <small class="text-muted">+ <%= @hub_data[:resume][:primes].count - 3 %> autres...</small>
+                        <% if (@hub_data[:resume][:primes] || []).count > 3 %>
+                          <small class="text-muted">+ <%= (@hub_data[:resume][:primes] || []).count - 3 %> autres...</small>
                         <% end %>
                       </div>
 
@@ -180,7 +180,7 @@
 
                       <!-- Aperçu des documents principaux -->
                       <div class="text-start mb-2">
-                        <% @hub_data[:documents][:key_documents].first(3).each do |doc| %>
+                        <% (@hub_data[:documents][:key_documents] || []).first(3).each do |doc| %>
                           <div class="d-flex justify-content-between align-items-center mb-1">
                             <small class="text-muted"><%= doc[:name].truncate(15) %></small>
                             <% if doc[:status] == 'completed' %>
@@ -195,8 +195,8 @@
                       </div>
 
                       <div class="d-flex justify-content-between text-xs mb-2">
-                        <span class="text-success"><%= @hub_data[:documents][:completed].count %> OK</span>
-                        <span class="text-danger"><%= @hub_data[:documents][:missing].count %> manquants</span>
+                        <span class="text-success"><%= (@hub_data[:documents][:completed] || []).count %> OK</span>
+                        <span class="text-danger"><%= (@hub_data[:documents][:missing] || []).count %> manquants</span>
                       </div>
 
                       <div class="progress mt-2" style="height: 3px;">
@@ -218,7 +218,7 @@
 
                       <!-- Aperçu des étapes critiques -->
                       <div class="text-start mb-2">
-                        <% @hub_data[:planning][:critical_steps].first(3).each do |step| %>
+                        <% (@hub_data[:planning][:critical_steps] || []).first(3).each do |step| %>
                           <div class="d-flex justify-content-between align-items-center mb-1">
                             <small class="text-muted"><%= step[:name].truncate(15) %></small>
                             <% if step[:status] == 'completed' %>
