@@ -1,0 +1,75 @@
+<!-- Section détails et actions de la simulation -->
+<!-- Colonne 1: Détails de la simulation -->
+<div class="col-lg-6">
+  <div class="card border-0 shadow h-100">
+    <div class="card-body p-4 d-flex flex-column">
+      <h5 class="card-title text-primary-custom mb-3">
+        <i class="bi bi-info-circle me-2"></i>Détails de la simulation
+      </h5>
+
+      <!-- Labels sur une ligne -->
+      <div class="row g-2 mb-1">
+        <div class="col-4">
+          <label class="form-label text-muted-custom small mb-0">Titre</label>
+        </div>
+        <div class="col-4">
+          <label class="form-label text-muted-custom small mb-0">Région</label>
+        </div>
+        <% if @simulation.property.present? %>
+          <div class="col-4">
+            <label class="form-label text-muted-custom small mb-0">Bien associé</label>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Contenus sur la ligne suivante -->
+      <div class="row g-2">
+        <div class="col-4">
+          <p class="mb-0 fw-medium small"><%= @simulation.titre %></p>
+        </div>
+        <div class="col-4">
+          <p class="mb-0 small"><%= region_display_name(@simulation.region) %></p>
+        </div>
+        <% if @simulation.property.present? %>
+          <div class="col-4">
+            <p class="mb-0 small"><%= simulation_property_address(@simulation) %></p>
+          </div>
+        <% end %>
+      </div>
+
+      <% if @simulation.source.present? %>
+        <div class="mt-3">
+          <label class="form-label text-muted-custom small">Source</label>
+          <p class="mb-0"><%= @simulation.source %></p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<!-- Colonne 2: Actions rapides -->
+<div class="col-lg-6">
+  <div class="card border-0 shadow h-100">
+    <div class="card-body p-4 d-flex flex-column">
+      <h5 class="card-title text-primary-custom mb-3">
+        <i class="bi bi-lightning-charge me-2"></i>Actions rapides
+      </h5>
+
+      <!-- Les 2 boutons restants sur une seule ligne - poussés vers le bas -->
+      <div class="mt-auto">
+        <div class="row g-2">
+          <div class="col-6">
+            <%= link_to "#", class: "btn btn-outline-primary-custom btn-sm w-100" do %>
+              <i class="bi bi-file-earmark-pdf me-1"></i>Export PDF
+            <% end %>
+          </div>
+          <div class="col-6">
+            <%= link_to "#", class: "btn btn-outline-primary-custom btn-sm w-100" do %>
+              <i class="bi bi-share me-1"></i>Partager
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

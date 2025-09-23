@@ -1,0 +1,50 @@
+<!-- Styles CSS pour les animations et indicateurs -->
+<!-- Utilise le fichier CSS externe properties.css -->
+<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>
+
+<style>
+/* Styles pour les indicateurs de mise à jour */
+.calculated-amount.updating {
+  transition: opacity 0.3s ease;
+}
+
+.calculated-amount.amount-updated {
+  animation: highlight 1.5s ease;
+}
+
+@keyframes highlight {
+  0% { background-color: #e3f2fd; }
+  50% { background-color: #bbdefb; }
+  100% { background-color: transparent; }
+}
+
+/* Indicateur de chargement pour les primes */
+.loading-indicator {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.loading-indicator::after {
+  content: "⏳";
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+}
+
+/* Styles pour les indicateurs visuels */
+.amount-updated {
+  background-color: rgba(40, 167, 69, 0.1);
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.prime-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+#total-amount-sidebar {
+  transition: opacity 0.3s ease, color 0.3s ease;
+}
+</style>

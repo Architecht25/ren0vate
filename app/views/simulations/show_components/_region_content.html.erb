@@ -1,0 +1,65 @@
+<!-- Contenu principal selon la région -->
+<% region = @simulation.region&.downcase %>
+
+<div class="container-fluid">
+  <div class="row">
+    <!-- Contenu principal - pleine largeur -->
+    <div class="col-12">
+      <!-- Contenu spécifique par région - 2 colonnes côte à côte -->
+      <div class="row g-4">
+        <% case region %>
+        <% when 'wallonie' %>
+          <div class="col-lg-6">
+            <%= render 'simulations/partials_wallonie/eligibility_step' %>
+          </div>
+          <div class="col-lg-6">
+            <%= render 'simulations/partials_wallonie/category_step' %>
+          </div>
+        <% when 'flandre' %>
+          <div class="col-lg-6">
+            <%= render 'simulations/partials_flandre/eligibility_step' %>
+          </div>
+          <div class="col-lg-6">
+            <%= render 'simulations/partials_flandre/category_step' %>
+          </div>
+        <% when 'bruxelles' %>
+          <%
+            project_finalite = project_finalite(@simulation)
+          %>
+
+          <% if project_finalite == 'economique' %>
+            <!-- Finalité économique : double éligibilité (investissements + RENOLUTION) -->
+            <div class="col-12">
+              <%= render 'simulations/partials_bruxelles_entreprise/eligibility_dual_step' %>
+            </div>
+          <% else %>
+            <!-- Finalité résidentielle : étapes particuliers -->
+            <div class="col-lg-6">
+              <%= render 'simulations/partials_bruxelles/eligibility_step' %>
+            </div>
+            <div class="col-lg-6">
+              <%= render 'simulations/partials_bruxelles/category_step' %>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="col-12">
+            <div class="alert alert-warning text-center">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              Région non reconnue ou non spécifiée. Veuillez sélectionner une région valide.
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section pleine largeur pour les cartes primes -->
+  <div class="container-fluid mb-4 mt-5">
+    <%= render 'simulations/show_components/primes_section' %>
+  </div>
+
+  <!-- Section avec 2 colonnes : Détails et Actions -->
+  <div class="row g-4 mb-5">
+    <%= render 'simulations/show_components/simulation_details' %>
+  </div>
+</div>

@@ -1,0 +1,154 @@
+<!-- Section des cartes primes selon la région -->
+<% region = @simulation.region&.downcase %>
+
+<% case region %>
+<% when 'wallonie' %>
+  <% simulation_category = simulation_category_data(@simulation) %>
+  <%= render 'simulations/partials_wallonie/cartes_primes_import', simulation_category: simulation_category %>
+
+  <!-- Cartes spécialisées Wallonie -->
+  <div class="row g-4 mt-4 mb-5">
+    <div class="col-xl-4 col-lg-6 col-md-6">
+      <div class="border rounded-3 shadow-sm p-2">
+        <h6 class="text-primary-custom mb-2 text-center">
+          <i class="bi bi-graph-up me-1"></i>Test Audit
+        </h6>
+        <div class="h-100">
+          <%= render 'simulations/partials_wallonie/test_audit' %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-4 col-lg-6 col-md-6">
+      <div class="border rounded-3 shadow-sm p-2">
+        <h6 class="text-primary-custom mb-2 text-center">
+          <i class="bi bi-bank me-1"></i>Monuments
+        </h6>
+        <div class="h-100">
+          <%= render 'simulations/partials_wallonie/monuments_et_sites' %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-4 col-lg-6 col-md-6">
+      <div class="border rounded-3 shadow-sm p-2">
+        <h6 class="text-primary-custom mb-2 text-center">
+          <i class="bi bi-building me-1"></i>Communales
+        </h6>
+        <div class="h-100">
+          <%= render 'simulations/partials_wallonie/communes' %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<% when 'flandre' %>
+  <%= render 'simulations/partials_flandre/cartes_primes_import' %>
+
+  <!-- Cartes spécialisées Flandre -->
+  <div class="row g-4 mt-4 mb-5">
+    <div class="col-xl-3 col-lg-6 col-md-6">
+      <div class="border rounded-3 shadow-sm p-2">
+        <h6 class="text-primary-custom mb-2 text-center">
+          <i class="bi bi-speedometer2 me-1"></i>PEB
+        </h6>
+        <div class="h-100">
+          <%= render 'simulations/partials_flandre/peb' %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-lg-6 col-md-6">
+      <div class="border rounded-3 shadow-sm p-2">
+        <h6 class="text-primary-custom mb-2 text-center">
+          <i class="bi bi-building me-1"></i>Communales
+        </h6>
+        <div class="h-100">
+          <%= render 'simulations/partials_flandre/communes' %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-lg-6 col-md-6">
+      <div class="border rounded-3 shadow-sm p-2">
+        <h6 class="text-primary-custom mb-2 text-center">
+          <i class="bi bi-shield-exclamation me-1"></i>Amiante
+        </h6>
+        <div class="h-100">
+          <%= render 'simulations/partials_flandre/prime_amiante' %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-xl-3 col-lg-6 col-md-6">
+      <div class="border rounded-3 shadow-sm p-2">
+        <h6 class="text-primary-custom mb-2 text-center">
+          <i class="bi bi-bank me-1"></i>Monuments
+        </h6>
+        <div class="h-100">
+          <%= render 'simulations/partials_flandre/monuments_et_sites' %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<% when 'bruxelles' %>
+  <%
+    project_finalite = project_finalite(@simulation)
+  %>
+
+  <% if project_finalite == 'economique' %>
+    <!-- Finalité économique : afficher les deux types de cartes -->
+
+    <!-- Cartes d'investissements pour entreprise (actifs meubles/immeubles) -->
+    <%= render 'simulations/partials_bruxelles_entreprise/cartes_investissements' %>
+
+    <!-- Cartes Renolution pour entreprise (travaux sur le bâti) -->
+    <%= render 'simulations/partials_bruxelles_entreprise/cartes_renolution' %>
+
+  <% else %>
+    <!-- Finalité résidentielle : afficher uniquement les cartes RENOLUTION -->
+    <%= render 'simulations/partials_bruxelles/cartes_primes_import' %>
+
+    <!-- Cartes spécialisées Bruxelles -->
+    <div class="row g-4 mt-4 mb-5">
+      <div class="col-xl-4 col-lg-6 col-md-6">
+        <div class="border rounded-3 shadow-sm p-2">
+          <h6 class="text-primary-custom mb-2 text-center">
+            <i class="bi bi-building me-1"></i>Communales
+          </h6>
+          <div class="h-100">
+            <%= render 'simulations/partials_bruxelles/communes' %>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-4 col-lg-6 col-md-6">
+        <div class="border rounded-3 shadow-sm p-2">
+          <h6 class="text-primary-custom mb-2 text-center">
+            <i class="bi bi-bank me-1"></i>Monuments
+          </h6>
+          <div class="h-100">
+            <%= render 'simulations/partials_bruxelles/monuments_et_sites' %>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-4 col-lg-6 col-md-6">
+        <div class="border rounded-3 shadow-sm p-2">
+          <h6 class="text-primary-custom mb-2 text-center">
+            <i class="bi bi-palette me-1"></i>Petit Patrimoine
+          </h6>
+          <div class="h-100">
+            <%= render 'simulations/partials_bruxelles/petit_patrimoine' %>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% end %>
+<% else %>
+  <div class="alert alert-warning text-center">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    Région non reconnue ou non spécifiée. Veuillez sélectionner une région valide.
+  </div>
+<% end %>

@@ -1,0 +1,224 @@
+<!-- Script de gestion avancée des primes et mise à jour -->
+<script nonce="<%= content_security_policy_nonce %>">
+  function updatePrimeInputs() {
+    console.log('updatePrimeInputs called - optimized version');
+
+    // Vérifier si une mise à jour est déjà en cours
+    if (window.updateInProgress) {
+      console.log('Update already in progress, skipping...');
+      return;
+    }
+    window.updateInProgress = true;
+
+    // Collecter toutes les saisies de manière optimisée
+    const userInputs = {};
+    const primeInputs = document.querySelectorAll('#prime-cards-container .prime-input');
+
+    console.log(`Found ${primeInputs.length} prime inputs`);
+
+    primeInputs.forEach(input => {
+      const slug = input.dataset.primeSlug;
+      if (!slug) return;
+
+      if (input.type === 'checkbox') {
+        userInputs[slug] = input.checked ? 1 : 0;
+      } else {
+        const value = parseFloat(input.value) || 0;
+        userInputs[slug] = value;
+      }
+    });
+
+    console.log('Collected user inputs:', Object.keys(userInputs).length, 'items');
+
+    // Afficher un indicateur de chargement
+    showLoadingIndicator();
+
+    // Envoyer les saisies au serveur avec gestion d'erreur améliorée
+    fetch(`/simulations/<%= @simulation.id %>/update_prime_inputs`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({ user_inputs: userInputs })
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('Server response received:', data);
+      if (data.success) {
+        updatePrimeCards(data.updated_cards);
+        updateTotalAmount(data.total_amount);
+        console.log('UI updated successfully');
+      } else {
+        console.error('Server returned error:', data);
+      }
+    })
+    .catch(error => {
+      console.error('Erreur lors de la mise à jour:', error);
+      showErrorIndicator();
+    })
+    .finally(() => {
+      hideLoadingIndicator();
+      window.updateInProgress = false;
+    });
+  }
+
+  function updatePrimeCards(updatedCards) {
+    console.log('Updating prime cards - optimized version');
+    if (!updatedCards) {
+      console.log('No updated cards data received');
+      return;
+    }
+
+    // Utiliser un fragment de document pour les mises à jour en lot
+    const updates = [];
+
+    Object.keys(updatedCards).forEach(categoryName => {
+      const categoryData = updatedCards[categoryName];
+      if (categoryData.primes) {
+        categoryData.primes.forEach(prime => {
+          const primeCard = document.querySelector(`[data-prime-slug="${prime.slug}"]`);
+          if (primeCard) {
+            const amountElement = primeCard.querySelector('.calculated-amount');
+            if (amountElement) {
+              const newAmount = formatCurrency(prime.calculated_amount);
+              if (amountElement.textContent !== newAmount) {
+                updates.push({
+                  element: amountElement,
+                  newValue: newAmount,
+                  primeSlug: prime.slug
+                });
+              }
+            }
+          }
+        });
+
+        // Mettre à jour le total de la catégorie
+        updateCategoryTotal(categoryName, categoryData);
+      }
+    });
+
+    // Appliquer toutes les mises à jour en une fois
+    console.log(`Applying ${updates.length} UI updates`);
+    updates.forEach(update => {
+      // Supprimer l'indicateur de mise à jour immédiate
+      update.element.classList.remove('updating');
+      update.element.style.opacity = '1';
+
+      update.element.textContent = update.newValue;
+      // Ajouter un effet visuel léger pour indiquer le changement
+      update.element.classList.add('amount-updated');
+      setTimeout(() => {
+        update.element.classList.remove('amount-updated');
+      }, 1500);
+    });
+
+    console.log('Prime cards updated successfully');
+  }
+
+  // Fonctions d'indicateurs visuels
+  function showLoadingIndicator() {
+    const totalElement = document.getElementById('total-amount-sidebar');
+    if (totalElement) {
+      totalElement.style.opacity = '0.6';
+      totalElement.style.pointerEvents = 'none';
+    }
+  }
+
+  function hideLoadingIndicator() {
+    const totalElement = document.getElementById('total-amount-sidebar');
+    if (totalElement) {
+      totalElement.style.opacity = '1';
+      totalElement.style.pointerEvents = 'auto';
+    }
+  }
+
+  function showErrorIndicator() {
+    // Afficher brièvement une indication d'erreur
+    const totalElement = document.getElementById('total-amount-sidebar');
+    if (totalElement) {
+      const originalColor = totalElement.style.color;
+      totalElement.style.color = '#dc3545';
+      setTimeout(() => {
+        totalElement.style.color = originalColor;
+      }, 2000);
+    }
+  }
+
+  function updateCategoryTotal(categoryName, categoryData) {
+    const categoryTotal = categoryData.total || 0;
+    const formattedTotal = formatCurrency(categoryTotal);
+
+    console.log(`Updating category total for ${categoryName}: ${formattedTotal}`);
+
+    // Mettre à jour le total dans l'en-tête de la carte de catégorie
+    const categoryCard = document.querySelector(`[data-category="${categoryName}"]`);
+    if (categoryCard) {
+      const categoryTotalElement = categoryCard.querySelector('.category-total');
+      if (categoryTotalElement) {
+        categoryTotalElement.textContent = formattedTotal;
+        console.log(`Updated category header total for ${categoryName}`);
+      }
+    }
+
+    // Mettre à jour le total dans la sidebar
+    const sidebarCategoryElement = document.querySelector(`[data-sidebar-category="${categoryName}"]`);
+    if (sidebarCategoryElement) {
+      const sidebarTotalElement = sidebarCategoryElement.querySelector('.sidebar-category-total');
+      if (sidebarTotalElement) {
+        sidebarTotalElement.textContent = formattedTotal;
+        console.log(`Updated sidebar total for ${categoryName}`);
+      }
+    }
+  }
+
+  function updateTotalAmount(totalAmount) {
+    const totalElement = document.getElementById('total-amount');
+    const totalSidebarElement = document.getElementById('total-amount-sidebar');
+
+    const formattedAmount = formatCurrency(totalAmount);
+
+    if (totalElement) {
+      totalElement.textContent = formattedAmount;
+    }
+    if (totalSidebarElement) {
+      totalSidebarElement.textContent = formattedAmount;
+    }
+  }
+
+  function formatCurrency(amount) {
+    return new Intl.NumberFormat('fr-BE', {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount || 0);
+  }
+
+  // Calcul initial du total
+  function calculateInitialTotal() {
+    const primeCards = document.querySelectorAll('.prime-card');
+    let total = 0;
+
+    primeCards.forEach(card => {
+      const amountElement = card.querySelector('.calculated-amount');
+      if (amountElement) {
+        // Extrait le montant en gérant le format français (ex: "20 000,00 €")
+        const amountText = amountElement.textContent
+          .replace(/€/g, '')                    // Enlever le symbole €
+          .replace(/\s/g, '')                   // Enlever les espaces
+          .replace(/,/g, '.');                  // Remplacer virgule par point
+        const amount = parseFloat(amountText) || 0;
+        total += amount;
+      }
+    });
+
+    updateTotalAmount(total);
+  }
+</script>

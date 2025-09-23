@@ -1,0 +1,289 @@
+<!-- Script principal de gestion des primes et calculs -->
+<script nonce="<%= content_security_policy_nonce %>">
+console.log('🎯 Script de simulation chargé !');
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🚀 DOMContentLoaded - Script de simulation démarré !');
+  console.log('📅 Timestamp:', new Date().toISOString());
+  console.log('🔧 Version avec améliorations automatiques v2.0');
+
+  const simulationId = '<%= @simulation.id %>';
+  console.log('📋 Simulation ID:', simulationId);
+
+  // Bouton pour vérifier l'éligibilité
+  const checkEligibilityBtn = document.getElementById('check-eligibility-btn');
+  if (checkEligibilityBtn) {
+    checkEligibilityBtn.addEventListener('click', function() {
+      this.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Vérification en cours...';
+      this.disabled = true;
+
+      fetch(`/simulations/${simulationId}/check_eligibility`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+          'Accept': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Mettre à jour l'UI sans recharger
+          this.innerHTML = '<i class="bi bi-check-circle me-2"></i>Éligibilité vérifiée';
+          this.disabled = true;
+          this.classList.remove('btn-primary');
+          this.classList.add('btn-success');
+
+          // Déclencher automatiquement la détermination de catégorie
+          console.log('🎯 Éligibilité confirmée, déclenchement automatique de la catégorie...');
+          setTimeout(() => triggerCategoryDetermination(), 500);
+        } else {
+          console.error('Erreur lors de la vérification:', data);
+          this.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Erreur - Réessayer';
+          this.disabled = false;
+        }
+      })
+      .catch(error => {
+        console.error('Erreur réseau:', error);
+        this.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Erreur - Réessayer';
+        this.disabled = false;
+      });
+    });
+  }
+
+  // Bouton pour déterminer la catégorie
+  const determineCategoryBtn = document.getElementById('determine-category-btn');
+  if (determineCategoryBtn) {
+    determineCategoryBtn.addEventListener('click', function() {
+      this.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Analyse en cours...';
+      this.disabled = true;
+
+      fetch(`/simulations/${simulationId}/calculate_category`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+          'Accept': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Mettre à jour l'UI sans recharger
+          this.innerHTML = '<i class="bi bi-check-circle me-2"></i>Catégorie déterminée';
+          this.disabled = true;
+          this.classList.remove('btn-primary');
+          this.classList.add('btn-success');
+
+          // Déclencher automatiquement le calcul des primes
+          console.log('🎯 Catégorie confirmée, déclenchement automatique du calcul des primes...');
+          setTimeout(() => triggerPrimesCalculation(), 500);
+        } else {
+          console.error('Erreur lors de la détermination:', data);
+          this.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Erreur - Réessayer';
+          this.disabled = false;
+        }
+      })
+      .catch(error => {
+        console.error('Erreur réseau:', error);
+        this.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Erreur - Réessayer';
+        this.disabled = false;
+      });
+    });
+  }
+
+  // Fonction pour déclencher automatiquement la détermination de catégorie
+  function triggerCategoryDetermination() {
+    console.log('🔄 triggerCategoryDetermination appelée !');
+    const determineCategoryBtn = document.getElementById('determine-category-btn');
+    console.log('🔍 Bouton déterminer catégorie:', determineCategoryBtn);
+    if (determineCategoryBtn && !determineCategoryBtn.disabled) {
+      console.log('✅ Déclenchement automatique de la détermination de catégorie');
+      determineCategoryBtn.click();
+    } else {
+      console.log('❌ Catégorie déjà déterminée ou bouton non trouvé');
+    }
+  }
+
+  // Fonction pour déclencher automatiquement le calcul des primes
+  function triggerPrimesCalculation() {
+    console.log('🔄 triggerPrimesCalculation appelée !');
+    console.log('🎯 Déclenchement automatique du calcul des primes');
+
+    fetch(`/simulations/${simulationId}/calculate_primes`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+        'Accept': 'application/json'
+      }
+    })
+    .then(response => {
+      console.log('📡 Réponse reçue du calcul primes:', response.status);
+      return response.json();
+    })
+    .then(data => {
+      console.log('📊 Données du calcul primes:', data);
+      if (data.success) {
+        console.log('✅ Calcul des primes réussi, rechargement de la page pour afficher les résultats');
+        window.location.reload(); // Seulement pour cette étape finale
+      } else {
+        console.error('❌ Erreur lors du calcul des primes:', data);
+      }
+    })
+    .catch(error => {
+      console.error('❌ Erreur réseau lors du calcul des primes:', error);
+    });
+  }
+
+  // Système de gestion des primes - Version optimisée
+  function setupPrimeInputListeners() {
+    if (window.primeListenersInitialized) {
+      console.log('Prime listeners already initialized, skipping...');
+      return;
+    }
+
+    console.log('Setting up prime input listeners...');
+    const primeContainer = document.getElementById('prime-cards-container');
+    if (!primeContainer) {
+      console.log('Prime container not found');
+      return;
+    }
+
+    // Gestionnaire unifié pour tous les types d'inputs
+    primeContainer.addEventListener('change', function(event) {
+      if (event.target.classList.contains('prime-input')) {
+        console.log('Prime input changed:', event.target.dataset.primeSlug);
+        // Mise à jour immédiate pour le feedback visuel
+        const value = event.target.type === 'checkbox' ? (event.target.checked ? 1 : 0) : parseFloat(event.target.value) || 0;
+        updatePrimeDisplayImmediate(event.target.dataset.primeSlug, value, event.target.getAttribute('data-input-type'));
+        debouncedUpdate();
+      }
+    });
+
+    primeContainer.addEventListener('input', function(event) {
+      if (event.target.classList.contains('prime-input') && event.target.type !== 'checkbox') {
+        console.log('Prime input typing:', event.target.dataset.primeSlug);
+        // Mise à jour immédiate pour le feedback visuel
+        const value = parseFloat(event.target.value) || 0;
+        updatePrimeDisplayImmediate(event.target.dataset.primeSlug, value, event.target.getAttribute('data-input-type'));
+        debouncedUpdate();
+      }
+    });
+
+    // Gestionnaire pour la touche Enter
+    primeContainer.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter' && event.target.classList.contains('prime-input')) {
+        console.log('Enter pressed on:', event.target.dataset.primeSlug);
+        event.preventDefault(); // Empêche la soumission du formulaire
+
+        // Force la mise à jour immédiate
+        if (event.target.type !== 'checkbox') {
+          const value = parseFloat(event.target.value) || 0;
+          updatePrimeDisplayImmediate(event.target.dataset.primeSlug, value, event.target.getAttribute('data-input-type'));
+        }
+
+        // Déclenche la mise à jour sans délai
+        clearTimeout(debounceTimer);
+        updateAllPrimes();
+
+        // Déplace le focus au prochain input
+        const inputs = Array.from(primeContainer.querySelectorAll('.prime-input'));
+        const currentIndex = inputs.indexOf(event.target);
+        if (currentIndex < inputs.length - 1) {
+          inputs[currentIndex + 1].focus();
+        }
+      }
+    });
+
+    // Marquer comme initialisé
+    window.primeListenersInitialized = true;
+    console.log('Prime listeners successfully initialized');
+  }
+
+  // Fonction debounced pour éviter trop d'appels
+  const debouncedUpdate = (function() {
+    let timeoutId;
+    return function() {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        updatePrimeInputs();
+      }, 100); // Réduit à 100ms pour une réactivité maximale
+    };
+  })();
+
+  // Mise à jour immédiate de l'affichage (sans attendre le serveur)
+  function updatePrimeDisplayImmediate(primeSlug, value, inputType = null) {
+    const primeCard = document.querySelector(`[data-prime-slug="${primeSlug}"]`);
+    if (!primeCard) return;
+
+    // Chercher l'élément d'affichage du montant (plusieurs classes possibles)
+    const amountElement = primeCard.querySelector('.calculated-amount, .calculated-result, .prime-result');
+    if (!amountElement) {
+      console.log('Aucun élément de résultat trouvé pour:', primeSlug);
+      return;
+    }
+
+    // Calcul d'estimation immédiate côté client
+    let estimatedAmount = 0;
+
+    if (value > 0) {
+      // Estimation simple basée sur des règles générales
+      if (primeSlug.includes('isolation')) {
+        estimatedAmount = Math.min(value * 0.5, 5000); // 50% jusqu'à 5000€
+      } else if (primeSlug === 'ramen_deuren') {
+        estimatedAmount = Math.min(value * 0.5, 2500); // Châssis/portes
+      } else if (primeSlug === 'warmtepompboiler') {
+        estimatedAmount = 1200; // Forfait fixe
+      } else {
+        estimatedAmount = Math.min(value * 0.4, 3000); // Estimation générale
+      }
+    }
+
+    // Mise à jour immédiate de l'affichage
+    amountElement.textContent = `${estimatedAmount.toLocaleString('fr-BE')} €`;
+    amountElement.classList.add('updating');
+    amountElement.style.background = 'linear-gradient(45deg, #e8f5e8, #d4edda)';
+    amountElement.style.transition = 'all 0.3s ease';
+
+    // Retirer l'indicateur après la vraie mise à jour serveur
+    setTimeout(() => {
+      amountElement.classList.remove('updating');
+      amountElement.style.background = '';
+    }, 2000);
+
+    // Mettre à jour le total immédiatement aussi
+    updateTotalImmediate();
+  }
+
+  // Mise à jour immédiate du total
+  function updateTotalImmediate() {
+    // Chercher tous les éléments de montants (plusieurs classes possibles)
+    const amountElements = document.querySelectorAll('.calculated-amount, .calculated-result, .prime-result');
+    let total = 0;
+
+    amountElements.forEach(element => {
+      const value = parseFloat(element.textContent.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+      total += value;
+    });
+
+    // Chercher l'élément total (plusieurs sélecteurs possibles)
+    const totalElement = document.querySelector('#total-simule-amount, .total-amount, [data-total-amount]');
+    if (totalElement) {
+      totalElement.textContent = `${total.toLocaleString('fr-BE')} €`;
+      totalElement.style.background = 'linear-gradient(45deg, #e8f5e8, #d4edda)';
+      totalElement.style.transition = 'all 0.3s ease';
+
+      setTimeout(() => {
+        totalElement.style.background = '';
+      }, 2000);
+
+      console.log('💰 Total mis à jour:', total, '€');
+    } else {
+      console.log('❌ Élément total non trouvé');
+    }
+  }
+
+  // Initialiser les listeners
+  setupPrimeInputListeners();
+});
+</script>

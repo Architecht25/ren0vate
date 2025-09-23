@@ -1,0 +1,33 @@
+<!-- Scripts JSON et méta-données pour la simulation -->
+<%= csrf_meta_tags %>
+
+<!-- Scripts JSON pour les données des primes (selon la région) -->
+<% if @simulation.region&.downcase == 'wallonie' && @primes.present? %>
+<script nonce="<%= content_security_policy_nonce %>">
+  // Données des primes Wallonie
+  window.primes = <%= primes_data_script(@primes) %>;
+</script>
+<% end %>
+
+<% if @simulation.region&.downcase == 'wallonie' %>
+  <!-- Données pour le calcul des primes Wallonie -->
+  <script type="application/json" id="wallonie-primes-data">
+    <%= raw(wallonie_primes_json(@primes)) %>
+  </script>
+
+  <% simulation_category = simulation_category_data(@simulation) %>
+  <% if simulation_category %>
+    <script nonce="<%= content_security_policy_nonce %>">
+      <%= raw(generate_category_script(simulation_category)) %>
+    </script>
+  <% end %>
+
+  <%
+    saved_inputs = prepare_saved_inputs(@simulation)
+  %>
+  <% if saved_inputs.any? %>
+    <script nonce="<%= content_security_policy_nonce %>">
+      <%= raw(generate_saved_inputs_script(saved_inputs)) %>
+    </script>
+  <% end %>
+<% end %>
