@@ -202,6 +202,60 @@ class SimulationsController < ApplicationController
     end
   end
 
+  def calculate_prime
+    @simulation = Simulation.find(params[:id])
+
+    begin
+      # Récupérer les paramètres de la requête
+      prime_slug = params[:prime_slug]
+      input_value = params[:input_value]&.to_f || 0
+      input_type = params[:input_type]
+
+      return render json: { success: false, error: 'Prime slug manquant' } if prime_slug.blank?
+
+      # Utiliser le service approprié selon la région
+      calculator_service = case @simulation.region
+      when 'wallonie'
+        Regions::Wallonie::WalloniePostLoginCalculatorService.new(
+          property: @simulation.property,
+          category: @simulation.category,
+          params: {}
+        )
+      when 'flandre'
+        Regions::Flandre::FlandrePostLoginCalculatorService.new(
+          property: @simulation.property,
+          category: @simulation.category,
+          params: {}
+        )
+      else
+        return render json: { success: false, error: "Région #{@simulation.region} non supportée" }
+      end
+
+      # Calculer la prime individuelle
+      result = calculator_service.calculate_prime(prime_slug, input_value, input_type)
+
+      if result[:error]
+        render json: { success: false, error: result[:error] }
+      else
+        render json: {
+          success: true,
+          calculated_amount: result[:calculated_amount],
+          user_input_value: result[:user_input_value],
+          category_data: result[:category_data]
+        }
+      end
+
+    rescue => e
+      Rails.logger.error "Erreur lors du calcul de prime individuelle: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+
+      render json: {
+        success: false,
+        error: "Erreur lors du calcul: #{e.message}"
+      }
+    end
+  end
+
   def update_prime_inputs
     @simulation = Simulation.find(params[:id])
 

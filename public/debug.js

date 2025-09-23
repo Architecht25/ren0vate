@@ -1,0 +1,20 @@
+
+// Test rapide pour voir les logs dans la console 
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(() => {
+    console.log('🔍 Test debug - données primes:', document.getElementById('flandre-primes-data'));
+    const flandreSim = document.querySelector('[data-controller*="flandre-simulation"]');
+    console.log('🔍 Contrôleur parent flandre-simulation:', flandreSim);
+    
+    const cards = document.querySelectorAll('[data-controller*="flandre-simulation-card"]');
+    console.log('🔍 Cartes trouvées:', cards.length);
+    
+    cards.forEach(card => {
+      const slug = card.dataset.flandreSimulationCardSlugValue;
+      const input = card.querySelector('input');
+      const result = card.querySelector('[data-flandre-simulation-card-target="result"]');
+      console.log(`🔍 Carte ${slug}: input=${input?.value}, result=${result?.textContent}`);
+    });
+  }, 2000);
+});
+

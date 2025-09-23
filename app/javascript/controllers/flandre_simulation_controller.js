@@ -17,19 +17,44 @@ export default class extends Controller {
   connect() {
     console.log("🎯 Flandre Simulation controller connected")
     console.log("📊 Simulation ID:", this.simulationIdValue)
+    console.log("🔍 Element:", this.element)
 
-    this.primesData = []
     this.currentCategory = this.getCurrentCategory()
+    this.setupPrimesData()
     this.setupAutoSaveListeners()
 
-    // Charger les données des primes
-    this.loadPrimesData()
-
-    // Déclencher le premier calcul
+    // Debug: vérifier quelles cartes sont présentes
     setTimeout(() => {
+      console.log("🔍 Debug: vérification des cartes présentes...")
+      const cartesSlugs = [
+        'isolation_toiture',
+        'isolation_murs_cat12',
+        'isolation_murs_cat34',
+        'isolation_sol',
+        'ramen_deuren',
+        'warmtepomp',
+        'warmtepompboiler',
+        'voorbereiding_isolatie',
+        'voorbereiding_sanitair_elec',
+        'renovation_toiture',
+        'renovation_murs',
+        'renovation_sol'
+      ]
+
+      cartesSlugs.forEach(slug => {
+        const carteElement = document.querySelector(`[data-flandre-simulation-card-slug-value="${slug}"]`)
+        if (carteElement) {
+          console.log(`✅ Carte trouvée: ${slug}`)
+          const resultTarget = carteElement.querySelector('[data-flandre-simulation-card-target="result"]')
+          console.log(`   - Target result: ${resultTarget ? 'TROUVÉ' : 'MANQUANT'}`)
+        } else {
+          console.log(`❌ Carte manquante: ${slug}`)
+        }
+      })
+
       this.updateTotalGlobal()
       this.debouncedAutoSave() // Déclencher l'auto-save
-    }, 500)
+    }, 1000)
   }
 
   setupAutoSaveListeners() {
@@ -52,67 +77,103 @@ export default class extends Controller {
     return localStorage.getItem('selectedFlandreCategory') || 'flandre_cat2'
   }
 
-  get simulationId() {
-    return this.simulationIdValue ||
-           parseInt(window.location.pathname.match(/\/simulations\/(\d+)/)?.[1]) ||
-           null
-  }
-
-  async loadPrimesData() {
+  setupPrimesData() {
     try {
-      const response = await fetch('/assets/data/primes_flandre.json')
-      if (response.ok) {
-        this.primesData = await response.json()
-        console.log("✅ Données primes Flandre chargées:", Object.keys(this.primesData).length, "primes")
-        console.log("🎯 Catégorie Flandre actuelle:", this.currentCategory)
+      // Récupérer les données de primes depuis le script JSON injecté
+      const primesScript = document.getElementById('flandre-primes-data')
+      if (primesScript) {
+        this.primesData = JSON.parse(primesScript.textContent)
+        console.log("📊 Données de primes Flandre chargées:", Object.keys(this.primesData).length, "primes")
+
+        // Déclencher le recalcul de toutes les cartes après chargement des données
+        setTimeout(() => {
+          this.triggerCardsRecalculation()
+        }, 100)
       } else {
-        console.error("❌ Erreur chargement primes Flandre:", response.status)
+        console.warn("⚠️ Script de données primes Flandre non trouvé")
+        this.primesData = {}
       }
     } catch (error) {
-      console.error("❌ Erreur chargement primes Flandre:", error)
+      console.error("❌ Erreur lors du chargement des données primes Flandre:", error)
+      this.primesData = {}
     }
+  }
+
+  triggerCardsRecalculation() {
+    console.log("🔄 Déclenchement du recalcul de toutes les cartes Flandre")
+    const flandreCards = this.element.querySelectorAll('[data-controller*="flandre-simulation-card"]')
+    flandreCards.forEach(cardElement => {
+      // Déclencher un événement pour forcer le recalcul
+      cardElement.dispatchEvent(new CustomEvent('flandre:force:recalculate', {
+        detail: { reason: 'primes_data_loaded' }
+      }))
+    })
   }
 
   getPrimesData() {
     return this.primesData || {}
   }
 
+  get simulationId() {
+    return this.simulationIdValue ||
+           parseInt(window.location.pathname.match(/\/simulations\/(\d+)/)?.[1]) ||
+           null
+  }
+
   updateTotalGlobal() {
     let total = 0
     console.log("🔄 Calcul du total global Flandre...")
 
-    // Slugs des cartes Flandre principales
+    // Slugs des cartes Flandre principales (correspondant aux cartes HTML)
     const cartesSlugs = [
-      'flandre_prime_global_dak_isolatie',
-      'flandre_prime_global_muur_isolatie',
-      'flandre_prime_global_vloer_isolatie',
-      'flandre_prime_global_ramen_deuren',
-      'flandre_prime_global_ventilatie',
-      'flandre_prime_global_verwarming',
-      'flandre_prime_global_warmwater',
-      'flandre_prime_global_elektriciteit',
-      'flandre_prime_global_hernieuwbare_energie'
+      'isolation_toiture',
+      'isolation_murs_cat12',
+      'isolation_murs_cat34',
+      'isolation_sol',
+      'ramen_deuren',
+      'warmtepomp',
+      'warmtepompboiler',
+      'voorbereiding_isolatie',
+      'voorbereiding_sanitair_elec',
+      'renovation_toiture',
+      'renovation_murs',
+      'renovation_sol'
     ]
+
+    let cartesFoundCount = 0
+    let cartesWithTotal = 0
 
     // Calculer le total en parcourant toutes les cartes
     cartesSlugs.forEach(slug => {
-      const carteElement = document.querySelector(`[data-flandre-prime-card-slug-value="${slug}"]`)
+      const carteElement = document.querySelector(`[data-flandre-simulation-card-slug-value="${slug}"]`)
       if (carteElement) {
-        const totalElement = carteElement.querySelector('[data-flandre-prime-card-target="total"]')
+        cartesFoundCount++
+        console.log(`✅ Carte ${slug} trouvée`)
+
+        const totalElement = carteElement.querySelector('[data-flandre-simulation-card-target="result"]')
         if (totalElement) {
+          cartesWithTotal++
           const montantText = totalElement.textContent.replace('€', '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.')
           const montant = parseFloat(montantText) || 0
           total += montant
           if (montant > 0) {
-            console.log(`✅ Carte ${slug}: ${montant}€`)
+            console.log(`✅ Carte ${slug}: ${montant}€ (texte: "${totalElement.textContent}")`)
+          } else {
+            console.log(`⚪ Carte ${slug}: 0€ (texte: "${totalElement.textContent}")`)
           }
         } else {
-          console.log(`❌ Carte ${slug}: élément total non trouvé`)
+          console.log(`❌ Carte ${slug}: élément result non trouvé`)
+          // Debug plus profond
+          const allTargets = carteElement.querySelectorAll('[data-flandre-simulation-card-target]')
+          console.log(`   Targets trouvés:`, Array.from(allTargets).map(el => el.dataset.flandreSimulationCardTarget))
         }
       } else {
-        console.log(`❌ Carte ${slug}: carte non trouvée`)
+        console.log(`❌ Carte ${slug}: carte non trouvée dans le DOM`)
       }
     })
+
+    console.log(`📊 Résumé: ${cartesFoundCount}/${cartesSlugs.length} cartes trouvées, ${cartesWithTotal} avec target result`)
+    console.log(`🎯 Total global Flandre calculé: ${total}€`)
 
     console.log(`🎯 Total global Flandre calculé: ${total}€`)
 
@@ -160,7 +221,7 @@ export default class extends Controller {
     console.log(`🔄 Changement de catégorie vers: ${newCategory}`)
 
     // Déclencher le recalcul de toutes les cartes Flandre
-    const flandreCards = this.element.querySelectorAll('[data-controller*="flandre-prime-card"]')
+    const flandreCards = this.element.querySelectorAll('[data-controller*="flandre-simulation-card"]')
     flandreCards.forEach(cardElement => {
       // Émettre un événement pour que chaque carte se mette à jour
       cardElement.dispatchEvent(new CustomEvent('flandre:category:changed', {
@@ -197,21 +258,24 @@ export default class extends Controller {
 
     // Parcourir toutes les cartes pour trouver les primes sélectionnées
     const cartesSlugs = [
-      'flandre_prime_global_dak_isolatie',
-      'flandre_prime_global_muur_isolatie',
-      'flandre_prime_global_vloer_isolatie',
-      'flandre_prime_global_ramen_deuren',
-      'flandre_prime_global_ventilatie',
-      'flandre_prime_global_verwarming',
-      'flandre_prime_global_warmwater',
-      'flandre_prime_global_elektriciteit',
-      'flandre_prime_global_hernieuwbare_energie'
+      'isolation_toiture',
+      'isolation_murs_cat12',
+      'isolation_murs_cat34',
+      'isolation_sol',
+      'ramen_deuren',
+      'warmtepomp',
+      'warmtepompboiler',
+      'voorbereiding_isolatie',
+      'voorbereiding_sanitair_elec',
+      'renovation_toiture',
+      'renovation_murs',
+      'renovation_sol'
     ]
 
     cartesSlugs.forEach(slug => {
-      const carteElement = document.querySelector(`[data-flandre-prime-card-slug-value="${slug}"]`)
+      const carteElement = document.querySelector(`[data-flandre-simulation-card-slug-value="${slug}"]`)
       if (carteElement) {
-        const totalElement = carteElement.querySelector('[data-flandre-prime-card-target="total"]')
+        const totalElement = carteElement.querySelector('[data-flandre-simulation-card-target="result"]')
         if (totalElement) {
           const montantText = totalElement.textContent.replace(/[€\s\.]/g, '').replace(',', '.')
           const montant = parseFloat(montantText) || 0
@@ -312,6 +376,10 @@ export default class extends Controller {
       .then(data => {
         if (data.success) {
           console.log("✅ Auto-save Flandre réussi:", data.total_amount, "€");
+          
+          // Distribuer les montants calculés aux cartes individuelles
+          this.updateCardsWithCalculatedAmounts(data.updated_cards);
+          
           this.showSaveIndicator('success', data.total_amount);
         } else {
           console.error("❌ Erreur auto-save Flandre:", data.error);
@@ -331,22 +399,25 @@ export default class extends Controller {
 
     // Utiliser la même logique que updateTotalGlobal
     const cartesSlugs = [
-      'flandre_prime_global_dak_isolatie',
-      'flandre_prime_global_muur_isolatie',
-      'flandre_prime_global_vloer_isolatie',
-      'flandre_prime_global_ramen_deuren',
-      'flandre_prime_global_ventilatie',
-      'flandre_prime_global_verwarming',
-      'flandre_prime_global_warmwater',
-      'flandre_prime_global_elektriciteit',
-      'flandre_prime_global_hernieuwbare_energie'
+      'isolation_toiture',
+      'isolation_murs_cat12',
+      'isolation_murs_cat34',
+      'isolation_sol',
+      'ramen_deuren',
+      'warmtepomp',
+      'warmtepompboiler',
+      'voorbereiding_isolatie',
+      'voorbereiding_sanitair_elec',
+      'renovation_toiture',
+      'renovation_murs',
+      'renovation_sol'
     ]
 
     // Calculer le total en parcourant toutes les cartes
     cartesSlugs.forEach(slug => {
-      const carteElement = document.querySelector(`[data-flandre-prime-card-slug-value="${slug}"]`)
+      const carteElement = document.querySelector(`[data-flandre-simulation-card-slug-value="${slug}"]`)
       if (carteElement) {
-        const totalElement = carteElement.querySelector('[data-flandre-prime-card-target="total"]')
+        const totalElement = carteElement.querySelector('[data-flandre-simulation-card-target="result"]')
         if (totalElement) {
           const montantText = totalElement.textContent.replace('€', '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.')
           const montant = parseFloat(montantText) || 0
@@ -415,5 +486,36 @@ export default class extends Controller {
   // Méthode appelée par les actions des cartes (compatibilité)
   saveUserInput() {
     this.debouncedAutoSave()
+  }
+
+  // Distribuer les montants calculés aux cartes individuelles
+  updateCardsWithCalculatedAmounts(updatedCards) {
+    if (!updatedCards) return
+
+    // Parcourir toutes les catégories dans la réponse
+    Object.keys(updatedCards).forEach(categoryKey => {
+      const categoryData = updatedCards[categoryKey]
+      if (!categoryData.primes) return
+
+      // Parcourir toutes les primes de cette catégorie
+      categoryData.primes.forEach(prime => {
+        const slug = prime.slug
+        const calculatedAmount = prime.calculated_amount || 0
+
+        // Trouver la carte correspondante et mettre à jour son span
+        const cardElement = document.querySelector(`[data-flandre-simulation-card-slug-value="${slug}"]`)
+        if (cardElement) {
+          const resultSpan = cardElement.querySelector('[data-flandre-simulation-card-target="result"]')
+          if (resultSpan) {
+            const formattedAmount = calculatedAmount.toLocaleString('fr-FR')
+            resultSpan.textContent = `${formattedAmount} €`
+            console.log(`💰 Carte ${slug} mise à jour: ${formattedAmount}€`)
+          }
+        }
+      })
+    })
+
+    // Recalculer le total global après mise à jour des cartes
+    this.updateTotalGlobal()
   }
 }

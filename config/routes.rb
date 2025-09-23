@@ -219,6 +219,7 @@ Rails.application.routes.draw do
       post :check_eligibility_renolution  # Étape 1b: Vérification éligibilité RENOLUTION (double)
       post :calculate_category  # Étape 2: Calcul de catégorie
       post :calculate_primes    # Étape 3: Calcul des primes
+      post :calculate_prime     # Calcul d'une prime individuelle
       patch :update_prime_inputs # Sauvegarde des saisies utilisateur
       get :restore_prime_inputs # Restauration des saisies utilisateur
 
