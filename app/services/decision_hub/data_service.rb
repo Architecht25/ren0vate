@@ -2,26 +2,44 @@
 class DecisionHub::DataService
   def initialize(simulation)
     @simulation = simulation
-    @region = simulation.region&.downcase || "wallonie"
-    @selected_primes = extract_selected_primes
+    
+    # Validation de la simulation
+    unless @simulation
+      raise ArgumentError, "Simulation ne peut pas être nil"
+    end
+    
+    @region = simulation&.region&.downcase || "wallonie"
+    @selected_primes = []
+    
+    begin
+      @selected_primes = extract_selected_primes
+    rescue StandardError => e
+      Rails.logger.error "Error extracting primes in DataService: #{e.message}"
+      @selected_primes = extract_mock_primes_by_region
+    end
   end
 
   def generate_dynamic_data
-    data = {
-      resume: generate_resume_data,
-      documents: DecisionHub::DocumentRequirementsService.for_simulation(@simulation),
-      planning: DecisionHub::PlanningService.for_simulation(@simulation),
-      technical: DecisionHub::TechnicalRequirementsService.for_simulation(@simulation),
-      factures: generate_factures_data,
-      ai_context: build_ai_context
-    }
+    begin
+      data = {
+        resume: generate_resume_data,
+        documents: safe_call_service { DecisionHub::DocumentRequirementsService.for_simulation(@simulation) },
+        planning: safe_call_service { DecisionHub::PlanningService.for_simulation(@simulation) },
+        technical: safe_call_service { DecisionHub::TechnicalRequirementsService.for_simulation(@simulation) },
+        factures: generate_factures_data,
+        ai_context: build_ai_context
+      }
 
-    # Ajouter les données d'exemplarité pour les entreprises bruxelloises
-    if is_bruxelles_entreprise?
-      data[:exemplarite] = DecisionHub::ExemplariteCalculatorService.new(@simulation).calculate_exemplarite_potential
+      # Ajouter les données d'exemplarité pour les entreprises bruxelloises
+      if is_bruxelles_entreprise?
+        data[:exemplarite] = safe_call_service { DecisionHub::ExemplariteCalculatorService.new(@simulation).calculate_exemplarite_potential }
+      end
+
+      data
+    rescue StandardError => e
+      Rails.logger.error "Error generating dynamic data: #{e.message}"
+      generate_fallback_data
     end
-
-    data
   end
 
   private
@@ -78,12 +96,13 @@ class DecisionHub::DataService
 
   def extract_selected_primes
     # Récupérer les vraies primes de la simulation depuis les paramètres JSON
-    if @simulation.parameters.present?
+    if @simulation&.parameters.present?
       begin
         params_data = JSON.parse(@simulation.parameters)
-        return extract_primes_from_simulation_data(params_data)
-      rescue JSON::ParserError
-        Rails.logger.warn "Failed to parse simulation parameters for Decision Hub"
+        primes = extract_primes_from_simulation_data(params_data)
+        return primes if primes.any?
+      rescue JSON::ParserError, StandardError => e
+        Rails.logger.warn "Failed to parse simulation parameters for Decision Hub: #{e.message}"
       end
     end
 
@@ -179,17 +198,22 @@ class DecisionHub::DataService
   end
 
   def extract_property_type
-    return "maison" unless @simulation.property
+    return "maison" unless @simulation&.property
 
-    case @region
-    when 'flandre'
-      @simulation.property.type_bien_flandre || "maison"
-    when 'wallonie'
-      @simulation.property.type_propriete_wallonie || "maison"
-    when 'bruxelles'
-      @simulation.property.type_bien_bruxelles || @simulation.property.type || "maison"
-    else
-      @simulation.property.type || "maison"
+    begin
+      case @region
+      when 'flandre'
+        @simulation.property.type_bien_flandre || "maison"
+      when 'wallonie'
+        @simulation.property.type_propriete_wallonie || "maison"
+      when 'bruxelles'
+        @simulation.property.type_bien_bruxelles || @simulation.property.type || "maison"
+      else
+        @simulation.property.type || "maison"
+      end
+    rescue StandardError => e
+      Rails.logger.warn "Error extracting property type: #{e.message}"
+      "maison"
     end
   end
 
@@ -282,5 +306,55 @@ class DecisionHub::DataService
 
   def is_bruxelles_entreprise?
     @region == 'bruxelles' && @simulation&.property&.is_entreprise?
+  end
+
+  # Méthodes de sécurité pour éviter les erreurs 500
+  def safe_call_service
+    yield
+  rescue StandardError => e
+    Rails.logger.error "Service call failed: #{e.message}"
+    default_service_response
+  end
+
+  def default_service_response
+    {
+      status: "error",
+      message: "Service temporairement indisponible",
+      data: []
+    }
+  end
+
+  def generate_fallback_data
+    {
+      resume: {
+        simulation_id: @simulation&.id,
+        total_amount: @simulation&.total_simule || 0,
+        region: @region.capitalize,
+        property_type: "maison",
+        primes: [],
+        completion_status: { overall: 0 }
+      },
+      documents: default_service_response,
+      planning: default_service_response,
+      technical: default_service_response,
+      factures: {
+        budget_ok: true,
+        delai_ok: true,
+        ocr_confidence: 0,
+        total_factures: 0,
+        completion_rate: 0,
+        nb_factures: 0,
+        derniere_facture_date: nil
+      },
+      ai_context: "Données temporairement indisponibles"
+    }
+  end
+
+  def build_ai_context
+    begin
+      "Simulation #{@simulation&.id} en #{@region.capitalize} - #{@selected_primes.count} primes sélectionnées"
+    rescue StandardError
+      "Contexte non disponible"
+    end
   end
 end

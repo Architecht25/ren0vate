@@ -14,7 +14,12 @@ class DecisionHubController < ApplicationController
 
     # Générer les données dynamiques pour la simulation par défaut
     if @default_simulation
-      @hub_data = DecisionHub::DataService.new(@default_simulation).generate_dynamic_data
+      begin
+        @hub_data = DecisionHub::DataService.new(@default_simulation).generate_dynamic_data
+      rescue StandardError => e
+        Rails.logger.error "Error generating hub data for simulation #{@default_simulation.id}: #{e.message}"
+        @hub_data = generate_empty_hub_data
+      end
     else
       @hub_data = generate_empty_hub_data
     end
@@ -34,21 +39,26 @@ class DecisionHubController < ApplicationController
 
   def load_simulation_data
     # Endpoint AJAX pour charger les données d'une simulation spécifique
-    simulation = current_user.simulations.find(params[:simulation_id])
-    hub_data = DecisionHub::DataService.new(simulation).generate_dynamic_data
+    begin
+      simulation = current_user.simulations.find(params[:simulation_id])
+      hub_data = DecisionHub::DataService.new(simulation).generate_dynamic_data
 
-    render json: {
-      success: true,
-      data: hub_data,
-      simulation: {
-        id: simulation.id,
-        title: simulation.titre || "Simulation #{simulation.id}",
-        region: simulation.region&.capitalize,
-        created_at: simulation.created_at.strftime("%d/%m/%Y")
+      render json: {
+        success: true,
+        data: hub_data,
+        simulation: {
+          id: simulation.id,
+          title: simulation.titre || "Simulation #{simulation.id}",
+          region: simulation.region&.capitalize,
+          created_at: simulation.created_at.strftime("%d/%m/%Y")
+        }
       }
-    }
-  rescue ActiveRecord::RecordNotFound
-    render json: { success: false, error: "Simulation introuvable" }, status: :not_found
+    rescue ActiveRecord::RecordNotFound
+      render json: { success: false, error: "Simulation introuvable" }, status: :not_found
+    rescue StandardError => e
+      Rails.logger.error "Error loading simulation data: #{e.message}"
+      render json: { success: false, error: "Erreur lors du chargement des données" }, status: :internal_server_error
+    end
   end
 
   def ai_consultation

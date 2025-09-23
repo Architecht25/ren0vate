@@ -11,28 +11,33 @@ module DecisionHub
       return default_exemplarite_data unless @property&.region == 'bruxelles'
       return default_exemplarite_data unless is_entreprise?
 
-      # Récupérer les investissements estimés de la simulation
-      investissement_total = estimate_total_investment
+      begin
+        # Récupérer les investissements estimés de la simulation
+        investissement_total = estimate_total_investment
 
-      # Calculer les gains potentiels avec l'exemplarité
-      gains = calculate_gains_by_criteria(investissement_total)
+        # Calculer les gains potentiels avec l'exemplarité
+        gains = calculate_gains_by_criteria(investissement_total)
 
-      {
-        eligible: true,
-        investissement_estime: investissement_total,
-        gains_potentiels: gains,
-        taille_entreprise: determine_company_size,
-        age_entreprise: determine_company_age,
-        exemplarite_actuelle: assess_current_exemplarite,
-        recommandations_prioritaires: generate_priority_recommendations,
-        impact_financier: calculate_financial_impact(gains)
-      }
+        {
+          eligible: true,
+          investissement_estime: investissement_total,
+          gains_potentiels: gains,
+          taille_entreprise: determine_company_size,
+          age_entreprise: determine_company_age,
+          exemplarite_actuelle: assess_current_exemplarite,
+          recommandations_prioritaires: generate_priority_recommendations,
+          impact_financier: calculate_financial_impact(gains)
+        }
+      rescue StandardError => e
+        Rails.logger.error "Error calculating exemplarite: #{e.message}"
+        default_exemplarite_data
+      end
     end
 
     private
 
     def is_entreprise?
-      @property&.is_entreprise?
+      @property&.is_entreprise? rescue false
     end
 
     def estimate_total_investment
