@@ -23,7 +23,7 @@ DOCUMENTS_TO_UPDATE = {
     cloudinary_id: 'A1_-_Cahier_minimal_des_charges_-_Audit_énegétique_kg5pyz',
     title: 'A1 - Cahier minimal des charges - Audit énergétique'
   },
-  129 => {  # A1 - Attestation bâtiment complet  
+  129 => {  # A1 - Attestation bâtiment complet
     cloudinary_id: 'A1_-_Cahier_minimal_des_charges_-_Audit_énegétique_kg5pyz',
     title: 'A1 - Cahier minimal des charges - Audit énergétique'
   },
@@ -47,17 +47,17 @@ updated_count = 0
 
 DOCUMENTS_TO_UPDATE.each do |doc_id, config|
   document = PrimeDocumentTemplate.find_by(id: doc_id)
-  
+
   if document
     old_url = document.file_url
     new_url = generate_cloudinary_url(config[:cloudinary_id])
-    
+
     puts "📝 Document ID #{doc_id}: #{document.title}"
     puts "   Ancien titre: #{document.title}"
     puts "   Nouveau titre: #{config[:title]}"
     puts "   Ancienne URL: #{old_url}"
     puts "   Nouvelle URL: #{new_url}"
-    
+
     if DRY_RUN
       puts "   🔍 [SIMULATION] Mise à jour simulée"
     else
@@ -86,11 +86,11 @@ deleted_count = 0
 
 DOCUMENTS_TO_DELETE.each do |doc_id|
   document = PrimeDocumentTemplate.find_by(id: doc_id)
-  
+
   if document
     puts "🗑️  Document ID #{doc_id}: #{document.title}"
     puts "   Prime: #{document.prime.titre}"
-    
+
     if DRY_RUN
       puts "   🔍 [SIMULATION] Suppression simulée"
     else
@@ -134,7 +134,7 @@ unless DRY_RUN
       puts "   URL: #{doc.file_url}"
     end
   end
-  
+
   puts
   puts "Vérification que A2, A4, A5 sont supprimés..."
   [131, 135, 141].each do |doc_id|

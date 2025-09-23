@@ -282,6 +282,10 @@ Rails.application.routes.draw do
   post '/csp-violation-report-endpoint', to: 'security#csp_violation_report'
 
   # Route de redirection pour les URLs sans locale (mais pas pour Active Storage)
+  # Route pour le favicon
+  get '/favicon.ico', to: redirect('/icon.png')
+  get '/favicon', to: redirect('/icon.png')
+
   get '/*path', to: redirect("/fr/%{path}"), constraints: lambda { |req|
     !req.path.starts_with?("/fr") &&
     !req.path.starts_with?("/nl") &&

@@ -4,13 +4,25 @@ export default class extends Controller {
   static targets = ["modal"]
 
   connect() {
-    // Attendre que Bootstrap soit chargé
-    if (typeof bootstrap !== 'undefined') {
-      this.modal = new bootstrap.Modal(this.modalTarget)
+    // Attendre que Bootstrap soit chargé et vérifier que l'élément modal existe
+    if (typeof bootstrap !== 'undefined' && this.modalTarget) {
+      try {
+        this.modal = new bootstrap.Modal(this.modalTarget)
+      } catch (error) {
+        console.warn('Erreur lors de l\'initialisation de la modal:', error)
+        this.modal = null
+      }
     } else {
       // Si Bootstrap n'est pas encore chargé, attendre un peu
       setTimeout(() => {
-        this.modal = new bootstrap.Modal(this.modalTarget)
+        if (typeof bootstrap !== 'undefined' && this.modalTarget) {
+          try {
+            this.modal = new bootstrap.Modal(this.modalTarget)
+          } catch (error) {
+            console.warn('Erreur lors de l\'initialisation de la modal (retry):', error)
+            this.modal = null
+          }
+        }
       }, 100)
     }
   }
@@ -24,7 +36,20 @@ export default class extends Controller {
 
     // Afficher la modal
     if (this.modal) {
-      this.modal.show()
+      try {
+        this.modal.show()
+      } catch (error) {
+        console.warn('Erreur lors de l\'affichage de la modal:', error)
+        // Fallback: soumettre directement le formulaire si la modal ne fonctionne pas
+        if (this.form) {
+          this.form.submit()
+        }
+      }
+    } else {
+      // Fallback: soumettre directement le formulaire si pas de modal
+      if (this.form) {
+        this.form.submit()
+      }
     }
   }
 
@@ -34,14 +59,22 @@ export default class extends Controller {
       this.form.submit()
     }
     if (this.modal) {
-      this.modal.hide()
+      try {
+        this.modal.hide()
+      } catch (error) {
+        console.warn('Erreur lors de la fermeture de la modal:', error)
+      }
     }
   }
 
   cancel() {
     // Simplement fermer la modal
     if (this.modal) {
-      this.modal.hide()
+      try {
+        this.modal.hide()
+      } catch (error) {
+        console.warn('Erreur lors de l\'annulation de la modal:', error)
+      }
     }
   }
 }

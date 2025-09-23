@@ -20,7 +20,7 @@ puts
 # Documents Suivi à supprimer (ingénieur stabilité et expert façade)
 SUIVI_DOCUMENTS_TO_DELETE = [137, 138, 139, 140]
 # 137: Attestation entrepreneur - Suivi ingénieur stabilité
-# 138: Guide de remplissage - Suivi ingénieur stabilité  
+# 138: Guide de remplissage - Suivi ingénieur stabilité
 # 139: Attestation entrepreneur - Suivi expert façade
 # 140: Guide de remplissage - Suivi expert façade
 
@@ -31,11 +31,11 @@ deleted_count = 0
 
 SUIVI_DOCUMENTS_TO_DELETE.each do |doc_id|
   document = PrimeDocumentTemplate.find_by(id: doc_id)
-  
+
   if document
     puts "🗑️  Document ID #{doc_id}: #{document.title}"
     puts "   Prime: #{document.prime.titre}"
-    
+
     if DRY_RUN
       puts "   🔍 [SIMULATION] Suppression simulée"
     else
@@ -79,13 +79,13 @@ unless DRY_RUN
       puts "⚠️  ID #{doc_id}: Encore présent - #{doc.title}"
     end
   end
-  
+
   puts
   puts "Documents Suivi restants après nettoyage:"
   remaining_suivi = PrimeDocumentTemplate.joins(:prime)
                       .where(primes: { region: 'bruxelles' })
                       .where('title LIKE ?', '%Suivi%')
-  
+
   if remaining_suivi.any?
     remaining_suivi.each do |doc|
       puts "⚠️  ID #{doc.id}: #{doc.title} (Prime: #{doc.prime.titre})"
