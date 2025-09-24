@@ -21,6 +21,19 @@ class UserMailer < Devise::Mailer
     end
   end
 
+  def tracking_email_received(user, request_progress)
+    @user = user
+    @request_progress = request_progress
+    @property = request_progress.request.property
+
+    I18n.with_locale(user.preferred_locale || I18n.default_locale) do
+      mail(
+        to: user.email,
+        subject: "Mise à jour de votre demande de prime - #{@property.address}"
+      )
+    end
+  end
+
   protected
 
   def confirmation_url(record, opts = {})

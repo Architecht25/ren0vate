@@ -29,6 +29,14 @@ class RequestProgress < ApplicationRecord
     annule: 'annule'                  # Demande annulée
   }
 
+  # Enum pour le statut d'extraction des documents
+  enum :document_extraction_status, {
+    pending: 'pending',       # En attente de traitement
+    processing: 'processing', # En cours de traitement
+    completed: 'completed',   # Traitement terminé
+    failed: 'failed'          # Échec du traitement
+  }, prefix: :extraction
+
   # Callbacks
   before_validation :generate_email_suivi, on: :create, if: -> { email_suivi.blank? }
   after_update :update_date_derniere_maj, if: :status_administratif_changed?
@@ -60,6 +68,44 @@ class RequestProgress < ApplicationRecord
   end
 
   def taux_octroi
+    return 0 if montant_demande.blank? || montant_demande.zero?
+    return 0 if montant_accorde.blank?
+
+    (montant_accorde / montant_demande * 100).round(2)
+  end
+
+  # Méthodes pour le tracking email
+  def has_extracted_data?
+    extracted_data.present?
+  end
+
+  def parsed_extracted_data
+    return {} if extracted_data.blank?
+
+    begin
+      JSON.parse(extracted_data)
+    rescue JSON::ParserError
+      {}
+    end
+  end
+
+  def store_extracted_data(data)
+    self.extracted_data = data.to_json if data.present?
+    self.email_processed_at = Time.current
+    self.document_extraction_status = 'completed'
+  end
+
+  def mark_extraction_failed(error_message = nil)
+    self.document_extraction_status = 'failed'
+    self.email_processed_at = Time.current
+
+    # Optionnel: stocker l'erreur dans extracted_data
+    if error_message
+      self.extracted_data = { error: error_message, failed_at: Time.current }.to_json
+    end
+  end
+
+  private
     return 0 if montant_demande.blank? || montant_demande.zero?
     return 0 if montant_accorde.blank?
 

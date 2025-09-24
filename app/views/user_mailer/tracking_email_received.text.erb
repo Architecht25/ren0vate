@@ -1,0 +1,41 @@
+Mise à jour de votre demande de prime
+=====================================
+
+Bonjour <%= @user.prenom || @user.email %>,
+
+Nous avons reçu un nouveau message de l'administration concernant votre demande de prime pour:
+
+Propriété: <%= @property.address %>
+Prime: <%= @request_progress.prime.titre %>
+Reçu le: <%= @request_progress.date_derniere_maj.strftime('%d/%m/%Y') %>
+Email de suivi: <%= @request_progress.email_suivi %>
+
+Statut actuel: <%= t("request_progress.status.#{@request_progress.status_administratif}") %>
+
+<% if @request_progress.montant_accorde.present? %>
+Montant accordé: <%= number_to_currency(@request_progress.montant_accorde, unit: '€', separator: ',', delimiter: ' ') %>
+<% end %>
+
+<% if @request_progress.numero_dossier.present? %>
+Numéro de dossier: <%= @request_progress.numero_dossier %>
+<% end %>
+
+<% if @request_progress.document_suivi_pdf.attached? || @request_progress.document_suivi_photo.attached? %>
+Documents reçus:
+<% if @request_progress.document_suivi_pdf.attached? %>
+- Document PDF: <%= @request_progress.document_suivi_pdf.filename %>
+<% end %>
+<% if @request_progress.document_suivi_photo.attached? %>
+- Photo/Image: <%= @request_progress.document_suivi_photo.filename %>
+<% end %>
+<% end %>
+
+Voir les détails complets: <%= url_for(@request_progress) %>
+
+---
+
+Rappel: Votre adresse email de suivi est <%= @request_progress.email_suivi %>.
+Utilisez cette adresse lors de vos échanges avec l'administration pour un suivi automatique.
+
+Cet email a été généré automatiquement par le système de suivi Ren0vate.
+Si vous avez des questions, n'hésitez pas à nous contacter.

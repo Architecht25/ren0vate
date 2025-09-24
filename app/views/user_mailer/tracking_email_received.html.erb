@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mise à jour de votre demande de prime</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .header {
+        background-color: #007bff;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        border-radius: 8px 8px 0 0;
+      }
+      .content {
+        background-color: #f8f9fa;
+        padding: 30px;
+        border-radius: 0 0 8px 8px;
+      }
+      .status-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 4px;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 12px;
+        margin: 10px 0;
+      }
+      .status-accorde { background-color: #d4edda; color: #155724; }
+      .status-refuse { background-color: #f8d7da; color: #721c24; }
+      .status-en_cours { background-color: #fff3cd; color: #856404; }
+      .status-incomplet { background-color: #f1c0c7; color: #721c24; }
+      .info-box {
+        background-color: white;
+        border: 1px solid #dee2e6;
+        border-radius: 6px;
+        padding: 15px;
+        margin: 15px 0;
+      }
+      .button {
+        display: inline-block;
+        background-color: #007bff;
+        color: white;
+        padding: 12px 24px;
+        text-decoration: none;
+        border-radius: 6px;
+        margin: 15px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>📧 Mise à jour de votre demande</h1>
+      <p>Nouveau message de l'administration reçu</p>
+    </div>
+
+    <div class="content">
+      <p>Bonjour <%= @user.prenom || @user.email %>,</p>
+
+      <p>Nous avons reçu un nouveau message de l'administration concernant votre demande de prime pour:</p>
+
+      <div class="info-box">
+        <strong>🏠 Propriété:</strong> <%= @property.address %><br>
+        <strong>📋 Prime:</strong> <%= @request_progress.prime.titre %><br>
+        <strong>📅 Reçu le:</strong> <%= @request_progress.date_derniere_maj.strftime('%d/%m/%Y') %><br>
+        <strong>📧 Email de suivi:</strong> <code><%= @request_progress.email_suivi %></code>
+      </div>
+
+      <p><strong>Statut actuel:</strong></p>
+      <span class="status-badge status-<%= @request_progress.status_administratif %>">
+        <%= t("request_progress.status.#{@request_progress.status_administratif}") %>
+      </span>
+
+      <% if @request_progress.montant_accorde.present? %>
+        <div class="info-box">
+          <strong>💰 Montant accordé:</strong> <%= number_to_currency(@request_progress.montant_accorde, unit: '€', separator: ',', delimiter: ' ') %>
+        </div>
+      <% end %>
+
+      <% if @request_progress.numero_dossier.present? %>
+        <div class="info-box">
+          <strong>📁 Numéro de dossier:</strong> <%= @request_progress.numero_dossier %>
+        </div>
+      <% end %>
+
+      <% if @request_progress.document_suivi_pdf.attached? || @request_progress.document_suivi_photo.attached? %>
+        <p><strong>📎 Documents reçus:</strong></p>
+        <ul>
+          <% if @request_progress.document_suivi_pdf.attached? %>
+            <li>Document PDF: <%= @request_progress.document_suivi_pdf.filename %></li>
+          <% end %>
+          <% if @request_progress.document_suivi_photo.attached? %>
+            <li>Photo/Image: <%= @request_progress.document_suivi_photo.filename %></li>
+          <% end %>
+        </ul>
+      <% end %>
+
+      <p>
+        <a href="<%= url_for(@request_progress) %>" class="button">
+          Voir les détails complets
+        </a>
+      </p>
+
+      <hr style="margin: 30px 0; border: 1px solid #dee2e6;">
+
+      <p style="font-size: 14px; color: #6c757d;">
+        <strong>💡 Rappel:</strong> Votre adresse email de suivi est <code><%= @request_progress.email_suivi %></code>.
+        Utilisez cette adresse lors de vos échanges avec l'administration pour un suivi automatique.
+      </p>
+
+      <p style="font-size: 12px; color: #999;">
+        Cet email a été généré automatiquement par le système de suivi Ren0vate.
+        Si vous avez des questions, n'hésitez pas à nous contacter.
+      </p>
+    </div>
+  </body>
+</html>

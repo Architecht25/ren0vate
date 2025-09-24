@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  # Routes ActionMailbox pour la réception d'emails
+  mount ActionMailbox::Engine => '/rails/action_mailbox'
+
   # Routes Devise en dehors du scope pour éviter les problèmes de mapping
   devise_for :users, path_names: {
     sign_in: 'connexion',

@@ -10,9 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_09_23_195611) do
+ActiveRecord::Schema[8.0].define(version: 2025_09_24_065207) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "action_mailbox_inbound_emails", force: :cascade do |t|
+    t.integer "status", default: 0, null: false
+    t.string "message_id", null: false
+    t.string "message_checksum", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["message_id", "message_checksum"], name: "index_action_mailbox_inbound_emails_uniqueness", unique: true
+  end
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -488,7 +497,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_09_23_195611) do
     t.date "date_derniere_maj"
     t.text "commentaires_admin"
     t.boolean "document_recu", default: false
+    t.text "extracted_data", comment: "Données JSON extraites des documents reçus par email"
+    t.datetime "email_processed_at", comment: "Date de traitement du dernier email reçu"
+    t.string "document_extraction_status", default: "pending", comment: "Statut de l'extraction: pending, processing, completed, failed"
     t.index ["date_soumission"], name: "index_request_progresses_on_date_soumission"
+    t.index ["document_extraction_status"], name: "index_request_progresses_on_document_extraction_status"
+    t.index ["email_processed_at"], name: "index_request_progresses_on_email_processed_at"
     t.index ["email_suivi"], name: "index_request_progresses_on_email_suivi", unique: true
     t.index ["numero_dossier"], name: "index_request_progresses_on_numero_dossier", unique: true, where: "(numero_dossier IS NOT NULL)"
     t.index ["prime_id"], name: "index_request_progresses_on_prime_id"

@@ -14,6 +14,9 @@ module Ren0vate
 
     config.autoload_lib(ignore: %w[assets tasks])
 
+    # Configuration ActionMailbox pour la réception d'emails
+    config.action_mailbox.ingress = :postmark
+
     # À réactiver si tu utilises node_modules pour Bootstrap, etc.
     # config.assets.paths << Rails.root.join("node_modules")
   end
