@@ -105,7 +105,7 @@ class RequestProgress < ApplicationRecord
     end
   end
 
-  private
+  def taux_octroi
     return 0 if montant_demande.blank? || montant_demande.zero?
     return 0 if montant_accorde.blank?
 
