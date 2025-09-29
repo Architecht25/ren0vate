@@ -12,6 +12,14 @@ class DecisionHubController < ApplicationController
     # Prendre la première simulation comme défaut pour l'affichage initial
     @default_simulation = @simulations.first || current_user.simulations.last
 
+    # Sauvegarder la simulation active en session pour l'IA
+    if @default_simulation
+      session[:current_simulation_id] = @default_simulation.id
+      session[:user_location] = @default_simulation.region
+      session[:property_type] = @default_simulation.property&.type_propriete || @default_simulation.property&.type
+      session[:total_primes] = @default_simulation.total_simule
+    end
+
     # Générer les données dynamiques pour la simulation par défaut
     if @default_simulation
       begin

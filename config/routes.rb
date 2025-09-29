@@ -99,6 +99,9 @@ Rails.application.routes.draw do
     # API BCE pour recherche d'entreprises
     post 'bce/search', to: 'bce#search'
 
+    # API IA pour consultation
+    post 'ai_consultations', to: 'ai_consultations#create'
+
     # API Aides Bruxelles pour entreprises
     get 'bruxelles_aides/categories', to: 'bruxelles_aides#categories'
     get 'bruxelles_aides/categories/:category_id', to: 'bruxelles_aides#category_details'

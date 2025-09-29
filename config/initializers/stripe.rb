@@ -11,4 +11,4 @@ Rails.application.configure do
 end
 
 # Configuration globale de Stripe
-Stripe.api_key = Rails.application.credentials.stripe_secret_key || ENV['STRIPE_SECRET_KEY'] || 'sk_test_dummy_key_for_development'
+Stripe.api_key = ENV['STRIPE_SECRET_KEY'] || 'sk_test_dummy_key_for_development'
