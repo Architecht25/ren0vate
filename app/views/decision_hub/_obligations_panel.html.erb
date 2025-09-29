@@ -1,0 +1,94 @@
+<!-- PANNEAU 2: Obligations & Recommandations (Plus large) -->
+<div class="col-xl-3 col-lg-6 col-md-12">
+  <div class="panel obligations-panel">
+    <div class="panel-header">
+      <h3>
+        <i class="bi bi-list-check text-warning me-2"></i>
+        Obligations & Conseils
+      </h3>
+      <button class="btn btn-sm btn-outline-secondary" id="filterBtn">
+        <i class="bi bi-funnel me-1"></i>
+        Filtrer
+      </button>
+    </div>
+
+    <div class="panel-body compact-panel">
+      <!-- Obligations Légales -->
+      <div class="obligations-section mb-3">
+        <h5 class="section-title">
+          <i class="bi bi-exclamation-triangle text-danger me-1"></i>
+          Obligations (Avant dépôt)
+        </h5>
+
+        <div class="checklist">
+          <% @hub_data[:obligations].each_with_index do |obligation, index| %>
+            <div class="check-item <%= obligation[:type] %>-obligation"
+                 data-type="<%= obligation[:type] %>"
+                 data-importance="<%= obligation[:importance] %>">
+              <input type="checkbox"
+                     id="obligation<%= index + 1 %>"
+                     class="form-check-input"
+                     <%= 'checked' if obligation[:completed] %>>
+              <label for="obligation<%= index + 1 %>" class="check-label">
+                <span class="check-text">
+                  <%= obligation[:description] %>
+                  <% if obligation[:importance] == 'critical' %>
+                    <span class="badge badge-critical ms-1">Critique</span>
+                  <% elsif obligation[:importance] == 'high' %>
+                    <span class="badge badge-high ms-1">Important</span>
+                  <% end %>
+                </span>
+                <span class="check-deadline">Échéance: <%= obligation[:deadline] %></span>
+                <% if obligation[:details] %>
+                  <span class="check-details">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= obligation[:details] %>
+                  </span>
+                <% end %>
+              </label>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Légende des types -->
+        <div class="obligations-legend mt-2">
+          <small class="text-muted">
+            <span class="legend-item">
+              <span class="badge bg-primary">Admin</span> Administrative
+            </span>
+            <span class="legend-item">
+              <span class="badge bg-success">Tech</span> Technique
+            </span>
+          </small>
+        </div>
+      </div>
+
+      <!-- Recommandations Stratégiques -->
+      <div class="recommendations-section">
+        <h5 class="section-title">
+          <i class="bi bi-lightbulb text-info me-1"></i>
+          Recommandations Stratégiques
+        </h5>
+
+        <div class="recommendations-list">
+          <% @hub_data[:recommendations].each do |recommendation| %>
+            <div class="recommendation-item impact-<%= recommendation[:impact] %>"
+                 data-type="<%= recommendation[:type] %>">
+              <div class="rec-icon"><%= recommendation[:icon] %></div>
+              <div class="rec-content">
+                <span class="rec-text"><%= recommendation[:description] %></span>
+                <span class="rec-benefit"><%= recommendation[:benefit] %></span>
+                <% if recommendation[:details] %>
+                  <span class="rec-details">
+                    <i class="bi bi-arrow-right me-1"></i>
+                    <%= recommendation[:details] %>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

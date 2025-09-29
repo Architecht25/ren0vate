@@ -58,6 +58,7 @@ import AddressCopyController from "controllers/address_copy_controller"
 import TooltipController from "controllers/tooltip_controller"
 import PricingController from "controllers/pricing_controller"
 import DecisionHubController from "controllers/decision_hub_controller"
+import DecisionHubInteractionsController from "controllers/decision_hub_interactions_controller"
 import ConsultationVerificationController from "controllers/consultation_verification_controller"
 import PrimeSelectionController from "controllers/prime_selection_controller"
 import PrimesCommunalesController from "controllers/primes_communales_controller"
@@ -106,6 +107,7 @@ application.register("address-copy", AddressCopyController)
 application.register("tooltip", TooltipController)
 application.register("pricing", PricingController)
 application.register("decision-hub", DecisionHubController)
+application.register("decision-hub-interactions", DecisionHubInteractionsController)
 application.register("consultation-verification", ConsultationVerificationController)
 application.register("prime-selection", PrimeSelectionController)
 application.register("primes-communales", PrimesCommunalesController)

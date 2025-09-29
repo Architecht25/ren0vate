@@ -1,0 +1,135 @@
+<!-- PANNEAU 3: Obligations Techniques & Administratives (Nouveau) -->
+<div class="col-xl-3 col-lg-6 col-md-12">
+  <div class="panel technical-obligations-panel">
+    <div class="panel-header">
+      <h3>
+        <i class="bi bi-tools text-primary me-2"></i>
+        Obligations Techniques
+      </h3>
+      <span class="panel-badge">Critiques</span>
+    </div>
+
+    <div class="panel-body compact-panel">
+      <!-- Obligations Techniques -->
+      <div class="technical-section mb-3">
+        <h5 class="section-title">
+          <i class="bi bi-gear-fill text-primary me-1"></i>
+          Spécifications Techniques
+        </h5>
+
+        <div class="technical-checklist">
+          <% technical_obligations = @hub_data[:obligations].select { |o| o[:type] == "technical" } %>
+          <% technical_obligations.each_with_index do |obligation, index| %>
+            <div class="tech-item <%= obligation[:importance] %>-importance"
+                 data-type="<%= obligation[:type] %>"
+                 data-importance="<%= obligation[:importance] %>">
+              <input type="checkbox"
+                     id="tech<%= index + 1 %>"
+                     class="form-check-input"
+                     <%= 'checked' if obligation[:completed] %>>
+              <label for="tech<%= index + 1 %>" class="tech-label">
+                <span class="tech-title">
+                  <%= obligation[:description] %>
+                  <% if obligation[:importance] == 'critical' %>
+                    <span class="badge bg-danger ms-1">⚠️ Critique</span>
+                  <% elsif obligation[:importance] == 'high' %>
+                    <span class="badge bg-warning ms-1">🔶 Important</span>
+                  <% else %>
+                    <span class="badge bg-info ms-1">ℹ️ Standard</span>
+                  <% end %>
+                </span>
+                <span class="tech-timing">📅 <%= obligation[:deadline] %></span>
+                <% if obligation[:details] %>
+                  <span class="tech-details">
+                    <i class="bi bi-info-circle me-1"></i>
+                    <%= obligation[:details] %>
+                  </span>
+                <% end %>
+              </label>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Actions techniques -->
+        <div class="tech-actions mt-3">
+          <button class="btn btn-outline-primary btn-sm w-100 mb-2">
+            <i class="bi bi-download me-1"></i>
+            Télécharger spécifications PDF
+          </button>
+          <button class="btn btn-outline-info btn-sm w-100">
+            <i class="bi bi-calculator me-1"></i>
+            Calculateur résistance thermique
+          </button>
+        </div>
+      </div>
+
+      <!-- Obligations Administratives -->
+      <div class="administrative-section">
+        <h5 class="section-title">
+          <i class="bi bi-file-text text-warning me-1"></i>
+          Démarches Administratives
+        </h5>
+
+        <div class="admin-checklist">
+          <% admin_obligations = @hub_data[:obligations].select { |o| o[:type] == "administrative" } %>
+          <% admin_obligations.each_with_index do |obligation, index| %>
+            <div class="admin-item <%= obligation[:importance] %>-importance"
+                 data-type="<%= obligation[:type] %>"
+                 data-importance="<%= obligation[:importance] %>">
+              <input type="checkbox"
+                     id="admin<%= index + 1 %>"
+                     class="form-check-input"
+                     <%= 'checked' if obligation[:completed] %>>
+              <label for="admin<%= index + 1 %>" class="admin-label">
+                <span class="admin-title">
+                  <%= obligation[:description] %>
+                  <% if obligation[:importance] == 'critical' %>
+                    <span class="badge bg-danger ms-1">🚨 Urgent</span>
+                  <% elsif obligation[:importance] == 'high' %>
+                    <span class="badge bg-warning ms-1">⚡ Priorité</span>
+                  <% else %>
+                    <span class="badge bg-secondary ms-1">📋 Standard</span>
+                  <% end %>
+                </span>
+                <span class="admin-timing">⏰ <%= obligation[:deadline] %></span>
+                <% if obligation[:details] %>
+                  <span class="admin-details">
+                    <i class="bi bi-arrow-right me-1"></i>
+                    <%= obligation[:details] %>
+                  </span>
+                <% end %>
+              </label>
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Actions administratives -->
+        <div class="admin-actions mt-3">
+          <button class="btn btn-outline-warning btn-sm w-100 mb-2">
+            <i class="bi bi-clipboard-check me-1"></i>
+            Check-list administrative
+          </button>
+          <button class="btn btn-outline-success btn-sm w-100">
+            <i class="bi bi-globe me-1"></i>
+            Accéder aux portails officiels
+          </button>
+        </div>
+      </div>
+
+      <!-- Statut global -->
+      <div class="compliance-status mt-3 p-2 rounded">
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="fw-bold">Conformité Globale:</span>
+          <span class="badge bg-warning">68% Complete</span>
+        </div>
+        <div class="progress mt-2" style="height: 6px;">
+          <div class="progress-bar bg-warning" style="width: 68%"></div>
+        </div>
+        <small class="text-muted d-block mt-1">
+          <i class="bi bi-exclamation-triangle me-1"></i>
+          5 obligations critiques restantes
+        </small>
+      </div>
+    </div>
+  </div>
+</div>
