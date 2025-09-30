@@ -29,10 +29,11 @@
 
       <!-- Input montant -->
       <div class="mb-3">
-        <label class="form-label small text-muted">Facture (€) :</label>
+        <% prime = Prime.find_by(slug: "warmtepompboiler", region: "flandre") %>
+        <label class="form-label small text-muted">Montant facture (€) :</label>
         <input type="number"
                class="form-control form-control-sm"
-               placeholder="0"
+               placeholder="<%= placeholder_prime_flandre(prime, @simulation&.category) %>"
                min="0"
                step="1"
                data-slug="warmtepompboiler"

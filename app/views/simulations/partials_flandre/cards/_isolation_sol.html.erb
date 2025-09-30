@@ -29,10 +29,13 @@
 
       <!-- Input superficie -->
       <div class="mb-3">
-        <label class="form-label small text-muted">Surface (m²) :</label>
+        <% prime = Prime.find_by(slug: "isolation_sol", region: "flandre") %>
+        <label class="form-label small text-muted">
+          <%= placeholder_prime_flandre(prime, @simulation&.category) == "Surface en m²" ? "Surface (m²)" : "Montant facture (€)" %> :
+        </label>
         <input type="number"
                class="form-control form-control-sm"
-               placeholder="0"
+               placeholder="<%= placeholder_prime_flandre(prime, @simulation&.category) %>"
                min="0"
                step="1"
                data-slug="isolation_sol"
