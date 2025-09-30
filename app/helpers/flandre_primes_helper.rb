@@ -19,10 +19,16 @@ module FlandrePrimesHelper
     begin
       params_data = JSON.parse(simulation.parameters)
       if params_data['prime_cards'].present?
+        # Récupérer les slugs des primes Flandre pour filtrer
+        flandre_slugs = Prime.where(region: 'flandre').pluck(:slug)
+
         params_data['prime_cards'].each do |category_key, category_data|
           next unless category_data['primes']
 
           category_data['primes'].each do |prime|
+            # Filtrer pour ne garder que les primes Flandre
+            next unless flandre_slugs.include?(prime['slug'])
+
             if prime['user_input_value'].present? &&
                prime['user_input_value'] != 0 &&
                prime['user_input_value'] != "0"

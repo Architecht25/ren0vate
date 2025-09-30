@@ -69,12 +69,13 @@ module Regions
         Rails.logger.info "✅ Pas de reconstruction OK"
 
         # 6. "facture_solde" => "La facture de solde des travaux date-t-elle de plus de 2 ans ?"
-        Rails.logger.info "=== Vérification 6: Factures récentes ==="
-        if factures_trop_anciennes?(project)
-          Rails.logger.error "ÉCHEC: Factures trop anciennes"
-          return ineligible_response("La facture de solde de vos travaux doit dater de moins de 2 ans pour que les travaux soient éligibles aux primes")
-        end
-        Rails.logger.info "✅ Factures récentes OK"
+        # Commenté car pas pertinent pour l'éligibilité dans une simulation
+        # Rails.logger.info "=== Vérification 6: Factures récentes ==="
+        # if factures_trop_anciennes?(project)
+        #   Rails.logger.error "ÉCHEC: Factures trop anciennes"
+        #   return ineligible_response("La facture de solde de vos travaux doit dater de moins de 2 ans pour que les travaux soient éligibles aux primes")
+        # end
+        # Rails.logger.info "✅ Factures récentes OK"
 
         # 7. "travaux" => "Prévoyez-vous des travaux d'isolation ou de chauffage ?"
         Rails.logger.info "=== Vérification 7: Travaux éligibles ==="
@@ -137,20 +138,15 @@ module Regions
         Rails.logger.info "✅ Statut client protégé vérifié"
 
         # 14. "domicile" => "Êtes-vous ou serez-vous domicilié une fois le bien rénové?"
+        # Si non domicilié => catégorie 1 automatiquement (pas d'inéligibilité)
         Rails.logger.info "=== Vérification 14: Domiciliation ==="
-        unless sera_domicilie?(property)
-          Rails.logger.error "ÉCHEC: Non domicilié sur le bien"
-          return ineligible_response("Vous devez être ou serez domicilié sur le bien rénové")
+        if sera_domicilie?(property)
+          Rails.logger.info "✅ Utilisateur domicilié (catégorie selon revenus)"
+        else
+          Rails.logger.info "INFO: Non domicilié => catégorie 1 automatique"
+          # Pas de return ineligible_response, juste noter pour la catégorisation
         end
-        Rails.logger.info "✅ Domiciliation OK"
-
-        # 14. "domicile" => "Êtes-vous ou serez-vous domicilié une fois le bien rénové?"
-        Rails.logger.info "=== Vérification 14: Domiciliation ==="
-        unless sera_domicilie?(property)
-          Rails.logger.error "ÉCHEC: Non domicilié sur le bien"
-          return ineligible_response("Vous devez être ou serez domicilié sur le bien rénové")
-        end
-        Rails.logger.info "✅ Domiciliation OK"
+        Rails.logger.info "✅ Domiciliation vérifiée"
 
         # 15. Vérification de localisation en Flandre
         Rails.logger.info "=== Vérification 15: Localisation Flandre ==="
@@ -164,6 +160,7 @@ module Regions
         # - "peb" => Certificat PEB (bonus/malus)
         # - "protege" => Client protégé (catégorie automatique 4)
         # - "type" => Maison (information)
+        # - "domicile" => Non domicilié (catégorie automatique 1)
 
         Rails.logger.info "=== TOUTES LES VÉRIFICATIONS FLANDRE PASSÉES ✅ ==="
         # Si toutes les vérifications passent, retourner éligible

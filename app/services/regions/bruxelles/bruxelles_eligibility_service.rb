@@ -15,7 +15,6 @@ module Regions
       private
 
       def check_eligibility_post_login
-        # Version complète avec données utilisateur réelles
         Rails.logger.info "=== DÉBUT VÉRIFICATION ÉLIGIBILITÉ BRUXELLES (POST-LOGIN) ==="
         Rails.logger.info "Type de simulation: #{simulation_type}"
 
@@ -23,6 +22,17 @@ module Regions
         project = user_project
 
         Rails.logger.info "Property ID: #{property&.id}, Project ID: #{project&.id}"
+
+        # Vérification des critères d'éligibilité (entrepreneur_valid supprimé car non pertinent)
+        eligibility_checks = [
+          { check: property_in_bruxelles?(property), message: "Propriété non située à Bruxelles" },
+          { check: property_for_habitation?(property), message: "Propriété non destinée à l'habitation" },
+          { check: user_is_owner?(property), message: "Vous devez être propriétaire" },
+          { check: residence_principale?(property), message: "Doit être votre résidence principale" },
+          { check: property_old_enough_bruxelles?(property), message: "Propriété construite il y a moins de 10 ans" },
+          # { check: entrepreneur_valid?(project), message: "Entrepreneur ou facturation non valide" },
+          { check: @user.revenu_demandeur.present?, message: "Revenus non renseignés" }
+        ]
 
         return ineligible_response("Propriété non trouvée") unless property
         return ineligible_response("Projet non trouvé") unless project
@@ -55,12 +65,13 @@ module Regions
         Rails.logger.info "✅ Âge du logement OK"
 
         # 3. Professionnel agréé : à vérifier via le projet/chantier
-        Rails.logger.info "=== Vérification 3: Entrepreneur ==="
-        unless entrepreneur_valid?(project)
-          Rails.logger.error "ÉCHEC: Entrepreneur non valide (BCE: #{project&.bce_number})"
-          return ineligible_response("Les travaux doivent être réalisés par un professionnel inscrit à la BCE avec accès réglementé")
-        end
-        Rails.logger.info "✅ Entrepreneur OK"
+        # Commenté car pas pertinent pour l'éligibilité dans une simulation
+        # Rails.logger.info "=== Vérification 3: Entrepreneur ==="
+        # unless entrepreneur_valid?(project)
+        #   Rails.logger.error "ÉCHEC: Entrepreneur non valide (BCE: #{project&.bce_number})"
+        #   return ineligible_response("Les travaux doivent être réalisés par un professionnel inscrit à la BCE avec accès réglementé")
+        # end
+        # Rails.logger.info "✅ Entrepreneur OK"
 
         # 4. Nouvelle construction (éliminatoire)
         Rails.logger.info "=== Vérification 4: Nouvelle construction ==="
@@ -79,12 +90,13 @@ module Regions
         Rails.logger.info "✅ Compte bancaire OK"
 
         # 6. Travaux réalisés avec facture récente (12 mois pour Bruxelles)
-        Rails.logger.info "=== Vérification 6: Factures ==="
-        if factures_too_old_bruxelles?(project)
-          Rails.logger.error "ÉCHEC: Factures trop anciennes"
-          return ineligible_response("Les travaux doivent être réalisés avec facture dans les 12 mois")
-        end
-        Rails.logger.info "✅ Factures OK"
+        # Commenté car pas pertinent pour l'éligibilité dans une simulation
+        # Rails.logger.info "=== Vérification 6: Factures ==="
+        # if factures_too_old_bruxelles?(project)
+        #   Rails.logger.error "ÉCHEC: Factures trop anciennes"
+        #   return ineligible_response("Les travaux doivent être réalisés avec facture dans les 12 mois")
+        # end
+        # Rails.logger.info "✅ Factures OK"
 
         # 7. Propriété : L'utilisateur doit être propriétaire
         Rails.logger.info "=== Vérification 7: Propriétaire ==="
@@ -156,11 +168,12 @@ module Regions
         Rails.logger.info "✅ Statuts spéciaux OK"
 
         # 16. Statut indépendant (impact sur calcul primes)
-        Rails.logger.info "=== Vérification 16: Statut indépendant ==="
-        if independant_avec_tva_deductible?
-          Rails.logger.info "ℹ️ Indépendant avec TVA déductible - impact sur montants"
-        end
-        Rails.logger.info "✅ Statut indépendant OK"
+        # Commenté car pas pertinent pour l'éligibilité dans une simulation
+        # Rails.logger.info "=== Vérification 16: Statut indépendant ==="
+        # if independant_avec_tva_deductible?
+        #   Rails.logger.info "ℹ️ Indépendant avec TVA déductible - impact sur montants"
+        # end
+        # Rails.logger.info "✅ Statut indépendant OK"
 
         # 17. Usage du bien (résidentiel/mixte - impact sur primes)
         Rails.logger.info "=== Vérification 17: Usage du bien ==="
@@ -214,12 +227,13 @@ module Regions
         Rails.logger.info "✅ Âge du logement OK"
 
         # 3. Professionnel agréé : à vérifier via le projet/chantier
-        Rails.logger.info "=== Vérification 3: Entrepreneur ==="
-        unless entrepreneur_valid?(project)
-          Rails.logger.error "ÉCHEC: Entrepreneur non valide (BCE: #{project&.bce_number})"
-          return ineligible_response("Recours à un entrepreneur agréé obligatoire")
-        end
-        Rails.logger.info "✅ Entrepreneur OK"
+        # Commenté car pas pertinent pour l'éligibilité dans une simulation
+        # Rails.logger.info "=== Vérification 3: Entrepreneur ==="
+        # unless entrepreneur_valid?(project)
+        #   Rails.logger.error "ÉCHEC: Entrepreneur non valide (BCE: #{project&.bce_number})"
+        #   return ineligible_response("Recours à un entrepreneur agréé obligatoire")
+        # end
+        # Rails.logger.info "✅ Entrepreneur OK"
 
         # Pour les entreprises, critères d'éligibilité simplifiés
         # Pas de vérification de revenus, BIM, RIS, etc.
@@ -585,7 +599,7 @@ module Regions
           { check: user_is_owner?(property), message: "Vous devez être propriétaire" },
           { check: residence_principale?(property), message: "Doit être votre résidence principale" },
           { check: property_old_enough_bruxelles?(property), message: "Propriété construite il y a moins de 10 ans" },
-          { check: entrepreneur_valid?(project), message: "Entrepreneur ou facturation non valide" },
+          # { check: entrepreneur_valid?(project), message: "Entrepreneur ou facturation non valide" },
           { check: @user.revenu_demandeur.present?, message: "Revenus non renseignés" }
         ]
 

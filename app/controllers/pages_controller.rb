@@ -530,7 +530,7 @@ class PagesController < ApplicationController
 
     begin
       # Utilisation d'un service d'éligibilité spécialisé pour les entreprises
-      eligibility_service = Entreprises::BruxellesEntreprisesEligibilityService.new(params)
+      eligibility_service = Entreprises::BruxellesEntreprisesEligibilityService.new(current_user, params)
       result = eligibility_service.check_eligibility
       Rails.logger.info "Business eligibility result: #{result}"
 

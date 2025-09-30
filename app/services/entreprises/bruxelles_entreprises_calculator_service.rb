@@ -1,6 +1,5 @@
-module Regions
-  module Bruxelles
-    class BruxellesEntreprisesCalculatorService
+module Entreprises
+  class BruxellesEntreprisesCalculatorService
       attr_reader :property, :project, :user_inputs
 
       def initialize(property, project, user_inputs = {})
@@ -106,4 +105,3 @@ module Regions
       end
     end
   end
-end

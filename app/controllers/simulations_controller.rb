@@ -539,10 +539,9 @@ class SimulationsController < ApplicationController
     return unless simulation.project.finalite_economique?
 
     # Utiliser le service d'éligibilité entreprise Bruxelles
-    eligibility_service = Entreprises::BruxellesEntreprisesEligibilityService.new({
+    eligibility_service = Entreprises::BruxellesEntreprisesEligibilityService.new(current_user, {
       property_id: simulation.property_id,
-      project_id: simulation.project_id,
-      user: current_user
+      project_id: simulation.project_id
     })
 
     result = eligibility_service.check_eligibility

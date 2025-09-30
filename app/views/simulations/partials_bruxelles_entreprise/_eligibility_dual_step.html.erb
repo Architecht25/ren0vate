@@ -65,10 +65,19 @@
           <% end %>
         </div>
 
-        <!-- Affichage automatique de l'éligibilité (sans bouton superflu) -->
-        <div class="text-center text-muted small mt-auto">
-          <i class="bi bi-info-circle me-1"></i>
-          L'éligibilité est calculée automatiquement selon vos paramètres
+        <!-- Bouton pour relancer le test d'éligibilité -->
+        <div class="text-center mt-auto" data-controller="eligibility-retester">
+          <button class="btn btn-outline-primary btn-sm"
+                  data-simulation-id="<%= @simulation.id %>"
+                  data-action="click->eligibility-retester#retestEligibility"
+                  data-eligibility-retester-target="button">
+            <i class="bi bi-arrow-clockwise me-2"></i>
+            Relancer le test d'éligibilité
+          </button>
+          <div class="text-muted small mt-2">
+            <i class="bi bi-info-circle me-1"></i>
+            Utile après modification des données entreprise
+          </div>
         </div>
       </div>
     </div>
@@ -198,10 +207,19 @@
           <% end %>
         </div>
 
-        <!-- Affichage automatique de l'éligibilité (sans bouton superflu) -->
-        <div class="text-center text-muted small mt-auto">
-          <i class="bi bi-info-circle me-1"></i>
-          L'éligibilité RENOLUTION est calculée automatiquement
+        <!-- Bouton pour relancer le test d'éligibilité RENOLUTION -->
+        <div class="text-center mt-auto" data-controller="eligibility-retester">
+          <button class="btn btn-outline-success btn-sm"
+                  data-simulation-id="<%= @simulation.id %>"
+                  data-action="click->eligibility-retester#retestRenolutionEligibility"
+                  data-eligibility-retester-target="renolutionButton">
+            <i class="bi bi-arrow-clockwise me-2"></i>
+            Relancer le test RENOLUTION
+          </button>
+          <div class="text-muted small mt-2">
+            <i class="bi bi-info-circle me-1"></i>
+            Utile après modification du bien immobilier
+          </div>
         </div>
       </div>
     </div>

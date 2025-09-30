@@ -49,7 +49,7 @@ module Entreprises
     def evaluate_all_criteria(property, project)
       [
         evaluate_location(property),
-        evaluate_bce_number(project),
+        evaluate_bce_number(property),
         evaluate_company_size(property),
         evaluate_de_minimis_rule(property),
         evaluate_sector_eligibility(property),
@@ -73,13 +73,13 @@ module Entreprises
       }
     end
 
-    def evaluate_bce_number(project)
-      success = project.bce_number.present?
+    def evaluate_bce_number(property)
+      success = property.bce_number.present?
       {
         name: "Numéro d'entreprise BCE",
         description: "Un numéro d'entreprise BCE valide est requis",
         status: success ? :success : :error,
-        value: success ? project.bce_number : "Non renseigné",
+        value: success ? property.bce_number : "Non renseigné",
         expected: "Numéro BCE valide",
         action: success ? nil : "Obtenir un numéro d'entreprise auprès de la Banque Carrefour des Entreprises"
       }

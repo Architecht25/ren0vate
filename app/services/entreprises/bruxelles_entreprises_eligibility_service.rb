@@ -20,7 +20,7 @@ module Entreprises
 
       # Vérifications automatiques basées sur les conditions d'éligibilité officielles
       return ineligible("❌ Le siège d'exploitation doit être situé en Région de Bruxelles-Capitale") unless property_in_bruxelles?(property)
-      return ineligible("❌ Un numéro d'entreprise BCE valide est requis") unless project.bce_number.present?
+      return ineligible("❌ Un numéro d'entreprise BCE valide est requis") unless property.bce_number.present?
       return ineligible("❌ L'entreprise doit être une PME (moins de 250 employés)") unless is_pme?(property)
       return ineligible("❌ L'entreprise ne peut pas avoir reçu plus de 300.000€ d'aides de minimis sur 3 ans") if violates_de_minimis_rule?(property)
       return ineligible("❌ L'activité de l'entreprise doit être dans un secteur éligible selon les codes NACE-BEL 2025") unless eligible_sector?(property)

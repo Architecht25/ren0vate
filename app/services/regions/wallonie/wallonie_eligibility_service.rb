@@ -69,20 +69,20 @@ module Regions
         Rails.logger.info "✅ Âge du logement OK"
 
         # 6. Entrepreneur : à vérifier via le projet/chantier
-        Rails.logger.info "=== Vérification 6: Entrepreneur ==="
-        unless entrepreneur_valid?(project)
-          Rails.logger.error "ÉCHEC: Entrepreneur non valide (BCE: #{project&.bce_number})"
-          return ineligible_response("L'entrepreneur doit être inscrit à la Banque Carrefour des Entreprises avec les codes NACE appropriés")
-        end
-        Rails.logger.info "✅ Entrepreneur OK"
+        # Rails.logger.info "=== Vérification 6: Entrepreneur ==="
+        # unless entrepreneur_valid?(project)
+        #   Rails.logger.error "ÉCHEC: Entrepreneur non valide (BCE: #{project&.bce_number})"
+        #   return ineligible_response("L'entrepreneur doit être inscrit à la Banque Carrefour des Entreprises avec les codes NACE appropriés")
+        # end
+        # Rails.logger.info "✅ Entrepreneur OK"
 
         # 7. Factures anciennes : vérification via le projet
-        Rails.logger.info "=== Vérification 7: Factures ==="
-        if factures_too_old?(project)
-          Rails.logger.error "ÉCHEC: Factures trop anciennes"
-          return ineligible_response("Les factures doivent dater de moins de 2 ans")
-        end
-        Rails.logger.info "✅ Factures OK"
+        # Rails.logger.info "=== Vérification 7: Factures ==="
+        # if factures_too_old?(project)
+        #   Rails.logger.error "ÉCHEC: Factures trop anciennes"
+        #   return ineligible_response("Les factures doivent dater de moins de 2 ans")
+        # end
+        # Rails.logger.info "✅ Factures OK"
 
         Rails.logger.info "=== TOUTES LES VÉRIFICATIONS PASSÉES ✅ ==="
         # Si toutes les vérifications passent, retourner éligible
@@ -269,14 +269,14 @@ module Regions
 
         project = user_project
 
-        # Vérification des 7 critères d'éligibilité
+        # Vérification des critères d'éligibilité (entrepreneur_valid supprimé car non pertinent)
         eligibility_checks = [
           { check: property_in_wallonie?(property), message: "Propriété non située en Wallonie" },
           { check: property_for_habitation?(property), message: "Propriété non destinée à l'habitation" },
           { check: user_is_owner?(property), message: "Vous devez être propriétaire" },
           { check: residence_principale?(property), message: "Doit être votre résidence principale" },
           { check: property_old_enough?(property), message: "Propriété construite il y a moins de 15 ans" },
-          { check: entrepreneur_valid?(project), message: "Entrepreneur ou facturation non valide" },
+          # { check: entrepreneur_valid?(project), message: "Entrepreneur ou facturation non valide" },
           { check: @user.revenu_demandeur.present?, message: "Revenus non renseignés" }
         ]
 

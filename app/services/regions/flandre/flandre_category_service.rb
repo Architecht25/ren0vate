@@ -71,22 +71,27 @@ module Regions
           return { category: "4", reason: "Client protégé - Catégorie maximale (4)" }
         end
 
-        # 2. Appartement ou copropriété → Catégorie 1
+        # 2. Non domicilié sur le bien → Catégorie 1
+        if non_domicilie?(property)
+          return { category: "1", reason: "Non domicilié sur le bien rénové - Catégorie 1" }
+        end
+
+        # 3. Appartement ou copropriété → Catégorie 1
         if appartement_ou_copropriete?(property)
           return { category: "1", reason: "Appartement ou copropriété - Catégorie 1" }
         end
 
-        # 3. Immeuble à appartements → Catégorie 1
+        # 4. Immeuble à appartements → Catégorie 1
         if immeuble_appartements?(property)
           return { category: "1", reason: "Immeuble à appartements - Catégorie 1" }
         end
 
-        # 4. Propriétaire d'un autre bien → Catégorie 1
+        # 5. Propriétaire d'un autre bien → Catégorie 1
         if proprietaire_autre_bien?
           return { category: "1", reason: "Propriétaire d'un autre bien - Catégorie 1" }
         end
 
-        # 5. Usage non résidentiel → Catégorie 1
+        # 6. Usage non résidentiel → Catégorie 1
         if usage_non_residentiel?(property)
           return { category: "1", reason: "Usage non résidentiel - Catégorie 1" }
         end
@@ -134,6 +139,30 @@ module Regions
         non_residential_types = %w[commercial industriel mixte bureau]
         property.type_propriete_flandre.in?(non_residential_types) ||
         property.type.in?(non_residential_types)
+      end
+
+      def non_domicilie?(property)
+        return false unless property
+
+        # Vérifier si l'utilisateur sera domicilié sur le bien
+        # Utilise la même logique que dans l'eligibility service
+        !sera_domicilie?(property)
+      end
+
+      def sera_domicilie?(property)
+        return false unless property
+
+        # Vérifier via l'occupation de la propriété
+        return true if property.occupation == 'residence_principale'
+        return true if property.occupation == 'domicile_principal'
+
+        # Si pas d'information d'occupation, vérifier via les champs utilisateur
+        # Par défaut, on considère que si c'est sa propriété principale, il y sera domicilié
+        return false if property.occupation == 'residence_secondaire'
+        return false if property.occupation == 'investissement'
+
+        # Logique par défaut : si c'est la seule propriété, on assume domiciliation
+        true
       end
 
       # Méthodes de calcul des revenus (adaptées de Wallonie)

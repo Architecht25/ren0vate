@@ -105,10 +105,14 @@ export default class extends Controller {
 
     console.log(`📦 Prime trouvée pour ${this.slugValue}:`, prime)
 
+    // Extraire le numéro de catégorie (ex: 'flandre_cat2' -> '2')
+    const categoryNumber = currentCategory.replace('flandre_cat', '')
+    console.log(`📊 Données pour ${this.slugValue} - catégorie: ${currentCategory} (numéro: ${categoryNumber})`)
+
     // Calculer selon le type de calcul
-    const calculData = prime.valeurs_par_categorie?.[currentCategory]
+    const calculData = prime.valeurs_par_categorie?.[categoryNumber]
     if (!calculData) {
-      console.warn(`Données de calcul non trouvées pour ${this.slugValue} - catégorie ${currentCategory}`)
+      console.warn(`Données de calcul non trouvées pour ${this.slugValue} - catégorie ${currentCategory} (numéro: ${categoryNumber})`)
       // Vérifier si la prime existe pour d'autres catégories
       const availableCategories = Object.keys(prime.valeurs_par_categorie || {})
       if (availableCategories.length > 0) {
