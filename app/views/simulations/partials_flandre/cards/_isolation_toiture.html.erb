@@ -31,7 +31,10 @@
       <div class="mb-3">
         <label class="form-label small text-muted">
           <% prime = Prime.find_by(slug: "isolation_toiture", region: "flandre") %>
-          <%= placeholder_prime_flandre(prime, @simulation&.category) == "Surface en m²" ? "Surface (m²)" : "Montant facture (€)" %> :
+          <% debug_category = @simulation&.category || 'unknown' %>
+          <% placeholder_text = placeholder_prime_flandre(prime, @simulation&.category) %>
+          <%= placeholder_text == "Surface en m²" ? "Surface (m²)" : "Montant facture (€)" %> :
+          <small class="text-muted">(Cat: <%= debug_category %>, PH: <%= placeholder_text %>)</small>
         </label>
         <input type="number"
                class="form-control form-control-sm"
