@@ -11,7 +11,8 @@ export default class extends Controller {
   ]
 
   static values = {
-    simulationId: Number
+    simulationId: Number,
+    category: String
   }
 
   connect() {
@@ -73,8 +74,8 @@ export default class extends Controller {
   }
 
   getCurrentCategory() {
-    // Récupérer la catégorie depuis localStorage ou par défaut
-    return localStorage.getItem('selectedFlandreCategory') || 'flandre_cat2'
+    // Utiliser la catégorie de la simulation au lieu du localStorage
+    return this.categoryValue || 'flandre_cat2'
   }
 
   setupPrimesData() {
