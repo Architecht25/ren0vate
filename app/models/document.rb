@@ -33,6 +33,9 @@ class Document < ApplicationRecord
     certificat_protection: 'certificat_protection',
     acte_notarial: 'acte_notarial',
     compromis: 'compromis',
+    # Documents châssis spécifiques
+    bordereau_chassis: 'bordereau_chassis',
+    photo_chassis: 'photo_chassis',
     # Documents audit énergétique
     preuve_paiement_audit: 'preuve_paiement_audit',
     rapport_audit_energetique: 'rapport_audit_energetique',

@@ -13,8 +13,45 @@
     </div>
   </div>
 
-  <%= simple_form_for property, local: true, html: { class: "needs-validation", novalidate: true } do |f| %>
-    <!-- Champ caché pour marquer comme entreprise -->
+    <%= simple_form_for property, local: true, html: { class: "needs-validation", novalidate: true } do |f| %>
+    <!-- Style CSS renforcé pour les champs obligatoires -->
+    <style>
+      /* Cibler tous les types de champs avec required */
+      input[required],
+      select[required],
+      textarea[required],
+      .form-control[required],
+      .form-select[required],
+      input.form-control[required],
+      select.form-select[required] {
+        border: 3px solid #8fbc8f !important;
+        border-color: #8fbc8f !important;
+        box-shadow: 0 0 0 0.2rem rgba(143, 188, 143, 0.15) !important;
+        background-color: #f7faf7 !important;
+      }
+
+      /* État focus pour les champs obligatoires */
+      input[required]:focus,
+      select[required]:focus,
+      textarea[required]:focus,
+      .form-control[required]:focus,
+      .form-select[required]:focus,
+      input.form-control[required]:focus,
+      select.form-select[required]:focus {
+        border: 3px solid #8fbc8f !important;
+        border-color: #8fbc8f !important;
+        box-shadow: 0 0 0 0.3rem rgba(143, 188, 143, 0.25) !important;
+        outline: none !important;
+      }
+
+      /* Test avec une classe spécifique */
+      .required-field {
+        border: 4px solid #a2c5a2 !important;
+        background-color: #f0f8f0 !important;
+      }
+    </style>
+
+    <!-- Champ caché pour la région -->
     <%= f.hidden_field :type, value: "entreprise" %>
 
     <!-- Première rangée: Informations entreprise et Photo -->
@@ -45,7 +82,7 @@
                         wrapper_html: { class: "mb-3" },
                         label_html: { class: "form-label text-dark fw-medium mb-1" },
                         input_html: {
-                          class: "form-control border-2 rounded-3 px-3",
+                          class: "form-control border-2 rounded-3 px-3 required-field",
                           style: "background: #f8f9fa; border-color: #e9ecef !important;",
                           required: true
                         } %>
@@ -91,7 +128,7 @@
                         wrapper_html: { class: "mb-3" },
                         label_html: { class: "form-label text-dark fw-medium mb-1" },
                         input_html: {
-                          class: "form-control border-2 rounded-3 px-3",
+                          class: "form-control border-2 rounded-3 px-3 required-field",
                           style: "background: #f8f9fa; border-color: #e9ecef !important;"
                         } %>
                   </div>
@@ -113,7 +150,7 @@
                         wrapper_html: { class: "mb-3" },
                         label_html: { class: "form-label text-dark fw-medium mb-1" },
                         input_html: {
-                          class: "form-select border-2 rounded-3 px-3",
+                          class: "form-select border-2 rounded-3 px-3 required-field",
                           style: "background: #f8f9fa; border-color: #e9ecef !important;",
                           required: true
                         } %>
@@ -146,7 +183,7 @@
                         wrapper_html: { class: "mb-3" },
                         label_html: { class: "form-label text-dark fw-medium mb-1" },
                         input_html: {
-                          class: "form-control border-2 rounded-3 px-3",
+                          class: "form-control border-2 rounded-3 px-3 required-field",
                           style: "background: #f8f9fa; border-color: #e9ecef !important;",
                           type: "number",
                           step: "0.01",
@@ -154,18 +191,20 @@
                         } %>
                   </div>
                   <div class="col-12">
-                    <%= f.input :date_achat,
-                        label: '<i class="bi bi-calendar me-2 text-success"></i>Date d\'acquisition du siège'.html_safe,
-                        placeholder: "jj/mm/aaaa",
-                        wrapper_html: { class: "mb-3" },
-                        label_html: { class: "form-label text-dark fw-medium mb-1" },
-                        input_html: {
-                          class: "form-control border-2 rounded-3 px-3",
-                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                          type: "date",
-                          min: "1900-01-01",
-                          max: "2030-12-31"
-                        } %>
+                    <div class="mb-3">
+                      <label class="form-label text-dark fw-medium mb-1">
+                        <i class="bi bi-calendar me-2 text-success"></i>Date d'acquisition du siège
+                      </label>
+                      <div class="d-flex gap-2">
+                        <%= f.date_select :date_achat,
+                            { order: [:day, :month, :year],
+                              start_year: 1800,
+                              end_year: 2040,
+                              include_blank: false },
+                            { class: "form-select border-2 rounded-3 px-3 required-field",
+                              style: "background: #f8f9fa; border-color: #e9ecef !important;" } %>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -209,7 +248,7 @@
                         wrapper_html: { class: "mb-3" },
                         label_html: { class: "form-label text-dark fw-medium mb-1" },
                         input_html: {
-                          class: "form-control border-2 rounded-3 px-3",
+                          class: "form-control border-2 rounded-3 px-3 required-field",
                           style: "background: #f8f9fa; border-color: #e9ecef !important;",
                           required: true
                         } %>
@@ -221,7 +260,7 @@
                         wrapper_html: { class: "mb-3" },
                         label_html: { class: "form-label text-dark fw-medium mb-1" },
                         input_html: {
-                          class: "form-control border-2 rounded-3 px-3",
+                          class: "form-control border-2 rounded-3 px-3 required-field",
                           style: "background: #f8f9fa; border-color: #e9ecef !important;",
                           required: true
                         } %>
@@ -233,7 +272,7 @@
                         wrapper_html: { class: "mb-3" },
                         label_html: { class: "form-label text-dark fw-medium mb-1" },
                         input_html: {
-                          class: "form-control border-2 rounded-3 px-3",
+                          class: "form-control border-2 rounded-3 px-3 required-field",
                           style: "background: #f8f9fa; border-color: #e9ecef !important;",
                           required: true
                         } %>
@@ -245,7 +284,7 @@
                         wrapper_html: { class: "mb-3" },
                         label_html: { class: "form-label text-dark fw-medium mb-1" },
                         input_html: {
-                          class: "form-control border-2 rounded-3 px-3",
+                          class: "form-control border-2 rounded-3 px-3 required-field",
                           style: "background: #f8f9fa; border-color: #e9ecef !important;",
                           required: true
                         } %>
@@ -280,7 +319,7 @@
                         wrapper_html: { class: "mb-3" },
                         label_html: { class: "form-label text-dark fw-medium mb-1" },
                         input_html: {
-                          class: "form-control border-2 rounded-3 px-3",
+                          class: "form-control border-2 rounded-3 px-3 required-field",
                           style: "background: #f8f9fa; border-color: #e9ecef !important;"
                         } %>
                   </div>
@@ -291,7 +330,7 @@
                         wrapper_html: { class: "mb-3" },
                         label_html: { class: "form-label text-dark fw-medium mb-1" },
                         input_html: {
-                          class: "form-control border-2 rounded-3 px-3",
+                          class: "form-control border-2 rounded-3 px-3 required-field",
                           style: "background: #f8f9fa; border-color: #e9ecef !important;"
                         } %>
                   </div>
@@ -302,7 +341,7 @@
                         wrapper_html: { class: "mb-3" },
                         label_html: { class: "form-label text-dark fw-medium mb-1" },
                         input_html: {
-                          class: "form-control border-2 rounded-3 px-3",
+                          class: "form-control border-2 rounded-3 px-3 required-field",
                           style: "background: #f8f9fa; border-color: #e9ecef !important;"
                         } %>
                   </div>
@@ -313,7 +352,7 @@
                         wrapper_html: { class: "mb-3" },
                         label_html: { class: "form-label text-dark fw-medium mb-1" },
                         input_html: {
-                          class: "form-control border-2 rounded-3 px-3",
+                          class: "form-control border-2 rounded-3 px-3 required-field",
                           style: "background: #f8f9fa; border-color: #e9ecef !important;"
                         } %>
                   </div>
@@ -329,7 +368,7 @@
                         wrapper_html: { class: "mb-3" },
                         label_html: { class: "form-label text-dark fw-medium mb-1" },
                         input_html: {
-                          class: "form-select border-2 rounded-3 px-3",
+                          class: "form-select border-2 rounded-3 px-3 required-field",
                           style: "background: #f8f9fa; border-color: #e9ecef !important;"
                         } %>
                   </div>
@@ -407,7 +446,7 @@
                       wrapper_html: { class: "mb-3" },
                       label_html: { class: "form-label text-dark fw-medium mb-1" },
                       input_html: {
-                        class: "form-control border-2 rounded-3 px-3",
+                        class: "form-control border-2 rounded-3 px-3 required-field",
                         style: "background: #f8f9fa; border-color: #e9ecef !important;",
                         type: "number",
                         min: "0"
@@ -441,7 +480,7 @@
                       wrapper_html: { class: "mb-3" },
                       label_html: { class: "form-label text-dark fw-medium mb-1" },
                       input_html: {
-                        class: "form-control border-2 rounded-3 px-3",
+                        class: "form-control border-2 rounded-3 px-3 required-field",
                         style: "background: #f8f9fa; border-color: #e9ecef !important;"
                       } %>
                 </div>
@@ -452,7 +491,7 @@
                       wrapper_html: { class: "mb-3" },
                       label_html: { class: "form-label text-dark fw-medium mb-1" },
                       input_html: {
-                        class: "form-control border-2 rounded-3 px-3",
+                        class: "form-control border-2 rounded-3 px-3 required-field",
                         style: "background: #f8f9fa; border-color: #e9ecef !important;"
                       } %>
                 </div>
@@ -559,19 +598,21 @@
             <div class="card-body px-4 py-3">
               <div class="row g-2">
                 <div class="col-lg-6">
-                  <%= f.input :date_creation,
-                      label: '<i class="bi bi-calendar me-2 text-warning"></i>Date d\'inscription BCE'.html_safe,
-                      placeholder: "jj/mm/aaaa",
-                      hint: "Date d'inscription à la Banque Carrefour des Entreprises",
-                      wrapper_html: { class: "mb-3" },
-                      label_html: { class: "form-label text-dark fw-medium mb-1" },
-                      input_html: {
-                        class: "form-control border-2 rounded-3 px-3",
-                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                        type: "date",
-                        min: "1930-01-01",
-                        max: "2030-12-31"
-                      } %>
+                  <div class="mb-3">
+                    <label class="form-label text-dark fw-medium mb-1">
+                      <i class="bi bi-calendar me-2 text-warning"></i>Date d'inscription BCE
+                    </label>
+                    <div class="d-flex gap-2">
+                      <%= f.date_select :date_creation,
+                          { order: [:day, :month, :year],
+                            start_year: 1800,
+                            end_year: 2040,
+                            include_blank: false },
+                          { class: "form-select border-2 rounded-3 px-3 required-field",
+                            style: "background: #f8f9fa; border-color: #e9ecef !important;" } %>
+                    </div>
+                    <small class="text-muted">Date d'inscription à la Banque Carrefour des Entreprises</small>
+                  </div>
                 </div>
                 <div class="col-lg-6">
                   <div class="d-flex align-items-center h-100">

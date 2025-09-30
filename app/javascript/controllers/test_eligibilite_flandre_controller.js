@@ -161,6 +161,10 @@ export default class extends Controller {
       message += "(Immeuble à appartements → catégorie 1)";
       categorie = 1;
     }
+    if (domicile === "non") {
+      message += " (Pas de domicile principal → Catégorie 1)";
+      categorie = 1;
+    }
 
     // PEB
     if (peb === "oui") {

@@ -14,6 +14,43 @@
   </div>
 
   <%= simple_form_for property, local: true, html: { class: "needs-validation", novalidate: true } do |f| %>
+    <!-- Style CSS renforcé pour les champs obligatoires -->
+    <style>
+      /* Cibler tous les types de champs avec required */
+      input[required],
+      select[required],
+      textarea[required],
+      .form-control[required],
+      .form-select[required],
+      input.form-control[required],
+      select.form-select[required] {
+        border: 3px solid #8fbc8f !important;
+        border-color: #8fbc8f !important;
+        box-shadow: 0 0 0 0.2rem rgba(143, 188, 143, 0.15) !important;
+        background-color: #f7faf7 !important;
+      }
+
+      /* État focus pour les champs obligatoires */
+      input[required]:focus,
+      select[required]:focus,
+      textarea[required]:focus,
+      .form-control[required]:focus,
+      .form-select[required]:focus,
+      input.form-control[required]:focus,
+      select.form-select[required]:focus {
+        border: 3px solid #8fbc8f !important;
+        border-color: #8fbc8f !important;
+        box-shadow: 0 0 0 0.3rem rgba(143, 188, 143, 0.25) !important;
+        outline: none !important;
+      }
+
+      /* Test avec une classe spécifique */
+      .required-field {
+        border: 4px solid #a2c5a2 !important;
+        background-color: #f0f8f0 !important;
+      }
+    </style>
+
     <!-- Champ caché pour la région -->
     <%= f.hidden_field :region, value: "Wallonie" %>
 
@@ -252,19 +289,21 @@
                         } %>
                   </div>
                   <div class="col-12">
-                    <%= f.input :date_achat,
-                        label: '<i class="bi bi-calendar me-2 text-success"></i>Date d\'achat'.html_safe,
-                        placeholder: "jj/mm/aaaa",
-                        hint: "Date d'acquisition du bien",
-                        wrapper_html: { class: "mb-3" },
-                        label_html: { class: "form-label text-dark fw-medium mb-1" },
-                        input_html: {
-                          class: "form-control border-2 rounded-3 px-3",
-                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                          type: "date",
-                          min: "1900-01-01",
-                          max: "2030-12-31"
-                        } %>
+                    <div class="mb-3">
+                      <label class="form-label text-dark fw-medium mb-1">
+                        <i class="bi bi-calendar me-2 text-success"></i>Date d'achat
+                      </label>
+                      <div class="d-flex gap-2">
+                        <%= f.date_select :date_achat,
+                            { order: [:day, :month, :year],
+                              start_year: 1800,
+                              end_year: 2040,
+                              include_blank: false },
+                            { class: "form-select border-2 rounded-3 px-3",
+                              style: "background: #f8f9fa; border-color: #e9ecef !important;" } %>
+                      </div>
+                      <small class="text-muted">Date d'acquisition du bien</small>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -375,29 +414,46 @@
                       } %>
                 </div>
                 <div class="col-md-4">
-                  <%= f.input :date_peb_avant_travaux,
-                      label: '<i class="bi bi-calendar me-2 text-success"></i>Date du certificat PEB'.html_safe,
-                      placeholder: "jj/mm/aaaa",
-                      wrapper_html: { class: "mb-3" },
-                      label_html: { class: "form-label text-dark fw-medium mb-1" },
-                      input_html: {
-                        class: "form-control border-2 rounded-3 px-3",
-                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                        type: "date",
-                        min: "1990-01-01",
-                        max: "2030-12-31"
-                      } %>
+                  <div class="mb-3">
+                    <label class="form-label text-dark fw-medium mb-1">
+                      <i class="bi bi-calendar me-2 text-success"></i>Date du certificat PEB
+                    </label>
+                    <div class="d-flex gap-2">
+                      <%= f.date_select :date_peb_avant_travaux,
+                          { order: [:day, :month, :year],
+                            start_year: 1950,
+                            end_year: 2040,
+                            include_blank: false },
+                          { class: "form-select border-2 rounded-3 px-3",
+                            style: "background: #f8f9fa; border-color: #e9ecef !important;" } %>
+                    </div>
+                  </div>
                 </div>
                 <div class="col-md-4">
-                  <%= f.input :audit_energetique,
-                      label: '<i class="bi bi-search me-2 text-success"></i>Audit énergétique'.html_safe,
-                      placeholder: "ex. 280 kWh/m²/an",
-                      wrapper_html: { class: "mb-3" },
-                      label_html: { class: "form-label text-dark fw-medium mb-1" },
-                      input_html: {
-                        class: "form-control border-2 rounded-3 px-3",
-                        style: "background: #f8f9fa; border-color: #e9ecef !important;"
-                      } %>
+                  <div class="mb-3">
+                    <label class="form-label text-dark fw-medium mb-2">
+                      <i class="bi bi-file-earmark-check me-2 text-success"></i>Audit énergétique
+                    </label>
+                    <div class="d-flex gap-3">
+                      <div class="form-check form-check-inline">
+                        <%= f.radio_button :audit_energetique, "oui",
+                            class: "form-check-input border-2",
+                            style: "transform: scale(1.2);" %>
+                        <%= f.label :audit_energetique_oui, "Oui",
+                            class: "form-check-label text-success fw-medium" %>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <%= f.radio_button :audit_energetique, "non",
+                            class: "form-check-input border-2",
+                            style: "transform: scale(1.2);" %>
+                        <%= f.label :audit_energetique_non, "Non",
+                            class: "form-check-label text-muted fw-medium" %>
+                      </div>
+                    </div>
+                    <small class="text-muted">
+                      <i class="bi bi-info-circle me-1"></i>Avez-vous réalisé un audit énergétique ?
+                    </small>
+                  </div>
                 </div>
               </div>
             </div>

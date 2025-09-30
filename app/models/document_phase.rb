@@ -33,8 +33,8 @@ class DocumentPhase < ApplicationRecord
       icon: '🔧',
       color: 'info',
       position: 2,
-      required_document_types: ['devis'],
-      optional_document_types: ['plan', 'certificat_label']
+      required_document_types: ['devis', 'bordereau_chassis', 'certificat_label'],
+      optional_document_types: []
     },
     {
       name: 'Phase Exécution',
@@ -42,7 +42,7 @@ class DocumentPhase < ApplicationRecord
       icon: '📋',
       color: 'warning',
       position: 3,
-      required_document_types: ['facture', 'attestation_entrepreneur'],
+      required_document_types: ['facture', 'attestation_entrepreneur', 'photo_chassis'],
       optional_document_types: ['etat_avancement', 'photo', 'attestation_conformite']
     },
     {
