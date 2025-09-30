@@ -11,6 +11,28 @@ module FlandrePrimesHelper
     prime&.conseil || "Conseil en cours de chargement..."
   end
 
+  # Helper pour récupérer le bon placeholder selon la catégorie utilisateur
+  def placeholder_prime_flandre(prime, user_category = nil)
+    return prime.placeholder if prime.placeholder.is_a?(String)
+    
+    # Si le placeholder est un hash avec des catégories
+    if prime.placeholder.is_a?(Hash)
+      # Déterminer la catégorie à utiliser
+      category = user_category || 
+                 @simulation&.category || 
+                 session[:user_category] || 
+                 params[:category] || 
+                 '4'  # Par défaut catégorie 4 en Flandre
+      
+      placeholder_text = prime.placeholder[category.to_s]
+      
+      return placeholder_text if placeholder_text.present?
+    end
+    
+    # Fallback par défaut
+    "Entrez la valeur"
+  end
+
   # Helper pour préparer les valeurs sauvegardées pour restauration
   def prepare_saved_flandre_inputs(simulation)
     saved_inputs = {}
