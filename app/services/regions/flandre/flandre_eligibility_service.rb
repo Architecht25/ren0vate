@@ -342,13 +342,16 @@ module Regions
         # ouvrant droit au taux réduit de TVA à 6 % ?"
         return false unless project
 
-        # Vérifier via champs spécifiques
+        # Vérifier UNIQUEMENT via le champ spécifique reconstruction_demolition
+        # Le champ tva_reduit_6_pourcent est une information séparée qui peut s'appliquer
+        # à d'autres cas que la reconstruction après démolition
         result = project.respond_to?(:reconstruction_demolition) && project.reconstruction_demolition == true ||
-                project.respond_to?(:tva_reduit_6_pourcent) && project.tva_reduit_6_pourcent == true ||
                 project.type_travaux&.include?('reconstruction') ||
                 project.type_travaux&.include?('demolition')
 
         Rails.logger.info "Result reconstruction démolition: #{result}"
+        Rails.logger.info "- reconstruction_demolition: #{project.reconstruction_demolition}"
+        Rails.logger.info "- tva_reduit_6_pourcent: #{project.tva_reduit_6_pourcent} (informatif seulement)"
         result
       end
 
@@ -498,6 +501,14 @@ module Regions
       end
 
       # Méthodes d'information pour les questions non-éliminatoires
+
+      def beneficie_tva_reduite_6_pourcent?(project)
+        # Question: "Bénéficiez-vous du taux réduit de TVA à 6% ?"
+        # Cette information peut être utilisée pour le calcul des primes
+        # mais n'est pas automatiquement éliminatoire
+        return false unless project&.respond_to?(:tva_reduit_6_pourcent)
+        project.tva_reduit_6_pourcent == true
+      end
 
       def certificat_peb_e_f?(property)
         # Question: "Le certificat PEB avant travaux de rénovation indique-t-il un label E, F?"
