@@ -47,7 +47,7 @@ class CreateDefaultDocumentPhases < ActiveRecord::Migration[8.0]
     default_phases.each do |phase_data|
       # Vérifier si la phase existe déjà
       existing_phase = DocumentPhase.find_by(name: phase_data[:name], category: phase_data[:category])
-      
+
       unless existing_phase
         DocumentPhase.create!(phase_data)
         puts "✅ Phase créée: #{phase_data[:name]}"

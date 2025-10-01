@@ -9,7 +9,7 @@ DocumentPhase::DEFAULT_PHASES.each do |phase_data|
     name: phase_data[:name],
     category: 'chantier'
   )
-  
+
   if phase.new_record?
     phase.assign_attributes(
       description: phase_data[:description],
@@ -20,7 +20,7 @@ DocumentPhase::DEFAULT_PHASES.each do |phase_data|
       optional_document_types: phase_data[:optional_document_types],
       category: 'chantier'
     )
-    
+
     if phase.save
       puts "  ✅ Phase créée: #{phase.name}"
       puts "     Documents obligatoires: #{phase.required_document_types.join(', ')}"
@@ -31,17 +31,17 @@ DocumentPhase::DEFAULT_PHASES.each do |phase_data|
   else
     # Mettre à jour les documents si nécessaire
     updated = false
-    
+
     if phase.required_document_types != phase_data[:required_document_types]
       phase.required_document_types = phase_data[:required_document_types]
       updated = true
     end
-    
+
     if phase.optional_document_types != phase_data[:optional_document_types]
       phase.optional_document_types = phase_data[:optional_document_types]
       updated = true
     end
-    
+
     if updated && phase.save
       puts "  🔄 Phase mise à jour: #{phase.name}"
       puts "     Documents obligatoires: #{phase.required_document_types.join(', ')}"
