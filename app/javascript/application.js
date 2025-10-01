@@ -49,6 +49,7 @@ import LanguageController from "controllers/language_controller"
 import RenopackWallonieController from "controllers/renopack_wallonie_controller"
 import RequestFormController from "controllers/request_form_controller"
 import RequestAutosaveController from "controllers/request_autosave_controller"
+import SavingsComparisonController from "controllers/savings_comparison_controller"
 import BruxellesEntrepriseCalculController from "controllers/bruxelles_entreprise_calcul_controller"
 import BruxellesEntrepriseCardController from "controllers/bruxelles_entreprise_card_controller"
 import BruxellesEntrepriseCartesController from "controllers/bruxelles_entreprise_cartes_controller"
@@ -100,6 +101,7 @@ application.register("language", LanguageController)
 application.register("renopack-wallonie", RenopackWallonieController)
 application.register("request-form", RequestFormController)
 application.register("request-autosave", RequestAutosaveController)
+application.register("savings-comparison", SavingsComparisonController)
 application.register("bruxelles-entreprise-calcul", BruxellesEntrepriseCalculController)
 application.register("bruxelles-entreprise-card", BruxellesEntrepriseCardController)
 application.register("bruxelles-entreprise-cartes", BruxellesEntrepriseCartesController)

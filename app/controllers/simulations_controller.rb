@@ -310,9 +310,17 @@ class SimulationsController < ApplicationController
           end
         end
 
+        # Calculer les économies vs chasseur de primes
+        savings_data = nil
+        if calculated_total > 0 && @simulation.region.present?
+          savings_calculator = SavingsCalculatorService.new(calculated_total, @simulation.region)
+          savings_data = savings_calculator.calculate_savings
+        end
+
         render json: {
           success: true,
           total_amount: calculated_total,
+          savings_data: savings_data,
           message: "Total mis à jour depuis côté client"
         }
         return
@@ -329,6 +337,15 @@ class SimulationsController < ApplicationController
 
       if result[:success]
         # Rails.logger.info "✅ Simulation #{@simulation.id} updated successfully: #{result[:total_amount]}€"
+        
+        # Calculer les économies vs chasseur de primes
+        savings_data = nil
+        if result[:total_amount] && result[:total_amount] > 0 && @simulation.region.present?
+          savings_calculator = SavingsCalculatorService.new(result[:total_amount], @simulation.region)
+          savings_data = savings_calculator.calculate_savings
+        end
+        
+        result[:savings_data] = savings_data
         render json: result
       else
         Rails.logger.error "❌ Failed to update simulation #{@simulation.id}: #{result[:error]}"

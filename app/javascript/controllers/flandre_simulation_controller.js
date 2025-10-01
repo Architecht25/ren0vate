@@ -381,6 +381,9 @@ export default class extends Controller {
           // Distribuer les montants calculés aux cartes individuelles
           this.updateCardsWithCalculatedAmounts(data.updated_cards);
 
+          // Déclencher l'événement pour mettre à jour le composant d'économie
+          this.dispatchSavingsUpdateEvent(data);
+
           this.showSaveIndicator('success', data.total_amount);
         } else {
           console.error("❌ Erreur auto-save Flandre:", data.error);
@@ -518,5 +521,19 @@ export default class extends Controller {
 
     // Recalculer le total global après mise à jour des cartes
     this.updateTotalGlobal()
+  }
+
+  // Nouvelle méthode pour déclencher l'événement de mise à jour du composant d'économie
+  dispatchSavingsUpdateEvent(data) {
+    const event = new CustomEvent('savings:update', {
+      detail: {
+        total_amount: data.total_amount,
+        savings_data: data.savings_data
+      },
+      bubbles: true
+    });
+    
+    document.dispatchEvent(event);
+    console.log("💰 Événement savings:update déclenché", data.savings_data);
   }
 }

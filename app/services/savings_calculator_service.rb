@@ -35,7 +35,7 @@ class SavingsCalculatorService
   end
 
   def significant_savings?
-    savings_amount > 500 # Seuil minimum pour afficher la comparaison
+    savings_amount > 250 # Seuil ajusté pour affichage plus fréquent
   end
 
   private
