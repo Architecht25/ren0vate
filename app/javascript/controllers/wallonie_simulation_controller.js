@@ -318,10 +318,10 @@ export default class extends Controller {
       .then(data => {
         if (data.success) {
           console.log("✅ Auto-save Wallonie réussi:", data.total_amount, "€");
-          
+
           // Déclencher l'événement pour mettre à jour le composant d'économie
           this.dispatchSavingsUpdateEvent(data);
-          
+
           this.showSaveIndicator('success', data.total_amount);
         } else {
           console.error("❌ Erreur auto-save Wallonie:", data.error);
@@ -436,7 +436,7 @@ export default class extends Controller {
       },
       bubbles: true
     });
-    
+
     document.dispatchEvent(event);
     console.log("💰 Événement savings:update déclenché (Wallonie)", data.savings_data);
   }

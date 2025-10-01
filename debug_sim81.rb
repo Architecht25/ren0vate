@@ -13,7 +13,7 @@ if sim.total_simule && sim.region
   savings = calculator.calculate_savings
   puts "Savings data: #{savings.inspect}"
   puts "Should show component: #{savings && savings[:savings_amount] > 500}"
-  
+
   if savings
     puts "\nDetails:"
     puts "  Chasseur cost: #{savings[:chasseur_cost]}€"

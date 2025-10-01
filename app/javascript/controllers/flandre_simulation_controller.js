@@ -532,7 +532,7 @@ export default class extends Controller {
       },
       bubbles: true
     });
-    
+
     document.dispatchEvent(event);
     console.log("💰 Événement savings:update déclenché", data.savings_data);
   }

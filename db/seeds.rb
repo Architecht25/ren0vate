@@ -132,6 +132,14 @@ if File.exist?(entreprises_bruxelles_path)
   load entreprises_bruxelles_path
 end
 
+# ➤ PHASES DE DOCUMENTS - Chargement des seeds
+puts "\n📋 === PHASES DE DOCUMENTS ==="
+document_phases_path = Rails.root.join("db", "seeds", "document_phases.rb")
+if File.exist?(document_phases_path)
+  puts "🔹 Chargement de : #{document_phases_path}"
+  load document_phases_path
+end
+
 # ➤ DOCUMENTS OFFICIELS - Chargement des seeds
 puts "\n📋 === DOCUMENTS OFFICIELS ==="
 prime_documents_path = Rails.root.join("db", "seeds", "prime_documents.rb")

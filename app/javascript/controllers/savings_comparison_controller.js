@@ -6,7 +6,7 @@ export default class extends Controller {
 
   connect() {
     console.log("💰 SavingsComparison controller connected")
-    
+
     // Écouter l'événement de mise à jour des données de simulation
     document.addEventListener('savings:update', this.updateSavings.bind(this))
   }
@@ -18,7 +18,7 @@ export default class extends Controller {
   // Méthode appelée quand les données de simulation changent
   updateSavings(event) {
     const data = event.detail
-    
+
     if (data.savings_data && data.savings_data.savings_amount > 500) {
       this.showSavingsComponent(data.savings_data, data.total_amount)
     } else {
@@ -28,9 +28,9 @@ export default class extends Controller {
 
   showSavingsComponent(savingsData, totalAmount) {
     console.log("💰 Showing savings component", savingsData)
-    
+
     const html = this.generateSavingsHTML(savingsData, totalAmount)
-    
+
     if (this.hasContainerTarget) {
       this.containerTarget.innerHTML = html
       this.containerTarget.style.display = 'block'
@@ -39,7 +39,7 @@ export default class extends Controller {
 
   hideSavingsComponent() {
     console.log("💰 Hiding savings component")
-    
+
     if (this.hasContainerTarget) {
       this.containerTarget.innerHTML = ''
       this.containerTarget.style.display = 'none'
@@ -49,7 +49,7 @@ export default class extends Controller {
   generateSavingsHTML(savingsData, totalAmount) {
     // Détecter si nous sommes dans un contexte d'entreprise
     const isEnterprise = savingsData?.subscription_details?.client_type === 'entreprise';
-    
+
     if (isEnterprise) {
       return this.generateEnterpriseHTML(savingsData);
     } else {
@@ -59,21 +59,21 @@ export default class extends Controller {
 
   generateEnterpriseHTML(savingsData) {
     return `
-      <div class="alert alert-success shadow-lg border-0 position-relative overflow-hidden mb-4" 
+      <div class="alert alert-success shadow-lg border-0 position-relative overflow-hidden mb-4"
            style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
-        
+
         <!-- Pattern décoratif -->
         <div class="position-absolute" style="top: 0; right: 0; opacity: 0.1; font-size: 150px; line-height: 1;">
           💼
         </div>
-        
+
         <div class="row align-items-center">
           <div class="col-md-8">
             <h4 class="text-white fw-bold mb-3">
               <i class="fas fa-building me-2"></i>
               Économies Substantielles pour votre Entreprise
             </h4>
-            
+
             <div class="row text-center text-white">
               <!-- Chasseur traditionnel -->
               <div class="col-4">
@@ -103,7 +103,7 @@ export default class extends Controller {
                   <h6 class="text-white-50 mb-1">Ren0vate Pro</h6>
                   <div class="fs-5 fw-bold">${this.formatCurrency(savingsData.saas_cost)}</div>
                   <small class="text-white-50">
-                    ${savingsData.subscription_details.monthly_price}€/mois × 
+                    ${savingsData.subscription_details.monthly_price}€/mois ×
                     ${savingsData.subscription_details.duration_months} mois
                   </small>
                 </div>
@@ -124,7 +124,7 @@ export default class extends Controller {
               </div>
             </div>
           </div>
-          
+
           <div class="col-md-4 text-center">
             <div class="mb-3">
               <h5 class="text-white fw-bold">💡 Gestion Professional</h5>
@@ -132,7 +132,7 @@ export default class extends Controller {
                 Plateforme dédiée aux entreprises avec support multi-dossiers et suivi administratif complet.
               </p>
             </div>
-            
+
             <a href="/pricing" class="btn btn-light btn-lg fw-bold px-4 py-3 shadow">
               <i class="fas fa-star me-2 text-warning"></i>
               Découvrir Ren0vate Pro
@@ -146,11 +146,11 @@ export default class extends Controller {
   generateStandardHTML(savingsData) {
     return `
       <div class="position-relative mb-4">
-        <div class="alert border-0 shadow-lg position-relative overflow-hidden" 
+        <div class="alert border-0 shadow-lg position-relative overflow-hidden"
              style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border-radius: 15px;">
-          
+
           <!-- Badge "Nouveau" -->
-          <div class="position-absolute top-0 end-0 bg-warning text-dark px-3 py-1 small fw-bold" 
+          <div class="position-absolute top-0 end-0 bg-warning text-dark px-3 py-1 small fw-bold"
                style="border-radius: 0 15px 0 10px;">
             <i class="bi bi-star-fill me-1"></i>NOUVEAU
           </div>
@@ -183,7 +183,7 @@ export default class extends Controller {
                   </div>
                 </div>
               </div>
-              
+
               <!-- Séparateur VS -->
               <div class="col-12 col-md-2 text-center mb-3 mb-md-0">
                 <div class="h2 text-white fw-bold">VS</div>
@@ -191,7 +191,7 @@ export default class extends Controller {
 
               <!-- Notre solution -->
               <div class="col-12 col-md-5">
-                <div class="bg-white rounded-3 p-4 text-center" 
+                <div class="bg-white rounded-3 p-4 text-center"
                      style="box-shadow: 0 0 30px rgba(255,255,255,0.3);">
                   <i class="bi bi-rocket-takeoff text-success" style="font-size: 2.5rem;"></i>
                   <h6 class="mt-2 mb-1 text-success">Avec Ren0vate</h6>

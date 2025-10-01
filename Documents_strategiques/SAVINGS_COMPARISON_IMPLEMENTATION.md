@@ -27,7 +27,7 @@ Système de comparaison économique entre le service SaaS Ren0vate et les "chass
 
 ### 4. JavaScript Dynamique
 **Fichier**: `app/javascript/controllers/savings_comparison_controller.js`
-- Écoute les événements `'savings:update'` 
+- Écoute les événements `'savings:update'`
 - Mise à jour HTML dynamique via `updateSavings(data)`
 - Formatage monétaire et gestion de l'affichage/masquage
 - Animations fluides avec classes CSS
@@ -40,7 +40,7 @@ Système de comparaison économique entre le service SaaS Ren0vate et les "chass
 - Réponse AJAX: Déclenche event avec `savings_data` du serveur
 - Méthode: `dispatchSavingsUpdateEvent(data)`
 
-#### Flandre  
+#### Flandre
 **Fichier**: `app/javascript/controllers/flandre_simulation_controller.js`
 - `updateTotalGlobal()`: Déclenche event savings avec total calculé
 - Réponse AJAX: Déclenche event avec `savings_data` du serveur
@@ -99,7 +99,7 @@ PRICING = {
 
 ### Tests Manuels Recommandés
 1. **Simulation > 1650€ en Flandre** → Économies > 250€ → Affichage
-2. **Simulation > 1665€ en Wallonie** → Économies > 250€ → Affichage  
+2. **Simulation > 1665€ en Wallonie** → Économies > 250€ → Affichage
 3. **Simulation > 1650€ en Bruxelles** → Économies > 250€ → Affichage
 4. **Modification dynamique** → Passage seuil → Affichage/masquage temps réel
 

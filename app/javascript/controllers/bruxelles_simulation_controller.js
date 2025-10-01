@@ -325,10 +325,10 @@ export default class extends Controller {
       .then(data => {
         if (data.success) {
           console.log("✅ Auto-save Bruxelles réussi:", data.total_amount, "€");
-          
+
           // Déclencher l'événement pour mettre à jour le composant d'économie
           this.dispatchSavingsUpdateEvent(data);
-          
+
           this.showSaveIndicator('success', data.total_amount);
         } else {
           console.error("❌ Erreur auto-save Bruxelles:", data.error);
@@ -436,7 +436,7 @@ export default class extends Controller {
       },
       bubbles: true
     });
-    
+
     document.dispatchEvent(event);
     console.log("💰 Événement savings:update déclenché (Bruxelles)", data.savings_data);
   }
