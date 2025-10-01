@@ -39,18 +39,31 @@ export default class extends Controller {
     const primesData = parentController.getPrimesData()
     const prime = primesData[this.slugValue]
 
+    console.log(`🔍 UpdatePlaceholder pour ${this.slugValue}, catégorie: ${currentCategory}`)
+
     if (prime && prime.placeholder) {
+      console.log(`📄 Placeholders disponibles:`, prime.placeholder)
       const placeholderTexte = prime.placeholder[currentCategory]
+      console.log(`🎯 Placeholder pour catégorie ${currentCategory}: "${placeholderTexte}"`)
 
       // Si un placeholder spécifique existe pour cette catégorie, on l'applique
-      if (placeholderTexte) {
+      if (placeholderTexte && placeholderTexte.trim() !== '') {
         this.inputTarget.placeholder = placeholderTexte
+        console.log(`✅ Placeholder appliqué: "${placeholderTexte}"`)
       } else {
-        // Fallback générique si aucun placeholder spécifique
-        this.inputTarget.placeholder = ["4", "3"].includes(currentCategory)
+        // Fallback plus intelligent basé sur la catégorie
+        const fallbackPlaceholder = ["4", "3"].includes(currentCategory)
           ? "Montant total de la facture (€)"
           : "Surface en m²"
+        this.inputTarget.placeholder = fallbackPlaceholder
+        console.log(`⚠️ Fallback appliqué: "${fallbackPlaceholder}"`)
       }
+    } else {
+      console.log(`❌ Pas de données placeholder pour ${this.slugValue}`)
+      // Fallback par défaut
+      this.inputTarget.placeholder = ["4", "3"].includes(currentCategory)
+        ? "Montant total de la facture (€)"
+        : "Surface en m²"
     }
   }
 

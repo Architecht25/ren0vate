@@ -13,8 +13,10 @@ export default class extends Controller {
     // Écouter les événements de recalcul forcé
     this.element.addEventListener('flandre:force:recalculate', this.forceRecalculate.bind(this))
 
-    // Mettre à jour le placeholder initial
-    this.updatePlaceholder()
+    // Mettre à jour le placeholder initial avec délai pour attendre les données
+    setTimeout(() => {
+      this.updatePlaceholder()
+    }, 150)
 
     // Calculer le montant initial avec un délai pour laisser le parent se charger
     setTimeout(() => {
@@ -51,18 +53,31 @@ export default class extends Controller {
     const primesData = parentController.getPrimesData()
     const prime = primesData[this.slugValue]
 
+    console.log(`🔍 UpdatePlaceholder pour ${this.slugValue}, catégorie: ${currentCategory}`)
+
     if (prime && prime.placeholder) {
+      console.log(`📄 Placeholders disponibles:`, prime.placeholder)
       const placeholderTexte = prime.placeholder[currentCategory]
+      console.log(`🎯 Placeholder pour catégorie ${currentCategory}: "${placeholderTexte}"`)
 
       // Si un placeholder spécifique existe pour cette catégorie, on l'applique
-      if (placeholderTexte) {
+      if (placeholderTexte && placeholderTexte.trim() !== '') {
         this.inputTarget.placeholder = placeholderTexte
+        console.log(`✅ Placeholder appliqué: "${placeholderTexte}"`)
       } else {
-        // Fallback générique si aucun placeholder spécifique
-        this.inputTarget.placeholder = ["4", "3"].includes(currentCategory)
+        // Fallback plus intelligent basé sur la catégorie
+        const fallbackPlaceholder = ["4", "3"].includes(currentCategory)
           ? "Montant total de la facture (€)"
           : "Surface en m²"
+        this.inputTarget.placeholder = fallbackPlaceholder
+        console.log(`⚠️ Fallback appliqué: "${fallbackPlaceholder}"`)
       }
+    } else {
+      console.log(`❌ Pas de données placeholder pour ${this.slugValue}`)
+      // Fallback par défaut
+      this.inputTarget.placeholder = ["4", "3"].includes(currentCategory)
+        ? "Montant total de la facture (€)"
+        : "Surface en m²"
     }
   }
 
@@ -72,6 +87,9 @@ export default class extends Controller {
       console.warn("Pas de slug défini pour cette carte Flandre")
       return
     }
+
+    // Mettre à jour le placeholder à chaque calcul
+    this.updatePlaceholder()
 
     // Récupérer le contrôleur parent pour accéder aux données
     const parentController = this.getParentController()

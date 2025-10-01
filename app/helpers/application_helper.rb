@@ -1,6 +1,20 @@
 module ApplicationHelper
   include FormulairePreremplissageHelper
 
+  # ==========================================
+  # MÉTHODES POUR LES DONNÉES SIMULATION
+  # ==========================================
+
+  def simulation_region_data(simulation)
+    return nil unless simulation&.region.present?
+
+    {
+      region: simulation.region.downcase,
+      formatted_region: simulation.region.capitalize,
+      created_date: simulation.created_at.strftime("%d/%m/%Y")
+    }
+  end
+
   # Helper pour les URLs d'images Active Storage sans paramètre locale
   def image_url_without_locale(attachment)
     return nil unless attachment.attached?

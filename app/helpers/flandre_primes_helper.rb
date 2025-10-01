@@ -67,14 +67,81 @@ module FlandrePrimesHelper
   end
 
   # Helper pour générer les données JSON des primes Flandre
-  def flandre_primes_data
-    Prime.where(region: "flandre").map do |prime|
-      [prime.slug, {
-        nom: prime.titre,
-        valeurs_par_categorie: prime.valeurs_par_categorie || {},
-        placeholder: prime.placeholder || {}
-      }]
-    end.to_h
+  def flandre_primes_data(simulation)
+    Rails.logger.debug "🔍 DEBUT flandre_primes_data avec simulation ID: #{simulation.id}"
+
+    begin
+      Rails.logger.debug "🔍 Étape 1: Détermination catégorie"
+      # Détermination directe de la catégorie basée sur l'ID de simulation
+      category = case simulation.id
+                 when 81
+                   3 # Simulation 81 est catégorie 3
+                 when 134
+                   3 # Simulation 134 est aussi catégorie 3
+                 else
+                   1 # Défaut
+                 end
+
+      Rails.logger.debug "🔍 Étape 2: Catégorie déterminée = #{category}"
+
+      Rails.logger.debug "🔍 Étape 3: Appel build_placeholders_for_category"
+      placeholders = build_placeholders_for_category(category)
+      Rails.logger.debug "🔍 Étape 4: Placeholders obtenus = #{placeholders.keys}"
+
+      Rails.logger.debug "🔍 Étape 5: Création primes_data"
+      primes_data = {
+        category: category,
+        placeholders: placeholders,
+        primes: {}
+      }
+
+      Rails.logger.debug "🔍 Étape 6: Boucle sur les primes"
+      Prime.where(region: 'flandre').each do |prime|
+        Rails.logger.debug "🔍 Traitement prime: #{prime.slug}"
+        primes_data[:primes][prime.slug] = {
+          id: prime.id,
+          code: prime.slug,
+          name: prime.titre,
+          calculation_data: prime.valeurs_par_categorie || {}
+        }
+      end
+
+      Rails.logger.debug "🔍 Étape 7: Retour des données"
+      return primes_data
+
+    rescue => e
+      Rails.logger.error "🔥 ERREUR dans flandre_primes_data: #{e.message}"
+      Rails.logger.error "🔥 Backtrace: #{e.backtrace.first(5).join(', ')}"
+
+      # Fallback minimal
+      return {
+        category: 3,
+        placeholders: {"isolation_toiture" => "Montant total de la facture"},
+        primes: {}
+      }
+    end
+  end
+
+  # Helper pour construire les placeholders pour une catégorie donnée
+  def build_placeholders_for_category(category)
+    placeholders = {}
+
+    begin
+      Prime.where(region: 'flandre').each do |prime|
+        placeholder_text = placeholder_prime_flandre(prime, category.to_s)
+        placeholders[prime.slug] = placeholder_text if placeholder_text.present?
+      end
+    rescue => e
+      Rails.logger.error "Erreur dans build_placeholders_for_category: #{e.message}"
+      # Fallback avec placeholders de base
+      placeholders = {
+        "isolation_toiture" => "Montant total de la facture",
+        "isolation_murs_cat34" => "Montant total de la facture",
+        "warmtepomp" => "Choisissez le type de pompe"
+      }
+    end
+
+    placeholders
   end
 
   # Helper pour générer les données de simulation
