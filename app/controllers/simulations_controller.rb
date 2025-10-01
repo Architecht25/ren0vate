@@ -51,6 +51,12 @@ class SimulationsController < ApplicationController
     # Rendre les variables disponibles dans la vue pour compatibilité
     @prime_cards_data = @prime_cards
     @simulation_total = @total_amount
+
+    # Calculer les économies vs chasseur de primes
+    if @total_amount > 0 && @simulation.region.present?
+      savings_calculator = SavingsCalculatorService.new(@total_amount, @simulation.region)
+      @savings_data = savings_calculator.calculate_savings
+    end
   end
 
   def new

@@ -119,6 +119,26 @@ if project
   puts "✅ Notification suivi projet créée"
 end
 
+# 11. Économie vs chasseur de primes
+if simulation&.total_simule && simulation.total_simule > 10000
+  savings_calculator = SavingsCalculatorService.new(simulation.total_simule, simulation.region)
+  savings_data = savings_calculator.calculate_savings
+
+  if savings_data && savings_data[:savings_amount] > 500
+    notification = Notification.create!(
+      user: user,
+      notification_type: 'conseil_optimisation',
+      title: "💰 Économisez #{savings_data[:savings_amount].round}€ avec notre modèle SaaS",
+      message: "Plutôt que de payer #{savings_data[:chasseur_cost].round}€ à un chasseur de primes (12,5% + TVA), notre abonnement #{simulation.region} ne vous coûte que #{savings_data[:saas_cost].round}€ sur #{savings_data[:subscription_details][:duration_months]} mois. Soit #{savings_data[:savings_percentage]}% d'économie !",
+      priority: 'normale',
+      read: false,
+      expires_at: 30.days.from_now
+    )
+    created_count += 1
+    puts "✅ Notification économie vs chasseur créée"
+  end
+end
+
 # Notifications admin d'exemple
 puts "\n📢 Création de notifications admin d'exemple..."
 
@@ -135,20 +155,17 @@ Notification.create_admin_notification(
 created_count += 1
 puts "✅ Notification admin légale créée"
 
-# Nouvelle prime
-if prime
-  Notification.create_admin_notification(
-    type: :admin_nouvelle_prime,
-    title: "🎉 Nouvelle prime pompe à chaleur disponible !",
-    message: "Une nouvelle prime pour les pompes à chaleur air-eau est maintenant disponible en région bruxelloise. Montant jusqu'à 4,000€ selon vos revenus. Vérifiez votre éligibilité dès maintenant !",
-    category: :primes,
-    priority: :normale,
-    target_users: User.where(region: "bruxelles"),
-    expires_at: 90.days.from_now
-  )
-  created_count += 1
-  puts "✅ Notification admin nouvelle prime créée"
-end
+# Notification économie avec encouragement
+Notification.create_admin_notification(
+  type: :admin_economie,
+  title: "🚀 Gérez vous-même vos primes et économisez des milliers d'euros",
+  message: "💡 Saviez-vous qu'un chasseur de primes traditionnel prend 12,5% + TVA de commission ? Sur une simulation de 20.000€, cela représente 3.025€ ! Avec notre abonnement, vous ne payez que quelques centaines d'euros et gardez le contrôle total de vos dossiers.",
+  category: :primes,
+  priority: :normale,
+  expires_at: 60.days.from_now
+)
+created_count += 1
+puts "✅ Notification admin économie créée"
 
 # Maintenance
 Notification.create_admin_notification(

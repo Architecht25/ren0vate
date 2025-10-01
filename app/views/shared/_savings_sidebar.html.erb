@@ -1,0 +1,31 @@
+<!-- Panneau d'économie simple pour sidebar ou footer -->
+<% if @savings_data && @savings_data[:savings_amount] > 500 %>
+  <div class="card border-success mb-3">
+    <div class="card-header bg-success text-white">
+      <i class="bi bi-lightbulb-fill me-2"></i>
+      <strong>Le saviez-vous ?</strong>
+    </div>
+    <div class="card-body">
+      <p class="card-text">
+        Avec votre simulation de <strong><%= number_to_currency(@total_amount, locale: :fr) %></strong>,
+        un chasseur de primes traditionnel vous aurait facturé
+        <strong><%= number_to_currency(@savings_data[:chasseur_cost], locale: :fr) %></strong>.
+      </p>
+      <p class="card-text">
+        Avec Ren0vate, vous ne payez que
+        <strong class="text-success"><%= number_to_currency(@savings_data[:saas_cost], locale: :fr) %></strong>
+        sur <%= @savings_data[:subscription_details][:duration_months] %> mois.
+      </p>
+      <div class="text-center">
+        <div class="h5 text-success mb-2">
+          <i class="bi bi-piggy-bank-fill me-2"></i>
+          Économie : <%= number_to_currency(@savings_data[:savings_amount], locale: :fr) %>
+        </div>
+        <%= link_to pricing_path, class: "btn btn-success btn-sm" do %>
+          <i class="bi bi-arrow-right-circle me-1"></i>
+          Choisir mon abonnement
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>
