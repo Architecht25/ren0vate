@@ -522,6 +522,20 @@ class PagesController < ApplicationController
   # Nouveau simulateur pour les aides aux entreprises Bruxelles
   def bruxelles_entreprises
     # Page principale du simulateur d'éligibilité aux aides pour entreprises à Bruxelles
+    # Initialiser les données pour le composant de comparaison d'économies
+    @savings_data = {
+      chasseur_cost: 0,
+      saas_cost: 0,
+      savings_amount: 0,
+      savings_percentage: 0,
+      significant: false,
+      subscription_details: {
+        monthly_price: 59.99,
+        duration_months: 24,
+        region: 'bruxelles',
+        client_type: 'entreprise'
+      }
+    }
   end
 
   def test_eligibility_bruxelles_entreprises

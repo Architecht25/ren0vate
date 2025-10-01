@@ -47,6 +47,103 @@ export default class extends Controller {
   }
 
   generateSavingsHTML(savingsData, totalAmount) {
+    // Détecter si nous sommes dans un contexte d'entreprise
+    const isEnterprise = savingsData?.subscription_details?.client_type === 'entreprise';
+    
+    if (isEnterprise) {
+      return this.generateEnterpriseHTML(savingsData);
+    } else {
+      return this.generateStandardHTML(savingsData);
+    }
+  }
+
+  generateEnterpriseHTML(savingsData) {
+    return `
+      <div class="alert alert-success shadow-lg border-0 position-relative overflow-hidden mb-4" 
+           style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+        
+        <!-- Pattern décoratif -->
+        <div class="position-absolute" style="top: 0; right: 0; opacity: 0.1; font-size: 150px; line-height: 1;">
+          💼
+        </div>
+        
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <h4 class="text-white fw-bold mb-3">
+              <i class="fas fa-building me-2"></i>
+              Économies Substantielles pour votre Entreprise
+            </h4>
+            
+            <div class="row text-center text-white">
+              <!-- Chasseur traditionnel -->
+              <div class="col-4">
+                <div class="bg-white bg-opacity-15 rounded p-3 h-100">
+                  <div class="text-warning mb-2">
+                    <i class="fas fa-user-tie fa-2x"></i>
+                  </div>
+                  <h6 class="text-white-50 mb-1">Chasseur traditionnel</h6>
+                  <div class="fs-5 fw-bold">${this.formatCurrency(savingsData.chasseur_cost)}</div>
+                  <small class="text-white-50">15.125% du montant des aides</small>
+                </div>
+              </div>
+
+              <!-- VS -->
+              <div class="col-1 d-flex align-items-center justify-content-center">
+                <div class="badge bg-white text-success fw-bold fs-6 px-3 py-2 rounded-circle">
+                  VS
+                </div>
+              </div>
+
+              <!-- Notre service -->
+              <div class="col-4">
+                <div class="bg-white bg-opacity-15 rounded p-3 h-100">
+                  <div class="text-info mb-2">
+                    <i class="fas fa-laptop-code fa-2x"></i>
+                  </div>
+                  <h6 class="text-white-50 mb-1">Ren0vate Pro</h6>
+                  <div class="fs-5 fw-bold">${this.formatCurrency(savingsData.saas_cost)}</div>
+                  <small class="text-white-50">
+                    ${savingsData.subscription_details.monthly_price}€/mois × 
+                    ${savingsData.subscription_details.duration_months} mois
+                  </small>
+                </div>
+              </div>
+
+              <!-- Économies -->
+              <div class="col-3">
+                <div class="bg-white bg-opacity-25 rounded p-3 h-100 border border-white border-opacity-50">
+                  <div class="text-white mb-2">
+                    <i class="fas fa-piggy-bank fa-2x"></i>
+                  </div>
+                  <h6 class="text-white-50 mb-1">Vous économisez</h6>
+                  <div class="fs-4 fw-bold text-white">${this.formatCurrency(savingsData.savings_amount)}</div>
+                  <div class="badge bg-white text-success fw-bold mt-1">
+                    -${savingsData.savings_percentage}%
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-4 text-center">
+            <div class="mb-3">
+              <h5 class="text-white fw-bold">💡 Gestion Professional</h5>
+              <p class="text-white-50 mb-3">
+                Plateforme dédiée aux entreprises avec support multi-dossiers et suivi administratif complet.
+              </p>
+            </div>
+            
+            <a href="/pricing" class="btn btn-light btn-lg fw-bold px-4 py-3 shadow">
+              <i class="fas fa-star me-2 text-warning"></i>
+              Découvrir Ren0vate Pro
+            </a>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  generateStandardHTML(savingsData) {
     return `
       <div class="position-relative mb-4">
         <div class="alert border-0 shadow-lg position-relative overflow-hidden" 

@@ -117,6 +117,12 @@ export default class extends Controller {
 
     // Afficher/masquer le résumé global selon le montant
     this.toggleGlobalSummary(totalGeneral > 0)
+
+    // Déclencher l'événement de mise à jour des économies
+    this.dispatchSavingsUpdateEvent({
+      total_amount: totalGeneral,
+      savings_data: null // sera calculé côté serveur
+    });
   }
 
   toggleGlobalSummary(show) {
@@ -385,5 +391,19 @@ export default class extends Controller {
 
     console.log("📋 Export des résultats:", summary)
     return summary
+  }
+
+  // Nouvelle méthode pour déclencher l'événement de mise à jour du composant d'économie
+  dispatchSavingsUpdateEvent(data) {
+    const event = new CustomEvent('savings:update', {
+      detail: {
+        total_amount: data.total_amount,
+        savings_data: data.savings_data
+      },
+      bubbles: true
+    });
+    
+    document.dispatchEvent(event);
+    console.log("💰 Événement savings:update déclenché (Entreprise Bruxelles)", data.savings_data);
   }
 }
