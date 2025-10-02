@@ -7,8 +7,13 @@
         <div class="card-header">
           <h4 class="mb-0">Modifier le suivi #<%= @request_progress.id %></h4>
           <p class="text-muted mb-0">
-            Demande pour : <%= @request.property.address %> -
-            Prime : <%= @request_progress.prime.nom %>
+            Demande pour :
+            <% if @request.property %>
+              <%= @request.property.address %>
+            <% else %>
+              <em>Aucune propriété associée</em>
+            <% end %> -
+            Prime : <%= @request_progress.prime.titre %>
           </p>
         </div>
         <div class="card-body">
@@ -29,7 +34,7 @@
                 <div class="mb-3">
                   <%= form.label :prime_id, "Prime", class: "form-label" %>
                   <%= form.select :prime_id,
-                                  options_from_collection_for_select(@primes, :id, :nom, @request_progress.prime_id),
+                                  options_from_collection_for_select(@primes, :id, :titre, @request_progress.prime_id),
                                   { prompt: "Sélectionnez une prime" },
                                   { class: "form-select", required: true } %>
                 </div>

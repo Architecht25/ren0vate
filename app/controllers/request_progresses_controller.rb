@@ -31,7 +31,9 @@ class RequestProgressesController < ApplicationController
       finalises: all_progresses.finalises.count,
       accordees: all_progresses.where(status_administratif: 'accorde').count,
       montant_total_demande: all_progresses.sum(:montant_demande) || 0,
-      montant_total_accorde: all_progresses.sum(:montant_accorde) || 0
+      montant_total_accorde: all_progresses.sum(:montant_accorde) || 0,
+      delais_depasses: all_progresses.select { |p| p.statut_delai == :depasse }.count,
+      delais_urgents: all_progresses.select { |p| p.statut_delai == :urgent }.count
     }
   end
 
@@ -118,7 +120,7 @@ class RequestProgressesController < ApplicationController
   private
 
   def set_request_progress
-    @request_progress = RequestProgress.find(params[:id])
+    @request_progress = RequestProgress.includes(request: :property).find(params[:id])
   end
 
   def set_request

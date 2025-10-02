@@ -6,7 +6,14 @@
       <div class="card">
         <div class="card-header">
           <h4 class="mb-0">Nouveau suivi de demande</h4>
-          <p class="text-muted mb-0">Demande pour : <%= @request.property.address %></p>
+          <p class="text-muted mb-0">
+            Demande pour :
+            <% if @request.property %>
+              <%= @request.property.address %>
+            <% else %>
+              <em>Aucune propriété associée</em>
+            <% end %>
+          </p>
         </div>
         <div class="card-body">
           <%= form_with model: [@request, @request_progress], local: true do |form| %>

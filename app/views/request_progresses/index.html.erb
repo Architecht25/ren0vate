@@ -6,7 +6,7 @@
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h3 mb-0">
           <%= t('request_progress.index_title') %>
-          <% if @request %>
+          <% if @request && @request.property %>
             - <%= @request.property.address %>
           <% end %>
         </h1>
@@ -21,42 +21,89 @@
       <!-- Statistiques -->
       <div class="row mb-4">
         <div class="col-md-2">
-          <div class="card text-center">
-            <div class="card-body">
+          <div class="card text-center h-100">
+            <div class="card-body d-flex flex-column justify-content-center">
               <h5 class="card-title text-primary"><%= @stats[:total] %></h5>
               <p class="card-text small">Total</p>
             </div>
           </div>
         </div>
         <div class="col-md-2">
-          <div class="card text-center">
-            <div class="card-body">
+          <div class="card text-center h-100">
+            <div class="card-body d-flex flex-column justify-content-center">
               <h5 class="card-title text-warning"><%= @stats[:en_attente] %></h5>
               <p class="card-text small">En attente</p>
             </div>
           </div>
         </div>
         <div class="col-md-2">
-          <div class="card text-center">
-            <div class="card-body">
+          <div class="card text-center h-100">
+            <div class="card-body d-flex flex-column justify-content-center">
               <h5 class="card-title text-success"><%= @stats[:accordees] %></h5>
               <p class="card-text small">Accordées</p>
             </div>
           </div>
         </div>
         <div class="col-md-3">
-          <div class="card text-center">
-            <div class="card-body">
-              <h5 class="card-title text-info"><%= number_to_currency(@stats[:montant_total_demande]) %></h5>
+          <div class="card text-center h-100">
+            <div class="card-body d-flex flex-column justify-content-center">
+              <h5 class="card-title text-info"><%= number_to_currency(@stats[:montant_total_demande], unit: "€", precision: 0, delimiter: ".", format: "%n %u") %></h5>
               <p class="card-text small">Montant demandé</p>
             </div>
           </div>
         </div>
         <div class="col-md-3">
-          <div class="card text-center">
-            <div class="card-body">
-              <h5 class="card-title text-success"><%= number_to_currency(@stats[:montant_total_accorde]) %></h5>
+          <div class="card text-center h-100">
+            <div class="card-body d-flex flex-column justify-content-center">
+              <h5 class="card-title text-success"><%= number_to_currency(@stats[:montant_total_accorde], unit: "€", precision: 0, delimiter: ".", format: "%n %u") %></h5>
               <p class="card-text small">Montant accordé</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Statistiques de délais -->
+      <div class="row mb-4">
+        <div class="col-md-2">
+          <div class="card text-center border-danger h-100">
+            <div class="card-body d-flex flex-column justify-content-center">
+              <h5 class="card-title text-danger">
+                <i class="fas fa-exclamation-triangle me-1"></i>
+                <%= @stats[:delais_depasses] %>
+              </h5>
+              <p class="card-text small">Délais dépassés</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="card text-center border-warning h-100">
+            <div class="card-body d-flex flex-column justify-content-center">
+              <h5 class="card-title text-warning">
+                <i class="fas fa-clock me-1"></i>
+                <%= @stats[:delais_urgents] %>
+              </h5>
+              <p class="card-text small">Délais urgents</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card h-100">
+            <div class="card-body d-flex flex-column justify-content-center">
+              <h6 class="card-title">Délais moyen de réponse de l'administration</h6>
+              <div class="row text-center">
+                <div class="col">
+                  <strong>Flandre</strong><br>
+                  <span class="text-muted">5 mois</span>
+                </div>
+                <div class="col">
+                  <strong>Bruxelles</strong><br>
+                  <span class="text-muted">4 mois</span>
+                </div>
+                <div class="col">
+                  <strong>Wallonie</strong><br>
+                  <span class="text-muted">18 mois</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -110,6 +157,7 @@
                     <th>Prime</th>
                     <th>Statut</th>
                     <th>Progression</th>
+                    <th>Temps restant</th>
                     <th>Montant demandé</th>
                     <th>Montant accordé</th>
                     <th>Dernière MAJ</th>
@@ -151,10 +199,33 @@
                         <small class="text-muted"><%= progress.pourcentage %>%</small>
                       </td>
                       <td>
-                        <%= number_to_currency(progress.montant_demande) if progress.montant_demande %>
+                        <div class="d-flex flex-column">
+                          <span class="<%= progress.classe_css_delai %>">
+                            <% case progress.statut_delai %>
+                            <% when :depasse %>
+                              <i class="fas fa-exclamation-triangle me-1" title="Délai dépassé"></i>
+                            <% when :urgent %>
+                              <i class="fas fa-clock me-1" title="Urgent - moins de 30 jours"></i>
+                            <% when :proche %>
+                              <i class="fas fa-hourglass-half me-1" title="Délai proche - moins de 3 mois"></i>
+                            <% else %>
+                              <i class="fas fa-check-circle me-1" title="Dans les temps"></i>
+                            <% end %>
+                            <%= progress.temps_restant_humanise %>
+                          </span>
+                          <% if progress.date_limite_reponse %>
+                            <small class="text-muted">
+                              <i class="fas fa-calendar-alt me-1"></i>
+                              <%= l(progress.date_limite_reponse, format: :short) %>
+                            </small>
+                          <% end %>
+                        </div>
                       </td>
                       <td>
-                        <%= number_to_currency(progress.montant_accorde) if progress.montant_accorde %>
+                        <%= number_to_currency(progress.montant_demande, unit: "€", delimiter: ".", separator: ",", format: "%n %u") if progress.montant_demande %>
+                      </td>
+                      <td>
+                        <%= number_to_currency(progress.montant_accorde, unit: "€", delimiter: ".", separator: ",", format: "%n %u") if progress.montant_accorde %>
                         <% if progress.montant_demande&.positive? && progress.montant_accorde %>
                           <br><small class="text-muted">(<%= progress.taux_octroi %>%)</small>
                         <% end %>

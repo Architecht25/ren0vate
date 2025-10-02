@@ -74,6 +74,76 @@ class RequestProgress < ApplicationRecord
     (montant_accorde / montant_demande * 100).round(2)
   end
 
+  # Délais de réponse par région (en mois)
+  DELAIS_REPONSE = {
+    'flandre' => 5,
+    'bruxelles' => 4,
+    'wallonie' => 18
+  }.freeze
+
+  # Méthodes pour le calcul du temps restant
+  def delai_reponse_mois
+    DELAIS_REPONSE[region&.downcase] || 6 # défaut si région inconnue
+  end
+
+  def date_limite_reponse
+    return nil unless date_soumission
+    date_soumission + delai_reponse_mois.months
+  end
+
+  def jours_restants
+    return nil unless date_limite_reponse
+    (date_limite_reponse - Date.current).to_i
+  end
+
+  def temps_restant_humanise
+    return "Date de soumission manquante" unless date_soumission
+
+    jours = jours_restants
+    return "Délai dépassé" if jours < 0
+
+    if jours == 0
+      "Expire aujourd'hui"
+    elsif jours == 1
+      "1 jour restant"
+    elsif jours < 30
+      "#{jours} jours restants"
+    elsif jours < 365
+      mois = (jours / 30.0).round(1)
+      if mois == mois.to_i
+        "#{mois.to_i} mois restant#{'s' if mois.to_i > 1}"
+      else
+        "#{mois} mois restants"
+      end
+    else
+      annees = (jours / 365.0).round(1)
+      "#{annees} an#{'s' if annees > 1} restant#{'s' if annees > 1}"
+    end
+  end
+
+  def statut_delai
+    return :inconnu unless date_soumission
+
+    jours = jours_restants
+    return :depasse if jours < 0
+    return :urgent if jours <= 30
+    return :proche if jours <= 90
+    :normal
+  end
+
+  def classe_css_delai
+    case statut_delai
+    when :depasse
+      'text-danger fw-bold'
+    when :urgent
+      'text-warning fw-bold'
+    when :proche
+      'text-info'
+    else
+      'text-success'
+    end
+  end
+
   # Méthodes pour le tracking email
   def has_extracted_data?
     extracted_data.present?

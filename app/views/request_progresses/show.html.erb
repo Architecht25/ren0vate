@@ -12,11 +12,17 @@
               <li class="breadcrumb-item">
                 <%= link_to "Propriétés", properties_path %>
               </li>
+              <% if @request.property %>
               <li class="breadcrumb-item">
                 <%= link_to @request.property.address, @request.property %>
               </li>
+              <% end %>
               <li class="breadcrumb-item">
-                <%= link_to "Demandes", property_requests_path(@request.property) %>
+                <% if @request.property %>
+                  <%= link_to "Demandes", property_requests_path(@request.property) %>
+                <% else %>
+                  <%= link_to "Demandes", requests_path %>
+                <% end %>
               </li>
               <li class="breadcrumb-item">
                 <%= link_to "Suivis", request_request_progresses_path(@request) %>
@@ -105,6 +111,29 @@
                         <td class="fw-bold">Date soumission :</td>
                         <td><%= l(@request_progress.date_soumission, format: :long) %></td>
                       </tr>
+                      <tr>
+                        <td class="fw-bold">Date limite réponse :</td>
+                        <td>
+                          <% if @request_progress.date_limite_reponse %>
+                            <%= l(@request_progress.date_limite_reponse, format: :long) %>
+                          <% else %>
+                            <em>Non calculable</em>
+                          <% end %>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="fw-bold">Temps restant :</td>
+                        <td>
+                          <span class="<%= @request_progress.classe_css_delai %>">
+                            <%= @request_progress.temps_restant_humanise %>
+                          </span>
+                          <% if @request_progress.statut_delai == :depasse %>
+                            <i class="fas fa-exclamation-triangle ms-1" title="Délai dépassé"></i>
+                          <% elsif @request_progress.statut_delai == :urgent %>
+                            <i class="fas fa-clock ms-1" title="Urgent"></i>
+                          <% end %>
+                        </td>
+                      </tr>
                     <% end %>
                     <% if @request_progress.date_derniere_maj %>
                       <tr>
@@ -136,7 +165,7 @@
                 <div class="col-md-4">
                   <div class="border rounded p-3">
                     <h4 class="text-primary mb-1">
-                      <%= number_to_currency(@request_progress.montant_demande || 0) %>
+                      <%= number_to_currency(@request_progress.montant_demande || 0, unit: "€", delimiter: ".", separator: ",", format: "%n %u") %>
                     </h4>
                     <small class="text-muted">Montant demandé</small>
                   </div>
@@ -144,7 +173,7 @@
                 <div class="col-md-4">
                   <div class="border rounded p-3">
                     <h4 class="text-success mb-1">
-                      <%= number_to_currency(@request_progress.montant_accorde || 0) %>
+                      <%= number_to_currency(@request_progress.montant_accorde || 0, unit: "€", delimiter: ".", separator: ",", format: "%n %u") %>
                     </h4>
                     <small class="text-muted">Montant accordé</small>
                   </div>
@@ -245,7 +274,11 @@
             <div class="card-body">
               <p class="mb-2">
                 <strong>Propriété :</strong><br>
-                <%= @request.property.address %>
+                <% if @request.property %>
+                  <%= @request.property.address %>
+                <% else %>
+                  <em>Aucune propriété associée</em>
+                <% end %>
               </p>
               <% if @request.project %>
                 <p class="mb-2">
