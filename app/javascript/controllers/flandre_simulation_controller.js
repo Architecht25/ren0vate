@@ -22,6 +22,7 @@ export default class extends Controller {
 
     this.currentCategory = this.getCurrentCategory()
     this.setupPrimesData()
+    this.setupGroupesPlafond()
     this.setupAutoSaveListeners()
 
     // Debug: vérifier quelles cartes sont présentes
@@ -100,6 +101,24 @@ export default class extends Controller {
     }
   }
 
+  setupGroupesPlafond() {
+    // Configuration des groupes de plafond pour Flandre
+    this.groupesPlafond = {
+      toiture: ["isolation_toiture", "renovation_toiture"],
+      murs: ["isolation_murs_cat34", "renovation_murs"],
+      sol: ["isolation_sol", "renovation_sol"]
+    };
+
+    // Plafonds par groupe et par catégorie pour Flandre
+    this.plafondsParGroupeEtCategorie = {
+      toiture: { "1": 0, "2": 0, "3": 4025, "4": 5750 },
+      murs:    { "1": 0, "2": 0, "3": 3500, "4": 5000 },
+      sol:     { "1": 0, "2": 0, "3": 1050, "4": 1500 }
+    };
+
+    console.log("🏗️ Configuration des groupes de plafond Flandre initialisée")
+  }
+
   triggerCardsRecalculation() {
     console.log("🔄 Déclenchement du recalcul de toutes les cartes Flandre")
     const flandreCards = this.element.querySelectorAll('[data-controller*="flandre-simulation-card"]')
@@ -174,9 +193,56 @@ export default class extends Controller {
     })
 
     console.log(`📊 Résumé: ${cartesFoundCount}/${cartesSlugs.length} cartes trouvées, ${cartesWithTotal} avec target result`)
-    console.log(`🎯 Total global Flandre calculé: ${total}€`)
 
-    console.log(`🎯 Total global Flandre calculé: ${total}€`)
+    // Ajouter le montant PEB s'il est visible
+    let montantPEB = 0
+    console.log("🔍 Recherche de la carte PEB...")
+
+    // Plusieurs sélecteurs possibles pour PEB
+    const pebSelectors = [
+      '[data-peb-target="resultatContainer"]',
+      '[data-controller="peb"] [data-peb-target="resultatContainer"]',
+      '.alert[data-peb-target="resultatContainer"]'
+    ]
+
+    let pebContainer = null
+    for (const selector of pebSelectors) {
+      pebContainer = document.querySelector(selector)
+      if (pebContainer) {
+        console.log(`✅ Conteneur PEB trouvé avec sélecteur: ${selector}`)
+        break
+      }
+    }
+
+    if (pebContainer && !pebContainer.classList.contains('d-none')) {
+      console.log("✅ Conteneur PEB visible")
+      const pebMontant = pebContainer.querySelector('[data-peb-target="montantCalcule"]')
+      if (pebMontant) {
+        const montantText = pebMontant.textContent.trim()
+        console.log(`🔍 Texte PEB brut: "${montantText}"`)
+
+        // Améliorer le parsing du montant PEB
+        const cleanText = montantText.replace(/[€\s\.]/g, '').replace(',', '.')
+        montantPEB = parseFloat(cleanText) || 0
+
+        if (montantPEB > 0) {
+          total += montantPEB
+          console.log(`🏢 Prime PEB: ${montantPEB}€`)
+        } else {
+          console.log(`⚪ Prime PEB: 0€ (texte: "${montantText}")`)
+        }
+      } else {
+        console.log("❌ Élément montantCalcule PEB non trouvé")
+      }
+    } else {
+      if (!pebContainer) {
+        console.log("❌ Conteneur PEB non trouvé dans le DOM")
+      } else {
+        console.log("❌ Conteneur PEB masqué (classe d-none)")
+      }
+    }
+
+    console.log(`🎯 Total global Flandre calculé: ${total}€${montantPEB > 0 ? ` (dont PEB: ${montantPEB}€)` : ''}`)
 
     // Mettre à jour l'affichage du total
     if (this.hasTotalGeneralTarget) {
@@ -535,5 +601,40 @@ export default class extends Controller {
 
     document.dispatchEvent(event);
     console.log("💰 Événement savings:update déclenché", data.savings_data);
+  }
+
+  // Méthode pour calculer le montant avec plafond de groupe
+  calculateMontantAvecPlafond(slug, montantPropose) {
+    const currentCategory = this.categorieValue || window.flandreCurrentCategory || "3"
+
+    if (["1", "2"].includes(currentCategory)) {
+      return { montant: montantPropose, resteDisponible: Infinity }
+    }
+
+    let groupe = null
+
+    for (const [g, slugs] of Object.entries(this.groupesPlafond || {})) {
+      if (slugs.includes(slug)) {
+        groupe = g
+        break
+      }
+    }
+
+    if (!groupe) return { montant: montantPropose, resteDisponible: Infinity }
+
+    const plafond = this.plafondsParGroupeEtCategorie[groupe][currentCategory] || Infinity
+    const slugsGroupe = this.groupesPlafond[groupe]
+
+    const totalDejaAffiche = slugsGroupe.reduce((somme, s) => {
+      if (s === slug) return somme // on ignore la carte en cours
+      const span = document.querySelector(`[data-flandre-simulation-card-slug-value="${s}"] [data-flandre-simulation-card-target="result"]`)
+      const val = parseFloat(span?.textContent.replace(/[€\s\.]/g, '').replace(',', '.') || 0)
+      return somme + (isNaN(val) ? 0 : val)
+    }, 0)
+
+    const plafondRestant = plafond - totalDejaAffiche
+    const montantFinal = Math.min(montantPropose, plafondRestant)
+
+    return { montant: montantFinal, resteDisponible: plafondRestant }
   }
 }

@@ -197,8 +197,38 @@ export default class extends Controller {
 
   // Méthode pour mettre à jour le total global des primes
   mettreAJourTotalPrimes() {
+    console.log("🔄 PEB: Mise à jour du total demandée")
+
+    // D'abord essayer de déclencher via le controller parent Flandre
+    let flandreController = document.querySelector('[data-controller*="flandre-simulation"]')
+    if (!flandreController) {
+      // Essayer d'autres sélecteurs
+      flandreController = document.querySelector('[data-controller="flandre-simulation"]')
+    }
+
+    console.log("🔍 PEB: Controller Flandre trouvé:", !!flandreController)
+
+    if (flandreController) {
+      const controller = this.application.getControllerForElementAndIdentifier(flandreController, 'flandre-simulation')
+      console.log("🔍 PEB: Instance controller trouvée:", !!controller)
+
+      if (controller && typeof controller.updateTotalGlobal === 'function') {
+        console.log("💰 PEB: Déclenchement updateTotalGlobal...")
+        controller.updateTotalGlobal()
+        console.log("💰 Total mis à jour via controller Flandre")
+        return
+      } else {
+        console.log("❌ PEB: updateTotalGlobal non disponible")
+      }
+    }
+
+    console.log("⚠️ PEB: Fallback vers mise à jour directe")
+    // Fallback: mise à jour directe du span total (pour compatibilité)
     const totalSpan = document.querySelector("#total-primes-affiche")
-    if (!totalSpan) return
+    if (!totalSpan) {
+      console.log("❌ PEB: Span total non trouvé")
+      return
+    }
 
     // Calculer le total des primes normales
     const totalPrimesNormales = Array.from(document.querySelectorAll(".prime-result"))
@@ -221,7 +251,7 @@ export default class extends Controller {
     const totalFinal = totalPrimesNormales + montantPEB
     totalSpan.textContent = `${totalFinal.toFixed(2)} €`
 
-    console.log("Total mis à jour:", { totalPrimesNormales, montantPEB, totalFinal })
+    console.log("💰 Total mis à jour (fallback):", { totalPrimesNormales, montantPEB, totalFinal })
   }
 
   // Fonction utilitaire pour capitaliser la première lettre
