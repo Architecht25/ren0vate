@@ -1,0 +1,33 @@
+🧪 Test du système de tracking - <%= @prime.titre %>
+
+Bonjour,
+
+Ceci est un email de test pour valider le système de communication bidirectionnelle avec les administrations.
+
+⚠️ Important : Cet email utilise l'adresse de tracking générée automatiquement.
+Vous pouvez répondre directement à cet email pour tester la réception !
+
+Détails de la demande :
+- Prime : <%= @prime.titre %>
+- Région : <%= @request_progress.region.capitalize %>
+<% if @property %>- Propriété : <%= @property.address %>
+<% end %>- ID Suivi : #<%= @request_progress.id %>
+
+📧 Adresse de tracking générée :
+<%= @email_tracking %>
+
+Comment tester :
+1. Répondez à cet email
+2. Ou envoyez un nouvel email vers l'adresse ci-dessus
+3. L'application traitera automatiquement votre message
+4. Vous recevrez une confirmation du traitement
+
+Temps restant pour la réponse :
+<%= @request_progress.temps_restant_humanise %>
+<% if @request_progress.date_limite_reponse %>
+(jusqu'au <%= l(@request_progress.date_limite_reponse, format: :long) %>)
+<% end %>
+
+--
+Email généré automatiquement par Ren0vate - Système de test
+Reply-To: <%= @email_tracking %>

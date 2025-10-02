@@ -1,4 +1,4 @@
 class ApplicationMailbox < ActionMailbox::Base
-  # Router tous les emails vers le domaine tracking.ren0vate.be vers TrackingMailbox
-  routing /@tracking\.ren0vate\.be$/i => :tracking
+  # Router tous les emails vers les domaines tracking (production et développement) vers TrackingMailbox
+  routing /@tracking\.(ren0vate\.be|example\.com)$/i => :tracking
 end

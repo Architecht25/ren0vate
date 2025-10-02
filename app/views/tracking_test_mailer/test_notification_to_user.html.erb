@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { background-color: #007bff; color: white; padding: 20px; text-align: center; }
+      .content { padding: 20px; background-color: #f8f9fa; }
+      .tracking-info { background-color: #e9ecef; padding: 15px; border-radius: 5px; margin: 15px 0; }
+      .footer { background-color: #6c757d; color: white; padding: 15px; text-align: center; font-size: 12px; }
+      .alert { background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 15px; border-radius: 5px; margin: 15px 0; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🧪 Test du système de tracking</h1>
+      </div>
+
+      <div class="content">
+        <p>Bonjour,</p>
+
+        <p>Ceci est un <strong>email de test</strong> pour valider le système de communication bidirectionnelle avec les administrations.</p>
+
+        <div class="alert">
+          <strong>⚠️ Important :</strong> Cet email utilise l'adresse de tracking générée automatiquement.
+          Vous pouvez répondre directement à cet email pour tester la réception !
+        </div>
+
+        <h3>Détails de la demande :</h3>
+        <ul>
+          <li><strong>Prime :</strong> <%= @prime.titre %></li>
+          <li><strong>Région :</strong> <%= @request_progress.region.capitalize %></li>
+          <% if @property %>
+            <li><strong>Propriété :</strong> <%= @property.address %></li>
+          <% end %>
+          <li><strong>ID Suivi :</strong> #<%= @request_progress.id %></li>
+        </ul>
+
+        <div class="tracking-info">
+          <h4>📧 Adresse de tracking générée :</h4>
+          <code><%= @email_tracking %></code>
+
+          <p><strong>Comment tester :</strong></p>
+          <ol>
+            <li>Répondez à cet email</li>
+            <li>Ou envoyez un nouvel email vers l'adresse ci-dessus</li>
+            <li>L'application traitera automatiquement votre message</li>
+            <li>Vous recevrez une confirmation du traitement</li>
+          </ol>
+        </div>
+
+        <h3>Temps restant pour la réponse :</h3>
+        <p class="<%= @request_progress.classe_css_delai %>">
+          <%= @request_progress.temps_restant_humanise %>
+          <% if @request_progress.date_limite_reponse %>
+            (jusqu'au <%= l(@request_progress.date_limite_reponse, format: :long) %>)
+          <% end %>
+        </p>
+      </div>
+
+      <div class="footer">
+        <p>Email généré automatiquement par Ren0vate - Système de test</p>
+        <p>Reply-To: <%= @email_tracking %></p>
+      </div>
+    </div>
+  </body>
+</html>

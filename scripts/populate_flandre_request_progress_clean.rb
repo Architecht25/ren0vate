@@ -97,7 +97,7 @@ primes.each_with_index do |prime, index|
                         when 'soumis' then "Dossier soumis - En attente d'analyse"
                         when 'en_preparation' then nil
                         end,
-    email_suivi: "#{state}-#{prime.slug}-#{Time.current.to_i}@tracking.example.com"
+    email_suivi: "#{state}-#{prime.slug}-#{Time.current.to_i}@tracking.ren0vate.be"
   )
 
   puts "  ✅ #{prime.titre}: #{state} (#{montant_demande}€#{montant_accorde ? " → #{montant_accorde}€" : ""})"

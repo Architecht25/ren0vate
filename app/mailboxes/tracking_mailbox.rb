@@ -1,10 +1,12 @@
 class TrackingMailbox < ApplicationMailbox
   # Traiter uniquement les emails envoyés aux adresses de tracking
-  before_processing :find_request_progress
-  before_processing :ensure_request_progress_exists
 
   def process
     Rails.logger.info "📧 Traitement d'un email de tracking pour: #{mail.to.first}"
+
+    # Rechercher le RequestProgress correspondant
+    find_request_progress
+    ensure_request_progress_exists
 
     # Mettre à jour les informations de base
     update_request_progress_from_email
@@ -22,14 +24,19 @@ class TrackingMailbox < ApplicationMailbox
 
   def find_request_progress
     email_address = mail.to.first
+    Rails.logger.info "🔍 Recherche RequestProgress pour: #{email_address}"
     @request_progress = RequestProgress.find_by(email_suivi: email_address)
+    Rails.logger.info "📧 RequestProgress #{@request_progress ? "trouvé (ID: #{@request_progress.id})" : "NON TROUVÉ"}"
   end
 
   def ensure_request_progress_exists
     unless @request_progress
       Rails.logger.error "❌ Aucun RequestProgress trouvé pour l'email: #{mail.to.first}"
+      Rails.logger.error "📋 Adresses disponibles: #{RequestProgress.pluck(:email_suivi).join(', ')}"
       # Optionnel: envoyer un email de bounce ou créer une notification admin
       bounce_with ProcessingError.new("Adresse de tracking non reconnue")
+    else
+      Rails.logger.info "✅ RequestProgress #{@request_progress.id} prêt pour traitement"
     end
   end
 
@@ -163,8 +170,11 @@ class TrackingMailbox < ApplicationMailbox
   def notify_user_of_update
     # Envoyer une notification à l'utilisateur propriétaire de la demande
     request = @request_progress.request
-    user = request.property.user
+    return unless request&.property&.user
 
+    user = request.property.user
     UserMailer.tracking_email_received(user, @request_progress).deliver_later
+  rescue => e
+    Rails.logger.error "❌ Erreur lors de l'envoi de notification: #{e.message}"
   end
 end

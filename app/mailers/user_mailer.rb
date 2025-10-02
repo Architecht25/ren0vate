@@ -44,4 +44,17 @@ class UserMailer < Devise::Mailer
       **opts
     )
   end
+
+  def tracking_email_received(user, request_progress)
+    @user = user
+    @request_progress = request_progress
+    @prime = request_progress.prime
+
+    I18n.with_locale(user.preferred_locale || I18n.default_locale) do
+      mail(
+        to: user.email,
+        subject: "📧 Nouvelle réponse administrative - #{@prime&.titre || 'Votre demande'}"
+      )
+    end
+  end
 end

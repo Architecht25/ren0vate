@@ -34,11 +34,15 @@ Rails.application.configure do
   # Store uploaded files on Cloudinary for development (same as production)
   config.active_storage.service = :cloudinary
 
-  # Configuration mailer pour développement - sauvegarde dans tmp/mails
+  # Configuration mailer pour développement - utilisation de Mailcatcher
   config.action_mailer.raise_delivery_errors = true
   config.action_mailer.perform_deliveries = true
-  config.action_mailer.delivery_method = :file
-  config.action_mailer.file_settings = { location: Rails.root.join('tmp/mails') }
+  config.action_mailer.delivery_method = :smtp
+  config.action_mailer.smtp_settings = {
+    address: 'localhost',
+    port: 1025,
+    domain: 'localhost'
+  }
 
   # Make template changes take effect immediately.
   config.action_mailer.perform_caching = false

@@ -149,6 +149,26 @@ class RequestProgress < ApplicationRecord
     extracted_data.present?
   end
 
+  def tracking_email_domain
+    email_suivi&.split('@')&.last
+  end
+
+  def is_tracking_email_valid?
+    tracking_email_domain == 'tracking.ren0vate.be'
+  end
+
+  def send_test_notification(user_email = 'robin@primes-services.be')
+    TrackingEmailTestService.new(self).send_test_notification_to_user(user_email)
+  end
+
+  def simulate_admin_response(from_email = 'robin@primes-services.be')
+    TrackingEmailTestService.new(self).simulate_admin_email_response(from_email)
+  end
+
+  def test_full_email_cycle(user_email = 'robin@primes-services.be')
+    TrackingEmailTestService.new(self).run_full_test_cycle(user_email)
+  end
+
   def parsed_extracted_data
     return {} if extracted_data.blank?
 
