@@ -10,8 +10,8 @@ class Request < ApplicationRecord
   # Support pour les fichiers Flandre
   has_many_attached :document_devis
   has_many_attached :document_factures
-  has_one_attached :document_aer
-  has_one_attached :document_peb
+  has_many_attached :document_aer
+  has_many_attached :document_peb
   has_many_attached :document_attestations
   has_many_attached :document_photos
   has_many_attached :document_autres
