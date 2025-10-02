@@ -143,8 +143,8 @@
               <div class="upload-zone" id="upload-zone" data-controller="document-preview">
                 <div class="upload-content">
                   <i class="bi bi-cloud-upload upload-icon" id="upload-icon"></i>
-                  <h6 class="upload-title" id="upload-title">Glissez-déposez votre fichier ici</h6>
-                  <p class="upload-text text-muted" id="upload-text">ou cliquez pour sélectionner</p>
+                  <h6 class="upload-title" id="upload-title">Glissez-déposez vos fichiers ici</h6>
+                  <p class="upload-text text-muted" id="upload-text">ou cliquez pour sélectionner (plusieurs fichiers possibles)</p>
                   <div class="upload-formats">
                     <small class="text-muted" id="upload-formats">
                       Formats acceptés: PDF, Images (JPEG, PNG, GIF, WebP), Word, Excel
@@ -155,13 +155,14 @@
                 <%= form.file_field :file,
                     class: "upload-input",
                     accept: ".pdf,.jpg,.jpeg,.png,.gif,.webp,.doc,.docx,.xls,.xlsx",
+                    multiple: true,
                     required: true,
                     data: {
                       "document-preview-target": "input",
                       action: "change->document-preview#previewFile"
                     } %>
                 <div class="invalid-feedback">
-                  Veuillez sélectionner un fichier.
+                  Veuillez sélectionner au moins un fichier.
                 </div>
               </div>
 
@@ -473,27 +474,71 @@ document.addEventListener('turbo:load', function() {
     if (isOcrMode) {
       uploadZone.classList.add('ocr-mode');
       uploadIcon.className = 'bi bi-eye upload-icon';
-      uploadTitle.textContent = 'Glissez-déposez votre document pour scan OCR';
-      uploadText.textContent = 'Le texte sera automatiquement extrait du document';
+      uploadTitle.textContent = 'Glissez-déposez vos documents pour scan OCR';
+      uploadText.textContent = 'Le texte sera automatiquement extrait de chaque document';
       uploadFormats.innerHTML = `
         <small class="text-info">
           <i class="bi bi-info-circle me-1"></i>
           Formats optimaux pour OCR: PDF, JPEG, PNG
           <br>Le texte extrait sera ajouté automatiquement aux notes
+          <br>Plusieurs fichiers possibles
         </small>
       `;
     } else {
       uploadZone.classList.remove('ocr-mode');
       uploadIcon.className = 'bi bi-cloud-upload upload-icon';
-      uploadTitle.textContent = 'Glissez-déposez votre fichier ici';
-      uploadText.textContent = 'ou cliquez pour sélectionner';
+      uploadTitle.textContent = 'Glissez-déposez vos fichiers ici';
+      uploadText.textContent = 'ou cliquez pour sélectionner (plusieurs fichiers possibles)';
       uploadFormats.innerHTML = `
         <small class="text-muted">
           Formats acceptés: PDF, Images (JPEG, PNG, GIF, WebP), Word, Excel
-          <br>Taille max: 10 MB
+          <br>Taille max: 10 MB par fichier
         </small>
       `;
     }
+  }
+
+  // Gestion multiple de fichiers
+  function handleMultipleFileSelect(files) {
+    if (files.length === 1) {
+      // Un seul fichier : utiliser la logique existante
+      handleFileSelect(files[0]);
+    } else {
+      // Plusieurs fichiers : afficher la liste
+      showMultipleFilesPreview(files);
+    }
+  }
+
+  function showMultipleFilesPreview(files) {
+    const filesArray = Array.from(files);
+    const fileNames = filesArray.map(file => file.name).join(', ');
+
+    uploadZone.style.display = 'none';
+    filePreview.style.display = 'block';
+
+    filePreview.innerHTML = `
+      <div class="multiple-files-preview">
+        <div class="d-flex align-items-center mb-3">
+          <i class="bi bi-files text-primary me-2" style="font-size: 2rem;"></i>
+          <div>
+            <h6 class="mb-1">${files.length} fichier(s) sélectionné(s)</h6>
+            <p class="text-muted mb-0 small">${fileNames}</p>
+          </div>
+        </div>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-sm btn-outline-secondary" id="change-files">
+            <i class="bi bi-arrow-repeat me-1"></i>Changer
+          </button>
+        </div>
+      </div>
+    `;
+
+    // Handler pour changer les fichiers
+    document.getElementById('change-files').addEventListener('click', function() {
+      fileInput.value = '';
+      filePreview.style.display = 'none';
+      uploadZone.style.display = 'block';
+    });
   }
 
   // Drag & Drop handlers
@@ -514,7 +559,7 @@ document.addEventListener('turbo:load', function() {
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       fileInput.files = files;
-      handleFileSelect(files[0]);
+      handleMultipleFileSelect(files);
     }
   });
 
@@ -526,7 +571,7 @@ document.addEventListener('turbo:load', function() {
   // File selection handler
   fileInput.addEventListener('change', function(e) {
     if (e.target.files.length > 0) {
-      handleFileSelect(e.target.files[0]);
+      handleMultipleFileSelect(e.target.files);
     }
   });
 

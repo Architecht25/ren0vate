@@ -123,41 +123,62 @@ class DocumentsController < ApplicationController
 
   # POST /documents (Upload via AJAX ou form)
   def create
-    @document = current_user.documents.build(document_params)
+    uploaded_files = params[:document][:file]
+    uploaded_files = [uploaded_files] unless uploaded_files.is_a?(Array)
 
-    # Définir le statut par défaut si non fourni
-    @document.status = 'pending' if @document.status.blank?
+    created_documents = []
+    errors = []
 
-    # Définir le contexte automatiquement
-    @document.property = @property if @property
-    @document.project = @project if @project
-    @document.request = @request if @request
-    @document.simulation = @simulation if @simulation
+    uploaded_files.each do |file|
+      next if file.blank?
 
-    if @document.save
-      # Générer file_url après la sauvegarde si fichier attaché
-      if @document.file.attached? && @document.file_url.blank?
-        @document.update(file_url: rails_blob_url(@document.file))
+      # Créer un document pour chaque fichier
+      document_attrs = document_params.except(:file)
+      @document = current_user.documents.build(document_attrs)
+      @document.file.attach(file)
+
+      # Définir le statut par défaut si non fourni
+      @document.status = 'pending' if @document.status.blank?
+
+      # Définir le contexte automatiquement
+      @document.property = @property if @property
+      @document.project = @project if @project
+      @document.request = @request if @request
+      @document.simulation = @simulation if @simulation
+
+      if @document.save
+        # Générer file_url après la sauvegarde si fichier attaché
+        if @document.file.attached? && @document.file_url.blank?
+          @document.update(file_url: rails_blob_url(@document.file))
+        end
+        created_documents << @document
+      else
+        errors.concat(@document.errors.full_messages)
       end
+    end
 
+    # Réponse basée sur le succès/échec
+    if errors.empty? && created_documents.any?
       # Si upload via AJAX
       if request.xhr?
         render json: {
           status: 'success',
-          document: document_json(@document),
-          message: 'Document uploadé avec succès',
+          documents: created_documents.map { |doc| document_json(doc) },
+          message: "#{created_documents.size} document(s) uploadé(s) avec succès",
           redirect_url: documents_path
         }
       else
-        redirect_to_context_or_default(notice: 'Document ajouté avec succès')
+        redirect_to_context_or_default(notice: "#{created_documents.size} document(s) ajouté(s) avec succès")
       end
     else
       if request.xhr?
         render json: {
           status: 'error',
-          errors: @document.errors.full_messages
+          errors: errors.presence || ['Aucun fichier valide uploadé']
         }, status: :unprocessable_entity
       else
+        @document = current_user.documents.build(document_params.except(:file))
+        flash.now[:alert] = errors.join(', ')
         render :new, status: :unprocessable_entity
       end
     end
