@@ -35,13 +35,47 @@
   </div>
 
   <!-- Alertes critiques -->
-  <% if (hub_data.dig(:technical, :critical_alerts) || []).any? %>
+  <%
+    # Vérification pompe à chaleur - RESCERT obligatoire
+    heat_pump_detected = false
+
+    # Vérifier dans la simulation si une pompe à chaleur est détectée
+    if @simulation&.respond_to?(:data) && @simulation.data.present?
+      simulation_data = @simulation.data
+      heat_pump_detected = simulation_data.dig('bruxelles_pompe_chaleur') == '1' ||
+                          simulation_data.dig('flandre_pompe_chaleur') == '1' ||
+                          simulation_data.dig('wallonie_pompe_chaleur') == '1' ||
+                          simulation_data.to_s.downcase.include?('pompe') ||
+                          simulation_data.to_s.downcase.include?('pac')
+    end
+
+    # Vérifier aussi dans les propriétés
+    if @property.present?
+      heat_pump_detected ||= @property.mode_chauffage_wallonie&.include?('pompe') ||
+                            @property.chauffage_post_renovation_flandre&.include?('pac') ||
+                            @property.chauffage_post_renovation&.include?('pompe')
+    end
+
+    critical_alerts = hub_data.dig(:technical, :critical_alerts) || []
+
+    # Ajouter l'alerte RESCERT si pompe à chaleur détectée
+    if heat_pump_detected
+      rescert_alert = {
+        title: "Numéro RESCERT obligatoire",
+        description: "Une pompe à chaleur a été détectée dans votre simulation. L'installateur doit impérativement posséder un numéro d'agrément RESCERT.",
+        action_required: "Demandez à votre installateur son numéro RESCERT avant de commencer les travaux. Ce numéro garantit sa qualification pour l'installation de pompes à chaleur."
+      }
+      critical_alerts << rescert_alert unless critical_alerts.any? { |alert| alert[:title].include?("RESCERT") }
+    end
+  %>
+
+  <% if critical_alerts.any? %>
     <div class="critical-alerts mb-4">
       <h6 class="fw-bold text-danger mb-3">
         <i class="bi bi-exclamation-triangle-fill me-1"></i>
         Alertes critiques
       </h6>
-      <% (hub_data.dig(:technical, :critical_alerts) || []).each do |alert| %>
+      <% critical_alerts.each do |alert| %>
         <div class="alert alert-danger d-flex align-items-start" role="alert">
           <i class="bi bi-shield-x fs-4 me-3 mt-1"></i>
           <div class="flex-grow-1">
