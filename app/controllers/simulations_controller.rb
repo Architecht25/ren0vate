@@ -291,38 +291,81 @@ class SimulationsController < ApplicationController
 
     begin
       # Si on a un total calculé côté client (pour Bruxelles/Wallonie), l'utiliser directement
-      if calculated_total && calculated_total > 0 && %w[bruxelles wallonie].include?(@simulation.region&.downcase)
-        Rails.logger.info "🚀 Utilisation du total côté client: #{calculated_total}€"
+      # TEMPORAIRE: ignorer la condition calculated_total > 0 pour déboguer
+      if %w[bruxelles wallonie].include?(@simulation.region&.downcase)
+        Rails.logger.info "🚀 Utilisation des nouvelles méthodes calculate_all_primes (force debug)"
 
-        # Mettre à jour directement le total
-        @simulation.update!(total_simule: calculated_total)
+        # Utiliser le nouveau service pour récupérer les détails des primes
+        if @simulation.region&.downcase == 'bruxelles'
+          Rails.logger.info "🔧 Instanciation du nouveau service BruxellesPostLoginCalculatorService"
+          calculator_service = Regions::Bruxelles::BruxellesPostLoginCalculatorService.new(
+            {
+              property_id: @simulation.property_id,
+              project_id: @simulation.project_id,
+              simulation_type: 'particulier'
+            },
+            user: current_user
+          )
 
-        # Optionnel: aussi mettre à jour les paramètres pour la cohérence
-        if @simulation.parameters.present?
-          begin
-            params_hash = JSON.parse(@simulation.parameters)
-            params_hash["total_general"] = calculated_total
-            params_hash["total"] = calculated_total
-            params_hash["last_update"] = Time.current.iso8601
-            @simulation.update!(parameters: params_hash.to_json)
-          rescue JSON::ParserError
-            # Ignorer si erreur de parsing
+          # Appeler la méthode calculate_all_primes du nouveau service
+          Rails.logger.info "🔧 Appel de calculate_all_primes avec: #{user_inputs.inspect}"
+          result = calculator_service.calculate_all_primes(user_inputs)
+          Rails.logger.info "✅ Total calculé avec nouvelles méthodes: #{result[:total_general]}€"
+          Rails.logger.info "🔧 Prime results reçus: #{result[:prime_results].inspect}"
+
+          # Construire la structure updated_cards attendue par le frontend
+          updated_cards = build_updated_cards_from_prime_results(result[:prime_results])
+          Rails.logger.info "🔧 Updated cards construites: #{updated_cards.inspect}"
+
+          # Utiliser le total calculé par le backend et mettre à jour la simulation
+          @simulation.update!(total_simule: result[:total_general])
+
+          # Calculer les économies vs chasseur de primes
+          savings_data = nil
+          if result[:total_general] > 0 && @simulation.region.present?
+            savings_calculator = SavingsCalculatorService.new(result[:total_general], @simulation.region)
+            savings_data = savings_calculator.calculate_savings
+          end
+
+          render json: {
+            success: true,
+            total_amount: result[:total_general],
+            updated_cards: updated_cards, # ✅ Structure des primes individuelles
+            savings_data: savings_data,
+            message: "Total mis à jour avec nouvelles méthodes et détails primes"
+          }
+        else
+          # Pour Wallonie, utiliser l'ancien système pour l'instant
+          updater = SimulationPrimesUpdater.new(@simulation)
+          result = updater.update_user_inputs(user_inputs)
+
+          if result[:success]
+            @simulation.update!(total_simule: calculated_total)
+
+            # Calculer les économies vs chasseur de primes
+            savings_data = nil
+            if calculated_total > 0 && @simulation.region.present?
+              savings_calculator = SavingsCalculatorService.new(calculated_total, @simulation.region)
+              savings_data = savings_calculator.calculate_savings
+            end
+
+            render json: {
+              success: true,
+              total_amount: calculated_total,
+              updated_cards: result[:updated_cards],
+              savings_data: savings_data,
+              message: "Total mis à jour avec ancien système Wallonie"
+            }
+          else
+            # Fallback si le service backend échoue
+            render json: {
+              success: true,
+              total_amount: calculated_total,
+              savings_data: nil,
+              message: "Total mis à jour côté client (détails backend indisponibles)"
+            }
           end
         end
-
-        # Calculer les économies vs chasseur de primes
-        savings_data = nil
-        if calculated_total > 0 && @simulation.region.present?
-          savings_calculator = SavingsCalculatorService.new(calculated_total, @simulation.region)
-          savings_data = savings_calculator.calculate_savings
-        end
-
-        render json: {
-          success: true,
-          total_amount: calculated_total,
-          savings_data: savings_data,
-          message: "Total mis à jour depuis côté client"
-        }
         return
       end
 
@@ -406,6 +449,73 @@ class SimulationsController < ApplicationController
   end
 
   private
+
+  # Transforme le résultat du nouveau service en structure updated_cards attendue par le frontend
+  def build_updated_cards_from_prime_results(prime_results)
+    updated_cards = {}
+
+    Rails.logger.info "🔧 Début construction updated_cards avec: #{prime_results.inspect}"
+
+    # Grouper les primes par catégorie comme SimulationPrimesUpdater
+    categorized_primes = {}
+
+    prime_results.each do |slug, prime_data|
+      # prime_data contient { amount: X, prime_id: Y, titre: Z, unite: W }
+      amount = prime_data[:amount] || prime_data['amount'] || 0
+
+      Rails.logger.info "🔧 Prime #{slug}: #{amount}€ (data: #{prime_data})"
+
+      # Déterminer la catégorie basée sur le slug
+      category = determine_category_from_slug(slug)
+
+      categorized_primes[category] ||= {
+        total: 0,
+        primes: []
+      }
+
+      # Ajouter la prime à la catégorie
+      categorized_primes[category][:primes] << {
+        slug: slug,
+        titre: prime_data[:titre] || prime_data['titre'] || slug.humanize,
+        calculated_amount: amount,
+        user_input_value: 1 # Valeur par défaut pour les primes activées
+      }
+
+      # Ajouter au total de la catégorie
+      categorized_primes[category][:total] += amount
+
+      # CRUCIAL: Ajouter aussi le slug directement pour les controllers individuels
+      updated_cards[slug] = amount
+    end
+
+    # Ajouter les catégories organisées
+    categorized_primes.each do |category, data|
+      updated_cards[category] = data
+    end
+
+    Rails.logger.info "🔧 Structure updated_cards finale construite: #{updated_cards}"
+    updated_cards
+  end
+
+  # Détermine la catégorie d'une prime basée sur son slug
+  def determine_category_from_slug(slug)
+    case slug
+    when /audit/
+      'audit'
+    when /certificat/
+      'certificat'
+    when /isolation/
+      'isolation'
+    when /chauffage/
+      'chauffage'
+    when /ventilation/
+      'ventilation'
+    when /solaire/
+      'solaire'
+    else
+      'autres'
+    end
+  end
 
   # Helper pour parser les paramètres de simulation de manière sécurisée
   def safe_parse_simulation_parameters(simulation)

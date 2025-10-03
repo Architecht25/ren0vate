@@ -61,13 +61,108 @@ module Regions
           end
         end
 
+        # Calculer les totaux par carte globale
+        global_cards_totals = calculate_global_cards_totals(results)
+
         {
-          prime_results: results,
+          prime_results: results.merge(global_cards_totals),
           total_general: total_general
         }
       end
 
       private
+
+      # Calcule les totaux des cartes globales en groupant les primes individuelles
+      def calculate_global_cards_totals(individual_results)
+        global_totals = {}
+
+        # Mapping des primes individuelles vers les cartes globales
+        card_mappings = {
+          'bruxelles_prime_c_global' => [
+            'bruxelles_structure_portante',
+            'bruxelles_gestion_egouts',
+            'bruxelles_demolition_permeabilisation'
+          ],
+          'bruxelles_prime_d_global' => [
+            'bruxelles_traitement_humidite_sol',
+            'bruxelles_traitement_fongique_insectes'
+          ],
+          'bruxelles_prime_e_global' => [
+            'bruxelles_structure_toiture',
+            'bruxelles_couverture_etancheite',
+            'bruxelles_isolation_thermique_toiture',
+            'bruxelles_accessoires_toiture',
+            'bruxelles_toiture_vegetale'
+          ],
+          'bruxelles_prime_f_global' => [
+            'bruxelles_isolation_interieure_facade',
+            'bruxelles_isolation_exterieure_facade',
+            'bruxelles_isolation_coulisse',
+            'bruxelles_bardage_facade',
+            'bruxelles_enduit_facade',
+            'bruxelles_embellissement_facade_avant',
+            'bruxelles_facades_arriere_laterales',
+            'bruxelles_isolation_acoustique_murs'
+          ],
+          'bruxelles_prime_g_global' => [
+            'bruxelles_remplacement_fenetres_bois',
+            'bruxelles_remplacement_fenetres_pvc_alu',
+            'bruxelles_reparation_fenetres',
+            'bruxelles_reparation_portes'
+          ],
+          'bruxelles_prime_h_global' => [
+            'bruxelles_isolation_thermique_sols',
+            'bruxelles_isolation_acoustique_sols',
+            'bruxelles_escaliers',
+            'bruxelles_emplacement_velo'
+          ],
+          'bruxelles_prime_i_global' => [
+            'bruxelles_protection_incendie',
+            'bruxelles_escaliers',
+            'bruxelles_emplacement_velo',
+            'bruxelles_amenagement_pmr'
+          ],
+          'bruxelles_prime_j_global' => [
+            'bruxelles_radiateurs_basse_temperature',
+            'bruxelles_thermostat',
+            'bruxelles_vannes_thermostatiques',
+            'bruxelles_pac_chauffage',
+            'bruxelles_chauffe_eau_solaire',
+            'bruxelles_chauffe_eau_pac',
+            'bruxelles_raccordement_reseau_chaleur'
+          ],
+          'bruxelles_prime_kl_global' => [
+            'bruxelles_appareil_sanitaire',
+            'bruxelles_mise_normes_electricite_gaz'
+          ],
+          'bruxelles_prime_m_global' => [
+            'bruxelles_ventilation_systeme_c',
+            'bruxelles_ventilation_systeme_d'
+          ]
+        }
+
+        # Calculer le total pour chaque carte globale
+        card_mappings.each do |global_card_slug, individual_prime_slugs|
+          total = 0
+
+          individual_prime_slugs.each do |prime_slug|
+            if individual_results[prime_slug]
+              total += individual_results[prime_slug][:amount] || 0
+            end
+          end
+
+          if total > 0
+            global_totals[global_card_slug] = {
+              amount: total,
+              prime_id: nil, # Pas de prime_id pour les totaux globaux
+              titre: "Total #{global_card_slug.humanize}",
+              unite: "€"
+            }
+          end
+        end
+
+        global_totals
+      end
 
       def determine_user_category
         # Utiliser le BruxellesCategoryService dédié pour le calcul de catégorie
