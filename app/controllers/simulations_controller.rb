@@ -334,8 +334,48 @@ class SimulationsController < ApplicationController
             savings_data: savings_data,
             message: "Total mis à jour avec nouvelles méthodes et détails primes"
           }
+        elsif @simulation.region&.downcase == 'wallonie'
+          # Pour Wallonie, utiliser le nouveau système comme Bruxelles
+          Rails.logger.info "🚀 Utilisation des nouvelles méthodes calculate_all_primes pour Wallonie (force debug)"
+          Rails.logger.info "🔧 Instanciation du nouveau service WalloniePostLoginCalculatorService"
+          calculator_service = Regions::Wallonie::WalloniePostLoginCalculatorService.new(
+            {
+              property_id: @simulation.property_id,
+              project_id: @simulation.project_id,
+              simulation_type: 'particulier'
+            },
+            user: current_user
+          )
+
+          # Appeler la méthode calculate_all_primes du nouveau service
+          Rails.logger.info "🔧 Appel de calculate_all_primes avec: #{user_inputs.inspect}"
+          result = calculator_service.calculate_all_primes(user_inputs)
+          Rails.logger.info "✅ Total calculé avec nouvelles méthodes Wallonie: #{result[:total_general]}€"
+          Rails.logger.info "🔧 Prime results reçus: #{result[:prime_results].inspect}"
+
+          # Construire la structure updated_cards attendue par le frontend
+          updated_cards = build_updated_cards_from_prime_results(result[:prime_results])
+          Rails.logger.info "🔧 Updated cards construites: #{updated_cards.inspect}"
+
+          # Utiliser le total calculé par le backend et mettre à jour la simulation
+          @simulation.update!(total_simule: result[:total_general])
+
+          # Calculer les économies vs chasseur de primes
+          savings_data = nil
+          if result[:total_general] > 0 && @simulation.region.present?
+            savings_calculator = SavingsCalculatorService.new(result[:total_general], @simulation.region)
+            savings_data = savings_calculator.calculate_savings
+          end
+
+          render json: {
+            success: true,
+            total_amount: result[:total_general],
+            updated_cards: updated_cards, # ✅ Structure des primes individuelles
+            savings_data: savings_data,
+            message: "Total mis à jour avec nouvelles méthodes Wallonie"
+          }
         else
-          # Pour Wallonie, utiliser l'ancien système pour l'instant
+          # Pour autres régions, utiliser l'ancien système pour l'instant
           updater = SimulationPrimesUpdater.new(@simulation)
           result = updater.update_user_inputs(user_inputs)
 

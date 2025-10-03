@@ -19,6 +19,7 @@ export default class extends Controller {
     console.log("📊 Simulation ID:", this.simulationIdValue)
 
     this.primesData = []
+    this.backendCalculatedTotal = 0  // Stocker le total calculé par le backend
     this.currentCategory = this.getCurrentCategory()
     this.setupAutoSaveListeners()
 
@@ -45,11 +46,17 @@ export default class extends Controller {
         this.debouncedAutoSave();
       }
     });
+
+    // Écouter les événements des contrôleurs enfants
+    this.element.addEventListener('wallonie:card-changed', (e) => {
+      console.log(`🔄 Carte Wallonie modifiée: ${e.detail.slug}`);
+      this.debouncedAutoSave();
+    });
   }
 
   getCurrentCategory() {
     // Récupérer la catégorie depuis localStorage ou par défaut
-    return localStorage.getItem('selectedWallonieCategory') || 'wallonie_cat2'
+    return localStorage.getItem('selectedWallonieCategory') || 'wallonie_r4'
   }
 
   get simulationId() {
@@ -78,41 +85,53 @@ export default class extends Controller {
   }
 
   updateTotalGlobal() {
-    let total = 0
-    console.log("🔄 Calcul du total global Wallonie...")
+    // Utiliser le total calculé par le backend si disponible
+    let total = this.backendCalculatedTotal || 0;
+    console.log("🔄 Mise à jour du total global Wallonie avec total backend:", total, "€");
+    console.log("🔍 DEBUG - backendCalculatedTotal:", this.backendCalculatedTotal);
 
-    // Slugs des cartes Wallonie principales
-    const cartesSlugs = [
-      'wallonie_prime_global_isolation_toiture',
-      'wallonie_prime_global_isolation_murs',
-      'wallonie_prime_global_isolation_sols',
-      'wallonie_prime_global_menuiseries',
-      'wallonie_prime_global_ventilation',
-      'wallonie_prime_global_chauffage',
-      'wallonie_prime_global_eau_chaude',
-      'wallonie_prime_global_electricite',
-      'wallonie_prime_global_energies_renouvelables'
-    ]
+    // Si on a un total backend, on l'utilise directement (plus fiable)
+    if (this.backendCalculatedTotal && this.backendCalculatedTotal > 0) {
+      total = this.backendCalculatedTotal;
+      console.log("✅ Utilisation du total backend fiable:", total, "€");
+    } else {
+      console.log("📊 Fallback: calcul depuis les spans (backend non disponible)...");
 
-    // Calculer le total en parcourant toutes les cartes
-    cartesSlugs.forEach(slug => {
-      const carteElement = document.querySelector(`[data-wallonie-prime-card-slug-value="${slug}"]`)
-      if (carteElement) {
-        const totalElement = carteElement.querySelector('[data-wallonie-prime-card-target="total"]')
-        if (totalElement) {
-          const montantText = totalElement.textContent.replace('€', '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.')
-          const montant = parseFloat(montantText) || 0
-          total += montant
-          if (montant > 0) {
-            console.log(`✅ Carte ${slug}: ${montant}€`)
+      // Slugs des cartes Wallonie principales (basés sur les logs de connexion)
+      const cartesSlugs = [
+        'wallonie_realisation_audit_logement',
+        'wallonie_toiture_global',
+        'wallonie_murs_global',
+        'wallonie_sols_global',
+        'wallonie_ventilation_global',
+        'wallonie_chaudiere_global',
+        'wallonie_amelioration_chauffage_global',
+        'wallonie_eau_chaude_sanitaire_global',
+        'wallonie_menuiseries_vitrages',
+        'wallonie_installation_electrique',
+        'wallonie_installation_gaz'
+      ]
+
+      // Calculer le total en parcourant toutes les cartes (utiliser les bons sélecteurs)
+      cartesSlugs.forEach(slug => {
+        const carteElement = document.querySelector(`[data-wallonie-simulation-card-slug-value="${slug}"]`)
+        if (carteElement) {
+          const totalElement = carteElement.querySelector('[data-wallonie-simulation-card-target="total"]')
+          if (totalElement) {
+            const montantText = totalElement.textContent.replace('€', '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.')
+            const montant = parseFloat(montantText) || 0
+            total += montant
+            if (montant > 0) {
+              console.log(`✅ Carte ${slug}: ${montant}€`)
+            }
+          } else {
+            console.log(`❌ Carte ${slug}: élément total non trouvé`)
           }
         } else {
-          console.log(`❌ Carte ${slug}: élément total non trouvé`)
+          console.log(`❌ Carte ${slug}: carte non trouvée`)
         }
-      } else {
-        console.log(`❌ Carte ${slug}: carte non trouvée`)
-      }
-    })
+      })
+    }
 
     console.log(`🎯 Total global Wallonie calculé: ${total}€`)
 
@@ -158,15 +177,15 @@ export default class extends Controller {
   changeCategory(newCategory) {
     this.currentCategory = newCategory
     localStorage.setItem('selectedWallonieCategory', newCategory)
-    // Mettre à jour aussi la catégorie estimée pour cohérence
-    const categoryNumber = newCategory.replace('wallonie_cat', '')
+    // Mettre à jour aussi la catégorie estimée pour cohérence (extraire le numéro)
+    const categoryNumber = newCategory.replace('wallonie_r', '')
     localStorage.setItem('wallonieCategorieEstimee', categoryNumber)
     this.updateSectionTitle()
 
     console.log(`🔄 Changement de catégorie vers: ${newCategory}`)
 
     // Déclencher le recalcul de toutes les cartes Wallonie
-    const wallonieCards = this.element.querySelectorAll('[data-controller*="wallonie-prime-card"]')
+    const wallonieCards = this.element.querySelectorAll('[data-controller*="wallonie-simulation-card"]')
     wallonieCards.forEach(cardElement => {
       // Émettre un événement pour que chaque carte se mette à jour
       cardElement.dispatchEvent(new CustomEvent('wallonie:category:changed', {
@@ -187,9 +206,11 @@ export default class extends Controller {
     if (!this.hasSectionTitleTarget) return
 
     const categoryNames = {
-      'wallonie_cat1': 'Catégorie I (revenus très modestes)',
-      'wallonie_cat2': 'Catégorie II (revenus modestes)',
-      'wallonie_cat3': 'Catégorie III (revenus moyens-élevés)'
+      'wallonie_r1': 'Revenus R1 (très modestes)',
+      'wallonie_r2': 'Revenus R2 (modestes)',
+      'wallonie_r3': 'Revenus R3 (moyens)',
+      'wallonie_r4': 'Revenus R4 (moyens-supérieurs)',
+      'wallonie_r5': 'Revenus R5 (élevés)'
     }
 
     const categoryName = categoryNames[this.currentCategory] || 'Catégorie non définie'
@@ -201,23 +222,25 @@ export default class extends Controller {
 
     const selectedPrimes = []
 
-    // Parcourir toutes les cartes pour trouver les primes sélectionnées
+    // Parcourir toutes les cartes pour trouver les primes sélectionnées (utiliser les bons slugs)
     const cartesSlugs = [
-      'wallonie_prime_global_isolation_toiture',
-      'wallonie_prime_global_isolation_murs',
-      'wallonie_prime_global_isolation_sols',
-      'wallonie_prime_global_menuiseries',
-      'wallonie_prime_global_ventilation',
-      'wallonie_prime_global_chauffage',
-      'wallonie_prime_global_eau_chaude',
-      'wallonie_prime_global_electricite',
-      'wallonie_prime_global_energies_renouvelables'
+      'wallonie_realisation_audit_logement',
+      'wallonie_toiture_global',
+      'wallonie_murs_global',
+      'wallonie_sols_global',
+      'wallonie_ventilation_global',
+      'wallonie_chaudiere_global',
+      'wallonie_amelioration_chauffage_global',
+      'wallonie_eau_chaude_sanitaire_global',
+      'wallonie_menuiseries_vitrages',
+      'wallonie_installation_electrique',
+      'wallonie_installation_gaz'
     ]
 
     cartesSlugs.forEach(slug => {
-      const carteElement = document.querySelector(`[data-wallonie-prime-card-slug-value="${slug}"]`)
+      const carteElement = document.querySelector(`[data-wallonie-simulation-card-slug-value="${slug}"]`)
       if (carteElement) {
-        const totalElement = carteElement.querySelector('[data-wallonie-prime-card-target="total"]')
+        const totalElement = carteElement.querySelector('[data-wallonie-simulation-card-target="total"]')
         if (totalElement) {
           const montantText = totalElement.textContent.replace(/[€\s\.]/g, '').replace(',', '.')
           const montant = parseFloat(montantText) || 0
@@ -319,6 +342,19 @@ export default class extends Controller {
         if (data.success) {
           console.log("✅ Auto-save Wallonie réussi:", data.total_amount, "€");
 
+          // Stocker le total calculé par le backend
+          this.backendCalculatedTotal = data.total_amount || 0;
+
+          // Mettre à jour les spans individuels avec les détails du backend
+          if (data.updated_cards) {
+            this.updateIndividualPrimeDisplays(data.updated_cards);
+            // Émettre un événement pour que les cartes enfants se mettent à jour
+            this.emitPrimeUpdateEvent(data.updated_cards);
+          }
+
+          // Mettre à jour le total général avec le vrai total backend
+          this.updateTotalGlobal();
+
           // Déclencher l'événement pour mettre à jour le composant d'économie
           this.dispatchSavingsUpdateEvent(data);
 
@@ -339,24 +375,26 @@ export default class extends Controller {
   calculateCurrentTotal() {
     let total = 0;
 
-    // Utiliser la même logique que updateTotalGlobal
+    // Utiliser la même logique que updateTotalGlobal (slugs corrigés)
     const cartesSlugs = [
-      'wallonie_prime_global_isolation_toiture',
-      'wallonie_prime_global_isolation_murs',
-      'wallonie_prime_global_isolation_sols',
-      'wallonie_prime_global_menuiseries',
-      'wallonie_prime_global_ventilation',
-      'wallonie_prime_global_chauffage',
-      'wallonie_prime_global_eau_chaude',
-      'wallonie_prime_global_electricite',
-      'wallonie_prime_global_energies_renouvelables'
+      'wallonie_realisation_audit_logement',
+      'wallonie_toiture_global',
+      'wallonie_murs_global',
+      'wallonie_sols_global',
+      'wallonie_ventilation_global',
+      'wallonie_chaudiere_global',
+      'wallonie_amelioration_chauffage_global',
+      'wallonie_eau_chaude_sanitaire_global',
+      'wallonie_menuiseries_vitrages',
+      'wallonie_installation_electrique',
+      'wallonie_installation_gaz'
     ]
 
-    // Calculer le total en parcourant toutes les cartes
+    // Calculer le total en parcourant toutes les cartes (utiliser les bons sélecteurs)
     cartesSlugs.forEach(slug => {
-      const carteElement = document.querySelector(`[data-wallonie-prime-card-slug-value="${slug}"]`)
+      const carteElement = document.querySelector(`[data-wallonie-simulation-card-slug-value="${slug}"]`)
       if (carteElement) {
-        const totalElement = carteElement.querySelector('[data-wallonie-prime-card-target="total"]')
+        const totalElement = carteElement.querySelector('[data-wallonie-simulation-card-target="total"]')
         if (totalElement) {
           const montantText = totalElement.textContent.replace('€', '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.')
           const montant = parseFloat(montantText) || 0
@@ -411,9 +449,11 @@ export default class extends Controller {
     if (!this.hasCurrentCategoryTarget) return
 
     const categoryNames = {
-      'wallonie_cat1': 'Catégorie I',
-      'wallonie_cat2': 'Catégorie II',
-      'wallonie_cat3': 'Catégorie III'
+      'wallonie_r1': 'Revenus R1',
+      'wallonie_r2': 'Revenus R2',
+      'wallonie_r3': 'Revenus R3',
+      'wallonie_r4': 'Revenus R4',
+      'wallonie_r5': 'Revenus R5'
     }
 
     const categoryName = categoryNames[category] || 'Catégorie non définie'
@@ -439,5 +479,79 @@ export default class extends Controller {
 
     document.dispatchEvent(event);
     console.log("💰 Événement savings:update déclenché (Wallonie)", data.savings_data);
+  }
+
+  // Émettre un événement pour que les cartes enfants se mettent à jour
+  emitPrimeUpdateEvent(updatedCards) {
+    console.log("📡 Émission événement wallonie:prime-updated", updatedCards);
+
+    // Préparer un objet plat avec tous les montants par slug
+    const primeAmounts = {};
+
+    Object.keys(updatedCards).forEach(key => {
+      const value = updatedCards[key];
+
+      // Si c'est un nombre direct (slug de prime), l'ajouter
+      if (typeof value === 'number') {
+        primeAmounts[key] = value;
+      }
+      // Si c'est un objet avec des primes (catégorie), traiter les primes
+      else if (value && value.primes) {
+        value.primes.forEach(prime => {
+          primeAmounts[prime.slug] = prime.calculated_amount || 0;
+        });
+      }
+    });
+
+    // Émettre l'événement pour toutes les cartes
+    const event = new CustomEvent('wallonie:prime-updated', {
+      detail: primeAmounts,
+      bubbles: true
+    });
+
+    document.dispatchEvent(event);
+    console.log("📡 Événement wallonie:prime-updated émis avec:", primeAmounts);
+  }
+
+  // Mettre à jour les spans individuels avec les données du backend
+  updateIndividualPrimeDisplays(updatedCards) {
+    console.log("🔄 Mise à jour des spans individuels Wallonie:", updatedCards);
+
+    if (!updatedCards) return
+
+    Object.keys(updatedCards).forEach(categoryKey => {
+      const categoryData = updatedCards[categoryKey]
+      console.log(`🔍 Traitement catégorie: ${categoryKey}`, categoryData);
+
+      if (!categoryData.primes) {
+        console.log(`⚠️ Pas de propriété 'primes' dans ${categoryKey}`);
+        return;
+      }
+
+      console.log(`📊 ${categoryData.primes.length} primes dans ${categoryKey}`);
+
+      categoryData.primes.forEach(prime => {
+        const slug = prime.slug
+        const calculatedAmount = prime.calculated_amount || 0
+        console.log(`💰 Prime trouvée: ${slug} = ${calculatedAmount}€`);
+
+        // Trouver la carte correspondante pour Wallonie (utiliser le bon sélecteur)
+        const cardElement = document.querySelector(`[data-wallonie-simulation-card-slug-value="${slug}"]`)
+
+        if (cardElement) {
+          const resultSpan = cardElement.querySelector('[data-wallonie-simulation-card-target="total"]')
+
+          if (resultSpan) {
+            const formattedAmount = calculatedAmount.toLocaleString('fr-FR')
+            resultSpan.textContent = `${formattedAmount} €`
+            console.log(`✅ Span mis à jour pour ${slug}: ${formattedAmount} €`);
+          } else {
+            console.log(`⚠️ Span target 'total' non trouvé pour ${slug}`);
+          }
+        } else {
+          console.log(`⚠️ Élément card non trouvé pour slug: ${slug}`);
+        }
+      })
+    })
   }
 }

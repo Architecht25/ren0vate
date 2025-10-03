@@ -3,63 +3,260 @@ import { Controller } from "@hotwired/stimulus"
 // Contrôleur de carte dédié aux simulations Wallonie post-login
 // Séparé du contrôleur home page pour éviter les conflits
 export default class extends Controller {
-  static targets = ["total", "status", "input", "selectEtude", "selectType", "description"]
+  static targets = [
+    "total", "status", "input", "selectEtude", "selectType", "description",
+    // Targets pour les résultats individuels des cartes complexes
+    // Toiture
+    "resultCouverture", "resultCharpente", "resultEvacuation", "resultIsolationThermique", "resultIsolationBiosource",
+    // Murs
+    "resultInfiltration", "resultHumidite", "resultRenforcement", "resultMerule", "resultRadon", "resultIsolationThermique", "resultIsolationBiosource",
+    // Sols
+    "resultIsolationSols", "resultIsolationBiosource", "resultSupports", "resultFinitionPlanchers",
+    // Chaudière et PAC
+    "resultPacEauChaude", "resultPacChauffage", "resultChaudiereBiomasse", "resultPoeleBiomasse", "resultChauffeEauSolaire",
+    // Ventilation
+    "resultVmcSimpleComplete", "resultVmcDoubleComplete", "resultVmcSimplePartielle", "resultVmcDoublePartielle",
+    // Amélioration chauffage
+    "resultIsolationConduites", "resultIsolationBallon500", "resultIsolationBallonPlus500", "resultCirculateurMax3Logements", "resultCirculateurMin4Logements",
+    "resultRemplacementBallon500", "resultRemplacementBallonPlus500", "resultMin5VannesThermostatiques", "resultVannesSupplementaires", "resultThermostatAmbiance",
+    // Eau chaude sanitaire
+    "resultRemplacementBallonSup", "resultEchangeurPlaques", "resultIsolationBallonSup"
+  ]
   static values = { slug: String }
 
   connect() {
     console.log(`🎯 Contrôleur Wallonie Simulation Card connecté pour: ${this.slugValue}`)
 
-    // Déclencher le calcul après un court délai pour s'assurer que tout est chargé
-    setTimeout(() => this.calculate(), 100)
+    // Initialiser à 0€ en attendant les calculs backend
+    this.updateResult(0)
+
+    // Écouter les événements de mise à jour depuis le contrôleur parent
+    document.addEventListener('wallonie:prime-updated', this.handlePrimeUpdate.bind(this))
+  }
+
+  disconnect() {
+    document.removeEventListener('wallonie:prime-updated', this.handlePrimeUpdate.bind(this))
+  }
+
+  handlePrimeUpdate(event) {
+    console.log(`🔄 Mise à jour des primes pour carte: ${this.slugValue}`, event.detail)
+
+    const allPrimes = event.detail || {}
+    let cardTotal = 0
+
+    // Pour les cartes simples (audit par exemple)
+    if (allPrimes[this.slugValue]) {
+      const primeAmount = parseFloat(allPrimes[this.slugValue]) || 0
+      cardTotal = primeAmount
+      console.log(`💰 Carte simple ${this.slugValue}: ${primeAmount}€`)
+      this.updateResult(cardTotal)
+      return
+    }
+
+    // Mapping des slugs vers les targets de résultats
+    const slugToTargetMap = {
+      // Toiture
+      'wallonie_toiture_remplacement_couverture': 'resultCouverture',
+      'wallonie_toiture_appropriation_charpente': 'resultCharpente',
+      'wallonie_toiture_evacuation_eaux_pluviales': 'resultEvacuation',
+      'wallonie_toiture_isolation_thermique': 'resultIsolationThermique',
+      'wallonie_toiture_isolation_biosource': 'resultIsolationBiosource',
+      // Murs
+      'wallonie_assechement_murs_infiltration': 'resultInfiltration',
+      'wallonie_assechement_murs_humidite': 'resultHumidite',
+      'wallonie_renforcement_murs': 'resultRenforcement',
+      'wallonie_elimination_merule': 'resultMerule',
+      'wallonie_elimination_radon': 'resultRadon',
+      'wallonie_murs_isolation_thermique': 'resultIsolationThermique',
+      'wallonie_murs_isolation_biosource': 'resultIsolationBiosource',
+      // Sols
+      'wallonie_isolation_sols': 'resultIsolationSols',
+      'wallonie_sols_isolation_biosource': 'resultIsolationBiosource',
+      'wallonie_remplacement_supports_circulation': 'resultSupports',
+      'wallonie_isolation_finition_planchers': 'resultFinitionPlanchers',
+      // Chaudière et PAC
+      'wallonie_pac_eau_chaude': 'resultPacEauChaude',
+      'wallonie_pac_chauffage': 'resultPacChauffage',
+      'wallonie_chaudiere_biomasse': 'resultChaudiereBiomasse',
+      'wallonie_poele_biomasse': 'resultPoeleBiomasse',
+      'wallonie_chauffe_eau_solaire': 'resultChauffeEauSolaire',
+      // Ventilation
+      'wallonie_vmc_simple': 'resultVmcSimpleComplete',
+      'wallonie_vmc_double': 'resultVmcDoubleComplete',
+      'wallonie_vmc_simple_partielle': 'resultVmcSimplePartielle',
+      'wallonie_vmc_double_partielle': 'resultVmcDoublePartielle',
+      // Amélioration chauffage
+      'wallonie_chauffage_isol_conduites': 'resultIsolationConduites',
+      'wallonie_chauffage_isol_ballon_500': 'resultIsolationBallon500',
+      'wallonie_chauffage_isol_ballon_sup': 'resultIsolationBallonPlus500',
+      'wallonie_chauffage_circ_3logt': 'resultCirculateurMax3Logements',
+      'wallonie_chauffage_circ_4logt': 'resultCirculateurMin4Logements',
+      'wallonie_chauffage_ballon_500': 'resultRemplacementBallon500',
+      'wallonie_chauffage_ballon_sup': 'resultRemplacementBallonPlus500',
+      'wallonie_chauffage_vannes_base': 'resultMin5VannesThermostatiques',
+      'wallonie_chauffage_vannes_sup': 'resultVannesSupplementaires',
+      'wallonie_chauffage_thermostat': 'resultThermostatAmbiance',
+      // Eau chaude sanitaire
+      'wallonie_ecs_ballon_sup': 'resultRemplacementBallonSup',
+      'wallonie_ecs_echangeur': 'resultEchangeurPlaques',
+      'wallonie_ecs_isol_ballon_sup': 'resultIsolationBallonSup'
+    }
+
+    // Mapping des cartes vers leurs sous-primes
+    const cardToPrimesMap = {
+      'wallonie_toiture_global': [
+        'wallonie_toiture_remplacement_couverture',
+        'wallonie_toiture_appropriation_charpente',
+        'wallonie_toiture_evacuation_eaux_pluviales',
+        'wallonie_toiture_isolation_thermique',
+        'wallonie_toiture_isolation_biosource'
+      ],
+      'wallonie_murs_global': [
+        'wallonie_assechement_murs_infiltration',
+        'wallonie_assechement_murs_humidite',
+        'wallonie_renforcement_murs',
+        'wallonie_elimination_merule',
+        'wallonie_elimination_radon',
+        'wallonie_murs_isolation_thermique',
+        'wallonie_murs_isolation_biosource'
+      ],
+      'wallonie_sols_global': [
+        'wallonie_isolation_sols',
+        'wallonie_sols_isolation_biosource',
+        'wallonie_remplacement_supports_circulation',
+        'wallonie_isolation_finition_planchers'
+      ],
+      'wallonie_chaudiere_global': [
+        'wallonie_pac_eau_chaude',
+        'wallonie_pac_chauffage',
+        'wallonie_chaudiere_biomasse',
+        'wallonie_poele_biomasse',
+        'wallonie_chauffe_eau_solaire'
+      ],
+      'wallonie_ventilation_global': [
+        'wallonie_vmc_simple',
+        'wallonie_vmc_double',
+        'wallonie_vmc_simple_partielle',
+        'wallonie_vmc_double_partielle'
+      ],
+      'wallonie_amelioration_chauffage_global': [
+        'wallonie_chauffage_isol_conduites',
+        'wallonie_chauffage_isol_ballon_500',
+        'wallonie_chauffage_isol_ballon_sup',
+        'wallonie_chauffage_circ_3logt',
+        'wallonie_chauffage_circ_4logt',
+        'wallonie_chauffage_ballon_500',
+        'wallonie_chauffage_ballon_sup',
+        'wallonie_chauffage_vannes_base',
+        'wallonie_chauffage_vannes_sup',
+        'wallonie_chauffage_thermostat'
+      ],
+      'wallonie_eau_chaude_sanitaire_global': [
+        'wallonie_chauffage_ballon_500', // partagé avec amélioration chauffage
+        'wallonie_ecs_ballon_sup',
+        'wallonie_chauffage_isol_conduites', // partagé avec amélioration chauffage
+        'wallonie_ecs_echangeur',
+        'wallonie_chauffage_isol_ballon_500', // partagé avec amélioration chauffage
+        'wallonie_ecs_isol_ballon_sup'
+      ]
+    }
+
+    // Pour les cartes complexes, utiliser le mapping
+    const expectedPrimes = cardToPrimesMap[this.slugValue] || []
+    console.log(`🧮 Carte complexe ${this.slugValue} - Primes attendues:`, expectedPrimes)
+    console.log(`🧮 Targets disponibles:`, this.constructor.targets)
+
+    expectedPrimes.forEach(primeSlug => {
+      console.log(`🔍 Vérification prime: ${primeSlug}, valeur: ${allPrimes[primeSlug]}`)
+
+      if (allPrimes[primeSlug]) {
+        const primeAmount = parseFloat(allPrimes[primeSlug]) || 0
+        cardTotal += primeAmount
+
+        // Mettre à jour le span individuel si le target existe
+        const targetName = slugToTargetMap[primeSlug]
+        console.log(`🎯 Cherche target: ${targetName} pour ${primeSlug}`)
+
+        if (targetName) {
+          try {
+            // Tenter d'accéder au target - cela lèvera une erreur s'il n'existe pas
+            const targetElement = this[`${targetName}Target`]
+            targetElement.textContent = `${primeAmount} €`
+            console.log(`📍 Mise à jour ${primeSlug} → ${targetName}: ${primeAmount}€`)
+          } catch (error) {
+            console.log(`⚠️ Target ${targetName} non disponible pour ${primeSlug}:`, error.message)
+          }
+        } else {
+          console.log(`⚠️ Pas de mapping target pour ${primeSlug}`)
+        }
+      }
+    })
+
+    // Mettre à jour le total de la carte
+    this.updateResult(cardTotal)
+    console.log(`🎯 Total carte ${this.slugValue}: ${cardTotal}€`)
   }
 
   calculate() {
-    console.log(`🔍 Calculate appelé pour ${this.slugValue}`)
+    console.log(`🔍 Calculate appelé pour ${this.slugValue} - déclenchement auto-save`)
 
     if (!this.slugValue) {
       console.warn("Pas de slug défini pour cette carte Wallonie simulation")
       return
     }
 
-    // Récupérer le contrôleur parent pour accéder aux données
-    const parentController = this.getParentController()
-    if (!parentController) {
-      console.warn("Controller parent Wallonie simulation non trouvé")
-      return
-    }
+    // Déclencher la sauvegarde automatique du parent qui se chargera du calcul backend
+    this.triggerAutoSave()
+  }
 
-    const currentCategory = parentController.getCurrentCategory()
-    const primesData = parentController.getPrimesData()
-    console.log(`📊 Données pour ${this.slugValue} - catégorie: ${currentCategory}`)
+  // Méthodes spécifiques pour chaque type de carte
+  calculateToiture() {
+    this.calculate()
+  }
 
-    // Trouver la prime correspondante
-    const prime = primesData[this.slugValue]
-    if (!prime) {
-      console.warn(`Prime Wallonie non trouvée pour slug: ${this.slugValue}`)
-      this.updateResult(0)
-      return
-    }
+  calculateMurs() {
+    this.calculate()
+  }
 
-    // Récupérer les valeurs saisies
-    const inputs = this.getInputValues()
-    console.log(`🔢 Valeurs saisies pour ${this.slugValue}:`, inputs)
+  calculateSols() {
+    this.calculate()
+  }
 
-    // Calculer selon le type de prime
-    let result = 0
+  calculateAmeliorationChauffage() {
+    this.calculate()
+  }
 
-    if (prime.calcul_type === 'forfait') {
-      result = this.calculateForfait(prime, inputs, currentCategory)
-    } else if (prime.calcul_type === 'variable') {
-      result = this.calculateVariable(prime, inputs, currentCategory)
-    } else if (prime.calcul_type === 'composite') {
-      result = this.calculateComposite(prime, inputs, currentCategory)
-    }
+  calculateEauChaudeSanitaire() {
+    this.calculate()
+  }
 
-    console.log(`💰 Résultat calculé pour ${this.slugValue}: ${result}€`)
-    this.updateResult(result)
+  calculateChaudiere() {
+    this.calculate()
+  }
 
-    // Notifier le contrôleur parent qu'une carte a été mise à jour
-    this.notifyParentController()
+  calculateVentilation() {
+    this.calculate()
+  }
+
+  calculateMenuiseries() {
+    this.calculate()
+  }
+
+  calculateGaz() {
+    this.calculate()
+  }
+
+  calculateElectricite() {
+    this.calculate()
+  }
+
+  triggerAutoSave() {
+    // Déclencher un événement pour notifier le contrôleur parent
+    const event = new CustomEvent('wallonie:card-changed', {
+      detail: { slug: this.slugValue },
+      bubbles: true
+    })
+    this.element.dispatchEvent(event)
   }
 
   calculateForfait(prime, inputs, category) {

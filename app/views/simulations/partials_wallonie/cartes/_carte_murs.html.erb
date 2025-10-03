@@ -34,7 +34,8 @@
                    class="form-control"
                    placeholder="Surface m²"
                    data-wallonie-simulation-card-target="inputInfiltration"
-                   data-action="input->wallonie-simulation-card#calculateMurs">
+                   data-action="input->wallonie-simulation-card#calculateMurs"
+                   data-slug="wallonie_assechement_murs_infiltration">
             <span class="input-group-text bg-success text-white"
                   data-wallonie-simulation-card-target="resultInfiltration">0 €</span>
           </div>
@@ -72,7 +73,8 @@
                    class="form-control"
                    placeholder="Surface m²"
                    data-wallonie-simulation-card-target="inputHumidite"
-                   data-action="input->wallonie-simulation-card#calculateMurs">
+                   data-action="input->wallonie-simulation-card#calculateMurs"
+                   data-slug="wallonie_assechement_murs_humidite">
             <span class="input-group-text bg-success text-white"
                   data-wallonie-simulation-card-target="resultHumidite">0 €</span>
           </div>
@@ -110,7 +112,8 @@
                    class="form-control"
                    placeholder="Surface m²"
                    data-wallonie-simulation-card-target="inputRenforcement"
-                   data-action="input->wallonie-simulation-card#calculateMurs">
+                   data-action="input->wallonie-simulation-card#calculateMurs"
+                   data-slug="wallonie_renforcement_murs">
             <span class="input-group-text bg-success text-white"
                   data-wallonie-simulation-card-target="resultRenforcement">0 €</span>
           </div>
@@ -146,7 +149,8 @@
           <div class="input-group input-group-sm">
             <select class="form-control"
                     data-wallonie-simulation-card-target="inputMerule"
-                    data-action="change->wallonie-simulation-card#calculateMurs">
+                    data-action="change->wallonie-simulation-card#calculateMurs"
+                    data-slug="wallonie_elimination_merule">
               <option value="0">Non</option>
               <option value="1">Oui</option>
             </select>
@@ -185,7 +189,8 @@
           <div class="input-group input-group-sm">
             <select class="form-control"
                     data-wallonie-simulation-card-target="inputRadon"
-                    data-action="change->wallonie-simulation-card#calculateMurs">
+                    data-action="change->wallonie-simulation-card#calculateMurs"
+                    data-slug="wallonie_elimination_radon">
               <option value="0">Non</option>
               <option value="1">Oui</option>
             </select>
@@ -226,13 +231,14 @@
                    class="form-control"
                    placeholder="Surface m²"
                    data-wallonie-simulation-card-target="inputIsolationThermique"
-                   data-action="input->wallonie-simulation-card#calculateToiture">
+                   data-action="input->wallonie-simulation-card#calculateMurs"
+                   data-slug="wallonie_murs_isolation_thermique">
             <span class="input-group-text bg-warning text-white"
                   data-wallonie-simulation-card-target="resultIsolationThermique">0 €</span>
           </div>
         <!-- Informations de la prime -->
-        <% condition_text = condition_prime("wallonie_toiture_isolation_thermique") %>
-        <% conseil_text = conseil_prime("wallonie_toiture_isolation_thermique") %>
+        <% condition_text = condition_prime("wallonie_murs_isolation_thermique") %>
+        <% conseil_text = conseil_prime("wallonie_murs_isolation_thermique") %>
         <% if condition_text.present? || conseil_text.present? %>
           <div class="mt-1">
             <% if condition_text.present? %>
@@ -264,13 +270,14 @@
                    class="form-control"
                    placeholder="Surface m²"
                    data-wallonie-simulation-card-target="inputIsolationBiosource"
-                   data-action="input->wallonie-simulation-card#calculateToiture">
+                   data-action="input->wallonie-simulation-card#calculateMurs"
+                   data-slug="wallonie_murs_isolation_biosource">
             <span class="input-group-text bg-warning text-white"
                   data-wallonie-simulation-card-target="resultIsolationBiosource">0 €</span>
           </div>
         <!-- Informations de la prime -->
-        <% condition_text = condition_prime("wallonie_toiture_isolation_biosource") %>
-        <% conseil_text = conseil_prime("wallonie_toiture_isolation_biosource") %>
+        <% condition_text = condition_prime("wallonie_murs_isolation_biosource") %>
+        <% conseil_text = conseil_prime("wallonie_murs_isolation_biosource") %>
         <% if condition_text.present? || conseil_text.present? %>
           <div class="mt-1">
             <% if condition_text.present? %>
@@ -299,7 +306,7 @@
       <div class="mt-3 pt-2 border-top">
         <div class="d-flex justify-content-between align-items-center">
           <strong class="text-success">Total Murs :</strong>
-          <span class="badge bg-success fs-5" data-wallonie-simulation-card-target="totalMurs">
+          <span class="badge bg-success fs-5" data-wallonie-simulation-card-target="total">
             0 €
           </span>
         </div>
