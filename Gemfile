@@ -25,6 +25,7 @@ gem "httparty"
 gem "rubyzip"
 gem "http_accept_language"  # Pour la détection automatique de langue
 gem "stripe"  # Pour les paiements et abonnements SaaS
+gem "geocoder"  # Pour le géocodage d'adresses
 
 # OCR capabilities
 gem "rtesseract"  # Pour l'OCR avec Tesseract

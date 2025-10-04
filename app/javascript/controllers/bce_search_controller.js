@@ -80,7 +80,7 @@ export default class extends Controller {
           formeLegale: "Société à responsabilité limitée",
           tailleEntreprise: "Petite entreprise",
           dateInscription: "10/02/2011",
-          codesNace: "82990",
+          codesNace: "71121",
           adresses: [
             "Rue Beckers 19, 1040 Etterbeek",
             "Rue Middelbourg 66, 1170 Watermael-Boitsfort"

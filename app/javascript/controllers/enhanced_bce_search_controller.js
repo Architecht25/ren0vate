@@ -24,8 +24,10 @@ export default class extends Controller {
 
     try {
       const response = await this.fetchCompanyData(bceNumber)
+      console.log("📊 Response reçue:", response)
 
       if (response.success) {
+        console.log("✅ Données entreprise:", response.data)
         this.displayCompanyInfo(response.data)
         this.currentCompanyValue = response.data
         this.enableNextStep()

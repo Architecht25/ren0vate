@@ -10,18 +10,33 @@ export default class extends Controller {
   }
 
   initializeSteps() {
-    // Afficher toutes les étapes dès le départ pour le debugging
+    // Afficher toutes les étapes dès le départ pour une meilleure visibilité
     if (this.hasStep1Target) {
       this.step1Target.classList.add('step-active')
+      this.step1Target.classList.remove('step-disabled')
       this.step1Target.style.display = 'block'
     }
     if (this.hasStep2Target) {
       this.step2Target.classList.add('step-active')
+      this.step2Target.classList.remove('step-disabled')
       this.step2Target.style.display = 'block'
     }
     if (this.hasStep3Target) {
       this.step3Target.classList.add('step-active')
+      this.step3Target.classList.remove('step-disabled')
       this.step3Target.style.display = 'block'
+    }
+  }
+
+  hideAllSteps() {
+    // Masquer toutes les étapes
+    for (let i = 1; i <= 3; i++) {
+      const stepTarget = this[`step${i}Target`]
+      if (stepTarget) {
+        stepTarget.classList.remove('step-active')
+        stepTarget.classList.add('step-disabled')
+        stepTarget.style.display = 'none'
+      }
     }
   }
 

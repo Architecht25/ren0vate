@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_04_083503) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_04_120617) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -464,7 +464,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_04_083503) do
     t.boolean "plan_diversite_actif", default: false, comment: "Plan de diversité obligatoire si > 50 travailleurs"
     t.decimal "pourcentage_financement_public", precision: 5, scale: 2, comment: "Pourcentage de financement public (max 75%)"
     t.string "bce_number"
+    t.decimal "latitude", precision: 10, scale: 6
+    t.decimal "longitude", precision: 10, scale: 6
+    t.datetime "geocoded_at"
     t.index ["comptes_annuels_conformes"], name: "index_properties_on_comptes_annuels_conformes"
+    t.index ["latitude", "longitude"], name: "index_properties_on_latitude_and_longitude"
     t.index ["plan_diversite_actif"], name: "index_properties_on_plan_diversite_actif"
     t.index ["user_id"], name: "index_properties_on_user_id"
   end

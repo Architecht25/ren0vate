@@ -16,6 +16,33 @@ class AdminController < ApplicationController
     @backup_status = BackupStatusService.call
   end
 
+  def geocode_properties
+    properties_to_geocode = Property.where(latitude: nil, longitude: nil)
+
+    geocoded_count = 0
+    properties_to_geocode.each do |property|
+      if property.geocode
+        property.update(geocoded_at: Time.current)
+        geocoded_count += 1
+      end
+
+      # Petite pause pour éviter de surcharger l'API de géocodage
+      sleep(0.1)
+    end
+
+    render json: {
+      success: true,
+      geocoded: geocoded_count,
+      total: properties_to_geocode.count,
+      message: "#{geocoded_count} propriétés géocodées sur #{properties_to_geocode.count}"
+    }
+  rescue => e
+    render json: {
+      success: false,
+      error: e.message
+    }, status: 422
+  end
+
   private
 
   def ensure_admin

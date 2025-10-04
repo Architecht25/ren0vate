@@ -15,6 +15,10 @@ class Property < ApplicationRecord
   has_many :document_phase_statuses, dependent: :destroy
   has_many :document_phases, through: :document_phase_statuses
 
+  # Géocodage
+  geocoded_by :full_address
+  after_validation :geocode, if: ->(obj){ obj.full_address.present? && (obj.rue_changed? || obj.numero_changed? || obj.code_postal_changed? || obj.commune_changed?) }
+
   # Callback pour initialiser les phases de documents
   after_create :initialize_document_phases
 
@@ -51,6 +55,38 @@ class Property < ApplicationRecord
 
   def location
     full_address
+  end
+
+  # Méthodes pour la géolocalisation
+  def geocoded?
+    latitude.present? && longitude.present?
+  end
+
+  def coordinates
+    [latitude, longitude] if geocoded?
+  end
+
+  def map_popup_content
+    {
+      name: name,
+      address: full_address,
+      price: valeur_achat,
+      peb_value: peb_certificate_value,
+      user_email: user&.email
+    }
+  end
+
+  def peb_certificate_value
+    case region&.downcase
+    when 'wallonie'
+      certificat_peb_wallonie
+    when 'flandre'
+      certificat_peb_flandre
+    when 'bruxelles'
+      certificat_peb_bruxelles
+    else
+      peb
+    end
   end
 
   # Méthodes pour les dashboards et le suivi de complétude

@@ -15,15 +15,15 @@ export default class extends Controller {
     if (window.location.pathname.includes('bruxelles-entreprises')) {
       // Simuler des données d'entreprise pour le test
       this.companyValue = {
-        denomination: "RenovaTech Solutions SPRL",
+        denomination: "Primes-Services SRL",
         numero_bce: "0833618097",
         statut: "ACTIF",
         code_nace: "71121",
         forme_juridique: "Société privée à responsabilité limitée",
-        nombre_employes: 75, // Pour déclencher des améliorations potentielles
-        date_creation: "2022-01-01", // Entreprise récente
+        nombre_employes: 9, // Pour déclencher des améliorations potentielles
+        date_creation: "2011-02-10", // Entreprise récente
         adresse: {
-          code_postal: "1000" // Bruxelles
+          code_postal: "1040" // Bruxelles
         }
       }
       this.loadAids()
@@ -88,9 +88,10 @@ export default class extends Controller {
 
   checkEligibility() {
     // Vérifier que nous sommes sur la bonne page avec les éléments nécessaires
-    const resultDiv = this.element.querySelector('#eligibility_result')
+    // Correction: utiliser document.querySelector au lieu de this.element.querySelector
+    const resultDiv = document.querySelector('#eligibility-results')
     if (!resultDiv) {
-      console.log("Element #eligibility_result non trouvé - probable page de simulation sans analyse automatique")
+      console.log("Element #eligibility-results non trouvé - probable page de simulation sans analyse automatique")
       return
     }
 

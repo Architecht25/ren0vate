@@ -16,7 +16,8 @@ Rails.application.configure do
                        "'unsafe-eval'",   # Nécessaire pour Turbo Rails
                        "https://cdn.jsdelivr.net",
                        "https://cdnjs.cloudflare.com",
-                       "https://unpkg.com"
+                       "https://unpkg.com",
+                       "https://api.mapbox.com"
 
     # Styles : nos styles + CDNs + inline styles pour les composants dynamiques
     policy.style_src   :self,
@@ -24,7 +25,8 @@ Rails.application.configure do
                        "'unsafe-inline'", # Nécessaire pour Bootstrap, SweetAlert2, Turbo et nos composants
                        "https://cdn.jsdelivr.net",
                        "https://cdnjs.cloudflare.com",
-                       "https://fonts.googleapis.com"
+                       "https://fonts.googleapis.com",
+                       "https://api.mapbox.com"
 
     # Directives plus spécifiques pour les navigateurs modernes
     policy.style_src_elem :self,
@@ -63,14 +65,19 @@ Rails.application.configure do
                        "https://res.cloudinary.com", # Cloudinary principal
                        "https://res-2.cloudinary.com", # Cloudinary CDN secondaire
                        "https://res-1.cloudinary.com", # Cloudinary CDN alternatif
-                       "https://via.placeholder.com" # Pour les placeholders éventuels
+                       "https://via.placeholder.com", # Pour les placeholders éventuels
+                       "https://api.mapbox.com",       # Images Mapbox (sprites, etc.)
+                       "https://*.tiles.mapbox.com"    # Tiles de carte Mapbox
 
     # Connections (XHR/fetch) : notre app + APIs externes utilisées
     policy.connect_src :self,
                        :https,
                        "http://localhost:3000", # Pour les requêtes AJAX en développement
                        "https://geo.onroerenderfgoed.be", # API monuments Flandre
-                       "https://www.premiezoeker.be"      # API primes communales
+                       "https://www.premiezoeker.be",      # API primes communales
+                       "https://api.mapbox.com",           # API Mapbox pour tiles et géocodage
+                       "https://events.mapbox.com",        # Télémétrie Mapbox
+                       "https://*.tiles.mapbox.com"        # Tiles Mapbox
 
     # Medias : sources locales + Cloudinary si utilisé pour vidéos
     policy.media_src   :self,
@@ -88,6 +95,9 @@ Rails.application.configure do
 
     # Form actions : limiter où les formulaires peuvent envoyer des données
     policy.form_action :self
+
+    # Web Workers : pour Mapbox GL JS
+    policy.worker_src  :self, :blob
 
     # Spécifier l'URI pour les rapports de violation
     policy.report_uri "/csp-violation-report-endpoint"
