@@ -39,7 +39,9 @@ class Document < ApplicationRecord
     # Documents audit énergétique
     preuve_paiement_audit: 'preuve_paiement_audit',
     rapport_audit_energetique: 'rapport_audit_energetique',
-    copie_carte_identite: 'copie_carte_identite'
+    copie_carte_identite: 'copie_carte_identite',
+    # Fiches techniques
+    fiche_technique: 'fiche_technique'
   }
 
   # Status est une colonne string dans la DB, pas un enum integer

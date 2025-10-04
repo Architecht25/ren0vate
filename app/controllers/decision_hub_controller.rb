@@ -11,6 +11,7 @@ class DecisionHubController < ApplicationController
 
     # Prendre la première simulation comme défaut pour l'affichage initial
     @default_simulation = @simulations.first || current_user.simulations.last
+    @simulation = @default_simulation  # Alias pour les vues partielles
 
     # Sauvegarder la simulation active en session pour l'IA
     if @default_simulation

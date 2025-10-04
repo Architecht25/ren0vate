@@ -52,7 +52,7 @@ class DocumentPhase < ApplicationRecord
       color: 'success',
       position: 4,
       required_document_types: ['certificat_peb', 'attestation_conformite'],
-      optional_document_types: ['certificat_protection', 'photo']
+      optional_document_types: ['certificat_protection', 'fiche_technique']
     }
   ].freeze
 

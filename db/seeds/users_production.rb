@@ -1,15 +1,41 @@
-# Seeds pour recréer les 13 utilisateurs production avec leurs données complètes
+# Seeds pour recréer les 20 utilisateurs production avec leurs données complètes
 puts "👥 Création des utilisateurs de production..."
 
-# Nettoyage préalable (optionnel)
+# Nettoyage préalable (optionnel et sécurisé)
 if Rails.env.development?
-  puts "🧹 Nettoyage des anciennes données utilisateurs en développement..."
-  User.destroy_all
-  Property.destroy_all
-  Project.destroy_all
+  # Protection : demander confirmation avant de supprimer les données
+  cleanup_env = ENV['CLEANUP_DEV_DATA']
+
+  if cleanup_env == 'true'
+    puts "🧹 Nettoyage des anciennes données utilisateurs en développement..."
+    puts "⚠️  ATTENTION : Suppression de toutes les données de développement !"
+
+    # Supprimer dans l'ordre pour éviter les contraintes de clés étrangères
+    puts "  🗑️  Suppression des request_progresses..."
+    RequestProgress.destroy_all if defined?(RequestProgress)
+
+    puts "  🗑️  Suppression des requests..."
+    Request.destroy_all if defined?(Request)
+
+    puts "  🗑️  Suppression des projets..."
+    Project.destroy_all
+
+    puts "  🗑️  Suppression des propriétés..."
+    Property.destroy_all
+
+    puts "  🗑️  Suppression des utilisateurs..."
+    User.destroy_all
+
+    puts "  ✅ Nettoyage terminé"
+  else
+    puts "🛡️  PROTECTION ACTIVÉE - Données de développement préservées"
+    puts "ℹ️  Pour forcer le nettoyage, utilisez : CLEANUP_DEV_DATA=true rails db:seed"
+    puts "ℹ️  Seuls les nouveaux utilisateurs manquants seront créés..."
+    puts ""
+  end
 end
 
-# Liste des 13 utilisateurs avec leurs profils complets
+# Liste des 20 utilisateurs avec leurs profils complets
 users_data = [
   {
     email: 'robin@primes-services.be',
@@ -19,7 +45,8 @@ users_data = [
     role: 'admin',
     phone: '+32 2 123 45 67',
     city: 'Bruxelles',
-    postal_code: '1000'
+    postal_code: '1000',
+    test_user: true  # Utilisateur de test
   },
   {
     email: 'geraldine@primes-services.be',
@@ -29,17 +56,8 @@ users_data = [
     role: 'user',
     phone: '+32 2 234 56 78',
     city: 'Bruxelles',
-    postal_code: '1050'
-  },
-  {
-    email: 'info@primes-services.be',
-    password: 'demo2025',
-    first_name: 'Philippine',
-    last_name: 'le Hardy',
-    role: 'user',
-    phone: '+32 2 345 67 89',
-    city: 'Ixelles',
-    postal_code: '1050'
+    postal_code: '1050',
+    test_user: true  # Utilisateur de test
   },
   {
     email: 'anne@primes-services.be',
@@ -49,7 +67,8 @@ users_data = [
     role: 'user',
     phone: '+32 2 456 78 90',
     city: 'Uccle',
-    postal_code: '1180'
+    postal_code: '1180',
+    test_user: true  # Utilisateur de test
   },
   {
     email: 'sabenca@primes-services.be',
@@ -59,47 +78,8 @@ users_data = [
     role: 'user',
     phone: '+32 2 567 89 01',
     city: 'Saint-Gilles',
-    postal_code: '1060'
-  },
-  {
-    email: 'florence@primes-services.be',
-    password: 'demo2025',
-    first_name: 'Florence',
-    last_name: 'van Riet',
-    role: 'user',
-    phone: '+32 2 678 90 12',
-    city: 'Etterbeek',
-    postal_code: '1040'
-  },
-  {
-    email: 'clemence@primes-services.be',
-    password: 'demo2025',
-    first_name: 'Clémence',
-    last_name: 'Burtin',
-    role: 'user',
-    phone: '+32 2 789 01 23',
-    city: 'Schaerbeek',
-    postal_code: '1030'
-  },
-  {
-    email: 'jana@primes-services.be',
-    password: 'demo2025',
-    first_name: 'Jana',
-    last_name: 'Costa',
-    role: 'user',
-    phone: '+32 2 890 12 34',
-    city: 'Woluwe-Saint-Pierre',
-    postal_code: '1150'
-  },
-  {
-    email: 'marie@primes-services.be',
-    password: 'demo2025',
-    first_name: 'Marie',
-    last_name: 'Quargentan',
-    role: 'user',
-    phone: '+32 2 901 23 45',
-    city: 'Anderlecht',
-    postal_code: '1070'
+    postal_code: '1060',
+    test_user: true  # Utilisateur de test
   },
   {
     email: 'hubert@primes-services.be',
@@ -109,7 +89,8 @@ users_data = [
     role: 'user',
     phone: '+32 2 012 34 56',
     city: 'Molenbeek-Saint-Jean',
-    postal_code: '1080'
+    postal_code: '1080',
+    test_user: true  # Utilisateur de test
   },
   {
     email: 'debora@primes-services.be',
@@ -119,7 +100,8 @@ users_data = [
     role: 'user',
     phone: '+32 2 123 56 78',
     city: 'Forest',
-    postal_code: '1190'
+    postal_code: '1190',
+    test_user: true  # Utilisateur de test
   },
   {
     email: 'farah@primes-services.be',
@@ -129,7 +111,8 @@ users_data = [
     role: 'user',
     phone: '+32 2 234 67 89',
     city: 'Koekelberg',
-    postal_code: '1081'
+    postal_code: '1081',
+    test_user: true  # Utilisateur de test
   },
   {
     email: 'neide@primes-services.be',
@@ -139,7 +122,141 @@ users_data = [
     role: 'user',
     phone: '+32 2 345 78 90',
     city: 'Jette',
-    postal_code: '1090'
+    postal_code: '1090',
+    test_user: true  # Utilisateur de test - génère des données fictives
+  },
+  # === VRAIS CLIENTS (pas de données fictives) ===
+  {
+    email: 'laes.michael@gmail.com',
+    password: 'Michael2025!Secure',
+    first_name: 'MICHAEL',
+    last_name: 'LAES',
+    role: 'user',
+    phone: '+32476794725',
+    city: 'OVERIJSE',
+    postal_code: '3090',
+    test_user: false  # Vrai client - pas de données fictives
+  },
+  {
+    email: 'baptiste@peintagone.be',
+    password: 'Baptiste2025!Paint',
+    first_name: 'BAPTISTE',
+    last_name: 'PIESSEVAUX',
+    role: 'user',
+    phone: '+32 498 84 28 81',
+    city: 'Mont Saint Guibert',
+    postal_code: '1435',
+    test_user: false  # Vrai client - pas de données fictives
+  },
+  {
+    email: 'vmollica@yahoo.fr',
+    password: 'Vincenzo2025!Secure',
+    first_name: 'VINCENZO',
+    last_name: 'MOLLICA',
+    role: 'user',
+    phone: '+32 472 49 95 32',
+    city: 'IXELLES',
+    postal_code: '1050',
+    test_user: false  # Vrai client - pas de données fictives
+  },
+  {
+    email: 'pvk@jour-j.be',
+    password: 'Philippe2025!JourJ',
+    first_name: 'PHILIPPE',
+    last_name: 'VAN KERCKOVE',
+    role: 'user',
+    phone: '+32 475 71 80 31',
+    city: 'BAISY THY',
+    postal_code: '1470',
+    test_user: false  # Vrai client - pas de données fictives
+  },
+  {
+    email: 'ines@blancostudio.be',
+    password: 'RobinInes2025!Studio',
+    first_name: 'ROBIN/INES',
+    last_name: 'DEGRYSE',
+    role: 'user',
+    phone: '+32 472 57 12 28',
+    city: 'BRUXELLES',
+    postal_code: '1000',
+    test_user: false  # Vrai client - pas de données fictives
+  },
+  {
+    email: 'baptiste.chatain@gmail.com',
+    password: 'BaptisteChatain2025!',
+    first_name: 'BAPTISTE',
+    last_name: 'CHATAIN',
+    role: 'user',
+    phone: '+32 499 27 89 50',
+    city: 'WATERLOO',
+    postal_code: '1410',
+    test_user: false  # Vrai client - pas de données fictives
+  },
+  {
+    email: 'louise.tournay@icloud.com',
+    password: 'Louise2025!Tournay',
+    first_name: 'LOUISE',
+    last_name: 'TOURNAY',
+    role: 'user',
+    phone: '+32 471 53 81 40',
+    city: 'LASNE',
+    postal_code: '1380',
+    test_user: false  # Vrai client - pas de données fictives
+  },
+  {
+    email: 'gaetan@cubeconstruct.be',
+    password: 'Gaetan2025!Cube',
+    first_name: 'GAETAN',
+    last_name: 'NIEGO',
+    role: 'user',
+    phone: '+32 472 48 89 95',
+    city: 'OVERIJSE',
+    postal_code: '3090',
+    test_user: false  # Vrai client - pas de données fictives
+  },
+  {
+    email: 'eloot.jonathan@gmail.com',
+    password: 'Jonathan2025!Eloot',
+    first_name: 'JONATHAN',
+    last_name: 'ELOOT',
+    role: 'user',
+    phone: '+32 479 05 00 84',
+    city: 'FAYT LEZ MANAGE',
+    postal_code: '7170',
+    test_user: false  # Vrai client - pas de données fictives
+  },
+  {
+    email: 'welcome.michelpotvin@gmail.com',
+    password: 'Michel2025!Potvin',
+    first_name: 'MICHEL',
+    last_name: 'POTVIN',
+    role: 'user',
+    phone: '+32 476 43 64 77',
+    city: 'NAMUR',
+    postal_code: '5000',
+    test_user: false  # Vrai client - pas de données fictives
+  },
+  {
+    email: 'caroline.colot@gmail.com',
+    password: 'Caroline2025!Colot',
+    first_name: 'CAROLINE',
+    last_name: 'COLOT',
+    role: 'user',
+    phone: '+32 472 63 03 28',
+    city: 'LASNE',
+    postal_code: '1380',
+    test_user: false  # Vrai client - pas de données fictives
+  },
+  {
+    email: 'd.raymond@delacroix-partners.be',
+    password: 'Denis2025!Delacroix',
+    first_name: 'DENIS',
+    last_name: 'RAYMOND',
+    role: 'user',
+    phone: '+32 498 62 37 93',
+    city: 'NAMUR',
+    postal_code: '5000',
+    test_user: false  # Vrai client - pas de données fictives
   }
 ]
 
@@ -190,8 +307,10 @@ users_data.each_with_index do |user_data, index|
 
   created_users << user
 
-  # Créer 3 propriétés pour chaque utilisateur (sauf admin)
-  next if user.role == 'admin'
+  # Créer 3 propriétés pour chaque utilisateur de test (sauf admin et vrais clients)
+  next if user.role == 'admin' || user_data[:test_user] == false
+
+  puts "  🏠 Génération de propriétés de test pour #{user.email}"
 
   3.times do |prop_index|
     address = brussels_addresses.sample

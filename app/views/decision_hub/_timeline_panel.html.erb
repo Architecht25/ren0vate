@@ -1,5 +1,5 @@
 <!-- PANNEAU 4: Timeline & Actions (Optimisé) -->
-<div class="col-xl-3 col-lg-6 col-md-12">
+<div class="col-12">
   <div class="panel timeline-panel">
     <div class="panel-header">
       <h3>
@@ -10,97 +10,179 @@
     </div>
 
     <div class="panel-body">
+      <!-- Alerte délais de soumission par région -->
+      <% if @simulation&.region.present? %>
+        <div class="alert alert-warning mb-3 timeline-deadline-alert">
+          <h6 class="alert-heading mb-2">
+            <i class="bi bi-exclamation-triangle me-1"></i>
+            <strong>Délai critique - <%= @simulation.region.capitalize %></strong>
+          </h6>
+          <p class="mb-1 small">
+            <% case @simulation.region.downcase %>
+            <% when 'flandre' %>
+              <strong>⏰ 24 mois maximum</strong> entre la première facture d'acompte et le dépôt de la demande de prime.
+            <% when 'bruxelles' %>
+              <strong>⏰ 12 mois maximum</strong> entre la facture de solde du dernier entrepreneur et le dépôt de la demande de prime.
+            <% when 'wallonie' %>
+              <strong>⏰ 8 mois maximum</strong> entre la facture de solde du dernier entrepreneur et le dépôt de la demande de prime.
+            <% end %>
+          </p>
+          <small class="text-muted">
+            <i class="bi bi-info-circle me-1"></i>
+            Ne pas respecter ce délai = perte définitive de la prime !
+          </small>
+        </div>
+      <% end %>
+
       <!-- Timeline Phases -->
       <div class="timeline-container">
+        <div class="row g-4">
+          <!-- Phase 1 -->
+          <div class="col-lg-4 col-md-6">
+            <div class="phase-card active">
+              <div class="phase-header">
+                <div class="phase-badge">
+                  <span class="phase-number">1</span>
+                </div>
+                <div class="phase-info">
+                  <h6 class="phase-name">Préparation Dossier</h6>
+                  <span class="phase-duration">
+                    <i class="bi bi-clock me-1"></i>
+                    2-3 semaines
+                  </span>
+                </div>
+                <div class="phase-status">
+                  <span class="status-badge status-active">En cours</span>
+                </div>
+              </div>
 
-        <!-- Phase 1 -->
-        <div class="timeline-phase phase-1 active">
-          <div class="phase-header">
-            <div class="phase-number">1</div>
-            <div class="phase-info">
-              <span class="phase-name">Préparation Dossier</span>
-              <span class="phase-duration">2-3 semaines</span>
+              <div class="phase-content">
+                <div class="action-item">
+                  <div class="action-details">
+                    <i class="bi bi-file-earmark-text me-2"></i>
+                    <span class="action-title">Rassembler documents techniques</span>
+                  </div>
+                  <button class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-list-ul me-1"></i>
+                    Voir la liste
+                  </button>
+                </div>
+
+                <div class="action-item">
+                  <div class="action-details">
+                    <i class="bi bi-person-check me-2"></i>
+                    <span class="action-title">Valider éligibilité entrepreneur</span>
+                  </div>
+                  <button class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-search me-1"></i>
+                    Trouver entrepreneurs
+                  </button>
+                </div>
+
+                <div class="action-item">
+                  <div class="action-details">
+                    <i class="bi bi-calculator me-2"></i>
+                    <span class="action-title">Obtenir devis conformes</span>
+                  </div>
+                  <button class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-file-earmark-arrow-down me-1"></i>
+                    Modèles devis
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="phase-actions">
-            <div class="action-item">
-              <span class="action-text">Rassembler documents techniques</span>
-              <button class="btn btn-outline-primary btn-sm action-btn">
-                Voir la liste
-              </button>
-            </div>
+          <!-- Phase 2 -->
+          <div class="col-lg-4 col-md-6">
+            <div class="phase-card">
+              <div class="phase-header">
+                <div class="phase-badge">
+                  <span class="phase-number">2</span>
+                </div>
+                <div class="phase-info">
+                  <h6 class="phase-name">Dépôt Coordonné</h6>
+                  <span class="phase-duration">
+                    <i class="bi bi-clock me-1"></i>
+                    1 semaine
+                  </span>
+                </div>
+                <div class="phase-status">
+                  <span class="status-badge status-pending">À venir</span>
+                </div>
+              </div>
 
-            <div class="action-item">
-              <span class="action-text">Valider éligibilité entrepreneur</span>
-              <button class="btn btn-outline-primary btn-sm action-btn">
-                Trouver entrepreneurs
-              </button>
-            </div>
+              <div class="phase-content">
+                <div class="action-item">
+                  <div class="action-details">
+                    <i class="bi bi-send me-2"></i>
+                    <span class="action-title">Dépôt simultané primes compatibles</span>
+                  </div>
+                  <button class="btn btn-success btn-sm">
+                    <i class="bi bi-file-earmark-plus me-1"></i>
+                    Préparer formulaires
+                  </button>
+                </div>
 
-            <div class="action-item">
-              <span class="action-text">Obtenir devis conformes</span>
-              <button class="btn btn-outline-primary btn-sm action-btn">
-                Modèles devis
-              </button>
+                <div class="action-item">
+                  <div class="action-details">
+                    <i class="bi bi-check-circle me-2"></i>
+                    <span class="action-title">Validation dossiers complets</span>
+                  </div>
+                  <button class="btn btn-outline-success btn-sm">
+                    <i class="bi bi-list-check me-1"></i>
+                    Check-list finale
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Phase 3 -->
+          <div class="col-lg-4 col-md-12">
+            <div class="phase-card">
+              <div class="phase-header">
+                <div class="phase-badge">
+                  <span class="phase-number">3</span>
+                </div>
+                <div class="phase-info">
+                  <h6 class="phase-name">Suivi & Travaux</h6>
+                  <span class="phase-duration">
+                    <i class="bi bi-clock me-1"></i>
+                    3-6 mois
+                  </span>
+                </div>
+                <div class="phase-status">
+                  <span class="status-badge status-future">Futur</span>
+                </div>
+              </div>
+
+              <div class="phase-content">
+                <div class="action-item">
+                  <div class="action-details">
+                    <i class="bi bi-graph-up me-2"></i>
+                    <span class="action-title">Suivi administratif automatisé</span>
+                  </div>
+                  <button class="btn btn-outline-info btn-sm">
+                    <i class="bi bi-toggle-on me-1"></i>
+                    Activer suivi
+                  </button>
+                </div>
+
+                <div class="action-item">
+                  <div class="action-details">
+                    <i class="bi bi-tools me-2"></i>
+                    <span class="action-title">Coordination travaux</span>
+                  </div>
+                  <button class="btn btn-outline-info btn-sm">
+                    <i class="bi bi-calendar-event me-1"></i>
+                    Planning chantier
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-
-        <!-- Phase 2 -->
-        <div class="timeline-phase phase-2">
-          <div class="phase-header">
-            <div class="phase-number">2</div>
-            <div class="phase-info">
-              <span class="phase-name">Dépôt Coordonné</span>
-              <span class="phase-duration">1 semaine</span>
-            </div>
-          </div>
-
-          <div class="phase-actions">
-            <div class="action-item">
-              <span class="action-text">Dépôt simultané primes compatibles</span>
-              <button class="btn btn-success btn-sm action-btn">
-                Préparer formulaires
-              </button>
-            </div>
-
-            <div class="action-item">
-              <span class="action-text">Validation dossiers complets</span>
-              <button class="btn btn-outline-success btn-sm action-btn">
-                Check-list finale
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Phase 3 -->
-        <div class="timeline-phase phase-3">
-          <div class="phase-header">
-            <div class="phase-number">3</div>
-            <div class="phase-info">
-              <span class="phase-name">Suivi & Travaux</span>
-              <span class="phase-duration">3-6 mois</span>
-            </div>
-          </div>
-
-          <div class="phase-actions">
-            <div class="action-item">
-              <span class="action-text">Suivi administratif automatisé</span>
-              <button class="btn btn-outline-info btn-sm action-btn">
-                Activer suivi
-              </button>
-            </div>
-
-            <div class="action-item">
-              <span class="action-text">Coordination travaux</span>
-              <button class="btn btn-outline-info btn-sm action-btn">
-                Planning chantier
-              </button>
-            </div>
-          </div>
-        </div>
-
       </div>
 
       <!-- Actions Principales -->
