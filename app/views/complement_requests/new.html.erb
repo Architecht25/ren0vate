@@ -1,0 +1,291 @@
+<div class="container-fluid px-4 py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-file-earmark-plus"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">Nouvelle Demande de Complément</h1>
+        <small class="text-muted">
+          <i class="bi bi-file-earmark-text me-1"></i><%= @complement_request.request_progress.request.title %>
+        </small>
+      </div>
+    </div>
+    <div>
+      <%= link_to request_progress_path(@complement_request.request_progress), class: "btn btn-outline-secondary" do %>
+        <i class="bi bi-arrow-left me-2"></i>Retour
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <%= form_with model: [@request_progress, @complement_request], local: true, class: "needs-validation", novalidate: true do |form| %>
+        <% if @complement_request.errors.any? %>
+          <div class="alert alert-danger">
+            <h6><i class="bi bi-exclamation-triangle me-2"></i>Erreurs détectées :</h6>
+            <ul class="mb-0">
+              <% @complement_request.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <!-- Contexte du dossier -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">
+              <i class="bi bi-info-circle me-2"></i>Contexte du dossier
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <p><strong>Demandeur :</strong> <%= @complement_request.request_progress.request.user.full_name %></p>
+                <p><strong>Propriété :</strong> <%= @complement_request.request_progress.request.property.address %></p>
+                <p><strong>Statut actuel :</strong>
+                  <span class="badge bg-<%= request_progress_status_color(@complement_request.request_progress.status) %>">
+                    <%= t("request_progresses.statuses.#{@complement_request.request_progress.status}") %>
+                  </span>
+                </p>
+              </div>
+              <div class="col-md-6">
+                <p><strong>Type de demande :</strong> <%= @complement_request.request_progress.request.request_type %></p>
+                <p><strong>Date de soumission :</strong> <%= l(@complement_request.request_progress.created_at.to_date) %></p>
+                <p><strong>Documents soumis :</strong> <%= @complement_request.request_progress.documents.count %></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Type de complément -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">
+              <i class="bi bi-list-ul me-2"></i>Type de complément demandé
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <%= form.label :complement_type, "Catégorie de complément *", class: "form-label" %>
+              <%= form.select :complement_type,
+                              @complement_types,
+                              { prompt: "Sélectionnez le type de complément..." },
+                              { class: "form-select", required: true, id: "complement_type_select" } %>
+              <div class="invalid-feedback">
+                Veuillez sélectionner un type de complément.
+              </div>
+            </div>
+
+            <!-- Descriptions dynamiques selon le type -->
+            <div id="complement_descriptions" class="mb-3">
+              <div class="alert alert-info complement-description" data-type="documents_manquants" style="display: none;">
+                <strong>Documents manquants :</strong> Le dossier nécessite des documents administratifs ou techniques supplémentaires pour poursuivre l'instruction.
+              </div>
+              <div class="alert alert-warning complement-description" data-type="informations_techniques" style="display: none;">
+                <strong>Informations techniques :</strong> Des précisions techniques sont nécessaires sur les travaux ou les matériaux utilisés.
+              </div>
+              <div class="alert alert-info complement-description" data-type="clarifications_administratives" style="display: none;">
+                <strong>Clarifications administratives :</strong> Des informations complémentaires sont requises concernant les aspects administratifs du dossier.
+              </div>
+              <div class="alert alert-warning complement-description" data-type="conformite_reglementaire" style="display: none;">
+                <strong>Conformité réglementaire :</strong> Le dossier doit être complété pour respecter les exigences réglementaires en vigueur.
+              </div>
+              <div class="alert alert-info complement-description" data-type="verification_eligibilite" style="display: none;">
+                <strong>Vérification d'éligibilité :</strong> Des éléments supplémentaires sont nécessaires pour confirmer l'éligibilité aux primes.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Détails de la demande -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">
+              <i class="bi bi-chat-left-text me-2"></i>Détails de la demande
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <%= form.label :request_details, "Description détaillée *", class: "form-label" %>
+              <%= form.text_area :request_details,
+                                 class: "form-control",
+                                 rows: 6,
+                                 placeholder: "Décrivez précisément les éléments manquants ou les clarifications nécessaires...",
+                                 required: true %>
+              <div class="invalid-feedback">
+                Veuillez décrire la demande de complément.
+              </div>
+              <div class="form-text">
+                Soyez précis et détaillé pour permettre au demandeur de fournir exactement ce qui est requis.
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <%= form.label :specific_requirements, "Exigences spécifiques", class: "form-label" %>
+              <%= form.text_area :specific_requirements,
+                                 class: "form-control",
+                                 rows: 4,
+                                 placeholder: "Formats de documents requis, informations spécifiques à fournir, références réglementaires..." %>
+              <div class="form-text">
+                Précisez les formats acceptés, les références réglementaires, ou toute autre exigence spécifique.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Délais et priorité -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">
+              <i class="bi bi-calendar-event me-2"></i>Délais et priorité
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :deadline, "Date limite de réponse *", class: "form-label" %>
+                  <%= form.date_field :deadline,
+                                      class: "form-control",
+                                      value: 30.days.from_now.to_date,
+                                      min: Date.current + 1,
+                                      required: true %>
+                  <div class="invalid-feedback">
+                    Veuillez définir une date limite valide.
+                  </div>
+                  <div class="form-text">
+                    Délai standard : 30 jours. Minimum : demain.
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :priority, "Priorité", class: "form-label" %>
+                  <%= form.select :priority,
+                                  [
+                                    ['Normale', 'normal'],
+                                    ['Haute', 'high'],
+                                    ['Urgente', 'urgent']
+                                  ],
+                                  { selected: 'normal' },
+                                  { class: "form-select" } %>
+                  <div class="form-text">
+                    La priorité affecte les délais et les notifications.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-check">
+              <%= check_box_tag :blocks_processing, "1", false, class: "form-check-input" %>
+              <%= label_tag :blocks_processing, "Ce complément bloque le traitement du dossier", class: "form-check-label" %>
+              <div class="form-text">
+                Si coché, le dossier sera suspendu jusqu'à réception du complément.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Documents de référence -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">
+              <i class="bi bi-paperclip me-2"></i>Documents de référence (optionnel)
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <%= form.label :reference_documents, "Documents explicatifs", class: "form-label" %>
+              <%= form.file_field :reference_documents,
+                                  multiple: true,
+                                  accept: ".pdf,.jpg,.jpeg,.png,.doc,.docx",
+                                  class: "form-control" %>
+              <div class="form-text">
+                Joignez des documents explicatifs, des modèles, ou des exemples pour guider le demandeur.
+                Formats acceptés : PDF, images, documents Word. Taille max : 10MB par fichier.
+              </div>
+            </div>
+
+            <div class="alert alert-light">
+              <i class="bi bi-lightbulb me-2"></i>
+              <strong>Suggestions de documents de référence :</strong>
+              <ul class="mb-0 mt-2">
+                <li>Modèles de formulaires à compléter</li>
+                <li>Exemples de documents conformes</li>
+                <li>Extraits réglementaires pertinents</li>
+                <li>Guides techniques ou administratifs</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notifications -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">
+              <i class="bi bi-bell me-2"></i>Notifications
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="form-check mb-2">
+              <%= check_box_tag :send_email_immediately, "1", true, class: "form-check-input" %>
+              <%= label_tag :send_email_immediately, "Envoyer immédiatement par email au demandeur", class: "form-check-label" %>
+            </div>
+            <div class="form-check">
+              <%= check_box_tag :send_copy_to_admin, "1", true, class: "form-check-input" %>
+              <%= label_tag :send_copy_to_admin, "Envoyer une copie aux gestionnaires", class: "form-check-label" %>
+            </div>
+            <div class="form-text mt-2">
+              Le demandeur recevra les détails de la demande et pourra répondre via son espace personnel.
+            </div>
+          </div>
+        </div>
+
+        <!-- Boutons -->
+        <div class="d-flex gap-2">
+          <%= form.submit "Créer la demande de complément", class: "btn btn-primary" %>
+          <%= link_to "Annuler", request_progress_path(@complement_request.request_progress), class: "btn btn-outline-secondary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+// Validation Bootstrap
+(function() {
+  'use strict';
+  window.addEventListener('load', function() {
+    var forms = document.getElementsByClassName('needs-validation');
+    var validation = Array.prototype.filter.call(forms, function(form) {
+      form.addEventListener('submit', function(event) {
+        if (form.checkValidity() === false) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  }, false);
+})();
+
+// Affichage dynamique des descriptions selon le type
+document.getElementById('complement_type_select').addEventListener('change', function() {
+  var selectedType = this.value;
+  var descriptions = document.querySelectorAll('.complement-description');
+
+  descriptions.forEach(function(desc) {
+    desc.style.display = 'none';
+  });
+
+  if (selectedType) {
+    var targetDesc = document.querySelector('[data-type="' + selectedType + '"]');
+    if (targetDesc) {
+      targetDesc.style.display = 'block';
+    }
+  }
+});
+</script>

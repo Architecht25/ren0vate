@@ -101,6 +101,76 @@
 
     <!-- Sidebar -->
     <div class="col-lg-4">
+      <!-- Signatures entrepreneurs -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="card-title text-primary-custom mb-0">
+              <i class="bi bi-people me-2"></i>Signatures Entrepreneurs
+            </h6>
+            <%= link_to new_request_contractor_signature_path(@request), class: "btn btn-sm btn-outline-primary" do %>
+              <i class="bi bi-plus"></i>
+            <% end %>
+          </div>
+
+          <% if @request.contractor_signatures.any? %>
+            <% pending_count = @request.pending_contractor_signatures.count %>
+            <% completed_count = @request.completed_contractor_signatures.count %>
+
+            <div class="mb-3">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="small">Progression</span>
+                <span class="small"><%= completed_count %>/<%= @request.contractor_signatures.count %></span>
+              </div>
+              <div class="progress" style="height: 6px;">
+                <div class="progress-bar bg-success" style="width: <%= @request.contractor_signatures_progress %>%"></div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <% @request.contractor_signatures.limit(3).each do |signature| %>
+                <div class="d-flex align-items-center justify-content-between mb-2 p-2 bg-light rounded">
+                  <div class="d-flex align-items-center">
+                    <% case signature.status %>
+                    <% when 'signed' %>
+                      <i class="bi bi-check-circle text-success me-2"></i>
+                    <% when 'pending', 'sent' %>
+                      <i class="bi bi-clock text-warning me-2"></i>
+                    <% when 'rejected' %>
+                      <i class="bi bi-x-circle text-danger me-2"></i>
+                    <% else %>
+                      <i class="bi bi-circle text-muted me-2"></i>
+                    <% end %>
+                    <div>
+                      <div class="fw-medium"><%= signature.contractor_name %></div>
+                      <small class="text-muted"><%= signature.work_type.humanize %></small>
+                    </div>
+                  </div>
+                  <span class="badge bg-<%= signature.signed? ? 'success' : signature.rejected? ? 'danger' : 'warning' %> rounded-pill">
+                    <%= signature.status.humanize %>
+                  </span>
+                </div>
+              <% end %>
+            </div>
+
+            <div class="d-grid">
+              <%= link_to request_contractor_signatures_path(@request), class: "btn btn-outline-primary btn-sm" do %>
+                <i class="bi bi-eye me-2"></i>Voir tout (<%= @request.contractor_signatures.count %>)
+              <% end %>
+            </div>
+          <% else %>
+            <div class="text-center text-muted py-3">
+              <i class="bi bi-people display-6 mb-2"></i>
+              <p class="mb-2">Aucun entrepreneur</p>
+              <p class="small mb-3">Ajoutez des entrepreneurs pour collecter leurs signatures</p>
+              <%= link_to new_request_contractor_signature_path(@request), class: "btn btn-primary btn-sm" do %>
+                <i class="bi bi-plus me-1"></i>Ajouter un entrepreneur
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
       <!-- Suivis de demandes -->
       <div class="mb-4">
         <%= render 'request_progresses/summary', request: @request %>

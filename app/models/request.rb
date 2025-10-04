@@ -6,6 +6,7 @@ class Request < ApplicationRecord
 
   has_many :request_progresses
   has_many :documents
+  has_many :contractor_signatures, dependent: :destroy
 
   # Support pour les fichiers Flandre
   has_many_attached :document_devis
@@ -188,6 +189,45 @@ class Request < ApplicationRecord
       %w[denomination numero_entreprise investissement_description montant_investissement]
     else
       []
+    end
+  end
+
+  # Méthodes pour la gestion des entrepreneurs
+  def pending_contractor_signatures
+    contractor_signatures.pending_signature
+  end
+
+  def completed_contractor_signatures
+    contractor_signatures.completed
+  end
+
+  def contractor_signatures_progress
+    total = contractor_signatures.count
+    return 0 if total.zero?
+
+    completed = completed_contractor_signatures.count
+    (completed.to_f / total * 100).round
+  end
+
+  def all_contractors_signed?
+    contractor_signatures.any? && contractor_signatures.all?(&:signed?)
+  end
+
+  def update_contractor_status!
+    if all_contractors_signed?
+      # Logique pour passer à l'étape suivante
+      Rails.logger.info "Request #{id}: Toutes les signatures entrepreneurs collectées"
+    end
+  end
+
+  def notify_contractor_rejection!
+    # Notification en cas de rejet par un entrepreneur
+    Rails.logger.info "Request #{id}: Signature entrepreneur rejetée"
+  end
+
+  def send_contractor_signature_requests!
+    contractor_signatures.pending.each do |signature|
+      signature.send_signature_request!
     end
   end
 

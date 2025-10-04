@@ -362,7 +362,9 @@ class RequestsController < ApplicationController
 
   def get_available_forms_for_region(region)
     forms = get_available_forms_for_property(nil) # Récupérer tous les formulaires
-    forms.select { |form| form[:region] == region }
+    # Normaliser la région en minuscules pour la comparaison
+    normalized_region = region&.downcase
+    forms.select { |form| form[:region] == normalized_region }
   end
 
   private

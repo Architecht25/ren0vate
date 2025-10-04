@@ -1,0 +1,240 @@
+<div class="container-fluid px-4 py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-person-plus"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">Ajouter un Entrepreneur</h1>
+        <small class="text-muted">
+          <i class="bi bi-file-earmark-text me-1"></i><%= @contractor_signature.request.title %>
+        </small>
+      </div>
+    </div>
+    <div>
+      <%= link_to request_contractor_signatures_path(@contractor_signature.request), class: "btn btn-outline-secondary" do %>
+        <i class="bi bi-arrow-left me-2"></i>Retour
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <%= form_with model: [@request, @contractor_signature], local: true, class: "needs-validation", novalidate: true do |form| %>
+        <% if @contractor_signature.errors.any? %>
+          <div class="alert alert-danger">
+            <h6><i class="bi bi-exclamation-triangle me-2"></i>Erreurs détectées :</h6>
+            <ul class="mb-0">
+              <% @contractor_signature.errors.full_messages.each do |message| %>
+                <li><%= message %></li>
+              <% end %>
+            </ul>
+          </div>
+        <% end %>
+
+        <!-- Informations entrepreneur -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">
+              <i class="bi bi-person me-2"></i>Informations de l'entrepreneur
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :contractor_name, "Nom complet *", class: "form-label" %>
+                  <%= form.text_field :contractor_name,
+                                      class: "form-control",
+                                      placeholder: "Jean Dupont",
+                                      required: true %>
+                  <div class="invalid-feedback">
+                    Veuillez saisir le nom de l'entrepreneur.
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :contractor_email, "Email *", class: "form-label" %>
+                  <%= form.email_field :contractor_email,
+                                       class: "form-control",
+                                       placeholder: "jean@renovation.be",
+                                       required: true %>
+                  <div class="invalid-feedback">
+                    Veuillez saisir un email valide.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :contractor_phone, "Téléphone *", class: "form-label" %>
+                  <%= form.tel_field :contractor_phone,
+                                     class: "form-control",
+                                     placeholder: "+32 475 123 456",
+                                     required: true %>
+                  <div class="invalid-feedback">
+                    Veuillez saisir un numéro de téléphone.
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :contractor_company, "Entreprise", class: "form-label" %>
+                  <%= form.text_field :contractor_company,
+                                      class: "form-control",
+                                      placeholder: "Rénovations Dupont SPRL" %>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <%= form.label :contractor_registration_number, "Numéro d'entreprise", class: "form-label" %>
+              <%= form.text_field :contractor_registration_number,
+                                  class: "form-control",
+                                  placeholder: "BE 0123.456.789" %>
+              <div class="form-text">
+                Numéro BCE ou équivalent pour la validation des certifications.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Informations travaux -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">
+              <i class="bi bi-hammer me-2"></i>Détails des travaux
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :work_type, "Type de travaux *", class: "form-label" %>
+                  <%= form.select :work_type,
+                                  @work_types,
+                                  { prompt: "Sélectionnez le type de travaux..." },
+                                  { class: "form-select", required: true } %>
+                  <div class="invalid-feedback">
+                    Veuillez sélectionner un type de travaux.
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <%= form.label :estimated_amount, "Montant estimé", class: "form-label" %>
+                  <div class="input-group">
+                    <%= form.number_field :estimated_amount,
+                                          class: "form-control",
+                                          placeholder: "15000",
+                                          step: 0.01,
+                                          min: 0 %>
+                    <span class="input-group-text">€</span>
+                  </div>
+                  <div class="form-text">
+                    Montant estimé TTC des travaux.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <%= form.label :work_description, "Description des travaux *", class: "form-label" %>
+              <%= form.text_area :work_description,
+                                 class: "form-control",
+                                 rows: 4,
+                                 placeholder: "Décrivez précisément les travaux à réaliser : matériaux, épaisseurs, surfaces, etc.",
+                                 required: true %>
+              <div class="invalid-feedback">
+                Veuillez décrire les travaux à réaliser.
+              </div>
+              <div class="form-text">
+                Soyez précis sur les spécifications techniques pour faciliter la validation.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Certificats techniques -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">
+              <i class="bi bi-award me-2"></i>Certificats techniques (optionnel)
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <%= form.label :technical_certificates, "Certificats et attestations", class: "form-label" %>
+              <%= form.file_field :technical_certificates,
+                                  multiple: true,
+                                  accept: ".pdf,.jpg,.jpeg,.png",
+                                  class: "form-control" %>
+              <div class="form-text">
+                Certifications, attestations de conformité, fiches techniques des matériaux, etc.
+                Formats acceptés : PDF, images. Taille max : 10MB par fichier.
+              </div>
+            </div>
+
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle me-2"></i>
+              <strong>Documents recommandés selon le type de travaux :</strong>
+              <ul class="mb-0 mt-2">
+                <li><strong>Isolation :</strong> Certificats de performance thermique, fiches techniques isolants</li>
+                <li><strong>Chauffage :</strong> Certificats de conformité gaz/électricité, rendement énergétique</li>
+                <li><strong>Châssis :</strong> Certificats Uw, attestations de performance</li>
+                <li><strong>Ventilation :</strong> Certificats de débit, conformité installation</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Options d'envoi -->
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-light">
+            <h5 class="mb-0">
+              <i class="bi bi-send me-2"></i>Envoi de la demande
+            </h5>
+          </div>
+          <div class="card-body">
+            <div class="form-check">
+              <%= check_box_tag :send_immediately, "1", true, class: "form-check-input" %>
+              <%= label_tag :send_immediately, "Envoyer immédiatement la demande de signature par email", class: "form-check-label" %>
+            </div>
+            <div class="form-text">
+              Si décoché, la demande sera créée mais pas envoyée. Vous pourrez l'envoyer manuellement plus tard.
+            </div>
+          </div>
+        </div>
+
+        <!-- Boutons -->
+        <div class="d-flex gap-2">
+          <%= form.submit "Créer la demande", class: "btn btn-primary" %>
+          <%= link_to "Annuler", request_contractor_signatures_path(@request), class: "btn btn-outline-secondary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+// Validation Bootstrap
+(function() {
+  'use strict';
+  window.addEventListener('load', function() {
+    var forms = document.getElementsByClassName('needs-validation');
+    var validation = Array.prototype.filter.call(forms, function(form) {
+      form.addEventListener('submit', function(event) {
+        if (form.checkValidity() === false) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  }, false);
+})();
+</script>

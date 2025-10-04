@@ -17,6 +17,11 @@ class Document < ApplicationRecord
   validate :file_size_limit
   validate :file_format_validation
 
+  # Validations techniques spécifiques
+  validate :check_audit_conformity, if: :technical_document?
+  validate :verify_insulation_thickness, if: :insulation_document?
+  validate :check_deadline_compliance, if: :time_sensitive_document?
+
   # Énumérations pour les types de documents
   enum :type_document, {
     facture: 'facture',
@@ -318,5 +323,69 @@ class Document < ApplicationRecord
       # Force l'utilisation du service local pour les PDFs
       Rails.logger.info "📁 Utilisation du stockage local pour PDF: #{file.filename}"
     end
+  end
+
+  # Validations techniques spécifiques
+  def technical_document?
+    %w[devis rapport_audit_energetique facture].include?(type_document)
+  end
+
+  def insulation_document?
+    %w[devis facture].include?(type_document) && project&.property&.region&.downcase == 'wallonie'
+  end
+
+  def time_sensitive_document?
+    %w[facture rapport_audit_energetique].include?(type_document)
+  end
+
+  def check_audit_conformity
+    return unless project
+
+    validation_service = TechnicalValidationService.new(project)
+    result = validation_service.validate!
+
+    unless result[:valid]
+      result[:errors].each do |error|
+        errors.add(:base, "Validation technique : #{error[:message]}") if error[:critical]
+      end
+    end
+  end
+
+  def verify_insulation_thickness
+    return unless project&.property&.region&.downcase == 'wallonie'
+
+    # Ajouter un warning si pas de validation d'épaisseur
+    # Cette validation sera enrichie avec l'OCR
+    Rails.logger.info "Document #{id} : Vérification épaisseur isolant requise"
+  end
+
+  def check_deadline_compliance
+    return unless project
+
+    case project.property.region&.downcase
+    when 'wallonie'
+      check_wallonie_deadlines
+    when 'bruxelles'
+      check_bruxelles_deadlines
+    when 'flandre'
+      check_flandre_deadlines
+    end
+  end
+
+  def check_wallonie_deadlines
+    return unless type_document == 'facture'
+
+    # Vérifier délai de 2 ans pour les factures Wallonie
+    if created_at && created_at < 2.years.ago
+      errors.add(:base, 'Cette facture dépasse le délai de 2 ans pour les primes Wallonie')
+    end
+  end
+
+  def check_bruxelles_deadlines
+    # Règles spécifiques Bruxelles
+  end
+
+  def check_flandre_deadlines
+    # Règles spécifiques Flandre
   end
 end

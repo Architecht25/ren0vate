@@ -181,7 +181,7 @@ Rails.application.routes.draw do
     resources :documents, shallow: true
   end
 
-  # Routes simples pour tous les projets/chantiers
+  # Routes pour la validation technique
   resources :projects do
     # Documents liés à un chantier
     resources :documents, shallow: true
@@ -196,7 +196,71 @@ Rails.application.routes.draw do
     # Routes spéciales pour l'analyse de factures
     get :factures_dashboard, to: 'factures#dashboard'
     post :upload_facture, to: 'factures#upload_facture'
+
+    # Routes pour la validation technique
+    member do
+      get :technical_validation, to: 'technical_validations#show'
+      post :validate_technical, to: 'technical_validations#validate'
+      get :validation_report, to: 'technical_validations#report'
+      post :revalidate, to: 'technical_validations#revalidate'
+    end
   end
+
+  # Routes pour les signatures entrepreneurs
+  resources :requests do
+    resources :contractor_signatures, except: [:show] do
+      member do
+        post :resend
+      end
+      collection do
+        post :send_batch
+      end
+    end
+  end
+
+  # Routes publiques pour les entrepreneurs (hors authentification)
+  get '/contractor/:token', to: 'contractor_signatures#show', as: 'contractor_signature'
+  post '/contractor/:token/sign', to: 'contractor_signatures#sign', as: 'sign_contractor'
+  post '/contractor/:token/reject', to: 'contractor_signatures#reject', as: 'reject_contractor'
+
+  # Routes pour les demandes de complément
+  resources :request_progresses do
+    resources :complement_requests do
+      member do
+        post :respond
+        post :approve
+        post :reject
+        patch :extend_deadline
+        post :send_reminder
+      end
+    end
+  end
+
+  # Routes admin pour les nouvelles fonctionnalités
+  namespace :admin do
+    resources :technical_validations, only: [:index, :show] do
+      collection do
+        post :bulk_validate
+        get :analytics
+        get :export_issues
+      end
+    end
+
+    resources :contractor_signatures, only: [:index, :show] do
+      collection do
+        get :analytics
+      end
+    end
+
+    resources :complement_requests, only: [:index, :show] do
+      collection do
+        get :analytics
+      end
+    end
+  end
+
+  # Routes pour vérifier le statut AJAX
+  get '/contractor_signatures/:id/status', to: 'contractor_signatures#check_status'
 
   resources :requests do
     # Documents liés à une demande
@@ -282,6 +346,11 @@ Rails.application.routes.draw do
   get '/wallonie-entreprises', to: 'pages#wallonie_entreprises', as: :wallonie_entreprises
   get '/mentions-legales', to: 'pages#legal', as: :legal
   get '/politique-de-confidentialite', to: 'pages#privacy', as: :privacy
+
+  # Routes globales pour les gestionnaires (admin/modérateur)
+  resources :technical_validations, only: [:index, :show]
+  resources :contractor_signatures, only: [:index, :show]
+  resources :complement_requests, only: [:index, :show]
 
   end # Fin du scope locale
 

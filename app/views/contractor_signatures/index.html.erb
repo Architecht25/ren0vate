@@ -1,0 +1,306 @@
+<div class="container-fluid px-4 py-4">
+<div class="container-fluid px-4 py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-person-check"></i>
+      </div>
+      <div>
+        <% if @request %>
+          <h1 class="h3 text-primary-custom mb-0 fw-normal">Signatures Entrepreneurs</h1>
+          <small class="text-muted">
+            <i class="bi bi-file-earmark-text me-1"></i><%= @request.title %>
+          </small>
+        <% else %>
+          <h1 class="h3 text-primary-custom mb-0 fw-normal">Entrepreneurs</h1>
+          <small class="text-muted">Gestion centralisée des signatures d'entrepreneurs</small>
+        <% end %>
+      </div>
+    </div>
+    <div>
+      <% if @request %>
+        <%= link_to new_request_contractor_signature_path(@request), class: "btn btn-primary me-2" do %>
+          <i class="bi bi-plus me-2"></i>Ajouter un entrepreneur
+        <% end %>
+        <%= link_to request_path(@request), class: "btn btn-outline-secondary" do %>
+          <i class="bi bi-arrow-left me-2"></i>Retour à la demande
+        <% end %>
+      <% else %>
+        <div class="text-muted">
+          <i class="bi bi-people me-1"></i>
+          <span id="total-signatures"><%= @contractor_signatures.count %></span> demande(s)
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Statistiques -->
+  <div class="row mb-4">
+    <div class="col-md-3">
+      <div class="card border-0 bg-primary-subtle">
+        <div class="card-body text-center">
+          <i class="bi bi-people display-6 text-primary mb-2"></i>
+          <h4 class="text-primary"><%= @contractor_signatures.count %></h4>
+          <p class="mb-0 text-muted">Total entrepreneurs</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 bg-warning-subtle">
+        <div class="card-body text-center">
+          <i class="bi bi-clock display-6 text-warning mb-2"></i>
+          <h4 class="text-warning"><%= @pending_signatures.count %></h4>
+          <p class="mb-0 text-muted">En attente</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 bg-success-subtle">
+        <div class="card-body text-center">
+          <i class="bi bi-check-circle display-6 text-success mb-2"></i>
+          <h4 class="text-success"><%= @completed_signatures.count %></h4>
+          <p class="mb-0 text-muted">Signées</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 bg-info-subtle">
+        <div class="card-body text-center">
+          <i class="bi bi-graph-up display-6 text-info mb-2"></i>
+          <% if @request %>
+            <h4 class="text-info"><%= @request.contractor_signatures_progress %>%</h4>
+            <p class="mb-0 text-muted">Progression</p>
+          <% else %>
+            <% total_signatures = @pending_signatures.count + @completed_signatures.count %>
+            <% progress_percent = total_signatures > 0 ? (@completed_signatures.count * 100.0 / total_signatures).round : 0 %>
+            <h4 class="text-info"><%= progress_percent %>%</h4>
+            <p class="mb-0 text-muted">Progression globale</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions en lot -->
+  <% if @pending_signatures.any? %>
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <h6 class="mb-0">
+            <i class="bi bi-send me-2"></i>Actions en lot
+          </h6>
+          <button class="btn btn-outline-primary" onclick="sendBatchSignatures()">
+            <i class="bi bi-envelope me-2"></i>Envoyer toutes les demandes en attente
+          </button>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Liste des signatures -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-light">
+      <h5 class="mb-0">
+        <i class="bi bi-list-check me-2"></i>
+        Liste des entrepreneurs
+      </h5>
+    </div>
+    <div class="card-body p-0">
+      <% if @contractor_signatures.any? %>
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>Entrepreneur</th>
+                <th>Type de travaux</th>
+                <th>Montant estimé</th>
+                <th>Statut</th>
+                <th>Dernière activité</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @contractor_signatures.each do |signature| %>
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <div class="icon-circle me-3">
+                        <% case signature.status %>
+                        <% when 'signed' %>
+                          <i class="bi bi-check-circle text-success"></i>
+                        <% when 'pending', 'sent' %>
+                          <i class="bi bi-clock text-warning"></i>
+                        <% when 'rejected' %>
+                          <i class="bi bi-x-circle text-danger"></i>
+                        <% else %>
+                          <i class="bi bi-person text-muted"></i>
+                        <% end %>
+                      </div>
+                      <div>
+                        <div class="fw-medium"><%= signature.contractor_name %></div>
+                        <small class="text-muted">
+                          <i class="bi bi-envelope me-1"></i><%= signature.contractor_email %>
+                        </small>
+                        <% if signature.contractor_company.present? %>
+                          <br><small class="text-muted">
+                            <i class="bi bi-building me-1"></i><%= signature.contractor_company %>
+                          </small>
+                        <% end %>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge bg-secondary rounded-pill">
+                      <%= signature.work_type.humanize %>
+                    </span>
+                    <% if signature.work_description.present? %>
+                      <br><small class="text-muted"><%= truncate(signature.work_description, length: 50) %></small>
+                    <% end %>
+                  </td>
+                  <td>
+                    <% if signature.estimated_amount.present? %>
+                      <strong><%= number_to_currency(signature.estimated_amount, unit: "€", separator: ",", delimiter: " ") %></strong>
+                    <% else %>
+                      <span class="text-muted">Non spécifié</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <% case signature.status %>
+                    <% when 'signed' %>
+                      <span class="badge bg-success rounded-pill">
+                        <i class="bi bi-check-circle me-1"></i>Signé
+                      </span>
+                      <% if signature.signed_at.present? %>
+                        <br><small class="text-muted">Le <%= signature.signed_at.strftime("%d/%m/%Y à %H:%M") %></small>
+                      <% end %>
+                    <% when 'rejected' %>
+                      <span class="badge bg-danger rounded-pill">
+                        <i class="bi bi-x-circle me-1"></i>Refusé
+                      </span>
+                      <% if signature.rejected_at.present? %>
+                        <br><small class="text-muted">Le <%= signature.rejected_at.strftime("%d/%m/%Y") %></small>
+                      <% end %>
+                    <% when 'sent' %>
+                      <span class="badge bg-info rounded-pill">
+                        <i class="bi bi-envelope-check me-1"></i>Envoyé
+                      </span>
+                      <% if signature.days_until_expiry.present? && signature.days_until_expiry > 0 %>
+                        <br><small class="text-muted">Expire dans <%= signature.days_until_expiry %> jours</small>
+                      <% end %>
+                    <% when 'viewed' %>
+                      <span class="badge bg-warning rounded-pill">
+                        <i class="bi bi-eye me-1"></i>Consulté
+                      </span>
+                    <% when 'expired' %>
+                      <span class="badge bg-dark rounded-pill">
+                        <i class="bi bi-clock-history me-1"></i>Expiré
+                      </span>
+                    <% else %>
+                      <span class="badge bg-secondary rounded-pill">
+                        <i class="bi bi-circle me-1"></i>En attente
+                      </span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <small class="text-muted">
+                      <%= time_ago_in_words(signature.updated_at) %>
+                    </small>
+                  </td>
+                  <td>
+                    <div class="btn-group" role="group">
+                      <% unless signature.completed? %>
+                        <% resend_path = @request ? resend_request_contractor_signature_path(@request, signature) : resend_contractor_signature_path(signature) %>
+                        <%= button_to resend_path,
+                                      method: :post,
+                                      class: "btn btn-sm btn-outline-primary",
+                                      title: "Renvoyer l'email" do %>
+                          <i class="bi bi-envelope"></i>
+                        <% end %>
+                      <% end %>
+
+                      <% edit_path = @request ? edit_request_contractor_signature_path(@request, signature) : edit_contractor_signature_path(signature) %>
+                      <%= link_to edit_path,
+                                  class: "btn btn-sm btn-outline-secondary",
+                                  title: "Modifier" do %>
+                        <i class="bi bi-pencil"></i>
+                      <% end %>
+
+                      <% delete_path = @request ? request_contractor_signature_path(@request, signature) : contractor_signature_path(signature) %>
+                      <%= link_to delete_path,
+                                  method: :delete,
+                                  data: {
+                                    confirm: "Êtes-vous sûr de vouloir supprimer cette demande de signature ?",
+                                    turbo_method: :delete
+                                  },
+                                  class: "btn btn-sm btn-outline-danger",
+                                  title: "Supprimer" do %>
+                        <i class="bi bi-trash"></i>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="text-center py-5">
+          <i class="bi bi-people display-1 text-muted mb-3"></i>
+          <h5 class="text-muted mb-3">Aucun entrepreneur ajouté</h5>
+          <p class="text-muted mb-4">Commencez par ajouter des entrepreneurs pour collecter leurs signatures sur les annexes techniques.</p>
+          <% if @request %>
+            <%= link_to new_request_contractor_signature_path(@request), class: "btn btn-primary" do %>
+              <i class="bi bi-plus me-2"></i>Ajouter le premier entrepreneur
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+function sendBatchSignatures() {
+  const pendingIds = <%= @pending_signatures.pluck(:id).to_json.html_safe %>;
+
+  if (pendingIds.length === 0) {
+    alert('Aucune signature en attente à envoyer.');
+    return;
+  }
+
+  if (!confirm(`Envoyer ${pendingIds.length} demande(s) de signature ?`)) {
+    return;
+  }
+
+  <% if @request %>
+  fetch('<%= send_batch_request_contractor_signatures_path(@request) %>', {
+  <% else %>
+  // Pas de batch send en vue globale pour le moment
+  return;
+  fetch('', {
+  <% end %>
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    },
+    body: JSON.stringify({
+      signature_ids: pendingIds
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      alert(data.message);
+      location.reload();
+    } else {
+      alert('Erreur lors de l\'envoi des emails.');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('Erreur lors de l\'envoi des emails.');
+  });
+}
+</script>

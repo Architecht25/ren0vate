@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_04_120617) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_04_154457) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -127,6 +127,62 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_04_120617) do
     t.string "region"
     t.index ["region", "code"], name: "index_categories_on_region_and_code", unique: true
     t.index ["region"], name: "index_categories_on_region"
+  end
+
+  create_table "complement_requests", force: :cascade do |t|
+    t.bigint "request_progress_id", null: false
+    t.string "complement_type", null: false
+    t.text "admin_message", null: false
+    t.json "required_documents", default: []
+    t.string "priority", default: "normal"
+    t.date "deadline", null: false
+    t.datetime "started_at"
+    t.datetime "completed_at"
+    t.datetime "expired_at"
+    t.datetime "approved_at"
+    t.datetime "rejected_at"
+    t.text "client_response"
+    t.text "rejection_reason"
+    t.string "status", default: "pending", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["complement_type"], name: "index_complement_requests_on_complement_type"
+    t.index ["deadline"], name: "index_complement_requests_on_deadline"
+    t.index ["request_progress_id", "status"], name: "index_complement_requests_on_request_progress_id_and_status"
+    t.index ["request_progress_id"], name: "index_complement_requests_on_request_progress_id"
+    t.index ["status"], name: "index_complement_requests_on_status"
+  end
+
+  create_table "contractor_signatures", force: :cascade do |t|
+    t.bigint "request_id", null: false
+    t.bigint "user_id"
+    t.string "contractor_name", null: false
+    t.string "contractor_email", null: false
+    t.string "contractor_phone", null: false
+    t.string "contractor_company"
+    t.string "contractor_registration_number"
+    t.text "work_description", null: false
+    t.string "work_type", null: false
+    t.decimal "estimated_amount", precision: 10, scale: 2
+    t.string "status", default: "pending", null: false
+    t.string "signature_token", null: false
+    t.date "expiry_date"
+    t.datetime "sent_at"
+    t.datetime "viewed_at"
+    t.datetime "signed_at"
+    t.datetime "rejected_at"
+    t.json "signature_data"
+    t.text "rejection_reason"
+    t.json "technical_requirements"
+    t.integer "compliance_score"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["contractor_email"], name: "index_contractor_signatures_on_contractor_email"
+    t.index ["expiry_date"], name: "index_contractor_signatures_on_expiry_date"
+    t.index ["request_id", "status"], name: "index_contractor_signatures_on_request_id_and_status"
+    t.index ["request_id"], name: "index_contractor_signatures_on_request_id"
+    t.index ["signature_token"], name: "index_contractor_signatures_on_signature_token", unique: true
+    t.index ["user_id"], name: "index_contractor_signatures_on_user_id"
   end
 
   create_table "document_phase_statuses", force: :cascade do |t|
@@ -386,6 +442,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_04_120617) do
     t.string "finalite", default: "residentielle", null: false
     t.boolean "demande_avant_debut", default: true, comment: "Demande introduite avant début de mission/investissement"
     t.boolean "finalite_economique_confirmee", default: true, comment: "Finalité économique et commerciale confirmée"
+    t.string "validation_status"
+    t.integer "validation_score"
+    t.datetime "last_validation_at"
     t.index ["demande_avant_debut"], name: "index_projects_on_demande_avant_debut"
     t.index ["finalite"], name: "index_projects_on_finalite"
     t.index ["finalite_economique_confirmee"], name: "index_projects_on_finalite_economique_confirmee"
@@ -485,7 +544,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_04_120617) do
 
   create_table "request_progresses", force: :cascade do |t|
     t.bigint "request_id", null: false
-    t.bigint "prime_id", null: false
+    t.bigint "prime_id"
     t.integer "pourcentage"
     t.string "step"
     t.boolean "completed"
@@ -505,6 +564,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_04_120617) do
     t.text "extracted_data", comment: "Données JSON extraites des documents reçus par email"
     t.datetime "email_processed_at", comment: "Date de traitement du dernier email reçu"
     t.string "document_extraction_status", default: "pending", comment: "Statut de l'extraction: pending, processing, completed, failed"
+    t.string "form_type"
+    t.string "form_name"
     t.index ["date_soumission"], name: "index_request_progresses_on_date_soumission"
     t.index ["document_extraction_status"], name: "index_request_progresses_on_document_extraction_status"
     t.index ["email_processed_at"], name: "index_request_progresses_on_email_processed_at"
@@ -688,6 +749,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_04_120617) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "complement_requests", "request_progresses"
+  add_foreign_key "contractor_signatures", "requests"
+  add_foreign_key "contractor_signatures", "users"
   add_foreign_key "document_phase_statuses", "document_phases"
   add_foreign_key "document_phase_statuses", "properties"
   add_foreign_key "document_phase_statuses", "users", column: "validated_by_id"

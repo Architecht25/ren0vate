@@ -1,0 +1,287 @@
+<div class="container-fluid px-4 py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <% case @complement_request.status %>
+        <% when 'completed' %>
+          <i class="bi bi-check-circle text-success"></i>
+        <% when 'pending', 'in_progress' %>
+          <i class="bi bi-clock text-warning"></i>
+        <% when 'expired' %>
+          <i class="bi bi-clock-history text-danger"></i>
+        <% when 'rejected' %>
+          <i class="bi bi-x-circle text-danger"></i>
+        <% else %>
+          <i class="bi bi-clipboard-plus text-muted"></i>
+        <% end %>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">Demande de Complément</h1>
+        <small class="text-muted">
+          <i class="bi bi-file-earmark-text me-1"></i>
+          <%= @complement_request.request.title %>
+        </small>
+      </div>
+    </div>
+    <div>
+      <%= link_to request_progress_path(@complement_request.request_progress), class: "btn btn-outline-secondary" do %>
+        <i class="bi bi-arrow-left me-2"></i>Retour au suivi
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Informations de la demande -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <h5 class="card-title text-primary-custom mb-0">
+              <i class="bi bi-info-circle me-2"></i>Informations demandées
+            </h5>
+            <span class="badge bg-<%= @complement_request.pending? ? 'warning' :
+                                     @complement_request.completed? ? 'success' :
+                                     @complement_request.expired? ? 'danger' : 'secondary' %> fs-6">
+              <%= @complement_request.status.humanize %>
+            </span>
+          </div>
+
+          <div class="alert alert-info mb-3">
+            <div class="d-flex align-items-start">
+              <i class="bi bi-megaphone me-3 mt-1"></i>
+              <div>
+                <h6 class="alert-heading">Message de l'administration :</h6>
+                <%= simple_format(@complement_request.admin_message) %>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label text-muted small">Type de complément</label>
+                <p class="mb-0">
+                  <span class="badge bg-secondary rounded-pill">
+                    <%= @complement_request.complement_type.humanize %>
+                  </span>
+                </p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label text-muted small">Délai de réponse</label>
+                <p class="mb-0">
+                  <i class="bi bi-calendar-event me-2"></i>
+                  <%= @complement_request.deadline.strftime("%d/%m/%Y") %>
+                  <% if @complement_request.days_remaining > 0 %>
+                    <span class="text-success">(<%= @complement_request.days_remaining %> jours restants)</span>
+                  <% elsif @complement_request.expired? %>
+                    <span class="text-danger">(Délai dépassé)</span>
+                  <% end %>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label text-muted small">Demandé le</label>
+                <p class="mb-0">
+                  <%= @complement_request.created_at.strftime("%d/%m/%Y à %H:%M") %>
+                </p>
+              </div>
+            </div>
+            <% if @complement_request.completed_at.present? %>
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label class="form-label text-muted small">Répondu le</label>
+                  <p class="mb-0">
+                    <%= @complement_request.completed_at.strftime("%d/%m/%Y à %H:%M") %>
+                  </p>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Réponse du client -->
+      <% if @complement_request.client_response.present? %>
+        <div class="card border-success mb-4">
+          <div class="card-header bg-success text-white">
+            <h5 class="mb-0">
+              <i class="bi bi-chat-square-text me-2"></i>Votre réponse
+            </h5>
+          </div>
+          <div class="card-body">
+            <%= simple_format(@complement_request.client_response) %>
+
+            <% if @complement_request.response_documents.any? %>
+              <hr>
+              <h6>Documents fournis :</h6>
+              <div class="row">
+                <% @complement_request.response_documents.each do |document| %>
+                  <div class="col-md-6 mb-2">
+                    <div class="d-flex align-items-center p-2 bg-light rounded">
+                      <i class="bi bi-file-earmark me-2"></i>
+                      <%= link_to document.filename, document, target: "_blank", class: "text-decoration-none" %>
+                      <small class="text-muted ms-auto">
+                        <%= number_to_human_size(document.byte_size) %>
+                      </small>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+
+            <% if current_user.can_access_admin? && @complement_request.completed? %>
+              <hr>
+              <div class="d-flex gap-2">
+                <%= button_to approve_complement_request_path(@complement_request),
+                              method: :post,
+                              class: "btn btn-success btn-sm" do %>
+                  <i class="bi bi-check-circle me-1"></i>Approuver la réponse
+                <% end %>
+                <%= button_to reject_complement_request_path(@complement_request),
+                              method: :post,
+                              params: { rejection_reason: "Informations insuffisantes" },
+                              class: "btn btn-outline-danger btn-sm",
+                              data: { confirm: "Êtes-vous sûr de vouloir rejeter cette réponse ?" } do %>
+                  <i class="bi bi-x-circle me-1"></i>Rejeter la réponse
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Formulaire de réponse -->
+      <% if @response_form && (@complement_request.pending? || @complement_request.in_progress?) %>
+        <div class="card border-warning">
+          <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0">
+              <i class="bi bi-reply me-2"></i>Fournir les informations demandées
+            </h5>
+          </div>
+          <div class="card-body">
+            <%= form_with url: respond_complement_request_path(@complement_request),
+                          method: :post,
+                          multipart: true,
+                          local: true do |form| %>
+
+              <div class="mb-3">
+                <%= form.label :client_response, "Votre réponse :", class: "form-label" %>
+                <%= form.text_area :client_response,
+                                   class: "form-control",
+                                   rows: 6,
+                                   placeholder: "Décrivez les informations demandées ou expliquez les documents fournis..." %>
+                <div class="form-text">
+                  Soyez précis dans votre réponse pour éviter de nouveaux compléments.
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <%= form.label :response_documents, "Documents complémentaires :", class: "form-label" %>
+                <%= form.file_field :response_documents,
+                                    multiple: true,
+                                    accept: ".pdf,.jpg,.jpeg,.png,.gif,.doc,.docx",
+                                    class: "form-control" %>
+                <div class="form-text">
+                  Formats acceptés : PDF, images, documents Word. Taille max : 10MB par fichier.
+                </div>
+              </div>
+
+              <div class="d-grid">
+                <%= form.submit "Envoyer ma réponse", class: "btn btn-warning" %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+      <!-- Statut et actions -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+          <h6 class="card-title">
+            <i class="bi bi-gear me-2"></i>Actions
+          </h6>
+
+          <% if current_user.can_access_admin? %>
+            <div class="d-grid gap-2 mb-3">
+              <% unless @complement_request.completed? %>
+                <%= button_to extend_deadline_complement_request_path(@complement_request),
+                              method: :patch,
+                              params: { new_deadline: (@complement_request.deadline + 7.days).strftime("%Y-%m-%d") },
+                              class: "btn btn-outline-info btn-sm",
+                              data: { confirm: "Prolonger le délai de 7 jours ?" } do %>
+                  <i class="bi bi-calendar-plus me-1"></i>Prolonger délai
+                <% end %>
+
+                <%= button_to send_reminder_complement_request_path(@complement_request),
+                              method: :post,
+                              class: "btn btn-outline-warning btn-sm" do %>
+                  <i class="bi bi-bell me-1"></i>Envoyer rappel
+                <% end %>
+              <% end %>
+
+              <%= link_to edit_complement_request_path(@complement_request),
+                          class: "btn btn-outline-secondary btn-sm" do %>
+                <i class="bi bi-pencil me-1"></i>Modifier
+              <% end %>
+            </div>
+          <% end %>
+
+          <div class="d-grid">
+            <%= link_to request_progress_complement_requests_path(@complement_request.request_progress),
+                        class: "btn btn-outline-primary btn-sm" do %>
+              <i class="bi bi-list me-1"></i>Tous les compléments
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Informations techniques -->
+      <div class="card border-0 bg-light">
+        <div class="card-body">
+          <h6 class="card-title">
+            <i class="bi bi-info-circle me-2"></i>Informations
+          </h6>
+          <div class="small">
+            <div class="mb-2">
+              <strong>ID :</strong> <%= @complement_request.id %>
+            </div>
+            <div class="mb-2">
+              <strong>Priorité :</strong>
+              <span class="badge bg-<%= @complement_request.priority == 'high' ? 'danger' :
+                                       @complement_request.priority == 'normal' ? 'secondary' : 'info' %>">
+                <%= @complement_request.priority&.humanize || 'Normale' %>
+              </span>
+            </div>
+            <% if @complement_request.started_at.present? %>
+              <div class="mb-2">
+                <strong>Commencé le :</strong><br>
+                <%= @complement_request.started_at.strftime("%d/%m/%Y à %H:%M") %>
+              </div>
+            <% end %>
+            <% if @complement_request.rejected_at.present? %>
+              <div class="mb-2">
+                <strong>Rejeté le :</strong><br>
+                <%= @complement_request.rejected_at.strftime("%d/%m/%Y") %>
+              </div>
+              <% if @complement_request.rejection_reason.present? %>
+                <div class="alert alert-danger small">
+                  <%= @complement_request.rejection_reason %>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

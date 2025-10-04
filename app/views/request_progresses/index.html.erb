@@ -154,7 +154,7 @@
                 <thead class="table-light">
                   <tr>
                     <th>Propriété</th>
-                    <th>Prime</th>
+                    <th>Prime / Formulaire</th>
                     <th>Statut</th>
                     <th>Progression</th>
                     <th>Temps restant</th>
@@ -175,8 +175,24 @@
                       </td>
                       <td>
                         <div class="d-flex flex-column">
-                          <span><%= progress.prime.titre %></span>
-                          <small class="text-muted"><%= progress.prime.region.capitalize %></small>
+                          <% if progress.form_type.present? %>
+                            <span>
+                              <i class="bi bi-file-earmark-text text-primary me-1"></i>
+                              <%= progress.form_name || progress.form_type.humanize %>
+                            </span>
+                            <small class="text-muted">Formulaire: <%= progress.form_type.humanize %></small>
+                          <% elsif progress.prime %>
+                            <span>
+                              <i class="bi bi-award text-warning me-1"></i>
+                              <%= progress.prime.titre %>
+                            </span>
+                            <small class="text-muted"><%= progress.prime.region.capitalize %></small>
+                          <% else %>
+                            <span class="text-muted">
+                              <i class="bi bi-question-circle me-1"></i>
+                              Non défini
+                            </span>
+                          <% end %>
                         </div>
                       </td>
                       <td>

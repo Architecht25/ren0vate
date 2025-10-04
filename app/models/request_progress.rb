@@ -1,6 +1,9 @@
 class RequestProgress < ApplicationRecord
   belongs_to :request
-  belongs_to :prime
+  belongs_to :prime, optional: true
+
+  # Relations pour la gestion des compléments
+  has_many :complement_requests, dependent: :destroy
 
   # Attachements pour les documents de suivi
   has_one_attached :document_suivi_pdf    # PDF reçu de l'administration
@@ -16,6 +19,19 @@ class RequestProgress < ApplicationRecord
     in: %w[en_preparation soumis en_cours complet incomplet accorde refuse annule]
   }
   validates :montant_demande, :montant_accorde, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+
+  # Validation pour s'assurer qu'on a soit une prime, soit un formulaire
+  validate :prime_or_form_present
+
+  private
+
+  def prime_or_form_present
+    if prime_id.blank? && form_type.blank?
+      errors.add(:base, "Une prime ou un type de formulaire doit être spécifié")
+    end
+  end
+
+  public
 
   # Enum pour les statuts administratifs
   enum :status_administratif, {
@@ -202,7 +218,114 @@ class RequestProgress < ApplicationRecord
     (montant_accorde / montant_demande * 100).round(2)
   end
 
+  # Méthodes pour la gestion des compléments
+  def has_pending_complements?
+    complement_requests.active.any?
+  end
+
+  def create_complement_request!(admin_message, complement_type = 'missing_documents', options = {})
+    complement_requests.create!(
+      admin_message: admin_message,
+      complement_type: complement_type,
+      deadline: options[:deadline] || calculate_complement_deadline(complement_type),
+      required_documents: options[:required_documents] || [],
+      priority: options[:priority] || 'normal'
+    )
+  end
+
+  def process_complement_response!
+    # Traiter la réponse du client au complément
+    if complement_requests.active.all?(&:completed?)
+      update!(status_administratif: 'en_cours')
+      Rails.logger.info "RequestProgress #{id}: Tous les compléments traités, reprise du traitement"
+    end
+  end
+
+  def handle_complement_expiry!
+    # Gérer l'expiration d'une demande de complément
+    expired_complements = complement_requests.overdue
+
+    if expired_complements.any?
+      expired_complements.update_all(status: 'expired')
+
+      # Décider de l'action à prendre
+      if critical_complements_expired?
+        update!(status_administratif: 'annule')
+        Rails.logger.warn "RequestProgress #{id}: Compléments critiques expirés, dossier annulé"
+      else
+        # Continuer avec les informations disponibles
+        Rails.logger.info "RequestProgress #{id}: Compléments non-critiques expirés, traitement continue"
+      end
+    end
+  end
+
+  def resume_processing!
+    # Reprendre le traitement après validation des compléments
+    update!(status_administratif: 'en_cours')
+
+    # Relancer l'analyse si nécessaire
+    if request.project
+      validation_service = TechnicalValidationService.new(request.project)
+      result = validation_service.validate!
+
+      if result[:valid]
+        Rails.logger.info "RequestProgress #{id}: Validation technique OK après compléments"
+      else
+        Rails.logger.warn "RequestProgress #{id}: Problèmes techniques persistants après compléments"
+      end
+    end
+  end
+
+  def complement_summary
+    {
+      total_requests: complement_requests.count,
+      active_requests: complement_requests.active.count,
+      completed_requests: complement_requests.completed.count,
+      expired_requests: complement_requests.where(status: 'expired').count,
+      average_response_time: calculate_average_response_time,
+      completion_rate: calculate_completion_rate
+    }
+  end
+
   private
+
+  def calculate_complement_deadline(complement_type)
+    days = case complement_type
+    when 'missing_documents' then 15
+    when 'technical_clarification' then 10
+    when 'document_quality' then 7
+    when 'eligibility_verification' then 20
+    else 14
+    end
+
+    days.days.from_now.to_date
+  end
+
+  def critical_complements_expired?
+    complement_requests.where(
+      status: 'expired',
+      complement_type: ['missing_documents', 'eligibility_verification']
+    ).any?
+  end
+
+  def calculate_average_response_time
+    completed_complements = complement_requests.where(status: 'completed')
+    return 0 if completed_complements.empty?
+
+    total_days = completed_complements.sum do |complement|
+      (complement.completed_at.to_date - complement.created_at.to_date).to_i
+    end
+
+    (total_days.to_f / completed_complements.count).round(1)
+  end
+
+  def calculate_completion_rate
+    total = complement_requests.count
+    return 0 if total.zero?
+
+    completed = complement_requests.where(status: 'completed').count
+    (completed.to_f / total * 100).round
+  end
 
   def generate_email_suivi
     timestamp = Time.current.to_i

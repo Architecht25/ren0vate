@@ -58,14 +58,34 @@
                 <div class="col-md-6">
                   <h6 class="text-muted">Informations de base</h6>
                   <table class="table table-borderless table-sm">
+                    <% if @request_progress.form_type.present? %>
+                    <tr>
+                      <td class="fw-bold">Formulaire :</td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <i class="bi bi-file-earmark-text text-primary me-2"></i>
+                          <div>
+                            <div><%= @request_progress.form_name || @request_progress.form_type.humanize %></div>
+                            <small class="text-muted">Type: <%= @request_progress.form_type.humanize %></small>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    <% elsif @prime %>
                     <tr>
                       <td class="fw-bold">Prime :</td>
-                      <td><%= @prime.titre %></td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <i class="bi bi-award text-warning me-2"></i>
+                          <%= @prime.titre %>
+                        </div>
+                      </td>
                     </tr>
                     <tr>
                       <td class="fw-bold">Région :</td>
                       <td><%= @prime.region.capitalize %></td>
                     </tr>
+                    <% end %>
                     <tr>
                       <td class="fw-bold">Étape :</td>
                       <td><%= @request_progress.step %></td>
@@ -189,6 +209,104 @@
               </div>
             </div>
           </div>
+
+          <!-- Demandes de complément -->
+          <% if @request_progress.complement_requests.any? %>
+            <div class="card mb-4">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                  <i class="bi bi-clipboard-plus me-2"></i>Demandes de complément
+                </h5>
+                <% if current_user.can_access_admin? %>
+                  <%= link_to new_request_progress_complement_request_path(@request_progress),
+                              class: "btn btn-sm btn-outline-primary" do %>
+                    <i class="bi bi-plus"></i> Nouvelle demande
+                  <% end %>
+                <% end %>
+              </div>
+              <div class="card-body">
+                <% @request_progress.complement_requests.order(created_at: :desc).limit(3).each do |complement| %>
+                  <div class="border rounded p-3 mb-3">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <div>
+                        <h6 class="mb-1">
+                          <span class="badge bg-<%= complement.pending? ? 'warning' :
+                                                     complement.completed? ? 'success' :
+                                                     complement.expired? ? 'danger' : 'secondary' %> me-2">
+                            <%= complement.status.humanize %>
+                          </span>
+                          <%= complement.complement_type.humanize %>
+                        </h6>
+                        <small class="text-muted">
+                          Créé le <%= complement.created_at.strftime("%d/%m/%Y") %> •
+                          Échéance : <%= complement.deadline.strftime("%d/%m/%Y") %>
+                          <% if complement.days_remaining > 0 %>
+                            (<%= complement.days_remaining %> jours restants)
+                          <% elsif complement.expired? %>
+                            (Expiré)
+                          <% end %>
+                        </small>
+                      </div>
+                      <%= link_to complement, class: "btn btn-sm btn-outline-primary" do %>
+                        <i class="bi bi-eye"></i>
+                      <% end %>
+                    </div>
+
+                    <div class="mb-2">
+                      <strong>Message administratif :</strong>
+                      <p class="mb-0 text-muted"><%= truncate(complement.admin_message, length: 150) %></p>
+                    </div>
+
+                    <% if complement.client_response.present? %>
+                      <div class="bg-light-subtle rounded p-2">
+                        <strong>Réponse du client :</strong>
+                        <p class="mb-0 small"><%= truncate(complement.client_response, length: 100) %></p>
+                      </div>
+                    <% end %>
+
+                    <% if complement.response_documents.any? %>
+                      <div class="mt-2">
+                        <small class="text-muted">
+                          <i class="bi bi-paperclip me-1"></i>
+                          <%= complement.response_documents.count %> document(s) fourni(s)
+                        </small>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+
+                <% if @request_progress.complement_requests.count > 3 %>
+                  <div class="text-center">
+                    <%= link_to request_progress_complement_requests_path(@request_progress),
+                                class: "btn btn-outline-secondary btn-sm" do %>
+                      <i class="bi bi-list me-1"></i>Voir tous les compléments (<%= @request_progress.complement_requests.count %>)
+                    <% end %>
+                  </div>
+                <% end %>
+
+                <% if @request_progress.has_pending_complements? %>
+                  <div class="alert alert-warning mt-3">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    <strong>Action requise :</strong> Des compléments d'information sont en attente de votre réponse.
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% else %>
+            <% if current_user.can_access_admin? %>
+              <div class="card mb-4">
+                <div class="card-body text-center py-4">
+                  <i class="bi bi-clipboard-plus display-5 text-muted mb-3"></i>
+                  <h6 class="text-muted mb-3">Aucune demande de complément</h6>
+                  <p class="text-muted mb-3">Créez une demande si des informations supplémentaires sont nécessaires.</p>
+                  <%= link_to new_request_progress_complement_request_path(@request_progress),
+                              class: "btn btn-outline-primary" do %>
+                    <i class="bi bi-plus me-2"></i>Créer une demande de complément
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
 
           <!-- Documents -->
           <div class="card">

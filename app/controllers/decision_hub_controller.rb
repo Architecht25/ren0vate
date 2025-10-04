@@ -5,7 +5,7 @@ class DecisionHubController < ApplicationController
     # Page d'index du Decision Hub - liste des simulations éligibles pour conseil
     @simulations = current_user.simulations
                                .where.not(total_simule: nil)
-                               .where('total_simule > ?', 1000) # Seuil minimum pour conseil
+                               .where('total_simule > ?', 500) # Seuil minimum pour conseil (réduit de 1000 à 500)
                                .order(created_at: :desc)
                                .includes(:property, :project)
 

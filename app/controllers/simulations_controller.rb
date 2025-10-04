@@ -38,6 +38,19 @@ class SimulationsController < ApplicationController
 
     # S'assurer que total_simule est cohérent avec les paramètres
     if @simulation.total_simule.nil? || @simulation.total_simule == 0
+      begin
+        params_data = safe_parse_simulation_parameters(@simulation)
+        if params_data.present? && params_data['total_amount'].present?
+          calculated_total = params_data['total_amount'].to_f
+          @simulation.update_column(:total_simule, calculated_total)
+          @total_amount = calculated_total
+          Rails.logger.info "🔧 Total mis à jour pour simulation #{@simulation.id}: #{calculated_total}€"
+        end
+      rescue => e
+        Rails.logger.warn "Erreur mise à jour total simulation #{@simulation.id}: #{e.message}"
+      end
+    else
+      # Si parameters est présent, utiliser les totaux des paramètres
       if @simulation.parameters.present?
         params_data = safe_parse_simulation_parameters(@simulation)
         calculated_total = params_data['total_general'] || params_data['total'] || 0
@@ -891,5 +904,23 @@ class SimulationsController < ApplicationController
         }.to_json
       )
     end
+  end
+
+  # Calcule le total à partir des updated_cards
+  def calculate_total_from_updated_cards(updated_cards)
+    return 0 if updated_cards.blank?
+
+    total = 0
+    updated_cards.each do |key, value|
+      if value.is_a?(Hash) && value[:total]
+        # Catégorie avec total
+        total += value[:total].to_f
+      elsif value.is_a?(Numeric)
+        # Prime individuelle
+        total += value.to_f
+      end
+    end
+
+    total
   end
 end

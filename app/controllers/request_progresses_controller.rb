@@ -10,7 +10,15 @@ class RequestProgressesController < ApplicationController
 
     # Filtres
     @request_progresses = @request_progresses.where(status_administratif: params[:status]) if params[:status].present?
-    @request_progresses = @request_progresses.joins(:prime).where(primes: { region: params[:region] }) if params[:region].present?
+
+    # Filtre par région - doit gérer les formulaires ET les primes
+    if params[:region].present?
+      region = params[:region].downcase
+      @request_progresses = @request_progresses.where(
+        "form_type LIKE ? OR EXISTS (SELECT 1 FROM primes WHERE primes.id = request_progresses.prime_id AND primes.region = ?)",
+        "%#{region}%", region
+      )
+    end
 
     # Pagination simple
     @page = params[:page].to_i
@@ -45,11 +53,13 @@ class RequestProgressesController < ApplicationController
   def new
     @request_progress = @request.request_progresses.build
     @primes = Prime.where(region: @request.region)
+    @available_forms = get_available_forms_for_region(@request.region)
   end
 
   def create
     @request_progress = @request.request_progresses.build(request_progress_params)
     @primes = Prime.where(region: @request.region)
+    @available_forms = get_available_forms_for_region(@request.region)
 
     # Convertir les chaînes vides en nil pour respecter la contrainte d'unicité
     @request_progress.numero_dossier = nil if @request_progress.numero_dossier.blank?
@@ -132,7 +142,73 @@ class RequestProgressesController < ApplicationController
       :prime_id, :step, :pourcentage, :status_administratif,
       :montant_demande, :montant_accorde, :date_soumission,
       :date_derniere_maj, :commentaires_admin, :document_recu,
-      :numero_dossier, :document_suivi_pdf, :document_suivi_photo
+      :numero_dossier, :document_suivi_pdf, :document_suivi_photo,
+      :form_type, :form_name
     )
+  end
+
+  def get_available_forms_for_region(region)
+    forms = get_available_forms_for_property(nil) # Récupérer tous les formulaires
+    # Normaliser la région en minuscules pour la comparaison
+    normalized_region = region&.downcase
+    forms.select { |form| form[:region] == normalized_region }
+  end
+
+  def get_available_forms_for_property(property)
+    forms = []
+
+    # Si property est nil, retourner tous les formulaires pour toutes les régions
+    if property.nil?
+      # Formulaires Bruxelles
+      forms += [
+        { id: :regional_bruxelles, name: 'Prime régionale habitation', region: 'bruxelles', category: 'Rénovation' },
+        { id: :monuments_bruxelles, name: 'Monuments & Sites classés', region: 'bruxelles', category: 'Patrimoine' },
+        { id: :patrimoine_bruxelles, name: 'Petit patrimoine populaire', region: 'bruxelles', category: 'Patrimoine' },
+        { id: :communal_bruxelles, name: 'Primes communales', region: 'bruxelles', category: 'Communal' }
+      ]
+
+      # Formulaires Wallonie
+      forms += [
+        { id: :regional_wallonie, name: 'Prime régionale habitation', region: 'wallonie', category: 'Rénovation' },
+        { id: :audit_wallonie, name: 'Audit énergétique', region: 'wallonie', category: 'Audit' },
+        { id: :monuments_wallonie, name: 'Monuments & Sites classés', region: 'wallonie', category: 'Patrimoine' },
+        { id: :communal_wallonie, name: 'Primes communales', region: 'wallonie', category: 'Communal' }
+      ]
+
+      # Formulaires Flandre
+      forms += [
+        { id: :regional_flandre, name: 'Prime régionale habitation', region: 'flandre', category: 'Rénovation' },
+        { id: :monuments_flandre, name: 'Monuments & Sites', region: 'flandre', category: 'Patrimoine' },
+        { id: :communal_flandre, name: 'Primes communales', region: 'flandre', category: 'Communal' }
+      ]
+
+      return forms
+    end
+
+    # Logique spécifique à la propriété (si nécessaire)
+    case property.region&.downcase
+    when 'bruxelles'
+      forms += [
+        { id: :regional_bruxelles, name: 'Prime régionale habitation', region: 'bruxelles', category: 'Rénovation', eligible: true },
+        { id: :monuments_bruxelles, name: 'Monuments & Sites classés', region: 'bruxelles', category: 'Patrimoine', eligible: true },
+        { id: :patrimoine_bruxelles, name: 'Petit patrimoine populaire', region: 'bruxelles', category: 'Patrimoine', eligible: true },
+        { id: :communal_bruxelles, name: 'Primes communales', region: 'bruxelles', category: 'Communal', eligible: true }
+      ]
+    when 'wallonie'
+      forms += [
+        { id: :regional_wallonie, name: 'Prime régionale habitation', region: 'wallonie', category: 'Rénovation', eligible: true },
+        { id: :audit_wallonie, name: 'Audit énergétique', region: 'wallonie', category: 'Audit', eligible: true },
+        { id: :monuments_wallonie, name: 'Monuments & Sites classés', region: 'wallonie', category: 'Patrimoine', eligible: true },
+        { id: :communal_wallonie, name: 'Primes communales', region: 'wallonie', category: 'Communal', eligible: true }
+      ]
+    when 'flandre'
+      forms += [
+        { id: :regional_flandre, name: 'Prime régionale habitation', region: 'flandre', category: 'Rénovation', eligible: true },
+        { id: :monuments_flandre, name: 'Monuments & Sites', region: 'flandre', category: 'Patrimoine', eligible: true },
+        { id: :communal_flandre, name: 'Primes communales', region: 'flandre', category: 'Communal', eligible: true }
+      ]
+    end
+
+    forms
   end
 end

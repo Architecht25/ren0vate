@@ -86,15 +86,59 @@
             <% end %>
           </li>
 
-          <!-- Admin Dashboard (si admin) -->
-          <% if current_user&.admin? %>
-            <li class="nav-item">
-              <%= link_to '/admin/dashboard', class: "nav-link px-3 d-flex align-items-center", style: "color: #ff6600;" do %>
+          <!-- Admin Dashboard (si admin ou modérateur) -->
+          <% if current_user&.admin? || current_user&.moderator? %>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle px-3 d-flex align-items-center" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #ff6600;">
                 <i class="bi bi-gear me-2" style="color: #ff6600;"></i>
-                <span>Administration</span>
-              <% end %>
-            </li>
+                <span>Gestion</span>
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="adminDropdown">
+                <% if current_user&.admin? %>
+                  <li>
+                    <%= link_to '/admin/dashboard', class: "dropdown-item d-flex align-items-center" do %>
+                      <i class="bi bi-speedometer2 me-2" style="color: #ff6600;"></i>
+                      Administration complète
+                    <% end %>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                <% end %>
 
+                <!-- Validations techniques -->
+                <li>
+                  <%= link_to technical_validations_path, class: "dropdown-item d-flex align-items-center" do %>
+                    <i class="bi bi-check-circle me-2" style="color: #059669;"></i>
+                    Validations techniques
+                  <% end %>
+                </li>
+
+                <!-- Gestion des compléments -->
+                <li>
+                  <%= link_to complement_requests_path, class: "dropdown-item d-flex align-items-center" do %>
+                    <i class="bi bi-file-earmark-plus me-2" style="color: #7c3aed;"></i>
+                    Demandes de complément
+                  <% end %>
+                </li>
+
+                <!-- Entrepreneurs -->
+                <li>
+                  <%= link_to contractor_signatures_path, class: "dropdown-item d-flex align-items-center" do %>
+                    <i class="bi bi-person-check me-2" style="color: #ea580c;"></i>
+                    Entrepreneurs
+                  <% end %>
+                </li>
+
+                <li><hr class="dropdown-divider"></li>
+
+                <!-- Analytics -->
+                <li>
+                  <a class="dropdown-item d-flex align-items-center" href="#" onclick="alert('Analytics à venir');">
+                    <i class="bi bi-graph-up me-2" style="color: #2563eb;"></i>
+                    Statistiques
+                  </a>
+                </li>
+              </ul>
+            </li>
           <% end %>
 
 

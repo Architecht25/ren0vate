@@ -122,4 +122,10 @@ class ApplicationController < ActionController::Base
     # Pour la mise à jour du compte
     devise_parameter_sanitizer.permit(:account_update, keys: [:first_name, :last_name])
   end
+
+  def ensure_admin_or_moderator
+    unless current_user&.admin? || current_user&.moderator?
+      redirect_to root_path, alert: "Accès non autorisé. Vous devez être administrateur ou modérateur."
+    end
+  end
 end
