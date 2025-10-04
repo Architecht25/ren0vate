@@ -1,0 +1,431 @@
+<div class="card border-0 shadow-sm" data-controller="aides-entreprise">
+  <div class="card-header bg-gradient bg-secondary text-white">
+    <div class="d-flex align-items-center">
+      <i class="bi bi-lightbulb fs-4 me-3"></i>
+      <div>
+        <h5 class="mb-0">Aides Expertises & Services Externes</h5>
+        <small class="opacity-75">2 dispositifs pour l'expertise externe</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <!-- Sélecteur d'aide -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card bg-light">
+          <div class="card-body">
+            <h6 class="card-title">
+              <i class="bi bi-list-check me-2"></i>Sélectionnez une aide
+            </h6>
+            <select class="form-select" id="aide-expertise-selector" data-aides-entreprise-target="aideSelectorExpertise" data-action="change->aides-entreprise#showAideDetails">
+              <option value="">Choisir une aide...</option>
+              <option value="prime_consultance">Prime Consultance</option>
+              <option value="prime_digitalisation">Prime Digitalisation</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Détails de l'aide sélectionnée -->
+    <div id="aide-details-container-expertise" data-aides-entreprise-target="detailsContainerExpertise" style="display: none;">
+
+      <!-- Prime Consultance -->
+      <div class="aide-details" data-aide="prime_consultance" style="display: none;">
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="bi bi-person-check me-2"></i>Prime Consultance</h6>
+              </div>
+              <div class="card-body">
+                <p><strong>Description :</strong> Prime pour missions de consultance externe ponctuelle dans l'analyse commerciale, stratégique, financière, juridique, technique, communication ou management.</p>
+
+                <div class="mb-3">
+                  <h6 class="text-success">💰 Montants</h6>
+                  <ul class="list-unstyled small">
+                    <li><strong>Taux de base :</strong> 25% des dépenses</li>
+                    <li><strong>Maximum :</strong> 70% avec majorations</li>
+                    <li><strong>Montant minimum :</strong> 500€ par mission</li>
+                    <li><strong>Montant maximum :</strong> 7 500€ par an</li>
+                    <li><strong>Missions maximum :</strong> 3 par an</li>
+                  </ul>
+                </div>
+
+                <div class="mb-3">
+                  <h6 class="text-info">⏱️ Durée et fréquence</h6>
+                  <ul class="list-unstyled small">
+                    <li>• Maximum 6 mois par mission</li>
+                    <li>• Maximum 3 missions/an</li>
+                    <li>• (Consultance + Transition éco. cumulées)</li>
+                    <li>• Caractère exceptionnel requis</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0"><i class="bi bi-gear me-2"></i>Missions éligibles</h6>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <h6 class="text-success">✅ Domaines acceptés</h6>
+                  <ul class="list-unstyled small">
+                    <li>• 📊 Analyse commerciale/stratégique</li>
+                    <li>• 💰 Analyse financière</li>
+                    <li>• ⚖️ Étude juridique (hors contentieux)</li>
+                    <li>• 🔧 Étude technique</li>
+                    <li>• 📢 Stratégie de communication</li>
+                    <li>• 👥 Management et changement</li>
+                    <li>• 🔍 Développement revenus</li>
+                  </ul>
+                </div>
+
+                <div class="mb-3">
+                  <h6 class="text-danger">❌ Exclusions</h6>
+                  <ul class="list-unstyled small">
+                    <li>• Sous-traitance permanente</li>
+                    <li>• Tenue comptabilité</li>
+                    <li>• Missions contentieux</li>
+                    <li>• Activités courantes/récurrentes</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="accordion" id="consultanceAccordion">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#majorationsConsultance">
+                    <i class="bi bi-plus-circle me-2"></i><strong>Majorations possibles (jusqu'à 70%)</strong>
+                  </button>
+                </h2>
+                <div id="majorationsConsultance" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <div class="card bg-light">
+                          <div class="card-body">
+                            <h6 class="text-primary">🚀 Starter (< 4 ans BCE)</h6>
+                            <ul class="list-unstyled small">
+                              <li>• Micro/Petite : <span class="badge bg-success">+25%</span> (50% total)</li>
+                              <li>• Moyenne : <span class="badge bg-success">+20%</span> (45% total)</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="card bg-light">
+                          <div class="card-body">
+                            <h6 class="text-success">🌱 Exemplaire</h6>
+                            <ul class="list-unstyled small">
+                              <li>• Environnemental M/P : <span class="badge bg-success">+30%</span></li>
+                              <li>• Environnemental Moy : <span class="badge bg-success">+20%</span></li>
+                              <li>• Social M/P : <span class="badge bg-success">+30%</span></li>
+                              <li>• Social Moy : <span class="badge bg-success">+20%</span></li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="alert alert-info mt-3">
+                      <strong>Exemple :</strong> Micro-entreprise starter + exemplaire environnemental + social = 25% + 25% + 30% + 30% = 110% → plafonné à <strong>70%</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#procedureConsultance">
+                    <i class="bi bi-clock me-2"></i><strong>Procédure et délais</strong>
+                  </button>
+                </h2>
+                <div id="procedureConsultance" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    <div class="row g-3">
+                      <div class="col-md-4">
+                        <h6 class="text-primary">📅 Demande</h6>
+                        <ul class="list-unstyled small">
+                          <li>• Via MonBEE</li>
+                          <li>• Veille début mission</li>
+                          <li>• Avis réception obligatoire</li>
+                        </ul>
+                      </div>
+                      <div class="col-md-4">
+                        <h6 class="text-warning">⏰ Délais</h6>
+                        <ul class="list-unstyled small">
+                          <li>• Décision : 4 mois max</li>
+                          <li>• Début : lendemain demande min.</li>
+                          <li>• Début : 3 mois après octroi max</li>
+                        </ul>
+                      </div>
+                      <div class="col-md-4">
+                        <h6 class="text-success">📄 Justificatifs</h6>
+                        <ul class="list-unstyled small">
+                          <li>• Dans 12 mois après octroi</li>
+                          <li>• Factures + preuves paiement</li>
+                          <li>• Rapport mission</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#conditionsConsultant">
+                    <i class="bi bi-person-workspace me-2"></i><strong>Conditions consultant</strong>
+                  </button>
+                </h2>
+                <div id="conditionsConsultant" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    <ul class="list-unstyled">
+                      <li class="mb-2">• 🎯 <strong>Compétences insuffisantes en interne</strong> : L'entreprise doit démontrer qu'elle ne dispose pas des compétences nécessaires</li>
+                      <li class="mb-2">• 🔧 <strong>Caractère exceptionnel</strong> : Mission ponctuelle résolvant un problème spécifique</li>
+                      <li class="mb-2">• 📋 <strong>Rapport détaillé</strong> : Livrables et recommandations précises</li>
+                      <li class="mb-2">• ⚖️ <strong>Indépendance</strong> : Consultant externe à l'entreprise</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Prime Digitalisation -->
+      <div class="aide-details" data-aide="prime_digitalisation" style="display: none;">
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="bi bi-laptop me-2"></i>Prime Digitalisation</h6>
+              </div>
+              <div class="card-body">
+                <p><strong>Description :</strong> Prime pour accompagner la transformation digitale des entreprises : conseils en digitalisation, développement d'outils numériques, cybersécurité.</p>
+
+                <div class="mb-3">
+                  <h6 class="text-success">💰 Montants</h6>
+                  <ul class="list-unstyled small">
+                    <li><strong>Taux de base :</strong> 50% des dépenses</li>
+                    <li><strong>Maximum :</strong> 80% avec majorations</li>
+                    <li><strong>Montant minimum :</strong> 750€ par mission</li>
+                    <li><strong>Montant maximum :</strong> 12 500€ par an</li>
+                    <li><strong>Missions maximum :</strong> 2 par an</li>
+                  </ul>
+                </div>
+
+                <div class="mb-3">
+                  <h6 class="text-info">📱 Types de digitalisation</h6>
+                  <ul class="list-unstyled small">
+                    <li>• Audit digital</li>
+                    <li>• Stratégie numérique</li>
+                    <li>• Développement solutions</li>
+                    <li>• Cybersécurité</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="card h-100">
+              <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0"><i class="bi bi-tools me-2"></i>Services éligibles</h6>
+              </div>
+              <div class="card-body">
+                <div class="mb-3">
+                  <h6 class="text-success">✅ Prestations admises</h6>
+                  <ul class="list-unstyled small">
+                    <li>• 🔍 Audit et diagnostic digital</li>
+                    <li>• 📊 Stratégie de transformation</li>
+                    <li>• 💻 Développement applications</li>
+                    <li>• 🌐 Sites web professionnels</li>
+                    <li>• 🔒 Audit cybersécurité</li>
+                    <li>• 📈 Outils de gestion digitaux</li>
+                    <li>• 🎓 Formation aux outils</li>
+                  </ul>
+                </div>
+
+                <div class="mb-3">
+                  <h6 class="text-danger">❌ Exclusions</h6>
+                  <ul class="list-unstyled small">
+                    <li>• Maintenance récurrente</li>
+                    <li>• Licences logiciels</li>
+                    <li>• Matériel informatique</li>
+                    <li>• Hébergement web</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="accordion" id="digitalisationAccordion">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#majorationsDigital">
+                    <i class="bi bi-plus-circle me-2"></i><strong>Majorations possibles (jusqu'à 80%)</strong>
+                  </button>
+                </h2>
+                <div id="majorationsDigital" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <div class="card bg-light">
+                          <div class="card-body">
+                            <h6 class="text-primary">🚀 Starter (< 4 ans BCE)</h6>
+                            <ul class="list-unstyled small">
+                              <li>• Micro/Petite : <span class="badge bg-success">+15%</span> (65% total)</li>
+                              <li>• Moyenne : <span class="badge bg-success">+10%</span> (60% total)</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="card bg-light">
+                          <div class="card-body">
+                            <h6 class="text-success">🌱 Exemplaire</h6>
+                            <ul class="list-unstyled small">
+                              <li>• Environnemental M/P : <span class="badge bg-success">+15%</span></li>
+                              <li>• Environnemental Moy : <span class="badge bg-success">+10%</span></li>
+                              <li>• Social M/P : <span class="badge bg-success">+15%</span></li>
+                              <li>• Social Moy : <span class="badge bg-success">+10%</span></li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="alert alert-info mt-3">
+                      <strong>Exemple :</strong> Micro-entreprise starter + exemplaire = 50% + 15% + 15% = 80% (plafonné)
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#livrablesDemandes">
+                    <i class="bi bi-file-earmark-text me-2"></i><strong>Livrables attendus</strong>
+                  </button>
+                </h2>
+                <div id="livrablesDemandes" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    <div class="row g-3">
+                      <div class="col-md-4">
+                        <h6 class="text-primary">📋 Audit digital</h6>
+                        <ul class="list-unstyled small">
+                          <li>• État des lieux existant</li>
+                          <li>• Analyse des besoins</li>
+                          <li>• Recommandations priorisées</li>
+                          <li>• Plan d'action détaillé</li>
+                        </ul>
+                      </div>
+                      <div class="col-md-4">
+                        <h6 class="text-warning">💻 Développement</h6>
+                        <ul class="list-unstyled small">
+                          <li>• Cahier des charges</li>
+                          <li>• Solution fonctionnelle</li>
+                          <li>• Documentation technique</li>
+                          <li>• Formation utilisateurs</li>
+                        </ul>
+                      </div>
+                      <div class="col-md-4">
+                        <h6 class="text-success">🔒 Cybersécurité</h6>
+                        <ul class="list-unstyled small">
+                          <li>• Audit sécurité</li>
+                          <li>• Cartographie des risques</li>
+                          <li>• Plan de sécurisation</li>
+                          <li>• Procédures de protection</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#criteresTechniques">
+                    <i class="bi bi-gear-fill me-2"></i><strong>Critères techniques</strong>
+                  </button>
+                </h2>
+                <div id="criteresTechniques" class="accordion-collapse collapse">
+                  <div class="accordion-body">
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <div class="card bg-success text-white">
+                          <div class="card-body">
+                            <h6>✅ Prestataire qualifié</h6>
+                            <ul class="list-unstyled small mb-0">
+                              <li>• Expertise technique démontrée</li>
+                              <li>• Références dans le domaine</li>
+                              <li>• Certification professionnelle</li>
+                              <li>• Méthodologie structurée</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="card bg-info text-white">
+                          <div class="card-body">
+                            <h6>📊 Solution adaptée</h6>
+                            <ul class="list-unstyled small mb-0">
+                              <li>• Besoins entreprise analysés</li>
+                              <li>• Solution proportionnée</li>
+                              <li>• Évolutivité prévue</li>
+                              <li>• Formation incluse</li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="mt-4 p-3 bg-light rounded">
+      <h6 class="text-muted mb-3">
+        <i class="bi bi-lightning me-2"></i>Actions rapides
+      </h6>
+      <div class="row g-2">
+        <div class="col-md-3">
+          <a href="https://monbee.brussels.be" target="_blank" class="btn btn-outline-primary btn-sm w-100">
+            <i class="bi bi-globe me-1"></i>MonBEE
+          </a>
+        </div>
+        <div class="col-md-3">
+          <a href="https://be.brussels/digitalisation" target="_blank" class="btn btn-outline-info btn-sm w-100">
+            <i class="bi bi-laptop me-1"></i>Hub digitalisation
+          </a>
+        </div>
+        <div class="col-md-3">
+          <button type="button" class="btn btn-outline-success btn-sm w-100" data-action="click->aides-entreprise#simulerAide">
+            <i class="bi bi-calculator me-1"></i>Simuler aide
+          </button>
+        </div>
+        <div class="col-md-3">
+          <button type="button" class="btn btn-outline-warning btn-sm w-100" data-action="click->aides-entreprise#trouverConsultant">
+            <i class="bi bi-search me-1"></i>Trouver consultant
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

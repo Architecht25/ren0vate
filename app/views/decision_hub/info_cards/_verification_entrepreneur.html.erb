@@ -1,0 +1,397 @@
+<div class="card border-0 shadow-sm" data-controller="entrepreneur-verification">
+  <div class="card-header bg-gradient bg-warning text-dark">
+    <div class="d-flex align-items-center">
+      <i class="bi bi-hammer fs-4 me-3"></i>
+      <div>
+        <h5 class="mb-0">Vérification Éligibilité Entrepreneur</h5>
+        <small class="opacity-75">Validation BCE pour entrepreneurs de rénovation agréés</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <!-- Formulaire de recherche entrepreneur -->
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card bg-light">
+          <div class="card-body">
+            <h6 class="card-title">
+              <i class="bi bi-search me-2"></i>Rechercher un entrepreneur
+            </h6>
+            <div class="row g-3">
+              <div class="col-md-8">
+                <label for="entrepreneur-bce" class="form-label">Numéro BCE de l'entrepreneur</label>
+                <div class="input-group">
+                  <span class="input-group-text">
+                    <i class="bi bi-building"></i>
+                  </span>
+                  <input type="text"
+                         class="form-control"
+                         id="entrepreneur-bce"
+                         placeholder="Ex: 0123.456.789"
+                         pattern="[0-9]{4}\.[0-9]{3}\.[0-9]{3}"
+                         data-entrepreneur-verification-target="bceInput"
+                         data-action="input->entrepreneur-verification#formatBceNumber">
+                  <button class="btn btn-warning"
+                          type="button"
+                          id="verify-entrepreneur-btn"
+                          data-action="click->entrepreneur-verification#verifyEntrepreneur">
+                    <i class="bi bi-search me-1"></i>Vérifier
+                  </button>
+                </div>
+                <small class="text-muted">Format: 0123.456.789</small>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label">Type d'entrepreneur</label>
+                <select class="form-select" id="entrepreneur-type" data-entrepreneur-verification-target="entrepreneurType">
+                  <option value="">Tous les types</option>
+                  <option value="41.20">Construction générale</option>
+                  <option value="43.21">Installation électrique</option>
+                  <option value="43.22">Installation plomberie</option>
+                  <option value="43.32">Menuiserie</option>
+                  <option value="43.34">Peinture et vitrerie</option>
+                  <option value="43.39">Autres travaux finition</option>
+                  <option value="43.91">Couverture</option>
+                  <option value="43.99">Autres travaux construction</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone de résultats -->
+    <div id="entrepreneur-verification-result" class="mb-4" style="display: none;" data-entrepreneur-verification-target="result">
+      <!-- Résultats dynamiques ici -->
+    </div>
+
+    <!-- Critères d'éligibilité -->
+    <div class="accordion" id="entrepreneurAccordion">
+
+      <!-- Critères BCE obligatoires -->
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="criteresEntrepreneurHeader">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#criteresEntrepreneurCollapse">
+            <i class="bi bi-checklist text-success me-3"></i>
+            <strong>1. Critères d'éligibilité BCE</strong>
+          </button>
+        </h2>
+        <div id="criteresEntrepreneurCollapse" class="accordion-collapse collapse show" data-bs-parent="#entrepreneurAccordion">
+          <div class="accordion-body">
+            <div class="row g-4">
+              <div class="col-md-6">
+                <h6 class="text-success mb-3">
+                  <i class="bi bi-shield-check me-2"></i>Critères obligatoires
+                </h6>
+                <div class="list-group list-group-flush">
+                  <div class="list-group-item">
+                    <div class="d-flex align-items-center">
+                      <i class="bi bi-building text-primary me-3"></i>
+                      <div>
+                        <strong>Entreprise active</strong><br>
+                        <small class="text-muted">Statut "ACTIF" dans la BCE</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="list-group-item">
+                    <div class="d-flex align-items-center">
+                      <i class="bi bi-exclamation-triangle text-warning me-3"></i>
+                      <div>
+                        <strong>Situation financière saine</strong><br>
+                        <small class="text-muted">Pas en situation déficitaire ou de faillite</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="list-group-item">
+                    <div class="d-flex align-items-center">
+                      <i class="bi bi-diagram-3 text-info me-3"></i>
+                      <div>
+                        <strong>Code NACE construction</strong><br>
+                        <small class="text-muted">Activité principale ou secondaire dans la construction</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="list-group-item">
+                    <div class="d-flex align-items-center">
+                      <i class="bi bi-calendar-check text-warning me-3"></i>
+                      <div>
+                        <strong>Ancienneté minimum</strong><br>
+                        <small class="text-muted">Au moins 1 an d'activité</small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <h6 class="text-info mb-3">
+                  <i class="bi bi-tools me-2"></i>Codes NACE acceptés
+                </h6>
+                <div class="card bg-light">
+                  <div class="card-body">
+                    <ul class="list-unstyled mb-0 small">
+                      <li class="mb-2">
+                        <span class="badge bg-warning text-dark me-2">41.20</span>
+                        <strong>Construction générale bâtiments</strong>
+                      </li>
+                      <li class="mb-2">
+                        <span class="badge bg-warning text-dark me-2">43.21</span>
+                        <strong>Installation électrique</strong>
+                      </li>
+                      <li class="mb-2">
+                        <span class="badge bg-warning text-dark me-2">43.22</span>
+                        <strong>Installation plomberie/chauffage</strong>
+                      </li>
+                      <li class="mb-2">
+                        <span class="badge bg-warning text-dark me-2">43.32</span>
+                        <strong>Menuiserie</strong>
+                      </li>
+                      <li class="mb-2">
+                        <span class="badge bg-warning text-dark me-2">43.34</span>
+                        <strong>Peinture et vitrerie</strong>
+                      </li>
+                      <li class="mb-2">
+                        <span class="badge bg-warning text-dark me-2">43.39</span>
+                        <strong>Autres travaux de finition</strong>
+                      </li>
+                      <li class="mb-2">
+                        <span class="badge bg-warning text-dark me-2">43.91</span>
+                        <strong>Travaux de couverture</strong>
+                      </li>
+                      <li class="mb-2">
+                        <span class="badge bg-warning text-dark me-2">43.99</span>
+                        <strong>Autres travaux de construction</strong>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="alert alert-info mt-3">
+                  <i class="bi bi-info-circle me-2"></i>
+                  <strong>Note :</strong> L'entrepreneur doit avoir au moins un de ces codes NACE relatifs à la construction.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Qualifications et assurances -->
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="qualificationsEntrepreneurHeader">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#qualificationsEntrepreneurCollapse">
+            <i class="bi bi-patch-check text-primary me-3"></i>
+            <strong>2. Qualifications et assurances</strong>
+          </button>
+        </h2>
+        <div id="qualificationsEntrepreneurCollapse" class="accordion-collapse collapse" data-bs-parent="#entrepreneurAccordion">
+          <div class="accordion-body">
+            <div class="row g-4">
+              <div class="col-md-4">
+                <div class="card border-warning h-100">
+                  <div class="card-header bg-warning text-dark text-center">
+                    <i class="bi bi-shield-check fs-4"></i>
+                    <h6 class="mt-2 mb-0">Assurances</h6>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-unstyled small">
+                      <li class="mb-2">
+                        <i class="bi bi-check text-success me-2"></i>
+                        Assurance responsabilité civile
+                      </li>
+                      <li class="mb-2">
+                        <i class="bi bi-check text-success me-2"></i>
+                        Assurance décennale
+                      </li>
+                      <li class="mb-2">
+                        <i class="bi bi-check text-success me-2"></i>
+                        Protection juridique (recommandée)
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card border-info h-100">
+                  <div class="card-header bg-info text-white text-center">
+                    <i class="bi bi-award fs-4"></i>
+                    <h6 class="mt-2 mb-0">Certifications</h6>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-unstyled small">
+                      <li class="mb-2">
+                        <i class="bi bi-check text-success me-2"></i>
+                        Accès à la profession
+                      </li>
+                      <li class="mb-2">
+                        <i class="bi bi-check text-success me-2"></i>
+                        Qualifications techniques
+                      </li>
+                      <li class="mb-2">
+                        <i class="bi bi-check text-success me-2"></i>
+                        Certifications environnementales
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4">
+                <div class="card border-success h-100">
+                  <div class="card-header bg-success text-white text-center">
+                    <i class="bi bi-people fs-4"></i>
+                    <h6 class="mt-2 mb-0">Personnel</h6>
+                  </div>
+                  <div class="card-body">
+                    <ul class="list-unstyled small">
+                      <li class="mb-2">
+                        <i class="bi bi-check text-success me-2"></i>
+                        Ouvriers qualifiés
+                      </li>
+                      <li class="mb-2">
+                        <i class="bi bi-check text-success me-2"></i>
+                        Respect droit du travail
+                      </li>
+                      <li class="mb-2">
+                        <i class="bi bi-check text-success me-2"></i>
+                        Formation continue
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="alert alert-warning mt-4">
+              <h6 class="alert-heading">
+                <i class="bi bi-exclamation-triangle me-2"></i>Vérifications recommandées
+              </h6>
+              <ul class="mb-0">
+                <li>Demander les attestations d'assurance en cours de validité</li>
+                <li>Vérifier les références sur des projets de rénovation similaires</li>
+                <li>Consulter les avis clients et certifications qualité</li>
+                <li>Vérifier l'absence de condamnations ou sanctions professionnelles</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Processus de validation -->
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="processusEntrepreneurHeader">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#processusEntrepreneurCollapse">
+            <i class="bi bi-list-check text-warning me-3"></i>
+            <strong>3. Processus de validation</strong>
+          </button>
+        </h2>
+        <div id="processusEntrepreneurCollapse" class="accordion-collapse collapse" data-bs-parent="#entrepreneurAccordion">
+          <div class="accordion-body">
+            <div class="row g-3">
+              <div class="col-md-3">
+                <div class="text-center">
+                  <div class="bg-warning text-dark rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <span class="fw-bold">1</span>
+                  </div>
+                  <h6 class="text-warning">Saisie BCE</h6>
+                  <p class="small text-muted">Entrer le numéro BCE de l'entrepreneur</p>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="text-center">
+                  <div class="bg-info text-white rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <span class="fw-bold">2</span>
+                  </div>
+                  <h6 class="text-info">Vérification</h6>
+                  <p class="small text-muted">Validation automatique des critères</p>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="text-center">
+                  <div class="bg-primary text-white rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <span class="fw-bold">3</span>
+                  </div>
+                  <h6 class="text-primary">Résultat</h6>
+                  <p class="small text-muted">Éligibilité et recommandations</p>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <div class="text-center">
+                  <div class="bg-success text-white rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                    <span class="fw-bold">4</span>
+                  </div>
+                  <h6 class="text-success">Validation</h6>
+                  <p class="small text-muted">Enregistrement pour votre dossier</p>
+                </div>
+              </div>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="card bg-light">
+                  <div class="card-body">
+                    <h6 class="card-title text-success">
+                      <i class="bi bi-check-circle me-2"></i>Entrepreneur éligible
+                    </h6>
+                    <ul class="small mb-0">
+                      <li>✅ Entreprise active</li>
+                      <li>✅ Situation financière saine</li>
+                      <li>✅ Code NACE construction</li>
+                      <li>✅ Peut réaliser vos travaux de rénovation</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="card bg-light">
+                  <div class="card-body">
+                    <h6 class="card-title text-danger">
+                      <i class="bi bi-x-circle me-2"></i>Entrepreneur non éligible
+                    </h6>
+                    <ul class="small mb-0">
+                      <li>❌ Entreprise non active</li>
+                      <li>❌ Situation déficitaire/faillite</li>
+                      <li>❌ Code NACE incompatible</li>
+                      <li>❌ Ne peut pas réaliser ce type de travaux</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="mt-4 p-3 bg-light rounded">
+      <h6 class="text-muted mb-3">
+        <i class="bi bi-lightning me-2"></i>Actions rapides
+      </h6>
+      <div class="row g-2">
+        <div class="col-md-3">
+          <a href="https://kbopub.economie.fgov.be" target="_blank" class="btn btn-outline-primary btn-sm w-100">
+            <i class="bi bi-building me-1"></i>Recherche BCE officielle
+          </a>
+        </div>
+        <div class="col-md-3">
+          <a href="https://economie.fgov.be/fr/themes/entreprises/acces-la-profession" target="_blank" class="btn btn-outline-info btn-sm w-100">
+            <i class="bi bi-award me-1"></i>Accès à la profession
+          </a>
+        </div>
+        <div class="col-md-3">
+          <a href="https://www.constructiv.be" target="_blank" class="btn btn-outline-warning btn-sm w-100">
+            <i class="bi bi-tools me-1"></i>Fonds formation construction
+          </a>
+        </div>
+        <div class="col-md-3">
+          <button type="button" class="btn btn-outline-success btn-sm w-100" data-action="click->entrepreneur-verification#saveEntrepreneur">
+            <i class="bi bi-save me-1"></i>Sauvegarder entrepreneur
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
