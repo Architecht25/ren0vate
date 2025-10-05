@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["b2cTiers", "b2bTiers", "segmentB2c", "segmentB2b"]
+  static targets = ["b2cTiers", "b2bTiers", "hybridTiers", "segmentB2c", "segmentB2b", "segmentHybrid"]
   static values = {
     selectedTier: String,
     userContext: Object
@@ -9,6 +9,15 @@ export default class extends Controller {
 
   connect() {
     console.log("💰 Pricing controller connected")
+    console.log("🎯 Available targets:", {
+      b2cTiers: this.hasB2cTiersTarget,
+      b2bTiers: this.hasB2bTiersTarget,
+      hybridTiers: this.hasHybridTiersTarget,
+      segmentB2c: this.hasSegmentB2cTarget,
+      segmentB2b: this.hasSegmentB2bTarget,
+      segmentHybrid: this.hasSegmentHybridTarget
+    })
+
     this.setupSegmentToggle()
     this.setupTierRecommendations()
     this.trackAnalytics()
@@ -17,33 +26,64 @@ export default class extends Controller {
   setupSegmentToggle() {
     // Initialiser l'affichage selon la sélection par défaut
     this.toggleSegment()
+
+    // Ajouter des listeners explicites pour chaque segment
+    if (this.hasSegmentB2cTarget) {
+      this.segmentB2cTarget.addEventListener('change', () => this.toggleSegment())
+    }
+    if (this.hasSegmentB2bTarget) {
+      this.segmentB2bTarget.addEventListener('change', () => this.toggleSegment())
+    }
+    if (this.hasSegmentHybridTarget) {
+      this.segmentHybridTarget.addEventListener('change', () => this.toggleSegment())
+    }
   }
 
   toggleSegment() {
     const isB2C = this.segmentB2cTarget.checked
+    const isB2B = this.segmentB2bTarget.checked
+    const isHybrid = this.hasSegmentHybridTarget && this.segmentHybridTarget.checked
 
-    if (isB2C) {
-      this.b2cTiersTarget.style.display = 'flex'
-      this.b2bTiersTarget.style.display = 'none'
-      console.log("📊 Segment B2C activé")
-    } else {
-      this.b2cTiersTarget.style.display = 'none'
-      this.b2bTiersTarget.style.display = 'flex'
-      console.log("🏢 Segment B2B activé")
+    console.log("🔄 Toggle segment - B2C:", isB2C, "B2B:", isB2B, "Hybrid:", isHybrid)
+
+    // Masquer toutes les sections d'abord en retirant la classe active
+    this.b2cTiersTarget.classList.remove('active')
+    this.b2bTiersTarget.classList.remove('active')
+
+    if (this.hasHybridTiersTarget) {
+      this.hybridTiersTarget.classList.remove('active')
     }
 
-    // Analytics tracking
-    this.trackSegmentChange(isB2C ? 'B2C' : 'B2B')
+    if (isB2C) {
+      this.b2cTiersTarget.classList.add('active')
+      console.log("📊 Segment B2C activé")
+      this.trackSegmentChange('B2C')
+    } else if (isB2B) {
+      this.b2bTiersTarget.classList.add('active')
+      console.log("🏢 Segment B2B activé")
+      this.trackSegmentChange('B2B')
+    } else if (isHybrid && this.hasHybridTiersTarget) {
+      this.hybridTiersTarget.classList.add('active')
+      console.log("🔄 Segment Hybride activé")
+      this.trackSegmentChange('Hybrid')
+    }
   }
 
   setupTierRecommendations() {
     // Highlight du tier recommandé basé sur le contexte utilisateur
-    if (this.hasUserContextValue) {
-      const context = this.userContextValue
-      console.log("👤 Contexte utilisateur:", context)
+    if (this.hasUserContextValue && this.userContextValue) {
+      try {
+        const context = this.userContextValue
+        console.log("👤 Contexte utilisateur:", context)
 
-      // Logique de recommandation dynamique
-      this.highlightRecommendedTier(context)
+        // Logique de recommandation dynamique
+        this.highlightRecommendedTier(context)
+      } catch (error) {
+        console.log("⚠️ Erreur lors du parsing du contexte utilisateur:", error)
+        // Continuer sans recommandations
+      }
+    } else {
+      console.log("ℹ️ Pas de contexte utilisateur disponible")
     }
   }
 

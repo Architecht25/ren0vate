@@ -176,6 +176,32 @@ class PricingController < ApplicationController
         target: "B2C Multi-propriétaires"
       },
 
+      premium_mixed: {
+        name: "Premium Mixed",
+        price: 189,
+        period: "mois",
+        description: "Investisseurs-entrepreneurs : patrimoine perso + entreprises",
+        features: [
+          "Jusqu'à 15 propriétés résidentielles",
+          "Jusqu'à 8 entreprises (BCE illimitée)",
+          "Ren0Chat : 200 questions/mois",
+          "Ren0Bot : Support 24/7 illimité",
+          "Decision Hub hybride : Optimisation mixte",
+          "Dashboard unifié perso + pro",
+          "Cross-analytics fiscal mixte",
+          "Recommendations IA hybrides",
+          "Support expert spécialisé (24h)",
+          "3 comptes utilisateurs équipe",
+          "Reporting semi-automatisé",
+          "API accès limité",
+          "Exports avancés : Reporting fiscal mixte"
+        ],
+        roi: "ROI minimum : 1500% • ROI réaliste : 3400%+",
+        cta: "Choisir Premium Mixed",
+        popular: true,
+        target: "Hybride B2C+B2B"
+      },
+
       professional: {
         name: "Expert",
         price: 149,
@@ -245,16 +271,19 @@ class PricingController < ApplicationController
 
   def recommend_tier_for_user
     properties_count = current_user.properties.count
+    has_enterprises = current_user.respond_to?(:enterprises) && current_user.enterprises.any?
 
-    case properties_count
-    when 0..1
-      :individual
-    when 2..3
-      :individual
-    when 4..10
+    # Logique de recommandation hybride
+    if has_enterprises && properties_count >= 4
+      :premium_mixed
+    elsif properties_count >= 11
+      :premium_mixed
+    elsif properties_count >= 4
       :portfolio
+    elsif properties_count >= 2
+      :individual
     else
-      :professional
+      :individual
     end
   end
 
