@@ -11,7 +11,9 @@
       <% request.request_progresses.includes(:prime).limit(3).each do |progress| %>
         <div class="d-flex justify-content-between align-items-center py-2 <%= 'border-bottom' unless progress == request.request_progresses.limit(3).last %>">
           <div>
-            <div class="fw-bold small"><%= progress.prime.titre %></div>
+            <div class="fw-bold small">
+              <%= progress.prime&.titre || "Prime non spécifiée" %>
+            </div>
             <div class="text-muted small">
               <%= t("request_progress.status.#{progress.status_administratif}") %>
               <% if progress.pourcentage > 0 %>
