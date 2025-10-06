@@ -1,3 +1,19 @@
+<%
+  seo_data = region_seo_data('flandre')
+  set_seo_meta(
+    title: seo_data[:title],
+    description: seo_data[:description],
+    keywords: seo_data[:keywords],
+    canonical_url: canonical_url_for(flandre_path)
+  )
+%>
+
+<% content_for :head do %>
+  <script type="application/ld+json">
+    <%= structured_data_service('flandre', 'particuliers') %>
+  </script>
+<% end %>
+
 <script nonce="<%= content_security_policy_nonce %>">
   // Initialisation automatique de la région Flandre dès que le DOM est prêt
   document.addEventListener('DOMContentLoaded', function() {

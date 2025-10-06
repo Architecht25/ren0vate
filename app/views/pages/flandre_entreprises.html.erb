@@ -1,7 +1,21 @@
 <%
   # Cette page liste les aides aux entreprises disponibles en Flandre
   # avec des liens vers les sites officiels flamands
+
+  seo_data = enterprise_seo_data('flandre')
+  set_seo_meta(
+    title: seo_data[:title],
+    description: seo_data[:description],
+    keywords: seo_data[:keywords],
+    canonical_url: canonical_url_for(flandre_entreprises_path)
+  )
 %>
+
+<% content_for :head do %>
+  <script type="application/ld+json">
+    <%= structured_data_service('flandre', 'entreprises') %>
+  </script>
+<% end %>
 
 <div class="container mt-4">
   <div class="row">

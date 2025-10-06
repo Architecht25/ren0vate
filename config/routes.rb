@@ -354,6 +354,12 @@ Rails.application.routes.draw do
 
   end # Fin du scope locale
 
+  # Sitemap XML (hors scope locale pour éviter les conflits de langue)
+  get '/sitemap.xml', to: 'sitemap#index', format: :xml
+
+  # Robots.txt dynamique
+  get '/robots.txt', to: 'robots#index', format: :text
+
   # Route pour les rapports de violation CSP (hors scope locale)
   post '/csp-violation-report-endpoint', to: 'security#csp_violation_report'
 

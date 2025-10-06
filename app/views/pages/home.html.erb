@@ -1,26 +1,73 @@
+<%
+  set_seo_meta(
+    title: "Ren0vate - Estimez gratuitement vos aides à la rénovation en Belgique",
+    description: "Simulateurs gratuits pour estimer vos primes et aides à la rénovation énergétique. Pour particuliers et entreprises en Flandre, Bruxelles et Wallonie. Testez votre éligibilité en 2 minutes.",
+    keywords: "primes rénovation belgique, aides énergétiques, isolation, chauffage, simulateur gratuit, flandre, bruxelles, wallonie, entreprises, particuliers",
+    canonical_url: canonical_url_for(root_path),
+    og_image: asset_url("renovation.jpg")
+  )
+%>
+
+<% content_for :head do %>
+  <script type="application/ld+json">
+    <%= structured_data_organization %>
+  </script>
+<% end %>
+
 <div class="hero-section position-relative text-center text-white" style="background-image: url('<%= asset_path("renovation.jpg") %>'); background-size: cover; background-position: center; height: 100vh;">
   <div class="overlay position-absolute w-100 h-100" style="background: rgba(0, 0, 0, 0.5);"></div>
   <div class="container position-relative d-flex flex-column justify-content-center align-items-center h-100">
-    <h1 class="display-4 mb-3">Estimez vos aides à la rénovation</h1>
-    <p class="lead mb-4">Testez gratuitement votre éligibilité aux primes et subventions</p>
+    <h1 class="display-4 mb-3">Calculez vos Primes et Aides à la Rénovation Énergétique</h1>
+    <p class="lead mb-4">Simulateurs gratuits pour particuliers et entreprises - Flandre, Bruxelles, Wallonie</p>
 
     <!-- Simulateurs Particuliers -->
-    <h3 class="mb-3">Pour les particuliers</h3>
+    <h2 class="mb-3">Simulateurs pour Particuliers</h2>
     <div class="btn-group d-flex flex-wrap justify-content-center gap-3 mb-4" role="group">
-      <%= link_to "Flandre", flandre_path, class: "btn btn-dark btn-lg text-white" %>
-      <%= link_to "Bruxelles", bruxelles_path, class: "btn btn-warning btn-lg text-dark" %>
-      <%= link_to "Wallonie", wallonie_path, class: "btn btn-danger btn-lg text-white" %>
+      <%= link_to "Primes Flandre", flandre_path, class: "btn btn-dark btn-lg text-white" %>
+      <%= link_to "Primes Bruxelles", bruxelles_path, class: "btn btn-warning btn-lg text-dark" %>
+      <%= link_to "Primes Wallonie", wallonie_path, class: "btn btn-danger btn-lg text-white" %>
     </div>
 
     <!-- Simulateurs Entreprises -->
-    <h3 class="mb-3">Pour les entreprises</h3>
+    <h2 class="mb-3">Aides aux Entreprises</h2>
     <div class="btn-group d-flex flex-wrap justify-content-center gap-3 mb-4" role="group">
-      <%= link_to "Flandre", flandre_entreprises_path, class: "btn btn-dark btn-lg text-white" %>
+      <%= link_to "Aides Flandre", flandre_entreprises_path, class: "btn btn-dark btn-lg text-white" %>
       <%= link_to bruxelles_entreprises_path, class: "btn btn-warning btn-lg text-dark" do %>
-        Bruxelles
+        Aides Bruxelles
         <span class="badge bg-dark text-white ms-2">NOUVEAU</span>
       <% end %>
-      <%= link_to "Wallonie", wallonie_entreprises_path, class: "btn btn-danger btn-lg text-white" %>
+      <%= link_to "Aides Wallonie", wallonie_entreprises_path, class: "btn btn-danger btn-lg text-white" %>
+    </div>
+  </div>
+</div>
+
+<!-- Section explicative SEO -->
+<div class="py-5 bg-white">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 mx-auto text-center">
+        <h2 class="mb-4">Primes et Aides à la Rénovation Énergétique en Belgique</h2>
+        <p class="lead mb-4">
+          Découvrez toutes les aides financières disponibles pour vos projets de rénovation énergétique.
+          Isolation, chauffage, ventilation, toiture : nos simulateurs vous aident à estimer vos primes
+          selon votre région et votre profil.
+        </p>
+
+        <div class="row mt-5">
+          <div class="col-md-4 mb-4">
+            <h3>Isolation Thermique</h3>
+            <p>Murs, toiture, sols : jusqu'à 7 000€ de primes pour améliorer l'isolation de votre logement.</p>
+          </div>
+          <div class="col-md-4 mb-4">
+            <h3>Systèmes de Chauffage</h3>
+            <p>Pompes à chaleur, chaudières à condensation, chauffage au bois : bénéficiez d'aides substantielles.</p>
+          </div>
+          <div class="col-md-4 mb-4">
+            <h3>Audit Énergétique</h3>
+            <p>Première étape de votre rénovation : l'audit énergétique vous donne droit à des primes spécifiques.</p>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -33,12 +80,12 @@
         <p>Testez votre éligibilité</p>
       </div>
       <div class="col-md-4">
-        <p class="mb-0"><strong>🧾 Jusqu’à 35 000 €</strong></p>
+        <p class="mb-0"><strong>🧾 Jusqu'à 35 000 €</strong></p>
         <p>De primes accessibles</p>
       </div>
       <div class="col-md-4">
         <p class="mb-0"><strong>🛡️ Aucun engagement</strong></p>
-        <p>Modèle ‘no cure, no pay’</p>
+        <p>Modèle 'no cure, no pay'</p>
       </div>
     </div>
   </div>

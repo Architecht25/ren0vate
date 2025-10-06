@@ -1,4 +1,18 @@
-<% content_for :title, "Aides aux Entreprises Bruxelles" %>
+<%
+  seo_data = enterprise_seo_data('bruxelles')
+  set_seo_meta(
+    title: seo_data[:title],
+    description: seo_data[:description],
+    keywords: seo_data[:keywords],
+    canonical_url: canonical_url_for(bruxelles_entreprises_path)
+  )
+%>
+
+<% content_for :head do %>
+  <script type="application/ld+json">
+    <%= structured_data_service('bruxelles', 'entreprises') %>
+  </script>
+<% end %>
 <% content_for :description, "Simulateur d'éligibilité aux aides et primes pour les entreprises de la Région de Bruxelles-Capitale" %>
 
 <%= render 'pages/bruxelles_entreprises/hero_section' %>
