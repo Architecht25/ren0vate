@@ -751,12 +751,15 @@ class SimulationsController < ApplicationController
     return unless simulation.property.present? && simulation.project.present?
     return unless simulation.region&.downcase == 'bruxelles'
 
-    # Utiliser le service d'éligibilité Bruxelles classique (particulier)
+    # Déterminer le type de simulation basé sur la propriété
+    sim_type = simulation.property.is_entreprise? ? 'entreprise' : 'particulier'
+    
+    # Utiliser le service d'éligibilité Bruxelles avec le bon type
     eligibility_service = Regions::Bruxelles::BruxellesEligibilityService.new(
       {
         property_id: simulation.property_id,
         project_id: simulation.project_id,
-        simulation_type: 'particulier' # Force le type particulier pour RENOLUTION
+        simulation_type: sim_type # Utilise le vrai type (entreprise ou particulier)
       },
       user: current_user
     )
