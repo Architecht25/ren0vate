@@ -464,13 +464,15 @@ class Property < ApplicationRecord
     fields = [:rue, :numero, :code_postal, :commune, :region]
 
     # Ajout des champs régionaux requis selon la région
+    # Exclure type_bien_bruxelles pour les entreprises car incompatible avec éligibilité Renolution
     case region
     when 'wallonie'
       fields += [:type_propriete_wallonie]
     when 'flandre'
       fields += [:type_bien_flandre]
     when 'bruxelles'
-      fields += [:type_bien_bruxelles]
+      # Pour les entreprises, ne pas exiger type_bien_bruxelles
+      fields += [:type_bien_bruxelles] unless is_entreprise?
     end
 
     fields
