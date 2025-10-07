@@ -22,15 +22,15 @@ WALLONIE_ANNEXES_MAPPING = {
   # Annexe 1 - Toiture
   'wallonie_toiture_isolation_thermique' => '13-03-2025_pdf-annexe-1-toiture-primes-habitation_rochbb',
   'wallonie_toiture_isolation_biosource' => '13-03-2025_pdf-annexe-1-toiture-primes-habitation_rochbb',
-  
-  # Annexe 2 - Murs  
+
+  # Annexe 2 - Murs
   'wallonie_isolation_murs' => '13-03-2025_pdf-annexe-2-murs-primes-habitation_klxegb',
   'wallonie_isolation_murs_biosource' => '13-03-2025_pdf-annexe-2-murs-primes-habitation_klxegb',
-  
+
   # Annexe 5 - Pour sols (électricité/technique est plus approprié que menuiseries)
   'wallonie_isolation_sols' => '13-03-2025_pdf-annexe-5-gaz-electricite-radon-merule-primes-habitation_imn92l',
   'wallonie_isolation_sols_biosource' => '13-03-2025_pdf-annexe-5-gaz-electricite-radon-merule-primes-habitation_imn92l',
-  
+
   # Annexe 6 - Chauffage/Installation pour finition planchers
   'wallonie_isolation_finition_planchers' => '13-03-2025_pdf-annexe-6-installation-de-chauffage-et-ecs-primes-habitation_ylbxzh'
 }
@@ -44,7 +44,7 @@ puts "=" * 60
 
 # Récupérer toutes les annexes techniques de Wallonie
 annexes = PrimeDocumentTemplate.joins(:prime)
-                               .where(primes: { region: 'wallonie' }, 
+                               .where(primes: { region: 'wallonie' },
                                       type_document: 'annexe_technique')
 
 puts "🔍 Trouvé #{annexes.count} annexes techniques pour la Wallonie"
@@ -56,18 +56,18 @@ not_found_count = 0
 annexes.each do |annexe|
   prime_slug = annexe.prime.slug
   current_url = annexe.file_url
-  
+
   puts "📝 Traitement de: #{annexe.title}"
   puts "   Prime slug: #{prime_slug}"
   puts "   URL actuelle: #{current_url}"
-  
+
   if WALLONIE_ANNEXES_MAPPING.key?(prime_slug)
     cloudinary_id = WALLONIE_ANNEXES_MAPPING[prime_slug]
     new_url = generate_cloudinary_url(cloudinary_id)
-    
+
     puts "   ✅ Mapping trouvé: #{cloudinary_id}"
     puts "   🔗 Nouvelle URL: #{new_url}"
-    
+
     if !DRY_RUN
       begin
         annexe.update!(file_url: new_url)
@@ -84,7 +84,7 @@ annexes.each do |annexe|
     puts "   ⚠️  Aucun mapping trouvé pour le slug: #{prime_slug}"
     not_found_count += 1
   end
-  
+
   puts
 end
 

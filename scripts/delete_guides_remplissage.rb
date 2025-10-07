@@ -66,43 +66,43 @@ puts
 if !DRY_RUN
   puts "🗑️  SUPPRESSION EN COURS..."
   puts "=" * 40
-  
+
   deleted_count = 0
   error_count = 0
-  
+
   guides.find_each do |guide|
     begin
       # Supprimer d'abord le fichier attaché s'il existe
       if guide.document_file.attached?
         guide.document_file.purge
       end
-      
+
       # Supprimer l'enregistrement
       guide.destroy!
       deleted_count += 1
-      
+
       if deleted_count % 10 == 0
         puts "  ✅ #{deleted_count} guides supprimés..."
       end
-      
+
     rescue => e
       puts "  ❌ Erreur lors de la suppression du guide ID #{guide.id}: #{e.message}"
       error_count += 1
     end
   end
-  
+
   puts "=" * 40
   puts "📊 RÉSUMÉ DE LA SUPPRESSION"
   puts "Guides supprimés avec succès: #{deleted_count}"
   puts "Erreurs rencontrées: #{error_count}"
   puts "Total traité: #{deleted_count + error_count}"
-  
+
   if error_count == 0
     puts "✅ Tous les guides de remplissage ont été supprimés avec succès!"
   else
     puts "⚠️  Quelques erreurs ont été rencontrées lors de la suppression"
   end
-  
+
 else
   puts "🔄 MODE SIMULATION - Actions qui seraient effectuées:"
   puts "  - Suppression de #{guides.count} guides de remplissage"

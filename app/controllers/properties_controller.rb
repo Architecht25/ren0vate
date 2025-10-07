@@ -425,7 +425,7 @@ class PropertiesController < ApplicationController
       :type_bien_bruxelles, :certificat_peb_bruxelles,
 
       # Champs spécifiques Entreprise
-      :nombre_salaries, :date_creation, :regle_minimis,
+      :nombre_salaries, :date_creation, :regle_minimis, :bce_number,
       :code_nace_1, :code_nace_2, :code_nace_3, :code_nace_4, :code_nace_5,
       :comptes_annuels_conformes, :plan_diversite_actif, :pourcentage_financement_public,
 
