@@ -252,10 +252,13 @@ module Regions
         # Récupère la propriété associée à la simulation
         property_id = get_param(:property_id)
         Rails.logger.info "🏠 get_property: property_id param = #{property_id}"
+        Rails.logger.info "🏠 get_property: @user.id = #{@user&.id}"
         return nil unless property_id
 
         property = @user.properties.find_by(id: property_id)
         Rails.logger.info "🏠 get_property: found property = #{property&.id}, region = '#{property&.region}'"
+        Rails.logger.info "🏠 get_property: property.annee_construction = #{property&.annee_construction}" if property
+        Rails.logger.info "🏠 get_property: @user total properties = #{@user.properties.count}"
         property
       end
 

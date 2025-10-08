@@ -747,13 +747,26 @@ class SimulationsController < ApplicationController
   # Test d'éligibilité pour les primes RENOLUTION
   def perform_renolution_eligibility_test(simulation)
     Rails.logger.info "=== PERFORM_RENOLUTION_ELIGIBILITY_TEST ==="
+    Rails.logger.info "🔍 Simulation ID: #{simulation.id}"
+    Rails.logger.info "🔍 Simulation property_id: #{simulation.property_id}"
+    Rails.logger.info "🔍 Simulation project_id: #{simulation.project_id}"
+    Rails.logger.info "🔍 Simulation region: #{simulation.region}"
+
+    if simulation.property.present?
+      Rails.logger.info "🏠 Property found: ID=#{simulation.property.id}, region=#{simulation.property.region}"
+      Rails.logger.info "🏠 Property annee_construction: #{simulation.property.annee_construction}"
+      Rails.logger.info "🏠 Property is_entreprise?: #{simulation.property.is_entreprise?}"
+    else
+      Rails.logger.error "❌ No property found for simulation #{simulation.id}"
+    end
 
     return unless simulation.property.present? && simulation.project.present?
     return unless simulation.region&.downcase == 'bruxelles'
 
     # Déterminer le type de simulation basé sur la propriété
     sim_type = simulation.property.is_entreprise? ? 'entreprise' : 'particulier'
-    
+    Rails.logger.info "🎯 Simulation type determined: #{sim_type}"
+
     # Utiliser le service d'éligibilité Bruxelles avec le bon type
     eligibility_service = Regions::Bruxelles::BruxellesEligibilityService.new(
       {
