@@ -15,6 +15,7 @@ class AdminController < ApplicationController
     @users = User.all
     @backup_status = BackupStatusService.call
     @admin_stats = AdminStatsService.call
+    @system_info = SystemInfoService.collect_system_info
   end
 
   def geocode_properties
