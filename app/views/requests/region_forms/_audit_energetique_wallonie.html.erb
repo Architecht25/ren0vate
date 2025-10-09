@@ -32,22 +32,22 @@
           <div class="mb-3">
             <%= f.label :nom, class: "form-label" do %>
               Nom complet
-              <%= badge_prerempli(@form_data, :applicant_last_name) if @form_data.present? %>
+              <%= badge_prerempli(@form_data, :applicant_lastname) if @form_data.present? %>
             <% end %>
             <%= f.text_field :nom,
-                value: preremplir_champ(@form_data, :applicant_last_name, current_user.last_name),
+                value: preremplir_champ(@form_data, :applicant_lastname, current_user.last_name),
                 placeholder: "Nom complet",
                 class: "form-control" %>
           </div>
         </div>
         <div class="col-md-6">
           <div class="mb-3">
-            <%= form.label :prenom, class: "form-label" do %>
+            <%= f.label :prenom, class: "form-label" do %>
               Prénom
-              <%= badge_prerempli(@form_data, :applicant_first_name) if @form_data.present? %>
+              <%= badge_prerempli(@form_data, :applicant_firstname) if @form_data.present? %>
             <% end %>
-            <%= form.text_field :prenom,
-                value: preremplir_champ(@form_data, :applicant_first_name, current_user.first_name),
+            <%= f.text_field :prenom,
+                value: preremplir_champ(@form_data, :applicant_firstname, current_user.first_name),
                 placeholder: "Prénom",
                 class: "form-control" %>
           </div>
@@ -287,50 +287,48 @@
       </div>
     </div>
 
-    <!-- Section 4: Documents à joindre -->
+    <!-- Section 4: Documents à préparer -->
     <div class="card border-0 shadow-sm mb-4">
       <div class="card-body p-4">
         <h5 class="text-warning mb-4 fw-semibold">
           <i class="bi bi-file-earmark-text me-2"></i>
-          4. Documents à joindre
+          4. Documents à préparer
         </h5>
 
-        <div class="row g-3">
-          <div class="col-md-3">
-            <label class="form-label">Preuve de paiement de l'audit*</label>
-            <%= f.file_field :document_factures,
-                class: "form-control",
-                accept: ".pdf,.jpg,.jpeg,.png",
-                required: true,
-                multiple: true %>
-            <div class="form-text">Formats acceptés: PDF, JPG, PNG (max 5 MB)</div>
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle me-2"></i>
+          Les documents suivants seront demandés après validation de votre demande :
+        </div>
+
+        <div class="row">
+          <div class="col-12">
+            <h6 class="text-primary mb-3">Pour tous les demandeurs :</h6>
+            <div class="form-check mb-3">
+              <input type="checkbox"
+                     class="form-check-input"
+                     id="document_factures_prepared"
+                     name="documents_prepared[]"
+                     value="factures_audit">
+              <label class="form-check-label" for="document_factures_prepared">
+                Une copie de toutes les factures relatives à la réalisation de l'audit
+              </label>
+            </div>
+            <div class="form-check mb-3">
+              <input type="checkbox"
+                     class="form-check-input"
+                     id="document_rib_prepared"
+                     name="documents_prepared[]"
+                     value="rib_carte_bancaire">
+              <label class="form-check-label" for="document_rib_prepared">
+                Une photo de votre carte bancaire mentionnant votre nom et le numéro de compte (veillez à cacher l'éventuel code de sécurité CVC) ou le Relevé d'Identité Bancaire (RIB) délivré avec une signature de la banque
+              </label>
+            </div>
           </div>
-          <div class="col-md-3">
-            <label class="form-label">Rapport d'audit énergétique complet*</label>
-            <%= f.file_field :document_autres,
-                class: "form-control",
-                accept: ".pdf",
-                required: true,
-                multiple: true %>
-            <div class="form-text">Format PDF uniquement</div>
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Copie de la carte d'identité (recto-verso)*</label>
-            <%= f.file_field :document_attestations,
-                class: "form-control",
-                accept: ".pdf,.jpg,.jpeg,.png",
-                required: true,
-                multiple: true %>
-            <div class="form-text">Recto et verso en un seul fichier</div>
-          </div>
-          <div class="col-md-3">
-            <label class="form-label">Certificat PEB (si disponible)</label>
-            <%= f.file_field :document_peb,
-                class: "form-control",
-                accept: ".pdf,.jpg,.jpeg,.png",
-                multiple: true %>
-            <div class="form-text">Optionnel - Si vous avez un ou plusieurs certificats PEB</div>
-          </div>
+        </div>
+
+        <div class="alert alert-success mt-4">
+          <i class="bi bi-check-circle me-2"></i>
+          <strong>Important :</strong> Ces documents seront à fournir lors de la validation finale de votre demande de prime.
         </div>
       </div>
     </div>
