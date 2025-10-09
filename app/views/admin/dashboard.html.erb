@@ -195,8 +195,8 @@
                   <i class="bi bi-plus-circle me-2"></i>Créer notification
                 <% end %>
 
-                <button type="button" id="generate-automatic-notifications-btn" class="btn btn-outline-info btn-lg">
-                  <i class="bi bi-robot me-2"></i>Générer automatiques
+                <button type="button" onclick="generateSmartNotifications()" class="btn btn-outline-info btn-lg">
+                  <i class="bi bi-robot me-2"></i>Notifications intelligentes
                 </button>
 
                 <%= link_to notifications_path, class: "btn btn-outline-secondary" do %>
@@ -397,60 +397,305 @@
       </div>
     </div>
 
-    <!-- ========== ONGLET STATISTIQUES ========== -->
+    <!-- ========== ONGLET STATISTIQUES ENRICHI ========== -->
     <div class="tab-pane fade" id="stats-panel" role="tabpanel">
+
+      <!-- Vue d'ensemble rapide -->
+      <div class="row mb-4">
+        <div class="col-md-2 col-sm-4 mb-3">
+          <div class="card text-center border-0 shadow-sm bg-primary bg-opacity-10">
+            <div class="card-body">
+              <h3 class="text-primary mb-1"><%= @admin_stats[:overview][:total_users] %></h3>
+              <small class="text-muted">Utilisateurs</small>
+              <div class="mt-1">
+                <span class="badge bg-success"><%= @admin_stats[:users][:recent_signups] %> cette semaine</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-4 mb-3">
+          <div class="card text-center border-0 shadow-sm bg-info bg-opacity-10">
+            <div class="card-body">
+              <h3 class="text-info mb-1"><%= @admin_stats[:overview][:total_properties] %></h3>
+              <small class="text-muted">Propriétés</small>
+              <div class="mt-1">
+                <span class="badge bg-info"><%= @admin_stats[:properties][:geocoding_rate].round(1) %>% géocodées</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-4 mb-3">
+          <div class="card text-center border-0 shadow-sm bg-warning bg-opacity-10">
+            <div class="card-body">
+              <h3 class="text-warning mb-1"><%= @admin_stats[:overview][:total_projects] %></h3>
+              <small class="text-muted">Projets</small>
+              <div class="mt-1">
+                <span class="badge bg-warning"><%= @admin_stats[:projects][:avg_per_property] %> / propriété</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-4 mb-3">
+          <div class="card text-center border-0 shadow-sm bg-success bg-opacity-10">
+            <div class="card-body">
+              <h3 class="text-success mb-1"><%= @admin_stats[:overview][:total_simulations] %></h3>
+              <small class="text-muted">Simulations</small>
+              <div class="mt-1">
+                <span class="badge bg-success"><%= @admin_stats[:simulations][:this_month] %> ce mois</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-4 mb-3">
+          <div class="card text-center border-0 shadow-sm bg-danger bg-opacity-10">
+            <div class="card-body">
+              <h3 class="text-danger mb-1"><%= @admin_stats[:overview][:total_primes] %></h3>
+              <small class="text-muted">Primes</small>
+              <div class="mt-1">
+                <span class="badge bg-danger">3 régions</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-4 mb-3">
+          <div class="card text-center border-0 shadow-sm bg-secondary bg-opacity-10">
+            <div class="card-body">
+              <h3 class="text-secondary mb-1"><%= @admin_stats[:overview][:total_documents] %></h3>
+              <small class="text-muted">Documents</small>
+              <div class="mt-1">
+                <span class="badge bg-secondary"><%= @admin_stats[:documents][:this_week] %> cette semaine</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Graphiques et analyses détaillées -->
       <div class="row">
-        <div class="col-md-6">
-          <!-- Stats générales -->
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <div class="card text-center border-0 shadow-sm">
-                <div class="card-body">
-                  <h3 class="text-primary"><%= @properties.count %></h3>
-                  <p class="card-text small">Propriétés enregistrées</p>
+        <!-- Croissance utilisateurs -->
+        <div class="col-lg-4 mb-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-light">
+              <h6 class="mb-0"><i class="bi bi-people me-2"></i>Utilisateurs</h6>
+            </div>
+            <div class="card-body">
+              <div class="row text-center mb-3">
+                <div class="col-6">
+                  <h5 class="text-success mb-0"><%= @admin_stats[:users][:confirmed] %></h5>
+                  <small class="text-muted">Confirmés</small>
+                </div>
+                <div class="col-6">
+                  <h5 class="text-warning mb-0"><%= @admin_stats[:users][:unconfirmed] %></h5>
+                  <small class="text-muted">Non confirmés</small>
                 </div>
               </div>
-            </div>
-            <div class="col-md-6 mb-3">
-              <div class="card text-center border-0 shadow-sm">
-                <div class="card-body">
-                  <h3 class="text-warning"><%= @projects.count %></h3>
-                  <p class="card-text small">Chantiers créés</p>
-                </div>
+              <div class="progress mb-2" style="height: 8px;">
+                <div class="progress-bar bg-success" role="progressbar"
+                     style="width: <%= @admin_stats[:users][:completion_rate] %>%"></div>
+              </div>
+              <small class="text-muted">Taux de complétion des profils: <%= @admin_stats[:users][:completion_rate] %>%</small>
+
+              <hr class="my-3">
+
+              <div class="d-flex justify-content-between">
+                <span>Croissance 7j:</span>
+                <span class="<%= @admin_stats[:growth][:user_growth_7d].starts_with?('+') ? 'text-success' : 'text-danger' %>">
+                  <%= @admin_stats[:growth][:user_growth_7d] %>
+                </span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span>Croissance 30j:</span>
+                <span class="<%= @admin_stats[:growth][:user_growth_30d].starts_with?('+') ? 'text-success' : 'text-danger' %>">
+                  <%= @admin_stats[:growth][:user_growth_30d] %>
+                </span>
               </div>
             </div>
-            <div class="col-md-6 mb-3">
-              <div class="card text-center border-0 shadow-sm">
-                <div class="card-body">
-                  <h3 class="text-danger"><%= @simulations.count %></h3>
-                  <p class="card-text small">Simulations effectuées</p>
+          </div>
+        </div>
+
+        <!-- Propriétés et géocodage -->
+        <div class="col-lg-4 mb-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-light">
+              <h6 class="mb-0"><i class="bi bi-house me-2"></i>Propriétés</h6>
+            </div>
+            <div class="card-body">
+              <div class="row text-center mb-3">
+                <div class="col-6">
+                  <h5 class="text-info mb-0"><%= @admin_stats[:properties][:geocoded] %></h5>
+                  <small class="text-muted">Géocodées</small>
+                </div>
+                <div class="col-6">
+                  <h5 class="text-primary mb-0"><%= @admin_stats[:properties][:with_projects] %></h5>
+                  <small class="text-muted">Avec projets</small>
                 </div>
               </div>
+
+              <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                  <small>Qualité géocodage</small>
+                  <small><%= @admin_stats[:properties][:geocoding_rate].round(1) %>%</small>
+                </div>
+                <div class="progress" style="height: 8px;">
+                  <div class="progress-bar bg-info" role="progressbar"
+                       style="width: <%= @admin_stats[:properties][:geocoding_rate] %>%"></div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                  <small>Taux d'utilisation</small>
+                  <small><%= @admin_stats[:properties][:usage_rate].round(1) %>%</small>
+                </div>
+                <div class="progress" style="height: 8px;">
+                  <div class="progress-bar bg-primary" role="progressbar"
+                       style="width: <%= @admin_stats[:properties][:usage_rate] %>%"></div>
+                </div>
+              </div>
+
+              <hr class="my-3">
+
+              <small class="text-muted">
+                <i class="bi bi-plus-circle me-1"></i>
+                <%= @admin_stats[:properties][:recent_additions] %> ajouts cette semaine
+              </small>
             </div>
-            <div class="col-md-6 mb-3">
-              <div class="card text-center border-0 shadow-sm">
-                <div class="card-body">
-                  <h3 class="text-info"><%= @documents.count %></h3>
-                  <p class="card-text small">Documents téléchargés</p>
+          </div>
+        </div>
+
+        <!-- Répartition géographique -->
+        <div class="col-lg-4 mb-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-light">
+              <h6 class="mb-0"><i class="bi bi-geo-alt me-2"></i>Répartition géographique</h6>
+            </div>
+            <div class="card-body">
+              <% @admin_stats[:primes][:by_region].each do |region, count| %>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="fw-medium"><%= region.capitalize %></span>
+                  <span class="badge bg-primary"><%= count %> primes</span>
+                </div>
+              <% end %>
+
+              <hr class="my-3">
+
+              <h6 class="text-muted mb-2">Top villes utilisateurs:</h6>
+              <% @admin_stats[:geographic][:top_cities].first(3).each do |city, count| %>
+                <div class="d-flex justify-content-between mb-1">
+                  <small><%= city %></small>
+                  <small class="text-muted"><%= count %> users</small>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activité récente et tendances -->
+      <div class="row">
+        <div class="col-lg-6 mb-4">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+              <h6 class="mb-0"><i class="bi bi-activity me-2"></i>Activité des 7 derniers jours</h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-4 text-center">
+                  <canvas id="userActivityChart" width="80" height="80"></canvas>
+                  <p class="small text-muted mt-2">Nouveaux utilisateurs</p>
+                </div>
+                <div class="col-4 text-center">
+                  <canvas id="propertyActivityChart" width="80" height="80"></canvas>
+                  <p class="small text-muted mt-2">Nouvelles propriétés</p>
+                </div>
+                <div class="col-4 text-center">
+                  <canvas id="simulationActivityChart" width="80" height="80"></canvas>
+                  <p class="small text-muted mt-2">Simulations</p>
+                </div>
+              </div>
+
+              <hr class="my-3">
+
+              <div class="row text-center">
+                <div class="col-12">
+                  <small class="text-muted">
+                    <i class="bi bi-clock me-1"></i>
+                    Pic d'activité: <%= @admin_stats[:activity][:peak_hours] %>
+                  </small>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="col-md-6">
-          <!-- Primes par région -->
+        <!-- Métriques business -->
+        <div class="col-lg-6 mb-4">
           <div class="card border-0 shadow-sm">
             <div class="card-header bg-light">
-              <h5 class="mb-0"><i class="bi bi-geo-alt me-2"></i>Primes par région</h5>
+              <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Métriques Business</h6>
             </div>
             <div class="card-body">
-              <% @primes.group_by(&:region).each do |region, primes| %>
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span><%= region.capitalize %></span>
-                  <span class="badge bg-success"><%= primes.count %></span>
+              <div class="row g-3">
+                <div class="col-6">
+                  <div class="text-center p-3 bg-light rounded">
+                    <h5 class="text-primary mb-1"><%= @admin_stats[:simulations][:avg_per_user] %></h5>
+                    <small class="text-muted">Simulations / utilisateur</small>
+                  </div>
                 </div>
-              <% end %>
+                <div class="col-6">
+                  <div class="text-center p-3 bg-light rounded">
+                    <h5 class="text-success mb-1"><%= @admin_stats[:documents][:avg_per_user] %></h5>
+                    <small class="text-muted">Documents / utilisateur</small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="text-center p-3 bg-light rounded">
+                    <h5 class="text-warning mb-1"><%= @admin_stats[:simulations][:success_rate] %>%</h5>
+                    <small class="text-muted">Taux de succès simulations</small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="text-center p-3 bg-light rounded">
+                    <h5 class="text-info mb-1"><%= @admin_stats[:activity][:weekly_growth] %></h5>
+                    <small class="text-muted">Croissance hebdo</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions rapides -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+              <h6 class="mb-0"><i class="bi bi-lightning me-2"></i>Actions rapides</h6>
+            </div>
+            <div class="card-body">
+              <div class="row g-2">
+                <div class="col-md-3">
+                  <button class="btn btn-outline-primary w-100" onclick="exportStats()">
+                    <i class="bi bi-download me-2"></i>Exporter stats
+                  </button>
+                </div>
+                <div class="col-md-3">
+                  <button class="btn btn-outline-success w-100" onclick="refreshStats()">
+                    <i class="bi bi-arrow-clockwise me-2"></i>Actualiser
+                  </button>
+                </div>
+                <div class="col-md-3">
+                  <button class="btn btn-outline-warning w-100" onclick="geocodeAll()">
+                    <i class="bi bi-geo-alt me-2"></i>Géocoder tout
+                  </button>
+                </div>
+                <div class="col-md-3">
+                  <button class="btn btn-outline-info w-100" onclick="generateReport()">
+                    <i class="bi bi-file-text me-2"></i>Rapport détaillé
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1058,6 +1303,188 @@ document.addEventListener('click', function(e) {
     return;
   }
 });
+
+// Fonctions pour les actions rapides des statistiques
+function generateSmartNotifications() {
+  if (typeof Swal !== 'undefined') {
+    Swal.fire({
+      title: '🤖 Génération de notifications intelligentes',
+      text: 'Voulez-vous générer des notifications basées sur les données utilisateurs ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#28a745',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Générer',
+      cancelButtonText: 'Annuler',
+      showLoaderOnConfirm: true,
+      preConfirm: () => {
+        return fetch('/admin/generate_notifications', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            return data;
+          } else {
+            throw new Error(data.error || 'Erreur lors de la génération');
+          }
+        })
+        .catch(error => {
+          Swal.showValidationMessage(`Erreur: ${error.message}`);
+        });
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: '✅ Notifications générées !',
+          html: `
+            <div class="text-start">
+              <p><strong>${result.value.total_generated}</strong> nouvelles notifications créées :</p>
+              <ul>
+                <li>📝 Profils incomplets : ${result.value.profile_completion}</li>
+                <li>🏠 Setup propriétés : ${result.value.property_setup}</li>
+                <li>💰 Encouragement simulations : ${result.value.simulation_encouragement}</li>
+                <li>📍 Problèmes géocodage : ${result.value.geocoding_issues}</li>
+                <li>👨‍💼 Insights admin : ${result.value.admin_insights}</li>
+                <li>🔄 Réengagement : ${result.value.engagement}</li>
+              </ul>
+            </div>
+          `,
+          icon: 'success'
+        });
+        // Recharger l'onglet notifications
+        location.reload();
+      }
+    });
+  }
+}
+
+function exportStats() {
+  if (typeof Swal !== 'undefined') {
+    Swal.fire({
+      title: '📊 Export des statistiques',
+      text: 'Génération d\'un fichier CSV avec toutes les métriques...',
+      icon: 'info',
+      timer: 2000,
+      showConfirmButton: false
+    });
+  }
+
+  // Simuler le téléchargement
+  const csvContent = generateCSVStats();
+  const blob = new Blob([csvContent], { type: 'text/csv' });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ren0vate_stats_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  window.URL.revokeObjectURL(url);
+}
+
+function refreshStats() {
+  if (typeof Swal !== 'undefined') {
+    Swal.fire({
+      title: '🔄 Actualisation',
+      text: 'Rechargement des statistiques en cours...',
+      icon: 'info',
+      timer: 1500,
+      showConfirmButton: false
+    });
+  }
+
+  setTimeout(() => {
+    location.reload();
+  }, 1500);
+}
+
+function geocodeAll() {
+  if (typeof Swal !== 'undefined') {
+    Swal.fire({
+      title: '📍 Géocodage automatique',
+      text: 'Lancer le géocodage de toutes les propriétés non localisées ?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#17a2b8',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Lancer',
+      cancelButtonText: 'Annuler'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: '🚀 Géocodage en cours...',
+          html: 'Traitement des adresses...',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+
+        // Appel API pour géocodage
+        fetch('/admin/geocode_properties', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          Swal.fire({
+            title: '✅ Géocodage terminé !',
+            text: `${data.geocoded} propriétés géocodées sur ${data.total}`,
+            icon: 'success'
+          });
+        })
+        .catch(error => {
+          Swal.fire({
+            title: 'Erreur',
+            text: 'Problème lors du géocodage',
+            icon: 'error'
+          });
+        });
+      }
+    });
+  }
+}
+
+function generateReport() {
+  if (typeof Swal !== 'undefined') {
+    Swal.fire({
+      title: '📄 Génération de rapport',
+      text: 'Création d\'un rapport détaillé en cours...',
+      icon: 'info',
+      timer: 2000,
+      showConfirmButton: false
+    });
+  }
+
+  setTimeout(() => {
+    window.open('/admin/reports/detailed', '_blank');
+  }, 2000);
+}
+
+function generateCSVStats() {
+  const stats = <%= raw @admin_stats.to_json %>;
+  let csv = "Métrique,Valeur\n";
+  csv += `Total Utilisateurs,${stats.users.total}\n`;
+  csv += `Utilisateurs Confirmés,${stats.users.confirmed}\n`;
+  csv += `Taux Complétion Profils,${stats.users.completion_rate}%\n`;
+  csv += `Total Propriétés,${stats.properties.total}\n`;
+  csv += `Propriétés Géocodées,${stats.properties.geocoded}\n`;
+  csv += `Taux Géocodage,${stats.properties.geocoding_rate}%\n`;
+  csv += `Total Projets,${stats.projects.total}\n`;
+  csv += `Projets par Propriété,${stats.projects.avg_per_property}\n`;
+  csv += `Total Simulations,${stats.simulations.total}\n`;
+  csv += `Taux Succès Simulations,${stats.simulations.success_rate}%\n`;
+  csv += `Total Primes,${stats.primes.total}\n`;
+  csv += `Total Documents,${stats.documents.total}\n`;
+  return csv;
+}
 
 console.log('🔧 Event delegation setup complete');
 </script>

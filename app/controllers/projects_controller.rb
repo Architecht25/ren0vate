@@ -85,6 +85,8 @@ class ProjectsController < ApplicationController
       :entrepreneur_principal_nom, :entrepreneur_principal_entreprise, :entrepreneur_principal_numero_tva,
       :entrepreneur_principal_telephone, :entrepreneur_principal_email, :entrepreneur_principal_adresse,
       :entrepreneur_principal_assurance, :entrepreneur_principal_certifications,
+      # Champs montants de devis
+      :architecte_devis_montant, :contractor_devis_montant,
       # Champs autres professionnels
       :maitre_ouvrage_nom, :maitre_ouvrage_contact, :coordinateur_securite_nom, :coordinateur_securite_contact,
       # Champs assurances

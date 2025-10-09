@@ -163,6 +163,48 @@ class Project < ApplicationRecord
     update_type_travaux('autre', value == '1')
   end
 
+  # Validations pour les montants de devis
+  validates :architecte_devis_montant, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+  validates :contractor_devis_montant, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
+
+  # Méthodes pour les montants de devis
+  def total_devis_montant
+    (architecte_devis_montant || 0) + (contractor_devis_montant || 0)
+  end
+
+  def architecte_factures_total
+    factures.where(type_intervenant: 'architecte').sum(:montant) || 0
+  end
+
+  def contractor_factures_total
+    factures.where(type_intervenant: 'entrepreneur').sum(:montant) || 0
+  end
+
+  def architecte_devis_vs_factures_difference
+    return nil unless architecte_devis_montant
+    architecte_factures_total - architecte_devis_montant
+  end
+
+  def contractor_devis_vs_factures_difference
+    return nil unless contractor_devis_montant
+    contractor_factures_total - contractor_devis_montant
+  end
+
+  def total_devis_vs_factures_difference
+    (architecte_devis_vs_factures_difference || 0) + (contractor_devis_vs_factures_difference || 0)
+  end
+
+  # Méthodes pour l'affichage formaté
+  def architecte_devis_montant_formatted
+    return "Non renseigné" unless architecte_devis_montant
+    "#{architecte_devis_montant.to_f.round(2)} €"
+  end
+
+  def contractor_devis_montant_formatted
+    return "Non renseigné" unless contractor_devis_montant
+    "#{contractor_devis_montant.to_f.round(2)} €"
+  end
+
   private
 
   def set_default_status

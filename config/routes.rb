@@ -320,6 +320,7 @@ Rails.application.routes.draw do
   post "/calcul-categorie", to: "categories#calcul"
   get '/admin/dashboard', to: 'admin#dashboard'
   post '/admin/geocode_properties', to: 'admin#geocode_properties'
+  post '/admin/generate_notifications', to: 'admin#generate_notifications'
   get    "/profil",           to: "users#profile", as: :profile
   get    "/profile",          to: redirect("/profil")  # Redirection EN -> FR
   get    "/profil/edition",   to: "users#edit",    as: :edit_profile

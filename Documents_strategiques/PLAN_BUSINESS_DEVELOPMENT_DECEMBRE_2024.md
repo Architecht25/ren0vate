@@ -1,7 +1,7 @@
 # 🚀 Plan Business Development - Ren0vate Décembre 2024
 
-**Date de création :** 8 octobre 2025  
-**Objectif :** Transition Service → SaaS avec base 12K prospects  
+**Date de création :** 8 octobre 2025
+**Objectif :** Transition Service → SaaS avec base 12K prospects
 **Timeline :** Novembre (dev final) → Décembre (launch commercial)
 
 ---
@@ -56,7 +56,7 @@
 ├── Support email standard (48h)
 └── Dashboard basique
 
-🏢 PORTFOLIO (4-10 propriétés) : 79€/mois  
+🏢 PORTFOLIO (4-10 propriétés) : 79€/mois
 ├── Target : Investisseurs moyens
 ├── 15% de la base prospects (value)
 ├── Dashboard multi-propriétés avancé
@@ -87,7 +87,7 @@
 ├── Probabilité conversion : 20%
 └── Priority 1 pour launch
 
-🌡️ WARM (2.000 prospects) : Contactés derniers 18 mois  
+🌡️ WARM (2.000 prospects) : Contactés derniers 18 mois
 ├── Projets planifiés ou en réflexion
 ├── Engagement modéré historique
 ├── Probabilité conversion : 10%
@@ -114,7 +114,7 @@ Subject: "[Prénom], nouvelle façon de gérer vos primes"
 
 Bonjour [Prénom],
 
-Après 15 ans à gérer des milliers de dossiers primes manuellement, 
+Après 15 ans à gérer des milliers de dossiers primes manuellement,
 j'ai créé Ren0vate : l'app qui vous rend enfin autonome !
 
 🎯 POURQUOI CE CHANGEMENT ?
@@ -122,13 +122,13 @@ Vous m'avez souvent dit : "J'aimerais pouvoir faire ça moi-même"
 C'est maintenant possible !
 
 ✅ Vous calculez vos primes en 2 minutes
-✅ Plus besoin d'attendre mon analyse  
+✅ Plus besoin d'attendre mon analyse
 ✅ Prix fixe mensuel vs % sur résultats
 ✅ Mon expertise reste disponible en support
 
 💰 NOUVELLE APPROCHE TARIFAIRE :
 - Individual (1-3 biens) : 39€/mois
-- Portfolio (4-10 biens) : 79€/mois  
+- Portfolio (4-10 biens) : 79€/mois
 - Enterprise (10+ biens) : 149€/mois
 
 🎁 OFFRE LAUNCH : 30 jours gratuits + demo personnalisée
@@ -148,19 +148,19 @@ Subject: "J'ai créé l'app que j'aurais voulu avoir !"
 
 Bonjour [Prénom],
 
-[Nom] de Primes-Services ici. On s'était parlé de vos 
+[Nom] de Primes-Services ici. On s'était parlé de vos
 projets rénovation il y a quelque temps.
 
 💡 GRANDE NOUVELLE :
 Après 15 ans dans les primes, j'ai créé Ren0vate :
 la première app belge qui vous rend autonome sur vos dossiers.
 
-🔄 NOUVEAU CONCEPT : 
-Au lieu de payer 12.5% sur chaque prime obtenue, 
+🔄 NOUVEAU CONCEPT :
+Au lieu de payer 12.5% sur chaque prime obtenue,
 vous payez un forfait mensuel et gérez tout vous-même !
 
 ✅ Autonomie totale sur vos dossiers
-✅ Coût prévisible et transparent  
+✅ Coût prévisible et transparent
 ✅ Mon expertise en backup si besoin
 ✅ Calculs instantanés 24/7
 
@@ -182,14 +182,14 @@ Subject: "Souvenez-vous de Primes-Services ? Voici du nouveau..."
 
 Bonjour [Prénom],
 
-Il y a quelques années, on avait échangé au sujet de vos 
+Il y a quelques années, on avait échangé au sujet de vos
 projets de rénovation. J'espère que tout s'est bien passé !
 
 🚀 DEPUIS, J'AI CRÉÉ QUELQUE CHOSE D'UNIQUE :
-Ren0vate, la première app belge qui calcule automatiquement 
+Ren0vate, la première app belge qui calcule automatiquement
 toutes vos primes de rénovation.
 
-💡 L'IDÉE : 
+💡 L'IDÉE :
 Après 15 ans à faire ça manuellement pour des milliers de clients,
 j'ai automatisé tout mon savoir-faire dans une app !
 
@@ -198,7 +198,7 @@ j'ai automatisé tout mon savoir-faire dans une app !
 ✅ Prix transparent (pas de commission %)
 ✅ Mon expertise reste accessible
 
-Si vous avez encore des projets rénovation, 
+Si vous avez encore des projets rénovation,
 ça pourrait vous intéresser :
 
 [DÉCOUVRIR RNNOVATE]
@@ -313,7 +313,7 @@ Bien à vous,
 ├── Revenue : 785€/mois
 
 🌡️ WARM PROSPECTS (2.000) :
-├── 12% open rate = 240 engagés  
+├── 12% open rate = 240 engagés
 ├── 8% conversion = 19 customers
 ├── Mix tiers : 15x Individual (585€) + 4x Portfolio (316€)
 ├── Revenue : 901€/mois
@@ -347,12 +347,12 @@ Bien à vous,
 
 ### **🎯 Message Core Différenciateur**
 ```
-"Après 15 ans à gérer manuellement des milliers de dossiers primes, 
+"Après 15 ans à gérer manuellement des milliers de dossiers primes,
 j'ai créé l'app qui vous rend enfin autonome.
 
 ❌ FINI DE :
 ├── Attendre des semaines pour une analyse expert
-├── Payer 12.5% commission sur chaque prime obtenue  
+├── Payer 12.5% commission sur chaque prime obtenue
 ├── Dépendre d'intermédiaires pour vos projets
 └── Subir les délais et disponibilités externes
 
@@ -546,7 +546,7 @@ Cette stratégie transforme 15 ans d'expertise manuelle en **plateforme SaaS aut
 ### **📈 Vision 12 Mois**
 ```
 🎯 DÉCEMBRE 2024 : 30+ customers, 1.8k€ MRR
-🎯 MARS 2025 : 60+ customers, 4k€ MRR  
+🎯 MARS 2025 : 60+ customers, 4k€ MRR
 🎯 JUIN 2025 : 100+ customers, 7k€ MRR
 🎯 DÉCEMBRE 2025 : 200+ customers, 15k€ MRR
 
@@ -559,9 +559,9 @@ Cette stratégie transforme 15 ans d'expertise manuelle en **plateforme SaaS aut
 
 ### **🚀 Impact Révolutionnaire**
 
-**Pour les clients :** Économies 80-90% vs commissions + autonomie totale  
-**Pour vous :** Revenue récurrent prévisible + scalabilité infinie  
-**Pour le marché :** Démocratisation expertise primes via technologie  
+**Pour les clients :** Économies 80-90% vs commissions + autonomie totale
+**Pour vous :** Revenue récurrent prévisible + scalabilité infinie
+**Pour le marché :** Démocratisation expertise primes via technologie
 
 **Cette stratégie positionne Ren0vate comme LA solution de référence pour l'autonomie primes en Belgique !** 🇧🇪
 

@@ -14,6 +14,7 @@ class AdminController < ApplicationController
     @simulations = Simulation.all
     @users = User.all
     @backup_status = BackupStatusService.call
+    @admin_stats = AdminStatsService.call
   end
 
   def geocode_properties
@@ -35,6 +36,27 @@ class AdminController < ApplicationController
       geocoded: geocoded_count,
       total: properties_to_geocode.count,
       message: "#{geocoded_count} propriétés géocodées sur #{properties_to_geocode.count}"
+    }
+  rescue => e
+    render json: {
+      success: false,
+      error: e.message
+    }, status: 422
+  end
+
+  def generate_notifications
+    results = SmartNotificationGeneratorService.generate_all
+
+    render json: {
+      success: true,
+      total_generated: results.values.sum,
+      profile_completion: results[:profile_completion],
+      property_setup: results[:property_setup],
+      simulation_encouragement: results[:simulation_encouragement],
+      geocoding_issues: results[:geocoding_issues],
+      admin_insights: results[:admin_insights],
+      engagement: results[:engagement],
+      message: "#{results.values.sum} notifications générées avec succès"
     }
   rescue => e
     render json: {

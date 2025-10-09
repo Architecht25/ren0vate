@@ -324,6 +324,95 @@
       <% end %>
     </div>
 
+    <!-- Section Suivi budgétaire : Devis vs Factures -->
+    <% if @project.architecte_devis_montant.present? || @project.contractor_devis_montant.present? %>
+      <div class="col-lg-4 order-lg-2 mb-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-transparent border-0 pt-4">
+            <h5 class="card-title text-primary-custom mb-0">
+              <i class="bi bi-calculator me-2"></i>Suivi budgétaire
+            </h5>
+          </div>
+          <div class="card-body">
+
+            <!-- Devis Architecte -->
+            <% if @project.architecte_devis_montant.present? %>
+              <div class="mb-4">
+                <h6 class="text-secondary mb-2">
+                  <i class="bi bi-building me-2"></i>Architecte
+                </h6>
+                <div class="row">
+                  <div class="col-6">
+                    <small class="text-muted d-block">Devis initial</small>
+                    <span class="fw-bold text-primary"><%= @project.architecte_devis_montant_formatted %></span>
+                  </div>
+                  <div class="col-6">
+                    <small class="text-muted d-block">Facturé</small>
+                    <span class="fw-bold"><%= number_to_currency(@project.architecte_factures_total, unit: "€", separator: ",", delimiter: " ") %></span>
+                  </div>
+                </div>
+                <% if @project.architecte_devis_vs_factures_difference %>
+                  <div class="mt-2">
+                    <small class="text-muted d-block">Écart</small>
+                    <span class="fw-bold <%= @project.architecte_devis_vs_factures_difference > 0 ? 'text-danger' : 'text-success' %>">
+                      <%= @project.architecte_devis_vs_factures_difference > 0 ? '+' : '' %><%= number_to_currency(@project.architecte_devis_vs_factures_difference, unit: "€", separator: ",", delimiter: " ") %>
+                    </span>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+
+            <!-- Devis Entrepreneur -->
+            <% if @project.contractor_devis_montant.present? %>
+              <div class="mb-4">
+                <h6 class="text-secondary mb-2">
+                  <i class="bi bi-hammer me-2"></i>Entrepreneur
+                </h6>
+                <div class="row">
+                  <div class="col-6">
+                    <small class="text-muted d-block">Devis initial</small>
+                    <span class="fw-bold text-primary"><%= @project.contractor_devis_montant_formatted %></span>
+                  </div>
+                  <div class="col-6">
+                    <small class="text-muted d-block">Facturé</small>
+                    <span class="fw-bold"><%= number_to_currency(@project.contractor_factures_total, unit: "€", separator: ",", delimiter: " ") %></span>
+                  </div>
+                </div>
+                <% if @project.contractor_devis_vs_factures_difference %>
+                  <div class="mt-2">
+                    <small class="text-muted d-block">Écart</small>
+                    <span class="fw-bold <%= @project.contractor_devis_vs_factures_difference > 0 ? 'text-danger' : 'text-success' %>">
+                      <%= @project.contractor_devis_vs_factures_difference > 0 ? '+' : '' %><%= number_to_currency(@project.contractor_devis_vs_factures_difference, unit: "€", separator: ",", delimiter: " ") %>
+                    </span>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+
+            <!-- Total -->
+            <div class="border-top pt-3">
+              <div class="row">
+                <div class="col-6">
+                  <small class="text-muted d-block">Total devis</small>
+                  <span class="fw-bold text-primary h6"><%= number_to_currency(@project.total_devis_montant, unit: "€", separator: ",", delimiter: " ") %></span>
+                </div>
+                <div class="col-6">
+                  <small class="text-muted d-block">Total facturé</small>
+                  <span class="fw-bold h6"><%= number_to_currency(@project.architecte_factures_total + @project.contractor_factures_total, unit: "€", separator: ",", delimiter: " ") %></span>
+                </div>
+              </div>
+              <div class="mt-2">
+                <small class="text-muted d-block">Écart total</small>
+                <span class="fw-bold h6 <%= @project.total_devis_vs_factures_difference > 0 ? 'text-danger' : 'text-success' %>">
+                  <%= @project.total_devis_vs_factures_difference > 0 ? '+' : '' %><%= number_to_currency(@project.total_devis_vs_factures_difference, unit: "€", separator: ",", delimiter: " ") %>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
     <!-- Section Équipe projet & Professionnels dans la même row -->
     <div class="col-lg-8 order-lg-1">
       <!-- Informations des professionnels -->

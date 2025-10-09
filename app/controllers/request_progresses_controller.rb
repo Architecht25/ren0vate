@@ -74,6 +74,7 @@ class RequestProgressesController < ApplicationController
   def edit
     @request = @request_progress.request
     @primes = Prime.where(region: @request.region)
+    @available_forms = get_available_forms_for_region(@request.region)
   end
 
   def update
