@@ -32,7 +32,7 @@
           <div class="mb-3">
             <%= f.label :nom, class: "form-label" do %>
               Nom complet
-              <%= badge_prerempli(@form_data, :applicant_lastname) if @form_data.present? %>
+              <%= badge_prerempli_intelligent(@form_data, :applicant_lastname, current_user.last_name) if @form_data.present? %>
             <% end %>
             <%= f.text_field :nom,
                 value: preremplir_champ(@form_data, :applicant_lastname, current_user.last_name),
@@ -44,7 +44,7 @@
           <div class="mb-3">
             <%= f.label :prenom, class: "form-label" do %>
               Prénom
-              <%= badge_prerempli(@form_data, :applicant_firstname) if @form_data.present? %>
+              <%= badge_prerempli_intelligent(@form_data, :applicant_firstname, current_user.first_name) if @form_data.present? %>
             <% end %>
             <%= f.text_field :prenom,
                 value: preremplir_champ(@form_data, :applicant_firstname, current_user.first_name),
@@ -58,7 +58,7 @@
           <div class="mb-3">
             <%= form.label :numero_registre_national, class: "form-label" do %>
               Numéro de registre national
-              <%= badge_prerempli(@form_data, :applicant_national_number) if @form_data.present? %>
+              <%= badge_prerempli_intelligent(@form_data, :applicant_national_number, current_user.national_number) if @form_data.present? %>
             <% end %>
             <%= form.text_field :numero_registre_national,
                 value: preremplir_champ(@form_data, :applicant_national_number, current_user.national_number),
@@ -70,7 +70,7 @@
           <div class="mb-3">
             <%= form.label :compte_bancaire, class: "form-label" do %>
               Compte bancaire du demandeur
-              <%= badge_prerempli(@form_data, :iban) if @form_data.present? %>
+              <%= badge_prerempli_intelligent(@form_data, :iban, current_user.iban) if @form_data.present? %>
             <% end %>
             <%= form.text_field :compte_bancaire,
                 value: preremplir_champ(@form_data, :iban, current_user.iban),
@@ -85,7 +85,7 @@
           <div class="mb-3">
             <%= form.label :email, class: "form-label" do %>
               Adresse e-mail
-              <%= badge_prerempli(@form_data, :applicant_email) if @form_data.present? %>
+              <%= badge_prerempli_intelligent(@form_data, :applicant_email, current_user.email) if @form_data.present? %>
             <% end %>
             <%= form.email_field :email,
                 value: preremplir_champ(@form_data, :applicant_email, current_user.email),
@@ -97,7 +97,7 @@
           <div class="mb-3">
             <%= form.label :phone, class: "form-label" do %>
               Numéro de téléphone
-              <%= badge_prerempli(@form_data, :applicant_phone) if @form_data.present? %>
+              <%= badge_prerempli_intelligent(@form_data, :applicant_phone, current_user.phone) if @form_data.present? %>
             <% end %>
             <%= form.phone_field :phone,
                 value: preremplir_champ(@form_data, :applicant_phone, current_user.phone),
@@ -113,7 +113,7 @@
           <div class="mb-3">
             <%= form.label :adresse_demandeur, class: "form-label" do %>
               Adresse
-              <%= badge_prerempli(@form_data, :applicant_address) if @form_data.present? %>
+              <%= badge_prerempli_intelligent(@form_data, :applicant_address, current_user.street) if @form_data.present? %>
             <% end %>
             <%= form.text_field :adresse_demandeur,
                 value: preremplir_champ(@form_data, :applicant_address, current_user.street),
@@ -125,7 +125,7 @@
           <div class="mb-3">
             <%= form.label :code_postal_demandeur, class: "form-label" do %>
               Code postal
-              <%= badge_prerempli(@form_data, :applicant_postal_code) if @form_data.present? %>
+              <%= badge_prerempli_intelligent(@form_data, :applicant_postal_code, current_user.postal_code) if @form_data.present? %>
             <% end %>
             <%= form.text_field :code_postal_demandeur,
                 value: preremplir_champ(@form_data, :applicant_postal_code, current_user.postal_code),
@@ -140,7 +140,7 @@
           <div class="mb-3">
             <%= form.label :city, class: "form-label" do %>
               Commune
-              <%= badge_prerempli(@form_data, :applicant_city) if @form_data.present? %>
+              <%= badge_prerempli_intelligent(@form_data, :applicant_city, current_user.city) if @form_data.present? %>
             <% end %>
             <%= form.text_field :city,
                 value: preremplir_champ(@form_data, :applicant_city, current_user.city),

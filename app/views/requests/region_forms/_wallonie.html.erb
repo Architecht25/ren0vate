@@ -137,7 +137,7 @@
           <div class="mb-3">
             <%= form.label :compte_bancaire, class: "form-label" do %>
               Compte bancaire du demandeur
-              <%= badge_prerempli(@form_data, :iban) if @form_data.present? %>
+              <%= badge_prerempli_intelligent(@form_data, :iban, current_user.iban) if @form_data.present? %>
             <% end %>
             <%= form.text_field :compte_bancaire,
                 value: preremplir_champ(@form_data, :iban, current_user.iban),

@@ -45,6 +45,8 @@ class Document < ApplicationRecord
     preuve_paiement_audit: 'preuve_paiement_audit',
     rapport_audit_energetique: 'rapport_audit_energetique',
     copie_carte_identite: 'copie_carte_identite',
+    # Documents bancaires
+    rib: 'rib',
     # Fiches techniques
     fiche_technique: 'fiche_technique'
   }

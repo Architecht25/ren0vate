@@ -11,6 +11,7 @@ export default class extends Controller {
     "technicalSection",
     "facturesSection",
     "conseilsFacturesSection",
+    "auditLogementWallonieSection",
     "conseilsAcpSection",
     "conseilsExemplariteSection",
     "verificationConsultanceSection",
