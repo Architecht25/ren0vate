@@ -129,6 +129,7 @@ Rails.application.routes.draw do
       get :preview
       get :view
       get :debug
+      get :ocr_view
     end
   end
 

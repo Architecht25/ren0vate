@@ -1,6 +1,6 @@
 class DocumentsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_document, only: [:show, :edit, :update, :download, :preview, :view, :debug, :destroy]
+  before_action :set_document, only: [:show, :edit, :update, :download, :preview, :view, :debug, :destroy, :ocr_view]
   before_action :set_context, only: [:index, :new, :create]
 
   # GET /documents ou /properties/:property_id/documents ou /projects/:project_id/documents
@@ -125,6 +125,7 @@ class DocumentsController < ApplicationController
   def create
     uploaded_files = params[:document][:file]
     uploaded_files = [uploaded_files] unless uploaded_files.is_a?(Array)
+    upload_mode = params[:upload_mode] || 'normal'
 
     created_documents = []
     errors = []
@@ -136,6 +137,26 @@ class DocumentsController < ApplicationController
       document_attrs = document_params.except(:file)
       @document = current_user.documents.build(document_attrs)
       @document.file.attach(file)
+
+      # Si mode OCR, traiter le fichier avec OCR
+      if upload_mode == 'ocr'
+        begin
+          ocr_service = OcrService.new(file)
+          ocr_result = ocr_service.call
+
+          if ocr_result[:success]
+            # Ajouter le contenu OCR aux notes
+            ocr_notes = build_ocr_notes(ocr_result)
+            @document.notes = ocr_notes
+          else
+            Rails.logger.warn "Échec OCR pour #{file.original_filename}: #{ocr_result[:error]}"
+            # Continuer sans OCR en cas d'échec
+          end
+        rescue => e
+          Rails.logger.error "Erreur OCR pour #{file.original_filename}: #{e.message}"
+          # Continuer sans OCR en cas d'erreur
+        end
+      end
 
       # Définir le statut par défaut si non fourni
       @document.status = 'pending' if @document.status.blank?
@@ -200,7 +221,10 @@ class DocumentsController < ApplicationController
 
   # GET /documents/:id/download
   def download
+    Rails.logger.info "⬇️ DEBUT download pour document ID: #{params[:id]}"
+
     unless can_access_document?(@document)
+      Rails.logger.warn "❌ Accès refusé pour document #{@document&.id} par user #{current_user&.id}"
       redirect_to root_path, alert: "Accès non autorisé"
       return
     end
@@ -232,7 +256,10 @@ class DocumentsController < ApplicationController
 
   # GET /documents/:id/preview
   def preview
+    Rails.logger.info "🎬 DEBUT preview pour document ID: #{params[:id]}"
+
     unless can_access_document?(@document)
+      Rails.logger.warn "❌ Accès refusé pour document #{@document&.id} par user #{current_user&.id}"
       render json: { error: "Accès non autorisé" }, status: :forbidden
       return
     end
@@ -336,6 +363,25 @@ class DocumentsController < ApplicationController
     else
       redirect_back(fallback_location: root_path, alert: "Aucun fichier associé à ce document")
     end
+  end
+
+  # GET /documents/:id/ocr_view
+  def ocr_view
+    unless can_access_document?(@document)
+      redirect_to root_path, alert: "Accès non autorisé"
+      return
+    end
+
+    unless @document.has_ocr_content?
+      redirect_to document_path(@document), alert: "Ce document ne contient pas de contenu OCR"
+      return
+    end
+
+    # Variables pour la vue
+    @ocr_content = @document.ocr_content
+    @ocr_confidence = @document.ocr_confidence
+    @ocr_language = @document.ocr_language
+    @ocr_method = @document.ocr_method
   end
 
   # DELETE /documents/:id
@@ -470,5 +516,19 @@ class DocumentsController < ApplicationController
   def calculate_missing_documents(phase, documents_in_phase)
     existing_types = documents_in_phase.map(&:type_document)
     phase.required_document_types - existing_types
+  end
+
+  def build_ocr_notes(ocr_result)
+    if ocr_result[:confidence] > 0
+      "📄 Texte extrait par OCR (#{ocr_result[:method]}):\n" \
+      "Confiance: #{ocr_result[:confidence]}%\n" \
+      "Langue: #{ocr_result[:language]}\n" \
+      "Temps de traitement: #{ocr_result[:processing_time]}s\n\n" \
+      "#{ocr_result[:text]}"
+    else
+      "📄 Document scanné (OCR non disponible)\n" \
+      "Méthode: #{ocr_result[:method]}\n\n" \
+      "#{ocr_result[:text]}"
+    end
   end
 end

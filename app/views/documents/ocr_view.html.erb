@@ -1,0 +1,294 @@
+<div class="container-fluid px-4 py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-eye"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">Contenu OCR</h1>
+        <p class="text-muted mb-0"><%= @document.file_name %></p>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <%= link_to document_path(@document), class: "btn btn-outline-secondary px-4" do %>
+        <i class="bi bi-arrow-left me-2"></i>
+        Retour au document
+      <% end %>
+      <%= link_to documents_path, class: "btn btn-outline-primary-custom px-4" do %>
+        <i class="bi bi-list me-2"></i>
+        Tous les documents
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row">
+    <!-- Contenu OCR principal -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-info-subtle">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0 text-info">
+              <i class="bi bi-eye me-2"></i>Texte extrait par OCR
+            </h5>
+            <span class="badge bg-info fs-6">
+              <%= @ocr_confidence %>% de confiance
+            </span>
+          </div>
+        </div>
+        <div class="card-body p-4">
+          <div class="bg-light p-4 rounded">
+            <pre class="mb-0" style="white-space: pre-wrap; font-family: 'Segoe UI', system-ui, sans-serif; line-height: 1.6;"><%= @ocr_content %></pre>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center mt-4">
+            <div class="d-flex gap-3">
+              <small class="text-muted">
+                <i class="bi bi-translate me-1"></i>
+                Langue: <strong><%= @ocr_language %></strong>
+              </small>
+              <small class="text-muted">
+                <i class="bi bi-cpu me-1"></i>
+                Méthode: <strong><%= @ocr_method %></strong>
+              </small>
+            </div>
+            <button type="button" class="btn btn-outline-info btn-sm" id="copy-ocr-text">
+              <i class="bi bi-clipboard me-1"></i>Copier le texte
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Informations et actions -->
+    <div class="col-lg-4">
+      <div class="card border-0 bg-light-custom mb-3">
+        <div class="card-body p-4">
+          <h6 class="card-title text-primary-custom mb-3">
+            <i class="bi bi-info-circle me-2"></i>Informations du document
+          </h6>
+
+          <div class="mb-3">
+            <label class="form-label text-muted-custom">Type de document</label>
+            <p class="mb-0"><%= @document.type_document %></p>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-muted-custom">Taille du fichier</label>
+            <p class="mb-0">
+              <% if @document.file.attached? %>
+                <%= number_to_human_size(@document.file.byte_size) %>
+              <% else %>
+                Non disponible
+              <% end %>
+            </p>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label text-muted-custom">Statut</label>
+            <p class="mb-0">
+              <% case @document.status %>
+              <% when 'pending' %>
+                <span class="badge bg-warning text-dark">En attente</span>
+              <% when 'approved' %>
+                <span class="badge bg-success">Approuvé</span>
+              <% when 'rejected' %>
+                <span class="badge bg-danger">Rejeté</span>
+              <% else %>
+                <span class="badge bg-secondary">Inconnu</span>
+              <% end %>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="card border-0 bg-light-custom">
+        <div class="card-body p-4">
+          <h6 class="card-title text-primary-custom mb-3">
+            <i class="bi bi-tools me-2"></i>Actions
+          </h6>
+          <div class="d-grid gap-2">
+            <% if @document.file.attached? %>
+              <%= link_to view_document_path(@document), class: "btn btn-outline-primary", target: "_blank" do %>
+                <i class="bi bi-file-earmark-pdf me-2"></i>Voir le fichier original
+              <% end %>
+            <% end %>
+
+            <%= link_to edit_document_path(@document), class: "btn btn-outline-secondary" do %>
+              <i class="bi bi-pencil me-2"></i>Modifier le document
+            <% end %>
+
+            <button type="button" class="btn btn-outline-success" id="search-in-text">
+              <i class="bi bi-search me-2"></i>Rechercher dans le texte
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zone de recherche (cachée par défaut) -->
+      <div class="card border-0 bg-light-custom mt-3" id="search-card" style="display: none;">
+        <div class="card-body p-4">
+          <h6 class="card-title text-primary-custom mb-3">
+            <i class="bi bi-search me-2"></i>Recherche
+          </h6>
+          <div class="input-group">
+            <input type="text" class="form-control" id="search-input" placeholder="Rechercher...">
+            <button class="btn btn-outline-secondary" type="button" id="clear-search">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+          <small class="text-muted mt-2 d-block" id="search-results"></small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Styles CSS -->
+<style>
+.icon-circle {
+  width: 48px;
+  height: 48px;
+  background: rgba(var(--bs-primary-rgb), 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: var(--bs-primary);
+}
+
+.bg-light-custom {
+  background-color: #f8f9fa !important;
+}
+
+.text-primary-custom {
+  color: var(--bs-primary) !important;
+}
+
+.text-muted-custom {
+  color: #6c757d !important;
+}
+
+.btn-primary-custom {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  color: white;
+}
+
+.btn-outline-primary-custom {
+  color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+
+.btn-outline-primary-custom:hover {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+  color: white;
+}
+
+.search-highlight {
+  background-color: #ffeb3b;
+  padding: 1px 3px;
+  border-radius: 2px;
+}
+</style>
+
+<script nonce="<%= content_security_policy_nonce %>">
+document.addEventListener('turbo:load', function() {
+  const copyButton = document.getElementById('copy-ocr-text');
+  const searchButton = document.getElementById('search-in-text');
+  const searchCard = document.getElementById('search-card');
+  const searchInput = document.getElementById('search-input');
+  const clearSearch = document.getElementById('clear-search');
+  const searchResults = document.getElementById('search-results');
+  const ocrContent = document.querySelector('pre');
+
+  let originalContent = ocrContent ? ocrContent.textContent : '';
+
+  // Fonction pour copier le texte
+  if (copyButton && ocrContent) {
+    copyButton.addEventListener('click', function() {
+      navigator.clipboard.writeText(originalContent).then(function() {
+        copyButton.innerHTML = '<i class="bi bi-check me-1"></i>Copié!';
+        copyButton.classList.add('btn-success');
+        copyButton.classList.remove('btn-outline-info');
+
+        setTimeout(() => {
+          copyButton.innerHTML = '<i class="bi bi-clipboard me-1"></i>Copier le texte';
+          copyButton.classList.remove('btn-success');
+          copyButton.classList.add('btn-outline-info');
+        }, 2000);
+      });
+    });
+  }
+
+  // Fonction pour afficher/cacher la recherche
+  if (searchButton && searchCard) {
+    searchButton.addEventListener('click', function() {
+      if (searchCard.style.display === 'none') {
+        searchCard.style.display = 'block';
+        searchInput.focus();
+        searchButton.innerHTML = '<i class="bi bi-x me-2"></i>Fermer la recherche';
+        searchButton.classList.add('btn-warning');
+        searchButton.classList.remove('btn-outline-success');
+      } else {
+        searchCard.style.display = 'none';
+        clearSearchHighlights();
+        searchButton.innerHTML = '<i class="bi bi-search me-2"></i>Rechercher dans le texte';
+        searchButton.classList.remove('btn-warning');
+        searchButton.classList.add('btn-outline-success');
+      }
+    });
+  }
+
+  // Fonction de recherche
+  if (searchInput && ocrContent) {
+    searchInput.addEventListener('input', function() {
+      const searchTerm = this.value.trim();
+
+      if (searchTerm.length < 2) {
+        clearSearchHighlights();
+        searchResults.textContent = '';
+        return;
+      }
+
+      highlightSearchTerm(searchTerm);
+    });
+  }
+
+  // Effacer la recherche
+  if (clearSearch) {
+    clearSearch.addEventListener('click', function() {
+      searchInput.value = '';
+      clearSearchHighlights();
+      searchResults.textContent = '';
+      searchInput.focus();
+    });
+  }
+
+  function highlightSearchTerm(term) {
+    const regex = new RegExp(`(${escapeRegex(term)})`, 'gi');
+    const highlightedContent = originalContent.replace(regex, '<span class="search-highlight">$1</span>');
+
+    const matches = originalContent.match(regex);
+    const matchCount = matches ? matches.length : 0;
+
+    ocrContent.innerHTML = highlightedContent;
+    searchResults.textContent = matchCount > 0 ? `${matchCount} occurrence(s) trouvée(s)` : 'Aucun résultat';
+  }
+
+  function clearSearchHighlights() {
+    if (ocrContent) {
+      ocrContent.textContent = originalContent;
+    }
+  }
+
+  function escapeRegex(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+});
+</script>
+
+<!-- Utilise le fichier CSS externe properties.css -->
+<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>

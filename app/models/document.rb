@@ -112,6 +112,54 @@ class Document < ApplicationRecord
     is_image? || is_pdf?
   end
 
+  # Méthodes pour gérer le contenu OCR
+  def has_ocr_content?
+    notes.present? && notes.include?('📄 Texte extrait par OCR')
+  end
+
+  def ocr_content
+    return nil unless has_ocr_content?
+
+    # Extraire le texte OCR des notes
+    lines = notes.split("\n")
+    ocr_start_index = lines.find_index { |line| line.include?('📄 Texte extrait par OCR') }
+    return nil unless ocr_start_index
+
+    # Ignorer les 4 premières lignes (header + métadonnées) et récupérer le reste
+    ocr_lines = lines[(ocr_start_index + 4)..-1] || []
+    ocr_lines.join("\n").strip
+  end
+
+  def ocr_confidence
+    return nil unless has_ocr_content?
+
+    confidence_line = notes.split("\n").find { |line| line.include?('Confiance:') }
+    return nil unless confidence_line
+
+    match = confidence_line.match(/Confiance:\s*(\d+)%/)
+    match ? match[1].to_i : nil
+  end
+
+  def ocr_language
+    return nil unless has_ocr_content?
+
+    language_line = notes.split("\n").find { |line| line.include?('Langue:') }
+    return nil unless language_line
+
+    match = language_line.match(/Langue:\s*(.+)/)
+    match ? match[1].strip : nil
+  end
+
+  def ocr_method
+    return nil unless has_ocr_content?
+
+    method_line = notes.split("\n").find { |line| line.include?('📄 Texte extrait par OCR') }
+    return nil unless method_line
+
+    match = method_line.match(/\((.+)\)/)
+    match ? match[1] : nil
+  end
+
   def cloudinary_url
     return nil unless file.attached?
     return nil unless file.service_name.to_s == 'cloudinary'
