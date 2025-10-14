@@ -3,13 +3,14 @@ WickedPdf.configure do |c|
   # Utiliser le binaire système sur Heroku, sinon chercher la gem en développement
   if ENV['WKHTMLTOPDF_PATH']
     c.exe_path = ENV['WKHTMLTOPDF_PATH']
+  elsif File.exist?('/app/bin/wkhtmltopdf')
+    # Chemin typique sur Heroku avec buildpack
+    c.exe_path = '/app/bin/wkhtmltopdf'
+  elsif defined?(Gem) && Gem.loaded_specs['wkhtmltopdf-binary']
+    c.exe_path = Gem.bin_path('wkhtmltopdf-binary', 'wkhtmltopdf')
   else
-    begin
-      c.exe_path = Gem.bin_path('wkhtmltopdf-binary', 'wkhtmltopdf')
-    rescue Gem::GemNotFoundException
-      # Fallback vers les chemins système courants
-      c.exe_path = '/usr/local/bin/wkhtmltopdf'
-    end
+    # Fallback vers les chemins système courants
+    c.exe_path = '/usr/local/bin/wkhtmltopdf'
   end
 
   # Options par défaut pour la génération PDF
