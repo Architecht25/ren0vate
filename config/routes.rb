@@ -22,7 +22,17 @@ Rails.application.routes.draw do
   get '/pricing/cancel', to: 'pricing#cancel'
 
   # Webhook routes
-  post '/webhooks/stripe', to: 'webhooks#stripe'    # API routes for enterprise aids
+  post '/webhooks/stripe', to: 'webhooks#stripe'
+
+  # PDF Export routes
+  post 'pdf_exports/eligibilite', to: 'pdf_exports#export_eligibilite'
+  post 'pdf_exports/primes', to: 'pdf_exports#export_primes'
+  post 'pdf_exports/complet', to: 'pdf_exports#export_complet'
+
+  # Test page for PDF export
+  get 'test/pdf_export', to: 'pages#test_pdf_export'
+
+  # API routes for enterprise aids
     namespace :api do
       get 'entreprises/bce/:numero_bce', to: 'entreprises#bce_lookup'
       post 'entreprises/bce_lookup', to: 'entreprises#bce_lookup'

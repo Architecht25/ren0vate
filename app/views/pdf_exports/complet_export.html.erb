@@ -1,0 +1,126 @@
+<div class="section">
+  <div class="section-title">
+    📋 Test d'Éligibilité - <%= format_region_name(@region) %>
+  </div>
+
+  <% if @eligibilite_data.any? %>
+    <!-- Section Éligibilité de base -->
+    <h3>✅ Critères d'éligibilité</h3>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Question</th>
+          <th>Réponse</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @eligibilite_data.each do |key, value| %>
+          <% next if key == 'result' || key == 'eligible' || key.start_with?('_') %>
+          <% next if key.include?('categorie') || key.include?('enfants') || key.include?('statut_familial') || key.include?('revenus') || key.include?('revenu') || key.include?('personnes') %>
+          <tr>
+            <td><%= format_question_label(key) %></td>
+            <td><%= format_answer_value(value) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+
+    <!-- Section Affinage (Revenus et Situation familiale) -->
+    <% affinage_keys = @eligibilite_data.select { |key, value| key.include?('categorie') || key.include?('enfants') || key.include?('statut_familial') || key.include?('revenus') || key.include?('revenu') || key.include?('personnes') } %>
+    <% if affinage_keys.any? %>
+      <h3>💰 Affinage - Situation financière et familiale</h3>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Critère</th>
+            <th>Valeur</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% affinage_keys.each do |key, value| %>
+            <tr>
+              <td><%= format_question_label(key) %></td>
+              <td><%= format_answer_value(value) %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
+  <% end %>
+
+  <% if @eligibilite_data['result'] %>
+    <div class="result-box <%= @eligibilite_data['eligible'] == true ? '' : 'error' %>">
+      <div class="result-title">
+        <%= @eligibilite_data['eligible'] == true ? '✅ Résultat d\'éligibilité' : '❌ Résultat d\'éligibilité' %>
+      </div>
+      <%= @eligibilite_data['result'] %>
+    </div>
+  <% end %>
+</div>
+
+<div class="section">
+  <div class="section-title">
+    💰 Calcul des Primes
+  </div>
+
+  <% if @primes_data['user_inputs'] %>
+    <h3>Travaux sélectionnés</h3>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Type de travaux</th>
+          <th>Sélectionné</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @primes_data['user_inputs'].each do |key, value| %>
+          <tr>
+            <td><%= format_question_label(key) %></td>
+            <td><%= value == true || value == 'true' ? '✅ Oui' : '❌ Non' %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+
+  <% if @primes_data['primes_calculees'] %>
+    <h3>Primes calculées</h3>
+    <% @primes_data['primes_calculees'].each do |nom_prime, montant| %>
+      <div class="prime-item">
+        <div class="prime-title"><%= nom_prime %></div>
+        <div class="prime-amount"><%= montant %> €</div>
+      </div>
+    <% end %>
+  <% end %>
+
+  <% if @primes_data['total_primes'] %>
+    <div class="total-box">
+      <div>Total des primes</div>
+      <div class="total-amount"><%= @primes_data['total_primes'] %> €</div>
+    </div>
+  <% end %>
+</div>
+
+<% if @primes_data['categories'] %>
+  <div class="section">
+    <div class="section-title">
+      📊 Informations Complémentaires
+    </div>
+    <table class="data-table">
+      <tbody>
+        <% if @primes_data['categories']['selected_category'] %>
+          <tr>
+            <td><strong>Catégorie</strong></td>
+            <td><%= @primes_data['categories']['selected_category'] %></td>
+          </tr>
+        <% end %>
+        <% if @primes_data['categories']['revenue_range'] %>
+          <tr>
+            <td><strong>Tranche de revenus</strong></td>
+            <td><%= @primes_data['categories']['revenue_range'] %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>

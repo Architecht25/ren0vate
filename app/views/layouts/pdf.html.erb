@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Ren0vate - Export PDF</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #333;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .header {
+      text-align: center;
+      border-bottom: 2px solid #0066cc;
+      padding-bottom: 20px;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      color: #0066cc;
+      font-size: 24px;
+      margin: 0;
+      font-weight: bold;
+    }
+
+    .header .subtitle {
+      color: #666;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
+    .section {
+      margin-bottom: 25px;
+      page-break-inside: avoid;
+    }
+
+    .section-title {
+      background-color: #f8f9fa;
+      color: #0066cc;
+      font-size: 16px;
+      font-weight: bold;
+      padding: 10px 15px;
+      border-left: 4px solid #0066cc;
+      margin-bottom: 15px;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .data-table th {
+      background-color: #f8f9fa;
+      font-weight: bold;
+      color: #495057;
+    }
+
+    .data-table tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+
+    .result-box {
+      background-color: #d4edda;
+      border: 1px solid #c3e6cb;
+      border-radius: 4px;
+      padding: 15px;
+      margin: 15px 0;
+    }
+
+    .result-box.error {
+      background-color: #f8d7da;
+      border-color: #f5c6cb;
+    }
+
+    .result-box.warning {
+      background-color: #fff3cd;
+      border-color: #ffeaa7;
+    }
+
+    .result-title {
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .prime-item {
+      background-color: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 4px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    .prime-title {
+      font-weight: bold;
+      color: #0066cc;
+      margin-bottom: 5px;
+    }
+
+    .prime-amount {
+      font-size: 16px;
+      font-weight: bold;
+      color: #28a745;
+    }
+
+    .total-box {
+      background-color: #0066cc;
+      color: white;
+      padding: 15px;
+      border-radius: 4px;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .total-amount {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #dee2e6;
+      text-align: center;
+      color: #666;
+      font-size: 10px;
+    }
+
+    .meta-info {
+      background-color: #f8f9fa;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      font-size: 10px;
+      color: #666;
+    }
+
+    @page {
+      @bottom-right {
+        content: "Page " counter(page) " sur " counter(pages);
+        font-size: 10px;
+        color: #666;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🏠 Ren0vate</h1>
+    <div class="subtitle">Export des données d'éligibilité et calculs de primes</div>
+  </div>
+
+  <div class="meta-info">
+    <strong>Date d'export:</strong> <%= Time.current.strftime("%d/%m/%Y à %H:%M") %><br>
+    <% if @region %>
+      <strong>Région:</strong> <%= @region.capitalize %>
+    <% end %>
+  </div>
+
+  <%= yield %>
+
+  <div class="footer">
+    Document généré par Ren0vate - <%= Time.current.strftime("%d/%m/%Y à %H:%M") %><br>
+    Les informations contenues dans ce document sont basées sur les données fournies au moment du test.
+  </div>
+</body>
+</html>

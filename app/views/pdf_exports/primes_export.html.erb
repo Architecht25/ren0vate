@@ -1,0 +1,67 @@
+<div class="section">
+  <div class="section-title">
+    💰 Calcul des Primes
+  </div>
+
+  <% if @export_data['user_inputs'] %>
+    <h3>Données saisies</h3>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Type de travaux</th>
+          <th>Sélectionné</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @export_data['user_inputs'].each do |key, value| %>
+          <tr>
+            <td><%= format_question_label(key) %></td>
+            <td><%= value == true || value == 'true' ? '✅ Oui' : '❌ Non' %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+
+  <% if @export_data['primes_calculees'] %>
+    <h3>Primes calculées</h3>
+    <% @export_data['primes_calculees'].each do |nom_prime, montant| %>
+      <% next if montant == 0 || montant.nil? %>
+      <div class="prime-item">
+        <div class="prime-title"><%= format_question_label(nom_prime) %></div>
+        <div class="prime-amount"><%= format_price(montant) %></div>
+      </div>
+    <% end %>
+  <% end %>
+
+  <% if @export_data['total_primes'] %>
+    <div class="total-box">
+      <div>Total des primes</div>
+      <div class="total-amount"><%= @export_data['total_primes'] %> €</div>
+    </div>
+  <% end %>
+</div>
+
+<% if @export_data['categories'] %>
+  <div class="section">
+    <div class="section-title">
+      📊 Catégories et Revenus
+    </div>
+    <table class="data-table">
+      <tbody>
+        <% if @export_data['categories']['selected_category'] %>
+          <tr>
+            <td><strong>Catégorie sélectionnée</strong></td>
+            <td><%= @export_data['categories']['selected_category'] %></td>
+          </tr>
+        <% end %>
+        <% if @export_data['categories']['revenue_range'] %>
+          <tr>
+            <td><strong>Tranche de revenus</strong></td>
+            <td><%= @export_data['categories']['revenue_range'] %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>

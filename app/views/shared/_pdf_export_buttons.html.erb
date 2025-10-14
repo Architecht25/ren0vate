@@ -1,0 +1,157 @@
+<%
+  # Détection automatique de la région depuis l'URL
+  current_region = case request.path
+                   when /flandre/i then 'Flandre'
+                   when /bruxelles/i then 'Bruxelles'
+                   when /wallonie/i then 'Wallonie'
+                   else 'cette région'
+                   end
+
+  region_class = current_region.downcase
+%>
+
+<div data-controller="pdf-export" class="pdf-export-section <%= region_class %>-export">
+  <div class="export-buttons-container">
+    <h4 class="export-title">
+      📄 Exporter vos résultats - <%= current_region %>
+    </h4>
+    <p class="export-description">
+      Sauvegardez vos résultats de test d'éligibilité et calculs de primes pour <%= current_region %> en PDF
+    </p>
+
+    <div class="export-buttons">
+      <button
+        type="button"
+        class="btn btn-outline-primary btn-sm export-btn"
+        data-pdf-export-target="exportButton"
+        data-action="click->pdf-export#exportEligibilite"
+        title="Exporter uniquement les résultats du test d'éligibilité <%= current_region %>"
+      >
+        📋 Test d'éligibilité
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-outline-success btn-sm export-btn"
+        data-pdf-export-target="exportButton"
+        data-action="click->pdf-export#exportPrimes"
+        title="Exporter uniquement les calculs de primes <%= current_region %>"
+      >
+        💰 Calcul de primes
+      </button>
+
+      <button
+        type="button"
+        class="btn btn-primary btn-sm export-btn"
+        data-pdf-export-target="exportButton"
+        data-action="click->pdf-export#exportComplet"
+        title="Exporter toutes les données <%= current_region %> (éligibilité + primes)"
+      >
+        📄 Export complet
+      </button>
+    </div>
+
+    <div class="export-info">
+      <small class="text-muted">
+        ℹ️ Les données de vos tests et calculs <%= current_region %> seront exportées automatiquement
+      </small>
+    </div>
+  </div>
+</div>
+
+<style>
+.pdf-export-section {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  border: 1px solid #dee2e6;
+}
+
+/* Couleurs spécifiques par région */
+.flandre-export {
+  border-left: 4px solid #ffc107;
+}
+
+.flandre-export .export-title {
+  color: #f57c00;
+}
+
+.bruxelles-export {
+  border-left: 4px solid #28a745;
+}
+
+.bruxelles-export .export-title {
+  color: #155724;
+}
+
+.wallonie-export {
+  border-left: 4px solid #dc3545;
+}
+
+.wallonie-export .export-title {
+  color: #721c24;
+}
+
+.export-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.export-description {
+  color: #6c757d;
+  font-size: 14px;
+  margin-bottom: 15px;
+  line-height: 1.4;
+}
+
+.export-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.export-btn {
+  border-radius: 6px;
+  font-weight: 500;
+  padding: 8px 16px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.export-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.export-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+}
+
+.export-info {
+  border-top: 1px solid #dee2e6;
+  padding-top: 10px;
+  text-align: center;
+}
+
+@media (max-width: 576px) {
+  .export-buttons {
+    flex-direction: column;
+  }
+
+  .export-btn {
+    justify-content: center;
+    width: 100%;
+  }
+}
+</style>

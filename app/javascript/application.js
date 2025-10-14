@@ -48,6 +48,7 @@ import AidCalculatorController from "controllers/aid_calculator_controller"
 import LanguageController from "controllers/language_controller"
 import RenopackWallonieController from "controllers/renopack_wallonie_controller"
 import RequestFormController from "controllers/request_form_controller"
+import PdfExportController from "controllers/pdf_export_controller"
 import RequestAutosaveController from "controllers/request_autosave_controller"
 import SavingsComparisonController from "controllers/savings_comparison_controller"
 import BruxellesEntrepriseCalculController from "controllers/bruxelles_entreprise_calcul_controller"
@@ -125,5 +126,6 @@ application.register("primes-communales-wallonie", PrimesCommunalesWallonieContr
 application.register("eligibility-retester", EligibilityRetesterController)
 application.register("test-eligibilite-entreprises", TestEligibiliteEntreprisesController)
 application.register("mapbox", MapboxController)
+application.register("pdf-export", PdfExportController)
 
 export { application }
