@@ -88,8 +88,8 @@ Rails.application.configure do
   # Only use :id for inspections in production.
   config.active_record.attributes_for_inspect = [ :id ]
 
-  # Disable assets compilation in production (assets are precompiled during build)
-  config.assets.compile = false
+  # Enable assets compilation to avoid Propshaft/Sprockets conflict in Rails 8
+  config.assets.compile = true
 
   # Enable DNS rebinding protection and other `Host` header attacks.
   # config.hosts = [

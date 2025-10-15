@@ -34,7 +34,7 @@ gem "mini_magick" # Pour la manipulation d'images
 
 # PDF generation
 gem "wicked_pdf"  # Pour la génération de PDF
-gem "wkhtmltopdf-binary"  # Binaire wkhtmltopdf pour WickedPDF
+# gem "wkhtmltopdf-binary"  # Remplacé par le buildpack Heroku
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
