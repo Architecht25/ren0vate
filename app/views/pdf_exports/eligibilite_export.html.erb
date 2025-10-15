@@ -22,17 +22,17 @@
       <tbody>
         <% @export_data.each do |key, value| %>
           <% next if key == 'result' || key == 'eligible' || key.start_with?('_') %>
-          <% next if key.include?('categorie') || key.include?('enfants') || key.include?('statut_familial') || key.include?('revenus') || key.include?('revenu') || key.include?('personnes') %>
+          <% next if key.include?('categorie') || key.include?('enfants') || key.include?('statut_familial') || key.include?('revenus') || key.include?('revenu_tranche') || key.include?('personnes') %>
           <tr>
             <td><%= format_question_label(key) %></td>
-            <td><%= format_answer_value(value) %></td>
+            <td><%= format_field_value(key, value, @region) %></td>
           </tr>
         <% end %>
       </tbody>
     </table>
 
     <!-- Section Affinage (Revenus et Situation familiale) -->
-    <% affinage_keys = @export_data.select { |key, value| key.include?('categorie') || key.include?('enfants') || key.include?('statut_familial') || key.include?('revenus') || key.include?('revenu') || key.include?('personnes') } %>
+    <% affinage_keys = @export_data.select { |key, value| key.include?('categorie') || key.include?('enfants') || key.include?('statut_familial') || key.include?('revenu_tranche') || key.include?('personnes') } %>
     <% if affinage_keys.any? %>
       <h3>💰 Affinage - Situation financière et familiale</h3>
       <table class="data-table">
@@ -46,7 +46,7 @@
           <% affinage_keys.each do |key, value| %>
             <tr>
               <td><%= format_question_label(key) %></td>
-              <td><%= format_answer_value(value) %></td>
+              <td><%= format_field_value(key, value, @region) %></td>
             </tr>
           <% end %>
         </tbody>

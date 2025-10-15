@@ -6,11 +6,15 @@ WickedPdf.configure do |c|
   elsif File.exist?('/app/bin/wkhtmltopdf')
     # Chemin typique sur Heroku avec buildpack
     c.exe_path = '/app/bin/wkhtmltopdf'
-  elsif defined?(Gem) && Gem.loaded_specs['wkhtmltopdf-binary']
-    c.exe_path = Gem.bin_path('wkhtmltopdf-binary', 'wkhtmltopdf')
   else
-    # Fallback vers les chemins système courants
-    c.exe_path = '/usr/local/bin/wkhtmltopdf'
+    # Détecter automatiquement le chemin wkhtmltopdf
+    detected_path = `which wkhtmltopdf`.strip
+    if !detected_path.empty? && File.exist?(detected_path)
+      c.exe_path = detected_path
+    else
+      # Fallback vers les chemins système courants
+      c.exe_path = '/usr/local/bin/wkhtmltopdf'
+    end
   end
 
   # Options par défaut pour la génération PDF

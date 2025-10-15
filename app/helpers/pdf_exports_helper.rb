@@ -150,11 +150,13 @@ module PdfExportsHelper
       'materiaux_certifies' => 'Matériaux certifiés',
       'wallonie_categorie' => 'Catégorie de revenus Wallonie',
       'wallonie_enfants_charge' => 'Enfants à charge (Wallonie)',
+      'wallonie_personnes_agees_charge' => 'Personnes âgées à charge (Wallonie)',
       'wallonie_situation_familiale' => 'Situation familiale (Wallonie)',
       'wallonie_revenus' => 'Revenus Wallonie',
       'wallonie_statut' => 'Statut familial Wallonie',
       'wallonie_statut_familial' => 'Statut familial (Wallonie)',
       'wallonie_revenu_estimation' => 'Estimation revenus (Wallonie)',
+      'wallonie_revenu_tranche' => 'Tranche de revenus (Wallonie)',
       'revenus_r5' => 'Revenus supérieurs au plafond R5',
       'revenu_reference' => 'Revenu de référence',
       'nombre_personnes_charge' => 'Nombre de personnes à charge',
@@ -162,6 +164,38 @@ module PdfExportsHelper
       'handicap' => 'Personne en situation de handicap',
       'primo_accedant' => 'Primo-accédant',
       'age_demandeur' => 'Âge du demandeur',
+
+      # === SLUGS PRIMES WALLONIE ===
+      # Travaux Toiture
+      'wallonie_toiture_remplacement_couverture' => 'Remplacement couverture (m²)',
+      'wallonie_toiture_appropriation_charpente' => 'Appropriation charpente',
+      'wallonie_toiture_evacuation_eaux_pluviales' => 'Évacuation eaux pluviales',
+      'wallonie_toiture_isolation_thermique' => 'Isolation thermique (m²)',
+      'wallonie_toiture_isolation_biosource' => 'Isolation biosourcée (m²)',
+
+      # Travaux Murs
+      'wallonie_assechement_murs_infiltration' => 'Assèchement infiltration (m²)',
+      'wallonie_assechement_murs_humidite' => 'Assèchement humidité (m²)',
+      'wallonie_renforcement_murs' => 'Renforcement murs (m²)',
+      'wallonie_elimination_merule' => 'Élimination mérule',
+      'wallonie_elimination_radon' => 'Élimination radon',
+      'wallonie_isolation_murs' => 'Isolation thermique (m²)',
+      'wallonie_isolation_murs_biosource' => 'Isolation biosourcée (m²)',
+
+      # Travaux Sols
+      'wallonie_isolation_sols' => 'Isolation sols (m²)',
+      'wallonie_isolation_sols_biosource' => 'Isolation biosourcée (m²)',
+      'wallonie_remplacement_supports_circulation' => 'Remplacement supports (m²)',
+      'wallonie_isolation_finition_planchers' => 'Finition planchers (m²)',
+
+      # Ventilation
+      'wallonie_vmc_simple' => 'VMC simple flux (complète)',
+      'wallonie_vmc_double' => 'VMC double flux (complète)',
+      'wallonie_vmc_simple_partielle' => 'VMC simple (partielle)',
+      'wallonie_vmc_double_partielle' => 'VMC double (partielle)',
+
+      # Audit
+      'wallonie_audit_energetique' => 'Audit énergétique',
     }
 
     question_labels[key] || key.humanize
@@ -250,6 +284,40 @@ module PdfExportsHelper
       'Wallonie'
     else
       region.to_s.humanize
+    end
+  end
+
+  def format_field_value(key, value, region = nil)
+    return format_boolean_value(value) if [true, false, 'true', 'false'].include?(value)
+
+    # Mapping spécial pour les tranches de revenus Wallonie
+    if key == 'wallonie_revenu_tranche' && region == 'wallonie'
+      case value.to_s
+      when 'r1'
+        'Moins de 26 900 €'
+      when 'r2'
+        '26 901 € – 38 300 €'
+      when 'r3'
+        '38 301 € – 50 600 €'
+      when 'r4'
+        '50 601 € – 114 400 €'
+      when 'r5'
+        'Plus de 114 401 €'
+      else
+        value.to_s
+      end
+    # Mapping pour les statuts familiaux
+    elsif key.include?('statut_familial')
+      case value.to_s
+      when 'isole'
+        'Isolé / Célibataire'
+      when 'couple'
+        'Couple'
+      else
+        value.to_s.humanize
+      end
+    else
+      value.to_s
     end
   end
 end

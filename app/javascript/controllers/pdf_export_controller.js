@@ -201,8 +201,14 @@ export default class extends Controller {
         const wallonieEnfants = localStorage.getItem('wallonie_enfants_charge')
         if (wallonieEnfants) data.wallonie_enfants_charge = wallonieEnfants
 
+        const walloniePersonnesAgees = localStorage.getItem('wallonie_personnes_agees_charge')
+        if (walloniePersonnesAgees) data.wallonie_personnes_agees_charge = walloniePersonnesAgees
+
         const wallonieStatut = localStorage.getItem('wallonie_statut_familial')
         if (wallonieStatut) data.wallonie_statut_familial = wallonieStatut
+
+        const wallonieRevenuTranche = localStorage.getItem('wallonie_revenu_tranche')
+        if (wallonieRevenuTranche) data.wallonie_revenu_tranche = wallonieRevenuTranche
 
         const wallonieRevenu = localStorage.getItem('wallonie_revenu_estimation')
         if (wallonieRevenu) data.wallonie_revenu_estimation = wallonieRevenu
@@ -264,6 +270,18 @@ export default class extends Controller {
       data.user_inputs = userInputs
     }
 
+    // Collecter les totaux par section
+    const sectionTotals = this.collectSectionTotals()
+    if (Object.keys(sectionTotals).length > 0) {
+      data.section_totals = sectionTotals
+    }
+
+    // Collecter les détails de chaque prime individuelle
+    const individualPrimes = this.collectIndividualPrimes()
+    if (individualPrimes && individualPrimes.length > 0) {
+      data.individual_primes = individualPrimes
+    }
+
     return data
   }
 
@@ -285,7 +303,270 @@ export default class extends Controller {
       }
     })
 
+    // Chercher les inputs de surface avec valeurs
+    document.querySelectorAll('input[type="number"]').forEach(input => {
+      if (input.value && parseFloat(input.value) > 0) {
+        const label = this.getInputLabel(input)
+        if (label) {
+          inputs[label] = `${input.value} m²`
+        }
+      }
+    })
+
     return inputs
+  }
+
+  // Aide pour obtenir le label d'un input
+  getInputLabel(input) {
+    // Chercher le label associé
+    const label = document.querySelector(`label[for="${input.id}"]`)
+    if (label) {
+      return label.textContent.trim()
+    }
+
+    // Chercher dans le parent pour un label
+    const parent = input.closest('.form-group, .mb-3, .form-floating')
+    if (parent) {
+      const parentLabel = parent.querySelector('label')
+      if (parentLabel) {
+        return parentLabel.textContent.trim()
+      }
+    }
+
+    // Utiliser placeholder ou name comme fallback
+    return input.placeholder || input.name || 'Champ non identifié'
+  }
+
+  // Collecte des totaux par section depuis le DOM
+  collectSectionTotals() {
+    const totals = {}
+
+    // Totaux Wallonie
+    const totalToiture = document.querySelector('[data-wallonie-prime-card-target="totalToiture"]')
+    if (totalToiture && totalToiture.textContent.trim() !== '0 €') {
+      totals['Total Toiture'] = totalToiture.textContent.trim()
+    }
+
+    const totalMurs = document.querySelector('[data-wallonie-prime-card-target="totalMurs"]')
+    if (totalMurs && totalMurs.textContent.trim() !== '0 €') {
+      totals['Total Murs'] = totalMurs.textContent.trim()
+    }
+
+    const totalSols = document.querySelector('[data-wallonie-prime-card-target="totalSols"]')
+    if (totalSols && totalSols.textContent.trim() !== '0 €') {
+      totals['Total Sols'] = totalSols.textContent.trim()
+    }
+
+    const totalVentilation = document.querySelector('[data-wallonie-prime-card-target="totalVentilation"]')
+    if (totalVentilation && totalVentilation.textContent.trim() !== '0 €') {
+      totals['Total Ventilation'] = totalVentilation.textContent.trim()
+    }
+
+    return totals
+  }
+
+  // Collecte des primes individuelles avec leurs valeurs calculées
+  collectIndividualPrimes() {
+    console.log('🔍 Starting collectIndividualPrimes...');
+
+    const targetMappings = {
+      // TOITURE (5 types)
+      'inputCouverture': 'Remplacement couverture',
+      'inputCharpente': 'Rénovation charpente',
+      'inputEvacuation': 'Évacuation eaux pluviales',
+      'inputIsolationThermique': 'Isolation thermique',
+      'inputIsolationBiosource': 'Isolation biosourcée',
+
+      // MURS (7 types)
+      'inputInfiltration': 'Assèchement infiltration',
+      'inputHumidite': 'Assèchement humidité',
+      'inputRenforcement': 'Renforcement murs',
+      'inputMerule': 'Traitement mérule',
+      'inputRadon': 'Traitement radon',
+      // Note: inputIsolationThermique et inputIsolationBiosource sont réutilisés mais seront différenciés par section
+
+      // SOLS (4 types)
+      'inputIsolationSols': 'Isolation sols',
+      'inputSupports': 'Remplacement supports',
+      'inputFinitionPlanchers': 'Finition planchers',
+      // Note: inputIsolationBiosource est aussi réutilisé ici
+
+      // VENTILATION (4 types)
+      'inputVmcSimpleComplete': 'VMC simple flux complète',
+      'inputVmcDoubleComplete': 'VMC double flux complète',
+      'inputVmcSimplePartielle': 'VMC simple flux partielle',
+      'inputVmcDoublePartielle': 'VMC double flux partielle',
+
+      // CHAUDIÈRE (5 types)
+      'inputPacEauChaude': 'PAC eau chaude',
+      'inputPacChauffage': 'PAC chauffage/combinée',
+      'inputChaudiereBiomasse': 'Chaudière biomasse',
+      'inputPoeleBiomasse': 'Poêle biomasse',
+      'inputChauffeEauSolaire': 'Chauffe-eau solaire',
+
+      // AMÉLIORATIONS CHAUFFAGE (10 types) - Noms exacts basés sur les partials
+      'inputIsolationConduites': 'Isolation conduites chauffage',
+      'inputIsolationBallon500': 'Isolation ballon ≤500l',
+      'inputIsolationBallonPlus500': 'Isolation ballon >500l',
+      'inputCirculateurMax3Logements': 'Circulateur ≤3 logements',
+      'inputCirculateurMin4Logements': 'Circulateur ≥4 logements',
+      'inputRemplacementBallon500': 'Remplacement ballon ≤500l',
+      'inputRemplacementBallonPlus500': 'Remplacement ballon >500l',
+      'inputMin5VannesThermostatiques': 'Min 5 vannes thermostatiques',
+      'inputVannesSupplementaires': 'Vannes supplémentaires',
+      'inputThermostatAmbiance': 'Thermostat ambiance',
+
+      // EAU CHAUDE SANITAIRE (6 types) - Noms exacts différents d'améliorations
+      'inputRemplacementBallonSup': 'Remplacement ballon ECS >500l',
+      'inputEchangeurPlaques': 'Échangeur à plaques',
+      'inputIsolationBallonSup': 'Isolation ballon ECS >500l',
+      // Note: inputRemplacementBallon500, inputIsolationConduites, inputIsolationBallon500 sont partagés avec améliorations
+
+      // MENUISERIES (1 type)
+      'inputMenuiseries': 'Surface vitrages',
+
+      // AUDIT (1 type)
+      'inputAudit': 'Audit énergétique',
+
+      // INSTALLATIONS (2 types)
+      'inputElectricite': 'Installation électrique',
+      'inputGaz': 'Installation gaz'
+    };
+
+    const individualPrimes = [];
+
+    // Parcourir tous les éléments avec data-wallonie-prime-card-target d'input
+    document.querySelectorAll('[data-wallonie-prime-card-target^="input"]').forEach(inputElement => {
+      const targetName = inputElement.getAttribute('data-wallonie-prime-card-target');
+
+      if (targetMappings[targetName]) {
+        const resultTarget = targetName.replace('input', 'result');
+        const resultElement = document.querySelector(`[data-wallonie-prime-card-target="${resultTarget}"]`);
+
+        let inputValue = '';
+        let resultValue = '';
+
+        // Récupérer la valeur d'input
+        if (inputElement.tagName === 'SELECT') {
+          const selectedOption = inputElement.options[inputElement.selectedIndex];
+          inputValue = selectedOption ? selectedOption.text : inputElement.value;
+        } else {
+          inputValue = inputElement.value || '0';
+        }
+
+        // Récupérer la valeur de résultat
+        if (resultElement) {
+          resultValue = resultElement.textContent.trim();
+        }
+
+        // Seulement ajouter si il y a une valeur significative
+        if (inputValue && inputValue !== '0' && inputValue !== 'Non' && resultValue && resultValue !== '0 €') {
+          // Déterminer la section basée sur le contexte de la carte
+          const card = inputElement.closest('[data-controller="wallonie-prime-card"]');
+          let section = 'Travaux';
+
+          if (card) {
+            const slugValue = card.getAttribute('data-wallonie-prime-card-slug-value');
+            if (slugValue) {
+              if (slugValue.includes('toiture')) section = 'Travaux Toiture';
+              else if (slugValue.includes('murs')) section = 'Travaux Murs';
+              else if (slugValue.includes('sols')) section = 'Travaux Sols';
+              else if (slugValue.includes('ventilation')) section = 'Ventilation';
+              else if (slugValue.includes('chaudiere')) section = 'Systèmes Chauffage';
+              else if (slugValue.includes('amelioration_chauffage')) section = 'Améliorations Chauffage';
+              else if (slugValue.includes('eau_chaude_sanitaire')) section = 'Eau Chaude Sanitaire';
+              else if (slugValue.includes('menuiseries')) section = 'Menuiseries';
+              else if (slugValue.includes('audit')) section = 'Audit Énergétique';
+              else if (slugValue.includes('installation_electrique')) section = 'Installation Électrique';
+              else if (slugValue.includes('installation_gaz')) section = 'Installation Gaz';
+            }
+
+            // Si le slug n'est pas reconnu, essayer avec le titre de la carte
+            if (section === 'Travaux') {
+              const cardTitle = card.querySelector('.card-title, h6');
+              if (cardTitle) {
+                const title = cardTitle.textContent.trim().toLowerCase();
+                if (title.includes('audit')) section = 'Audit Énergétique';
+                else if (title.includes('toiture')) section = 'Travaux Toiture';
+                else if (title.includes('murs')) section = 'Travaux Murs';
+                else if (title.includes('sols')) section = 'Travaux Sols';
+                else if (title.includes('ventilation')) section = 'Ventilation';
+                else if (title.includes('chauffage') && title.includes('système')) section = 'Systèmes Chauffage';
+                else if (title.includes('amélioration')) section = 'Améliorations Chauffage';
+                else if (title.includes('eau chaude')) section = 'Eau Chaude Sanitaire';
+                else if (title.includes('menuiseries')) section = 'Menuiseries';
+                else if (title.includes('électrique')) section = 'Installation Électrique';
+                else if (title.includes('gaz')) section = 'Installation Gaz';
+              }
+            }
+          }
+
+          individualPrimes.push({
+            section: section,
+            label: targetMappings[targetName],
+            input_value: inputValue,
+            result_value: resultValue,
+            target: targetName
+          });
+        }
+      }
+    });
+
+    console.log('📊 Individual primes collected:', individualPrimes);
+    return individualPrimes;
+  }
+
+  // Fonction pour trouver le span de résultat associé à un input
+  findAssociatedResultSpan(input) {
+    // Chercher dans le même container parent
+    const container = input.closest('.row, .col, .form-group, .mb-3')
+    if (container) {
+      // Chercher un span avec une classe de résultat
+      const resultSpan = container.querySelector('.badge, .text-success, .text-primary, [class*="badge"]')
+      if (resultSpan && resultSpan.textContent.includes('€')) {
+        return resultSpan
+      }
+    }
+
+    // Chercher dans les éléments suivants
+    let nextElement = input.nextElementSibling
+    while (nextElement) {
+      if (nextElement.textContent.includes('€')) {
+        return nextElement
+      }
+      nextElement = nextElement.nextElementSibling
+    }
+
+    return null
+  }
+
+  // Aide pour trouver le label d'une prime
+  findPrimeLabel(element) {
+    // Chercher dans la carte parent
+    const card = element.closest('.card')
+    if (card) {
+      const title = card.querySelector('.card-title, h3, h4, h5')
+      if (title) {
+        return title.textContent.trim()
+      }
+    }
+
+    // Chercher dans le conteneur parent
+    const container = element.closest('.form-group, .mb-3, .prime-item')
+    if (container) {
+      const label = container.querySelector('label, .label, .prime-label')
+      if (label) {
+        return label.textContent.trim()
+      }
+    }
+
+    // Chercher un label précédent
+    const previousElement = element.previousElementSibling
+    if (previousElement && (previousElement.tagName === 'LABEL' || previousElement.classList.contains('label'))) {
+      return previousElement.textContent.trim()
+    }
+
+    return element.dataset.wallonieprimeCardTarget || 'Prime non identifiée'
   }
 
   // Téléchargement du PDF
