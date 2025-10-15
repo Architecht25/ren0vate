@@ -88,6 +88,9 @@ Rails.application.configure do
   # Only use :id for inspections in production.
   config.active_record.attributes_for_inspect = [ :id ]
 
+  # Disable assets compilation in production (assets are precompiled during build)
+  config.assets.compile = false
+
   # Enable DNS rebinding protection and other `Host` header attacks.
   # config.hosts = [
   #   "example.com",     # Allow requests from example.com
