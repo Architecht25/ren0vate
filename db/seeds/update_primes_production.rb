@@ -29,7 +29,6 @@ begin
   load Rails.root.join('db', 'seeds', 'wallonie', 'primes', 'ecs.rb')
   load Rails.root.join('db', 'seeds', 'wallonie', 'primes', 'ameliorations_chauffage.rb')
   load Rails.root.join('db', 'seeds', 'wallonie', 'primes', 'installations.rb')
-  load Rails.root.join('db', 'seeds', 'wallonie', 'primes', 'reglement_general.rb')
   puts "✅ Primes Wallonie mises à jour"
   
   puts "📋 Chargement des primes Flandre..."
