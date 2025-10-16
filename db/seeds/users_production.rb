@@ -257,6 +257,17 @@ users_data = [
     city: 'NAMUR',
     postal_code: '5000',
     test_user: false  # Vrai client - pas de données fictives
+  },
+  {
+    email: 'nicolasbekaert@hotmail.com',
+    password: 'Nicolas2025!Bekaert',
+    first_name: 'NICOLAS',
+    last_name: 'BEKAERT',
+    role: 'user',
+    phone: '+32 489 99 25 33',
+    city: 'CHAUMONT-GISTOUX',
+    postal_code: '1325',
+    test_user: false  # Vrai client - pas de données fictives
   }
 ]
 
