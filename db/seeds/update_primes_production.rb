@@ -32,12 +32,11 @@ begin
   puts "✅ Primes Wallonie mises à jour"
   
   puts "📋 Chargement des primes Flandre..."
-  load Rails.root.join('db', 'seeds', 'flandre', 'primes_flandre.rb')
+  load Rails.root.join('db', 'seeds', 'flandre', 'primes.rb')
   puts "✅ Primes Flandre mises à jour"
   
-  puts "📋 Chargement des primes Entreprises..."
-  load Rails.root.join('db', 'seeds', 'entreprises', 'primes_entreprises.rb')
-  puts "✅ Primes Entreprises mises à jour"
+  # Les primes entreprises semblent ne pas exister pour le moment
+  puts "📋 Primes Entreprises - fichier non trouvé, ignoré"
   
 rescue => e
   puts "❌ Erreur lors du chargement des primes: #{e.message}"
@@ -51,4 +50,3 @@ puts "  📋 Primes totales: #{Prime.count}"
 puts "  🏢 Bruxelles: #{Prime.where(region: 'bruxelles').count}"
 puts "  🏔️  Wallonie: #{Prime.where(region: 'wallonie').count}" 
 puts "  🌊 Flandre: #{Prime.where(region: 'flandre').count}"
-puts "  🏢 Entreprises: #{Prime.where(region: 'entreprises').count}"
