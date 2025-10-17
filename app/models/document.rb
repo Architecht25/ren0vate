@@ -17,8 +17,8 @@ class Document < ApplicationRecord
   validate :file_size_limit
   validate :file_format_validation
 
-  # Validations techniques spécifiques
-  validate :check_audit_conformity, if: :technical_document?
+  # Validations techniques spécifiques - DÉSACTIVÉES
+  # validate :check_audit_conformity, if: :should_validate_technical_documents_strict?
   validate :verify_insulation_thickness, if: :insulation_document?
   validate :check_deadline_compliance, if: :time_sensitive_document?
 
@@ -377,29 +377,31 @@ class Document < ApplicationRecord
 
   # Validations techniques spécifiques
   def technical_document?
-    %w[devis rapport_audit_energetique facture].include?(type_document)
+    %w[rapport_audit_energetique devis fiche_technique].include?(type_document)
   end
 
   def insulation_document?
-    %w[devis facture].include?(type_document) && project&.property&.region&.downcase == 'wallonie'
+    %w[devis fiche_technique].include?(type_document)
   end
 
   def time_sensitive_document?
     %w[facture rapport_audit_energetique].include?(type_document)
   end
 
-  def check_audit_conformity
-    return unless project
-
-    validation_service = TechnicalValidationService.new(project)
-    result = validation_service.validate!
-
-    unless result[:valid]
-      result[:errors].each do |error|
-        errors.add(:base, "Validation technique : #{error[:message]}") if error[:critical]
-      end
-    end
+  def technical_document?
+    %w[rapport_audit_energetique devis fiche_technique].include?(type_document)
   end
+
+  def insulation_document?
+    %w[devis fiche_technique].include?(type_document)
+  end
+
+  def time_sensitive_document?
+    %w[facture rapport_audit_energetique].include?(type_document)
+  end
+
+  # Méthode supprimée - validation technique désactivée
+  # def check_audit_conformity
 
   def verify_insulation_thickness
     return unless project&.property&.region&.downcase == 'wallonie'

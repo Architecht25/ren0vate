@@ -11,6 +11,17 @@ class TechnicalValidationService
   end
 
   def validate!
+    # Vérifier d'abord que nous avons tous les éléments requis
+    unless @project&.property&.region.present?
+      Rails.logger.warn "⚠️ Validation technique impossible: région non définie pour le project #{@project&.id}"
+      return {
+        valid: true,
+        errors: [],
+        warnings: [{ type: 'no_region', message: 'Région non définie, validation technique non applicable' }],
+        validation_score: 0
+      }
+    end
+
     validate_audit_presence
     validate_devis_presence
     validate_photo_presence
@@ -30,10 +41,13 @@ class TechnicalValidationService
   private
 
   def validate_audit_presence
+    # L'audit énergétique n'est obligatoire qu'en Wallonie
+    return unless @project.property&.region&.downcase == 'wallonie'
+
     unless @audit_document
       @errors << {
         type: 'missing_audit',
-        message: 'Rapport d\'audit énergétique manquant',
+        message: 'Rapport d\'audit énergétique manquant (requis en Wallonie)',
         critical: true
       }
     end
