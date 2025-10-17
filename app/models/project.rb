@@ -173,11 +173,13 @@ class Project < ApplicationRecord
   end
 
   def architecte_factures_total
-    factures.where(type_intervenant: 'architecte').sum(:montant) || 0
+    # FIXME: colonne type_intervenant n'existe pas - retourner 0 temporairement
+    0
   end
 
   def contractor_factures_total
-    factures.where(type_intervenant: 'entrepreneur').sum(:montant) || 0
+    # FIXME: colonne type_intervenant n'existe pas - retourner 0 temporairement  
+    0
   end
 
   def architecte_devis_vs_factures_difference
