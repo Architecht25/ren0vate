@@ -1,0 +1,140 @@
+<div id="contextual-bot"
+     class="contextual-bot-widget"
+     data-controller="contextual-bot"
+     data-contextual-bot-current-page-value="<%= controller_name %>"
+     style="position: fixed; bottom: 20px; right: 20px; z-index: 1050;">
+
+  <!-- Bouton flottant pour ouvrir/fermer -->
+  <div class="bot-toggle" data-bs-toggle="collapse" data-bs-target="#bot-chat-container" aria-expanded="false">
+    <button class="btn btn-primary rounded-circle shadow-lg bot-toggle-btn"
+            style="width: 60px; height: 60px; border: none;">
+      <i class="bi bi-robot fs-4"></i>
+    </button>
+    <!-- Badge de notification (optionnel) -->
+    <span class="badge bg-danger position-absolute top-0 start-100 translate-middle rounded-pill"
+          style="font-size: 0.7rem; display: none;" id="bot-notification-badge">1</span>
+  </div>
+
+  <!-- Container du chat - AGRANDI -->
+  <div class="collapse bot-chat-container bg-white rounded-3 shadow-lg position-absolute"
+       id="bot-chat-container"
+       style="bottom: 80px; right: 0; width: 450px; height: 650px; border: 1px solid #dee2e6;">
+
+    <!-- Header du bot -->
+    <div class="bot-header bg-primary text-white p-3 rounded-top-3 d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center">
+        <i class="bi bi-robot me-2"></i>
+        <span class="fw-bold">Assistant Ren0vate</span>
+        <span data-contextual-bot-target="modeIndicator" class="badge bg-success ms-2">
+          <i class="bi bi-compass me-1"></i>Guide
+        </span>
+      </div>
+      <div class="d-flex align-items-center">
+        <button data-contextual-bot-target="toggleMode"
+                data-action="click->contextual-bot#toggleMode"
+                class="btn btn-outline-light btn-sm me-2">
+          <i class="bi bi-brain me-1"></i>Mode Expert
+        </button>
+        <button class="btn btn-link text-white p-0"
+                data-bs-toggle="collapse"
+                data-bs-target="#bot-chat-container">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Zone des messages - AGRANDIE -->
+    <div class="bot-messages-container p-3 overflow-auto"
+         data-contextual-bot-target="messages"
+         style="height: 450px; background-color: #fafafa;">
+      <!-- Les messages seront ajoutés ici dynamiquement -->
+    </div>
+
+    <!-- Zone des suggestions -->
+    <div class="bot-suggestions p-2 border-top bg-light" style="min-height: 50px;">
+      <div class="small text-muted mb-1">Suggestions :</div>
+      <div data-contextual-bot-target="suggestions" class="d-flex flex-wrap">
+        <!-- Les suggestions seront ajoutées ici -->
+      </div>
+    </div>
+
+    <!-- Zone de saisie -->
+    <div class="bot-input-container p-3 border-top bg-white rounded-bottom-3">
+      <div class="input-group">
+        <input type="text"
+               class="form-control"
+               placeholder="Tapez votre question..."
+               data-contextual-bot-target="input"
+               autocomplete="off">
+        <button class="btn btn-primary"
+                type="button"
+                data-contextual-bot-target="sendButton"
+                data-action="click->contextual-bot#sendMessage">
+          <i class="bi bi-send"></i>
+        </button>
+      </div>
+      <div class="form-text small mt-1">
+        💡 <strong>Guide :</strong> Aide contextuelle |
+        🧠 <strong>Expert :</strong> Questions générales
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .bot-toggle-btn {
+    transition: all 0.3s ease;
+  }
+
+  .bot-toggle-btn:hover {
+    transform: scale(1.1);
+  }
+
+  .bot-chat-container {
+    transition: all 0.3s ease;
+  }
+
+  .bot-messages-container::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .bot-messages-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+
+  .bot-messages-container::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+  }
+
+  .bot-messages-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
+
+  .message-bubble {
+    word-wrap: break-word;
+    max-width: 350px;
+  }
+
+  .max-width-70 {
+    max-width: 70%;
+  }
+
+  .bot-avatar {
+    font-size: 14px;
+  }
+
+  @media (max-width: 768px) {
+    .bot-chat-container {
+      width: 90vw !important;
+      right: 5vw !important;
+      left: 5vw !important;
+    }
+
+    .contextual-bot-widget {
+      right: 10px !important;
+      bottom: 10px !important;
+    }
+  }
+</style>

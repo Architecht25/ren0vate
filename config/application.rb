@@ -19,5 +19,8 @@ module Ren0vate
 
     # À réactiver si tu utilises node_modules pour Bootstrap, etc.
     # config.assets.paths << Rails.root.join("node_modules")
+
+    # Middleware de performance pour le bot contextuel
+    # config.middleware.use BotPerformanceMiddleware
   end
 end

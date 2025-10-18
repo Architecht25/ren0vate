@@ -33,7 +33,7 @@ Rails.application.routes.draw do
   get 'test/pdf_export', to: 'pages#test_pdf_export'
   get 'test/responsive', to: 'pages#test_responsive'
 
-  # API routes for enterprise aids
+    # API routes for enterprise aids
     namespace :api do
       get 'entreprises/bce/:numero_bce', to: 'entreprises#bce_lookup'
       post 'entreprises/bce_lookup', to: 'entreprises#bce_lookup'
@@ -41,7 +41,9 @@ Rails.application.routes.draw do
       post 'entreprises/bruxelles/majorations', to: 'entreprises#calculate_bruxelles_majorations'
       get 'entreprises/bruxelles/majorations-details', to: 'entreprises#get_majorations_details'
 
-      # API pour les primes communales Flandre
+      # API Bot Contextuel
+      post 'contextual_bot/chat', to: 'contextual_bot#chat'
+      post 'contextual_bot/suggestions', to: 'contextual_bot#suggestions'      # API pour les primes communales Flandre
       resources :primes_communales, only: [] do
         collection do
           get :index          # GET /api/primes_communales?code_postal=9000
