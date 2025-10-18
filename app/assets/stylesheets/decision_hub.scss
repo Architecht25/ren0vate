@@ -992,15 +992,67 @@
   cursor: not-allowed;
 }
 
-/* Zone de conversation avec scroll personnalisé */
+/* Zone de conversation avec scroll personnalisé - VERSION GRID CONTRÔLÉE */
 .conversation-area {
-  max-height: 400px;
-  overflow-y: auto;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 8px;
+  max-height: 350px !important;
+  height: 350px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 0.75rem !important;
+  background: #f8f9fa !important;
+  border-radius: 8px !important;
   scrollbar-width: thin;
   scrollbar-color: #007bff #f8f9fa;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  border: 2px solid #007bff !important;
+  flex-shrink: 0 !important;
+  flex-grow: 0 !important;
+
+  // Approche Grid - plus robuste que Flex
+  .ai-message {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    margin-bottom: 1rem !important;
+
+    // Grid container pour avatar + message
+    > div {
+      display: grid !important;
+      grid-template-columns: 40px 1fr !important;
+      gap: 8px !important;
+      width: 100% !important;
+      max-width: 100% !important;
+
+      .message-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important; // Important pour que Grid respecte les limites
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        hyphens: auto !important;
+        box-sizing: border-box !important;
+
+        .message-text, .message-text *, span, strong, br {
+          width: 100% !important;
+          max-width: 100% !important;
+          word-wrap: break-word !important;
+          overflow-wrap: break-word !important;
+          box-sizing: border-box !important;
+        }
+      }
+    }
+  }
+
+  // Force universelle sur TOUS les éléments
+  * {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+  }
 }
 
 .conversation-area::-webkit-scrollbar {
@@ -1019,6 +1071,195 @@
 
 .conversation-area::-webkit-scrollbar-thumb:hover {
   background: #0056b3;
+}
+
+/* Règle de sécurité globale pour éviter tout débordement dans la sidebar IA */
+.ai-sidebar, .ai-sidebar * {
+  max-width: 100% !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
+
+/* Messages IA améliorés avec contrôle strict du débordement */
+.ai-message {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-bottom: 1rem !important;
+  box-sizing: border-box !important;
+
+  .d-flex {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .message-content {
+    max-width: calc(100% - 50px) !important; // Espace pour l'avatar + marge
+    width: calc(100% - 50px) !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    box-sizing: border-box !important;
+    hyphens: auto !important;
+    hyphens: auto;
+    flex: 1;
+    min-width: 0; // Important pour permettre le shrinking
+
+    .message-text {
+      line-height: 1.6;
+      width: 100%;
+      max-width: 100%;
+      overflow-wrap: break-word;
+      word-break: break-word;
+
+      // Amélioration typographique
+      h1, h2, h3, h4, h5, h6 {
+        margin: 1rem 0 0.5rem 0;
+        font-weight: 600;
+
+        &:first-child {
+          margin-top: 0;
+        }
+      }
+
+      p, span, div, strong, em, ul, ol, li {
+        margin: 0.8rem 0;
+        max-width: 100% !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+        box-sizing: border-box !important;
+
+        &:first-child {
+          margin-top: 0;
+        }
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+
+      ul, ol {
+        margin: 0.8rem 0;
+        padding-left: 1.5rem;
+
+        li {
+          margin: 0.3rem 0;
+        }
+      }
+
+      // Mise en forme des sections numérotées
+      strong {
+        color: #198754;
+        font-weight: 600;
+      }
+
+      // Sections avec émojis
+      .section-title {
+        display: flex;
+        align-items: center;
+        margin: 1rem 0 0.5rem 0;
+        font-weight: 600;
+        color: #495057;
+        border-left: 3px solid #198754;
+        padding-left: 0.75rem;
+        background: rgba(25, 135, 84, 0.05);
+        padding: 0.5rem 0.75rem;
+        border-radius: 4px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-wrap: break-word;
+        word-break: break-word;
+
+        .emoji {
+          margin-right: 0.5rem;
+          font-size: 1.1em;
+        }
+      }
+
+      // Éléments numérotés avec émojis
+      .numbered-item {
+        background: rgba(13, 110, 253, 0.05);
+        border-left: 2px solid #0d6efd;
+        padding: 0.4rem;
+        border-radius: 4px;
+        margin: 0.4rem 0;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        display: flex;
+        align-items: flex-start;
+
+        span:first-child {
+          flex-shrink: 0;
+          margin-right: 0.5rem;
+        }
+
+        span:last-child {
+          flex: 1;
+          min-width: 0;
+        }
+      }
+
+      // Éléments avec émojis (puces)
+      .emoji-item {
+        padding: 0.25rem 0;
+
+        span:first-child {
+          font-size: 1.1em;
+          min-width: 1.5rem;
+        }
+      }
+
+      // Alertes et warnings
+      .alert-text {
+        background: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 4px;
+        padding: 0.5rem;
+        margin: 0.5rem 0;
+        color: #856404;
+      }
+
+      .critical-text {
+        background: #f8d7da;
+        border: 1px solid #f5c6cb;
+        border-radius: 4px;
+        padding: 0.5rem;
+        margin: 0.5rem 0;
+        color: #721c24;
+      }
+    }
+  }
+}
+
+/* Sidebar IA container */
+.ai-sidebar {
+  width: 100%;
+  max-width: 100%;
+
+  .card {
+    overflow: hidden;
+    width: 100%;
+    max-width: 100%;
+
+    .card-body {
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+      padding: 1rem;
+      overflow: hidden;
+    }
+  }
+
+  // S'assurer que tous les éléments enfants respectent la largeur
+  * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
 }
 
 .quick-questions .btn {

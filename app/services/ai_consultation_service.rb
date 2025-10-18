@@ -90,7 +90,7 @@ class AiConsultationService
       • Audit énergétique PEB et conseils techniques détaillés
       • Optimisation ROI et planification de travaux
       • Obligations légales et délais administratifs
-      • Entrepreneurs RGE/qualifiés et négociation
+      • Entrepreneurs agréés/qualifiés et négociation
       • ACP/copropriétés et spécificités entreprises
 
       #{get_regional_context}
@@ -189,7 +189,7 @@ class AiConsultationService
         • Délai 12 mois après travaux pour demande
         • Prime isolation : 6-30€/m² selon revenus
         • Prime chauffage : jusqu'à 4000€ pour pompe à chaleur
-        • Obligation entrepreneur RGE pour certaines primes
+        • Obligation entrepreneur agréé pour certaines primes
       WALLONIE
     when 'bruxelles'
       <<~BRUXELLES

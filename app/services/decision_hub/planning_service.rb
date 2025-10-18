@@ -187,7 +187,7 @@ class DecisionHub::PlanningService
     critical_actions = []
 
     # Actions bloquantes identifiées
-    critical_actions << "Obtenir devis entrepreneur RGE" if missing_rge_quote?
+    critical_actions << "Obtenir devis entrepreneur agréé" if missing_rge_quote?
     critical_actions << "Audit PAE obligatoire" if @region == "bruxelles" && missing_audit?
     critical_actions << "Déclaration urbanisme" if needs_urban_declaration?
 

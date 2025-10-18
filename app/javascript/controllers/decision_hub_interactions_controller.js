@@ -187,6 +187,38 @@ export default class extends Controller {
     }
   }
 
+  // Formater le message IA pour une meilleure lisibilité
+  formatAIMessage(message) {
+    // Convertir les sauts de ligne doubles en paragraphes
+    let formatted = message.replace(/\n\n/g, '</p><p>')
+
+    // Remplacer les sauts de ligne simples par <br>
+    formatted = formatted.replace(/\n/g, '<br>')
+
+    // Formater les listes avec puces
+    formatted = formatted.replace(/•\s*(.*?)(?=<br>|$)/g, '<li>$1</li>')
+    formatted = formatted.replace(/(<li>.*?<\/li>)+/g, '<ul class="list-unstyled ms-3">$&</ul>')
+
+    // Formater les titres avec émojis et étoiles
+    formatted = formatted.replace(/\*\*(.*?)\*\*\s*:/g, '<div class="section-title mt-3 mb-2"><span class="fw-bold text-success">$1</span></div>')
+
+    // Formater les éléments numérotés (1️⃣, 2️⃣, etc.)
+    formatted = formatted.replace(/([1-9]️⃣)\s*(.*?)(?=<br>|$)/g, '<div class="numbered-item d-flex align-items-start mb-2"><span class="me-2">$1</span><span>$2</span></div>')
+
+    // Formater les points avec émojis au début de ligne
+    formatted = formatted.replace(/(🔹|🎯|💰|📋|⚠️|✅|🚨|💡|📊|🔧|⏰)\s*(.*?)(?=<br>|$)/g, '<div class="emoji-item d-flex align-items-start mb-2"><span class="me-2 text-primary">$1</span><span>$2</span></div>')
+
+    // Formater le texte en gras restant
+    formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong class="text-primary">$1</strong>')
+
+    // Nettoyer et encapsuler dans des paragraphes
+    if (!formatted.startsWith('<')) {
+      formatted = '<p>' + formatted + '</p>'
+    }
+
+    return formatted
+  }
+
   // Ajouter message à la conversation
   addMessageToConversation(sender, message) {
     if (!this.hasConversationAreaTarget) return
@@ -199,13 +231,14 @@ export default class extends Controller {
       messageDiv.className = sender === 'ai' ? 'ai-message mb-3' : 'user-message mb-3'
 
       if (sender === 'ai') {
+        const formattedMessage = this.formatAIMessage(message)
         messageDiv.innerHTML = `
           <div class="d-flex align-items-start">
             <div class="ai-avatar bg-success rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; flex-shrink: 0;">
               <i class="bi bi-robot text-white small"></i>
             </div>
             <div class="message-content bg-light rounded-3 p-3 flex-grow-1">
-              <div class="message-text">${message}</div>
+              <div class="message-text">${formattedMessage}</div>
               <small class="text-muted">À l'instant</small>
             </div>
           </div>
@@ -228,13 +261,14 @@ export default class extends Controller {
       messageDiv.className = sender === 'ai' ? 'ai-message' : 'user-message'
 
       if (sender === 'ai') {
+        const formattedMessage = this.formatAIMessage(message)
         messageDiv.innerHTML = `
           <div class="message-header">
             <strong>🤖 Assistant IA</strong>
             <small class="text-muted">À l'instant</small>
           </div>
           <div class="message-content">
-            <p>${message}</p>
+            ${formattedMessage}
           </div>
         `
       } else {

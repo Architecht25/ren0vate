@@ -684,7 +684,7 @@ class DecisionHubController < ApplicationController
         },
         {
           type: "entrepreneur",
-          description: "Choisir entrepreneur certifié RGE",
+          description: "Choisir entrepreneur certifié agréé",
           impact: "medium",
           benefit: "Garantie éligibilité",
           icon: "🏗️"
@@ -807,10 +807,10 @@ class DecisionHubController < ApplicationController
       "Le timing optimal pour votre projet serait : \n\n1️⃣ **Octobre 2024** : Dépôt prime isolation toiture (bonus hivernal 15%)\n2️⃣ **Novembre 2024** : Prime pompe à chaleur \n3️⃣ **Printemps 2025** : Prime façade (conditions météo optimales)\n\nCette séquence maximise vos aides et respecte les contraintes saisonnières."
 
     when /document|papier|dossier/
-      "Voici les documents essentiels pour vos primes :\n\n📋 **Obligatoires** :\n• Certificat PEB valide (< 10 ans)\n• Devis détaillés entrepreneurs agréés RGE\n• Photos avant travaux horodatées\n• Déclaration préalable commune\n\n📋 **Recommandés** :\n• Relevé cadastral\n• Preuves de revenus\n• Plans techniques détaillés\n\nVoulez-vous que je vous guide pour obtenir un document spécifique ?"
+      "Voici les documents essentiels pour vos primes :\n\n📋 **Obligatoires** :\n• Certificat PEB valide (< 10 ans)\n• Devis détaillés entrepreneurs agréés\n• Photos avant travaux horodatées\n• Déclaration préalable commune\n\n📋 **Recommandés** :\n• Relevé cadastral\n• Preuves de revenus\n• Plans techniques détaillés\n\nVoulez-vous que je vous guide pour obtenir un document spécifique ?"
 
     when /entrepreneur|artisan|rge/
-      "Pour vos primes (12,450€), vous DEVEZ choisir des entrepreneurs agréés RGE. C'est obligatoire !\n\n🏗️ **Critères essentiels** :\n• Certification RGE valide\n• Assurance décennale\n• Références vérifiables\n• Devis conformes aux normes\n\nJe peux vous recommander des entrepreneurs certifiés dans votre région. Dans quelle commune êtes-vous situé ?"
+      "Pour vos primes (12,450€), vous DEVEZ choisir des entrepreneurs agréés. C'est obligatoire !\n\n🏗️ **Critères essentiels** :\n• Certification agréée valide\n• Assurance décennale\n• Références vérifiables\n• Devis conformes aux normes\n\nJe peux vous recommander des entrepreneurs certifiés dans votre région. Dans quelle commune êtes-vous situé ?"
 
     when /prix|coût|budget/
       "Votre budget primes de 12,450€ est excellent ! Voici la répartition optimisée :\n\n💰 **Primes prioritaires** :\n• Isolation toiture : 4,200€ (ROI rapide)\n• Pompe à chaleur : 3,800€ (économies long terme)\n\n💰 **Primes complémentaires** :\n• Isolation façade : 2,850€ \n• Audit + Ventilation : 1,600€\n\nAvec les majorations possibles, vous pourriez atteindre 13,500€ !"

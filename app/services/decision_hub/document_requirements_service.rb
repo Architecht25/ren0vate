@@ -28,7 +28,7 @@ class DecisionHub::DocumentRequirementsService
     base_documents = [
       {
         id: "devis_rge",
-        name: "Devis entrepreneur agréé RGE",
+        name: "Devis entrepreneur agréé",
         category: "administrative",
         status: "missing",
         urgency: "critical",

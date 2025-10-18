@@ -178,7 +178,7 @@ class DecisionHub::TechnicalRequirementsService
     [
       {
         id: "entrepreneur_rge",
-        description: "Entrepreneur agréé RGE",
+        description: "Entrepreneur agréé certifié",
         category: "administrative",
         importance: "critical",
         status: "completed", # Exemple

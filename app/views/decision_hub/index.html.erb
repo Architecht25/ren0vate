@@ -57,21 +57,6 @@
               </h2>
               <p class="mb-0 opacity-75">Simulation terminée • Wallonie • Rénovation complète</p>
             </div>
-            <div class="col-md-3 text-md-center">
-              <div class="d-inline-block bg-white bg-opacity-20 rounded-3 px-3 py-2">
-                <div class="small text-uppercase opacity-75">Total primes</div>
-                <div class="h3 mb-0">12,450€</div>
-              </div>
-            </div>
-            <div class="col-md-3 text-md-end">
-              <%= link_to decision_hub_short_path(77), class: "btn btn-light btn-lg" do %>
-                <i class="bi bi-gear-fill me-2"></i>
-                🎯 Decision Hub Complet
-              <% end %>
-              <small class="d-block mt-2 opacity-75">
-                4 sections détaillées + IA
-              </small>
-            </div>
           </div>
         </div>
       </div>
@@ -566,7 +551,7 @@
                       <!-- Aperçu des conseils entrepreneurs -->
                       <div class="text-start mb-2">
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Sélection RGE</small>
+                          <small class="text-muted">Sélection entrepreneurs agréés</small>
                           <i class="bi bi-shield-check text-success"></i>
                         </div>
                         <div class="d-flex justify-content-between align-items-center mb-1">
@@ -933,16 +918,33 @@
 
           <div class="card-body d-flex flex-column" style="height: 500px;">
             <!-- Zone de conversation -->
-            <div class="conversation-area flex-grow-1 mb-3"
+            <div class="conversation-area mb-3"
+                 data-controller="conversation-fix"
+                 data-conversation-fix-conversation-area-target="conversationArea"
                  data-decision-hub-interactions-conversation-area-target="conversationArea"
-                 data-decision-hub-interactions-target="conversationArea">
-              <div class="ai-message mb-3">
-                <div class="d-flex align-items-start">
-                  <div class="ai-avatar bg-success rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; flex-shrink: 0;">
+                 data-decision-hub-interactions-target="conversationArea"
+                 style="
+                   max-height: 350px !important;
+                   height: 350px !important;
+                   overflow-y: auto !important;
+                   overflow-x: hidden !important;
+                   padding: 0.75rem !important;
+                   background: #f8f9fa !important;
+                   border-radius: 8px !important;
+                   width: 100% !important;
+                   max-width: 100% !important;
+                   box-sizing: border-box !important;
+                   border: 1px solid #007bff !important;
+                   position: relative !important;
+                   z-index: 999 !important;
+                 ">
+              <div class="ai-message mb-3" style="display: block; width: 100%; max-width: 100%; overflow: hidden;">
+                <div style="display: grid; grid-template-columns: 40px 1fr; gap: 8px; width: 100%; max-width: 100%;">
+                  <div class="ai-avatar bg-success rounded-circle" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
                     <i class="bi bi-robot text-white small"></i>
                   </div>
-                  <div class="message-content bg-light rounded-3 p-3 flex-grow-1">
-                    <div class="message-text">
+                  <div class="message-content bg-light rounded-3 p-3" style="width: 100%; max-width: 100%; word-wrap: break-word; overflow-wrap: break-word; box-sizing: border-box;">
+                    <div class="message-text" style="width: 100%; max-width: 100%; word-wrap: break-word; overflow-wrap: break-word;">
                       <strong>🤖 Bonjour !</strong><br>
                       Je suis votre expert IA spécialisé en primes énergétiques.<br><br>
                       <span data-decision-hub-target="aiWelcomeContext">
@@ -1003,20 +1005,7 @@
           </div>
         </div>
 
-        <!-- Bouton accès détaillé -->
-        <div class="mt-3">
-          <div class="d-grid">
-            <%= link_to decision_hub_short_path(@default_simulation&.id || 77),
-                        class: "btn btn-primary",
-                        data: { "decision-hub-target": "detailedViewLink" } do %>
-              <i class="bi bi-gear-fill me-2"></i>
-              🎯 Vue technique détaillée
-            <% end %>
-            <small class="text-muted text-center mt-2">
-              4 panneaux approfondis + outils spécialisés
-            </small>
-          </div>
-        </div>
+
       </div>
     </div>
   </div>
