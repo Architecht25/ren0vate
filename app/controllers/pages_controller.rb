@@ -602,6 +602,10 @@ class PagesController < ApplicationController
     # Page politique de confidentialité
   end
 
+  def test_responsive
+    # Page de test pour la responsivité
+  end
+
   def flandre_entreprises
     # Page d'information sur les aides aux entreprises en Flandre
     # Simple page de redirection vers les sites officiels flamands

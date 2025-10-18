@@ -31,6 +31,7 @@ Rails.application.routes.draw do
 
   # Test page for PDF export
   get 'test/pdf_export', to: 'pages#test_pdf_export'
+  get 'test/responsive', to: 'pages#test_responsive'
 
   # API routes for enterprise aids
     namespace :api do

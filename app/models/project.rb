@@ -178,7 +178,7 @@ class Project < ApplicationRecord
   end
 
   def contractor_factures_total
-    # FIXME: colonne type_intervenant n'existe pas - retourner 0 temporairement  
+    # FIXME: colonne type_intervenant n'existe pas - retourner 0 temporairement
     0
   end
 
