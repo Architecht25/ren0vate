@@ -6,8 +6,16 @@ class Api::ContextualBotController < ApplicationController
   before_action :set_cache_headers
 
   def chat
-    # Validation rapide des paramètres
-    message = params[:message]&.strip
+    # Protection contre les erreurs d'encodage
+    begin
+      message = params[:message]&.strip
+      # Nettoyage des caractères invalides
+      message = message&.encode('UTF-8', invalid: :replace, undef: :replace, replace: '') if message
+    rescue Encoding::UndefinedConversionError, Encoding::InvalidByteSequenceError => e
+      Rails.logger.warn "⚠️ Erreur d'encodage corrigée: #{e.message}"
+      return render_error('Caractères invalides détectés')
+    end
+
     current_page = params[:current_page] || 'home'
     mode = params[:mode] || 'guide'
 

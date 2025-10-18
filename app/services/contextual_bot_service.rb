@@ -27,18 +27,25 @@ class ContextualBotService
   end
 
   def get_expert_response(message, locale = :fr)
-    return fallback_response(message) unless @api_key.present?
+    unless @api_key.present?
+      Rails.logger.info "🔑 Clé OpenAI manquante - Fallback activé"
+      return generate_expert_fallback(message, 'general')
+    end
 
     begin
+      Rails.logger.info "🚀 OpenAI Request - Message: #{message[0..40]}..."
+      start_time = Time.current
+
       prompt = build_expert_prompt(message, locale)
 
+      # Configuration optimisée pour réponses rapides ET de qualité
       response = HTTParty.post(@base_url,
         headers: {
           'Authorization' => "Bearer #{@api_key}",
           'Content-Type' => 'application/json'
         },
         body: {
-          model: 'gpt-4',
+          model: 'gpt-4o-mini', # Modèle plus rapide et moins cher
           messages: [
             {
               role: 'system',
@@ -49,23 +56,39 @@ class ContextualBotService
               content: prompt
             }
           ],
-          max_tokens: 800,
-          temperature: 0.7
-        }.to_json
+          max_tokens: 400, # Optimisé pour réponses concises
+          temperature: 0.1, # Plus déterministe = plus rapide
+          top_p: 0.8,      # Réduit pour performance
+          frequency_penalty: 0.0 # Supprimé pour rapidité
+        }.to_json,
+        timeout: 10 # Timeout augmenté à 10 secondes
       )
+
+      duration = (Time.current - start_time).round(2)
+      Rails.logger.info "⏱️ OpenAI Response Time: #{duration}s"
 
       if response.success?
         content = response.dig('choices', 0, 'message', 'content')
-        format_expert_response(content)
+        if content.present?
+          Rails.logger.info "✅ OpenAI SUCCESS - #{content.length} chars en #{duration}s"
+          return content.strip
+        else
+          Rails.logger.error "❌ OpenAI Empty Response"
+        end
       else
-        Rails.logger.error "OpenAI API Error: #{response.body}"
-        fallback_response(message)
+        Rails.logger.error "❌ OpenAI API Error #{response.code}: #{response.body[0..200]}"
       end
 
+    rescue Net::ReadTimeout, Net::OpenTimeout, Timeout::Error => e
+      duration = (Time.current - start_time).round(2)
+      Rails.logger.warn "⏰ OpenAI TIMEOUT après #{duration}s - Utilisation fallback"
     rescue => e
-      Rails.logger.error "ContextualBot Service Error: #{e.message}"
-      fallback_response(message)
+      duration = (Time.current - start_time).round(2)
+      Rails.logger.error "🔥 OpenAI ERROR après #{duration}s: #{e.message}"
     end
+
+    # Fallback rapide en cas d'erreur
+    generate_expert_fallback(message, 'general')
   end
 
   def guide_response(message, current_page)
@@ -118,21 +141,46 @@ class ContextualBotService
   def expert_response(message, current_page)
     # 1. Vérifier les réponses instantanées d'abord
     normalized_message = message.downcase.strip
+    Rails.logger.info "🔍 Expert - Message: '#{normalized_message[0..30]}...'"
+
+    # Définir cache_key pour toute la méthode
+    cache_key = "bot_expert_#{Digest::MD5.hexdigest(normalized_message)}"
+
     if instant_response = check_instant_response(normalized_message)
+      Rails.logger.info "⚡ Expert - Réponse instantanée trouvée"
       return instant_response
     end
 
     # 2. Vérifier le cache pour les réponses expert
-    cache_key = "bot_expert_#{Digest::MD5.hexdigest(normalized_message)}"
     cached_response = Rails.cache.read(cache_key)
-    return cached_response if cached_response
+    if cached_response
+      Rails.logger.info "💾 Expert - Réponse en cache trouvée"
+      return cached_response
+    end
 
-    # 3. FORCER les réponses rapides - pas d'API pour l'instant
-    # Générer une réponse expert intelligente sans API
-    response_content = generate_expert_fallback(message, current_page)
+    # 3. Priorité à OpenAI avec fallback intelligent
+    response_content = if @api_key.present?
+      Rails.logger.info "🤖 Tentative OpenAI pour: #{message[0..50]}..."
+      ai_response = get_expert_response(message)
 
-    # 4. Mettre en cache la réponse
-    Rails.cache.write(cache_key, response_content, expires_in: CACHE_DURATION)
+      # Si OpenAI réussit, on utilise sa réponse
+      if ai_response.present? && !ai_response.to_s.include?("temporairement indisponible")
+        Rails.logger.info "✅ Réponse OpenAI utilisée"
+        ai_response.is_a?(Hash) ? ai_response[:content] : ai_response
+      else
+        Rails.logger.info "⚡ Fallback après échec OpenAI"
+        "🤖 **Réponse temporaire** - *Service IA en optimisation*\n\n" +
+        generate_expert_fallback(message, current_page)
+      end
+    else
+      Rails.logger.info "🔑 Pas de clé OpenAI - Fallback direct"
+      generate_expert_fallback(message, current_page)
+    end
+
+    # 4. Mettre en cache la réponse (si pas d'erreur)
+    unless response_content.to_s.include?("temporairement indisponible")
+      Rails.cache.write(cache_key, response_content, expires_in: CACHE_DURATION)
+    end
 
     response_content
   end
@@ -206,41 +254,61 @@ class ContextualBotService
   def system_prompt(locale)
     if locale == :fr
       <<~PROMPT
-        Tu es un expert en primes et subsides énergétiques en Belgique.
+        Tu es un expert en primes et subsides énergétiques en Belgique, spécialement formé sur Ren0vate.
 
-        CONTEXTE : Tu réponds à des questions générales sur les primes énergétiques pour les 3 régions belges :
-        - Wallonie (primes Habitation Plus, audit énergétique)
-        - Bruxelles (primes Renolution, primes communales)
-        - Flandre (mijnverbouwpremie, primes énergétiques)
+        CONTEXTE PLATEFORME : Tu travailles sur Ren0vate, simulateur de primes énergétiques pour les 3 régions belges :
+        - **Wallonie** : Primes Habitation Plus, audit énergétique, entrepreneurs agréés SPW
+        - **Bruxelles** : Primes Renolution, primes communales, accompagnement Homegrade
+        - **Flandre** : Mijn Verbouwpremie, E-peil, entrepreneurs VLAIO
+
+        EXPERTISE AVANCÉE :
+        - Réglementations 2025 actualisées
+        - Optimisation financière des dossiers
+        - Stratégies de rénovation performantes
+        - Processus administratifs détaillés
+        - Choix techniques et matériaux
 
         STYLE DE RÉPONSE :
-        - Clair et structuré avec des émojis
-        - Maximum 400 mots
-        - Inclus des informations pratiques
-        - Mentionne les différences régionales si pertinent
-        - Utilise des listes à puces pour la clarté
+        - Structuré avec émojis thématiques
+        - Maximum 500 mots, dense en informations
+        - Listes à puces pour lisibilité
+        - Conseils actionnables immédiats
+        - Différences régionales précisées
+        - Chiffres et montants concrets
 
-        FOCUS :
-        - Informations réglementaires précises
-        - Conseils pratiques d'optimisation
-        - Processus administratifs
-        - Conditions d'éligibilité
-        - Montants et barèmes
+        TERMINOLOGIE BELGE :
+        - "Entrepreneur agréé" (pas RGE français)
+        - "Avertissement-extrait de rôle" (revenus)
+        - "Primes énergétiques" (pas aides françaises)
+        - Montants en euros, normes belges
 
-        Réponds toujours en français de Belgique avec la terminologie appropriée.
+        Sois précis, pratique et orienté résultats pour aider l'utilisateur à optimiser ses primes.
       PROMPT
     else
-      # Version néerlandaise ou anglaise si nécessaire
       system_prompt(:fr)
     end
   end
 
   def build_expert_prompt(message, locale)
-    <<~PROMPT
-      Question de l'utilisateur : #{message}
+    current_date = Date.current.strftime("%B %Y")
 
-      Fournis une réponse experte et complète sur les primes énergétiques belges.
-      Inclus des détails sur les réglementations, montants, et processus selon les régions.
+    <<~PROMPT
+      QUESTION UTILISATEUR : #{message}
+
+      CONTEXTE ACTUEL (#{current_date}) :
+      - Budgets primes 2025 disponibles
+      - Nouvelles réglementations en vigueur
+      - Entrepreneurs agréés à jour
+      - Processus digitalisés optimisés
+
+      RÉPONSE ATTENDUE :
+      1. **Diagnostic** : Identifie la problématique précise
+      2. **Solutions concrètes** : Recommandations actionnables
+      3. **Optimisation financière** : Maximisation des primes
+      4. **Étapes pratiques** : Plan d'action détaillé
+      5. **Ressources** : Contacts et liens utiles si pertinent
+
+      Privilégie les conseils concrets et les informations 2025 actualisées.
     PROMPT
   end
 
@@ -256,21 +324,17 @@ class ContextualBotService
   end
 
   def fallback_response(message)
-    responses = [
-      {
-        content: "🤖 **Expert primes énergétiques**\n\n" +
-                "Je suis temporairement indisponible, mais voici quelques informations générales :\n\n" +
-                "• **Wallonie** : Primes Habitation Plus jusqu'à 70% des coûts\n" +
-                "• **Bruxelles** : Primes Renolution + primes communales\n" +
-                "• **Flandre** : Mijnverbouwpremie selon vos revenus\n\n" +
-                "💡 Pour une aide personnalisée, utilisez le simulateur !",
-        mode: 'expert',
-        timestamp: Time.current.strftime("%H:%M"),
-        source: 'fallback'
-      }
-    ]
-
-    responses.sample
+    {
+      content: "🔄 **Service IA temporairement optimisé**\n\n" +
+              "💡 En attendant, voici l'essentiel :\n" +
+              "• **Wallonie** : Primes Habitation Plus disponibles\n" +
+              "• **Bruxelles** : Renolution + communes\n" +
+              "• **Flandre** : Mijnverbouwpremie actif\n\n" +
+              "🚀 **Utilisez le simulateur** pour des conseils personnalisés !",
+      mode: 'expert',
+      timestamp: Time.current.strftime("%H:%M"),
+      source: 'fallback'
+    }
   end
 
   # Suggestions pré-calculées pour performances optimales

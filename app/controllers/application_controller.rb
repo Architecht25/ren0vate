@@ -5,6 +5,20 @@ class ApplicationController < ActionController::Base
   # Protection CSRF
   protect_from_forgery with: :exception
 
+  # Gestion globale des erreurs d'encodage
+  rescue_from ActionController::BadRequest do |exception|
+    if exception.message.include?('Invalid encoding')
+      Rails.logger.warn "⚠️ Erreur d'encodage interceptée: #{exception.message}"
+      render json: {
+        error: 'Problème d\'encodage détecté',
+        message: 'Veuillez reformuler votre message avec des caractères standard',
+        status: 400
+      }, status: 400
+    else
+      raise exception
+    end
+  end
+
   # Include Cloudinary helper for static images
   include CloudinaryHelper
 
