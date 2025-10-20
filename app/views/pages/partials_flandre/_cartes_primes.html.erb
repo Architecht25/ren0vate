@@ -25,10 +25,19 @@
 
 <!-- Simulation des primes -->
 <div class="primes-section" data-controller="prime-calcul">
+  <!-- Bandeau d'information réglementaire -->
+  <div class="alert alert-info border-0 mb-3 d-flex align-items-center">
+    <i class="bi bi-info-circle fs-5 text-info me-3"></i>
+    <div>
+      <small class="fw-medium">Données officielles</small>
+      <div class="small">Les données utilisées pour cette simulation reposent sur la réglementation en vigueur en Flandre depuis le 1er juillet 2025</div>
+    </div>
+  </div>
+
   <div class="card border-0 shadow-sm mb-4">
-    <div class="card-header bg-light">
-      <h4 class="card-title mb-0">
-        <i class="bi bi-calculator text-success me-2"></i>
+    <div class="card-header bg-success bg-opacity-10 border-0">
+      <h4 class="card-title mb-0 text-success">
+        <i class="bi bi-award text-success me-2"></i>
         Vos primes éligibles - Catégorie <%= @categorie_id || '1' %>
       </h4>
     </div>
@@ -36,7 +45,7 @@
       <div class="row g-3">
     <% @primes.each do |prime| %>
       <% current_categorie = @categorie_id || '1' %>
-      <% if prime.eligible_categories.include?(current_categorie.to_s) %>
+      <% if prime.eligible_categories.include?(current_categorie.to_s) && prime.slug != 'amiante' %>
         <div class="col-lg-4 col-md-6 col-12" data-controller="prime-card" data-slug="<%= prime.slug %>">
           <div class="card shadow-sm border-0 p-3 mb-3 h-100">
             <div class="card-body p-2">
