@@ -9,8 +9,8 @@ class AddConfirmableToUsers < ActiveRecord::Migration[8.0]
     # Ajouter les index
     add_index :users, :confirmation_token, unique: true
 
-    # Confirmer automatiquement tous les utilisateurs existants
-    User.update_all(confirmed_at: Time.current)
+    # Confirmer automatiquement tous les utilisateurs existants (sans utiliser le modèle)
+    execute "UPDATE users SET confirmed_at = NOW() WHERE confirmed_at IS NULL"
   end
 
   def down

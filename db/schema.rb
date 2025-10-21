@@ -52,20 +52,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_10_064441) do
   end
 
   create_table "bce_activities", force: :cascade do |t|
-    t.string "entity_number", null: false
+    t.bigint "bce_enterprise_id", null: false
     t.string "activity_group"
     t.string "nace_version"
     t.string "nace_code"
     t.string "classification"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["entity_number"], name: "index_bce_activities_on_entity_number"
+    t.index ["bce_enterprise_id"], name: "index_bce_activities_on_bce_enterprise_id"
     t.index ["nace_code"], name: "index_bce_activities_on_nace_code"
   end
 
   create_table "bce_addresses", force: :cascade do |t|
-    t.string "entity_number", null: false
-    t.string "type_of_address"
+    t.bigint "bce_enterprise_id", null: false
+    t.string "type_address"
     t.string "country_nl"
     t.string "country_fr"
     t.string "zipcode"
@@ -75,25 +75,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_10_064441) do
     t.string "street_fr"
     t.string "house_number"
     t.string "box"
-    t.string "extra_address_info"
-    t.date "date_striking_off"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["entity_number"], name: "index_bce_addresses_on_entity_number"
-    t.index ["municipality_nl", "municipality_fr"], name: "index_bce_addresses_on_municipality_nl_and_municipality_fr"
-    t.index ["zipcode"], name: "index_bce_addresses_on_zipcode"
+    t.index ["bce_enterprise_id"], name: "index_bce_addresses_on_bce_enterprise_id"
   end
 
   create_table "bce_denominations", force: :cascade do |t|
-    t.string "entity_number", null: false
+    t.bigint "bce_enterprise_id", null: false
+    t.string "denomination", null: false
+    t.string "type_denomination"
     t.string "language"
-    t.string "type_of_denomination"
-    t.text "denomination", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["denomination"], name: "index_bce_denominations_on_denomination"
-    t.index ["entity_number", "language"], name: "index_bce_denominations_on_entity_number_and_language"
-    t.index ["entity_number"], name: "index_bce_denominations_on_entity_number"
+    t.index ["bce_enterprise_id"], name: "index_bce_denominations_on_bce_enterprise_id"
   end
 
   create_table "bce_enterprises", force: :cascade do |t|
@@ -751,6 +745,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_10_064441) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "bce_activities", "bce_enterprises"
+  add_foreign_key "bce_addresses", "bce_enterprises"
+  add_foreign_key "bce_denominations", "bce_enterprises"
   add_foreign_key "complement_requests", "request_progresses"
   add_foreign_key "contractor_signatures", "requests"
   add_foreign_key "contractor_signatures", "users"

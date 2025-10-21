@@ -107,7 +107,8 @@ class Api::AiConsultationsController < ApplicationController
     # Récupération de la simulation active depuis la session ou les paramètres
     current_simulation = nil
     if session[:current_simulation_id].present?
-      current_simulation = Simulation.find_by(id: session[:current_simulation_id])
+      # ✅ SÉCURITÉ: Vérifier que la simulation appartient à l'utilisateur connecté
+      current_simulation = current_user.simulations.find_by(id: session[:current_simulation_id])
     end
 
     # Context enrichi avec données réelles de simulation

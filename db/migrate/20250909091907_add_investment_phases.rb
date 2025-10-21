@@ -1,5 +1,8 @@
 class AddInvestmentPhases < ActiveRecord::Migration[8.0]
   def change
+    # Recharger le modèle pour s'assurer que la colonne category est disponible
+    DocumentPhase.reset_column_information
+
     # Phases d'investissement
     investment_phases = [
       {

@@ -3,9 +3,16 @@ class SimulationsController < ApplicationController
   skip_before_action :verify_authenticity_token, only: [:update_prime_inputs, :restore_prime_inputs]
   skip_before_action :authenticate_user!, only: [:show, :update_prime_inputs, :restore_prime_inputs]
 
+  # ✅ SÉCURITÉ: Vérifier que la simulation appartient à l'utilisateur pour les actions individuelles
+  before_action :set_and_verify_simulation, only: [:show, :edit, :update, :destroy, :check_eligibility, :check_eligibility_investment, :check_eligibility_renolution, :calculate_category, :calculate_primes, :calculate_prime, :update_prime_inputs, :restore_prime_inputs]
+
   def index
-    # Récupérer et trier les simulations par région (Flandre → Bruxelles → Wallonie)
-    @simulations = Simulation.all.sort_by do |simulation|
+    # ✅ CORRECTION SÉCURITÉ: Filtrer les simulations par utilisateur connecté
+    # Récupérer uniquement les simulations de l'utilisateur connecté
+    user_simulations = current_user.simulations.includes(:property, :project)
+
+    # Trier les simulations par région (Flandre → Bruxelles → Wallonie)
+    @simulations = user_simulations.sort_by do |simulation|
       case simulation.region&.downcase
       when 'flandre' then 1
       when 'bruxelles' then 2
@@ -16,7 +23,7 @@ class SimulationsController < ApplicationController
   end
 
   def show
-    @simulation = Simulation.find(params[:id])
+    # @simulation est déjà définie et vérifiée par before_action
 
     # Charger les primes selon la région de la simulation (normaliser la casse)
     if @simulation.region.present?
@@ -98,11 +105,11 @@ class SimulationsController < ApplicationController
   end
 
   def edit
-    @simulation = Simulation.find(params[:id])
+    # @simulation est déjà définie et vérifiée par before_action
   end
 
   def update
-    @simulation = Simulation.find(params[:id])
+    # @simulation est déjà définie et vérifiée par before_action
     if @simulation.update(simulation_params)
       redirect_to @simulation
     else
@@ -111,7 +118,7 @@ class SimulationsController < ApplicationController
   end
 
   def destroy
-    @simulation = Simulation.find(params[:id])
+    # @simulation est déjà définie et vérifiée par before_action
     simulation_title = @simulation.titre
 
     begin
@@ -124,7 +131,7 @@ class SimulationsController < ApplicationController
 
   # Routes AJAX pour les étapes de simulation
   def check_eligibility
-    @simulation = Simulation.find(params[:id])
+    # @simulation est déjà définie et vérifiée par before_action
     perform_eligibility_test(@simulation)
 
     respond_to do |format|
@@ -140,7 +147,7 @@ class SimulationsController < ApplicationController
 
   # Nouveau endpoint pour l'éligibilité investissements (finalité économique)
   def check_eligibility_investment
-    @simulation = Simulation.find(params[:id])
+    # @simulation est déjà définie et vérifiée par before_action
     perform_investment_eligibility_test(@simulation)
 
     respond_to do |format|
@@ -156,7 +163,7 @@ class SimulationsController < ApplicationController
 
   # Nouveau endpoint pour l'éligibilité RENOLUTION (finalité économique)
   def check_eligibility_renolution
-    @simulation = Simulation.find(params[:id])
+    # @simulation est déjà définie et vérifiée par before_action
     perform_renolution_eligibility_test(@simulation)
 
     respond_to do |format|
@@ -171,7 +178,7 @@ class SimulationsController < ApplicationController
   end
 
   def calculate_category
-    @simulation = Simulation.find(params[:id])
+    # @simulation est déjà définie et vérifiée par before_action
     perform_category_determination(@simulation)
 
     respond_to do |format|
@@ -187,7 +194,7 @@ class SimulationsController < ApplicationController
   end
 
   def calculate_primes
-    @simulation = Simulation.find(params[:id])
+    # @simulation est déjà définie et vérifiée par before_action
 
     begin
       perform_primes_calculation(@simulation)
@@ -222,7 +229,7 @@ class SimulationsController < ApplicationController
   end
 
   def calculate_prime
-    @simulation = Simulation.find(params[:id])
+    # @simulation est déjà définie et vérifiée par before_action
 
     begin
       # Récupérer les paramètres de la requête
@@ -276,7 +283,7 @@ class SimulationsController < ApplicationController
   end
 
   def update_prime_inputs
-    @simulation = Simulation.find(params[:id])
+    # @simulation est déjà définie et vérifiée par before_action
 
     # Permettre tous les paramètres user_inputs, gérer le cas des données vides pour l'auto-save
     user_inputs = if params[:user_inputs].present?
@@ -457,7 +464,7 @@ class SimulationsController < ApplicationController
   end
 
   def restore_prime_inputs
-    @simulation = Simulation.find(params[:id])
+    # @simulation est déjà définie et vérifiée par before_action
 
     # Rails.logger.info "🔄 Restoring prime inputs for simulation #{@simulation.id}"
 
@@ -641,6 +648,21 @@ class SimulationsController < ApplicationController
   end
 
   private
+
+  # ✅ SÉCURITÉ: Méthode pour charger et vérifier que la simulation appartient à l'utilisateur
+  def set_and_verify_simulation
+    @simulation = Simulation.find(params[:id])
+
+    # Vérifier que la simulation appartient à l'utilisateur connecté (sauf si pas d'authentification requise)
+    if user_signed_in? && @simulation.user != current_user
+      redirect_to root_path, alert: "Accès non autorisé à cette simulation"
+      return
+    elsif !user_signed_in?
+      # Pour les actions sans authentification (show, update_prime_inputs, restore_prime_inputs)
+      # On autorise l'accès mais on limite les fonctionnalités
+      Rails.logger.info "🔓 Accès sans authentification à la simulation #{@simulation.id}"
+    end
+  end
 
   def simulation_params
     params.require(:simulation).permit(:titre, :region, :parameters, :source, :property_id, :project_id, :user_id,

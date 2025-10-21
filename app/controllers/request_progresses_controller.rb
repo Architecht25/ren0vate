@@ -4,9 +4,20 @@ class RequestProgressesController < ApplicationController
   before_action :set_request, only: [:index, :new, :create]
 
   def index
-    @request_progresses = @request ?
-      @request.request_progresses.includes(:prime) :
-      RequestProgress.includes(:request, :prime).all
+    # ✅ CORRECTION SÉCURITÉ: Filtrer les request_progresses par utilisateur connecté
+    if @request
+      # Si on filtre par une request spécifique, vérifier qu'elle appartient à l'utilisateur
+      unless @request.user == current_user
+        redirect_to root_path, alert: "Accès non autorisé"
+        return
+      end
+      @request_progresses = @request.request_progresses.includes(:prime)
+    else
+      # Récupérer uniquement les request_progresses liées aux requests de l'utilisateur
+      @request_progresses = RequestProgress.joins(:request)
+                                          .where(requests: { user_id: current_user.id })
+                                          .includes(:request, :prime)
+    end
 
     # Filtres
     @request_progresses = @request_progresses.where(status_administratif: params[:status]) if params[:status].present?
@@ -28,20 +39,22 @@ class RequestProgressesController < ApplicationController
     @total_count = @request_progresses.count
     @request_progresses = @request_progresses.limit(@per_page).offset(@offset)
 
-    # Statistiques pour le dashboard
-    all_progresses = @request ?
-      @request.request_progresses :
-      RequestProgress.all
+    # Statistiques pour le dashboard - uniquement pour les données de l'utilisateur
+    user_request_progresses = if @request
+      @request.request_progresses
+    else
+      RequestProgress.joins(:request).where(requests: { user_id: current_user.id })
+    end
 
     @stats = {
-      total: all_progresses.count,
-      en_attente: all_progresses.en_attente.count,
-      finalises: all_progresses.finalises.count,
-      accordees: all_progresses.where(status_administratif: 'accorde').count,
-      montant_total_demande: all_progresses.sum(:montant_demande) || 0,
-      montant_total_accorde: all_progresses.sum(:montant_accorde) || 0,
-      delais_depasses: all_progresses.select { |p| p.statut_delai == :depasse }.count,
-      delais_urgents: all_progresses.select { |p| p.statut_delai == :urgent }.count
+      total: user_request_progresses.count,
+      en_attente: user_request_progresses.en_attente.count,
+      finalises: user_request_progresses.finalises.count,
+      accordees: user_request_progresses.where(status_administratif: 'accorde').count,
+      montant_total_demande: user_request_progresses.sum(:montant_demande) || 0,
+      montant_total_accorde: user_request_progresses.sum(:montant_accorde) || 0,
+      delais_depasses: user_request_progresses.select { |p| p.statut_delai == :depasse }.count,
+      delais_urgents: user_request_progresses.select { |p| p.statut_delai == :urgent }.count
     }
   end
 
@@ -132,10 +145,24 @@ class RequestProgressesController < ApplicationController
 
   def set_request_progress
     @request_progress = RequestProgress.includes(request: :property).find(params[:id])
+
+    # ✅ SÉCURITÉ: Vérifier que la request_progress appartient à l'utilisateur connecté
+    unless @request_progress.request.user == current_user
+      redirect_to root_path, alert: "Accès non autorisé"
+      return
+    end
   end
 
   def set_request
-    @request = Request.find(params[:request_id]) if params[:request_id]
+    if params[:request_id]
+      @request = Request.find(params[:request_id])
+
+      # ✅ SÉCURITÉ: Vérifier que la request appartient à l'utilisateur connecté
+      unless @request.user == current_user
+        redirect_to root_path, alert: "Accès non autorisé"
+        return
+      end
+    end
   end
 
   def request_progress_params

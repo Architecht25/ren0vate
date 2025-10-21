@@ -4,6 +4,9 @@ class AdminController < ApplicationController
 
   def dashboard
     @local_storage_data = {} # Placeholder pour les données JS
+
+    # ✅ Les données admin doivent montrer TOUTES les données du système
+    # Mais seulement si l'utilisateur est admin (déjà vérifié par before_action :ensure_admin)
     @primes = Prime.all
     @categories = Category.all
     @documents = Document.all
