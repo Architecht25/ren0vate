@@ -15,9 +15,9 @@
     </div>
   </div>
 
-  <!-- Vue d'ensemble rapide -->
+  <!-- Vue d'ensemble rapide - Ordre réorganisé -->
   <div class="row mb-4">
-    <div class="col-md-3">
+    <div class="col-md-2">
       <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
         <div class="card-body text-white">
           <div class="d-flex justify-content-between align-items-center">
@@ -30,20 +30,7 @@
         </div>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-        <div class="card-body text-white">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <h3 class="mb-0"><%= @notifications.count %></h3>
-              <small class="opacity-75">Notifications actives</small>
-            </div>
-            <i class="bi bi-bell fs-1 opacity-50"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
+    <div class="col-md-2">
       <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
         <div class="card-body text-white">
           <div class="d-flex justify-content-between align-items-center">
@@ -56,7 +43,7 @@
         </div>
       </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-md-2">
       <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
         <div class="card-body text-white">
           <div class="d-flex justify-content-between align-items-center">
@@ -65,6 +52,45 @@
               <small class="opacity-75">Simulations réalisées</small>
             </div>
             <i class="bi bi-calculator fs-1 opacity-50"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #fd9644 0%, #fe4a49 100%);">
+        <div class="card-body text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h3 class="mb-0"><%= @documents.count %></h3>
+              <small class="opacity-75">Documents</small>
+            </div>
+            <i class="bi bi-file-earmark fs-1 opacity-50"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);">
+        <div class="card-body text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h3 class="mb-0 text-dark"><%= @request_progresses.count %></h3>
+              <small class="opacity-75 text-dark">Suivis de primes</small>
+            </div>
+            <i class="bi bi-clipboard-check fs-1 opacity-50 text-dark"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-2">
+      <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+        <div class="card-body text-white">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h3 class="mb-0"><%= @notifications.count %></h3>
+              <small class="opacity-75">Notifications actives</small>
+            </div>
+            <i class="bi bi-bell fs-1 opacity-50"></i>
           </div>
         </div>
       </div>
@@ -291,9 +317,21 @@
                     </div>
                   </div>
                   <div class="col-6">
+                    <div class="text-center p-2 bg-dark bg-opacity-10 rounded">
+                      <div class="h5 mb-0 text-dark"><%= @requests.count %></div>
+                      <small class="text-muted">Demandes</small>
+                    </div>
+                  </div>
+                  <div class="col-6">
                     <div class="text-center p-2 bg-secondary bg-opacity-10 rounded">
                       <div class="h5 mb-0 text-secondary"><%= @documents.count %></div>
                       <small class="text-muted">Documents</small>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="text-center p-2 bg-primary bg-opacity-10 rounded">
+                      <div class="h5 mb-0 text-primary"><%= @request_progresses.count %></div>
+                      <small class="text-muted">Suivis de primes</small>
                     </div>
                   </div>
                 </div>
@@ -368,14 +406,17 @@
                             <span class="badge bg-success text-white px-2 py-1" title="Simulations">
                               <i class="bi bi-calculator me-1"></i><%= user.simulations.count %>
                             </span>
+                            <span class="badge bg-dark text-white px-2 py-1" title="Demandes">
+                              <i class="bi bi-list-check me-1"></i><%= user.requests.count %>
+                            </span>
                             <span class="badge bg-info text-white px-2 py-1" title="Documents">
                               <i class="bi bi-file-earmark me-1"></i><%= user.documents.count %>
                             </span>
+                            <span class="badge text-white px-2 py-1" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" title="Suivis de primes">
+                              <i class="bi bi-clipboard-check me-1"></i><%= user.requests.joins(:request_progresses).count %>
+                            </span>
                             <span class="badge bg-secondary text-white px-2 py-1" title="Notifications">
                               <i class="bi bi-bell me-1"></i><%= user.notifications.count %>
-                            </span>
-                            <span class="badge bg-dark text-white px-2 py-1" title="Demandes">
-                              <i class="bi bi-list-check me-1"></i><%= user.requests.count %>
                             </span>
                           </div>
                         </td>
@@ -458,12 +499,12 @@
           </div>
         </div>
         <div class="col-md-2 col-sm-4 mb-3">
-          <div class="card text-center border-0 shadow-sm bg-secondary bg-opacity-10">
-            <div class="card-body">
-              <h3 class="text-secondary mb-1"><%= @admin_stats[:overview][:total_documents] %></h3>
-              <small class="text-muted">Documents</small>
+          <div class="card text-center border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 25%);">
+            <div class="card-body text-white">
+              <h3 class="mb-1"><%= @admin_stats[:overview][:total_request_progresses] %></h3>
+              <small class="opacity-75">Suivis de primes</small>
               <div class="mt-1">
-                <span class="badge bg-secondary"><%= @admin_stats[:documents][:this_week] %> cette semaine</span>
+                <span class="badge bg-light text-dark"><%= @admin_stats[:request_progresses][:this_week] %> cette semaine</span>
               </div>
             </div>
           </div>

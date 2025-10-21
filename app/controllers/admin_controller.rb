@@ -11,6 +11,7 @@ class AdminController < ApplicationController
     @properties = Property.all
     @projects = Project.all
     @requests = Request.all
+    @request_progresses = RequestProgress.all
     @simulations = Simulation.all
     @users = User.all
     @backup_status = BackupStatusService.call

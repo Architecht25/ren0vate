@@ -12,6 +12,7 @@ class AdminStatsService
       simulations: simulation_stats,
       primes: prime_stats,
       documents: document_stats,
+      request_progresses: request_progress_stats,
       activity: activity_stats,
       geographic: geographic_stats,
       growth: growth_stats
@@ -27,7 +28,8 @@ class AdminStatsService
       total_projects: Project.count,
       total_simulations: Simulation.count,
       total_primes: Prime.count,
-      total_documents: Document.count
+      total_documents: Document.count,
+      total_request_progresses: RequestProgress.count
     }
   end
 
@@ -111,6 +113,25 @@ class AdminStatsService
       this_month: Document.where('created_at > ?', 1.month.ago).count,
       avg_per_user: (total.to_f / User.count).round(2),
       by_type: document_distribution_by_type
+    }
+  end
+
+  def request_progress_stats
+    total = RequestProgress.count
+    return { total: 0 } if total.zero?
+
+    {
+      total: total,
+      en_attente: RequestProgress.en_attente.count,
+      finalises: RequestProgress.finalises.count,
+      accordes: RequestProgress.where(status_administratif: 'accorde').count,
+      refuses: RequestProgress.where(status_administratif: 'refuse').count,
+      this_week: RequestProgress.where('created_at > ?', 1.week.ago).count,
+      this_month: RequestProgress.where('created_at > ?', 1.month.ago).count,
+      avg_per_user: (total.to_f / User.count).round(2),
+      by_region: request_progress_distribution_by_region,
+      by_status: RequestProgress.group(:status_administratif).count,
+      success_rate: calculate_request_progress_success_rate
     }
   end
 
@@ -306,5 +327,26 @@ class AdminStatsService
 
     growth = ((current_period - previous_period).to_f / previous_period * 100).round(1)
     growth > 0 ? "+#{growth}%" : "#{growth}%"
+  end
+
+  def request_progress_distribution_by_region
+    # Utiliser la région de la demande associée
+    RequestProgress.joins(:request).group('requests.region').count
+  rescue
+    { 'Non déterminé' => RequestProgress.count }
+  end
+
+  def calculate_request_progress_success_rate
+    total = RequestProgress.count
+    return 0 if total.zero?
+
+    # Taux de succès = nombre de demandes accordées / total des demandes finalisées
+    finalises = RequestProgress.finalises.count
+    return 0 if finalises.zero?
+
+    accordes = RequestProgress.where(status_administratif: 'accorde').count
+    (accordes.to_f / finalises * 100).round(1)
+  rescue
+    0
   end
 end
