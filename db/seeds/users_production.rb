@@ -81,50 +81,6 @@ users_data = [
     postal_code: '1060',
     test_user: true  # Utilisateur de test
   },
-  {
-    email: 'hubert@primes-services.be',
-    password: 'demo2025',
-    first_name: 'Hubert',
-    last_name: 'Naveau',
-    role: 'user',
-    phone: '+32 2 012 34 56',
-    city: 'Molenbeek-Saint-Jean',
-    postal_code: '1080',
-    test_user: true  # Utilisateur de test
-  },
-  {
-    email: 'debora@primes-services.be',
-    password: 'demo2025',
-    first_name: 'Debora',
-    last_name: 'Macutela',
-    role: 'user',
-    phone: '+32 2 123 56 78',
-    city: 'Forest',
-    postal_code: '1190',
-    test_user: true  # Utilisateur de test
-  },
-  {
-    email: 'farah@primes-services.be',
-    password: 'demo2025',
-    first_name: 'Farah',
-    last_name: 'Chemsi',
-    role: 'user',
-    phone: '+32 2 234 67 89',
-    city: 'Koekelberg',
-    postal_code: '1081',
-    test_user: true  # Utilisateur de test
-  },
-  {
-    email: 'neide@primes-services.be',
-    password: 'demo2025',
-    first_name: 'Neide',
-    last_name: 'neide',
-    role: 'user',
-    phone: '+32 2 345 78 90',
-    city: 'Jette',
-    postal_code: '1090',
-    test_user: true  # Utilisateur de test - génère des données fictives
-  },
   # === VRAIS CLIENTS (pas de données fictives) ===
   {
     email: 'laes.michael@gmail.com',
