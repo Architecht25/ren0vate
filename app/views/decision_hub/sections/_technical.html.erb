@@ -1,205 +1,211 @@
-<!-- Partial pour la section obligations techniques -->
+<!-- Partial pour la section obligations techniques simplifié -->
 <div class="technical-content">
 
-  <!-- Vue d'ensemble conformité -->
-  <div class="compliance-overview mb-4">
-    <div class="row">
-      <div class="col-md-4">
-        <div class="d-flex align-items-center p-3 bg-success bg-opacity-10 rounded">
-          <i class="bi bi-shield-check fs-3 text-success me-3"></i>
-          <div>
-            <div class="fw-bold">Conformité globale</div>
-            <div class="h5 mb-0 text-success"><%= hub_data.dig(:technical, :compliance_score) || 0 %>%</div>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="d-flex align-items-center p-3 bg-warning bg-opacity-10 rounded">
-          <i class="bi bi-exclamation-diamond fs-3 text-warning me-3"></i>
-          <div>
-            <div class="fw-bold">Points d'attention</div>
-            <div class="h5 mb-0 text-warning"><%= (hub_data.dig(:technical, :warnings) || []).count %></div>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="d-flex align-items-center p-3 bg-info bg-opacity-10 rounded">
-          <i class="bi bi-tools fs-3 text-info me-3"></i>
-          <div>
-            <div class="fw-bold">Vérifications requises</div>
-            <div class="h5 mb-0 text-info"><%= (hub_data.dig(:technical, :required_checks) || []).count %></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Alertes critiques -->
   <%
-    # Vérification pompe à chaleur - RESCERT obligatoire
-    heat_pump_detected = false
+    # Récupérer les primes sélectionnées depuis hub_data
+    selected_primes = hub_data.dig(:resume, :primes) || []
 
-    # Vérifier dans la simulation si une pompe à chaleur est détectée
-    if @simulation&.respond_to?(:data) && @simulation.data.present?
-      simulation_data = @simulation.data
-      heat_pump_detected = simulation_data.dig('bruxelles_pompe_chaleur') == '1' ||
-                          simulation_data.dig('flandre_pompe_chaleur') == '1' ||
-                          simulation_data.dig('wallonie_pompe_chaleur') == '1' ||
-                          simulation_data.to_s.downcase.include?('pompe') ||
-                          simulation_data.to_s.downcase.include?('pac')
-    end
+    # Extraire les noms des primes (pas les slugs)
+    prime_names = selected_primes.map { |p| p[:name] || p['name'] }.compact
 
-    # Vérifier aussi dans les propriétés
-    if @property.present?
-      heat_pump_detected ||= @property.mode_chauffage_wallonie&.include?('pompe') ||
-                            @property.chauffage_post_renovation_flandre&.include?('pac') ||
-                            @property.chauffage_post_renovation&.include?('pompe')
-    end
+    # Récupérer les objets Prime complets depuis la base de données par titre
+    primes_with_conditions = Prime.where(titre: prime_names) if prime_names.any?
 
-    critical_alerts = hub_data.dig(:technical, :critical_alerts) || []
-
-    # Ajouter l'alerte RESCERT si pompe à chaleur détectée
-    if heat_pump_detected
-      rescert_alert = {
-        title: "Numéro RESCERT obligatoire",
-        description: "Une pompe à chaleur a été détectée dans votre simulation. L'installateur doit impérativement posséder un numéro d'agrément RESCERT.",
-        action_required: "Demandez à votre installateur son numéro RESCERT avant de commencer les travaux. Ce numéro garantit sa qualification pour l'installation de pompes à chaleur."
-      }
-      critical_alerts << rescert_alert unless critical_alerts.any? { |alert| alert[:title].include?("RESCERT") }
+    # Si ça ne marche pas, essayer avec LIKE pour une correspondance partielle
+    if primes_with_conditions.blank? && prime_names.any?
+      # Chercher avec LIKE pour correspondance partielle
+      conditions = prime_names.map { |name| "titre ILIKE ?" }.join(" OR ")
+      values = prime_names.map { |name| "%#{name}%" }
+      primes_with_conditions = Prime.where(conditions, *values)
     end
   %>
 
-  <% if critical_alerts.any? %>
-    <div class="critical-alerts mb-4">
+  <!-- Vue d'ensemble -->
+  <div class="compliance-overview mb-4">
+    <h6 class="fw-bold mb-3">
+      <i class="bi bi-shield-check me-1"></i>
+      Obligations techniques - <%= (@simulation&.region || 'Région').capitalize %>
+    </h6>
+
+    <% if primes_with_conditions&.any? %>
+      <div class="alert alert-info">
+        <p class="mb-0">
+          <i class="bi bi-info-circle me-2"></i>
+          Voici les conditions techniques pour vos <strong><%= primes_with_conditions.count %> primes</strong> sélectionnées.
+        </p>
+      </div>
+    <% else %>
+      <div class="alert alert-secondary">
+        <p class="mb-0">
+          <i class="bi bi-info-circle me-2"></i>
+          Aucune prime sélectionnée. Effectuez d'abord une simulation pour voir les conditions techniques.
+        </p>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Conditions techniques par prime -->
+  <% if primes_with_conditions&.any? %>
+    <div class="prime-conditions mb-4">
+      <h6 class="fw-bold mb-3">
+        <i class="bi bi-tools me-1"></i>
+        Conditions techniques par prime sélectionnée
+      </h6>
+
+      <% primes_with_conditions.each_with_index do |prime, index| %>
+        <div class="prime-section mb-4">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-gradient text-white d-flex align-items-center justify-content-between" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
+              <div class="d-flex align-items-center">
+                <span class="badge bg-white text-dark me-2 fs-6 fw-bold"><%= index + 1 %></span>
+                <i class="bi bi-<%= prime.icon_name %> me-2 fs-5"></i>
+                <h6 class="mb-0 fw-semibold"><%= prime.titre %></h6>
+              </div>
+              <%
+                # Récupérer le montant de la prime depuis selected_primes
+                prime_data = selected_primes.find { |p| p[:name] == prime.titre }
+                prime_amount = prime_data&.dig(:amount) || 0
+              %>
+              <% if prime_amount > 0 %>
+                <span class="badge bg-white text-dark fs-6 fw-bold"><%= number_to_currency(prime_amount, unit: "", precision: 0) %>€</span>
+              <% end %>
+            </div>
+
+            <div class="card-body p-4">
+              <!-- Conditions techniques -->
+              <% if prime.condition.present? %>
+                <div class="conditions-section mb-4">
+                  <div class="d-flex align-items-center mb-3">
+                    <div class="icon-wrapper me-3" style="width: 32px; height: 32px; background: linear-gradient(135deg, #dc2626, #ef4444); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                      <i class="bi bi-exclamation-triangle text-white"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-0">Conditions techniques OBLIGATOIRES</h6>
+                  </div>
+                  <div class="condition-text p-3 rounded-3" style="background: linear-gradient(135deg, #fef2f2, #fecaca); border-left: 4px solid #ef4444;">
+                    <div class="small lh-base text-gray-800"><%= simple_format(prime.condition) %></div>
+                  </div>
+                </div>
+              <% end %>
+
+              <!-- Conseils techniques -->
+              <% if prime.conseil.present? %>
+                <div class="conseils-section mb-4">
+                  <div class="d-flex align-items-center mb-3">
+                    <div class="icon-wrapper me-3" style="width: 32px; height: 32px; background: linear-gradient(135deg, #0ea5e9, #3b82f6); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                      <i class="bi bi-lightbulb text-white"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-0">Conseils techniques</h6>
+                  </div>
+                  <div class="conseil-text p-3 rounded-3" style="background: linear-gradient(135deg, #f0f9ff, #bae6fd); border-left: 4px solid #3b82f6;">
+                    <div class="small lh-base text-gray-800"><%= simple_format(prime.conseil) %></div>
+                  </div>
+                </div>
+              <% end %>
+
+              <!-- Documents requis -->
+              <% if prime.document.present? %>
+                <div class="documents-section mb-4">
+                  <div class="d-flex align-items-center mb-3">
+                    <div class="icon-wrapper me-3" style="width: 32px; height: 32px; background: linear-gradient(135deg, #f59e0b, #f97316); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                      <i class="bi bi-file-earmark-text text-white"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-0">Documents techniques requis</h6>
+                  </div>
+                  <div class="document-text p-3 rounded-3" style="background: linear-gradient(135deg, #fffbeb, #fed7aa); border-left: 4px solid #f97316;">
+                    <div class="small lh-base text-gray-800"><%= simple_format(prime.document) %></div>
+                  </div>
+                </div>
+              <% end %>
+
+              <!-- Délai compatible -->
+              <% if prime.statut_compatible.present? %>
+                <div class="delai-section">
+                  <div class="d-flex align-items-center mb-3">
+                    <div class="icon-wrapper me-3" style="width: 32px; height: 32px; background: linear-gradient(135deg, #6b7280, #9ca3af); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                      <i class="bi bi-clock text-white"></i>
+                    </div>
+                    <h6 class="fw-bold text-dark mb-0">Délai de dépôt</h6>
+                  </div>
+                  <div class="delai-text p-3 rounded-3" style="background: linear-gradient(135deg, #f9fafb, #e5e7eb); border-left: 4px solid #9ca3af;">
+                    <div class="small text-gray-700"><%= prime.statut_compatible %></div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <!-- Vérifications critiques pour la région -->
+  <% region = @simulation&.region&.downcase %>
+  <% if region.present? %>
+    <div class="critical-checks mb-4">
       <h6 class="fw-bold text-danger mb-3">
         <i class="bi bi-exclamation-triangle-fill me-1"></i>
-        Alertes critiques
+        Vérifications critiques - <%= region.capitalize %>
       </h6>
-      <% critical_alerts.each do |alert| %>
-        <div class="alert alert-danger d-flex align-items-start" role="alert">
-          <i class="bi bi-shield-x fs-4 me-3 mt-1"></i>
-          <div class="flex-grow-1">
-            <div class="fw-medium"><%= alert[:title] %></div>
-            <div class="small mt-1"><%= alert[:description] %></div>
-            <% if alert[:action_required].present? %>
-              <div class="mt-2">
-                <span class="badge bg-dark">Action requise:</span>
-                <small class="ms-2"><%= alert[:action_required] %></small>
-              </div>
-            <% end %>
-          </div>
-        </div>
-      <% end %>
-    </div>
-  <% end %>
 
-  <!-- Obligations par catégorie -->
-  <div class="obligations-categories mb-4">
-    <h6 class="fw-bold mb-3">
-      <i class="bi bi-list-check me-1"></i>
-      Obligations techniques par catégorie
-    </h6>
-
-    <% (hub_data.dig(:technical, :obligations_by_category) || {}).each do |category_key, category_data| %>
-      <div class="category-section mb-3">
-        <div class="category-header d-flex justify-content-between align-items-center p-2 bg-light rounded-top border">
-          <h6 class="mb-0">
-            <i class="bi bi-<%= category_data[:icon] %> me-2"></i>
-            <%= category_data[:name] %>
-          </h6>
-          <span class="badge bg-<%= category_data[:compliance] >= 80 ? 'success' : category_data[:compliance] >= 60 ? 'warning' : 'danger' %>">
-            <%= category_data[:compliance] %>% conforme
-          </span>
-        </div>
-
-        <div class="obligations-list border border-top-0 rounded-bottom">
-          <% category_data[:obligations].each do |obligation| %>
-            <div class="obligation-item p-3 border-bottom">
-              <div class="d-flex justify-content-between align-items-start">
-                <div class="flex-grow-1">
-                  <div class="fw-medium mb-1">
-                    <i class="bi bi-<%= obligation[:status] == 'compliant' ? 'check-circle text-success' :
-                                      obligation[:status] == 'partial' ? 'exclamation-circle text-warning' :
-                                      'x-circle text-danger' %> me-1"></i>
-                    <%= obligation[:title] %>
-                  </div>
-                  <div class="small text-muted mb-2"><%= obligation[:description] %></div>
-
-                  <% if obligation[:requirements].present? %>
-                    <div class="requirements small">
-                      <strong>Exigences:</strong>
-                      <ul class="mb-2">
-                        <% obligation[:requirements].each do |req| %>
-                          <li class="text-<%= req[:met] ? 'success' : 'danger' %>">
-                            <i class="bi bi-<%= req[:met] ? 'check' : 'x' %> me-1"></i>
-                            <%= req[:description] %>
-                          </li>
-                        <% end %>
-                      </ul>
-                    </div>
-                  <% end %>
-                </div>
-
-                <div class="text-end ms-3">
-                  <span class="badge bg-<%= obligation[:priority] == 'high' ? 'danger' :
-                                            obligation[:priority] == 'medium' ? 'warning' : 'info' %>">
-                    <%= obligation[:priority].capitalize %>
-                  </span>
-                  <% if obligation[:deadline].present? %>
-                    <div class="small text-muted mt-1">
-                      <i class="bi bi-calendar me-1"></i>
-                      <%= obligation[:deadline].strftime("%d/%m/%Y") %>
-                    </div>
-                  <% end %>
-                </div>
-              </div>
-
-              <% if obligation[:action_needed].present? %>
-                <div class="action-needed mt-2 p-2 bg-warning bg-opacity-10 rounded">
-                  <div class="small">
-                    <strong>Action nécessaire:</strong> <%= obligation[:action_needed] %>
-                  </div>
-                </div>
-              <% end %>
-            </div>
-          <% end %>
-        </div>
-      </div>
-    <% end %>
-  </div>
-
-  <!-- Recommandations techniques -->
-  <% if (hub_data.dig(:technical, :recommendations) || []).any? %>
-    <div class="technical-recommendations mb-4">
-      <h6 class="fw-bold text-primary mb-3">
-        <i class="bi bi-lightbulb me-1"></i>
-        Recommandations techniques
-      </h6>
-      <% (hub_data.dig(:technical, :recommendations) || []).each do |rec| %>
-        <div class="recommendation-item p-3 mb-2 border border-primary rounded bg-primary bg-opacity-5">
-          <div class="d-flex align-items-start">
-            <div class="flex-shrink-0 me-3">
-              <i class="bi bi-<%= rec[:type] %> fs-4 text-primary"></i>
-            </div>
+      <% if region == 'wallonie' %>
+        <div class="check-item mb-3">
+          <div class="alert alert-warning d-flex align-items-start">
+            <i class="bi bi-tools fs-4 me-3 mt-1"></i>
             <div class="flex-grow-1">
-              <div class="fw-medium mb-1"><%= rec[:title] %></div>
-              <div class="small text-muted mb-2"><%= rec[:description] %></div>
-              <% if rec[:benefits].present? %>
-                <div class="benefits small">
-                  <strong>Bénéfices:</strong>
-                  <ul class="mb-0">
-                    <% rec[:benefits].each do |benefit| %>
-                      <li class="text-success"><%= benefit %></li>
-                    <% end %>
-                  </ul>
-                </div>
-              <% end %>
+              <div class="fw-semibold">Installateur certifié RESCERT obligatoire (2026)</div>
+              <div class="small mt-1">
+                À partir du 1er janvier 2026, tous les installateurs de systèmes de chauffage doivent être certifiés RESCERT.
+              </div>
+              <div class="mt-2">
+                <a href="https://rescert.be" target="_blank" class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-search me-1"></i>
+                  Vérifier RESCERT
+                </a>
+              </div>
             </div>
-            <div class="text-end">
-              <span class="badge bg-<%= rec[:impact] == 'high' ? 'success' :
-                                    rec[:impact] == 'medium' ? 'warning' : 'info' %>">
-                Impact <%= rec[:impact] %>
-              </span>
+          </div>
+        </div>
+
+        <div class="check-item mb-3">
+          <div class="alert alert-info d-flex align-items-start">
+            <i class="bi bi-list-check fs-4 me-3 mt-1"></i>
+            <div class="flex-grow-1">
+              <div class="fw-semibold">Liste d'éligibilité energie.wallonie.be</div>
+              <div class="small mt-1">
+                Vérifiez que vos équipements figurent sur la liste officielle d'éligibilité.
+              </div>
+              <div class="mt-2">
+                <a href="https://energie.wallonie.be" target="_blank" class="btn btn-sm btn-outline-info">
+                  <i class="bi bi-search me-1"></i>
+                  Vérifier éligibilité
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <% elsif region == 'flandre' %>
+        <div class="check-item mb-3">
+          <div class="alert alert-warning d-flex align-items-start">
+            <i class="bi bi-shield-check fs-4 me-3 mt-1"></i>
+            <div class="flex-grow-1">
+              <div class="fw-semibold">Certificat de conformité électrique</div>
+              <div class="small mt-1">
+                Obligatoire pour la plupart des travaux de rénovation en Flandre.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <% elsif region == 'bruxelles' %>
+        <div class="check-item mb-3">
+          <div class="alert alert-danger d-flex align-items-start">
+            <i class="bi bi-pause-circle fs-4 me-3 mt-1"></i>
+            <div class="flex-grow-1">
+              <div class="fw-semibold">Programme RENOLUTION suspendu</div>
+              <div class="small mt-1">
+                Aucune prime disponible en 2025. En attente de la formation du nouveau gouvernement.
+              </div>
             </div>
           </div>
         </div>
@@ -207,53 +213,26 @@
     </div>
   <% end %>
 
-  <!-- Vérifications automatiques -->
-  <div class="automatic-checks mb-4">
-    <h6 class="fw-bold mb-3">
-      <i class="bi bi-gear me-1"></i>
-      Vérifications automatiques disponibles
-    </h6>
-    <% (hub_data.dig(:technical, :automatic_checks) || []).each do |check| %>
-      <div class="check-item d-flex justify-content-between align-items-center p-2 mb-2 border rounded">
-        <div>
-          <div class="fw-medium small"><%= check[:name] %></div>
-          <small class="text-muted"><%= check[:description] %></small>
-        </div>
-        <div>
-          <% if check[:available] %>
-            <button class="btn btn-outline-primary btn-sm" data-check="<%= check[:id] %>">
-              <i class="bi bi-play me-1"></i>
-              Vérifier
-            </button>
-          <% else %>
-            <span class="badge bg-secondary">Indisponible</span>
-          <% end %>
-        </div>
-      </div>
-    <% end %>
-  </div>
-
-  <!-- Actions section -->
+  <!-- Actions rapides -->
   <div class="actions-section mt-4">
     <div class="d-flex gap-2 flex-wrap">
-      <button class="btn btn-outline-primary btn-sm">
-        <i class="bi bi-clipboard-check me-1"></i>
-        Audit complet
-      </button>
-      <button class="btn btn-outline-info btn-sm quick-question"
-              data-question="Quelles sont mes obligations techniques les plus urgentes ?">
+      <% if region == 'wallonie' %>
+        <a href="https://rescert.be" target="_blank" class="btn btn-outline-primary btn-sm">
+          <i class="bi bi-shield-check me-1"></i>
+          Vérifier RESCERT
+        </a>
+        <a href="https://energie.wallonie.be" target="_blank" class="btn btn-outline-info btn-sm">
+          <i class="bi bi-list-check me-1"></i>
+          Liste éligibilité
+        </a>
+      <% end %>
+
+      <button class="btn btn-outline-success btn-sm quick-question"
+              data-question="Comment m'assurer de respecter toutes les conditions techniques ?">
         <i class="bi bi-question-circle me-1"></i>
-        Priorités techniques
-      </button>
-      <button class="btn btn-outline-warning btn-sm quick-question"
-              data-question="Comment améliorer ma conformité technique ?">
-        <i class="bi bi-arrow-up-circle me-1"></i>
-        Améliorer conformité
-      </button>
-      <button class="btn btn-outline-success btn-sm">
-        <i class="bi bi-file-earmark-text me-1"></i>
-        Rapport technique
+        Aide technique
       </button>
     </div>
   </div>
+
 </div>
