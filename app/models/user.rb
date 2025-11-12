@@ -4,6 +4,9 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable, :confirmable
 
+  # Auto-confirmer les utilisateurs à la création (solution temporaire)
+  after_create :auto_confirm_user
+
   # Enum pour les rôles
   enum :role, { user: 0, moderator: 1, admin: 2 }, default: :user
 
@@ -199,5 +202,11 @@ class User < ApplicationRecord
     if role_was == 'admin' && !admin? && User.admin.count == 1
       errors.add(:role, "Il doit y avoir au moins un administrateur dans le système")
     end
+  end
+
+  # SOLUTION TEMPORAIRE : Auto-confirmer les utilisateurs
+  # TODO: Retirer cette méthode une fois le problème d'email de confirmation résolu
+  def auto_confirm_user
+    self.confirm unless self.confirmed?
   end
 end
