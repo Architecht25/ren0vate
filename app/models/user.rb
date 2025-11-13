@@ -2,10 +2,12 @@ class User < ApplicationRecord
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable, :confirmable
+         :recoverable, :rememberable, :validatable
+         # Confirmable temporairement désactivé jusqu'à configuration complète SMTP
 
   # Auto-confirmer les utilisateurs à la création (solution temporaire)
-  after_create :auto_confirm_user
+  # Commenté car :confirmable est désactivé
+  # after_create :auto_confirm_user
 
   # Enum pour les rôles
   enum :role, { user: 0, moderator: 1, admin: 2 }, default: :user
@@ -206,7 +208,8 @@ class User < ApplicationRecord
 
   # SOLUTION TEMPORAIRE : Auto-confirmer les utilisateurs
   # TODO: Retirer cette méthode une fois le problème d'email de confirmation résolu
-  def auto_confirm_user
-    self.confirm unless self.confirmed?
-  end
+  # Commenté car :confirmable est désactivé
+  # def auto_confirm_user
+  #   self.confirm unless self.confirmed?
+  # end
 end
