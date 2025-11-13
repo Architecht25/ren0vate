@@ -2,15 +2,19 @@ Rails.application.routes.draw do
   # Routes ActionMailbox pour la réception d'emails
   mount ActionMailbox::Engine => '/rails/action_mailbox'
 
-  # Routes Devise en dehors du scope pour éviter les problèmes de mapping
-  devise_for :users, path_names: {
-    sign_in: 'connexion',
-    sign_out: 'deconnexion',
-    sign_up: 'inscription'
-  }
+  # Redirections pour les anciennes routes Devise vers les nouvelles avec locale
+  get '/inscription', to: redirect('/fr/users/inscription')
+  get '/connexion', to: redirect('/fr/users/connexion')
 
-  # Routes avec support multi-langues
+  # Routes avec support multi-langues (y compris Devise)
   scope "(:locale)", locale: /fr|nl|en/ do
+    # Routes Devise dans le scope locale
+    devise_for :users, path_names: {
+      sign_in: 'connexion',
+      sign_out: 'deconnexion',
+      sign_up: 'inscription'
+    }
+
     root "pages#home"
 
   # Pricing routes
