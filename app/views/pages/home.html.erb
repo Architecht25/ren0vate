@@ -14,59 +14,135 @@
   </script>
 <% end %>
 
-<div class="hero-section position-relative text-center text-white d-flex" style="background-image: url('<%= asset_path("renovation.jpg") %>'); background-size: cover; background-position: center; min-height: 100vh;">
-  <div class="overlay position-absolute w-100 h-100" style="background: rgba(0, 0, 0, 0.5);"></div>
-  <div class="container position-relative d-flex flex-column justify-content-center align-items-center h-100 py-5">
-    <div class="text-center">
-      <h1 class="display-5 display-md-4 mb-4 px-2 px-md-3">Calculez, gérez et introduisez vos Primes et Aides à la Rénovation</h1>
-      <p class="lead mb-4 mb-md-5 px-2 px-md-3">Avant de vous connecter, testez votre éligibilité aux primes, estimez votre catégorie de revenus et calculez rapidement les primes et aides auxquelles vous pourriez prétendre en Flandre, à Bruxelles ainsi qu'en Wallonie.</p>
+<!-- Hero Section - Style Carnet d'Architecte -->
+<div class="architectural-hero position-relative d-flex min-vh-100"
+     data-controller="architectural-parallax"
+     data-architectural-parallax-hero-target="hero">
 
-      <!-- Simulateurs Particuliers -->
-      <h2 class="mb-3 mb-md-4 fs-4 fs-md-3">Simulateurs pour Particuliers</h2>
-      <div class="d-flex flex-column flex-md-row justify-content-center gap-2 gap-md-3 mb-4 mb-md-5">
-        <%= link_to "Primes Flandre", flandre_path, class: "btn btn-dark btn-lg text-white mx-1" %>
-        <%= link_to "Primes Bruxelles", bruxelles_path, class: "btn btn-warning btn-lg text-dark mx-1" %>
-        <%= link_to "Primes Wallonie", wallonie_path, class: "btn btn-danger btn-lg text-white mx-1" %>
+  <!-- Image de fond directe -->
+  <img src="<%= asset_path('arcliine.jpg') %>"
+       alt="Architectural watercolor background"
+       class="architectural-bg-image">
+
+  <!-- Overlay léger pour la lisibilité -->
+  <div class="architectural-overlay"></div>
+
+  <!-- Sketch Overlay avec effet parallax -->
+  <div class="sketch-overlay position-absolute w-100 h-100">
+    <div class="blueprint-grid"></div>
+    <div class="technical-lines"></div>
+  </div>
+
+  <div class="container position-relative d-flex flex-column justify-content-center align-items-center h-100 py-5">
+    <div class="architectural-content text-center">
+      <!-- Annotation principale -->
+      <div class="architect-annotation mb-4">
+        <span class="annotation-line"></span>
+        <span class="annotation-text">PROJET RÉNOVATION</span>
       </div>
 
-      <!-- Simulateurs Entreprises -->
-      <h2 class="mb-3 mb-md-4 fs-4 fs-md-3">Simulateurs pour Entreprises</h2>
-      <div class="d-flex flex-column flex-md-row justify-content-center gap-2 gap-md-3">
-        <%= link_to "Aides Flandre", flandre_entreprises_path, class: "btn btn-dark btn-lg text-white mx-1" %>
-        <%= link_to bruxelles_entreprises_path, class: "btn btn-warning btn-lg text-dark mx-1" do %>
-          Aides Bruxelles
-          <span class="badge bg-dark text-white ms-2">NOUVEAU</span>
-        <% end %>
-        <%= link_to "Aides Wallonie", wallonie_entreprises_path, class: "btn btn-danger btn-lg text-white mx-1" %>
+      <h1 class="architectural-title display-4 mb-4">Ren<span class="highlight-watercolor">0</span>vate</h1>
+      <div class="subtitle-sketch mb-4">
+        <p class="architect-subtitle">Calculez, gérez et introduisez vos<br>Primes et Aides à la Rénovation</p>
+        <div class="sketch-underline"></div>
+      </div>
+
+      <!-- Description avec style annotation -->
+      <div class="architect-description mb-5">
+        <div class="description-box">
+          <p class="handwritten-note">Testez votre éligibilité • Estimez vos primes<br>Flandre • Bruxelles • Wallonie</p>
+        </div>
+      </div>
+
+      <!-- Simulateurs Particuliers avec style architectural -->
+      <div class="annotated-section mb-5">
+        <div class="architect-annotation mb-3">
+          <span class="annotation-line"></span>
+          <span class="annotation-text">PARTICULIERS</span>
+        </div>
+
+        <h2 class="h4 mb-4 text-ink">Simulateurs pour Particuliers</h2>
+        <div class="region-buttons mb-4">
+          <%= link_to "Primes Flandre", flandre_path,
+              class: "btn-region-flandre",
+              data: { region: "VL" } %>
+          <%= link_to "Primes Bruxelles", bruxelles_path,
+              class: "btn-region-bruxelles",
+              data: { region: "BXL" } %>
+          <%= link_to "Primes Wallonie", wallonie_path,
+              class: "btn-region-wallonie",
+              data: { region: "WAL" } %>
+        </div>
+      </div>
+
+      <!-- Simulateurs Entreprises avec style architectural -->
+      <div class="annotated-section">
+        <div class="architect-annotation mb-3">
+          <span class="annotation-line"></span>
+          <span class="annotation-text">ENTREPRISES</span>
+        </div>
+
+        <h2 class="h4 mb-4 text-ink">Simulateurs pour Entreprises</h2>
+        <div class="region-buttons">
+          <%= link_to "Aides Flandre", flandre_entreprises_path,
+              class: "btn-region-flandre",
+              data: { region: "VL-ENT" } %>
+          <%= link_to bruxelles_entreprises_path,
+              class: "btn-region-bruxelles",
+              data: { region: "BXL-ENT" } do %>
+            Aides Bruxelles
+            <span class="badge bg-arch-orange text-white ms-2">NOUVEAU</span>
+          <% end %>
+          <%= link_to "Aides Wallonie", wallonie_entreprises_path,
+              class: "btn-region-wallonie",
+              data: { region: "WAL-ENT" } %>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Section explicative SEO -->
-<div class="py-5 bg-white">
+<!-- Section explicative avec style carnet d'architecte -->
+<div class="py-5 bg-paper paper-texture">
   <div class="container">
     <div class="row">
-      <div class="col-lg-8 mx-auto text-center">
-        <h2 class="mb-4">Primes et Aides à la Rénovation Énergétique en Belgique</h2>
-        <p class="lead mb-4">
-          Découvrez toutes les aides financières disponibles pour vos projets de rénovation énergétique.
-          Isolation, chauffage, ventilation, toiture : nos simulateurs vous aident à estimer vos primes
-          selon votre région et votre profil.
-        </p>
+      <div class="col-lg-8 mx-auto">
+        <!-- Titre avec annotation -->
+        <div class="architect-annotation text-center mb-4">
+          <span class="annotation-line"></span>
+          <span class="annotation-text">GUIDE TECHNIQUE</span>
+        </div>
+
+        <h2 class="architectural-title text-center mb-4">Primes et Aides à la Rénovation Énergétique</h2>
+        <div class="description-box mb-5">
+          <p class="handwritten-note text-center">
+            Découvrez toutes les aides financières disponibles pour vos projets de rénovation énergétique.<br>
+            <strong>Isolation • Chauffage • Ventilation • Toiture</strong><br>
+            Nos simulateurs vous aident à estimer vos primes selon votre région et votre profil.
+          </p>
+        </div>
 
         <div class="row mt-5">
-          <div class="col-md-4 mb-4">
-            <h3>Isolation Thermique</h3>
-            <p>Murs, toiture, sols : de 2 000€ à 15 000€ de primes en moyenne selon votre région, bien immobilier et profil.</p>
+          <div class="col-md-4 mb-4 position-relative">
+            <div class="margin-note">Note 01</div>
+            <div class="annotated-section">
+              <h3 class="h5 text-arch-blue">Isolation Thermique</h3>
+              <p class="small text-pencil">Murs, toiture, sols : de 2 000€ à 15 000€ de primes en moyenne selon votre région, bien immobilier et profil.</p>
+            </div>
           </div>
-          <div class="col-md-4 mb-4">
-            <h3>Systèmes de Chauffage</h3>
-            <p>Pompes à chaleur, chaudières à condensation, chauffage au bois : bénéficiez d'aides substantielles.</p>
+          <div class="col-md-4 mb-4 position-relative">
+            <div class="margin-note">Note 02</div>
+            <div class="annotated-section">
+              <h3 class="h5 text-arch-green">Systèmes de Chauffage</h3>
+              <p class="small text-pencil">Pompes à chaleur, chaudières à condensation, chauffage au bois : bénéficiez d'aides substantielles.</p>
+            </div>
           </div>
-          <div class="col-md-4 mb-4">
-            <h3>Audit Énergétique</h3>
-            <p>Première étape de votre rénovation : l'audit énergétique vous donne droit à des primes spécifiques.</p>
+          <div class="col-md-4 mb-4 position-relative">
+            <div class="margin-note">Note 03</div>
+            <div class="annotated-section">
+              <h3 class="h5 text-arch-ochre">Audit Énergétique</h3>
+              <p class="small text-pencil">Première étape de votre rénovation : l'audit énergétique vous donne droit à des primes spécifiques.</p>
+            </div>
           </div>
         </div>
       </div>
@@ -74,20 +150,35 @@
   </div>
 </div>
 
-<div class="reassurance-section text-center py-4 bg-light">
+<!-- Section de confiance avec style architectural -->
+<div class="reassurance-section py-4 bg-arch-blue-light paper-texture">
   <div class="container">
-    <div class="row">
-      <div class="col-md-4">
-        <p class="mb-0"><strong>🕒 En 5 minutes</strong></p>
-        <p>Testez votre éligibilité</p>
+    <div class="architect-annotation text-center mb-3">
+      <span class="annotation-line"></span>
+      <span class="annotation-text">SPÉCIFICATIONS</span>
+    </div>
+
+    <div class="row text-center">
+      <div class="col-md-4 mb-3">
+        <div class="d-flex align-items-center justify-content-center mb-2">
+          <div class="architectural-icon me-2">⏱</div>
+          <strong class="text-ink">En 5 minutes</strong>
+        </div>
+        <p class="small text-pencil mb-0">Testez votre éligibilité</p>
       </div>
-      <div class="col-md-4">
-        <p class="mb-0"><strong>💰 Primes moyennes</strong></p>
-        <p>Particuliers: 10-35k€ | Entreprises: 5-20k€</p>
+      <div class="col-md-4 mb-3">
+        <div class="d-flex align-items-center justify-content-center mb-2">
+          <div class="architectural-icon me-2">💰</div>
+          <strong class="text-ink">Primes moyennes</strong>
+        </div>
+        <p class="small text-pencil mb-0">Particuliers: 10-35k€ | Entreprises: 5-20k€</p>
       </div>
-      <div class="col-md-4">
-        <p class="mb-0"><strong>🎯 Service SaaS</strong></p>
-        <p>Accompagnement personnalisé</p>
+      <div class="col-md-4 mb-3">
+        <div class="d-flex align-items-center justify-content-center mb-2">
+          <div class="architectural-icon me-2">🎯</div>
+          <strong class="text-ink">Service SaaS</strong>
+        </div>
+        <p class="small text-pencil mb-0">Accompagnement personnalisé</p>
       </div>
     </div>
   </div>
