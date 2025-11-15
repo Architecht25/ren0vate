@@ -1,0 +1,176 @@
+<!-- Test d'éligibilité - 5 questions basées sur le service BruxellesEntreprisesEligibilityService -->
+<div data-controller="eligibility-test-entreprise" data-eligibility-test-entreprise-target="form">
+
+  <!-- État initial -->
+  <div id="eligibility-questions" data-eligibility-test-entreprise-target="questions">
+    <p class="text-muted mb-4">
+      <i class="bi bi-info-circle me-2"></i>
+      Répondez aux 5 questions suivantes pour vérifier votre éligibilité aux aides de Bruxelles Economie et Emploi.
+    </p>
+
+    <!-- Question 1: Localisation en Bruxelles -->
+    <div class="mb-4">
+      <label class="form-label fw-bold">
+        <span class="badge bg-primary rounded-circle me-2">1</span>
+        Votre entreprise est-elle située en Région de Bruxelles-Capitale ?
+      </label>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="location_bruxelles" id="location_yes" value="true"
+               data-action="change->eligibility-test-entreprise#updateEligibility">
+        <label class="form-check-label" for="location_yes">
+          <i class="bi bi-check-circle text-success me-1"></i> Oui
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="location_bruxelles" id="location_no" value="false"
+               data-action="change->eligibility-test-entreprise#updateEligibility">
+        <label class="form-check-label" for="location_no">
+          <i class="bi bi-x-circle text-danger me-1"></i> Non
+        </label>
+      </div>
+      <small class="text-muted">Siège d'exploitation requis dans une des 19 communes bruxelloises</small>
+    </div>
+
+    <!-- Question 2: Taille PME -->
+    <div class="mb-4">
+      <label class="form-label fw-bold">
+        <span class="badge bg-primary rounded-circle me-2">2</span>
+        Votre entreprise emploie-t-elle moins de 250 personnes ?
+      </label>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="is_pme" id="pme_yes" value="true"
+               data-action="change->eligibility-test-entreprise#updateEligibility">
+        <label class="form-check-label" for="pme_yes">
+          <i class="bi bi-check-circle text-success me-1"></i> Oui (moins de 250 employés)
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="is_pme" id="pme_no" value="false"
+               data-action="change->eligibility-test-entreprise#updateEligibility">
+        <label class="form-check-label" for="pme_no">
+          <i class="bi bi-x-circle text-danger me-1"></i> Non (250 employés ou plus)
+        </label>
+      </div>
+      <small class="text-muted">Critère PME obligatoire pour les aides</small>
+    </div>
+
+    <!-- Question 3: Secteur éligible -->
+    <div class="mb-4">
+      <label class="form-label fw-bold">
+        <span class="badge bg-primary rounded-circle me-2">3</span>
+        Votre activité principale est-elle dans un secteur éligible ?
+      </label>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="eligible_sector" id="sector_yes" value="true"
+               data-action="change->eligibility-test-entreprise#updateEligibility">
+        <label class="form-check-label" for="sector_yes">
+          <i class="bi bi-check-circle text-success me-1"></i> Oui (secteur commercial, industriel, services)
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="eligible_sector" id="sector_no" value="false"
+               data-action="change->eligibility-test-entreprise#updateEligibility">
+        <label class="form-check-label" for="sector_no">
+          <i class="bi bi-x-circle text-danger me-1"></i> Non (secteur exclu)
+        </label>
+      </div>
+      <small class="text-muted">Codes NACE éligibles selon la réglementation 2025</small>
+    </div>
+
+    <!-- Question 4: Finalité économique -->
+    <div class="mb-4">
+      <label class="form-label fw-bold">
+        <span class="badge bg-primary rounded-circle me-2">4</span>
+        Votre entreprise a-t-elle une finalité économique et commerciale ?
+      </label>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="economic_purpose" id="purpose_yes" value="true"
+               data-action="change->eligibility-test-entreprise#updateEligibility">
+        <label class="form-check-label" for="purpose_yes">
+          <i class="bi bi-check-circle text-success me-1"></i> Oui (activité commerciale)
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="economic_purpose" id="purpose_no" value="false"
+               data-action="change->eligibility-test-entreprise#updateEligibility">
+        <label class="form-check-label" for="purpose_no">
+          <i class="bi bi-x-circle text-danger me-1"></i> Non (ASBL, association sans but lucratif)
+        </label>
+      </div>
+      <small class="text-muted">Obligatoire pour les aides aux investissements</small>
+    </div>
+
+    <!-- Question 5: Conformité réglementaire -->
+    <div class="mb-4">
+      <label class="form-label fw-bold">
+        <span class="badge bg-primary rounded-circle me-2">5</span>
+        Êtes-vous en ordre avec vos obligations légales ?
+      </label>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="regulatory_compliance" id="compliance_yes" value="true"
+               data-action="change->eligibility-test-entreprise#updateEligibility">
+        <label class="form-check-label" for="compliance_yes">
+          <i class="bi bi-check-circle text-success me-1"></i> Oui (comptes annuels, règle de minimis OK)
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="regulatory_compliance" id="compliance_no" value="false"
+               data-action="change->eligibility-test-entreprise#updateEligibility">
+        <label class="form-check-label" for="compliance_no">
+          <i class="bi bi-x-circle text-danger me-1"></i> Non (retards, dépassement de minimis)
+        </label>
+      </div>
+      <small class="text-muted">Comptes à jour + max 300.000€ d'aides de minimis sur 3 ans</small>
+    </div>
+  </div>
+
+  <!-- Résultat du test -->
+  <div id="eligibility-result" data-eligibility-test-entreprise-target="result" style="display: none;">
+    <!-- Contenu mis à jour dynamiquement par le contrôleur Stimulus -->
+  </div>
+
+  <!-- Bouton de validation -->
+  <div class="text-center mt-4" id="test-actions" style="display: none;" data-eligibility-test-entreprise-target="actions">
+    <button type="button" class="btn btn-success btn-lg"
+            data-action="click->entreprise-workflow#enableSimulation"
+            id="proceed-btn"
+            disabled>
+      <i class="bi bi-check-circle me-2"></i>
+      Éligibilité Validée - Continuez
+    </button>
+  </div>
+</div>
+
+<style>
+.form-check {
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+}
+
+.form-check:hover {
+  background-color: rgba(0,0,0,0.02);
+}
+
+.form-check-input:checked {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}
+
+.badge {
+  font-size: 0.875rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.alert-success {
+  border-left: 4px solid #28a745;
+}
+
+.alert-danger {
+  border-left: 4px solid #dc3545;
+}
+
+.alert-warning {
+  border-left: 4px solid #ffc107;
+}
+</style>

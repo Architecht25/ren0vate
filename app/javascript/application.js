@@ -70,6 +70,8 @@ import PrimesCommunalesBruxellesController from "controllers/primes_communales_b
 import PrimesCommunalesWallonieController from "controllers/primes_communales_wallonie_controller"
 import EligibilityRetesterController from "controllers/eligibility_retester_controller"
 import TestEligibiliteEntreprisesController from "controllers/test_eligibilite_entreprises_controller"
+import EligibilityTestEntrepriseController from "controllers/eligibility_test_entreprise_controller"
+import SimulationCardsEntrepriseController from "controllers/simulation_cards_entreprise_controller"
 import MapboxController from "controllers/mapbox_controller"
 import ContextualBotController from "controllers/contextual_bot_controller"
 
@@ -126,6 +128,8 @@ application.register("primes-communales-bruxelles", PrimesCommunalesBruxellesCon
 application.register("primes-communales-wallonie", PrimesCommunalesWallonieController)
 application.register("eligibility-retester", EligibilityRetesterController)
 application.register("test-eligibilite-entreprises", TestEligibiliteEntreprisesController)
+application.register("eligibility-test-entreprise", EligibilityTestEntrepriseController)
+application.register("simulation-cards-entreprise", SimulationCardsEntrepriseController)
 application.register("mapbox", MapboxController)
 application.register("pdf-export", PdfExportController)
 application.register("contextual-bot", ContextualBotController)

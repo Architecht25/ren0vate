@@ -1,0 +1,658 @@
+<!-- 14 Cartes de Simulation - Aides Entreprises Bruxelles -->
+<div data-controller="simulation-cards-entreprise" class="simulation-cards-container">
+
+  <!-- Header avec totaux -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card bg-light border-0">
+        <div class="card-body text-center py-3">
+          <div class="row">
+            <div class="col-md-4">
+              <h6 class="text-muted mb-1">Total Investissements</h6>
+              <h4 class="text-primary mb-0" data-simulation-cards-entreprise-target="totalInvestment">0 €</h4>
+            </div>
+            <div class="col-md-4">
+              <h6 class="text-muted mb-1">Total Aides Estimées</h6>
+              <h4 class="text-success mb-0" data-simulation-cards-entreprise-target="totalAids">0 €</h4>
+            </div>
+            <div class="col-md-4">
+              <h6 class="text-muted mb-1">Taux Moyen</h6>
+              <h4 class="text-info mb-0" data-simulation-cards-entreprise-target="averageRate">0%</h4>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cartes organisées par catégories -->
+  <div class="row g-3">
+
+    <!-- 1. Prime Transition et Consultance -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm border-0 prime-card" data-aid-slug="bruxelles_transition_consultance">
+        <div class="card-header bg-gradient-primary text-white">
+          <h6 class="mb-0">
+            <i class="bi bi-lightbulb me-2"></i>
+            Transition & Consultance
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Investissement (€)</label>
+            <input type="number" class="form-control" placeholder="500€ min" min="500"
+                   data-action="input->simulation-cards-entreprise#calculateAid"
+                   data-aid-slug="bruxelles_transition_consultance">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold text-success">Aide Estimée</label>
+            <div class="input-group">
+              <span class="input-group-text bg-success text-white">€</span>
+              <input type="text" class="form-control bg-light" readonly
+                     data-simulation-cards-entreprise-target="aidResult"
+                     data-aid-slug="bruxelles_transition_consultance"
+                     placeholder="0">
+              <span class="input-group-text">25%</span>
+            </div>
+          </div>
+          <p class="small text-muted mb-0">
+            <i class="bi bi-info-circle me-1"></i>
+            Mission de consultance pour la transition économique et environnementale. Max 20.000€.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Investissements Transition Économique -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm border-0 prime-card" data-aid-slug="bruxelles_investissements_transition_economique">
+        <div class="card-header bg-gradient-success text-white">
+          <h6 class="mb-0">
+            <i class="bi bi-graph-up-arrow me-2"></i>
+            Transition Économique
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Investissement (€)</label>
+            <input type="number" class="form-control" placeholder="2.000€ min" min="2000"
+                   data-action="input->simulation-cards-entreprise#calculateAid"
+                   data-aid-slug="bruxelles_investissements_transition_economique">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold text-success">Aide Estimée</label>
+            <div class="input-group">
+              <span class="input-group-text bg-success text-white">€</span>
+              <input type="text" class="form-control bg-light" readonly
+                     data-simulation-cards-entreprise-target="aidResult"
+                     data-aid-slug="bruxelles_investissements_transition_economique"
+                     placeholder="0">
+              <span class="input-group-text">30%</span>
+            </div>
+          </div>
+          <p class="small text-muted mb-0">
+            <i class="bi bi-info-circle me-1"></i>
+            Équipements et travaux pour la transition vers l'économie circulaire. Max 100.000€.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Mobilité Vélo Cargo -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm border-0 prime-card" data-aid-slug="bruxelles_mobilite_velo_cargo">
+        <div class="card-header bg-gradient-info text-white">
+          <h6 class="mb-0">
+            <i class="bi bi-bicycle me-2"></i>
+            Vélo Cargo
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Investissement (€)</label>
+            <input type="number" class="form-control" placeholder="500€ min" min="500"
+                   data-action="input->simulation-cards-entreprise#calculateAid"
+                   data-aid-slug="bruxelles_mobilite_velo_cargo">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold text-success">Aide Estimée</label>
+            <div class="input-group">
+              <span class="input-group-text bg-success text-white">€</span>
+              <input type="text" class="form-control bg-light" readonly
+                     data-simulation-cards-entreprise-target="aidResult"
+                     data-aid-slug="bruxelles_mobilite_velo_cargo"
+                     placeholder="0">
+              <span class="input-group-text">40%</span>
+            </div>
+          </div>
+          <p class="small text-muted mb-0">
+            <i class="bi bi-info-circle me-1"></i>
+            Achat de vélos cargo électriques pour livraisons urbaines. Max 4.000€.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Véhicule Utilitaire Électrique -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm border-0 prime-card" data-aid-slug="bruxelles_mobilite_utilitaire_electrique">
+        <div class="card-header bg-gradient-warning text-dark">
+          <h6 class="mb-0">
+            <i class="bi bi-truck me-2"></i>
+            Véhicule Électrique
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Investissement (€)</label>
+            <input type="number" class="form-control" placeholder="10.000€ min" min="10000"
+                   data-action="input->simulation-cards-entreprise#calculateAid"
+                   data-aid-slug="bruxelles_mobilite_utilitaire_electrique">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold text-success">Aide Estimée</label>
+            <div class="input-group">
+              <span class="input-group-text bg-success text-white">€</span>
+              <input type="text" class="form-control bg-light" readonly
+                     data-simulation-cards-entreprise-target="aidResult"
+                     data-aid-slug="bruxelles_mobilite_utilitaire_electrique"
+                     placeholder="0">
+              <span class="input-group-text">25%</span>
+            </div>
+          </div>
+          <p class="small text-muted mb-0">
+            <i class="bi bi-info-circle me-1"></i>
+            Achat de véhicules utilitaires électriques neufs. Max 15.000€.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Retrofit Véhicule -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm border-0 prime-card" data-aid-slug="bruxelles_mobilite_utilitaire_retrofit">
+        <div class="card-header bg-gradient-secondary text-white">
+          <h6 class="mb-0">
+            <i class="bi bi-tools me-2"></i>
+            Retrofit Véhicule
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Investissement (€)</label>
+            <input type="number" class="form-control" placeholder="5.000€ min" min="5000"
+                   data-action="input->simulation-cards-entreprise#calculateAid"
+                   data-aid-slug="bruxelles_mobilite_utilitaire_retrofit">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold text-success">Aide Estimée</label>
+            <div class="input-group">
+              <span class="input-group-text bg-success text-white">€</span>
+              <input type="text" class="form-control bg-light" readonly
+                     data-simulation-cards-entreprise-target="aidResult"
+                     data-aid-slug="bruxelles_mobilite_utilitaire_retrofit"
+                     placeholder="0">
+              <span class="input-group-text">30%</span>
+            </div>
+          </div>
+          <p class="small text-muted mb-0">
+            <i class="bi bi-info-circle me-1"></i>
+            Transformation de véhicules thermiques en électriques. Max 10.000€.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Matériel et Travaux -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm border-0 prime-card" data-aid-slug="bruxelles_prime_materiel_travaux">
+        <div class="card-header bg-gradient-primary text-white">
+          <h6 class="mb-0">
+            <i class="bi bi-hammer me-2"></i>
+            Matériel & Travaux
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Investissement (€)</label>
+            <input type="number" class="form-control" placeholder="5.000€ min" min="5000"
+                   data-action="input->simulation-cards-entreprise#calculateAid"
+                   data-aid-slug="bruxelles_prime_materiel_travaux">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold text-success">Aide Estimée</label>
+            <div class="input-group">
+              <span class="input-group-text bg-success text-white">€</span>
+              <input type="text" class="form-control bg-light" readonly
+                     data-simulation-cards-entreprise-target="aidResult"
+                     data-aid-slug="bruxelles_prime_materiel_travaux"
+                     placeholder="0">
+              <span class="input-group-text">25%</span>
+            </div>
+          </div>
+          <p class="small text-muted mb-0">
+            <i class="bi bi-info-circle me-1"></i>
+            Équipements productifs, machines, outillage et travaux. Max 200.000€.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Conformité Normes -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm border-0 prime-card" data-aid-slug="bruxelles_prime_conformite_normes">
+        <div class="card-header bg-gradient-success text-white">
+          <h6 class="mb-0">
+            <i class="bi bi-shield-check me-2"></i>
+            Conformité Normes
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Investissement (€)</label>
+            <input type="number" class="form-control" placeholder="5.000€ min" min="5000"
+                   data-action="input->simulation-cards-entreprise#calculateAid"
+                   data-aid-slug="bruxelles_prime_conformite_normes">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold text-success">Aide Estimée</label>
+            <div class="input-group">
+              <span class="input-group-text bg-success text-white">€</span>
+              <input type="text" class="form-control bg-light" readonly
+                     data-simulation-cards-entreprise-target="aidResult"
+                     data-aid-slug="bruxelles_prime_conformite_normes"
+                     placeholder="0">
+              <span class="input-group-text">30%</span>
+            </div>
+          </div>
+          <p class="small text-muted mb-0">
+            <i class="bi bi-info-circle me-1"></i>
+            Investissements pour mise en conformité réglementaire. Max 50.000€.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8. Sécurisation -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm border-0 prime-card" data-aid-slug="bruxelles_prime_securisation">
+        <div class="card-header bg-gradient-danger text-white">
+          <h6 class="mb-0">
+            <i class="bi bi-lock me-2"></i>
+            Sécurisation
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Investissement (€)</label>
+            <input type="number" class="form-control" placeholder="2.000€ min" min="2000"
+                   data-action="input->simulation-cards-entreprise#calculateAid"
+                   data-aid-slug="bruxelles_prime_securisation">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold text-success">Aide Estimée</label>
+            <div class="input-group">
+              <span class="input-group-text bg-success text-white">€</span>
+              <input type="text" class="form-control bg-light" readonly
+                     data-simulation-cards-entreprise-target="aidResult"
+                     data-aid-slug="bruxelles_prime_securisation"
+                     placeholder="0">
+              <span class="input-group-text">40%</span>
+            </div>
+          </div>
+          <p class="small text-muted mb-0">
+            <i class="bi bi-info-circle me-1"></i>
+            Équipements de sécurisation des locaux commerciaux. Max 15.000€.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9. Immobilier -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm border-0 prime-card" data-aid-slug="bruxelles_prime_immobilier">
+        <div class="card-header bg-gradient-dark text-white">
+          <h6 class="mb-0">
+            <i class="bi bi-building me-2"></i>
+            Immobilier
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Investissement (€)</label>
+            <input type="number" class="form-control" placeholder="100.000€ min" min="100000"
+                   data-action="input->simulation-cards-entreprise#calculateAid"
+                   data-aid-slug="bruxelles_prime_immobilier">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold text-success">Aide Estimée</label>
+            <div class="input-group">
+              <span class="input-group-text bg-success text-white">€</span>
+              <input type="text" class="form-control bg-light" readonly
+                     data-simulation-cards-entreprise-target="aidResult"
+                     data-aid-slug="bruxelles_prime_immobilier"
+                     placeholder="0">
+              <span class="input-group-text">20%</span>
+            </div>
+          </div>
+          <p class="small text-muted mb-0">
+            <i class="bi bi-info-circle me-1"></i>
+            Acquisition, construction ou travaux immobiliers. Max 500.000€.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10. Accessibilité -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm border-0 prime-card" data-aid-slug="bruxelles_prime_accessibilite">
+        <div class="card-header bg-gradient-info text-white">
+          <h6 class="mb-0">
+            <i class="bi bi-universal-access me-2"></i>
+            Accessibilité
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Investissement (€)</label>
+            <input type="number" class="form-control" placeholder="1.000€ min" min="1000"
+                   data-action="input->simulation-cards-entreprise#calculateAid"
+                   data-aid-slug="bruxelles_prime_accessibilite">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold text-success">Aide Estimée</label>
+            <div class="input-group">
+              <span class="input-group-text bg-success text-white">€</span>
+              <input type="text" class="form-control bg-light" readonly
+                     data-simulation-cards-entreprise-target="aidResult"
+                     data-aid-slug="bruxelles_prime_accessibilite"
+                     placeholder="0">
+              <span class="input-group-text">50%</span>
+            </div>
+          </div>
+          <p class="small text-muted mb-0">
+            <i class="bi bi-info-circle me-1"></i>
+            Travaux d'accessibilité pour personnes à mobilité réduite. Max 25.000€.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 11. Recrutement -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm border-0 prime-card" data-aid-slug="bruxelles_prime_recrutement">
+        <div class="card-header bg-gradient-success text-white">
+          <h6 class="mb-0">
+            <i class="bi bi-people me-2"></i>
+            Recrutement
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Nombre d'embauches</label>
+            <input type="number" class="form-control" placeholder="1 min" min="1"
+                   data-action="input->simulation-cards-entreprise#calculateAid"
+                   data-aid-slug="bruxelles_prime_recrutement">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold text-success">Aide Estimée</label>
+            <div class="input-group">
+              <span class="input-group-text bg-success text-white">€</span>
+              <input type="text" class="form-control bg-light" readonly
+                     data-simulation-cards-entreprise-target="aidResult"
+                     data-aid-slug="bruxelles_prime_recrutement"
+                     placeholder="0">
+              <span class="input-group-text">par ETP</span>
+            </div>
+          </div>
+          <p class="small text-muted mb-0">
+            <i class="bi bi-info-circle me-1"></i>
+            Prime à l'embauche de demandeurs d'emploi bruxellois. 3.000€ par ETP.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 12. Formation -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm border-0 prime-card" data-aid-slug="bruxelles_prime_formation">
+        <div class="card-header bg-gradient-warning text-dark">
+          <h6 class="mb-0">
+            <i class="bi bi-book me-2"></i>
+            Formation
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Coût Formation (€)</label>
+            <input type="number" class="form-control" placeholder="500€ min" min="500"
+                   data-action="input->simulation-cards-entreprise#calculateAid"
+                   data-aid-slug="bruxelles_prime_formation">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold text-success">Aide Estimée</label>
+            <div class="input-group">
+              <span class="input-group-text bg-success text-white">€</span>
+              <input type="text" class="form-control bg-light" readonly
+                     data-simulation-cards-entreprise-target="aidResult"
+                     data-aid-slug="bruxelles_prime_formation"
+                     placeholder="0">
+              <span class="input-group-text">75%</span>
+            </div>
+          </div>
+          <p class="small text-muted mb-0">
+            <i class="bi bi-info-circle me-1"></i>
+            Formation professionnelle continue des travailleurs. Max 50.000€/an.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 13. Consultance -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm border-0 prime-card" data-aid-slug="bruxelles_prime_consultance">
+        <div class="card-header bg-gradient-primary text-white">
+          <h6 class="mb-0">
+            <i class="bi bi-person-workspace me-2"></i>
+            Consultance
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Coût Mission (€)</label>
+            <input type="number" class="form-control" placeholder="500€ min" min="500"
+                   data-action="input->simulation-cards-entreprise#calculateAid"
+                   data-aid-slug="bruxelles_prime_consultance">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold text-success">Aide Estimée</label>
+            <div class="input-group">
+              <span class="input-group-text bg-success text-white">€</span>
+              <input type="text" class="form-control bg-light" readonly
+                     data-simulation-cards-entreprise-target="aidResult"
+                     data-aid-slug="bruxelles_prime_consultance"
+                     placeholder="0">
+              <span class="input-group-text">50%</span>
+            </div>
+          </div>
+          <p class="small text-muted mb-0">
+            <i class="bi bi-info-circle me-1"></i>
+            Mission de conseil externe spécialisé. Max 15.000€.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 14. Digitalisation -->
+    <div class="col-md-6 col-lg-4">
+      <div class="card h-100 shadow-sm border-0 prime-card" data-aid-slug="bruxelles_prime_digitalisation">
+        <div class="card-header bg-gradient-info text-white">
+          <h6 class="mb-0">
+            <i class="bi bi-laptop me-2"></i>
+            Digitalisation
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Investissement (€)</label>
+            <input type="number" class="form-control" placeholder="500€ min" min="500"
+                   data-action="input->simulation-cards-entreprise#calculateAid"
+                   data-aid-slug="bruxelles_prime_digitalisation">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold text-success">Aide Estimée</label>
+            <div class="input-group">
+              <span class="input-group-text bg-success text-white">€</span>
+              <input type="text" class="form-control bg-light" readonly
+                     data-simulation-cards-entreprise-target="aidResult"
+                     data-aid-slug="bruxelles_prime_digitalisation"
+                     placeholder="0">
+              <span class="input-group-text">40%</span>
+            </div>
+          </div>
+          <p class="small text-muted mb-0">
+            <i class="bi bi-info-circle me-1"></i>
+            Outils et solutions digitales, logiciels, équipements IT. Max 25.000€.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Message d'information sur les majorations -->
+  <div class="row mt-4 mb-4">
+    <div class="col-12">
+      <div class="alert alert-info border-0 shadow-sm">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <div class="d-flex align-items-center">
+              <div class="me-3">
+                <i class="bi bi-info-circle-fill text-info" style="font-size: 2rem;"></i>
+              </div>
+              <div>
+                <h6 class="alert-heading mb-1 fw-bold">Estimation de base</h6>
+                <p class="mb-0">
+                  <strong>Ce simulateur affiche les taux de base.</strong> Votre entreprise peut bénéficier de majorations importantes selon :
+                </p>
+                <ul class="mb-0 mt-2 small">
+                  <li><strong>Statut Starter</strong> : +10% à +15% pour les entreprises de moins de 4 ans</li>
+                  <li><strong>Exemplarité</strong> : bonus pour projets innovants ou durables</li>
+                  <li><strong>Zone géographique</strong> : majorations selon la localisation</li>
+                  <li><strong>Cumuls optimisés</strong> : combinaisons intelligentes d'aides</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4 text-center">
+            <div class="d-grid gap-2">
+              <%= link_to new_user_session_path, class: "btn btn-primary btn-lg shadow-sm text-decoration-none" do %>
+                <i class="bi bi-box-arrow-in-right me-2"></i>
+                <strong>Se connecter</strong>
+              <% end %>
+              <%= link_to new_user_registration_path, class: "btn btn-success btn-lg shadow-sm text-decoration-none mt-2" do %>
+                <i class="bi bi-person-plus me-2"></i>
+                <strong>Créer un compte</strong>
+              <% end %>
+              <small class="text-muted mt-2 d-block">
+                <i class="bi bi-shield-check me-1"></i>
+                Calcul personnalisé et dépôt de dossier
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bouton d'action -->
+  <div class="text-center mt-5">
+    <button type="button" class="btn btn-warning btn-lg"
+            data-action="click->entreprise-workflow#showApplicationStep"
+            id="proceed-to-app-btn"
+            style="display: none;">
+      <i class="bi bi-rocket me-2"></i>
+      Accéder à l'Application
+    </button>
+  </div>
+</div>
+
+<style>
+.simulation-cards-container .prime-card {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.simulation-cards-container .prime-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%) !important;
+}
+
+.bg-gradient-success {
+  background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%) !important;
+}
+
+.bg-gradient-info {
+  background: linear-gradient(135deg, #17a2b8 0%, #117a8b 100%) !important;
+}
+
+.bg-gradient-warning {
+  background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%) !important;
+}
+
+.bg-gradient-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #bd2130 100%) !important;
+}
+
+.bg-gradient-secondary {
+  background: linear-gradient(135deg, #6c757d 0%, #545b62 100%) !important;
+}
+
+.bg-gradient-dark {
+  background: linear-gradient(135deg, #343a40 0%, #1d2124 100%) !important;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+}
+
+.input-group-text {
+  font-weight: bold;
+}
+
+.alert-info {
+  background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+  border-left: 4px solid #2196f3;
+}
+
+.alert-info .btn-primary {
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.alert-info .btn-success {
+  background: linear-gradient(135deg, #388e3c 0%, #2e7d32 100%);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.alert-info .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(25,118,210,0.3) !important;
+}
+
+.alert-info .btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(56,142,60,0.3) !important;
+}
+
+.alert-info ul li {
+  margin-bottom: 0.25rem;
+}
+</style>
