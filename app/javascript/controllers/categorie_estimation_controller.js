@@ -39,7 +39,7 @@ export default class extends Controller {
         revenuAnnuel = 48000 // Catégorie 3 pour la plupart des situations
         break
       case "53881+":
-        revenuAnnuel = 60000 // Catégorie 3 pour couple+enfants, 2 pour seul
+        revenuAnnuel = 80000 // Revenus plus élevés pour être sûr d'être en catégorie 1-2
         break
     }
 
@@ -99,56 +99,56 @@ export default class extends Controller {
   // Méthode pour calculer la catégorie Flandre selon les vraies règles du seed
   calculerCategorieFlandre(revenuAnnuel, statut, nbCharges) {
     // Seuils basés sur les données du seed flandre/categories.rb
+    // Plus le revenu est élevé, plus le numéro de catégorie est bas (1 = revenus élevés, 4 = revenus faibles)
     const categories = [
       {
         numero: "4",
-        seuil_seul: 24230,
-        seuil_avec_charge: 36340,
-        couple_sans_charge: 36340
+        seuil_max: 24230,
+        seuil_avec_charge_max: 36340,
+        couple_sans_charge_max: 36340
       },
       {
-        numero: "3",
-        seuil_seul: 42340,
-        seuil_avec_charge: 59270,
-        couple_sans_charge: 59270
+        numero: "3", 
+        seuil_max: 42340,
+        seuil_avec_charge_max: 59270,
+        couple_sans_charge_max: 59270
       },
       {
         numero: "2",
-        seuil_seul: 53880,
-        seuil_avec_charge: 76980,
-        couple_sans_charge: 76980
-      },
-      {
-        numero: "1",
-        seuil_seul: 500000, // Pas de limite réelle
-        seuil_avec_charge: 500000,
-        couple_sans_charge: 500000
+        seuil_max: 53880,
+        seuil_avec_charge_max: 76980,
+        couple_sans_charge_max: 76980
       }
+      // Catégorie 1 = au-dessus des seuils de la catégorie 2
     ]
 
     const increment_par_personne = 4320
 
     // Déterminer le seuil applicable selon la situation
     for (let cat of categories) {
-      let seuilApplicable = 0
+      let seuilMaxApplicable = 0
 
-      if (statut === "isolé" || statut === "seul") {
-        if (nbCharges > 0) {
-          seuilApplicable = cat.seuil_avec_charge + (nbCharges - 1) * increment_par_personne
-        } else {
-          seuilApplicable = cat.seuil_seul
-        }
-      } else if (statut === "couple" || statut === "couple-enfant") {
-        seuilApplicable = cat.couple_sans_charge + nbCharges * increment_par_personne
+      if (statut === "isolé") {
+        // Isolé sans enfant
+        seuilMaxApplicable = cat.seuil_max
+      } else if (statut === "isolé-enfant") {
+        // Isolé avec enfant(s) à charge
+        seuilMaxApplicable = cat.seuil_avec_charge_max + (nbCharges > 0 ? (nbCharges - 1) * increment_par_personne : 0)
+      } else if (statut === "couple") {
+        // Couple sans enfant
+        seuilMaxApplicable = cat.couple_sans_charge_max
+      } else if (statut === "couple-enfant") {
+        // Couple avec enfant(s)
+        seuilMaxApplicable = cat.couple_sans_charge_max + nbCharges * increment_par_personne
       }
 
-      // Si le revenu est inférieur ou égal au seuil, on est dans cette catégorie
-      if (revenuAnnuel <= seuilApplicable) {
+      // Si le revenu est inférieur ou égal au seuil MAX de cette catégorie, on est dans cette catégorie
+      if (revenuAnnuel <= seuilMaxApplicable) {
         return cat.numero
       }
     }
 
-    // Si aucune catégorie ne correspond, on est en catégorie 1 (revenus élevés)
+    // Si le revenu dépasse tous les seuils, on est en catégorie 1 (revenus élevés)
     return "1"
   }
 
