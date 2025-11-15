@@ -1,27 +1,18 @@
-<!-- Message d'info initial -->
-<div id="primes-placeholder" class="card border-0 shadow-sm text-center" style="display: none;">
-  <div class="card-body py-5">
-    <div class="text-primary mb-3">
-      <i class="bi bi-info-circle fs-1"></i>
-    </div>
-    <h5 class="text-primary">Complétez le test d'éligibilité</h5>
-    <p class="text-muted mb-0">Vos primes personnalisées apparaîtront ici selon votre catégorie.</p>
-  </div>
-</div>
-
 <%
-  # Helper pour récupérer la condition d'une prime
-  def condition_prime(slug)
-    prime = Prime.find_by(slug: slug)
-    prime&.condition || "Conditions en cours de chargement..."
-  end
-
-  # Helper pour récupérer le conseil d'une prime
-  def conseil_prime(slug)
-    prime = Prime.find_by(slug: slug)
-    prime&.conseil || "Conseil en cours de chargement..."
+  # Helper pour récupérer le conseil d'une prime - remplacé par call-to-action connexion
+  def conseil_prime_cta(slug)
+    "Explications détaillées, démarches et conseils d'expert disponibles dans l'application. #{link_to 'Se connecter', new_user_session_path, class: 'text-decoration-none fw-bold'} ou #{link_to 'créer un compte', new_user_registration_path, class: 'text-decoration-none fw-bold'}.".html_safe
   end
 %>
+
+<!-- Message d'info initial -->
+<div id="primes-placeholder" class="alert alert-info text-center" style="display: none;">
+  <div class="text-primary mb-3">
+    <i class="bi bi-info-circle fs-1"></i>
+  </div>
+  <h5 class="text-primary">Complétez le test d'éligibilité</h5>
+  <p class="text-muted mb-0">Vos primes personnalisées apparaîtront ici selon votre catégorie.</p>
+</div>
 
 <!-- Simulation des primes -->
 <div class="primes-section" data-controller="prime-calcul">
@@ -34,15 +25,7 @@
     </div>
   </div>
 
-  <div class="card border-0 shadow-sm mb-4">
-    <div class="card-header bg-success bg-opacity-10 border-0">
-      <h4 class="card-title mb-0 text-success">
-        <i class="bi bi-award text-success me-2"></i>
-        Vos primes éligibles - Catégorie <%= @categorie_id || '1' %>
-      </h4>
-    </div>
-    <div class="card-body">
-      <div class="row g-3">
+  <div class="row g-3">
     <% @primes.each do |prime| %>
       <% current_categorie = @categorie_id || '1' %>
       <% if prime.eligible_categories.include?(current_categorie.to_s) && prime.slug != 'amiante' %>
@@ -58,39 +41,39 @@
 
               <% if prime.slug == "isolation_murs_cat12" %>
                 <!-- Carte spéciale : isolation murs cat 1-2 -->
-                <div class="d-flex justify-content-between align-items-center gap-2"
-                      data-controller="prime-card"
+                <div data-controller="prime-card"
                       data-slug="<%= prime.slug %>">
-                  <select class="form-select w-50 select-type-mur"
+                  <!-- Menu déroulant en premier -->
+                  <select class="form-select mb-3 select-type-mur"
                           data-prime-card-target="select"
                           data-action="change->prime-card#update"
                           data-slug="<%= prime.slug %>">
                     <option value="0">Choisissez</option>
-                    <option value="facades">façades</option>
-                    <option value="murs_creux">murs creux</option>
-                    <option value="murs_interieurs">murs intérieurs</option>
+                    <option value="facades">par l'extérieur</option>
+                    <option value="murs_creux">en coulisse</option>
+                    <option value="murs_interieurs">par l'intérieur</option>
                   </select>
-                  <input type="number"
-                          class="form-control w-25 prime-input"
-                          data-prime-card-target="input"
-                          data-action="input->prime-card#update"
-                          data-slug="<%= prime.slug %>"
-                          placeholder="<%= placeholder_prime_flandre(prime, @category) %>">
-                  <span class="input-group-text bg-success text-white prime-result"
-                        data-slug="<%= prime.slug %>">
-                    0 €
-                  </span>
+
+                  <!-- Champ de surface et résultat en dessous -->
+                  <div class="d-flex justify-content-between align-items-center gap-2">
+                    <input type="number"
+                            class="form-control prime-input"
+                            data-prime-card-target="input"
+                            data-action="input->prime-card#update"
+                            data-slug="<%= prime.slug %>"
+                            placeholder="<%= placeholder_prime_flandre(prime, @category) %>">
+                    <span class="input-group-text bg-success text-white prime-result"
+                          data-slug="<%= prime.slug %>">
+                      0 €
+                    </span>
+                  </div>
                 </div>
 
                 <!-- Informations contextuelles depuis la base de données -->
                 <div class="mt-2">
-                  <small class="text-muted d-block">
-                    <i class="bi bi-info-circle me-1"></i>
-                    Conditions : <%= condition_prime(prime.slug) %>
-                  </small>
-                  <small class="text-success d-block mt-1">
+                  <small class="text-primary d-block mt-1">
                     <i class="bi bi-lightbulb me-1"></i>
-                    Conseil : <%= conseil_prime(prime.slug) %>
+                    <%= conseil_prime_cta(prime.slug) %>
                   </small>
                 </div>
 
@@ -117,13 +100,9 @@
 
                 <!-- Informations contextuelles depuis la base de données -->
                 <div class="mt-2">
-                  <small class="text-muted d-block">
-                    <i class="bi bi-info-circle me-1"></i>
-                    Conditions : <%= condition_prime(prime.slug) %>
-                  </small>
-                  <small class="text-success d-block mt-1">
+                  <small class="text-primary d-block mt-1">
                     <i class="bi bi-lightbulb me-1"></i>
-                    Conseil : <%= conseil_prime(prime.slug) %>
+                    <%= conseil_prime_cta(prime.slug) %>
                   </small>
                 </div>
 
@@ -145,13 +124,9 @@
 
                 <!-- Informations contextuelles depuis la base de données -->
                 <div class="mt-2">
-                  <small class="text-muted d-block">
-                    <i class="bi bi-info-circle me-1"></i>
-                    Conditions : <%= condition_prime(prime.slug) %>
-                  </small>
-                  <small class="text-success d-block mt-1">
+                  <small class="text-primary d-block mt-1">
                     <i class="bi bi-lightbulb me-1"></i>
-                    Conseil : <%= conseil_prime(prime.slug) %>
+                    <%= conseil_prime_cta(prime.slug) %>
                   </small>
                 </div>
               <% end %>
@@ -172,32 +147,26 @@
           <span class="h4 text-success mb-0" id="total-primes-affiche">0.00 €</span>
         </div>
       </div>
-    </div>
   </div>
-</div>
 
 <!-- Autres aides disponibles -->
-<div class="card border-0 shadow-sm">
-  <div class="card-header bg-light">
-    <h5 class="card-title mb-0">
-      <i class="bi bi-gift text-info me-2"></i>
-      Autres aides disponibles
-    </h5>
-  </div>
-  <div class="card-body">
-    <div class="row g-3">
-    <!-- Carte PEB Interactive -->
-    <% if defined?(@prime_peb) %>
-      <%= render 'shared/primes/prime_peb_card', prime_peb: @prime_peb %>
-    <% else %>
-      <%= render 'shared/primes/prime_peb_card', prime_peb: nil %>
-    <% end %>
+<div class="mt-4">
+  <h5 class="mb-3">
+    <i class="bi bi-gift text-info me-2"></i>
+    Autres aides disponibles
+  </h5>
+  <div class="row g-3">
+  <!-- Carte PEB Interactive -->
+  <% if defined?(@prime_peb) %>
+    <%= render 'shared/primes/prime_peb_card', prime_peb: @prime_peb %>
+  <% else %>
+    <%= render 'shared/primes/prime_peb_card', prime_peb: nil %>
+  <% end %>
 
-    <%= render 'pages/partials_flandre/primes_communales_card' %>
+  <%= render 'pages/partials_flandre/primes_communales_card' %>
 
-    <%= render 'pages/partials_flandre/prime_amiante_card' %>
+  <%= render 'pages/partials_flandre/prime_amiante_card' %>
 
-    <%= render 'pages/partials_flandre/monuments_et_sites_card' %>    </div>
-    </div>
+  <%= render 'pages/partials_flandre/monuments_et_sites_card' %>
   </div>
 </div>

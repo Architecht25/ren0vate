@@ -1,139 +1,133 @@
 <!-- Test d'éligibilité -->
 <div id="eligibility-test" data-controller="test-eligibilite-flandre">
-  <div class="card border-0 shadow-sm">
-    <div class="card-header bg-light">
-      <h4 class="card-title mb-0">
-        <i class="bi bi-check-circle text-success me-2"></i>
-        Test d'éligibilité
-      </h4>
-    </div>
-    <div class="card-body">
-      <form id="eligibilityForm" name="eligibilityForm" data-test-eligibilite-flandre-target="form">
-        <%# Répète cette structure pour chaque step %>
-        <% steps = {
-          "usage" => "Le bien est-il destiné à être habité ?",
-          "propriétaire" => "Êtes-vous propriétaire du bien (min 1%)?",
-          "autre_bien" => "Possédez-vous un autre bien/appartement/terrain, autre que le bien rénové, sur le territoire belge et/ou à l'étranger?",
-          "annee" => "Le bien rénové a-t-il été construit avant le 1er janvier 2006 ?",
-          "appartement" => "Le bien rénové est-il un appartement individuel (hors copropriété - vma)?",
-          "appartement-copro" => "Le bien rénové est-il un appartement soumis à copropriété (vma)?",
-          "immeuble-appartements" => "Le bien rénové est-il un immeuble à appartements destinés au logement?",
-          "type" => "Le bien rénové est-il une maison?",
-          "facture_solde" => "La facture de solde des travaux de rénovation date-t-elle de plus de 2 ans ?",
-          "peb" => "Le certificat PEB avant travaux de rénovation indique-t-il un label E, F?",
-          "domicile" => "Êtes-vous ou serez-vous domicilié une fois le bien rénové?",
-          "demolition" => "Le bien rénové est-il une reconstruction complète après démolition, ouvrant droit au taux réduit de TVA à 6 % ?",
-          "travaux" => "Prévoyez-vous des travaux d'isolation ou de chauffage ?",
-          "protege" => "Êtes-vous un client protégé, à savoir: une personne qui remplit certaines conditions sociales ou financières, déterminées par l'État fédéral ou la Région flamande, et qui a droit au tarif social pour l'énergie ?"
-        } %>
+  <h5 class="mb-3">
+    <i class="bi bi-check-circle text-success me-2"></i>
+    Questionnaire d'éligibilité
+  </h5>
+  <form id="eligibilityForm" name="eligibilityForm" data-test-eligibilite-flandre-target="form">
+    <%# Répète cette structure pour chaque step %>
+    <% steps = {
+      "usage" => "Le bien est-il destiné à être habité ?",
+      "propriétaire" => "Êtes-vous propriétaire du bien (min 1%)?",
+      "autre_bien" => "Possédez-vous un autre bien/appartement/terrain, autre que le bien rénové, sur le territoire belge et/ou à l'étranger?",
+      "annee" => "Le bien rénové a-t-il été construit avant le 1er janvier 2006 ?",
+      "appartement" => "Le bien rénové est-il un appartement individuel (hors copropriété - vma)?",
+      "appartement-copro" => "Le bien rénové est-il un appartement soumis à copropriété (vma)?",
+      "immeuble-appartements" => "Le bien rénové est-il un immeuble à appartements destinés au logement?",
+      "type" => "Le bien rénové est-il une maison?",
+      "facture_solde" => "La facture de solde des travaux de rénovation date-t-elle de plus de 2 ans ?",
+      "peb" => "Le certificat PEB avant travaux de rénovation indique-t-il un label E, F?",
+      "domicile" => "Êtes-vous ou serez-vous domicilié une fois le bien rénové?",
+      "demolition" => "Le bien rénové est-il une reconstruction complète après démolition, ouvrant droit au taux réduit de TVA à 6 % ?",
+      "travaux" => "Prévoyez-vous des travaux d'isolation ou de chauffage ?",
+      "protege" => "Êtes-vous un client protégé, à savoir: une personne qui remplit certaines conditions sociales ou financières, déterminées par l'État fédéral ou la Région flamande, et qui a droit au tarif social pour l'énergie ?"
+    } %>
 
-        <% steps.each do |key, question| %>
-          <div class="mb-3 p-3 border rounded bg-light" data-test-eligibilite-flandre-target="formCard">
-            <h6 class="mb-3 text-dark"><%= question %></h6>
-            <div class="d-flex gap-3">
-              <div class="form-check">
-                <input type="radio" class="form-check-input" name="<%= key %>" value="oui" data-action="click->test-eligibilite-flandre#handleAnswer" id="<%= key %>_oui">
-                <label class="form-check-label" for="<%= key %>_oui">
-                  <i class="bi bi-check-circle text-success me-1"></i>Oui
-                </label>
-              </div>
-              <div class="form-check">
-                <input type="radio" class="form-check-input" name="<%= key %>" value="non" data-action="click->test-eligibilite-flandre#handleAnswer" id="<%= key %>_non">
-                <label class="form-check-label" for="<%= key %>_non">
-                  <i class="bi bi-x-circle text-danger me-1"></i>Non
-                </label>
-              </div>
-            </div>
+    <% steps.each do |key, question| %>
+      <div class="mb-3 p-3 border rounded bg-light" data-test-eligibilite-flandre-target="formCard">
+        <h6 class="mb-3 text-dark"><%= question %></h6>
+        <div class="d-flex gap-3">
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="<%= key %>" value="oui" data-action="click->test-eligibilite-flandre#handleAnswer" id="<%= key %>_oui">
+            <label class="form-check-label" for="<%= key %>_oui">
+              <i class="bi bi-check-circle text-success me-1"></i>Oui
+            </label>
           </div>
-        <% end %>
-      </form>
-
-      <!-- Bouton de validation du test -->
-      <div class="text-center mt-4">
-        <button type="button"
-                class="btn btn-success btn-lg"
-                data-action="click->test-eligibilite-flandre#validateTest"
-                data-test-eligibilite-flandre-target="validateButton"
-                style="display: none;">
-          <i class="bi bi-check2-circle me-2"></i>Valider mon test d'éligibilité
-        </button>
-      </div>
-
-      <div id="result"
-        data-test-eligibilite-flandre-target="result"
-        class="alert alert-info mt-4 text-center"
-        style="display: none;">
-      </div>
-
-      <!-- Section d'affinage de catégorie améliorée -->
-      <div id="affinage-categorie" data-controller="categorie-estimation" class="mt-4" style="display: none;">
-        <div class="card border-warning">
-          <div class="card-header bg-warning bg-opacity-10">
-            <h5 class="card-title mb-0">
-              <i class="bi bi-gear text-warning me-2"></i>
-              Affinez votre catégorie
-            </h5>
-          </div>
-          <div class="card-body">
-            <!-- Statut du ménage -->
-            <div class="mb-3">
-              <label for="statut-familial" class="form-label">Situation familiale</label>
-              <select id="statut-familial" class="form-select" required>
-                <option value="">Sélectionnez une option</option>
-                <option value="isolé">Isolé / Célibataire</option>
-                <option value="isolé-enfant">Isolé avec enfant à charge</option>
-                <option value="couple">Couple sans enfants"</option>
-                <option value="couple-enfant">Couple avec enfants à charge</option>
-              </select>
-            </div>
-
-            <!-- Nombre de personnes à charge -->
-            <div class="mb-3">
-              <label for="personnes-charge" class="form-label">Nombre de personnes à charge</label>
-              <select id="personnes-charge" class="form-select" required>
-                <option value="">Sélectionnez</option>
-                <option value="0">0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-              </select>
-            </div>
-
-            <!-- Revenu imposable net -->
-            <div class="mb-3">
-              <label for="revenu-net" class="form-label">Revenu imposable globablement du ménage</label>
-              <select id="revenu-net" class="form-select" required>
-                <option value="">Sélectionnez une tranche</option>
-                <option value="-24320">Moins de 24.230 €</option>
-                <option value="24231-42340">24.231 € – 42.340 €</option>
-                <option value="42341-53880">42.341 € – 53.880 €</option>
-                <option value="53881+">Plus de 53.881 €</option>
-              </select>
-              <p class="mt-3 text-muted small">
-                💡 Pour un calcul précis basé sur vos documents fiscaux, créez un compte ou connectez-vous à votre espace personnel.
-              </p>
-            </div>
-
-            <button id="valider-affinage"
-                    class="btn btn-success mt-2"
-                    data-action="click->categorie-estimation#estimerCategorie">
-              Valider et recalculer ma catégorie
-            </button>
-
-            <!-- Résultat de l'estimation -->
-            <div id="result-affinage"
-                data-categorie-estimation-target="resultAffinage"
-                class="alert alert-secondary mt-3 text-center"
-                style="display: none;">
-            </div>
-
-            <button id="go-simulateur" style="display: none;" class="btn btn-primary mt-3">
-              🎯 Accéder au simulateur
-            </button>
-
+          <div class="form-check">
+            <input type="radio" class="form-check-input" name="<%= key %>" value="non" data-action="click->test-eligibilite-flandre#handleAnswer" id="<%= key %>_non">
+            <label class="form-check-label" for="<%= key %>_non">
+              <i class="bi bi-x-circle text-danger me-1"></i>Non
+            </label>
           </div>
         </div>
+      </div>
+    <% end %>
+  </form>
+
+  <!-- Bouton de validation du test -->
+  <div class="text-center mt-4">
+    <button type="button"
+            class="btn btn-success btn-lg"
+            data-action="click->test-eligibilite-flandre#validateTest"
+            data-test-eligibilite-flandre-target="validateButton"
+            style="display: none;">
+      <i class="bi bi-check2-circle me-2"></i>Valider mon test d'éligibilité
+    </button>
+  </div>
+
+  <div id="result"
+    data-test-eligibilite-flandre-target="result"
+    class="alert alert-info mt-4 text-center"
+    style="display: none;">
+  </div>
+
+  <!-- Section d'affinage de catégorie améliorée -->
+  <div id="affinage-categorie" data-controller="categorie-estimation" class="mt-4" style="display: none;">
+    <div class="card border-warning">
+      <div class="card-header bg-warning bg-opacity-10">
+        <h5 class="card-title mb-0">
+          <i class="bi bi-gear text-warning me-2"></i>
+          Affinez votre catégorie
+        </h5>
+      </div>
+      <div class="card-body">
+        <!-- Statut du ménage -->
+        <div class="mb-3">
+          <label for="statut-familial" class="form-label">Situation familiale</label>
+          <select id="statut-familial" class="form-select" required>
+            <option value="">Sélectionnez une option</option>
+            <option value="isolé">Isolé / Célibataire</option>
+            <option value="isolé-enfant">Isolé avec enfant à charge</option>
+            <option value="couple">Couple sans enfants"</option>
+            <option value="couple-enfant">Couple avec enfants à charge</option>
+          </select>
+        </div>
+
+        <!-- Nombre de personnes à charge -->
+        <div class="mb-3">
+          <label for="personnes-charge" class="form-label">Nombre de personnes à charge</label>
+          <select id="personnes-charge" class="form-select" required>
+            <option value="">Sélectionnez</option>
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+          </select>
+        </div>
+
+        <!-- Revenu imposable net -->
+        <div class="mb-3">
+          <label for="revenu-net" class="form-label">Revenu imposable globablement du ménage</label>
+          <select id="revenu-net" class="form-select" required>
+            <option value="">Sélectionnez une tranche</option>
+            <option value="-24320">Moins de 24.230 €</option>
+            <option value="24231-42340">24.231 € – 42.340 €</option>
+            <option value="42341-53880">42.341 € – 53.880 €</option>
+            <option value="53881+">Plus de 53.881 €</option>
+          </select>
+          <p class="mt-3 text-muted small">
+            💡 Pour un calcul précis basé sur vos documents fiscaux, créez un compte ou connectez-vous à votre espace personnel.
+          </p>
+        </div>
+
+        <button id="valider-affinage"
+                class="btn btn-success mt-2"
+                data-action="click->categorie-estimation#estimerCategorie">
+          Valider et recalculer ma catégorie
+        </button>
+
+        <!-- Résultat de l'estimation -->
+        <div id="result-affinage"
+            data-categorie-estimation-target="resultAffinage"
+            class="alert alert-secondary mt-3 text-center"
+            style="display: none;">
+        </div>
+
+        <button id="go-simulateur" style="display: none;" class="btn btn-primary mt-3">
+          🎯 Accéder au simulateur
+        </button>
+
       </div>
     </div>
   </div>

@@ -10,10 +10,9 @@ module BruxellesPrimesHelper
     prime&.condition || ""
   end
 
-  # Récupère le conseil d'une prime par son slug
+  # Call-to-action pour inciter à la connexion au lieu du conseil générique
   def conseil_prime(slug)
-    prime = bruxelles_primes_cache[slug]
-    prime&.conseil || ""
+    "Explications détaillées, démarches et conseils d'expert disponibles dans l'application. #{link_to 'Se connecter', new_user_session_path, class: 'text-decoration-none fw-bold'} ou #{link_to 'créer un compte', new_user_registration_path, class: 'text-decoration-none fw-bold'}.".html_safe
   end
 
   # Génère les données JSON des primes pour le JavaScript

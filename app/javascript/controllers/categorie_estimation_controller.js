@@ -39,7 +39,14 @@ export default class extends Controller {
         revenuAnnuel = 48000 // Catégorie 3 pour la plupart des situations
         break
       case "53881+":
-        revenuAnnuel = 80000 // Revenus plus élevés pour être sûr d'être en catégorie 1-2
+        // Pour >53.881€, adapter selon la situation familiale
+        // Couple avec enfant(s) : probablement catégorie 2
+        // Seul ou couple sans enfant : probablement catégorie 1
+        if ((statut === "couple-enfant" && nbCharges > 0) || (statut === "isolé-enfant" && nbCharges > 0)) {
+          revenuAnnuel = 70000 // Valeur qui donne généralement catégorie 2 avec enfants
+        } else {
+          revenuAnnuel = 90000 // Valeur qui donne catégorie 1 sans enfants
+        }
         break
     }
 
@@ -108,7 +115,7 @@ export default class extends Controller {
         couple_sans_charge_max: 36340
       },
       {
-        numero: "3", 
+        numero: "3",
         seuil_max: 42340,
         seuil_avec_charge_max: 59270,
         couple_sans_charge_max: 59270
