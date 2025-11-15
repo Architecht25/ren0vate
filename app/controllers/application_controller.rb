@@ -137,6 +137,17 @@ class ApplicationController < ActionController::Base
     devise_parameter_sanitizer.permit(:account_update, keys: [:first_name, :last_name])
   end
 
+  def after_sign_in_path_for(resource)
+    # Rediriger vers le dashboard après connexion au lieu de la page d'accueil
+    # On ignore stored_location_for pour forcer le dashboard
+    dashboard_path
+  end
+
+  def after_sign_up_path_for(resource)
+    # Rediriger vers le dashboard après inscription
+    dashboard_path
+  end
+
   def ensure_admin_or_moderator
     unless current_user&.admin? || current_user&.moderator?
       redirect_to root_path, alert: "Accès non autorisé. Vous devez être administrateur ou modérateur."

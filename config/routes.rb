@@ -8,11 +8,13 @@ Rails.application.routes.draw do
 
   # Routes avec support multi-langues (y compris Devise)
   scope "(:locale)", locale: /fr|nl|en/ do
-    # Routes Devise dans le scope locale
+    # Routes Devise dans le scope locale avec contrôleur personnalisé
     devise_for :users, path_names: {
       sign_in: 'connexion',
       sign_out: 'deconnexion',
       sign_up: 'inscription'
+    }, controllers: {
+      sessions: 'users/sessions'
     }
 
     root "pages#home"

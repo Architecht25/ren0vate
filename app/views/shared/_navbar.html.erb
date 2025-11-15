@@ -1,12 +1,19 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-light px-4 py-          <!-- Séparateur pour mobile -->
           <li class="d-lg-none"><hr class="dropdown-divider"></li>
 
-          <!-- Dropdown utilisateur --> <div class="container-fluid">
+          <!-- Dropdown utilisateur -->  <div class="container-fluid">
     <!-- Logo -->
-    <a class="navbar-brand d-flex align-items-center" href="/">
-      <i class="bi bi-house-heart-fill me-2 text-primary-custom"></i>
-      <span class="fw-semibold">Ren0vate.primes</span>
-    </a>
+    <% if user_signed_in? %>
+      <a class="navbar-brand d-flex align-items-center" href="<%= dashboard_path %>">
+        <i class="bi bi-house-heart-fill me-2 text-primary-custom"></i>
+        <span class="fw-semibold">Ren0vate.primes</span>
+      </a>
+    <% else %>
+      <a class="navbar-brand d-flex align-items-center" href="/">
+        <i class="bi bi-house-heart-fill me-2 text-primary-custom"></i>
+        <span class="fw-semibold">Ren0vate.primes</span>
+      </a>
+    <% end %>
 
     <!-- Bouton hamburger pour mobile -->
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
@@ -19,8 +26,7 @@
       <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
         <% if user_signed_in? %>
           <!-- Liens de navigation -->
-          <li class="nav-item">
-            <!-- Profil - lien direct -->
+
           <li class="nav-item">
             <%= link_to profile_path, class: "nav-link px-3 d-flex align-items-center" do %>
               <i class="bi bi-person-circle me-2" style="color: #64748b;"></i>

@@ -1,311 +1,446 @@
-<style>
-  .property-card {
-    transition: all 0.3s ease;
-    border: 1px solid #e9ecef;
-  }
+<%
+  # Page d'accueil après connexion - Dashboard des fonctionnalités
+  # Style architectural en grille 3x3 avec les 9 fonctionnalités principales
 
-  .property-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
-    border-color: var(--bs-primary);
-  }
+  set_seo_meta(
+    title: "Tableau de bord - Ren0vate",
+    description: "Accédez à toutes vos fonctionnalités Ren0vate depuis votre tableau de bord",
+    keywords: ["dashboard", "tableau de bord", "fonctionnalités", "rénovation", "primes", "simulations"]
+  )
+%>
 
-  /* Styles pour les cartes entreprises - teinte bleue légère */
-  .property-card-entreprise {
-    background: linear-gradient(135deg, #f8fbff 0%, #e8f4fd 100%);
-    border-color: #b3d9ff !important;
-  }
+<!-- Hero Section - Style Carnet d'Architecte avec grille intégrée -->
+<div class="architectural-hero position-relative d-flex min-vh-100"
+     data-controller="architectural-parallax"
+     data-architectural-parallax-hero-target="hero">
 
-  .property-card-entreprise:hover {
-    background: linear-gradient(135deg, #f0f8ff 0%, #dbeafe 100%);
-    border-color: #2563eb !important;
-    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.15) !important;
-  }
+  <!-- Image de fond directe -->
+  <img src="<%= asset_path('arcliine.jpg') %>"
+       alt="Architectural watercolor background"
+       class="architectural-bg-image">
 
-  .icon-circle {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-</style>
+  <!-- Overlay léger pour la lisibilité -->
+  <div class="architectural-overlay"></div>
 
-<div class="container-fluid px-4 py-4">
-  <!-- Header principal -->
-  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-    <div class="d-flex align-items-center">
-      <div class="icon-circle me-3">
-        <i class="bi bi-house-door"></i>
-      </div>
-      <div>
-        <h1 class="h3 text-primary-custom mb-0 fw-normal">
-          Bienvenue <%= current_user.first_name || current_user.email.split('@').first %>
-        </h1>
-        <small class="text-muted-custom">Tableau de bord - Vue d'ensemble de vos biens</small>
-      </div>
-    </div>
-    <div class="d-flex gap-2">
-      <%= link_to notifications_path, class: "btn btn-outline-primary-custom position-relative" do %>
-        <i class="bi bi-bell"></i>
-        <% if @recent_notifications&.any? %>
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-            <%= @recent_notifications.count %>
-          </span>
-        <% end %>
-      <% end %>
-      <%= link_to new_property_path, class: "btn btn-primary-custom px-4" do %>
-        <i class="bi bi-plus-lg me-2"></i>Ajouter un bien
-      <% end %>
-    </div>
+  <!-- Sketch Overlay avec effet parallax -->
+  <div class="sketch-overlay position-absolute w-100 h-100">
+    <div class="blueprint-grid"></div>
+    <div class="technical-lines"></div>
   </div>
 
-  <!-- Statistiques en un coup d'œil -->
-  <div class="row g-3 mb-4">
-    <div class="col-md-3">
-      <div class="card border-0 bg-light-custom h-100">
-        <div class="card-body text-center p-4">
-          <div class="icon-circle-large mx-auto mb-3">
-            <i class="bi bi-house-door"></i>
+  <!-- Titre et statistiques -->
+  <div class="container position-relative d-flex flex-column justify-content-start align-items-center pt-5">
+    <div class="architectural-content text-center mb-5">
+
+      <h1 class="architectural-title display-4 mb-4">
+        <i class="bi bi-house-gear me-3"></i>
+        Bonjour <span class="highlight-watercolor"><%= current_user.first_name || current_user.email.split('@').first.capitalize %></span>
+      </h1>
+
+      <div class="subtitle-sketch mb-4">
+        <p class="architect-subtitle">
+          Votre tableau de bord Ren0vate<br>
+          Accédez à toutes vos fonctionnalités
+        </p>
+        <div class="sketch-underline"></div>
+      </div>
+
+      <!-- Statistiques rapides avec style annotation -->
+      <div class="architect-description mb-4">
+        <div class="description-box">
+          <div class="handwritten-note">
+            <i class="bi bi-graph-up me-2"></i>
+            <strong><%= @total_properties %></strong> biens •
+            <strong><%= current_user.projects.count %></strong> chantiers •
+            <strong><%= current_user.simulations.count %></strong> simulations •
+            <strong><%= current_user.documents.count %></strong> documents •
+            <strong><%= @total_requests %></strong> formulaires •
+            <strong><%= @active_requests %></strong> suivis actifs •
+            <% unread_count = current_user.respond_to?(:notifications) ? current_user.notifications.unread.count : 0 %>
+            <strong><%= unread_count %></strong> notifications
           </div>
-          <h3 class="text-primary-custom mb-1"><%= @total_properties %></h3>
-          <small class="text-muted-custom">Biens enregistrés</small>
         </div>
       </div>
     </div>
-    <div class="col-md-3">
-      <div class="card border-0 bg-light-custom h-100">
-        <div class="card-body text-center p-4">
-          <div class="icon-circle-large mx-auto mb-3">
-            <i class="bi bi-percent"></i>
-          </div>
-          <h3 class="text-primary-custom mb-1"><%= @completion_stats[:average] %>%</h3>
-          <small class="text-muted-custom">Complétude moyenne</small>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="card border-0 bg-light-custom h-100">
-        <div class="card-body text-center p-4">
-          <div class="icon-circle-large mx-auto mb-3">
-            <i class="bi bi-file-earmark-text"></i>
-          </div>
-          <h3 class="text-primary-custom mb-1"><%= @request_stats[:pending] + @request_stats[:in_progress] + @request_stats[:submitted] %></h3>
-          <small class="text-muted-custom">Demandes en cours</small>
-          <% if @request_stats[:estimated_amount] > 0 %>
-            <div class="mt-2">
-              <small class="text-success fw-semibold">
-                <%= number_to_currency(@request_stats[:estimated_amount], unit: "€", separator: ",", delimiter: " ") %>
-              </small>
+
+    <!-- Grille 3x3 des fonctionnalités en superposition sur l'image -->
+    <div class="row" style="z-index: 1000; position: relative;">
+      <div class="col-xl-10 mx-auto">
+
+        <!-- Grille 3x3 des fonctionnalités - Ordre correct navbar -->
+        <div class="row g-4" style="z-index: 1001; position: relative;">
+
+          <!-- 1. Mon profil -->
+          <div class="col-lg-4 col-md-6 position-relative" style="z-index: 1002;">
+            <div class="margin-note">01</div>
+            <div class="annotated-section">
+              <div class="card border-0 h-100 feature-card feature-card-secondary" style="z-index: 1003;">
+                <div class="card-body p-4 text-center">
+                  <div class="feature-icon mb-3">
+                    <i class="bi bi-person-gear"></i>
+                  </div>
+                  <h5 class="feature-title mb-3">Mon profil</h5>
+                  <p class="feature-description mb-3">
+                    Paramètres et informations compte
+                  </p>
+                  <div class="feature-stats mb-3">
+                    <small class="text-muted">Compte vérifié</small>
+                  </div>
+                  <%= link_to profile_path, class: "btn btn-feature btn-secondary" do %>
+                    <i class="bi bi-gear me-2"></i>Paramètres
+                  <% end %>
+                </div>
+              </div>
             </div>
-          <% end %>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="card border-0 bg-light-custom h-100">
-        <div class="card-body text-center p-4">
-          <div class="icon-circle-large mx-auto mb-3">
-            <i class="bi bi-check-circle"></i>
           </div>
-          <h3 class="text-primary-custom mb-1"><%= @completion_stats[:completed] %></h3>
-          <small class="text-muted-custom">Biens finalisés (≥80%)</small>
+
+          <!-- 2. Mes biens -->
+          <div class="col-lg-4 col-md-6 position-relative">
+            <div class="margin-note">02</div>
+            <div class="annotated-section">
+              <div class="card border-0 h-100 feature-card feature-card-success">
+                <div class="card-body p-4 text-center">
+                  <div class="feature-icon mb-3">
+                    <i class="bi bi-house"></i>
+                  </div>
+                  <h5 class="feature-title mb-3">Mes biens</h5>
+                  <p class="feature-description mb-3">
+                    Gérez vos propriétés et leurs données
+                  </p>
+                  <div class="feature-stats mb-3">
+                    <small class="text-muted"><%= @total_properties %> bien<%= 's' if @total_properties > 1 %> enregistré<%= 's' if @total_properties > 1 %></small>
+                  </div>
+                  <%= link_to properties_path, class: "btn btn-feature btn-success" do %>
+                    <i class="bi bi-building me-2"></i>Voir mes biens
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Chantiers -->
+          <div class="col-lg-4 col-md-6 position-relative">
+            <div class="margin-note">03</div>
+            <div class="annotated-section">
+              <div class="card border-0 h-100 feature-card feature-card-purple">
+                <div class="card-body p-4 text-center">
+                  <div class="feature-icon mb-3">
+                    <i class="bi bi-tools"></i>
+                  </div>
+                  <h5 class="feature-title mb-3">Chantiers</h5>
+                  <p class="feature-description mb-3">
+                    Suivez vos projets et validations
+                  </p>
+                  <div class="feature-stats mb-3">
+                    <small class="text-muted"><%= current_user.projects.count %> projet<%= 's' if current_user.projects.count > 1 %></small>
+                  </div>
+                  <%= link_to projects_path, class: "btn btn-feature btn-purple" do %>
+                    <i class="bi bi-hammer me-2"></i>Mes chantiers
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Simulations -->
+          <div class="col-lg-4 col-md-6 position-relative">
+            <div class="margin-note">04</div>
+            <div class="annotated-section">
+              <div class="card border-0 h-100 feature-card feature-card-primary">
+                <div class="card-body p-4 text-center">
+                  <div class="feature-icon mb-3">
+                    <i class="bi bi-calculator"></i>
+                  </div>
+                  <h5 class="feature-title mb-3">Simulations</h5>
+                  <p class="feature-description mb-3">
+                    Calculez vos primes et estimez vos économies
+                  </p>
+                  <div class="feature-stats mb-3">
+                    <small class="text-muted">Dernière simulation: <%= current_user.simulations.last&.created_at&.strftime("%d/%m") || "Aucune" %></small>
+                  </div>
+                  <%= link_to simulations_path, class: "btn btn-feature btn-primary" do %>
+                    <i class="bi bi-list me-2"></i>Voir mes simulations
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. Conseil IA -->
+          <div class="col-lg-4 col-md-6 position-relative">
+            <div class="margin-note">05</div>
+            <div class="annotated-section">
+              <div class="card border-0 h-100 feature-card feature-card-gradient">
+                <div class="card-body p-4 text-center">
+                  <div class="feature-icon mb-3">
+                    <i class="bi bi-robot"></i>
+                  </div>
+                  <h5 class="feature-title mb-3">Conseil IA</h5>
+                  <p class="feature-description mb-3">
+                    Assistant intelligent pour vos projets
+                  </p>
+                  <div class="feature-stats mb-3">
+                    <small class="text-muted">Decision Hub & IA</small>
+                  </div>
+                  <%= link_to decision_hub_index_path, class: "btn btn-feature btn-gradient" do %>
+                    <i class="bi bi-chat-dots me-2"></i>Demander conseil
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 6. Documents -->
+          <div class="col-lg-4 col-md-6 position-relative">
+            <div class="margin-note">06</div>
+            <div class="annotated-section">
+              <div class="card border-0 h-100 feature-card feature-card-info">
+                <div class="card-body p-4 text-center">
+                  <div class="feature-icon mb-3">
+                    <i class="bi bi-folder"></i>
+                  </div>
+                  <h5 class="feature-title mb-3">Documents</h5>
+                  <p class="feature-description mb-3">
+                    Gérez vos documents et téléchargements
+                  </p>
+                  <div class="feature-stats mb-3">
+                    <small class="text-muted"><%= current_user.documents.count %> document<%= 's' if current_user.documents.count > 1 %></small>
+                  </div>
+                  <%= link_to documents_path, class: "btn btn-feature btn-info" do %>
+                    <i class="bi bi-folder-open me-2"></i>Mes documents
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7. Formulaires -->
+          <div class="col-lg-4 col-md-6 position-relative">
+            <div class="margin-note">07</div>
+            <div class="annotated-section">
+              <div class="card border-0 h-100 feature-card feature-card-dark">
+                <div class="card-body p-4 text-center">
+                  <div class="feature-icon mb-3">
+                    <i class="bi bi-file-earmark-check"></i>
+                  </div>
+                  <h5 class="feature-title mb-3">Formulaires</h5>
+                  <p class="feature-description mb-3">
+                    Créez et gérez vos formulaires de demande
+                  </p>
+                  <div class="feature-stats mb-3">
+                    <small class="text-muted">Templates & modèles</small>
+                  </div>
+                  <%= link_to requests_path, class: "btn btn-feature btn-dark" do %>
+                    <i class="bi bi-journal-text me-2"></i>Accéder
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 8. Suivi des primes -->
+          <div class="col-lg-4 col-md-6 position-relative">
+            <div class="margin-note">08</div>
+            <div class="annotated-section">
+              <div class="card border-0 h-100 feature-card feature-card-warning">
+                <div class="card-body p-4 text-center">
+                  <div class="feature-icon mb-3">
+                    <i class="bi bi-list-check"></i>
+                  </div>
+                  <h5 class="feature-title mb-3">Suivi des primes</h5>
+                  <p class="feature-description mb-3">
+                    Suivez vos demandes et leur progression
+                  </p>
+                  <div class="feature-stats mb-3">
+                    <small class="text-muted"><%= @active_requests %> demande<%= 's' if @active_requests > 1 %> active<%= 's' if @active_requests > 1 %></small>
+                  </div>
+                  <%= link_to request_progresses_path, class: "btn btn-feature btn-warning" do %>
+                    <i class="bi bi-clipboard-check me-2"></i>Voir le suivi
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 9. Notifications -->
+          <div class="col-lg-4 col-md-6 position-relative">
+            <div class="margin-note">09</div>
+            <div class="annotated-section">
+              <div class="card border-0 h-100 feature-card feature-card-danger">
+                <div class="card-body p-4 text-center">
+                  <div class="feature-icon mb-3">
+                    <i class="bi bi-bell"></i>
+                  </div>
+                  <h5 class="feature-title mb-3">Notifications</h5>
+                  <p class="feature-description mb-3">
+                    Restez informé de vos actualités
+                  </p>
+                  <div class="feature-stats mb-3">
+                    <% unread_count = current_user.respond_to?(:notifications) ? current_user.notifications.unread.count : 0 %>
+                    <small class="text-muted"><%= unread_count %> non lue<%= 's' if unread_count > 1 %></small>
+                  </div>
+                  <%= link_to notifications_path, class: "btn btn-feature btn-danger" do %>
+                    <i class="bi bi-envelope me-2"></i>Voir tout
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div> <!-- Fin grille -->
+
+        <!-- Actions rapides -->
+        <div class="text-center mt-5">
+          <div class="architect-annotation mb-4">
+            <span class="annotation-line"></span>
+            <span class="annotation-text">ACTIONS RAPIDES</span>
+          </div>
+
+          <div class="quick-actions">
+            <%= link_to new_simulation_path, class: "btn-choice-primary me-3 mb-3" do %>
+              <i class="bi bi-plus-circle me-2"></i>
+              Nouvelle simulation
+            <% end %>
+            <%= link_to new_property_path, class: "btn-choice-secondary me-3 mb-3" do %>
+              <i class="bi bi-house-add me-2"></i>
+              Ajouter un bien
+            <% end %>
+            <%= link_to root_path, class: "btn-choice-outline mb-3" do %>
+              <i class="bi bi-arrow-left me-2"></i>
+              Retour accueil
+            <% end %>
+          </div>
         </div>
+
       </div>
     </div>
   </div>
-
-  <!-- Détail des demandes en cours -->
-  <% if @request_stats[:total] > 0 %>
-    <div class="card border-0 shadow-sm mb-4">
-      <div class="card-header bg-light-custom border-0 d-flex justify-content-between align-items-center">
-        <h5 class="mb-0 fw-normal text-primary-custom">
-          <i class="bi bi-file-earmark-text me-2"></i>État des demandes de primes
-        </h5>
-        <%= link_to requests_path, class: "btn btn-outline-primary-custom btn-sm" do %>
-          Voir toutes →
-        <% end %>
-      </div>
-      <div class="card-body">
-        <div class="row g-3">
-          <% if @request_stats[:pending] > 0 %>
-            <div class="col-md-3">
-              <div class="text-center p-3 bg-warning bg-opacity-10 rounded">
-                <div class="h4 text-warning mb-1"><%= @request_stats[:pending] %></div>
-                <small class="text-muted">En attente</small>
-              </div>
-            </div>
-          <% end %>
-
-          <% if @request_stats[:in_progress] > 0 %>
-            <div class="col-md-3">
-              <div class="text-center p-3 bg-info bg-opacity-10 rounded">
-                <div class="h4 text-info mb-1"><%= @request_stats[:in_progress] %></div>
-                <small class="text-muted">En traitement</small>
-              </div>
-            </div>
-          <% end %>
-
-          <% if @request_stats[:submitted] > 0 %>
-            <div class="col-md-3">
-              <div class="text-center p-3 bg-primary bg-opacity-10 rounded">
-                <div class="h4 text-primary mb-1"><%= @request_stats[:submitted] %></div>
-                <small class="text-muted">Soumises</small>
-              </div>
-            </div>
-          <% end %>
-
-          <% if @request_stats[:validated] > 0 %>
-            <div class="col-md-3">
-              <div class="text-center p-3 bg-success bg-opacity-10 rounded">
-                <div class="h4 text-success mb-1"><%= @request_stats[:validated] %></div>
-                <small class="text-muted">Validées</small>
-              </div>
-            </div>
-          <% end %>
-        </div>
-
-        <% if @request_stats[:estimated_amount] > 0 %>
-          <div class="mt-3 pt-3 border-top">
-            <div class="row">
-              <div class="col-md-6">
-                <small class="text-muted">Montant estimé des demandes en cours :</small>
-              </div>
-              <div class="col-md-6 text-end">
-                <span class="h5 text-success mb-0">
-                  <%= number_to_currency(@request_stats[:estimated_amount], unit: "€", separator: ",", delimiter: " ") %>
-                </span>
-              </div>
-            </div>
-          </div>
-        <% end %>
-      </div>
-    </div>
-  <% end %>
-
-  <!-- Liste des biens avec état de complétude -->
-  <% if @properties.any? %>
-    <div class="card border-0 shadow-sm mb-4">
-      <div class="card-header bg-light-custom border-0 d-flex justify-content-between align-items-center">
-        <h5 class="mb-0 fw-normal text-primary-custom">
-          <i class="bi bi-house-door me-2"></i>Mes biens récents
-        </h5>
-        <%= link_to properties_path, class: "btn btn-outline-primary-custom btn-sm" do %>
-          Voir tous →
-        <% end %>
-      </div>
-      <div class="card-body p-4">
-        <% if @properties.present? %>
-          <div class="row g-4">
-            <% @properties.each do |property| %>
-              <div class="col-lg-3 col-md-6">
-                <%= link_to dashboard_property_path(property), class: "text-decoration-none" do %>
-                  <div class="card border-0 shadow-sm h-100 property-card<%= ' property-card-entreprise' if property.is_entreprise? %>">
-                    <div class="card-body p-3">
-                      <div class="d-flex align-items-center mb-3">
-                        <div class="icon-circle me-3 bg-primary-custom">
-                          <i class="bi bi-<%= property.is_entreprise? ? 'building' : 'house-door' %> text-white"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                          <h6 class="mb-0 fw-normal text-dark">
-                            <%= property.titre.present? ? property.titre : "Bien #{property.commune || property.id}" %>
-                          </h6>
-                        </div>
-                      </div>
-
-                      <div class="mb-3">
-                        <small class="text-muted d-block">
-                          <i class="bi bi-geo-alt me-1"></i>
-                          <%= property.rue %> <%= property.numero %><br>
-                          <%= property.commune || 'Commune inconnue' %>
-                        </small>
-                      </div>
-
-                      <div class="mb-2">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                          <small class="text-muted">Complétude</small>
-                          <span class="badge bg-<%= property.completion_status rescue 'secondary' %> rounded-pill">
-                            <%= property.completion_percentage rescue 0 %>%
-                          </span>
-                        </div>
-                        <div class="progress" style="height: 6px;">
-                          <div class="progress-bar bg-<%= property.completion_status rescue 'secondary' %>"
-                               style="width: <%= property.completion_percentage rescue 0 %>%"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                <% end %>
-              </div>
-            <% end %>
-          </div>
-        <% else %>
-          <div class="text-center py-4">
-            <i class="bi bi-house-door text-muted display-6"></i>
-            <p class="text-muted mt-2">Aucun bien enregistré pour le moment</p>
-            <%= link_to new_property_path, class: "btn btn-primary-custom" do %>
-              <i class="bi bi-plus-lg me-2"></i>Ajouter votre premier bien
-            <% end %>
-          </div>
-        <% end %>
-      </div>
-    </div>
-
-  <% else %>
-    <!-- État vide pour nouvel utilisateur -->
-    <div class="text-center py-5 mt-5">
-      <div class="icon-circle-large mx-auto mb-4">
-        <i class="bi bi-house-door"></i>
-      </div>
-      <h4 class="text-muted-custom mb-3 fw-normal">Aucun bien enregistré</h4>
-      <p class="text-muted-custom mb-4">Commencez par ajouter votre premier bien immobilier pour débloquer l'accès aux primes de rénovation</p>
-      <%= link_to new_property_path, class: "btn btn-primary-custom px-5 py-3" do %>
-        <i class="bi bi-plus-lg me-2"></i>Ajouter mon premier bien
-      <% end %>
-
-      <!-- Guide rapide pour nouveaux utilisateurs -->
-      <div class="row justify-content-center mt-5">
-        <div class="col-lg-8">
-          <div class="card border-0 bg-light-custom">
-            <div class="card-body p-4">
-              <h6 class="text-primary-custom mb-3">🚀 Pour bien commencer :</h6>
-              <div class="row g-3 text-start">
-                <div class="col-md-4">
-                  <div class="d-flex align-items-start">
-                    <span class="badge bg-primary-custom rounded-circle me-3 mt-1">1</span>
-                    <div>
-                      <strong>Ajoutez votre bien</strong>
-                      <br><small class="text-muted-custom">Renseignez l'adresse et les caractéristiques</small>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="d-flex align-items-start">
-                    <span class="badge bg-primary-custom rounded-circle me-3 mt-1">2</span>
-                    <div>
-                      <strong>Calculez vos primes</strong>
-                      <br><small class="text-muted-custom">Découvrez les aides disponibles</small>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="d-flex align-items-start">
-                    <span class="badge bg-primary-custom rounded-circle me-3 mt-1">3</span>
-                    <div>
-                      <strong>Faites votre demande</strong>
-                      <br><small class="text-muted-custom">Soumettez votre dossier complet</small>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  <% end %>
 </div>
 
-<!-- Utilise le fichier CSS externe properties.css -->
-<%= stylesheet_link_tag 'properties', 'data-turbo-track': 'reload' %>
+<style>
+/* Styles spécifiques au dashboard */
+.min-vh-60 {
+  min-height: 60vh !important;
+}
+
+.feature-card {
+  background: #fff;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+  border-radius: 12px;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+}
+
+.feature-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.feature-card-primary .feature-icon { color: var(--bs-primary); }
+.feature-card-success .feature-icon { color: var(--bs-success); }
+.feature-card-warning .feature-icon { color: var(--bs-warning); }
+.feature-card-info .feature-icon { color: var(--bs-info); }
+.feature-card-danger .feature-icon { color: var(--bs-danger); }
+.feature-card-dark .feature-icon { color: var(--bs-dark); }
+.feature-card-secondary .feature-icon { color: var(--bs-secondary); }
+
+.feature-card-purple .feature-icon { color: #6f42c1; }
+.feature-card-gradient .feature-icon {
+  background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.feature-title {
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.feature-description {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.feature-stats {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+}
+
+.btn-feature {
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-purple {
+  background-color: #6f42c1;
+  border-color: #6f42c1;
+  color: white;
+}
+
+.btn-gradient {
+  background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  color: white;
+}
+
+.btn-feature:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.quick-actions {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.stat-card {
+  background: rgba(255,255,255,0.8);
+  padding: 1.5rem;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .feature-card {
+    margin-bottom: 1rem;
+  }
+
+  .margin-note {
+    display: none;
+  }
+
+  .quick-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .quick-actions .btn {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+</style>
