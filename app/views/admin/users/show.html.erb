@@ -1,0 +1,51 @@
+<% content_for :title, "Détails de #{@user.email}" %>
+
+<div class="container-fluid px-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 text-primary-custom mb-1">
+        <i class="bi bi-person-circle me-2"></i>Détails Utilisateur - <%= @user.email %>
+      </h1>
+      <p class="text-muted mb-0">Toutes les informations et données de ce client</p>
+    </div>
+    <div>
+      <%= link_to "Retour au dashboard", admin_dashboard_path, class: "btn btn-outline-secondary" %>
+    </div>
+  </div>
+
+  <!-- Contenu des détails utilisateur -->
+  <%= render 'admin/users/user_details_content', user: @user, stats: @user_stats %>
+
+  <!-- Actions supplémentaires -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-primary bg-opacity-10">
+          <h6 class="mb-0 text-primary">
+            <i class="bi bi-lightning me-2"></i>Actions Rapides
+          </h6>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-3">
+              <%= link_to "Toutes les propriétés", properties_admin_user_path(@user),
+                  class: "btn btn-outline-success w-100 mb-2", target: "_blank" %>
+            </div>
+            <div class="col-md-3">
+              <%= link_to "Tous les documents", documents_admin_user_path(@user),
+                  class: "btn btn-outline-dark w-100 mb-2", target: "_blank" %>
+            </div>
+            <div class="col-md-3">
+              <%= link_to "Tous les projets", projects_admin_user_path(@user),
+                  class: "btn btn-outline-warning w-100 mb-2", target: "_blank" %>
+            </div>
+            <div class="col-md-3">
+              <%= link_to "Modifier le profil", edit_admin_user_path(@user),
+                  class: "btn btn-outline-info w-100 mb-2" %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

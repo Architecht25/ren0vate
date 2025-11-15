@@ -1,0 +1,74 @@
+<div class="modal fade" id="userDetailsModal" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="userDetailsModalLabel">
+          <i class="bi bi-person-circle me-2"></i>Détails Utilisateur
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div id="user-details-content">
+          <!-- Contenu chargé dynamiquement -->
+          <div class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+            <div class="spinner-border" role="status">
+              <span class="visually-hidden">Chargement...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+        <button type="button" class="btn btn-primary" id="edit-user-btn" style="display: none;">
+          <i class="bi bi-pencil me-2"></i>Modifier
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script nonce="<%= content_security_policy_nonce %>">
+// Fonction pour charger les détails d'un utilisateur
+function loadUserDetails(userId) {
+  const modal = new bootstrap.Modal(document.getElementById('userDetailsModal'));
+  modal.show();
+
+  // Obtenir le token CSRF
+  const csrfToken = document.querySelector('meta[name="csrf-token"]');
+
+  // Charger les données via AJAX
+  fetch(`/admin/users/${userId}/details`, {
+    method: 'GET',
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': csrfToken ? csrfToken.getAttribute('content') : ''
+    },
+    credentials: 'same-origin'
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (data.status === 'success') {
+        document.getElementById('user-details-content').innerHTML = data.html;
+        document.getElementById('edit-user-btn').style.display = 'block';
+        document.getElementById('edit-user-btn').onclick = () => window.location.href = `/admin/users/${userId}`;
+      } else {
+        throw new Error(data.message || 'Erreur inconnue');
+      }
+    })
+    .catch(error => {
+      console.error('Erreur lors du chargement des détails utilisateur:', error);
+      document.getElementById('user-details-content').innerHTML = `
+        <div class="alert alert-danger">
+          <i class="bi bi-exclamation-triangle me-2"></i>
+          Erreur lors du chargement des données: ${error.message}
+        </div>
+      `;
+    });
+}
+</script>

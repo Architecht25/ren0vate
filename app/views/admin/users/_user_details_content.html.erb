@@ -1,0 +1,313 @@
+<div class="row">
+  <!-- Profil utilisateur -->
+  <div class="col-lg-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-primary bg-opacity-10">
+        <h6 class="mb-0 text-primary">
+          <i class="bi bi-person-circle me-2"></i>Informations Personnelles
+        </h6>
+      </div>
+      <div class="card-body">
+        <div class="text-center mb-3">
+          <div class="avatar-circle bg-primary text-white d-inline-flex align-items-center justify-content-center"
+               style="width: 80px; height: 80px; border-radius: 50%; font-size: 24px;">
+            <% if user.first_name.present? %>
+              <%= user.first_name.first.upcase %><%= user.last_name&.first&.upcase %>
+            <% else %>
+              <i class="bi bi-person"></i>
+            <% end %>
+          </div>
+        </div>
+
+        <table class="table table-sm table-borderless">
+          <tr>
+            <td><strong>Email :</strong></td>
+            <td><%= user.email %></td>
+          </tr>
+          <tr>
+            <td><strong>Nom :</strong></td>
+            <td><%= user.first_name.present? ? "#{user.first_name} #{user.last_name}" : "Non renseigné" %></td>
+          </tr>
+          <tr>
+            <td><strong>Téléphone :</strong></td>
+            <td><%= user.phone.present? ? user.phone : "Non renseigné" %></td>
+          </tr>
+          <tr>
+            <td><strong>Région :</strong></td>
+            <td>
+              <% if user.region.present? %>
+                <span class="badge bg-<%= user.region == 'wallonie' ? 'success' : user.region == 'bruxelles' ? 'primary' : 'warning' %>">
+                  <%= user.region.capitalize %>
+                </span>
+              <% else %>
+                <span class="badge bg-secondary">Non définie</span>
+              <% end %>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Rôle :</strong></td>
+            <td>
+              <span class="badge bg-<%= user.admin? ? 'danger' : user.moderator? ? 'info' : 'secondary' %>">
+                <%= user.admin? ? 'Administrateur' : user.moderator? ? 'Modérateur' : 'Utilisateur' %>
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Profil :</strong></td>
+            <td>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-<%= stats[:profile_completion] >= 75 ? 'success' : stats[:profile_completion] >= 50 ? 'warning' : 'danger' %>"
+                     style="width: <%= stats[:profile_completion] %>%"></div>
+              </div>
+              <small class="text-muted"><%= stats[:profile_completion] %>% complet</small>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Activité récente -->
+    <div class="card border-0 shadow-sm mt-3">
+      <div class="card-header bg-info bg-opacity-10">
+        <h6 class="mb-0 text-info">
+          <i class="bi bi-activity me-2"></i>Activité
+        </h6>
+      </div>
+      <div class="card-body">
+        <small class="text-muted d-block">Inscription : <%= stats[:created_at] %></small>
+        <small class="text-muted d-block">Dernière connexion : <%= stats[:last_sign_in] || "Jamais" %></small>
+        <small class="text-muted d-block">Email confirmé : <%= stats[:confirmed_at] || "Non confirmé" %></small>
+        <hr class="my-2">
+        <small class="text-primary"><%= stats[:recent_activity] %> notifications cette semaine</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistiques d'activité -->
+  <div class="col-lg-8">
+    <div class="row">
+      <!-- Propriétés -->
+      <div class="col-md-6 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-success bg-opacity-10">
+            <h6 class="mb-0 text-success">
+              <i class="bi bi-house me-2"></i>Propriétés (<%= stats[:properties_count] %>)
+            </h6>
+          </div>
+          <div class="card-body">
+            <% if stats[:properties_count] > 0 %>
+              <div class="row text-center">
+                <div class="col-6">
+                  <h5 class="text-success mb-0"><%= user.properties.where.not(latitude: nil).count %></h5>
+                  <small class="text-muted">Géolocalisées</small>
+                </div>
+                <div class="col-6">
+                  <h5 class="text-info mb-0"><%= user.properties.joins(:projects).distinct.count %></h5>
+                  <small class="text-muted">Avec projets</small>
+                </div>
+              </div>
+              <hr class="my-3">
+              <div class="d-grid">
+                <%= link_to "Voir les propriétés", properties_admin_user_path(user),
+                    class: "btn btn-sm btn-outline-success", target: "_blank" %>
+              </div>
+            <% else %>
+              <small class="text-muted">Aucune propriété enregistrée</small>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Projets -->
+      <div class="col-md-6 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-warning bg-opacity-10">
+            <h6 class="mb-0 text-warning">
+              <i class="bi bi-hammer me-2"></i>Projets (<%= stats[:projects_count] %>)
+            </h6>
+          </div>
+          <div class="card-body">
+            <% if stats[:projects_count] > 0 %>
+              <div class="row text-center">
+                <div class="col-6">
+                  <h5 class="text-warning mb-0"><%= user.projects.where(statut: 'en_cours').count %></h5>
+                  <small class="text-muted">Actifs</small>
+                </div>
+                <div class="col-6">
+                  <h5 class="text-success mb-0"><%= user.projects.where(statut: 'termine').count %></h5>
+                  <small class="text-muted">Terminés</small>
+                </div>
+              </div>
+              <hr class="my-3">
+              <div class="d-grid">
+                <%= link_to "Voir les projets", projects_admin_user_path(user),
+                    class: "btn btn-sm btn-outline-warning", target: "_blank" %>
+              </div>
+            <% else %>
+              <small class="text-muted">Aucun projet en cours</small>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Simulations -->
+      <div class="col-md-6 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-primary bg-opacity-10">
+            <h6 class="mb-0 text-primary">
+              <i class="bi bi-calculator me-2"></i>Simulations (<%= stats[:simulations_count] %>)
+            </h6>
+          </div>
+          <div class="card-body">
+            <% if stats[:simulations_count] > 0 %>
+              <div class="row text-center">
+                <div class="col-12">
+                  <h5 class="text-primary mb-0"><%= user.simulations.where(created_at: 1.month.ago..Time.current).count %></h5>
+                  <small class="text-muted">Ce mois-ci</small>
+                </div>
+              </div>
+              <hr class="my-3">
+              <div class="d-grid">
+                <%= link_to "Voir les simulations", "#",
+                    class: "btn btn-sm btn-outline-primary", onclick: "alert('Fonctionnalité à implémenter')" %>
+              </div>
+            <% else %>
+              <small class="text-muted">Aucune simulation réalisée</small>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Documents -->
+      <div class="col-md-6 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-dark bg-opacity-10">
+            <h6 class="mb-0 text-dark">
+              <i class="bi bi-file-earmark me-2"></i>Documents (<%= stats[:documents_count] %>)
+            </h6>
+          </div>
+          <div class="card-body">
+            <% if stats[:documents_count] > 0 %>
+              <div class="row text-center">
+                <div class="col-12">
+                  <h5 class="text-dark mb-0">Non disponible</h5>
+                  <small class="text-muted">Taille totale</small>
+                </div>
+              </div>
+              <hr class="my-3">
+              <div class="d-grid">
+                <%= link_to "Voir les documents", documents_admin_user_path(user),
+                    class: "btn btn-sm btn-outline-dark", target: "_blank" %>
+              </div>
+            <% else %>
+              <small class="text-muted">Aucun document uploadé</small>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Demandes et suivis -->
+      <div class="col-md-6 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 25%); background-clip: padding-box;">
+            <h6 class="mb-0 text-white">
+              <i class="bi bi-list-check me-2"></i>Demandes (<%= stats[:requests_count] %>)
+            </h6>
+          </div>
+          <div class="card-body">
+            <% if stats[:requests_count] > 0 %>
+              <div class="row text-center">
+                <div class="col-6">
+                  <h5 class="text-primary mb-0"><%= user.requests.joins(:request_progresses).where(request_progresses: { status_administratif: ['soumis', 'en_cours'] }).distinct.count %></h5>
+                  <small class="text-muted">En cours</small>
+                </div>
+                <div class="col-6">
+                  <h5 class="text-success mb-0"><%= user.requests.joins(:request_progresses).where(request_progresses: { status_administratif: 'accorde' }).distinct.count %></h5>
+                  <small class="text-muted">Accordées</small>
+                </div>
+              </div>
+              <hr class="my-3">
+              <div class="d-grid">
+                <%= link_to "Voir les demandes", "#",
+                    class: "btn btn-sm btn-outline-primary", onclick: "alert('Fonctionnalité à implémenter')" %>
+              </div>
+            <% else %>
+              <small class="text-muted">Aucune demande de prime</small>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notifications -->
+      <div class="col-md-6 mb-3">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); background-clip: padding-box;">
+            <h6 class="mb-0 text-white">
+              <i class="bi bi-bell me-2"></i>Notifications (<%= stats[:notifications_count] %>)
+            </h6>
+          </div>
+          <div class="card-body">
+            <% if stats[:notifications_count] > 0 %>
+              <div class="row text-center">
+                <div class="col-6">
+                  <h5 class="text-warning mb-0"><%= user.notifications.unread.count %></h5>
+                  <small class="text-muted">Non lues</small>
+                </div>
+                <div class="col-6">
+                  <h5 class="text-info mb-0"><%= stats[:recent_activity] %></h5>
+                  <small class="text-muted">Cette semaine</small>
+                </div>
+              </div>
+              <hr class="my-3">
+              <div class="d-grid">
+                <%= link_to "Voir les notifications", "#",
+                    class: "btn btn-sm btn-outline-danger", onclick: "alert('Fonctionnalité à implémenter')" %>
+              </div>
+            <% else %>
+              <small class="text-muted">Aucune notification</small>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions administrateur -->
+    <div class="card border-0 shadow-sm mt-3">
+      <div class="card-header bg-danger bg-opacity-10">
+        <h6 class="mb-0 text-danger">
+          <i class="bi bi-gear me-2"></i>Actions Administrateur
+        </h6>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-3">
+            <%= link_to "Modifier le profil", edit_admin_user_path(user),
+                class: "btn btn-outline-primary btn-sm w-100 mb-2" %>
+          </div>
+          <div class="col-md-3">
+            <%= link_to "Connexion en tant que", "#",
+                class: "btn btn-outline-warning btn-sm w-100 mb-2",
+                onclick: "alert('Fonctionnalité Pundit nécessaire')" %>
+          </div>
+          <div class="col-md-3">
+            <%= link_to "Réinitialiser MDP", "#",
+                class: "btn btn-outline-info btn-sm w-100 mb-2",
+                onclick: "alert('Envoyer lien de réinitialisation')" %>
+          </div>
+          <div class="col-md-3">
+            <% unless user.admin? && User.admin.count == 1 %>
+              <%= link_to "Supprimer compte", admin_user_path(user),
+                  method: :delete,
+                  class: "btn btn-outline-danger btn-sm w-100 mb-2",
+                  data: { confirm: "Êtes-vous sûr de vouloir supprimer ce compte utilisateur ?" } %>
+            <% else %>
+              <button class="btn btn-outline-secondary btn-sm w-100 mb-2" disabled>
+                Dernier admin
+              </button>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

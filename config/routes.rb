@@ -256,6 +256,17 @@ Rails.application.routes.draw do
 
   # Routes admin pour les nouvelles fonctionnalités
   namespace :admin do
+    # Gestion des utilisateurs pour les administrateurs
+    resources :users do
+      member do
+        get :details        # AJAX endpoint pour charger les détails
+        get :documents      # Voir tous les documents d'un utilisateur
+        get :properties     # Voir toutes les propriétés d'un utilisateur
+        get :projects       # Voir tous les projets d'un utilisateur
+        post :impersonate   # Se connecter en tant qu'utilisateur (avec Pundit)
+      end
+    end
+
     resources :technical_validations, only: [:index, :show] do
       collection do
         post :bulk_validate

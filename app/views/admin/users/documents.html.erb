@@ -1,0 +1,143 @@
+<% content_for :title, "Documents de #{@user.email}" %>
+
+<div class="container-fluid px-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 text-primary-custom mb-1">
+        <i class="bi bi-file-earmark me-2"></i>Documents - <%= @user.email %>
+      </h1>
+      <p class="text-muted mb-0">
+        <%= @documents.count %> document(s) •
+        <span class="text-info"><%= number_to_human_size(@documents.sum(:file_size)) %></span> total
+      </p>
+    </div>
+    <div>
+      <%= link_to "Retour au dashboard", admin_dashboard_path, class: "btn btn-outline-secondary" %>
+    </div>
+  </div>
+
+  <% if @documents.any? %>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead class="table-light">
+              <tr>
+                <th>Document</th>
+                <th>Propriété/Projet</th>
+                <th>Type</th>
+                <th>Taille</th>
+                <th>Date d'ajout</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @documents.each do |document| %>
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <i class="bi bi-<%= document.file_extension == 'pdf' ? 'file-earmark-pdf' : 'file-earmark' %> me-2 text-<%= document.file_extension == 'pdf' ? 'danger' : 'primary' %>"></i>
+                      <div>
+                        <strong><%= truncate(document.file_name, length: 40) %></strong>
+                        <% if document.description.present? %>
+                          <br><small class="text-muted"><%= truncate(document.description, length: 60) %></small>
+                        <% end %>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <% if document.property.present? %>
+                      <strong><%= truncate(document.property.address, length: 30) %></strong>
+                      <% if document.project.present? %>
+                        <br><small class="text-muted">Projet: <%= truncate(document.project.title, length: 25) %></small>
+                      <% end %>
+                    <% else %>
+                      <span class="text-muted">Non rattaché</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <span class="badge bg-<%= document.file_extension == 'pdf' ? 'danger' : document.file_extension.in?(['jpg', 'jpeg', 'png']) ? 'info' : 'secondary' %>">
+                      <%= document.file_extension&.upcase || 'N/A' %>
+                    </span>
+                  </td>
+                  <td>
+                    <span class="text-muted">
+                      <%= number_to_human_size(document.file_size) if document.file_size %>
+                    </span>
+                  </td>
+                  <td>
+                    <small class="text-muted">
+                      <%= document.created_at.strftime("%d/%m/%Y à %H:%M") %>
+                    </small>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <% if document.file.attached? %>
+                        <%= link_to document.file,
+                            class: "btn btn-outline-primary btn-sm",
+                            target: "_blank",
+                            title: "Télécharger" do %>
+                          <i class="bi bi-download"></i>
+                        <% end %>
+                      <% end %>
+
+                      <%= link_to document_path(document),
+                          class: "btn btn-outline-info btn-sm",
+                          title: "Voir les détails" do %>
+                        <i class="bi bi-eye"></i>
+                      <% end %>
+                    </div>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body text-center py-5">
+        <i class="bi bi-file-earmark-x text-muted" style="font-size: 4rem;"></i>
+        <h4 class="text-muted mt-3">Aucun document trouvé</h4>
+        <p class="text-muted">Cet utilisateur n'a pas encore uploadé de documents.</p>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Résumé statistiques -->
+  <div class="row mt-4">
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm bg-primary bg-opacity-10">
+        <div class="card-body text-center">
+          <h4 class="text-primary mb-0"><%= @documents.count %></h4>
+          <small class="text-muted">Total documents</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm bg-danger bg-opacity-10">
+        <div class="card-body text-center">
+          <h4 class="text-danger mb-0"><%= @documents.where("file_name LIKE ?", "%.pdf").count %></h4>
+          <small class="text-muted">Documents PDF</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm bg-info bg-opacity-10">
+        <div class="card-body text-center">
+          <h4 class="text-info mb-0"><%= @documents.where("file_name LIKE ? OR file_name LIKE ? OR file_name LIKE ?", "%.jpg", "%.jpeg", "%.png").count %></h4>
+          <small class="text-muted">Images</small>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card border-0 shadow-sm bg-success bg-opacity-10">
+        <div class="card-body text-center">
+          <h4 class="text-success mb-0"><%= number_to_human_size(@documents.sum(:file_size)) %></h4>
+          <small class="text-muted">Taille totale</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

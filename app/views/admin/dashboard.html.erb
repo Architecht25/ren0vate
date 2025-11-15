@@ -377,7 +377,9 @@
                       <tr>
                         <td>
                           <div>
-                            <strong><%= user.email %></strong>
+                            <strong>
+                              <%= link_to user.email, admin_user_path(user), class: "text-decoration-none", target: "_blank" %>
+                            </strong>
                             <% if user.first_name.present? || user.last_name.present? %>
                               <br><small class="text-muted"><%= "#{user.first_name} #{user.last_name}".strip %></small>
                             <% end %>
@@ -1269,6 +1271,9 @@
   </div>
 </div>
 
+<!-- Modal pour les détails utilisateur -->
+<%= render 'admin/dashboard/user_details' %>
+
 <!-- JavaScript simplifié pour les boutons de sécurité -->
 <script nonce="<%= content_security_policy_nonce %>">
 // Test immédiat du chargement
@@ -1853,4 +1858,49 @@ function testSystemHealth() {
 }
 
 console.log('🔧 Event delegation setup complete');
+
+// Fonction de test pour la modal
+function testModal(userId) {
+  console.log('🎯 Tentative d\'ouverture de la modal pour user:', userId);
+
+  // Tester d'abord si la modal existe
+  const modalElement = document.getElementById('userDetailsModal');
+  if (!modalElement) {
+    console.error('❌ Modal userDetailsModal non trouvée');
+    alert('Erreur: Modal non trouvée dans le DOM');
+    return;
+  }
+
+  console.log('✅ Modal trouvée, tentative d\'ouverture...');
+
+  try {
+    // Ouvrir la modal d'abord
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
+
+    console.log('✅ Modal ouverte, chargement du contenu...');
+
+    // Charger le contenu simple
+    const contentDiv = document.getElementById('user-details-content');
+    if (contentDiv) {
+      contentDiv.innerHTML = `
+        <div class="text-center p-4">
+          <div class="spinner-border text-primary mb-3" role="status">
+            <span class="visually-hidden">Chargement...</span>
+          </div>
+          <p>Chargement des détails de l'utilisateur ${userId}...</p>
+        </div>
+      `;
+
+      // Simuler un délai puis charger les vraies données
+      setTimeout(() => loadUserDetails(userId), 1000);
+    } else {
+      console.error('❌ Div user-details-content non trouvé');
+    }
+
+  } catch (error) {
+    console.error('❌ Erreur lors de l\'ouverture de la modal:', error);
+    alert('Erreur: ' + error.message);
+  }
+}
 </script>
