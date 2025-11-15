@@ -743,6 +743,163 @@
           </div>
         </div>
       </div>
+
+      <!-- ========== SECTION ANALYTICS DES PAGES HORS CONNEXION ========== -->
+      <% if @page_visits_stats.any? %>
+      <div class="row mt-5">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h4 class="text-primary mb-1">
+                <i class="bi bi-graph-up-arrow me-2"></i>Analytics des Pages Hors Connexion
+              </h4>
+              <p class="text-muted mb-0">Analyse de l'activité des visiteurs anonymes sur vos simulateurs</p>
+            </div>
+            <div>
+              <span class="badge bg-primary fs-6 px-3 py-2">
+                <i class="bi bi-eye me-1"></i>
+                <%= @page_visits_stats[:total_visits] %> visites totales
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics des Pages Hors Connexion -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+              <h5 class="mb-0">
+                <i class="bi bi-activity me-2"></i>Données de fréquentation en temps réel
+              </h5>
+              <small class="opacity-75">Simulateurs utilisés par des visiteurs non-inscrits</small>
+            </div>
+            <div class="card-body">
+
+              <!-- Résumé global -->
+              <div class="row mb-4">
+                <div class="col-md-2">
+                  <div class="text-center p-3 bg-primary bg-opacity-10 rounded">
+                    <h4 class="text-primary mb-1"><%= @page_visits_stats[:total_visits] %></h4>
+                    <small class="text-muted">Total visites</small>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="text-center p-3 bg-warning bg-opacity-10 rounded">
+                    <h4 class="text-warning mb-1"><%= @page_visits_stats[:anonymous_visits] %></h4>
+                    <small class="text-muted">Visiteurs anonymes</small>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="text-center p-3 bg-success bg-opacity-10 rounded">
+                    <h4 class="text-success mb-1"><%= @page_visits_stats[:today_visits] %></h4>
+                    <small class="text-muted">Aujourd'hui</small>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="text-center p-3 bg-info bg-opacity-10 rounded">
+                    <h4 class="text-info mb-1"><%= @page_visits_stats[:week_visits] %></h4>
+                    <small class="text-muted">Cette semaine</small>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="text-center p-3 bg-secondary bg-opacity-10 rounded">
+                    <h4 class="text-secondary mb-1"><%= @page_visits_stats[:month_visits] %></h4>
+                    <small class="text-muted">Ce mois</small>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="text-center p-3 bg-danger bg-opacity-10 rounded">
+                    <% ratio = @page_visits_stats[:total_visits] > 0 ? (@page_visits_stats[:anonymous_visits].to_f / @page_visits_stats[:total_visits] * 100).round(1) : 0 %>
+                    <h4 class="text-danger mb-1"><%= ratio %>%</h4>
+                    <small class="text-muted">Taux anonyme</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <!-- Pages populaires -->
+                <div class="col-md-4">
+                  <h6 class="text-muted mb-3">
+                    <i class="bi bi-star me-2"></i>Pages les plus visitées
+                  </h6>
+                  <% @page_visits_stats[:popular_pages].each_with_index do |(page, count), index| %>
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                      <div class="d-flex align-items-center">
+                        <span class="badge bg-primary me-2"><%= index + 1 %></span>
+                        <small><%= page.humanize %></small>
+                      </div>
+                      <span class="badge bg-secondary"><%= count %></span>
+                    </div>
+                  <% end %>
+                </div>
+
+                <!-- Activité par région -->
+                <div class="col-md-4">
+                  <h6 class="text-muted mb-3">
+                    <i class="bi bi-geo-alt me-2"></i>Activité par région
+                  </h6>
+                  <% @page_visits_stats[:visits_by_region].each do |region, count| %>
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                      <div class="d-flex align-items-center">
+                        <i class="bi bi-map me-2 text-<%= region == 'Bruxelles' ? 'warning' : region == 'Wallonie' ? 'danger' : 'primary' %>"></i>
+                        <small><%= region %></small>
+                      </div>
+                      <span class="badge bg-<%= region == 'Bruxelles' ? 'warning' : region == 'Wallonie' ? 'danger' : 'primary' %>"><%= count %></span>
+                    </div>
+                  <% end %>
+                </div>
+
+                <!-- Activité simulateurs -->
+                <div class="col-md-4">
+                  <h6 class="text-muted mb-3">
+                    <i class="bi bi-calculator me-2"></i>Simulateurs utilisés
+                  </h6>
+                  <% @page_visits_stats[:simulation_activity].each do |simulator, count| %>
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                      <div class="d-flex align-items-center">
+                        <i class="bi bi-gear me-2 text-success"></i>
+                        <small><%= simulator.humanize %></small>
+                      </div>
+                      <span class="badge bg-success"><%= count %></span>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+
+              <!-- Graphique visites quotidiennes (7 derniers jours) -->
+              <div class="row mt-4">
+                <div class="col-12">
+                  <h6 class="text-muted mb-3">
+                    <i class="bi bi-graph-up me-2"></i>Évolution des visites (7 derniers jours)
+                  </h6>
+                  <div class="bg-light p-3 rounded">
+                    <div class="row text-center">
+                      <% @page_visits_stats[:daily_visits].each do |date, count| %>
+                        <div class="col">
+                          <div class="small text-muted mb-1"><%= Date.parse(date.to_s).strftime("%d/%m") %></div>
+                          <div class="text-primary font-weight-bold"><%= count %></div>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="text-center mt-3">
+                <small class="text-muted">
+                  <i class="bi bi-info-circle me-1"></i>
+                  Ces données permettent d'analyser l'intérêt des visiteurs pour les simulateurs sans créer de compte
+                </small>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+      <% end %>
+
     </div>
 
     <!-- ========== ONGLET PRIMES ========== -->

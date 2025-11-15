@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_10_10_064441) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_15_213335) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -52,20 +52,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_10_064441) do
   end
 
   create_table "bce_activities", force: :cascade do |t|
-    t.bigint "bce_enterprise_id", null: false
+    t.string "entity_number", null: false
     t.string "activity_group"
     t.string "nace_version"
     t.string "nace_code"
     t.string "classification"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["bce_enterprise_id"], name: "index_bce_activities_on_bce_enterprise_id"
+    t.index ["entity_number"], name: "index_bce_activities_on_entity_number"
     t.index ["nace_code"], name: "index_bce_activities_on_nace_code"
   end
 
   create_table "bce_addresses", force: :cascade do |t|
-    t.bigint "bce_enterprise_id", null: false
-    t.string "type_address"
+    t.string "entity_number", null: false
+    t.string "type_of_address"
     t.string "country_nl"
     t.string "country_fr"
     t.string "zipcode"
@@ -75,19 +75,25 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_10_064441) do
     t.string "street_fr"
     t.string "house_number"
     t.string "box"
+    t.string "extra_address_info"
+    t.date "date_striking_off"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["bce_enterprise_id"], name: "index_bce_addresses_on_bce_enterprise_id"
+    t.index ["entity_number"], name: "index_bce_addresses_on_entity_number"
+    t.index ["municipality_nl", "municipality_fr"], name: "index_bce_addresses_on_municipality_nl_and_municipality_fr"
+    t.index ["zipcode"], name: "index_bce_addresses_on_zipcode"
   end
 
   create_table "bce_denominations", force: :cascade do |t|
-    t.bigint "bce_enterprise_id", null: false
-    t.string "denomination", null: false
-    t.string "type_denomination"
+    t.string "entity_number", null: false
     t.string "language"
+    t.string "type_of_denomination"
+    t.text "denomination", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["bce_enterprise_id"], name: "index_bce_denominations_on_bce_enterprise_id"
+    t.index ["denomination"], name: "index_bce_denominations_on_denomination"
+    t.index ["entity_number", "language"], name: "index_bce_denominations_on_entity_number_and_language"
+    t.index ["entity_number"], name: "index_bce_denominations_on_entity_number"
   end
 
   create_table "bce_enterprises", force: :cascade do |t|
@@ -309,6 +315,27 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_10_064441) do
     t.index ["property_id"], name: "index_notifications_on_property_id"
     t.index ["simulation_id"], name: "index_notifications_on_simulation_id"
     t.index ["user_id"], name: "index_notifications_on_user_id"
+  end
+
+  create_table "page_visits", force: :cascade do |t|
+    t.string "page_name", null: false
+    t.string "ip_address"
+    t.text "user_agent"
+    t.text "referrer"
+    t.datetime "visited_at", null: false
+    t.bigint "user_id"
+    t.string "session_id"
+    t.string "region"
+    t.string "page_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["page_name", "visited_at"], name: "index_page_visits_on_page_name_and_visited_at"
+    t.index ["page_name"], name: "index_page_visits_on_page_name"
+    t.index ["page_type"], name: "index_page_visits_on_page_type"
+    t.index ["region"], name: "index_page_visits_on_region"
+    t.index ["session_id"], name: "index_page_visits_on_session_id"
+    t.index ["user_id"], name: "index_page_visits_on_user_id"
+    t.index ["visited_at"], name: "index_page_visits_on_visited_at"
   end
 
   create_table "prime_document_templates", force: :cascade do |t|
@@ -745,9 +772,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_10_064441) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "bce_activities", "bce_enterprises"
-  add_foreign_key "bce_addresses", "bce_enterprises"
-  add_foreign_key "bce_denominations", "bce_enterprises"
   add_foreign_key "complement_requests", "request_progresses"
   add_foreign_key "contractor_signatures", "requests"
   add_foreign_key "contractor_signatures", "users"
@@ -766,6 +790,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_10_064441) do
   add_foreign_key "notifications", "properties"
   add_foreign_key "notifications", "simulations"
   add_foreign_key "notifications", "users"
+  add_foreign_key "page_visits", "users"
   add_foreign_key "prime_document_templates", "primes"
   add_foreign_key "prime_submissions", "properties"
   add_foreign_key "prime_submissions", "users"

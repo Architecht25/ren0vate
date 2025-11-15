@@ -1,11 +1,16 @@
 class PagesController < ApplicationController
+  include PageTracking  # Ajout du concern de tracking
+
   skip_before_action :authenticate_user!, only: [:home, :flandre, :wallonie, :bruxelles, :bruxelles_entreprises, :flandre_entreprises, :wallonie_entreprises, :select_profile_wallonie, :test_eligibility_wallonie, :estimate_category_wallonie, :select_profile_bruxelles, :test_eligibility_bruxelles, :estimate_category_bruxelles, :test_eligibility_bruxelles_entreprises, :legal, :privacy]
   skip_before_action :verify_authenticity_token, only: [:select_profile_wallonie, :test_eligibility_wallonie, :estimate_category_wallonie, :select_profile_bruxelles, :test_eligibility_bruxelles, :estimate_category_bruxelles, :test_eligibility_bruxelles_entreprises]
 
   def home
+    track_page_visit('home', page_type: 'accueil')
   end
 
   def flandre
+    track_page_visit('flandre_particuliers', region: 'Flandre', page_type: 'simulation')
+
     categorie = params[:categorie].to_i
     categorie_estimee = params[:categorieEstimee].to_i
 
@@ -31,11 +36,15 @@ class PagesController < ApplicationController
   end
 
   def wallonie
+    track_page_visit('wallonie_particuliers', region: 'Wallonie', page_type: 'simulation')
+
     # Page principale Wallonie - affiche la sélection de profil
     @primes = Prime.where(region: "wallonie").order(:ordre_affichage)
   end
 
   def bruxelles
+    track_page_visit('bruxelles_particuliers', region: 'Bruxelles', page_type: 'simulation')
+
     # Page principale Bruxelles - affiche la sélection de profil
     @primes = Prime.where(region: "bruxelles").order(:ordre_affichage)
   end
@@ -521,6 +530,8 @@ class PagesController < ApplicationController
 
   # Nouveau simulateur pour les aides aux entreprises Bruxelles
   def bruxelles_entreprises
+    track_page_visit('bruxelles_entreprises', region: 'Bruxelles', page_type: 'entreprise')
+
     # Page principale du simulateur d'éligibilité aux aides pour entreprises à Bruxelles
     # Initialiser les données pour le composant de comparaison d'économies
     @savings_data = {
@@ -539,6 +550,7 @@ class PagesController < ApplicationController
   end
 
   def test_eligibility_bruxelles_entreprises
+    track_page_visit('bruxelles_entreprises_eligibility', region: 'Bruxelles', page_type: 'entreprise')
     Rails.logger.info "=== Test Eligibility Bruxelles Entreprises Action Called ==="
     Rails.logger.info "Params: #{params.inspect}"
 

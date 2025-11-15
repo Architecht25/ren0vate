@@ -20,6 +20,9 @@ class AdminController < ApplicationController
     @backup_status = BackupStatusService.call
     @admin_stats = AdminStatsService.call
     @system_info = SystemInfoService.collect_system_info
+
+    # Analytics des pages visitées hors connexion
+    @page_visits_stats = calculate_page_visits_stats
   end
 
   def geocode_properties
@@ -77,5 +80,27 @@ class AdminController < ApplicationController
       flash[:alert] = "Accès non autorisé. Vous devez être administrateur."
       redirect_to root_path
     end
+  end
+
+  # Calcul des statistiques des visites de pages
+  def calculate_page_visits_stats
+    return {} unless PageVisit.table_exists?  # Au cas où la migration n'a pas encore été exécutée
+
+    {
+      total_visits: PageVisit.count,
+      anonymous_visits: PageVisit.anonymous.count,
+      authenticated_visits: PageVisit.authenticated.count,
+      today_visits: PageVisit.today.count,
+      week_visits: PageVisit.this_week.count,
+      month_visits: PageVisit.this_month.count,
+      popular_pages: PageVisit.popular_pages(10),
+      visits_by_region: PageVisit.visits_by_region,
+      simulation_activity: PageVisit.simulation_activity,
+      daily_visits: PageVisit.daily_visits(7),
+      anonymous_vs_auth: PageVisit.anonymous_vs_authenticated
+    }
+  rescue => e
+    Rails.logger.error "Erreur calcul page_visits_stats: #{e.message}"
+    {}
   end
 end
