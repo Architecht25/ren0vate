@@ -314,16 +314,77 @@
           <div class="card border-0 shadow-sm">
             <div class="card-header bg-light d-flex justify-content-between align-items-center">
               <h5 class="mb-0"><i class="bi bi-list me-2"></i>Utilisateurs récents</h5>
-              <small class="text-muted">Derniers inscrits</small>
+              <small class="text-muted">Derniers inscrits avec analytics avancées</small>
             </div>
             <div class="card-body">
+
+              <!-- Filtres et Analytics rapides -->
+              <div class="mb-3 p-3 bg-light rounded">
+                <div class="row g-3 align-items-center">
+                  <div class="col-md-3">
+                    <label class="form-label small">Filtre par région :</label>
+                    <select class="form-select form-select-sm" id="regionFilter">
+                      <option value="">Toutes les régions</option>
+                      <option value="wallonie">Wallonie</option>
+                      <option value="bruxelles">Bruxelles</option>
+                      <option value="flandre">Flandre</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label small">Score d'engagement :</label>
+                    <select class="form-select form-select-sm" id="engagementFilter">
+                      <option value="">Tous les scores</option>
+                      <option value="excellent">Excellent</option>
+                      <option value="bon">Bon</option>
+                      <option value="moyen">Moyen</option>
+                      <option value="faible">Faible</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label small">Potentiel revenue :</label>
+                    <select class="form-select form-select-sm" id="potentialFilter">
+                      <option value="">Tous</option>
+                      <option value="haute">Priorité haute (>50k€)</option>
+                      <option value="moyenne">Priorité moyenne (20-50k€)</option>
+                      <option value="basse">Opportunités (<20k€)</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <button class="btn btn-outline-primary btn-sm" onclick="applyFilters()">
+                      <i class="bi bi-funnel me-1"></i>Appliquer filtres
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm ms-1" onclick="clearFilters()">
+                      <i class="bi bi-x-circle me-1"></i>Effacer
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Analytics rapides -->
+                <div class="row mt-3">
+                  <div class="col-12">
+                    <small class="text-muted">
+                      <i class="bi bi-info-circle me-1"></i>
+                      <strong>Analytics rapides:</strong>
+                      Cliquez sur les en-têtes de colonnes pour trier •
+                      Utilisez les filtres pour cibler des segments spécifiques •
+                      Focus sur les priorités hautes pour maximiser le ROI
+                    </small>
+                  </div>
+                </div>
+              </div>
+
               <div class="table-responsive">
-                <table class="table table-hover">
+                <table class="table table-hover" id="usersTable"  >
                   <thead class="table-light">
                     <tr>
-                      <th>Utilisateur</th>
-                      <th>Région</th>
-                      <th>Inscription</th>
+                      <th style="cursor: pointer;" onclick="sortTable(0)">Utilisateur <i class="bi bi-arrow-down-up small"></i></th>
+                      <th style="cursor: pointer;" onclick="sortTable(1)">Région <i class="bi bi-arrow-down-up small"></i></th>
+                      <th style="cursor: pointer;" onclick="sortTable(2)">Inscription <i class="bi bi-arrow-down-up small"></i></th>
+                      <th style="cursor: pointer;" onclick="sortTable(3)">Dernière Activité <i class="bi bi-arrow-down-up small"></i></th>
+                      <th style="cursor: pointer;" onclick="sortTable(4)">Valeur Simulations <i class="bi bi-arrow-down-up small"></i></th>
+                      <th style="cursor: pointer;" onclick="sortTable(5)">Performance Primes <i class="bi bi-arrow-down-up small"></i></th>
+                      <th style="cursor: pointer;" onclick="sortTable(6)">Potentiel Revenue <i class="bi bi-arrow-down-up small"></i></th>
+                      <th style="cursor: pointer;" onclick="sortTable(7)">Engagement <i class="bi bi-arrow-down-up small"></i></th>
                       <th>Statistiques d'activité</th>
                       <th>Statut</th>
                     </tr>
@@ -352,6 +413,109 @@
                         </td>
                         <td>
                           <small class="text-muted"><%= user.created_at.strftime("%d/%m/%Y") %></small>
+                          <br><small class="text-success">Il y a <%= time_ago_in_words(user.created_at) %></small>
+                        </td>
+                        <td>
+                          <% last_activity = [
+                            user.simulations.maximum(:updated_at),
+                            user.properties.maximum(:updated_at),
+                            user.requests.maximum(:updated_at),
+                            user.projects.maximum(:updated_at)
+                          ].compact.max %>
+                          <% if last_activity %>
+                            <small class="text-primary fw-bold"><%= last_activity.strftime("%d/%m/%Y") %></small>
+                            <br><small class="text-muted">Il y a <%= time_ago_in_words(last_activity) %></small>
+                            <% if last_activity > 7.days.ago %>
+                              <span class="badge bg-success">Actif</span>
+                            <% elsif last_activity > 30.days.ago %>
+                              <span class="badge bg-warning">Modéré</span>
+                            <% else %>
+                              <span class="badge bg-danger">Inactif</span>
+                            <% end %>
+                          <% else %>
+                            <small class="text-muted">Aucune activité</small>
+                          <% end %>
+                        </td>
+                        <td>
+                          <% total_simulation_value = user.simulations.sum { |s| s.try(:total_estimated_amount) || 0 } %>
+                          <% if total_simulation_value > 0 %>
+                            <strong class="text-success">€<%= number_with_delimiter(total_simulation_value.round) %></strong>
+                            <br><small class="text-muted"><%= user.simulations.count %> simulation<%= 's' if user.simulations.count > 1 %></small>
+                            <% avg_sim_value = total_simulation_value / user.simulations.count if user.simulations.count > 0 %>
+                            <br><small class="text-info">Moy: €<%= number_with_delimiter(avg_sim_value.round) if avg_sim_value %></small>
+                          <% else %>
+                            <small class="text-muted">Aucune simulation</small>
+                          <% end %>
+                        </td>
+                        <td>
+                          <% total_progresses = user.requests.joins(:request_progresses).count %>
+                          <% total_requests = user.requests.count %>
+                          <% total_simulations = user.simulations.count %>
+
+                          <% if total_progresses > 0 %>
+                            <span class="badge bg-info"><%= total_progresses %> Suivi<%= 's' if total_progresses > 1 %></span>
+
+                            <!-- Délai moyen de traitement -->
+                            <% if total_requests > 0 %>
+                              <% avg_delay = user.requests.joins(:request_progresses).average('EXTRACT(epoch FROM (request_progresses.created_at - requests.created_at))/86400') %>
+                              <% if avg_delay %>
+                                <br><small class="text-primary">⏱ <%= avg_delay.round(1) %> jours moy.</small>
+                              <% end %>
+                            <% end %>
+
+                          <% elsif total_requests > 0 %>
+                            <span class="badge bg-warning">En attente</span>
+                          <% else %>
+                            <small class="text-muted">Aucune demande</small>
+                          <% end %>
+
+                          <!-- Ratio de conversion Simulations → Demandes -->
+                          <% if total_simulations > 0 %>
+                            <% conversion_rate = (total_requests.to_f / total_simulations * 100) %>
+                            <br><small class="text-success">📊 <%= conversion_rate.round(1) %>% conversion</small>
+                          <% end %>
+                        </td>
+                        <td>
+                          <% total_simulation_value = user.simulations.sum { |s| s.try(:total_estimated_amount) || 0 } %>
+                          <% simulation_count = user.simulations.count %>
+                          <% request_count = user.requests.count %>
+                          <% unconverted_simulations = [simulation_count - request_count, 0].max %>
+
+                          <% if unconverted_simulations > 0 && total_simulation_value > 0 %>
+                            <% potential_value = (total_simulation_value / simulation_count) * unconverted_simulations %>
+                            <strong class="text-warning">💰 €<%= number_with_delimiter(potential_value.round) %></strong>
+                            <br><small class="text-muted"><%= unconverted_simulations %> simulation<%= 's' if unconverted_simulations > 1 %> non exploitée<%= 's' if unconverted_simulations > 1 %></small>
+
+                            <!-- Priorité de contact -->
+                            <% if potential_value > 50000 %>
+                              <br><span class="badge bg-danger">🔥 PRIORITÉ HAUTE</span>
+                            <% elsif potential_value > 20000 %>
+                              <br><span class="badge bg-warning">⚡ PRIORITÉ MOYENNE</span>
+                            <% else %>
+                              <br><span class="badge bg-info">💡 Opportunité</span>
+                            <% end %>
+
+                          <% elsif simulation_count == 0 %>
+                            <small class="text-muted">Aucune simulation</small>
+                          <% else %>
+                            <span class="badge bg-success">✓ Toutes converties</span>
+                            <br><small class="text-muted">Excellent suivi</small>
+                          <% end %>
+                        </td>
+                        <td>
+                          <% total_actions = user.properties.count + user.simulations.count + user.projects.count + user.requests.count + user.documents.count %>
+                          <% engagement_score = case total_actions
+                               when 0..2 then { level: 'Faible', color: 'danger' }
+                               when 3..7 then { level: 'Moyen', color: 'warning' }
+                               when 8..15 then { level: 'Bon', color: 'info' }
+                               else { level: 'Excellent', color: 'success' }
+                               end %>
+                          <span class="badge bg-<%= engagement_score[:color] %>"><%= engagement_score[:level] %></span>
+                          <br><small class="text-muted"><%= total_actions %> actions totales</small>
+                          <% days_since_signup = (Date.current - user.created_at.to_date).to_i %>
+                          <% if days_since_signup > 0 %>
+                            <br><small class="text-info"><%= (total_actions.to_f / days_since_signup * 7).round(1) %> actions/semaine</small>
+                          <% end %>
                         </td>
                         <td>
                           <div class="d-flex flex-wrap gap-1 align-items-center">
@@ -2016,4 +2180,170 @@ function testModal(userId) {
     alert('Erreur: ' + error.message);
   }
 }
+
+// ===== FONCTIONNALITÉS DE FILTRAGE ET TRI DU TABLEAU UTILISATEURS =====
+
+// Variables globales
+let sortDirection = {};
+let currentFilters = {
+  region: '',
+  engagement: '',
+  potential: ''
+};
+
+// Fonction de tri des colonnes
+function sortTable(columnIndex) {
+  const table = document.getElementById('usersTable');
+  const tbody = table.querySelector('tbody');
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+
+  // Déterminer la direction du tri
+  sortDirection[columnIndex] = sortDirection[columnIndex] === 'asc' ? 'desc' : 'asc';
+
+  // Fonction de comparaison
+  rows.sort((a, b) => {
+    let aValue = a.cells[columnIndex].textContent.trim();
+    let bValue = b.cells[columnIndex].textContent.trim();
+
+    // Traitement spécial pour les montants (€)
+    if (aValue.includes('€')) {
+      aValue = parseFloat(aValue.replace(/[€,\s]/g, '')) || 0;
+      bValue = parseFloat(bValue.replace(/[€,\s]/g, '')) || 0;
+    }
+    // Traitement spécial pour les dates
+    else if (aValue.match(/\d{2}\/\d{2}\/\d{4}/)) {
+      aValue = new Date(aValue.split('/').reverse().join('-'));
+      bValue = new Date(bValue.split('/').reverse().join('-'));
+    }
+    // Traitement numérique pour les pourcentages
+    else if (aValue.includes('%')) {
+      aValue = parseFloat(aValue.replace('%', '')) || 0;
+      bValue = parseFloat(bValue.replace('%', '')) || 0;
+    }
+
+    if (sortDirection[columnIndex] === 'asc') {
+      return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+    } else {
+      return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+    }
+  });
+
+  // Remettre les lignes triées dans le tableau
+  rows.forEach(row => tbody.appendChild(row));
+
+  // Mettre à jour les indicateurs visuels
+  updateSortIndicators(columnIndex);
+}
+
+// Mise à jour des indicateurs de tri
+function updateSortIndicators(activeColumn) {
+  const headers = document.querySelectorAll('#usersTable thead th');
+  headers.forEach((header, index) => {
+    const icon = header.querySelector('i');
+    if (icon) {
+      if (index === activeColumn) {
+        icon.className = sortDirection[activeColumn] === 'asc' ?
+          'bi bi-arrow-up small text-primary' :
+          'bi bi-arrow-down small text-primary';
+      } else {
+        icon.className = 'bi bi-arrow-down-up small';
+      }
+    }
+  });
+}
+
+// Application des filtres
+function applyFilters() {
+  const regionFilter = document.getElementById('regionFilter').value;
+  const engagementFilter = document.getElementById('engagementFilter').value;
+  const potentialFilter = document.getElementById('potentialFilter').value;
+
+  currentFilters = {
+    region: regionFilter,
+    engagement: engagementFilter,
+    potential: potentialFilter
+  };
+
+  const tbody = document.querySelector('#usersTable tbody');
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+
+  let visibleCount = 0;
+
+  rows.forEach(row => {
+    let shouldShow = true;
+
+    // Filtre région
+    if (regionFilter) {
+      const regionCell = row.cells[1].textContent.toLowerCase();
+      shouldShow = shouldShow && regionCell.includes(regionFilter.toLowerCase());
+    }
+
+    // Filtre engagement
+    if (engagementFilter) {
+      const engagementCell = row.cells[7].textContent.toLowerCase();
+      shouldShow = shouldShow && engagementCell.includes(engagementFilter.toLowerCase());
+    }
+
+    // Filtre potentiel
+    if (potentialFilter) {
+      const potentialCell = row.cells[6].textContent;
+      switch(potentialFilter) {
+        case 'haute':
+          shouldShow = shouldShow && potentialCell.includes('PRIORITÉ HAUTE');
+          break;
+        case 'moyenne':
+          shouldShow = shouldShow && potentialCell.includes('PRIORITÉ MOYENNE');
+          break;
+        case 'basse':
+          shouldShow = shouldShow && potentialCell.includes('Opportunité');
+          break;
+      }
+    }
+
+    row.style.display = shouldShow ? '' : 'none';
+    if (shouldShow) visibleCount++;
+  });
+
+  // Mettre à jour le compteur
+  updateFilterCount(visibleCount, rows.length);
+}
+
+// Effacer tous les filtres
+function clearFilters() {
+  document.getElementById('regionFilter').value = '';
+  document.getElementById('engagementFilter').value = '';
+  document.getElementById('potentialFilter').value = '';
+
+  const tbody = document.querySelector('#usersTable tbody');
+  const rows = Array.from(tbody.querySelectorAll('tr'));
+
+  rows.forEach(row => {
+    row.style.display = '';
+  });
+
+  updateFilterCount(rows.length, rows.length);
+}
+
+// Mise à jour du compteur de filtres
+function updateFilterCount(visible, total) {
+  const existingCounter = document.querySelector('.filter-counter');
+  if (existingCounter) {
+    existingCounter.remove();
+  }
+
+  const filterDiv = document.querySelector('.mb-3.p-3.bg-light.rounded');
+  const counter = document.createElement('div');
+  counter.className = 'filter-counter mt-2 text-center';
+  counter.innerHTML = `<small class="text-info"><i class="bi bi-funnel-fill me-1"></i>Affichage: <strong>${visible}</strong> sur <strong>${total}</strong> utilisateurs</small>`;
+  filterDiv.appendChild(counter);
+}
+
+// Initialisation au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+  updateFilterCount(
+    document.querySelectorAll('#usersTable tbody tr').length,
+    document.querySelectorAll('#usersTable tbody tr').length
+  );
+});
+
 </script>
