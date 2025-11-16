@@ -67,82 +67,68 @@
       <%= render 'pages/bruxelles_entreprises/application_access' %>
     </div>
   </div>
-</div>
 
-<!-- Barre de connexion/inscription en bas de page -->
-<div class="bg-warning py-3 position-sticky bottom-0" style="z-index: 1020;">
-  <div class="container">
-    <div class="row align-items-center">
-      <div class="col-md-8">
-        <div class="d-flex align-items-center">
-          <i class="bi bi-star-fill text-dark me-2 fs-5"></i>
-          <strong class="text-dark me-3">Connectez-vous pour aller plus loin !</strong>
+  <!-- ÉTAPE FINALE : CTA Principal pour connexion -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card border-warning shadow-lg">
+        <div class="card-header bg-warning text-dark">
+          <h3 class="h4 mb-0 text-center">
+            <span class="badge bg-dark me-2">3</span>
+            🚀 Connectez-vous pour aller plus loin !
+          </h3>
         </div>
-        <div class="row text-dark small mt-1">
-          <div class="col-md-4">
-            <i class="bi bi-check-circle-fill text-success me-1"></i>
-            <strong>Démarches détaillées</strong> pour chaque prime
-          </div>
-          <div class="col-md-4">
-            <i class="bi bi-check-circle-fill text-success me-1"></i>
-            <strong>Suivi de vos projets</strong> de rénovation
-          </div>
-          <div class="col-md-4">
-            <i class="bi bi-check-circle-fill text-success me-1"></i>
-            <strong>Alertes</strong> sur les nouvelles primes
+        <div class="card-body text-center py-4">
+          <div class="row align-items-center">
+            <div class="col-md-8 mb-3 mb-md-0">
+              <h4 class="text-primary mb-3">Débloquez toutes les fonctionnalités de l'application</h4>
+              <div class="row g-3 text-start">
+                <div class="col-md-6">
+                  <ul class="list-unstyled">
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Démarches détaillées</strong> pour chaque prime</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Conseils d'expert</strong> personnalisés</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Documents officiels</strong> à télécharger</li>
+                  </ul>
+                </div>
+                <div class="col-md-6">
+                  <ul class="list-unstyled">
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Suivi de vos projets</strong> de rénovation</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Alertes</strong> sur les nouvelles primes</li>
+                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Support expert</strong> inclus</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="d-grid gap-2">
+                <% if user_signed_in? %>
+                  <a href="<%= dashboard_path %>" class="btn btn-primary btn-lg shadow">
+                    <i class="bi bi-speedometer2 me-2"></i>
+                    Accéder au Dashboard
+                  </a>
+                <% else %>
+                  <a href="<%= new_user_session_path %>" class="btn btn-primary btn-lg shadow">
+                    <i class="bi bi-box-arrow-in-right me-2"></i>
+                    Se connecter
+                  </a>
+                  <a href="<%= new_user_registration_path %>" class="btn btn-success btn-lg shadow">
+                    <i class="bi bi-person-plus me-2"></i>
+                    Créer un compte gratuit
+                  </a>
+                <% end %>
+                <small class="text-muted mt-2 d-block">
+                  <i class="bi bi-shield-check me-1"></i>
+                  Gratuit • Sans engagement • Sécurisé
+                </small>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="row text-dark small">
-          <div class="col-md-4">
-            <i class="bi bi-check-circle-fill text-success me-1"></i>
-            <strong>Conseils d'expert</strong> personnalisés
-          </div>
-          <div class="col-md-4">
-            <i class="bi bi-check-circle-fill text-success me-1"></i>
-            <strong>Documents officiels</strong> à télécharger
-          </div>
-          <div class="col-md-4">
-            <i class="bi bi-check-circle-fill text-success me-1"></i>
-            <strong>Support expert</strong> inclus
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4 text-end">
-        <div class="d-grid gap-2">
-          <% if user_signed_in? %>
-            <a href="<%= dashboard_path %>" class="btn btn-primary">
-              <i class="bi bi-speedometer2 me-1"></i>
-              Accéder au Dashboard
-            </a>
-          <% else %>
-            <a href="<%= new_user_session_path %>" class="btn btn-primary mb-2">
-              <i class="bi bi-box-arrow-in-right me-1"></i>
-              Se connecter
-            </a>
-            <a href="<%= new_user_registration_path %>" class="btn btn-success">
-              <i class="bi bi-person-plus me-1"></i>
-              Créer un compte gratuit
-            </a>
-          <% end %>
-        </div>
-        <small class="text-muted d-block mt-1">
-          <i class="bi bi-shield-check me-1"></i>
-          Gratuit • Sans engagement • Sécurisé
-        </small>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Débloque toutes les fonctionnalités de l'application overlay -->
-<div class="position-fixed top-0 start-0 w-100 bg-warning text-center py-2" style="z-index: 1030;">
-  <div class="container">
-    <strong class="text-dark">
-      <i class="bi bi-unlock-fill me-2"></i>
-      Débloquez toutes les fonctionnalités de l'application
-    </strong>
-  </div>
-</div>
 
 <style>
 .hero-section {
