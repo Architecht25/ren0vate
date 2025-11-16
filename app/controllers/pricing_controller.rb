@@ -132,21 +132,23 @@ class PricingController < ApplicationController
 
       individual: {
         name: "Propriétaire",
-        price: 39,
+        price: 19,
         period: "mois",
         description: "Pour particuliers 1-3 propriétés",
         features: [
           "Jusqu'à 3 propriétés",
           "Projets illimités par propriété",
           "Simulations illimitées",
-          "Ren0Chat : 50 questions/mois (9h-17h)",
+          "Ren0Bot : Assistant contextuel intelligent",
+          "Decision Hub personnalisé",
           "Dashboard comparatif propriétés",
-          "Analytics de base ROI/completion",
+          "Analytics de base ROI",
           "Recherche BCE illimitée",
           "Support prioritaire (24h)",
-          "Export données (PDF reports)"
+          "Export données (PDF reports)",
+          "Accès prioritaire aux futures fonctionnalités IA"
         ],
-        roi: "ROI minimum : 107% • ROI réaliste : 327%",
+        roi: "ROI minimum : 200% • ROI réaliste : 500%+",
         cta: "Choisir Propriétaire",
         popular: true,
         target: "B2C Particuliers"
@@ -154,23 +156,23 @@ class PricingController < ApplicationController
 
       portfolio: {
         name: "Investisseur",
-        price: 89,
+        price: 49,
         period: "mois",
         description: "Multi-propriétaires 4-10 biens",
         features: [
           "Jusqu'à 10 propriétés",
-          "Ren0Chat : 150 questions/mois",
-          "Ren0Bot : Support 24/7 illimité",
-          "Decision Hub : Optimisation portfolio",
-          "Business Intelligence dashboard",
-          "Priorisation IA investissements",
+          "Ren0Bot : Assistant expert multi-modes",
+          "Decision Hub avancé multi-biens",
+          "Dashboard Business Intelligence",
+          "Priorisation intelligente investissements",
+          "Analytics énergétiques avancés",
           "Optimiseur fiscal multi-propriétés",
-          "Predictive analytics énergétique",
-          "Support concierge (12h)",
-          "API access pour intégrations",
-          "Webinaires formation exclusifs"
+          "Support expert (12h)",
+          "Webinaires formation exclusifs",
+          "Exports avancés et rapports détaillés",
+          "Accès bêta prioritaire aux fonctionnalités IA"
         ],
-        roi: "ROI minimum : 187% • ROI réaliste : 649%",
+        roi: "ROI minimum : 300% • ROI réaliste : 800%+",
         cta: "Choisir Investisseur",
         popular: false,
         target: "B2C Multi-propriétaires"
@@ -204,22 +206,22 @@ class PricingController < ApplicationController
 
       professional: {
         name: "Expert",
-        price: 149,
+        price: 99,
         period: "mois",
         description: "Architectes, entrepreneurs, bureaux d'études",
         features: [
           "Propriétés clients illimitées",
           "Multi-utilisateurs équipe (5 comptes)",
-          "White-label interface (logo client)",
+          "Interface personnalisable (logo client)",
           "Reporting clients automatisé",
-          "API IA pour intégrations CRM",
-          "Hotline directe expert (4h)",
-          "Tools B2B (bulk operations)",
+          "Tools B2B avancés",
           "Analytics multi-clients",
-          "Account manager dédié",
-          "Intégrations comptabilité"
+          "Support prioritaire expert (4h)",
+          "Intégrations comptabilité de base",
+          "Accès API limité (à venir)",
+          "Formations spécialisées"
         ],
-        roi: "Break-even : 2-9 clients aidés/an • Scaling 10x+ ROI",
+        roi: "Break-even : 3-5 clients aidés/an • Scaling 5x+ ROI",
         cta: "Choisir Expert",
         popular: false,
         target: "B2B Professionnels"
@@ -227,22 +229,22 @@ class PricingController < ApplicationController
 
       enterprise: {
         name: "Platform",
-        price: 299,
+        price: 199,
         period: "mois",
         description: "Grandes entreprises, gestionnaires patrimoine",
         features: [
           "Gestion propriétés illimitée",
           "Utilisateurs illimités",
-          "IA consultant dédié (fine-tuned)",
           "Développements spécifiques",
-          "Intégrations sur-mesure",
-          "Business Intelligence custom",
+          "Dashboard Business Intelligence avancé",
           "Support multi-régional",
-          "Support 24/7 human",
-          "SLA garantie (99.9% uptime)",
-          "Success fee négociée"
+          "Support prioritaire (2h)",
+          "SLA garantie 99% uptime",
+          "Intégrations sur-mesure",
+          "Account manager dédié",
+          "Accès bêta exclusif nouvelles fonctionnalités"
         ],
-        roi: "ROI minimum : 1293% • Scaling unlimited",
+        roi: "ROI minimum : 500% • Scaling illimité",
         cta: "Nous contacter",
         popular: false,
         target: "B2B Enterprise"
