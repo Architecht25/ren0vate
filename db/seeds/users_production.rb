@@ -469,17 +469,6 @@ users_data = [
     test_user: false
   },
   {
-    email: 'thomas.Kukanza@bakermckenzie.com',
-    password: 'Client2025!',
-    first_name: 'Aline',
-    last_name: 'Anspach',
-    role: 'user',
-    phone: '',
-    city: '',
-    postal_code: '',
-    test_user: false
-  },
-  {
     email: 'gilles_vb@hotmail.com',
     password: 'Client2025!',
     first_name: 'Gilles',
