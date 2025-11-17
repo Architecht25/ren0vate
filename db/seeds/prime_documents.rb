@@ -108,33 +108,34 @@ Prime.includes(:category).find_each do |prime|
     end
   end
 
-  # 4. Guide de remplissage (pour les primes complexes)
-  if prime.valeurs_par_categorie.present? && prime.valeurs_par_categorie.keys.count > 1
-    guide = PrimeDocumentTemplate.find_or_initialize_by(
-      prime: prime,
-      type_document: 'guide_remplissage'
-    )
-
-    if guide.new_record?
-      guide.assign_attributes(
-        title: "Guide de remplissage - #{prime.titre}",
-        description: "Guide explicatif pour remplir correctement les formulaires et comprendre les exigences spécifiques de cette prime.",
-        is_required: false,
-        order_position: 4,
-        file_url: "/data/prime_documents/#{prime.slug}_guide_remplissage.pdf"
-      )
-
-      if guide.save
-        created_count += 1
-        puts "    ✅ Guide de remplissage créé"
-      else
-        puts "    ❌ Erreur guide: #{guide.errors.full_messages.join(', ')}"
-      end
-    else
-      skipped_count += 1
-      puts "    ⏭️  Guide de remplissage existe déjà"
-    end
-  end
+  # 4. Guide de remplissage (DÉSACTIVÉ - créait trop de documents)
+  # Laissé en commentaire pour référence future
+  # if prime.valeurs_par_categorie.present? && prime.valeurs_par_categorie.keys.count > 1
+  #   guide = PrimeDocumentTemplate.find_or_initialize_by(
+  #     prime: prime,
+  #     type_document: 'guide_remplissage'
+  #   )
+  # 
+  #   if guide.new_record?
+  #     guide.assign_attributes(
+  #       title: "Guide de remplissage - #{prime.titre}",
+  #       description: "Guide explicatif pour remplir correctement les formulaires et comprendre les exigences spécifiques de cette prime.",
+  #       is_required: false,
+  #       order_position: 4,
+  #       file_url: "/data/prime_documents/#{prime.slug}_guide_remplissage.pdf"
+  #     )
+  # 
+  #     if guide.save
+  #       created_count += 1
+  #       puts "    ✅ Guide de remplissage créé"
+  #     else
+  #       puts "    ❌ Erreur guide: #{guide.errors.full_messages.join(', ')}"
+  #     end
+  #   else
+  #     skipped_count += 1
+  #     puts "    ⏭️  Guide de remplissage existe déjà"
+  #   end
+  # end
 end
 
 puts "🎯 Création des documents terminée:"
