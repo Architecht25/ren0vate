@@ -1,4 +1,4 @@
-class PdfExportsController < ApplicationController
+class PdfExportsAlternativeController < ApplicationController
   include PdfExportsHelper
 
   # Rendre les helpers disponibles dans les vues
@@ -16,19 +16,16 @@ class PdfExportsController < ApplicationController
 
     respond_to do |format|
       format.pdf do
-        # Solution temporaire : HTML optimisé pour impression PDF
-        html_content = render_to_string(
-          template: 'pdf_exports/eligibilite_export',
-          layout: 'pdf_layout',
-          formats: [:html]
-        )
-        
-        pdf_result = PdfGenerationService.generate_from_html(
-          html_content, 
-          filename: generate_filename
-        )
-        
-        render html: pdf_result[:content].html_safe
+        # Solution de fallback : génération HTML styled pour impression PDF
+        render template: 'pdf_exports/eligibilite_export',
+               layout: 'pdf_layout',
+               content_type: 'text/html'
+      end
+      
+      format.html do
+        # Version HTML printable
+        render template: 'pdf_exports/eligibilite_export',
+               layout: 'pdf_layout'
       end
     end
   end
@@ -40,19 +37,16 @@ class PdfExportsController < ApplicationController
 
     respond_to do |format|
       format.pdf do
-        # Solution temporaire : HTML optimisé pour impression PDF
-        html_content = render_to_string(
-          template: 'pdf_exports/primes_export',
-          layout: 'pdf_layout',
-          formats: [:html]
-        )
-        
-        pdf_result = PdfGenerationService.generate_from_html(
-          html_content, 
-          filename: generate_filename
-        )
-        
-        render html: pdf_result[:content].html_safe
+        # Solution de fallback : génération HTML styled pour impression PDF
+        render template: 'pdf_exports/primes_export',
+               layout: 'pdf_layout',
+               content_type: 'text/html'
+      end
+      
+      format.html do
+        # Version HTML printable
+        render template: 'pdf_exports/primes_export',
+               layout: 'pdf_layout'
       end
     end
   end
@@ -65,19 +59,16 @@ class PdfExportsController < ApplicationController
 
     respond_to do |format|
       format.pdf do
-        # Solution temporaire : HTML optimisé pour impression PDF
-        html_content = render_to_string(
-          template: 'pdf_exports/complet_export',
-          layout: 'pdf_layout',
-          formats: [:html]
-        )
-        
-        pdf_result = PdfGenerationService.generate_from_html(
-          html_content, 
-          filename: generate_filename
-        )
-        
-        render html: pdf_result[:content].html_safe
+        # Solution de fallback : génération HTML styled pour impression PDF
+        render template: 'pdf_exports/complet_export',
+               layout: 'pdf_layout',
+               content_type: 'text/html'
+      end
+      
+      format.html do
+        # Version HTML printable
+        render template: 'pdf_exports/complet_export',
+               layout: 'pdf_layout'
       end
     end
   end
@@ -97,6 +88,4 @@ class PdfExportsController < ApplicationController
     timestamp = Time.current.strftime("%Y%m%d_%H%M%S")
     "ren0vate_#{@export_type}_#{@region}_#{timestamp}"
   end
-
-
 end

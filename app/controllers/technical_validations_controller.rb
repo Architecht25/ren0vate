@@ -77,8 +77,23 @@ class TechnicalValidationsController < ApplicationController
     respond_to do |format|
       format.html { render :report }
       format.pdf do
-        pdf = generate_validation_pdf
-        send_data pdf, filename: "validation_#{@project.id}_#{Date.current.strftime('%Y%m%d')}.pdf", type: 'application/pdf'
+        # Solution temporaire : HTML optimisé pour impression PDF
+        html_content = render_to_string(
+          template: 'technical_validations/report',
+          layout: 'pdf_layout',
+          locals: {
+            project: @project,
+            validation_result: @validation_result,
+            validation_service: @validation_service
+          }
+        )
+        
+        pdf_result = PdfGenerationService.generate_from_html(
+          html_content, 
+          filename: "validation_#{@project.id}_#{Date.current.strftime('%Y%m%d')}"
+        )
+        
+        render html: pdf_result[:content].html_safe
       end
     end
   end
@@ -214,26 +229,10 @@ class TechnicalValidationsController < ApplicationController
     end
   end
 
-  def generate_validation_pdf
-    # Génération du PDF de rapport de validation
-    # Cette méthode nécessiterait une gem comme Prawn ou WickedPDF
-
-    html_content = render_to_string(
-      template: 'technical_validations/report',
-      layout: 'pdf',
-      locals: {
-        project: @project,
-        validation_result: @validation_result,
-        validation_service: @validation_service
-      }
-    )
-
-    # Conversion HTML vers PDF (nécessite wkhtmltopdf ou équivalent)
-    # WickedPdf.new.pdf_from_string(html_content)
-
-    # Pour l'instant, retourner un placeholder
-    "PDF de validation pour le projet #{@project.nom}"
-  end
+  # Méthode PDF deprecated - remplacée par PdfGenerationService
+  # def generate_validation_pdf
+  #   # Ancienne implémentation avec WickedPDF
+  # end
 
   def generate_issues_csv
     require 'csv'
