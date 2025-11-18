@@ -77,5 +77,5 @@ heroku buildpacks:add https://github.com/heroku/heroku-buildpack-chrome
 
 ---
 
-**Status:** ✅ **Déployé et fonctionnel**  
+**Status:** ✅ **Déployé et fonctionnel**
 **Dernière mise à jour:** 18/11/2025

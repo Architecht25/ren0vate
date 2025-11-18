@@ -87,12 +87,12 @@ class TechnicalValidationsController < ApplicationController
             validation_service: @validation_service
           }
         )
-        
+
         pdf_result = PdfGenerationService.generate_from_html(
-          html_content, 
+          html_content,
           filename: "validation_#{@project.id}_#{Date.current.strftime('%Y%m%d')}"
         )
-        
+
         render html: pdf_result[:content].html_safe
       end
     end

@@ -21,7 +21,7 @@ class PdfExportsAlternativeController < ApplicationController
                layout: 'pdf_layout',
                content_type: 'text/html'
       end
-      
+
       format.html do
         # Version HTML printable
         render template: 'pdf_exports/eligibilite_export',
@@ -42,7 +42,7 @@ class PdfExportsAlternativeController < ApplicationController
                layout: 'pdf_layout',
                content_type: 'text/html'
       end
-      
+
       format.html do
         # Version HTML printable
         render template: 'pdf_exports/primes_export',
@@ -64,7 +64,7 @@ class PdfExportsAlternativeController < ApplicationController
                layout: 'pdf_layout',
                content_type: 'text/html'
       end
-      
+
       format.html do
         # Version HTML printable
         render template: 'pdf_exports/complet_export',

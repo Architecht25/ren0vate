@@ -22,12 +22,12 @@ class PdfExportsController < ApplicationController
           layout: 'pdf_layout',
           formats: [:html]
         )
-        
+
         pdf_result = PdfGenerationService.generate_from_html(
-          html_content, 
+          html_content,
           filename: generate_filename
         )
-        
+
         render html: pdf_result[:content].html_safe
       end
     end
@@ -46,12 +46,12 @@ class PdfExportsController < ApplicationController
           layout: 'pdf_layout',
           formats: [:html]
         )
-        
+
         pdf_result = PdfGenerationService.generate_from_html(
-          html_content, 
+          html_content,
           filename: generate_filename
         )
-        
+
         render html: pdf_result[:content].html_safe
       end
     end
@@ -71,12 +71,12 @@ class PdfExportsController < ApplicationController
           layout: 'pdf_layout',
           formats: [:html]
         )
-        
+
         pdf_result = PdfGenerationService.generate_from_html(
-          html_content, 
+          html_content,
           filename: generate_filename
         )
-        
+
         render html: pdf_result[:content].html_safe
       end
     end
