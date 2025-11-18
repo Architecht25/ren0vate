@@ -115,7 +115,7 @@ Prime.includes(:category).find_each do |prime|
   #     prime: prime,
   #     type_document: 'guide_remplissage'
   #   )
-  # 
+  #
   #   if guide.new_record?
   #     guide.assign_attributes(
   #       title: "Guide de remplissage - #{prime.titre}",
@@ -124,7 +124,7 @@ Prime.includes(:category).find_each do |prime|
   #       order_position: 4,
   #       file_url: "/data/prime_documents/#{prime.slug}_guide_remplissage.pdf"
   #     )
-  # 
+  #
   #     if guide.save
   #       created_count += 1
   #       puts "    ✅ Guide de remplissage créé"
