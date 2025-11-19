@@ -1,5 +1,6 @@
 // Gestion des entrepreneurs multiples
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('🏗️ Script entrepreneurs_management chargé');
   let entrepreneurCount = 1; // Commence à 1 car l'entrepreneur principal existe déjà
 
   // Fonction pour mettre à jour les numéros d'entrepreneurs
@@ -112,14 +113,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Bouton pour ajouter un entrepreneur
   const addButton = document.getElementById('add-entrepreneur');
+  console.log('🔍 Bouton add-entrepreneur trouvé:', addButton);
   if (addButton) {
     // Calculer le nombre actuel d'entrepreneurs additionnels
     const existingEntrepreneurs = document.querySelectorAll('#additional-entrepreneurs-container .entrepreneur-item');
     entrepreneurCount = existingEntrepreneurs.length + 1; // +1 pour l'entrepreneur principal
+    console.log('📊 Nombre d\'entrepreneurs existants:', entrepreneurCount);
 
     addButton.addEventListener('click', function() {
+      console.log('👆 Clic sur ajouter entrepreneur');
       entrepreneurCount++;
       const container = document.getElementById('additional-entrepreneurs-container');
+      console.log('📦 Container trouvé:', container);
       const newEntrepreneur = document.createElement('div');
       newEntrepreneur.innerHTML = getEntrepreneurTemplate(entrepreneurCount);
 
@@ -145,6 +150,8 @@ document.addEventListener('DOMContentLoaded', function() {
         entrepreneurElement.style.opacity = '1';
       }, 10);
     });
+  } else {
+    console.log('❌ Bouton add-entrepreneur non trouvé dans le DOM');
   }
 
   // Gestion des boutons de suppression existants
