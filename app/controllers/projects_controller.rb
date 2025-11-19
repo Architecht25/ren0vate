@@ -41,6 +41,14 @@ class ProjectsController < ApplicationController
   end
 
   def update
+    # Traitement spécial pour les entrepreneurs additionnels
+    if params[:additional_entrepreneurs].present?
+      additional_entrepreneurs_data = params[:additional_entrepreneurs].values.map do |entrepreneur|
+        entrepreneur.permit(:nom, :entreprise, :numero_tva, :telephone, :email, :adresse, :assurance, :specialite, :devis_montant)
+      end
+      @project.additional_entrepreneurs = additional_entrepreneurs_data.to_json
+    end
+
     if @project.update(project_params)
       message = @project.investment? ? 'Investissement mis à jour avec succès.' : 'Chantier mis à jour avec succès.'
       redirect_to @project, notice: message
@@ -94,7 +102,10 @@ class ProjectsController < ApplicationController
       # Champs audit énergétique (Wallonie)
       :numero_audit, :date_audit, :numero_agrement_auditeur, :prix_audit,
       # Corps de métiers (JSON)
-      :corps_metiers
+      :corps_metiers,
+      # Entrepreneurs additionnels
+      :additional_entrepreneurs,
+      additional_entrepreneurs: []
     )
   end
 end

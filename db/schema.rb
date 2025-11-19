@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_15_213335) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_19_163955) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -468,6 +468,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_15_213335) do
     t.datetime "last_validation_at"
     t.decimal "architecte_devis_montant", precision: 10, scale: 2
     t.decimal "contractor_devis_montant", precision: 10, scale: 2
+    t.text "additional_entrepreneurs"
     t.index ["demande_avant_debut"], name: "index_projects_on_demande_avant_debut"
     t.index ["finalite"], name: "index_projects_on_finalite"
     t.index ["finalite_economique_confirmee"], name: "index_projects_on_finalite_economique_confirmee"
