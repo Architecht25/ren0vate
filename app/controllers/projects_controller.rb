@@ -43,7 +43,7 @@ class ProjectsController < ApplicationController
   def update
     # Traitement spécial pour les entrepreneurs additionnels
     if params[:additional_entrepreneurs].present?
-      additional_entrepreneurs_data = params[:additional_entrepreneurs].values.map do |entrepreneur|
+      additional_entrepreneurs_data = params[:additional_entrepreneurs].map do |entrepreneur|
         entrepreneur.permit(:nom, :entreprise, :numero_tva, :telephone, :email, :adresse, :assurance, :specialite, :devis_montant)
       end
       @project.additional_entrepreneurs = additional_entrepreneurs_data.to_json
