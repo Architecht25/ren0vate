@@ -1,5 +1,5 @@
 <!-- Formulaire spécifique pour la Flandre -->
-<div class="container" style="max-width: 80%">
+<div class="request-form-container">
   <div class="flandre-specific-fields">
 
   <!-- SECTION 1 – Identification du demandeur -->
@@ -290,14 +290,14 @@
               user_enfants_value = current_user.nombre_enfants
               # Si en production et pas de valeur définie, utiliser 2 comme valeur de test
               fallback_value = Rails.env.production? && user_enfants_value.nil? ? 2 : 0
-              
+
               # Ignore les valeurs "0" ou vides dans form_data, utilise les données utilisateur
               if form_data_value.present? && form_data_value != "0" && form_data_value != 0
                 personnes_charge_value = form_data_value
               else
                 personnes_charge_value = user_enfants_value || fallback_value
               end
-              
+
               # Debug détaillé pour production
               Rails.logger.info "🔍 DEBUG PERSONNES_CHARGE DÉTAILLÉ:"
               Rails.logger.info "  - @form_data present: #{@form_data.present?}"
@@ -650,7 +650,7 @@
              target="_blank"
              rel="noopener noreferrer"
              class="btn btn-success btn-lg px-4 py-2">
-            <i class="bi bi-check-circle me-2"></i>Intyroduisez votre demande sur le site de Vlaanderen
+            <i class="bi bi-check-circle me-2"></i>Introduisez maintenant votre demande sur le site Mijn verbouwpremie
           </a>
         </div>
       </div>
