@@ -284,8 +284,13 @@
               Nombre de personnes à charge *
               <%= badge_prerempli(@form_data, :personnes_charge) if @form_data.present? %>
             <% end %>
+            <% 
+              # Calculer la valeur des personnes à charge
+              personnes_charge_value = @form_data&.dig(:personnes_charge) || 
+                                     current_user.nombre_enfants || 0
+            %>
             <%= form.number_field :personnes_charge,
-                value: preremplir_champ(@form_data, :personnes_charge, current_user.nombre_enfants),
+                value: personnes_charge_value,
                 class: "form-control",
                 min: 0,
                 max: 10,
