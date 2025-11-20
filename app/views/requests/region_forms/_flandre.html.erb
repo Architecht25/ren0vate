@@ -288,6 +288,9 @@
               # Calculer la valeur des personnes à charge
               personnes_charge_value = @form_data&.dig(:personnes_charge) ||
                                      current_user.nombre_enfants || 0
+              
+              # Debug temporaire pour voir les valeurs
+              Rails.logger.debug "🔍 DEBUG personnnes_charge: @form_data=#{@form_data&.dig(:personnes_charge)}, current_user.nombre_enfants=#{current_user.nombre_enfants}, valeur_finale=#{personnes_charge_value}"
             %>
             <%= form.number_field :personnes_charge,
                 value: personnes_charge_value,
