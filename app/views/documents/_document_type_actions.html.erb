@@ -3,6 +3,24 @@
              class: "btn btn-outline-info btn-sm" do %>
     <i class="bi bi-download me-1"></i>Voir officiels
   <% end %>
+  <% if docs_of_type.any? %>
+    <% if @property %>
+      <%= link_to property_documents_path(@property, type_document: doc_type),
+                 class: "btn btn-#{is_required ? 'primary' : 'info'} btn-sm" do %>
+        <i class="bi bi-folder2-open me-1"></i>Voir tous (<%= docs_of_type.count %>)
+      <% end %>
+    <% elsif @project %>
+      <%= link_to project_documents_path(@project, type_document: doc_type),
+                 class: "btn btn-#{is_required ? 'primary' : 'info'} btn-sm" do %>
+        <i class="bi bi-folder2-open me-1"></i>Voir tous (<%= docs_of_type.count %>)
+      <% end %>
+    <% else %>
+      <%= link_to documents_path(type_document: doc_type),
+                 class: "btn btn-#{is_required ? 'primary' : 'info'} btn-sm" do %>
+        <i class="bi bi-folder2-open me-1"></i>Voir tous (<%= docs_of_type.count %>)
+      <% end %>
+    <% end %>
+  <% end %>
 <% else %>
   <% if docs_of_type.any? %>
     <% if @property %>
