@@ -285,12 +285,18 @@
               <%= badge_prerempli(@form_data, :personnes_charge) if @form_data.present? %>
             <% end %>
             <%
-              # Calculer la valeur des personnes à charge
-              personnes_charge_value = @form_data&.dig(:personnes_charge) ||
-                                     current_user.nombre_enfants || 0
+              # Calculer la valeur des personnes à charge avec debug détaillé
+              form_data_value = @form_data&.dig(:personnes_charge)
+              user_enfants_value = current_user.nombre_enfants
+              personnes_charge_value = form_data_value || user_enfants_value || 0
               
-              # Debug temporaire pour voir les valeurs
-              Rails.logger.debug "🔍 DEBUG personnnes_charge: @form_data=#{@form_data&.dig(:personnes_charge)}, current_user.nombre_enfants=#{current_user.nombre_enfants}, valeur_finale=#{personnes_charge_value}"
+              # Debug détaillé pour production
+              Rails.logger.info "🔍 DEBUG PERSONNES_CHARGE DÉTAILLÉ:"
+              Rails.logger.info "  - @form_data present: #{@form_data.present?}"
+              Rails.logger.info "  - @form_data[:personnes_charge]: #{form_data_value.inspect}"
+              Rails.logger.info "  - current_user.nombre_enfants: #{user_enfants_value.inspect}"
+              Rails.logger.info "  - current_user.id: #{current_user.id}"
+              Rails.logger.info "  - valeur_finale_calculée: #{personnes_charge_value.inspect}"
             %>
             <%= form.number_field :personnes_charge,
                 value: personnes_charge_value,
