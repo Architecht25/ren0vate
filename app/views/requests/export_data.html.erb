@@ -285,56 +285,264 @@
         </div>
       </div>
 
-      <!-- Section 5: Types de travaux -->
+      <!-- Section 5: Détails techniques des travaux -->
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-light">
           <h5 class="mb-0">
             <i class="bi bi-tools me-2"></i>
-            Types de travaux
+            Détails techniques des travaux
           </h5>
+          <small class="text-muted">Informations détaillées requises par Mijn Verbouwpremie</small>
         </div>
         <div class="card-body">
-          <div class="row g-2">
-            <%
-            travaux_types = [
-              { key: :travaux_toiture, label: "Travaux de toiture" },
-              { key: :travaux_murs, label: "Isolation des murs" },
-              { key: :travaux_sol, label: "Isolation du sol" },
-              { key: :travaux_vitrage, label: "Remplacement vitrage" },
-              { key: :travaux_chauffage, label: "Système de chauffage" },
-              { key: :travaux_ventilation, label: "Ventilation" },
-              { key: :travaux_solaire, label: "Panneaux solaires" },
-              { key: :travaux_complementaires, label: "Travaux complémentaires" }
-            ]
 
-            selected_travaux = travaux_types.select { |t| @request&.form_data&.dig(t[:key]) == true || @request&.form_data&.dig(t[:key]) == "true" }
-            %>
-
-            <% if selected_travaux.any? %>
-              <div class="col-12">
-                <label class="form-label fw-semibold">Types de travaux sélectionnés</label>
-                <div class="input-group">
-                  <textarea class="form-control" id="travaux_types" rows="3" readonly><%= selected_travaux.map { |t| "• #{t[:label]}" }.join("\n") %></textarea>
-                  <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('travaux_types')">
-                    <i class="bi bi-clipboard"></i>
-                  </button>
-                </div>
-              </div>
-            <% else %>
-              <div class="col-12">
-                <div class="alert alert-warning">
-                  <i class="bi bi-exclamation-triangle me-2"></i>
-                  Aucun type de travaux spécifique n'a été sélectionné
-                </div>
-              </div>
-            <% end %>
+          <!-- Avertissement -->
+          <div class="alert alert-info mb-4">
+            <h6 class="alert-heading">
+              <i class="bi bi-info-circle me-2"></i>
+              Informations importantes
+            </h6>
+            <p class="mb-2">Le formulaire officiel demande des détails techniques spécifiques :</p>
+            <ul class="mb-0">
+              <li><strong>Surfaces en m²</strong> pour chaque type d'isolation</li>
+              <li><strong>Méthodes d'isolation</strong> (sélection dans des listes déroulantes)</li>
+              <li><strong>Types de systèmes</strong> de chauffage et ventilation</li>
+              <li><strong>Attestations de l'entrepreneur</strong> pour valider les travaux</li>
+            </ul>
           </div>
 
-          <% if selected_travaux.any? %>
+          <!-- Travaux d'isolation -->
+          <% if @request&.form_data&.dig(:travaux_toiture) == "true" || @request&.form_data&.dig(:travaux_murs) == "true" || @request&.form_data&.dig(:travaux_sol) == "true" %>
+          <div class="row g-3 mb-4">
+            <div class="col-12">
+              <h6 class="text-primary border-bottom pb-2">
+                <i class="bi bi-house-gear me-2"></i>Travaux d'isolation
+              </h6>
+            </div>
+
+            <% if @request&.form_data&.dig(:travaux_toiture) == "true" %>
+            <div class="col-12">
+              <div class="border rounded p-3 bg-light">
+                <label class="form-label fw-semibold text-success">✓ Isolation de la toiture</label>
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <label class="form-label small">Surface (m²)</label>
+                    <div class="input-group input-group-sm">
+                      <input type="text" class="form-control" id="surface_toiture" value="<%= @request&.form_data&.dig(:surface_toiture) || '[À compléter]' %>" readonly>
+                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('surface_toiture')">
+                        <i class="bi bi-clipboard"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label small">Méthode d'isolation</label>
+                    <div class="input-group input-group-sm">
+                      <input type="text" class="form-control" id="methode_toiture" value="<%= @request&.form_data&.dig(:methode_toiture) || '[Sélectionner dans la liste déroulante]' %>" readonly>
+                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('methode_toiture')">
+                        <i class="bi bi-clipboard"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <% end %>
+
+            <% if @request&.form_data&.dig(:travaux_murs) == "true" %>
+            <div class="col-12">
+              <div class="border rounded p-3 bg-light">
+                <label class="form-label fw-semibold text-success">✓ Isolation des murs extérieurs</label>
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <label class="form-label small">Surface (m²)</label>
+                    <div class="input-group input-group-sm">
+                      <input type="text" class="form-control" id="surface_murs" value="<%= @request&.form_data&.dig(:surface_murs) || '[À compléter]' %>" readonly>
+                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('surface_murs')">
+                        <i class="bi bi-clipboard"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label small">Méthode d'isolation</label>
+                    <div class="input-group input-group-sm">
+                      <input type="text" class="form-control" id="methode_murs" value="<%= @request&.form_data&.dig(:methode_murs) || '[Sélectionner dans la liste déroulante]' %>" readonly>
+                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('methode_murs')">
+                        <i class="bi bi-clipboard"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <% end %>
+
+            <% if @request&.form_data&.dig(:travaux_sol) == "true" %>
+            <div class="col-12">
+              <div class="border rounded p-3 bg-light">
+                <label class="form-label fw-semibold text-success">✓ Isolation du sol ou des caves</label>
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <label class="form-label small">Surface (m²)</label>
+                    <div class="input-group input-group-sm">
+                      <input type="text" class="form-control" id="surface_sol" value="<%= @request&.form_data&.dig(:surface_sol) || '[À compléter]' %>" readonly>
+                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('surface_sol')">
+                        <i class="bi bi-clipboard"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <% end %>
+          </div>
+          <% end %>
+
+          <!-- Remplacement vitrage -->
+          <% if @request&.form_data&.dig(:travaux_vitrage) == "true" %>
+          <div class="row g-3 mb-4">
+            <div class="col-12">
+              <h6 class="text-primary border-bottom pb-2">
+                <i class="bi bi-window me-2"></i>Remplacement du vitrage
+              </h6>
+            </div>
+            <div class="col-12">
+              <div class="border rounded p-3 bg-light">
+                <label class="form-label fw-semibold text-success">✓ Remplacement du vitrage</label>
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <label class="form-label small">Surface (m²)</label>
+                    <div class="input-group input-group-sm">
+                      <input type="text" class="form-control" id="surface_vitrage" value="<%= @request&.form_data&.dig(:surface_vitrage) || '[À compléter]' %>" readonly>
+                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('surface_vitrage')">
+                        <i class="bi bi-clipboard"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <% end %>
+
+          <!-- Systèmes énergétiques -->
+          <% if @request&.form_data&.dig(:travaux_chauffage) == "true" || @request&.form_data&.dig(:travaux_ventilation) == "true" %>
+          <div class="row g-3 mb-4">
+            <div class="col-12">
+              <h6 class="text-primary border-bottom pb-2">
+                <i class="bi bi-thermometer-half me-2"></i>Systèmes énergétiques
+              </h6>
+            </div>
+
+            <% if @request&.form_data&.dig(:travaux_chauffage) == "true" %>
+            <div class="col-12">
+              <div class="border rounded p-3 bg-light">
+                <label class="form-label fw-semibold text-success">✓ Installation d'une pompe à chaleur et chauffe-eau thermodynamique</label>
+                <div class="row g-2">
+                  <div class="col-md-8">
+                    <label class="form-label small">Type de système</label>
+                    <div class="input-group input-group-sm">
+                      <input type="text" class="form-control" id="type_systeme_chauffage" value="<%= @request&.form_data&.dig(:type_systeme_chauffage) || '[Sélectionner dans la liste déroulante]' %>" readonly>
+                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('type_systeme_chauffage')">
+                        <i class="bi bi-clipboard"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <% end %>
+
+            <% if @request&.form_data&.dig(:travaux_ventilation) == "true" %>
+            <div class="col-12">
+              <div class="border rounded p-3 bg-light">
+                <label class="form-label fw-semibold text-success">✓ Système de ventilation</label>
+                <div class="row g-2">
+                  <div class="col-md-8">
+                    <label class="form-label small">Type de système</label>
+                    <div class="input-group input-group-sm">
+                      <input type="text" class="form-control" id="type_systeme_ventilation" value="<%= @request&.form_data&.dig(:type_systeme_ventilation) || '[Sélectionner dans la liste déroulante]' %>" readonly>
+                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('type_systeme_ventilation')">
+                        <i class="bi bi-clipboard"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <% end %>
+          </div>
+          <% end %>
+
+          <!-- Travaux complémentaires et désamiantage -->
+          <% if @request&.form_data&.dig(:travaux_complementaires) == "true" || @request&.form_data&.dig(:desamiantage) == "true" %>
+          <div class="row g-3 mb-4">
+            <div class="col-12">
+              <h6 class="text-primary border-bottom pb-2">
+                <i class="bi bi-plus-circle me-2"></i>Travaux complémentaires
+              </h6>
+            </div>
+
+            <% if @request&.form_data&.dig(:travaux_complementaires) == "true" %>
+            <div class="col-12">
+              <div class="border rounded p-3 bg-light">
+                <label class="form-label fw-semibold text-success">✓ Travaux complémentaires</label>
+                <div class="row g-2">
+                  <div class="col-md-10">
+                    <label class="form-label small">Description des travaux</label>
+                    <div class="input-group input-group-sm">
+                      <textarea class="form-control" id="description_complementaires" rows="2" readonly><%= @request&.form_data&.dig(:description_complementaires) || '[À préciser selon les travaux effectués]' %></textarea>
+                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('description_complementaires')">
+                        <i class="bi bi-clipboard"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <% end %>
+
+            <% if @request&.form_data&.dig(:desamiantage) == "true" %>
+            <div class="col-12">
+              <div class="border rounded p-3 bg-light">
+                <label class="form-label fw-semibold text-success">✓ Travaux de désamiantage (toiture et/ou murs)</label>
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <label class="form-label small">Localisation</label>
+                    <div class="input-group input-group-sm">
+                      <input type="text" class="form-control" id="localisation_desamiantage" value="<%= @request&.form_data&.dig(:localisation_desamiantage) || '[Toiture/Murs/Les deux]' %>" readonly>
+                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('localisation_desamiantage')">
+                        <i class="bi bi-clipboard"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <% end %>
+          </div>
+          <% end %>
+
+          <!-- Message si aucun travaux sélectionné -->
+          <%
+          has_travaux = %w[travaux_toiture travaux_murs travaux_sol travaux_vitrage travaux_chauffage travaux_ventilation travaux_complementaires].any? do |key|
+            @request&.form_data&.dig(key.to_sym) == "true"
+          end
+          %>
+
+          <% unless has_travaux %>
+          <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong>Aucun travaux spécifique sélectionné</strong><br>
+            Vous devrez compléter manuellement la section "Travaux à déclarer" sur le site officiel.
+          </div>
+          <% end %>
+
+          <!-- Bouton pour copier tous les détails techniques -->
+          <% if has_travaux %>
           <div class="mt-3">
-            <button class="btn btn-primary" onclick="copyToClipboard('travaux_types')">
-              <i class="bi bi-hammer me-2"></i>
-              Copier types de travaux
+            <button class="btn btn-primary" onclick="copyTechnicalDetails()">
+              <i class="bi bi-clipboard-data me-2"></i>
+              Copier tous les détails techniques
             </button>
           </div>
           <% end %>
@@ -438,6 +646,183 @@
               <i class="bi bi-list me-2"></i>Toutes mes demandes
             <% end %>
           </div>
+        </div>
+      </div>
+
+      <!-- Guide détaillé d'utilisation -->
+      <div class="card shadow-sm mt-4 bg-light">
+        <div class="card-body">
+          <h5 class="card-title text-primary">
+            <i class="bi bi-lightbulb me-2"></i>
+            Guide complet : Comment remplir le formulaire officiel
+          </h5>
+
+          <div class="row g-4 mt-2">
+            <div class="col-lg-6">
+              <h6 class="fw-bold text-dark">
+                <i class="bi bi-1-circle-fill text-primary me-2"></i>
+                Préparation
+              </h6>
+              <ul class="list-unstyled ms-4">
+                <li class="mb-2">
+                  <i class="bi bi-arrow-right text-muted me-2"></i>
+                  Ouvrez <strong>Mijn Verbouwpremie</strong> dans un nouvel onglet
+                </li>
+                <li class="mb-2">
+                  <i class="bi bi-arrow-right text-muted me-2"></i>
+                  Connectez-vous avec <strong>itsme</strong> ou vos identifiants
+                </li>
+                <li class="mb-2">
+                  <i class="bi bi-arrow-right text-muted me-2"></i>
+                  Gardez cette page ouverte comme référence
+                </li>
+              </ul>
+            </div>
+
+            <div class="col-lg-6">
+              <h6 class="fw-bold text-dark">
+                <i class="bi bi-2-circle-fill text-primary me-2"></i>
+                Navigation sur Mijn Verbouwpremie
+              </h6>
+              <ul class="list-unstyled ms-4">
+                <li class="mb-2">
+                  <i class="bi bi-arrow-right text-muted me-2"></i>
+                  Cliquez sur <strong>"Nieuwe aanvraag"</strong> (Nouvelle demande)
+                </li>
+                <li class="mb-2">
+                  <i class="bi bi-arrow-right text-muted me-2"></i>
+                  Sélectionnez <strong>"Verbouwpremie"</strong> (Prime de rénovation)
+                </li>
+                <li class="mb-2">
+                  <i class="bi bi-arrow-right text-muted me-2"></i>
+                  Suivez les étapes du formulaire officiel
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <h6 class="fw-bold text-dark">
+            <i class="bi bi-3-circle-fill text-primary me-2"></i>
+            Remplissage efficace des champs
+          </h6>
+
+          <div class="row g-3 mt-2">
+            <div class="col-md-6">
+              <div class="border rounded p-3 bg-white">
+                <h6 class="text-success mb-2">
+                  <i class="bi bi-clipboard-data me-2"></i>Méthode recommandée
+                </h6>
+                <ol class="mb-0">
+                  <li>Utilisez <strong>"Copier toutes les données"</strong> en haut</li>
+                  <li>Gardez les données dans votre presse-papiers</li>
+                  <li>Collez section par section dans le formulaire officiel</li>
+                  <li>Adaptez le format si nécessaire (ex: listes déroulantes)</li>
+                </ol>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="border rounded p-3 bg-white">
+                <h6 class="text-info mb-2">
+                  <i class="bi bi-clipboard me-2"></i>Méthode champ par champ
+                </h6>
+                <ol class="mb-0">
+                  <li>Cliquez sur <i class="bi bi-clipboard"></i> à côté de chaque champ</li>
+                  <li>Naviguez vers le champ correspondant sur le site officiel</li>
+                  <li>Collez avec <kbd>Ctrl+V</kbd> (ou <kbd>Cmd+V</kbd> sur Mac)</li>
+                  <li>Répétez pour tous les champs nécessaires</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-warning mt-3">
+            <h6 class="alert-heading">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              Points d'attention importants
+            </h6>
+            <ul class="mb-0">
+              <li><strong>Types de travaux :</strong> Le site officiel utilise des listes déroulantes. Utilisez nos données comme référence pour sélectionner les bonnes options.</li>
+              <li><strong>Dates :</strong> Respectez le format demandé (DD/MM/YYYY ou MM/YYYY selon le champ).</li>
+              <li><strong>Montants :</strong> Supprimez les espaces dans les nombres si le site ne les accepte pas.</li>
+              <li><strong>Email de tracking :</strong> Utilisez impérativement l'email de tracking dans le champ "Contact" pour un suivi automatique.</li>
+            </ul>
+          </div>
+
+          <div class="alert alert-success">
+            <h6 class="alert-heading">
+              <i class="bi bi-check-circle me-2"></i>
+              Email de tracking automatique
+            </h6>
+            <p class="mb-2">
+              L'email de tracking <code><%= @request&.tracking_email %></code> permet un suivi automatique de votre dossier.
+            </p>
+            <p class="mb-0">
+              <strong>Utilisez-le comme "email de contact" dans le formulaire officiel</strong> pour recevoir automatiquement les notifications sur l'avancement de votre demande.
+            </p>
+          </div>
+
+          <hr class="my-4">
+
+          <h6 class="fw-bold text-dark">
+            <i class="bi bi-4-circle-fill text-primary me-2"></i>
+            Correspondance des sections
+          </h6>
+
+          <div class="row g-3 mt-2">
+            <div class="col-lg-6">
+              <table class="table table-sm table-bordered">
+                <thead class="table-light">
+                  <tr>
+                    <th>Section Ren0vate</th>
+                    <th>Section Mijn Verbouwpremie</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Données personnelles</td>
+                    <td>Gegevens aanvrager</td>
+                  </tr>
+                  <tr>
+                    <td>Adresse du bien</td>
+                    <td>Adres woning</td>
+                  </tr>
+                  <tr>
+                    <td>Caractéristiques du bien</td>
+                    <td>Woningkenmerken</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="col-lg-6">
+              <table class="table table-sm table-bordered">
+                <thead class="table-light">
+                  <tr>
+                    <th>Section Ren0vate</th>
+                    <th>Section Mijn Verbouwpremie</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Types de travaux</td>
+                    <td>Werken</td>
+                  </tr>
+                  <tr>
+                    <td>Données financières</td>
+                    <td>Inkomens & gezin</td>
+                  </tr>
+                  <tr>
+                    <td>Contact et suivi</td>
+                    <td>Contact</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
       </div>
 

@@ -27,7 +27,7 @@
           <div class="mb-3">
             <%= form.label :registre_national, class: "form-label" do %>
               Numéro de registre national ou BCE *
-              <%= badge_prerempli(@form_data, :registre_national) if @form_data.present? %>
+              <%= badge_prerempli_avec_fallback(@form_data, :registre_national, current_user.national_number) if @form_data.present? %>
             <% end %>
             <%= form.text_field :registre_national,
                 value: preremplir_champ(@form_data, :registre_national, current_user.national_number),
@@ -43,7 +43,7 @@
           <div class="mb-3">
             <%= form.label :nom, class: "form-label" do %>
               Nom du demandeur *
-              <%= badge_prerempli(@form_data, :nom) if @form_data.present? %>
+              <%= badge_prerempli_avec_fallback(@form_data, :nom, current_user.last_name) if @form_data.present? %>
             <% end %>
             <%= form.text_field :nom,
                 value: preremplir_champ(@form_data, :nom, current_user.last_name),
@@ -56,7 +56,7 @@
           <div class="mb-3">
             <%= form.label :prenom, class: "form-label" do %>
               Prénom du demandeur *
-              <%= badge_prerempli(@form_data, :prenom) if @form_data.present? %>
+              <%= badge_prerempli_avec_fallback(@form_data, :prenom, current_user.first_name) if @form_data.present? %>
             <% end %>
             <%= form.text_field :prenom,
                 value: preremplir_champ(@form_data, :prenom, current_user.first_name),
@@ -72,7 +72,7 @@
           <div class="mb-3">
             <%= form.label :telephone, class: "form-label" do %>
               Téléphone *
-              <%= badge_prerempli(@form_data, :telephone) if @form_data.present? %>
+              <%= badge_prerempli_avec_fallback(@form_data, :telephone, current_user.phone) if @form_data.present? %>
             <% end %>
             <%= form.telephone_field :telephone,
                 value: preremplir_champ(@form_data, :telephone, current_user.phone),
@@ -85,7 +85,7 @@
           <div class="mb-3">
             <%= form.label :email, class: "form-label" do %>
               Adresse email *
-              <%= badge_prerempli(@form_data, :email) if @form_data.present? %>
+              <%= badge_prerempli_avec_fallback(@form_data, :email, current_user.email) if @form_data.present? %>
             <% end %>
             <%= form.email_field :email,
                 value: preremplir_champ(@form_data, :email, current_user.email),
@@ -114,7 +114,7 @@
           <div class="mb-3">
             <%= form.label :ean, class: "form-label" do %>
               Code EAN (optionnel)
-              <%= badge_prerempli(@form_data, :ean) if @form_data.present? %>
+              <%= badge_prerempli_avec_fallback(@form_data, :ean, @property&.ean_flandre || @property&.numero_ean) if @form_data.present? %>
             <% end %>
             <%= form.text_field :ean,
                 value: preremplir_champ(@form_data, :ean, @property&.ean_flandre || @property&.numero_ean),
@@ -127,7 +127,7 @@
           <div class="mb-3">
             <%= form.label :parcelle, class: "form-label" do %>
               Numéro de parcelle (optionnel)
-              <%= badge_prerempli(@form_data, :parcelle) if @form_data.present? %>
+              <%= badge_prerempli_avec_fallback(@form_data, :parcelle, @property&.parcelle_flandre || @property&.numero_cadastre) if @form_data.present? %>
             <% end %>
             <%= form.text_field :parcelle,
                 value: preremplir_champ(@form_data, :parcelle, @property&.parcelle_flandre || @property&.numero_cadastre),
@@ -142,7 +142,7 @@
           <div class="mb-3">
             <%= form.label :adresse, class: "form-label" do %>
               Adresse du logement *
-              <%= badge_prerempli(@form_data, :adresse) if @form_data.present? %>
+              <%= badge_prerempli_avec_fallback(@form_data, :adresse, @property&.adresse) if @form_data.present? %>
             <% end %>
             <%= form.text_field :adresse,
                 value: preremplir_champ(@form_data, :adresse, @property&.adresse),
@@ -155,7 +155,7 @@
           <div class="mb-3">
             <%= form.label :code_postal, class: "form-label" do %>
               Code postal *
-              <%= badge_prerempli(@form_data, :code_postal) if @form_data.present? %>
+              <%= badge_prerempli_avec_fallback(@form_data, :code_postal, @property&.code_postal) if @form_data.present? %>
             <% end %>
             <%= form.text_field :code_postal,
                 value: preremplir_champ(@form_data, :code_postal, @property&.code_postal),
@@ -171,7 +171,7 @@
           <div class="mb-3">
             <%= form.label :commune, class: "form-label" do %>
               Commune *
-              <%= badge_prerempli(@form_data, :commune) if @form_data.present? %>
+              <%= badge_prerempli_avec_fallback(@form_data, :commune, @property&.commune) if @form_data.present? %>
             <% end %>
             <%= form.text_field :commune,
                 value: preremplir_champ(@form_data, :commune, @property&.commune),
@@ -266,7 +266,7 @@
           <div class="mb-3">
             <%= form.label :revenus_annuels, class: "form-label" do %>
               Revenus annuels imposables (ménage complet) *
-              <%= badge_prerempli(@form_data, :revenus_annuels) if @form_data.present? %>
+              <%= badge_prerempli_avec_fallback(@form_data, :revenus_annuels, current_user.household_income) if @form_data.present? %>
             <% end %>
             <%= form.number_field :revenus_annuels,
                 value: preremplir_champ(@form_data, :revenus_annuels, current_user.household_income),
@@ -283,7 +283,7 @@
           <div class="mb-3">
             <%= form.label :personnes_charge, class: "form-label" do %>
               Nombre de personnes à charge *
-              <%= badge_prerempli(@form_data, :personnes_charge) if @form_data.present? %>
+              <%= badge_prerempli_avec_fallback(@form_data, :personnes_charge, current_user.nombre_enfants) if @form_data.present? %>
             <% end %>
             <%
               # Calculer la valeur des personnes à charge avec debug détaillé
@@ -335,7 +335,7 @@
           <div class="mb-3">
             <%= form.label :annee_aer, class: "form-label" do %>
               Année de l'avertissement extrait de rôle utilisé *
-              <%= badge_prerempli(@form_data, :annee_aer) if @form_data.present? %>
+              <%= badge_prerempli_avec_fallback(@form_data, :annee_aer, current_user.annee_revenus_demandeur) if @form_data.present? %>
             <% end %>
             <%= form.select :annee_aer,
                 [
@@ -354,7 +354,7 @@
           <div class="mb-3">
             <%= form.label :compte_bancaire, class: "form-label" do %>
               Compte bancaire (IBAN)
-              <%= badge_prerempli(@form_data, :compte_bancaire) if @form_data.present? %>
+              <%= badge_prerempli_avec_fallback(@form_data, :compte_bancaire, current_user.iban) if @form_data.present? %>
             <% end %>
             <%= form.text_field :compte_bancaire,
                 value: preremplir_champ(@form_data, :compte_bancaire, current_user.iban),
@@ -394,17 +394,17 @@
                                    "true", "" %>
                 <%= form.label :travaux_toiture, "Isolation de la toiture", class: "form-check-label fw-semibold" %>
               </div>
-              <div class="travaux-details ms-4 mb-4">
+              <div class="travaux-details ms-4 mb-4 d-none">
                 <div class="row g-2">
-                  <div class="col-md-6">
+                  <div class="col-md-4">
                     <%= form.label :surface_toiture, "Surface (m²)", class: "form-label" %>
                     <%= form.number_field :surface_toiture,
                                          class: "form-control",
                                          min: 0, step: 1 %>
                   </div>
-                  <div class="col-md-6">
-                    <%= form.label :type_toiture, "Méthode", class: "form-label" %>
-                    <%= form.select :type_toiture,
+                  <div class="col-md-4">
+                    <%= form.label :methode_toiture, "Méthode", class: "form-label" %>
+                    <%= form.select :methode_toiture,
                                    options_for_select([
                                      ['-- Sélectionnez --', ''],
                                      ['Par l\'intérieur', 'interieur'],
@@ -412,6 +412,37 @@
                                    ]),
                                    {},
                                    { class: "form-select" } %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= form.label :date_placement_toiture, "Date de placement", class: "form-label" %>
+                    <%= form.date_field :date_placement_toiture, class: "form-control" %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= form.label :materiau_toiture, "Matériau d'isolation", class: "form-label" %>
+                    <%= form.select :materiau_toiture,
+                                   options_for_select([
+                                     ['-- Sélectionnez --', ''],
+                                     ['Bio-écologique matériaal', 'bio_ecologique'],
+                                     ['Minerale wol', 'minerale_wol'],
+                                     ['PIR/PUR (polyuréthaan)', 'pir_pur'],
+                                     ['Andere', 'andere']
+                                   ]),
+                                   {},
+                                   { class: "form-select" } %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= form.label :marque_toiture, "Marque isolation", class: "form-label" %>
+                    <%= form.text_field :marque_toiture,
+                                       class: "form-control",
+                                       maxlength: 60,
+                                       placeholder: "Max 60 caractères" %>
+                  </div>
+                  <div class="col-12">
+                    <%= form.label :type_isolation_toiture, "Type isolation", class: "form-label" %>
+                    <%= form.text_field :type_isolation_toiture,
+                                       class: "form-control",
+                                       maxlength: 60,
+                                       placeholder: "Max 60 caractères" %>
                   </div>
                 </div>
               </div>
@@ -423,17 +454,17 @@
                                    "true", "" %>
                 <%= form.label :travaux_murs, "Isolation des murs extérieurs", class: "form-check-label fw-semibold" %>
               </div>
-              <div class="travaux-details ms-4 mb-4">
+              <div class="travaux-details ms-4 mb-4 d-none">
                 <div class="row g-2">
-                  <div class="col-md-6">
+                  <div class="col-md-4">
                     <%= form.label :surface_murs, "Surface (m²)", class: "form-label" %>
                     <%= form.number_field :surface_murs,
                                          class: "form-control",
                                          min: 0, step: 1 %>
                   </div>
-                  <div class="col-md-6">
-                    <%= form.label :type_murs, "Méthode", class: "form-label" %>
-                    <%= form.select :type_murs,
+                  <div class="col-md-4">
+                    <%= form.label :methode_murs, "Méthode", class: "form-label" %>
+                    <%= form.select :methode_murs,
                                    options_for_select([
                                      ['-- Sélectionnez --', ''],
                                      ['Murs creux', 'creux'],
@@ -442,6 +473,37 @@
                                    ]),
                                    {},
                                    { class: "form-select" } %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= form.label :date_placement_murs, "Date de placement", class: "form-label" %>
+                    <%= form.date_field :date_placement_murs, class: "form-control" %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= form.label :materiau_murs, "Matériau d'isolation", class: "form-label" %>
+                    <%= form.select :materiau_murs,
+                                   options_for_select([
+                                     ['-- Sélectionnez --', ''],
+                                     ['Bio-écologique matériaal', 'bio_ecologique'],
+                                     ['Minerale wol', 'minerale_wol'],
+                                     ['PIR/PUR (polyuréthaan)', 'pir_pur'],
+                                     ['Andere', 'andere']
+                                   ]),
+                                   {},
+                                   { class: "form-select" } %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= form.label :marque_murs, "Marque isolation", class: "form-label" %>
+                    <%= form.text_field :marque_murs,
+                                       class: "form-control",
+                                       maxlength: 60,
+                                       placeholder: "Max 60 caractères" %>
+                  </div>
+                  <div class="col-12">
+                    <%= form.label :type_isolation_murs, "Type isolation", class: "form-label" %>
+                    <%= form.text_field :type_isolation_murs,
+                                       class: "form-control",
+                                       maxlength: 60,
+                                       placeholder: "Max 60 caractères" %>
                   </div>
                 </div>
               </div>
@@ -453,13 +515,44 @@
                                    "true", "" %>
                 <%= form.label :travaux_sol, "Isolation du sol ou des caves", class: "form-check-label fw-semibold" %>
               </div>
-              <div class="travaux-details ms-4 mb-4">
+              <div class="travaux-details ms-4 mb-4 d-none">
                 <div class="row g-2">
-                  <div class="col-md-6">
+                  <div class="col-md-4">
                     <%= form.label :surface_sol, "Surface (m²)", class: "form-label" %>
                     <%= form.number_field :surface_sol,
                                          class: "form-control",
                                          min: 0, step: 1 %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= form.label :date_placement_sol, "Date de placement", class: "form-label" %>
+                    <%= form.date_field :date_placement_sol, class: "form-control" %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= form.label :materiau_sol, "Matériau d'isolation", class: "form-label" %>
+                    <%= form.select :materiau_sol,
+                                   options_for_select([
+                                     ['-- Sélectionnez --', ''],
+                                     ['Bio-écologique matériaal', 'bio_ecologique'],
+                                     ['Minerale wol', 'minerale_wol'],
+                                     ['PIR/PUR (polyuréthaan)', 'pir_pur'],
+                                     ['Andere', 'andere']
+                                   ]),
+                                   {},
+                                   { class: "form-select" } %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= form.label :marque_sol, "Marque isolation", class: "form-label" %>
+                    <%= form.text_field :marque_sol,
+                                       class: "form-control",
+                                       maxlength: 60,
+                                       placeholder: "Max 60 caractères" %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= form.label :type_isolation_sol, "Type isolation", class: "form-label" %>
+                    <%= form.text_field :type_isolation_sol,
+                                       class: "form-control",
+                                       maxlength: 60,
+                                       placeholder: "Max 60 caractères" %>
                   </div>
                 </div>
               </div>
@@ -471,20 +564,68 @@
                                    "true", "" %>
                 <%= form.label :travaux_vitrage, "Remplacement du vitrage", class: "form-check-label fw-semibold" %>
               </div>
-              <div class="travaux-details ms-4 mb-4">
+              <div class="travaux-details ms-4 mb-4 d-none">
                 <div class="row g-2">
-                  <div class="col-md-6">
+                  <div class="col-md-4">
                     <%= form.label :surface_vitrage, "Surface (m²)", class: "form-label" %>
                     <%= form.number_field :surface_vitrage,
                                          class: "form-control",
                                          min: 0, step: 1 %>
                   </div>
+                  <div class="col-md-4">
+                    <%= form.label :date_placement_vitrage, "Date de placement", class: "form-label" %>
+                    <%= form.date_field :date_placement_vitrage, class: "form-control" %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= form.label :type_vitrage, "Type de vitrage", class: "form-label" %>
+                    <%= form.select :type_vitrage,
+                                   options_for_select([
+                                     ['-- Sélectionnez --', ''],
+                                     ['Double vitrage', 'double'],
+                                     ['Triple vitrage', 'triple'],
+                                     ['Vitrage haute performance', 'haute_performance']
+                                   ]),
+                                   {},
+                                   { class: "form-select" } %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= form.label :marque_vitrage, "Marque", class: "form-label" %>
+                    <%= form.text_field :marque_vitrage,
+                                       class: "form-control",
+                                       maxlength: 60,
+                                       placeholder: "Max 60 caractères" %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= form.label :performance_vitrage, "Performance énergétique", class: "form-label" %>
+                    <%= form.text_field :performance_vitrage,
+                                       class: "form-control",
+                                       maxlength: 60,
+                                       placeholder: "Valeur Uw, max 60 caractères" %>
+                  </div>
                 </div>
               </div>
 
-              <div class="form-check mb-2">
-                <%= form.check_box :travaux_amiante, { class: "form-check-input" }, "amiante", "" %>
-                <%= form.label :travaux_amiante, "Travaux de désamiantage (toiture et/ou murs)", class: "form-check-label" %>
+              <div class="form-check mb-3">
+                <%= form.check_box :travaux_amiante,
+                                   { class: "form-check-input", checked: (defined?(form_data) && form_data ? form_data[:travaux_amiante] : false) },
+                                   "true", "" %>
+                <%= form.label :travaux_amiante, "Travaux de désamiantage (toiture et/ou murs)", class: "form-check-label fw-semibold" %>
+              </div>
+              <div class="travaux-details ms-4 mb-4 d-none">
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <%= form.label :localisation_desamiantage, "Localisation", class: "form-label" %>
+                    <%= form.select :localisation_desamiantage,
+                                   options_for_select([
+                                     ['-- Sélectionnez --', ''],
+                                     ['Toiture uniquement', 'toiture'],
+                                     ['Murs uniquement', 'murs'],
+                                     ['Toiture et murs', 'toiture_murs']
+                                   ]),
+                                   {},
+                                   { class: "form-select" } %>
+                  </div>
+                </div>
               </div>
 
             </div>
@@ -504,7 +645,7 @@
                                    "true", "" %>
                 <%= form.label :travaux_chauffage, "Installation d'une pompe à chaleur et chauffe-eau thermodynamique", class: "form-check-label fw-semibold" %>
               </div>
-              <div class="travaux-details ms-4 mb-4">
+              <div class="travaux-details ms-4 mb-4 d-none">
                 <div class="row g-2">
                   <div class="col-md-6">
                     <%= form.label :type_chauffage, "Type de système", class: "form-label" %>
@@ -523,14 +664,46 @@
                 </div>
               </div>
 
-              <div class="form-check mb-2">
-                <%= form.check_box :travaux_complementaires, { class: "form-check-input" }, "complementaires", "" %>
-                <%= form.label :travaux_complementaires, "Travaux complémentaires", class: "form-check-label" %>
+              <div class="form-check mb-3">
+                <%= form.check_box :travaux_complementaires,
+                                   { class: "form-check-input", checked: (defined?(form_data) && form_data ? form_data[:travaux_complementaires] : false) },
+                                   "true", "" %>
+                <%= form.label :travaux_complementaires, "Travaux complémentaires", class: "form-check-label fw-semibold" %>
+              </div>
+              <div class="travaux-details ms-4 mb-4 d-none">
+                <div class="row g-2">
+                  <div class="col-12">
+                    <%= form.label :description_complementaires, "Description des travaux", class: "form-label" %>
+                    <%= form.text_area :description_complementaires,
+                                      class: "form-control",
+                                      rows: 2,
+                                      placeholder: "Décrivez les travaux complémentaires..." %>
+                  </div>
+                </div>
               </div>
 
-              <div class="form-check mb-2">
-                <%= form.check_box :travaux_ventilation, { class: "form-check-input" }, "ventilation", "" %>
-                <%= form.label :travaux_ventilation, "Système de ventilation", class: "form-check-label" %>
+              <div class="form-check mb-3">
+                <%= form.check_box :travaux_ventilation,
+                                   { class: "form-check-input", checked: (defined?(form_data) && form_data ? form_data[:travaux_ventilation] : false) },
+                                   "true", "" %>
+                <%= form.label :travaux_ventilation, "Système de ventilation", class: "form-check-label fw-semibold" %>
+              </div>
+              <div class="travaux-details ms-4 mb-4 d-none">
+                <div class="row g-2">
+                  <div class="col-md-8">
+                    <%= form.label :type_ventilation, "Type de système", class: "form-label" %>
+                    <%= form.select :type_ventilation,
+                                   options_for_select([
+                                     ['-- Sélectionnez --', ''],
+                                     ['Ventilation mécanique simple flux', 'simple-flux'],
+                                     ['Ventilation mécanique double flux', 'double-flux'],
+                                     ['Ventilation mécanique contrôlée (VMC)', 'vmc'],
+                                     ['Système de ventilation naturelle', 'naturelle']
+                                   ]),
+                                   {},
+                                   { class: "form-select" } %>
+                  </div>
+                </div>
               </div>
 
             </div>
@@ -690,19 +863,57 @@
 <script nonce="<%= content_security_policy_nonce %>">
 // JavaScript pour afficher/masquer les détails des travaux
 function initializeTravauxToggle() {
-  const checkboxes = document.querySelectorAll('.form-check-input[id^="travaux_"]');
+  console.log('🔧 initializeTravauxToggle() appelée');
 
-  checkboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
-      const detailsDiv = this.closest('.form-check').nextElementSibling;
-      if (detailsDiv && detailsDiv.classList.contains('travaux-details')) {
-        if (this.checked) {
-          detailsDiv.classList.remove('d-none');
-        } else {
-          detailsDiv.classList.add('d-none');
-        }
+  // Test différents sélecteurs pour trouver les checkboxes
+  let checkboxes = document.querySelectorAll('.form-check-input[id^="request_form_data_travaux_"]');
+  console.log('📦 Test 1 - [id^="request_form_data_travaux_"]: ', checkboxes.length);
+
+  if (checkboxes.length === 0) {
+    checkboxes = document.querySelectorAll('.form-check-input[id*="travaux"]');
+    console.log('📦 Test 2 - [id*="travaux"]: ', checkboxes.length);
+  }
+
+  if (checkboxes.length === 0) {
+    checkboxes = document.querySelectorAll('.form-check-input');
+    console.log('📦 Test 3 - Toutes les checkboxes: ', checkboxes.length);
+    checkboxes.forEach((cb, i) => {
+      if (cb.id.includes('travaux')) {
+        console.log(`🔲 Checkbox travaux ${i}: id=${cb.id}`);
       }
     });
+    // Filtrer seulement celles avec 'travaux' dans l'ID
+    checkboxes = Array.from(checkboxes).filter(cb => cb.id.includes('travaux'));
+  }
+
+  console.log('📦 Checkboxes finales trouvées:', checkboxes.length);
+
+  checkboxes.forEach((checkbox, index) => {
+    console.log(`🔲 Checkbox ${index}: id=${checkbox.id}, checked=${checkbox.checked}`);
+
+    // Fonction pour afficher/masquer les détails
+    function toggleDetails() {
+      const detailsDiv = checkbox.closest('.form-check').nextElementSibling;
+      console.log(`🔍 Details div pour ${checkbox.id}:`, detailsDiv);
+
+      if (detailsDiv && detailsDiv.classList.contains('travaux-details')) {
+        if (checkbox.checked) {
+          console.log(`✅ Affichage détails pour ${checkbox.id}`);
+          detailsDiv.classList.remove('d-none');
+        } else {
+          console.log(`❌ Masquage détails pour ${checkbox.id}`);
+          detailsDiv.classList.add('d-none');
+        }
+      } else {
+        console.log(`⚠️ Pas de div travaux-details trouvée pour ${checkbox.id}`);
+      }
+    }
+
+    // Appliquer l'état initial
+    toggleDetails();
+
+    // Écouter les changements
+    checkbox.addEventListener('change', toggleDetails);
   });
 }
 
