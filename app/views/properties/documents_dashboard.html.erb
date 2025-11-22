@@ -169,16 +169,20 @@
                       <small class="text-muted">Complétés</small>
                       <small class="fw-semibold"><%= completed_count %></small>
                     </div>
-                    <div class="progress mb-2" style="height: 6px;">
-                      <div class="progress-bar
-                                  <%= 'bg-success' if completion_percentage >= 80 %>
-                                  <%= 'bg-warning' if completion_percentage >= 50 && completion_percentage < 80 %>
-                                  <%= 'bg-danger' if completion_percentage < 50 %>"
-                           role="progressbar"
-                           style="width: <%= completion_percentage %>%">
+                    <% if completed_count > 0 %>
+                      <div class="progress mb-2" style="height: 6px;">
+                        <div class="progress-bar
+                                    <%= 'bg-success' if completion_percentage >= 80 %>
+                                    <%= 'bg-warning' if completion_percentage >= 50 && completion_percentage < 80 %>
+                                    <%= 'bg-danger' if completion_percentage < 50 %>"
+                             role="progressbar"
+                             style="width: <%= completion_percentage %>%">
+                        </div>
                       </div>
-                    </div>
-                    <small class="text-muted"><%= completion_percentage %>% complété</small>
+                    <% end %>
+                    <% if completion_percentage > 0 %>
+                      <small class="text-muted"><%= completion_percentage %>% complété</small>
+                    <% end %>
                   <% end %>
                 </div>
 

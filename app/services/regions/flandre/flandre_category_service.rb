@@ -88,6 +88,7 @@ module Regions
 
         # 5. Propriétaire d'un autre bien → Catégorie 1
         if proprietaire_autre_bien?
+          Rails.logger.info "🏠 FLANDRE: Propriétaire d'un autre bien détecté - Catégorie 1 forcée"
           return { category: "1", reason: "Propriétaire d'un autre bien - Catégorie 1" }
         end
 
@@ -125,8 +126,25 @@ module Regions
       end
 
       def proprietaire_autre_bien?
-        # Vérifier si l'utilisateur possède d'autres biens (champ utilisateur)
-        @user.respond_to?(:autre_bien_flandre) && @user.autre_bien_flandre == true
+        # Vérifier si l'utilisateur possède d'autres biens
+        total_properties = @user.properties.count
+        Rails.logger.info "🏠 FLANDRE: Vérification autre bien - Total propriétés: #{total_properties}"
+
+        # Si l'utilisateur a plus d'une propriété, il est considéré comme propriétaire d'un autre bien
+        return false unless total_properties > 1
+
+        # Si on peut identifier la propriété courante, vérifier s'il en a d'autres
+        current_property = get_property
+        if current_property
+          # Compter les autres propriétés (exclure la propriété courante)
+          other_properties_count = @user.properties.where.not(id: current_property.id).count
+          Rails.logger.info "🏠 FLANDRE: Propriété courante: #{current_property.id}, autres propriétés: #{other_properties_count}"
+          return other_properties_count > 0
+        end
+
+        # Si pas de propriété courante identifiable, mais plus d'une propriété au total
+        Rails.logger.info "🏠 FLANDRE: Pas de propriété courante, mais #{total_properties} propriétés au total"
+        total_properties > 1
       end
 
       def usage_non_residentiel?(property)
