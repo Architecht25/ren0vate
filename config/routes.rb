@@ -228,6 +228,9 @@ Rails.application.routes.draw do
 
   # Routes pour les signatures entrepreneurs
   resources :requests do
+    member do
+      get :export_data  # Export des données pour mijn verbouwpremie
+    end
     resources :contractor_signatures, except: [:show] do
       member do
         post :resend

@@ -63,6 +63,16 @@ module FormulairePreremplissageHelper
     end
   end
 
+  # Badge intelligent qui vérifie si le champ a une valeur (form_data OU fallback)
+  def badge_prerempli_avec_fallback(form_data, field_name, fallback_value)
+    valeur_effective = preremplir_champ(form_data, field_name, fallback_value)
+    if valeur_effective.present?
+      content_tag :span, "✅ Pré-rempli", class: "badge bg-success ms-2"
+    else
+      content_tag :span, "⚠️ À compléter", class: "badge bg-warning ms-2"
+    end
+  end
+
   # Badge intelligent qui vérifie les données de formulaire ET de propriété
   def badge_prerempli_intelligent(form_data, field_name, property_value)
     if form_data&.dig(field_name).present? || property_value.present?

@@ -192,6 +192,8 @@ class Request < ApplicationRecord
     end
   end
 
+  public
+
   # Méthodes pour la gestion des entrepreneurs
   def pending_contractor_signatures
     contractor_signatures.pending_signature
@@ -211,6 +213,17 @@ class Request < ApplicationRecord
 
   def all_contractors_signed?
     contractor_signatures.any? && contractor_signatures.all?(&:signed?)
+  end
+
+  def tracking_email
+    return nil unless persisted? && region.present?
+
+    timestamp = id || Time.current.to_i
+    prop_id = property&.id || 'general'
+    proj_id = project&.id || 'general'
+    region_code = region.downcase
+
+    "#{region_code}-#{prop_id}-#{proj_id}-#{timestamp}@tracking.ren0vate.be"
   end
 
   def update_contractor_status!

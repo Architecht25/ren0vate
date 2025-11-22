@@ -529,4 +529,48 @@ class RequestsController < ApplicationController
       property.usage || property.occupation
     end
   end
+
+  def export_data
+    Rails.logger.info "🔍 EXPORT_DATA DEBUG START"
+    Rails.logger.info "   params[:id] = #{params[:id]}"
+    Rails.logger.info "   current_user.id = #{current_user&.id}"
+    Rails.logger.info "   current_user.email = #{current_user&.email}"
+
+    begin
+      @request = Request.find(params[:id])
+      Rails.logger.info "   ✅ @request found: ID=#{@request.id}"
+      Rails.logger.info "   @request.user_id = #{@request.user_id}"
+      Rails.logger.info "   @request.user.email = #{@request.user&.email}"
+      Rails.logger.info "   @request.form_data present = #{@request.form_data.present?}"
+    rescue ActiveRecord::RecordNotFound => e
+      Rails.logger.error "   ❌ Request not found: #{e.message}"
+      redirect_to requests_path, alert: "Demande non trouvée."
+      return
+    end
+
+    # Vérification de sécurité : s'assurer que l'utilisateur peut accéder à cette request
+    unless @request.user == current_user || current_user&.admin?
+      Rails.logger.warn "   ⚠️ Access denied: request.user_id=#{@request.user_id}, current_user.id=#{current_user&.id}"
+      redirect_to requests_path, alert: "Vous n'avez pas accès à cette demande."
+      return
+    end
+
+    Rails.logger.info "   ✅ Access granted"
+    @property = @request.property || current_user.properties.first
+
+    # Préparer les données de formulaire pour la vue d'export
+    if @property.present?
+      @form_data = build_formulaire_data(@property)
+    else
+      @form_data = build_user_data
+    end
+
+    Rails.logger.info "   @property present = #{@property.present?}"
+    Rails.logger.info "   @form_data present = #{@form_data.present?}"
+    Rails.logger.info "🔍 EXPORT_DATA DEBUG END"
+
+    respond_to do |format|
+      format.html # render la vue export_data.html.erb
+    end
+  end
 end

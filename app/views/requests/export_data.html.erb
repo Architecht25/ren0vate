@@ -1,0 +1,632 @@
+<% content_for :title, "Export des données - Mijn Verbouwpremie" %>
+
+<div class="container-fluid py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+
+      <!-- Header -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-body text-center bg-primary text-white rounded-top">
+          <h1 class="h3 mb-2">
+            <i class="bi bi-clipboard-data me-2"></i>
+            Export de vos données
+          </h1>
+          <p class="mb-0">Copiez facilement vos informations vers le site officiel Mijn Verbouwpremie</p>
+        </div>
+      </div>
+
+      <!-- Instructions -->
+      <div class="alert alert-info d-flex align-items-start mb-4">
+        <i class="bi bi-info-circle-fill fs-4 me-3 mt-1"></i>
+        <div>
+          <h6 class="alert-heading mb-2">Comment utiliser cet export :</h6>
+          <ol class="mb-0">
+            <li>Cliquez sur les boutons <strong>"Copier"</strong> ci-dessous pour copier chaque section</li>
+            <li>Ouvrez le site <strong>Mijn Verbouwpremie</strong> dans un nouvel onglet</li>
+            <li>Connectez-vous avec <strong>itsme</strong></li>
+            <li>Collez les informations dans les champs correspondants du formulaire officiel</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Section 1: Données personnelles -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">
+            <i class="bi bi-person-circle me-2"></i>
+            Données personnelles
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Nom de famille</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="nom" value="<%= @request&.form_data ? preremplir_champ(@request.form_data, :nom, current_user.last_name) : (current_user.last_name || '') %>" readonly>
+                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('nom')">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Prénom</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="prenom" value="<%= @request&.form_data ? preremplir_champ(@request.form_data, :prenom, current_user.first_name) : (current_user.first_name || '') %>" readonly>
+                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('prenom')">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Numéro de registre national</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="registre_national" value="<%= @request&.form_data ? preremplir_champ(@request.form_data, :registre_national, current_user.national_number) : (current_user.national_number || '') %>" readonly>
+                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('registre_national')">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Email</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="email" value="<%= @request&.form_data ? preremplir_champ(@request.form_data, :email, current_user.email) : (current_user.email || '') %>" readonly>
+                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('email')">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Téléphone</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="telephone" value="<%= @request&.form_data ? preremplir_champ(@request.form_data, :telephone, current_user.phone) : (current_user.phone || '') %>" readonly>
+                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('telephone')">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Type de demandeur</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="type_demandeur" value="<%= @request&.form_data ? preremplir_champ(@request.form_data, :type_demandeur, @property&.profil_demandeur) : (@property&.profil_demandeur || '') %>" readonly>
+                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('type_demandeur')">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bouton copier toute la section -->
+          <div class="mt-3">
+            <button class="btn btn-primary" onclick="copyPersonalData()">
+              <i class="bi bi-clipboard-data me-2"></i>
+              Copier toutes les données personnelles
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Adresse du bien -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">
+            <i class="bi bi-house-door me-2"></i>
+            Adresse du bien à rénover
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Adresse du logement</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="adresse" value="<%= @request&.form_data ? preremplir_champ(@request.form_data, :adresse, @property&.full_address) : (@property&.full_address || '') %>" readonly>
+                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('adresse')">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Code postal</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="code_postal" value="<%= @request&.form_data ? preremplir_champ(@request.form_data, :code_postal, @property&.code_postal) : (@property&.code_postal || '') %>" readonly>
+                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('code_postal')">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Commune</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="commune" value="<%= @request&.form_data ? preremplir_champ(@request.form_data, :commune, @property&.commune) : (@property&.commune || '') %>" readonly>
+                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('commune')">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+            </div>
+            <% parcelle_value = @request&.form_data ? preremplir_champ(@request.form_data, :parcelle, @property&.numero_cadastre) : (@property&.numero_cadastre || '') %>
+            <% if parcelle_value.present? %>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Numéro de parcelle</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="parcelle" value="<%= parcelle_value %>" readonly>
+                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('parcelle')">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+            </div>
+            <% end %>
+            <% ean_value = @request&.form_data ? preremplir_champ(@request.form_data, :ean, @property&.numero_ean) : (@property&.numero_ean || '') %>
+            <% if ean_value.present? %>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Code EAN</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="ean" value="<%= ean_value %>" readonly>
+                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('ean')">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+            </div>
+            <% end %>
+          </div>
+
+          <div class="mt-3">
+            <button class="btn btn-primary" onclick="copyAddressData()">
+              <i class="bi bi-geo-alt me-2"></i>
+              Copier toutes les données d'adresse
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Caractéristiques du bien -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">
+            <i class="bi bi-building me-2"></i>
+            Caractéristiques du bien
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Type de bien</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="type_bien" value="<%= @request&.form_data ? preremplir_champ(@request.form_data, :type_bien, nil) : '' %>" readonly>
+                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('type_bien')">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Usage du bien</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="usage" value="<%= @request&.form_data ? preremplir_champ(@request.form_data, :usage, nil) : '' %>" readonly>
+                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('usage')">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+            </div>
+            <% chauffage_value = @request&.form_data ? preremplir_champ(@request.form_data, :chauffage_post_renovation, nil) : '' %>
+            <% if chauffage_value.present? %>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Système de chauffage après rénovation</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="chauffage_post_renovation" value="<%= chauffage_value %>" readonly>
+                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('chauffage_post_renovation')">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+            </div>
+            <% end %>
+          </div>
+
+          <div class="mt-3">
+            <button class="btn btn-primary" onclick="copyPropertyData()">
+              <i class="bi bi-building me-2"></i>
+              Copier caractéristiques du bien
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Données financières -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">
+            <i class="bi bi-calculator me-2"></i>
+            Données financières
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <% revenus_value = @request&.form_data ? preremplir_champ(@request.form_data, :revenus_annuels, current_user.household_income) : (current_user.household_income || '') %>
+            <% if revenus_value.present? %>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Revenus annuels (€)</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="revenus_annuels" value="<%= number_with_delimiter(revenus_value) %>" readonly>
+                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('revenus_annuels')">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+            </div>
+            <% end %>
+            <% personnes_charge_value = @request&.form_data ? preremplir_champ(@request.form_data, :personnes_charge, current_user.nombre_enfants) : (current_user.nombre_enfants || '') %>
+            <% if personnes_charge_value.present? %>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Personnes à charge</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="personnes_charge" value="<%= personnes_charge_value %>" readonly>
+                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('personnes_charge')">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+            </div>
+            <% end %>
+            <% compte_bancaire_value = @request&.form_data ? preremplir_champ(@request.form_data, :compte_bancaire, current_user.iban) : (current_user.iban || '') %>
+            <% if compte_bancaire_value.present? %>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Compte bancaire</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="compte_bancaire" value="<%= compte_bancaire_value %>" readonly>
+                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('compte_bancaire')">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+            </div>
+            <% end %>
+          </div>
+
+          <div class="mt-3">
+            <button class="btn btn-primary" onclick="copyFinancialData()">
+              <i class="bi bi-cash-stack me-2"></i>
+              Copier données financières
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 5: Types de travaux -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">
+            <i class="bi bi-tools me-2"></i>
+            Types de travaux
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-2">
+            <%
+            travaux_types = [
+              { key: :travaux_toiture, label: "Travaux de toiture" },
+              { key: :travaux_murs, label: "Isolation des murs" },
+              { key: :travaux_sol, label: "Isolation du sol" },
+              { key: :travaux_vitrage, label: "Remplacement vitrage" },
+              { key: :travaux_chauffage, label: "Système de chauffage" },
+              { key: :travaux_ventilation, label: "Ventilation" },
+              { key: :travaux_solaire, label: "Panneaux solaires" },
+              { key: :travaux_complementaires, label: "Travaux complémentaires" }
+            ]
+
+            selected_travaux = travaux_types.select { |t| @request&.form_data&.dig(t[:key]) == true || @request&.form_data&.dig(t[:key]) == "true" }
+            %>
+
+            <% if selected_travaux.any? %>
+              <div class="col-12">
+                <label class="form-label fw-semibold">Types de travaux sélectionnés</label>
+                <div class="input-group">
+                  <textarea class="form-control" id="travaux_types" rows="3" readonly><%= selected_travaux.map { |t| "• #{t[:label]}" }.join("\n") %></textarea>
+                  <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('travaux_types')">
+                    <i class="bi bi-clipboard"></i>
+                  </button>
+                </div>
+              </div>
+            <% else %>
+              <div class="col-12">
+                <div class="alert alert-warning">
+                  <i class="bi bi-exclamation-triangle me-2"></i>
+                  Aucun type de travaux spécifique n'a été sélectionné
+                </div>
+              </div>
+            <% end %>
+          </div>
+
+          <% if selected_travaux.any? %>
+          <div class="mt-3">
+            <button class="btn btn-primary" onclick="copyToClipboard('travaux_types')">
+              <i class="bi bi-hammer me-2"></i>
+              Copier types de travaux
+            </button>
+          </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Section 6: Contact et suivi -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-light">
+          <h5 class="mb-0">
+            <i class="bi bi-envelope me-2"></i>
+            Contact et suivi
+          </h5>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <% email_contact_value = @request&.form_data ? preremplir_champ(@request.form_data, :email_contact, current_user.email) : (current_user.email || '') %>
+            <% if email_contact_value.present? %>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Email de contact</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="email_contact" value="<%= email_contact_value %>" readonly>
+                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('email_contact')">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+            </div>
+            <% end %>
+            <% if @request&.tracking_email.present? %>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Email de tracking automatique
+                <span class="badge bg-success ms-1">Recommandé</span>
+              </label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="tracking_email" value="<%= @request.tracking_email %>" readonly>
+                <button class="btn btn-outline-success" type="button" onclick="copyToClipboard('tracking_email')">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+              <div class="form-text">
+                Utilisez cette adresse dans "Email de contact" sur Mijn Verbouwpremie pour un suivi automatique
+              </div>
+            </div>
+            <% end %>
+            <% telephone_contact_value = @request&.form_data ? preremplir_champ(@request.form_data, :telephone_contact, current_user.phone) : (current_user.phone || '') %>
+            <% if telephone_contact_value.present? %>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Téléphone de contact</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="telephone_contact" value="<%= telephone_contact_value %>" readonly>
+                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('telephone_contact')">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+            </div>
+            <% end %>
+            <% annee_aer_value = @request&.form_data ? preremplir_champ(@request.form_data, :annee_aer, current_user.annee_revenus_demandeur) : (current_user.annee_revenus_demandeur || '') %>
+            <% if annee_aer_value.present? %>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">Année de l'audit énergétique</label>
+              <div class="input-group">
+                <input type="text" class="form-control" id="annee_aer" value="<%= annee_aer_value %>" readonly>
+                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('annee_aer')">
+                  <i class="bi bi-clipboard"></i>
+                </button>
+              </div>
+            </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Boutons d'action principaux -->
+      <div class="card shadow-sm">
+        <div class="card-body text-center">
+          <div class="row g-3 justify-content-center">
+            <div class="col-md-6">
+              <button class="btn btn-success btn-lg w-100" onclick="copyAllData()">
+                <i class="bi bi-clipboard-check me-2"></i>
+                Copier toutes les données
+              </button>
+            </div>
+            <div class="col-md-6">
+              <a href="https://loket.mijnverbouwpremie.be/"
+                 target="_blank"
+                 rel="noopener noreferrer"
+                 class="btn btn-primary btn-lg w-100">
+                <i class="bi bi-box-arrow-up-right me-2"></i>
+                Ouvrir Mijn Verbouwpremie
+              </a>
+            </div>
+          </div>
+
+          <hr class="my-4">
+
+          <div class="d-flex gap-2 justify-content-center">
+            <%= link_to @request, class: "btn btn-outline-secondary" do %>
+              <i class="bi bi-arrow-left me-2"></i>Retour à ma demande
+            <% end %>
+            <%= link_to requests_path, class: "btn btn-outline-primary" do %>
+              <i class="bi bi-list me-2"></i>Toutes mes demandes
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Toast pour notifications -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="copyToast" class="toast" role="alert">
+    <div class="toast-header bg-success text-white">
+      <i class="bi bi-check-circle me-2"></i>
+      <strong class="me-auto">Copié !</strong>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+    </div>
+    <div class="toast-body">
+      Données copiées dans le presse-papiers
+    </div>
+  </div>
+</div>
+
+<script nonce="<%= content_security_policy_nonce %>">
+// Fonction pour copier un champ individuel
+function copyToClipboard(elementId) {
+  const element = document.getElementById(elementId);
+  const text = element.value || element.textContent;
+
+  navigator.clipboard.writeText(text).then(() => {
+    showToast();
+  }).catch(() => {
+    // Fallback pour navigateurs plus anciens
+    element.select();
+    document.execCommand('copy');
+    showToast();
+  });
+}
+
+// Fonction pour copier toutes les données personnelles
+function copyPersonalData() {
+  const data = [
+    `Nom: ${document.getElementById('nom').value}`,
+    `Prénom: ${document.getElementById('prenom').value}`,
+    `Registre national: ${document.getElementById('registre_national').value}`,
+    `Email: ${document.getElementById('email').value}`,
+    `Téléphone: ${document.getElementById('telephone').value}`,
+    `Type de demandeur: ${document.getElementById('type_demandeur').value}`
+  ].join('\n');
+
+  navigator.clipboard.writeText(data).then(() => showToast());
+}
+
+// Fonction pour copier les données d'adresse
+function copyAddressData() {
+  let data = [
+    `Adresse: ${document.getElementById('adresse').value}`,
+    `Code postal: ${document.getElementById('code_postal').value}`,
+    `Commune: ${document.getElementById('commune').value}`
+  ];
+
+  if (document.getElementById('parcelle')) {
+    data.push(`Parcelle: ${document.getElementById('parcelle').value}`);
+  }
+  if (document.getElementById('ean')) {
+    data.push(`EAN: ${document.getElementById('ean').value}`);
+  }
+
+  navigator.clipboard.writeText(data.join('\n')).then(() => showToast());
+}
+
+// Fonction pour copier les caractéristiques du bien
+function copyPropertyData() {
+  let data = [
+    `Type de bien: ${document.getElementById('type_bien').value}`,
+    `Usage: ${document.getElementById('usage').value}`
+  ];
+
+  if (document.getElementById('chauffage_post_renovation')) {
+    data.push(`Chauffage post-rénovation: ${document.getElementById('chauffage_post_renovation').value}`);
+  }
+
+  navigator.clipboard.writeText(data.join('\n')).then(() => showToast());
+}
+
+// Fonction pour copier les données financières
+function copyFinancialData() {
+  let data = [];
+
+  if (document.getElementById('revenus_annuels')) {
+    data.push(`Revenus annuels: ${document.getElementById('revenus_annuels').value} €`);
+  }
+  if (document.getElementById('personnes_charge')) {
+    data.push(`Personnes à charge: ${document.getElementById('personnes_charge').value}`);
+  }
+  if (document.getElementById('compte_bancaire')) {
+    data.push(`Compte bancaire: ${document.getElementById('compte_bancaire').value}`);
+  }
+
+  if (data.length > 0) {
+    navigator.clipboard.writeText(data.join('\n')).then(() => showToast());
+  }
+}
+
+// Fonction pour copier toutes les données
+function copyAllData() {
+  let allData = [];
+
+  // Données personnelles
+  allData.push('=== DONNÉES PERSONNELLES ===');
+  allData.push(`Nom: ${document.getElementById('nom').value}`);
+  allData.push(`Prénom: ${document.getElementById('prenom').value}`);
+  allData.push(`Registre national: ${document.getElementById('registre_national').value}`);
+  allData.push(`Email: ${document.getElementById('email').value}`);
+  allData.push(`Téléphone: ${document.getElementById('telephone').value}`);
+  allData.push(`Type de demandeur: ${document.getElementById('type_demandeur').value}`);
+  allData.push('');
+
+  // Adresse
+  allData.push('=== ADRESSE DU BIEN ===');
+  allData.push(`Adresse: ${document.getElementById('adresse').value}`);
+  allData.push(`Code postal: ${document.getElementById('code_postal').value}`);
+  allData.push(`Commune: ${document.getElementById('commune').value}`);
+  if (document.getElementById('parcelle')) {
+    allData.push(`Parcelle: ${document.getElementById('parcelle').value}`);
+  }
+  if (document.getElementById('ean')) {
+    allData.push(`EAN: ${document.getElementById('ean').value}`);
+  }
+  allData.push('');
+
+  // Caractéristiques du bien
+  allData.push('=== CARACTÉRISTIQUES DU BIEN ===');
+  allData.push(`Type de bien: ${document.getElementById('type_bien').value}`);
+  allData.push(`Usage: ${document.getElementById('usage').value}`);
+  if (document.getElementById('chauffage_post_renovation')) {
+    allData.push(`Chauffage post-rénovation: ${document.getElementById('chauffage_post_renovation').value}`);
+  }
+  allData.push('');
+
+  // Types de travaux
+  if (document.getElementById('travaux_types')) {
+    allData.push('=== TYPES DE TRAVAUX ===');
+    allData.push(document.getElementById('travaux_types').value);
+    allData.push('');
+  }
+
+  // Données financières
+  if (document.getElementById('revenus_annuels') || document.getElementById('personnes_charge') || document.getElementById('compte_bancaire')) {
+    allData.push('=== DONNÉES FINANCIÈRES ===');
+    if (document.getElementById('revenus_annuels')) {
+      allData.push(`Revenus annuels: ${document.getElementById('revenus_annuels').value} €`);
+    }
+    if (document.getElementById('personnes_charge')) {
+      allData.push(`Personnes à charge: ${document.getElementById('personnes_charge').value}`);
+    }
+    if (document.getElementById('compte_bancaire')) {
+      allData.push(`Compte bancaire: ${document.getElementById('compte_bancaire').value}`);
+    }
+    allData.push('');
+  }
+
+  // Contact
+  if (document.getElementById('email_contact') || document.getElementById('tracking_email') || document.getElementById('telephone_contact') || document.getElementById('annee_aer')) {
+    allData.push('=== CONTACT ET SUIVI ===');
+    if (document.getElementById('email_contact')) {
+      allData.push(`Email de contact: ${document.getElementById('email_contact').value}`);
+    }
+    if (document.getElementById('tracking_email')) {
+      allData.push(`Email de tracking (RECOMMANDÉ pour Mijn Verbouwpremie): ${document.getElementById('tracking_email').value}`);
+    }
+    if (document.getElementById('telephone_contact')) {
+      allData.push(`Téléphone de contact: ${document.getElementById('telephone_contact').value}`);
+    }
+    if (document.getElementById('annee_aer')) {
+      allData.push(`Année AER: ${document.getElementById('annee_aer').value}`);
+    }
+  }
+
+  navigator.clipboard.writeText(allData.join('\n')).then(() => {
+    showToast('Toutes les données ont été copiées !');
+  });
+}
+
+// Fonction pour afficher le toast
+function showToast(message = 'Données copiées dans le presse-papiers') {
+  const toastElement = document.getElementById('copyToast');
+  const toastBody = toastElement.querySelector('.toast-body');
+  toastBody.textContent = message;
+
+  const toast = new bootstrap.Toast(toastElement);
+  toast.show();
+}
+</script>
