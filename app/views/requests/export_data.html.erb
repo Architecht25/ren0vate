@@ -42,7 +42,7 @@
             <div class="col-md-6">
               <label class="form-label fw-semibold">Nom de famille</label>
               <div class="input-group">
-                <input type="text" class="form-control" id="nom" value="<%= @request&.form_data ? preremplir_champ(@request.form_data, :nom, current_user.last_name) : (current_user.last_name || '') %>" readonly>
+                <input type="text" class="form-control" id="nom" value="<%= @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :nom, current_user.last_name) : (current_user.last_name || '') %>" readonly>
                 <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('nom')">
                   <i class="bi bi-clipboard"></i>
                 </button>
@@ -51,7 +51,7 @@
             <div class="col-md-6">
               <label class="form-label fw-semibold">Prénom</label>
               <div class="input-group">
-                <input type="text" class="form-control" id="prenom" value="<%= @request&.form_data ? preremplir_champ(@request.form_data, :prenom, current_user.first_name) : (current_user.first_name || '') %>" readonly>
+                <input type="text" class="form-control" id="prenom" value="<%= @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :prenom, current_user.first_name) : (current_user.first_name || '') %>" readonly>
                 <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('prenom')">
                   <i class="bi bi-clipboard"></i>
                 </button>
@@ -60,7 +60,7 @@
             <div class="col-md-6">
               <label class="form-label fw-semibold">Numéro de registre national</label>
               <div class="input-group">
-                <input type="text" class="form-control" id="registre_national" value="<%= @request&.form_data ? preremplir_champ(@request.form_data, :registre_national, current_user.national_number) : (current_user.national_number || '') %>" readonly>
+                <input type="text" class="form-control" id="registre_national" value="<%= @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :registre_national, current_user.national_number) : (current_user.national_number || '') %>" readonly>
                 <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('registre_national')">
                   <i class="bi bi-clipboard"></i>
                 </button>
@@ -69,7 +69,7 @@
             <div class="col-md-6">
               <label class="form-label fw-semibold">Email</label>
               <div class="input-group">
-                <input type="text" class="form-control" id="email" value="<%= @request&.form_data ? preremplir_champ(@request.form_data, :email, current_user.email) : (current_user.email || '') %>" readonly>
+                <input type="text" class="form-control" id="email" value="<%= @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :email, current_user.email) : (current_user.email || '') %>" readonly>
                 <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('email')">
                   <i class="bi bi-clipboard"></i>
                 </button>
@@ -78,7 +78,7 @@
             <div class="col-md-6">
               <label class="form-label fw-semibold">Téléphone</label>
               <div class="input-group">
-                <input type="text" class="form-control" id="telephone" value="<%= @request&.form_data ? preremplir_champ(@request.form_data, :telephone, current_user.phone) : (current_user.phone || '') %>" readonly>
+                <input type="text" class="form-control" id="telephone" value="<%= @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :telephone, current_user.phone) : (current_user.phone || '') %>" readonly>
                 <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('telephone')">
                   <i class="bi bi-clipboard"></i>
                 </button>
@@ -87,7 +87,7 @@
             <div class="col-md-6">
               <label class="form-label fw-semibold">Type de demandeur</label>
               <div class="input-group">
-                <input type="text" class="form-control" id="type_demandeur" value="<%= @request&.form_data ? preremplir_champ(@request.form_data, :type_demandeur, @property&.profil_demandeur) : (@property&.profil_demandeur || '') %>" readonly>
+                <input type="text" class="form-control" id="type_demandeur" value="<%= @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :type_demandeur, @property&.profil_demandeur) : (@property&.profil_demandeur || '') %>" readonly>
                 <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('type_demandeur')">
                   <i class="bi bi-clipboard"></i>
                 </button>
@@ -118,7 +118,7 @@
             <div class="col-md-6">
               <label class="form-label fw-semibold">Adresse du logement</label>
               <div class="input-group">
-                <input type="text" class="form-control" id="adresse" value="<%= @request&.form_data ? preremplir_champ(@request.form_data, :adresse, @property&.full_address) : (@property&.full_address || '') %>" readonly>
+                <input type="text" class="form-control" id="adresse" value="<%= @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :adresse, @property&.full_address) : (@property&.full_address || '') %>" readonly>
                 <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('adresse')">
                   <i class="bi bi-clipboard"></i>
                 </button>
@@ -127,7 +127,7 @@
             <div class="col-md-6">
               <label class="form-label fw-semibold">Code postal</label>
               <div class="input-group">
-                <input type="text" class="form-control" id="code_postal" value="<%= @request&.form_data ? preremplir_champ(@request.form_data, :code_postal, @property&.code_postal) : (@property&.code_postal || '') %>" readonly>
+                <input type="text" class="form-control" id="code_postal" value="<%= @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :code_postal, @property&.code_postal) : (@property&.code_postal || '') %>" readonly>
                 <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('code_postal')">
                   <i class="bi bi-clipboard"></i>
                 </button>
@@ -136,13 +136,13 @@
             <div class="col-md-6">
               <label class="form-label fw-semibold">Commune</label>
               <div class="input-group">
-                <input type="text" class="form-control" id="commune" value="<%= @request&.form_data ? preremplir_champ(@request.form_data, :commune, @property&.commune) : (@property&.commune || '') %>" readonly>
+                <input type="text" class="form-control" id="commune" value="<%= @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :commune, @property&.commune) : (@property&.commune || '') %>" readonly>
                 <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('commune')">
                   <i class="bi bi-clipboard"></i>
                 </button>
               </div>
             </div>
-            <% parcelle_value = @request&.form_data ? preremplir_champ(@request.form_data, :parcelle, @property&.numero_cadastre) : (@property&.numero_cadastre || '') %>
+            <% parcelle_value = @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :parcelle, @property&.numero_cadastre) : (@property&.numero_cadastre || '') %>
             <% if parcelle_value.present? %>
             <div class="col-md-6">
               <label class="form-label fw-semibold">Numéro de parcelle</label>
@@ -154,7 +154,7 @@
               </div>
             </div>
             <% end %>
-            <% ean_value = @request&.form_data ? preremplir_champ(@request.form_data, :ean, @property&.numero_ean) : (@property&.numero_ean || '') %>
+            <% ean_value = @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :ean, @property&.numero_ean) : (@property&.numero_ean || '') %>
             <% if ean_value.present? %>
             <div class="col-md-6">
               <label class="form-label fw-semibold">Code EAN</label>
@@ -190,7 +190,7 @@
             <div class="col-md-6">
               <label class="form-label fw-semibold">Type de bien</label>
               <div class="input-group">
-                <input type="text" class="form-control" id="type_bien" value="<%= @request&.form_data ? preremplir_champ(@request.form_data, :type_bien, nil) : '' %>" readonly>
+                <input type="text" class="form-control" id="type_bien" value="<%= @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :type_bien, nil) : '' %>" readonly>
                 <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('type_bien')">
                   <i class="bi bi-clipboard"></i>
                 </button>
@@ -199,13 +199,13 @@
             <div class="col-md-6">
               <label class="form-label fw-semibold">Usage du bien</label>
               <div class="input-group">
-                <input type="text" class="form-control" id="usage" value="<%= @request&.form_data ? preremplir_champ(@request.form_data, :usage, nil) : '' %>" readonly>
+                <input type="text" class="form-control" id="usage" value="<%= @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :usage, nil) : '' %>" readonly>
                 <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('usage')">
                   <i class="bi bi-clipboard"></i>
                 </button>
               </div>
             </div>
-            <% chauffage_value = @request&.form_data ? preremplir_champ(@request.form_data, :chauffage_post_renovation, nil) : '' %>
+            <% chauffage_value = @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :chauffage_post_renovation, nil) : '' %>
             <% if chauffage_value.present? %>
             <div class="col-12">
               <label class="form-label fw-semibold">Système de chauffage après rénovation</label>
@@ -238,7 +238,7 @@
         </div>
         <div class="card-body">
           <div class="row g-3">
-            <% revenus_value = @request&.form_data ? preremplir_champ(@request.form_data, :revenus_annuels, current_user.household_income) : (current_user.household_income || '') %>
+            <% revenus_value = @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :revenus_annuels, current_user.household_income) : (current_user.household_income || '') %>
             <% if revenus_value.present? %>
             <div class="col-md-6">
               <label class="form-label fw-semibold">Revenus annuels (€)</label>
@@ -250,7 +250,7 @@
               </div>
             </div>
             <% end %>
-            <% personnes_charge_value = @request&.form_data ? preremplir_champ(@request.form_data, :personnes_charge, current_user.nombre_enfants) : (current_user.nombre_enfants || '') %>
+            <% personnes_charge_value = @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :personnes_charge, current_user.nombre_enfants) : (current_user.nombre_enfants || '') %>
             <% if personnes_charge_value.present? %>
             <div class="col-md-6">
               <label class="form-label fw-semibold">Personnes à charge</label>
@@ -262,7 +262,7 @@
               </div>
             </div>
             <% end %>
-            <% compte_bancaire_value = @request&.form_data ? preremplir_champ(@request.form_data, :compte_bancaire, current_user.iban) : (current_user.iban || '') %>
+            <% compte_bancaire_value = @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :compte_bancaire, current_user.iban) : (current_user.iban || '') %>
             <% if compte_bancaire_value.present? %>
             <div class="col-12">
               <label class="form-label fw-semibold">Compte bancaire</label>
@@ -296,23 +296,16 @@
         </div>
         <div class="card-body">
 
-          <!-- Avertissement -->
+          <!-- Avertissement temporaire -->
           <div class="alert alert-info mb-4">
             <h6 class="alert-heading">
               <i class="bi bi-info-circle me-2"></i>
-              Informations importantes
+              Version de démonstration
             </h6>
-            <p class="mb-2">Le formulaire officiel demande des détails techniques spécifiques :</p>
-            <ul class="mb-0">
-              <li><strong>Surfaces en m²</strong> pour chaque type d'isolation</li>
-              <li><strong>Méthodes d'isolation</strong> (sélection dans des listes déroulantes)</li>
-              <li><strong>Types de systèmes</strong> de chauffage et ventilation</li>
-              <li><strong>Attestations de l'entrepreneur</strong> pour valider les travaux</li>
-            </ul>
+            <p class="mb-0">Cette section affiche la structure HTML avec des données d'exemple pour valider l'interface avant l'intégration des données réelles.</p>
           </div>
 
           <!-- Travaux d'isolation -->
-          <% if @request&.form_data&.dig(:travaux_toiture) == "true" || @request&.form_data&.dig(:travaux_murs) == "true" || @request&.form_data&.dig(:travaux_sol) == "true" %>
           <div class="row g-3 mb-4">
             <div class="col-12">
               <h6 class="text-primary border-bottom pb-2">
@@ -320,51 +313,51 @@
               </h6>
             </div>
 
-            <% if @request&.form_data&.dig(:travaux_toiture) == "true" %>
+            <!-- TOITURE -->
             <div class="col-12">
               <div class="border rounded p-3 bg-light">
-                <label class="form-label fw-semibold text-success">✓ Isolation de la toiture</label>
+                <label class="form-label fw-semibold text-success mb-3">✓ Isolation de la toiture</label>
                 <div class="row g-2">
-                  <div class="col-md-3">
+                  <div class="col-md-2">
                     <label class="form-label small">Surface (m²)</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="surface_toiture" value="<%= @request&.form_data&.dig(:surface_toiture) || '[À compléter]' %>" readonly>
+                      <input type="text" class="form-control" id="surface_toiture" value="<%= @demande_request&.form_data&.dig('surface_toiture') || '[\u00c0 compl\u00e9ter]' %>" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('surface_toiture')">
                         <i class="bi bi-clipboard"></i>
                       </button>
                     </div>
                   </div>
-                  <div class="col-md-3">
-                    <label class="form-label small">Méthode d'isolation</label>
+                  <div class="col-md-2">
+                    <label class="form-label small">Méthode</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="methode_toiture" value="<%= @request&.form_data&.dig(:methode_toiture) || '[Sélectionner dans la liste déroulante]' %>" readonly>
+                      <input type="text" class="form-control" id="methode_toiture" value="<%= @demande_request&.form_data&.dig('methode_toiture') || '[Sélectionner la méthode]' %>" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('methode_toiture')">
                         <i class="bi bi-clipboard"></i>
                       </button>
                     </div>
                   </div>
-                  <div class="col-md-3">
-                    <label class="form-label small">Date de placement</label>
+                  <div class="col-md-2">
+                    <label class="form-label small">Date</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="date_placement_toiture" value="<%= @request&.form_data&.dig(:date_placement_toiture) || '[DD/MM/YYYY]' %>" readonly>
+                      <input type="text" class="form-control" id="date_placement_toiture" value="<%= @demande_request&.form_data&.dig('date_placement_toiture') ? Date.parse(@demande_request.form_data['date_placement_toiture']).strftime('%d/%m/%Y') : '[DD/MM/YYYY]' %>" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('date_placement_toiture')">
                         <i class="bi bi-clipboard"></i>
                       </button>
                     </div>
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label small">Matériau d'isolation</label>
+                    <label class="form-label small">Matériau</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="materiau_toiture" value="<%= @request&.form_data&.dig(:materiau_toiture) || '[À sélectionner]' %>" readonly>
+                      <input type="text" class="form-control" id="materiau_toiture" value="<%= @demande_request&.form_data&.dig('materiau_toiture') || '[S\u00e9lectionner le mat\u00e9riau]' %>" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('materiau_toiture')">
                         <i class="bi bi-clipboard"></i>
                       </button>
                     </div>
                   </div>
-                  <div class="col-md-4">
-                    <label class="form-label small">Marque isolation</label>
+                  <div class="col-md-3">
+                    <label class="form-label small">Marque</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="marque_toiture" value="<%= @request&.form_data&.dig(:marque_toiture) || '[Nom de marque]' %>" readonly>
+                      <input type="text" class="form-control" id="marque_toiture" value="<%= (@demande_request&.form_data&.dig('marque_toiture') || '[Nom de la marque]').capitalize %>" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('marque_toiture')">
                         <i class="bi bi-clipboard"></i>
                       </button>
@@ -373,53 +366,52 @@
                 </div>
               </div>
             </div>
-            <% end %>
 
-            <% if @request&.form_data&.dig(:travaux_murs) == "true" %>
+            <!-- MURS -->
             <div class="col-12">
               <div class="border rounded p-3 bg-light">
-                <label class="form-label fw-semibold text-success">✓ Isolation des murs extérieurs</label>
+                <label class="form-label fw-semibold text-success mb-3">✓ Isolation des murs extérieurs</label>
                 <div class="row g-2">
-                  <div class="col-md-3">
+                  <div class="col-md-2">
                     <label class="form-label small">Surface (m²)</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="surface_murs" value="<%= @request&.form_data&.dig(:surface_murs) || '[À compléter]' %>" readonly>
+                      <input type="text" class="form-control" id="surface_murs" value="80" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('surface_murs')">
                         <i class="bi bi-clipboard"></i>
                       </button>
                     </div>
                   </div>
-                  <div class="col-md-3">
-                    <label class="form-label small">Méthode d'isolation</label>
+                  <div class="col-md-2">
+                    <label class="form-label small">Méthode</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="methode_murs" value="<%= @request&.form_data&.dig(:methode_murs) || '[Sélectionner dans la liste déroulante]' %>" readonly>
+                      <input type="text" class="form-control" id="methode_murs" value="Isolation par l'intérieur" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('methode_murs')">
                         <i class="bi bi-clipboard"></i>
                       </button>
                     </div>
                   </div>
-                  <div class="col-md-3">
-                    <label class="form-label small">Date de placement</label>
+                  <div class="col-md-2">
+                    <label class="form-label small">Date</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="date_placement_murs" value="<%= @request&.form_data&.dig(:date_placement_murs) || '[DD/MM/YYYY]' %>" readonly>
+                      <input type="text" class="form-control" id="date_placement_murs" value="22/03/2024" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('date_placement_murs')">
                         <i class="bi bi-clipboard"></i>
                       </button>
                     </div>
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label small">Matériau d'isolation</label>
+                    <label class="form-label small">Matériau</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="materiau_murs" value="<%= @request&.form_data&.dig(:materiau_murs) || '[À sélectionner]' %>" readonly>
+                      <input type="text" class="form-control" id="materiau_murs" value="Polyuréthane" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('materiau_murs')">
                         <i class="bi bi-clipboard"></i>
                       </button>
                     </div>
                   </div>
-                  <div class="col-md-4">
-                    <label class="form-label small">Marque isolation</label>
+                  <div class="col-md-3">
+                    <label class="form-label small">Marque</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="marque_murs" value="<%= @request&.form_data&.dig(:marque_murs) || '[Nom de marque]' %>" readonly>
+                      <input type="text" class="form-control" id="marque_murs" value="Recticel" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('marque_murs')">
                         <i class="bi bi-clipboard"></i>
                       </button>
@@ -428,53 +420,52 @@
                 </div>
               </div>
             </div>
-            <% end %>
 
-            <% if @request&.form_data&.dig(:travaux_sol) == "true" %>
+            <!-- SOL -->
             <div class="col-12">
               <div class="border rounded p-3 bg-light">
-                <label class="form-label fw-semibold text-success">✓ Isolation du sol ou des caves</label>
+                <label class="form-label fw-semibold text-success mb-3">✓ Isolation du sol</label>
                 <div class="row g-2">
-                  <div class="col-md-3">
+                  <div class="col-md-2">
                     <label class="form-label small">Surface (m²)</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="surface_sol" value="<%= @request&.form_data&.dig(:surface_sol) || '[À compléter]' %>" readonly>
+                      <input type="text" class="form-control" id="surface_sol" value="120" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('surface_sol')">
                         <i class="bi bi-clipboard"></i>
                       </button>
                     </div>
                   </div>
-                  <div class="col-md-3">
-                    <label class="form-label small">Méthode d'isolation</label>
+                  <div class="col-md-2">
+                    <label class="form-label small">Méthode</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="methode_sol" value="<%= @request&.form_data&.dig(:methode_sol) || '[À sélectionner]' %>" readonly>
+                      <input type="text" class="form-control" id="methode_sol" value="Isolation par le dessous" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('methode_sol')">
                         <i class="bi bi-clipboard"></i>
                       </button>
                     </div>
                   </div>
-                  <div class="col-md-3">
-                    <label class="form-label small">Date de placement</label>
+                  <div class="col-md-2">
+                    <label class="form-label small">Date</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="date_placement_sol" value="<%= @request&.form_data&.dig(:date_placement_sol) || '[DD/MM/YYYY]' %>" readonly>
+                      <input type="text" class="form-control" id="date_placement_sol" value="28/02/2024" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('date_placement_sol')">
                         <i class="bi bi-clipboard"></i>
                       </button>
                     </div>
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label small">Matériau d'isolation</label>
+                    <label class="form-label small">Matériau</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="materiau_sol" value="<%= @request&.form_data&.dig(:materiau_sol) || '[À sélectionner]' %>" readonly>
+                      <input type="text" class="form-control" id="materiau_sol" value="Polystyrène expansé" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('materiau_sol')">
                         <i class="bi bi-clipboard"></i>
                       </button>
                     </div>
                   </div>
-                  <div class="col-md-4">
-                    <label class="form-label small">Marque isolation</label>
+                  <div class="col-md-3">
+                    <label class="form-label small">Marque</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="marque_sol" value="<%= @request&.form_data&.dig(:marque_sol) || '[Nom de marque]' %>" readonly>
+                      <input type="text" class="form-control" id="marque_sol" value="Knauf" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('marque_sol')">
                         <i class="bi bi-clipboard"></i>
                       </button>
@@ -483,26 +474,24 @@
                 </div>
               </div>
             </div>
-            <% end %>
           </div>
-          <% end %>
 
           <!-- Remplacement vitrage -->
-          <% if @request&.form_data&.dig(:travaux_vitrage) == "true" %>
           <div class="row g-3 mb-4">
             <div class="col-12">
               <h6 class="text-primary border-bottom pb-2">
                 <i class="bi bi-window me-2"></i>Remplacement du vitrage
               </h6>
             </div>
+
             <div class="col-12">
               <div class="border rounded p-3 bg-light">
-                <label class="form-label fw-semibold text-success">✓ Remplacement du vitrage</label>
+                <label class="form-label fw-semibold text-success mb-3">✓ Remplacement du vitrage</label>
                 <div class="row g-2">
                   <div class="col-md-3">
                     <label class="form-label small">Surface (m²)</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="surface_vitrage" value="<%= @request&.form_data&.dig(:surface_vitrage) || '[À compléter]' %>" readonly>
+                      <input type="text" class="form-control" id="surface_vitrage" value="25" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('surface_vitrage')">
                         <i class="bi bi-clipboard"></i>
                       </button>
@@ -511,25 +500,25 @@
                   <div class="col-md-3">
                     <label class="form-label small">Type de vitrage</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="type_vitrage" value="<%= @request&.form_data&.dig(:type_vitrage) || '[À sélectionner]' %>" readonly>
+                      <input type="text" class="form-control" id="type_vitrage" value="Triple vitrage" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('type_vitrage')">
                         <i class="bi bi-clipboard"></i>
                       </button>
                     </div>
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label small">Date de placement</label>
+                    <label class="form-label small">Date</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="date_placement_vitrage" value="<%= @request&.form_data&.dig(:date_placement_vitrage) || '[DD/MM/YYYY]' %>" readonly>
+                      <input type="text" class="form-control" id="date_placement_vitrage" value="25/04/2024" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('date_placement_vitrage')">
                         <i class="bi bi-clipboard"></i>
                       </button>
                     </div>
                   </div>
                   <div class="col-md-3">
-                    <label class="form-label small">Marque vitrage</label>
+                    <label class="form-label small">Marque</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="marque_vitrage" value="<%= @request&.form_data&.dig(:marque_vitrage) || '[Nom de marque]' %>" readonly>
+                      <input type="text" class="form-control" id="marque_vitrage" value="Velux" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('marque_vitrage')">
                         <i class="bi bi-clipboard"></i>
                       </button>
@@ -539,10 +528,8 @@
               </div>
             </div>
           </div>
-          <% end %>
 
           <!-- Systèmes énergétiques -->
-          <% if @request&.form_data&.dig(:travaux_chauffage) == "true" || @request&.form_data&.dig(:travaux_ventilation) == "true" %>
           <div class="row g-3 mb-4">
             <div class="col-12">
               <h6 class="text-primary border-bottom pb-2">
@@ -550,33 +537,33 @@
               </h6>
             </div>
 
-            <% if @request&.form_data&.dig(:travaux_chauffage) == "true" %>
+            <!-- CHAUFFAGE -->
             <div class="col-12">
               <div class="border rounded p-3 bg-light">
-                <label class="form-label fw-semibold text-success">✓ Installation d'une pompe à chaleur et chauffe-eau thermodynamique</label>
+                <label class="form-label fw-semibold text-success mb-3">✓ Système de chauffage</label>
                 <div class="row g-2">
                   <div class="col-md-4">
                     <label class="form-label small">Type de système</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="type_systeme_chauffage" value="<%= @request&.form_data&.dig(:type_systeme_chauffage) || '[Sélectionner dans la liste déroulante]' %>" readonly>
+                      <input type="text" class="form-control" id="type_systeme_chauffage" value="Pompe à chaleur air/eau" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('type_systeme_chauffage')">
                         <i class="bi bi-clipboard"></i>
                       </button>
                     </div>
                   </div>
                   <div class="col-md-4">
-                    <label class="form-label small">Date de placement</label>
+                    <label class="form-label small">Date d'installation</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="date_placement_chauffage" value="<%= @request&.form_data&.dig(:date_placement_chauffage) || '[DD/MM/YYYY]' %>" readonly>
+                      <input type="text" class="form-control" id="date_placement_chauffage" value="10/04/2024" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('date_placement_chauffage')">
                         <i class="bi bi-clipboard"></i>
                       </button>
                     </div>
                   </div>
                   <div class="col-md-4">
-                    <label class="form-label small">Marque du système</label>
+                    <label class="form-label small">Marque</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="marque_chauffage" value="<%= @request&.form_data&.dig(:marque_chauffage) || '[Nom de marque]' %>" readonly>
+                      <input type="text" class="form-control" id="marque_chauffage" value="Daikin" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('marque_chauffage')">
                         <i class="bi bi-clipboard"></i>
                       </button>
@@ -585,35 +572,34 @@
                 </div>
               </div>
             </div>
-            <% end %>
 
-            <% if @request&.form_data&.dig(:travaux_ventilation) == "true" %>
+            <!-- VENTILATION -->
             <div class="col-12">
               <div class="border rounded p-3 bg-light">
-                <label class="form-label fw-semibold text-success">✓ Système de ventilation</label>
+                <label class="form-label fw-semibold text-success mb-3">✓ Système de ventilation</label>
                 <div class="row g-2">
                   <div class="col-md-4">
                     <label class="form-label small">Type de système</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="type_systeme_ventilation" value="<%= @request&.form_data&.dig(:type_systeme_ventilation) || '[Sélectionner dans la liste déroulante]' %>" readonly>
+                      <input type="text" class="form-control" id="type_systeme_ventilation" value="VMC double flux" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('type_systeme_ventilation')">
                         <i class="bi bi-clipboard"></i>
                       </button>
                     </div>
                   </div>
                   <div class="col-md-4">
-                    <label class="form-label small">Date de placement</label>
+                    <label class="form-label small">Date d'installation</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="date_placement_ventilation" value="<%= @request&.form_data&.dig(:date_placement_ventilation) || '[DD/MM/YYYY]' %>" readonly>
+                      <input type="text" class="form-control" id="date_placement_ventilation" value="18/04/2024" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('date_placement_ventilation')">
                         <i class="bi bi-clipboard"></i>
                       </button>
                     </div>
                   </div>
                   <div class="col-md-4">
-                    <label class="form-label small">Marque du système</label>
+                    <label class="form-label small">Marque</label>
                     <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="marque_ventilation" value="<%= @request&.form_data&.dig(:marque_ventilation) || '[Nom de marque]' %>" readonly>
+                      <input type="text" class="form-control" id="marque_ventilation" value="Zehnder" readonly>
                       <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('marque_ventilation')">
                         <i class="bi bi-clipboard"></i>
                       </button>
@@ -622,83 +608,15 @@
                 </div>
               </div>
             </div>
-            <% end %>
           </div>
-          <% end %>
-
-          <!-- Travaux complémentaires et désamiantage -->
-          <% if @request&.form_data&.dig(:travaux_complementaires) == "true" || @request&.form_data&.dig(:desamiantage) == "true" %>
-          <div class="row g-3 mb-4">
-            <div class="col-12">
-              <h6 class="text-primary border-bottom pb-2">
-                <i class="bi bi-plus-circle me-2"></i>Travaux complémentaires
-              </h6>
-            </div>
-
-            <% if @request&.form_data&.dig(:travaux_complementaires) == "true" %>
-            <div class="col-12">
-              <div class="border rounded p-3 bg-light">
-                <label class="form-label fw-semibold text-success">✓ Travaux complémentaires</label>
-                <div class="row g-2">
-                  <div class="col-md-10">
-                    <label class="form-label small">Description des travaux</label>
-                    <div class="input-group input-group-sm">
-                      <textarea class="form-control" id="description_complementaires" rows="2" readonly><%= @request&.form_data&.dig(:description_complementaires) || '[À préciser selon les travaux effectués]' %></textarea>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('description_complementaires')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <% end %>
-
-            <% if @request&.form_data&.dig(:desamiantage) == "true" %>
-            <div class="col-12">
-              <div class="border rounded p-3 bg-light">
-                <label class="form-label fw-semibold text-success">✓ Travaux de désamiantage (toiture et/ou murs)</label>
-                <div class="row g-2">
-                  <div class="col-md-6">
-                    <label class="form-label small">Localisation</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="localisation_desamiantage" value="<%= @request&.form_data&.dig(:localisation_desamiantage) || '[Toiture/Murs/Les deux]' %>" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('localisation_desamiantage')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <% end %>
-          </div>
-          <% end %>
-
-          <!-- Message si aucun travaux sélectionné -->
-          <%
-          has_travaux = %w[travaux_toiture travaux_murs travaux_sol travaux_vitrage travaux_chauffage travaux_ventilation travaux_complementaires].any? do |key|
-            @request&.form_data&.dig(key.to_sym) == "true"
-          end
-          %>
-
-          <% unless has_travaux %>
-          <div class="alert alert-warning">
-            <i class="bi bi-exclamation-triangle me-2"></i>
-            <strong>Aucun travaux spécifique sélectionné</strong><br>
-            Vous devrez compléter manuellement la section "Travaux à déclarer" sur le site officiel.
-          </div>
-          <% end %>
 
           <!-- Bouton pour copier tous les détails techniques -->
-          <% if has_travaux %>
           <div class="mt-3">
             <button class="btn btn-primary" onclick="copyTechnicalDetails()">
               <i class="bi bi-clipboard-data me-2"></i>
               Copier tous les détails techniques
             </button>
           </div>
-          <% end %>
         </div>
       </div>
 
@@ -712,7 +630,7 @@
         </div>
         <div class="card-body">
           <div class="row g-3">
-            <% email_contact_value = @request&.form_data ? preremplir_champ(@request.form_data, :email_contact, current_user.email) : (current_user.email || '') %>
+            <% email_contact_value = @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :email_contact, current_user.email) : (current_user.email || '') %>
             <% if email_contact_value.present? %>
             <div class="col-md-6">
               <label class="form-label fw-semibold">Email de contact</label>
@@ -724,13 +642,13 @@
               </div>
             </div>
             <% end %>
-            <% if @request&.tracking_email.present? %>
+            <% if @demande_request&.tracking_email.present? %>
             <div class="col-md-6">
               <label class="form-label fw-semibold">Email de tracking automatique
                 <span class="badge bg-success ms-1">Recommandé</span>
               </label>
               <div class="input-group">
-                <input type="text" class="form-control" id="tracking_email" value="<%= @request.tracking_email %>" readonly>
+                <input type="text" class="form-control" id="tracking_email" value="<%= @demande_request.tracking_email %>" readonly>
                 <button class="btn btn-outline-success" type="button" onclick="copyToClipboard('tracking_email')">
                   <i class="bi bi-clipboard"></i>
                 </button>
@@ -740,7 +658,7 @@
               </div>
             </div>
             <% end %>
-            <% telephone_contact_value = @request&.form_data ? preremplir_champ(@request.form_data, :telephone_contact, current_user.phone) : (current_user.phone || '') %>
+            <% telephone_contact_value = @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :telephone_contact, current_user.phone) : (current_user.phone || '') %>
             <% if telephone_contact_value.present? %>
             <div class="col-md-6">
               <label class="form-label fw-semibold">Téléphone de contact</label>
@@ -752,7 +670,7 @@
               </div>
             </div>
             <% end %>
-            <% annee_aer_value = @request&.form_data ? preremplir_champ(@request.form_data, :annee_aer, current_user.annee_revenus_demandeur) : (current_user.annee_revenus_demandeur || '') %>
+            <% annee_aer_value = @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :annee_aer, current_user.annee_revenus_demandeur) : (current_user.annee_revenus_demandeur || '') %>
             <% if annee_aer_value.present? %>
             <div class="col-md-6">
               <label class="form-label fw-semibold">Année de l'audit énergétique</label>
@@ -792,7 +710,7 @@
           <hr class="my-4">
 
           <div class="d-flex gap-2 justify-content-center">
-            <%= link_to @request, class: "btn btn-outline-secondary" do %>
+            <%= link_to @demande_request, class: "btn btn-outline-secondary" do %>
               <i class="bi bi-arrow-left me-2"></i>Retour à ma demande
             <% end %>
             <%= link_to requests_path, class: "btn btn-outline-primary" do %>
@@ -910,7 +828,7 @@
               Email de tracking automatique
             </h6>
             <p class="mb-2">
-              L'email de tracking <code><%= @request&.tracking_email %></code> permet un suivi automatique de votre dossier.
+              L'email de tracking <code><%= @demande_request&.tracking_email %></code> permet un suivi automatique de votre dossier.
             </p>
             <p class="mb-0">
               <strong>Utilisez-le comme "email de contact" dans le formulaire officiel</strong> pour recevoir automatiquement les notifications sur l'avancement de votre demande.
@@ -1171,9 +1089,9 @@ function showToast(message = 'Données copiées dans le presse-papiers') {
 // Fonction pour copier tous les détails techniques
 function copyTechnicalDetails() {
   let allTechnicalData = [];
-  
+
   allTechnicalData.push('=== DÉTAILS TECHNIQUES DES TRAVAUX ===');
-  
+
   // Isolation toiture
   if (document.getElementById('surface_toiture')) {
     allTechnicalData.push('');
@@ -1190,7 +1108,7 @@ function copyTechnicalDetails() {
       allTechnicalData.push(`Marque: ${document.getElementById('marque_toiture').value}`);
     }
   }
-  
+
   // Isolation murs
   if (document.getElementById('surface_murs')) {
     allTechnicalData.push('');
@@ -1207,7 +1125,7 @@ function copyTechnicalDetails() {
       allTechnicalData.push(`Marque: ${document.getElementById('marque_murs').value}`);
     }
   }
-  
+
   // Isolation sol
   if (document.getElementById('surface_sol')) {
     allTechnicalData.push('');
@@ -1226,7 +1144,7 @@ function copyTechnicalDetails() {
       allTechnicalData.push(`Marque: ${document.getElementById('marque_sol').value}`);
     }
   }
-  
+
   // Vitrage
   if (document.getElementById('surface_vitrage')) {
     allTechnicalData.push('');
@@ -1242,7 +1160,7 @@ function copyTechnicalDetails() {
       allTechnicalData.push(`Marque: ${document.getElementById('marque_vitrage').value}`);
     }
   }
-  
+
   // Chauffage
   if (document.getElementById('type_systeme_chauffage')) {
     allTechnicalData.push('');
@@ -1255,7 +1173,7 @@ function copyTechnicalDetails() {
       allTechnicalData.push(`Marque: ${document.getElementById('marque_chauffage').value}`);
     }
   }
-  
+
   // Ventilation
   if (document.getElementById('type_systeme_ventilation')) {
     allTechnicalData.push('');
@@ -1268,21 +1186,21 @@ function copyTechnicalDetails() {
       allTechnicalData.push(`Marque: ${document.getElementById('marque_ventilation').value}`);
     }
   }
-  
+
   // Travaux complémentaires
   if (document.getElementById('description_complementaires')) {
     allTechnicalData.push('');
     allTechnicalData.push('--- TRAVAUX COMPLÉMENTAIRES ---');
     allTechnicalData.push(`Description: ${document.getElementById('description_complementaires').value}`);
   }
-  
+
   // Désamiantage
   if (document.getElementById('localisation_desamiantage')) {
     allTechnicalData.push('');
     allTechnicalData.push('--- DÉSAMIANTAGE ---');
     allTechnicalData.push(`Localisation: ${document.getElementById('localisation_desamiantage').value}`);
   }
-  
+
   if (allTechnicalData.length > 1) {
     navigator.clipboard.writeText(allTechnicalData.join('\n')).then(() => {
       showToast('Détails techniques copiés !');

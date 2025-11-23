@@ -1,4 +1,4 @@
-<%= form_with model: @request, local: true, class: "needs-validation request-form", novalidate: true, id: "request-form-main", authenticity_token: true do |form| %>
+<%= form_with model: @request, local: true, class: "needs-validation request-form", novalidate: true, id: "request-form-main", authenticity_token: true, data: { turbo: false } do |form| %>
 
   <!-- Token CSRF explicite (au cas où) -->
   <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
@@ -689,12 +689,14 @@
             <div class="d-flex gap-3">
               <% if @request.persisted? %>
                 <% if @request.draft? %>
-                  <!-- Brouillon existant -->
+                  <!-- Brouillon existant - Bouton supprimé car il y a maintenant le bouton AJAX en haut du formulaire Flandre -->
+                  <%#
                   <input type="submit"
                          name="commit"
                          value="Sauvegarder en brouillon"
                          class="btn btn-outline-primary btn-lg px-4 py-2"
                          formnovalidate="formnovalidate">
+                  %>
                   <!-- Le bouton de soumission spécifique sera dans le formulaire régional -->
                 <% else %>
                   <!-- Demande déjà soumise -->
@@ -703,12 +705,14 @@
                          class="btn btn-primary btn-lg px-4 py-2">
                 <% end %>
               <% else %>
-                <!-- Nouvelles demandes - seulement le brouillon ici -->
+                <!-- Nouvelles demandes - Bouton supprimé car il y a maintenant le bouton AJAX en haut du formulaire Flandre -->
+                <%#
                 <button type="button"
                         onclick="document.getElementById('request-form-main').submit();"
                         class="btn btn-outline-primary btn-lg px-4 py-2 me-2">
                   <i class="bi bi-file-earmark me-2"></i>Sauvegarder en brouillon
                 </button>
+                %>
                 <!-- Le bouton de soumission spécifique sera dans le formulaire régional -->
               <% end %>
             </div>

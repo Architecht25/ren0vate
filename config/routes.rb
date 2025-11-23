@@ -230,6 +230,7 @@ Rails.application.routes.draw do
   resources :requests do
     member do
       get :export_data  # Export des données pour mijn verbouwpremie
+      get :debug_export # Debug pour export data
     end
     resources :contractor_signatures, except: [:show] do
       member do

@@ -55,7 +55,7 @@ class PageVisit < ApplicationRecord
       referrer: request.referer,
       visited_at: Time.current,
       user: user,
-      session_id: request.session_id || request.session.id,
+      session_id: request.session.id,
       region: region,
       page_type: page_type
     )

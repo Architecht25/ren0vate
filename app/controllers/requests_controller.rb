@@ -182,30 +182,156 @@ class RequestsController < ApplicationController
 
     # Préparer les données de formulaire si une propriété est associée
     if @property.present?
-      @form_data = build_formulaire_data(@property)
+      base_form_data = build_formulaire_data(@property)
     else
-      @form_data = build_user_data
+      base_form_data = build_user_data
     end
+
+    # IMPORTANT: Fusionner avec les données existantes dans form_data
+    # Les données des travaux doivent être préservées
+    if @request.form_data.present?
+      @form_data = base_form_data.merge(@request.form_data)
+      Rails.logger.info "=== EDIT - FUSION FORM_DATA ==="
+      Rails.logger.info "Base form_data keys: #{base_form_data.keys.size}"
+      Rails.logger.info "Request form_data keys: #{@request.form_data.keys.size}"
+      Rails.logger.info "Merged form_data keys: #{@form_data.keys.size}"
+      Rails.logger.info "Surface toiture in @form_data: #{@form_data['surface_toiture'] || '[nil]'}"
+      Rails.logger.info "Marque toiture in @form_data: #{@form_data['marque_toiture'] || '[nil]'}"
+      Rails.logger.info "Travaux toiture in @form_data: #{@form_data['travaux_toiture'] || '[nil]'}"
+    else
+      @form_data = base_form_data
+      Rails.logger.info "=== EDIT - PAS DE FORM_DATA EXISTANTE ==="
+    end
+
+    # CRUCIAL: Créer un objet virtuel qui combine @request avec les données de form_data
+    # pour que Rails puisse pré-remplir les champs du formulaire
+    form_data_safe = @form_data || {}
+
+    @request.define_singleton_method(:surface_toiture) { form_data_safe['surface_toiture'] }
+    @request.define_singleton_method(:marque_toiture) { form_data_safe['marque_toiture'] }
+    @request.define_singleton_method(:methode_toiture) { form_data_safe['methode_toiture'] }
+    @request.define_singleton_method(:date_placement_toiture) { form_data_safe['date_placement_toiture'] }
+    @request.define_singleton_method(:materiau_toiture) { form_data_safe['materiau_toiture'] }
+    @request.define_singleton_method(:type_isolation_toiture) { form_data_safe['type_isolation_toiture'] }
+
+    # Ajouter les méthodes pour les murs
+    @request.define_singleton_method(:surface_murs) { form_data_safe['surface_murs'] }
+    @request.define_singleton_method(:marque_murs) { form_data_safe['marque_murs'] }
+    @request.define_singleton_method(:methode_murs) { form_data_safe['methode_murs'] }
+    @request.define_singleton_method(:date_placement_murs) { form_data_safe['date_placement_murs'] }
+    @request.define_singleton_method(:materiau_murs) { form_data_safe['materiau_murs'] }
+    @request.define_singleton_method(:type_isolation_murs) { form_data_safe['type_isolation_murs'] }
+
+    # Ajouter les méthodes pour le sol
+    @request.define_singleton_method(:surface_sol) { form_data_safe['surface_sol'] }
+    @request.define_singleton_method(:marque_sol) { form_data_safe['marque_sol'] }
+    @request.define_singleton_method(:methode_sol) { form_data_safe['methode_sol'] }
+    @request.define_singleton_method(:date_placement_sol) { form_data_safe['date_placement_sol'] }
+    @request.define_singleton_method(:materiau_sol) { form_data_safe['materiau_sol'] }
+    @request.define_singleton_method(:type_isolation_sol) { form_data_safe['type_isolation_sol'] }
+
+    # Ajouter les méthodes pour vitrage, chauffage, ventilation
+    @request.define_singleton_method(:surface_vitrage) { form_data_safe['surface_vitrage'] }
+    @request.define_singleton_method(:type_vitrage) { form_data_safe['type_vitrage'] }
+    @request.define_singleton_method(:date_placement_vitrage) { form_data_safe['date_placement_vitrage'] }
+    @request.define_singleton_method(:marque_vitrage) { form_data_safe['marque_vitrage'] }
+
+    @request.define_singleton_method(:type_systeme_chauffage) { form_data_safe['type_systeme_chauffage'] }
+    @request.define_singleton_method(:date_placement_chauffage) { form_data_safe['date_placement_chauffage'] }
+    @request.define_singleton_method(:marque_chauffage) { form_data_safe['marque_chauffage'] }
+
+    @request.define_singleton_method(:type_systeme_ventilation) { form_data_safe['type_systeme_ventilation'] }
+    @request.define_singleton_method(:date_placement_ventilation) { form_data_safe['date_placement_ventilation'] }
+    @request.define_singleton_method(:marque_ventilation) { form_data_safe['marque_ventilation'] }
+
+    @request.define_singleton_method(:description_complementaires) { form_data_safe['description_complementaires'] }
+
+    Rails.logger.info "=== OBJET VIRTUEL CRÉÉ ==="
+    Rails.logger.info "Surface toiture method: #{@request.surface_toiture || '[nil]'}"
+    Rails.logger.info "Marque toiture method: #{@request.marque_toiture || '[nil]'}"
+    Rails.logger.info "Méthode toiture method: #{@request.methode_toiture || '[nil]'}"
+    Rails.logger.info ""
+    Rails.logger.info "=== VÉRIFICATION @form_data POUR SELECT ==="
+    Rails.logger.info "methode_toiture dans @form_data: #{@form_data['methode_toiture'].inspect}"
   end
 
   def update
     @request = Request.find(params[:id])
 
+    Rails.logger.info "=== UPDATE START ==="
+    Rails.logger.info "Request ID: #{@request.id}"
+    Rails.logger.info ""
+    Rails.logger.info "=== PARAMS BRUTS REÇUS ==="
+    Rails.logger.info "Tous les params: #{params.inspect}"
+    Rails.logger.info ""
+    Rails.logger.info "=== PARAMS REQUEST ==="
+    Rails.logger.info "request params: #{params[:request]&.keys || 'nil'}"
+    Rails.logger.info ""
+    Rails.logger.info "=== RECHERCHE VALEURS FORMULAIRE ==="
+    if params[:request]
+      params[:request].each do |key, value|
+        if key.to_s.include?('toiture') || key.to_s.include?('travaux')
+          Rails.logger.info "  TROUVÉ: #{key} = #{value.inspect}"
+        end
+      end
+    end
+    Rails.logger.info ""
+    Rails.logger.info "AVANT UPDATE - form_data existante:"
+    @request.form_data&.each { |k, v| Rails.logger.info "  #{k}: #{v}" if k.to_s.include?('toiture') }
+
     # Gérer les brouillons pour la mise à jour aussi
     if params[:commit] == "Sauvegarder en brouillon"
       @request.status = 'draft'
-      # Assigner les nouvelles valeurs
-      @request.assign_attributes(request_params)
+
+      Rails.logger.info "=== TRAITEMENT PARAMETRES ==="
+      Rails.logger.info "Params bruts reçus (toiture uniquement):"
+      params[:request]&.each { |k, v| Rails.logger.info "  #{k}: #{v}" if k.to_s.include?('toiture') }
+
+      # Assigner les nouvelles valeurs avec les données extraites
+      processed_params = request_params.to_h  # Convertir en hash pour éviter UnfilteredParameters
+
+      # S'assurer que form_data est aussi un hash normal
+      if processed_params[:form_data].is_a?(ActionController::Parameters)
+        processed_params[:form_data] = processed_params[:form_data].to_h
+      end
+
+      Rails.logger.info "=== APRÈS request_params ==="
+      Rails.logger.info "processed_params keys: #{processed_params.keys}"
+      Rails.logger.info "processed_params[:form_data] class: #{processed_params[:form_data].class}"
+      Rails.logger.info "processed_params[:form_data] (toiture):"
+      processed_params[:form_data]&.each { |k, v| Rails.logger.info "  #{k}: #{v}" if k.to_s.include?('toiture') }
+
+      @request.assign_attributes(processed_params)
       @request.title = @request.title.present? ? @request.title : "Brouillon #{Time.current.strftime('%d/%m/%Y %H:%M')}"
       @request.description = @request.description.present? ? @request.description : "Brouillon en cours de rédaction"
+
+      Rails.logger.info "=== APRÈS assign_attributes ==="
+      Rails.logger.info "Form data dans @request (toiture):"
+      @request.form_data&.each { |k, v| Rails.logger.info "  #{k}: #{v}" if k.to_s.include?('toiture') }
+
     elsif params[:commit] == "Créer la demande"
-      @request.assign_attributes(request_params)
+      processed_params = request_params.to_h  # Convertir en hash
+      @request.assign_attributes(processed_params)
       @request.status = 'submitted'
     else
-      @request.assign_attributes(request_params)
+      processed_params = request_params
+      @request.assign_attributes(processed_params)
     end
 
-    if @request.save
+    save_result = @request.save
+
+    Rails.logger.info "=== APRÈS SAVE ==="
+    Rails.logger.info "Save result: #{save_result}"
+    if save_result
+      @request.reload
+      Rails.logger.info "APRÈS RELOAD - form_data sauvegardée:"
+      @request.form_data&.each { |k, v| Rails.logger.info "  #{k}: #{v}" if k.to_s.include?('toiture') }
+    else
+      Rails.logger.info "Erreurs save: #{@request.errors.full_messages}"
+    end
+    Rails.logger.info "=== UPDATE END ==="
+
+    if save_result
       if params[:commit] == "Sauvegarder en brouillon"
         redirect_to requests_path, notice: 'Brouillon mis à jour avec succès.'
       elsif params[:commit] == "Créer la demande"
@@ -385,10 +511,41 @@ class RequestsController < ApplicationController
                                    :travaux_vitrage, :travaux_chauffage, :travaux_complementaires, :travaux_ventilation,
                                    :travaux_solaire, :revenus_annuels, :personnes_charge, :annee_aer, :compte_bancaire,
                                    :email_contact, :telephone_contact, :confirmation_veracite, :acceptation_conditions,
+                                   # Paramètres profil demandeur et patrimoine
+                                   :profil_demandeur, :travaux_amiante, :type_chauffage, :type_ventilation, :performance_vitrage,
+                                   # Champs applicant (demandeur)
+                                   :applicant_title, :applicant_type, :applicant_firstname, :applicant_lastname, :applicant_organization,
+                                   :applicant_address, :applicant_number, :applicant_postal_code, :applicant_city,
+                                   :applicant_phone, :applicant_email, :applicant_national_number,
+                                   # Champs heritage (patrimoine)
+                                   :heritage_address, :heritage_number, :heritage_postal_code, :heritage_city,
+                                   :heritage_protection_id, :heritage_type, :heritage_description,
+                                   # Champs work (travaux)
+                                   :work_type, :work_description, :work_start_date, :work_end_date, :work_cost_estimate,
+                                   :requested_premium_percentage,
+                                   # Champs declaration
+                                   :declaration_owner, :declaration_accuracy, :declaration_conditions, :declaration_no_start, :declaration_quality,
+                                   :signature_place, :signature_date,
+                                   # Champs détaillés pour isolation toiture
+                                   :surface_toiture, :methode_toiture, :date_placement_toiture, :materiau_toiture, :marque_toiture, :type_isolation_toiture,
+                                   # Champs détaillés pour isolation murs
+                                   :surface_murs, :methode_murs, :date_placement_murs, :materiau_murs, :marque_murs, :type_isolation_murs,
+                                   # Champs détaillés pour isolation sol
+                                   :surface_sol, :methode_sol, :date_placement_sol, :materiau_sol, :marque_sol, :type_isolation_sol,
+                                   # Champs détaillés pour vitrage
+                                   :surface_vitrage, :type_vitrage, :date_placement_vitrage, :marque_vitrage,
+                                   # Champs détaillés pour chauffage
+                                   :type_systeme_chauffage, :date_placement_chauffage, :marque_chauffage,
+                                   # Champs détaillés pour ventilation
+                                   :type_systeme_ventilation, :date_placement_ventilation, :marque_ventilation,
+                                   # Champs détaillés pour travaux complémentaires
+                                   :description_complementaires,
+                                   # Champs pour désamiantage
+                                   :desamiantage, :localisation_desamiantage,
                                    # Support pour les fichiers
                                    :document_devis, :document_factures, :document_aer, :document_peb,
                                    :document_attestations, :document_photos, :document_autres,
-                                   document_devis: [], document_factures: [], document_attestations: [], document_photos: [], document_autres: [])
+                                   document_devis: [], document_factures: [], document_attestations: [], document_photos: [], document_autres: [], documents: [])
 
     Rails.logger.info "=== REQUEST_PARAMS DEBUG ==="
     Rails.logger.info "Permitted params keys: #{permitted_params.keys}"
@@ -396,9 +553,16 @@ class RequestsController < ApplicationController
     Rails.logger.info "Form type: #{permitted_params[:form_type]}"
     Rails.logger.info "Region: #{permitted_params[:region]}"
     Rails.logger.info "Property ID: #{permitted_params[:property_id]}"
+    Rails.logger.info "Surface toiture direct: #{permitted_params[:surface_toiture]}"
+    Rails.logger.info "Marque toiture direct: #{permitted_params[:marque_toiture]}"
 
     # Extraire les données de formulaire et les stocker dans form_data
-    extract_form_data_from_params(permitted_params)
+    result = extract_form_data_from_params(permitted_params)
+
+    Rails.logger.info "REQUEST_PARAMS result keys: #{result.keys}"
+    Rails.logger.info "REQUEST_PARAMS result form_data: #{result[:form_data]&.slice('surface_toiture', 'marque_toiture', 'travaux_toiture')}"
+
+    result
   end
 
   def extract_form_data_from_params(permitted_params)
@@ -412,13 +576,51 @@ class RequestsController < ApplicationController
     # Extraire les données de formulaire (tous les autres champs)
     form_data_fields = permitted_params.except(*base_fields, *file_fields).reject { |k, v| v.blank? }
 
-    # Ajouter form_data aux paramètres si il y a des données
+    Rails.logger.info "=== EXTRACT_FORM_DATA DEBUG ==="
+    Rails.logger.info "Form data fields extracted: #{form_data_fields.keys}"
+    Rails.logger.info "Surface toiture: #{form_data_fields[:surface_toiture] || form_data_fields['surface_toiture']}"
+    Rails.logger.info "Marque toiture: #{form_data_fields[:marque_toiture] || form_data_fields['marque_toiture']}"
+    Rails.logger.info "Travaux toiture: #{form_data_fields[:travaux_toiture] || form_data_fields['travaux_toiture']}"
+
+    # CORRECTION: Fusionner avec les données existantes au lieu d'écraser
     if form_data_fields.present?
-      permitted_params[:form_data] = form_data_fields
+      # Récupérer la requête actuelle pour fusionner avec form_data existant
+      request_id = params[:id]
+      if request_id
+        current_request = Request.find(request_id)
+        existing_form_data = current_request&.form_data || {}
+
+        Rails.logger.info "=== FUSION FORM_DATA ==="
+        Rails.logger.info "Request ID for fusion: #{request_id}"
+        Rails.logger.info "Existing form_data keys: #{existing_form_data.keys.size}"
+        Rails.logger.info "New form_data keys: #{form_data_fields.keys.size}"
+
+        # Fusionner au lieu d'écraser
+        merged_form_data = existing_form_data.merge(form_data_fields.stringify_keys)
+        permitted_params[:form_data] = merged_form_data
+
+        Rails.logger.info "Merged form_data keys: #{merged_form_data.keys.size}"
+        Rails.logger.info "Surface après fusion: #{merged_form_data['surface_toiture']}"
+        Rails.logger.info "Marque après fusion: #{merged_form_data['marque_toiture']}"
+      else
+        # Nouveau request, pas de fusion nécessaire
+        permitted_params[:form_data] = form_data_fields.stringify_keys
+        Rails.logger.info "=== NOUVEAU REQUEST - PAS DE FUSION ==="
+      end
     end
 
     # Retourner seulement les champs de base + form_data + fichiers
-    permitted_params.slice(*base_fields, *file_fields, :form_data)
+    result = permitted_params.slice(*base_fields, *file_fields, :form_data)
+
+    # IMPORTANT: Convertir tout en hash ordinaire pour éviter UnfilteredParameters
+    result = result.to_h
+    if result[:form_data].is_a?(ActionController::Parameters)
+      result[:form_data] = result[:form_data].to_h
+    end
+
+    Rails.logger.info "Final result form_data: #{result[:form_data]&.slice('surface_toiture', 'marque_toiture', 'travaux_toiture')}"
+
+    result
   end
 
   # Méthodes de pré-remplissage
@@ -535,13 +737,21 @@ class RequestsController < ApplicationController
     Rails.logger.info "   params[:id] = #{params[:id]}"
     Rails.logger.info "   current_user.id = #{current_user&.id}"
     Rails.logger.info "   current_user.email = #{current_user&.email}"
+    Rails.logger.info "   current_user.admin? = #{current_user&.admin?}"
 
     begin
-      @request = Request.find(params[:id])
-      Rails.logger.info "   ✅ @request found: ID=#{@request.id}"
-      Rails.logger.info "   @request.user_id = #{@request.user_id}"
-      Rails.logger.info "   @request.user.email = #{@request.user&.email}"
-      Rails.logger.info "   @request.form_data present = #{@request.form_data.present?}"
+      @demande_request = Request.find(params[:id])
+      Rails.logger.info "   ✅ @demande_request found: ID=#{@demande_request.id}"
+      Rails.logger.info "   @demande_request.user_id = #{@demande_request.user_id}"
+      Rails.logger.info "   @demande_request.user.email = #{@demande_request.user&.email}"
+      Rails.logger.info "   @demande_request.form_data present = #{@demande_request.form_data.present?}"
+
+      # Debug authorization
+      Rails.logger.info "   📝 Authorization check:"
+      Rails.logger.info "     @demande_request.user == current_user: #{@demande_request.user == current_user}"
+      Rails.logger.info "     current_user&.admin?: #{current_user&.admin?}"
+      Rails.logger.info "     Authorization result: #{@demande_request.user == current_user || current_user&.admin?}"
+
     rescue ActiveRecord::RecordNotFound => e
       Rails.logger.error "   ❌ Request not found: #{e.message}"
       redirect_to requests_path, alert: "Demande non trouvée."
@@ -549,14 +759,14 @@ class RequestsController < ApplicationController
     end
 
     # Vérification de sécurité : s'assurer que l'utilisateur peut accéder à cette request
-    unless @request.user == current_user || current_user&.admin?
-      Rails.logger.warn "   ⚠️ Access denied: request.user_id=#{@request.user_id}, current_user.id=#{current_user&.id}"
+    unless @demande_request.user == current_user || current_user&.admin?
+      Rails.logger.warn "   ⚠️ Access denied: request.user_id=#{@demande_request.user_id}, current_user.id=#{current_user&.id}"
       redirect_to requests_path, alert: "Vous n'avez pas accès à cette demande."
       return
     end
 
-    Rails.logger.info "   ✅ Access granted"
-    @property = @request.property || current_user.properties.first
+    Rails.logger.info "   ✅ Access granted - rendering export_data view"
+    @property = @demande_request.property || current_user.properties.first
 
     # Préparer les données de formulaire pour la vue d'export
     if @property.present?
@@ -571,6 +781,16 @@ class RequestsController < ApplicationController
 
     respond_to do |format|
       format.html # render la vue export_data.html.erb
+    end
+  end
+
+  def debug_export
+    @request = Request.find(params[:id])
+
+    # Vérification de sécurité
+    unless @request.user == current_user || current_user&.admin?
+      redirect_to requests_path, alert: "Vous n'avez pas accès à cette demande."
+      return
     end
   end
 end

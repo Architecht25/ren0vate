@@ -390,32 +390,35 @@
               <!-- Isolation toiture -->
               <div class="form-check mb-3">
                 <%= form.check_box :travaux_toiture,
-                                   { class: "form-check-input", checked: (defined?(form_data) && form_data ? form_data[:travaux_toiture] : false) },
+                                   { class: "form-check-input", checked: (@form_data&.dig('travaux_toiture') == true || @form_data&.dig('travaux_toiture') == 'true') },
                                    "true", "" %>
                 <%= form.label :travaux_toiture, "Isolation de la toiture", class: "form-check-label fw-semibold" %>
               </div>
-              <div class="travaux-details ms-4 mb-4 d-none">
+              <div class="travaux-details ms-4 mb-4 <%= 'd-none' unless (@form_data&.dig('travaux_toiture') == true || @form_data&.dig('travaux_toiture') == 'true') %>">
                 <div class="row g-2">
                   <div class="col-md-4">
                     <%= form.label :surface_toiture, "Surface (m²)", class: "form-label" %>
                     <%= form.number_field :surface_toiture,
+                                         value: @form_data&.dig('surface_toiture'),
                                          class: "form-control",
                                          min: 0, step: 1 %>
                   </div>
                   <div class="col-md-4">
                     <%= form.label :methode_toiture, "Méthode", class: "form-label" %>
                     <%= form.select :methode_toiture,
-                                   options_for_select([
+                                   [
                                      ['-- Sélectionnez --', ''],
                                      ['Par l\'intérieur', 'interieur'],
                                      ['Par l\'extérieur', 'exterieur']
-                                   ]),
-                                   {},
+                                   ],
+                                   { selected: @form_data&.dig('methode_toiture') },
                                    { class: "form-select" } %>
                   </div>
                   <div class="col-md-4">
                     <%= form.label :date_placement_toiture, "Date de placement", class: "form-label" %>
-                    <%= form.date_field :date_placement_toiture, class: "form-control" %>
+                    <%= form.date_field :date_placement_toiture,
+                                       value: @form_data&.dig('date_placement_toiture'),
+                                       class: "form-control" %>
                   </div>
                   <div class="col-md-6">
                     <%= form.label :materiau_toiture, "Matériau d'isolation", class: "form-label" %>
@@ -426,13 +429,14 @@
                                      ['Minerale wol', 'minerale_wol'],
                                      ['PIR/PUR (polyuréthaan)', 'pir_pur'],
                                      ['Andere', 'andere']
-                                   ]),
+                                   ], @form_data&.dig('materiau_toiture')),
                                    {},
                                    { class: "form-select" } %>
                   </div>
                   <div class="col-md-6">
                     <%= form.label :marque_toiture, "Marque isolation", class: "form-label" %>
                     <%= form.text_field :marque_toiture,
+                                       value: @form_data&.dig('marque_toiture'),
                                        class: "form-control",
                                        maxlength: 60,
                                        placeholder: "Max 60 caractères" %>
@@ -440,6 +444,7 @@
                   <div class="col-12">
                     <%= form.label :type_isolation_toiture, "Type isolation", class: "form-label" %>
                     <%= form.text_field :type_isolation_toiture,
+                                       value: @form_data&.dig('type_isolation_toiture'),
                                        class: "form-control",
                                        maxlength: 60,
                                        placeholder: "Max 60 caractères" %>
@@ -450,33 +455,36 @@
               <!-- Isolation murs extérieurs -->
               <div class="form-check mb-3">
                 <%= form.check_box :travaux_murs,
-                                   { class: "form-check-input", checked: (defined?(form_data) && form_data ? form_data[:travaux_murs] : false) },
+                                   { class: "form-check-input", checked: (@form_data&.dig('travaux_murs') == true || @form_data&.dig('travaux_murs') == 'true') },
                                    "true", "" %>
                 <%= form.label :travaux_murs, "Isolation des murs extérieurs", class: "form-check-label fw-semibold" %>
               </div>
-              <div class="travaux-details ms-4 mb-4 d-none">
+              <div class="travaux-details ms-4 mb-4 <%= 'd-none' unless (@form_data&.dig('travaux_murs') == true || @form_data&.dig('travaux_murs') == 'true') %>">
                 <div class="row g-2">
                   <div class="col-md-4">
                     <%= form.label :surface_murs, "Surface (m²)", class: "form-label" %>
                     <%= form.number_field :surface_murs,
+                                         value: @form_data&.dig('surface_murs'),
                                          class: "form-control",
                                          min: 0, step: 1 %>
                   </div>
                   <div class="col-md-4">
                     <%= form.label :methode_murs, "Méthode", class: "form-label" %>
                     <%= form.select :methode_murs,
-                                   options_for_select([
+                                   [
                                      ['-- Sélectionnez --', ''],
                                      ['Murs creux', 'creux'],
                                      ['Par l\'intérieur', 'interieur'],
                                      ['Par l\'extérieur', 'exterieur']
-                                   ]),
-                                   {},
+                                   ],
+                                   { selected: @form_data&.dig('methode_murs') },
                                    { class: "form-select" } %>
                   </div>
                   <div class="col-md-4">
                     <%= form.label :date_placement_murs, "Date de placement", class: "form-label" %>
-                    <%= form.date_field :date_placement_murs, class: "form-control" %>
+                    <%= form.date_field :date_placement_murs,
+                                       value: @form_data&.dig('date_placement_murs'),
+                                       class: "form-control" %>
                   </div>
                   <div class="col-md-6">
                     <%= form.label :materiau_murs, "Matériau d'isolation", class: "form-label" %>
@@ -487,13 +495,14 @@
                                      ['Minerale wol', 'minerale_wol'],
                                      ['PIR/PUR (polyuréthaan)', 'pir_pur'],
                                      ['Andere', 'andere']
-                                   ]),
+                                   ], @form_data&.dig('materiau_murs')),
                                    {},
                                    { class: "form-select" } %>
                   </div>
                   <div class="col-md-6">
                     <%= form.label :marque_murs, "Marque isolation", class: "form-label" %>
                     <%= form.text_field :marque_murs,
+                                       value: @form_data&.dig('marque_murs'),
                                        class: "form-control",
                                        maxlength: 60,
                                        placeholder: "Max 60 caractères" %>
@@ -501,31 +510,35 @@
                   <div class="col-12">
                     <%= form.label :type_isolation_murs, "Type isolation", class: "form-label" %>
                     <%= form.text_field :type_isolation_murs,
+                                       value: @form_data&.dig('type_isolation_murs'),
                                        class: "form-control",
                                        maxlength: 60,
                                        placeholder: "Max 60 caractères" %>
-                  </div>
+                </div>
                 </div>
               </div>
 
               <!-- Isolation du sol -->
               <div class="form-check mb-3">
                 <%= form.check_box :travaux_sol,
-                                   { class: "form-check-input", checked: (defined?(form_data) && form_data ? form_data[:travaux_sol] : false) },
+                                   { class: "form-check-input", checked: (@form_data&.dig('travaux_sol') == true || @form_data&.dig('travaux_sol') == 'true') },
                                    "true", "" %>
                 <%= form.label :travaux_sol, "Isolation du sol ou des caves", class: "form-check-label fw-semibold" %>
               </div>
-              <div class="travaux-details ms-4 mb-4 d-none">
+              <div class="travaux-details ms-4 mb-4 <%= 'd-none' unless (@form_data&.dig('travaux_sol') == true || @form_data&.dig('travaux_sol') == 'true') %>">
                 <div class="row g-2">
                   <div class="col-md-4">
                     <%= form.label :surface_sol, "Surface (m²)", class: "form-label" %>
                     <%= form.number_field :surface_sol,
+                                         value: @form_data&.dig('surface_sol'),
                                          class: "form-control",
                                          min: 0, step: 1 %>
                   </div>
                   <div class="col-md-4">
                     <%= form.label :date_placement_sol, "Date de placement", class: "form-label" %>
-                    <%= form.date_field :date_placement_sol, class: "form-control" %>
+                    <%= form.date_field :date_placement_sol,
+                                       value: @form_data&.dig('date_placement_sol'),
+                                       class: "form-control" %>
                   </div>
                   <div class="col-md-4">
                     <%= form.label :materiau_sol, "Matériau d'isolation", class: "form-label" %>
@@ -536,13 +549,14 @@
                                      ['Minerale wol', 'minerale_wol'],
                                      ['PIR/PUR (polyuréthaan)', 'pir_pur'],
                                      ['Andere', 'andere']
-                                   ]),
+                                   ], @form_data&.dig('materiau_sol')),
                                    {},
                                    { class: "form-select" } %>
                   </div>
                   <div class="col-md-6">
                     <%= form.label :marque_sol, "Marque isolation", class: "form-label" %>
                     <%= form.text_field :marque_sol,
+                                       value: @form_data&.dig('marque_sol'),
                                        class: "form-control",
                                        maxlength: 60,
                                        placeholder: "Max 60 caractères" %>
@@ -550,6 +564,7 @@
                   <div class="col-md-6">
                     <%= form.label :type_isolation_sol, "Type isolation", class: "form-label" %>
                     <%= form.text_field :type_isolation_sol,
+                                       value: @form_data&.dig('type_isolation_sol'),
                                        class: "form-control",
                                        maxlength: 60,
                                        placeholder: "Max 60 caractères" %>
@@ -560,21 +575,24 @@
               <!-- Vitrage -->
               <div class="form-check mb-3">
                 <%= form.check_box :travaux_vitrage,
-                                   { class: "form-check-input", checked: (defined?(form_data) && form_data ? form_data[:travaux_vitrage] : false) },
+                                   { class: "form-check-input", checked: (@form_data&.dig('travaux_vitrage') == true || @form_data&.dig('travaux_vitrage') == 'true') },
                                    "true", "" %>
                 <%= form.label :travaux_vitrage, "Remplacement du vitrage", class: "form-check-label fw-semibold" %>
               </div>
-              <div class="travaux-details ms-4 mb-4 d-none">
+              <div class="travaux-details ms-4 mb-4 <%= 'd-none' unless (@form_data&.dig('travaux_vitrage') == true || @form_data&.dig('travaux_vitrage') == 'true') %>">
                 <div class="row g-2">
                   <div class="col-md-4">
                     <%= form.label :surface_vitrage, "Surface (m²)", class: "form-label" %>
                     <%= form.number_field :surface_vitrage,
+                                         value: @form_data&.dig('surface_vitrage'),
                                          class: "form-control",
                                          min: 0, step: 1 %>
                   </div>
                   <div class="col-md-4">
                     <%= form.label :date_placement_vitrage, "Date de placement", class: "form-label" %>
-                    <%= form.date_field :date_placement_vitrage, class: "form-control" %>
+                    <%= form.date_field :date_placement_vitrage,
+                                       value: @form_data&.dig('date_placement_vitrage'),
+                                       class: "form-control" %>
                   </div>
                   <div class="col-md-4">
                     <%= form.label :type_vitrage, "Type de vitrage", class: "form-label" %>
@@ -584,13 +602,14 @@
                                      ['Double vitrage', 'double'],
                                      ['Triple vitrage', 'triple'],
                                      ['Vitrage haute performance', 'haute_performance']
-                                   ]),
+                                   ], @form_data&.dig('type_vitrage')),
                                    {},
                                    { class: "form-select" } %>
                   </div>
                   <div class="col-md-6">
                     <%= form.label :marque_vitrage, "Marque", class: "form-label" %>
                     <%= form.text_field :marque_vitrage,
+                                       value: @form_data&.dig('marque_vitrage'),
                                        class: "form-control",
                                        maxlength: 60,
                                        placeholder: "Max 60 caractères" %>
@@ -598,6 +617,7 @@
                   <div class="col-md-6">
                     <%= form.label :performance_vitrage, "Performance énergétique", class: "form-label" %>
                     <%= form.text_field :performance_vitrage,
+                                       value: @form_data&.dig('performance_vitrage'),
                                        class: "form-control",
                                        maxlength: 60,
                                        placeholder: "Valeur Uw, max 60 caractères" %>
@@ -607,11 +627,11 @@
 
               <div class="form-check mb-3">
                 <%= form.check_box :travaux_amiante,
-                                   { class: "form-check-input", checked: (defined?(form_data) && form_data ? form_data[:travaux_amiante] : false) },
+                                   { class: "form-check-input", checked: (@form_data&.dig('travaux_amiante') == true || @form_data&.dig('travaux_amiante') == 'true') },
                                    "true", "" %>
                 <%= form.label :travaux_amiante, "Travaux de désamiantage (toiture et/ou murs)", class: "form-check-label fw-semibold" %>
               </div>
-              <div class="travaux-details ms-4 mb-4 d-none">
+              <div class="travaux-details ms-4 mb-4 <%= 'd-none' unless (@form_data&.dig('travaux_amiante') == true || @form_data&.dig('travaux_amiante') == 'true') %>">
                 <div class="row g-2">
                   <div class="col-md-6">
                     <%= form.label :localisation_desamiantage, "Localisation", class: "form-label" %>
@@ -621,7 +641,7 @@
                                      ['Toiture uniquement', 'toiture'],
                                      ['Murs uniquement', 'murs'],
                                      ['Toiture et murs', 'toiture_murs']
-                                   ]),
+                                   ], @form_data&.dig('localisation_desamiantage')),
                                    {},
                                    { class: "form-select" } %>
                   </div>
@@ -641,11 +661,11 @@
 
               <div class="form-check mb-3">
                 <%= form.check_box :travaux_chauffage,
-                                   { class: "form-check-input", checked: (defined?(form_data) && form_data ? form_data[:travaux_chauffage] : false) },
+                                   { class: "form-check-input", checked: (@form_data&.dig('travaux_chauffage') == true || @form_data&.dig('travaux_chauffage') == 'true') },
                                    "true", "" %>
                 <%= form.label :travaux_chauffage, "Installation d'une pompe à chaleur et chauffe-eau thermodynamique", class: "form-check-label fw-semibold" %>
               </div>
-              <div class="travaux-details ms-4 mb-4 d-none">
+              <div class="travaux-details ms-4 mb-4 <%= 'd-none' unless (@form_data&.dig('travaux_chauffage') == true || @form_data&.dig('travaux_chauffage') == 'true') %>">
                 <div class="row g-2">
                   <div class="col-md-6">
                     <%= form.label :type_chauffage, "Type de système", class: "form-label" %>
@@ -657,7 +677,7 @@
                                      ['Pompe à chaleur air/air', 'pac-air-air'],
                                      ['Pompe à chaleur hybride', 'hybride'],
                                      ['Boiler thermodynamique', 'boiler']
-                                   ]),
+                                   ], @form_data&.dig('type_chauffage')),
                                    {},
                                    { class: "form-select" } %>
                   </div>
@@ -666,15 +686,16 @@
 
               <div class="form-check mb-3">
                 <%= form.check_box :travaux_complementaires,
-                                   { class: "form-check-input", checked: (defined?(form_data) && form_data ? form_data[:travaux_complementaires] : false) },
+                                   { class: "form-check-input", checked: (@form_data&.dig('travaux_complementaires') == true || @form_data&.dig('travaux_complementaires') == 'true') },
                                    "true", "" %>
                 <%= form.label :travaux_complementaires, "Travaux complémentaires", class: "form-check-label fw-semibold" %>
               </div>
-              <div class="travaux-details ms-4 mb-4 d-none">
+              <div class="travaux-details ms-4 mb-4 <%= 'd-none' unless (@form_data&.dig('travaux_complementaires') == true || @form_data&.dig('travaux_complementaires') == 'true') %>">
                 <div class="row g-2">
                   <div class="col-12">
                     <%= form.label :description_complementaires, "Description des travaux", class: "form-label" %>
                     <%= form.text_area :description_complementaires,
+                                      value: @form_data&.dig('description_complementaires'),
                                       class: "form-control",
                                       rows: 2,
                                       placeholder: "Décrivez les travaux complémentaires..." %>
@@ -684,11 +705,11 @@
 
               <div class="form-check mb-3">
                 <%= form.check_box :travaux_ventilation,
-                                   { class: "form-check-input", checked: (defined?(form_data) && form_data ? form_data[:travaux_ventilation] : false) },
+                                   { class: "form-check-input", checked: (@form_data&.dig('travaux_ventilation') == true || @form_data&.dig('travaux_ventilation') == 'true') },
                                    "true", "" %>
                 <%= form.label :travaux_ventilation, "Système de ventilation", class: "form-check-label fw-semibold" %>
               </div>
-              <div class="travaux-details ms-4 mb-4 d-none">
+              <div class="travaux-details ms-4 mb-4 <%= 'd-none' unless (@form_data&.dig('travaux_ventilation') == true || @form_data&.dig('travaux_ventilation') == 'true') %>">
                 <div class="row g-2">
                   <div class="col-md-8">
                     <%= form.label :type_ventilation, "Type de système", class: "form-label" %>
@@ -699,7 +720,7 @@
                                      ['Ventilation mécanique double flux', 'double-flux'],
                                      ['Ventilation mécanique contrôlée (VMC)', 'vmc'],
                                      ['Système de ventilation naturelle', 'naturelle']
-                                   ]),
+                                   ], @form_data&.dig('type_ventilation')),
                                    {},
                                    { class: "form-select" } %>
                   </div>
@@ -846,9 +867,18 @@
 
         <!-- Boutons de soumission spécifiques à la Flandre -->
         <div class="d-flex flex-column gap-3 align-items-center">
+          <!-- Bouton principal de sauvegarde -->
+          <button type="button"
+                 class="btn btn-primary btn-lg px-4 py-2"
+                 style="max-width: 300px; width: 100%;"
+                 onclick="saveFormData()"
+                 id="flandre-submit-btn">
+            Sauvegarder en brouillon
+          </button>
+
           <!-- Bouton pour copier les données -->
           <%= link_to export_data_request_path(@request),
-                     class: "btn btn-outline-primary btn-lg px-4 py-2 w-100",
+                     class: "btn btn-outline-secondary btn-lg px-4 py-2 w-100 mt-2",
                      style: "max-width: 400px;" do %>
             <i class="bi bi-clipboard-data me-2"></i>Copier vos données pour Mijn Verbouwpremie
           <% end %>
@@ -915,6 +945,152 @@ function initializeTravauxToggle() {
     // Écouter les changements
     checkbox.addEventListener('change', toggleDetails);
   });
+}
+
+// Fonction pour sauvegarder via AJAX - Portée globale
+window.saveFormData = function() {
+  console.log('🚀 === SAUVEGARDE VIA FETCH ===');
+  console.log('🎯 Tentative de soumission');
+
+  const form = document.getElementById('request-form-main');
+  if (!form) {
+    console.error('❌ Formulaire non trouvé!');
+    alert('Erreur: formulaire non trouvé');
+    return;
+  }
+
+  // Récupérer le token CSRF de plusieurs sources possibles
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+                   document.querySelector('input[name="authenticity_token"]')?.value ||
+                   form.querySelector('input[name="authenticity_token"]')?.value;
+
+  console.log('🔐 CSRF Token trouvé:', csrfToken ? 'OUI' : 'NON');
+
+  if (!csrfToken) {
+    console.error('❌ Token CSRF non trouvé!');
+    alert('Erreur: Token de sécurité manquant. Rechargez la page.');
+    return;
+  }
+
+  const formData = new FormData(form);
+  formData.set('commit', 'Sauvegarder en brouillon');
+
+  // S'assurer que le token CSRF est inclus
+  if (!formData.has('authenticity_token')) {
+    formData.set('authenticity_token', csrfToken);
+  }
+
+  // Log des données envoyées
+  console.log('📋 Données à envoyer:');
+  console.log('  🔐 authenticity_token:', formData.get('authenticity_token') ? 'PRÉSENT' : 'MANQUANT');
+  for (let [key, value] of formData.entries()) {
+    if (key.includes('toiture')) {
+      console.log(`  ${key}: ${value}`);
+    }
+  }
+
+  // Désactiver le bouton pendant l'envoi
+  const button = document.getElementById('flandre-submit-btn');
+  const originalText = button.textContent;
+  button.disabled = true;
+  button.textContent = 'Sauvegarde...';
+
+  fetch(form.action, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'Accept': 'application/json, text/html',
+      'X-Requested-With': 'XMLHttpRequest',
+      'X-CSRF-Token': csrfToken
+    }
+  })
+  .then(response => {
+    console.log('📡 Response status:', response.status);
+    if (response.ok) {
+      console.log('✅ Sauvegarde réussie!');
+
+      // Afficher un message de succès
+      const successMsg = document.createElement('div');
+      successMsg.className = 'alert alert-success alert-dismissible fade show mt-3';
+      successMsg.innerHTML = `
+        <i class="bi bi-check-circle me-2"></i>
+        Formulaire sauvegardé avec succès !
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+
+      // Insérer le message au début du formulaire
+      const container = document.querySelector('.request-form-container');
+      if (container) {
+        container.insertBefore(successMsg, container.firstChild);
+      }
+
+      // Auto-masquer après 5 secondes
+      setTimeout(() => {
+        successMsg.remove();
+      }, 5000);
+
+    } else {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return response.text();
+  })
+  .then(data => {
+    console.log('📄 Response data length:', data.length);
+  })
+  .catch(error => {
+    console.error('❌ Erreur de sauvegarde:', error);
+    alert('Erreur lors de la sauvegarde: ' + error.message);
+  })
+  .finally(() => {
+    // Réactiver le bouton
+    button.disabled = false;
+    button.textContent = originalText;
+  });
+}
+
+// Fonction pour déboguer la soumission du formulaire
+function handleFormSubmit(event) {
+  console.log('🚀 === DÉBOGAGE SOUMISSION FORMULAIRE ===');
+  console.log('Event:', event);
+  console.log('Target:', event.target);
+
+  // Trouver le formulaire parent
+  const form = event.target.closest('form');
+  console.log('Form trouvé:', form);
+  console.log('Form ID:', form?.id);
+  console.log('Form action:', form?.action);
+  console.log('Form method:', form?.method);
+
+  // Vérifier les données du formulaire
+  if (form) {
+    const formData = new FormData(form);
+    console.log('📋 Données du formulaire:');
+
+    // Afficher quelques champs clés
+    const keyFields = ['request[form_data][surface_toiture]', 'request[form_data][marque_toiture]', 'request[form_data][travaux_toiture]'];
+    keyFields.forEach(field => {
+      const value = formData.get(field);
+      if (value !== null) {
+        console.log(`  ${field}: ${value}`);
+      }
+    });
+
+    // Afficher tous les champs avec 'toiture'
+    for (let [key, value] of formData.entries()) {
+      if (key.includes('toiture')) {
+        console.log(`  ${key}: ${value}`);
+      }
+    }
+
+    console.log('🎯 Tentative de soumission...');
+
+    // Laisser le navigateur gérer la soumission normale
+    return true;
+  } else {
+    console.error('❌ Aucun formulaire trouvé!');
+    event.preventDefault();
+    return false;
+  }
 }
 
 // Fonction pour copier l'email de tracking
