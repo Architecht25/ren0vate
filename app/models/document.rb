@@ -73,8 +73,8 @@ class Document < ApplicationRecord
 
   ALL_ALLOWED_FORMATS = ALLOWED_FORMATS.values.flatten.freeze
 
-  # Limite de taille (10 MB)
-  MAX_FILE_SIZE = 10.megabytes
+  # Limite de taille (20 MB)
+  MAX_FILE_SIZE = 20.megabytes
 
   # Méthodes helper
   def completed?
@@ -343,8 +343,8 @@ class Document < ApplicationRecord
   def file_size_limit
     return unless file.attached?
 
-    if file.byte_size > 10.megabytes
-      errors.add(:file, 'ne peut pas dépasser 10MB.')
+    if file.byte_size > 20.megabytes
+      errors.add(:file, 'ne peut pas dépasser 20MB.')
     end
   end
 
