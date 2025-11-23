@@ -1,6 +1,11 @@
 <% content_for :title, "Export des données - Mijn Verbouwpremie" %>
 
-<div class="container-fluid py-4">
+<%
+  # Récupération directe de la request dans la vue pour contourner le problème du contrôleur
+  @demande_request = Request.find(params[:id]) unless @demande_request.present?
+%>
+
+<div class="container-fluid my-4">
   <div class="row justify-content-center">
     <div class="col-lg-10">
 
@@ -87,7 +92,7 @@
             <div class="col-md-6">
               <label class="form-label fw-semibold">Type de demandeur</label>
               <div class="input-group">
-                <input type="text" class="form-control" id="type_demandeur" value="<%= @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :type_demandeur, @property&.profil_demandeur) : (@property&.profil_demandeur || '') %>" readonly>
+                <input type="text" class="form-control" id="type_demandeur" value="<%= @demande_request&.form_data&.dig('profil_demandeur') || @demande_request&.form_data&.dig('type_demandeur') || @property&.profil_demandeur || '' %>" readonly>
                 <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('type_demandeur')">
                   <i class="bi bi-clipboard"></i>
                 </button>
@@ -118,7 +123,7 @@
             <div class="col-md-6">
               <label class="form-label fw-semibold">Adresse du logement</label>
               <div class="input-group">
-                <input type="text" class="form-control" id="adresse" value="<%= @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :adresse, @property&.full_address) : (@property&.full_address || '') %>" readonly>
+                <input type="text" class="form-control" id="adresse" value="<%= @demande_request&.form_data&.dig('adresse') || @demande_request&.form_data&.dig('applicant_address') || @property&.full_address || '' %>" readonly>
                 <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('adresse')">
                   <i class="bi bi-clipboard"></i>
                 </button>
@@ -127,7 +132,7 @@
             <div class="col-md-6">
               <label class="form-label fw-semibold">Code postal</label>
               <div class="input-group">
-                <input type="text" class="form-control" id="code_postal" value="<%= @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :code_postal, @property&.code_postal) : (@property&.code_postal || '') %>" readonly>
+                <input type="text" class="form-control" id="code_postal" value="<%= @demande_request&.form_data&.dig('code_postal') || @demande_request&.form_data&.dig('applicant_postal_code') || @property&.postal_code || '' %>" readonly>
                 <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('code_postal')">
                   <i class="bi bi-clipboard"></i>
                 </button>
@@ -136,7 +141,7 @@
             <div class="col-md-6">
               <label class="form-label fw-semibold">Commune</label>
               <div class="input-group">
-                <input type="text" class="form-control" id="commune" value="<%= @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :commune, @property&.commune) : (@property&.commune || '') %>" readonly>
+                <input type="text" class="form-control" id="commune" value="<%= @demande_request&.form_data&.dig('commune') || @demande_request&.form_data&.dig('applicant_city') || @property&.city || '' %>" readonly>
                 <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('commune')">
                   <i class="bi bi-clipboard"></i>
                 </button>
@@ -190,7 +195,7 @@
             <div class="col-md-6">
               <label class="form-label fw-semibold">Type de bien</label>
               <div class="input-group">
-                <input type="text" class="form-control" id="type_bien" value="<%= @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :type_bien, nil) : '' %>" readonly>
+                <input type="text" class="form-control" id="type_bien" value="<%= @demande_request&.form_data&.dig('type_bien') || @property&.property_type || '' %>" readonly>
                 <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('type_bien')">
                   <i class="bi bi-clipboard"></i>
                 </button>
@@ -199,7 +204,7 @@
             <div class="col-md-6">
               <label class="form-label fw-semibold">Usage du bien</label>
               <div class="input-group">
-                <input type="text" class="form-control" id="usage" value="<%= @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :usage, nil) : '' %>" readonly>
+                <input type="text" class="form-control" id="usage" value="<%= @demande_request&.form_data&.dig('usage') || @property&.usage || '' %>" readonly>
                 <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('usage')">
                   <i class="bi bi-clipboard"></i>
                 </button>
@@ -282,409 +287,96 @@
               Copier données financières
             </button>
           </div>
-        </div>
       </div>
+    </div>      <%= render 'export_technical_details' %>
 
-      <!-- Section 5: Détails techniques des travaux -->
-      <div class="card shadow-sm mb-4">
-        <div class="card-header bg-light">
-          <h5 class="mb-0">
-            <i class="bi bi-tools me-2"></i>
-            Détails techniques des travaux
-          </h5>
-          <small class="text-muted">Informations détaillées requises par Mijn Verbouwpremie</small>
-        </div>
-        <div class="card-body">
+      <!-- Section 5: Contact et suivi -->
+      <% email_contact_value = @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :email_contact, current_user.email) : (current_user.email || '') %>
+      <% telephone_contact_value = @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :telephone_contact, current_user.phone) : (current_user.phone || '') %>
+      <% annee_aer_value = @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :annee_aer, current_user.annee_revenus_demandeur) : (current_user.annee_revenus_demandeur || '') %>
 
-          <!-- Avertissement temporaire -->
-          <div class="alert alert-info mb-4">
-            <h6 class="alert-heading">
-              <i class="bi bi-info-circle me-2"></i>
-              Version de démonstration
-            </h6>
-            <p class="mb-0">Cette section affiche la structure HTML avec des données d'exemple pour valider l'interface avant l'intégration des données réelles.</p>
-          </div>
-
-          <!-- Travaux d'isolation -->
-          <div class="row g-3 mb-4">
-            <div class="col-12">
-              <h6 class="text-primary border-bottom pb-2">
-                <i class="bi bi-house-gear me-2"></i>Travaux d'isolation
-              </h6>
-            </div>
-
-            <!-- TOITURE -->
-            <div class="col-12">
-              <div class="border rounded p-3 bg-light">
-                <label class="form-label fw-semibold text-success mb-3">✓ Isolation de la toiture</label>
-                <div class="row g-2">
-                  <div class="col-md-2">
-                    <label class="form-label small">Surface (m²)</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="surface_toiture" value="<%= @demande_request&.form_data&.dig('surface_toiture') || '[\u00c0 compl\u00e9ter]' %>" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('surface_toiture')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-md-2">
-                    <label class="form-label small">Méthode</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="methode_toiture" value="<%= @demande_request&.form_data&.dig('methode_toiture') || '[Sélectionner la méthode]' %>" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('methode_toiture')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-md-2">
-                    <label class="form-label small">Date</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="date_placement_toiture" value="<%= @demande_request&.form_data&.dig('date_placement_toiture') ? Date.parse(@demande_request.form_data['date_placement_toiture']).strftime('%d/%m/%Y') : '[DD/MM/YYYY]' %>" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('date_placement_toiture')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <label class="form-label small">Matériau</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="materiau_toiture" value="<%= @demande_request&.form_data&.dig('materiau_toiture') || '[S\u00e9lectionner le mat\u00e9riau]' %>" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('materiau_toiture')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <label class="form-label small">Marque</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="marque_toiture" value="<%= (@demande_request&.form_data&.dig('marque_toiture') || '[Nom de la marque]').capitalize %>" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('marque_toiture')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- MURS -->
-            <div class="col-12">
-              <div class="border rounded p-3 bg-light">
-                <label class="form-label fw-semibold text-success mb-3">✓ Isolation des murs extérieurs</label>
-                <div class="row g-2">
-                  <div class="col-md-2">
-                    <label class="form-label small">Surface (m²)</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="surface_murs" value="80" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('surface_murs')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-md-2">
-                    <label class="form-label small">Méthode</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="methode_murs" value="Isolation par l'intérieur" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('methode_murs')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-md-2">
-                    <label class="form-label small">Date</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="date_placement_murs" value="22/03/2024" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('date_placement_murs')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <label class="form-label small">Matériau</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="materiau_murs" value="Polyuréthane" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('materiau_murs')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <label class="form-label small">Marque</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="marque_murs" value="Recticel" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('marque_murs')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- SOL -->
-            <div class="col-12">
-              <div class="border rounded p-3 bg-light">
-                <label class="form-label fw-semibold text-success mb-3">✓ Isolation du sol</label>
-                <div class="row g-2">
-                  <div class="col-md-2">
-                    <label class="form-label small">Surface (m²)</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="surface_sol" value="120" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('surface_sol')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-md-2">
-                    <label class="form-label small">Méthode</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="methode_sol" value="Isolation par le dessous" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('methode_sol')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-md-2">
-                    <label class="form-label small">Date</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="date_placement_sol" value="28/02/2024" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('date_placement_sol')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <label class="form-label small">Matériau</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="materiau_sol" value="Polystyrène expansé" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('materiau_sol')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <label class="form-label small">Marque</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="marque_sol" value="Knauf" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('marque_sol')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Remplacement vitrage -->
-          <div class="row g-3 mb-4">
-            <div class="col-12">
-              <h6 class="text-primary border-bottom pb-2">
-                <i class="bi bi-window me-2"></i>Remplacement du vitrage
-              </h6>
-            </div>
-
-            <div class="col-12">
-              <div class="border rounded p-3 bg-light">
-                <label class="form-label fw-semibold text-success mb-3">✓ Remplacement du vitrage</label>
-                <div class="row g-2">
-                  <div class="col-md-3">
-                    <label class="form-label small">Surface (m²)</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="surface_vitrage" value="25" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('surface_vitrage')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <label class="form-label small">Type de vitrage</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="type_vitrage" value="Triple vitrage" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('type_vitrage')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <label class="form-label small">Date</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="date_placement_vitrage" value="25/04/2024" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('date_placement_vitrage')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-md-3">
-                    <label class="form-label small">Marque</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="marque_vitrage" value="Velux" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('marque_vitrage')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Systèmes énergétiques -->
-          <div class="row g-3 mb-4">
-            <div class="col-12">
-              <h6 class="text-primary border-bottom pb-2">
-                <i class="bi bi-thermometer-half me-2"></i>Systèmes énergétiques
-              </h6>
-            </div>
-
-            <!-- CHAUFFAGE -->
-            <div class="col-12">
-              <div class="border rounded p-3 bg-light">
-                <label class="form-label fw-semibold text-success mb-3">✓ Système de chauffage</label>
-                <div class="row g-2">
-                  <div class="col-md-4">
-                    <label class="form-label small">Type de système</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="type_systeme_chauffage" value="Pompe à chaleur air/eau" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('type_systeme_chauffage')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label small">Date d'installation</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="date_placement_chauffage" value="10/04/2024" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('date_placement_chauffage')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label small">Marque</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="marque_chauffage" value="Daikin" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('marque_chauffage')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- VENTILATION -->
-            <div class="col-12">
-              <div class="border rounded p-3 bg-light">
-                <label class="form-label fw-semibold text-success mb-3">✓ Système de ventilation</label>
-                <div class="row g-2">
-                  <div class="col-md-4">
-                    <label class="form-label small">Type de système</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="type_systeme_ventilation" value="VMC double flux" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('type_systeme_ventilation')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label small">Date d'installation</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="date_placement_ventilation" value="18/04/2024" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('date_placement_ventilation')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label small">Marque</label>
-                    <div class="input-group input-group-sm">
-                      <input type="text" class="form-control" id="marque_ventilation" value="Zehnder" readonly>
-                      <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('marque_ventilation')">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Bouton pour copier tous les détails techniques -->
-          <div class="mt-3">
-            <button class="btn btn-primary" onclick="copyTechnicalDetails()">
-              <i class="bi bi-clipboard-data me-2"></i>
-              Copier tous les détails techniques
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Section 6: Contact et suivi -->
+      <% if email_contact_value.present? || @demande_request&.tracking_email.present? || telephone_contact_value.present? || annee_aer_value.present? %>
       <div class="card shadow-sm mb-4">
         <div class="card-header bg-light">
           <h5 class="mb-0">
             <i class="bi bi-envelope me-2"></i>
             Contact et suivi
           </h5>
+          <small class="text-muted">Informations de contact pour le suivi de votre dossier</small>
         </div>
         <div class="card-body">
           <div class="row g-3">
-            <% email_contact_value = @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :email_contact, current_user.email) : (current_user.email || '') %>
             <% if email_contact_value.present? %>
             <div class="col-md-6">
-              <label class="form-label fw-semibold">Email de contact</label>
-              <div class="input-group">
-                <input type="text" class="form-control" id="email_contact" value="<%= email_contact_value %>" readonly>
-                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('email_contact')">
-                  <i class="bi bi-clipboard"></i>
-                </button>
+              <div class="border rounded p-3 bg-light">
+                <label class="form-label fw-semibold mb-3">Email de contact</label>
+                <div class="input-group input-group-sm">
+                  <input type="text" class="form-control" id="email_contact" value="<%= email_contact_value %>" readonly>
+                  <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('email_contact')">
+                    <i class="bi bi-clipboard"></i>
+                  </button>
+                </div>
               </div>
             </div>
             <% end %>
+
             <% if @demande_request&.tracking_email.present? %>
             <div class="col-md-6">
-              <label class="form-label fw-semibold">Email de tracking automatique
-                <span class="badge bg-success ms-1">Recommandé</span>
-              </label>
-              <div class="input-group">
-                <input type="text" class="form-control" id="tracking_email" value="<%= @demande_request.tracking_email %>" readonly>
-                <button class="btn btn-outline-success" type="button" onclick="copyToClipboard('tracking_email')">
-                  <i class="bi bi-clipboard"></i>
-                </button>
-              </div>
-              <div class="form-text">
-                Utilisez cette adresse dans "Email de contact" sur Mijn Verbouwpremie pour un suivi automatique
+              <div class="border rounded p-3 bg-light">
+                <label class="form-label fw-semibold mb-3">Email de tracking automatique
+                  <span class="badge bg-success ms-1">Recommandé</span>
+                </label>
+                <div class="input-group input-group-sm">
+                  <input type="text" class="form-control" id="tracking_email" value="<%= @demande_request.tracking_email %>" readonly>
+                  <button class="btn btn-outline-success" type="button" onclick="copyToClipboard('tracking_email')">
+                    <i class="bi bi-clipboard"></i>
+                  </button>
+                </div>
+                <div class="form-text small">
+                  Utilisez cette adresse dans "Email de contact" sur Mijn Verbouwpremie pour un suivi automatique
+                </div>
               </div>
             </div>
             <% end %>
-            <% telephone_contact_value = @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :telephone_contact, current_user.phone) : (current_user.phone || '') %>
+
             <% if telephone_contact_value.present? %>
             <div class="col-md-6">
-              <label class="form-label fw-semibold">Téléphone de contact</label>
-              <div class="input-group">
-                <input type="text" class="form-control" id="telephone_contact" value="<%= telephone_contact_value %>" readonly>
-                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('telephone_contact')">
-                  <i class="bi bi-clipboard"></i>
-                </button>
+              <div class="border rounded p-3 bg-light">
+                <label class="form-label fw-semibold mb-3">Téléphone de contact</label>
+                <div class="input-group input-group-sm">
+                  <input type="text" class="form-control" id="telephone_contact" value="<%= telephone_contact_value %>" readonly>
+                  <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('telephone_contact')">
+                    <i class="bi bi-clipboard"></i>
+                  </button>
+                </div>
               </div>
             </div>
             <% end %>
-            <% annee_aer_value = @demande_request&.form_data ? preremplir_champ(@demande_request.form_data, :annee_aer, current_user.annee_revenus_demandeur) : (current_user.annee_revenus_demandeur || '') %>
+
             <% if annee_aer_value.present? %>
             <div class="col-md-6">
-              <label class="form-label fw-semibold">Année de l'audit énergétique</label>
-              <div class="input-group">
-                <input type="text" class="form-control" id="annee_aer" value="<%= annee_aer_value %>" readonly>
-                <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('annee_aer')">
-                  <i class="bi bi-clipboard"></i>
-                </button>
+              <div class="border rounded p-3 bg-light">
+                <label class="form-label fw-semibold mb-3">Année de l'audit énergétique</label>
+                <div class="input-group input-group-sm">
+                  <input type="text" class="form-control" id="annee_aer" value="<%= annee_aer_value %>" readonly>
+                  <button class="btn btn-outline-primary" type="button" onclick="copyToClipboard('annee_aer')">
+                    <i class="bi bi-clipboard"></i>
+                  </button>
+                </div>
               </div>
             </div>
             <% end %>
           </div>
+
+          <div class="mt-3">
+            <button class="btn btn-outline-primary" onclick="copyContactData()">
+              <i class="bi bi-envelope me-2"></i>
+              Copier informations de contact
+            </button>
+          </div>
         </div>
       </div>
+      <% end %>
 
       <!-- Boutons d'action principaux -->
       <div class="card shadow-sm">
@@ -945,6 +637,28 @@ function copyPersonalData() {
   navigator.clipboard.writeText(data).then(() => showToast());
 }
 
+// Fonction pour copier les données de contact
+function copyContactData() {
+  let data = [];
+
+  if (document.getElementById('email_contact')) {
+    data.push(`Email de contact: ${document.getElementById('email_contact').value}`);
+  }
+  if (document.getElementById('tracking_email')) {
+    data.push(`Email de tracking: ${document.getElementById('tracking_email').value}`);
+  }
+  if (document.getElementById('telephone_contact')) {
+    data.push(`Téléphone: ${document.getElementById('telephone_contact').value}`);
+  }
+  if (document.getElementById('annee_aer')) {
+    data.push(`Année AER: ${document.getElementById('annee_aer').value}`);
+  }
+
+  if (data.length > 0) {
+    navigator.clipboard.writeText(data.join('\n')).then(() => showToast());
+  }
+}
+
 // Fonction pour copier les données d'adresse
 function copyAddressData() {
   let data = [
@@ -1199,6 +913,9 @@ function copyTechnicalDetails() {
     allTechnicalData.push('');
     allTechnicalData.push('--- DÉSAMIANTAGE ---');
     allTechnicalData.push(`Localisation: ${document.getElementById('localisation_desamiantage').value}`);
+    if (document.getElementById('date_desamiantage')) {
+      allTechnicalData.push(`Date: ${document.getElementById('date_desamiantage').value}`);
+    }
   }
 
   if (allTechnicalData.length > 1) {

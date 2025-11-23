@@ -733,39 +733,19 @@ class RequestsController < ApplicationController
   end
 
   def export_data
-    Rails.logger.info "🔍 EXPORT_DATA DEBUG START"
-    Rails.logger.info "   params[:id] = #{params[:id]}"
-    Rails.logger.info "   current_user.id = #{current_user&.id}"
-    Rails.logger.info "   current_user.email = #{current_user&.email}"
-    Rails.logger.info "   current_user.admin? = #{current_user&.admin?}"
-
     begin
       @demande_request = Request.find(params[:id])
-      Rails.logger.info "   ✅ @demande_request found: ID=#{@demande_request.id}"
-      Rails.logger.info "   @demande_request.user_id = #{@demande_request.user_id}"
-      Rails.logger.info "   @demande_request.user.email = #{@demande_request.user&.email}"
-      Rails.logger.info "   @demande_request.form_data present = #{@demande_request.form_data.present?}"
-
-      # Debug authorization
-      Rails.logger.info "   📝 Authorization check:"
-      Rails.logger.info "     @demande_request.user == current_user: #{@demande_request.user == current_user}"
-      Rails.logger.info "     current_user&.admin?: #{current_user&.admin?}"
-      Rails.logger.info "     Authorization result: #{@demande_request.user == current_user || current_user&.admin?}"
-
-    rescue ActiveRecord::RecordNotFound => e
-      Rails.logger.error "   ❌ Request not found: #{e.message}"
+    rescue ActiveRecord::RecordNotFound
       redirect_to requests_path, alert: "Demande non trouvée."
       return
     end
 
     # Vérification de sécurité : s'assurer que l'utilisateur peut accéder à cette request
     unless @demande_request.user == current_user || current_user&.admin?
-      Rails.logger.warn "   ⚠️ Access denied: request.user_id=#{@demande_request.user_id}, current_user.id=#{current_user&.id}"
       redirect_to requests_path, alert: "Vous n'avez pas accès à cette demande."
       return
     end
 
-    Rails.logger.info "   ✅ Access granted - rendering export_data view"
     @property = @demande_request.property || current_user.properties.first
 
     # Préparer les données de formulaire pour la vue d'export
@@ -774,10 +754,6 @@ class RequestsController < ApplicationController
     else
       @form_data = build_user_data
     end
-
-    Rails.logger.info "   @property present = #{@property.present?}"
-    Rails.logger.info "   @form_data present = #{@form_data.present?}"
-    Rails.logger.info "🔍 EXPORT_DATA DEBUG END"
 
     respond_to do |format|
       format.html # render la vue export_data.html.erb
