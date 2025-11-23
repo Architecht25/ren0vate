@@ -30,6 +30,10 @@ export default class extends Controller {
 
     console.log("✅ Cartes de primes détectées, initialisation du controller")
 
+    // Protection contre les auto-saves trop fréquents
+    this.lastAutoSaveTime = 0
+    this.minAutoSaveInterval = 5000 // Minimum 5 secondes entre les auto-saves
+
     this.currentCategory = this.getCurrentCategory()
     this.setupPrimesData()
     this.setupGroupesPlafond()
@@ -476,6 +480,13 @@ export default class extends Controller {
 
   // Méthode d'auto-save complète
   autoSave() {
+    // Protection contre les auto-saves trop fréquents
+    const now = Date.now()
+    if (now - this.lastAutoSaveTime < this.minAutoSaveInterval) {
+      console.log("🚫 Auto-save ignoré: trop fréquent (< 5 secondes)")
+      return
+    }
+
     // Vérifier si nous avons des cartes de primes sur cette page
     const hasCards = this.element.querySelector('[data-flandre-simulation-card-slug-value]')
 
@@ -497,6 +508,8 @@ export default class extends Controller {
     }
 
     if (!this.simulationId) return;
+
+    this.lastAutoSaveTime = now
 
     // Collecter toutes les données des inputs
     const userInputs = {};
@@ -675,7 +688,8 @@ export default class extends Controller {
   // Sauvegarde débounced pour éviter trop d'appels
   debouncedAutoSave() {
     clearTimeout(this.saveTimeout);
-    this.saveTimeout = setTimeout(() => this.autoSave(), 1000);
+    // Augmentation du délai à 3 secondes pour éviter les appels trop fréquents
+    this.saveTimeout = setTimeout(() => this.autoSave(), 3000);
   }
 
   // Méthode pour mettre à jour l'affichage de la catégorie
