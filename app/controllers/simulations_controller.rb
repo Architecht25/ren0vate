@@ -38,9 +38,18 @@ class SimulationsController < ApplicationController
       params_data = safe_parse_simulation_parameters(@simulation)
       @prime_cards = params_data['prime_cards'] || {}
       @total_amount = @simulation.total_simule || 0
+
+      # Exposer les données spécifiques Flandre si présentes
+      if @simulation.region&.downcase == 'flandre'
+        @peb_data = params_data['peb_data']
+        @amiante_data = params_data['amiante_data']
+        Rails.logger.info "🏴󐁧󐁢󐁳󐁣󐁴󐁿 Données Flandre récupérées: PEB=#{@peb_data.present?}, Amiante=#{@amiante_data.present?}"
+      end
     else
       @prime_cards = {}
       @total_amount = 0
+      @peb_data = nil
+      @amiante_data = nil
     end
 
     # S'assurer que total_simule est cohérent avec les paramètres
@@ -76,6 +85,20 @@ class SimulationsController < ApplicationController
     if @total_amount > 0 && @simulation.region.present?
       savings_calculator = SavingsCalculatorService.new(@total_amount, @simulation.region)
       @savings_data = savings_calculator.calculate_savings
+    end
+
+    # Répondre selon le format demandé
+    respond_to do |format|
+      format.html # Vue normale
+      format.json {
+        render json: {
+          total_amount: @total_amount,
+          peb_data: @peb_data,
+          amiante_data: @amiante_data,
+          prime_cards: @prime_cards,
+          savings_data: @savings_data
+        }
+      }
     end
   end
 
@@ -286,8 +309,11 @@ class SimulationsController < ApplicationController
     # @simulation est déjà définie et vérifiée par before_action
 
     # Permettre tous les paramètres user_inputs, gérer le cas des données vides pour l'auto-save
+    Rails.logger.info "🔍 Params bruts reçus: #{params[:user_inputs].inspect}"
     user_inputs = if params[:user_inputs].present?
-      params.require(:user_inputs).permit!.to_h
+      permitted_inputs = params.require(:user_inputs).permit!.to_h
+      Rails.logger.info "🔧 Après permit!.to_h: #{permitted_inputs.inspect}"
+      permitted_inputs
     else
       {}
     end
@@ -312,7 +338,7 @@ class SimulationsController < ApplicationController
     begin
       # Si on a un total calculé côté client (pour Bruxelles/Wallonie), l'utiliser directement
       # TEMPORAIRE: ignorer la condition calculated_total > 0 pour déboguer
-      if %w[bruxelles wallonie].include?(@simulation.region&.downcase)
+      if %w[bruxelles wallonie flandre].include?(@simulation.region&.downcase)
         Rails.logger.info "🚀 Utilisation des nouvelles méthodes calculate_all_primes (force debug)"
 
         # Utiliser le nouveau service pour récupérer les détails des primes
@@ -393,6 +419,59 @@ class SimulationsController < ApplicationController
             updated_cards: updated_cards, # ✅ Structure des primes individuelles
             savings_data: savings_data,
             message: "Total mis à jour avec nouvelles méthodes Wallonie"
+          }
+        elsif @simulation.region&.downcase == 'flandre'
+          # Pour Flandre, utiliser le nouveau système avec gestion PEB/Amiante
+          Rails.logger.info "🏴󐁧󐁢󐁳󐁣󐁴󐁿 Utilisation des nouvelles méthodes calculate_all_primes pour Flandre"
+          Rails.logger.info "🔧 Instanciation du nouveau service FlandrePostLoginCalculatorService"
+          calculator_service = Regions::Flandre::FlandrePostLoginCalculatorService.new(
+            {
+              property_id: @simulation.property_id,
+              project_id: @simulation.project_id,
+              simulation_type: 'particulier',
+              category: @simulation.category
+            },
+            user: current_user
+          )
+
+          # Appeler la méthode calculate_all_primes du nouveau service
+          # Restructurer les données pour le service Flandre
+          structured_inputs = restructure_flandre_inputs(user_inputs)
+          Rails.logger.info "🔧 Données restructurées pour Flandre: #{structured_inputs.inspect}"
+
+          Rails.logger.info "🔧 Appel de calculate_all_primes Flandre avec: #{structured_inputs.inspect}"
+          result = calculator_service.calculate_all_primes(structured_inputs)
+          Rails.logger.info "✅ Total calculé avec nouvelles méthodes Flandre: #{result[:total_general]}€"
+          Rails.logger.info "🔧 Prime results reçus: #{result[:prime_results].inspect}"
+
+          # Construire la structure updated_cards attendue par le frontend
+          updated_cards = build_updated_cards_from_prime_results(result[:prime_results])
+          Rails.logger.info "🔧 Updated cards construites: #{updated_cards.inspect}"
+
+          # Utiliser le total calculé côté client s'il est disponible (inclut primes + PEB + amiante)
+          # Sinon utiliser le total des primes uniquement
+          final_total = calculated_total && calculated_total > 0 ? calculated_total : result[:total_general]
+          Rails.logger.info "💰 Total final utilisé: #{final_total}€ (source: #{calculated_total && calculated_total > 0 ? 'frontend complet' : 'backend primes uniquement'})"
+
+          # Mettre à jour la simulation avec le total final
+          @simulation.update!(total_simule: final_total)
+
+          # Sauvegarder les données dans les paramètres de la simulation
+          save_flandre_specific_data(user_inputs)
+
+          # Calculer les économies vs chasseur de primes
+          savings_data = nil
+          if final_total > 0 && @simulation.region.present?
+            savings_calculator = SavingsCalculatorService.new(final_total, @simulation.region)
+            savings_data = savings_calculator.calculate_savings
+          end
+
+          render json: {
+            success: true,
+            total_amount: final_total,
+            updated_cards: updated_cards,
+            savings_data: savings_data,
+            message: "Total mis à jour avec nouvelles méthodes Flandre (PEB/Amiante inclus)"
           }
         else
           # Pour autres régions, utiliser l'ancien système pour l'instant
@@ -493,6 +572,28 @@ class SimulationsController < ApplicationController
         end
       end
 
+      # Gestion spéciale pour les données Flandre (PEB et Amiante)
+      if @simulation.region&.downcase == 'flandre'
+        if params_data["peb_data"].present?
+          user_inputs["peb"] = params_data["peb_data"]
+          Rails.logger.info "🔄 Données PEB restaurées: #{params_data['peb_data'].inspect}"
+        end
+
+        if params_data["amiante_data"].present?
+          user_inputs["amiante"] = params_data["amiante_data"]
+          Rails.logger.info "🔄 Données Amiante restaurées: #{params_data['amiante_data'].inspect}"
+        end
+
+        # Fallback: chercher les données directes pour les primes Flandre (nouvelles méthodes)
+        flandre_prime_keys = %w[isolation_toiture isolation_murs_cat12 isolation_murs_cat34 isolation_sol ramen_deuren warmtepomp warmtepompboiler voorbereiding_isolatie voorbereiding_sanitair_elec renovation_toiture renovation_murs renovation_sol]
+        flandre_prime_keys.each do |key|
+          if params_data[key].present? && params_data[key] != 0 && params_data[key] != "0"
+            user_inputs[key] = params_data[key]
+            Rails.logger.info "🔄 Prime Flandre restaurée: #{key} = #{params_data[key]}"
+          end
+        end
+      end
+
       # Rails.logger.info "✅ Restored #{user_inputs.keys.length} user inputs for simulation #{@simulation.id}"
       render json: {
         success: true,
@@ -521,7 +622,8 @@ class SimulationsController < ApplicationController
 
     prime_results.each do |slug, prime_data|
       # prime_data contient { amount: X, prime_id: Y, titre: Z, unite: W }
-      amount = prime_data[:amount] || prime_data['amount'] || 0
+      # OU pour Flandre: { calculated_amount: X, user_input_value: Y, category_data: Z }
+      amount = prime_data[:amount] || prime_data[:calculated_amount] || prime_data['amount'] || prime_data['calculated_amount'] || 0
 
       Rails.logger.info "🔧 Prime #{slug}: #{amount}€ (data: #{prime_data})"
 
@@ -960,5 +1062,178 @@ class SimulationsController < ApplicationController
     end
 
     total
+  end
+
+  # Nouvelle méthode pour sauvegarder les données spécifiques à la Flandre
+  def save_flandre_specific_data(user_inputs)
+    Rails.logger.info "💾 Sauvegarde des données spécifiques Flandre: #{user_inputs.inspect}"
+
+    # Ne pas sauvegarder si toutes les valeurs sont nulles/vides (éviter d'écraser les bonnes données)
+    non_zero_values = user_inputs.select { |k, v| v.present? && v != 0 && v != "0" }
+    if non_zero_values.empty?
+      Rails.logger.info "⚠️ Aucune donnée significative à sauvegarder (toutes les valeurs sont nulles)"
+      return
+    end
+
+    # Récupérer les paramètres existants ou initialiser
+    existing_params = @simulation.parameters.present? ? JSON.parse(@simulation.parameters) : {}
+
+    # Sauvegarder les données PEB si présentes
+    if user_inputs['peb'].present?
+      existing_params['peb_data'] = user_inputs['peb']
+      Rails.logger.info "💾 Données PEB sauvegardées: #{user_inputs['peb'].inspect}"
+    end
+
+    # Sauvegarder les données Amiante si présentes
+    if user_inputs['amiante'].present?
+      existing_params['amiante_data'] = user_inputs['amiante']
+      Rails.logger.info "💾 Données Amiante sauvegardées: #{user_inputs['amiante'].inspect}"
+    end
+
+    # Convertir les primes au format attendu par restore_prime_inputs
+    if user_inputs['primes'].present?
+      existing_params['prime_cards'] ||= {}
+
+      user_inputs['primes'].each do |slug, prime_data|
+        next unless prime_data['value'].present? && prime_data['value'] != 0
+
+        # Déterminer la catégorie pour cette prime
+        category = determine_category_from_slug(slug)
+
+        # Initialiser la structure de catégorie si nécessaire
+        existing_params['prime_cards'][category] ||= {
+          'total' => 0,
+          'primes' => []
+        }
+
+        # Ajouter ou mettre à jour la prime dans cette catégorie
+        existing_prime = existing_params['prime_cards'][category]['primes'].find { |p| p['slug'] == slug }
+        if existing_prime
+          existing_prime['user_input_value'] = prime_data['value']
+        else
+          existing_params['prime_cards'][category]['primes'] << {
+            'slug' => slug,
+            'user_input_value' => prime_data['value']
+          }
+        end
+      end
+
+      Rails.logger.info "💾 Données primes sauvegardées dans le bon format"
+    end
+
+    # Sauvegarder aussi les données brutes pour la restructuration (fallback)
+    user_inputs.each do |key, value|
+      if key != 'peb' && key != 'amiante' && key != 'primes' && value.present? && value != 0
+        existing_params[key] = value
+      end
+    end
+
+    # Horodatage de la dernière mise à jour
+    existing_params['last_updated'] = Time.current.iso8601
+
+    # Sauvegarder dans la base de données
+    @simulation.update!(parameters: existing_params.to_json)
+
+    Rails.logger.info "✅ Données Flandre sauvegardées avec succès"
+  rescue => e
+    Rails.logger.error "❌ Erreur lors de la sauvegarde Flandre: #{e.message}"
+  end
+
+  # Restructurer les données plates en structure attendue par FlandrePostLoginCalculatorService
+  def restructure_flandre_inputs(flat_inputs)
+    Rails.logger.info "🔄 Restructuration des données Flandre: #{flat_inputs.inspect}"
+
+    structured = {
+      'primes' => {}
+    }
+
+    # Liste des slugs normaux de primes (ni PEB ni Amiante)
+    prime_slugs = %w[
+      isolation_toiture isolation_murs_cat12 isolation_murs_cat34 isolation_sol
+      ramen_deuren warmtepomp warmtepompboiler voorbereiding_isolatie
+      voorbereiding_sanitair_elec renovation_toiture renovation_murs renovation_sol
+    ]
+
+    # Traiter chaque input
+    flat_inputs.each do |key, value|
+      if prime_slugs.include?(key.to_s)
+        # C'est une prime normale
+        if value.present? && value.to_f > 0
+          structured['primes'][key] = {
+            'value' => value.to_f,
+            'type' => nil
+          }
+        end
+      elsif key.to_s.start_with?('peb_')
+        # Données PEB - TODO: à implémenter si nécessaire
+        structured['peb'] ||= {}
+        structured['peb'][key.to_s.sub('peb_', '')] = value
+      elsif key.to_s.start_with?('amiante_')
+        # Données Amiante - TODO: à implémenter si nécessaire
+        structured['amiante'] ||= {}
+        structured['amiante'][key.to_s.sub('amiante_', '')] = value
+      end
+    end
+
+    # Supprimer les clés vides
+    structured.delete('primes') if structured['primes'].empty?
+    structured.delete('peb') if structured['peb']&.empty?
+    structured.delete('amiante') if structured['amiante']&.empty?
+
+    Rails.logger.info "✅ Données restructurées: #{structured.inspect}"
+    structured
+  end
+
+  # Calcul du montant PEB à partir des données
+  def calculate_peb_amount_from_data(peb_data)
+    return 0 unless peb_data.present?
+
+    label_initial = peb_data['label_initial']
+    type_logement = peb_data['type_logement']
+    ventilation = peb_data['ventilation']
+    label_final = peb_data['label_final']
+
+    return 0 unless label_initial.present? && label_final.present? && type_logement.present?
+
+    # Matrice PEB Flandre (même logique que côté frontend)
+    if label_initial == 'F' && label_final == 'A' && type_logement == 'maison'
+      if ventilation == 'avec_ventilation'
+        return 4000
+      else
+        return 2000
+      end
+    elsif label_initial == 'E' && label_final == 'A' && type_logement == 'maison'
+      return 3000
+    elsif label_initial == 'D' && label_final == 'A'
+      return 2000
+    end
+
+    return 0
+  end
+
+  # Calcul du montant amiante à partir des données
+  def calculate_amiante_amount_from_data(amiante_data)
+    return 0 unless amiante_data.present?
+
+    surface_toiture = amiante_data['surface_toiture'].to_f
+    surface_murs = amiante_data['surface_murs'].to_f
+
+    montant_total = 0
+
+    # Logique de calcul amiante Flandre (même que côté frontend)
+    # 8€/m² pour la toiture
+    # 4€/m² pour les murs si pas de toiture
+    # 12€/m² pour les murs si toiture incluse
+    if surface_toiture > 0
+      montant_total += surface_toiture * 8 # 8€/m² toiture
+
+      if surface_murs > 0
+        montant_total += surface_murs * 12 # 12€/m² murs si toiture incluse
+      end
+    elsif surface_murs > 0
+      montant_total += surface_murs * 4 # 4€/m² murs uniquement
+    end
+
+    montant_total
   end
 end

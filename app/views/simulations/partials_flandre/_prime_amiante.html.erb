@@ -1,4 +1,5 @@
-<div class="card shadow-sm border-0 p-3 text-center mb-3 h-100">
+<div class="card shadow-sm border-0 p-3 text-center mb-3 h-100"
+     data-controller="amiante">
     <div class="card-body d-flex flex-column align-items-center gap-3">
       <div class="bg-danger bg-opacity-55 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
         <i class="bi bi-radioactive fs-5 text-white"></i>
@@ -15,7 +16,8 @@
                  placeholder="0"
                  min="0"
                  step="0.01"
-                 oninput="calculateAmiante()">
+                 data-amiante-target="surfaceToiture"
+                 data-action="input->amiante#surfaceToitureChanged">
         </div>
 
         <div class="mb-3">
@@ -26,13 +28,16 @@
                  placeholder="0"
                  min="0"
                  step="0.01"
-                 oninput="calculateAmiante()">
+                 data-amiante-target="surfaceMurs"
+                 data-action="input->amiante#surfaceMursChanged">
         </div>
 
         <!-- Résultat -->
         <div class="alert alert-danger alert-sm mb-2" role="alert">
           <small class="fw-bold">Montant estimé : </small>
-          <span class="fw-bold prime-result" id="result_amiante">0.00 €</span>
+          <span class="fw-bold prime-result"
+                id="result_amiante"
+                data-amiante-target="result">0.00 €</span>
         </div>
 
         <small class="text-muted d-block">
@@ -41,68 +46,3 @@
       </div>
     </div>
   </div>
-
-<script>
-function calculateAmiante() {
-  console.log("Calcul amiante appelé");
-
-  const surfaceToiture = parseFloat(document.getElementById('surface_toiture_amiante').value) || 0;
-  const surfaceMurs = parseFloat(document.getElementById('surface_murs_amiante').value) || 0;
-
-  console.log("Surface toiture:", surfaceToiture);
-  console.log("Surface murs:", surfaceMurs);
-
-  let montantTotal = 0;
-
-  // Calcul selon les règles métier :
-  // - 8€/m² pour la toiture
-  // - 4€/m² pour les murs si pas de toiture
-  // - 12€/m² pour les murs si toiture incluse
-
-  if (surfaceToiture > 0) {
-    montantTotal += surfaceToiture * 8; // 8€/m² toiture
-
-    if (surfaceMurs > 0) {
-      montantTotal += surfaceMurs * 12; // 12€/m² murs si toiture incluse
-    }
-  } else if (surfaceMurs > 0) {
-    montantTotal += surfaceMurs * 4; // 4€/m² murs uniquement
-  }
-
-  console.log("Montant total calculé:", montantTotal);
-
-  // Formatage du résultat
-  const montantFormate = montantTotal.toFixed(2) + " €";
-
-  console.log("Montant formaté:", montantFormate);
-
-  const resultElement = document.getElementById('result_amiante');
-  resultElement.textContent = montantFormate;
-
-  // Animation du résultat si montant > 0
-  if (montantTotal > 0) {
-    resultElement.classList.add('text-success');
-    resultElement.classList.remove('text-muted');
-  } else {
-    resultElement.classList.remove('text-success');
-    resultElement.classList.add('text-muted');
-  }
-
-  console.log("Résultat mis à jour dans le DOM");
-
-  // Mettre à jour le total global des primes via le système PEB existant
-  const pebController = document.querySelector('[data-controller="peb"]');
-  if (pebController && window.Stimulus) {
-    const controller = window.Stimulus.getControllerForElementAndIdentifier(pebController, 'peb');
-    if (controller && controller.mettreAJourTotalPrimes) {
-      controller.mettreAJourTotalPrimes();
-    }
-  }
-}
-
-// Calcul initial au chargement
-document.addEventListener('DOMContentLoaded', function() {
-  console.log("DOM chargé, calcul initial amiante");
-  calculateAmiante();
-});
-</script>

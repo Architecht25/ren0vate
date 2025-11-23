@@ -1,7 +1,10 @@
 <!-- Contenu principal selon la région -->
 <% region = @simulation.region&.downcase %>
 
-<div class="container-fluid">
+<div class="container-fluid"
+     data-controller="<%= region == 'flandre' ? 'flandre-simulation' : '' %>"
+     data-flandre-simulation-simulation-id-value="<%= @simulation.id %>"
+     data-flandre-simulation-category-value="<%= @simulation.category %>">
   <div class="row">
     <!-- Contenu principal - pleine largeur -->
     <div class="col-12">

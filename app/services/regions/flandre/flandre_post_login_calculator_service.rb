@@ -21,13 +21,24 @@ module Regions
 
       # Méthodes de calcul dynamique des primes (publiques pour l'API)
       def calculate_prime(prime_slug, input_value, input_type = nil)
+        Rails.logger.info "🔍 Calcul prime: slug=#{prime_slug}, value=#{input_value}, type=#{input_type}"
+
         prime = Prime.find_by(slug: prime_slug, region: 'flandre')
-        return { error: 'Prime non trouvée' } unless prime
+        unless prime
+          Rails.logger.warn "❌ Prime non trouvée: slug=#{prime_slug}, region=flandre"
+          return { error: 'Prime non trouvée' }
+        end
+        Rails.logger.info "✅ Prime trouvée: #{prime.titre}"
 
         user_category = @category || determine_user_category
-        category_data = prime.valeurs_par_categorie&.[](user_category.to_s)
+        Rails.logger.info "🏷️ Catégorie utilisateur: #{user_category}"
 
-        return { error: "Catégorie #{user_category} non éligible pour #{prime_slug}" } unless category_data
+        category_data = prime.valeurs_par_categorie&.[](user_category.to_s)
+        unless category_data
+          Rails.logger.warn "❌ Catégorie #{user_category} non éligible pour #{prime_slug}"
+          return { error: "Catégorie #{user_category} non éligible pour #{prime_slug}" }
+        end
+        Rails.logger.info "📊 Données catégorie: #{category_data.inspect}"
 
         val = input_value.to_f
         montant = 0
@@ -128,30 +139,76 @@ module Regions
       end
 
       def calculate_all_primes(inputs)
+        Rails.logger.info "🏴󐁧󐁢󐁳󐁣󐁴󐁿 Calcul de toutes les primes Flandre avec: #{inputs.inspect}"
+
         results = {}
         totals_by_group = {}
+        total_general = 0.0
 
-        inputs.each do |prime_slug, input_data|
-          value = input_data['value']
-          type = input_data['type'] # Pour les forfaits
-
-          next if value.blank? && type.blank?
-
-          result = calculate_prime(prime_slug, value, type)
-          results[prime_slug] = result
-
-          # Grouper par type de travaux pour les totaux
-          if result[:amount] && result[:amount] > 0
-            work_type = determine_work_type_group_by_slug(prime_slug)
-            totals_by_group[work_type] ||= 0
-            totals_by_group[work_type] += result[:amount]
+        # Calculer les primes PEB si données présentes
+        if inputs['peb'].present?
+          Rails.logger.info "🏠 Calcul prime PEB"
+          peb_result = calculate_peb_prime(inputs['peb'])
+          if peb_result[:success]
+            results['peb'] = {
+              amount: peb_result[:montant],
+              details: peb_result[:details],
+              type: 'peb'
+            }
+            totals_by_group['peb'] = peb_result[:montant]
+            total_general += peb_result[:montant]
+            Rails.logger.info "✅ PEB calculé: #{peb_result[:montant]}€"
+          else
+            Rails.logger.warn "⚠️ Échec calcul PEB: #{peb_result[:error]}"
           end
         end
+
+        # Calculer les primes Amiante si données présentes
+        if inputs['amiante'].present?
+          Rails.logger.info "☣️ Calcul prime Amiante"
+          amiante_result = calculate_amiante_prime(inputs['amiante'])
+          if amiante_result[:success]
+            results['amiante'] = {
+              amount: amiante_result[:montant],
+              details: amiante_result[:details],
+              type: 'amiante'
+            }
+            totals_by_group['amiante'] = amiante_result[:montant]
+            total_general += amiante_result[:montant]
+            Rails.logger.info "✅ Amiante calculé: #{amiante_result[:montant]}€"
+          else
+            Rails.logger.warn "⚠️ Échec calcul Amiante: #{amiante_result[:error]}"
+          end
+        end
+
+        # Calculer les autres primes normales si présentes
+        if inputs['primes'].present?
+          Rails.logger.info "🔧 Calcul primes normales"
+          inputs['primes'].each do |prime_slug, input_data|
+            value = input_data['value']
+            type = input_data['type'] # Pour les forfaits
+
+            next if value.blank? && type.blank?
+
+            result = calculate_prime(prime_slug, value, type)
+            results[prime_slug] = result
+
+            # Grouper par type de travaux pour les totaux
+            if result[:calculated_amount] && result[:calculated_amount] > 0
+              work_type = determine_work_type_group_by_slug(prime_slug)
+              totals_by_group[work_type] ||= 0
+              totals_by_group[work_type] += result[:calculated_amount]
+              total_general += result[:calculated_amount]
+            end
+          end
+        end
+
+        Rails.logger.info "💰 Total général Flandre: #{total_general}€"
 
         {
           prime_results: results,
           group_totals: totals_by_group,
-          total_general: totals_by_group.values.sum
+          total_general: total_general
         }
       end
 
@@ -686,6 +743,155 @@ module Regions
       def log_calculation(message, data = nil)
         puts "[Regions::Flandre::FlandrePostLoginCalculatorService] #{message}"
         puts "  Data: #{data}" if data
+      end
+
+      # Calcul spécifique pour la prime PEB Flandre
+      def calculate_peb_prime(peb_data)
+        Rails.logger.info "🏠 Calcul prime PEB avec: #{peb_data.inspect}"
+
+        required_fields = %w[label_initial type_logement label_final ventilation categorie]
+        missing_fields = required_fields.select { |field| peb_data[field].blank? }
+
+        if missing_fields.any?
+          Rails.logger.warn "⚠️ Champs PEB manquants: #{missing_fields.join(', ')}"
+          return {
+            success: false,
+            error: "Champs manquants: #{missing_fields.join(', ')}",
+            montant: 0.0
+          }
+        end
+
+        # Données de calcul PEB pour la Flandre
+        peb_data_matrix = get_peb_data_matrix
+
+        categorie = peb_data['categorie']
+        type_logement = peb_data['type_logement']
+        label_final = peb_data['label_final']
+        ventilation = peb_data['ventilation']
+
+        montant = peb_data_matrix.dig(categorie, type_logement, label_final, ventilation)
+
+        if montant.nil?
+          Rails.logger.warn "⚠️ Aucun montant PEB trouvé pour: cat=#{categorie}, type=#{type_logement}, label=#{label_final}, vent=#{ventilation}"
+          return {
+            success: false,
+            error: "Configuration PEB non trouvée",
+            montant: 0.0
+          }
+        end
+
+        Rails.logger.info "✅ Prime PEB calculée: #{montant}€"
+
+        {
+          success: true,
+          montant: montant.to_f,
+          details: {
+            label_initial: peb_data['label_initial'],
+            label_final: label_final,
+            type_logement: type_logement,
+            ventilation: ventilation,
+            categorie: categorie
+          },
+          type: 'peb'
+        }
+      end
+
+      # Calcul spécifique pour la prime Amiante Flandre
+      def calculate_amiante_prime(amiante_data)
+        Rails.logger.info "☣️ Calcul prime Amiante avec: #{amiante_data.inspect}"
+
+        surface_toiture = amiante_data['surface_toiture'].to_f
+        surface_murs = amiante_data['surface_murs'].to_f
+
+        if surface_toiture <= 0 && surface_murs <= 0
+          Rails.logger.warn "⚠️ Aucune surface spécifiée pour l'amiante"
+          return {
+            success: false,
+            error: "Aucune surface spécifiée",
+            montant: 0.0
+          }
+        end
+
+        # Logique de calcul amiante Flandre
+        # - 8€/m² pour la toiture
+        # - 4€/m² pour les murs si pas de toiture
+        # - 12€/m² pour les murs si toiture incluse
+
+        montant_total = 0.0
+
+        if surface_toiture > 0
+          montant_total += surface_toiture * 8.0 # 8€/m² toiture
+
+          if surface_murs > 0
+            montant_total += surface_murs * 12.0 # 12€/m² murs si toiture incluse
+          end
+        elsif surface_murs > 0
+          montant_total += surface_murs * 4.0 # 4€/m² murs uniquement
+        end
+
+        Rails.logger.info "✅ Prime Amiante calculée: #{montant_total}€ (toiture: #{surface_toiture}m², murs: #{surface_murs}m²)"
+
+        {
+          success: true,
+          montant: montant_total,
+          details: {
+            surface_toiture: surface_toiture,
+            surface_murs: surface_murs,
+            tarif_toiture: 8.0,
+            tarif_murs: surface_toiture > 0 ? 12.0 : 4.0
+          },
+          type: 'amiante'
+        }
+      end
+
+      # Matrice des données PEB pour la Flandre
+      def get_peb_data_matrix
+        {
+          "1" => {
+            "maison" => {
+              "A" => { "avec_ventilation" => 4000, "sans_ventilation" => 3000 },
+              "B" => { "avec_ventilation" => 3000, "sans_ventilation" => 2000 },
+              "C" => { "avec_ventilation" => 2000, "sans_ventilation" => 1000 }
+            },
+            "appartement" => {
+              "A" => { "avec_ventilation" => 3000, "sans_ventilation" => 2250 },
+              "B" => { "avec_ventilation" => 2000, "sans_ventilation" => 1500 }
+            }
+          },
+          "2" => {
+            "maison" => {
+              "A" => { "avec_ventilation" => 5000, "sans_ventilation" => 4000 },
+              "B" => { "avec_ventilation" => 3750, "sans_ventilation" => 3000 },
+              "C" => { "avec_ventilation" => 2500, "sans_ventilation" => 2000 }
+            },
+            "appartement" => {
+              "A" => { "avec_ventilation" => 3750, "sans_ventilation" => 3000 },
+              "B" => { "avec_ventilation" => 2500, "sans_ventilation" => 2000 }
+            }
+          },
+          "3" => {
+            "maison" => {
+              "A" => { "avec_ventilation" => 6000, "sans_ventilation" => 5000 },
+              "B" => { "avec_ventilation" => 4500, "sans_ventilation" => 3750 },
+              "C" => { "avec_ventilation" => 3000, "sans_ventilation" => 2500 }
+            },
+            "appartement" => {
+              "A" => { "avec_ventilation" => 4500, "sans_ventilation" => 3750 },
+              "B" => { "avec_ventilation" => 3000, "sans_ventilation" => 2500 }
+            }
+          },
+          "4" => {
+            "maison" => {
+              "A" => { "avec_ventilation" => 7000, "sans_ventilation" => 6000 },
+              "B" => { "avec_ventilation" => 5250, "sans_ventilation" => 4500 },
+              "C" => { "avec_ventilation" => 3500, "sans_ventilation" => 3000 }
+            },
+            "appartement" => {
+              "A" => { "avec_ventilation" => 5250, "sans_ventilation" => 4500 },
+              "B" => { "avec_ventilation" => 3500, "sans_ventilation" => 3000 }
+            }
+          }
+        }
       end
     end
   end

@@ -88,21 +88,25 @@ export default class extends Controller {
   // Gestion du changement de label initial
   labelInitialChanged() {
     this.calculerMontant()
+    this.triggerAutoSave()
   }
 
   // Gestion du changement de type de logement
   typeLogementChanged() {
     this.calculerMontant()
+    this.triggerAutoSave()
   }
 
   // Gestion du changement de label final
   labelFinalChanged() {
     this.calculerMontant()
+    this.triggerAutoSave()
   }
 
   // Gestion du changement de ventilation
   ventilationChanged() {
     this.calculerMontant()
+    this.triggerAutoSave()
   }
 
   // Mise à jour des options de label selon le type de logement
@@ -254,6 +258,25 @@ export default class extends Controller {
     console.log("💰 Total mis à jour (fallback):", { totalPrimesNormales, montantPEB, totalFinal })
   }
 
+  // Nouvelle méthode : Déclencher la sauvegarde automatique
+  triggerAutoSave() {
+    // Essayer de déclencher la sauvegarde via le contrôleur Flandre
+    const flandreController = document.querySelector('[data-controller="flandre-simulation"]')
+
+    if (flandreController) {
+      const controller = this.application.getControllerForElementAndIdentifier(flandreController, 'flandre-simulation')
+
+      if (controller && typeof controller.triggerSave === 'function') {
+        console.log("💾 PEB: Déclenchement sauvegarde automatique...")
+
+        // Délai pour permettre à l'affichage de se mettre à jour
+        setTimeout(() => {
+          controller.triggerSave()
+        }, 500)
+      }
+    }
+  }
+
   // Fonction utilitaire pour capitaliser la première lettre
   capitalizeFirst(str) {
     return str.charAt(0).toUpperCase() + str.slice(1)
@@ -283,5 +306,48 @@ export default class extends Controller {
     }
 
     return { valid: true }
+  }
+
+  // Méthode pour restaurer les données PEB sauvegardées
+  restoreData(pebData) {
+    console.log("🔄 Restauration données PEB:", pebData)
+
+    if (!pebData) {
+      console.log("❌ Aucune donnée PEB à restaurer")
+      return
+    }
+
+    try {
+      // Restaurer les valeurs des selects
+      if (pebData.label_initial && this.hasLabelInitialTarget) {
+        this.labelInitialTarget.value = pebData.label_initial
+        console.log(`✅ Label initial restauré: ${pebData.label_initial}`)
+      }
+
+      if (pebData.type_logement && this.hasTypeLogementTarget) {
+        this.typeLogementTarget.value = pebData.type_logement
+        console.log(`✅ Type logement restauré: ${pebData.type_logement}`)
+      }
+
+      if (pebData.ventilation && this.hasVentilationTarget) {
+        this.ventilationTarget.value = pebData.ventilation
+        console.log(`✅ Ventilation restaurée: ${pebData.ventilation}`)
+      }
+
+      if (pebData.label_final && this.hasLabelFinalTarget) {
+        this.labelFinalTarget.value = pebData.label_final
+        console.log(`✅ Label final restauré: ${pebData.label_final}`)
+      }
+
+      // Déclencher le calcul avec un délai pour laisser le temps à l'affichage
+      setTimeout(() => {
+        console.log("🔄 Recalcul PEB après restauration...")
+        this.calculerMontant()
+      }, 100)
+
+      console.log("✅ Restauration PEB terminée")
+    } catch (error) {
+      console.error("❌ Erreur lors de la restauration PEB:", error)
+    }
   }
 }

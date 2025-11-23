@@ -127,20 +127,20 @@
               <!-- Options d'upload -->
               <div class="upload-options mb-3">
                 <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" name="upload_mode" id="upload_normal" value="normal" checked>
+                  <input class="form-check-input" type="radio" name="upload_mode" id="upload_normal" value="normal" <%= @ocr_mode ? '' : 'checked' %>>
                   <label class="form-check-label" for="upload_normal">
                     <i class="bi bi-cloud-upload me-1"></i>Upload normal
                   </label>
                 </div>
                 <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="radio" name="upload_mode" id="upload_ocr" value="ocr">
+                  <input class="form-check-input" type="radio" name="upload_mode" id="upload_ocr" value="ocr" <%= @ocr_mode ? 'checked' : '' %>>
                   <label class="form-check-label" for="upload_ocr">
                     <i class="bi bi-eye me-1"></i>Scan OCR + Upload
                   </label>
                 </div>
               </div>
 
-              <div class="upload-zone" id="upload-zone" data-controller="document-preview">
+              <div class="upload-zone" id="upload-zone">
                 <div class="upload-content">
                   <i class="bi bi-cloud-upload upload-icon" id="upload-icon"></i>
                   <h6 class="upload-title" id="upload-title">Glissez-déposez vos fichiers ici</h6>
@@ -156,18 +156,14 @@
                     class: "upload-input",
                     accept: ".pdf,.jpg,.jpeg,.png,.gif,.webp,.doc,.docx,.xls,.xlsx",
                     multiple: true,
-                    required: true,
-                    data: {
-                      "document-preview-target": "input",
-                      action: "change->document-preview#previewFile"
-                    } %>
+                    required: true %>
                 <div class="invalid-feedback">
                   Veuillez sélectionner au moins un fichier.
                 </div>
               </div>
 
               <!-- Prévisualisation du fichier améliorée -->
-              <div data-document-preview-target="previewContainer" style="display: none;">
+              <div id="file-preview" style="display: none;">
                 <div class="card mt-3">
                   <div class="card-header">
                     <h6 class="mb-0">
@@ -175,7 +171,7 @@
                     </h6>
                   </div>
                   <div class="card-body">
-                    <div data-document-preview-target="preview">
+                    <div id="preview-content">
                       <!-- Le contenu de la prévisualisation sera inséré ici par JavaScript -->
                     </div>
                   </div>
@@ -453,14 +449,19 @@ document.addEventListener('turbo:load', function() {
   const copyOcrBtn = document.getElementById('copy-ocr-text');
 
   let currentOcrText = '';
-  let isOcrMode = false;
+  let isOcrMode = <%= @ocr_mode ? 'true' : 'false' %>;
 
   if (!uploadZone || !fileInput) return;
+
+  // Initialisation du mode OCR basé sur l'URL
+  console.log('🔍 Mode OCR initial:', isOcrMode);
+  updateUploadZoneAppearance();
 
   // Gestion du changement de mode upload
   uploadModeRadios.forEach(radio => {
     radio.addEventListener('change', function() {
       isOcrMode = this.value === 'ocr';
+      console.log('🔄 Changement de mode OCR:', isOcrMode);
       updateUploadZoneAppearance();
     });
   });
@@ -514,31 +515,36 @@ document.addEventListener('turbo:load', function() {
     const fileNames = filesArray.map(file => file.name).join(', ');
 
     uploadZone.style.display = 'none';
-    filePreview.style.display = 'block';
+    if (filePreview) {
+      filePreview.style.display = 'block';
 
-    filePreview.innerHTML = `
-      <div class="multiple-files-preview">
-        <div class="d-flex align-items-center mb-3">
-          <i class="bi bi-files text-primary me-2" style="font-size: 2rem;"></i>
-          <div>
-            <h6 class="mb-1">${files.length} fichier(s) sélectionné(s)</h6>
-            <p class="text-muted mb-0 small">${fileNames}</p>
+      filePreview.innerHTML = `
+        <div class="multiple-files-preview">
+          <div class="d-flex align-items-center mb-3">
+            <i class="bi bi-files text-primary me-2" style="font-size: 2rem;"></i>
+            <div>
+              <h6 class="mb-1">${files.length} fichier(s) sélectionné(s)</h6>
+              <p class="text-muted mb-0 small">${fileNames}</p>
+            </div>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="change-files">
+              <i class="bi bi-arrow-repeat me-1"></i>Changer
+            </button>
           </div>
         </div>
-        <div class="d-flex gap-2">
-          <button type="button" class="btn btn-sm btn-outline-secondary" id="change-files">
-            <i class="bi bi-arrow-repeat me-1"></i>Changer
-          </button>
-        </div>
-      </div>
-    `;
+      `;
 
-    // Handler pour changer les fichiers
-    document.getElementById('change-files').addEventListener('click', function() {
-      fileInput.value = '';
-      filePreview.style.display = 'none';
-      uploadZone.style.display = 'block';
-    });
+      // Handler pour changer les fichiers
+      const changeFilesBtn = document.getElementById('change-files');
+      if (changeFilesBtn) {
+        changeFilesBtn.addEventListener('click', function() {
+          fileInput.value = '';
+          filePreview.style.display = 'none';
+          uploadZone.style.display = 'block';
+        });
+      }
+    }
   }
 
   // Drag & Drop handlers
@@ -563,27 +569,27 @@ document.addEventListener('turbo:load', function() {
     }
   });
 
-  // Click handler
-  uploadZone.addEventListener('click', function() {
+  // Click handler - éviter les conflits avec le contrôleur Stimulus
+  uploadZone.addEventListener('click', function(e) {
+    // Éviter de déclencher si le clic vient du file input lui-même
+    if (e.target === fileInput) return;
+
+    e.preventDefault();
+    e.stopPropagation();
     fileInput.click();
   });
 
-  // File selection handler
+  // File selection handler - éviter les doubles événements
   fileInput.addEventListener('change', function(e) {
+    e.stopPropagation();
     if (e.target.files.length > 0) {
+      console.log('📁 Fichier(s) sélectionné(s):', e.target.files.length);
       handleMultipleFileSelect(e.target.files);
     }
   });
 
-  // Remove file handler
-  if (removeFileBtn) {
-    removeFileBtn.addEventListener('click', function() {
-      fileInput.value = '';
-      filePreview.style.display = 'none';
-      uploadZone.style.display = 'block';
-      hideOcrResult();
-    });
-  }
+  // Remove file handler - géré maintenant dans displayFilePreview et showMultipleFilesPreview
+  // Plus besoin d'un gestionnaire séparé
 
   // OCR buttons handlers
   if (copyOcrBtn) {
@@ -638,14 +644,39 @@ document.addEventListener('turbo:load', function() {
   }
 
   function displayFilePreview(file) {
-    const fileName = filePreview.querySelector('.file-name');
-    const fileSize = filePreview.querySelector('.file-size');
+    if (filePreview) {
+      const previewContent = document.getElementById('preview-content');
+      if (previewContent) {
+        previewContent.innerHTML = `
+          <div class="d-flex align-items-center mb-3">
+            <i class="bi bi-file-earmark text-primary me-2" style="font-size: 2rem;"></i>
+            <div>
+              <h6 class="mb-1 file-name">${file.name}</h6>
+              <p class="text-muted mb-0 small file-size">${formatFileSize(file.size)}</p>
+            </div>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary" id="change-file">
+              <i class="bi bi-arrow-repeat me-1"></i>Changer
+            </button>
+          </div>
+        `;
 
-    fileName.textContent = file.name;
-    fileSize.textContent = formatFileSize(file.size);
+        // Handler pour changer le fichier
+        const changeFileBtn = document.getElementById('change-file');
+        if (changeFileBtn) {
+          changeFileBtn.addEventListener('click', function() {
+            fileInput.value = '';
+            filePreview.style.display = 'none';
+            uploadZone.style.display = 'block';
+            hideOcrResult();
+          });
+        }
+      }
 
-    uploadZone.style.display = 'none';
-    filePreview.style.display = 'block';
+      uploadZone.style.display = 'none';
+      filePreview.style.display = 'block';
+    }
   }
 
   function performOCR(file) {

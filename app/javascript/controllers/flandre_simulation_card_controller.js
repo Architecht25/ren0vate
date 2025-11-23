@@ -13,6 +13,12 @@ export default class extends Controller {
     // Écouter les événements de recalcul forcé
     this.element.addEventListener('flandre:force:recalculate', this.forceRecalculate.bind(this))
 
+    // AJOUT CRUCIAL: Écouter les changements sur l'input de cette carte
+    if (this.hasInputTarget) {
+      this.inputTarget.addEventListener('input', this.handleInputChange.bind(this))
+      this.inputTarget.addEventListener('change', this.handleInputChange.bind(this))
+    }
+
     // Mettre à jour le placeholder initial avec délai pour attendre les données
     setTimeout(() => {
       this.updatePlaceholder()
@@ -28,6 +34,33 @@ export default class extends Controller {
   disconnect() {
     this.element.removeEventListener('flandre:category:changed', this.recalculate.bind(this))
     this.element.removeEventListener('flandre:force:recalculate', this.forceRecalculate.bind(this))
+
+    // Nettoyer les écouteurs d'input
+    if (this.hasInputTarget) {
+      this.inputTarget.removeEventListener('input', this.handleInputChange.bind(this))
+      this.inputTarget.removeEventListener('change', this.handleInputChange.bind(this))
+    }
+  }
+
+  // Méthode cruciale manquante: gérer les changements d'input
+  handleInputChange(event) {
+    console.log(`📝 Input changé pour ${this.slugValue}:`, event.target.value)
+
+    // Recalculer immédiatement quand l'utilisateur change la valeur
+    this.calculate()
+
+    // Déclencher une sauvegarde via le controller parent
+    const parentController = this.application.getControllerForElementAndIdentifier(
+      document.querySelector('[data-controller*="flandre-simulation"]'),
+      'flandre-simulation'
+    )
+    if (parentController) {
+      // Utiliser un debounce pour éviter les sauvegardes trop fréquentes
+      clearTimeout(this.saveTimeout)
+      this.saveTimeout = setTimeout(() => {
+        parentController.saveAndCalculateAll()
+      }, 500)
+    }
   }
 
   forceRecalculate() {
@@ -112,6 +145,10 @@ export default class extends Controller {
 
     const currentCategory = parentController.getCurrentCategory()
     console.log(`📊 Données pour ${this.slugValue} - catégorie: ${currentCategory}`)
+
+    // DEBUG: Affichons la structure exacte des données de primes
+    console.log(`🔍 Structure primesData:`, Object.keys(primesData))
+    console.log(`🔍 Premier objet prime:`, primesData[Object.keys(primesData)[0]])
 
     // Trouver la prime correspondante
     const prime = primesData[this.slugValue]

@@ -20,10 +20,22 @@ export default class extends Controller {
     console.log("📊 Simulation ID:", this.simulationIdValue)
     console.log("🔍 Element:", this.element)
 
+    // Vérifier si nous sommes sur une page avec des cartes de primes
+    const hasCards = this.element.querySelector('[data-flandre-simulation-card-slug-value]')
+
+    if (!hasCards) {
+      console.log("⚠️ Aucune carte de prime trouvée, arrêt du controller Flandre")
+      return
+    }
+
+    console.log("✅ Cartes de primes détectées, initialisation du controller")
+
     this.currentCategory = this.getCurrentCategory()
     this.setupPrimesData()
     this.setupGroupesPlafond()
-    this.setupAutoSaveListeners()
+
+    // Restaurer les données sauvegardées
+    this.restoreSavedData()
 
     // Debug: vérifier quelles cartes sont présentes
     setTimeout(() => {
@@ -55,7 +67,6 @@ export default class extends Controller {
       })
 
       this.updateTotalGlobal()
-      this.debouncedAutoSave() // Déclencher l'auto-save
     }, 1000)
   }
 
@@ -141,6 +152,14 @@ export default class extends Controller {
   }
 
   updateTotalGlobal() {
+    // Vérifier si nous avons des cartes de primes sur cette page
+    const hasCards = this.element.querySelector('[data-flandre-simulation-card-slug-value]')
+
+    if (!hasCards) {
+      console.log("⚠️ Pas de cartes de primes sur cette page, calcul du total ignoré")
+      return
+    }
+
     let total = 0
     console.log("🔄 Calcul du total global Flandre...")
 
@@ -173,7 +192,22 @@ export default class extends Controller {
         const totalElement = carteElement.querySelector('[data-flandre-simulation-card-target="result"]')
         if (totalElement) {
           cartesWithTotal++
-          const montantText = totalElement.textContent.replace('€', '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.')
+
+          // Parser le montant des cartes (format: "1.275,00€" ou "320,00€")
+          let montantText = totalElement.textContent.replace('€', '').replace(/\s/g, '')
+
+          // Si c'est au format "1.275,00" (avec points de milliers), convertir en "1275.00"
+          if (montantText.match(/^\d{1,3}(\.\d{3})*,\d{2}$/)) {
+            // Retirer les points de milliers et remplacer virgule par point
+            const parts = montantText.split(',')
+            const decimales = parts[1] // Partie après la virgule = décimales
+            const entier = parts[0].replace(/\./g, '') // Partie avant la virgule sans points
+            montantText = entier + '.' + decimales
+          } else {
+            // Format simple, juste remplacer virgule par point
+            montantText = montantText.replace(',', '.')
+          }
+
           const montant = parseFloat(montantText) || 0
           total += montant
           if (montant > 0) {
@@ -221,8 +255,19 @@ export default class extends Controller {
         const montantText = pebMontant.textContent.trim()
         console.log(`🔍 Texte PEB brut: "${montantText}"`)
 
-        // Améliorer le parsing du montant PEB
-        const cleanText = montantText.replace(/[€\s\.]/g, '').replace(',', '.')
+        // Parser le montant PEB (format: "200.00 €")
+        // Supprimer € et espaces, garder le point décimal
+        let cleanText = montantText.replace(/[€\s]/g, '')
+
+        // Si c'est au format "1.234.56" (avec points de milliers), convertir en "1234.56"
+        if (cleanText.match(/^\d{1,3}(\.\d{3})*\.\d{2}$/)) {
+          // Retirer les points de milliers mais garder le point décimal
+          const parts = cleanText.split('.')
+          const decimales = parts.pop() // Dernière partie = décimales
+          const entier = parts.join('') // Parties précédentes = entier
+          cleanText = entier + '.' + decimales
+        }
+
         montantPEB = parseFloat(cleanText) || 0
 
         if (montantPEB > 0) {
@@ -242,7 +287,51 @@ export default class extends Controller {
       }
     }
 
-    console.log(`🎯 Total global Flandre calculé: ${total}€${montantPEB > 0 ? ` (dont PEB: ${montantPEB}€)` : ''}`)
+    // Ajouter le montant Amiante s'il est visible
+    let montantAmiante = 0
+    console.log("🔍 Recherche de la carte Amiante...")
+
+    const amianteContainer = document.querySelector('[data-controller="amiante"]')
+    if (amianteContainer) {
+      console.log("✅ Conteneur Amiante trouvé")
+      const amianteMontant = amianteContainer.querySelector('[data-amiante-target="result"]')
+      if (amianteMontant) {
+        const montantText = amianteMontant.textContent.trim()
+        console.log(`🔍 Texte Amiante brut: "${montantText}"`)
+
+        // Parser le montant amiante (format: "4000.00 €")
+        // Supprimer € et espaces, garder le point décimal
+        let cleanText = montantText.replace(/[€\s]/g, '')
+
+        // Si c'est au format "1.234.56" (avec points de milliers), convertir en "1234.56"
+        if (cleanText.match(/^\d{1,3}(\.\d{3})*\.\d{2}$/)) {
+          // Retirer les points de milliers mais garder le point décimal
+          const parts = cleanText.split('.')
+          const decimales = parts.pop() // Dernière partie = décimales
+          const entier = parts.join('') // Parties précédentes = entier
+          cleanText = entier + '.' + decimales
+        }
+
+        montantAmiante = parseFloat(cleanText) || 0
+
+        if (montantAmiante > 0) {
+          total += montantAmiante
+          console.log(`☣️ Prime Amiante: ${montantAmiante}€`)
+        } else {
+          console.log(`⚪ Prime Amiante: 0€ (texte: "${montantText}")`)
+        }
+      } else {
+        console.log("❌ Élément result Amiante non trouvé")
+      }
+    } else {
+      console.log("❌ Conteneur Amiante non trouvé dans le DOM")
+    }
+
+    const totalMessage = []
+    if (montantPEB > 0) totalMessage.push(`PEB: ${montantPEB}€`)
+    if (montantAmiante > 0) totalMessage.push(`Amiante: ${montantAmiante}€`)
+
+    console.log(`🎯 Total global Flandre calculé: ${total}€${totalMessage.length > 0 ? ` (dont ${totalMessage.join(', ')})` : ''}`)
 
     // Mettre à jour l'affichage du total
     if (this.hasTotalGeneralTarget) {
@@ -268,6 +357,12 @@ export default class extends Controller {
 
     // Mettre à jour le résumé des primes sélectionnées
     this.updateSelectedPrimesSummary()
+
+    // Déclencher l'auto-save pour sauvegarder le nouveau total incluant PEB et amiante
+    if (this.simulationIdValue) {
+      console.log("💾 Déclenchement auto-save après mise à jour total global")
+      this.debouncedAutoSave()
+    }
   }
 
   // Méthode appelée par les cartes enfants pour notifier un changement
@@ -381,6 +476,14 @@ export default class extends Controller {
 
   // Méthode d'auto-save complète
   autoSave() {
+    // Vérifier si nous avons des cartes de primes sur cette page
+    const hasCards = this.element.querySelector('[data-flandre-simulation-card-slug-value]')
+
+    if (!hasCards) {
+      console.log("⚠️ Pas de cartes de primes sur cette page, auto-save ignoré")
+      return
+    }
+
     // Vérifier si la restauration est en cours
     if (window.isRestoringValues) {
       console.log('🔄 Sauvegarde Flandre ignorée: restauration en cours');
@@ -427,7 +530,7 @@ export default class extends Controller {
       // Calculer le total côté client pour l'envoyer aussi
       const calculatedTotal = this.calculateCurrentTotal();
 
-      fetch(`/fr/simulations/${this.simulationId}/update_prime_inputs`, {
+      fetch(`/fr/simulations/${this.simulationIdValue}/update_prime_inputs`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -450,15 +553,15 @@ export default class extends Controller {
           // Déclencher l'événement pour mettre à jour le composant d'économie
           this.dispatchSavingsUpdateEvent(data);
 
-          this.showSaveIndicator('success', data.total_amount);
+          // Encart de confirmation supprimé
         } else {
           console.error("❌ Erreur auto-save Flandre:", data.error);
-          this.showSaveIndicator('error');
+          // Encart d'erreur supprimé
         }
       })
       .catch(error => {
         console.error("❌ Erreur auto-save Flandre:", error);
-        this.showSaveIndicator('error');
+        // Encart d'erreur supprimé
       });
     }
   }
@@ -483,20 +586,89 @@ export default class extends Controller {
       'renovation_sol'
     ]
 
-    // Calculer le total en parcourant toutes les cartes
+    // Calculer le total des cartes normales
     cartesSlugs.forEach(slug => {
       const carteElement = document.querySelector(`[data-flandre-simulation-card-slug-value="${slug}"]`)
       if (carteElement) {
         const totalElement = carteElement.querySelector('[data-flandre-simulation-card-target="result"]')
         if (totalElement) {
-          const montantText = totalElement.textContent.replace('€', '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.')
+          // Parser le montant des cartes (format: "1.275,00€" ou "320,00€")
+          let montantText = totalElement.textContent.replace('€', '').replace(/\s/g, '')
+
+          // Si c'est au format "1.275,00" (avec points de milliers), convertir en "1275.00"
+          if (montantText.match(/^\d{1,3}(\.\d{3})*,\d{2}$/)) {
+            // Retirer les points de milliers et remplacer virgule par point
+            const parts = montantText.split(',')
+            const decimales = parts[1] // Partie après la virgule = décimales
+            const entier = parts[0].replace(/\./g, '') // Partie avant la virgule sans points
+            montantText = entier + '.' + decimales
+          } else {
+            // Format simple, juste remplacer virgule par point
+            montantText = montantText.replace(',', '.')
+          }
+
           const montant = parseFloat(montantText) || 0
           total += montant
         }
       }
     })
 
-    console.log(`📊 Total calculé côté client: ${total} €`)
+    // Ajouter le montant PEB s'il est visible
+    const pebSelectors = [
+      '[data-peb-target="resultatContainer"]',
+      '[data-controller="peb"] [data-peb-target="resultatContainer"]',
+      '.alert[data-peb-target="resultatContainer"]'
+    ]
+
+    let pebContainer = null
+    for (const selector of pebSelectors) {
+      pebContainer = document.querySelector(selector)
+      if (pebContainer) break
+    }
+
+    if (pebContainer && !pebContainer.classList.contains('d-none')) {
+      const pebMontantElement = pebContainer.querySelector('.fw-bold')
+      if (pebMontantElement) {
+        let montantText = pebMontantElement.textContent.replace(/[€\s]/g, '')
+
+        // Format français "4.000,00" vers "4000.00"
+        if (montantText.match(/^\d{1,3}(\.\d{3})*,\d{2}$/)) {
+          const parts = montantText.split(',')
+          const decimales = parts[1]
+          const entier = parts[0].replace(/\./g, '')
+          montantText = entier + '.' + decimales
+        } else {
+          montantText = montantText.replace(',', '.')
+        }
+
+        const montantPEB = parseFloat(montantText) || 0
+        total += montantPEB
+      }
+    }
+
+    // Ajouter le montant amiante s'il est visible
+    const amianteContainer = document.querySelector('[data-amiante-target="resultatContainer"]')
+    if (amianteContainer && !amianteContainer.classList.contains('d-none')) {
+      const amianteMontantElement = amianteContainer.querySelector('.fw-bold')
+      if (amianteMontantElement) {
+        let montantText = amianteMontantElement.textContent.replace(/[€\s]/g, '')
+
+        // Format français "1.000,00" vers "1000.00"
+        if (montantText.match(/^\d{1,3}(\.\d{3})*,\d{2}$/)) {
+          const parts = montantText.split(',')
+          const decimales = parts[1]
+          const entier = parts[0].replace(/\./g, '')
+          montantText = entier + '.' + decimales
+        } else {
+          montantText = montantText.replace(',', '.')
+        }
+
+        const montantAmiante = parseFloat(montantText) || 0
+        total += montantAmiante
+      }
+    }
+
+    console.log(`💰 Total complet calculé côté client (primes + PEB + amiante): ${total} €`)
     return total;
   }
 
@@ -504,37 +676,6 @@ export default class extends Controller {
   debouncedAutoSave() {
     clearTimeout(this.saveTimeout);
     this.saveTimeout = setTimeout(() => this.autoSave(), 1000);
-  }
-
-  // Indicateur visuel de sauvegarde
-  showSaveIndicator(status, amount = null) {
-    const indicator = document.getElementById('save-indicator') || this.createSaveIndicator();
-
-    const message = status === 'success'
-      ? `Simulation sauvegardée ! Total calculé: ${amount}€`
-      : 'Erreur sauvegarde simulation'
-
-    indicator.className = `position-fixed top-0 end-0 m-3 alert alert-${status === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
-    indicator.style.zIndex = '9999';
-    indicator.innerHTML = `
-      <i class="bi bi-${status === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>
-      ${message}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
-
-    // Masquer automatiquement après 3 secondes
-    setTimeout(() => {
-      if (indicator.parentNode) {
-        indicator.remove();
-      }
-    }, 3000);
-  }
-
-  createSaveIndicator() {
-    const indicator = document.createElement('div');
-    indicator.id = 'save-indicator';
-    document.body.appendChild(indicator);
-    return indicator;
   }
 
   // Méthode pour mettre à jour l'affichage de la catégorie
@@ -636,5 +777,284 @@ export default class extends Controller {
     const montantFinal = Math.min(montantPropose, plafondRestant)
 
     return { montant: montantFinal, resteDisponible: plafondRestant }
+  }
+
+  // Nouvelle méthode : Sauvegarder et calculer toutes les données Flandre (PEB/Amiante inclus)
+  async saveAndCalculateAll() {
+    console.log("💾 Sauvegarde et calcul de toutes les données Flandre")
+
+    const pebData = this.collectPebData()
+    const amianteData = this.collectAmianteData()
+    const primesData = this.collectPrimesData()
+
+    const userInputs = {}
+
+    if (pebData && this.isValidPebData(pebData)) {
+      userInputs.peb = pebData
+    }
+
+    if (amianteData && this.isValidAmianteData(amianteData)) {
+      userInputs.amiante = amianteData
+    }
+
+    if (primesData && Object.keys(primesData).length > 0) {
+      userInputs.primes = primesData
+    }
+
+    console.log("📊 Données à envoyer:", userInputs)
+
+    if (Object.keys(userInputs).length === 0) {
+      console.log("⚠️ Aucune donnée valide à sauvegarder")
+      return
+    }
+
+    try {
+      const response = await fetch(`/fr/simulations/${this.simulationIdValue}/update_prime_inputs`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content'),
+          'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: JSON.stringify({
+          user_inputs: userInputs
+        })
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        console.log("✅ Réponse serveur:", result)
+
+        if (result.success) {
+          // Mettre à jour les cartes avec les résultats serveur
+          this.updateCardsFromServerResponse(result)
+          // Le total global sera recalculé automatiquement par updateCardsFromServerResponse
+          console.log("✅ Données sauvegardées et calculées avec succès")
+        } else {
+          console.error("❌ Erreur serveur:", result.message)
+        }
+      } else {
+        console.error("❌ Erreur HTTP:", response.status)
+      }
+    } catch (error) {
+      console.error("❌ Erreur lors de la sauvegarde:", error)
+    }
+  }
+
+  // Collecter les données PEB
+  collectPebData() {
+    const labelInitial = document.getElementById('label_initial_peb')?.value
+    const typeLogement = document.getElementById('type_logement_peb')?.value
+    const ventilation = document.getElementById('ventilation_peb')?.value
+    const labelFinal = document.getElementById('label_final_peb')?.value
+
+    // Récupérer la catégorie depuis l'élément PEB ou la simulation
+    const pebElement = document.querySelector('[data-controller="peb"]')
+    const categorie = pebElement?.dataset?.pebCategorieValue || this.categoryValue || '3'
+
+    if (!labelInitial || !typeLogement || !ventilation || !labelFinal) {
+      return null
+    }
+
+    return {
+      label_initial: labelInitial,
+      type_logement: typeLogement,
+      ventilation: ventilation,
+      label_final: labelFinal,
+      categorie: categorie
+    }
+  }
+
+  // Collecter les données Amiante
+  collectAmianteData() {
+    const surfaceToiture = parseFloat(document.getElementById('surface_toiture_amiante')?.value) || 0
+    const surfaceMurs = parseFloat(document.getElementById('surface_murs_amiante')?.value) || 0
+
+    if (surfaceToiture <= 0 && surfaceMurs <= 0) {
+      return null
+    }
+
+    return {
+      surface_toiture: surfaceToiture,
+      surface_murs: surfaceMurs
+    }
+  }
+
+  // Collecter les données des primes normales
+  collectPrimesData() {
+    const primesData = {}
+
+    // Rechercher tous les éléments de prime avec une valeur
+    const primeInputs = document.querySelectorAll('[data-flandre-simulation-card-target="input"]')
+
+    primeInputs.forEach(input => {
+      const value = parseFloat(input.value) || 0
+      if (value > 0) {
+        const card = input.closest('[data-flandre-simulation-card-slug-value]')
+        const slug = card?.dataset?.flandreSimulationCardSlugValue
+
+        if (slug) {
+          primesData[slug] = {
+            value: value,
+            type: input.dataset.type || null
+          }
+        }
+      }
+    })
+
+    return primesData
+  }
+
+  // Valider les données PEB
+  isValidPebData(data) {
+    return data &&
+           data.label_initial &&
+           data.type_logement &&
+           data.ventilation &&
+           data.label_final &&
+           data.categorie
+  }
+
+  // Valider les données Amiante
+  isValidAmianteData(data) {
+    return data &&
+           (data.surface_toiture > 0 || data.surface_murs > 0)
+  }
+
+  // Restaurer les données sauvegardées depuis la base de données
+  async restoreSavedData() {
+    console.log("🔄 === DÉBUT RESTAURATION ===")
+    console.log("🔍 simulationIdValue:", this.simulationIdValue)
+
+    if (!this.simulationIdValue) {
+      console.log("⚠️ Pas de simulation ID pour la restauration")
+      return
+    }
+
+    try {
+      console.log("📡 Envoi requête de restauration...")
+      const response = await fetch(`/fr/simulations/${this.simulationIdValue}/restore_prime_inputs`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+
+      console.log("📥 Réponse reçue, status:", response.status)
+
+      if (response.ok) {
+        const result = await response.json()
+        console.log("✅ Données brutes reçues:", result)
+
+        if (result.success && result.user_inputs) {
+          console.log("🎯 user_inputs trouvés:", result.user_inputs)
+
+          // Restaurer les données PEB
+          if (result.user_inputs.peb) {
+            console.log("🏠 Restauration PEB:", result.user_inputs.peb)
+            this.restorePebData(result.user_inputs.peb)
+          }
+
+          // Restaurer les données Amiante
+          if (result.user_inputs.amiante) {
+            console.log("☣️ Restauration Amiante:", result.user_inputs.amiante)
+            this.restoreAmianteData(result.user_inputs.amiante)
+          }
+
+          // Restaurer les autres données de primes
+          Object.keys(result.user_inputs).forEach(slug => {
+            if (slug !== 'peb' && slug !== 'amiante') {
+              console.log(`🔧 Restauration prime ${slug}:`, result.user_inputs[slug])
+              this.restorePrimeInput(slug, result.user_inputs[slug])
+            }
+          })
+
+          // Recalculer après restauration
+          setTimeout(() => {
+            this.updateTotalGlobal()
+          }, 500)
+        }
+      } else {
+        console.log("⚠️ Erreur lors de la restauration:", response.status)
+      }
+    } catch (error) {
+      console.error("❌ Erreur restauration:", error)
+    }
+  }
+
+  // Restaurer les données PEB
+  restorePebData(pebData) {
+    console.log("🏠 Restauration données PEB:", pebData)
+
+    // Trouver et déclencher le controller PEB
+    const pebController = this.application.getControllerForElementAndIdentifier(
+      this.element.querySelector('[data-controller*="peb"]'), 'peb'
+    )
+
+    if (pebController && pebController.restoreData) {
+      pebController.restoreData(pebData)
+    }
+  }
+
+  // Restaurer les données Amiante
+  restoreAmianteData(amianteData) {
+    console.log("🏗️ Restauration données Amiante:", amianteData)
+
+    // Trouver et déclencher le controller Amiante
+    const amianteController = this.application.getControllerForElementAndIdentifier(
+      this.element.querySelector('[data-controller*="amiante"]'), 'amiante'
+    )
+
+    if (amianteController && amianteController.restoreData) {
+      amianteController.restoreData(amianteData)
+    }
+  }
+
+  // Restaurer une donnée de prime normale
+  restorePrimeInput(slug, value) {
+    console.log(`🔄 Restauration ${slug}:`, value)
+
+    // Chercher l'input dans la carte correspondante
+    const cardElement = this.element.querySelector(`[data-flandre-simulation-card-slug-value="${slug}"]`)
+    if (cardElement) {
+      const input = cardElement.querySelector('[data-flandre-simulation-card-target="input"]')
+      if (input) {
+        input.value = value
+        console.log(`✅ Valeur ${value} restaurée pour ${slug}`)
+        // Déclencher les événements pour mettre à jour l'affichage et recalculer
+        input.dispatchEvent(new Event('input', { bubbles: true }))
+      } else {
+        console.warn(`❌ Input non trouvé pour ${slug}`)
+      }
+    } else {
+      console.warn(`❌ Carte non trouvée pour ${slug}`)
+    }
+  }
+
+  // Méthode pour mettre à jour le total général affiché
+  updateTotalGeneral(totalAmount) {
+    console.log(`🎯 Mise à jour du total général: ${totalAmount}€`)
+
+    if (this.hasTotalGeneralTarget) {
+      // Formater le montant avec séparateurs de milliers
+      const formattedAmount = new Intl.NumberFormat('fr-FR', {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(totalAmount || 0)
+
+      this.totalGeneralTarget.textContent = formattedAmount
+      console.log(`✅ Total général mis à jour: ${formattedAmount}`)
+    } else {
+      console.error(`❌ Target totalGeneral non trouvé!`)
+    }
+  }
+
+  // Méthode publique pour déclencher la sauvegarde depuis les contrôleurs PEB/Amiante
+  triggerSave() {
+    this.saveAndCalculateAll()
   }
 }
