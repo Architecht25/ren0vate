@@ -74,7 +74,9 @@ module FlandrePrimesHelper
       Rails.logger.debug "🔍 Étape 1: Détermination catégorie"
       # Utiliser le service Flandre pour déterminer la vraie catégorie
       begin
-        category_service = Regions::Flandre::FlandreCategoryService.new({}, user: simulation.user)
+        # Passer les params nécessaires au service
+        params = { property_id: simulation.property_id, project_id: simulation.project_id }
+        category_service = Regions::Flandre::FlandreCategoryService.new(params, user: simulation.user)
         category_result = category_service.determine_category
         
         if category_result[:eligible] && category_result[:category]
