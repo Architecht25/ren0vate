@@ -89,35 +89,38 @@ module FlandrePrimesHelper
       Rails.logger.debug "🔍 Étape 4: Placeholders obtenus = #{placeholders.keys}"
 
       Rails.logger.debug "🔍 Étape 5: Création primes_data"
-      primes_data = {
-        category: category,
-        placeholders: placeholders,
-        primes: {}
-      }
+      primes_data = {}
 
       Rails.logger.debug "🔍 Étape 6: Boucle sur les primes"
       Prime.where(region: 'flandre').each do |prime|
         Rails.logger.debug "🔍 Traitement prime: #{prime.slug}"
-        primes_data[:primes][prime.slug] = {
+        primes_data[prime.slug] = {
           id: prime.id,
-          code: prime.slug,
-          name: prime.titre,
-          calculation_data: prime.valeurs_par_categorie || {}
+          slug: prime.slug,
+          titre: prime.titre,
+          valeurs_par_categorie: prime.valeurs_par_categorie || {},
+          placeholder: placeholders[prime.slug] || {}
         }
       end
 
-      Rails.logger.debug "🔍 Étape 7: Retour des données"
+      Rails.logger.debug "🔍 Étape 7: Retour des données avec #{primes_data.keys.count} primes"
       return primes_data
 
     rescue => e
       Rails.logger.error "🔥 ERREUR dans flandre_primes_data: #{e.message}"
       Rails.logger.error "🔥 Backtrace: #{e.backtrace.first(5).join(', ')}"
 
-      # Fallback minimal
+      # Fallback minimal avec structure correcte pour JavaScript
       return {
-        category: 3,
-        placeholders: {"isolation_toiture" => "Montant total de la facture"},
-        primes: {}
+        "isolation_toiture" => {
+          id: 1,
+          slug: "isolation_toiture",
+          titre: "Isolation de toiture",
+          valeurs_par_categorie: {
+            "1" => { type: "montant_m2_et_limite", montant_m2: 5, surface_max: 150 }
+          },
+          placeholder: { "1" => "Surface en m²" }
+        }
       }
     end
   end
