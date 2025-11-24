@@ -72,15 +72,20 @@ module FlandrePrimesHelper
 
     begin
       Rails.logger.debug "🔍 Étape 1: Détermination catégorie"
-      # Détermination directe de la catégorie basée sur l'ID de simulation
-      category = case simulation.id
-                 when 81
-                   3 # Simulation 81 est catégorie 3
-                 when 134
-                   3 # Simulation 134 est aussi catégorie 3
-                 else
-                   1 # Défaut
-                 end
+      # Utiliser le service Flandre pour déterminer la vraie catégorie
+      begin
+        category_service = Regions::Flandre::FlandreCategoryService.new({}, user: simulation.user)
+        category_result = category_service.determine_category
+        
+        if category_result[:eligible] && category_result[:category]
+          category = category_result[:category].to_s
+        else
+          category = "1" # Fallback sécurisé
+        end
+      rescue => e
+        Rails.logger.warn "⚠️ Erreur service catégorie Flandre: #{e.message}"
+        category = "1" # Fallback en cas d'erreur
+      end
 
       Rails.logger.debug "🔍 Étape 2: Catégorie déterminée = #{category}"
 
