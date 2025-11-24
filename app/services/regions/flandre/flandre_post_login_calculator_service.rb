@@ -514,7 +514,12 @@ module Regions
         # Utiliser le FlandreCategoryService dédié pour le calcul de catégorie
         return @category if @category.present?
 
-        category_service = Regions::Flandre::FlandreCategoryService.new({}, user: @user)
+        # Passer les paramètres nécessaires au service de catégorie
+        category_params = {
+          property_id: @params[:property_id],
+          project_id: @params[:project_id]
+        }
+        category_service = Regions::Flandre::FlandreCategoryService.new(category_params, user: @user)
         result = category_service.determine_category
 
         if result[:eligible] && result[:category]
