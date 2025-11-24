@@ -126,7 +126,14 @@ module Regions
       end
 
       def proprietaire_autre_bien?
-        # Vérifier si l'utilisateur possède d'autres biens
+        # 1. Vérifier d'abord le champ 'autre_bien' de la propriété courante
+        current_property = get_property
+        if current_property&.autre_bien == 'oui'
+          Rails.logger.info "🏠 FLANDRE: Autre bien déclaré via champ 'autre_bien' = oui"
+          return true
+        end
+
+        # 2. Vérifier si l'utilisateur possède physiquement d'autres biens dans l'app
         total_properties = @user.properties.count
         Rails.logger.info "🏠 FLANDRE: Vérification autre bien - Total propriétés: #{total_properties}"
 
@@ -134,7 +141,6 @@ module Regions
         return false unless total_properties > 1
 
         # Si on peut identifier la propriété courante, vérifier s'il en a d'autres
-        current_property = get_property
         if current_property
           # Compter les autres propriétés (exclure la propriété courante)
           other_properties_count = @user.properties.where.not(id: current_property.id).count
