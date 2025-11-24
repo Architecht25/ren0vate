@@ -84,14 +84,10 @@ module FlandrePrimesHelper
 
       Rails.logger.debug "🔍 Étape 2: Catégorie déterminée = #{category}"
 
-      Rails.logger.debug "🔍 Étape 3: Appel build_placeholders_for_category"
-      placeholders = build_placeholders_for_category(category)
-      Rails.logger.debug "🔍 Étape 4: Placeholders obtenus = #{placeholders.keys}"
-
-      Rails.logger.debug "🔍 Étape 5: Création primes_data"
+      Rails.logger.debug "🔍 Étape 3: Création primes_data"
       primes_data = {}
 
-      Rails.logger.debug "🔍 Étape 6: Boucle sur les primes"
+      Rails.logger.debug "🔍 Étape 4: Boucle sur les primes"
       Prime.where(region: 'flandre').each do |prime|
         Rails.logger.debug "🔍 Traitement prime: #{prime.slug}"
         primes_data[prime.slug] = {
@@ -99,11 +95,11 @@ module FlandrePrimesHelper
           slug: prime.slug,
           titre: prime.titre,
           valeurs_par_categorie: prime.valeurs_par_categorie || {},
-          placeholder: placeholders[prime.slug] || {}
+          placeholder: prime.placeholder || {}
         }
       end
 
-      Rails.logger.debug "🔍 Étape 7: Retour des données avec #{primes_data.keys.count} primes"
+      Rails.logger.debug "🔍 Étape 5: Retour des données avec #{primes_data.keys.count} primes"
       return primes_data
 
     rescue => e
