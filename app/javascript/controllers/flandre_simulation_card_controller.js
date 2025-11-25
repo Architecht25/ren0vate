@@ -321,8 +321,10 @@ export default class extends Controller {
     let finalAmount = amount
 
     if (parentController) {
+      console.log(`🔧 BEFORE calculateMontantAvecPlafond pour ${this.slugValue}: amount=${amount}`)
       const result = parentController.calculateMontantAvecPlafond(this.slugValue, amount)
       finalAmount = result.montant
+      console.log(`🔧 AFTER calculateMontantAvecPlafond pour ${this.slugValue}: finalAmount=${finalAmount}`)
 
       if (finalAmount !== amount) {
         console.log(`⚖️ Plafond appliqué pour ${this.slugValue}: ${amount.toFixed(2)}€ → ${finalAmount.toFixed(2)}€`)

@@ -78,7 +78,7 @@ module FlandrePrimesHelper
         params = { property_id: simulation.property_id, project_id: simulation.project_id }
         category_service = Regions::Flandre::FlandreCategoryService.new(params, user: simulation.user)
         category_result = category_service.determine_category
-        
+
         if category_result[:eligible] && category_result[:category]
           category = category_result[:category].to_s
         else

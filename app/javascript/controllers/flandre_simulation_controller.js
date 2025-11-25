@@ -126,9 +126,9 @@ export default class extends Controller {
 
     // Plafonds par groupe et par catégorie pour Flandre
     this.plafondsParGroupeEtCategorie = {
-      toiture: { "1": 0, "2": 0, "3": 4025, "4": 5750 },
-      murs:    { "1": 0, "2": 0, "3": 3500, "4": 5000 },
-      sol:     { "1": 0, "2": 0, "3": 1050, "4": 1500 }
+      toiture: { "1": Infinity, "2": Infinity, "3": 4025, "4": 5750 },
+      murs:    { "1": Infinity, "2": Infinity, "3": 3500, "4": 5000 },
+      sol:     { "1": Infinity, "2": Infinity, "3": 1050, "4": 1500 }
     };
 
     console.log("🏗️ Configuration des groupes de plafond Flandre initialisée")
@@ -443,7 +443,15 @@ export default class extends Controller {
       if (carteElement) {
         const totalElement = carteElement.querySelector('[data-flandre-simulation-card-target="result"]')
         if (totalElement) {
-          const montantText = totalElement.textContent.replace(/[€\s\.]/g, '').replace(',', '.')
+          let montantText = totalElement.textContent.trim()
+          // Garder le signe moins s'il existe
+          const isNegative = montantText.includes('-')
+          // Supprimer tous les caractères sauf les chiffres et la virgule
+          montantText = montantText.replace(/[^0-9,]/g, '')
+          // Remplacer la virgule par un point pour parseFloat
+          montantText = montantText.replace(',', '.')
+          // Remettre le signe moins si nécessaire
+          if (isNegative) montantText = '-' + montantText
           const montant = parseFloat(montantText) || 0
 
           if (montant > 0) {
@@ -761,8 +769,10 @@ export default class extends Controller {
   // Méthode pour calculer le montant avec plafond de groupe
   calculateMontantAvecPlafond(slug, montantPropose) {
     const currentCategory = this.categorieValue || window.flandreCurrentCategory || "3"
+    console.log(`🧮 calculateMontantAvecPlafond pour ${slug}: catégorie=${currentCategory}, montantPropose=${montantPropose}`)
 
     if (["1", "2"].includes(currentCategory)) {
+      console.log(`⚡ Catégorie 1-2 détectée: retour direct du montant ${montantPropose}`)
       return { montant: montantPropose, resteDisponible: Infinity }
     }
 
@@ -783,7 +793,16 @@ export default class extends Controller {
     const totalDejaAffiche = slugsGroupe.reduce((somme, s) => {
       if (s === slug) return somme // on ignore la carte en cours
       const span = document.querySelector(`[data-flandre-simulation-card-slug-value="${s}"] [data-flandre-simulation-card-target="result"]`)
-      const val = parseFloat(span?.textContent.replace(/[€\s\.]/g, '').replace(',', '.') || 0)
+      let spanText = span?.textContent.trim() || '0'
+      // Garder le signe moins s'il existe
+      const isNegative = spanText.includes('-')
+      // Supprimer tous les caractères sauf les chiffres et la virgule
+      spanText = spanText.replace(/[^0-9,]/g, '')
+      // Remplacer la virgule par un point pour parseFloat
+      spanText = spanText.replace(',', '.')
+      // Remettre le signe moins si nécessaire
+      if (isNegative) spanText = '-' + spanText
+      const val = parseFloat(spanText) || 0
       return somme + (isNaN(val) ? 0 : val)
     }, 0)
 

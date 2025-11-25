@@ -343,8 +343,8 @@ class RequestProgress < ApplicationRecord
   def validate_document_suivi_pdf
     return unless document_suivi_pdf.attached?
 
-    if document_suivi_pdf.blob.byte_size > 10.megabytes
-      errors.add(:document_suivi_pdf, 'must be less than 10MB')
+    if document_suivi_pdf.blob.byte_size > 30.megabytes
+      errors.add(:document_suivi_pdf, 'must be less than 30MB')
     end
 
     unless document_suivi_pdf.blob.content_type == 'application/pdf'

@@ -98,7 +98,7 @@ class DocumentsController < ApplicationController
       @suggested_phase = DocumentPhase.find_phase_for_document_type(@document.type_document)
     end
 
-    # Mode OCR si demandé
+    # Mode OCR si demandé, par défaut mode normal
     @ocr_mode = params[:upload_mode] == 'ocr'
     @ocr_text = params[:ocr_text] if params[:ocr_text].present?
 

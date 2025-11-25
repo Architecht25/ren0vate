@@ -15,7 +15,7 @@ module Ren0vate
     config.autoload_lib(ignore: %w[assets tasks])
 
     # Configuration de la taille maximum des uploads
-    config.active_storage.max_file_size = 20.megabytes
+    config.active_storage.max_file_size = 30.megabytes
 
     # Configuration ActionMailbox pour la réception d'emails
     config.action_mailbox.ingress = :postmark
