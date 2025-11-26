@@ -29,6 +29,8 @@ class Document < ApplicationRecord
     etat_avancement: 'etat_avancement',
     attestation_entrepreneur: 'attestation_entrepreneur',
     certificat_peb: 'certificat_peb',
+    certificat_peb_avant: 'certificat_peb_avant',
+    certificat_peb_apres: 'certificat_peb_apres',
     photo: 'photo',
     certificat_label: 'certificat_label',
     attestation_conformite: 'attestation_conformite',

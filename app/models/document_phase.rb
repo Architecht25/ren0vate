@@ -24,7 +24,7 @@ class DocumentPhase < ApplicationRecord
       icon: '🏛️',
       color: 'primary',
       position: 1,
-      required_document_types: ['permis_urbanisme', 'certificat_peb'],
+      required_document_types: ['permis_urbanisme', 'certificat_peb_avant'],
       optional_document_types: ['plan', 'dossier_prime', 'acte_notarial', 'compromis']
     },
     {
@@ -51,7 +51,7 @@ class DocumentPhase < ApplicationRecord
       icon: '✅',
       color: 'success',
       position: 4,
-      required_document_types: ['certificat_peb', 'attestation_conformite'],
+      required_document_types: ['certificat_peb_apres', 'attestation_conformite'],
       optional_document_types: ['certificat_protection', 'fiche_technique']
     }
   ].freeze
