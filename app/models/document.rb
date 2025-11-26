@@ -323,14 +323,6 @@ class Document < ApplicationRecord
     end
   end
 
-  def file_format_validation
-    return unless file.attached?
-
-    unless ALL_ALLOWED_FORMATS.include?(file.content_type)
-      errors.add(:file, "format non autorisé. Formats acceptés: PDF, images (JPEG, PNG, GIF, WebP), documents Word/Excel")
-    end
-  end
-
   private
 
   def file_or_url_present
@@ -358,11 +350,13 @@ class Document < ApplicationRecord
       'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
       'application/msword',
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       'text/plain'
     ]
 
     unless allowed_formats.include?(file.content_type)
-      errors.add(:file, 'format non supporté. Formats acceptés : PDF, images, Word, texte.')
+      errors.add(:file, 'format non supporté. Formats acceptés : PDF, images, Word, Excel, texte.')
     end
   end
 
