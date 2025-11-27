@@ -13,9 +13,9 @@ export default class extends Controller {
     };
 
     this.plafondsParGroupeEtCategorie = {
-      toiture: { "1": Infinity, "2": Infinity, "3": 4025, "4": 5750 },
-      murs:    { "1": Infinity, "2": Infinity, "3": 3500, "4": 5000 },
-      sol:     { "1": Infinity, "2": Infinity, "3": 1050, "4": 1500 }
+      toiture: { "1": 0, "2": 0, "3": 4025, "4": 5750 },
+      murs:    { "1": 0, "2": 0, "3": 3500, "4": 5000 },
+      sol:     { "1": 0, "2": 0, "3": 1050, "4": 1500 }
     };
 
     this.element.addEventListener("prime:input", this.calculer.bind(this));

@@ -115,9 +115,9 @@ module Regions
 
         # Plafonds par groupe et catégorie (comme dans le JS)
         plafonds_par_groupe = {
-          'toiture' => { '1' => Float::INFINITY, '2' => Float::INFINITY, '3' => 4025, '4' => 5750 },
-          'murs' => { '1' => Float::INFINITY, '2' => Float::INFINITY, '3' => 3500, '4' => 5000 },
-          'sol' => { '1' => Float::INFINITY, '2' => Float::INFINITY, '3' => 1050, '4' => 1500 }
+          'toiture' => { '1' => 0, '2' => 0, '3' => 4025, '4' => 5750 },
+          'murs' => { '1' => 0, '2' => 0, '3' => 3500, '4' => 5000 },
+          'sol' => { '1' => 0, '2' => 0, '3' => 1050, '4' => 1500 }
         }
 
         # Trouver le groupe de cette prime
