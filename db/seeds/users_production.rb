@@ -886,6 +886,17 @@ users_data = [
     city: '',
     postal_code: '',
     test_user: false
+  },
+  {
+    email: 'melody.lafleur.89@gmail.com',
+    password: 'Client2025!',
+    first_name: 'Melody',
+    last_name: 'Lafleur',
+    role: 'user',
+    phone: '',
+    city: '',
+    postal_code: '',
+    test_user: false
   }
 ]
 
