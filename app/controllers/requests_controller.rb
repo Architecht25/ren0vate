@@ -70,9 +70,22 @@ class RequestsController < ApplicationController
     # Debug: Vérifier que form_data est bien rempli
     Rails.logger.info "=== REQUEST CREATE DEBUG ==="
     Rails.logger.info "Form type: #{@request.form_type}"
-    Rails.logger.info "Form data: #{@request.form_data}"
+    Rails.logger.info "Form data present: #{@request.form_data.present?}"
+    Rails.logger.info "Form data keys: #{@request.form_data&.keys || 'NIL'}"
+    Rails.logger.info "Form data size: #{@request.form_data&.size || 0} champs"
     Rails.logger.info "Commit param: #{params[:commit]}"
     Rails.logger.info "All request params: #{request_params.inspect}"
+    
+    # Debug spécifique pour quelques champs Wallonie
+    if @request.form_data.present?
+      Rails.logger.info "=== FORM_DATA WALLONIE DETAILS ==="
+      Rails.logger.info "  numero_audit: #{@request.form_data['numero_audit']}"
+      Rails.logger.info "  date_audit: #{@request.form_data['date_audit']}"
+      Rails.logger.info "  type_demandeur: #{@request.form_data['type_demandeur']}"
+      Rails.logger.info "  qualite_demandeur: #{@request.form_data['qualite_demandeur']}"
+      Rails.logger.info "  nom: #{@request.form_data['nom']}"
+      Rails.logger.info "  prenom: #{@request.form_data['prenom']}"
+    end
 
     # Déterminer le statut selon l'action
     case params[:commit]
@@ -122,31 +135,45 @@ class RequestsController < ApplicationController
                           requests_path
                         end
 
-          if official_url == requests_path
-            redirect_to requests_path, notice: 'Demande créée avec succès.'
-          else
-            redirect_to official_url, notice: 'Demande créée avec succès. Vous êtes redirigé vers le site officiel pour finaliser votre dépôt.', allow_other_host: true
+          respond_to do |format|
+            format.html do
+              if official_url == requests_path
+                redirect_to requests_path, notice: 'Demande créée avec succès.'
+              else
+                redirect_to official_url, notice: 'Demande créée avec succès. Vous êtes redirigé vers le site officiel pour finaliser votre dépôt.', allow_other_host: true
+              end
+            end
+            format.json { render json: { success: true, request_id: @request.id, redirect: official_url } }
           end
         else
           # S'il y a des erreurs de validation, rester en brouillon
           @request.status = 'draft'
           @request.save(validate: false)
-          flash.now[:alert] = "Votre demande a été sauvegardée en brouillon. Veuillez compléter les champs manquants : #{@request.errors.full_messages.join(', ')}"
+          
+          respond_to do |format|
+            format.html do
+              flash.now[:alert] = "Votre demande a été sauvegardée en brouillon. Veuillez compléter les champs manquants : #{@request.errors.full_messages.join(', ')}"
 
-          # Charger les données nécessaires pour la vue
-          @primes = Prime.all
-          if params[:property_id].present?
-            @property = current_user.properties.find(params[:property_id])
-            @form_data = build_formulaire_data(@property)
-          else
-            @form_data = build_user_data
+              # Charger les données nécessaires pour la vue
+              @primes = Prime.all
+              if params[:property_id].present?
+                @property = current_user.properties.find(params[:property_id])
+                @form_data = build_formulaire_data(@property)
+              else
+                @form_data = build_user_data
+              end
+
+              render :new, status: :unprocessable_entity
+            end
+            format.json { render json: { success: false, errors: @request.errors.full_messages, saved_as_draft: true, request_id: @request.id } }
           end
-
-          render :new, status: :unprocessable_entity
         end
       else
         # Autres cas - rediriger vers l'édition
-        redirect_to edit_request_path(@request), notice: 'Demande créée avec succès.'
+        respond_to do |format|
+          format.html { redirect_to edit_request_path(@request), notice: 'Demande créée avec succès.' }
+          format.json { render json: { success: true, request_id: @request.id, redirect: edit_request_url(@request) } }
+        end
       end
     else
       Rails.logger.error "REQUEST SAVE FAILED: #{@request.errors.full_messages}"
@@ -502,14 +529,27 @@ class RequestsController < ApplicationController
                                    # Paramètres Wallonie
                                    :revenus_reference, :composition_menage, :categories_travaux, :logement_principal, :montant_travaux,
                                    :numero_audit, :date_audit, :numero_agrement_auditeur, :nom_auditeur, :adresse_auditeur,
+                                   # Paramètres Wallonie spécifiques manquants
+                                   :type_demandeur, :qualite_demandeur, :numero_registre_national, :compte_bancaire,
+                                   :adresse_demandeur, :code_postal_demandeur, :commune_demandeur, :pays_demandeur,
+                                   :telephone_fixe, :telephone_mobile, :fax, :email_demandeur,
+                                   :numero_bce, :denomination_sociale, :forme_juridique, :siege_social,
+                                   :adresse_logement, :numero_logement, :code_postal_logement, :commune_logement,
+                                   :numero_parcelle_cadastrale, :date_acquisition_bien, :personnes_charge, :revenus_globaux,
+                                   :surface_plancher_chauffee, :affectation_bien, :annee_construction, :periode_travaux,
+                                   :desamiantage, :ean_electricite, :ean_gaz, :date_pea,
+                                   # Champs génériques travaux
+                                   :travaux_isolation_toiture, :travaux_isolation_murs, :travaux_isolation_sols, 
+                                   :travaux_fenetres_portes, :travaux_chauffage_ecs, :travaux_ventilation,
+                                   :travaux_energie_renouvelable, :travaux_etancheite, :travaux_autres,
                                    # Paramètres Flandre originaux
                                    :inkomen_gezin, :gezinssamenstelling, :type_renovatie, :eigenaar_bewoner, :kostprijs_werken,
                                    # Nouveaux paramètres Flandre optimisés
-                                   :domicile, :type_demandeur, :registre_national, :nom, :prenom, :telephone, :email,
+                                   :domicile, :registre_national, :nom, :prenom, :telephone, :email,
                                    :ean, :parcelle, :adresse, :code_postal, :commune, :type_bien, :usage,
                                    :chauffage_post_renovation, :travaux_toiture, :travaux_murs, :travaux_sol,
                                    :travaux_vitrage, :travaux_chauffage, :travaux_complementaires, :travaux_ventilation,
-                                   :travaux_solaire, :revenus_annuels, :personnes_charge, :annee_aer, :compte_bancaire,
+                                   :travaux_solaire, :revenus_annuels, :annee_aer, :compte_bancaire,
                                    :email_contact, :telephone_contact, :confirmation_veracite, :acceptation_conditions,
                                    # Paramètres profil demandeur et patrimoine
                                    :profil_demandeur, :travaux_amiante, :type_chauffage, :type_ventilation, :performance_vitrage,
@@ -541,7 +581,7 @@ class RequestsController < ApplicationController
                                    # Champs détaillés pour travaux complémentaires
                                    :description_complementaires,
                                    # Champs pour désamiantage
-                                   :desamiantage, :localisation_desamiantage,
+                                   :localisation_desamiantage,
                                    # Support pour les fichiers
                                    :document_devis, :document_factures, :document_aer, :document_peb,
                                    :document_attestations, :document_photos, :document_autres,
@@ -584,13 +624,13 @@ class RequestsController < ApplicationController
 
     # CORRECTION: Fusionner avec les données existantes au lieu d'écraser
     if form_data_fields.present?
-      # Récupérer la requête actuelle pour fusionner avec form_data existant
+      # Pour une mise à jour (requête existante)
       request_id = params[:id]
-      if request_id
+      if request_id && Request.exists?(request_id)
         current_request = Request.find(request_id)
         existing_form_data = current_request&.form_data || {}
 
-        Rails.logger.info "=== FUSION FORM_DATA ==="
+        Rails.logger.info "=== FUSION FORM_DATA (MISE À JOUR) ==="
         Rails.logger.info "Request ID for fusion: #{request_id}"
         Rails.logger.info "Existing form_data keys: #{existing_form_data.keys.size}"
         Rails.logger.info "New form_data keys: #{form_data_fields.keys.size}"
@@ -603,10 +643,15 @@ class RequestsController < ApplicationController
         Rails.logger.info "Surface après fusion: #{merged_form_data['surface_toiture']}"
         Rails.logger.info "Marque après fusion: #{merged_form_data['marque_toiture']}"
       else
-        # Nouveau request, pas de fusion nécessaire
+        # Nouveau request - utiliser directement les données du formulaire
         permitted_params[:form_data] = form_data_fields.stringify_keys
         Rails.logger.info "=== NOUVEAU REQUEST - PAS DE FUSION ==="
+        Rails.logger.info "New request form_data keys: #{form_data_fields.keys.size}"
+        Rails.logger.info "Surface nouveau: #{form_data_fields[:surface_toiture] || form_data_fields['surface_toiture']}"
+        Rails.logger.info "Marque nouveau: #{form_data_fields[:marque_toiture] || form_data_fields['marque_toiture']}"
       end
+    else
+      Rails.logger.info "=== AUCUNE DONNÉE FORM_DATA ==="
     end
 
     # Retourner seulement les champs de base + form_data + fichiers

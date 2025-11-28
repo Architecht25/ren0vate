@@ -171,7 +171,7 @@ class SimulationsController < ApplicationController
     rescue => e
       Rails.logger.error "Erreur lors du test d'éligibilité: #{e.message}"
       Rails.logger.error e.backtrace.join("\n")
-      
+
       respond_to do |format|
         format.json {
           render json: {
@@ -202,7 +202,7 @@ class SimulationsController < ApplicationController
     rescue => e
       Rails.logger.error "Erreur lors du test d'éligibilité investissements: #{e.message}"
       Rails.logger.error e.backtrace.join("\n")
-      
+
       respond_to do |format|
         format.json {
           render json: {
@@ -233,7 +233,7 @@ class SimulationsController < ApplicationController
     rescue => e
       Rails.logger.error "Erreur lors du test d'éligibilité RENOLUTION: #{e.message}"
       Rails.logger.error e.backtrace.join("\n")
-      
+
       respond_to do |format|
         format.json {
           render json: {

@@ -5,11 +5,11 @@ class UpdateTechnicalPhaseAuditDocument < ActiveRecord::Migration[8.0]
     if phase
       current_required = phase.required_document_types || []
       new_required_docs = current_required + ['rapport_audit_energetique']
-      
+
       phase.update!(
         required_document_types: new_required_docs.uniq
       )
-      
+
       puts "📋 Mise à jour de la Phase Technique..."
       puts "✅ Phase Technique mise à jour: Documents obligatoires: #{phase.required_document_types.join(', ')}"
     else

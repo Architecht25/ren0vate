@@ -705,40 +705,106 @@
     </div>
   </div>
 
+  <!-- Section de sauvegarde -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body text-center">
+          <h5 class="card-title mb-3">
+            <i class="bi bi-check-circle text-success me-2"></i>
+            Sauvegarde de votre demande
+          </h5>
+          <p class="text-muted mb-4">
+            Sauvegardez votre progression à tout moment. Vous pourrez reprendre plus tard.
+          </p>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section de sauvegarde - comme dans Flandre -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="text-muted">
+          <small>
+            <i class="bi bi-shield-check me-1"></i>
+            Vos données sont traitées de manière sécurisée
+          </small>
+        </div>
+
+        <!-- Boutons de soumission spécifiques à la Wallonie -->
+        <div class="d-flex flex-column gap-3 align-items-center">
+          <!-- Bouton principal de sauvegarde -->
+          <button type="button"
+                 class="btn btn-primary btn-lg px-4 py-2 wallonie-save-btn"
+                 style="max-width: 300px; width: 100%;"
+                 onclick="saveWallonieFormData(event)"
+                 id="wallonie-submit-btn"
+                 data-region="wallonie">
+            Sauvegarder en brouillon
+          </button>
+
+          <!-- Bouton pour copier les données -->
+          <% if @request.persisted? %>
+            <%= link_to export_data_request_path(@request),
+                       class: "btn btn-outline-secondary btn-lg px-4 py-2 w-100 mt-2",
+                       style: "max-width: 400px;" do %>
+              <i class="bi bi-clipboard-data me-2"></i>Exporter vos données
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 </div>
 
+<script>
+// Fonction simple pour sauvegarder le formulaire Wallonie en brouillon
+function saveWallonieFormData(event) {
+  // Empêcher la propagation d'événements
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+  }
 
-<!-- Styles CSS personnalisés -->
-<style>
-.bg-gradient-success {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-}
+  console.log('💾 Sauvegarde formulaire Wallonie en brouillon');
+  
+  const form = document.querySelector('#request-form-main');
+  if (!form) {
+    console.error('❌ Formulaire non trouvé');
+    alert('Erreur: formulaire non trouvé');
+    return false;
+  }
 
-.icon-circle {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-}
+  // Ajouter le champ commit pour indiquer qu'on sauvegarde en brouillon
+  let commitField = form.querySelector('input[name="commit"]');
+  if (!commitField) {
+    commitField = document.createElement('input');
+    commitField.type = 'hidden';
+    commitField.name = 'commit';
+    form.appendChild(commitField);
+  }
+  commitField.value = 'Sauvegarder en brouillon';
 
-.wallonie-prime-section {
-  margin-top: 1.5rem;
-}
+  console.log('📋 Soumission du formulaire pour sauvegarde en brouillon');
+  
+  // Désactiver le bouton pendant la soumission
+  const button = document.getElementById('wallonie-submit-btn');
+  if (button) {
+    button.disabled = true;
+    button.textContent = 'Sauvegarde...';
+  }
 
-.card {
-  transition: transform 0.2s ease-in-out;
+  // Soumettre le formulaire de manière standard
+  form.submit();
+  
+  return false;
 }
+</script>
 
-.card:hover {
-  transform: translateY(-2px);
-}
 
-.form-select-lg {
-  font-size: 1.1rem;
-  padding: 0.75rem 1rem;
-}
-</style>

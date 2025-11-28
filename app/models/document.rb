@@ -14,7 +14,7 @@ class Document < ApplicationRecord
   validates :type_document, presence: true
   validates :file_url, presence: true, unless: -> { file.attached? }
   validate :file_or_url_present
-  # validate :file_size_limit # Temporairement désactivé pour debug
+  validate :file_size_limit_debug # Validation avec debug
   validate :file_format_validation
 
   # Validations techniques spécifiques - DÉSACTIVÉES
@@ -316,11 +316,39 @@ class Document < ApplicationRecord
     end
   end
 
+  def file_size_limit_debug
+    return unless file.attached?
+
+    Rails.logger.info "🔍 Document validation DEBUG - filename: #{file.filename}"
+    Rails.logger.info "🔍 file.attached?: #{file.attached?}"
+    Rails.logger.info "🔍 file.blob present?: #{file.blob.present?}"
+
+    begin
+      byte_size = file.byte_size
+      Rails.logger.info "🔍 file.byte_size: #{byte_size} bytes (#{ActionController::Base.helpers.number_to_human_size(byte_size)})"
+      Rails.logger.info "🔍 MAX_FILE_SIZE: #{MAX_FILE_SIZE} bytes (#{ActionController::Base.helpers.number_to_human_size(MAX_FILE_SIZE)})"
+      Rails.logger.info "🔍 Comparaison: #{byte_size} > #{MAX_FILE_SIZE} = #{byte_size > MAX_FILE_SIZE}"
+
+      if byte_size > MAX_FILE_SIZE
+        human_size = ActionController::Base.helpers.number_to_human_size(byte_size)
+        max_human_size = ActionController::Base.helpers.number_to_human_size(MAX_FILE_SIZE)
+        Rails.logger.error "❌ File too large - #{file.filename}: #{human_size} > #{max_human_size}"
+        errors.add(:file, "ne doit pas dépasser #{max_human_size}")
+      else
+        Rails.logger.info "✅ File size OK - #{file.filename}: #{ActionController::Base.helpers.number_to_human_size(byte_size)}"
+      end
+    rescue => e
+      Rails.logger.error "❌ Erreur lors de la validation de taille: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+      errors.add(:file, "Erreur lors de la validation de taille: #{e.message}")
+    end
+  end
+
   def file_size_limit
     return unless file.attached?
 
     Rails.logger.info "🔍 Document validation - filename: #{file.filename}, byte_size: #{file.byte_size}, MAX_FILE_SIZE: #{MAX_FILE_SIZE}"
-    
+
     if file.byte_size > MAX_FILE_SIZE
       human_size = ActionController::Base.helpers.number_to_human_size(file.byte_size)
       max_human_size = ActionController::Base.helpers.number_to_human_size(MAX_FILE_SIZE)
