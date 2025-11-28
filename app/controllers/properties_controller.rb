@@ -150,6 +150,26 @@ class PropertiesController < ApplicationController
 
     # Configuration des types de documents avec leurs informations (legacy pour transition)
     @document_types_config = {
+      'aer' => {
+        title: '📋 AER - Avertissements Extrait de Rôle',
+        image: 'aer.webp',
+        conditions: [
+          'Avertissements extrait de rôle récents',
+          'Documents fiscaux officiels',
+          'Maximum 1 an d\'ancienneté'
+        ],
+        priority: 'required'
+      },
+      'rib' => {
+        title: '🏦 RIB - Relevé d\'Identité Bancaire',
+        image: 'rib.webp',
+        conditions: [
+          'Relevé d\'identité bancaire officiel',
+          'Compte au nom du demandeur',
+          'Document récent et lisible'
+        ],
+        priority: 'required'
+      },
       'devis' => {
         title: '📄 Devis/métré',
         image: 'devis.webp',

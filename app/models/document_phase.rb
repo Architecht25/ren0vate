@@ -24,8 +24,8 @@ class DocumentPhase < ApplicationRecord
       icon: '🏛️',
       color: 'primary',
       position: 1,
-      required_document_types: ['permis_urbanisme', 'certificat_peb_avant'],
-      optional_document_types: ['plan', 'dossier_prime', 'acte_notarial', 'compromis']
+      required_document_types: ['aer', 'rib', 'certificat_peb_avant'],
+      optional_document_types: ['permis_urbanisme', 'plan', 'dossier_prime', 'acte_notarial', 'compromis']
     },
     {
       name: 'Phase Technique',
