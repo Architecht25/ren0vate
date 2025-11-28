@@ -187,11 +187,13 @@ class DocumentsController < ApplicationController
         end
       rescue ActiveStorage::IntegrityError => e
         if e.message.include?("File size too large")
-          file_size_mb = (file.size.to_f / 1.megabyte).round(2)
+          file_size_mb = (@document.file.byte_size.to_f / 1.megabyte).round(2) if @document.file.attached?
           limit_mb = 30 # Limite configurée dans Rails
-          errors << "Le fichier '#{file.original_filename}' (#{file_size_mb} MB) dépasse la limite autorisée de #{limit_mb} MB. Veuillez réduire la taille du fichier ou le compresser."
+          filename = @document.file.filename.to_s if @document.file.attached?
+          errors << "Le fichier '#{filename}' (#{file_size_mb} MB) dépasse la limite autorisée de #{limit_mb} MB. Veuillez réduire la taille du fichier ou le compresser."
         else
-          errors << "Erreur lors du téléchargement du fichier '#{file.original_filename}': #{e.message}"
+          filename = @document.file.filename.to_s if @document.file.attached?
+          errors << "Erreur lors du téléchargement du fichier '#{filename}': #{e.message}"
         end
       rescue => e
         errors << "Erreur inattendue lors du téléchargement: #{e.message}"
