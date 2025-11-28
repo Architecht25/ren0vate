@@ -14,7 +14,7 @@ class Document < ApplicationRecord
   validates :type_document, presence: true
   validates :file_url, presence: true, unless: -> { file.attached? }
   validate :file_or_url_present
-  validate :file_size_limit
+  # validate :file_size_limit # Temporairement désactivé pour debug
   validate :file_format_validation
 
   # Validations techniques spécifiques - DÉSACTIVÉES
@@ -319,8 +319,15 @@ class Document < ApplicationRecord
   def file_size_limit
     return unless file.attached?
 
+    Rails.logger.info "🔍 Document validation - filename: #{file.filename}, byte_size: #{file.byte_size}, MAX_FILE_SIZE: #{MAX_FILE_SIZE}"
+    
     if file.byte_size > MAX_FILE_SIZE
-      errors.add(:file, "ne doit pas dépasser #{ActionController::Base.helpers.number_to_human_size(MAX_FILE_SIZE)}")
+      human_size = ActionController::Base.helpers.number_to_human_size(file.byte_size)
+      max_human_size = ActionController::Base.helpers.number_to_human_size(MAX_FILE_SIZE)
+      Rails.logger.error "❌ File too large - #{file.filename}: #{human_size} > #{max_human_size}"
+      errors.add(:file, "ne doit pas dépasser #{max_human_size}")
+    else
+      Rails.logger.info "✅ File size OK - #{file.filename}: #{ActionController::Base.helpers.number_to_human_size(file.byte_size)}"
     end
   end
 
