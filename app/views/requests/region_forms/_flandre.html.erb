@@ -877,10 +877,12 @@
           </button>
 
           <!-- Bouton pour copier les données -->
-          <%= link_to export_data_request_path(@request),
-                     class: "btn btn-outline-secondary btn-lg px-4 py-2 w-100 mt-2",
-                     style: "max-width: 400px;" do %>
-            <i class="bi bi-clipboard-data me-2"></i>Copier vos données pour Mijn Verbouwpremie
+          <% if @request.persisted? %>
+            <%= link_to export_data_request_path(@request),
+                       class: "btn btn-outline-secondary btn-lg px-4 py-2 w-100 mt-2",
+                       style: "max-width: 400px;" do %>
+              <i class="bi bi-clipboard-data me-2"></i>Copier vos données pour Mijn Verbouwpremie
+            <% end %>
           <% end %>
         </div>
       </div>
