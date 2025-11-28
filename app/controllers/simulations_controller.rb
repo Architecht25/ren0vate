@@ -155,48 +155,93 @@ class SimulationsController < ApplicationController
   # Routes AJAX pour les étapes de simulation
   def check_eligibility
     # @simulation est déjà définie et vérifiée par before_action
-    perform_eligibility_test(@simulation)
+    begin
+      perform_eligibility_test(@simulation)
 
-    respond_to do |format|
-      format.json {
-        render json: {
-          eligible: @simulation.eligible,
-          message: @simulation.eligible? ? @simulation.category_description : @simulation.ineligibility_reason,
-          next_step: @simulation.eligible? ? 'category' : nil
+      respond_to do |format|
+        format.json {
+          render json: {
+            success: true,
+            eligible: @simulation.eligible,
+            message: @simulation.eligible? ? @simulation.category_description : @simulation.ineligibility_reason,
+            next_step: @simulation.eligible? ? 'category' : nil
+          }
         }
-      }
+      end
+    rescue => e
+      Rails.logger.error "Erreur lors du test d'éligibilité: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+      
+      respond_to do |format|
+        format.json {
+          render json: {
+            success: false,
+            error: "Erreur lors de la vérification d'éligibilité: #{e.message}"
+          }, status: :internal_server_error
+        }
+      end
     end
   end
 
   # Nouveau endpoint pour l'éligibilité investissements (finalité économique)
   def check_eligibility_investment
     # @simulation est déjà définie et vérifiée par before_action
-    perform_investment_eligibility_test(@simulation)
+    begin
+      perform_investment_eligibility_test(@simulation)
 
-    respond_to do |format|
-      format.json {
-        render json: {
-          eligible: @simulation.eligible_investment,
-          message: @simulation.eligible_investment? ? "Éligible aux aides aux investissements" : @simulation.investment_ineligibility_reason,
-          next_step: @simulation.eligible_investment? ? 'majorations' : nil
+      respond_to do |format|
+        format.json {
+          render json: {
+            success: true,
+            eligible: @simulation.eligible_investment,
+            message: @simulation.eligible_investment? ? "Éligible aux aides aux investissements" : @simulation.investment_ineligibility_reason,
+            next_step: @simulation.eligible_investment? ? 'majorations' : nil
+          }
         }
-      }
+      end
+    rescue => e
+      Rails.logger.error "Erreur lors du test d'éligibilité investissements: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+      
+      respond_to do |format|
+        format.json {
+          render json: {
+            success: false,
+            error: "Erreur lors de la vérification d'éligibilité investissements: #{e.message}"
+          }, status: :internal_server_error
+        }
+      end
     end
   end
 
   # Nouveau endpoint pour l'éligibilité RENOLUTION (finalité économique)
   def check_eligibility_renolution
     # @simulation est déjà définie et vérifiée par before_action
-    perform_renolution_eligibility_test(@simulation)
+    begin
+      perform_renolution_eligibility_test(@simulation)
 
-    respond_to do |format|
-      format.json {
-        render json: {
-          eligible: @simulation.eligible_renolution,
-          message: @simulation.eligible_renolution? ? "Éligible aux primes RENOLUTION" : @simulation.renolution_ineligibility_reason,
-          next_step: @simulation.eligible_renolution? ? 'category' : nil
+      respond_to do |format|
+        format.json {
+          render json: {
+            success: true,
+            eligible: @simulation.eligible_renolution,
+            message: @simulation.eligible_renolution? ? "Éligible aux primes RENOLUTION" : @simulation.renolution_ineligibility_reason,
+            next_step: @simulation.eligible_renolution? ? 'category' : nil
+          }
         }
-      }
+      end
+    rescue => e
+      Rails.logger.error "Erreur lors du test d'éligibilité RENOLUTION: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+      
+      respond_to do |format|
+        format.json {
+          render json: {
+            success: false,
+            error: "Erreur lors de la vérification d'éligibilité RENOLUTION: #{e.message}"
+          }, status: :internal_server_error
+        }
+      end
     end
   end
 
