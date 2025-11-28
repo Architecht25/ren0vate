@@ -50,6 +50,43 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  // Bouton pour mettre à jour l'éligibilité (quand déjà éligible)
+  const updateEligibilityBtn = document.getElementById('update-eligibility-btn');
+  if (updateEligibilityBtn) {
+    updateEligibilityBtn.addEventListener('click', function() {
+      console.log('🔄 Mise à jour de l\'éligibilité demandée');
+      this.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Mise à jour en cours...';
+      this.disabled = true;
+
+      fetch(`/simulations/${simulationId}/check_eligibility`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+          'Accept': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('📋 Résultat mise à jour éligibilité:', data);
+        if (data.success) {
+          // Recharger la page pour afficher les nouveaux résultats
+          console.log('✅ Éligibilité mise à jour, rechargement de la page...');
+          window.location.reload();
+        } else {
+          console.error('❌ Erreur lors de la mise à jour:', data);
+          this.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Erreur - Réessayer';
+          this.disabled = false;
+        }
+      })
+      .catch(error => {
+        console.error('❌ Erreur réseau lors de la mise à jour:', error);
+        this.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Erreur - Réessayer';
+        this.disabled = false;
+      });
+    });
+  }
+
   // Bouton pour déterminer la catégorie
   const determineCategoryBtn = document.getElementById('determine-category-btn');
   if (determineCategoryBtn) {

@@ -14,6 +14,50 @@
     });
   }
 
+  // Bouton pour mettre à jour l'éligibilité Bruxelles (quand déjà éligible)
+  const updateEligibilityBtnBruxelles = document.getElementById('update-eligibility-btn-bruxelles');
+  if (updateEligibilityBtnBruxelles) {
+    updateEligibilityBtnBruxelles.addEventListener('click', function() {
+      console.log('🔄 Mise à jour éligibilité Bruxelles lancée');
+      this.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Mise à jour en cours...';
+      this.disabled = true;
+
+      // Récupérer l'ID de la simulation
+      const simulationId = '<%= @simulation.id %>';
+
+      // Appel Ajax au service d'éligibilité Rails
+      fetch(`/simulations/${simulationId}/check_eligibility`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          region: 'bruxelles'
+        })
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('📋 Résultat mise à jour éligibilité Bruxelles:', data);
+        if (data.success) {
+          // Recharger la page pour afficher les nouveaux résultats
+          console.log('✅ Éligibilité Bruxelles mise à jour, rechargement de la page...');
+          window.location.reload();
+        } else {
+          console.error('❌ Erreur lors de la mise à jour Bruxelles:', data);
+          this.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Erreur - Réessayer';
+          this.disabled = false;
+        }
+      })
+      .catch(error => {
+        console.error('❌ Erreur réseau lors de la mise à jour Bruxelles:', error);
+        this.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Erreur - Réessayer';
+        this.disabled = false;
+      });
+    });
+  }
+
   function checkBruxellesEligibility() {
     // Désactiver le bouton pendant la vérification
     checkEligibilityBtnBruxelles.disabled = true;
