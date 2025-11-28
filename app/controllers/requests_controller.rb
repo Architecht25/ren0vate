@@ -75,7 +75,7 @@ class RequestsController < ApplicationController
     Rails.logger.info "Form data size: #{@request.form_data&.size || 0} champs"
     Rails.logger.info "Commit param: #{params[:commit]}"
     Rails.logger.info "All request params: #{request_params.inspect}"
-    
+
     # Debug spécifique pour quelques champs Wallonie
     if @request.form_data.present?
       Rails.logger.info "=== FORM_DATA WALLONIE DETAILS ==="
@@ -149,7 +149,7 @@ class RequestsController < ApplicationController
           # S'il y a des erreurs de validation, rester en brouillon
           @request.status = 'draft'
           @request.save(validate: false)
-          
+
           respond_to do |format|
             format.html do
               flash.now[:alert] = "Votre demande a été sauvegardée en brouillon. Veuillez compléter les champs manquants : #{@request.errors.full_messages.join(', ')}"
@@ -539,7 +539,7 @@ class RequestsController < ApplicationController
                                    :surface_plancher_chauffee, :affectation_bien, :annee_construction, :periode_travaux,
                                    :desamiantage, :ean_electricite, :ean_gaz, :date_pea,
                                    # Champs génériques travaux
-                                   :travaux_isolation_toiture, :travaux_isolation_murs, :travaux_isolation_sols, 
+                                   :travaux_isolation_toiture, :travaux_isolation_murs, :travaux_isolation_sols,
                                    :travaux_fenetres_portes, :travaux_chauffage_ecs, :travaux_ventilation,
                                    :travaux_energie_renouvelable, :travaux_etancheite, :travaux_autres,
                                    # Paramètres Flandre originaux

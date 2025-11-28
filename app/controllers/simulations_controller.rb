@@ -52,6 +52,9 @@ class SimulationsController < ApplicationController
       @amiante_data = nil
     end
 
+    # Vérifier l'éligibilité réelle selon les revenus actuels
+    @real_eligibility = check_real_eligibility(@simulation)
+
     # S'assurer que total_simule est cohérent avec les paramètres
     if @simulation.total_simule.nil? || @simulation.total_simule == 0
       begin
@@ -1280,5 +1283,63 @@ class SimulationsController < ApplicationController
     end
 
     montant_total
+  end
+
+  # Helper pour vérifier l'éligibilité réelle selon les revenus
+  def check_real_eligibility(simulation)
+    return { eligible: false, reason: "Simulation non trouvée" } unless simulation
+    return { eligible: false, reason: "Utilisateur non trouvé" } unless simulation.property&.user
+
+    user = simulation.property.user
+    region = simulation.region&.downcase
+
+    case region
+    when 'wallonie'
+      check_wallonie_real_eligibility(user)
+    when 'flandre'
+      check_flandre_real_eligibility(user)
+    when 'bruxelles'
+      check_bruxelles_real_eligibility(user)
+    else
+      { eligible: false, reason: "Région non supportée" }
+    end
+  end
+
+  private
+
+  def check_wallonie_real_eligibility(user)
+    return { eligible: false, reason: "Revenus non renseignés" } unless user.revenu_demandeur
+
+    # Calcul du revenu total du ménage
+    total_income = user.revenu_demandeur
+    if user.situation_familiale.in?(%w[marie cohabitant couple]) && user.revenu_conjoint
+      total_income += user.revenu_conjoint
+    end
+
+    # Déductions (5000€ par enfant)
+    deductions = (user.nombre_enfants || 0) * 5000
+    adjusted_income = [total_income - deductions, 0].max
+
+    # Seuil Wallonie
+    threshold = 114_400
+
+    if adjusted_income > threshold
+      {
+        eligible: false,
+        reason: "Revenus trop élevés (#{adjusted_income.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1.').reverse}€ > #{threshold.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1.').reverse}€)"
+      }
+    else
+      { eligible: true }
+    end
+  end
+
+  def check_flandre_real_eligibility(user)
+    # TODO: Implémenter la logique Flandre si nécessaire
+    { eligible: true }
+  end
+
+  def check_bruxelles_real_eligibility(user)
+    # TODO: Implémenter la logique Bruxelles si nécessaire
+    { eligible: true }
   end
 end

@@ -21,22 +21,37 @@
           </div>
         </div>
       <% else %>
-        <div class="alert alert-warning d-flex align-items-center" role="alert">
-          <i class="bi bi-exclamation-triangle me-3"></i>
-          <div>
-            <h6 class="alert-heading mb-1">⚠️ Catégorie prête à calculer</h6>
-            <p class="mb-0">Cliquez pour déterminer votre catégorie de revenus Wallonie et les primes applicables.</p>
+        <% if @real_eligibility && !@real_eligibility[:eligible] %>
+          <!-- Utilisateur inéligible selon ses revenus -->
+          <div class="alert alert-danger d-flex align-items-center" role="alert">
+            <i class="bi bi-x-circle me-3"></i>
+            <div>
+              <h6 class="alert-heading mb-1">❌ Non éligible aux primes Wallonie</h6>
+              <p class="mb-0"><%= @real_eligibility[:reason] %></p>
+              <small class="text-muted">Votre ménage dépasse le seuil maximal d'éligibilité pour les primes de rénovation en Wallonie.</small>
+            </div>
           </div>
-        </div>
+        <% else %>
+          <!-- Utilisateur potentiellement éligible, catégorie à calculer -->
+          <div class="alert alert-warning d-flex align-items-center" role="alert">
+            <i class="bi bi-exclamation-triangle me-3"></i>
+            <div>
+              <h6 class="alert-heading mb-1">⚠️ Catégorie prête à calculer</h6>
+              <p class="mb-0">Cliquez pour déterminer votre catégorie de revenus Wallonie et les primes applicables.</p>
+            </div>
+          </div>
+        <% end %>
       <% end %>
     </div>
 
     <% unless @simulation.respond_to?(:category) && @simulation.category.present? %>
-      <div class="mt-3">
-        <button id="calculate-category-btn" class="btn btn-primary-custom">
-          <i class="bi bi-calculator me-2"></i>Calculer la catégorie Wallonie
-        </button>
-      </div>
+      <% if @real_eligibility && @real_eligibility[:eligible] %>
+        <div class="mt-3">
+          <button id="calculate-category-btn" class="btn btn-primary-custom">
+            <i class="bi bi-calculator me-2"></i>Calculer la catégorie Wallonie
+          </button>
+        </div>
+      <% end %>
     <% end %>
   </div>
 </div>

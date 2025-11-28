@@ -184,3 +184,58 @@
   }
 </script>
 <% end %>
+
+<!-- Script général pour le calcul de catégorie (toutes régions) -->
+<script nonce="<%= content_security_policy_nonce %>">
+  // ==========================================
+  // GESTION CALCUL CATÉGORIE GÉNÉRALE
+  // ==========================================
+  document.addEventListener('DOMContentLoaded', function() {
+    const calculateCategoryBtn = document.getElementById('calculate-category-btn');
+    
+    if (calculateCategoryBtn) {
+      calculateCategoryBtn.addEventListener('click', function() {
+        console.log('🎯 Calcul de catégorie lancé');
+        
+        // Changer l'état du bouton
+        this.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Calcul en cours...';
+        this.disabled = true;
+
+        // Récupérer l'ID de la simulation
+        const simulationId = '<%= @simulation.id %>';
+
+        // Appel Ajax au calcul de catégorie
+        fetch(`/simulations/${simulationId}/calculate_category`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content,
+            'Accept': 'application/json'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          console.log('📊 Résultat calcul de catégorie:', data);
+          
+          if (data.eligible && data.category) {
+            console.log('✅ Catégorie calculée, rechargement de la page...');
+            window.location.reload();
+          } else if (data.eligible === false) {
+            // Utilisateur inéligible
+            console.log('❌ Utilisateur inéligible:', data.message);
+            window.location.reload(); // Recharger pour afficher le message d'inéligibilité
+          } else {
+            console.error('❌ Erreur lors du calcul:', data);
+            this.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Erreur - Réessayer';
+            this.disabled = false;
+          }
+        })
+        .catch(error => {
+          console.error('❌ Erreur réseau lors du calcul de catégorie:', error);
+          this.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Erreur - Réessayer';
+          this.disabled = false;
+        });
+      });
+    }
+  });
+</script>
