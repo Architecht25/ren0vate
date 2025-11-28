@@ -467,10 +467,11 @@
                 <h6 class="mb-0 text-info fw-medium">Caractéristiques du bâtiment</h6>
               </div>
               <div class="row g-2">
-                <div class="col-6">
+                <div class="col-4">
                   <%= f.input :surface_habitable_wallonie,
                       label: '<i class="bi bi-rulers me-2 text-info"></i>Surface habitable'.html_safe,
                       placeholder: "ex. 120",
+                      hint: '<i class="bi bi-info-circle me-1"></i>Surface en m²'.html_safe,
                       wrapper_html: { class: "mb-3" },
                       label_html: { class: "form-label text-dark fw-medium mb-1" },
                       input_html: {
@@ -481,7 +482,7 @@
                         step: "1"
                       } %>
                 </div>
-                <div class="col-6">
+                <div class="col-4">
                   <%= f.input :annee_construction,
                       label: '<i class="bi bi-calendar3 me-2 text-info"></i>Année de construction'.html_safe,
                       placeholder: "ex. 1985",
@@ -494,6 +495,27 @@
                         min: "1800",
                         max: Date.current.year,
                         required: true
+                      } %>
+                </div>
+                <div class="col-4">
+                  <%= f.input :mode_chauffage_wallonie,
+                      label: '<i class="bi bi-thermometer-half me-2 text-info"></i>Mode de chauffage'.html_safe,
+                      collection: [
+                        ["Gaz", "gaz"],
+                        ["Mazout", "mazout"],
+                        ["Électricité", "electricite"],
+                        ["Pompe à chaleur", "pompe_a_chaleur"],
+                        ["Bois/Biomasse", "bois_biomasse"],
+                        ["Charbon", "charbon"],
+                        ["Autre", "autre"]
+                      ],
+                      include_blank: "Sélectionnez le mode de chauffage",
+                      hint: '<i class="bi bi-info-circle me-1"></i>Mode de chauffage principal actuel'.html_safe,
+                      wrapper_html: { class: "mb-3" },
+                      label_html: { class: "form-label text-dark fw-medium mb-1" },
+                      input_html: {
+                        class: "form-select border-2 rounded-3 px-3",
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;"
                       } %>
                 </div>
               </div>
@@ -523,7 +545,7 @@
               <%= link_to properties_path, class: "btn btn-outline-secondary rounded-3 py-2" do %>
                 <i class="bi bi-arrow-left me-2"></i>Annuler
               <% end %>
-              <%= f.submit "Ajouter le bien", class: 'btn btn-primary rounded-3 py-2 fw-medium' %>
+              <%= f.submit "Sauvegarder les données", class: 'btn btn-primary rounded-3 py-2 fw-medium' %>
             </div>
           </div>
         </div>
