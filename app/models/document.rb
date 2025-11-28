@@ -49,6 +49,7 @@ class Document < ApplicationRecord
     copie_carte_identite: 'copie_carte_identite',
     # Documents bancaires
     rib: 'rib',
+    aer: 'aer',
     # Fiches techniques
     fiche_technique: 'fiche_technique'
   }
