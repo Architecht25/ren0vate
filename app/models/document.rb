@@ -76,8 +76,8 @@ class Document < ApplicationRecord
 
   ALL_ALLOWED_FORMATS = ALLOWED_FORMATS.values.flatten.freeze
 
-  # Limite de taille (20 MB)
-  MAX_FILE_SIZE = 20.megabytes
+  # Limite de taille (30 MB - correspond à config.active_storage.max_file_size)
+  MAX_FILE_SIZE = 30.megabytes
 
   # Méthodes helper
   def completed?
@@ -335,14 +335,6 @@ class Document < ApplicationRecord
     end
   end
 
-  def file_size_limit
-    return unless file.attached?
-
-    if file.byte_size > 20.megabytes
-      errors.add(:file, 'ne peut pas dépasser 20MB.')
-    end
-  end
-
   def file_format_validation
     return unless file.attached?
 
@@ -373,18 +365,6 @@ class Document < ApplicationRecord
   end
 
   # Validations techniques spécifiques
-  def technical_document?
-    %w[rapport_audit_energetique devis fiche_technique].include?(type_document)
-  end
-
-  def insulation_document?
-    %w[devis fiche_technique].include?(type_document)
-  end
-
-  def time_sensitive_document?
-    %w[facture rapport_audit_energetique].include?(type_document)
-  end
-
   def technical_document?
     %w[rapport_audit_energetique devis fiche_technique].include?(type_document)
   end

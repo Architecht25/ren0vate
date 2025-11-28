@@ -175,14 +175,26 @@ class DocumentsController < ApplicationController
       @document.request = @request if @request
       @document.simulation = @simulation if @simulation
 
-      if @document.save
-        # Générer file_url après la sauvegarde si fichier attaché
-        if @document.file.attached? && @document.file_url.blank?
-          @document.update(file_url: rails_blob_url(@document.file))
+      begin
+        if @document.save
+          # Générer file_url après la sauvegarde si fichier attaché
+          if @document.file.attached? && @document.file_url.blank?
+            @document.update(file_url: rails_blob_url(@document.file))
+          end
+          created_documents << @document
+        else
+          errors.concat(@document.errors.full_messages)
         end
-        created_documents << @document
-      else
-        errors.concat(@document.errors.full_messages)
+      rescue ActiveStorage::IntegrityError => e
+        if e.message.include?("File size too large")
+          file_size_mb = (file.size.to_f / 1.megabyte).round(2)
+          limit_mb = 30 # Limite configurée dans Rails
+          errors << "Le fichier '#{file.original_filename}' (#{file_size_mb} MB) dépasse la limite autorisée de #{limit_mb} MB. Veuillez réduire la taille du fichier ou le compresser."
+        else
+          errors << "Erreur lors du téléchargement du fichier '#{file.original_filename}': #{e.message}"
+        end
+      rescue => e
+        errors << "Erreur inattendue lors du téléchargement: #{e.message}"
       end
     end
 
