@@ -32,7 +32,7 @@ class Property < ApplicationRecord
   validates :type_bien_flandre, presence: true, if: -> { region == 'flandre' && new_record? }
   validates :usage_flandre, presence: true, if: -> { region == 'flandre' && new_record? }
   # validates :ean_flandre, presence: true, if: -> { region == 'flandre' } # Temporairement désactivé
-  validates :type_propriete_wallonie, presence: true, if: -> { region == 'Wallonie' && new_record? }
+  validates :type_propriete_wallonie, presence: true, if: -> { region == 'wallonie' && new_record? }
 
   # Validations optionnelles - à réactiver plus tard selon les besoins
   # validates :type, :occupation, presence: true
