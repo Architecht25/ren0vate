@@ -298,6 +298,16 @@ class PropertiesController < ApplicationController
           'Accord préliminaire d\'achat'
         ],
         priority: 'optional'
+      },
+      'rapport_audit_energetique' => {
+        title: '📊 Rapport d\'audit énergétique',
+        image: 'audit_energetique.webp',
+        conditions: [
+          'Rapport d\'audit énergétique certifié',
+          'Analyse complète de la performance',
+          'Recommandations d\'amélioration'
+        ],
+        priority: 'required'
       }
     }
   end

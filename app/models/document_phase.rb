@@ -33,7 +33,7 @@ class DocumentPhase < ApplicationRecord
       icon: '🔧',
       color: 'info',
       position: 2,
-      required_document_types: ['devis', 'bordereau_chassis', 'certificat_label'],
+      required_document_types: ['devis', 'bordereau_chassis', 'certificat_label', 'rapport_audit_energetique'],
       optional_document_types: []
     },
     {
