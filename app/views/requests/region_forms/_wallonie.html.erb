@@ -1154,7 +1154,7 @@
 (function() {
   const wallonieSection = document.getElementById('wallonie-section');
   const formTypeInput = document.querySelector('input[name*="form_type"]');
-  
+
   if (wallonieSection && formTypeInput && formTypeInput.value === 'regional_wallonie') {
     console.log('🏠 Affichage forcé de la section Wallonie');
     wallonieSection.style.display = 'block';
@@ -1208,16 +1208,16 @@ document.addEventListener('DOMContentLoaded', function() {
   // Forcer à nouveau l'affichage au chargement complet
   const wallonieSection = document.getElementById('wallonie-section');
   const formTypeInput = document.querySelector('input[name*="form_type"]');
-  
+
   if (wallonieSection && formTypeInput && formTypeInput.value === 'regional_wallonie') {
     console.log('🏠 Affichage forcé de la section Wallonie au DOMContentLoaded');
     wallonieSection.style.display = 'block';
   }
-  
+
   // Gestion du maintien du régime
   const maintienNon = document.getElementById('maintien_regime_non');
   const infoAlert = document.getElementById('maintien_regime_info');
-  
+
   function toggleMaintienInfo() {
     if (maintienNon && maintienNon.checked && infoAlert) {
       infoAlert.style.display = 'block';
@@ -1225,14 +1225,14 @@ document.addEventListener('DOMContentLoaded', function() {
       infoAlert.style.display = 'none';
     }
   }
-  
+
   document.querySelectorAll('input[name*="maintien_regime"]').forEach(radio => {
     radio.addEventListener('change', toggleMaintienInfo);
   });
-  
+
   // Gestion de l'adresse du logement
   const adresseLogementFields = document.getElementById('adresse_logement_fields');
-  
+
   function toggleAdresseLogement() {
     const locAutreAdresse = document.getElementById('loc_autre_adresse');
     if (locAutreAdresse && locAutreAdresse.checked && adresseLogementFields) {
@@ -1241,11 +1241,11 @@ document.addEventListener('DOMContentLoaded', function() {
       adresseLogementFields.style.display = 'none';
     }
   }
-  
+
   document.querySelectorAll('input[name*="localisation_travaux"]').forEach(radio => {
     radio.addEventListener('change', toggleAdresseLogement);
   });
-  
+
   // État initial
   toggleMaintienInfo();
   toggleAdresseLogement();

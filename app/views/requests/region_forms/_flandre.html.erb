@@ -441,13 +441,29 @@
                                        maxlength: 60,
                                        placeholder: "Max 60 caractères" %>
                   </div>
-                  <div class="col-12">
+                  <div class="col-md-6">
                     <%= form.label :type_isolation_toiture, "Type isolation", class: "form-label" %>
                     <%= form.text_field :type_isolation_toiture,
                                        value: @form_data&.dig('type_isolation_toiture'),
                                        class: "form-control",
                                        maxlength: 60,
                                        placeholder: "Max 60 caractères" %>
+                  </div>
+                  <div class="col-md-3">
+                    <%= form.label :epaisseur_materiau_toiture, "Épaisseur totale (cm)", class: "form-label" %>
+                    <%= form.number_field :epaisseur_materiau_toiture,
+                                         value: @form_data&.dig('epaisseur_materiau_toiture'),
+                                         class: "form-control",
+                                         min: 0, step: 0.1,
+                                         placeholder: "Ex: 15.5" %>
+                  </div>
+                  <div class="col-md-3">
+                    <%= form.label :valeur_rd_toiture, "Valeur Rd (m²K/W)", class: "form-label" %>
+                    <%= form.number_field :valeur_rd_toiture,
+                                         value: @form_data&.dig('valeur_rd_toiture'),
+                                         class: "form-control",
+                                         min: 0, step: 0.01,
+                                         placeholder: "Ex: 4.50" %>
                   </div>
                 </div>
               </div>
@@ -507,14 +523,75 @@
                                        maxlength: 60,
                                        placeholder: "Max 60 caractères" %>
                   </div>
-                  <div class="col-12">
+                  <div class="col-md-6">
                     <%= form.label :type_isolation_murs, "Type isolation", class: "form-label" %>
                     <%= form.text_field :type_isolation_murs,
                                        value: @form_data&.dig('type_isolation_murs'),
                                        class: "form-control",
                                        maxlength: 60,
                                        placeholder: "Max 60 caractères" %>
-                </div>
+                  </div>
+                  <div class="col-md-2">
+                    <%= form.label :nombre_couches_murs, "Nb couches", class: "form-label" %>
+                    <%= form.number_field :nombre_couches_murs,
+                                         value: @form_data&.dig('nombre_couches_murs'),
+                                         class: "form-control",
+                                         min: 1, step: 1,
+                                         placeholder: "Ex: 2" %>
+                  </div>
+                  <div class="col-md-2">
+                    <%= form.label :epaisseur_materiau_murs, "Épaisseur (cm)", class: "form-label" %>
+                    <%= form.number_field :epaisseur_materiau_murs,
+                                         value: @form_data&.dig('epaisseur_materiau_murs'),
+                                         class: "form-control",
+                                         min: 0, step: 0.1,
+                                         placeholder: "Ex: 12.0" %>
+                  </div>
+                  <div class="col-md-2">
+                    <%= form.label :valeur_rd_murs, "Valeur Rd", class: "form-label" %>
+                    <%= form.number_field :valeur_rd_murs,
+                                         value: @form_data&.dig('valeur_rd_murs'),
+                                         class: "form-control",
+                                         min: 0, step: 0.01,
+                                         placeholder: "Ex: 3.50" %>
+                  </div>
+                  <div class="col-12">
+                    <%= form.label :facades_isolees, "Façades isolées", class: "form-label d-block mb-2" %>
+                    <div class="row g-2">
+                      <div class="col-md-3">
+                        <div class="form-check">
+                          <%= form.check_box :facade_avant,
+                                             { class: "form-check-input", checked: (@form_data&.dig('facade_avant') == true || @form_data&.dig('facade_avant') == 'true') },
+                                             "true", "" %>
+                          <%= form.label :facade_avant, "Façade avant", class: "form-check-label" %>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="form-check">
+                          <%= form.check_box :facade_arriere,
+                                             { class: "form-check-input", checked: (@form_data&.dig('facade_arriere') == true || @form_data&.dig('facade_arriere') == 'true') },
+                                             "true", "" %>
+                          <%= form.label :facade_arriere, "Façade arrière", class: "form-check-label" %>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="form-check">
+                          <%= form.check_box :facade_gauche,
+                                             { class: "form-check-input", checked: (@form_data&.dig('facade_gauche') == true || @form_data&.dig('facade_gauche') == 'true') },
+                                             "true", "" %>
+                          <%= form.label :facade_gauche, "Façade gauche", class: "form-check-label" %>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="form-check">
+                          <%= form.check_box :facade_droite,
+                                             { class: "form-check-input", checked: (@form_data&.dig('facade_droite') == true || @form_data&.dig('facade_droite') == 'true') },
+                                             "true", "" %>
+                          <%= form.label :facade_droite, "Façade droite", class: "form-check-label" %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -523,22 +600,38 @@
                 <%= form.check_box :travaux_sol,
                                    { class: "form-check-input", checked: (@form_data&.dig('travaux_sol') == true || @form_data&.dig('travaux_sol') == 'true') },
                                    "true", "" %>
-                <%= form.label :travaux_sol, "Isolation du sol ou des caves", class: "form-check-label fw-semibold" %>
+                <%= form.label :travaux_sol, "Isolation du sol", class: "form-check-label fw-semibold" %>
               </div>
               <div class="travaux-details ms-4 mb-4 <%= 'd-none' unless (@form_data&.dig('travaux_sol') == true || @form_data&.dig('travaux_sol') == 'true') %>">
                 <div class="row g-2">
-                  <div class="col-md-4">
+                  <div class="col-md-3">
                     <%= form.label :surface_sol, "Surface (m²)", class: "form-label" %>
                     <%= form.number_field :surface_sol,
                                          value: @form_data&.dig('surface_sol'),
                                          class: "form-control",
                                          min: 0, step: 1 %>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-md-3">
                     <%= form.label :date_placement_sol, "Date de placement", class: "form-label" %>
                     <%= form.date_field :date_placement_sol,
                                        value: @form_data&.dig('date_placement_sol'),
                                        class: "form-control" %>
+                  </div>
+                  <div class="col-md-3">
+                    <%= form.label :epaisseur_materiau_sol, "Épaisseur (cm)", class: "form-label" %>
+                    <%= form.number_field :epaisseur_materiau_sol,
+                                         value: @form_data&.dig('epaisseur_materiau_sol'),
+                                         class: "form-control",
+                                         min: 0, step: 0.1,
+                                         placeholder: "Ex: 10.0" %>
+                  </div>
+                  <div class="col-md-3">
+                    <%= form.label :valeur_rd_sol, "Valeur Rd", class: "form-label" %>
+                    <%= form.number_field :valeur_rd_sol,
+                                         value: @form_data&.dig('valeur_rd_sol'),
+                                         class: "form-control",
+                                         min: 0, step: 0.01,
+                                         placeholder: "Ex: 2.50" %>
                   </div>
                   <div class="col-md-4">
                     <%= form.label :materiau_sol, "Matériau d'isolation", class: "form-label" %>
@@ -553,7 +646,7 @@
                                    {},
                                    { class: "form-select" } %>
                   </div>
-                  <div class="col-md-6">
+                  <div class="col-md-4">
                     <%= form.label :marque_sol, "Marque isolation", class: "form-label" %>
                     <%= form.text_field :marque_sol,
                                        value: @form_data&.dig('marque_sol'),
@@ -561,7 +654,7 @@
                                        maxlength: 60,
                                        placeholder: "Max 60 caractères" %>
                   </div>
-                  <div class="col-md-6">
+                  <div class="col-md-4">
                     <%= form.label :type_isolation_sol, "Type isolation", class: "form-label" %>
                     <%= form.text_field :type_isolation_sol,
                                        value: @form_data&.dig('type_isolation_sol'),
@@ -572,39 +665,146 @@
                 </div>
               </div>
 
-              <!-- Vitrage -->
+              <!-- Isolation de cave -->
+              <div class="form-check mb-3">
+                <%= form.check_box :travaux_cave,
+                                   { class: "form-check-input", checked: (@form_data&.dig('travaux_cave') == true || @form_data&.dig('travaux_cave') == 'true') },
+                                   "true", "" %>
+                <%= form.label :travaux_cave, "Isolation de cave", class: "form-check-label fw-semibold" %>
+              </div>
+              <div class="travaux-details ms-4 mb-4 <%= 'd-none' unless (@form_data&.dig('travaux_cave') == true || @form_data&.dig('travaux_cave') == 'true') %>">
+                <div class="row g-2">
+                  <div class="col-md-3">
+                    <%= form.label :surface_cave, "Surface (m²)", class: "form-label" %>
+                    <%= form.number_field :surface_cave,
+                                         value: @form_data&.dig('surface_cave'),
+                                         class: "form-control",
+                                         min: 0, step: 1 %>
+                  </div>
+                  <div class="col-md-3">
+                    <%= form.label :date_placement_cave, "Date de placement", class: "form-label" %>
+                    <%= form.date_field :date_placement_cave,
+                                       value: @form_data&.dig('date_placement_cave'),
+                                       class: "form-control" %>
+                  </div>
+                  <div class="col-md-3">
+                    <%= form.label :epaisseur_materiau_cave, "Épaisseur (cm)", class: "form-label" %>
+                    <%= form.number_field :epaisseur_materiau_cave,
+                                         value: @form_data&.dig('epaisseur_materiau_cave'),
+                                         class: "form-control",
+                                         min: 0, step: 0.1,
+                                         placeholder: "Ex: 8.0" %>
+                  </div>
+                  <div class="col-md-3">
+                    <%= form.label :valeur_rd_cave, "Valeur Rd", class: "form-label" %>
+                    <%= form.number_field :valeur_rd_cave,
+                                         value: @form_data&.dig('valeur_rd_cave'),
+                                         class: "form-control",
+                                         min: 0, step: 0.01,
+                                         placeholder: "Ex: 2.00" %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= form.label :materiau_cave, "Matériau d'isolation", class: "form-label" %>
+                    <%= form.select :materiau_cave,
+                                   options_for_select([
+                                     ['-- Sélectionnez --', ''],
+                                     ['Bio-écologique matériaal', 'bio_ecologique'],
+                                     ['Minerale wol', 'minerale_wol'],
+                                     ['PIR/PUR (polyuréthaan)', 'pir_pur'],
+                                     ['Andere', 'andere']
+                                   ], @form_data&.dig('materiau_cave')),
+                                   {},
+                                   { class: "form-select" } %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= form.label :marque_cave, "Marque isolation", class: "form-label" %>
+                    <%= form.text_field :marque_cave,
+                                       value: @form_data&.dig('marque_cave'),
+                                       class: "form-control",
+                                       maxlength: 60,
+                                       placeholder: "Max 60 caractères" %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= form.label :type_isolation_cave, "Type isolation", class: "form-label" %>
+                    <%= form.text_field :type_isolation_cave,
+                                       value: @form_data&.dig('type_isolation_cave'),
+                                       class: "form-control",
+                                       maxlength: 60,
+                                       placeholder: "Max 60 caractères" %>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Remplacement du vitrage -->
               <div class="form-check mb-3">
                 <%= form.check_box :travaux_vitrage,
                                    { class: "form-check-input", checked: (@form_data&.dig('travaux_vitrage') == true || @form_data&.dig('travaux_vitrage') == 'true') },
                                    "true", "" %>
-                <%= form.label :travaux_vitrage, "Remplacement du vitrage", class: "form-check-label fw-semibold" %>
+                <%= form.label :travaux_vitrage, "Pose de vitrage", class: "form-check-label fw-semibold" %>
               </div>
               <div class="travaux-details ms-4 mb-4 <%= 'd-none' unless (@form_data&.dig('travaux_vitrage') == true || @form_data&.dig('travaux_vitrage') == 'true') %>">
+                <!-- Type de vitrage -->
+                <div class="mb-3">
+                  <%= form.label :type_vitrage_original, "Type de vitrage remplacé", class: "form-label d-block mb-2" %>
+                  <div class="row g-2">
+                    <div class="col-md-4">
+                      <div class="form-check">
+                        <%= form.check_box :vitrage_simple,
+                                           { class: "form-check-input", checked: (@form_data&.dig('vitrage_simple') == true || @form_data&.dig('vitrage_simple') == 'true') },
+                                           "true", "" %>
+                        <%= form.label :vitrage_simple, "Vitrage simple", class: "form-check-label" %>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-check">
+                        <%= form.check_box :vitrage_double,
+                                           { class: "form-check-input", checked: (@form_data&.dig('vitrage_double') == true || @form_data&.dig('vitrage_double') == 'true') },
+                                           "true", "" %>
+                        <%= form.label :vitrage_double, "Double vitrage", class: "form-check-label" %>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="form-check">
+                        <%= form.check_box :vitrage_simple_double,
+                                           { class: "form-check-input", checked: (@form_data&.dig('vitrage_simple_double') == true || @form_data&.dig('vitrage_simple_double') == 'true') },
+                                           "true", "" %>
+                        <%= form.label :vitrage_simple_double, "Simple et double", class: "form-check-label" %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Données techniques du vitrage -->
                 <div class="row g-2">
-                  <div class="col-md-4">
-                    <%= form.label :surface_vitrage, "Surface (m²)", class: "form-label" %>
+                  <div class="col-md-3">
+                    <%= form.label :surface_vitrage, "Surface verre (m²)", class: "form-label" %>
                     <%= form.number_field :surface_vitrage,
                                          value: @form_data&.dig('surface_vitrage'),
                                          class: "form-control",
-                                         min: 0, step: 1 %>
+                                         min: 0, step: 0.1,
+                                         placeholder: "Sans cadre" %>
                   </div>
-                  <div class="col-md-4">
+                  <div class="col-md-3">
                     <%= form.label :date_placement_vitrage, "Date de placement", class: "form-label" %>
                     <%= form.date_field :date_placement_vitrage,
                                        value: @form_data&.dig('date_placement_vitrage'),
                                        class: "form-control" %>
                   </div>
-                  <div class="col-md-4">
-                    <%= form.label :type_vitrage, "Type de vitrage", class: "form-label" %>
-                    <%= form.select :type_vitrage,
-                                   options_for_select([
-                                     ['-- Sélectionnez --', ''],
-                                     ['Double vitrage', 'double'],
-                                     ['Triple vitrage', 'triple'],
-                                     ['Vitrage haute performance', 'haute_performance']
-                                   ], @form_data&.dig('type_vitrage')),
-                                   {},
-                                   { class: "form-select" } %>
+                  <div class="col-md-3">
+                    <%= form.label :valeur_ug_vitrage, "Valeur Ug (W/m²K)", class: "form-label" %>
+                    <%= form.number_field :valeur_ug_vitrage,
+                                         value: @form_data&.dig('valeur_ug_vitrage'),
+                                         class: "form-control",
+                                         min: 0, step: 0.01, max: 1.0,
+                                         placeholder: "Max 1.0" %>
+                  </div>
+                  <div class="col-md-3">
+                    <%= form.label :type_vitrage, "Type vitrage", class: "form-label" %>
+                    <%= form.text_field :type_vitrage,
+                                       value: @form_data&.dig('type_vitrage'),
+                                       class: "form-control",
+                                       maxlength: 60,
+                                       placeholder: "Ex: Super 68" %>
                   </div>
                   <div class="col-md-6">
                     <%= form.label :marque_vitrage, "Marque", class: "form-label" %>
@@ -612,15 +812,78 @@
                                        value: @form_data&.dig('marque_vitrage'),
                                        class: "form-control",
                                        maxlength: 60,
+                                       placeholder: "Ex: ENGELS" %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= form.label :nouvelles_fenetres_pieces_seches, "Nouvelles fenêtres dans pièces sèches ?", class: "form-label" %>
+                    <%= form.select :nouvelles_fenetres_pieces_seches,
+                                   options_for_select([
+                                     ['-- Sélectionnez --', ''],
+                                     ['Oui', 'oui'],
+                                     ['Non', 'non']
+                                   ], @form_data&.dig('nouvelles_fenetres_pieces_seches')),
+                                   {},
+                                   { class: "form-select" } %>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pose de portes extérieures pleines -->
+              <div class="form-check mb-3">
+                <%= form.check_box :travaux_portes,
+                                   { class: "form-check-input", checked: (@form_data&.dig('travaux_portes') == true || @form_data&.dig('travaux_portes') == 'true') },
+                                   "true", "" %>
+                <%= form.label :travaux_portes, "Pose de portes extérieures pleines", class: "form-check-label fw-semibold" %>
+              </div>
+              <div class="travaux-details ms-4 mb-4 <%= 'd-none' unless (@form_data&.dig('travaux_portes') == true || @form_data&.dig('travaux_portes') == 'true') %>">
+                <div class="row g-2">
+                  <div class="col-md-3">
+                    <%= form.label :surface_portes, "Surface (m²)", class: "form-label" %>
+                    <%= form.number_field :surface_portes,
+                                         value: @form_data&.dig('surface_portes'),
+                                         class: "form-control",
+                                         min: 0, step: 0.1 %>
+                  </div>
+                  <div class="col-md-3">
+                    <%= form.label :date_placement_portes, "Date de placement", class: "form-label" %>
+                    <%= form.date_field :date_placement_portes,
+                                       value: @form_data&.dig('date_placement_portes'),
+                                       class: "form-control" %>
+                  </div>
+                  <div class="col-md-3">
+                    <%= form.label :valeur_u_portes, "Valeur U (W/m²K)", class: "form-label" %>
+                    <%= form.number_field :valeur_u_portes,
+                                         value: @form_data&.dig('valeur_u_portes'),
+                                         class: "form-control",
+                                         min: 0, step: 0.01, max: 2.0,
+                                         placeholder: "Max 2.0" %>
+                  </div>
+                  <div class="col-md-3">
+                    <%= form.label :type_portes, "Type portes", class: "form-label" %>
+                    <%= form.text_field :type_portes,
+                                       value: @form_data&.dig('type_portes'),
+                                       class: "form-control",
+                                       maxlength: 60,
                                        placeholder: "Max 60 caractères" %>
                   </div>
                   <div class="col-md-6">
-                    <%= form.label :performance_vitrage, "Performance énergétique", class: "form-label" %>
-                    <%= form.text_field :performance_vitrage,
-                                       value: @form_data&.dig('performance_vitrage'),
+                    <%= form.label :marque_portes, "Marque portes", class: "form-label" %>
+                    <%= form.text_field :marque_portes,
+                                       value: @form_data&.dig('marque_portes'),
                                        class: "form-control",
                                        maxlength: 60,
-                                       placeholder: "Valeur Uw, max 60 caractères" %>
+                                       placeholder: "Max 60 caractères" %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= form.label :ouvertures_pieces_humides, "Ouvertures minimales pièces humides ?", class: "form-label" %>
+                    <%= form.select :ouvertures_pieces_humides,
+                                   options_for_select([
+                                     ['-- Sélectionnez --', ''],
+                                     ['Oui', 'oui'],
+                                     ['Non', 'non']
+                                   ], @form_data&.dig('ouvertures_pieces_humides')),
+                                   {},
+                                   { class: "form-select" } %>
                   </div>
                 </div>
               </div>
@@ -663,21 +926,366 @@
                 <%= form.check_box :travaux_chauffage,
                                    { class: "form-check-input", checked: (@form_data&.dig('travaux_chauffage') == true || @form_data&.dig('travaux_chauffage') == 'true') },
                                    "true", "" %>
-                <%= form.label :travaux_chauffage, "Installation d'une pompe à chaleur et chauffe-eau thermodynamique", class: "form-check-label fw-semibold" %>
+                <%= form.label :travaux_chauffage, "Installation d'une pompe à chaleur", class: "form-check-label fw-semibold" %>
               </div>
               <div class="travaux-details ms-4 mb-4 <%= 'd-none' unless (@form_data&.dig('travaux_chauffage') == true || @form_data&.dig('travaux_chauffage') == 'true') %>">
-                <div class="row g-2">
+
+                <!-- Questions générales -->
+                <div class="row g-2 mb-3">
                   <div class="col-md-6">
-                    <%= form.label :type_chauffage, "Type de système", class: "form-label" %>
-                    <%= form.select :type_chauffage,
+                    <%= form.label :remplacement_chauffage_electrique, "Remplacement chauffage électrique existant ?", class: "form-label" %>
+                    <%= form.select :remplacement_chauffage_electrique,
                                    options_for_select([
                                      ['-- Sélectionnez --', ''],
-                                     ['Pompe à chaleur géothermique', 'pac-geothermique'],
-                                     ['Pompe à chaleur air/eau', 'pac-air-eau'],
-                                     ['Pompe à chaleur air/air', 'pac-air-air'],
-                                     ['Pompe à chaleur hybride', 'hybride'],
-                                     ['Boiler thermodynamique', 'boiler']
-                                   ], @form_data&.dig('type_chauffage')),
+                                     ['Oui', 'oui'],
+                                     ['Non', 'non']
+                                   ], @form_data&.dig('remplacement_chauffage_electrique')),
+                                   {},
+                                   { class: "form-select" } %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= form.label :raccordement_gaz, "Bâtiment raccordé au gaz naturel ?", class: "form-label" %>
+                    <%= form.select :raccordement_gaz,
+                                   options_for_select([
+                                     ['-- Sélectionnez --', ''],
+                                     ['Oui', 'oui'],
+                                     ['Non', 'non']
+                                   ], @form_data&.dig('raccordement_gaz')),
+                                   {},
+                                   { class: "form-select" } %>
+                  </div>
+                </div>
+
+                <!-- Type de pompe à chaleur -->
+                <div class="mb-3">
+                  <%= form.label :type_chauffage, "Type de pompe à chaleur", class: "form-label" %>
+                  <%= form.select :type_chauffage,
+                                 options_for_select([
+                                   ['-- Sélectionnez --', ''],
+                                   ['Pompe à chaleur géothermique', 'geothermique'],
+                                   ['Pompe à chaleur air/eau', 'air-eau'],
+                                   ['Pompe à chaleur air/air', 'air-air'],
+                                   ['Pompe à chaleur hybride air/eau', 'hybride']
+                                 ], @form_data&.dig('type_chauffage')),
+                                 {},
+                                 { class: "form-select", 'data-target': 'pac-details' } %>
+                </div>
+
+                <!-- Détails pompe géothermique -->
+                <div class="pac-details geothermique <%= 'd-none' unless @form_data&.dig('type_chauffage') == 'geothermique' %>">
+                  <h6 class="text-primary mb-3">Pompe à chaleur géothermique</h6>
+                  <div class="row g-2">
+                    <div class="col-md-4">
+                      <%= form.label :marque_pac_geo, "Marque", class: "form-label" %>
+                      <%= form.text_field :marque_pac_geo,
+                                         value: @form_data&.dig('marque_pac_geo'),
+                                         class: "form-control",
+                                         placeholder: "Marque de la pompe" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :type_pac_geo, "Type/Modèle", class: "form-label" %>
+                      <%= form.text_field :type_pac_geo,
+                                         value: @form_data&.dig('type_pac_geo'),
+                                         class: "form-control",
+                                         placeholder: "Modèle/Référence" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :puissance_thermique_geo, "Puissance thermique (kW)", class: "form-label" %>
+                      <%= form.number_field :puissance_thermique_geo,
+                                           value: @form_data&.dig('puissance_thermique_geo'),
+                                           class: "form-control",
+                                           min: 0, step: 0.1,
+                                           placeholder: "Ex: 12.5" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :puissance_electrique_geo, "Puissance compresseur électrique (kW)", class: "form-label" %>
+                      <%= form.number_field :puissance_electrique_geo,
+                                           value: @form_data&.dig('puissance_electrique_geo'),
+                                           class: "form-control",
+                                           min: 0, step: 0.1,
+                                           placeholder: "Ex: 3.2" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :puissance_gaz_geo, "Puissance gaz installée (kW)", class: "form-label" %>
+                      <%= form.number_field :puissance_gaz_geo,
+                                           value: @form_data&.dig('puissance_gaz_geo'),
+                                           class: "form-control",
+                                           min: 0, step: 0.1,
+                                           placeholder: "Si applicable" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :label_europeen_geo, "Label énergétique européen", class: "form-label" %>
+                      <%= form.select :label_europeen_geo,
+                                     options_for_select([
+                                       ['-- Sélectionnez --', ''],
+                                       ['A+', 'A+'],
+                                       ['A++', 'A++'],
+                                       ['A+++', 'A+++']
+                                     ], @form_data&.dig('label_europeen_geo')),
+                                     {},
+                                     { class: "form-select" } %>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Détails pompe air-eau -->
+                <div class="pac-details air-eau <%= 'd-none' unless @form_data&.dig('type_chauffage') == 'air-eau' %>">
+                  <h6 class="text-primary mb-3">Pompe à chaleur air/eau</h6>
+                  <div class="row g-2">
+                    <div class="col-md-4">
+                      <%= form.label :marque_pac_air_eau, "Marque", class: "form-label" %>
+                      <%= form.text_field :marque_pac_air_eau,
+                                         value: @form_data&.dig('marque_pac_air_eau'),
+                                         class: "form-control",
+                                         placeholder: "Marque de la pompe" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :type_pac_air_eau, "Type/Modèle", class: "form-label" %>
+                      <%= form.text_field :type_pac_air_eau,
+                                         value: @form_data&.dig('type_pac_air_eau'),
+                                         class: "form-control",
+                                         placeholder: "Modèle/Référence" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :puissance_thermique_air_eau, "Puissance thermique (kW)", class: "form-label" %>
+                      <%= form.number_field :puissance_thermique_air_eau,
+                                           value: @form_data&.dig('puissance_thermique_air_eau'),
+                                           class: "form-control",
+                                           min: 0, step: 0.1,
+                                           placeholder: "Ex: 8.5" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :puissance_electrique_air_eau, "Puissance compresseur électrique (kW)", class: "form-label" %>
+                      <%= form.number_field :puissance_electrique_air_eau,
+                                           value: @form_data&.dig('puissance_electrique_air_eau'),
+                                           class: "form-control",
+                                           min: 0, step: 0.1,
+                                           placeholder: "Ex: 2.1" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :puissance_gaz_air_eau, "Puissance gaz installée (kW)", class: "form-label" %>
+                      <%= form.number_field :puissance_gaz_air_eau,
+                                           value: @form_data&.dig('puissance_gaz_air_eau'),
+                                           class: "form-control",
+                                           min: 0, step: 0.1,
+                                           placeholder: "Si applicable" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :label_europeen_air_eau, "Label énergétique européen", class: "form-label" %>
+                      <%= form.select :label_europeen_air_eau,
+                                     options_for_select([
+                                       ['-- Sélectionnez --', ''],
+                                       ['A+', 'A+'],
+                                       ['A++', 'A++'],
+                                       ['A+++', 'A+++']
+                                     ], @form_data&.dig('label_europeen_air_eau')),
+                                     {},
+                                     { class: "form-select" } %>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Détails pompe air-air -->
+                <div class="pac-details air-air <%= 'd-none' unless @form_data&.dig('type_chauffage') == 'air-air' %>">
+                  <h6 class="text-primary mb-3">Pompe à chaleur air/air</h6>
+                  <div class="row g-2">
+                    <div class="col-md-4">
+                      <%= form.label :marque_pac_air_air, "Marque", class: "form-label" %>
+                      <%= form.text_field :marque_pac_air_air,
+                                         value: @form_data&.dig('marque_pac_air_air'),
+                                         class: "form-control",
+                                         placeholder: "Marque de la pompe" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :type_pac_air_air, "Type/Modèle", class: "form-label" %>
+                      <%= form.text_field :type_pac_air_air,
+                                         value: @form_data&.dig('type_pac_air_air'),
+                                         class: "form-control",
+                                         placeholder: "Modèle/Référence" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :puissance_thermique_air_air, "Puissance thermique (kW)", class: "form-label" %>
+                      <%= form.number_field :puissance_thermique_air_air,
+                                           value: @form_data&.dig('puissance_thermique_air_air'),
+                                           class: "form-control",
+                                           min: 0, step: 0.1,
+                                           placeholder: "Ex: 6.8" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :puissance_electrique_air_air, "Puissance compresseur électrique (kW)", class: "form-label" %>
+                      <%= form.number_field :puissance_electrique_air_air,
+                                           value: @form_data&.dig('puissance_electrique_air_air'),
+                                           class: "form-control",
+                                           min: 0, step: 0.1,
+                                           placeholder: "Ex: 1.8" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :puissance_gaz_air_air, "Puissance gaz installée (kW)", class: "form-label" %>
+                      <%= form.number_field :puissance_gaz_air_air,
+                                           value: @form_data&.dig('puissance_gaz_air_air'),
+                                           class: "form-control",
+                                           min: 0, step: 0.1,
+                                           placeholder: "Si applicable" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :label_europeen_air_air, "Label énergétique européen", class: "form-label" %>
+                      <%= form.select :label_europeen_air_air,
+                                     options_for_select([
+                                       ['-- Sélectionnez --', ''],
+                                       ['A+', 'A+'],
+                                       ['A++', 'A++'],
+                                       ['A+++', 'A+++']
+                                     ], @form_data&.dig('label_europeen_air_air')),
+                                     {},
+                                     { class: "form-select" } %>
+                    </div>
+                    <div class="col-md-12">
+                      <%= form.label :efficacite_energetique_air_air, "Efficacité énergétique minimale (%)", class: "form-label" %>
+                      <%= form.number_field :efficacite_energetique_air_air,
+                                           value: @form_data&.dig('efficacite_energetique_air_air'),
+                                           class: "form-control",
+                                           min: 0, max: 100, step: 0.1,
+                                           placeholder: "Efficacité en pourcentage" %>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Détails pompe hybride -->
+                <div class="pac-details hybride <%= 'd-none' unless @form_data&.dig('type_chauffage') == 'hybride' %>">
+                  <h6 class="text-primary mb-3">Pompe à chaleur hybride air/eau</h6>
+                  <div class="row g-2">
+                    <div class="col-md-4">
+                      <%= form.label :marque_pac_hybride, "Marque", class: "form-label" %>
+                      <%= form.text_field :marque_pac_hybride,
+                                         value: @form_data&.dig('marque_pac_hybride'),
+                                         class: "form-control",
+                                         placeholder: "Marque de la pompe" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :type_pac_hybride, "Type/Modèle", class: "form-label" %>
+                      <%= form.text_field :type_pac_hybride,
+                                         value: @form_data&.dig('type_pac_hybride'),
+                                         class: "form-control",
+                                         placeholder: "Modèle/Référence" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :puissance_thermique_hybride, "Puissance thermique (kW)", class: "form-label" %>
+                      <%= form.number_field :puissance_thermique_hybride,
+                                           value: @form_data&.dig('puissance_thermique_hybride'),
+                                           class: "form-control",
+                                           min: 0, step: 0.1,
+                                           placeholder: "Ex: 15.2" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :puissance_electrique_hybride, "Puissance compresseur électrique (kW)", class: "form-label" %>
+                      <%= form.number_field :puissance_electrique_hybride,
+                                           value: @form_data&.dig('puissance_electrique_hybride'),
+                                           class: "form-control",
+                                           min: 0, step: 0.1,
+                                           placeholder: "Ex: 4.5" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :puissance_gaz_hybride, "Puissance gaz installée (kW)", class: "form-label" %>
+                      <%= form.number_field :puissance_gaz_hybride,
+                                           value: @form_data&.dig('puissance_gaz_hybride'),
+                                           class: "form-control",
+                                           min: 0, step: 0.1,
+                                           placeholder: "Ex: 12.0" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :efficacite_energetique_hybride, "Efficacité énergétique minimale (%)", class: "form-label" %>
+                      <%= form.number_field :efficacite_energetique_hybride,
+                                           value: @form_data&.dig('efficacite_energetique_hybride'),
+                                           class: "form-control",
+                                           min: 0, max: 100, step: 0.1,
+                                           placeholder: "Efficacité en %" %>
+                    </div>
+                    <div class="col-md-6">
+                      <%= form.label :label_europeen_hybride, "Label énergétique européen package (%)", class: "form-label" %>
+                      <%= form.number_field :label_europeen_hybride,
+                                           value: @form_data&.dig('label_europeen_hybride'),
+                                           class: "form-control",
+                                           min: 0, max: 100, step: 1,
+                                           placeholder: "Pourcentage du package" %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                  const typeSelect = document.querySelector('[data-target="pac-details"]');
+                  if (typeSelect) {
+                    typeSelect.addEventListener('change', function() {
+                      // Masquer toutes les sections de détails
+                      document.querySelectorAll('.pac-details').forEach(section => {
+                        section.classList.add('d-none');
+                      });
+
+                      // Afficher la section correspondante
+                      const selectedType = this.value;
+                      if (selectedType) {
+                        const targetSection = document.querySelector('.pac-details.' + selectedType);
+                        if (targetSection) {
+                          targetSection.classList.remove('d-none');
+                        }
+                      }
+                    });
+                  }
+                });
+              </script>
+
+              <!-- Chauffe-eau thermodynamique -->
+              <div class="form-check mb-3">
+                <%= form.check_box :travaux_boiler,
+                                   { class: "form-check-input", checked: (@form_data&.dig('travaux_boiler') == true || @form_data&.dig('travaux_boiler') == 'true') },
+                                   "true", "" %>
+                <%= form.label :travaux_boiler, "Installation d'un chauffe-eau thermodynamique", class: "form-check-label fw-semibold" %>
+              </div>
+              <div class="travaux-details ms-4 mb-4 <%= 'd-none' unless (@form_data&.dig('travaux_boiler') == true || @form_data&.dig('travaux_boiler') == 'true') %>">
+                <h6 class="text-primary mb-3">Chauffe-eau thermodynamique</h6>
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <%= form.label :marque_boiler, "Marque chauffe-eau", class: "form-label" %>
+                    <%= form.text_field :marque_boiler,
+                                       value: @form_data&.dig('marque_boiler'),
+                                       class: "form-control",
+                                       maxlength: 60,
+                                       placeholder: "Marque du chauffe-eau thermodynamique" %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= form.label :type_boiler, "Type/Modèle chauffe-eau", class: "form-label" %>
+                    <%= form.text_field :type_boiler,
+                                       value: @form_data&.dig('type_boiler'),
+                                       class: "form-control",
+                                       maxlength: 60,
+                                       placeholder: "Modèle/Référence" %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= form.label :puissance_electrique_boiler, "Puissance compresseur électrique (kW)", class: "form-label" %>
+                    <%= form.number_field :puissance_electrique_boiler,
+                                         value: @form_data&.dig('puissance_electrique_boiler'),
+                                         class: "form-control",
+                                         min: 0, step: 0.1,
+                                         placeholder: "Ex: 0.5" %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= form.label :puissance_thermique_boiler, "Puissance thermique (kW)", class: "form-label" %>
+                    <%= form.number_field :puissance_thermique_boiler,
+                                         value: @form_data&.dig('puissance_thermique_boiler'),
+                                         class: "form-control",
+                                         min: 0, step: 0.1,
+                                         placeholder: "Ex: 2.0" %>
+                  </div>
+                  <div class="col-md-4">
+                    <%= form.label :label_europeen_boiler, "Label énergétique européen", class: "form-label" %>
+                    <%= form.select :label_europeen_boiler,
+                                   options_for_select([
+                                     ['-- Sélectionnez --', ''],
+                                     ['A+', 'A+'],
+                                     ['A++', 'A++'],
+                                     ['A+++', 'A+++']
+                                   ], @form_data&.dig('label_europeen_boiler')),
                                    {},
                                    { class: "form-select" } %>
                   </div>
@@ -896,7 +1504,7 @@
 // JavaScript pour afficher/masquer les détails des travaux
 function initializeTravauxToggle() {
   // Vérification préliminaire avant toute exécution
-  if (document.querySelector('#wallonie-section') || 
+  if (document.querySelector('#wallonie-section') ||
       document.querySelector('input[name="request[region]"][value="Wallonie"]') ||
       document.querySelector('select[name="request[region]"] option[value="Wallonie"]:checked') ||
       window.location.href.includes('wallonie') ||
@@ -904,7 +1512,7 @@ function initializeTravauxToggle() {
     console.log('🏠 WALLONIE DETECTÉ - Fonction initializeTravauxToggle() complètement ignorée');
     return;
   }
-  
+
   console.log('🔧 initializeTravauxToggle() appelée - Flandre seulement');
 
   // Test différents sélecteurs pour trouver les checkboxes
@@ -1139,9 +1747,134 @@ if (!document.querySelector('#wallonie-section') && !document.body.textContent.i
   initializeTravauxToggle();
 }
 
+// JavaScript unifié pour toutes les checkboxes de travaux
 document.addEventListener('DOMContentLoaded', function() {
-  if (!document.querySelector('#wallonie-section') && !document.body.textContent.includes('Wallonie')) {
-    initializeTravauxToggle();
-  }
+  console.log('🔧 === INITIALISATION CHECKBOXES FLANDRE ===');
+  console.log('🔧 === DEBUT SCRIPT FLANDRE ===');
+
+  // Test immédiat pour vérifier que le script s'exécute
+  console.log('🔧 DOM Content Loaded - Script Flandre actif');
+
+  // Attendre que tous les éléments soient chargés
+  setTimeout(function() {
+    console.log('🔧 === TIMEOUT EXECUTÉ ===');
+    // Fonction pour gérer une checkbox de travaux
+    function setupWorkCheckbox(checkboxName) {
+      // Le bon sélecteur selon le HTML généré par Rails
+      const selector = `input[name="request[${checkboxName}]"][type="checkbox"]`;
+      console.log(`🔍 Sélecteur utilisé: ${selector}`);
+      const checkbox = document.querySelector(selector);
+
+      if (checkbox) {
+        console.log(`✅ Checkbox ${checkboxName} trouvée:`, checkbox);        function toggleDetails() {
+          console.log(`🔍 Debug ${checkboxName}: checkbox.checked = ${checkbox.checked}`);
+
+          const checkDiv = checkbox.closest('.form-check');
+          console.log(`  - checkDiv:`, checkDiv);
+
+          let detailsDiv = checkDiv ? checkDiv.nextElementSibling : null;
+          console.log(`  - nextElementSibling:`, detailsDiv);
+
+          // Chercher le div travaux-details qui suit
+          let attempts = 0;
+          while (detailsDiv && !detailsDiv.classList.contains('travaux-details') && attempts < 5) {
+            console.log(`  - élément ${attempts}:`, detailsDiv, detailsDiv.className);
+            detailsDiv = detailsDiv.nextElementSibling;
+            attempts++;
+          }
+
+          console.log(`  - travaux-details trouvé:`, detailsDiv);
+
+          if (detailsDiv && detailsDiv.classList.contains('travaux-details')) {
+            if (checkbox.checked) {
+              console.log(`📖 Affichage détails pour ${checkboxName}`);
+              detailsDiv.classList.remove('d-none');
+            } else {
+              console.log(`📚 Masquage détails pour ${checkboxName}`);
+              detailsDiv.classList.add('d-none');
+            }
+            console.log(`  - Classes après modification:`, detailsDiv.className);
+          } else {
+            console.log(`⚠️ Pas de travaux-details trouvé pour ${checkboxName}`);
+            // Afficher tous les éléments suivants pour debug
+            let nextEl = checkDiv ? checkDiv.nextElementSibling : null;
+            let count = 0;
+            while (nextEl && count < 10) {
+              console.log(`    Élément ${count}:`, nextEl.tagName, nextEl.className, nextEl);
+              nextEl = nextEl.nextElementSibling;
+              count++;
+            }
+          }
+        }
+
+        // Appliquer l'état initial
+        toggleDetails();
+
+        // Écouter les changements
+        checkbox.addEventListener('change', toggleDetails);
+
+        return true;
+      } else {
+        console.log(`❌ Checkbox ${checkboxName} NON TROUVÉE`);
+        return false;
+      }
+    }
+
+    // Liste complète des checkboxes à activer
+    const checkboxes = [
+      'travaux_toiture',
+      'travaux_murs',
+      'travaux_sol',
+      'travaux_cave',
+      'travaux_vitrage',
+      'travaux_portes',
+      'travaux_chauffage',
+      'travaux_boiler',
+      'travaux_amiante',
+      'travaux_complementaires',
+      'travaux_ventilation'
+    ];
+
+    console.log(`🎯 Tentative d'activation de ${checkboxes.length} checkboxes`);
+
+    let successCount = 0;
+    checkboxes.forEach(name => {
+      if (setupWorkCheckbox(name)) {
+        successCount++;
+      }
+    });
+
+    console.log(`✅ ${successCount}/${checkboxes.length} checkboxes activées avec succès`);
+
+    // Gérer le sélecteur de type pompe à chaleur
+    const typeSelect = document.querySelector('[data-target="pac-details"]');
+    if (typeSelect) {
+      console.log('🔥 Select type pompe à chaleur trouvé et configuré');
+
+      function showPacSection() {
+        // Masquer toutes les sections PAC
+        document.querySelectorAll('.pac-details').forEach(section => {
+          section.classList.add('d-none');
+        });
+
+        // Afficher la section correspondante
+        const selectedType = typeSelect.value;
+        if (selectedType) {
+          const targetSection = document.querySelector('.pac-details.' + selectedType);
+          if (targetSection) {
+            targetSection.classList.remove('d-none');
+            console.log(`🔥 Section PAC ${selectedType} affichée`);
+          }
+        }
+      }
+
+      // Appliquer l'état initial
+      showPacSection();
+
+      // Écouter les changements
+      typeSelect.addEventListener('change', showPacSection);
+    }
+
+  }, 100); // Petite attente pour s'assurer que tout est chargé
 });
 </script>
