@@ -170,7 +170,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
     console.log('   Affichage direct du formulaire pour région:', region);
 
-    // Masquer toutes les sections régionales d'abord
+    // NE PAS masquer les sections si un form_type spécifique est déjà défini
+    <% if @request.form_type.present? %>
+    console.log('   ⏭️ Form_type défini (<%= @request.form_type %>), on laisse le script _form.html.erb gérer l\'affichage');
+    return; // Sortir ici pour laisser le script du _form.html.erb faire son travail
+    <% end %>
+
+    // Masquer toutes les sections régionales seulement si pas de form_type
     const sections = document.querySelectorAll('.region-section');
     sections.forEach(section => {
       section.style.display = 'none';

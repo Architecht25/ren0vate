@@ -2,15 +2,61 @@
 <div class="request-form-container">
 <div class="wallonie-specific-fields">
 
-  <!-- SECTION 0 – Informations AUDIT -->
+  <!-- SECTION 0 – Informations préalables -->
+  <div class="card mb-4">
+    <div class="card-header bg-info text-white">
+      <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Informations préalables</h5>
+    </div>
+    <div class="card-body">
+      <p class="mb-3">Ce formulaire permet d'introduire <strong>une demande de prime pour la réalisation des travaux dans le cadre de la réglementation « Primes Habitation »</strong>.</p>
+
+      <div class="row">
+        <div class="col-md-12">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Bénéficiez-vous du maintien des régimes de primes en vigueur jusqu'au 13 février 2025 ?</label>
+
+            <div class="form-check mb-2">
+              <%= form.radio_button :maintien_regime, "Oui", { class: "form-check-input", id: "maintien_regime_oui" } %>
+              <label class="form-check-label" for="maintien_regime_oui">
+                Oui
+              </label>
+            </div>
+
+            <div class="form-check mb-3">
+              <%= form.radio_button :maintien_regime, "Non", { class: "form-check-input", id: "maintien_regime_non" } %>
+              <label class="form-check-label" for="maintien_regime_non">
+                Non
+              </label>
+            </div>
+
+            <div class="alert alert-warning mt-3" id="maintien_regime_info" style="display: none;">
+              <p class="mb-0">Votre demande sera traitée suivant le régime actuellement en vigueur depuis le 14 février 2025.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-warning border-start border-4 border-warning">
+        <h6>Pour rappel :</h6>
+        <ul class="mb-0">
+          <li>Les travaux doivent être terminés et avoir été recommandés dans le rapport d'audit (à l'exception des travaux de toiture pour les demandes soumises sous les conditions en vigueur depuis le 14 février 2025) ;</li>
+          <li>Ils doivent avoir été réalisés par un entrepreneur inscrit à la Banque Carrefour des Entreprises (activités indépendantes dans les métiers de la construction et de l'électronique ou de l'entreprise générale) ;</li>
+          <li>Ils doivent respecter certains critères techniques (consultables sur <a href="https://logement.wallonie.be" target="_blank" rel="noopener">https://logement.wallonie.be</a> (notice « critères techniques et pièces justificatives »)) ;</li>
+          <li>Les travaux de mise en conformité électrique et de gaz sont un préalable obligatoire avant toute demande de prime s'ils ont été recommandés dans l'audit et que le logement est occupé.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 1 – Informations AUDIT -->->
   <div class="card mb-4">
     <div class="card-header bg-primary text-white">
-      <h5 class="mb-0"><i class="bi bi-clipboard-check me-2"></i>Informations sur l'Audit</h5>
+      <h5 class="mb-0"><i class="bi bi-clipboard-check me-2"></i>Référence de l'audit</h5>
     </div>
     <div class="card-body">
       <div class="alert alert-info">
         <i class="bi bi-info-circle me-2"></i>
-        Cette demande de prime doit nécessairement faire suite à un audit logement.
+        Cette demande de prime doit obligatoirement faire suite à un audit Logement, à l'exception des travaux de toiture (y compris l'isolation de celle-ci) pour les demandes soumises sous les conditions en vigueur depuis le 14 février 2025.
       </div>
       <div class="row">
         <div class="col-md-4">
@@ -27,12 +73,12 @@
         </div>
         <div class="col-md-4">
           <div class="mb-3">
-            <%= form.label :date_audit, class: "form-label" do %>
-              Date de l'audit
-              <%= badge_prerempli_intelligent(@form_data, :date_audit, @property&.projects&.last&.date_audit) %>
+            <%= form.label :date_enregistrement_audit, class: "form-label" do %>
+              Date d'enregistrement de l'audit
+              <%= badge_prerempli_intelligent(@form_data, :date_enregistrement_audit, @property&.projects&.last&.date_audit) %>
             <% end %>
-            <%= form.date_field :date_audit,
-                value: preremplir_champ(@form_data, :date_audit, @property&.projects&.last&.date_audit),
+            <%= form.date_field :date_enregistrement_audit,
+                value: preremplir_champ(@form_data, :date_enregistrement_audit, @property&.projects&.last&.date_audit),
                 class: "form-control" %>
           </div>
         </div>
@@ -70,8 +116,8 @@
         </div>
         <div class="col-md-6">
           <div class="mb-3">
-            <label class="form-label">Qualité du demandeur</label>
-            <%= form.select :qualite_demandeur, options_for_select([["Sélectionnez", ""], ["Unique propriétaire", "Unique propriétaire"], ["Copropriétaire avec mon conjoint", "Copropriétaire avec mon conjoint"], ["Copropriétaire avec d'autres", "Copropriétaire avec d'autres"], ["Usufruitier", "Usufruitier"], ["Nu-propriétaire", "Nu-propriétaire"], ["Représentant d'une association de copropriétaires", "Représentant d'une association de copropriétaires"], ["Autres", "Autres"]]), {}, { class: "form-control" } %>
+            <label class="form-label">En quelle qualité introduisez-vous cette demande ?</label>
+            <%= form.select :qualite_demandeur, options_for_select([["Sélectionnez", ""], ["Unique propriétaire", "Unique propriétaire"], ["Copropriétaire avec mon conjoint (couple marié, cohabitants légaux, cohabitants de fait) figurant sur ma composition de ménage", "Copropriétaire avec mon conjoint"], ["Copropriétaire avec d'autres", "Copropriétaire avec d'autres"], ["Usufruitier", "Usufruitier"], ["Nu-propriétaire", "Nu-propriétaire"], ["Représentant d'une association de copropriétaires", "Représentant d'une association de copropriétaires"], ["Autre (droit d'habitation, emphytéote...)", "Autre (droit d'habitation, emphytéote...)"]]), {}, { class: "form-control" } %>
           </div>
         </div>
       </div>
@@ -121,7 +167,18 @@
       </div>
 
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-4">
+          <div class="mb-3">
+            <%= form.label :date_naissance, class: "form-label" do %>
+              Date de naissance
+              <%= badge_prerempli(@form_data, :date_naissance) if @form_data.present? %>
+            <% end %>
+            <%= form.date_field :date_naissance,
+                value: preremplir_champ(@form_data, :date_naissance, nil),
+                class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-4">
           <div class="mb-3">
             <%= form.label :numero_registre_national, class: "form-label" do %>
               Numéro de registre national
@@ -133,6 +190,215 @@
                 class: "form-control" %>
           </div>
         </div>
+        <div class="col-md-4">
+          <!-- Espace pour équilibrer la mise en page -->
+        </div>
+      </div>
+
+
+
+      <h6 class="text-muted mb-3">Adresse du demandeur</h6>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :adresse_demandeur, class: "form-label" do %>
+              Rue
+              <%= badge_prerempli(@form_data, :applicant_address) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :adresse_demandeur,
+                value: preremplir_champ(@form_data, :applicant_address, current_user.street),
+                placeholder: "Rue",
+                class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="mb-3">
+            <%= form.label :numero_demandeur, class: "form-label" do %>
+              Numéro
+            <% end %>
+            <%= form.text_field :numero_demandeur,
+                value: preremplir_champ(@form_data, :numero_demandeur, nil),
+                placeholder: "Numéro",
+                class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="mb-3">
+            <%= form.label :boite_demandeur, class: "form-label" do %>
+              Boîte
+            <% end %>
+            <%= form.text_field :boite_demandeur,
+                value: preremplir_champ(@form_data, :boite_demandeur, nil),
+                placeholder: "Boîte",
+                class: "form-control" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :pays_demandeur, class: "form-label" do %>
+              Pays
+            <% end %>
+            <%= form.select :pays_demandeur, options_for_select([['BELGIQUE', 'BELGIQUE']]), { selected: 'BELGIQUE' }, { class: "form-control" } %>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <!-- Espace pour équilibrer -->
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :code_postal_demandeur, class: "form-label" do %>
+              Code postal
+              <%= badge_prerempli(@form_data, :applicant_postal_code) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :code_postal_demandeur,
+                value: preremplir_champ(@form_data, :applicant_postal_code, current_user.postal_code),
+                placeholder: "Code postal",
+                class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :localite_demandeur, class: "form-label" do %>
+              Localité
+              <%= badge_prerempli(@form_data, :applicant_city) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :localite_demandeur,
+                value: preremplir_champ(@form_data, :applicant_city, current_user.city),
+                placeholder: "Localité",
+                class: "form-control" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <div class="mb-3">
+            <label class="form-label">L'adresse de contact est-elle la même que celle renseignée ci-dessus ?</label>
+
+            <div class="form-check mb-2">
+              <%= form.radio_button :adresse_contact_identique, "Oui", { class: "form-check-input", id: "adresse_contact_oui" } %>
+              <label class="form-check-label" for="adresse_contact_oui">
+                Oui
+              </label>
+            </div>
+
+            <div class="form-check">
+              <%= form.radio_button :adresse_contact_identique, "Non", { class: "form-check-input", id: "adresse_contact_non" } %>
+              <label class="form-check-label" for="adresse_contact_non">
+                Non
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3 – Contact -->
+  <div class="card mb-4">
+    <div class="card-header bg-info text-white">
+      <h5 class="mb-0">
+        <i class="bi bi-telephone me-2"></i>Contact
+      </h5>
+    </div>
+    <div class="card-body">
+      <p class="text-muted mb-3">Veuillez indiquer le numéro où vous êtes le plus facilement joignable.</p>
+
+      <div class="row">
+        <div class="col-md-4">
+          <div class="mb-3">
+            <%= form.label :telephone_1, class: "form-label" do %>
+              Téléphone
+              <%= badge_prerempli(@form_data, :applicant_phone) if @form_data.present? %>
+            <% end %>
+            <%= form.phone_field :telephone_1,
+                value: preremplir_champ(@form_data, :applicant_phone, current_user.phone),
+                placeholder: "Téléphone",
+                class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="mb-3">
+            <%= form.label :telephone_2, class: "form-label" do %>
+              Téléphone
+            <% end %>
+            <%= form.phone_field :telephone_2,
+                value: preremplir_champ(@form_data, :telephone_2, nil),
+                placeholder: "Téléphone",
+                class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="mb-3">
+            <%= form.label :telephone_3, class: "form-label" do %>
+              Téléphone
+            <% end %>
+            <%= form.phone_field :telephone_3,
+                value: preremplir_champ(@form_data, :telephone_3, nil),
+                placeholder: "Téléphone",
+                class: "form-control" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :email, class: "form-label" do %>
+              E-mail
+              <%= badge_prerempli(@form_data, :applicant_email) if @form_data.present? %>
+            <% end %>
+            <%= form.email_field :email,
+                value: preremplir_champ(@form_data, :applicant_email, current_user.email),
+                placeholder: "Adresse e-mail",
+                class: "form-control" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 4 – Compte bancaire -->
+  <div class="card mb-4">
+    <div class="card-header bg-success text-white">
+      <h5 class="mb-0">
+        <i class="bi bi-bank me-2"></i>Compte bancaire
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Vous demandez le paiement de la prime</label>
+
+            <div class="form-check mb-2">
+              <%= form.radio_button :type_compte_bancaire, "compte_propre", { class: "form-check-input", id: "compte_propre" } %>
+              <label class="form-check-label" for="compte_propre">
+                sur votre compte bancaire
+              </label>
+            </div>
+
+            <div class="form-check mb-3">
+              <%= form.radio_button :type_compte_bancaire, "compte_tiers", { class: "form-check-input", id: "compte_tiers" } %>
+              <label class="form-check-label" for="compte_tiers">
+                sur un compte bancaire ne vous appartenant pas
+              </label>
+            </div>
+
+            <div class="alert alert-info mt-3">
+              <i class="bi bi-info-circle me-2"></i>
+              Il doit s'agir d'un compte dont le demandeur est titulaire (ou co-titulaire). Dans ce cas, le traitement du dossier sera plus rapide.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
         <div class="col-md-6">
           <div class="mb-3">
             <%= form.label :compte_bancaire, class: "form-label" do %>
@@ -146,276 +412,253 @@
           </div>
         </div>
       </div>
-
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :email, class: "form-label" do %>
-              Adresse e-mail
-              <%= badge_prerempli(@form_data, :applicant_email) if @form_data.present? %>
-            <% end %>
-            <%= form.email_field :email,
-                value: preremplir_champ(@form_data, :applicant_email, current_user.email),
-                placeholder: "Adresse e-mail",
-                class: "form-control" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :phone, class: "form-label" do %>
-              Numéro de téléphone
-              <%= badge_prerempli(@form_data, :applicant_phone) if @form_data.present? %>
-            <% end %>
-            <%= form.phone_field :phone,
-                value: preremplir_champ(@form_data, :applicant_phone, current_user.phone),
-                placeholder: "Numéro de téléphone",
-                class: "form-control" %>
-          </div>
-        </div>
-      </div>
-
-      <h6 class="text-muted mb-3">Adresse du demandeur</h6>
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :adresse_demandeur, class: "form-label" do %>
-              Adresse
-              <%= badge_prerempli(@form_data, :applicant_address) if @form_data.present? %>
-            <% end %>
-            <%= form.text_field :adresse_demandeur,
-                value: preremplir_champ(@form_data, :applicant_address, current_user.street),
-                placeholder: "Adresse",
-                class: "form-control" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :code_postal_demandeur, class: "form-label" do %>
-              Code postal
-              <%= badge_prerempli(@form_data, :applicant_postal_code) if @form_data.present? %>
-            <% end %>
-            <%= form.text_field :code_postal_demandeur,
-                value: preremplir_champ(@form_data, :applicant_postal_code, current_user.postal_code),
-                placeholder: "Code postal",
-                class: "form-control" %>
-          </div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :city, class: "form-label" do %>
-              Commune
-              <%= badge_prerempli(@form_data, :applicant_city) if @form_data.present? %>
-            <% end %>
-            <%= form.text_field :city,
-                value: preremplir_champ(@form_data, :applicant_city, current_user.city),
-                placeholder: "Commune",
-                class: "form-control" %>
-          </div>
-        </div>
-         <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Région</label>
-            <%= form.text_field :region, value: "Wallonie", class: "form-control", disabled: true %>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 
-  <!-- SECTION 2 – Adresse du logement -->
+  <!-- SECTION 5 – Localisation des travaux -->
   <div class="card mb-4">
     <div class="card-header bg-warning text-dark">
       <h5 class="mb-0">
-        <i class="bi bi-house-door me-2"></i>Adresse du logement concerné
+        <i class="bi bi-geo-alt me-2"></i>Localisation des travaux
         <%= indicateur_section_complete(@form_data, champs_adresse_propriete) if @form_data.present? %>
       </h5>
     </div>
     <div class="card-body">
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-12">
           <div class="mb-3">
-            <%= form.label :adresse_logement, class: "form-label" do %>
-              Adresse
-              <%= badge_prerempli_intelligent(@form_data, :property_street, @property&.address) %>
-            <% end %>
-            <%= form.text_field :adresse_logement,
-                value: preremplir_champ(@form_data, :property_street, @property&.address),
-                placeholder: "Adresse",
-                class: "form-control" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :code_postal_logement, class: "form-label" do %>
-              Code postal
-              <%= badge_prerempli_intelligent(@form_data, :property_postal_code, @property&.code_postal) %>
-            <% end %>
-            <%= form.text_field :code_postal_logement,
-                value: preremplir_champ(@form_data, :property_postal_code, @property&.code_postal),
-                placeholder: "Code postal",
-                class: "form-control" %>
+            <label class="form-label fw-bold">Où se situe le logement dans lequel les travaux ont été exécutés ?</label>
+
+            <div class="form-check mb-2">
+              <%= form.radio_button :localisation_travaux, "adresse_demandeur", { class: "form-check-input", id: "loc_adresse_demandeur" } %>
+              <label class="form-check-label" for="loc_adresse_demandeur">
+                à l'adresse du demandeur
+              </label>
+            </div>
+
+            <div class="form-check mb-3">
+              <%= form.radio_button :localisation_travaux, "autre_adresse", { class: "form-check-input", id: "loc_autre_adresse" } %>
+              <label class="form-check-label" for="loc_autre_adresse">
+                à une autre adresse
+              </label>
+            </div>
           </div>
         </div>
       </div>
 
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :commune_logement, class: "form-label" do %>
-              Commune
-              <%= badge_prerempli_intelligent(@form_data, :property_city, @property&.commune) %>
-            <% end %>
-            <%= form.text_field :commune_logement,
-                value: preremplir_champ(@form_data, :property_city, @property&.commune),
-                placeholder: "Commune",
-                class: "form-control" %>
+      <div id="adresse_logement_fields" class="mt-3">
+        <h6 class="text-muted mb-3">Adresse du logement</h6>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :adresse_logement, class: "form-label" do %>
+                Adresse
+                <%= badge_prerempli_intelligent(@form_data, :property_street, @property&.address) %>
+              <% end %>
+              <%= form.text_field :adresse_logement,
+                  value: preremplir_champ(@form_data, :property_street, @property&.address),
+                  placeholder: "Adresse",
+                  class: "form-control" %>
+            </div>
           </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Région</label>
-            <%= form.text_field :region_logement, value: "Wallonie", class: "form-control", disabled: true %>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :code_postal_logement, class: "form-label" do %>
+                Code postal
+                <%= badge_prerempli_intelligent(@form_data, :property_postal_code, @property&.code_postal) %>
+              <% end %>
+              <%= form.text_field :code_postal_logement,
+                  value: preremplir_champ(@form_data, :property_postal_code, @property&.code_postal),
+                  placeholder: "Code postal",
+                  class: "form-control" %>
+            </div>
           </div>
         </div>
 
-        <div class="col-md-6">
-          <div class="mb-3">
-            <label class="form-label">Type de bâtiment après travaux</label>
-            <%= form.select :type_batiment, options_for_select([['Sélectionnez', ''], ['Maison unifamiliale', 'Maison unifamiliale'], ['Appartement/studio', 'Appartement/studio'], ['immeuble avec plusieurs unités de logement', 'immeuble avec plusieurs unités de logement'], ['autres', 'autres']]), {}, { class: "form-control" } %>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :commune_logement, class: "form-label" do %>
+                Commune
+                <%= badge_prerempli_intelligent(@form_data, :property_city, @property&.commune) %>
+              <% end %>
+              <%= form.text_field :commune_logement,
+                  value: preremplir_champ(@form_data, :property_city, @property&.commune),
+                  placeholder: "Commune",
+                  class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Région</label>
+              <%= form.text_field :region_logement, value: "Wallonie", class: "form-control", disabled: true %>
+            </div>
           </div>
         </div>
-
       </div>
     </div>
   </div>
 
-  <!-- SECTION 3 – Type de prime demandée -->
+  <!-- SECTION 6 – Type de logement -->
   <div class="card mb-4">
-    <div class="card-header bg-info text-white">
-      <h5 class="mb-0"><i class="bi bi-award me-2"></i>Type de prime demandée</h5>
+    <div class="card-header bg-secondary text-white">
+      <h5 class="mb-0">
+        <i class="bi bi-house me-2"></i>Type de logement
+      </h5>
     </div>
     <div class="card-body">
       <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-12">
           <div class="mb-3">
-            <label class="form-label">Des personnes handicapées font-elles partie de votre ménage ?</label>
-            <%= form.select :handicape, options_for_select([['Sélectionnez', ''], ['Oui', 'Oui'], ['Non', 'Non']]), {}, { class: "form-control" } %>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="mb-3">
-            <label class="form-label">Des enfants font-ils partie de votre ménage ?</label>
-            <%= form.select :enfants, options_for_select([['Sélectionnez', ''], ['Oui', 'Oui'], ['Non', 'Non']]), {}, { class: "form-control" } %>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="mb-3">
-            <label class="form-label">Des personnes de plus de 60 ans font-elles partie de votre ménage ?</label>
-            <%= form.select :plus_de_60_ans, options_for_select([['Sélectionnez', ''], ['Oui', 'Oui'], ['Non', 'Non']]), {}, { class: "form-control" } %>
+            <label class="form-label fw-bold">Type de logement</label>
+
+            <div class="form-check mb-2">
+              <%= form.radio_button :type_logement, "maison_unifamiliale", { class: "form-check-input", id: "type_maison" } %>
+              <label class="form-check-label" for="type_maison">
+                maison unifamiliale
+              </label>
+            </div>
+
+            <div class="form-check mb-2">
+              <%= form.radio_button :type_logement, "appartement_studio", { class: "form-check-input", id: "type_appartement" } %>
+              <label class="form-check-label" for="type_appartement">
+                appartement/studio
+              </label>
+            </div>
+
+            <div class="form-check mb-2">
+              <%= form.radio_button :type_logement, "immeuble_compose", { class: "form-check-input", id: "type_immeuble" } %>
+              <label class="form-check-label" for="type_immeuble">
+                immeuble composé de plusieurs unités de logement
+              </label>
+            </div>
+
+            <div class="form-check mb-3">
+              <%= form.radio_button :type_logement, "autres", { class: "form-check-input", id: "type_autres" } %>
+              <label class="form-check-label" for="type_autres">
+                autres
+              </label>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SECTION 4 – Information relative au ménage-->
+  <!-- SECTION 7 – Calcul du revenu de référence -->
   <div class="card mb-4">
-    <div class="card-header bg-success text-white">
-      <h5 class="mb-0"><i class="bi bi-award me-2"></i>Information relative au ménage</h5>
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">
+        <i class="bi bi-calculator me-2"></i>Calcul du revenu de référence
+      </h5>
     </div>
     <div class="card-body">
+      <p class="mb-3">Le montant de la prime peut être majoré en fonction du revenu de référence de votre ménage (voir conditions sur la page : <a href="https://logement.wallonie.be" target="_blank" rel="noopener">https://logement.wallonie.be</a>).</p>
+
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-12">
           <div class="mb-3">
-            <label class="form-label">Type de prime</label>
-            <%= form.select :type_prime, options_for_select([['Sélectionnez', ''], ['Audit énergétique', 'Audit énergétique'], ['Travaux après audit', 'Travaux après audit'], ['Travaux sans audit', 'Travaux sans audit']]), {}, { class: "form-control" } %>
+            <label class="form-label fw-bold">Acceptez-vous que l'administration accède à vos données (composition de ménage, avertissement extrait de rôle, allocations familiales, situation de handicap) afin de déterminer votre revenu de référence ?</label>
+
+            <div class="form-check mb-2">
+              <%= form.radio_button :acces_donnees_revenu, "Oui", { class: "form-check-input", id: "acces_donnees_oui" } %>
+              <label class="form-check-label" for="acces_donnees_oui">
+                Oui
+              </label>
+            </div>
+
+            <div class="form-check mb-3">
+              <%= form.radio_button :acces_donnees_revenu, "Non", { class: "form-check-input", id: "acces_donnees_non" } %>
+              <label class="form-check-label" for="acces_donnees_non">
+                Non
+              </label>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- SECTION 5 – Travaux envisagés ou réalisés -->
+  <!-- SECTION 8 – Identification des travaux réalisés -->
+
   <div class="card mb-4">
     <div class="card-header bg-dark text-white">
-      <h5 class="mb-0"><i class="bi bi-tools me-2"></i>Travaux envisagés ou réalisés</h5>
+      <h5 class="mb-0"><i class="bi bi-tools me-2"></i>Identification des travaux réalisés</h5>
     </div>
     <div class="card-body">
+      <div class="alert alert-danger" id="travaux_error" style="display: none;">
+        <strong>Erreur :</strong> Au moins un poste doit avoir été sélectionné.
+      </div>
+
+      <div class="alert alert-warning">
+        <strong>Attention :</strong> Si le rapport d'audit fait mention de « travaux liés », ceux-ci doivent obligatoirement faire l'objet d'une même demande de prime.
+      </div>
+
+      <p class="mb-3">Sélectionnez les travaux que vous avez réalisés et pour lesquels vous demandez une prime.</p>
       <div class="row">
-                <div class="col-md-12">
+        <div class="col-md-12">
           <div class="mb-3">
-            <label class="form-label">Type de travaux</label>
             <div class="row">
-              <!-- Audit énergétique -->
+
+              <!-- Toiture -->
               <div class="col-md-6">
-                <h6 class="text-primary">Audit énergétique</h6>
+                <h6 class="text-primary fw-bold">Toiture</h6>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_audit_energetique, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_audit_energetique) %>">
-                    Audit énergétique
+                  <%= form.check_box :travaux_remplacement_couverture, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_couverture) %>">
+                    Remplacement de la couverture
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_appropriation_charpente, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_appropriation_charpente) %>">
+                    Appropriation de la charpente
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_dispositif_eaux_pluviales, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_dispositif_eaux_pluviales) %>">
+                    Remplacement d'un dispositif de collecte et d'évacuation des eaux pluviales
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_isolation_toit_combles, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_toit_combles) %>">
+                    Isolation thermique du toit ou des combles
                   </label>
                 </div>
 
-                <h6 class="text-primary mt-3">Travaux Toiture</h6>
-                <div class="form-check mb-2">
-                  <%= form.check_box :travaux_remplacement_couverture_toiture, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_couverture_toiture) %>">
-                    Remplacement de la couverture de toiture
-                  </label>
-                </div>
-                <div class="form-check mb-2">
-                  <%= form.check_box :travaux_reparation_charpente, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_reparation_charpente) %>">
-                    Réparation ou renforcement de la charpente
-                  </label>
-                </div>
-                <div class="form-check mb-2">
-                  <%= form.check_box :travaux_gouttieres_descentes, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_gouttieres_descentes) %>">
-                    Remplacement ou installation des gouttières et descentes d'eau
-                  </label>
-                </div>
-                <div class="form-check mb-2">
-                  <%= form.check_box :travaux_isolation_toiture, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_toiture) %>">
-                    Isolation de la toiture
-                  </label>
-                </div>
-
-                <h6 class="text-primary mt-3">Travaux Murs</h6>
+                <h6 class="text-primary fw-bold mt-4">Murs</h6>
                 <div class="form-check mb-2">
                   <%= form.check_box :travaux_assechement_infiltrations, { class: "form-check-input" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_assechement_infiltrations) %>">
-                    Assèchement des murs par traitement contre les infiltrations
+                    Assèchement des murs – infiltrations
                   </label>
                 </div>
                 <div class="form-check mb-2">
                   <%= form.check_box :travaux_assechement_humidite, { class: "form-check-input" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_assechement_humidite) %>">
-                    Assèchement des murs par traitement contre l'humidité ascensionnelle
+                    Assèchement des murs – humidité ascensionnelle
                   </label>
                 </div>
                 <div class="form-check mb-2">
                   <%= form.check_box :travaux_renforcement_murs, { class: "form-check-input" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_renforcement_murs) %>">
-                    Renforcement ou reconstruction de murs instables
+                    Renforcement des murs instables/reconstruction totale de ces murs
                   </label>
                 </div>
                 <div class="form-check mb-2">
                   <%= form.check_box :travaux_isolation_murs, { class: "form-check-input" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_murs) %>">
-                    Isolation des murs
+                    Isolation thermique des murs
                   </label>
                 </div>
 
-                <h6 class="text-primary mt-3">Travaux Sols</h6>
+                <h6 class="text-primary fw-bold mt-4">Sols</h6>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_refection_supports, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_refection_supports) %>">
-                    Réfection ou remplacement des supports de circulation (escaliers, planchers, etc.)
+                  <%= form.check_box :travaux_remplacement_supports, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_supports) %>">
+                    Remplacement des supports des aires de circulation d'un ou plusieurs locaux
                   </label>
                 </div>
                 <div class="form-check mb-2">
@@ -425,27 +668,23 @@
                   </label>
                 </div>
 
-                <h6 class="text-primary mt-3">Installation électrique</h6>
+                <h6 class="text-primary fw-bold mt-4">Sécurité/Salubrité</h6>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_conformite_electrique, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_conformite_electrique) %>">
-                    Mise en conformité de l'installation électrique
+                  <%= form.check_box :travaux_appropriation_electrique, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_appropriation_electrique) %>">
+                    Appropriation de l'installation électrique
                   </label>
                 </div>
-
-                <h6 class="text-primary mt-3">Installation Gaz</h6>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_conformite_gaz, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_conformite_gaz) %>">
-                    Mise en conformité de l'installation de gaz
+                  <%= form.check_box :travaux_appropriation_gaz, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_appropriation_gaz) %>">
+                    Appropriation de l'installation de gaz
                   </label>
                 </div>
-
-                <h6 class="text-primary mt-3">Autres travaux</h6>
                 <div class="form-check mb-2">
                   <%= form.check_box :travaux_elimination_merule, { class: "form-check-input" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_elimination_merule) %>">
-                    Élimination de la mérule ou autres champignons lignivores
+                    Élimination de la mérule ou de tout champignon aux effets analogues
                   </label>
                 </div>
                 <div class="form-check mb-2">
@@ -455,41 +694,40 @@
                   </label>
                 </div>
 
-                <h6 class="text-primary">Menuiseries</h6>
+                <h6 class="text-primary fw-bold mt-4">Menuiseries extérieures</h6>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_remplacement_chassis, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_chassis) %>">
-                    Remplacement des châssis et vitrages
+                  <%= form.check_box :travaux_remplacement_menuiseries, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_menuiseries) %>">
+                    Remplacement des menuiseries extérieures ou des vitrages
                   </label>
                 </div>
               </div>
 
+              <!-- Colonne de droite -->
               <div class="col-md-6">
-                <h6 class="text-primary mt-3">Systèmes Chauffage</h6>
+                <h6 class="text-primary fw-bold">Appareil de production de chaleur et/ou d'eau chaude sanitaire</h6>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_pompe_chaleur_chauffage, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_pompe_chaleur_chauffage) %>">
-                    Installation de pompe à chaleur pour chauffage
+                  <%= form.check_box :travaux_pompe_chaleur_ecs_exclusive, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_pompe_chaleur_ecs_exclusive) %>">
+                    Installation d'une pompe à chaleur pour la production exclusive d'eau chaude sanitaire
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_pompe_chaleur_chauffage_combinee, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_pompe_chaleur_chauffage_combinee) %>">
+                    Installation d'une pompe à chaleur pour le chauffage ou combinée avec l'eau chaude sanitaire
                   </label>
                 </div>
                 <div class="form-check mb-2">
                   <%= form.check_box :travaux_chaudiere_biomasse, { class: "form-check-input" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_chaudiere_biomasse) %>">
-                    Installation de chaudière biomasse
+                    Installation d'une chaudière biomasse
                   </label>
                 </div>
                 <div class="form-check mb-2">
                   <%= form.check_box :travaux_poele_biomasse, { class: "form-check-input" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_poele_biomasse) %>">
-                    Installation de poêle biomasse
-                  </label>
-                </div>
-
-                <h6 class="text-primary mt-3">Eau Chaude Sanitaire</h6>
-                <div class="form-check mb-2">
-                  <%= form.check_box :travaux_pompe_chaleur_ecs, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_pompe_chaleur_ecs) %>">
-                    Installation de pompe à chaleur pour production d'eau chaude sanitaire
+                    Installation d'un poêle biomasse
                   </label>
                 </div>
                 <div class="form-check mb-2">
@@ -499,67 +737,55 @@
                   </label>
                 </div>
 
-                <h6 class="text-primary mt-3">Ventilation</h6>
+                <h6 class="text-primary fw-bold mt-4">Système de ventilation</h6>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_ventilation_simple_flux, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_ventilation_simple_flux) %>">
-                    Installation ou remplacement d'un système de ventilation simple flux
+                  <%= form.check_box :travaux_ventilation_simple_flux_ensemble, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_ventilation_simple_flux_ensemble) %>">
+                    Système centralisé de ventilation mécanique simple flux qui assure la ventilation de l'ensemble des espaces du logement
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_ventilation_double_flux, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_ventilation_double_flux) %>">
-                    Installation ou remplacement d'un système de ventilation double flux avec récupération de chaleur
+                  <%= form.check_box :travaux_ventilation_double_flux_ensemble, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_ventilation_double_flux_ensemble) %>">
+                    Système centralisé de ventilation mécanique double flux avec récupération de chaleur qui assure la ventilation de l'ensemble des espaces du logement
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_ventilation_simple_flux_partie, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_ventilation_simple_flux_partie) %>">
+                    Système de ventilation mécanique simple flux qui assure la ventilation d'une partie des espaces du logement
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_ventilation_double_flux_partie, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_ventilation_double_flux_partie) %>">
+                    Système de ventilation mécanique double flux qui assure la ventilation d'une partie des espaces du logement
                   </label>
                 </div>
 
-                <h6 class="text-primary mt-3">Améliorations</h6>
+                <h6 class="text-primary fw-bold mt-4">Augmentation des rendements de production, de distribution, de stockage et d'émission des installations de chauffage</h6>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_isolation_ballons_500l, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_ballons_500l) %>">
-                    Isolation des ballons de stockage de chauffage (< 500 l)
+                  <%= form.check_box :travaux_isolation_conduites_chauffage_hors_volume, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_conduites_chauffage_hors_volume) %>">
+                    Isolation des conduites de chauffage et de ses accessoires hors du volume protégé
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_isolation_ballons_500l_plus, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_ballons_500l_plus) %>">
-                    Isolation des ballons de stockage de chauffage (≥ 500 l)
+                  <%= form.check_box :travaux_isolation_ballon_stockage_chauffage, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_ballon_stockage_chauffage) %>">
+                    Isolation d'un ballon de stockage de chauffage
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_remplacement_ballons_chauffage_500l, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_ballons_chauffage_500l) %>">
-                    Remplacement des ballons de chauffage (< 500 l)
+                  <%= form.check_box :travaux_circulateurs_vitesse_variable, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_circulateurs_vitesse_variable) %>">
+                    Installation de circulateurs à vitesse variable pour le chauffage
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_remplacement_ballons_chauffage_500l_plus, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_ballons_chauffage_500l_plus) %>">
-                    Remplacement des ballons de chauffage (≥ 500 l)
-                  </label>
-                </div>
-                <div class="form-check mb-2">
-                  <%= form.check_box :travaux_remplacement_ballons_ecs_500l, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_ballons_ecs_500l) %>">
-                    Remplacement des ballons d'eau chaude sanitaire (< 500 l)
-                  </label>
-                </div>
-                <div class="form-check mb-2">
-                  <%= form.check_box :travaux_remplacement_ballons_ecs_500l_plus, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_ballons_ecs_500l_plus) %>">
-                    Remplacement des ballons d'eau chaude sanitaire (≥ 500 l)
-                  </label>
-                </div>
-                <div class="form-check mb-2">
-                  <%= form.check_box :travaux_circulateurs_4_logements, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_circulateurs_4_logements) %>">
-                    Installation de circulateurs à vitesse variable (< 4 logements)
-                  </label>
-                </div>
-                <div class="form-check mb-2">
-                  <%= form.check_box :travaux_circulateurs_4_logements_plus, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_circulateurs_4_logements_plus) %>">
-                    Installation de circulateurs à vitesse variable (≥ 4 logements)
+                  <%= form.check_box :travaux_remplacement_ballon_stockage_chauffage, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_ballon_stockage_chauffage) %>">
+                    Remplacement d'un ballon de stockage d'un système de chauffage
                   </label>
                 </div>
                 <div class="form-check mb-2">
@@ -574,28 +800,30 @@
                     Placement d'un thermostat d'ambiance
                   </label>
                 </div>
+
+                <h6 class="text-primary fw-bold mt-4">Augmentation des rendements de production, de distribution et de stockage des installations d'eau chaude sanitaire</h6>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_isolation_conduites_chauffage, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_conduites_chauffage) %>">
-                    Isolation des conduites et accessoires pour chauffage
+                  <%= form.check_box :travaux_remplacement_reservoir_ecs, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_reservoir_ecs) %>">
+                    Remplacement d'un réservoir de stockage pour l'eau chaude sanitaire
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_isolation_conduites_ecs, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_conduites_ecs) %>">
-                    Isolation des conduites et accessoires pour eau chaude sanitaire
+                  <%= form.check_box :travaux_isolation_conduites_boucle_ecs, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_conduites_boucle_ecs) %>">
+                    Isolation des conduites d'une boucle de circulation d'eau chaude sanitaire et de ses accessoires
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_isolation_echangeur_ecs, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_echangeur_ecs) %>">
-                    Isolation d'un échangeur externe ECS
+                  <%= form.check_box :travaux_isolation_echangeur_plaques, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_echangeur_plaques) %>">
+                    Isolation d'un échangeur à plaques externe
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_audit_energetique, { class: "form-check-input" }, "1", "0" %>
-                  <label class="form-check-label" for="<%= form.field_id(:travaux_audit_energetique) %>">
-                    Audit énergétique
+                  <%= form.check_box :travaux_isolation_ballon_stockage_ecs, { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_ballon_stockage_ecs) %>">
+                    Isolation d'un ballon de stockage pour l'eau chaude sanitaire
                   </label>
                 </div>
               </div>
@@ -606,7 +834,164 @@
     </div>
   </div>
 
-  <!-- SECTION 6 – Documents à joindre -->
+  <!-- SECTION 9 – Déclarations -->
+  <div class="card mb-4">
+    <div class="card-header bg-warning text-dark">
+      <h5 class="mb-0"><i class="bi bi-clipboard-check me-2"></i>Déclarations</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :nom_declarant, class: "form-label" do %>
+              Nom
+            <% end %>
+            <%= form.text_field :nom_declarant,
+                value: preremplir_champ(@form_data, :applicant_lastname, current_user.last_name),
+                placeholder: "du Parc Locmaria",
+                class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :prenom_declarant, class: "form-label" do %>
+              Prénom
+            <% end %>
+            <%= form.text_field :prenom_declarant,
+                value: preremplir_champ(@form_data, :applicant_firstname, current_user.first_name),
+                placeholder: "Robin",
+                class: "form-control" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <h6 class="text-primary mb-3">Déclarations sur l'honneur :</h6>
+
+        <div class="form-check mb-2">
+          <%= form.check_box :declaration_connaissance_conditions, { class: "form-check-input" }, "1", "0" %>
+          <label class="form-check-label" for="<%= form.field_id(:declaration_connaissance_conditions) %>">
+            déclare avoir pris connaissance des conditions d'octroi des primes Habitation ;
+          </label>
+        </div>
+
+        <div class="form-check mb-2">
+          <%= form.check_box :declaration_travaux_15_ans, { class: "form-check-input" }, "1", "0" %>
+          <label class="form-check-label" for="<%= form.field_id(:declaration_travaux_15_ans) %>">
+            déclare que les travaux faisant l'objet de la demande de prime ont été réalisés dans un immeuble âgé de plus de 15 ans principalement affecté au logement au terme des travaux (maximum 49% d'occupation professionnelle) et dans le respect des règles en matière d'urbanisme ;
+          </label>
+        </div>
+
+        <div class="form-check mb-2">
+          <%= form.check_box :declaration_administration_visite, { class: "form-check-input" }, "1", "0" %>
+          <label class="form-check-label" for="<%= form.field_id(:declaration_administration_visite) %>">
+            déclare être informé que l'Administration peut, dans un délai de 5 ans à compter de la liquidation du montant de la prime, visiter le logement et vérifier l'authenticité des informations fournies ;
+          </label>
+        </div>
+
+        <div class="form-check mb-2">
+          <%= form.check_box :declaration_pas_autre_aide, { class: "form-check-input" }, "1", "0" %>
+          <label class="form-check-label" for="<%= form.field_id(:declaration_pas_autre_aide) %>">
+            déclare que les travaux qui font l'objet de cette demande ne font pas ou ne feront pas l'objet d'une autre aide octroyée par la Région Wallonne comme par exemple, la prime « Toiture et petits travaux », le « Rénopack » auprès de la SWCS ou du FLW, ... ;
+          </label>
+        </div>
+
+        <div class="form-check mb-2">
+          <%= form.check_box :declaration_conditions_vigueur_fevrier, { class: "form-check-input" }, "1", "0" %>
+          <label class="form-check-label" for="<%= form.field_id(:declaration_conditions_vigueur_fevrier) %>">
+            déclare que l'ensemble des investissements ou des travaux objet pour les demandes soumises sous les conditions en vigueur depuis le 14 février 2025, qui font l'objet de la demande de prime, sont effectués sur des éléments recommandés dans le rapport d'audit ;
+          </label>
+        </div>
+
+        <div class="form-check mb-2">
+          <%= form.check_box :declaration_investissements_audit, { class: "form-check-input" }, "1", "0" %>
+          <label class="form-check-label" for="<%= form.field_id(:declaration_investissements_audit) %>">
+            déclare que l'ensemble des investissements objet de la demande de prime sont effectués sur des éléments recommandés dans le rapport d'audit ;
+          </label>
+        </div>
+
+        <div class="form-check mb-2">
+          <%= form.check_box :declaration_travaux_toiture_conditions, { class: "form-check-input" }, "1", "0" %>
+          <label class="form-check-label" for="<%= form.field_id(:declaration_travaux_toiture_conditions) %>">
+            déclare que l'ensemble des investissements objet de la demande de prime, à l'exception uniquement des travaux de toiture (pour les demandes soumises aux conditions en vigueur depuis le 14/02/2025), qui font l'objet de la demande de prime, sont effectués sur des éléments recommandés dans le rapport d'audit ;
+          </label>
+        </div>
+
+        <div class="form-check mb-2">
+          <%= form.check_box :declaration_travaux_toiture_norme, { class: "form-check-input" }, "1", "0" %>
+          <label class="form-check-label" for="<%= form.field_id(:declaration_travaux_toiture_norme) %>">
+            déclare que les travaux de toiture sont réalisés sur une toiture isolée répondant à la norme prescrite par la réglementation, à savoir R ≥ 5 m²K/W ;
+          </label>
+        </div>
+
+        <div class="form-check mb-2">
+          <%= form.check_box :declaration_engagement_remplir, { class: "form-check-input" }, "1", "0" %>
+          <label class="form-check-label" for="<%= form.field_id(:declaration_engagement_remplir) %>">
+            remplis ou m'engage à remplir au plus tard dans les 24 mois prenant cours à la date de la première demande de primes Travaux, une des conditions suivantes :
+          </label>
+        </div>
+      </div>
+
+      <div class="mb-4 ms-4">
+        <h6 class="text-secondary mb-3">Conditions de location :</h6>
+
+        <div class="form-check mb-2">
+          <%= form.radio_button :condition_occupation, "residence_principale_5_ans", { class: "form-check-input", id: "residence_5_ans" } %>
+          <label class="form-check-label" for="residence_5_ans">
+            <strong>pendant une durée minimale de 5 ans,</strong> occuper la totalité du logement à titre de résidence principale
+          </label>
+        </div>
+
+        <div class="form-check mb-2">
+          <%= form.radio_button :condition_occupation, "location_5_ans", { class: "form-check-input", id: "location_5_ans" } %>
+          <label class="form-check-label" for="location_5_ans">
+            <strong>pendant une durée minimale de 5 ans,</strong> mettre le logement en location par un bail enregistré, dans le respect de la grille des loyers
+          </label>
+        </div>
+
+        <div class="form-check mb-2">
+          <%= form.radio_button :condition_occupation, "ais_9_ans", { class: "form-check-input", id: "ais_9_ans" } %>
+          <label class="form-check-label" for="ais_9_ans">
+            <strong>pendant une durée minimale de 9 ans,</strong> mettre le logement à disposition d'une agence immobilière sociale (AIS) ou d'une société de logement de service public (SLSP) ou d'une association de promotion du logement (APL)
+          </label>
+        </div>
+
+        <div class="form-check mb-3">
+          <%= form.radio_button :condition_occupation, "parent_1_an", { class: "form-check-input", id: "parent_1_an" } %>
+          <label class="form-check-label" for="parent_1_an">
+            <strong>pendant une durée minimale d'un an,</strong> mettre gratuitement et à titre de résidence principale, la totalité du logement à la disposition d'un parent ou allié jusqu'au deuxième degré inclusivement
+          </label>
+        </div>
+      </div>
+
+      <div class="form-check mb-2">
+        <%= form.check_box :declaration_consultation_donnees, { class: "form-check-input" }, "1", "0" %>
+        <label class="form-check-label" for="<%= form.field_id(:declaration_consultation_donnees) %>">
+          déclare autoriser l'Administration à consulter les données nécessaires au traitement de la présente demande de prime auprès des Sources authentiques (Registre national, SPF Finances, réseau de la Banque-Carrefour de la sécurité sociale et son réseau).
+        </label>
+      </div>
+
+      <div class="form-check mb-3">
+        <%= form.check_box :declaration_renseignements_exacts, { class: "form-check-input" }, "1", "0" %>
+        <label class="form-check-label" for="<%= form.field_id(:declaration_renseignements_exacts) %>">
+          Déclare sur l'honneur que les renseignements mentionnés dans le présent formulaire sont exacts et complets.
+        </label>
+      </div>
+
+      <div class="form-check mb-3">
+        <%= form.check_box :declaration_traitement_automatise, { class: "form-check-input" }, "1", "0" %>
+        <label class="form-check-label" for="<%= form.field_id(:declaration_traitement_automatise) %>">
+          Je marque mon accord pour que ma demande de prime fasse l'objet, le cas échéant, d'un traitement exclusivement automatisé. Ce traitement sera réalisé à partir du logiciel de l'Administration sur base des informations fournies dans le cadre de ce formulaire et en appelant si nécessaire des données provenant des sources authentiques. Je peux retirer mon accord à tout moment.
+        </label>
+      </div>
+
+      <div class="alert alert-info">
+        <p class="mb-0">Un <strong>seul exemplaire</strong> de votre demande suffit. Il ne faut donc pas envoyer d'autres exemplaires par email ou courrier postal.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 10 – Documents à joindre -->
   <div class="card mb-4">
     <div class="card-header bg-light text-dark">
       <h5 class="mb-0"><i class="bi bi-file-earmark-text me-2"></i>Documents à fournir</h5>
@@ -637,7 +1022,7 @@
     </div>
   </div>
 
-  <!-- SECTION 7 : Soumission du formulaire -->
+  <!-- SECTION 11 : Soumission du formulaire -->
   <div class="card mb-4">
     <div class="card-header bg-primary text-white">
       <h5 class="mb-0"><i class="bi bi-send me-2"></i>Soumission de la demande</h5>
@@ -763,9 +1148,21 @@
 </div>
 </div>
 
+<!-- Script minimal pour Wallonie -->
 <script>
+// Forcer l'affichage de la section Wallonie si on est sur ce formulaire
+(function() {
+  const wallonieSection = document.getElementById('wallonie-section');
+  const formTypeInput = document.querySelector('input[name*="form_type"]');
+  
+  if (wallonieSection && formTypeInput && formTypeInput.value === 'regional_wallonie') {
+    console.log('🏠 Affichage forcé de la section Wallonie');
+    wallonieSection.style.display = 'block';
+  }
+})();
+
 // Fonction simple pour sauvegarder le formulaire Wallonie en brouillon
-function saveWallonieFormData(event) {
+window.saveWallonieFormData = function(event) {
   // Empêcher la propagation d'événements
   if (event) {
     event.preventDefault();
@@ -804,5 +1201,53 @@ function saveWallonieFormData(event) {
   form.submit();
 
   return false;
-}
+};
+
+// Gestion simple des interactions spécifiques à Wallonie
+document.addEventListener('DOMContentLoaded', function() {
+  // Forcer à nouveau l'affichage au chargement complet
+  const wallonieSection = document.getElementById('wallonie-section');
+  const formTypeInput = document.querySelector('input[name*="form_type"]');
+  
+  if (wallonieSection && formTypeInput && formTypeInput.value === 'regional_wallonie') {
+    console.log('🏠 Affichage forcé de la section Wallonie au DOMContentLoaded');
+    wallonieSection.style.display = 'block';
+  }
+  
+  // Gestion du maintien du régime
+  const maintienNon = document.getElementById('maintien_regime_non');
+  const infoAlert = document.getElementById('maintien_regime_info');
+  
+  function toggleMaintienInfo() {
+    if (maintienNon && maintienNon.checked && infoAlert) {
+      infoAlert.style.display = 'block';
+    } else if (infoAlert) {
+      infoAlert.style.display = 'none';
+    }
+  }
+  
+  document.querySelectorAll('input[name*="maintien_regime"]').forEach(radio => {
+    radio.addEventListener('change', toggleMaintienInfo);
+  });
+  
+  // Gestion de l'adresse du logement
+  const adresseLogementFields = document.getElementById('adresse_logement_fields');
+  
+  function toggleAdresseLogement() {
+    const locAutreAdresse = document.getElementById('loc_autre_adresse');
+    if (locAutreAdresse && locAutreAdresse.checked && adresseLogementFields) {
+      adresseLogementFields.style.display = 'block';
+    } else if (adresseLogementFields) {
+      adresseLogementFields.style.display = 'none';
+    }
+  }
+  
+  document.querySelectorAll('input[name*="localisation_travaux"]').forEach(radio => {
+    radio.addEventListener('change', toggleAdresseLogement);
+  });
+  
+  // État initial
+  toggleMaintienInfo();
+  toggleAdresseLogement();
+});
 </script>

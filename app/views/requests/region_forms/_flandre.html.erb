@@ -895,15 +895,26 @@
 <script nonce="<%= content_security_policy_nonce %>">
 // JavaScript pour afficher/masquer les détails des travaux
 function initializeTravauxToggle() {
-  console.log('🔧 initializeTravauxToggle() appelée');
+  // Vérification préliminaire avant toute exécution
+  if (document.querySelector('#wallonie-section') || 
+      document.querySelector('input[name="request[region]"][value="Wallonie"]') ||
+      document.querySelector('select[name="request[region]"] option[value="Wallonie"]:checked') ||
+      window.location.href.includes('wallonie') ||
+      document.body.textContent.includes('Wallonie')) {
+    console.log('🏠 WALLONIE DETECTÉ - Fonction initializeTravauxToggle() complètement ignorée');
+    return;
+  }
+  
+  console.log('🔧 initializeTravauxToggle() appelée - Flandre seulement');
 
   // Test différents sélecteurs pour trouver les checkboxes
   let checkboxes = document.querySelectorAll('.form-check-input[id^="request_form_data_travaux_"]');
   console.log('📦 Test 1 - [id^="request_form_data_travaux_"]: ', checkboxes.length);
 
   if (checkboxes.length === 0) {
-    checkboxes = document.querySelectorAll('.form-check-input[id*="travaux"]');
-    console.log('📦 Test 2 - [id*="travaux"]: ', checkboxes.length);
+    // Exclure les champs spécifiques à Wallonie
+    checkboxes = document.querySelectorAll('.form-check-input[id*="travaux"]:not([id*="remplacement_couverture"]):not([id*="appropriation_charpente"]):not([id*="dispositif_eaux_pluviales"]):not([id*="isolation_toit_combles"]):not([id*="appropriation_electrique"]):not([id*="appropriation_gaz"]):not([id*="remplacement_menuiseries"]):not([id*="pompe_chaleur_ecs_exclusive"]):not([id*="pompe_chaleur_chauffage_combinee"]):not([id*="ventilation_simple_flux_ensemble"]):not([id*="ventilation_double_flux_ensemble"]):not([id*="ventilation_simple_flux_partie"]):not([id*="ventilation_double_flux_partie"]):not([id*="isolation_conduites_chauffage_hors_volume"]):not([id*="isolation_ballon_stockage_chauffage"]):not([id*="circulateurs_vitesse_variable"]):not([id*="remplacement_ballon_stockage_chauffage"]):not([id*="remplacement_reservoir_ecs"]):not([id*="isolation_conduites_boucle_ecs"]):not([id*="isolation_echangeur_plaques"]):not([id*="isolation_ballon_stockage_ecs"])');
+    console.log('📦 Test 2 - [id*="travaux"] (hors Wallonie): ', checkboxes.length);
   }
 
   if (checkboxes.length === 0) {
@@ -1123,7 +1134,14 @@ function copyTrackingEmail() {
   }
 }
 
-// Exécuter immédiatement et aussi au chargement du DOM
-initializeTravauxToggle();
-document.addEventListener('DOMContentLoaded', initializeTravauxToggle);
+// Exécuter immédiatement et aussi au chargement du DOM avec vérification
+if (!document.querySelector('#wallonie-section') && !document.body.textContent.includes('Wallonie')) {
+  initializeTravauxToggle();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  if (!document.querySelector('#wallonie-section') && !document.body.textContent.includes('Wallonie')) {
+    initializeTravauxToggle();
+  }
+});
 </script>
