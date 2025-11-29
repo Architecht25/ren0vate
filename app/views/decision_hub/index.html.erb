@@ -286,7 +286,58 @@
                     </div>
                   </div>
 
-                  <!-- Étape 5: Factures -->
+                  <!-- Étape 6: Préparation technique -->
+                  <div class="col-md-3">
+                    <div class="p-3 text-center border-end position-relative step-tab"
+                         data-section="preparation-technique"
+                         data-action="click->decision-hub#switchSection"
+                         style="cursor: pointer;">
+                      <div class="step-number bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
+                        <i class="bi bi-clipboard-data fs-5"></i>
+                      </div>
+                      <h6 class="mb-2">Préparation technique</h6>
+                      <small class="text-muted d-block mb-2">Collectez et enregistrez vos données techniques réelles</small>
+
+                      <!-- Aperçu des données collectées -->
+                      <div class="text-start mb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <small class="text-muted">Isolation toiture</small>
+                          <% if @hub_data.dig(:preparation, :isolation_toiture_data) %>
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                          <% else %>
+                            <i class="bi bi-circle text-muted"></i>
+                          <% end %>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <small class="text-muted">Systèmes énergie</small>
+                          <% if @hub_data.dig(:preparation, :systemes_energie_data) %>
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                          <% else %>
+                            <i class="bi bi-circle text-muted"></i>
+                          <% end %>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <small class="text-muted">Menuiseries</small>
+                          <% if @hub_data.dig(:preparation, :menuiseries_data) %>
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                          <% else %>
+                            <i class="bi bi-circle text-muted"></i>
+                          <% end %>
+                        </div>
+                      </div>
+
+                      <div class="fw-bold text-info mb-2">
+                        <% preparation_completion = (@hub_data.dig(:preparation, :completion_rate) || 0) %>
+                        <%= preparation_completion %>% collecté
+                      </div>
+
+                      <div class="progress mt-2" style="height: 3px;">
+                        <div class="progress-bar bg-info" style="width: <%= preparation_completion %>%" data-decision-hub-target="preparationProgress"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Étape 7: Factures -->
                   <div class="col-md-3">
                     <div class="p-3 text-center border-end position-relative step-tab"
                          data-section="factures"
@@ -826,6 +877,19 @@
                 <div class="card border-0 shadow-sm">
                   <div class="card-body">
                     <%= render 'decision_hub/sections/technical', hub_data: @hub_data %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section Préparation technique -->
+          <div class="section-content" data-section="preparation-technique" data-decision-hub-target="preparationTechniqueSection">
+            <div class="row g-4">
+              <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                  <div class="card-body">
+                    <%= render 'decision_hub/sections/preparation_technique', hub_data: @hub_data %>
                   </div>
                 </div>
               </div>

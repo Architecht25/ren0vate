@@ -165,6 +165,34 @@ class DecisionHubController < ApplicationController
     }, status: :internal_server_error
   end
 
+  def save_technical_preparation
+    # Sauvegarde des données techniques de préparation
+    begin
+      # Récupérer les données depuis les paramètres
+      technical_data = params.require(:technical_preparation)
+
+      # Sauvegarder en session pour réutilisation ultérieure
+      session[:technical_preparation_data] = technical_data.to_h
+
+      render json: {
+        success: true,
+        message: "Données techniques sauvegardées avec succès",
+        data: technical_data
+      }
+    rescue ActionController::ParameterMissing => e
+      render json: {
+        success: false,
+        error: "Paramètres manquants: #{e.message}"
+      }, status: :bad_request
+    rescue => e
+      Rails.logger.error "Erreur lors de la sauvegarde des données techniques: #{e.message}"
+      render json: {
+        success: false,
+        error: "Erreur lors de la sauvegarde: #{e.message}"
+      }, status: :internal_server_error
+    end
+  end
+
   private
 
   def generate_empty_hub_data

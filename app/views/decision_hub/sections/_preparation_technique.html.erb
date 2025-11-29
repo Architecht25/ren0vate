@@ -1,0 +1,484 @@
+<!-- Partial pour la section préparation technique -->
+<div class="preparation-technique-content">
+
+  <%
+    # Récupérer les primes sélectionnées depuis hub_data
+    selected_primes = hub_data.dig(:resume, :primes) || []
+
+    # Extraire les noms des primes (pas les slugs)
+    prime_names = selected_primes.map { |p| p[:name] || p['name'] }.compact
+
+    # Récupérer les objets Prime complets depuis la base de données par titre
+    primes_with_conditions = Prime.where(titre: prime_names) if prime_names.any?
+
+    # Si ça ne marche pas, essayer avec LIKE pour une correspondance partielle
+    if primes_with_conditions.blank? && prime_names.any?
+      # Chercher avec LIKE pour correspondance partielle
+      conditions = prime_names.map { |name| "titre ILIKE ?" }.join(" OR ")
+      values = prime_names.map { |name| "%#{name}%" }
+      primes_with_conditions = Prime.where(conditions, *values)
+    end
+
+    # Variables pour les données techniques sauvegardées
+    technical_data = session[:technical_preparation_data] || {}
+  %>
+
+  <!-- Vue d'ensemble de la préparation -->
+  <div class="preparation-overview mb-4">
+    <h5 class="fw-bold mb-3">
+      <i class="bi bi-tools me-2"></i>
+      Préparation des données techniques
+    </h5>
+
+    <div class="alert alert-primary">
+      <div class="d-flex align-items-start">
+        <i class="bi bi-info-circle me-2 mt-1"></i>
+        <div>
+          <p class="mb-2 fw-semibold">Collectez maintenant vos données techniques</p>
+          <p class="mb-0 small">
+            Sur base des contraintes techniques que vous venez de consulter, renseignez ici les données de votre projet.
+            Ces informations pré-rempliront automatiquement votre formulaire de demande.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Étapes de collecte -->
+  <% if primes_with_conditions&.any? %>
+    <div class="data-collection-steps">
+
+      <!-- Section 1: Isolation (toiture, murs, sols) -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #059669 0%, #047857 100%);">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-house me-2"></i>
+            <h6 class="mb-0 fw-semibold">1. Données d'isolation</h6>
+            <div class="ms-auto">
+              <span class="badge bg-white text-dark" id="isolation-status">
+                <% if technical_data.dig(:isolation).present? %>À compléter<% else %>Non renseigné<% end %>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+
+            <!-- Isolation toiture -->
+            <div class="col-md-4">
+              <div class="form-section">
+                <h6 class="fw-semibold mb-2"><i class="bi bi-house-door me-1"></i> Toiture</h6>
+                <div class="mb-2">
+                  <label class="form-label small">Épaisseur (cm)</label>
+                  <input type="number" class="form-control" name="isolation_toiture_epaisseur"
+                         value="<%= technical_data.dig(:isolation, :toiture, :epaisseur) %>"
+                         placeholder="Ex: 20">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label small">Résistance thermique Rd (m²K/W)</label>
+                  <input type="number" step="0.1" class="form-control" name="isolation_toiture_rd"
+                         value="<%= technical_data.dig(:isolation, :toiture, :rd) %>"
+                         placeholder="Ex: 5.5">
+                </div>
+                <div>
+                  <label class="form-label small">Matériau</label>
+                  <select class="form-select" name="isolation_toiture_materiau">
+                    <option value="">Sélectionner...</option>
+                    <option value="laine_de_verre" <%= 'selected' if technical_data.dig(:isolation, :toiture, :materiau) == 'laine_de_verre' %>>Laine de verre</option>
+                    <option value="laine_de_roche" <%= 'selected' if technical_data.dig(:isolation, :toiture, :materiau) == 'laine_de_roche' %>>Laine de roche</option>
+                    <option value="polyurethane" <%= 'selected' if technical_data.dig(:isolation, :toiture, :materiau) == 'polyurethane' %>>Polyuréthane</option>
+                    <option value="cellulose" <%= 'selected' if technical_data.dig(:isolation, :toiture, :materiau) == 'cellulose' %>>Cellulose</option>
+                    <option value="autre" <%= 'selected' if technical_data.dig(:isolation, :toiture, :materiau) == 'autre' %>>Autre</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Isolation murs -->
+            <div class="col-md-4">
+              <div class="form-section">
+                <h6 class="fw-semibold mb-2"><i class="bi bi-bricks me-1"></i> Murs</h6>
+                <div class="mb-2">
+                  <label class="form-label small">Épaisseur (cm)</label>
+                  <input type="number" class="form-control" name="isolation_murs_epaisseur"
+                         value="<%= technical_data.dig(:isolation, :murs, :epaisseur) %>"
+                         placeholder="Ex: 15">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label small">Résistance thermique Rd (m²K/W)</label>
+                  <input type="number" step="0.1" class="form-control" name="isolation_murs_rd"
+                         value="<%= technical_data.dig(:isolation, :murs, :rd) %>"
+                         placeholder="Ex: 4.2">
+                </div>
+                <div>
+                  <label class="form-label small">Type de façade</label>
+                  <select class="form-select" name="isolation_murs_facade_type">
+                    <option value="">Sélectionner...</option>
+                    <option value="exterieur" <%= 'selected' if technical_data.dig(:isolation, :murs, :facade_type) == 'exterieur' %>>Isolation par l'extérieur</option>
+                    <option value="interieur" <%= 'selected' if technical_data.dig(:isolation, :murs, :facade_type) == 'interieur' %>>Isolation par l'intérieur</option>
+                    <option value="cavity" <%= 'selected' if technical_data.dig(:isolation, :murs, :facade_type) == 'cavity' %>>Isolation de la coulisse</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Isolation sols -->
+            <div class="col-md-4">
+              <div class="form-section">
+                <h6 class="fw-semibold mb-2"><i class="bi bi-layers me-1"></i> Sols</h6>
+                <div class="mb-2">
+                  <label class="form-label small">Épaisseur (cm)</label>
+                  <input type="number" class="form-control" name="isolation_sols_epaisseur"
+                         value="<%= technical_data.dig(:isolation, :sols, :epaisseur) %>"
+                         placeholder="Ex: 12">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label small">Résistance thermique Rd (m²K/W)</label>
+                  <input type="number" step="0.1" class="form-control" name="isolation_sols_rd"
+                         value="<%= technical_data.dig(:isolation, :sols, :rd) %>"
+                         placeholder="Ex: 3.5">
+                </div>
+                <div>
+                  <label class="form-label small">Type d'isolation</label>
+                  <select class="form-select" name="isolation_sols_type">
+                    <option value="">Sélectionner...</option>
+                    <option value="sol_bas" <%= 'selected' if technical_data.dig(:isolation, :sols, :type) == 'sol_bas' %>>Sol en contact avec le sol</option>
+                    <option value="cave_chauffee" <%= 'selected' if technical_data.dig(:isolation, :sols, :type) == 'cave_chauffee' %>>Cave chauffée</option>
+                    <option value="cave_non_chauffee" <%= 'selected' if technical_data.dig(:isolation, :sols, :type) == 'cave_non_chauffee' %>>Cave non chauffée</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Systèmes énergétiques -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-lightning me-2"></i>
+            <h6 class="mb-0 fw-semibold">2. Systèmes énergétiques</h6>
+            <div class="ms-auto">
+              <span class="badge bg-white text-dark" id="energie-status">
+                <% if technical_data.dig(:systemes_energie).present? %>À compléter<% else %>Non renseigné<% end %>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+
+            <!-- Pompe à chaleur -->
+            <div class="col-md-6">
+              <div class="form-section">
+                <h6 class="fw-semibold mb-2"><i class="bi bi-thermometer me-1"></i> Pompe à chaleur</h6>
+                <div class="mb-2">
+                  <label class="form-label small">Type</label>
+                  <select class="form-select" name="pac_type">
+                    <option value="">Sélectionner...</option>
+                    <option value="air_eau" <%= 'selected' if technical_data.dig(:systemes_energie, :pac, :type) == 'air_eau' %>>Air/Eau</option>
+                    <option value="sol_eau" <%= 'selected' if technical_data.dig(:systemes_energie, :pac, :type) == 'sol_eau' %>>Sol/Eau (géothermie)</option>
+                    <option value="eau_eau" <%= 'selected' if technical_data.dig(:systemes_energie, :pac, :type) == 'eau_eau' %>>Eau/Eau</option>
+                  </select>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label small">Puissance (kW)</label>
+                  <input type="number" step="0.1" class="form-control" name="pac_puissance"
+                         value="<%= technical_data.dig(:systemes_energie, :pac, :puissance) %>"
+                         placeholder="Ex: 12.5">
+                </div>
+                <div>
+                  <label class="form-label small">COP (Coefficient de performance)</label>
+                  <input type="number" step="0.1" class="form-control" name="pac_cop"
+                         value="<%= technical_data.dig(:systemes_energie, :pac, :cop) %>"
+                         placeholder="Ex: 4.2">
+                </div>
+              </div>
+            </div>
+
+            <!-- Chauffe-eau thermodynamique -->
+            <div class="col-md-6">
+              <div class="form-section">
+                <h6 class="fw-semibold mb-2"><i class="bi bi-droplet me-1"></i> Chauffe-eau thermodynamique</h6>
+                <div class="mb-2">
+                  <label class="form-label small">Capacité (L)</label>
+                  <input type="number" class="form-control" name="cet_capacite"
+                         value="<%= technical_data.dig(:systemes_energie, :cet, :capacite) %>"
+                         placeholder="Ex: 270">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label small">COP (Coefficient de performance)</label>
+                  <input type="number" step="0.1" class="form-control" name="cet_cop"
+                         value="<%= technical_data.dig(:systemes_energie, :cet, :cop) %>"
+                         placeholder="Ex: 3.8">
+                </div>
+                <div>
+                  <label class="form-label small">Source d'air</label>
+                  <select class="form-select" name="cet_source">
+                    <option value="">Sélectionner...</option>
+                    <option value="air_ambiant" <%= 'selected' if technical_data.dig(:systemes_energie, :cet, :source) == 'air_ambiant' %>>Air ambiant</option>
+                    <option value="air_exterieur" <%= 'selected' if technical_data.dig(:systemes_energie, :cet, :source) == 'air_exterieur' %>>Air extérieur</option>
+                    <option value="air_extrait" <%= 'selected' if technical_data.dig(:systemes_energie, :cet, :source) == 'air_extrait' %>>Air extrait</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Menuiseries -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-window me-2"></i>
+            <h6 class="mb-0 fw-semibold">3. Menuiseries</h6>
+            <div class="ms-auto">
+              <span class="badge bg-white text-dark" id="menuiseries-status">
+                <% if technical_data.dig(:menuiseries).present? %>À compléter<% else %>Non renseigné<% end %>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+
+            <!-- Fenêtres -->
+            <div class="col-md-4">
+              <div class="form-section">
+                <h6 class="fw-semibold mb-2"><i class="bi bi-window-dock me-1"></i> Fenêtres</h6>
+                <div class="mb-2">
+                  <label class="form-label small">Coefficient Uw (W/m²K)</label>
+                  <input type="number" step="0.1" class="form-control" name="fenetres_uw"
+                         value="<%= technical_data.dig(:menuiseries, :fenetres, :uw) %>"
+                         placeholder="Ex: 1.1">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label small">Type de vitrage</label>
+                  <select class="form-select" name="fenetres_vitrage">
+                    <option value="">Sélectionner...</option>
+                    <option value="double" <%= 'selected' if technical_data.dig(:menuiseries, :fenetres, :vitrage) == 'double' %>>Double vitrage</option>
+                    <option value="triple" <%= 'selected' if technical_data.dig(:menuiseries, :fenetres, :vitrage) == 'triple' %>>Triple vitrage</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="form-label small">Matériau châssis</label>
+                  <select class="form-select" name="fenetres_chassis">
+                    <option value="">Sélectionner...</option>
+                    <option value="pvc" <%= 'selected' if technical_data.dig(:menuiseries, :fenetres, :chassis) == 'pvc' %>>PVC</option>
+                    <option value="bois" <%= 'selected' if technical_data.dig(:menuiseries, :fenetres, :chassis) == 'bois' %>>Bois</option>
+                    <option value="aluminium" <%= 'selected' if technical_data.dig(:menuiseries, :fenetres, :chassis) == 'aluminium' %>>Aluminium</option>
+                    <option value="mixte" <%= 'selected' if technical_data.dig(:menuiseries, :fenetres, :chassis) == 'mixte' %>>Mixte</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Portes -->
+            <div class="col-md-4">
+              <div class="form-section">
+                <h6 class="fw-semibold mb-2"><i class="bi bi-door-open me-1"></i> Portes</h6>
+                <div class="mb-2">
+                  <label class="form-label small">Coefficient Ud (W/m²K)</label>
+                  <input type="number" step="0.1" class="form-control" name="portes_ud"
+                         value="<%= technical_data.dig(:menuiseries, :portes, :ud) %>"
+                         placeholder="Ex: 1.3">
+                </div>
+                <div class="mb-2">
+                  <label class="form-label small">Type</label>
+                  <select class="form-select" name="portes_type">
+                    <option value="">Sélectionner...</option>
+                    <option value="entree" <%= 'selected' if technical_data.dig(:menuiseries, :portes, :type) == 'entree' %>>Porte d'entrée</option>
+                    <option value="terrasse" <%= 'selected' if technical_data.dig(:menuiseries, :portes, :type) == 'terrasse' %>>Porte-fenêtre/terrasse</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="form-label small">Matériau</label>
+                  <select class="form-select" name="portes_materiau">
+                    <option value="">Sélectionner...</option>
+                    <option value="bois" <%= 'selected' if technical_data.dig(:menuiseries, :portes, :materiau) == 'bois' %>>Bois</option>
+                    <option value="pvc" <%= 'selected' if technical_data.dig(:menuiseries, :portes, :materiau) == 'pvc' %>>PVC</option>
+                    <option value="aluminium" <%= 'selected' if technical_data.dig(:menuiseries, :portes, :materiau) == 'aluminium' %>>Aluminium</option>
+                    <option value="acier" <%= 'selected' if technical_data.dig(:menuiseries, :portes, :materiau) == 'acier' %>>Acier</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ventilation -->
+            <div class="col-md-4">
+              <div class="form-section">
+                <h6 class="fw-semibold mb-2"><i class="bi bi-wind me-1"></i> Ventilation</h6>
+                <div class="mb-2">
+                  <label class="form-label small">Type de système</label>
+                  <select class="form-select" name="ventilation_type">
+                    <option value="">Sélectionner...</option>
+                    <option value="vmc_simple_flux" <%= 'selected' if technical_data.dig(:menuiseries, :ventilation, :type) == 'vmc_simple_flux' %>>VMC Simple flux</option>
+                    <option value="vmc_double_flux" <%= 'selected' if technical_data.dig(:menuiseries, :ventilation, :type) == 'vmc_double_flux' %>>VMC Double flux</option>
+                    <option value="naturelle" <%= 'selected' if technical_data.dig(:menuiseries, :ventilation, :type) == 'naturelle' %>>Ventilation naturelle</option>
+                  </select>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label small">Débit (m³/h)</label>
+                  <input type="number" class="form-control" name="ventilation_debit"
+                         value="<%= technical_data.dig(:menuiseries, :ventilation, :debit) %>"
+                         placeholder="Ex: 300">
+                </div>
+                <div>
+                  <label class="form-label small">Rendement (%)</label>
+                  <input type="number" class="form-control" name="ventilation_rendement"
+                         value="<%= technical_data.dig(:menuiseries, :ventilation, :rendement) %>"
+                         placeholder="Ex: 85" max="100">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="action-section text-center mb-4">
+        <button type="button" class="btn btn-success btn-lg px-5" id="save-technical-preparation">
+          <i class="bi bi-check-circle me-2"></i>
+          Sauvegarder mes données techniques
+        </button>
+        <div class="mt-3">
+          <small class="text-muted">
+            <i class="bi bi-info-circle me-1"></i>
+            Ces données seront utilisées pour pré-remplir votre formulaire de demande de primes
+          </small>
+        </div>
+      </div>
+
+    </div>
+  <% else %>
+    <!-- Pas de primes sélectionnées -->
+    <div class="alert alert-secondary text-center">
+      <i class="bi bi-info-circle me-2"></i>
+      <strong>Aucune prime sélectionnée</strong><br>
+      <small>Effectuez d'abord une simulation pour identifier vos primes et leurs exigences techniques.</small>
+    </div>
+  <% end %>
+
+</div>
+
+<!-- JavaScript pour la gestion des données -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  // Fonction pour mettre à jour le statut de completion
+  function updateCompletionStatus() {
+    // Vérifier isolation
+    const isolationFields = document.querySelectorAll('[name^="isolation_"]');
+    let isolationComplete = Array.from(isolationFields).some(field => field.value.trim() !== '');
+    document.getElementById('isolation-status').textContent = isolationComplete ? 'En cours' : 'Non renseigné';
+
+    // Vérifier systèmes énergie
+    const energieFields = document.querySelectorAll('[name^="pac_"], [name^="cet_"]');
+    let energieComplete = Array.from(energieFields).some(field => field.value.trim() !== '');
+    document.getElementById('energie-status').textContent = energieComplete ? 'En cours' : 'Non renseigné';
+
+    // Vérifier menuiseries
+    const menuiseriesFields = document.querySelectorAll('[name^="fenetres_"], [name^="portes_"], [name^="ventilation_"]');
+    let menuiseriesComplete = Array.from(menuiseriesFields).some(field => field.value.trim() !== '');
+    document.getElementById('menuiseries-status').textContent = menuiseriesComplete ? 'En cours' : 'Non renseigné';
+  }
+
+  // Écouter les changements sur tous les champs
+  const allFields = document.querySelectorAll('.preparation-technique-content input, .preparation-technique-content select');
+  allFields.forEach(field => {
+    field.addEventListener('input', updateCompletionStatus);
+    field.addEventListener('change', updateCompletionStatus);
+  });
+
+  // Bouton de sauvegarde
+  document.getElementById('save-technical-preparation')?.addEventListener('click', function() {
+    // Collecter toutes les données
+    const technicalData = {};
+
+    // Isolation
+    technicalData.isolation = {
+      toiture: {
+        epaisseur: document.querySelector('[name="isolation_toiture_epaisseur"]')?.value,
+        rd: document.querySelector('[name="isolation_toiture_rd"]')?.value,
+        materiau: document.querySelector('[name="isolation_toiture_materiau"]')?.value
+      },
+      murs: {
+        epaisseur: document.querySelector('[name="isolation_murs_epaisseur"]')?.value,
+        rd: document.querySelector('[name="isolation_murs_rd"]')?.value,
+        facade_type: document.querySelector('[name="isolation_murs_facade_type"]')?.value
+      },
+      sols: {
+        epaisseur: document.querySelector('[name="isolation_sols_epaisseur"]')?.value,
+        rd: document.querySelector('[name="isolation_sols_rd"]')?.value,
+        type: document.querySelector('[name="isolation_sols_type"]')?.value
+      }
+    };
+
+    // Systèmes énergétiques
+    technicalData.systemes_energie = {
+      pac: {
+        type: document.querySelector('[name="pac_type"]')?.value,
+        puissance: document.querySelector('[name="pac_puissance"]')?.value,
+        cop: document.querySelector('[name="pac_cop"]')?.value
+      },
+      cet: {
+        capacite: document.querySelector('[name="cet_capacite"]')?.value,
+        cop: document.querySelector('[name="cet_cop"]')?.value,
+        source: document.querySelector('[name="cet_source"]')?.value
+      }
+    };
+
+    // Menuiseries
+    technicalData.menuiseries = {
+      fenetres: {
+        uw: document.querySelector('[name="fenetres_uw"]')?.value,
+        vitrage: document.querySelector('[name="fenetres_vitrage"]')?.value,
+        chassis: document.querySelector('[name="fenetres_chassis"]')?.value
+      },
+      portes: {
+        ud: document.querySelector('[name="portes_ud"]')?.value,
+        type: document.querySelector('[name="portes_type"]')?.value,
+        materiau: document.querySelector('[name="portes_materiau"]')?.value
+      },
+      ventilation: {
+        type: document.querySelector('[name="ventilation_type"]')?.value,
+        debit: document.querySelector('[name="ventilation_debit"]')?.value,
+        rendement: document.querySelector('[name="ventilation_rendement"]')?.value
+      }
+    };
+
+    // Sauvegarder via AJAX (à implémenter côté contrôleur)
+    fetch('/decision_hub/save_technical_preparation', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+      },
+      body: JSON.stringify({ technical_preparation: technicalData })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        this.innerHTML = '<i class="bi bi-check-circle me-2"></i>Données sauvegardées !';
+        this.className = 'btn btn-outline-success btn-lg px-5';
+
+        // Mettre à jour les statuts
+        document.getElementById('isolation-status').textContent = 'Complété';
+        document.getElementById('energie-status').textContent = 'Complété';
+        document.getElementById('menuiseries-status').textContent = 'Complété';
+      } else {
+        alert('Erreur lors de la sauvegarde');
+      }
+    })
+    .catch(error => {
+      console.error('Erreur:', error);
+      alert('Erreur lors de la sauvegarde');
+    });
+  });
+
+  // Initialiser le statut au chargement
+  updateCompletionStatus();
+});
+</script>
