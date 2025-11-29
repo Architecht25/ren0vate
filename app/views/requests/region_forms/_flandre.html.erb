@@ -1750,25 +1750,27 @@ if (!document.querySelector('#wallonie-section') && !document.body.textContent.i
 // JavaScript unifié pour toutes les checkboxes de travaux
 function initializeFlandreCheckboxes() {
   console.log('🔧 === INITIALISATION CHECKBOXES FLANDRE ===');
-  
+
   // Fonction pour gérer une checkbox de travaux
   function setupWorkCheckbox(checkboxName) {
     const selector = `input[name="request[${checkboxName}]"][type="checkbox"]`;
     const checkbox = document.querySelector(selector);
-    
+
     if (checkbox) {
       // Supprimer les anciens event listeners s'ils existent
-      checkbox.removeEventListener('change', checkbox.toggleDetailsHandler);
-      
+      if (checkbox.toggleDetailsHandler) {
+        checkbox.removeEventListener('change', checkbox.toggleDetailsHandler);
+      }
+
       function toggleDetails() {
         const checkDiv = checkbox.closest('.form-check');
         let detailsDiv = checkDiv ? checkDiv.nextElementSibling : null;
-        
+
         // Chercher le div travaux-details qui suit
         while (detailsDiv && !detailsDiv.classList.contains('travaux-details')) {
           detailsDiv = detailsDiv.nextElementSibling;
         }
-        
+
         if (detailsDiv && detailsDiv.classList.contains('travaux-details')) {
           if (checkbox.checked) {
             detailsDiv.classList.remove('d-none');
@@ -1777,16 +1779,16 @@ function initializeFlandreCheckboxes() {
           }
         }
       }
-      
+
       // Stocker la référence pour pouvoir la supprimer plus tard
       checkbox.toggleDetailsHandler = toggleDetails;
-      
+
       // Appliquer l'état initial
       toggleDetails();
-      
+
       // Écouter les changements
       checkbox.addEventListener('change', toggleDetails);
-      
+
       return true;
     } else {
       return false;
@@ -1794,64 +1796,9 @@ function initializeFlandreCheckboxes() {
   }
 
   // Liste complète des checkboxes à activer
-    const checkboxes = [
-      'travaux_toiture',
-      'travaux_murs',
-      'travaux_sol',
-      'travaux_cave',
-      'travaux_vitrage',
-      'travaux_portes',
-      'travaux_chauffage',
-      'travaux_boiler',
-      'travaux_amiante',
-      'travaux_complementaires',
-      'travaux_ventilation'
-    ];
-
-    console.log(`🎯 Tentative d'activation de ${checkboxes.length} checkboxes`);
-
-    let successCount = 0;
-    checkboxes.forEach(name => {
-      if (setupWorkCheckbox(name)) {
-        successCount++;
-      }
-    });
-
-    console.log(`✅ ${successCount}/${checkboxes.length} checkboxes activées avec succès`);
-
-    // Gérer le sélecteur de type pompe à chaleur
-    const typeSelect = document.querySelector('[data-target="pac-details"]');
-    if (typeSelect) {
-      console.log('🔥 Select type pompe à chaleur trouvé et configuré');
-
-      function showPacSection() {
-        // Masquer toutes les sections PAC
-        document.querySelectorAll('.pac-details').forEach(section => {
-          section.classList.add('d-none');
-        });
-
-        // Afficher la section correspondante
-        const selectedType = typeSelect.value;
-        if (selectedType) {
-          const targetSection = document.querySelector('.pac-details.' + selectedType);
-          if (targetSection) {
-            targetSection.classList.remove('d-none');
-            console.log(`🔥 Section PAC ${selectedType} affichée`);
-          }
-        }
-      }
-
-      // Appliquer l'état initial
-      showPacSection();
-
-      // Écouter les changements
-      typeSelect.addEventListener('change', showPacSection);
-    }
-
-  // Liste complète des checkboxes à activer
   const checkboxes = [
     'travaux_toiture',
-    'travaux_murs', 
+    'travaux_murs',
     'travaux_sol',
     'travaux_cave',
     'travaux_vitrage',
