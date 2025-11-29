@@ -1748,79 +1748,52 @@ if (!document.querySelector('#wallonie-section') && !document.body.textContent.i
 }
 
 // JavaScript unifié pour toutes les checkboxes de travaux
-document.addEventListener('DOMContentLoaded', function() {
+function initializeFlandreCheckboxes() {
   console.log('🔧 === INITIALISATION CHECKBOXES FLANDRE ===');
-  console.log('🔧 === DEBUT SCRIPT FLANDRE ===');
-
-  // Test immédiat pour vérifier que le script s'exécute
-  console.log('🔧 DOM Content Loaded - Script Flandre actif');
-
-  // Attendre que tous les éléments soient chargés
-  setTimeout(function() {
-    console.log('🔧 === TIMEOUT EXECUTÉ ===');
-    // Fonction pour gérer une checkbox de travaux
-    function setupWorkCheckbox(checkboxName) {
-      // Le bon sélecteur selon le HTML généré par Rails
-      const selector = `input[name="request[${checkboxName}]"][type="checkbox"]`;
-      console.log(`🔍 Sélecteur utilisé: ${selector}`);
-      const checkbox = document.querySelector(selector);
-
-      if (checkbox) {
-        console.log(`✅ Checkbox ${checkboxName} trouvée:`, checkbox);        function toggleDetails() {
-          console.log(`🔍 Debug ${checkboxName}: checkbox.checked = ${checkbox.checked}`);
-
-          const checkDiv = checkbox.closest('.form-check');
-          console.log(`  - checkDiv:`, checkDiv);
-
-          let detailsDiv = checkDiv ? checkDiv.nextElementSibling : null;
-          console.log(`  - nextElementSibling:`, detailsDiv);
-
-          // Chercher le div travaux-details qui suit
-          let attempts = 0;
-          while (detailsDiv && !detailsDiv.classList.contains('travaux-details') && attempts < 5) {
-            console.log(`  - élément ${attempts}:`, detailsDiv, detailsDiv.className);
-            detailsDiv = detailsDiv.nextElementSibling;
-            attempts++;
-          }
-
-          console.log(`  - travaux-details trouvé:`, detailsDiv);
-
-          if (detailsDiv && detailsDiv.classList.contains('travaux-details')) {
-            if (checkbox.checked) {
-              console.log(`📖 Affichage détails pour ${checkboxName}`);
-              detailsDiv.classList.remove('d-none');
-            } else {
-              console.log(`📚 Masquage détails pour ${checkboxName}`);
-              detailsDiv.classList.add('d-none');
-            }
-            console.log(`  - Classes après modification:`, detailsDiv.className);
+  
+  // Fonction pour gérer une checkbox de travaux
+  function setupWorkCheckbox(checkboxName) {
+    const selector = `input[name="request[${checkboxName}]"][type="checkbox"]`;
+    const checkbox = document.querySelector(selector);
+    
+    if (checkbox) {
+      // Supprimer les anciens event listeners s'ils existent
+      checkbox.removeEventListener('change', checkbox.toggleDetailsHandler);
+      
+      function toggleDetails() {
+        const checkDiv = checkbox.closest('.form-check');
+        let detailsDiv = checkDiv ? checkDiv.nextElementSibling : null;
+        
+        // Chercher le div travaux-details qui suit
+        while (detailsDiv && !detailsDiv.classList.contains('travaux-details')) {
+          detailsDiv = detailsDiv.nextElementSibling;
+        }
+        
+        if (detailsDiv && detailsDiv.classList.contains('travaux-details')) {
+          if (checkbox.checked) {
+            detailsDiv.classList.remove('d-none');
           } else {
-            console.log(`⚠️ Pas de travaux-details trouvé pour ${checkboxName}`);
-            // Afficher tous les éléments suivants pour debug
-            let nextEl = checkDiv ? checkDiv.nextElementSibling : null;
-            let count = 0;
-            while (nextEl && count < 10) {
-              console.log(`    Élément ${count}:`, nextEl.tagName, nextEl.className, nextEl);
-              nextEl = nextEl.nextElementSibling;
-              count++;
-            }
+            detailsDiv.classList.add('d-none');
           }
         }
-
-        // Appliquer l'état initial
-        toggleDetails();
-
-        // Écouter les changements
-        checkbox.addEventListener('change', toggleDetails);
-
-        return true;
-      } else {
-        console.log(`❌ Checkbox ${checkboxName} NON TROUVÉE`);
-        return false;
       }
+      
+      // Stocker la référence pour pouvoir la supprimer plus tard
+      checkbox.toggleDetailsHandler = toggleDetails;
+      
+      // Appliquer l'état initial
+      toggleDetails();
+      
+      // Écouter les changements
+      checkbox.addEventListener('change', toggleDetails);
+      
+      return true;
+    } else {
+      return false;
     }
+  }
 
-    // Liste complète des checkboxes à activer
+  // Liste complète des checkboxes à activer
     const checkboxes = [
       'travaux_toiture',
       'travaux_murs',
@@ -1875,6 +1848,64 @@ document.addEventListener('DOMContentLoaded', function() {
       typeSelect.addEventListener('change', showPacSection);
     }
 
-  }, 100); // Petite attente pour s'assurer que tout est chargé
-});
+  // Liste complète des checkboxes à activer
+  const checkboxes = [
+    'travaux_toiture',
+    'travaux_murs', 
+    'travaux_sol',
+    'travaux_cave',
+    'travaux_vitrage',
+    'travaux_portes',
+    'travaux_chauffage',
+    'travaux_boiler',
+    'travaux_amiante',
+    'travaux_complementaires',
+    'travaux_ventilation'
+  ];
+
+  console.log(`🎯 Tentative d'activation de ${checkboxes.length} checkboxes`);
+
+  let successCount = 0;
+  checkboxes.forEach(name => {
+    if (setupWorkCheckbox(name)) {
+      successCount++;
+    }
+  });
+
+  console.log(`✅ ${successCount}/${checkboxes.length} checkboxes activées avec succès`);
+
+  // Gérer le sélecteur de type pompe à chaleur
+  const typeSelect = document.querySelector('[data-target="pac-details"]');
+  if (typeSelect) {
+    console.log('🔥 Select type pompe à chaleur trouvé et configuré');
+
+    function showPacSection() {
+      // Masquer toutes les sections PAC
+      document.querySelectorAll('.pac-details').forEach(section => {
+        section.classList.add('d-none');
+      });
+
+      // Afficher la section correspondante
+      const selectedType = typeSelect.value;
+      if (selectedType) {
+        const targetSection = document.querySelector('.pac-details.' + selectedType);
+        if (targetSection) {
+          targetSection.classList.remove('d-none');
+          console.log(`🔥 Section PAC ${selectedType} affichée`);
+        }
+      }
+    }
+
+    // Appliquer l'état initial
+    showPacSection();
+
+    // Écouter les changements
+    typeSelect.addEventListener('change', showPacSection);
+  }
+}
+
+// Événements pour le chargement initial ET navigation Turbo
+document.addEventListener('DOMContentLoaded', initializeFlandreCheckboxes);
+document.addEventListener('turbo:load', initializeFlandreCheckboxes);
+document.addEventListener('turbo:render', initializeFlandreCheckboxes);
 </script>
