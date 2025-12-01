@@ -220,11 +220,13 @@
                     <%= f.input :type_propriete_wallonie,
                         label: '<i class="bi bi-building me-2 text-secondary"></i>Type de propriété (Wallonie)'.html_safe,
                         collection: [
-                          ["Propriétaire à 100%", "propriétaire_occupant"],
-                          ["Copropriétaire avec mon conjoint", "copropriétaire"],
-                          ["Nu propriétaire", "nu_proprietaire"],
+                          ["Unique propriétaire", "unique_proprietaire"],
+                          ["Copropriétaire avec mon conjoint (couple marié, cohabitants légaux, cohabitants de fait) figurant sur ma composition de ménage", "copropriete_conjoint"],
+                          ["Copropriétaire avec d'autres", "copropriete_autres"],
                           ["Usufruitier", "usufruitier"],
-                          ["Plein propriétaire", "plein_proprietaire"]
+                          ["Nu-propriétaire", "nu_proprietaire"],
+                          ["Représentant d'une association de copropriétaires", "representant_association"],
+                          ["Autre (droit d'habitation, emphytéote...)", "autre"]
                         ],
                         include_blank: "Sélectionnez le type de propriété",
                         wrapper_html: { class: "mb-3" },
@@ -250,6 +252,23 @@
                           class: "form-select border-2 rounded-3 px-3",
                           style: "background: #f8f9fa; border-color: #e9ecef !important;",
                           required: true
+                        } %>
+                  </div>
+                  <div class="col-12">
+                    <%= f.input :type_bien_wallonie,
+                        label: '<i class="bi bi-building me-2 text-secondary"></i>Type de bâtiment après travaux'.html_safe,
+                        collection: [
+                          ["Maison unifamiliale", "maison_unifamiliale"],
+                          ["Appartement/studio", "appartement_studio"],
+                          ["Immeuble avec plusieurs unités de logement", "immeuble_plusieurs_unites"],
+                          ["Autre", "autre"]
+                        ],
+                        include_blank: "Sélectionnez le type de bâtiment",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-select border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
                         } %>
                   </div>
                 </div>
