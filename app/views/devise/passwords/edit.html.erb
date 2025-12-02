@@ -19,29 +19,37 @@
           <%= f.full_error :reset_password_token %>
 
           <div class="form-group mb-3">
-            <%= f.input :password,
-                        label: "Nouveau mot de passe",
-                        required: true,
-                        autofocus: true,
-                        hint: ("#{@minimum_password_length} caractères minimum" if @minimum_password_length),
-                        input_html: {
-                          class: "form-control form-control-lg",
-                          autocomplete: "new-password",
-                          placeholder: "Choisissez un mot de passe sécurisé"
-                        },
-                        label_html: { class: "form-label fw-semibold" } %>
+            <label for="user_password" class="form-label fw-semibold">Nouveau mot de passe</label>
+            <% if @minimum_password_length %>
+              <small class="form-text text-muted d-block mb-2"><%= @minimum_password_length %> caractères minimum</small>
+            <% end %>
+            <div class="password-input-container">
+              <%= f.password_field :password,
+                                   class: "form-control form-control-lg password-input",
+                                   autocomplete: "new-password",
+                                   placeholder: "Choisissez un mot de passe sécurisé",
+                                   id: "user_password",
+                                   required: true,
+                                   autofocus: true %>
+              <button type="button" class="password-toggle-btn" aria-label="Afficher/masquer le mot de passe">
+                <i class="bi bi-eye" data-show-icon="bi-eye" data-hide-icon="bi-eye-slash"></i>
+              </button>
+            </div>
           </div>
 
           <div class="form-group mb-4">
-            <%= f.input :password_confirmation,
-                        label: "Confirmer le nouveau mot de passe",
-                        required: true,
-                        input_html: {
-                          class: "form-control form-control-lg",
-                          autocomplete: "new-password",
-                          placeholder: "Répétez votre nouveau mot de passe"
-                        },
-                        label_html: { class: "form-label fw-semibold" } %>
+            <label for="user_password_confirmation" class="form-label fw-semibold">Confirmer le nouveau mot de passe</label>
+            <div class="password-input-container">
+              <%= f.password_field :password_confirmation,
+                                   class: "form-control form-control-lg password-input",
+                                   autocomplete: "new-password",
+                                   placeholder: "Répétez votre nouveau mot de passe",
+                                   id: "user_password_confirmation",
+                                   required: true %>
+              <button type="button" class="password-toggle-btn" aria-label="Afficher/masquer le mot de passe">
+                <i class="bi bi-eye" data-show-icon="bi-eye" data-hide-icon="bi-eye-slash"></i>
+              </button>
+            </div>
           </div>
 
           <div class="form-actions mb-4">

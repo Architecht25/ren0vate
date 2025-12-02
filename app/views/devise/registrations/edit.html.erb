@@ -53,14 +53,20 @@
 
             <!-- Nouveau mot de passe -->
             <div class="mb-4">
-              <label class="form-label text-dark fw-medium mb-2">
+              <label for="user_password" class="form-label text-dark fw-medium mb-2">
                 <i class="bi bi-key me-2 text-primary"></i>Nouveau mot de passe
               </label>
-              <%= f.password_field :password,
-                  autocomplete: "new-password",
-                  class: "form-control form-control-lg border-2 rounded-3 px-4 py-3",
-                  style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                  placeholder: "Laissez vide pour conserver le mot de passe actuel" %>
+              <div class="password-input-container">
+                <%= f.password_field :password,
+                    autocomplete: "new-password",
+                    class: "form-control form-control-lg border-2 rounded-3 px-4 py-3 password-input",
+                    style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                    placeholder: "Laissez vide pour conserver le mot de passe actuel",
+                    id: "user_password" %>
+                <button type="button" class="password-toggle-btn" aria-label="Afficher/masquer le mot de passe">
+                  <i class="bi bi-eye" data-show-icon="bi-eye" data-hide-icon="bi-eye-slash"></i>
+                </button>
+              </div>
               <div class="form-text text-muted mt-2">
                 <small><i class="bi bi-info-circle me-1"></i>Minimum 6 caractères recommandés</small>
               </div>
@@ -68,14 +74,20 @@
 
             <!-- Confirmation mot de passe -->
             <div class="mb-4">
-              <label class="form-label text-dark fw-medium mb-2">
+              <label for="user_password_confirmation" class="form-label text-dark fw-medium mb-2">
                 <i class="bi bi-shield-check me-2 text-primary"></i>Confirmer le nouveau mot de passe
               </label>
-              <%= f.password_field :password_confirmation,
-                  autocomplete: "new-password",
-                  class: "form-control form-control-lg border-2 rounded-3 px-4 py-3",
-                  style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                  placeholder: "Répétez votre nouveau mot de passe" %>
+              <div class="password-input-container">
+                <%= f.password_field :password_confirmation,
+                    autocomplete: "new-password",
+                    class: "form-control form-control-lg border-2 rounded-3 px-4 py-3 password-input",
+                    style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                    placeholder: "Répétez votre nouveau mot de passe",
+                    id: "user_password_confirmation" %>
+                <button type="button" class="password-toggle-btn" aria-label="Afficher/masquer le mot de passe">
+                  <i class="bi bi-eye" data-show-icon="bi-eye" data-hide-icon="bi-eye-slash"></i>
+                </button>
+              </div>
             </div>
 
             <!-- Séparateur pour authentification -->
@@ -85,15 +97,21 @@
 
             <!-- Mot de passe actuel -->
             <div class="mb-5">
-              <label class="form-label text-dark fw-medium mb-2">
+              <label for="user_current_password" class="form-label text-dark fw-medium mb-2">
                 <i class="bi bi-lock me-2 text-warning"></i>Mot de passe actuel
               </label>
-              <%= f.password_field :current_password,
-                  required: true,
-                  autocomplete: "current-password",
-                  class: "form-control form-control-lg border-2 rounded-3 px-4 py-3",
-                  style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                  placeholder: "Entrez votre mot de passe actuel" %>
+              <div class="password-input-container">
+                <%= f.password_field :current_password,
+                    required: true,
+                    autocomplete: "current-password",
+                    class: "form-control form-control-lg border-2 rounded-3 px-4 py-3 password-input",
+                    style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                    placeholder: "Entrez votre mot de passe actuel",
+                    id: "user_current_password" %>
+                <button type="button" class="password-toggle-btn" aria-label="Afficher/masquer le mot de passe">
+                  <i class="bi bi-eye" data-show-icon="bi-eye" data-hide-icon="bi-eye-slash"></i>
+                </button>
+              </div>
               <div class="form-text text-muted mt-2">
                 <small><i class="bi bi-shield-exclamation me-1"></i>Requis pour confirmer les modifications</small>
               </div>

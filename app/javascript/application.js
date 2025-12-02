@@ -15,6 +15,7 @@ window.Stimulus = application
 import "./logic/flandre_calculations"
 import "./logic/prime_inputs_handlers"
 import "./entrepreneurs_management"
+import "./password_toggle"
 
 // Import et register tous les contrôleurs manuellement et simplement
 import UserTypeController from "controllers/user_type_controller"
