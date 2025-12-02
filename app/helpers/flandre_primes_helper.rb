@@ -13,6 +13,9 @@ module FlandrePrimesHelper
 
   # Helper pour récupérer le bon placeholder selon la catégorie utilisateur
   def placeholder_prime_flandre(prime, user_category = nil)
+    # Gestion du cas où prime est nil
+    return "Entrez la valeur" if prime.nil?
+    
     return prime.placeholder if prime.placeholder.is_a?(String)
 
     # Si le placeholder est un hash avec des catégories
