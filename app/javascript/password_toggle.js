@@ -25,10 +25,10 @@ function initPasswordToggle() {
 function togglePasswordVisibility(event) {
   event.preventDefault();
   event.stopPropagation();
-  
+
   const button = event.currentTarget;
-  const passwordContainer = button.closest('.password-input-container');
-  const passwordInput = passwordContainer.querySelector('input[type="password"], input[type="text"]');
+  const inputGroup = button.closest('.input-group');
+  const passwordInput = inputGroup.querySelector('input[type="password"], input[type="text"]');
   const icon = button.querySelector('i');
 
   if (!passwordInput || !icon) {

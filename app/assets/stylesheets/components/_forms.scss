@@ -1,81 +1,52 @@
 /* === Styles pour les champs de mot de passe avec toggle ===*/
 
-.password-input-container {
-  position: relative;
-  display: flex;
-  align-items: center;
-
-  .password-input,
-  input[type="password"] {
-    padding-right: 3rem !important; /* Espace pour le bouton œil */
-    width: 100%;
-    
-    &.form-control-lg {
-      padding-right: 3.5rem !important; /* Plus d'espace pour les champs lg */
-    }
-  }
-
+/* Utilisation de Bootstrap Input Group pour le toggle password */
+.input-group {
   .password-toggle-btn {
-    position: absolute;
-    top: 50%;
-    right: 0.75rem;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: #6c757d;
-    cursor: pointer;
-    padding: 0.375rem;
-    border-radius: 0.375rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10;
-    transition: all 0.2s ease;
-    width: 2rem;
-    height: 2rem;
-    outline: none;
-
-    /* Ajustement pour les champs form-control-lg */
-    .form-control-lg + & {
-      right: 1rem;
-      width: 3rem;
-      height: 3rem;
-      
-      i {
-        font-size: 1.2rem;
-      }
-    }
+    border-color: #ced4da !important;
+    background-color: transparent !important;
+    color: #6c757d !important;
+    border: 1px solid #ced4da !important;
+    border-left: none !important;
+    padding: 0.375rem 0.75rem !important;
+    margin-left: -1px !important; /* Fusion avec le champ */
 
     &:hover {
-      color: #495057;
-      background-color: rgba(0, 0, 0, 0.05);
+      background-color: rgba(108, 117, 125, 0.1) !important;
+      color: #495057 !important;
     }
 
     &:focus {
-      outline: 2px solid rgba(13, 110, 253, 0.25);
-      outline-offset: 2px;
-      color: #0d6efd;
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+      border-color: #86b7fe !important;
+      outline: 0 !important;
+      z-index: 3 !important;
     }
 
     i {
-      font-size: 1rem;
-      pointer-events: none;
+      font-size: 1rem !important;
     }
   }
 
-  /* Ajustements spécifiques pour différentes tailles de form-control */
-  &:has(.form-control-lg) .password-toggle-btn {
-    right: 1rem;
-    width: 3rem;
-    height: 3rem;
-    
-    i {
-      font-size: 1.2rem;
+  /* S'assurer que le champ et le bouton sont bien alignés */
+  .form-control {
+    border-right: 1px solid #ced4da !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+
+    &:focus {
+      border-color: #86b7fe !important;
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+      z-index: 3 !important;
     }
   }
-}
 
-/* === Styles pour l'authentification ===*/
+  /* Quand le champ est focus, styler aussi le bouton */
+  .form-control:focus + .password-toggle-btn {
+    border-color: #86b7fe !important;
+    border-left-color: #86b7fe !important;
+  }
+}/* === Styles pour l'authentification ===*/
 
 .auth-container {
   min-height: calc(100vh - 2rem);
