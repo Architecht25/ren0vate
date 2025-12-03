@@ -19,53 +19,59 @@
             </h6>
 
             <div class="row g-3">
-              <% if @project.architecte_nom_complet.present? %>
-                <div class="col-md-6">
-                  <strong>Nom :</strong>
-                  <span class="text-muted"><%= @project.architecte_nom_complet %></span>
-                </div>
-              <% end %>
+              <!-- Première rangée : informations principales -->
+              <div class="row g-2">
+                <% if @project.architecte_prenom.present? %>
+                  <div class="col">
+                    <strong>Prénom :</strong>
+                    <span class="text-muted"><%= @project.architecte_prenom %></span>
+                  </div>
+                <% end %>
 
-              <% if @project.architecte_entreprise.present? %>
-                <div class="col-md-6">
-                  <strong>Cabinet/Entreprise :</strong>
-                  <span class="text-muted"><%= @project.architecte_entreprise %></span>
-                </div>
-              <% end %>
+                <% if @project.architecte_nom.present? %>
+                  <div class="col">
+                    <strong>Nom :</strong>
+                    <span class="text-muted"><%= @project.architecte_nom %></span>
+                  </div>
+                <% end %>
 
-              <% if @project.architecte_numero_ordre.present? %>
-                <div class="col-md-6">
-                  <strong>N° Ordre :</strong>
-                  <span class="text-muted"><%= @project.architecte_numero_ordre %></span>
-                </div>
-              <% end %>
+                <% if @project.architecte_entreprise.present? %>
+                  <div class="col">
+                    <strong>Cabinet :</strong>
+                    <span class="text-muted"><%= @project.architecte_entreprise %></span>
+                  </div>
+                <% end %>
 
-              <% if @project.architecte_telephone.present? %>
-                <div class="col-md-6">
-                  <strong>Téléphone :</strong>
-                  <span class="text-muted">
-                    <a href="tel:<%= @project.architecte_telephone %>" class="text-decoration-none">
-                      <i class="bi bi-telephone me-1"></i><%= @project.architecte_telephone %>
-                    </a>
-                  </span>
-                </div>
-              <% end %>
+                <% if @project.architecte_telephone.present? %>
+                  <div class="col">
+                    <strong>Téléphone :</strong>
+                    <span class="text-muted">
+                      <a href="tel:<%= @project.architecte_telephone %>" class="text-decoration-none">
+                        <i class="bi bi-telephone me-1"></i><%= @project.architecte_telephone %>
+                      </a>
+                    </span>
+                  </div>
+                <% end %>
 
-              <% if @project.architecte_email.present? %>
-                <div class="col-md-6">
-                  <strong>Email :</strong>
-                  <span class="text-muted">
-                    <a href="mailto:<%= @project.architecte_email %>" class="text-decoration-none">
-                      <i class="bi bi-envelope me-1"></i><%= @project.architecte_email %>
-                    </a>
-                  </span>
-                </div>
-              <% end %>
+                <% if @project.architecte_email.present? %>
+                  <div class="col">
+                    <strong>Email :</strong>
+                    <span class="text-muted">
+                      <a href="mailto:<%= @project.architecte_email %>" class="text-decoration-none">
+                        <i class="bi bi-envelope me-1"></i><%= @project.architecte_email %>
+                      </a>
+                    </span>
+                  </div>
+                <% end %>
+              </div>
 
-              <% if @project.architecte_adresse.present? %>
-                <div class="col-12">
-                  <strong>Adresse :</strong>
-                  <span class="text-muted"><%= simple_format(@project.architecte_adresse) %></span>
+              <!-- Seconde rangée : montant du devis -->
+              <% if @project.architecte_devis_montant.present? %>
+                <div class="row mt-2">
+                  <div class="col-md-6">
+                    <strong>Montant du devis architecte :</strong>
+                    <span class="text-muted"><%= @project.architecte_devis_montant_formatted %></span>
+                  </div>
                 </div>
               <% end %>
             </div>
@@ -83,94 +89,59 @@
             </h6>
 
             <div class="row g-3">
-              <% if @project.entrepreneur_principal_nom.present? %>
-                <div class="col-md-6">
-                  <strong>Responsable :</strong>
-                  <span class="text-muted"><%= @project.entrepreneur_principal_nom %></span>
-                </div>
-              <% end %>
+              <!-- Première rangée : informations principales -->
+              <div class="row g-2">
+                <% if @project.entrepreneur_principal_nom.present? %>
+                  <div class="col">
+                    <strong>Nom :</strong>
+                    <span class="text-muted"><%= @project.entrepreneur_principal_nom %></span>
+                  </div>
+                <% end %>
 
-              <% if @project.entrepreneur_principal_entreprise.present? %>
-                <div class="col-md-6">
-                  <strong>Entreprise :</strong>
-                  <span class="text-muted"><%= @project.entrepreneur_principal_entreprise %></span>
-                </div>
-              <% end %>
+                <% if @project.entrepreneur_principal_entreprise.present? %>
+                  <div class="col">
+                    <strong>Entreprise :</strong>
+                    <span class="text-muted"><%= @project.entrepreneur_principal_entreprise %></span>
+                  </div>
+                <% end %>
 
-              <% if @project.entrepreneur_principal_numero_tva.present? %>
-                <div class="col-md-6">
-                  <strong>N° TVA :</strong>
-                  <span class="text-muted"><%= @project.entrepreneur_principal_numero_tva %></span>
-                </div>
-              <% end %>
+                <% if @project.entrepreneur_principal_numero_tva.present? %>
+                  <div class="col">
+                    <strong>N° TVA :</strong>
+                    <span class="text-muted"><%= @project.entrepreneur_principal_numero_tva %></span>
+                  </div>
+                <% end %>
 
-              <% if @project.entrepreneur_principal_telephone.present? %>
-                <div class="col-md-6">
-                  <strong>Téléphone :</strong>
-                  <span class="text-muted">
-                    <a href="tel:<%= @project.entrepreneur_principal_telephone %>" class="text-decoration-none">
-                      <i class="bi bi-telephone me-1"></i><%= @project.entrepreneur_principal_telephone %>
-                    </a>
-                  </span>
-                </div>
-              <% end %>
+                <% if @project.entrepreneur_principal_telephone.present? %>
+                  <div class="col">
+                    <strong>Téléphone :</strong>
+                    <span class="text-muted">
+                      <a href="tel:<%= @project.entrepreneur_principal_telephone %>" class="text-decoration-none">
+                        <i class="bi bi-telephone me-1"></i><%= @project.entrepreneur_principal_telephone %>
+                      </a>
+                    </span>
+                  </div>
+                <% end %>
 
-              <% if @project.entrepreneur_principal_email.present? %>
-                <div class="col-md-6">
-                  <strong>Email :</strong>
-                  <span class="text-muted">
-                    <a href="mailto:<%= @project.entrepreneur_principal_email %>" class="text-decoration-none">
-                      <i class="bi bi-envelope me-1"></i><%= @project.entrepreneur_principal_email %>
-                    </a>
-                  </span>
-                </div>
-              <% end %>
+                <% if @project.entrepreneur_principal_email.present? %>
+                  <div class="col">
+                    <strong>Email :</strong>
+                    <span class="text-muted">
+                      <a href="mailto:<%= @project.entrepreneur_principal_email %>" class="text-decoration-none">
+                        <i class="bi bi-envelope me-1"></i><%= @project.entrepreneur_principal_email %>
+                      </a>
+                    </span>
+                  </div>
+                <% end %>
+              </div>
 
-              <% if @project.entrepreneur_principal_assurance.present? %>
-                <div class="col-md-6">
-                  <strong>Assurance :</strong>
-                  <span class="text-muted"><%= @project.entrepreneur_principal_assurance %></span>
-                </div>
-              <% end %>
-
-              <% if @project.entrepreneur_principal_adresse.present? %>
-                <div class="col-12">
-                  <strong>Adresse :</strong>
-                  <span class="text-muted"><%= simple_format(@project.entrepreneur_principal_adresse) %></span>
-                </div>
-              <% end %>
-            </div>
-          </div>
-        </div>
-        <hr>
-      <% end %>
-
-      <!-- Autres Professionnels -->
-      <% if @project.maitre_ouvrage_nom.present? || @project.coordinateur_securite_nom.present? %>
-        <div class="row mb-4">
-          <div class="col-12">
-            <h6 class="text-secondary mb-3">
-              <i class="bi bi-person-gear me-2"></i>Autres Professionnels
-            </h6>
-
-            <div class="row g-3">
-              <% if @project.maitre_ouvrage_nom.present? %>
-                <div class="col-md-6">
-                  <strong>Maître d'ouvrage :</strong>
-                  <span class="text-muted"><%= @project.maitre_ouvrage_nom %></span>
-                  <% if @project.maitre_ouvrage_contact.present? %>
-                    <br><small class="text-muted"><%= @project.maitre_ouvrage_contact %></small>
-                  <% end %>
-                </div>
-              <% end %>
-
-              <% if @project.coordinateur_securite_nom.present? %>
-                <div class="col-md-6">
-                  <strong>Coordinateur sécurité :</strong>
-                  <span class="text-muted"><%= @project.coordinateur_securite_nom %></span>
-                  <% if @project.coordinateur_securite_contact.present? %>
-                    <br><small class="text-muted"><%= @project.coordinateur_securite_contact %></small>
-                  <% end %>
+              <!-- Seconde rangée : montant du devis -->
+              <% if @project.contractor_devis_montant.present? %>
+                <div class="row mt-2">
+                  <div class="col-md-6">
+                    <strong>Montant du devis entrepreneur :</strong>
+                    <span class="text-muted"><%= number_to_currency(@project.contractor_devis_montant, unit: "€", separator: ",", delimiter: " ") %></span>
+                  </div>
                 </div>
               <% end %>
             </div>
@@ -179,39 +150,9 @@
         <hr>
       <% end %>
 
-      <!-- Assurances -->
-      <% if @project.assurance_decennale_architecte.present? || @project.assurance_decennale_entrepreneur.present? || @project.garanties_travaux.present? %>
-        <div class="row">
-          <div class="col-12">
-            <h6 class="text-secondary mb-3">
-              <i class="bi bi-shield-check me-2"></i>Assurances & Garanties
-            </h6>
 
-            <div class="row g-3">
-              <% if @project.assurance_decennale_architecte.present? %>
-                <div class="col-md-6">
-                  <strong>Assurance décennale architecte :</strong>
-                  <span class="text-muted"><%= @project.assurance_decennale_architecte %></span>
-                </div>
-              <% end %>
 
-              <% if @project.assurance_decennale_entrepreneur.present? %>
-                <div class="col-md-6">
-                  <strong>Assurance décennale entrepreneur :</strong>
-                  <span class="text-muted"><%= @project.assurance_decennale_entrepreneur %></span>
-                </div>
-              <% end %>
 
-              <% if @project.garanties_travaux.present? %>
-                <div class="col-12">
-                  <strong>Autres garanties :</strong>
-                  <div class="text-muted"><%= simple_format(@project.garanties_travaux) %></div>
-                </div>
-              <% end %>
-            </div>
-          </div>
-        </div>
-      <% end %>
 
       <!-- Corps de métiers (si implémenté plus tard) -->
       <% if @project.corps_metiers_list.any? %>
