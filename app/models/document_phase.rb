@@ -43,7 +43,7 @@ class DocumentPhase < ApplicationRecord
       color: 'warning',
       position: 3,
       required_document_types: ['facture', 'attestation_entrepreneur', 'photo_chassis'],
-      optional_document_types: ['etat_avancement', 'photo_avant', 'photo_pendant', 'photo_apres', 'attestation_conformite']
+      optional_document_types: ['etat_avancement', 'photo_avant', 'photo_pendant', 'photo_apres']
     },
     {
       name: 'Phase Réception',
