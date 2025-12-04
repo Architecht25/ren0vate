@@ -127,10 +127,10 @@
           <div class="mb-3">
             <%= form.label :parcelle, class: "form-label" do %>
               Numéro de parcelle (optionnel)
-              <%= badge_prerempli_avec_fallback(@form_data, :parcelle, @property&.parcelle_flandre || @property&.numero_cadastre) if @form_data.present? %>
+              <%= badge_prerempli_avec_fallback(@form_data, :parcelle, @property&.numero_cadastre) if @form_data.present? %>
             <% end %>
             <%= form.text_field :parcelle,
-                value: preremplir_champ(@form_data, :parcelle, @property&.parcelle_flandre || @property&.numero_cadastre),
+                value: preremplir_champ(@form_data, :parcelle, @property&.numero_cadastre),
                 class: "form-control",
                 placeholder: "Ex: 12345/02A" %>
           </div>

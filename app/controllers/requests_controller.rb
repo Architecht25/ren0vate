@@ -712,7 +712,7 @@ class RequestsController < ApplicationController
       # Type et usage selon la région
       type_bien: map_property_type(property),
       usage: map_property_usage(property),
-      parcelle: property.parcelle_flandre || property.numero_cadastre,
+      parcelle: property.numero_cadastre,
       chauffage_post_renovation: property.chauffage_post_renovation_flandre,
 
       # Données travaux (par défaut non cochées pour permettre l'affichage)

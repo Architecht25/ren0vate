@@ -47,7 +47,7 @@ module FormulairePreremplissageHelper
   def preremplir_techniques(form_data, property)
     {
       ean: preremplir_champ(form_data, :ean, property.ean_flandre || property.numero_ean),
-      parcelle: preremplir_champ(form_data, :parcelle, property.parcelle_flandre || property.numero_cadastre),
+      parcelle: preremplir_champ(form_data, :parcelle, property.numero_cadastre),
       type_bien: preremplir_champ(form_data, :type_bien, map_property_type(property)),
       usage: preremplir_champ(form_data, :usage, map_property_usage(property)),
       chauffage_post_renovation: preremplir_champ(form_data, :chauffage_post_renovation, property.chauffage_post_renovation_flandre)

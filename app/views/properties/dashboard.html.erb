@@ -140,14 +140,25 @@
                 </div>
                 <!-- Détails des champs manquants -->
                 <ul class="list-unstyled mt-2 small">
-                  <li class="d-flex align-items-center">
-                    <i class="bi bi-<%= @property.annee_construction.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-1"></i>
-                    <span class="<%= @property.annee_construction.present? ? 'text-success' : 'text-muted' %>">Année construction</span>
-                  </li>
-                  <li class="d-flex align-items-center">
-                    <i class="bi bi-<%= @property.surface_habitable.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-1"></i>
-                    <span class="<%= @property.surface_habitable.present? ? 'text-success' : 'text-muted' %>">Surface habitable</span>
-                  </li>
+                  <% @property.chantier_fields_for_region.each do |field| %>
+                    <% field_present = @property[field].present? %>
+                    <% field_label = case field.to_s
+                         when 'annee_construction' then 'Année construction'
+                         when 'surface_habitable' then 'Surface habitable'
+                         when 'surface_habitable_wallonie' then 'Surface habitable'
+                         when 'mode_chauffage_wallonie' then 'Mode de chauffage'
+                         when 'chauffage_post_renovation_flandre' then 'Système de chauffage'
+                         when 'ean_flandre' then 'Numéro EAN'
+                         when 'usage' then 'Usage du bien'
+                         when 'occupation' then 'Type d\'occupation'
+                         when 'surface_totale' then 'Surface totale'
+                         else field.to_s.humanize
+                         end %>
+                    <li class="d-flex align-items-center">
+                      <i class="bi bi-<%= field_present ? 'check-circle-fill text-success' : 'circle text-muted' %> me-1"></i>
+                      <span class="<%= field_present ? 'text-success' : 'text-muted' %>"><%= field_label %></span>
+                    </li>
+                  <% end %>
                 </ul>
               </div>
             </div>

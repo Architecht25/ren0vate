@@ -447,7 +447,7 @@ class PropertiesController < ApplicationController
 
       # Champs spécifiques Flandre
       :type_bien_flandre, :usage_flandre, :chauffage_post_renovation_flandre,
-      :ean_flandre, :parcelle_flandre, :certificat_peb_flandre,
+      :ean_flandre, :certificat_peb_flandre,
       :type_propriete_flandre, :pourcentage_propriete, :domicilie_flandre, :client_protege_flandre,
       :profil_demandeur,
 
@@ -497,7 +497,7 @@ class PropertiesController < ApplicationController
       commune: property.commune,
       type_bien: map_property_type(property),
       usage: map_property_usage(property),
-      parcelle: property.parcelle_flandre || property.numero_cadastre,
+      parcelle: property.numero_cadastre,
 
       # Données spécifiques pour patrimoine
       heritage_address: property.rue,
