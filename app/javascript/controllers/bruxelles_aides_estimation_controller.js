@@ -12,21 +12,21 @@ export default class extends Controller {
   loadCategoryData() {
     return {
       transition_economique: {
-        consultance_transition: { rate: 0.75, max: 25000 },
+        consultance_transition: { rate: 0.50, max: 25000 },
         investissements_transition: { rate: 0.30, max: 200000 }
       },
       investissements: {
-        materiels_equipements: { rate: 0.25, max: 200000 },
-        travaux_immobiliers: { rate: 0.25, max: 100000 },
-        conformite_reglementaire: { rate: 0.50, max: 100000 }
+        materiels_equipements: { rate: 0.05, max: 200000 },
+        travaux_immobiliers: { rate: 0.05, max: 100000 },
+        conformite_reglementaire: { rate: 0.40, max: 100000 }
       },
       recrutement_formation: {
         aide_embauche: { fixed: 6000, max_units: 10 },
-        formation_personnel: { rate: 0.75, max: 25000 }
+        formation_personnel: { rate: 0.40, max: 25000 }
       },
       expertise_services: {
-        consultance_generale: { rate: 0.50, max: 12500 },
-        etudes_audits: { rate: 0.75, max: 25000 }
+        consultance_generale: { rate: 0.25, max: 12500 },
+        etudes_audits: { rate: 0.25, max: 25000 }
       },
       nuisances_chantier: {
         perte_ca: { rate: 0.80, max: 25000 },

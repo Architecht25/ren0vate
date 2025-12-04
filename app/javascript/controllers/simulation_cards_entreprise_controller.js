@@ -19,7 +19,7 @@ export default class extends Controller {
     // Définir les données des aides directement dans le contrôleur pour l'instant
     this.aidesData = {
       "bruxelles_transition_consultance": {
-        taux_aide: 25,
+        taux_aide: 50,
         montant_max: 20000,
         montant_min: 500
       },
@@ -34,22 +34,22 @@ export default class extends Controller {
         montant_min: 500
       },
       "bruxelles_mobilite_utilitaire_electrique": {
-        taux_aide: 25,
+        taux_aide: 5,
         montant_max: 15000,
         montant_min: 10000
       },
       "bruxelles_mobilite_utilitaire_retrofit": {
-        taux_aide: 30,
+        taux_aide: 5,
         montant_max: 10000,
         montant_min: 5000
       },
       "bruxelles_prime_materiel_travaux": {
-        taux_aide: 25,
+        taux_aide: 5,
         montant_max: 200000,
         montant_min: 5000
       },
       "bruxelles_prime_conformite_normes": {
-        taux_aide: 30,
+        taux_aide: 40,
         montant_max: 50000,
         montant_min: 5000
       },
@@ -59,7 +59,7 @@ export default class extends Controller {
         montant_min: 2000
       },
       "bruxelles_prime_immobilier": {
-        taux_aide: 20,
+        taux_aide: 5,
         montant_max: 500000,
         montant_min: 100000
       },
@@ -74,17 +74,17 @@ export default class extends Controller {
         montant_min: 1
       },
       "bruxelles_prime_formation": {
-        taux_aide: 75,
+        taux_aide: 40,
         montant_max: 50000,
         montant_min: 500
       },
       "bruxelles_prime_consultance": {
-        taux_aide: 50,
+        taux_aide: 25,
         montant_max: 15000,
         montant_min: 500
       },
       "bruxelles_prime_digitalisation": {
-        taux_aide: 40,
+        taux_aide: 25,
         montant_max: 25000,
         montant_min: 500
       }
