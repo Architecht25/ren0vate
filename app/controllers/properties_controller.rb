@@ -442,7 +442,7 @@ class PropertiesController < ApplicationController
       :habitation_percentage,
 
       # Champs spécifiques Wallonie
-      :type_propriete_wallonie, :certificat_peb_wallonie,
+      :type_propriete_wallonie, :type_bien_wallonie, :certificat_peb_wallonie,
       :surface_habitable_wallonie, :mode_chauffage_wallonie,
 
       # Champs spécifiques Flandre
