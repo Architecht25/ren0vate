@@ -11,13 +11,19 @@ class SimulationsController < ApplicationController
     # Récupérer uniquement les simulations de l'utilisateur connecté
     user_simulations = current_user.simulations.includes(:property, :project)
 
-    # Trier les simulations par région (Flandre → Bruxelles → Wallonie)
-    @simulations = user_simulations.sort_by do |simulation|
-      case simulation.region&.downcase
-      when 'flandre' then 1
-      when 'bruxelles' then 2
-      when 'wallonie' then 3
-      else 4 # Autres régions en dernier
+    # Si property_id est fourni, filtrer par ce bien spécifique
+    if params[:property_id].present?
+      @property = current_user.properties.find(params[:property_id])
+      @simulations = user_simulations.where(property: @property).order(created_at: :desc)
+    else
+      # Trier les simulations par région (Flandre → Bruxelles → Wallonie)
+      @simulations = user_simulations.sort_by do |simulation|
+        case simulation.region&.downcase
+        when 'flandre' then 1
+        when 'bruxelles' then 2
+        when 'wallonie' then 3
+        else 4 # Autres régions en dernier
+        end
       end
     end
   end

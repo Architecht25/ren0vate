@@ -14,9 +14,18 @@ class RequestProgressesController < ApplicationController
       @request_progresses = @request.request_progresses.includes(:prime)
     else
       # Récupérer uniquement les request_progresses liées aux requests de l'utilisateur
-      @request_progresses = RequestProgress.joins(:request)
-                                          .where(requests: { user_id: current_user.id })
-                                          .includes(:request, :prime)
+      base_progresses = RequestProgress.joins(:request)
+                                      .where(requests: { user_id: current_user.id })
+                                      .includes(:request, :prime)
+
+      # Filtrer par property_id si fourni
+      if params[:property_id].present?
+        @property = current_user.properties.find(params[:property_id])
+        @request_progresses = base_progresses.joins(:request)
+                                           .where(requests: { property_id: @property.id })
+      else
+        @request_progresses = base_progresses
+      end
     end
 
     # Filtres

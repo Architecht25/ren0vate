@@ -19,6 +19,9 @@ class Property < ApplicationRecord
   geocoded_by :full_address
   after_validation :geocode, if: ->(obj){ obj.full_address.present? && (obj.rue_changed? || obj.numero_changed? || obj.code_postal_changed? || obj.commune_changed?) }
 
+  # Callback pour normaliser la région
+  before_save :normalize_region
+
   # Callback pour initialiser les phases de documents
   after_create :initialize_document_phases
 
@@ -482,5 +485,11 @@ class Property < ApplicationRecord
     # Pour l'instant, on désactive les validations strictes pour permettre la création
     # Elles peuvent être activées plus tard selon la logique métier
     false
+  end
+
+  private
+
+  def normalize_region
+    self.region = region&.downcase if region.present?
   end
 end
