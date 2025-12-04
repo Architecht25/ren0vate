@@ -13,7 +13,7 @@ export default class extends Controller {
     return {
       transition_economique: {
         consultance_transition: { rate: 0.75, max: 25000 },
-        investissements_transition: { rate: 0.25, max: 200000 }
+        investissements_transition: { rate: 0.30, max: 200000 }
       },
       investissements: {
         materiels_equipements: { rate: 0.25, max: 200000 },
