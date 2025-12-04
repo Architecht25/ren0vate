@@ -63,22 +63,20 @@ class DocumentPhase < ApplicationRecord
     total_types = (required_document_types + optional_document_types).uniq
     return 100 if total_types.empty?
 
+    # Compter simplement les types de documents qui ont au moins un document
     completed_types = property.documents
                               .where(type_document: total_types)
-                              .where(status: 'approved')
                               .distinct
                               .count(:type_document)
 
     # Pondération : documents requis comptent plus
     required_completed = property.documents
                                  .where(type_document: required_document_types)
-                                 .where(status: 'approved')
                                  .distinct
                                  .count(:type_document)
 
     optional_completed = property.documents
                                  .where(type_document: optional_document_types)
-                                 .where(status: 'approved')
                                  .distinct
                                  .count(:type_document)
 

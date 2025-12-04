@@ -36,6 +36,7 @@
       <% phase = phase_data[:phase] %>
       <% docs_in_phase = @documents.select { |d| d.document_phase == phase } %>
       <% completion_class = phase_data[:completion_percentage] >= 80 ? 'high' : phase_data[:completion_percentage] >= 50 ? 'medium' : 'low' %>
+      <% all_types = phase.required_document_types + phase.optional_document_types %>
 
       <div class="col-lg-3 col-md-6 mb-4">
         <div class="card document-phase-card h-100 phase-card-chantier">
@@ -47,10 +48,9 @@
               </div>
             </div>
 
-            <h5 class="card-title mb-2 fw-600" style="color: var(--neutral-800);">
+            <h5 class="card-title mb-4 fw-600" style="color: var(--neutral-800);">
               <%= phase.name.gsub('Phase ', '') %>
             </h5>
-            <p class="text-muted small mb-4 lh-sm"><%= phase.description %></p>
 
             <div class="mb-4">
               <div class="small text-muted mb-2">
@@ -71,20 +71,35 @@
               </div>
             </div>
 
-            <!-- Documents requis/optionnels -->
-            <div class="small text-center">
-              <div class="d-flex justify-content-center gap-3">
-                <span class="text-muted">
-                  <strong class="text-dark"><%= phase.required_document_types.count %></strong> requis
-                </span>
-                <span class="text-muted">
-                  <strong class="text-dark"><%= phase.optional_document_types.count %></strong> optionnels
-                </span>
+            <!-- Liste des sous-catégories de documents -->
+            <div class="mb-4">
+              <div class="fw-medium text-dark mb-3 border-bottom pb-2">
+                <i class="bi bi-list-ul me-2 text-primary"></i>Documents concernés
+              </div>
+              <div class="row g-2">
+                <% all_types.each_with_index do |doc_type, index| %>
+                  <%
+                    # Couleurs alternées pour plus de dynamisme
+                    color_classes = [
+                      'text-primary', 'text-success', 'text-info', 'text-warning',
+                      'text-danger', 'text-secondary', 'text-dark', 'text-muted'
+                    ]
+                    color = color_classes[index % color_classes.length]
+                  %>
+                  <div class="col-12 col-md-6">
+                    <div class="d-flex align-items-start py-1 px-2 rounded-2" style="background-color: rgba(var(--bs-primary-rgb), 0.05);">
+                      <i class="bi bi-file-earmark-check me-2 <%= color %>" style="font-size: 1rem; margin-top: 2px;"></i>
+                      <span class="small text-dark flex-grow-1" style="line-height: 1.4;">
+                        <%= document_type_name(doc_type) %>
+                      </span>
+                    </div>
+                  </div>
+                <% end %>
               </div>
             </div>
 
-            <!-- Actions -->
-            <div class="d-flex justify-content-center gap-2">
+            <!-- Action unique : Voir détails -->
+            <div class="d-flex justify-content-center">
               <%= link_to documents_path(
                             property_id: @property&.id,
                             project_id: @project&.id,
@@ -92,25 +107,6 @@
                           ),
                          class: "btn btn-outline-primary btn-sm" do %>
                 <i class="bi bi-folder2-open me-1"></i>Voir détails
-              <% end %>
-              <% if phase_data[:missing_required]&.any? %>
-                <%= link_to new_document_path(
-                              property_id: @property&.id,
-                              project_id: @project&.id,
-                              type_document: phase_data[:missing_required].first
-                            ),
-                           class: "btn btn-success btn-sm" do %>
-                  <i class="bi bi-plus me-1"></i>Ajouter
-                <% end %>
-              <% else %>
-                <%= link_to new_document_path(
-                              property_id: @property&.id,
-                              project_id: @project&.id,
-                              type_document: phase.required_document_types.first
-                            ),
-                           class: "btn btn-outline-secondary btn-sm" do %>
-                  <i class="bi bi-plus me-1"></i>Nouveau
-                <% end %>
               <% end %>
             </div>
           </div>
@@ -149,10 +145,9 @@
               </div>
             </div>
 
-            <h5 class="card-title mb-2 fw-600" style="color: var(--neutral-800);">
+            <h5 class="card-title mb-4 fw-600" style="color: var(--neutral-800);">
               <%= phase.name.gsub('Phase ', '') %>
             </h5>
-            <p class="text-muted small mb-4 lh-sm"><%= phase.description %></p>
 
             <div class="mb-4">
               <div class="small text-muted mb-2">
