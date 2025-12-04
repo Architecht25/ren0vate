@@ -60,13 +60,18 @@
 </div>
 
 <!-- Section Entrepreneurs -->
-<div class="card shadow-sm mb-4" style="border: 1px solid rgba(255, 193, 7, 0.3);">
+<div class="card shadow-sm mb-4" style="border: 1px solid rgba(255, 193, 7, 0.3);"
+     data-controller="entrepreneurs-management"
+     data-entrepreneurs-management-container-target="container">
   <div class="card-header bg-warning-light border-0">
     <div class="d-flex justify-content-between align-items-center">
       <h6 class="card-title text-warning-emphasis mb-0 fw-semibold">
         <i class="bi bi-hammer me-2"></i>Entrepreneurs
       </h6>
-      <button type="button" id="add-entrepreneur" class="btn btn-sm btn-warning">
+      <button type="button"
+              class="btn btn-sm btn-warning"
+              data-entrepreneurs-management-target="addButton"
+              data-action="click->entrepreneurs-management#addEntrepreneur">
         <i class="bi bi-plus-circle me-1"></i> Ajouter un entrepreneur
       </button>
     </div>
@@ -126,7 +131,7 @@
       </div>
 
       <!-- Container pour les entrepreneurs additionnels -->
-      <div id="additional-entrepreneurs-container">
+      <div id="additional-entrepreneurs-container" data-entrepreneurs-management-target="additionalContainer">
         <% if @project.additional_entrepreneurs.present? %>
           <% JSON.parse(@project.additional_entrepreneurs).each_with_index do |entrepreneur, index| %>
             <div class="entrepreneur-item border rounded p-3 mb-3" style="background-color: #f8f9fa;">

@@ -77,6 +77,7 @@ import SimulationCardsEntrepriseController from "controllers/simulation_cards_en
 import MapboxController from "controllers/mapbox_controller"
 import ContextualBotController from "controllers/contextual_bot_controller"
 import AmianteController from "controllers/amiante_controller"
+import EntrepreneursManagementController from "controllers/entrepreneurs_management_controller"
 
 application.register("user_type", UserTypeController)
 application.register("test-eligibilite", TestEligibiliteController)
@@ -137,6 +138,7 @@ application.register("mapbox", MapboxController)
 application.register("pdf-export", PdfExportController)
 application.register("contextual-bot", ContextualBotController)
 application.register("amiante", AmianteController)
+application.register("entrepreneurs-management", EntrepreneursManagementController)
 application.register("flandre-simulation", FlandreSimulationController)
 
 export { application }

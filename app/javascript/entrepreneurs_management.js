@@ -1,3 +1,7 @@
+// FALLBACK SCRIPT - Utilisé si Stimulus ne fonctionne pas
+// Remplacé par le contrôleur Stimulus mais conservé comme backup
+
+/*
 // Gestion des entrepreneurs multiples
 document.addEventListener('DOMContentLoaded', function() {
   console.log('🏗️ Script entrepreneurs_management chargé');
@@ -82,8 +86,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Bouton pour ajouter un entrepreneur
   const addButton = document.getElementById('add-entrepreneur');
-  console.log('🔍 Bouton add-entrepreneur trouvé:', addButton);
+  console.log('🔍 Fallback - Bouton add-entrepreneur trouvé:', addButton);
   if (addButton) {
+    // Vérifier si Stimulus ne gère pas déjà ce bouton
+    if (!addButton.closest('[data-controller*="entrepreneurs-management"]')) {
+      console.log('⚠️ Stimulus non détecté, utilisation du fallback');
     // Calculer le nombre actuel d'entrepreneurs additionnels
     const existingEntrepreneurs = document.querySelectorAll('#additional-entrepreneurs-container .entrepreneur-item');
     entrepreneurCount = existingEntrepreneurs.length + 1; // +1 pour l'entrepreneur principal
@@ -119,6 +126,9 @@ document.addEventListener('DOMContentLoaded', function() {
         entrepreneurElement.style.opacity = '1';
       }, 10);
     });
+    } else {
+      console.log('✅ Stimulus détecté, pas de fallback nécessaire')
+    }
   } else {
     console.log('❌ Bouton add-entrepreneur non trouvé dans le DOM');
   }
@@ -137,3 +147,4 @@ document.addEventListener('DOMContentLoaded', function() {
   // Initialiser l'état des boutons au chargement
   toggleRemoveButtons();
 });
+*/
