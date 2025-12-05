@@ -39,122 +39,100 @@
         <div class="row g-3 mb-5">
           <% grouped_properties[region_key].each do |property| %>
         <div class="col-xl-4 col-lg-6 col-md-12">
-          <div class="card border-0 bg-light-custom h-100 property-card position-relative<%= ' property-card-entreprise' if property.is_entreprise? %>">
-            <div class="card-body p-0">
-              <div class="row g-0 h-100">
-                <!-- Photo du bien à gauche -->
-                <div class="col-4">
-                  <div class="property-photo h-100 position-relative overflow-hidden">
-                    <% if property.photo.attached? %>
-                      <%= image_tag property.photo,
-                          class: "img-fluid h-100 w-100",
-                          style: "object-fit: cover; transition: transform 0.3s ease;",
-                          alt: "Photo de #{property.titre || 'ce bien'}" %>
-                    <% else %>
-                      <div class="h-100 w-100 d-flex align-items-center justify-content-center bg-light">
-                        <i class="bi bi-<%= property.is_entreprise? ? 'building' : 'house-door' %> text-muted fs-4"></i>
-                      </div>
-                    <% end %>
+          <div class="card border-0 h-100 property-card position-relative overflow-hidden" style="min-height: 200px; border-radius: 12px;">
+            <!-- Image de fond sur toute la carte -->
+            <% if property.photo.attached? %>
+              <%= image_tag property.photo,
+                  class: "position-absolute w-100 h-100",
+                  style: "object-fit: cover; top: 0; left: 0; z-index: 1;",
+                  alt: "Photo de #{property.titre || 'ce bien'}" %>
+            <% else %>
+              <div class="position-absolute w-100 h-100 d-flex align-items-center justify-content-center"
+                   style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); top: 0; left: 0; z-index: 1;">
+                <div class="text-center text-white">
+                  <i class="bi bi-<%= property.is_entreprise? ? 'building' : 'house-door' %> opacity-50 mb-3" style="font-size: 3rem;"></i>
+                  <div class="mb-2" style="font-size: 0.9rem; opacity: 0.9;">
+                    Aucune photo
                   </div>
-                </div>
-
-                <!-- Contenu à droite -->
-                <div class="col-8">
-                  <div class="p-2 h-100 d-flex flex-column">
-                    <!-- Header avec badge région et complétude -->
-                    <div class="d-flex align-items-center justify-content-between mb-1">
-                      <!-- Badge région à gauche -->
-                      <div class="flex-shrink-0">
-                        <% if property.region %>
-                          <span class="badge bg-<%= property.region == 'wallonie' ? 'danger' : property.region == 'flandre' ? 'black' : 'warning' %>" style="font-size: 0.65rem;">
-                            <%= property.region.humanize %>
-                          </span>
-                        <% else %>
-                          <!-- Espace réservé pour maintenir l'alignement -->
-                          <span style="display: inline-block; width: 1px;"></span>
-                        <% end %>
-                      </div>
-
-                      <!-- Indicateur de complétude à droite -->
-                      <div class="completion-indicator">
-                        <svg class="progress-ring" width="32" height="32" viewBox="0 0 32 32">
-                          <circle class="progress-ring-circle progress-ring-bg" stroke="#e9ecef" stroke-width="2" fill="transparent" r="13" cx="16" cy="16"/>
-                          <circle class="progress-ring-circle progress-ring-fill" stroke="#0d6efd" stroke-width="2" fill="transparent" r="13" cx="16" cy="16"
-                                  style="stroke-dasharray: 81.681; stroke-dashoffset: <%= 81.681 - (81.681 * (property.completion_percentage || 0) / 100) %>;"/>
-                        </svg>
-                        <div class="progress-text"><%= property.completion_percentage || 0 %>%</div>
-                      </div>
-                    </div>
-
-                    <!-- Titre -->
-                    <div class="mb-1">
-                      <h6 class="card-title text-dark mb-0 fw-semibold" style="font-size: 0.8rem; line-height: 1.1;"><%= property.titre || "Bien sans nom" %></h6>
-                    </div>
-
-                    <!-- Adresse compacte -->
-                    <div class="address-section mb-1">
-                      <% if property.rue && property.numero && property.commune %>
-                        <p class="text-muted mb-0" style="font-size: 0.7rem; line-height: 1.1;">
-                          <i class="bi bi-geo-alt me-1 text-muted"></i>
-                          <%= property.rue %> <%= property.numero %><br>
-                          <%= property.code_postal %> <%= property.commune %>
-                        </p>
-                      <% else %>
-                        <p class="text-warning mb-0" style="font-size: 0.7rem;">
-                          <i class="bi bi-exclamation-triangle me-1"></i>
-                          Adresse incomplète
-                        </p>
-                      <% end %>
-                    </div>
-
-                    <!-- Statistiques compactes -->
-                    <div class="stats-section mb-1 flex-grow-1">
-                      <div class="row g-0 text-center" style="font-size: 0.65rem;">
-                        <div class="col-4">
-                          <div class="stat-item">
-                            <div class="stat-number text-primary-custom fw-bold" style="font-size: 0.75rem;"><%= property.projects.count %></div>
-                            <div class="stat-label text-muted">Projets</div>
-                          </div>
-                        </div>
-                        <div class="col-4">
-                          <div class="stat-item">
-                            <div class="stat-number text-success fw-bold" style="font-size: 0.75rem;"><%= property.simulations.count %></div>
-                            <div class="stat-label text-muted">Sims</div>
-                          </div>
-                        </div>
-                        <div class="col-4">
-                          <div class="stat-item">
-                            <div class="stat-number text-info fw-bold" style="font-size: 0.75rem;"><%= property.documents.count %></div>
-                            <div class="stat-label text-muted">Docs</div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Actions compactes -->
-                    <div class="actions-section mt-auto">
-                      <div class="d-flex gap-1">
-                        <%= link_to dashboard_property_path(property), class: "btn btn-primary-custom btn-sm flex-fill", style: "font-size: 0.65rem; padding: 0.2rem 0.3rem;" do %>
-                          <i class="bi bi-speedometer2"></i>
-                        <% end %>
-                        <%= link_to edit_property_path(property), class: "btn btn-outline-secondary btn-sm flex-fill", style: "font-size: 0.65rem; padding: 0.2rem 0.3rem;" do %>
-                          <i class="bi bi-pencil"></i>
-                        <% end %>
-                        <%= link_to property_path(property),
-                            class: "btn btn-outline-danger btn-sm flex-fill",
-                            style: "font-size: 0.65rem; padding: 0.2rem 0.3rem;",
-                            data: {
-                              confirm: "Êtes-vous sûr de vouloir supprimer ce bien ? Cette action est irréversible.",
-                              turbo_method: :delete
-                            } do %>
-                          <i class="bi bi-trash"></i>
-                        <% end %>
-                      </div>
-                    </div>
-                  </div>
+                  <%= link_to edit_property_path(property),
+                      class: "btn btn-light btn-sm",
+                      style: "font-size: 0.8rem; z-index: 10; position: relative;",
+                      onclick: "event.stopPropagation();" do %>
+                    <i class="bi bi-camera me-1"></i>Ajouter une photo
+                  <% end %>
                 </div>
               </div>
+            <% end %>
+
+            <!-- Overlay sombre pour la lisibilité -->
+            <div class="position-absolute w-100 h-100" style="background: rgba(0,0,0,0.4); top: 0; left: 0; z-index: 2;"></div>
+
+            <!-- Badge région en haut à gauche -->
+            <% if property.region %>
+              <div class="position-absolute top-0 start-0 m-2" style="z-index: 4;">
+                <span class="badge bg-<%= property.region == 'wallonie' ? 'danger' : property.region == 'flandre' ? 'dark' : 'warning' %>" style="font-size: 0.7rem;">
+                  <%= property.region.humanize %>
+                </span>
+              </div>
+            <% end %>
+
+            <!-- Menu actions trois points en haut à droite -->
+            <div class="position-absolute top-0 end-0 m-2" style="z-index: 4;">
+              <div class="dropdown dropup">
+                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="opacity: 0.9;">
+                  <i class="bi bi-three-dots-vertical"></i>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end shadow" style="z-index: 1050;">
+                  <li>
+                    <%= link_to dashboard_property_path(property), class: "dropdown-item" do %>
+                      <i class="bi bi-speedometer2 me-2"></i>Voir le dashboard
+                    <% end %>
+                  </li>
+                  <li>
+                    <%= link_to edit_property_path(property), class: "dropdown-item" do %>
+                      <i class="bi bi-pencil me-2"></i>Modifier
+                    <% end %>
+                  </li>
+                  <li><hr class="dropdown-divider"></li>
+                  <li>
+                    <%= link_to property_path(property),
+                        class: "dropdown-item text-danger",
+                        data: {
+                          turbo_method: :delete,
+                          turbo_confirm: "Êtes-vous sûr de vouloir supprimer le bien '#{property.titre || 'ce bien'}' ?\n\nCette action supprimera définitivement :\n- Le bien et ses informations\n- Tous les projets associés\n- Les documents liés\n\nCette action est irréversible."
+                        } do %>
+                      <i class="bi bi-trash me-2"></i>Supprimer
+                    <% end %>
+                  </li>
+                </ul>
+              </div>
             </div>
+
+            <!-- Contenu centré avec l'adresse -->
+            <%= link_to dashboard_property_path(property), class: "text-decoration-none position-absolute w-100 h-100 d-flex align-items-center justify-content-center", style: "z-index: 3;" do %>
+              <div class="text-center text-white">
+                <!-- Titre du bien -->
+                <h5 class="fw-bold mb-2" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.7);"><%= property.titre || "Bien sans nom" %></h5>
+
+                <!-- Adresse -->
+                <% if property.rue && property.numero && property.commune %>
+                  <div class="text-white" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">
+                    <div style="font-size: 1rem; font-weight: 500;">
+                      <i class="bi bi-geo-alt me-2"></i>
+                      <%= property.rue %> <%= property.numero %>
+                    </div>
+                    <div style="font-size: 0.9rem; opacity: 0.9;">
+                      <%= property.code_postal %> <%= property.commune %>
+                    </div>
+                  </div>
+                <% else %>
+                  <div class="text-warning" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Adresse incomplète
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
           </div>
         </div>
           <% end %>
