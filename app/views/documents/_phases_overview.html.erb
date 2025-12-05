@@ -79,17 +79,34 @@
               <div class="row g-2">
                 <% all_types.each_with_index do |doc_type, index| %>
                   <%
-                    # Couleurs alternées pour plus de dynamisme
-                    color_classes = [
-                      'text-primary', 'text-success', 'text-info', 'text-warning',
-                      'text-danger', 'text-secondary', 'text-dark', 'text-muted'
-                    ]
-                    color = color_classes[index % color_classes.length]
+                    # Palette cohérente basée sur la phase
+                    case phase.name.downcase
+                    when /administrative/
+                      badge_bg = "rgba(59, 130, 246, 0.1)"
+                      badge_border = "rgba(59, 130, 246, 0.2)"
+                      icon_color = "text-blue-600"
+                    when /technique/
+                      badge_bg = "rgba(34, 197, 94, 0.1)"
+                      badge_border = "rgba(34, 197, 94, 0.2)"
+                      icon_color = "text-green-600"
+                    when /exécution|execution/
+                      badge_bg = "rgba(251, 146, 60, 0.1)"
+                      badge_border = "rgba(251, 146, 60, 0.2)"
+                      icon_color = "text-orange-600"
+                    when /réception|reception/
+                      badge_bg = "rgba(168, 85, 247, 0.1)"
+                      badge_border = "rgba(168, 85, 247, 0.2)"
+                      icon_color = "text-purple-600"
+                    else
+                      badge_bg = "rgba(107, 114, 128, 0.1)"
+                      badge_border = "rgba(107, 114, 128, 0.2)"
+                      icon_color = "text-gray-600"
+                    end
                   %>
                   <div class="col-12 col-md-6">
-                    <div class="d-flex align-items-start py-1 px-2 rounded-2" style="background-color: rgba(var(--bs-primary-rgb), 0.05);">
-                      <i class="bi bi-file-earmark-check me-2 <%= color %>" style="font-size: 1rem; margin-top: 2px;"></i>
-                      <span class="small text-dark flex-grow-1" style="line-height: 1.4;">
+                    <div class="d-flex align-items-start py-2 px-3 rounded-3" style="background-color: <%= badge_bg %>; border: 1px solid <%= badge_border %>;">
+                      <i class="bi bi-file-earmark-check me-2 <%= icon_color %>" style="font-size: 1rem; margin-top: 2px;"></i>
+                      <span class="small text-dark flex-grow-1 fw-medium" style="line-height: 1.4;">
                         <%= document_type_name(doc_type) %>
                       </span>
                     </div>
