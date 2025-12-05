@@ -140,6 +140,27 @@
       <div class="row">
         <div class="col-md-6">
           <div class="mb-3">
+            <%= form.label :date_raccordement_electricite, "Date de raccordement électrique *", class: "form-label" %>
+            <%= form.select :date_raccordement_electricite,
+                options_for_select([
+                  ["Sélectionnez...", ""],
+                  ["Avant le 1er janvier 2006", "avant_2006"],
+                  ["À partir du 1er janvier 2006", "apres_2006"]
+                ], @form_data&.dig('date_raccordement_electricite')),
+                {},
+                { class: "form-select", required: true } %>
+            <div class="form-text">Date de première connexion au réseau électrique</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <!-- Espace réservé pour un autre champ si nécessaire -->
+        </div>
+      </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
             <%= form.label :adresse, class: "form-label" do %>
               Adresse du logement *
               <%= badge_prerempli_avec_fallback(@form_data, :adresse, @property&.adresse) if @form_data.present? %>
@@ -824,6 +845,36 @@
                                    ], @form_data&.dig('nouvelles_fenetres_pieces_seches')),
                                    {},
                                    { class: "form-select" } %>
+                  </div>
+                </div>
+
+                <!-- Champs supplémentaires pour correspondance MVP -->
+                <div class="row g-2 mt-2">
+                  <div class="col-md-12">
+                    <div class="mb-3">
+                      <div class="form-check">
+                        <%= form.check_box :hoogrendement_bevestiging,
+                                           { class: "form-check-input", checked: (@form_data&.dig('hoogrendement_bevestiging') == true || @form_data&.dig('hoogrendement_bevestiging') == 'true') },
+                                           "true", "" %>
+                        <%= form.label :hoogrendement_bevestiging,
+                            "Après ces travaux, toutes les fenêtres du logement auront un vitrage haute performance (Ug ≤ 1,0 W/m²K) *",
+                            class: "form-check-label" %>
+                      </div>
+                      <div class="form-text">Confirmation que l'ensemble des châssis sera aux normes haute performance</div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <%= form.label :vergunningsplichtig, "Les travaux nécessitent-ils un permis d'urbanisme ?", class: "form-label" %>
+                      <%= form.select :vergunningsplichtig,
+                                     options_for_select([
+                                       ["Sélectionnez...", ""],
+                                       ["Oui, un permis est requis", "true"],
+                                       ["Non, pas de permis nécessaire", "false"]
+                                     ], @form_data&.dig('vergunningsplichtig')),
+                                     {},
+                                     { class: "form-select" } %>
+                    </div>
                   </div>
                 </div>
               </div>
