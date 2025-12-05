@@ -49,11 +49,33 @@
         <div class="row g-3 mb-5">
           <% grouped_simulations[region_key].each do |simulation| %>
         <div class="col-xl-3 col-lg-4 col-md-6">
-          <div class="card border-0 bg-light-custom h-100 property-card position-relative<%= ' property-card-entreprise' if simulation.property&.is_entreprise? %>">
-            <!-- Menu actions trois points -->
-            <div class="position-absolute top-0 end-0 m-2" style="z-index: 10;">
+          <div class="card border-0 h-100 property-card position-relative overflow-hidden<%= ' property-card-entreprise' if simulation.property&.is_entreprise? %>" style="min-height: 200px;">
+
+            <!-- Image de fond sur toute la carte -->
+            <div class="position-absolute w-100 h-100"
+                 style="background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_200,q_auto,f_auto/<%= simulation.property&.is_entreprise? ? 'fiduciaire-maenhout-subsides-en-wallonie-aides-a-l-investissements_oh2wkk' : 'shutterstock_2235115125_nry60u' %>');
+                        background-size: cover;
+                        background-position: center;
+                        background-repeat: no-repeat;
+                        top: 0;
+                        left: 0;
+                        z-index: 1;">
+            </div>            <!-- Overlay sombre pour la lisibilité -->
+            <div class="position-absolute w-100 h-100" style="background: rgba(0,0,0,0.1); top: 0; left: 0; z-index: 2;"></div>
+
+            <!-- Badge région en haut à gauche -->
+            <% if simulation.region %>
+              <div class="position-absolute top-0 start-0 m-2" style="z-index: 4;">
+                <span class="badge bg-<%= simulation.region == 'wallonie' ? 'danger' : simulation.region == 'flandre' ? 'dark' : 'warning' %>" style="font-size: 0.7rem;">
+                  <%= simulation.region.humanize %>
+                </span>
+              </div>
+            <% end %>
+
+            <!-- Menu actions trois points en haut à droite -->
+            <div class="position-absolute top-0 end-0 m-2" style="z-index: 4;">
               <div class="dropdown dropup">
-                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="opacity: 0.9;">
                   <i class="bi bi-three-dots-vertical"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow" style="z-index: 1050;">
@@ -83,46 +105,34 @@
               </div>
             </div>
 
-            <%= link_to simulation_path(simulation), class: "text-decoration-none" do %>
-              <div class="row g-0 h-100">
-                <!-- Image à gauche -->
-                <div class="col-4 rounded-start"
-                     style="min-height: 140px;
-                            background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_300,h_140,q_auto,f_auto/shutterstock_2235115125_nry60u');
-                            background-size: cover;
-                            background-position: center;
-                            background-repeat: no-repeat;
-                            opacity: 0.8;">
-                </div>
+            <!-- Contenu centré avec le titre de la simulation -->
+            <%= link_to simulation_path(simulation), class: "text-decoration-none position-absolute w-100 h-100 d-flex align-items-center justify-content-center", style: "z-index: 3;" do %>
+              <div class="text-center text-white">
+                <!-- Titre de la simulation -->
+                <h5 class="fw-bold mb-3" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.7);">
+                  <i class="bi bi-<%= simulation.property&.is_entreprise? ? 'building' : 'calculator' %> me-2"></i>
+                  <%= simulation.titre %>
+                </h5>
 
-                <!-- Contenu à droite -->
-                <div class="col-8">
-                  <div class="card-body p-3 h-100 d-flex flex-column">
-                    <div class="d-flex align-items-center mb-2">
-                      <div class="icon-circle-small me-2">
-                        <i class="bi bi-<%= simulation.property&.is_entreprise? ? 'building' : 'calculator' %>"></i>
-                      </div>
-                      <div class="flex-grow-1">
-                        <h6 class="card-title text-dark mb-1 fw-normal"><%= simulation.titre %></h6>
-                        <p class="text-muted-custom mb-0 small">
-                          <i class="bi bi-geo-alt me-1"></i>
-                          <%= simulation.region.capitalize if simulation.region.present? %>
-                        </p>
-                      </div>
-                    </div>
-
-                    <div class="mt-auto">
-                      <div class="d-flex justify-content-between align-items-center">
-                        <span class="badge bg-primary-custom rounded-pill px-2 py-1 small">
-                          <%= simulation.primes.count %> primes
-                        </span>
-                        <% total = simulation.total_simule || simulation.total_complet_amount || 0 %>
-                        <span class="text-primary-custom fw-bold small">
-                          <%= number_to_currency(total, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
-                        </span>
-                      </div>
+                <!-- Région -->
+                <% if simulation.region.present? %>
+                  <div class="text-white mb-3" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">
+                    <div style="font-size: 0.95rem; font-weight: 400;">
+                      <i class="bi bi-geo-alt me-2"></i>
+                      <%= simulation.region.capitalize %>
                     </div>
                   </div>
+                <% end %>
+
+                <!-- Informations supplémentaires en bas -->
+                <div class="d-flex justify-content-center align-items-center gap-3">
+                  <span class="badge bg-light text-dark px-2 py-1" style="font-size: 0.75rem;">
+                    <%= simulation.primes.count %> prime<%= 's' if simulation.primes.count > 1 %>
+                  </span>
+                  <% total = simulation.total_simule || simulation.total_complet_amount || 0 %>
+                  <span class="text-white fw-bold" style="font-size: 0.85rem;">
+                    <%= number_to_currency(total, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
+                  </span>
                 </div>
               </div>
             <% end %>

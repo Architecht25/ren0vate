@@ -134,8 +134,11 @@ class Property < ApplicationRecord
   def is_entreprise?
     # Une propriété est considérée comme entreprise si :
     # 1. Elle a le type "entreprise" dans la propriété elle-même, OU
-    # 2. Elle a des simulations avec category = 'entreprise'
-    type == 'entreprise' || simulations.where(category: 'entreprise').exists?
+    # 2. Elle a des simulations avec category = 'entreprise', OU
+    # 3. Elle a le profil_demandeur "entreprise"
+    type == 'entreprise' ||
+    simulations.where(category: 'entreprise').exists? ||
+    profil_demandeur == 'entreprise'
   end
 
   # Méthodes d'aide pour l'éligibilité des entreprises

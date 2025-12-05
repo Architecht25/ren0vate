@@ -170,60 +170,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Éligibilité pour les primes RENOLUTION -->
-  <div class="col-lg-4">
-    <div class="card border-0 shadow-sm h-100" id="eligibility-step-renolution">
-      <div class="card-body p-4 d-flex flex-column">
-        <h5 class="card-title text-success mb-3">
-          <i class="bi bi-house-gear me-2"></i>Éligibilité Primes RENOLUTION
-        </h5>
-
-        <div id="eligibility-status-renolution">
-          <% if @simulation.respond_to?(:eligible_renolution) && @simulation.eligible_renolution? %>
-            <div class="alert alert-success d-flex align-items-center" role="alert">
-              <i class="bi bi-check-circle-fill me-3 fs-4"></i>
-              <div>
-                <h6 class="alert-heading mb-1">✅ Éligible aux primes RENOLUTION !</h6>
-                <p class="mb-0">Votre bien peut bénéficier des primes RENOLUTION.</p>
-              </div>
-            </div>
-          <% elsif @simulation.respond_to?(:eligible_renolution) && !@simulation.eligible_renolution? %>
-            <div class="alert alert-danger d-flex align-items-center" role="alert">
-              <i class="bi bi-x-circle-fill me-3 fs-4"></i>
-              <div>
-                <h6 class="alert-heading mb-1">❌ Non éligible RENOLUTION</h6>
-                <p class="mb-0">Le bien ne remplit pas les conditions RENOLUTION.</p>
-              </div>
-            </div>
-          <% else %>
-            <div class="alert alert-info d-flex align-items-center" role="alert">
-              <i class="bi bi-hourglass-split me-3 fs-4"></i>
-              <div>
-                <h6 class="alert-heading mb-1">🔄 Test d'éligibilité RENOLUTION</h6>
-                <p class="mb-0">Vérification basée sur les caractéristiques du bien (âge, localisation, etc.)</p>
-              </div>
-            </div>
-          <% end %>
-        </div>
-
-        <!-- Bouton pour relancer le test d'éligibilité RENOLUTION -->
-        <div class="text-center mt-auto" data-controller="eligibility-retester">
-          <button class="btn btn-outline-success btn-sm"
-                  data-simulation-id="<%= @simulation.id %>"
-                  data-action="click->eligibility-retester#retestRenolutionEligibility"
-                  data-eligibility-retester-target="renolutionButton">
-            <i class="bi bi-arrow-clockwise me-2"></i>
-            Relancer le test RENOLUTION
-          </button>
-          <div class="text-muted small mt-2">
-            <i class="bi bi-info-circle me-1"></i>
-            Utile après modification du bien immobilier
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- JavaScript pour gérer les boutons de double éligibilité -->

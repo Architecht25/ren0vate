@@ -51,12 +51,36 @@
 
         <div class="row g-3 mb-5">
           <% grouped_projects[region_key].each do |project| %>
-        <div class="col-xl-4 col-lg-6 col-md-12">
-          <div class="card border-0 bg-light-custom h-100 property-card position-relative<%= ' property-card-entreprise' if project.property.is_entreprise? %>">
-            <!-- Menu actions trois points -->
-            <div class="position-absolute top-0 end-0 m-2" style="z-index: 10;">
+        <div class="col-xl-3 col-lg-4 col-md-6">
+          <div class="card border-0 h-100 property-card position-relative overflow-hidden<%= ' property-card-entreprise' if project.property&.is_entreprise? %>" style="min-height: 200px;">
+
+            <!-- Image de fond sur toute la carte selon le type de projet -->
+            <div class="position-absolute w-100 h-100"
+                 style="background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_200,q_auto,f_auto/<%= project.project_type == 'investment' ? 'Graph_1_1.png_vwsi85' : 'renovation-interieure-a-bruxelles-CfiLU_qtwkug' %>');
+                        background-size: cover;
+                        background-position: center;
+                        background-repeat: no-repeat;
+                        top: 0;
+                        left: 0;
+                        z-index: 1;">
+            </div>
+
+            <!-- Overlay sombre pour la lisibilité -->
+            <div class="position-absolute w-100 h-100" style="background: rgba(0,0,0,0.1); top: 0; left: 0; z-index: 2;"></div>
+
+            <!-- Badge région en haut à gauche -->
+            <% if project.property&.region %>
+              <div class="position-absolute top-0 start-0 m-2" style="z-index: 4;">
+                <span class="badge bg-<%= project.property.region == 'wallonie' ? 'danger' : project.property.region == 'flandre' ? 'dark' : 'warning' %>" style="font-size: 0.7rem;">
+                  <%= project.property.region.humanize %>
+                </span>
+              </div>
+            <% end %>
+
+            <!-- Menu actions trois points en haut à droite -->
+            <div class="position-absolute top-0 end-0 m-2" style="z-index: 4;">
               <div class="dropdown dropup">
-                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="opacity: 0.9;">
                   <i class="bi bi-three-dots-vertical"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow" style="z-index: 1050;">
@@ -85,50 +109,49 @@
               </div>
             </div>
 
-            <%= link_to project_path(project), class: "text-decoration-none" do %>
-              <div class="row g-0 h-100">
-                <!-- Image à gauche -->
-                <div class="col-4 rounded-start"
-                     style="min-height: 140px;
-                            background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_300,h_140,q_auto,f_auto/istockphoto-1467348539-1024x1024_l8dpxl');
-                            background-size: cover;
-                            background-position: center;
-                            background-repeat: no-repeat;
-                            opacity: 0.8;">
-                </div>
+            <!-- Contenu centré avec le titre du projet -->
+            <%= link_to project_path(project), class: "text-decoration-none position-absolute w-100 h-100 d-flex align-items-center justify-content-center", style: "z-index: 3;" do %>
+              <div class="text-center text-white">
+                <!-- Titre du projet -->
+                <h5 class="fw-bold mb-3" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.7);">
+                  <i class="bi bi-hammer me-2"></i>
+                  <%= project.nom %>
+                </h5>
 
-                <!-- Contenu à droite -->
-                <div class="col-8">
-                  <div class="card-body p-3 h-100 d-flex flex-column">
-                    <div class="d-flex align-items-center mb-2">
-                      <div class="icon-circle-small me-2">
-                        <i class="bi bi-hammer"></i>
+                <!-- Adresse de la propriété associée -->
+                <% if project.property.present? %>
+                  <div class="text-white mb-3" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">
+                    <% if project.property.rue && project.property.numero && project.property.commune %>
+                      <div style="font-size: 0.95rem; font-weight: 400;">
+                        <i class="bi bi-geo-alt me-2"></i>
+                        <%= project.property.rue %> <%= project.property.numero %>
                       </div>
-                      <div class="flex-grow-1">
-                        <h6 class="card-title text-dark mb-1 fw-normal"><%= project.nom %></h6>
-                        <% if project.property.present? %>
-                          <p class="text-muted-custom mb-0 small">
-                            <i class="bi bi-house-door me-1"></i>
-                            <%= project.property.respond_to?(:address) ? project.property.address : "#{project.property.rue} #{project.property.numero}" %>
-                          </p>
-                        <% else %>
-                          <p class="text-muted-custom mb-0 small">Bien non associé</p>
-                        <% end %>
+                      <div style="font-size: 0.85rem; opacity: 0.9;">
+                        <%= project.property.code_postal %> <%= project.property.commune %>
                       </div>
-                    </div>
-
-                    <div class="mt-auto">
-                      <div class="d-flex justify-content-between align-items-center">
-                        <span class="badge bg-primary-custom rounded-pill px-2 py-1 small">
-                          <%= project.simulations.count %> simulations
-                        </span>
-                        <span class="text-muted-custom small">
-                          <i class="bi bi-calendar-check me-1"></i>
-                          <%= project.created_at.strftime("%d/%m/%Y") %>
-                        </span>
+                    <% else %>
+                      <div class="text-warning" style="font-size: 0.9rem;">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Adresse incomplète
                       </div>
-                    </div>
+                    <% end %>
                   </div>
+                <% else %>
+                  <div class="text-warning mb-3" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8); font-size: 0.9rem;">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Bien non associé
+                  </div>
+                <% end %>
+
+                <!-- Informations supplémentaires en bas -->
+                <div class="d-flex justify-content-center align-items-center gap-3">
+                  <span class="badge bg-light text-dark px-2 py-1" style="font-size: 0.75rem;">
+                    <%= project.simulations.count %> simulation<%= 's' if project.simulations.count > 1 %>
+                  </span>
+                  <span class="text-white" style="font-size: 0.75rem; opacity: 0.8;">
+                    <i class="bi bi-calendar-check me-1"></i>
+                    <%= project.created_at.strftime("%d/%m/%Y") %>
+                  </span>
                 </div>
               </div>
             <% end %>

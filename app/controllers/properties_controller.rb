@@ -34,15 +34,20 @@ class PropertiesController < ApplicationController
   def create
     @property = current_user.properties.new(property_params)
 
-    # Rails.logger.info "Creating property with params: #{property_params.inspect}"
-    # Rails.logger.info "Property region: #{@property.region}"
-    # Rails.logger.info "Property valid?: #{@property.valid?}"
-    # Rails.logger.info "Property errors: #{@property.errors.full_messages}" unless @property.valid?
+    Rails.logger.info "Creating property with params: #{property_params.inspect}"
+    Rails.logger.info "Property region: #{@property.region}"
+    Rails.logger.info "Property type: #{@property.type}"
+    Rails.logger.info "Property type_bien_bruxelles: #{@property.type_bien_bruxelles}"
+    Rails.logger.info "Property valid?: #{@property.valid?}"
+    Rails.logger.info "Property errors: #{@property.errors.full_messages}" unless @property.valid?
 
     if @property.save
-      redirect_to @property, notice: t('notices.property_created')
+      # Redirection vers la liste des propriétés après création réussie
+      redirect_to properties_path, notice: t('notices.property_created')
     else
-      # Préserver le paramètre région lors du rendu d'erreur
+      # Préserver les paramètres région et type lors du rendu d'erreur
+      @property.region = params[:region] if params[:region].present?
+      @property.type = params[:type] if params[:type].present?
       flash.now[:alert] = t('common.please_correct_errors')
       render :new, status: :unprocessable_entity
     end
@@ -60,7 +65,12 @@ class PropertiesController < ApplicationController
       # Rails.logger.info "[PROPERTY UPDATE] ✅ Mise à jour réussie pour propriété ID: #{@property.id}"
       # Rails.logger.info "[PROPERTY UPDATE] 🔧 Nouvelles valeurs: region=#{@property.region}, ean_flandre=#{@property.ean_flandre}, certificat_peb_flandre=#{@property.certificat_peb_flandre}"
 
-      redirect_to @property, notice: t('notices.property_updated')
+      # Redirection intelligente selon le type de bien et la région
+      if @property.is_entreprise? && @property.region == 'bruxelles'
+        redirect_to bruxelles_entreprises_path, notice: t('notices.property_updated')
+      else
+        redirect_to @property, notice: t('notices.property_updated')
+      end
     else
       Rails.logger.error "[PROPERTY UPDATE] ❌ Échec de la mise à jour pour propriété ID: #{@property.id}"
       Rails.logger.error "[PROPERTY UPDATE] 🚨 Erreurs: #{@property.errors.full_messages.join(', ')}"

@@ -1,70 +1,41 @@
 <% property ||= @property %>
-<div class="container-fluid px-4 py-3">
-  <!-- Header compact avec avatar -->
-  <div class="row justify-content-center mb-3">
-    <div class="col-lg-10">
-      <div class="text-center">
-        <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
-          <i class="bi bi-building-gear text-white fs-4"></i>
-        </div>
-        <h1 class="h3 text-dark fw-light mb-1">Propriété Entreprise</h1>
-        <p class="text-muted small">Informations sur votre bien d'entreprise</p>
-      </div>
+<div class="container-fluid p-4 bg-white">
+  <!-- Header simple -->
+  <div class="text-center mb-4">
+    <div class="bg-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
+      <i class="bi bi-building-gear text-white fs-4"></i>
     </div>
+    <h1 class="h3 text-dark fw-light mb-1">Propriété Entreprise</h1>
+    <p class="text-muted small">Informations sur votre bien d'entreprise</p>
   </div>
 
-    <%= simple_form_for property, local: true, html: { class: "needs-validation", novalidate: true } do |f| %>
-    <!-- Style CSS renforcé pour les champs obligatoires -->
+  <%= simple_form_for property, local: true, html: { class: "needs-validation", novalidate: true } do |f| %>
+    <!-- Style pour les champs obligatoires -->
     <style>
-      /* Cibler tous les types de champs avec required */
-      input[required],
-      select[required],
-      textarea[required],
-      .form-control[required],
-      .form-select[required],
-      input.form-control[required],
-      select.form-select[required] {
-        border: 3px solid #8fbc8f !important;
-        border-color: #8fbc8f !important;
-        box-shadow: 0 0 0 0.2rem rgba(143, 188, 143, 0.15) !important;
-        background-color: #f7faf7 !important;
-      }
-
-      /* État focus pour les champs obligatoires */
-      input[required]:focus,
-      select[required]:focus,
-      textarea[required]:focus,
-      .form-control[required]:focus,
-      .form-select[required]:focus,
-      input.form-control[required]:focus,
-      select.form-select[required]:focus {
-        border: 3px solid #8fbc8f !important;
-        border-color: #8fbc8f !important;
-        box-shadow: 0 0 0 0.3rem rgba(143, 188, 143, 0.25) !important;
-        outline: none !important;
-      }
-
-      /* Test avec une classe spécifique */
       .required-field {
-        border: 4px solid #a2c5a2 !important;
-        background-color: #f0f8f0 !important;
+        border: 2px solid #0d6efd !important;
+        box-shadow: 0 0 0 0.1rem rgba(13, 110, 253, 0.15) !important;
+      }
+      .required-field:focus {
+        border-color: #0d6efd !important;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
       }
     </style>
 
-    <!-- Champ caché pour la région -->
     <%= f.hidden_field :type, value: "entreprise" %>
+    <%= f.hidden_field :type_bien_bruxelles, value: "entreprise" %>
 
     <!-- Première rangée: Informations entreprise et Photo -->
-    <div class="row justify-content-center mb-3">
-      <div class="col-lg-10">
+    <div class="row mb-3">
+      <div class="col-12">
         <div class="row g-3">
 
           <!-- Carte 1: Informations de l'entreprise -->
           <div class="col-lg-8">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
-              <div class="card-header bg-white border-0 py-3">
+            <div class="bg-white border-0 rounded h-100">
+              <div class="p-3 bg-light py-3">
                 <div class="d-flex align-items-center">
-                  <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                  <div class="bg-primary  rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
                     <i class="bi bi-building text-white fs-6"></i>
                   </div>
                   <div>
@@ -73,7 +44,7 @@
                   </div>
                 </div>
               </div>
-              <div class="card-body px-4 py-3">
+              <div class="p-4 px-4 py-3">
                 <div class="row g-2">
                   <div class="col-12">
                     <%= f.input :titre,
@@ -83,7 +54,7 @@
                         label_html: { class: "form-label text-dark fw-medium mb-1" },
                         input_html: {
                           class: "form-control border-2 rounded-3 px-3 required-field",
-                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          style: "background: #f8f9fa;",
                           required: true
                         } %>
                   </div>
@@ -151,7 +122,7 @@
                         label_html: { class: "form-label text-dark fw-medium mb-1" },
                         input_html: {
                           class: "form-select border-2 rounded-3 px-3 required-field",
-                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          style: "background: #f8f9fa;",
                           required: true
                         } %>
                   </div>
@@ -162,11 +133,11 @@
 
           <!-- Carte 2: Informations d'investissement -->
           <div class="col-lg-4">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
-              <div class="card-header bg-white border-0 py-3">
+            <div class="bg-white border-0 rounded h-100">
+              <div class="p-3 bg-light py-3">
                 <div class="d-flex align-items-center">
-                  <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                    <i class="bi bi-credit-card text-white fs-6"></i>
+                  <div class="bg-success rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                    <i class="bi bi-graph-up text-white fs-6"></i>
                   </div>
                   <div>
                     <h5 class="card-title mb-0 text-dark fw-normal">Informations d'investissement</h5>
@@ -174,7 +145,7 @@
                   </div>
                 </div>
               </div>
-              <div class="card-body px-4 py-3">
+              <div class="p-4 px-4 py-3">
                 <div class="row g-2">
                   <div class="col-12">
                     <%= f.input :valeur_achat,
@@ -234,10 +205,10 @@
       <!-- Carte 3: Adresses de l'entreprise -->
       <div class="row mb-4">
         <div class="col-12">
-          <div class="card border-0 shadow-lg rounded-4">
-            <div class="card-header bg-white border-0 py-3">
+          <div class="bg-white border-0 rounded">
+            <div class="p-3 bg-light py-3">
               <div class="d-flex align-items-center">
-                <div class="bg-info bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                <div class="bg-info  rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
                   <i class="bi bi-geo-alt text-white fs-6"></i>
                 </div>
                 <div>
@@ -246,11 +217,11 @@
                 </div>
               </div>
             </div>
-            <div class="card-body px-4 py-3">
+            <div class="p-4 px-4 py-3">
               <!-- Siège social -->
               <div class="mb-4">
                 <div class="d-flex align-items-center mb-3">
-                  <div class="bg-info bg-gradient rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px;">
+                  <div class="bg-info  rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px;">
                     <i class="bi bi-building text-white" style="font-size: 0.7rem;"></i>
                   </div>
                   <h6 class="mb-0 text-primary fw-medium">Siège social</h6>
@@ -265,7 +236,7 @@
                         label_html: { class: "form-label text-dark fw-medium mb-1" },
                         input_html: {
                           class: "form-control border-2 rounded-3 px-3 required-field",
-                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          style: "background: #f8f9fa;",
                           required: true
                         } %>
                   </div>
@@ -277,7 +248,9 @@
                         label_html: { class: "form-label text-dark fw-medium mb-1" },
                         input_html: {
                           class: "form-control border-2 rounded-3 px-3 required-field",
-                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          style: "background: #f8f9fa;",
+                          required: true
+                        } %>
                           required: true
                         } %>
                   </div>
@@ -289,7 +262,9 @@
                         label_html: { class: "form-label text-dark fw-medium mb-1" },
                         input_html: {
                           class: "form-control border-2 rounded-3 px-3 required-field",
-                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          style: "background: #f8f9fa;",
+                          required: true
+                        } %>
                           required: true
                         } %>
                   </div>
@@ -301,14 +276,16 @@
                         label_html: { class: "form-label text-dark fw-medium mb-1" },
                         input_html: {
                           class: "form-control border-2 rounded-3 px-3 required-field",
-                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          style: "background: #f8f9fa;",
+                          required: true
+                        } %>
                           required: true
                         } %>
                   </div>
                 </div>
 
-                <!-- Bouton de copie d'adresse -->
-                <div class="d-flex gap-2 mb-3">
+                <!-- Bouton de copie d'adresse temporairement désactivé -->
+                <!-- <div class="d-flex gap-2 mb-3">
                   <button type="button"
                           class="btn btn-outline-info btn-sm rounded-3"
                           data-controller="address-copy"
@@ -316,12 +293,12 @@
                           data-address-copy-source-target="copyButton">
                     <i class="bi bi-copy me-1"></i>Utiliser cette adresse pour l'exploitation
                   </button>
-                </div>
+                </div> -->
               </div>
               <!-- Section adresse d'exploitation -->
               <div class="mb-4">
                 <div class="d-flex align-items-center mb-3">
-                  <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px;">
+                  <div class="bg-warning  rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px;">
                     <i class="bi bi-shop text-white" style="font-size: 0.7rem;"></i>
                   </div>
                   <h6 class="mb-0 text-primary fw-medium">Adresse d'exploitation (si différente)</h6>
@@ -374,8 +351,8 @@
                   </div>
                 </div>
 
-                <!-- Région -->
-                <div class="row g-2 mt-2">
+                <!-- Région d'exploitation (fixée à Bruxelles pour entreprise) -->
+                <!-- <div class="row g-2 mt-2">
                   <div class="col-md-6">
                     <%= f.input :region,
                         label: '<i class="bi bi-map me-2 text-warning"></i>Région d\'exploitation'.html_safe,
@@ -388,7 +365,7 @@
                           style: "background: #f8f9fa; border-color: #e9ecef !important;"
                         } %>
                   </div>
-                </div>
+                </div> -->
               </div>
             </div>
           </div>
@@ -398,10 +375,10 @@
       <!-- Carte 4: Caractéristiques du bien -->
       <div class="row mb-4">
         <div class="col-lg-6">
-          <div class="card border-0 shadow-lg rounded-4 h-100">
-            <div class="card-header bg-white border-0 py-3">
+          <div class="bg-white border-0 rounded h-100">
+            <div class="p-3 bg-light py-3">
               <div class="d-flex align-items-center">
-                <div class="bg-secondary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                <div class="bg-secondary  rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
                   <i class="bi bi-diagram-3 text-white fs-6"></i>
                 </div>
                 <div>
@@ -410,7 +387,7 @@
                 </div>
               </div>
             </div>
-            <div class="card-body px-4 py-3">
+            <div class="p-4 px-4 py-3">
               <div class="row g-2">
                 <div class="col-6">
                   <%= f.input :surface_totale,
@@ -475,10 +452,10 @@
 
         <!-- Carte 5: Codes NACE -->
         <div class="col-lg-6">
-          <div class="card border-0 shadow-lg rounded-4 h-100">
-            <div class="card-header bg-white border-0 py-3">
+          <div class="bg-white border-0 rounded h-100">
+            <div class="p-3 bg-light py-3">
               <div class="d-flex align-items-center">
-                <div class="bg-dark bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                <div class="bg-dark  rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
                   <i class="bi bi-tags text-white fs-6"></i>
                 </div>
                 <div>
@@ -487,7 +464,7 @@
                 </div>
               </div>
             </div>
-            <div class="card-body px-4 py-3">
+            <div class="p-4 px-4 py-3">
               <div class="row g-2">
                 <div class="col-12">
                   <%= f.input :code_nace_1,
@@ -519,10 +496,10 @@
       <!-- Carte 6: Type et usage -->
       <div class="row mb-4">
         <div class="col-12">
-          <div class="card border-0 shadow-lg rounded-4">
-            <div class="card-header bg-white border-0 py-3">
+          <div class="bg-white border-0 rounded">
+            <div class="p-3 bg-light py-3">
               <div class="d-flex align-items-center">
-                <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                <div class="bg-success  rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
                   <i class="bi bi-building text-white fs-6"></i>
                 </div>
                 <div>
@@ -531,7 +508,7 @@
                 </div>
               </div>
             </div>
-            <div class="card-body px-4 py-3">
+            <div class="p-4 px-4 py-3">
               <div class="row g-2">
                 <div class="col-lg-4">
                   <%= f.input :type_propriete,
@@ -549,8 +526,8 @@
                       wrapper_html: { class: "mb-3" },
                       label_html: { class: "form-label text-dark fw-medium mb-1" },
                       input_html: {
-                        class: "form-select border-2 rounded-3 px-3",
-                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                        class: "form-select border-2 rounded-3 px-3 required-field",
+                        style: "background: #f8f9fa;",
                         required: true
                       } %>
                 </div>
@@ -599,10 +576,10 @@
       <!-- Carte 7: Informations administratives -->
       <div class="row mb-4">
         <div class="col-12">
-          <div class="card border-0 shadow-lg rounded-4">
-            <div class="card-header bg-white border-0 py-3">
+          <div class="bg-white border-0 rounded">
+            <div class="p-3 bg-light py-3">
               <div class="d-flex align-items-center">
-                <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                <div class="bg-warning  rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
                   <i class="bi bi-info-circle text-white fs-6"></i>
                 </div>
                 <div>
@@ -611,7 +588,7 @@
                 </div>
               </div>
             </div>
-            <div class="card-body px-4 py-3">
+            <div class="p-4 px-4 py-3">
               <div class="row g-2">
                 <div class="col-lg-6">
                   <div class="mb-3">
@@ -706,12 +683,12 @@
         </div>
       </div>
 
-      <div class="row justify-content-center mb-5">
-        <div class="col-lg-10">
-          <div class="card border-0 shadow-lg rounded-4">
-            <div class="card-header bg-white border-0 py-3">
+      <div class="row mb-5">
+        <div class="col-12">
+          <div class="bg-white border-0 rounded">
+            <div class="p-3 bg-light py-3">
               <div class="d-flex align-items-center">
-                <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                <div class="bg-primary  rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
                   <i class="bi bi-gear text-white fs-6"></i>
                 </div>
                 <div>
@@ -720,12 +697,14 @@
                 </div>
               </div>
             </div>
-            <div class="card-body px-4 py-3">
+            <div class="p-4 px-4 py-3">
               <div class="d-flex justify-content-between align-items-center">
+                <!-- Champ region doit être à la fin pour éviter qu'il soit écrasé -->
+                <%= f.hidden_field :region, value: "bruxelles" %>
                 <%= link_to property.persisted? ? property_path(property) : new_property_path, class: "btn btn-outline-secondary rounded-3 py-2" do %>
                   <i class="bi bi-arrow-left me-2"></i>Annuler
                 <% end %>
-                <%= f.submit property.persisted? ? "Mettre à jour les données" : "Créer le bien d'entreprise", class: 'btn btn-primary rounded-3 py-2 fw-medium px-4' %>
+                <%= f.submit property.persisted? ? "Mettre à jour les données" : "Sauvegarder les données", class: 'btn btn-primary rounded-3 py-2 fw-medium px-4' %>
               </div>
             </div>
           </div>
@@ -742,33 +721,11 @@
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
   }
 
-  .card {
-    transition: all 0.3s ease;
-  }
+  /* Effets supprimés pour un style plus épuré */
 
-  .card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
-  }
-
-  .btn {
-    transition: all 0.3s ease;
-  }
-
-  .btn:hover {
-    transform: translateY(-1px);
-  }
-
-  .bg-gradient {
+  . {
     background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-primary-dark) 100%) !important;
   }
 
-  .form-control, .form-select {
-    transition: all 0.3s ease;
-  }
-
-  .form-control:hover, .form-select:hover {
-    background-color: #fff !important;
-    border-color: #ced4da !important;
-  }
+  /* Effets hover supprimés */
 </style>
