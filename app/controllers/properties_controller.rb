@@ -453,6 +453,7 @@ class PropertiesController < ApplicationController
 
       # Champs spécifiques Bruxelles
       :type_bien_bruxelles, :certificat_peb_bruxelles,
+      :domiciliation, :nouvelle_construction, :bien_classe, :petit_patrimoine, :facade_patrimoine,
 
       # Champs spécifiques Entreprise
       :nombre_salaries, :date_creation, :regle_minimis, :bce_number,
