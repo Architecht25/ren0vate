@@ -42,7 +42,7 @@ class Request < ApplicationRecord
     monuments_flandre: 'monuments_flandre',
     communal_flandre: 'communal_flandre',
 
-    # ENTREPRISES (14 formulaires - à compléter selon besoins)
+    # ENTREPRISES (14 formulaires - complets pour Bruxelles)
     consultance_bruxelles: 'consultance_bruxelles',
     investissement_bruxelles: 'investissement_bruxelles',
     formation_bruxelles: 'formation_bruxelles',
@@ -50,6 +50,13 @@ class Request < ApplicationRecord
     export_bruxelles: 'export_bruxelles',
     innovation_bruxelles: 'innovation_bruxelles',
     transition_bruxelles: 'transition_bruxelles',
+    accessibilite_bruxelles: 'accessibilite_bruxelles',
+    achat_immobilier_bruxelles: 'achat_immobilier_bruxelles',
+    conformite_normes_bruxelles: 'conformite_normes_bruxelles',
+    digitalisation_bruxelles: 'digitalisation_bruxelles',
+    formation_linguistique_bruxelles: 'formation_linguistique_bruxelles',
+    mobilite_retrofit_bruxelles: 'mobilite_retrofit_bruxelles',
+    recrutement_bruxelles: 'recrutement_bruxelles',
     consultance_wallonie: 'consultance_wallonie',
     investissement_wallonie: 'investissement_wallonie',
     consultance_flandre: 'consultance_flandre',

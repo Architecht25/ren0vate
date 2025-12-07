@@ -41,8 +41,125 @@
       </ol>
     </nav>
 
-    <!-- Formulaire direct -->
-    <%= render 'form' %>
+    <!-- FORMULAIRE ENTERPRISE DIRECT -->
+    <% if @request&.form_type&.end_with?('_bruxelles') %>
+      <%= form_with model: @request,
+                    url: @request.persisted? ? request_path(@request) : requests_path,
+                    local: true,
+                    class: "needs-validation request-form",
+                    novalidate: true,
+                    id: "request-form-main",
+                    data: { turbo: false } do |form| %>
+
+        <!-- Champs cachés -->
+        <%= form.hidden_field :region, value: @property.region %>
+        <%= form.hidden_field :property_id, value: @property.id %>
+        <%= form.hidden_field :form_type, value: @request.form_type %>
+        <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+
+        <div style="padding: 20px;">
+
+          <!-- Formulaire Consultance -->
+          <% if @request.form_type == 'consultance_bruxelles' %>
+            <div class="card">
+              <div class="card-header bg-primary text-white">
+                <h4><i class="bi bi-file-earmark-text me-2"></i>Formulaire Consultance & Conseil</h4>
+                <p class="mb-0">Aide au conseil stratégique et opérationnel</p>
+              </div>
+              <div class="card-body">
+                <%= render 'requests/partials_bruxelles_entreprise/consultance', form: form %>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Formulaire Investissement -->
+          <% if @request.form_type == 'investissement_bruxelles' %>
+            <div class="card">
+              <div class="card-header bg-warning text-white">
+                <h4><i class="bi bi-gear-wide me-2"></i>Formulaire Investissement Productif</h4>
+                <p class="mb-0">Soutien aux investissements matériels</p>
+              </div>
+              <div class="card-body">
+                <%= render 'requests/partials_bruxelles_entreprise/investissements_generaux', form: form %>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Autres formulaires - EN CONSTRUCTION -->
+          <% if @request.form_type.in?(['formation_bruxelles', 'recherche_bruxelles', 'export_bruxelles', 'innovation_bruxelles', 'transition_bruxelles', 'accessibilite_bruxelles', 'achat_immobilier_bruxelles', 'conformite_normes_bruxelles', 'digitalisation_bruxelles', 'formation_linguistique_bruxelles', 'mobilite_retrofit_bruxelles', 'recrutement_bruxelles']) %>
+            <%
+              form_labels = {
+                'formation_bruxelles' => 'Formation & Compétences',
+                'recherche_bruxelles' => 'Recherche & Développement',
+                'export_bruxelles' => 'Export & International',
+                'innovation_bruxelles' => 'Innovation Technologique',
+                'transition_bruxelles' => 'Transition Numérique',
+                'accessibilite_bruxelles' => 'Accessibilité & Inclusion',
+                'achat_immobilier_bruxelles' => 'Achat Immobilier',
+                'conformite_normes_bruxelles' => 'Conformité aux Normes',
+                'digitalisation_bruxelles' => 'Digitalisation Avancée',
+                'formation_linguistique_bruxelles' => 'Formation Linguistique',
+                'mobilite_retrofit_bruxelles' => 'Mobilité & Retrofit',
+                'recrutement_bruxelles' => 'Recrutement & RH'
+              }
+              current_label = form_labels[@request.form_type] || @request.form_type.humanize
+            %>
+
+            <div class="card">
+              <div class="card-header bg-info text-white">
+                <h4><i class="bi bi-tools me-2"></i><%= current_label %></h4>
+                <p class="mb-0">Formulaire en cours de construction</p>
+              </div>
+              <div class="card-body">
+                <div class="alert alert-warning">
+                  <div class="d-flex align-items-center">
+                    <i class="bi bi-exclamation-triangle fs-2 me-3"></i>
+                    <div>
+                      <h5 class="alert-heading">Formulaire en développement</h5>
+                      <p class="mb-2">Le formulaire <strong><%= current_label %></strong> est actuellement en cours de construction.</p>
+                      <p class="mb-0">En attendant, vous pouvez nous contacter directement pour ce type d'aide :</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="row mt-4">
+                  <div class="col-md-6">
+                    <div class="card border-primary">
+                      <div class="card-body">
+                        <h6 class="card-title text-primary">
+                          <i class="bi bi-envelope me-2"></i>Contact par email
+                        </h6>
+                        <p class="card-text">
+                          <strong>Email :</strong> aide.entreprises@sprb.brussels<br>
+                          <strong>Objet :</strong> <%= current_label %> - <%= @property.full_address %>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="card border-success">
+                      <div class="card-body">
+                        <h6 class="card-title text-success">
+                          <i class="bi bi-telephone me-2"></i>Contact téléphonique
+                        </h6>
+                        <p class="card-text">
+                          <strong>Téléphone :</strong> 02/800.34.41<br>
+                          <strong>Horaires :</strong> Lun-Ven 9h-17h
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+
+        </div>
+      <% end %>
+    <% else %>
+      <!-- Formulaire classique pour les autres types -->
+      <%= render 'form' %>
+    <% end %>
 
   <% else %>
     <!-- MODE SÉLECTION BIEN ET FORMULAIRE -->
@@ -90,7 +207,7 @@
               <div class="row g-4">
                 <% properties.each do |property| %>
                   <div class="col-lg-4 col-md-6">
-                    <div class="card border-0 shadow-sm h-100">
+                    <div class="card border-0 shadow-sm h-100" style="border: 2px solid #1e40af !important;">
                       <div class="card-body">
                         <!-- En-tête du bien -->
                         <div class="d-flex justify-content-between align-items-start mb-3">
@@ -160,32 +277,21 @@
                               </div>
                               <span class="fw-bold text-dark">Formulaires disponibles</span>
                             </div>
-                            <% available_forms = @available_forms[region] || [] %>
+                            <% available_forms = @available_forms.dig(region, property.id) || [] %>
                             <span class="badge bg-primary-custom px-2 py-1"><%= available_forms.count %></span>
                           </div>
 
                           <% if available_forms.any? %>
                             <div class="bg-light rounded p-3">
                               <div class="d-grid gap-2">
-                                <% available_forms.first(4).each do |form| %>
+                                <% available_forms.each do |form| %>
                                   <%= link_to new_request_path(property_id: property.id, form_type: form[:id]),
                                       class: "btn btn-outline-primary-custom text-start d-flex align-items-center" do %>
                                     <i class="bi bi-file-earmark-text me-3 text-primary"></i>
                                     <div class="flex-grow-1">
                                       <div class="fw-semibold"><%= form[:name] %></div>
-                                      <% if form[:description] %>
-                                        <small class="text-muted"><%= form[:description] %></small>
-                                      <% end %>
                                     </div>
                                     <i class="bi bi-arrow-right text-primary"></i>
-                                  <% end %>
-                                <% end %>
-                                <% if available_forms.count > 4 %>
-                                  <%= link_to select_form_property_path(property),
-                                      class: "btn btn-outline-secondary d-flex align-items-center justify-content-center" do %>
-                                    <i class="bi bi-grid-3x3-gap me-2"></i>
-                                    Voir tous les formulaires (<%= available_forms.count %>)
-                                    <i class="bi bi-arrow-right ms-2"></i>
                                   <% end %>
                                 <% end %>
                               </div>

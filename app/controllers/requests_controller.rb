@@ -64,10 +64,14 @@ class RequestsController < ApplicationController
     @properties = current_user.properties.includes(:projects, :requests)
     @properties_by_region = @properties.group_by(&:region)
 
-    # Charger la configuration des formulaires pour chaque région
+    # Charger la configuration des formulaires pour chaque propriété
     @available_forms = {}
     @properties_by_region.each do |region, properties|
-      @available_forms[region] = get_available_forms_for_region(region)
+      # Créer un hash pour stocker les formulaires par propriété
+      @available_forms[region] = {}
+      properties.each do |property|
+        @available_forms[region][property.id] = get_available_forms_for_property(property)
+      end
     end
   end
 
@@ -494,15 +498,36 @@ class RequestsController < ApplicationController
       return forms
     end
 
-    # Logique spécifique à la propriété (si nécessaire)
+    # Logique spécifique à la propriété selon son type
     case property.region&.downcase
     when 'bruxelles'
-      forms += [
-        { id: :regional_bruxelles, name: 'Prime régionale habitation', region: 'bruxelles', category: 'Rénovation', eligible: true },
-        { id: :monuments_bruxelles, name: 'Monuments & Sites classés', region: 'bruxelles', category: 'Patrimoine', eligible: true },
-        { id: :patrimoine_bruxelles, name: 'Petit patrimoine populaire', region: 'bruxelles', category: 'Patrimoine', eligible: true },
-        { id: :communal_bruxelles, name: 'Primes communales', region: 'bruxelles', category: 'Communal', eligible: true }
-      ]
+      if property.type_bien_bruxelles == 'entreprise'
+        # Formulaires entreprises Bruxelles - UNIQUEMENT les 14 formulaires entreprise
+        forms += [
+          { id: :consultance_bruxelles, name: 'Consultance & Conseil', region: 'bruxelles', category: 'Conseil', eligible: true, description: 'Aide au conseil stratégique et opérationnel' },
+          { id: :investissement_bruxelles, name: 'Investissement productif', region: 'bruxelles', category: 'Investissement', eligible: true, description: 'Soutien aux investissements matériels' },
+          { id: :formation_bruxelles, name: 'Formation & Compétences', region: 'bruxelles', category: 'Formation', eligible: true, description: 'Développement des compétences' },
+          { id: :recherche_bruxelles, name: 'Recherche & Développement', region: 'bruxelles', category: 'R&D', eligible: true, description: 'Innovation et développement technologique' },
+          { id: :export_bruxelles, name: 'Export & International', region: 'bruxelles', category: 'Export', eligible: true, description: 'Développement international' },
+          { id: :innovation_bruxelles, name: 'Innovation technologique', region: 'bruxelles', category: 'Innovation', eligible: true, description: 'Projets d\'innovation disruptive' },
+          { id: :transition_bruxelles, name: 'Transition numérique', region: 'bruxelles', category: 'Digital', eligible: true, description: 'Digitalisation et transformation numérique' },
+          { id: :accessibilite_bruxelles, name: 'Accessibilité & Inclusion', region: 'bruxelles', category: 'Social', eligible: true, description: 'Amélioration de l\'accessibilité' },
+          { id: :achat_immobilier_bruxelles, name: 'Achat immobilier', region: 'bruxelles', category: 'Immobilier', eligible: true, description: 'Acquisition de biens immobiliers' },
+          { id: :conformite_normes_bruxelles, name: 'Conformité aux normes', region: 'bruxelles', category: 'Conformité', eligible: true, description: 'Mise en conformité réglementaire' },
+          { id: :digitalisation_bruxelles, name: 'Digitalisation avancée', region: 'bruxelles', category: 'Tech', eligible: true, description: 'Solutions digitales avancées' },
+          { id: :formation_linguistique_bruxelles, name: 'Formation linguistique', region: 'bruxelles', category: 'Langues', eligible: true, description: 'Apprentissage des langues' },
+          { id: :mobilite_retrofit_bruxelles, name: 'Mobilité & Retrofit', region: 'bruxelles', category: 'Mobilité', eligible: true, description: 'Solutions de mobilité durable' },
+          { id: :recrutement_bruxelles, name: 'Recrutement & RH', region: 'bruxelles', category: 'RH', eligible: true, description: 'Aide au recrutement et gestion RH' }
+        ]
+      else
+        # Formulaires particuliers Bruxelles - les 4 formulaires de rénovation
+        forms += [
+          { id: :regional_bruxelles, name: 'Prime régionale habitation', region: 'bruxelles', category: 'Rénovation', eligible: true },
+          { id: :monuments_bruxelles, name: 'Monuments & Sites classés', region: 'bruxelles', category: 'Patrimoine', eligible: true },
+          { id: :patrimoine_bruxelles, name: 'Petit patrimoine populaire', region: 'bruxelles', category: 'Patrimoine', eligible: true },
+          { id: :communal_bruxelles, name: 'Primes communales', region: 'bruxelles', category: 'Communal', eligible: true }
+        ]
+      end
     when 'wallonie'
       forms += [
         { id: :regional_wallonie, name: 'Prime régionale habitation', region: 'wallonie', category: 'Rénovation', eligible: true },
