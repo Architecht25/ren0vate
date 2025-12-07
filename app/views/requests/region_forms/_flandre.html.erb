@@ -2,6 +2,27 @@
 <div class="request-form-container">
   <div class="flandre-specific-fields">
 
+  <!-- SECTION 0 – Nom du formulaire -->
+  <div class="card mb-4">
+    <div class="card-header bg-info text-white">
+      <h5 class="mb-0">
+        <i class="bi bi-file-earmark-text me-2"></i>Nom du formulaire
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="mb-3">
+        <%= form.label :title, "Nom du formulaire *", class: "form-label" %>
+        <% current_title = @request.title.present? ? @request.title : "Demande de prime Flandre - #{Date.current.strftime('%d/%m/%Y')}" %>
+        <%= form.text_field :title,
+            value: current_title,
+            class: "form-control",
+            placeholder: "Ex: Demande de prime pour rénovation énergétique",
+            required: true %>
+        <div class="form-text">Ce nom vous aidera à identifier facilement votre demande dans la liste.</div>
+      </div>
+    </div>
+  </div>
+
   <!-- SECTION 1 – Identification du demandeur -->
   <div class="card mb-4">
     <div class="card-header bg-success text-white">
@@ -152,11 +173,9 @@
             <div class="form-text">Date de première connexion au réseau électrique</div>
           </div>
         </div>
-        <div class="col-md-6">
-          <!-- Espace réservé pour un autre champ si nécessaire -->
-        </div>
+
       </div>
-      </div>
+
 
       <div class="row">
         <div class="col-md-6">
@@ -1535,13 +1554,58 @@
             Sauvegarder en brouillon
           </button>
 
-          <!-- Bouton pour copier les données -->
+          <!-- Bouton pour accéder directement à Mijn Verbouwpremie -->
           <% if @request.persisted? %>
-            <%= link_to export_data_request_path(@request),
+            <%= link_to "https://loket.mijnverbouwpremie.be/",
                        class: "btn btn-outline-secondary btn-lg px-4 py-2 w-100 mt-2",
-                       style: "max-width: 400px;" do %>
-              <i class="bi bi-clipboard-data me-2"></i>Copier vos données pour Mijn Verbouwpremie
+                       style: "max-width: 400px;",
+                       target: "_blank" do %>
+              <i class="bi bi-box-arrow-up-right me-2"></i>Accéder à Mijn Verbouwpremie
             <% end %>
+          <% end %>
+
+          <!-- Zone d'explication du processus -->
+          <% if @request.persisted? %>
+            <div class="alert alert-info mt-4 mb-0" style="max-width: 800px;">
+              <div class="row align-items-center">
+                <div class="col-auto">
+                  <i class="bi bi-info-circle fs-4 text-info"></i>
+                </div>
+                <div class="col">
+                  <h6 class="mb-2 fw-semibold">Comment procéder ?</h6>
+                  <div class="row g-2 small">
+                    <div class="col-md-4">
+                      <div class="d-flex align-items-start">
+                        <span class="badge bg-primary rounded-pill me-2 mt-1">1</span>
+                        <div>
+                          <strong>Sauvegardez</strong><br>
+                          <span class="text-muted">Conservez vos données</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="d-flex align-items-start">
+                        <span class="badge bg-success rounded-pill me-2 mt-1">2</span>
+                        <div>
+                          <strong>Soumettez</strong><br>
+                          <span class="text-muted">Sur Mijn Verbouwpremie</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="d-flex align-items-start">
+                        <span class="badge bg-warning rounded-pill me-2 mt-1">3</span>
+                        <div>
+                          <strong>Créez le suivi</strong><br>
+                          <%= link_to "Suivi de primes", new_request_progress_path(request_id: @request.id),
+                                     class: "text-decoration-none small" %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           <% end %>
         </div>
       </div>

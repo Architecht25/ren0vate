@@ -41,8 +41,9 @@
       </ol>
     </nav>
 
-    <!-- FORMULAIRE ENTERPRISE DIRECT -->
-    <% if @request&.form_type&.end_with?('_bruxelles') %>
+    <!-- FORMULAIRE DIRECT (patrimoniaux et entreprises) -->
+    <% if (@request&.form_type&.end_with?('_bruxelles') && @request.form_type != 'regional_bruxelles') ||
+          (@request&.form_type&.end_with?('_flandre') && @request.form_type != 'regional_flandre') %>
       <%= form_with model: @request,
                     url: @request.persisted? ? request_path(@request) : requests_path,
                     local: true,
@@ -150,6 +151,68 @@
                     </div>
                   </div>
                 </div>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Formulaires patrimoniaux Bruxelles -->
+          <% if @request.form_type == 'monuments_bruxelles' %>
+            <div class="card">
+              <div class="card-header bg-primary text-white">
+                <h4><i class="bi bi-bank me-2"></i>Monuments & Sites Classés</h4>
+                <p class="mb-0">Subventions pour travaux de conservation</p>
+              </div>
+              <div class="card-body">
+                <%= render 'requests/formulaires/monuments_sites_bruxelles' %>
+              </div>
+            </div>
+          <% end %>
+
+          <% if @request.form_type == 'patrimoine_bruxelles' %>
+            <div class="card">
+              <div class="card-header bg-success text-white">
+                <h4><i class="bi bi-house-heart me-2"></i>Petit Patrimoine</h4>
+                <p class="mb-0">Aide pour le petit patrimoine bruxellois</p>
+              </div>
+              <div class="card-body">
+                <%= render 'requests/formulaires/petit_patrimoine_bruxelles' %>
+              </div>
+            </div>
+          <% end %>
+
+          <% if @request.form_type == 'communal_bruxelles' %>
+            <div class="card">
+              <div class="card-header bg-warning text-dark">
+                <h4><i class="bi bi-building me-2"></i>Primes Communales</h4>
+                <p class="mb-0">Aides des communes bruxelloises</p>
+              </div>
+              <div class="card-body">
+                <%= render 'requests/formulaires/communales_bruxelles' %>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Formulaires patrimoniaux Flandre -->
+          <% if @request.form_type == 'monuments_flandre' %>
+            <div class="card">
+              <div class="card-header bg-warning text-dark">
+                <h4><i class="bi bi-bank2 me-2"></i>Monuments & Sites Flandre</h4>
+                <p class="mb-0">Prime Patrimoine - Agence du Patrimoine Immobilier</p>
+              </div>
+              <div class="card-body">
+                <%= render 'requests/formulaires/monuments_sites_flandre' %>
+              </div>
+            </div>
+          <% end %>
+
+          <% if @request.form_type == 'communal_flandre' %>
+            <div class="card">
+              <div class="card-header bg-primary text-white">
+                <h4><i class="bi bi-house-gear me-2"></i>Primes Communales Flandre</h4>
+                <p class="mb-0">Aides locales flamandes</p>
+              </div>
+              <div class="card-body">
+                <%= render 'requests/formulaires/communaux_flandre' %>
               </div>
             </div>
           <% end %>

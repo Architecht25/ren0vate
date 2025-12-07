@@ -362,9 +362,22 @@
                 <span class="<%= @property.occupation.present? ? 'text-dark' : 'text-muted' %>">
                   Type d'occupation:
                   <% if @property.occupation.present? %>
-                    <strong><%= @property.occupation.humanize %></strong>
+                    <strong>
+                      <%= case @property.occupation
+                          when 'residence_principale' then 'Résidence principale pendant une durée minimale de 5 ans'
+                          when 'residence_secondaire' then 'Résidence secondaire'
+                          when 'location_5_ans_bail_enregistre' then 'Location par un bail enregistré, dans le respect de la grille des loyers'
+                          when 'location_9_ans_ais' then 'Mise à disposition d\'une agence immobilière sociale (AIS/SLSP/APL)'
+                          when 'location_gratuite_1_an' then 'Location gratuite à un parent ou allié (jusqu\'au 2ème degré)'
+                          else @property.occupation.humanize
+                          end %>
+                    </strong>
                     <% if @property.occupation == 'residence_principale' %>
                       <span class="badge bg-success ms-2">✓ Éligible</span>
+                    <% elsif @property.occupation == 'residence_secondaire' %>
+                      <span class="badge bg-warning ms-2">⚠ Critère d'exclusion</span>
+                    <% elsif @property.occupation.in?(['location_5_ans_bail_enregistre', 'location_9_ans_ais', 'location_gratuite_1_an']) %>
+                      <span class="badge bg-info ms-2">ℹ Conditions spéciales</span>
                     <% end %>
                   <% else %>
                     <em>Non renseigné</em>

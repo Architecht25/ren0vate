@@ -810,34 +810,6 @@ class RequestsController < ApplicationController
     end
   end
 
-  def export_data
-    begin
-      @demande_request = Request.find(params[:id])
-    rescue ActiveRecord::RecordNotFound
-      redirect_to requests_path, alert: "Demande non trouvée."
-      return
-    end
-
-    # Vérification de sécurité : s'assurer que l'utilisateur peut accéder à cette request
-    unless @demande_request.user == current_user || current_user&.admin?
-      redirect_to requests_path, alert: "Vous n'avez pas accès à cette demande."
-      return
-    end
-
-    @property = @demande_request.property || current_user.properties.first
-
-    # Préparer les données de formulaire pour la vue d'export
-    if @property.present?
-      @form_data = build_formulaire_data(@property)
-    else
-      @form_data = build_user_data
-    end
-
-    respond_to do |format|
-      format.html # render la vue export_data.html.erb
-    end
-  end
-
   def debug_export
     @request = Request.find(params[:id])
 
