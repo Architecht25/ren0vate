@@ -539,126 +539,50 @@
       | Est conformite? <%= @request.form_type == 'conformite_normes_bruxelles' %>
     </div>
 
-    <!-- Formulaire Consultance -->
+    <!-- Formulaires des aides aux entreprises bruxelloises -->
     <% if @request.form_type == 'consultance_bruxelles' %>
-      <div style="background: yellow; border: 2px solid red; padding: 20px;">
-        <h3>🎯 AFFICHAGE DU PARTIAL CONSULTANCE</h3>
-        <% begin %>
-          <%= render 'requests/partials_bruxelles_entreprise/consultance', form: form %>
-        <% rescue => e %>
-          <div style="background: red; color: white; padding: 10px;">
-            ERREUR: <%= e.message %>
-          </div>
-        <% end %>
-      </div>
+      <%= render 'requests/partials_bruxelles_entreprise/consultance', form: form %>
     <% elsif @request.form_type == 'conformite_normes_bruxelles' %>
-      <div style="background: blue; border: 2px solid red; padding: 20px; color: white;">
-        <h3>🎯 AFFICHAGE DU PARTIAL CONFORMITÉ</h3>
-        <% begin %>
-          <%= render 'requests/partials_bruxelles_entreprise/conformite_normes', form: form %>
-        <% rescue => e %>
-          <div style="background: red; color: white; padding: 10px;">
-            ERREUR: <%= e.message %>
-          </div>
-        <% end %>
-      </div>
-    <% else %>
-      <div style="background: orange; padding: 10px;">
-        Le form_type '<%= @request.form_type %>' ne correspond pas aux types gérés
-      </div>
-    <% end %>    <!-- Formulaire Investissements Généraux -->
-    <div id="investissements_generaux-form-section" style="<%= @request.form_type == 'investissement_bruxelles' ? 'display: block;' : 'display: none;' %>">
-      <%= render 'requests/partials_bruxelles_entreprise/investissements_generaux', form: form %>
-    </div>
-
-    <!-- Formulaire Formation -->
-    <div id="formation-form-section" style="<%= @request.form_type == 'formation_bruxelles' ? 'display: block;' : 'display: none;' %>">
-      <%= render 'requests/partials_bruxelles_entreprise/formation', form: form %>
-    </div>
-
-    <!-- Formulaire Recrutement -->
-    <div id="recrutement-form-section" style="<%= @request.form_type == 'recrutement_bruxelles' ? 'display: block;' : 'display: none;' %>">
-      <%= render 'requests/partials_bruxelles_entreprise/recrutement', form: form %>
-    </div>
-
-    <!-- Formulaire Digitalisation -->
-    <div id="digitalisation-form-section" style="<%= @request.form_type == 'digitalisation_bruxelles' ? 'display: block;' : 'display: none;' %>">
-      <%= render 'requests/partials_bruxelles_entreprise/digitalisation', form: form %>
-    </div>
-
-    <!-- Formulaire Sécurisation -->
-    <div id="securisation-form-section" style="<%= @request.form_type == 'securisation_bruxelles' ? 'display: block;' : 'display: none;' %>">
-      <%= render 'requests/partials_bruxelles_entreprise/securisation', form: form %>
-    </div>
-
-    <!-- Formulaire Consultance Transition -->
-    <div id="consultance_transition-form-section" style="<%= @request.form_type == 'transition_bruxelles' ? 'display: block;' : 'display: none;' %>">
-      <%= render 'requests/partials_bruxelles_entreprise/consultance_transition', form: form %>
-    </div>
-
-    <!-- Formulaire Investissement Transition -->
-    <div id="investissement_transition-form-section" style="display: none;">
-      <%= render 'requests/partials_bruxelles_entreprise/investissement_transition', form: form %>
-    </div>
-
-    <!-- Formulaire Achat Immobilier -->
-    <div id="achat_immobilier-form-section" style="<%= @request.form_type == 'achat_immobilier_bruxelles' ? 'display: block;' : 'display: none;' %>">
-      <%= render 'requests/partials_bruxelles_entreprise/achat_immobilier', form: form %>
-    </div>
-
-    <!-- Formulaire Mobilité Vélo Cargo -->
-    <div id="mobilite_velo_cargo-form-section" style="display: none;">
-      <%= render 'requests/partials_bruxelles_entreprise/mobilite_velo_cargo', form: form %>
-    </div>
-
-    <!-- Formulaire Mobilité Utilitaire Électrique -->
-    <div id="mobilite_utilistaire_electrique-form-section" style="display: none;">
-      <%= render 'requests/partials_bruxelles_entreprise/mobilite_utilistaire_electrique', form: form %>
-    </div>
-
-    <!-- Formulaire Mobilité Retrofit -->
-    <div id="mobilite_retrofit-form-section" style="<%= @request.form_type == 'mobilite_retrofit_bruxelles' ? 'display: block;' : 'display: none;' %>">
-      <%= render 'requests/partials_bruxelles_entreprise/mobilite_retrofit', form: form %>
-    </div>
-
-    <!-- Formulaire Accessibilité -->
-    <div id="accessibilite-form-section" style="<%= @request.form_type == 'accessibilite_bruxelles' ? 'display: block;' : 'display: none;' %>">
-      <%= render 'requests/partials_bruxelles_entreprise/accessibilité', form: form %>
-    </div>
-
-    <!-- Formulaire Conformité Normes -->
-    <div id="conformite_normes-form-section" style="<%= @request.form_type == 'conformite_normes_bruxelles' ? 'display: block;' : 'display: none;' %>">
       <%= render 'requests/partials_bruxelles_entreprise/conformite_normes', form: form %>
-    </div>
-
-    <!-- Formulaires manquants - utilisent des partials temporaires -->
-    <div id="recherche-form-section" style="<%= @request.form_type == 'recherche_bruxelles' ? 'display: block;' : 'display: none;' %>">
+    <% elsif @request.form_type == 'investissement_bruxelles' %>
+      <%= render 'requests/partials_bruxelles_entreprise/investissements_generaux', form: form %>
+    <% elsif @request.form_type == 'formation_bruxelles' %>
+      <%= render 'requests/partials_bruxelles_entreprise/formation', form: form %>
+    <% elsif @request.form_type == 'recrutement_bruxelles' %>
+      <%= render 'requests/partials_bruxelles_entreprise/recrutement', form: form %>
+    <% elsif @request.form_type == 'digitalisation_bruxelles' %>
+      <%= render 'requests/partials_bruxelles_entreprise/digitalisation', form: form %>
+    <% elsif @request.form_type == 'securisation_bruxelles' %>
+      <%= render 'requests/partials_bruxelles_entreprise/securisation', form: form %>
+    <% elsif @request.form_type == 'transition_bruxelles' %>
+      <%= render 'requests/partials_bruxelles_entreprise/consultance_transition', form: form %>
+    <% elsif @request.form_type == 'achat_immobilier_bruxelles' %>
+      <%= render 'requests/partials_bruxelles_entreprise/achat_immobilier', form: form %>
+    <% elsif @request.form_type == 'mobilite_retrofit_bruxelles' %>
+      <%= render 'requests/partials_bruxelles_entreprise/mobilite_retrofit', form: form %>
+    <% elsif @request.form_type == 'accessibilite_bruxelles' %>
+      <%= render 'requests/partials_bruxelles_entreprise/accessibilité', form: form %>
+    <% elsif @request.form_type == 'recherche_bruxelles' %>
       <div class="alert alert-info">
         <h5>Recherche & Développement</h5>
         <p>Formulaire en développement. Utilisez temporairement le formulaire consultance.</p>
       </div>
       <%= render 'requests/partials_bruxelles_entreprise/consultance', form: form %>
-    </div>
-
-    <div id="export-form-section" style="<%= @request.form_type == 'export_bruxelles' ? 'display: block;' : 'display: none;' %>">
+    <% elsif @request.form_type == 'export_bruxelles' %>
       <div class="alert alert-info">
         <h5>Export & International</h5>
         <p>Formulaire en développement. Utilisez temporairement le formulaire consultance.</p>
       </div>
       <%= render 'requests/partials_bruxelles_entreprise/consultance', form: form %>
-    </div>
-
-    <div id="innovation-form-section" style="<%= @request.form_type == 'innovation_bruxelles' ? 'display: block;' : 'display: none;' %>">
+    <% elsif @request.form_type == 'innovation_bruxelles' %>
       <div class="alert alert-info">
         <h5>Innovation technologique</h5>
         <p>Formulaire en développement. Utilisez temporairement le formulaire consultance.</p>
       </div>
       <%= render 'requests/partials_bruxelles_entreprise/consultance', form: form %>
-    </div>
-
-    <div id="formation_linguistique-form-section" style="<%= @request.form_type == 'formation_linguistique_bruxelles' ? 'display: block;' : 'display: none;' %>">
+    <% elsif @request.form_type == 'formation_linguistique_bruxelles' %>
       <%= render 'requests/partials_bruxelles_entreprise/formation', form: form %>
-    </div>
+    <% end %>
 
     <!-- Formulaires à venir -->
     <div id="coming-soon-section" style="display: none;">
