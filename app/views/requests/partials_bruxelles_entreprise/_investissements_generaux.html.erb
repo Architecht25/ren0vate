@@ -1,508 +1,1037 @@
-<div class="formulaire-investissements-generaux">
-  <!-- En-tête administratif -->
-  <div class="header-admin">
-    <div class="row">
-      <div class="col-md-4">
-        <strong>Réservé à l'administration</strong><br>
-        Code Subvention : 661<br>
-        Date de réception : ___________<br>
-        N° Dossier : ___________
-      </div>
-    </div>
-  </div>
+<!-- Formulaire de demande d'autorisation préalable pour une prime aux investissements généraux - Bruxelles Entreprises -->
+<div class="formulaire-investissements-generaux-bruxelles" data-controller="bruxelles-enterprise-form">
 
-  <!-- Titre principal -->
-  <div class="titre-principal">
-    <h1>Formulaire de demande d'autorisation préalable pour une prime aux investissements généraux</h1>
-  </div>
-
-  <!-- Section Informations -->
-  <div class="section-informations">
-    <div class="row">
-      <div class="col-md-6">
-        <div class="info-box">
-          <strong>Informations</strong><br>
-          <a href="mailto:primespme@sprb.brussels">primespme@sprb.brussels</a>
-        </div>
-      </div>
-      <div class="col-md-6">
-        <div class="info-box">
-          <strong>Problème technique ?</strong><br>
-          <strong>HELPDESK technique</strong><br>
-          <a href="mailto:monbee@sprb.brussels">monbee@sprb.brussels</a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Instructions générales -->
-  <div class="instructions-generales">
-    <p>Le formulaire est sauvegardé automatiquement. Vous pouvez le quitter à n'importe quelle étape et à tout moment sachant qu'il vous est possible d'y revenir pour le compléter ou le modifier.</p>
-
-    <p>Les entreprises intéressées à bénéficier d'une prime trouveront toutes les informations pratiques concernant les conditions d'éligibilité, le montant de la prime et la procédure à suivre pour l'introduction d'une demande sur le site de Bruxelles Economie et Emploi (<a href="https://economie-emploi.brussels/" target="_blank">https://economie-emploi.brussels/</a>). Les initiatives faisant l'objet d'une demande de subside doivent être susceptibles de générer des retombées positives pour la Région de Bruxelles-Capitale que ce soit au niveau économique ou de l'emploi.</p>
-
-    <p>Les primes éventuelles sont accordées dans la limite des crédits budgétaires, sans préjudice de l'examen de la recevabilité du dossier et de son éligibilité.</p>
-
-    <p>Ce formulaire doit être soumis à BEE dûment complété et signé dans les délais prescrits.</p>
-
-    <p>Bruxelles Economie et Emploi dispose d'un délai légal d'un mois pour notifier l'autorisation préalable ou la refuser.</p>
-
-    <p><strong>Toute demande d'autorisation préalable introduite après le début de la mise en oeuvre du programme d'investissement sera irrecevable.</strong> L'entreprise ne peut donc avoir signé de devis ou de bons de commande ou avoir reçu une ou plusieurs factures avant que BEE ne lui ait envoyé une notification d'autorisation préalable. Un compromis de vente peut néanmoins déjà avoir été signé.</p>
-
-    <p>La date d'admissibilité des investissements correspond à la date de cette notification.</p>
-
-    <p>L'entreprise qui occupe plus de cinquante personnes dispose, à la date de réception de sa demande d'autorisation préalable, d'un plan de diversité ou d'un label de diversité approuvé ou d'une attestation d'Actiris reconnaissant qu'un tel plan est en cours d'élaboration ou de consolidation.</p>
-  </div>
-
-  <!-- Nom de la Prime -->
-  <div class="section-nom-prime">
-    <h2>Nom de la Prime</h2>
-    <div class="form-group">
-      <label><strong>Choisissez la prime que vous demandez</strong></label>
-      <div class="radio-group">
-        <div class="form-check">
-          <%= radio_button_tag 'prime_type', 'terrains_batiments', false, class: 'form-check-input' %>
-          <%= label_tag 'prime_type_terrains_batiments', '1. Prime pour l\'acquisition de terrains et de bâtiments', class: 'form-check-label' %>
-        </div>
-        <div class="form-check">
-          <%= radio_button_tag 'prime_type', 'investissements_non_immobiliers', false, class: 'form-check-input' %>
-          <%= label_tag 'prime_type_investissements_non_immobiliers', '2. Prime pour des investissements non-immobiliers', class: 'form-check-label' %>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Partie 1 - L'entreprise pour laquelle la prime est demandée -->
-  <div class="partie-1">
-    <h2>Partie 1 - L'entreprise pour laquelle la prime est demandée</h2>
-
-    <!-- 1.1 - Renseignements généraux -->
-    <div class="section-1-1">
-      <h3>1.1 - Renseignements généraux</h3>
-
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label><strong>Type d'entreprise (*)</strong></label>
-            <div class="radio-inline-group">
-              <%= radio_button_tag 'type_entreprise', 'personne_physique', false, class: 'form-check-input' %>
-              <%= label_tag 'type_entreprise_personne_physique', 'Personne physique', class: 'form-check-label' %>
-              <%= radio_button_tag 'type_entreprise', 'personne_morale', false, class: 'form-check-input' %>
-              <%= label_tag 'type_entreprise_personne_morale', 'Personne morale (société)', class: 'form-check-label' %>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="row">
+  <!-- En-tête informatif -->
+  <div class="card border-0 shadow mb-4">
+    <div class="card-header bg-primary bg-opacity-10">
+      <div class="row align-items-center">
         <div class="col-md-8">
-          <div class="form-group">
-            <label><strong>Nom ou raison sociale / Nom et prénom (*)</strong></label>
-            <%= text_field_tag 'nom_raison_sociale', nil, class: 'form-control' %>
-          </div>
+          <h4 class="card-title mb-1">
+            <i class="bi bi-building text-primary me-2"></i>
+            Demande d'autorisation préalable pour une prime aux investissements généraux
+          </h4>
+          <p class="text-muted small mb-0">Formulaire de demande pour les investissements généraux d'entreprise</p>
+        </div>
+        <div class="col-md-4 text-end">
+          <div class="badge bg-secondary">Code Subvention : 661</div>
         </div>
       </div>
+    </div>
 
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label><strong>Forme juridique</strong></label>
-            <%= text_field_tag 'forme_juridique', nil, class: 'form-control' %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-group">
-            <label><strong>Dénomination commerciale éventuelle</strong></label>
-            <%= text_field_tag 'denomination_commerciale', nil, class: 'form-control' %>
-          </div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-md-4">
-          <div class="form-group">
-            <label><strong>Numéro d'entreprise</strong></label>
-            <%= text_field_tag 'numero_entreprise', nil, class: 'form-control', placeholder: 'BE 0000.000.000' %>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="form-group">
-            <label><strong>Date de constitution</strong></label>
-            <%= date_field_tag 'date_constitution', nil, class: 'form-control' %>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="form-group">
-            <label><strong>Date d'inscription à la BCE</strong></label>
-            <%= date_field_tag 'date_inscription_bce', nil, class: 'form-control' %>
-          </div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-md-6">
-          <div class="form-group">
-            <label><strong>E-mail</strong></label>
-            <%= email_field_tag 'email', nil, class: 'form-control' %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="form-group">
-            <label><strong>Site internet</strong></label>
-            <%= url_field_tag 'site_internet', nil, class: 'form-control' %>
-          </div>
-        </div>
-      </div>
-
-      <div class="coordonnees-bancaires">
-        <h4>Coordonnées bancaires</h4>
+    <div class="card-body p-4">
+      <!-- Informations importantes -->
+      <div class="alert alert-info mb-4">
         <div class="row">
           <div class="col-md-6">
-            <div class="form-group">
-              <label><strong>IBAN (*)</strong></label>
-              <%= text_field_tag 'iban', nil, class: 'form-control', placeholder: 'BE00 0000 0000 0000' %>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 1.2 - Siège social et siège(s) d'exploitation -->
-    <div class="section-1-2">
-      <h3>1.2 - Siège social et siège(s) d'exploitation</h3>
-
-      <div class="siege-social">
-        <h4>Siège social</h4>
-        <div class="row">
-          <div class="col-md-4">
-            <div class="form-group">
-              <label><strong>Rue (*)</strong></label>
-              <%= text_field_tag 'siege_rue', nil, class: 'form-control' %>
-            </div>
-          </div>
-          <div class="col-md-2">
-            <div class="form-group">
-              <label><strong>N° (*)</strong></label>
-              <%= text_field_tag 'siege_numero', nil, class: 'form-control' %>
-            </div>
-          </div>
-          <div class="col-md-2">
-            <div class="form-group">
-              <label><strong>Boîte</strong></label>
-              <%= text_field_tag 'siege_boite', nil, class: 'form-control' %>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-2">
-            <div class="form-group">
-              <label><strong>Code postal (*)</strong></label>
-              <%= text_field_tag 'siege_code_postal', nil, class: 'form-control' %>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="form-group">
-              <label><strong>Commune (*)</strong></label>
-              <%= text_field_tag 'siege_commune', nil, class: 'form-control' %>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="form-group">
-              <label><strong>Pays</strong></label>
-              <%= text_field_tag 'siege_pays', 'Belgique', class: 'form-control' %>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-group">
-              <label><strong>Téléphone (*)</strong></label>
-              <%= text_field_tag 'siege_telephone', nil, class: 'form-control', type: 'tel' %>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="unite-etablissement">
-        <h4>Unité d'établissement pour laquelle la prime est demandée</h4>
-        <div class="row">
-          <div class="col-md-4">
-            <div class="form-group">
-              <label><strong>Rue (*)</strong></label>
-              <%= text_field_tag 'unite_rue', nil, class: 'form-control' %>
-            </div>
-          </div>
-          <div class="col-md-2">
-            <div class="form-group">
-              <label><strong>N° (*)</strong></label>
-              <%= text_field_tag 'unite_numero', nil, class: 'form-control' %>
-            </div>
-          </div>
-          <div class="col-md-2">
-            <div class="form-group">
-              <label><strong>Boîte</strong></label>
-              <%= text_field_tag 'unite_boite', nil, class: 'form-control' %>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-2">
-            <div class="form-group">
-              <label><strong>Code postal (*)</strong></label>
-              <%= text_field_tag 'unite_code_postal', nil, class: 'form-control' %>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="form-group">
-              <label><strong>Commune (*)</strong></label>
-              <%= text_field_tag 'unite_commune', nil, class: 'form-control' %>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="form-group">
-              <label><strong>Téléphone (*)</strong></label>
-              <%= text_field_tag 'unite_telephone', nil, class: 'form-control', type: 'tel' %>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-group">
-              <label><strong>N° de l'unité d'établissement (*)</strong></label>
-              <%= text_field_tag 'numero_unite_etablissement', nil, class: 'form-control' %>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="autres-unites">
-        <div class="form-group">
-          <label><strong>Avez-vous encore d'autre(s) unité(s) d'établissement ?</strong></label>
-          <div class="radio-inline-group">
-            <%= radio_button_tag 'autres_unites', 'oui', false, class: 'form-check-input' %>
-            <%= label_tag 'autres_unites_oui', 'Oui', class: 'form-check-label' %>
-            <%= radio_button_tag 'autres_unites', 'non', false, class: 'form-check-input' %>
-            <%= label_tag 'autres_unites_non', 'Non', class: 'form-check-label' %>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label><strong>Si oui, parmi celles-ci, certaines sont-elles situées hors du territoire de la Région de Bruxelles-Capitale ? (*)</strong></label>
-          <div class="radio-inline-group">
-            <%= radio_button_tag 'unites_hors_bruxelles', 'oui', false, class: 'form-check-input' %>
-            <%= label_tag 'unites_hors_bruxelles_oui', 'Oui', class: 'form-check-label' %>
-            <%= radio_button_tag 'unites_hors_bruxelles', 'non', false, class: 'form-check-input' %>
-            <%= label_tag 'unites_hors_bruxelles_non', 'Non', class: 'form-check-label' %>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 1.3 - Coordonnées de contact -->
-    <div class="section-1-3">
-      <h3>1.3 - Coordonnées de contact</h3>
-
-      <div class="personne-contact">
-        <h4>Personne de contact pour le suivi du dossier</h4>
-        <div class="row">
-          <div class="col-md-2">
-            <div class="form-group">
-              <label><strong>Titre (*)</strong></label>
-              <%= select_tag 'contact_titre', options_for_select([['Madame', 'madame'], ['Monsieur', 'monsieur']]), { class: 'form-control' } %>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="form-group">
-              <label><strong>Nom (*)</strong></label>
-              <%= text_field_tag 'contact_nom', nil, class: 'form-control' %>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="form-group">
-              <label><strong>Prénom (*)</strong></label>
-              <%= text_field_tag 'contact_prenom', nil, class: 'form-control' %>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-group">
-              <label><strong>Fonction (*)</strong></label>
-              <%= text_field_tag 'contact_fonction', nil, class: 'form-control' %>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-3">
-            <div class="form-group">
-              <label><strong>GSM (*)</strong></label>
-              <%= text_field_tag 'contact_gsm', nil, class: 'form-control', type: 'tel' %>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="form-group">
-              <label><strong>Ligne directe</strong></label>
-              <%= text_field_tag 'contact_ligne_directe', nil, class: 'form-control', type: 'tel' %>
-            </div>
+            <h6 class="alert-heading">
+              <i class="bi bi-info-circle me-1"></i>
+              Informations importantes
+            </h6>
+            <ul class="small mb-0">
+              <li><strong>Autorisation préalable obligatoire</strong></li>
+              <li>Délai de notification : <strong>1 mois</strong></li>
+              <li>Aucune signature de devis avant autorisation</li>
+              <li>Retombées positives requises pour la Région</li>
+              <li>Dans la limite des crédits budgétaires</li>
+            </ul>
           </div>
           <div class="col-md-6">
-            <div class="form-group">
-              <label><strong>E-mail (*)</strong></label>
-              <%= email_field_tag 'contact_email', nil, class: 'form-control' %>
-            </div>
+            <h6 class="alert-heading">
+              <i class="bi bi-telephone me-1"></i>
+              Support
+            </h6>
+            <p class="small mb-1">
+              <strong>Informations :</strong> primespme@sprb.brussels
+            </p>
+            <p class="small mb-0">
+              <strong>Technique :</strong> monbee@sprb.brussels<br>
+              <strong>HELPDESK technique</strong>
+            </p>
           </div>
         </div>
       </div>
 
-      <div class="personne-autorisee">
-        <h4>Personne légalement autorisée à engager l'entreprise</h4>
-        <div class="form-group">
-          <label><strong>Identique à la personne de contact ? (*)</strong></label>
-          <div class="radio-inline-group">
-            <%= radio_button_tag 'personne_identique', 'oui', false, class: 'form-check-input' %>
-            <%= label_tag 'personne_identique_oui', 'Oui', class: 'form-check-label' %>
-            <%= radio_button_tag 'personne_identique', 'non', false, class: 'form-check-input' %>
-            <%= label_tag 'personne_identique_non', 'Non', class: 'form-check-label' %>
-          </div>
-        </div>
-
-        <div class="row">
-          <div class="col-md-2">
-            <div class="form-group">
-              <label><strong>Titre (*)</strong></label>
-              <%= select_tag 'autorise_titre', options_for_select([['Madame', 'madame'], ['Monsieur', 'monsieur']]), { class: 'form-control' } %>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="form-group">
-              <label><strong>Nom (*)</strong></label>
-              <%= text_field_tag 'autorise_nom', nil, class: 'form-control' %>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="form-group">
-              <label><strong>Prénom (*)</strong></label>
-              <%= text_field_tag 'autorise_prenom', nil, class: 'form-control' %>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="form-group">
-              <label><strong>Fonction (*)</strong></label>
-              <%= text_field_tag 'autorise_fonction', nil, class: 'form-control' %>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-3">
-            <div class="form-group">
-              <label><strong>GSM (*)</strong></label>
-              <%= text_field_tag 'autorise_gsm', nil, class: 'form-control', type: 'tel' %>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="form-group">
-              <label><strong>Ligne directe</strong></label>
-              <%= text_field_tag 'autorise_ligne_directe', nil, class: 'form-control', type: 'tel' %>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-group">
-              <label><strong>E-mail (*)</strong></label>
-              <%= email_field_tag 'autorise_email', nil, class: 'form-control' %>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 1.4 - Activités de l'entreprise pour laquelle la prime est demandée -->
-    <div class="section-1-4">
-      <h3>1.4 - Activités de l'entreprise pour laquelle la prime est demandée</h3>
-
-      <div class="row">
-        <div class="col-md-12">
-          <div class="form-group">
-            <label><strong>Type d'activité / Code NACE TVA (*)</strong></label>
-            <div id="codes-nace">
-              <div class="nace-entry">
-                <%= text_field_tag 'codes_nace[]', nil, class: 'form-control', placeholder: 'Ex: 93110 - Gestion d\'installations sportives' %>
-              </div>
-            </div>
-            <button type="button" class="btn btn-sm btn-secondary mt-2" onclick="addNaceCode()">+ Ajouter un code NACE</button>
-          </div>
-        </div>
+      <!-- Avertissement important -->
+      <div class="alert alert-warning mb-4">
+        <h6 class="alert-heading">
+          <i class="bi bi-exclamation-triangle me-1"></i>
+          ATTENTION
+        </h6>
+        <p class="small mb-0">
+          <strong>Toute demande d'autorisation préalable introduite après le début de la mise en œuvre du programme d'investissement sera irrecevable.</strong>
+          L'entreprise ne peut donc avoir signé de devis ou de bons de commande ou avoir reçu une ou plusieurs factures avant que BEE ne lui ait envoyé une notification d'autorisation préalable.
+          Un compromis de vente peut néanmoins déjà avoir été signé.
+        </p>
       </div>
 
-      <div class="row">
-        <div class="col-md-12">
-          <div class="form-group">
-            <label><strong>Description des activités (*)</strong></label>
-            <%= text_area_tag 'description_activites', nil, class: 'form-control', rows: 3 %>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 1.5 - Composition du capital et données comptables -->
-    <div class="section-1-5">
-      <h3>1.5 - Composition du capital et données comptables</h3>
-
-      <div class="notice-montants">
-        <p><em>Introduisez les montants - avec une virgule et 2 décimales - chiffre après chiffre sans point ni devise.</em></p>
+      <div class="alert alert-success mb-4">
+        <p class="small mb-0">
+          <i class="bi bi-save me-1"></i>
+          Le formulaire est sauvegardé automatiquement. Vous pouvez le quitter à n'importe quelle étape et à tout moment sachant qu'il vous est possible d'y revenir pour le compléter ou le modifier.
+        </p>
       </div>
 
-      <div class="montant-capital">
-        <h4>Montant du capital</h4>
-        <div class="row">
-          <div class="col-md-3">
-            <div class="form-group">
-              <label><strong>Capital souscrit (€) (*)</strong></label>
-              <%= number_field_tag 'capital_souscrit', nil, class: 'form-control', step: 0.01 %>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="form-group">
-              <label><strong>Capital libéré (*)</strong></label>
-              <%= number_field_tag 'capital_libere', nil, class: 'form-control', step: 0.01 %>
-            </div>
-          </div>
-          <div class="col-md-3">
-            <div class="form-group">
-              <label><strong>Nombre de parts sociales (*)</strong></label>
-              <%= number_field_tag 'nombre_parts_sociales', nil, class: 'form-control', step: 1 %>
-            </div>
-          </div>
-        </div>
-      </div>
+        <!-- Champs cachés pour les investissements généraux -->
+        <%= form.hidden_field :type_aide, value: "investissements_generaux" %>
+        <%= form.hidden_field :region, value: "bruxelles" %>
+        <%= form.hidden_field :categorie_entreprise, value: "entreprise" %>
 
-      <div class="detenteurs-parts">
-        <h4>Détenteurs de parts</h4>
-        <div id="detenteurs-parts-list">
-          <div class="detenteur-entry">
-            <div class="row">
-              <div class="col-md-3">
-                <div class="form-group">
-                  <label><strong>Nom du détenteur de parts (*)</strong></label>
-                  <%= text_field_tag 'detenteurs_nom[]', nil, class: 'form-control' %>
-                </div>
-              </div>
-              <div class="col-md-2">
-                <div class="form-group">
-                  <label><strong>Nbr de part ou % (*)</strong></label>
-                  <%= text_field_tag 'detenteurs_pourcentage[]', nil, class: 'form-control' %>
-                </div>
-              </div>
-              <div class="col-md-3">
-                <div class="form-group">
-                  <label><strong>N° d'entreprise (*)</strong></label>
-                  <%= text_field_tag 'detenteurs_numero_entreprise[]', nil, class: 'form-control' %>
-                </div>
-              </div>
-              <div class="col-md-2">
-                <div class="form-group">
-                  <label><strong>Nationalité (*)</strong></label>
-                  <%= text_field_tag 'detenteurs_nationalite[]', nil, class: 'form-control' %>
+        <!-- Section de sélection du type de prime -->
+        <div class="section-form mb-5">
+          <h5 class="section-title">
+            <span class="badge bg-warning me-2">0</span>
+            Sélection du type de prime
+          </h5>
+
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-light">
+              <h6 class="mb-0">Choisissez la prime que vous demandez</h6>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-12">
+                  <label class="form-label">Type de prime <span class="text-danger">*</span></label>
+                  <div class="d-flex flex-column gap-2">
+                    <%= form.radio_button :type_prime, "terrains_batiments",
+                        class: "form-check-input",
+                        data: { action: "change->bruxelles-enterprise-form#updateTypePrime" } %>
+                    <label class="form-check-label" for="request_type_prime_terrains_batiments">
+                      <strong>1. Prime pour l'acquisition de terrains et de bâtiments</strong>
+                    </label>
+
+                    <%= form.radio_button :type_prime, "investissements_non_immobiliers",
+                        class: "form-check-input",
+                        data: { action: "change->bruxelles-enterprise-form#updateTypePrime" } %>
+                    <label class="form-check-label" for="request_type_prime_investissements_non_immobiliers">
+                      <strong>2. Prime pour des investissements non-immobiliers</strong>
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <button type="button" class="btn btn-sm btn-secondary mt-2" onclick="addDetenteur()">+ Ajouter un détenteur</button>
-      </div>
+
+        <!-- PARTIE I : L'ENTREPRISE POUR LAQUELLE LA PRIME EST DEMANDÉE -->
+        <div class="section-form mb-5">
+          <h5 class="section-title">
+            <span class="badge bg-primary me-2">I</span>
+            L'entreprise pour laquelle la prime est demandée
+          </h5>
+
+          <!-- 1.1 Renseignements généraux -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-light">
+              <h6 class="mb-0">1.1 - Renseignements généraux</h6>
+            </div>
+            <div class="card-body">
+
+              <div class="row g-3">
+                <!-- Type d'entreprise -->
+                <div class="col-md-6">
+                  <label class="form-label">Type d'entreprise <span class="text-danger">*</span></label>
+                  <div class="d-flex gap-3">
+                    <%= form.radio_button :type_entreprise, "personne_physique",
+                        class: "form-check-input",
+                        data: { action: "change->bruxelles-enterprise-form#updateTypeEntreprise" } %>
+                    <label class="form-check-label" for="request_type_entreprise_personne_physique">
+                      Personne physique
+                    </label>
+
+                    <%= form.radio_button :type_entreprise, "personne_morale",
+                        class: "form-check-input ms-3",
+                        data: { action: "change->bruxelles-enterprise-form#updateTypeEntreprise" } %>
+                    <label class="form-check-label" for="request_type_entreprise_personne_morale">
+                      Personne morale (société)
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Nom/raison sociale -->
+                <div class="col-md-6">
+                  <label class="form-label">Nom ou raison sociale / Nom et prénom <span class="text-danger">*</span></label>
+                  <%= form.text_field :nom_entreprise,
+                      class: "form-control",
+                      placeholder: "Nom de l'entreprise ou nom et prénom",
+                      required: true %>
+                  <div class="invalid-feedback">Veuillez saisir le nom de l'entreprise.</div>
+                </div>
+
+                <!-- Forme juridique -->
+                <div class="col-md-6" data-bruxelles-enterprise-form-target="formeJuridique" style="display: none;">
+                  <label class="form-label">Forme juridique</label>
+                  <%= form.select :forme_juridique,
+                      options_for_select([
+                        ['SRL - Société à Responsabilité Limitée', 'srl'],
+                        ['SA - Société Anonyme', 'sa'],
+                        ['SPRL - Société Privée à Responsabilité Limitée', 'sprl'],
+                        ['SC - Société Coopérative', 'sc'],
+                        ['Autre', 'autre']
+                      ]),
+                      { prompt: 'Sélectionnez...' },
+                      { class: "form-select" } %>
+                </div>
+
+                <!-- Dénomination commerciale -->
+                <div class="col-md-6">
+                  <label class="form-label">Dénomination commerciale éventuelle</label>
+                  <%= form.text_field :denomination_commerciale,
+                      class: "form-control",
+                      placeholder: "Si différente du nom" %>
+                </div>
+
+                <!-- Numéro d'entreprise -->
+                <div class="col-md-6">
+                  <label class="form-label">Numéro d'entreprise <span class="text-danger">*</span></label>
+                  <%= form.text_field :numero_entreprise,
+                      class: "form-control",
+                      placeholder: "BE 0XXX.XXX.XXX",
+                      pattern: "BE\\s?[0-9]{4}\\.[0-9]{3}\\.[0-9]{3}",
+                      required: true,
+                      data: {
+                        action: "input->bruxelles-enterprise-form#validateNumeroEntreprise"
+                      } %>
+                  <div class="invalid-feedback">Format requis : BE 0XXX.XXX.XXX</div>
+                </div>
+
+                <!-- Date de constitution -->
+                <div class="col-md-3">
+                  <label class="form-label">Date de constitution</label>
+                  <%= form.date_field :date_constitution,
+                      class: "form-control" %>
+                </div>
+
+                <!-- Date d'inscription BCE -->
+                <div class="col-md-3">
+                  <label class="form-label">Date d'inscription à la BCE</label>
+                  <%= form.date_field :date_inscription_bce,
+                      class: "form-control" %>
+                </div>
+
+                <!-- Activité principale -->
+                <div class="col-md-6">
+                  <label class="form-label">Activité principale <span class="text-danger">*</span></label>
+                  <%= form.text_field :activite_principale,
+                      class: "form-control",
+                      placeholder: "Décrivez votre activité principale",
+                      required: true %>
+                  <div class="invalid-feedback">Veuillez décrire votre activité principale.</div>
+                </div>
+
+                <!-- E-mail -->
+                <div class="col-md-6">
+                  <label class="form-label">E-mail <span class="text-danger">*</span></label>
+                  <%= form.email_field :email,
+                      class: "form-control",
+                      placeholder: "contact@entreprise.com",
+                      required: true %>
+                  <div class="invalid-feedback">Veuillez saisir une adresse email valide.</div>
+                </div>
+
+                <!-- Site internet -->
+                <div class="col-md-6">
+                  <label class="form-label">Site internet</label>
+                  <%= form.url_field :site_internet,
+                      class: "form-control",
+                      placeholder: "https://www.entreprise.com" %>
+                </div>
+
+                <!-- IBAN -->
+                <div class="col-md-6">
+                  <label class="form-label">IBAN <span class="text-danger">*</span></label>
+                  <%= form.text_field :iban,
+                      class: "form-control",
+                      placeholder: "BE00 0000 0000 0000",
+                      pattern: "BE[0-9]{2}\\s?[0-9]{4}\\s?[0-9]{4}\\s?[0-9]{4}",
+                      required: true %>
+                  <div class="invalid-feedback">Format requis : BE00 0000 0000 0000</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 1.2 Siège social et siège(s) d'exploitation -->
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-light">
+              <h6 class="mb-0">1.2 - Siège social et siège(s) d'exploitation</h6>
+            </div>
+            <div class="card-body">
+
+              <!-- Siège social -->
+              <div class="mb-4">
+                <h6 class="text-primary mb-3">Siège social</h6>
+                <div class="row g-3">
+                  <!-- Rue -->
+                  <div class="col-md-4">
+                    <label class="form-label">Rue <span class="text-danger">*</span></label>
+                    <%= form.text_field :siege_social_rue,
+                        class: "form-control",
+                        placeholder: "Rue...",
+                        required: true %>
+                    <div class="invalid-feedback">Veuillez saisir la rue.</div>
+                  </div>
+
+                  <!-- Numéro -->
+                  <div class="col-md-2">
+                    <label class="form-label">N° <span class="text-danger">*</span></label>
+                    <%= form.text_field :siege_social_numero,
+                        class: "form-control",
+                        placeholder: "N°",
+                        required: true %>
+                    <div class="invalid-feedback">Numéro requis.</div>
+                  </div>
+
+                  <!-- Boîte -->
+                  <div class="col-md-2">
+                    <label class="form-label">Boîte</label>
+                    <%= form.text_field :siege_social_boite,
+                        class: "form-control",
+                        placeholder: "Boîte" %>
+                  </div>
+
+                  <!-- Code postal -->
+                  <div class="col-md-2">
+                    <label class="form-label">Code postal <span class="text-danger">*</span></label>
+                    <%= form.text_field :siege_social_code_postal,
+                        class: "form-control",
+                        placeholder: "0000",
+                        pattern: "[0-9]{4}",
+                        required: true %>
+                    <div class="invalid-feedback">Code postal requis.</div>
+                  </div>
+
+                  <!-- Commune -->
+                  <div class="col-md-3">
+                    <label class="form-label">Commune <span class="text-danger">*</span></label>
+                    <%= form.text_field :siege_social_commune,
+                        class: "form-control",
+                        placeholder: "Commune",
+                        required: true %>
+                    <div class="invalid-feedback">Commune requise.</div>
+                  </div>
+
+                  <!-- Pays -->
+                  <div class="col-md-3">
+                    <label class="form-label">Pays</label>
+                    <%= form.text_field :siege_social_pays,
+                        class: "form-control",
+                        value: "Belgique" %>
+                  </div>
+
+                  <!-- Téléphone -->
+                  <div class="col-md-4">
+                    <label class="form-label">Téléphone <span class="text-danger">*</span></label>
+                    <%= form.telephone_field :siege_social_telephone,
+                        class: "form-control",
+                        placeholder: "+32 2 000 00 00",
+                        required: true %>
+                    <div class="invalid-feedback">Numéro de téléphone requis.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Unité d'établissement -->
+              <div class="mb-4">
+                <h6 class="text-primary mb-3">Unité d'établissement pour laquelle la prime est demandée</h6>
+                <div class="row g-3">
+                  <!-- Rue -->
+                  <div class="col-md-4">
+                    <label class="form-label">Rue <span class="text-danger">*</span></label>
+                    <%= form.text_field :unite_etablissement_rue,
+                        class: "form-control",
+                        placeholder: "Rue...",
+                        required: true %>
+                    <div class="invalid-feedback">Veuillez saisir la rue.</div>
+                  </div>
+
+                  <!-- Numéro -->
+                  <div class="col-md-2">
+                    <label class="form-label">N° <span class="text-danger">*</span></label>
+                    <%= form.text_field :unite_etablissement_numero,
+                        class: "form-control",
+                        placeholder: "N°",
+                        required: true %>
+                    <div class="invalid-feedback">Numéro requis.</div>
+                  </div>
+
+                  <!-- Boîte -->
+                  <div class="col-md-2">
+                    <label class="form-label">Boîte</label>
+                    <%= form.text_field :unite_etablissement_boite,
+                        class: "form-control",
+                        placeholder: "Boîte" %>
+                  </div>
+
+                  <!-- Code postal -->
+                  <div class="col-md-2">
+                    <label class="form-label">Code postal <span class="text-danger">*</span></label>
+                    <%= form.text_field :unite_etablissement_code_postal,
+                        class: "form-control",
+                        placeholder: "0000",
+                        pattern: "[0-9]{4}",
+                        required: true %>
+                    <div class="invalid-feedback">Code postal requis.</div>
+                  </div>
+
+                  <!-- Commune -->
+                  <div class="col-md-3">
+                    <label class="form-label">Commune <span class="text-danger">*</span></label>
+                    <%= form.text_field :unite_etablissement_commune,
+                        class: "form-control",
+                        placeholder: "Commune",
+                        required: true %>
+                    <div class="invalid-feedback">Commune requise.</div>
+                  </div>
+
+                  <!-- Téléphone -->
+                  <div class="col-md-3">
+                    <label class="form-label">Téléphone <span class="text-danger">*</span></label>
+                    <%= form.telephone_field :unite_etablissement_telephone,
+                        class: "form-control",
+                        placeholder: "+32 2 000 00 00",
+                        required: true %>
+                    <div class="invalid-feedback">Numéro de téléphone requis.</div>
+                  </div>
+
+                  <!-- N° de l'unité d'établissement -->
+                  <div class="col-md-4">
+                    <label class="form-label">N° de l'unité d'établissement <span class="text-danger">*</span></label>
+                    <%= form.text_field :numero_unite_etablissement,
+                        class: "form-control",
+                        placeholder: "Numéro d'établissement",
+                        required: true %>
+                    <div class="invalid-feedback">Numéro d'établissement requis.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Questions sur autres unités -->
+              <div class="mb-4">
+                <h6 class="text-primary mb-3">Autres unités d'établissement</h6>
+                <div class="row g-3">
+                  <!-- Autres unités -->
+                  <div class="col-12">
+                    <label class="form-label">Avez-vous encore d'autre(s) unité(s) d'établissement ?</label>
+                    <div class="d-flex gap-3">
+                      <%= form.radio_button :autres_unites, "oui",
+                          class: "form-check-input",
+                          data: { action: "change->bruxelles-enterprise-form#toggleAutresUnites" } %>
+                      <label class="form-check-label" for="request_autres_unites_oui">
+                        Oui
+                      </label>
+
+                      <%= form.radio_button :autres_unites, "non",
+                          class: "form-check-input ms-3",
+                          data: { action: "change->bruxelles-enterprise-form#toggleAutresUnites" } %>
+                      <label class="form-check-label" for="request_autres_unites_non">
+                        Non
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Unités hors Bruxelles -->
+                  <div class="col-12" data-bruxelles-enterprise-form-target="unitesHorsBruxelles" style="display: none;">
+                    <label class="form-label">Si oui, parmi celles-ci, certaines sont-elles situées hors du territoire de la Région de Bruxelles-Capitale ? <span class="text-danger">*</span></label>
+                    <div class="d-flex gap-3">
+                      <%= form.radio_button :unites_hors_bruxelles, "oui",
+                          class: "form-check-input" %>
+                      <label class="form-check-label" for="request_unites_hors_bruxelles_oui">
+                        Oui
+                      </label>
+
+                      <%= form.radio_button :unites_hors_bruxelles, "non",
+                          class: "form-check-input ms-3" %>
+                      <label class="form-check-label" for="request_unites_hors_bruxelles_non">
+                        Non
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section I.3 - Coordonnées de contact -->
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-address-card text-primary me-2"></i>
+              I.3 - Coordonnées de contact
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="row g-4">
+              <!-- Personne de contact -->
+              <div class="col-12">
+                <h6 class="text-primary mb-3">Personne de contact pour le suivi du dossier</h6>
+                <div class="row g-3">
+                  <!-- Titre -->
+                  <div class="col-md-2">
+                    <label class="form-label">Titre <span class="text-danger">*</span></label>
+                    <%= form.select :contact_titre,
+                        options_for_select([
+                          ['', ''],
+                          ['Madame', 'madame'],
+                          ['Monsieur', 'monsieur']
+                        ]),
+                        { prompt: 'Sélectionnez...' },
+                        { class: "form-select", required: true } %>
+                    <div class="invalid-feedback">Titre requis.</div>
+                  </div>
+
+                  <!-- Nom -->
+                  <div class="col-md-3">
+                    <label class="form-label">Nom <span class="text-danger">*</span></label>
+                    <%= form.text_field :contact_nom,
+                        class: "form-control",
+                        placeholder: "Nom de famille",
+                        required: true %>
+                    <div class="invalid-feedback">Nom requis.</div>
+                  </div>
+
+                  <!-- Prénom -->
+                  <div class="col-md-3">
+                    <label class="form-label">Prénom <span class="text-danger">*</span></label>
+                    <%= form.text_field :contact_prenom,
+                        class: "form-control",
+                        placeholder: "Prénom",
+                        required: true %>
+                    <div class="invalid-feedback">Prénom requis.</div>
+                  </div>
+
+                  <!-- Fonction -->
+                  <div class="col-md-4">
+                    <label class="form-label">Fonction <span class="text-danger">*</span></label>
+                    <%= form.text_field :contact_fonction,
+                        class: "form-control",
+                        placeholder: "Fonction dans l'entreprise",
+                        required: true %>
+                    <div class="invalid-feedback">Fonction requise.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Coordonnées -->
+              <div class="col-12">
+                <div class="row g-3">
+                  <!-- GSM -->
+                  <div class="col-md-3">
+                    <label class="form-label">GSM <span class="text-danger">*</span></label>
+                    <%= form.telephone_field :contact_gsm,
+                        class: "form-control",
+                        placeholder: "+32 4XX XX XX XX",
+                        required: true %>
+                    <div class="invalid-feedback">Numéro GSM requis.</div>
+                  </div>
+
+                  <!-- Ligne directe -->
+                  <div class="col-md-3">
+                    <label class="form-label">Ligne directe</label>
+                    <%= form.telephone_field :contact_ligne_directe,
+                        class: "form-control",
+                        placeholder: "+32 2 XXX XX XX" %>
+                  </div>
+
+                  <!-- Email -->
+                  <div class="col-md-6">
+                    <label class="form-label">E-mail <span class="text-danger">*</span></label>
+                    <%= form.email_field :contact_email,
+                        class: "form-control",
+                        placeholder: "contact@entreprise.be",
+                        required: true %>
+                    <div class="invalid-feedback">Adresse email requise.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Personne autorisée -->
+              <div class="col-12">
+                <h6 class="text-primary mb-3">Personne légalement autorisée à engager l'entreprise</h6>
+                <div class="mb-3">
+                  <label class="form-label">Identique à la personne de contact ? <span class="text-danger">*</span></label>
+                  <div class="d-flex gap-3">
+                    <%= form.radio_button :personne_identique, "oui",
+                        class: "form-check-input",
+                        data: { action: "change->bruxelles-enterprise-form#togglePersonneAutorisee" } %>
+                    <label class="form-check-label" for="request_personne_identique_oui">
+                      Oui
+                    </label>
+
+                    <%= form.radio_button :personne_identique, "non",
+                        class: "form-check-input ms-3",
+                        data: { action: "change->bruxelles-enterprise-form#togglePersonneAutorisee" } %>
+                    <label class="form-check-label" for="request_personne_identique_non">
+                      Non
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Détails personne autorisée (affiché si non identique) -->
+                <div data-bruxelles-enterprise-form-target="personneAutorisee" style="display: none;">
+                  <div class="row g-3">
+                    <!-- Titre -->
+                    <div class="col-md-2">
+                      <label class="form-label">Titre <span class="text-danger">*</span></label>
+                      <%= form.select :autorise_titre,
+                          options_for_select([
+                            ['', ''],
+                            ['Madame', 'madame'],
+                            ['Monsieur', 'monsieur']
+                          ]),
+                          { prompt: 'Sélectionnez...' },
+                          { class: "form-select" } %>
+                    </div>
+
+                    <!-- Nom -->
+                    <div class="col-md-3">
+                      <label class="form-label">Nom <span class="text-danger">*</span></label>
+                      <%= form.text_field :autorise_nom,
+                          class: "form-control",
+                          placeholder: "Nom de famille" %>
+                    </div>
+
+                    <!-- Prénom -->
+                    <div class="col-md-3">
+                      <label class="form-label">Prénom <span class="text-danger">*</span></label>
+                      <%= form.text_field :autorise_prenom,
+                          class: "form-control",
+                          placeholder: "Prénom" %>
+                    </div>
+
+                    <!-- Fonction -->
+                    <div class="col-md-4">
+                      <label class="form-label">Fonction <span class="text-danger">*</span></label>
+                      <%= form.text_field :autorise_fonction,
+                          class: "form-control",
+                          placeholder: "Fonction dans l'entreprise" %>
+                    </div>
+                  </div>
+
+                  <div class="row g-3 mt-2">
+                    <!-- GSM -->
+                    <div class="col-md-3">
+                      <label class="form-label">GSM <span class="text-danger">*</span></label>
+                      <%= form.telephone_field :autorise_gsm,
+                          class: "form-control",
+                          placeholder: "+32 4XX XX XX XX" %>
+                    </div>
+
+                    <!-- Ligne directe -->
+                    <div class="col-md-3">
+                      <label class="form-label">Ligne directe</label>
+                      <%= form.telephone_field :autorise_ligne_directe,
+                          class: "form-control",
+                          placeholder: "+32 2 XXX XX XX" %>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="col-md-6">
+                      <label class="form-label">E-mail <span class="text-danger">*</span></label>
+                      <%= form.email_field :autorise_email,
+                          class: "form-control",
+                          placeholder: "dirigeant@entreprise.be" %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section I.4 - Activités de l'entreprise -->
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-industry text-primary me-2"></i>
+              I.4 - Activités de l'entreprise pour laquelle la prime est demandée
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="row g-4">
+              <!-- Codes NACE -->
+              <div class="col-12">
+                <label class="form-label">Type d'activité / Code NACE TVA <span class="text-danger">*</span></label>
+                <div class="mb-3">
+                  <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Indiquez les codes NACE correspondant à vos activités principales
+                  </small>
+                </div>
+                <div id="codes-nace" data-bruxelles-enterprise-form-target="codesNace">
+                  <div class="input-group mb-2">
+                    <%= form.text_field :codes_nace_1,
+                        class: "form-control",
+                        placeholder: "Ex: 93110 - Gestion d'installations sportives",
+                        required: true %>
+                    <button type="button" class="btn btn-outline-success"
+                            data-action="click->bruxelles-enterprise-form#addNaceCode">
+                      <i class="fas fa-plus"></i>
+                    </button>
+                    <div class="invalid-feedback">Code NACE requis.</div>
+                  </div>
+                </div>
+              </div>
+                </div>
+              </div>
+
+              <!-- Description des activités -->
+              <div class="col-12">
+                <label class="form-label">Description des activités <span class="text-danger">*</span></label>
+                <%= form.text_area :description_activites,
+                    class: "form-control",
+                    rows: 4,
+                    placeholder: "Décrivez précisément les activités de votre entreprise...",
+                    required: true %>
+                <div class="invalid-feedback">Description des activités requise.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section I.5 - Composition du capital et données comptables -->
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-chart-pie text-primary me-2"></i>
+              I.5 - Composition du capital et données comptables
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-info mb-4">
+              <i class="fas fa-info-circle me-2"></i>
+              <strong>Important :</strong> Introduisez les montants avec virgule et 2 décimales, chiffre après chiffre sans point ni devise.
+            </div>
+
+            <div class="row g-4">
+              <!-- Montant du capital -->
+              <div class="col-12">
+                <h6 class="text-primary mb-3">Montant du capital</h6>
+                <div class="row g-3">
+                  <!-- Capital souscrit -->
+                  <div class="col-md-4">
+                    <label class="form-label">Capital souscrit (€) <span class="text-danger">*</span></label>
+                    <%= form.number_field :capital_souscrit,
+                        class: "form-control",
+                        step: 0.01,
+                        placeholder: "0.00",
+                        required: true %>
+                    <div class="invalid-feedback">Capital souscrit requis.</div>
+                  </div>
+
+                  <!-- Capital libéré -->
+                  <div class="col-md-4">
+                    <label class="form-label">Capital libéré (€) <span class="text-danger">*</span></label>
+                    <%= form.number_field :capital_libere,
+                        class: "form-control",
+                        step: 0.01,
+                        placeholder: "0.00",
+                        required: true %>
+                    <div class="invalid-feedback">Capital libéré requis.</div>
+                  </div>
+
+                  <!-- Nombre de parts -->
+                  <div class="col-md-4">
+                    <label class="form-label">Nombre de parts sociales <span class="text-danger">*</span></label>
+                    <%= form.number_field :nombre_parts_sociales,
+                        class: "form-control",
+                        step: 1,
+                        placeholder: "0",
+                        required: true %>
+                    <div class="invalid-feedback">Nombre de parts requis.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Détenteurs de parts -->
+              <div class="col-12">
+                <h6 class="text-primary mb-3">Détenteurs de parts</h6>
+                <div id="detenteurs-parts-list" data-bruxelles-enterprise-form-target="detenteursPartsList">
+                  <div class="border rounded p-3 mb-3">
+                    <div class="row g-3">
+                      <!-- Nom -->
+                      <div class="col-md-3">
+                        <label class="form-label">Nom du détenteur de parts <span class="text-danger">*</span></label>
+                        <%= form.text_field :detenteurs_nom_1,
+                            class: "form-control",
+                            placeholder: "Nom ou raison sociale",
+                            required: true %>
+                        <div class="invalid-feedback">Nom du détenteur requis.</div>
+                      </div>
+
+                      <!-- Pourcentage -->
+                      <div class="col-md-2">
+                        <label class="form-label">Nbr de parts ou % <span class="text-danger">*</span></label>
+                        <%= form.text_field :detenteurs_pourcentage_1,
+                            class: "form-control",
+                            placeholder: "Ex: 50%",
+                            required: true %>
+                        <div class="invalid-feedback">Pourcentage requis.</div>
+                      </div>
+
+                      <!-- Numéro entreprise -->
+                      <div class="col-md-3">
+                        <label class="form-label">N° d'entreprise <span class="text-danger">*</span></label>
+                        <%= form.text_field :detenteurs_numero_entreprise_1,
+                            class: "form-control",
+                            placeholder: "0XXX.XXX.XXX",
+                            required: true %>
+                        <div class="invalid-feedback">Numéro d'entreprise requis.</div>
+                      </div>
+
+                      <!-- Nationalité -->
+                      <div class="col-md-2">
+                        <label class="form-label">Nationalité <span class="text-danger">*</span></label>
+                        <%= form.text_field :detenteurs_nationalite_1,
+                            class: "form-control",
+                            placeholder: "BE",
+                            required: true %>
+                        <div class="invalid-feedback">Nationalité requise.</div>
+                      </div>
+
+                      <!-- Bouton supprimer -->
+                      <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-outline-danger"
+                                data-action="click->bruxelles-enterprise-form#removeDetenteur"
+                                style="display: none;">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-outline-success btn-sm"
+                        data-action="click->bruxelles-enterprise-form#addDetenteur">
+                  <i class="fas fa-plus me-1"></i>Ajouter un détenteur
+                </button>
+              </div>
+
+              <!-- Questions sur les détenteurs -->
+              <div class="col-12">
+                <h6 class="text-primary mb-3">Questions sur les détenteurs</h6>
+                <div class="row g-3">
+                  <!-- Sociétés publiques -->
+                  <div class="col-12">
+                    <label class="form-label">Parmi les détenteurs de parts, existe-t-il des sociétés publiques d'investissement ou des sociétés de capital à risque ? <span class="text-danger">*</span></label>
+                    <div class="d-flex gap-3">
+                      <%= form.radio_button :societes_publiques, "oui",
+                          class: "form-check-input" %>
+                      <label class="form-check-label" for="request_societes_publiques_oui">
+                        Oui
+                      </label>
+
+                      <%= form.radio_button :societes_publiques, "non",
+                          class: "form-check-input ms-3" %>
+                      <label class="form-check-label" for="request_societes_publiques_non">
+                        Non
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Sociétés non PME -->
+                  <div class="col-12">
+                    <label class="form-label">Parmi les détenteurs de parts, existe-t-il des sociétés qui n'entrent pas dans la catégorie de PME ? <span class="text-danger">*</span></label>
+                    <div class="d-flex gap-3">
+                      <%= form.radio_button :societes_non_pme, "oui",
+                          class: "form-check-input" %>
+                      <label class="form-check-label" for="request_societes_non_pme_oui">
+                        Oui
+                      </label>
+
+                      <%= form.radio_button :societes_non_pme, "non",
+                          class: "form-check-input ms-3" %>
+                      <label class="form-check-label" for="request_societes_non_pme_non">
+                        Non
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Participations -->
+              <div class="col-12">
+                <h6 class="text-primary mb-3">Participations détenues dans d'autres entreprises</h6>
+                <div class="mb-3">
+                  <label class="form-label">Votre entreprise détient-elle des parts dans d'autres entreprises en Belgique ou à l'étranger ? <span class="text-danger">*</span></label>
+                  <div class="d-flex gap-3">
+                    <%= form.radio_button :participations_autres, "oui",
+                        class: "form-check-input" %>
+                    <label class="form-check-label" for="request_participations_autres_oui">
+                      Oui
+                    </label>
+
+                  </div>
+                </div>
+              </div>
+
+              <!-- Données comptables -->
+              <div class="col-12">
+                <h6 class="text-primary mb-3">Données comptables - (si comptes et bilan déjà publiés)</h6>
+                <div class="alert alert-warning mb-3">
+                  <i class="fas fa-exclamation-triangle me-2"></i>
+                  Veuillez préciser les données pour les deux derniers exercices comptables clos.
+                  Indiquez le nom et le n° d'entreprise des affaires concernées.
+                </div>
+
+                <!-- Votre entreprise -->
+                <div class="mb-4">
+                  <h6 class="text-secondary mb-3">1. Votre entreprise</h6>
+
+                  <!-- Dernier exercice -->
+                  <div class="mb-3">
+                    <h7 class="text-muted">1.1. Dernier exercice fiscal</h7>
+                    <div class="row g-3 mt-2">
+                      <!-- Date de clôture -->
+                      <div class="col-md-2">
+                        <label class="form-label">Date de clôture</label>
+                        <%= form.date_field :dernier_date_cloture,
+                            class: "form-control" %>
+                      </div>
+
+                      <!-- Total bilan -->
+                      <div class="col-md-2">
+                        <label class="form-label">Total Bilan (€)</label>
+                        <%= form.number_field :dernier_total_bilan,
+                            class: "form-control",
+                            step: 0.01,
+                            placeholder: "0.00" %>
+                      </div>
+
+                      <!-- Chiffre d'affaires -->
+                      <div class="col-md-3">
+                        <label class="form-label">Chiffre d'affaires (€)</label>
+                        <%= form.number_field :dernier_chiffre_affaires,
+                            class: "form-control",
+                            step: 0.01,
+                            placeholder: "0.00" %>
+                      </div>
+
+                      <!-- ETP ONSS -->
+                      <div class="col-md-2">
+                        <label class="form-label">ETP ONSS</label>
+                        <%= form.number_field :dernier_etp_onss,
+                            class: "form-control",
+                            step: 1,
+                            placeholder: "0" %>
+                      </div>
+
+                      <!-- ETP indépendants -->
+                      <div class="col-md-3">
+                        <label class="form-label">ETP indépendants</label>
+                        <%= form.number_field :dernier_etp_independants,
+                            class: "form-control",
+                            step: 1,
+                            placeholder: "0" %>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Avant-dernier exercice -->
+                  <div class="mb-3">
+                    <h7 class="text-muted">1.2. Avant-dernier exercice fiscal</h7>
+                    <div class="row g-3 mt-2">
+                      <!-- Date de clôture -->
+                      <div class="col-md-2">
+                        <label class="form-label">Date de clôture</label>
+                        <%= form.date_field :avant_dernier_date_cloture,
+                            class: "form-control" %>
+                      </div>
+
+                      <!-- Total bilan -->
+                      <div class="col-md-2">
+                        <label class="form-label">Total Bilan (€)</label>
+                        <%= form.number_field :avant_dernier_total_bilan,
+                            class: "form-control",
+                            step: 0.01,
+                            placeholder: "0.00" %>
+                      </div>
+
+                  <!-- Capital libéré -->
+                  <div class="col-md-4">
+                    <label class="form-label">Capital libéré (€) <span class="text-danger">*</span></label>
+                    <%= form.number_field :capital_libere,
+                        class: "form-control",
+                        step: 0.01,
+                        placeholder: "0.00",
+                        required: true %>
+                    <div class="invalid-feedback">Capital libéré requis.</div>
+                  </div>
+
+                  <!-- Nombre de parts -->
+                  <div class="col-md-4">
+                    <label class="form-label">Nombre de parts sociales <span class="text-danger">*</span></label>
+                    <%= form.number_field :nombre_parts_sociales,
+                        class: "form-control",
+                        step: 1,
+                        placeholder: "0",
+                        required: true %>
+                    <div class="invalid-feedback">Nombre de parts requis.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Détenteurs de parts -->
+              <div class="col-12">
+                <h6 class="text-primary mb-3">Détenteurs de parts</h6>
+                <div id="detenteurs-parts-list" data-bruxelles-enterprise-form-target="detenteursPartsList">
+                  <div class="border rounded p-3 mb-3">
+                    <div class="row g-3">
+                      <!-- Nom -->
+                      <div class="col-md-3">
+                        <label class="form-label">Nom du détenteur de parts <span class="text-danger">*</span></label>
+                        <%= form.text_field :detenteurs_nom_1,
+                            class: "form-control",
+                            placeholder: "Nom ou raison sociale",
+                            required: true %>
+                        <div class="invalid-feedback">Nom du détenteur requis.</div>
+                      </div>
+
+                      <!-- Pourcentage -->
+                      <div class="col-md-2">
+                        <label class="form-label">Nbr de parts ou % <span class="text-danger">*</span></label>
+                        <%= form.text_field :detenteurs_pourcentage_1,
+                            class: "form-control",
+                            placeholder: "Ex: 50%",
+                            required: true %>
+                        <div class="invalid-feedback">Pourcentage requis.</div>
+                      </div>
+
+                      <!-- Numéro entreprise -->
+                      <div class="col-md-3">
+                        <label class="form-label">N° d'entreprise <span class="text-danger">*</span></label>
+                        <%= form.text_field :detenteurs_numero_entreprise_1,
+                            class: "form-control",
+                            placeholder: "0XXX.XXX.XXX",
+                            required: true %>
+                        <div class="invalid-feedback">Numéro d'entreprise requis.</div>
+                      </div>
+
+                      <!-- Nationalité -->
+                      <div class="col-md-2">
+                        <label class="form-label">Nationalité <span class="text-danger">*</span></label>
+                        <%= form.text_field :detenteurs_nationalite_1,
+                            class: "form-control",
+                            placeholder: "BE",
+                            required: true %>
+                        <div class="invalid-feedback">Nationalité requise.</div>
+                      </div>
+
+                      <!-- Bouton supprimer -->
+                      <div class="col-md-2 d-flex align-items-end">
+                        <button type="button" class="btn btn-outline-danger"
+                                data-action="click->bruxelles-enterprise-form#removeDetenteur"
+                                style="display: none;">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <button type="button" class="btn btn-outline-success btn-sm"
+                        data-action="click->bruxelles-enterprise-form#addDetenteur">
+                  <i class="fas fa-plus me-1"></i>Ajouter un détenteur
+                </button>
+              </div>
 
       <div class="questions-detenteurs">
         <div class="form-group">
@@ -803,592 +1332,1334 @@
   </div>
 
   <!-- Partie 2 – La prime demandée -->
-  <div class="partie-2">
-    <h2>Partie 2 – La prime demandée</h2>
-
-    <!-- 2.1 - Description de l'investissement -->
-    <div class="section-2-1">
-      <h3>2.1 - Description de l'investissement</h3>
-
-      <div class="row">
-        <div class="col-md-3">
-          <div class="form-group">
-            <label><strong>Date présumée de début (*)</strong></label>
-            <%= date_field_tag 'date_debut_investissement', nil, class: 'form-control' %>
-          </div>
-        </div>
-        <div class="col-md-3">
-          <div class="form-group">
-            <label><strong>Date présumée de fin (*)</strong></label>
-            <%= date_field_tag 'date_fin_investissement', nil, class: 'form-control' %>
-          </div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-md-12">
-          <div class="form-group">
-            <label><strong>Investissement (description) (*)</strong></label>
-            <%= text_area_tag 'description_investissement', nil, class: 'form-control', rows: 4 %>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Permis et enregistrement nécessaires -->
-    <div class="section-permis">
-      <h3>Permis et enregistrement nécessaires</h3>
-
-      <div class="form-group">
-        <label><strong>Un permis d'environnement est-il nécessaire pour réaliser les investissements prévus ?</strong></label>
-        <div class="radio-inline-group">
-          <%= radio_button_tag 'permis_environnement', 'oui', false, class: 'form-check-input' %>
-          <%= label_tag 'permis_environnement_oui', 'Oui', class: 'form-check-label' %>
-          <%= radio_button_tag 'permis_environnement', 'non', false, class: 'form-check-input' %>
-          <%= label_tag 'permis_environnement_non', 'Non', class: 'form-check-label' %>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label><strong>Un permis d'urbanisme est-il nécessaire pour réaliser les investissements prévus ?</strong></label>
-        <div class="radio-inline-group">
-          <%= radio_button_tag 'permis_urbanisme', 'oui', false, class: 'form-check-input' %>
-          <%= label_tag 'permis_urbanisme_oui', 'Oui', class: 'form-check-label' %>
-          <%= radio_button_tag 'permis_urbanisme', 'non', false, class: 'form-check-input' %>
-          <%= label_tag 'permis_urbanisme_non', 'Non', class: 'form-check-label' %>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label><strong>L'activité exercée dans l'unité d'établissement où sont réalisés les investissements nécessite-t-elle un enregistrement en tant qu'établissement d'hébergement touristique ?</strong></label>
-        <div class="radio-inline-group">
-          <%= radio_button_tag 'enregistrement_touristique', 'oui', false, class: 'form-check-input' %>
-          <%= label_tag 'enregistrement_touristique_oui', 'Oui', class: 'form-check-label' %>
-          <%= radio_button_tag 'enregistrement_touristique', 'non', false, class: 'form-check-input' %>
-          <%= label_tag 'enregistrement_touristique_non', 'Non', class: 'form-check-label' %>
-        </div>
-      </div>
-    </div>
-
-    <!-- 2.2 - Coût de l'investissement -->
-    <div class="section-2-2">
-      <h3>2.2 - Coût de l'investissement</h3>
-      <p><em>Introduisez les montants - avec décimales - chiffre après chiffre sans points ni devise</em></p>
-
-      <div class="table-responsive">
-        <table class="table table-bordered investissement-table">
-          <thead>
-            <tr>
-              <th>Investissement</th>
-              <th>Date de début prévue (1° facture)</th>
-              <th>Date de fin prévue (dernière facture)</th>
-              <th>Montant (€)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Travaux de construction (gros-oeuvre)</strong></td>
-              <td><%= date_field_tag 'travaux_construction_debut', nil, class: 'form-control' %></td>
-              <td><%= date_field_tag 'travaux_construction_fin', nil, class: 'form-control' %></td>
-              <td><%= number_field_tag 'travaux_construction_montant', nil, class: 'form-control', step: 0.01 %></td>
-            </tr>
-            <tr>
-              <td><strong>Transformations (aménagements et finitions)</strong></td>
-              <td><%= date_field_tag 'transformations_debut', nil, class: 'form-control' %></td>
-              <td><%= date_field_tag 'transformations_fin', nil, class: 'form-control' %></td>
-              <td><%= number_field_tag 'transformations_montant', nil, class: 'form-control', step: 0.01 %></td>
-            </tr>
-            <tr>
-              <td><strong>Machines et équipements neufs</strong></td>
-              <td><%= date_field_tag 'machines_neufs_debut', nil, class: 'form-control' %></td>
-              <td><%= date_field_tag 'machines_neufs_fin', nil, class: 'form-control' %></td>
-              <td><%= number_field_tag 'machines_neufs_montant', nil, class: 'form-control', step: 0.01 %></td>
-            </tr>
-            <tr>
-              <td><strong>Machines et équipements d'occasion</strong></td>
-              <td><%= date_field_tag 'machines_occasion_debut', nil, class: 'form-control' %></td>
-              <td><%= date_field_tag 'machines_occasion_fin', nil, class: 'form-control' %></td>
-              <td><%= number_field_tag 'machines_occasion_montant', nil, class: 'form-control', step: 0.01 %></td>
-            </tr>
-          </tbody>
-          <tfoot>
-            <tr class="table-info">
-              <td colspan="3"><strong>Total (€)</strong></td>
-              <td><strong id="total-investissement">0</strong></td>
-            </tr>
-          </tfoot>
-        </table>
-      </div>
-    </div>
-
-    <!-- 2.3 - Cadre de l'investissement -->
-    <div class="section-2-3">
-      <h3>2.3 - Cadre de l'investissement</h3>
-
-      <div class="form-group">
-        <div class="form-check">
-          <%= check_box_tag 'cadre_creation_etablissement', '1', false, class: 'form-check-input' %>
-          <%= label_tag 'cadre_creation_etablissement', 'Création d\'un nouvel établissement', class: 'form-check-label' %>
-        </div>
-        <div class="form-check">
-          <%= check_box_tag 'cadre_extension_etablissement', '1', false, class: 'form-check-input' %>
-          <%= label_tag 'cadre_extension_etablissement', 'Extension d\'un établissement', class: 'form-check-label' %>
-        </div>
-        <div class="form-check">
-          <%= check_box_tag 'cadre_diversification_production', '1', false, class: 'form-check-input' %>
-          <%= label_tag 'cadre_diversification_production', 'Diversification de la production d\'un établissement vers de nouveaux produits supplémentaires', class: 'form-check-label' %>
-        </div>
-        <div class="form-check">
-          <%= check_box_tag 'cadre_changement_processus', '1', false, class: 'form-check-input' %>
-          <%= label_tag 'cadre_changement_processus', 'Changement fondamental de l\'ensemble du processus de production d\'un établissement', class: 'form-check-label' %>
-        </div>
-        <div class="form-check">
-          <%= check_box_tag 'cadre_autres', '1', false, class: 'form-check-input' %>
-          <%= label_tag 'cadre_autres', 'Autres :', class: 'form-check-label' %>
-          <%= text_field_tag 'cadre_autres_description', nil, class: 'form-control mt-2', style: 'display:none;' %>
-        </div>
-      </div>
-    </div>
-
-    <!-- 2.4 - Critère de majoration d'intervention -->
-    <div class="section-2-4">
-      <h3>2.4 - Critère de majoration d'intervention</h3>
-
-      <div class="exemplarite-section">
-        <div class="form-group">
-          <label><strong>Entreprise reconnue comme exemplaire au niveau social en vertu de l'arrêté exemplarité du Gouvernement de la Région de Bruxelles Capitale du 06 juillet 2023.</strong></label>
-          <div class="radio-inline-group">
-            <%= radio_button_tag 'exemplarite_sociale', 'oui', false, class: 'form-check-input' %>
-            <%= label_tag 'exemplarite_sociale_oui', 'Oui', class: 'form-check-label' %>
-            <%= radio_button_tag 'exemplarite_sociale', 'non', false, class: 'form-check-input' %>
-            <%= label_tag 'exemplarite_sociale_non', 'Non', class: 'form-check-label' %>
-          </div>
-
-          <div class="exemplarite-details" style="display:none;">
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label><strong>Organisme qui a délivré la reconnaissance :</strong></label>
-                  <%= text_field_tag 'exemplarite_sociale_organisme', nil, class: 'form-control' %>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label><strong>Intitulé du dispositif de reconnaissance :</strong></label>
-                  <%= text_field_tag 'exemplarite_sociale_dispositif', nil, class: 'form-control' %>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label><strong>Date de la reconnaissance :</strong></label>
-                  <%= date_field_tag 'exemplarite_sociale_date', nil, class: 'form-control' %>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label><strong>Entreprise reconnue comme exemplaire au niveau environnemental en vertu de l'arrêté exemplarité du Gouvernement de la Région de Bruxelles Capitale du 06 juillet 2023.</strong></label>
-          <div class="radio-inline-group">
-            <%= radio_button_tag 'exemplarite_environnementale', 'oui', false, class: 'form-check-input' %>
-            <%= label_tag 'exemplarite_environnementale_oui', 'Oui', class: 'form-check-label' %>
-            <%= radio_button_tag 'exemplarite_environnementale', 'non', false, class: 'form-check-input' %>
-            <%= label_tag 'exemplarite_environnementale_non', 'Non', class: 'form-check-label' %>
-          </div>
-
-          <div class="exemplarite-details" style="display:none;">
-            <div class="row">
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label><strong>Organisme qui a délivré la reconnaissance :</strong></label>
-                  <%= text_field_tag 'exemplarite_environnementale_organisme', nil, class: 'form-control' %>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label><strong>Intitulé du dispositif de reconnaissance :</strong></label>
-                  <%= text_field_tag 'exemplarite_environnementale_dispositif', nil, class: 'form-control' %>
-                </div>
-              </div>
-              <div class="col-md-4">
-                <div class="form-group">
-                  <label><strong>Date de la reconnaissance :</strong></label>
-                  <%= date_field_tag 'exemplarite_environnementale_date', nil, class: 'form-control' %>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label><strong>Entreprise starter (constituée depuis 4 ans maximum)</strong></label>
-          <div class="radio-inline-group">
-            <%= radio_button_tag 'entreprise_starter', 'oui', false, class: 'form-check-input' %>
-            <%= label_tag 'entreprise_starter_oui', 'Oui', class: 'form-check-label' %>
-            <%= radio_button_tag 'entreprise_starter', 'non', false, class: 'form-check-input' %>
-            <%= label_tag 'entreprise_starter_non', 'Non', class: 'form-check-label' %>
-          </div>
-        </div>
-
-        <div class="liens-exemplarite">
-          <p><a href="https://economie-emploi.brussels/exemplarite-guide" target="_blank">Guide exemplarité</a></p>
-          <p><a href="https://www.ejustice.just.fgov.be/eli/arrete/2023/07/06/2023043748/moniteur" target="_blank">Arrêté du Gouvernement de la Région de Bruxelles-Capitale du 6 juillet 2023 relatif à l'exemplarité au niveau social et environnemental des entreprises</a></p>
-        </div>
-      </div>
-
-      <div class="zone-developpement">
-        <div class="form-group">
-          <div class="form-check">
-            <%= check_box_tag 'zone_developpement', '1', false, class: 'form-check-input' %>
-            <%= label_tag 'zone_developpement', 'Investissement réalisé dans la zone de développement définie dans l\'arrêté du Gouvernement de la Région de Bruxelles-Capitale déterminant la zone de développement 2022-2027 du 20 juillet 2022', class: 'form-check-label' %>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <div class="form-check">
-            <%= check_box_tag 'chantier_niveau_2', '1', false, class: 'form-check-input' %>
-            <%= label_tag 'chantier_niveau_2', 'Investissements réalisés dans une unité d\'établissement qui se trouve, dans les six mois qui précèdent la demande d\'autorisation préalable, dans l\'emprise d\'un chantier de niveau 2, au sens de l\'article 85, alinéa 2, de l\'ordonnance du 3 mai 2018 relative aux chantiers en voirie publique.', class: 'form-check-label' %>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tableau des taux -->
-      <div class="taux-table">
-        <h4>Tableau des taux d'intervention</h4>
-        <div class="table-responsive">
-          <table class="table table-bordered table-striped">
-            <thead>
-              <tr>
-                <th>Taille d'entreprise</th>
-                <th>Micro</th>
-                <th>Petite</th>
-                <th>Moyenne</th>
-                <th>Grande</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><strong>Taux de base</strong></td>
-                <td>5%</td>
-                <td>5%</td>
-                <td>2,5%</td>
-                <td>/</td>
-              </tr>
-              <tr>
-                <td colspan="5" class="separator">- - - - -</td>
-              </tr>
-              <tr>
-                <td><strong>Exemplarité sociale</strong></td>
-                <td>10%</td>
-                <td>10%</td>
-                <td>5%</td>
-                <td>/</td>
-              </tr>
-              <tr>
-                <td><strong>Exemplarité environnementale</strong></td>
-                <td>10%</td>
-                <td>10%</td>
-                <td>5%</td>
-                <td>/</td>
-              </tr>
-              <tr>
-                <td><strong>Starter</strong></td>
-                <td>10%</td>
-                <td>2,5%</td>
-                <td>2,5%</td>
-                <td>/</td>
-              </tr>
-              <tr>
-                <td><strong>Zone développement</strong></td>
-                <td>5%</td>
-                <td>2,5%</td>
-                <td>2,5%</td>
-                <td>/</td>
-              </tr>
-              <tr>
-                <td><strong>Chantier</strong></td>
-                <td>10%</td>
-                <td>10%</td>
-                <td>5%</td>
-                <td>/</td>
-              </tr>
-              <tr>
-                <td colspan="5" class="separator">- - - - -</td>
-              </tr>
-              <tr class="table-warning">
-                <td><strong>Plafond hors zone de développement</strong></td>
-                <td>20%</td>
-                <td>20%</td>
-                <td>10%</td>
-                <td>/</td>
-              </tr>
-              <tr class="table-info">
-                <td><strong>Plafond en zone de développement</strong></td>
-                <td>30%</td>
-                <td>30%</td>
-                <td>15%</td>
-                <td>/</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <p><small>(*) Cette exemplarité doit être reconnue au moment de la réception du présent formulaire, toutefois une période transitoire est mise en place pour les demandes préalables réceptionnées à partir du 26 mars 2024 jusqu'au 25 mars 2025, afin que l'entreprise puisse obtenir la reconnaissance éventuelle de celle-ci, et ce pour au plus tard, l'introduction du formulaire définitif.</small></p>
+  <div class="row">
+    <div class="col-12">
+      <div class="alert alert-primary">
+        <h3 class="mb-0">
+          <i class="fas fa-euro-sign me-2"></i>
+          Partie 2 – La prime demandée
+        </h3>
       </div>
     </div>
   </div>
+
+        <!-- Section 2.1 - Description de l'investissement -->
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-clipboard-list text-primary me-2"></i>
+              2.1 - Description de l'investissement
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="row g-4">
+              <!-- Dates de l'investissement -->
+              <div class="col-12">
+                <h6 class="text-primary mb-3">Période de l'investissement</h6>
+                <div class="row g-3">
+                  <!-- Date de début -->
+                  <div class="col-md-6">
+                    <label class="form-label">Date présumée de début <span class="text-danger">*</span></label>
+                    <%= form.date_field :date_debut_investissement,
+                        class: "form-control",
+                        required: true %>
+                    <div class="invalid-feedback">Date de début requise.</div>
+                  </div>
+
+                  <!-- Date de fin -->
+                  <div class="col-md-6">
+                    <label class="form-label">Date présumée de fin <span class="text-danger">*</span></label>
+                    <%= form.date_field :date_fin_investissement,
+                        class: "form-control",
+                        required: true %>
+                    <div class="invalid-feedback">Date de fin requise.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Description de l'investissement -->
+              <div class="col-12">
+                <label class="form-label">Description de l'investissement <span class="text-danger">*</span></label>
+                <%= form.text_area :description_investissement,
+                    class: "form-control",
+                    rows: 5,
+                    placeholder: "Décrivez précisément votre projet d'investissement, les objectifs visés, les équipements prévus...",
+                    required: true %>
+                <div class="invalid-feedback">Description de l'investissement requise.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section Permis et enregistrements nécessaires -->
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-file-certificate text-primary me-2"></i>
+              Permis et enregistrements nécessaires
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="row g-4">
+              <!-- Permis d'environnement -->
+              <div class="col-12">
+                <label class="form-label">Un permis d'environnement est-il nécessaire pour réaliser les investissements prévus ?</label>
+                <div class="d-flex gap-3">
+                  <%= form.radio_button :permis_environnement, "oui",
+                      class: "form-check-input" %>
+                  <label class="form-check-label" for="request_permis_environnement_oui">
+                    Oui
+                  </label>
+
+                  <%= form.radio_button :permis_environnement, "non",
+                      class: "form-check-input ms-3" %>
+                  <label class="form-check-label" for="request_permis_environnement_non">
+                    Non
+                  </label>
+                </div>
+              </div>
+
+              <!-- Permis d'urbanisme -->
+              <div class="col-12">
+                <label class="form-label">Un permis d'urbanisme est-il nécessaire pour réaliser les investissements prévus ?</label>
+                <div class="d-flex gap-3">
+                  <%= form.radio_button :permis_urbanisme, "oui",
+                      class: "form-check-input" %>
+                  <label class="form-check-label" for="request_permis_urbanisme_oui">
+                    Oui
+                  </label>
+
+                  <%= form.radio_button :permis_urbanisme, "non",
+                      class: "form-check-input ms-3" %>
+                  <label class="form-check-label" for="request_permis_urbanisme_non">
+                    Non
+                  </label>
+                </div>
+              </div>
+
+              <!-- Enregistrement touristique -->
+              <div class="col-12">
+                <label class="form-label">L'activité exercée dans l'unité d'établissement où sont réalisés les investissements nécessite-t-elle un enregistrement en tant qu'établissement d'hébergement touristique ?</label>
+                <div class="d-flex gap-3">
+                  <%= form.radio_button :enregistrement_touristique, "oui",
+                      class: "form-check-input" %>
+                  <label class="form-check-label" for="request_enregistrement_touristique_oui">
+                    Oui
+                  </label>
+
+                  <%= form.radio_button :enregistrement_touristique, "non",
+                      class: "form-check-input ms-3" %>
+                  <label class="form-check-label" for="request_enregistrement_touristique_non">
+                    Non
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2.2 - Coût de l'investissement -->
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-calculator text-primary me-2"></i>
+              2.2 - Coût de l'investissement
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-info mb-4">
+              <i class="fas fa-info-circle me-2"></i>
+              <strong>Important :</strong> Introduisez les montants avec décimales, chiffre après chiffre sans points ni devise.
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-bordered align-middle">
+                <thead class="table-primary">
+                  <tr>
+                    <th scope="col">Type d'investissement</th>
+                    <th scope="col">Date de début prévue<br><small>(1ère facture)</small></th>
+                    <th scope="col">Date de fin prévue<br><small>(dernière facture)</small></th>
+                    <th scope="col">Montant (€)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row" class="align-middle">
+                      <i class="fas fa-building text-warning me-2"></i>
+                      Travaux de construction (gros-œuvre)
+                    </th>
+                    <td>
+                      <%= form.date_field :travaux_construction_debut,
+                          class: "form-control form-control-sm" %>
+                    </td>
+                    <td>
+                      <%= form.date_field :travaux_construction_fin,
+                          class: "form-control form-control-sm" %>
+                    </td>
+                    <td>
+                      <%= form.number_field :travaux_construction_montant,
+                          class: "form-control form-control-sm text-end",
+                          step: 0.01,
+                          placeholder: "0.00",
+                          data: { action: "input->bruxelles-enterprise-form#calculateTotal" } %>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="align-middle">
+                      <i class="fas fa-tools text-info me-2"></i>
+                      Transformations (aménagements et finitions)
+                    </th>
+                    <td>
+                      <%= form.date_field :transformations_debut,
+                          class: "form-control form-control-sm" %>
+                    </td>
+                    <td>
+                      <%= form.date_field :transformations_fin,
+                          class: "form-control form-control-sm" %>
+                    </td>
+                    <td>
+                      <%= form.number_field :transformations_montant,
+                          class: "form-control form-control-sm text-end",
+                          step: 0.01,
+                          placeholder: "0.00",
+                          data: { action: "input->bruxelles-enterprise-form#calculateTotal" } %>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="align-middle">
+                      <i class="fas fa-cogs text-success me-2"></i>
+                      Machines et équipements neufs
+                    </th>
+                    <td>
+                      <%= form.date_field :machines_neufs_debut,
+                          class: "form-control form-control-sm" %>
+                    </td>
+                    <td>
+                      <%= form.date_field :machines_neufs_fin,
+                          class: "form-control form-control-sm" %>
+                    </td>
+                    <td>
+                      <%= form.number_field :machines_neufs_montant,
+                          class: "form-control form-control-sm text-end",
+                          step: 0.01,
+                          placeholder: "0.00",
+                          data: { action: "input->bruxelles-enterprise-form#calculateTotal" } %>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row" class="align-middle">
+                      <i class="fas fa-recycle text-secondary me-2"></i>
+                      Machines et équipements d'occasion
+                    </th>
+                    <td>
+                      <%= form.date_field :machines_occasion_debut,
+                          class: "form-control form-control-sm" %>
+                    </td>
+                    <td>
+                      <%= form.date_field :machines_occasion_fin,
+                          class: "form-control form-control-sm" %>
+                    </td>
+                    <td>
+                      <%= form.number_field :machines_occasion_montant,
+                          class: "form-control form-control-sm text-end",
+                          step: 0.01,
+                          placeholder: "0.00",
+                          data: { action: "input->bruxelles-enterprise-form#calculateTotal" } %>
+                    </td>
+                  </tr>
+                </tbody>
+                <tfoot class="table-dark">
+                  <tr>
+                    <th scope="row" colspan="3" class="text-center">
+                      <i class="fas fa-euro-sign me-2"></i>
+                      Total de l'investissement
+                    </th>
+                    <td class="text-end">
+                      <strong id="total-investissement" data-bruxelles-enterprise-form-target="totalInvestissement">0,00 €</strong>
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2.3 - Cadre de l'investissement -->
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-sitemap text-primary me-2"></i>
+              2.3 - Cadre de l'investissement
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label mb-3">Cochez les cases correspondant au cadre de votre investissement :</label>
+
+                <div class="form-check mb-3">
+                  <%= form.check_box :cadre_creation_etablissement,
+                      { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="request_cadre_creation_etablissement">
+                    <i class="fas fa-plus-circle text-success me-2"></i>
+                    <strong>Création d'un nouvel établissement</strong>
+                  </label>
+                </div>
+
+                <div class="form-check mb-3">
+                  <%= form.check_box :cadre_extension_etablissement,
+                      { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="request_cadre_extension_etablissement">
+                    <i class="fas fa-expand-arrows-alt text-info me-2"></i>
+                    <strong>Extension d'un établissement</strong>
+                  </label>
+                </div>
+
+                <div class="form-check mb-3">
+                  <%= form.check_box :cadre_diversification_production,
+                      { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="request_cadre_diversification_production">
+                    <i class="fas fa-code-branch text-warning me-2"></i>
+                    <strong>Diversification de la production d'un établissement vers de nouveaux produits supplémentaires</strong>
+                  </label>
+                </div>
+
+                <div class="form-check mb-3">
+                  <%= form.check_box :cadre_changement_processus,
+                      { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="request_cadre_changement_processus">
+                    <i class="fas fa-sync-alt text-primary me-2"></i>
+                    <strong>Changement fondamental de l'ensemble du processus de production d'un établissement</strong>
+                  </label>
+                </div>
+
+                <div class="form-check">
+                  <%= form.check_box :cadre_autres,
+                      { class: "form-check-input",
+                        data: { action: "change->bruxelles-enterprise-form#toggleAutres" } }, "1", "0" %>
+                  <label class="form-check-label" for="request_cadre_autres">
+                    <i class="fas fa-ellipsis-h text-secondary me-2"></i>
+                    <strong>Autres :</strong>
+                  </label>
+                  <div class="mt-2" data-bruxelles-enterprise-form-target="autresDescription" style="display: none;">
+                    <%= form.text_field :cadre_autres_description,
+                        class: "form-control",
+                        placeholder: "Précisez le cadre de votre investissement..." %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2.4 - Critères de majoration d'intervention -->
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-award text-primary me-2"></i>
+              2.4 - Critères de majoration d'intervention
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="row g-4">
+              <!-- Exemplarité sociale -->
+              <div class="col-12">
+                <div class="border rounded p-3">
+                  <h6 class="text-success mb-3">
+                    <i class="fas fa-users me-2"></i>
+                    Exemplarité sociale
+                  </h6>
+                  <div class="mb-3">
+                    <label class="form-label">Entreprise reconnue comme exemplaire au niveau social en vertu de l'arrêté exemplarité du Gouvernement de la Région de Bruxelles-Capitale du 06 juillet 2023.</label>
+                    <div class="d-flex gap-3">
+                      <%= form.radio_button :exemplarite_sociale, "oui",
+                          class: "form-check-input",
+                          data: { action: "change->bruxelles-enterprise-form#toggleExemplariteSociale" } %>
+                      <label class="form-check-label" for="request_exemplarite_sociale_oui">
+                        Oui
+                      </label>
+
+                      <%= form.radio_button :exemplarite_sociale, "non",
+                          class: "form-check-input ms-3",
+                          data: { action: "change->bruxelles-enterprise-form#toggleExemplariteSociale" } %>
+                      <label class="form-check-label" for="request_exemplarite_sociale_non">
+                        Non
+                      </label>
+                    </div>
+                  </div>
+
+                  <div data-bruxelles-enterprise-form-target="exemplariteSocialeDetails" style="display: none;">
+                    <div class="row g-3">
+                      <div class="col-md-4">
+                        <label class="form-label">Organisme qui a délivré la reconnaissance</label>
+                        <%= form.text_field :exemplarite_sociale_organisme,
+                            class: "form-control",
+                            placeholder: "Nom de l'organisme" %>
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">Intitulé du dispositif de reconnaissance</label>
+                        <%= form.text_field :exemplarite_sociale_dispositif,
+                            class: "form-control",
+                            placeholder: "Intitulé du dispositif" %>
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">Date de la reconnaissance</label>
+                        <%= form.date_field :exemplarite_sociale_date,
+                            class: "form-control" %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Exemplarité environnementale -->
+              <div class="col-12">
+                <div class="border rounded p-3">
+                  <h6 class="text-success mb-3">
+                    <i class="fas fa-leaf me-2"></i>
+                    Exemplarité environnementale
+                  </h6>
+                  <div class="mb-3">
+                    <label class="form-label">Entreprise reconnue comme exemplaire au niveau environnemental en vertu de l'arrêté exemplarité du Gouvernement de la Région de Bruxelles-Capitale du 06 juillet 2023.</label>
+                    <div class="d-flex gap-3">
+                      <%= form.radio_button :exemplarite_environnementale, "oui",
+                          class: "form-check-input",
+                          data: { action: "change->bruxelles-enterprise-form#toggleExemplariteEnvironnementale" } %>
+                      <label class="form-check-label" for="request_exemplarite_environnementale_oui">
+                        Oui
+                      </label>
+
+                      <%= form.radio_button :exemplarite_environnementale, "non",
+                          class: "form-check-input ms-3",
+                          data: { action: "change->bruxelles-enterprise-form#toggleExemplariteEnvironnementale" } %>
+                      <label class="form-check-label" for="request_exemplarite_environnementale_non">
+                        Non
+                      </label>
+                    </div>
+                  </div>
+
+                  <div data-bruxelles-enterprise-form-target="exemplariteEnvironnementaleDetails" style="display: none;">
+                    <div class="row g-3">
+                      <div class="col-md-4">
+                        <label class="form-label">Organisme qui a délivré la reconnaissance</label>
+                        <%= form.text_field :exemplarite_environnementale_organisme,
+                            class: "form-control",
+                            placeholder: "Nom de l'organisme" %>
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">Intitulé du dispositif de reconnaissance</label>
+                        <%= form.text_field :exemplarite_environnementale_dispositif,
+                            class: "form-control",
+                            placeholder: "Intitulé du dispositif" %>
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label">Date de la reconnaissance</label>
+                        <%= form.date_field :exemplarite_environnementale_date,
+                            class: "form-control" %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+        </div>
+
+              <!-- Entreprise starter -->
+              <div class="col-12">
+                <div class="border rounded p-3">
+                  <h6 class="text-info mb-3">
+                    <i class="fas fa-rocket me-2"></i>
+                    Entreprise starter
+                  </h6>
+                  <div class="mb-3">
+                    <label class="form-label">Entreprise starter (constituée depuis 4 ans maximum)</label>
+                    <div class="d-flex gap-3">
+                      <%= form.radio_button :entreprise_starter, "oui",
+                          class: "form-check-input" %>
+                      <label class="form-check-label" for="request_entreprise_starter_oui">
+                        Oui
+                      </label>
+
+                      <%= form.radio_button :entreprise_starter, "non",
+                          class: "form-check-input ms-3" %>
+                      <label class="form-check-label" for="request_entreprise_starter_non">
+                        Non
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Liens utiles -->
+                  <div class="alert alert-light">
+                    <h6 class="text-dark mb-2">
+                      <i class="fas fa-external-link-alt me-2"></i>
+                      Liens utiles
+                    </h6>
+                    <div class="d-flex flex-column gap-2">
+                      <a href="https://economie-emploi.brussels/exemplarite-guide" target="_blank" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-book me-1"></i>
+                        Guide exemplarité
+                      </a>
+                      <a href="https://www.ejustice.just.fgov.be/eli/arrete/2023/07/06/2023043748/moniteur" target="_blank" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-gavel me-1"></i>
+                        Arrêté du Gouvernement du 6 juillet 2023
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Zone de développement et chantiers -->
+              <div class="col-12">
+                <div class="border rounded p-3">
+                  <h6 class="text-warning mb-3">
+                    <i class="fas fa-map-marked-alt me-2"></i>
+                    Zones spécifiques
+                  </h6>
+
+                  <div class="form-check mb-3">
+                    <%= form.check_box :zone_developpement,
+                        { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="request_zone_developpement">
+                      <i class="fas fa-map me-2 text-warning"></i>
+                      <strong>Zone de développement</strong><br>
+                      <small class="text-muted">Investissement réalisé dans la zone de développement définie dans l'arrêté du Gouvernement de la Région de Bruxelles-Capitale déterminant la zone de développement 2022-2027 du 20 juillet 2022</small>
+                    </label>
+                  </div>
+
+                  <div class="form-check">
+                    <%= form.check_box :chantier_niveau_2,
+                        { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label" for="request_chantier_niveau_2">
+                      <i class="fas fa-hard-hat me-2 text-orange"></i>
+                      <strong>Chantier de niveau 2</strong><br>
+                      <small class="text-muted">Investissements réalisés dans une unité d'établissement qui se trouve, dans les six mois qui précèdent la demande d'autorisation préalable, dans l'emprise d'un chantier de niveau 2, au sens de l'article 85, alinéa 2, de l'ordonnance du 3 mai 2018 relative aux chantiers en voirie publique.</small>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tableau des taux d'intervention -->
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-percentage text-primary me-2"></i>
+              Tableau des taux d'intervention
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="table-responsive">
+              <table class="table table-bordered table-hover">
+                <thead class="table-primary">
+                  <tr>
+                    <th scope="col" class="align-middle">Critères</th>
+                    <th scope="col" class="text-center">
+                      <i class="fas fa-building text-info me-1"></i>
+                      Micro
+                    </th>
+                    <th scope="col" class="text-center">
+                      <i class="fas fa-store text-success me-1"></i>
+                      Petite
+                    </th>
+                    <th scope="col" class="text-center">
+                      <i class="fas fa-industry text-warning me-1"></i>
+                      Moyenne
+                    </th>
+                    <th scope="col" class="text-center">
+                      <i class="fas fa-city text-danger me-1"></i>
+                      Grande
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row" class="bg-light">
+                      <i class="fas fa-chart-line me-2"></i>
+                      Taux de base
+                    </th>
+                    <td class="text-center fw-bold">5%</td>
+                    <td class="text-center fw-bold">5%</td>
+                    <td class="text-center fw-bold">2,5%</td>
+                    <td class="text-center text-muted">/</td>
+                  </tr>
+                  <tr>
+                    <td colspan="5" class="text-center bg-light">
+                      <small class="text-muted"><i class="fas fa-plus me-1"></i>Majorations possibles</small>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      <i class="fas fa-users text-success me-2"></i>
+                      Exemplarité sociale
+                    </th>
+                    <td class="text-center text-success fw-bold">+10%</td>
+                    <td class="text-center text-success fw-bold">+10%</td>
+                    <td class="text-center text-success fw-bold">+5%</td>
+                    <td class="text-center text-muted">/</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      <i class="fas fa-leaf text-success me-2"></i>
+                      Exemplarité environnementale
+                    </th>
+                    <td class="text-center text-success fw-bold">+10%</td>
+                    <td class="text-center text-success fw-bold">+10%</td>
+                    <td class="text-center text-success fw-bold">+5%</td>
+                    <td class="text-center text-muted">/</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      <i class="fas fa-rocket text-info me-2"></i>
+                      Startup (< 4 ans)
+                    </th>
+                    <td class="text-center text-info fw-bold">+10%</td>
+                    <td class="text-center text-info fw-bold">+2,5%</td>
+                    <td class="text-center text-info fw-bold">+2,5%</td>
+                    <td class="text-center text-muted">/</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      <i class="fas fa-map-marked-alt text-warning me-2"></i>
+                      Zone de développement
+                    </th>
+                    <td class="text-center text-warning fw-bold">+5%</td>
+                    <td class="text-center text-warning fw-bold">+2,5%</td>
+                    <td class="text-center text-warning fw-bold">+2,5%</td>
+                    <td class="text-center text-muted">/</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">
+                      <i class="fas fa-hard-hat text-orange me-2"></i>
+                      Chantier niveau 2
+                    </th>
+                    <td class="text-center" style="color: #fd7e14; font-weight: bold;">+10%</td>
+                    <td class="text-center" style="color: #fd7e14; font-weight: bold;">+10%</td>
+                    <td class="text-center" style="color: #fd7e14; font-weight: bold;">+5%</td>
+                    <td class="text-center text-muted">/</td>
+                  </tr>
+                  <tr>
+                    <td colspan="5" class="text-center bg-light">
+                      <small class="text-muted"><i class="fas fa-exclamation-triangle me-1"></i>Plafonds maximaux</small>
+                    </td>
+                  </tr>
+                  <tr class="table-warning">
+                    <th scope="row">
+                      <i class="fas fa-chart-bar me-2"></i>
+                      Plafond hors zone de développement
+                    </th>
+                    <td class="text-center fw-bold">20%</td>
+                    <td class="text-center fw-bold">20%</td>
+                    <td class="text-center fw-bold">10%</td>
+                    <td class="text-center text-muted">/</td>
+                  </tr>
+                  <tr class="table-info">
+                    <th scope="row">
+                      <i class="fas fa-chart-bar me-2"></i>
+                      Plafond en zone de développement
+                    </th>
+                    <td class="text-center fw-bold">30%</td>
+                    <td class="text-center fw-bold">30%</td>
+                    <td class="text-center fw-bold">15%</td>
+                    <td class="text-center text-muted">/</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="alert alert-info mt-3">
+              <h6 class="alert-heading">
+                <i class="fas fa-info-circle me-2"></i>
+                Note importante
+              </h6>
+              <p class="mb-0">
+                <small>
+                  Cette exemplarité doit être reconnue au moment de la réception du présent formulaire.
+                  Toutefois, une période transitoire est mise en place pour les demandes préalables réceptionnées
+                  à partir du 26 mars 2024 jusqu'au 25 mars 2025, afin que l'entreprise puisse obtenir
+                  la reconnaissance éventuelle de celle-ci, et ce pour au plus tard, l'introduction du formulaire définitif.
+                </small>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
 
   <!-- Partie 3 – Documents à joindre et points d'attention -->
-  <div class="partie-3">
-    <h2>Partie 3 – Documents à joindre et points d'attention</h2>
-
-    <!-- 3.1 - Documents à joindre à votre demande -->
-    <div class="section-3-1">
-      <h3>3.1 - Documents à joindre à votre demande</h3>
-
-      <div class="documents-requis">
-        <div class="form-group">
-          <div class="form-check">
-            <%= check_box_tag 'document_attestation_bancaire', '1', false, class: 'form-check-input' %>
-            <%= label_tag 'document_attestation_bancaire', 'ATTESTATION BANCAIRE (RIB)', class: 'form-check-label' %>
-          </div>
-          <div class="file-upload">
-            <%= file_field_tag 'fichier_attestation_bancaire', class: 'form-control-file' %>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <div class="form-check">
-            <%= check_box_tag 'document_mandat', '1', false, class: 'form-check-input' %>
-            <%= label_tag 'document_mandat', 'COPIE DU MANDAT (LE CAS ÉCHÉANT)', class: 'form-check-label' %>
-          </div>
-          <div class="file-upload">
-            <%= file_field_tag 'fichier_mandat', class: 'form-control-file' %>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <div class="form-check">
-            <%= check_box_tag 'document_exemplarite_sociale', '1', false, class: 'form-check-input' %>
-            <%= label_tag 'document_exemplarite_sociale', 'PREUVE DE L\'EXEMPLARITÉ SOCIALE', class: 'form-check-label' %>
-          </div>
-          <div class="file-upload">
-            <%= file_field_tag 'fichier_exemplarite_sociale', class: 'form-control-file' %>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 3.2 - Points d'attention -->
-    <div class="section-3-2">
-      <h3>3.2 - Points d'attention</h3>
-
-      <div class="points-attention">
-        <ul>
-          <li>Vous ne pouvez débuter vos investissements qu'à dater de la notification de l'autorisation préalable de la présente demande. Aucun devis ou bon de commande signé ni aucune facture antérieur à cette notification ne sera pris en compte.</li>
-          <li>Les factures doivent atteindre chacune un montant admissible de minimum de 500 € htva</li>
-          <li>Le montant minimum d'investissement admis doit atteindre 5000€, 7.500€, 15.000€ ou 50.000€ htva en fonction de la catégorie de l'entreprise</li>
-          <li>Seuls les investissements inscrits aux immobilisations corporelles sont admis</li>
-          <li>Les investissements incorporels (logiciels, frais d'architecte, études, etc.) ne sont pas subsidiables</li>
-          <li>Les biens d'occasion pourront être pris en compte s'ils sont acquis auprès d'un professionnel dont l'activité porte sur la vente, la récupération, la valorisation, le réemploi ou le recyclage de tels biens et revêtus d'une garantie de minimum 6 mois.</li>
-          <li>Si vous arrivez à une nouvelle adresse, vous devez le plus rapidement possible inscrire celle-ci comme unité d'établissement auprès de la Banque Carrefour des Entreprises</li>
-          <li>Vous devez vous assurer que le formulaire définitif sera réceptionné par Bruxelles Economie et Emploi dans les délais légaux prévus, c'est à dire dans les douze mois de la date de la notification de l'autorisation préalable</li>
-          <li>Les pièces justificatives sont à transmettre à votre gestionnaire de dossier via l'application MyBEE en un seul et unique envoi avec le formulaire définitif</li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- 3.3 - Etapes successives du traitement de votre demande d'aide -->
-    <div class="section-3-3">
-      <h3>3.3 - Etapes successives du traitement de votre demande d'aide</h3>
-
-      <div class="etapes-traitement">
-        <h4>Demande d'autorisation préalable</h4>
-        <ol>
-          <li>Réception par Bruxelles Economie et Emploi du formulaire de demande d'autorisation préalable.</li>
-          <li>Envoi à l'entreprise d'une notification d'autorisation préalable ou de refus.</li>
-          <li>En cas d'autorisation préalable : réalisation des investissements</li>
-        </ol>
-
-        <h4>Demande définitive</h4>
-        <ol>
-          <li>Réception par Bruxelles Economie et Emploi du formulaire de demande définitif et des pièces justificatives dans les douze mois de la date de la notification de l'autorisation préalable.</li>
-          <li>Si le dossier de demande définitif est incomplet, envoi à l'entreprise d'une demande d'informations complémentaires dans un délai d'un mois.</li>
-          <li>L'entreprise dispose alors d'un mois pour compléter son dossier.</li>
-          <li>Envoi à l'entreprise, de la fiche de décision endéans les quatre mois de l'avis de réception du formulaire de demande définitif (s'il est complet) ou dans les quatre mois de l'expiration du délai pour compléter le dossier.</li>
-          <li>L'entreprise peut demander qu'une décision de principe soit prise dans les cas suivants :
-            <ul>
-              <li>si le permis d'urbanisme, le permis d'environnement ou tout autre autorisation officielle pour la réalisation ou l'exploitation de l'investissement n'a pas encore été délivré, pour autant que le bénéficiaire démontre que la procédure de demande est en cours.</li>
-              <li>si les factures et les preuves d'inscription en immobilisation, ou une partie de celles-ci, ne sont pas disponibles parce que la durée prévue du programme d'investissement excède la durée totale du traitement du dossier et que BEE dispose de documents probants et engageant juridiquement la société, lui permettant de déterminer le montant total de l'investissement.</li>
-            </ul>
-          </li>
-          <li>La décision de principe éventuelle sera notifiée endéans les quatre mois de la réception du formulaire de demande définitif ou dans les quatre mois de l'expiration du délai pour compléter le dossier.</li>
-          <li>A compter de la notification de cette dernière, l'entreprise dispose de douze mois pour compléter définitivement son dossier.</li>
-          <li>La décision ferme après principe est notifiée à l'entreprise dans les quatre mois de la réception des documents complétant définitivement le dossier.</li>
-        </ol>
+  <div class="row">
+    <div class="col-12">
+      <div class="alert alert-warning">
+        <h3 class="mb-0">
+          <i class="fas fa-file-upload me-2"></i>
+          Partie 3 – Documents à joindre et points d'attention
+        </h3>
       </div>
     </div>
   </div>
+
+        <!-- Section 3.1 - Documents à joindre -->
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-paperclip text-primary me-2"></i>
+              3.1 - Documents à joindre à votre demande
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-info mb-3">
+              <i class="fas fa-info-circle me-2"></i>
+              <strong>Important :</strong> Cochez les documents que vous joignez à votre demande et téléversez-les.
+            </div>
+
+            <div class="row g-4">
+              <!-- Attestation bancaire -->
+              <div class="col-12">
+                <div class="border rounded p-3">
+                  <div class="form-check mb-2">
+                    <%= form.check_box :document_attestation_bancaire,
+                        { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label fw-bold" for="request_document_attestation_bancaire">
+                      <i class="fas fa-university text-primary me-2"></i>
+                      ATTESTATION BANCAIRE (RIB)
+                    </label>
+                  </div>
+                  <div class="input-group">
+                    <%= form.file_field :fichier_attestation_bancaire,
+                        class: "form-control",
+                        accept: ".pdf,.jpg,.jpeg,.png" %>
+                    <span class="input-group-text">
+                      <i class="fas fa-upload"></i>
+                    </span>
+                  </div>
+                  <small class="text-muted">Formats acceptés : PDF, JPG, PNG (max 10MB)</small>
+                </div>
+              </div>
+
+              <!-- Mandat -->
+              <div class="col-12">
+                <div class="border rounded p-3">
+                  <div class="form-check mb-2">
+                    <%= form.check_box :document_mandat,
+                        { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label fw-bold" for="request_document_mandat">
+                      <i class="fas fa-file-signature text-secondary me-2"></i>
+                      COPIE DU MANDAT (LE CAS ÉCHÉANT)
+                    </label>
+                  </div>
+                  <div class="input-group">
+                    <%= form.file_field :fichier_mandat,
+                        class: "form-control",
+                        accept: ".pdf,.jpg,.jpeg,.png" %>
+                    <span class="input-group-text">
+                      <i class="fas fa-upload"></i>
+                    </span>
+                  </div>
+                  <small class="text-muted">Si vous êtes représenté par un mandataire</small>
+                </div>
+              </div>
+
+              <!-- Exemplarité sociale -->
+              <div class="col-12">
+                <div class="border rounded p-3">
+                  <div class="form-check mb-2">
+                    <%= form.check_box :document_exemplarite_sociale,
+                        { class: "form-check-input" }, "1", "0" %>
+                    <label class="form-check-label fw-bold" for="request_document_exemplarite_sociale">
+                      <i class="fas fa-award text-success me-2"></i>
+                      PREUVE DE L'EXEMPLARITÉ SOCIALE
+                    </label>
+                  </div>
+                  <div class="input-group">
+                    <%= form.file_field :fichier_exemplarite_sociale,
+                        class: "form-control",
+                        accept: ".pdf,.jpg,.jpeg,.png" %>
+                    <span class="input-group-text">
+                      <i class="fas fa-upload"></i>
+                    </span>
+                  </div>
+                  <small class="text-muted">Si vous revendiquez l'exemplarité sociale</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3.2 - Points d'attention -->
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+              3.2 - Points d'attention
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-warning mb-3">
+              <i class="fas fa-exclamation-circle me-2"></i>
+              <strong>Attention :</strong> Veuillez lire attentivement les points suivants avant de soumettre votre demande.
+            </div>
+
+            <div class="row g-3">
+              <div class="col-12">
+                <div class="list-group">
+                  <div class="list-group-item d-flex align-items-start">
+                    <i class="fas fa-calendar-times text-danger me-3 mt-1"></i>
+                    <div>
+                      <strong>Début des investissements</strong><br>
+                      <small>Vous ne pouvez débuter vos investissements qu'à dater de la notification de l'autorisation préalable de la présente demande. Aucun devis ou bon de commande signé ni aucune facture antérieur à cette notification ne sera pris en compte.</small>
+                    </div>
+                  </div>
+
+                  <div class="list-group-item d-flex align-items-start">
+                    <i class="fas fa-euro-sign text-primary me-3 mt-1"></i>
+                    <div>
+                      <strong>Montants minimum</strong><br>
+                      <small>Les factures doivent atteindre chacune un montant admissible de minimum de 500 € HTVA</small>
+                    </div>
+                  </div>
+
+                  <div class="list-group-item d-flex align-items-start">
+                    <i class="fas fa-chart-line text-success me-3 mt-1"></i>
+                    <div>
+                      <strong>Montant minimum d'investissement</strong><br>
+                      <small>Le montant minimum d'investissement admis doit atteindre 5.000€, 7.500€, 15.000€ ou 50.000€ HTVA en fonction de la catégorie de l'entreprise</small>
+                    </div>
+                  </div>
+
+                  <div class="list-group-item d-flex align-items-start">
+                    <i class="fas fa-building text-info me-3 mt-1"></i>
+                    <div>
+                      <strong>Immobilisations corporelles</strong><br>
+                      <small>Seuls les investissements inscrits aux immobilisations corporelles sont admis</small>
+                    </div>
+                  </div>
+
+                  <div class="list-group-item d-flex align-items-start">
+                    <i class="fas fa-ban text-danger me-3 mt-1"></i>
+                    <div>
+                      <strong>Investissements non subsidiables</strong><br>
+                      <small>Les investissements incorporels (logiciels, frais d'architecte, études, etc.) ne sont pas subsidiables</small>
+                    </div>
+                  </div>
+
+                  <div class="list-group-item d-flex align-items-start">
+                    <i class="fas fa-recycle text-secondary me-3 mt-1"></i>
+                    <div>
+                      <strong>Biens d'occasion</strong><br>
+                      <small>Les biens d'occasion pourront être pris en compte s'ils sont acquis auprès d'un professionnel dont l'activité porte sur la vente, la récupération, la valorisation, le réemploi ou le recyclage de tels biens et revêtus d'une garantie de minimum 6 mois.</small>
+                    </div>
+                  </div>
+
+                  <div class="list-group-item d-flex align-items-start">
+                    <i class="fas fa-map-marker-alt text-warning me-3 mt-1"></i>
+                    <div>
+                      <strong>Changement d'adresse</strong><br>
+                      <small>Si vous arrivez à une nouvelle adresse, vous devez le plus rapidement possible inscrire celle-ci comme unité d'établissement auprès de la Banque Carrefour des Entreprises</small>
+                    </div>
+                  </div>
+
+                  <div class="list-group-item d-flex align-items-start">
+                    <i class="fas fa-clock text-danger me-3 mt-1"></i>
+                    <div>
+                      <strong>Délais de soumission</strong><br>
+                      <small>Vous devez vous assurer que le formulaire définitif sera réceptionné par Bruxelles Economie et Emploi dans les délais légaux prévus, c'est à dire dans les douze mois de la date de la notification de l'autorisation préalable</small>
+                    </div>
+                  </div>
+
+                  <div class="list-group-item d-flex align-items-start">
+                    <i class="fas fa-upload text-primary me-3 mt-1"></i>
+                    <div>
+                      <strong>Transmission des pièces justificatives</strong><br>
+                      <small>Les pièces justificatives sont à transmettre à votre gestionnaire de dossier via l'application MyBEE en un seul et unique envoi avec le formulaire définitif</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3.3 - Étapes du traitement -->
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-route text-primary me-2"></i>
+              3.3 - Étapes successives du traitement de votre demande d'aide
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="row g-4">
+              <!-- Demande d'autorisation préalable -->
+              <div class="col-md-6">
+                <div class="border rounded p-3 h-100" style="border-color: #0d6efd !important;">
+                  <h5 class="text-primary mb-3">
+                    <i class="fas fa-file-alt me-2"></i>
+                    Demande d'autorisation préalable
+                  </h5>
+                  <ol class="list-group list-group-numbered list-group-flush">
+                    <li class="list-group-item border-0 px-0">
+                      <small>Réception par Bruxelles Economie et Emploi du formulaire de demande d'autorisation préalable.</small>
+                    </li>
+                    <li class="list-group-item border-0 px-0">
+                      <small>Envoi à l'entreprise d'une notification d'autorisation préalable ou de refus.</small>
+                    </li>
+                    <li class="list-group-item border-0 px-0">
+                      <small><strong>En cas d'autorisation préalable :</strong> réalisation des investissements</small>
+                    </li>
+                  </ol>
+                </div>
+              </div>
+
+              <!-- Demande définitive -->
+              <div class="col-md-6">
+                <div class="border rounded p-3 h-100" style="border-color: #198754 !important;">
+                  <h5 class="text-success mb-3">
+                    <i class="fas fa-check-circle me-2"></i>
+                    Demande définitive
+                  </h5>
+                  <ol class="list-group list-group-numbered list-group-flush">
+                    <li class="list-group-item border-0 px-0">
+                      <small>Réception par Bruxelles Economie et Emploi du formulaire de demande définitif et des pièces justificatives dans les <strong>douze mois</strong> de la date de la notification de l'autorisation préalable.</small>
+                    </li>
+                    <li class="list-group-item border-0 px-0">
+                      <small>Si le dossier de demande définitif est incomplet, envoi à l'entreprise d'une demande d'informations complémentaires dans un délai d'<strong>un mois</strong>.</small>
+                    </li>
+                    <li class="list-group-item border-0 px-0">
+                      <small>L'entreprise dispose alors d'<strong>un mois</strong> pour compléter son dossier.</small>
+                    </li>
+                    <li class="list-group-item border-0 px-0">
+                      <small>Envoi à l'entreprise, de la fiche de décision endéans les <strong>quatre mois</strong> de l'avis de réception du formulaire de demande définitif (s'il est complet) ou dans les quatre mois de l'expiration du délai pour compléter le dossier.</small>
+                    </li>
+                  </ol>
+                </div>
+              </div>
+
+              <!-- Décision de principe -->
+              <div class="col-12">
+                <div class="alert alert-info">
+                  <h6 class="alert-heading">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Décision de principe
+                  </h6>
+                  <p class="mb-2"><small>L'entreprise peut demander qu'une décision de principe soit prise dans les cas suivants :</small></p>
+                  <ul class="mb-2">
+                    <li><small>Si le permis d'urbanisme, le permis d'environnement ou tout autre autorisation officielle pour la réalisation ou l'exploitation de l'investissement n'a pas encore été délivré, pour autant que le bénéficiaire démontre que la procédure de demande est en cours.</small></li>
+                    <li><small>Si les factures et les preuves d'inscription en immobilisation, ou une partie de celles-ci, ne sont pas disponibles parce que la durée prévue du programme d'investissement excède la durée totale du traitement du dossier et que BEE dispose de documents probants et engageant juridiquement la société, lui permettant de déterminer le montant total de l'investissement.</small></li>
+                  </ul>
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <small><strong>Notification :</strong> La décision de principe éventuelle sera notifiée endéans les quatre mois de la réception du formulaire de demande définitif ou dans les quatre mois de l'expiration du délai pour compléter le dossier.</small>
+                    </div>
+                    <div class="col-md-6">
+                      <small><strong>Finalisation :</strong> A compter de la notification de cette dernière, l'entreprise dispose de douze mois pour compléter définitivement son dossier. La décision ferme après principe est notifiée à l'entreprise dans les quatre mois de la réception des documents complétant définitivement le dossier.</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
   <!-- Partie 4 – Communication -->
-  <div class="partie-4">
-    <h2>Partie 4 – Communication</h2>
-
-    <!-- 4.1 - Communication -->
-    <div class="section-4-1">
-      <h3>4.1 - Communication</h3>
-
-      <div class="form-group">
-        <label><strong>Comment avez-vous connu la prime ? (*)</strong></label>
-        <div class="radio-group">
-          <div class="form-check">
-            <%= radio_button_tag 'connaissance_prime', 'je_connaissais_deja', false, class: 'form-check-input' %>
-            <%= label_tag 'connaissance_prime_je_connaissais_deja', 'Je connaissais déjà les primes', class: 'form-check-label' %>
-          </div>
-          <div class="form-check">
-            <%= radio_button_tag 'connaissance_prime', 'site_web', false, class: 'form-check-input' %>
-            <%= label_tag 'connaissance_prime_site_web', 'Site web', class: 'form-check-label' %>
-          </div>
-          <div class="form-check">
-            <%= radio_button_tag 'connaissance_prime', 'bouche_oreille', false, class: 'form-check-input' %>
-            <%= label_tag 'connaissance_prime_bouche_oreille', 'Bouche à oreille', class: 'form-check-label' %>
-          </div>
-          <div class="form-check">
-            <%= radio_button_tag 'connaissance_prime', 'autres', false, class: 'form-check-input' %>
-            <%= label_tag 'connaissance_prime_autres', 'Autre', class: 'form-check-label' %>
-          </div>
-        </div>
-
-        <div class="form-group mt-2" id="connaissance_autre_precision" style="display:none;">
-          <label><strong>Si « Autre », précisez :</strong></label>
-          <%= text_field_tag 'connaissance_prime_autre_precision', nil, class: 'form-control' %>
-        </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="alert alert-info">
+        <h3 class="mb-0">
+          <i class="fas fa-bullhorn me-2"></i>
+          Partie 4 – Communication
+        </h3>
       </div>
     </div>
   </div>
+
+        <!-- Section 4.1 - Communication -->
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-comments text-primary me-2"></i>
+              4.1 - Comment avez-vous connu cette prime ?
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="row g-4">
+              <div class="col-12">
+                <label class="form-label fw-bold">Comment avez-vous connu la prime ? <span class="text-danger">*</span></label>
+                <div class="row g-3 mt-2">
+                  <div class="col-md-6">
+                    <div class="form-check p-3 border rounded">
+                      <%= form.radio_button :connaissance_prime, "je_connaissais_deja",
+                          class: "form-check-input" %>
+                      <label class="form-check-label ms-2" for="request_connaissance_prime_je_connaissais_deja">
+                        <i class="fas fa-user-check text-success me-2"></i>
+                        <strong>Je connaissais déjà les primes</strong><br>
+                        <small class="text-muted">Connaissance préalable du dispositif</small>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="form-check p-3 border rounded">
+                      <%= form.radio_button :connaissance_prime, "site_web",
+                          class: "form-check-input" %>
+                      <label class="form-check-label ms-2" for="request_connaissance_prime_site_web">
+                        <i class="fas fa-globe text-primary me-2"></i>
+                        <strong>Site web</strong><br>
+                        <small class="text-muted">Via le site economie-emploi.brussels</small>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="form-check p-3 border rounded">
+                      <%= form.radio_button :connaissance_prime, "bouche_oreille",
+                          class: "form-check-input" %>
+                      <label class="form-check-label ms-2" for="request_connaissance_prime_bouche_oreille">
+                        <i class="fas fa-users text-warning me-2"></i>
+                        <strong>Bouche à oreille</strong><br>
+                        <small class="text-muted">Recommandation d'un proche ou collègue</small>
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="col-md-6">
+                    <div class="form-check p-3 border rounded">
+                      <%= form.radio_button :connaissance_prime, "autres",
+                          class: "form-check-input",
+                          data: { action: "change->bruxelles-enterprise-form#toggleAutresPrecision" } %>
+                      <label class="form-check-label ms-2" for="request_connaissance_prime_autres">
+                        <i class="fas fa-ellipsis-h text-secondary me-2"></i>
+                        <strong>Autre</strong><br>
+                        <small class="text-muted">Autre canal de communication</small>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Champ conditionnel pour "Autre" -->
+                <div class="mt-3" data-bruxelles-enterprise-form-target="autresPrecision" style="display: none;">
+                  <label class="form-label">Si « Autre », précisez :</label>
+                  <%= form.text_field :connaissance_prime_autre_precision,
+                      class: "form-control",
+                      placeholder: "Précisez comment vous avez connu cette prime..." %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
   <!-- Partie 5 - Déclaration sur l'honneur et signature -->
-  <div class="partie-5">
-    <h2>Partie 5 - Déclaration sur l'honneur et signature</h2>
-
-    <!-- 5.1 – Déclarations sur l'honneur -->
-    <div class="section-5-1">
-      <h3>5.1 – Déclarations sur l'honneur</h3>
-
-      <div class="declarations">
-        <div class="form-group">
-          <div class="form-check">
-            <%= check_box_tag 'declaration_veracite', '1', false, class: 'form-check-input', required: true %>
-            <%= label_tag 'declaration_veracite', 'Nous certifions que tous les renseignements contenus dans la présente demande sont sincères, complets et véritables. (*)', class: 'form-check-label' %>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <div class="form-check">
-            <%= check_box_tag 'autorisation_enquetes', '1', false, class: 'form-check-input' %>
-            <%= label_tag 'autorisation_enquetes', 'Nous autorisons le ministre de la Région de Bruxelles-Capitale compétent à faire procéder à toutes enquêtes et expertises nécessaires à l\'examen de la présente demande.', class: 'form-check-label' %>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <div class="form-check">
-            <%= check_box_tag 'declaration_pas_autres_aides', '1', false, class: 'form-check-input' %>
-            <%= label_tag 'declaration_pas_autres_aides', 'Nous certifions sur l\'honneur que les dépenses mentionnées dans le présent dossier n\'ont pas fait et ne feront pas l\'objet d\'autres aides octroyées par la Région de Bruxelles-Capitale.', class: 'form-check-label' %>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <div class="form-check">
-            <%= check_box_tag 'engagement_avertir', '1', false, class: 'form-check-input' %>
-            <%= label_tag 'engagement_avertir', 'En cas d\'octroi de l\'aide sollicitée, nous nous engageons à avertir immédiatement le Service public régional de Bruxelles si nous sommes amenés, pour une cause quelconque, à céder ou à cesser nos activités ou à quitter la Région.', class: 'form-check-label' %>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <div class="form-check">
-            <%= check_box_tag 'engagement_maintien', '1', false, class: 'form-check-input' %>
-            <%= label_tag 'engagement_maintien', 'Sous peine de devoir rembourser les aides reçues et conformément à l\'article 8, § 1er, de l\'ordonnance du 13 octobre 2023 relative aux aides pour le développement et la transition économique des entreprises, nous nous engageons pour une période de cinq ans compter de la date de fin de la réalisation des investissements ayant donné lieu à l\'aide, à maintenir une unité d\'établissement et l\'investissement sur le territoire de la Région ; conserver l\'affectation des actifs faisant l\'objet de l\'aide ; utiliser les actifs aux fins prévues ; respecter les conditions d\'octroi prévues par la présente ordonnance et ses arrêtés d\'exécution.', class: 'form-check-label' %>
-          </div>
-        </div>
-
-        <div class="engagement-details">
-          <p><small>Pour l'aide ou la partie de l'aide relative à l'acquisition d'un immeuble ou d'un terrain, cette période est portée à quinze ans sauf si l'immeuble ou le terrain est aliéné dans le cadre d'un investissement dans un bien immobilier sur le territoire de la Région en vue de son expansion.</small></p>
-          <p><small>Pour l'aide ou la partie d'aide portant sur un investissement réalisé à travers un crédit-bail de moins de cinq ans, cette période est de quatre ans.</small></p>
-        </div>
-
-        <div class="form-group">
-          <label><strong>Avez-vous procédé à une délocalisation au sens de l'article 2, point 61bis, du règlement (UE) n° 651/2014 de la Commission du 17 juin 2014 déclarant certaines catégories d'aide compatibles avec le marché intérieur en application des articles 107 et 108 du traité, dans les deux années précédant la demande d'autorisation préalable ?</strong></label>
-          <div class="radio-inline-group">
-            <%= radio_button_tag 'delocalisation', 'oui', false, class: 'form-check-input' %>
-            <%= label_tag 'delocalisation_oui', 'Oui', class: 'form-check-label' %>
-            <%= radio_button_tag 'delocalisation', 'non', false, class: 'form-check-input' %>
-            <%= label_tag 'delocalisation_non', 'Non', class: 'form-check-label' %>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <div class="form-check">
-            <%= check_box_tag 'lu_approuve', '1', false, class: 'form-check-input', required: true %>
-            <%= label_tag 'lu_approuve', '(*) Lu et approuvé', class: 'form-check-label' %>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Signature -->
-    <div class="section-signature">
-      <h3>Déclaration sur l'honneur à signer par le demandeur</h3>
-
-      <div class="signature-block">
-        <p><strong>Nous certifions que tous les renseignements contenus dans la présente demande sont sincères, complets et véritables.</strong></p>
-
-        <div class="signature-fields">
-          <div class="row">
-            <div class="col-md-3">
-              <div class="form-group">
-                <label><strong>Fait à</strong></label>
-                <%= text_field_tag 'signature_lieu', nil, class: 'form-control' %>
-              </div>
-            </div>
-            <div class="col-md-3">
-              <div class="form-group">
-                <label><strong>Date</strong></label>
-                <%= date_field_tag 'signature_date', nil, class: 'form-control' %>
-              </div>
-            </div>
-          </div>
-
-          <div class="row">
-            <div class="col-md-6">
-              <div class="form-group">
-                <label><strong>Nom</strong></label>
-                <%= text_field_tag 'signature_nom', nil, class: 'form-control' %>
-              </div>
-            </div>
-            <div class="col-md-6">
-              <div class="form-group">
-                <label><strong>Qualité</strong></label>
-                <%= text_field_tag 'signature_qualite', nil, class: 'form-control' %>
-              </div>
-            </div>
-          </div>
-
-          <div class="signature-area">
-            <label><strong>Signature d'une personne habilitée à engager l'entreprise</strong></label>
-            <div class="signature-box">
-              <!-- Zone pour signature électronique ou scan -->
-              <p class="text-muted">Zone de signature</p>
-            </div>
-          </div>
-        </div>
+  <div class="row">
+    <div class="col-12">
+      <div class="alert alert-success">
+        <h3 class="mb-0">
+          <i class="fas fa-pen-fancy me-2"></i>
+          Partie 5 - Déclaration sur l'honneur et signature
+        </h3>
       </div>
     </div>
   </div>
 
-  <!-- Footer avec informations de contact -->
-  <div class="footer-contact">
-    <p><strong>Place Saint-Lazare 2 * 1035 Bruxelles</strong></p>
-    <p><a href="https://www.economie-emploi.brussels" target="_blank">www.economie-emploi.brussels</a> | <a href="https://www.servicespublic.brussels" target="_blank">www.servicespublic.brussels</a></p>
+        <!-- Section 5.1 - Déclarations sur l'honneur -->
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-hand-paper text-primary me-2"></i>
+              5.1 - Déclarations sur l'honneur
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-warning mb-4">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              <strong>Important :</strong> Les déclarations suivantes sont obligatoires et engagent juridiquement votre entreprise.
+            </div>
+
+            <div class="row g-4">
+              <!-- Déclaration de véracité -->
+              <div class="col-12">
+                <div class="border rounded p-3 bg-light">
+                  <div class="form-check">
+                    <%= form.check_box :declaration_veracite,
+                        { class: "form-check-input", required: true }, "1", "0" %>
+                    <label class="form-check-label fw-bold" for="request_declaration_veracite">
+                      <i class="fas fa-certificate text-danger me-2"></i>
+                      Nous certifions que tous les renseignements contenus dans la présente demande sont sincères, complets et véritables. <span class="text-danger">*</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Autorisation enquêtes -->
+              <div class="col-12">
+                <div class="form-check border rounded p-3">
+                  <%= form.check_box :autorisation_enquetes,
+                      { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="request_autorisation_enquetes">
+                    <i class="fas fa-search text-info me-2"></i>
+                    Nous autorisons le ministre de la Région de Bruxelles-Capitale compétent à faire procéder à toutes enquêtes et expertises nécessaires à l'examen de la présente demande.
+                  </label>
+                </div>
+              </div>
+
+              <!-- Déclaration pas autres aides -->
+              <div class="col-12">
+                <div class="form-check border rounded p-3">
+                  <%= form.check_box :declaration_pas_autres_aides,
+                      { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="request_declaration_pas_autres_aides">
+                    <i class="fas fa-ban text-warning me-2"></i>
+                    Nous certifions sur l'honneur que les dépenses mentionnées dans le présent dossier n'ont pas fait et ne feront pas l'objet d'autres aides octroyées par la Région de Bruxelles-Capitale.
+                  </label>
+                </div>
+              </div>
+
+              <!-- Engagement avertir -->
+              <div class="col-12">
+                <div class="form-check border rounded p-3">
+                  <%= form.check_box :engagement_avertir,
+                      { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="request_engagement_avertir">
+                    <i class="fas fa-bell text-primary me-2"></i>
+                    En cas d'octroi de l'aide sollicitée, nous nous engageons à avertir immédiatement le Service public régional de Bruxelles si nous sommes amenés, pour une cause quelconque, à céder ou à cesser nos activités ou à quitter la Région.
+                  </label>
+                </div>
+              </div>
+
+              <!-- Engagement maintien -->
+              <div class="col-12">
+                <div class="form-check border rounded p-3">
+                  <%= form.check_box :engagement_maintien,
+                      { class: "form-check-input" }, "1", "0" %>
+                  <label class="form-check-label" for="request_engagement_maintien">
+                    <i class="fas fa-shield-alt text-success me-2"></i>
+                    <strong>Engagement de maintien (5 ans)</strong><br>
+                    <small>Sous peine de devoir rembourser les aides reçues et conformément à l'article 8, § 1er, de l'ordonnance du 13 octobre 2023 relative aux aides pour le développement et la transition économique des entreprises, nous nous engageons pour une période de cinq ans compter de la date de fin de la réalisation des investissements ayant donné lieu à l'aide, à maintenir une unité d'établissement et l'investissement sur le territoire de la Région ; conserver l'affectation des actifs faisant l'objet de l'aide ; utiliser les actifs aux fins prévues ; respecter les conditions d'octroi prévues par la présente ordonnance et ses arrêtés d'exécution.</small>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Détails engagement -->
+              <div class="col-12">
+                <div class="alert alert-info">
+                  <h6 class="alert-heading">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Précisions sur l'engagement de maintien
+                  </h6>
+                  <ul class="mb-0">
+                    <li><small>Pour l'aide ou la partie de l'aide relative à l'acquisition d'un immeuble ou d'un terrain, cette période est portée à <strong>quinze ans</strong> sauf si l'immeuble ou le terrain est aliéné dans le cadre d'un investissement dans un bien immobilier sur le territoire de la Région en vue de son expansion.</small></li>
+                    <li><small>Pour l'aide ou la partie d'aide portant sur un investissement réalisé à travers un crédit-bail de moins de cinq ans, cette période est de <strong>quatre ans</strong>.</small></li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- Question délocalisation -->
+              <div class="col-12">
+                <div class="border rounded p-3">
+                  <label class="form-label fw-bold mb-3">
+                    <i class="fas fa-globe-europe text-warning me-2"></i>
+                    Délocalisation préalable
+                  </label>
+                  <p class="mb-3"><small>Avez-vous procédé à une délocalisation au sens de l'article 2, point 61bis, du règlement (UE) n° 651/2014 de la Commission du 17 juin 2014 déclarant certaines catégories d'aide compatibles avec le marché intérieur en application des articles 107 et 108 du traité, dans les deux années précédant la demande d'autorisation préalable ?</small></p>
+                  <div class="d-flex gap-3">
+                    <%= form.radio_button :delocalisation, "oui",
+                        class: "form-check-input" %>
+                    <label class="form-check-label" for="request_delocalisation_oui">
+                      Oui
+                    </label>
+
+                    <%= form.radio_button :delocalisation, "non",
+                        class: "form-check-input ms-3" %>
+                    <label class="form-check-label" for="request_delocalisation_non">
+                      Non
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Lu et approuvé -->
+              <div class="col-12">
+                <div class="border rounded p-3 bg-success bg-opacity-10">
+                  <div class="form-check">
+                    <%= form.check_box :lu_approuve,
+                        { class: "form-check-input", required: true }, "1", "0" %>
+                    <label class="form-check-label fw-bold" for="request_lu_approuve">
+                      <i class="fas fa-check-circle text-success me-2"></i>
+                      Lu et approuvé <span class="text-danger">*</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 5.2 - Signature -->
+        <div class="card mb-4">
+          <div class="card-header bg-light">
+            <h4 class="card-title mb-0">
+              <i class="fas fa-signature text-primary me-2"></i>
+              5.2 - Déclaration sur l'honneur à signer par le demandeur
+            </h4>
+          </div>
+          <div class="card-body">
+            <div class="alert alert-warning mb-4">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              <strong>Nous certifions que tous les renseignements contenus dans la présente demande sont sincères, complets et véritables.</strong>
+            </div>
+
+            <div class="row g-4">
+              <!-- Lieu et Date -->
+              <div class="col-md-6">
+                <label class="form-label fw-bold" for="signature_lieu">
+                  <i class="fas fa-map-marker-alt text-primary me-2"></i>
+                  Fait à
+                </label>
+                <%= form.text_field :signature_lieu,
+                    class: "form-control",
+                    placeholder: "Ville de signature" %>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold" for="signature_date">
+                  <i class="fas fa-calendar-alt text-primary me-2"></i>
+                  Date
+                </label>
+                <%= form.date_field :signature_date,
+                    class: "form-control",
+                    value: Date.current %>
+              </div>
+
+              <!-- Nom et Qualité -->
+              <div class="col-md-6">
+                <label class="form-label fw-bold" for="signature_nom">
+                  <i class="fas fa-user text-primary me-2"></i>
+                  Nom <span class="text-danger">*</span>
+                </label>
+                <%= form.text_field :signature_nom,
+                    class: "form-control",
+                    placeholder: "Nom et prénom complets",
+                    required: true %>
+                <div class="form-text">
+                  <i class="fas fa-info-circle me-1"></i>
+                  Nom complet du signataire
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold" for="signature_qualite">
+                  <i class="fas fa-briefcase text-primary me-2"></i>
+                  Qualité <span class="text-danger">*</span>
+                </label>
+                <%= form.text_field :signature_qualite,
+                    class: "form-control",
+                    placeholder: "Ex: Gérant, Administrateur délégué",
+                    required: true %>
+                <div class="form-text">
+                  <i class="fas fa-info-circle me-1"></i>
+                  Fonction du signataire dans l'entreprise
+                </div>
+              </div>
+
+              <!-- Zone de signature -->
+              <div class="col-12">
+                <label class="form-label fw-bold">
+                  <i class="fas fa-pen-nib text-primary me-2"></i>
+                  Signature d'une personne habilitée à engager l'entreprise <span class="text-danger">*</span>
+                </label>
+                <div class="border rounded p-4 bg-light text-center">
+                  <div class="mb-3">
+                    <i class="fas fa-signature fa-3x text-muted mb-3"></i>
+                    <p class="mb-2"><strong>Zone de signature</strong></p>
+                    <p class="text-muted">Signature électronique ou manuscrite après impression</p>
+                  </div>
+
+                  <!-- Upload de signature -->
+                  <div class="mt-3">
+                    <label class="form-label" for="signature_file">
+                      <i class="fas fa-upload text-primary me-2"></i>
+                      Télécharger une image de signature (optionnel)
+                    </label>
+                    <%= form.file_field :signature_file,
+                        class: "form-control",
+                        accept: "image/*",
+                        data: {
+                          controller: "file-upload",
+                          action: "change->file-upload#preview"
+                        } %>
+                    <div class="form-text">
+                      <i class="fas fa-info-circle me-1"></i>
+                      Formats acceptés: JPG, PNG, PDF (max 5MB)
+                    </div>
+
+                    <!-- Preview de la signature -->
+                    <div class="mt-3" data-file-upload-target="preview" style="display: none;">
+                      <img class="img-thumbnail" style="max-height: 150px;" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cachet entreprise -->
+              <div class="col-12">
+                <div class="alert alert-info">
+                  <div class="form-check">
+                    <%= form.check_box :cachet_entreprise,
+                        class: "form-check-input" %>
+                    <label class="form-check-label fw-bold" for="request_cachet_entreprise">
+                      <i class="fas fa-stamp text-secondary me-2"></i>
+                      Cachet de l'entreprise apposé
+                    </label>
+                  </div>
+                  <small class="form-text text-muted mt-2">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Le cachet de l'entreprise doit être apposé à côté de la signature
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer avec informations de contact -->
+    <div class="mt-5 pt-4 border-top">
+      <div class="card border-0 bg-light">
+        <div class="card-body text-center">
+          <div class="row align-items-center">
+            <div class="col-md-4">
+              <i class="fas fa-map-marker-alt text-primary fa-2x mb-2"></i>
+              <p class="mb-0 fw-bold">Place Saint-Lazare 2</p>
+              <p class="mb-0">1035 Bruxelles</p>
+            </div>
+            <div class="col-md-4">
+              <i class="fas fa-globe text-primary fa-2x mb-2"></i>
+              <p class="mb-1">
+                <a href="https://www.economie-emploi.brussels" target="_blank" class="text-decoration-none">
+                  <i class="fas fa-external-link-alt me-1"></i>
+                  economie-emploi.brussels
+                </a>
+              </p>
+              <p class="mb-0">
+                <a href="https://www.servicespublic.brussels" target="_blank" class="text-decoration-none">
+                  <i class="fas fa-external-link-alt me-1"></i>
+                  servicespublic.brussels
+                </a>
+              </p>
+            </div>
+            <div class="col-md-4">
+              <i class="fas fa-info-circle text-primary fa-2x mb-2"></i>
+              <p class="mb-0"><small class="text-muted">Région de Bruxelles-Capitale</small></p>
+              <p class="mb-0"><small class="text-muted">Service Économie & Emploi</small></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
