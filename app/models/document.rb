@@ -81,6 +81,8 @@ class Document < ApplicationRecord
 
   # Limite de taille (30 MB - correspond à config.active_storage.max_file_size)
   MAX_FILE_SIZE = 30.megabytes
+  # Limite de taille pour les photos (100 MB)
+  MAX_PHOTO_FILE_SIZE = 100.megabytes
 
   # Méthodes helper
   def completed?
@@ -164,6 +166,11 @@ class Document < ApplicationRecord
 
     match = method_line.match(/\((.+)\)/)
     match ? match[1] : nil
+  end
+
+  # Vérifie si le document est un type photo (avec limite augmentée)
+  def is_photo_type?
+    %w[photo photo_avant photo_pendant photo_apres photo_chassis].include?(type_document)
   end
 
   def cloudinary_url
@@ -325,16 +332,20 @@ class Document < ApplicationRecord
     Rails.logger.info "🔍 Document validation DEBUG - filename: #{file.filename}"
     Rails.logger.info "🔍 file.attached?: #{file.attached?}"
     Rails.logger.info "🔍 file.blob present?: #{file.blob.present?}"
+    Rails.logger.info "🔍 type_document: #{type_document}"
 
     begin
       byte_size = file.byte_size
-      Rails.logger.info "🔍 file.byte_size: #{byte_size} bytes (#{ActionController::Base.helpers.number_to_human_size(byte_size)})"
-      Rails.logger.info "🔍 MAX_FILE_SIZE: #{MAX_FILE_SIZE} bytes (#{ActionController::Base.helpers.number_to_human_size(MAX_FILE_SIZE)})"
-      Rails.logger.info "🔍 Comparaison: #{byte_size} > #{MAX_FILE_SIZE} = #{byte_size > MAX_FILE_SIZE}"
+      max_size = is_photo_type? ? MAX_PHOTO_FILE_SIZE : MAX_FILE_SIZE
 
-      if byte_size > MAX_FILE_SIZE
+      Rails.logger.info "🔍 file.byte_size: #{byte_size} bytes (#{ActionController::Base.helpers.number_to_human_size(byte_size)})"
+      Rails.logger.info "🔍 is_photo_type?: #{is_photo_type?}"
+      Rails.logger.info "🔍 MAX_SIZE: #{max_size} bytes (#{ActionController::Base.helpers.number_to_human_size(max_size)})"
+      Rails.logger.info "🔍 Comparaison: #{byte_size} > #{max_size} = #{byte_size > max_size}"
+
+      if byte_size > max_size
         human_size = ActionController::Base.helpers.number_to_human_size(byte_size)
-        max_human_size = ActionController::Base.helpers.number_to_human_size(MAX_FILE_SIZE)
+        max_human_size = ActionController::Base.helpers.number_to_human_size(max_size)
         Rails.logger.error "❌ File too large - #{file.filename}: #{human_size} > #{max_human_size}"
         errors.add(:file, "ne doit pas dépasser #{max_human_size}")
       else
@@ -350,11 +361,12 @@ class Document < ApplicationRecord
   def file_size_limit
     return unless file.attached?
 
-    Rails.logger.info "🔍 Document validation - filename: #{file.filename}, byte_size: #{file.byte_size}, MAX_FILE_SIZE: #{MAX_FILE_SIZE}"
+    max_size = is_photo_type? ? MAX_PHOTO_FILE_SIZE : MAX_FILE_SIZE
+    Rails.logger.info "🔍 Document validation - filename: #{file.filename}, byte_size: #{file.byte_size}, type: #{type_document}, is_photo: #{is_photo_type?}, MAX_SIZE: #{max_size}"
 
-    if file.byte_size > MAX_FILE_SIZE
+    if file.byte_size > max_size
       human_size = ActionController::Base.helpers.number_to_human_size(file.byte_size)
-      max_human_size = ActionController::Base.helpers.number_to_human_size(MAX_FILE_SIZE)
+      max_human_size = ActionController::Base.helpers.number_to_human_size(max_size)
       Rails.logger.error "❌ File too large - #{file.filename}: #{human_size} > #{max_human_size}"
       errors.add(:file, "ne doit pas dépasser #{max_human_size}")
     else

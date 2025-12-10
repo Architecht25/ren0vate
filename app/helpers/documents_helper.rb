@@ -172,4 +172,29 @@ module DocumentsHelper
   def document_type_name(type_document)
     I18n.t("documents.types.#{type_document}", default: type_document.humanize)
   end
+
+  # Limite de taille selon le type de document
+  def max_file_size_for_type(type_document)
+    if is_photo_type?(type_document)
+      Document::MAX_PHOTO_FILE_SIZE
+    else
+      Document::MAX_FILE_SIZE
+    end
+  end
+
+  # Limite de taille en format humain
+  def max_file_size_human_for_type(type_document)
+    ActionController::Base.helpers.number_to_human_size(max_file_size_for_type(type_document))
+  end
+
+  # Vérifier si c'est un type photo
+  def is_photo_type?(type_document)
+    %w[photo photo_avant photo_pendant photo_apres photo_chassis].include?(type_document)
+  end
+
+  # Texte d'aide pour les formats et taille
+  def upload_help_text(type_document = nil)
+    max_size = type_document ? max_file_size_human_for_type(type_document) : "30 MB (photos: 100 MB)"
+    "Formats acceptés: PDF, Images (JPEG, PNG, GIF, WebP), Word, Excel<br>Taille max: #{max_size} par fichier".html_safe
+  end
 end

@@ -188,7 +188,9 @@ class DocumentsController < ApplicationController
       rescue ActiveStorage::IntegrityError => e
         if e.message.include?("File size too large")
           file_size_mb = (@document.file.byte_size.to_f / 1.megabyte).round(2) if @document.file.attached?
-          limit_mb = 30 # Limite configurée dans Rails
+          # Déterminer la limite selon le type de document
+          is_photo_type = %w[photo photo_avant photo_pendant photo_apres photo_chassis].include?(@document.type_document)
+          limit_mb = is_photo_type ? 100 : 30
           filename = @document.file.filename.to_s if @document.file.attached?
           errors << "Le fichier '#{filename}' (#{file_size_mb} MB) dépasse la limite autorisée de #{limit_mb} MB. Veuillez réduire la taille du fichier ou le compresser."
         else

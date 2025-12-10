@@ -147,8 +147,7 @@
                   <p class="upload-text text-muted" id="upload-text">ou cliquez pour sélectionner (plusieurs fichiers possibles)</p>
                   <div class="upload-formats">
                     <small class="text-muted" id="upload-formats">
-                      Formats acceptés: PDF, Images (JPEG, PNG, GIF, WebP), Word, Excel
-                      <br>Taille max: 30 MB
+                      <%= upload_help_text(@document&.type_document) %>
                     </small>
                   </div>
                 </div>
@@ -492,8 +491,7 @@ document.addEventListener('turbo:load', function() {
       uploadText.textContent = 'ou cliquez pour sélectionner (plusieurs fichiers possibles)';
       uploadFormats.innerHTML = `
         <small class="text-muted">
-          Formats acceptés: PDF, Images (JPEG, PNG, GIF, WebP), Word, Excel
-          <br>Taille max: 30 MB par fichier
+          <%= upload_help_text(@document&.type_document) %>
         </small>
       `;
     }
@@ -616,7 +614,7 @@ document.addEventListener('turbo:load', function() {
 
   function handleFileSelect(file) {
     // Validation côté client
-    const maxSize = 30 * 1024 * 1024; // 30 MB
+    const maxSize = <%= max_file_size_for_type(@document&.type_document) %>; // Limite dynamique selon type
     const allowedTypes = [
       'application/pdf',
       'image/jpeg', 'image/png', 'image/gif', 'image/webp',
@@ -625,7 +623,8 @@ document.addEventListener('turbo:load', function() {
     ];
 
     if (file.size > maxSize) {
-      alert('Le fichier est trop volumineux. Taille maximum: 30 MB');
+      const maxSizeHuman = '<%= max_file_size_human_for_type(@document&.type_document) %>';
+      alert(`Le fichier est trop volumineux. Taille maximum: ${maxSizeHuman}`);
       return;
     }
 

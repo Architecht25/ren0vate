@@ -82,7 +82,7 @@ Votre profil détermine votre éligibilité aux différentes primes régionales 
 
 ### 💾 Formats supportés
 - **Types** : PDF, JPG, PNG, Excel (xlsx)
-- **Taille max** : 30 MB par fichier
+- **Taille max** : 30 MB par fichier (photos: 100 MB)
 - **Recommandation** : Scanner en haute qualité
 
 ---
