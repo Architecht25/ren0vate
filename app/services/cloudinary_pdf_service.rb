@@ -15,7 +15,7 @@ class CloudinaryPdfService
     def generate_pdf_url(public_id, options = {})
       default_options = {
         resource_type: :raw,  # CORRECT: Utiliser :raw pour les PDFs comme à l'upload !
-        secure: Rails.env.production?,
+        secure: true,  # Forcer HTTPS même en développement
         sign_url: false  # URLs publiques pour les PDFs
       }
 
@@ -31,19 +31,21 @@ class CloudinaryPdfService
 
     def generate_preview_url(public_id, options = {})
       # Pour les PDFs, on peut générer une image de la première page
+      # Utiliser resource_type image car nous générons une image depuis un PDF
       default_options = {
-        resource_type: :image,  # Important: pas raw pour la preview
+        resource_type: :image,  # Changé d'auto à image car le résultat est une image
         format: :jpg,
         transformation: [
           { page: 1 },  # Première page
-          { width: 400, height: 600, crop: :fit },
-          { quality: :auto }
+          { width: 400, height: 600, crop: :fit }
         ],
-        secure: Rails.env.production?
+        secure: true  # Forcer HTTPS même en développement pour éviter les problèmes CSP
       }
 
       begin
-        Cloudinary::Utils.cloudinary_url(public_id, default_options.merge(options))
+        url = Cloudinary::Utils.cloudinary_url(public_id, default_options.merge(options))
+        Rails.logger.info "🖼️  Preview PDF générée: #{url}"
+        url
       rescue => e
         Rails.logger.warn "Could not generate PDF preview for #{public_id}: #{e.message}"
         nil

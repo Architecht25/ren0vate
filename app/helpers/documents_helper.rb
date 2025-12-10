@@ -197,4 +197,16 @@ module DocumentsHelper
     max_size = type_document ? max_file_size_human_for_type(type_document) : "30 MB (photos: 100 MB)"
     "Formats acceptés: PDF, Images (JPEG, PNG, GIF, WebP), Word, Excel<br>Taille max: #{max_size} par fichier".html_safe
   end
+
+  # Aperçu PDF avec upload automatique sur Cloudinary si nécessaire
+  def pdf_preview_url_cached(document)
+    return nil unless document&.file&.attached?
+    return nil unless document.file.content_type == 'application/pdf'
+
+    # Utiliser le nouveau service PdfPreviewService
+    PdfPreviewService.generate_preview_for_document(document)
+  rescue => e
+    Rails.logger.warn "Could not generate PDF preview for document #{document.id}: #{e.message}"
+    nil
+  end
 end

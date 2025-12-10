@@ -62,9 +62,8 @@ Rails.application.configure do
                        :data,
                        "http://localhost:3000", # Pour Active Storage en développement
                        "http://localhost:3000/rails/active_storage/*", # Routes Active Storage avec wildcards
-                       "https://res.cloudinary.com", # Cloudinary principal
-                       "https://res-2.cloudinary.com", # Cloudinary CDN secondaire
-                       "https://res-1.cloudinary.com", # Cloudinary CDN alternatif
+                       "https://*.cloudinary.com",     # Wildcard pour tous les sous-domaines Cloudinary (couvre res, res-1, res-2, etc.)
+                       "http://*.cloudinary.com",      # HTTP pour développement
                        "https://via.placeholder.com", # Pour les placeholders éventuels
                        "https://api.mapbox.com",       # Images Mapbox (sprites, etc.)
                        "https://*.tiles.mapbox.com"    # Tiles de carte Mapbox

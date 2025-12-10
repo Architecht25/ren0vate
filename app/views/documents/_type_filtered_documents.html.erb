@@ -57,20 +57,35 @@
                           </div>
                         <% elsif document.file.content_type == 'application/pdf' %>
                           <!-- Prévisualisation PDF -->
-                          <div class="pdf-preview-box p-3">
-                            <div class="pdf-icon-large mb-2">
-                              <i class="bi bi-file-earmark-pdf text-danger" style="font-size: 3rem;"></i>
+                          <% cached_url = pdf_preview_url_cached(document) %>
+                          <% if cached_url %>
+                            <!-- Aperçu déjà en cache - affichage direct -->
+                            <%= image_tag cached_url,
+                                class: "img-fluid rounded shadow-sm document-thumbnail",
+                                style: "max-height: 200px; max-width: 100%; object-fit: cover; cursor: pointer;",
+                                alt: "Aperçu de #{document.file.filename}",
+                                loading: "lazy" %>
+                          <% else %>
+                            <!-- Prévisualisation asynchrone avec Stimulus -->
+                            <div class="pdf-preview-container"
+                                 data-controller="pdf-preview"
+                                 data-pdf-preview-document-id-value="<%= document.id %>">
+                              <!-- Placeholder statique pendant génération -->
+                              <div class="pdf-preview-loading d-flex flex-column align-items-center justify-content-center"
+                                   data-pdf-preview-target="loading"
+                                   style="height: 200px; background: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 8px;">
+                                <i class="bi bi-file-earmark-pdf text-primary mb-2" style="font-size: 3rem;"></i>
+                                <small class="text-muted">Génération de l'aperçu...</small>
+                              </div>
+                              <img class="pdf-preview-image img-fluid rounded shadow-sm document-thumbnail d-none"
+                                   data-pdf-preview-target="image"
+                                   style="max-height: 200px; max-width: 100%; object-fit: cover; cursor: pointer;"
+                                   alt="Aperçu de #{document.file.filename}"
+                                   loading="lazy" />
                             </div>
-                            <div class="small text-muted">
-                              <strong><%= document.file.filename %></strong><br>
-                              <i class="bi bi-file-earmark-pdf me-1"></i>Document PDF<br>
-                              <% if document.file.byte_size %>
-                                <i class="bi bi-hdd me-1"></i><%= number_to_human_size(document.file.byte_size) %>
-                              <% end %>
-                            </div>
-                            <div class="small text-primary mt-2">
-                              <i class="bi bi-eye me-1"></i>Cliquer pour ouvrir
-                            </div>
+                          <% end %>
+                          <div class="small text-muted mt-2">
+                            <i class="bi bi-zoom-in me-1"></i>Cliquer pour agrandir
                           </div>
                         <% else %>
                           <!-- Prévisualisation AUTRES DOCUMENTS -->

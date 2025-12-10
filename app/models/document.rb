@@ -203,7 +203,7 @@ class Document < ApplicationRecord
     return nil unless file.service_name.to_s == 'cloudinary'
     return nil unless is_pdf?
 
-    CloudinaryPdfService.generate_preview_url(file.key)
+    PdfPreviewService.generate_preview_for_document(self)
   rescue => e
     Rails.logger.warn "Could not generate PDF preview for document #{id}: #{e.message}"
     nil

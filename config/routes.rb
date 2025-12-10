@@ -49,7 +49,10 @@ Rails.application.routes.draw do
 
       # API Bot Contextuel
       post 'contextual_bot/chat', to: 'contextual_bot#chat'
-      post 'contextual_bot/suggestions', to: 'contextual_bot#suggestions'      # API pour les primes communales Flandre
+      post 'contextual_bot/suggestions', to: 'contextual_bot#suggestions'
+
+      # API pour génération d'aperçus PDF asynchrones
+      post 'pdf_preview/:id/generate', to: 'pdf_preview#generate', as: 'generate_pdf_preview'      # API pour les primes communales Flandre
       resources :primes_communales, only: [] do
         collection do
           get :index          # GET /api/primes_communales?code_postal=9000

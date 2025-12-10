@@ -28,6 +28,7 @@ import PrimeCardController from "controllers/prime_card_controller"
 import PrimeCalculController from "controllers/prime_calcul_controller"
 import PebController from "controllers/peb_controller"
 import PetitPatrimoineBruxellesController from "controllers/petit_patrimoine_bruxelles_controller"
+import PdfPreviewController from "controllers/pdf_preview_controller"
 import WalloniePrimeCalculController from "controllers/wallonie_prime_calcul_controller"
 import WalloniePrimeCardController from "controllers/wallonie_prime_card_controller"
 import WallonieSimulationController from "controllers/wallonie_simulation_controller"
@@ -89,6 +90,7 @@ application.register("prime-card", PrimeCardController)
 application.register("prime-calcul", PrimeCalculController)
 application.register("peb", PebController)
 application.register("petit-patrimoine-bruxelles", PetitPatrimoineBruxellesController)
+application.register("pdf-preview", PdfPreviewController)
 application.register("wallonie-prime-calcul", WalloniePrimeCalculController)
 application.register("wallonie-prime-card", WalloniePrimeCardController)
 application.register("wallonie-simulation", WallonieSimulationController)
