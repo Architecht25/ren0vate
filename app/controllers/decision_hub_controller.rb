@@ -416,7 +416,7 @@ class DecisionHubController < ApplicationController
       obligations: generate_mock_obligations(region),
       recommendations: generate_mock_recommendations(region),
       timeline: generate_mock_timeline(region),
-      total_duration: "6-8 semaines",
+      total_duration: calculate_dynamic_deadline_duration,
       preparation_score: 68
     }
   end
@@ -860,5 +860,78 @@ class DecisionHubController < ApplicationController
 
     topic = topics.find { |pattern, _| question.match?(pattern) }
     topic ? topic[1] : "votre projet de rénovation"
+  end
+
+  def calculate_dynamic_deadline_duration
+    return "Non défini" unless @simulation
+
+    region = @simulation.region&.downcase
+    project = @simulation.project
+    property = @simulation.property
+
+    deadlines = []
+
+    case region
+    when 'flandre'
+      # Date limite suppression prime PEB Flandre
+      deadline_peb_suppression = Date.new(2026, 6, 30)
+      deadlines << deadline_peb_suppression
+
+      # Délai facture d'acompte (2 ans)
+      if project&.date_début.present?
+        deadline_acompte = project.date_début + 2.years
+        deadlines << deadline_acompte
+      end
+
+      # Délai certificat PEB (5 ans)
+      if property&.date_peb_avant_travaux.present?
+        deadline_peb = property.date_peb_avant_travaux + 5.years
+        deadlines << deadline_peb
+      end
+
+    when 'wallonie'
+      # Date limite arrêt des aides Wallonie
+      deadline_wallonie_arret = Date.new(2026, 9, 30)
+      deadlines << deadline_wallonie_arret
+
+      # Délai facture de solde (8 mois)
+      if project&.date_fin.present?
+        deadline_solde = project.date_fin + 8.months
+        deadlines << deadline_solde
+      end
+
+      # Délai prime audit (4 mois)
+      if project&.date_audit.present?
+        deadline_audit = project.date_audit + 4.months
+        deadlines << deadline_audit
+      end
+
+    when 'bruxelles'
+      # Délai facture de solde (12 mois)
+      if project&.date_fin.present?
+        deadline_brux = project.date_fin + 12.months
+        deadlines << deadline_brux
+      end
+    end
+
+    return "Non défini" if deadlines.empty?
+
+    earliest_deadline = deadlines.min
+    days_remaining = (earliest_deadline - Date.current).to_i
+
+    if days_remaining <= 0
+      "⚠️ Délai dépassé"
+    elsif days_remaining <= 30
+      "#{days_remaining} jour#{days_remaining > 1 ? 's' : ''}"
+    elsif days_remaining <= 90
+      weeks_remaining = (days_remaining / 7.0).ceil
+      "#{weeks_remaining} semaine#{weeks_remaining > 1 ? 's' : ''}"
+    elsif days_remaining <= 365
+      months_remaining = (days_remaining / 30.0).ceil
+      "#{months_remaining} mois"
+    else
+      years_remaining = (days_remaining / 365.0).round(1)
+      "#{years_remaining} an#{years_remaining > 1 ? 's' : ''}"
+    end
   end
 end

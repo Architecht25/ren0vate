@@ -50,8 +50,56 @@
               </div>
               <p class="mb-2">Si vous avez un certificat PEB, vous avez <strong>5 ans</strong> pour introduire votre demande.</p>
 
-              <div class="small text-muted">
-                ℹ️ Renseignez la date de certificat PEB dans votre profil pour calculer ce délai
+              <% if @simulation&.property&.date_peb_avant_travaux.present? %>
+                <% deadline_peb = @simulation.property.date_peb_avant_travaux + 5.years %>
+                <div class="small">
+                  <strong>Votre certificat PEB :</strong> <%= @simulation.property.date_peb_avant_travaux.strftime("%d/%m/%Y") %><br>
+                  <strong class="text-<%= deadline_peb > Date.current ? 'success' : 'danger' %>">
+                    Délai limite : <%= deadline_peb.strftime("%d/%m/%Y") %>
+                    (<%= time_ago_in_words(deadline_peb) %>)
+                  </strong>
+                </div>
+              <% else %>
+                <div class="small text-muted">
+                  ℹ️ Renseignez la date de certificat PEB dans votre profil pour calculer ce délai
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alerte suppression prime PEB Flandre -->
+        <div class="col-12 mt-3">
+          <div class="alert alert-danger border-danger">
+            <div class="d-flex align-items-start">
+              <div class="me-3">
+                <i class="bi bi-exclamation-triangle-fill text-danger fs-4"></i>
+              </div>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-2 text-danger">
+                  <i class="bi bi-calendar-x me-1"></i>
+                  Suppression de la prime label PEB
+                </h6>
+                <p class="mb-2">
+                  <strong>Attention :</strong> La prime pour label PEB sera supprimée après le <strong>30 juin 2026</strong>.
+                  Votre demande doit être <u>introduite</u> avant cette date limite, même si vos travaux ne sont pas encore terminés.
+                </p>
+                <%
+                  deadline_peb_suppression = Date.new(2026, 6, 30)
+                  days_until_suppression = (deadline_peb_suppression - Date.current).to_i
+                %>
+                <div class="small">
+                  <% if days_until_suppression > 0 %>
+                    <strong class="text-primary bg-white px-2 py-1 rounded">
+                      Il reste <%= pluralize(days_until_suppression, 'jour') %> avant la suppression de cette prime
+                      (<%= deadline_peb_suppression.strftime("%d/%m/%Y") %>)
+                    </strong>
+                  <% else %>
+                    <strong class="text-white">
+                      ❌ Cette prime n'est plus disponible depuis le <%= deadline_peb_suppression.strftime("%d/%m/%Y") %>
+                    </strong>
+                  <% end %>
+                </div>
               </div>
             </div>
           </div>
@@ -98,12 +146,12 @@
                 <i class="bi bi-clipboard-check me-2"></i>
                 Délai prime audit
               </div>
-              <p class="mb-2">Prime audit à introduire dans les <strong>8 mois</strong> de l'enregistrement de l'audit.</p>
-              <p class="small text-muted">ℹ️ Validité de l'audit : <strong>7 ans</strong> pour les autres primes</p>
+              <p class="mb-2">Prime audit à introduire dans les <strong>4 mois</strong> de l'enregistrement de l'audit.</p>
+              <p class="small text-muted">ℹ️ Validité de l'audit : <strong>10 ans</strong> pour les autres primes</p>
 
               <% if @simulation&.project&.date_audit.present? %>
-                <% deadline_audit = @simulation.project.date_audit + 8.months %>
-                <% audit_expiry = @simulation.project.date_audit + 7.years %>
+                <% deadline_audit = @simulation.project.date_audit + 4.months %>
+                <% audit_expiry = @simulation.project.date_audit + 10.years %>
                 <div class="small">
                   <strong>Votre audit :</strong> <%= @simulation.project.date_audit.strftime("%d/%m/%Y") %><br>
                   <strong class="text-<%= deadline_audit > Date.current ? 'success' : 'danger' %>">
@@ -119,6 +167,43 @@
                   ℹ️ Renseignez la date d'audit énergétique dans votre profil pour calculer ce délai
                 </div>
               <% end %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alerte arrêt des aides Wallonie -->
+        <div class="col-12 mt-3">
+          <div class="alert alert-danger border-danger">
+            <div class="d-flex align-items-start">
+              <div class="me-3">
+                <i class="bi bi-exclamation-triangle-fill text-danger fs-4"></i>
+              </div>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-2 text-danger">
+                  <i class="bi bi-calendar-x me-1"></i>
+                  Arrêt potentiel des aides à la rénovation
+                </h6>
+                <p class="mb-2">
+                  <strong>Attention :</strong> Les primes à la rénovation pourraient être supprimées après le <strong>30 septembre 2026</strong>.
+                  Votre dossier doit être <u>introduit</u> avant cette date limite pour bénéficier des aides.
+                </p>
+                <%
+                  deadline_wallonie_arret = Date.new(2026, 9, 30)
+                  days_until_arret = (deadline_wallonie_arret - Date.current).to_i
+                %>
+                <div class="small">
+                  <% if days_until_arret > 0 %>
+                    <strong class="text-primary bg-white px-2 py-1 rounded">
+                      Il reste <%= pluralize(days_until_arret, 'jour') %> avant l'arrêt potentiel des aides
+                      (<%= deadline_wallonie_arret.strftime("%d/%m/%Y") %>)
+                    </strong>
+                  <% else %>
+                    <strong class="text-white">
+                      ❌ L'arrêt des aides est effectif depuis le <%= deadline_wallonie_arret.strftime("%d/%m/%Y") %>
+                    </strong>
+                  <% end %>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -166,7 +251,7 @@
   </div>
 
   <!-- Actions nécessaires -->
-  <% if region.present? && (@simulation&.project&.date_début.present? || @simulation&.project&.date_fin.present?) %>
+  <% if region.present? && (@simulation&.project&.date_début.present? || @simulation&.project&.date_fin.present? || @simulation&.property&.date_peb_avant_travaux.present?) %>
     <div class="required-actions mb-4">
       <h6 class="fw-bold mb-3">
         <i class="bi bi-list-check me-1"></i>
@@ -177,27 +262,70 @@
         <% if region == 'flandre' %>
           <div class="action-item d-flex align-items-start p-3 mb-2 border rounded bg-light">
             <div class="action-icon me-3">
-              <i class="bi bi-shield-check text-primary"></i>
+              <i class="bi bi-camera text-primary"></i>
             </div>
             <div class="flex-grow-1">
-              <div class="fw-semibold">Certificat de conformité électrique</div>
-              <small class="text-muted">Obligatoire pour la plupart des travaux en Flandre</small>
+              <div class="fw-semibold">Photos de chantier avant travaux</div>
+              <small class="text-muted">Documenter l'état initial pour justifier les travaux</small>
             </div>
             <div class="action-status">
-              <span class="badge bg-secondary">À prévoir</span>
+              <span class="badge bg-secondary">Avant démarrage</span>
             </div>
           </div>
 
           <div class="action-item d-flex align-items-start p-3 mb-2 border rounded bg-light">
             <div class="action-icon me-3">
-              <i class="bi bi-file-earmark-pdf text-warning"></i>
+              <i class="bi bi-file-earmark-check text-warning"></i>
             </div>
             <div class="flex-grow-1">
-              <div class="fw-semibold">Factures et preuves de paiement</div>
-              <small class="text-muted">Conserver toutes les factures détaillées</small>
+              <div class="fw-semibold">Préparation des attestations techniques</div>
+              <small class="text-muted">Documents que l'entrepreneur devra remplir et signer</small>
             </div>
             <div class="action-status">
-              <span class="badge bg-secondary">En continu</span>
+              <span class="badge bg-warning">Avec entrepreneur</span>
+            </div>
+          </div>
+
+          <div class="action-item d-flex align-items-start p-3 mb-2 border rounded bg-light">
+            <div class="action-icon me-3">
+              <i class="bi bi-calculator text-info"></i>
+            </div>
+            <div class="flex-grow-1">
+              <div class="fw-semibold">Collecte des devis conformes</div>
+              <small class="text-muted">Devis détaillés avec spécifications techniques requises</small>
+            </div>
+            <div class="action-status">
+              <span class="badge bg-info">En cours</span>
+            </div>
+          </div>
+
+          <div class="action-item d-flex align-items-start p-3 mb-2 border rounded bg-light">
+            <div class="action-icon me-3">
+              <i class="bi bi-shield-check text-success"></i>
+            </div>
+            <div class="flex-grow-1">
+              <div class="fw-semibold">Vérification agréments entrepreneur</div>
+              <small class="text-muted">Confirmer les agréments nécessaires pour vos travaux</small>
+            </div>
+            <div class="action-status">
+              <span class="badge bg-success">Validation</span>
+            </div>
+          </div>
+
+          <div class="action-item d-flex align-items-start p-3 mb-2 border rounded bg-light">
+            <div class="action-icon me-3">
+              <i class="bi bi-file-earmark-plus text-primary"></i>
+            </div>
+            <div class="flex-grow-1">
+              <div class="fw-semibold">
+                <%= link_to "Créer le formulaire de demande de primes", new_request_path, class: "text-decoration-none fw-semibold" %>
+              </div>
+              <small class="text-muted">Préparer le dossier officiel de demande de primes</small>
+            </div>
+            <div class="action-status">
+              <%= link_to new_request_path, class: "text-decoration-none" do %>
+                <span class="badge bg-primary">Créer</span>
+              <% end %>
             </div>
           </div>
 
@@ -257,40 +385,106 @@
           </h6>
         </div>
         <div class="card-body">
-          <% if region == 'flandre' && @simulation&.project&.date_début.present? %>
-            <% deadline = @simulation.project.date_début + 2.years %>
-            <% days_remaining = (deadline - Date.current).to_i %>
+          <% if region == 'flandre' && (@simulation&.project&.date_début.present? || @simulation&.property&.date_peb_avant_travaux.present?) %>
+            <%
+              deadlines = []
+              deadline_descriptions = []
 
-            <% if days_remaining > 365 %>
-              <p class="text-success mb-2">✅ <strong>Vous avez le temps !</strong></p>
-              <p class="mb-0">Il vous reste <%= pluralize(days_remaining, 'jour') %> pour introduire votre demande. Préparez tranquillement vos documents.</p>
-            <% elsif days_remaining > 90 %>
-              <p class="text-warning mb-2">⚠️ <strong>Commencez à préparer votre dossier</strong></p>
-              <p class="mb-0">Il vous reste <%= pluralize(days_remaining, 'jour') %>. Rassemblez vos factures et certificats.</p>
-            <% elsif days_remaining > 0 %>
-              <p class="text-danger mb-2">🚨 <strong>Urgence !</strong></p>
-              <p class="mb-0">Plus que <%= pluralize(days_remaining, 'jour') %> ! Contactez-nous immédiatement pour l'introduction.</p>
-            <% else %>
-              <p class="text-danger mb-2">❌ <strong>Délai dépassé</strong></p>
-              <p class="mb-0">Le délai d'introduction est malheureusement dépassé pour ce projet.</p>
+              # Date limite suppression prime PEB Flandre
+              deadline_peb_suppression = Date.new(2026, 6, 30)
+              deadlines << deadline_peb_suppression
+              deadline_descriptions << "suppression de la prime PEB Flandre"
+
+              if @simulation&.project&.date_début.present?
+                deadline_acompte = @simulation.project.date_début + 2.years
+                deadlines << deadline_acompte
+                deadline_descriptions << "délai facture d'acompte (2 ans)"
+              end
+
+              if @simulation&.property&.date_peb_avant_travaux.present?
+                deadline_peb = @simulation.property.date_peb_avant_travaux + 5.years
+                deadlines << deadline_peb
+                deadline_descriptions << "délai certificat PEB (5 ans)"
+              end
+
+              if deadlines.any?
+                earliest_deadline = deadlines.min
+                earliest_index = deadlines.index(earliest_deadline)
+                earliest_description = deadline_descriptions[earliest_index]
+                days_remaining = (earliest_deadline - Date.current).to_i
+              end
+            %>
+
+            <% if deadlines.any? %>
+              <% if earliest_deadline == deadline_peb_suppression && days_remaining <= 180 %>
+                <p class="text-danger mb-2">🚨 <strong>Urgence absolue - Prime supprimée bientôt !</strong></p>
+                <p class="mb-1">Plus que <%= pluralize(days_remaining, 'jour') %> avant la <%= earliest_description %> !</p>
+                <p class="mb-0 small text-danger"><strong>Cette prime disparaîtra définitivement après le 30/06/2026.</strong></p>
+              <% elsif days_remaining > 365 %>
+                <p class="text-success mb-2">✅ <strong>Vous avez le temps !</strong></p>
+                <p class="mb-1">Il vous reste <%= pluralize(days_remaining, 'jour') %> pour introduire votre demande (basé sur la <%= earliest_description %>).</p>
+                <p class="mb-0 small text-muted">Préparez tranquillement vos documents, mais n'oubliez pas la date limite de suppression.</p>
+              <% elsif days_remaining > 90 %>
+                <p class="text-warning mb-2">⚠️ <strong>Commencez à préparer votre dossier</strong></p>
+                <p class="mb-1">Il vous reste <%= pluralize(days_remaining, 'jour') %> (basé sur la <%= earliest_description %>).</p>
+                <p class="mb-0 small text-muted">Rassemblez vos factures et certificats.</p>
+              <% elsif days_remaining > 0 %>
+                <p class="text-danger mb-2">🚨 <strong>Urgence !</strong></p>
+                <p class="mb-1">Plus que <%= pluralize(days_remaining, 'jour') %> (basé sur la <%= earliest_description %>) !</p>
+                <p class="mb-0 small text-muted">Contactez-nous immédiatement pour l'introduction.</p>
+              <% else %>
+                <p class="text-danger mb-2">❌ <strong>Délai dépassé</strong></p>
+                <p class="mb-0">La <%= earliest_description %> est malheureusement dépassée pour ce projet.</p>
+              <% end %>
             <% end %>
 
-          <% elsif region == 'wallonie' && @simulation&.project&.date_fin.present? %>
-            <% deadline = @simulation.project.date_fin + 8.months %>
-            <% days_remaining = (deadline - Date.current).to_i %>
+          <% elsif region == 'wallonie' && (@simulation&.project&.date_fin.present? || @simulation&.project&.date_audit.present?) %>
+            <%
+              deadlines = []
+              deadline_descriptions = []
 
-            <% if days_remaining > 60 %>
+              # Date limite arrêt des aides Wallonie
+              deadline_wallonie_arret = Date.new(2026, 9, 30)
+              deadlines << deadline_wallonie_arret
+              deadline_descriptions << "arrêt des aides Wallonie"
+
+              if @simulation&.project&.date_fin.present?
+                deadline_solde = @simulation.project.date_fin + 8.months
+                deadlines << deadline_solde
+                deadline_descriptions << "délai facture de solde (8 mois)"
+              end
+
+              if @simulation&.project&.date_audit.present?
+                deadline_audit = @simulation.project.date_audit + 4.months
+                deadlines << deadline_audit
+                deadline_descriptions << "délai prime audit (4 mois)"
+              end
+
+              earliest_deadline = deadlines.min
+              earliest_index = deadlines.index(earliest_deadline)
+              deadline_type = deadline_descriptions[earliest_index]
+              days_remaining = (earliest_deadline - Date.current).to_i
+            %>
+
+            <% if earliest_deadline == deadline_wallonie_arret && days_remaining <= 180 %>
+              <p class="text-danger mb-2">🚨 <strong>Urgence absolue - Arrêt des aides imminent !</strong></p>
+              <p class="mb-1">Plus que <%= pluralize(days_remaining, 'jour') %> avant l'<%= deadline_type %> !</p>
+              <p class="mb-0 small text-danger"><strong>Les aides pourraient disparaître définitivement après le 30/09/2026.</strong></p>
+            <% elsif days_remaining > 60 %>
               <p class="text-success mb-2">✅ <strong>Dans les temps</strong></p>
-              <p class="mb-0">Il vous reste <%= pluralize(days_remaining, 'jour') %>. Préparez rapidement votre dossier.</p>
+              <p class="mb-1">Il vous reste <%= pluralize(days_remaining, 'jour') %> (basé sur le <%= deadline_type %>).</p>
+              <p class="mb-0 small text-muted">Préparez rapidement votre dossier, mais n'oubliez pas la date limite d'arrêt des aides.</p>
             <% elsif days_remaining > 30 %>
               <p class="text-warning mb-2">⚠️ <strong>Dépêchez-vous</strong></p>
-              <p class="mb-0">Plus que <%= pluralize(days_remaining, 'jour') %> ! Rassemblez tous vos documents.</p>
+              <p class="mb-1">Plus que <%= pluralize(days_remaining, 'jour') %> (basé sur le <%= deadline_type %>) !</p>
+              <p class="mb-0 small text-muted">Rassemblez tous vos documents.</p>
             <% elsif days_remaining > 0 %>
               <p class="text-danger mb-2">🚨 <strong>Extrême urgence !</strong></p>
-              <p class="mb-0">Plus que <%= pluralize(days_remaining, 'jour') %> ! Contactez-nous immédiatement.</p>
+              <p class="mb-1">Plus que <%= pluralize(days_remaining, 'jour') %> (basé sur le <%= deadline_type %>) !</p>
+              <p class="mb-0 small text-muted">Contactez-nous immédiatement.</p>
             <% else %>
               <p class="text-danger mb-2">❌ <strong>Délai dépassé</strong></p>
-              <p class="mb-0">Le délai de 8 mois est malheureusement dépassé.</p>
+              <p class="mb-0">Le <%= deadline_type %> est malheureusement dépassé.</p>
             <% end %>
 
           <% elsif region == 'bruxelles' %>

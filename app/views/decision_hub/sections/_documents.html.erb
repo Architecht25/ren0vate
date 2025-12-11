@@ -84,6 +84,32 @@
 
   <% elsif @default_simulation&.region&.downcase == 'flandre' %>
     <!-- Documents spécifiques à la région Flandre -->
+    <%
+      # Calculer le statut des documents basé sur les documents existants
+      property = @default_simulation&.property
+      documents = property&.documents || []
+
+      # Vérifier la présence de documents par type (inclut pending et approved)
+      has_devis = documents.any? { |d| d.type_document == 'devis' && ['approved', 'pending'].include?(d.status) }
+      has_factures = documents.any? { |d| d.type_document == 'facture' && ['approved', 'pending'].include?(d.status) }
+      has_attestations = documents.any? { |d| d.type_document == 'attestation_entrepreneur' && ['approved', 'pending'].include?(d.status) }
+      has_photos = documents.any? { |d| ['photo_chassis', 'photo'].include?(d.type_document) && ['approved', 'pending'].include?(d.status) }
+      has_conformite_elec = documents.any? { |d| d.type_document == 'attestation_conformite' && ['approved', 'pending'].include?(d.status) }
+      has_label_europeen = documents.any? { |d| d.type_document == 'certificat_label' && ['approved', 'pending'].include?(d.status) }
+      has_peb_avant = documents.any? { |d| d.type_document == 'certificat_peb_avant' && ['approved', 'pending'].include?(d.status) }
+      has_peb_apres = documents.any? { |d| d.type_document == 'certificat_peb_apres' && ['approved', 'pending'].include?(d.status) }
+
+      # Calculer les totaux
+      total_required = 3 # Devis, Factures, Attestations techniques
+      completed_required = [has_devis, has_factures, has_attestations].count(true)
+
+      total_optional = 5 # Photos châssis, Conformité électrique, Label européen, PEB avant, PEB après
+      completed_optional = [has_photos, has_conformite_elec, has_label_europeen, has_peb_avant, has_peb_apres].count(true)
+
+      total_documents = total_required + total_optional
+      completed_documents = completed_required + completed_optional
+    %>
+
     <div class="flandre-documents mb-4">
       <div class="alert alert-info mb-3">
         <h6 class="alert-heading">
@@ -93,16 +119,38 @@
         <p class="mb-2">Pour toute demande de prime en Flandre, vous devez fournir :</p>
       </div>
 
+      <!-- Statut global -->
+      <div class="row mb-3">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded">
+            <div>
+              <strong><%= completed_documents %> OK</strong> sur <%= total_documents %> documents
+            </div>
+            <div>
+              <span class="text-danger"><%= total_documents - completed_documents %> manquant<%= 's' if total_documents - completed_documents > 1 %></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="row">
         <div class="col-md-6">
           <h6 class="text-danger mb-3">
             <i class="bi bi-exclamation-triangle me-2"></i>Documents obligatoires
           </h6>
           <ul class="list-unstyled">
-            <li class="mb-2"><i class="bi bi-check-circle text-danger me-2"></i>Devis des travaux</li>
-            <li class="mb-2"><i class="bi bi-check-circle text-danger me-2"></i>Bordereau de commande des châssis</li>
-            <li class="mb-2"><i class="bi bi-check-circle text-danger me-2"></i>Factures des travaux</li>
-            <li class="mb-2"><i class="bi bi-check-circle text-danger me-2"></i>Avertissement extrait de rôle</li>
+            <li class="mb-2">
+              <i class="bi bi-<%= has_devis ? 'check-circle-fill text-success' : 'x-circle text-danger' %> me-2"></i>
+              Devis des travaux
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-<%= has_factures ? 'check-circle-fill text-success' : 'x-circle text-danger' %> me-2"></i>
+              Factures des travaux
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-<%= has_attestations ? 'check-circle-fill text-success' : 'x-circle text-danger' %> me-2"></i>
+              Attestations techniques des entrepreneurs
+            </li>
           </ul>
         </div>
 
@@ -111,10 +159,26 @@
             <i class="bi bi-plus-circle me-2"></i>Documents complémentaires
           </h6>
           <ul class="list-unstyled">
-            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Certificat PEB</li>
-            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Attestations entrepreneurs</li>
-            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Photos des travaux</li>
-            <li class="mb-2"><i class="bi bi-check-circle text-success me-2"></i>Autres documents</li>
+            <li class="mb-2">
+              <i class="bi bi-<%= has_photos ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+              Photos des châssis (prises par l'intérieur)
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-<%= has_conformite_elec ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+              Attestation de conformité électrique
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-<%= has_label_europeen ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+              Label européen
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-<%= has_peb_avant ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+              Certificat PEB avant travaux
+            </li>
+            <li class="mb-2">
+              <i class="bi bi-<%= has_peb_apres ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
+              Certificat PEB après travaux
+            </li>
           </ul>
         </div>
       </div>
@@ -301,18 +365,16 @@
           <button class="btn btn-outline-danger btn-sm quick-question"
                   data-question="Comment obtenir le bordereau de commande des châssis ?">
             <i class="bi bi-window me-1"></i>
-            Bordereau châssis
+            Exemple bordereau châssis
           </button>
-          <button class="btn btn-outline-warning btn-sm quick-question"
-                  data-question="Où trouver mon avertissement extrait de rôle ?">
-            <i class="bi bi-file-earmark-text me-1"></i>
-            Extrait de rôle
-          </button>
-          <button class="btn btn-outline-success btn-sm quick-question"
-                  data-question="Quelles attestations d'entrepreneurs sont nécessaires ?">
+          <%= link_to "http://127.0.0.1:3000/fr/prime_document_templates", class: "btn btn-outline-success btn-sm" do %>
             <i class="bi bi-person-check me-1"></i>
             Attestations entrepreneurs
-          </button>
+          <% end %>
+          <%= link_to documents_path, class: "btn btn-primary btn-sm" do %>
+            <i class="bi bi-folder2-open me-1"></i>
+            Accéder à mes documents
+          <% end %>
         </div>
       </div>
     <% else %>

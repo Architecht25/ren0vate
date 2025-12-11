@@ -17,6 +17,7 @@ class DecisionHub::PlanningService
       optimal_timing: get_optimal_timing,
       seasonal_constraints: get_seasonal_constraints,
       total_duration: calculate_total_duration,
+      deadline_type: get_deadline_type,
       critical_path: identify_critical_path,
       critical_steps: get_critical_steps,
       next_deadline: get_next_deadline
@@ -171,16 +172,90 @@ class DecisionHub::PlanningService
   end
 
   def calculate_total_duration
-    base_duration = 16 # semaines de base
+    deadline_info = get_deadline_info
+    deadline_info[:duration]
+  end
 
-    # Ajustements selon complexité
-    complexity_factor = @selected_primes.count * 2
-    weather_factor = has_exterior_work? ? 4 : 0
-    admin_factor = @region == "bruxelles" ? 2 : 0
+  def get_deadline_type
+    deadline_info = get_deadline_info
+    deadline_info[:type]
+  end
 
-    total_weeks = base_duration + complexity_factor + weather_factor + admin_factor
+  private
 
-    "#{total_weeks}-#{total_weeks + 4} semaines"
+  def get_deadline_info
+    return { duration: "Non défini", type: "Aucune échéance" } unless @simulation
+
+    region = @simulation.region&.downcase
+    project = @simulation.project
+    property = @simulation.property
+
+    deadlines = []
+
+    case region
+    when 'flandre'
+      # Date limite suppression prime PEB Flandre
+      deadline_peb_suppression = Date.new(2026, 6, 30)
+      deadlines << { date: deadline_peb_suppression, type: "Suppression prime PEB" }
+
+      # Délai facture d'acompte (2 ans)
+      if project&.date_début.present?
+        deadline_acompte = project.date_début + 2.years
+        deadlines << { date: deadline_acompte, type: "Délai facture d'acompte" }
+      end
+
+      # Délai certificat PEB (5 ans)
+      if property&.date_peb_avant_travaux.present?
+        deadline_peb = property.date_peb_avant_travaux + 5.years
+        deadlines << { date: deadline_peb, type: "Délai certificat PEB" }
+      end
+
+    when 'wallonie'
+      # Date limite arrêt des aides Wallonie
+      deadline_wallonie_arret = Date.new(2026, 9, 30)
+      deadlines << { date: deadline_wallonie_arret, type: "Arrêt des aides" }
+
+      # Délai facture de solde (8 mois)
+      if project&.date_fin.present?
+        deadline_solde = project.date_fin + 8.months
+        deadlines << { date: deadline_solde, type: "Délai facture de solde" }
+      end
+
+      # Délai prime audit (4 mois)
+      if project&.date_audit.present?
+        deadline_audit = project.date_audit + 4.months
+        deadlines << { date: deadline_audit, type: "Délai prime audit" }
+      end
+
+    when 'bruxelles'
+      # Délai facture de solde (12 mois)
+      if project&.date_fin.present?
+        deadline_brux = project.date_fin + 12.months
+        deadlines << { date: deadline_brux, type: "Délai facture de solde" }
+      end
+    end
+
+    return { duration: "Non défini", type: "Aucune échéance" } if deadlines.empty?
+
+    earliest_deadline = deadlines.min_by { |d| d[:date] }
+    days_remaining = (earliest_deadline[:date] - Date.current).to_i
+
+    duration = if days_remaining <= 0
+      "⚠️ Délai dépassé"
+    elsif days_remaining <= 30
+      "#{days_remaining} jour#{days_remaining > 1 ? 's' : ''}"
+    elsif days_remaining <= 90
+      weeks_remaining = (days_remaining / 7.0).ceil
+      "#{weeks_remaining} semaine#{weeks_remaining > 1 ? 's' : ''}"
+    elsif days_remaining <= 365
+      months_remaining = (days_remaining / 30.0).ceil
+      "#{months_remaining} mois"
+    else
+      years_remaining = (days_remaining / 365.0).round(1)
+      "#{years_remaining} an#{years_remaining > 1 ? 's' : ''}"
+    end
+
+    { duration: duration, type: earliest_deadline[:type] }
   end
 
   def identify_critical_path

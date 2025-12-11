@@ -134,7 +134,34 @@ class DecisionHub::DocumentRequirementsService
     (base_documents + region_documents + technical_documents).uniq { |doc| doc[:id] }
   end
 
+  def get_completed_documents
+    if @region == "flandre"
+      key_docs = get_key_documents
+      return key_docs.select { |doc| doc[:status] == "completed" }.map { |doc| doc[:name] }
+    end
+
+    get_required_documents.select { |doc| doc[:status] == "completed" }.map { |doc| doc[:name] }
+  end
+
+  def get_missing_documents
+    if @region == "flandre"
+      key_docs = get_key_documents
+      return key_docs.select { |doc| doc[:status] == "missing" }.map { |doc| doc[:name] }
+    end
+
+    get_required_documents.select { |doc| doc[:status] == "missing" }.map { |doc| doc[:name] }
+  end
+
   def calculate_completion_rate
+    if @region == "flandre"
+      key_docs = get_key_documents
+      completed_count = key_docs.count { |doc| doc[:status] == "completed" }
+      total_count = 8 # Total documents Flandre (3 obligatoires + 5 complémentaires)
+      return 0 if total_count == 0
+
+      return ((completed_count.to_f / total_count) * 100).round
+    end
+
     documents = get_required_documents
     completed_count = documents.count { |doc| doc[:status] == "completed" }
     total_count = documents.count
@@ -142,17 +169,22 @@ class DecisionHub::DocumentRequirementsService
 
     ((completed_count.to_f / total_count) * 100).round
   end
+  def get_urgent_documents
+    if @region == "flandre"
+      key_docs = get_key_documents
+      return key_docs.select { |doc| doc[:urgent] }.map { |doc| doc[:name] }
+    end
+
+    get_required_documents.select { |doc| doc[:urgency] == "high" || doc[:urgency] == "critical" }.map { |doc| doc[:name] }
+  end
 
   def get_completed_documents
+    if @region == "flandre"
+      key_docs = get_key_documents
+      return key_docs.select { |doc| doc[:status] == "completed" }.map { |doc| doc[:name] }
+    end
+
     get_required_documents.select { |doc| doc[:status] == "completed" }.map { |doc| doc[:name] }
-  end
-
-  def get_missing_documents
-    get_required_documents.select { |doc| doc[:status] == "missing" }.map { |doc| doc[:name] }
-  end
-
-  def get_urgent_documents
-    get_required_documents.select { |doc| doc[:urgency] == "critical" && doc[:status] == "missing" }.map { |doc| doc[:name] }
   end
 
   def group_by_category
@@ -186,6 +218,45 @@ class DecisionHub::DocumentRequirementsService
   end
 
   def get_key_documents
+    if @region == "flandre"
+      # Pour la région Flandre, utiliser les documents obligatoires avec statut dynamique
+      property = @simulation&.property
+      documents = property&.documents || []
+
+      # Vérifier la présence de documents par type (inclut pending et approved)
+      has_devis = documents.any? { |d| d.type_document == 'devis' && ['approved', 'pending'].include?(d.status) }
+      has_factures = documents.any? { |d| d.type_document == 'facture' && ['approved', 'pending'].include?(d.status) }
+      has_attestations = documents.any? { |d| d.type_document == 'attestation_entrepreneur' && ['approved', 'pending'].include?(d.status) }
+
+      return [
+        {
+          name: "Devis des tr...",
+          category: "administrative",
+          status: has_devis ? "completed" : "missing",
+          description: "Devis détaillé des travaux à réaliser",
+          deadline: "Avant dépôt",
+          urgent: !has_devis
+        },
+        {
+          name: "Factures des...",
+          category: "administrative",
+          status: has_factures ? "completed" : "missing",
+          description: "Factures finales des travaux réalisés",
+          deadline: "Après travaux",
+          urgent: !has_factures
+        },
+        {
+          name: "Attestations...",
+          category: "technical",
+          status: has_attestations ? "completed" : "missing",
+          description: "Attestations techniques des entrepreneurs",
+          deadline: "Avec dépôt",
+          urgent: !has_attestations
+        }
+      ]
+    end
+
+    # Logique existante pour les autres régions
     all_docs = get_required_documents
 
     # Sélectionner les 5 documents les plus importants/urgents
