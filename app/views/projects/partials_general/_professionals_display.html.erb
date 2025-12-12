@@ -1,11 +1,56 @@
 <!-- Section Équipe & Professionnels -->
-<div class="form-section bg-light-subtle border rounded-3 p-4 mb-4">
-  <div class="d-flex align-items-center mb-3">
-    <div class="icon-circle me-3">
-      <i class="bi bi-people"></i>
+<div class="form-section bg-light-subtle border rounded-3 p-3" style="max-width: 100%; overflow: hidden; box-sizing: border-box;">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-people"></i>
+      </div>
+      <h5 class="mb-0 fw-normal text-primary-custom">Équipe projet & Professionnels</h5>
     </div>
-    <h5 class="mb-0 fw-normal text-primary-custom">Équipe projet & Professionnels</h5>
+
+    <!-- Actions pour gestion des professionnels -->
+    <div class="btn-group" role="group">
+      <button type="button" class="btn btn-sm btn-outline-primary"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              title="Bientôt : Recherchez et invitez des architectes certifiés"
+              disabled>
+        <i class="bi bi-search me-1"></i>Trouver architecte
+        <span class="badge bg-info ms-1">Bientôt</span>
+      </button>
+      <button type="button" class="btn btn-sm btn-outline-warning"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              title="Prochainement : Base entrepreneurs avec avis clients et comparaison devis"
+              disabled>
+        <i class="bi bi-hammer me-1"></i>Trouver entrepreneur
+        <span class="badge bg-info ms-1">Bientôt</span>
+      </button>
+      <%= link_to edit_project_path(@project, anchor: "professionals"),
+                  class: "btn btn-sm btn-primary",
+                  data: {
+                    bs_toggle: "tooltip",
+                    bs_placement: "top",
+                    bs_title: "Modifier les informations des professionnels"
+                  } do %>
+        <i class="bi bi-pencil me-1"></i>Modifier équipe
+      <% end %>
+    </div>
   </div>
+
+  <!-- Alerte informative pour les futures fonctionnalités -->
+  <div class="alert alert-info border-0 mb-3" style="background: linear-gradient(45deg, rgba(13, 110, 253, 0.05), rgba(13, 202, 240, 0.05)); word-wrap: break-word; max-width: 100%;">
+    <div class="d-flex align-items-start">
+      <i class="bi bi-rocket me-2 mt-1" style="flex-shrink: 0;"></i>
+      <small style="word-wrap: break-word; overflow-wrap: break-word;">
+        <strong>Nouveautés à venir :</strong> Recherche professionnels certifiés, avis clients, comparaison devis automatique et collaboration en temps réel.
+        <a href="#" class="text-decoration-none ms-2" data-bs-toggle="modal" data-bs-target="#professionalsPreviewModal">
+          <i class="bi bi-info-circle"></i> En savoir plus
+        </a>
+      </small>
+    </div>
+  </div>
+
   <div>
 
     <% if @project.architecte_nom.present? || @project.entrepreneur_principal_nom.present? || @project.maitre_ouvrage_nom.present? %>
@@ -18,60 +63,55 @@
               <i class="bi bi-building me-2"></i>Architecte
             </h6>
 
-            <div class="row g-3">
-              <!-- Première rangée : informations principales -->
-              <div class="row g-2">
-                <% if @project.architecte_prenom.present? %>
-                  <div class="col">
-                    <strong>Prénom :</strong>
-                    <span class="text-muted"><%= @project.architecte_prenom %></span>
-                  </div>
-                <% end %>
+            <!-- Informations architecte -->
+            <div class="row g-2">
+              <% if @project.architecte_prenom.present? %>
+                <div class="col">
+                  <strong>Prénom :</strong>
+                  <span class="text-muted"><%= @project.architecte_prenom %></span>
+                </div>
+              <% end %>
 
-                <% if @project.architecte_nom.present? %>
-                  <div class="col">
-                    <strong>Nom :</strong>
-                    <span class="text-muted"><%= @project.architecte_nom %></span>
-                  </div>
-                <% end %>
+              <% if @project.architecte_nom.present? %>
+                <div class="col">
+                  <strong>Nom :</strong>
+                  <span class="text-muted"><%= @project.architecte_nom %></span>
+                </div>
+              <% end %>
 
-                <% if @project.architecte_entreprise.present? %>
-                  <div class="col">
-                    <strong>Cabinet :</strong>
-                    <span class="text-muted"><%= @project.architecte_entreprise %></span>
-                  </div>
-                <% end %>
+              <% if @project.architecte_entreprise.present? %>
+                <div class="col">
+                  <strong>Cabinet :</strong>
+                  <span class="text-muted"><%= @project.architecte_entreprise %></span>
+                </div>
+              <% end %>
 
-                <% if @project.architecte_telephone.present? %>
-                  <div class="col">
-                    <strong>Téléphone :</strong>
-                    <span class="text-muted">
-                      <a href="tel:<%= @project.architecte_telephone %>" class="text-decoration-none">
-                        <i class="bi bi-telephone me-1"></i><%= @project.architecte_telephone %>
-                      </a>
-                    </span>
-                  </div>
-                <% end %>
+              <% if @project.architecte_telephone.present? %>
+                <div class="col">
+                  <strong>Téléphone :</strong>
+                  <span class="text-muted">
+                    <a href="tel:<%= @project.architecte_telephone %>" class="text-decoration-none">
+                      <i class="bi bi-telephone me-1"></i><%= @project.architecte_telephone %>
+                    </a>
+                  </span>
+                </div>
+              <% end %>
 
-                <% if @project.architecte_email.present? %>
-                  <div class="col">
-                    <strong>Email :</strong>
-                    <span class="text-muted">
-                      <a href="mailto:<%= @project.architecte_email %>" class="text-decoration-none">
-                        <i class="bi bi-envelope me-1"></i><%= @project.architecte_email %>
-                      </a>
-                    </span>
-                  </div>
-                <% end %>
-              </div>
+              <% if @project.architecte_email.present? %>
+                <div class="col">
+                  <strong>Email :</strong>
+                  <span class="text-muted">
+                    <a href="mailto:<%= @project.architecte_email %>" class="text-decoration-none">
+                      <i class="bi bi-envelope me-1"></i><%= @project.architecte_email %>
+                    </a>
+                  </span>
+                </div>
+              <% end %>
 
-              <!-- Seconde rangée : montant du devis -->
               <% if @project.architecte_devis_montant.present? %>
-                <div class="row mt-2">
-                  <div class="col-md-6">
-                    <strong>Montant du devis architecte :</strong>
-                    <span class="text-muted"><%= @project.architecte_devis_montant_formatted %></span>
-                  </div>
+                <div class="col">
+                  <strong>Montant du devis :</strong>
+                  <span class="text-muted"><%= @project.architecte_devis_montant_formatted %></span>
                 </div>
               <% end %>
             </div>
@@ -88,60 +128,55 @@
               <i class="bi bi-hammer me-2"></i>Entrepreneur Principal
             </h6>
 
-            <div class="row g-3">
-              <!-- Première rangée : informations principales -->
-              <div class="row g-2">
-                <% if @project.entrepreneur_principal_nom.present? %>
-                  <div class="col">
-                    <strong>Nom :</strong>
-                    <span class="text-muted"><%= @project.entrepreneur_principal_nom %></span>
-                  </div>
-                <% end %>
+            <!-- Informations entrepreneur -->
+            <div class="row g-2">
+              <% if @project.entrepreneur_principal_nom.present? %>
+                <div class="col">
+                  <strong>Nom :</strong>
+                  <span class="text-muted"><%= @project.entrepreneur_principal_nom %></span>
+                </div>
+              <% end %>
 
-                <% if @project.entrepreneur_principal_entreprise.present? %>
-                  <div class="col">
-                    <strong>Entreprise :</strong>
-                    <span class="text-muted"><%= @project.entrepreneur_principal_entreprise %></span>
-                  </div>
-                <% end %>
+              <% if @project.entrepreneur_principal_entreprise.present? %>
+                <div class="col">
+                  <strong>Entreprise :</strong>
+                  <span class="text-muted"><%= @project.entrepreneur_principal_entreprise %></span>
+                </div>
+              <% end %>
 
-                <% if @project.entrepreneur_principal_numero_tva.present? %>
-                  <div class="col">
-                    <strong>N° TVA :</strong>
-                    <span class="text-muted"><%= @project.entrepreneur_principal_numero_tva %></span>
-                  </div>
-                <% end %>
+              <% if @project.entrepreneur_principal_numero_tva.present? %>
+                <div class="col">
+                  <strong>N° TVA :</strong>
+                  <span class="text-muted"><%= @project.entrepreneur_principal_numero_tva %></span>
+                </div>
+              <% end %>
 
-                <% if @project.entrepreneur_principal_telephone.present? %>
-                  <div class="col">
-                    <strong>Téléphone :</strong>
-                    <span class="text-muted">
-                      <a href="tel:<%= @project.entrepreneur_principal_telephone %>" class="text-decoration-none">
-                        <i class="bi bi-telephone me-1"></i><%= @project.entrepreneur_principal_telephone %>
-                      </a>
-                    </span>
-                  </div>
-                <% end %>
+              <% if @project.entrepreneur_principal_telephone.present? %>
+                <div class="col">
+                  <strong>Téléphone :</strong>
+                  <span class="text-muted">
+                    <a href="tel:<%= @project.entrepreneur_principal_telephone %>" class="text-decoration-none">
+                      <i class="bi bi-telephone me-1"></i><%= @project.entrepreneur_principal_telephone %>
+                    </a>
+                  </span>
+                </div>
+              <% end %>
 
-                <% if @project.entrepreneur_principal_email.present? %>
-                  <div class="col">
-                    <strong>Email :</strong>
-                    <span class="text-muted">
-                      <a href="mailto:<%= @project.entrepreneur_principal_email %>" class="text-decoration-none">
-                        <i class="bi bi-envelope me-1"></i><%= @project.entrepreneur_principal_email %>
-                      </a>
-                    </span>
-                  </div>
-                <% end %>
-              </div>
+              <% if @project.entrepreneur_principal_email.present? %>
+                <div class="col">
+                  <strong>Email :</strong>
+                  <span class="text-muted">
+                    <a href="mailto:<%= @project.entrepreneur_principal_email %>" class="text-decoration-none">
+                      <i class="bi bi-envelope me-1"></i><%= @project.entrepreneur_principal_email %>
+                    </a>
+                  </span>
+                </div>
+              <% end %>
 
-              <!-- Seconde rangée : montant du devis -->
               <% if @project.contractor_devis_montant.present? %>
-                <div class="row mt-2">
-                  <div class="col-md-6">
-                    <strong>Montant du devis entrepreneur :</strong>
-                    <span class="text-muted"><%= number_to_currency(@project.contractor_devis_montant, unit: "€", separator: ",", delimiter: " ") %></span>
-                  </div>
+                <div class="col">
+                  <strong>Montant du devis :</strong>
+                  <span class="text-muted"><%= number_to_currency(@project.contractor_devis_montant, unit: "€", separator: ",", delimiter: " ") %></span>
                 </div>
               <% end %>
             </div>
@@ -193,5 +228,85 @@
       </div>
     <% end %>
 
+  </div>
+</div>
+
+<!-- Modal Preview Fonctionnalités Professionnels -->
+<div class="modal fade" id="professionalsPreviewModal" tabindex="-1" aria-labelledby="professionalsPreviewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="professionalsPreviewModalLabel">
+          <i class="bi bi-rocket me-2"></i>Fonctionnalités Professionnels à Venir
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="feature-preview mb-4">
+              <h6 class="text-primary mb-2">
+                <i class="bi bi-search me-2"></i>Recherche Professionnels
+              </h6>
+              <ul class="list-unstyled text-muted small">
+                <li><i class="bi bi-check text-success me-1"></i>Base données architectes/entrepreneurs certifiés</li>
+                <li><i class="bi bi-check text-success me-1"></i>Filtres par région et spécialisation</li>
+                <li><i class="bi bi-check text-success me-1"></i>Vérification assurances automatique</li>
+                <li><i class="bi bi-check text-success me-1"></i>Invitations directes par email</li>
+              </ul>
+            </div>
+
+            <div class="feature-preview mb-4">
+              <h6 class="text-warning mb-2">
+                <i class="bi bi-star me-2"></i>Avis & Évaluations
+              </h6>
+              <ul class="list-unstyled text-muted small">
+                <li><i class="bi bi-check text-success me-1"></i>Avis clients vérifiés</li>
+                <li><i class="bi bi-check text-success me-1"></i>Photos réalisations récentes</li>
+                <li><i class="bi bi-check text-success me-1"></i>Notation qualité/délais/prix</li>
+                <li><i class="bi bi-check text-success me-1"></i>Recommandations personnalisées</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="feature-preview mb-4">
+              <h6 class="text-success mb-2">
+                <i class="bi bi-calculator me-2"></i>Comparaison Devis
+              </h6>
+              <ul class="list-unstyled text-muted small">
+                <li><i class="bi bi-check text-success me-1"></i>Analyse automatique des devis</li>
+                <li><i class="bi bi-check text-success me-1"></i>Comparaison prix du marché</li>
+                <li><i class="bi bi-check text-success me-1"></i>Détection anomalies tarifaires</li>
+                <li><i class="bi bi-check text-success me-1"></i>Négociation assistée par IA</li>
+              </ul>
+            </div>
+
+            <div class="feature-preview">
+              <h6 class="text-info mb-2">
+                <i class="bi bi-people me-2"></i>Collaboration Temps Réel
+              </h6>
+              <ul class="list-unstyled text-muted small">
+                <li><i class="bi bi-check text-success me-1"></i>Partage documents sécurisé</li>
+                <li><i class="bi bi-check text-success me-1"></i>Planning coordonné automatiquement</li>
+                <li><i class="bi bi-check text-success me-1"></i>Suivi avancement en temps réel</li>
+                <li><i class="bi bi-check text-success me-1"></i>Communication centralisée</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="me-auto">
+          <small class="text-muted">
+            <i class="bi bi-calendar me-1"></i>Disponibilité prévue : <strong>Mars 2026</strong>
+          </small>
+        </div>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+        <%= link_to dashboard_path, class: "btn btn-primary" do %>
+          <i class="bi bi-bell me-1"></i>M'informer des nouveautés
+        <% end %>
+      </div>
+    </div>
   </div>
 </div>

@@ -8,7 +8,7 @@ Avec l'arrêt programmé du système de primes en Wallonie et à Bruxelles (part
 
 **Zones d'impact :**
 - ✅ **FLANDRE** : Système de primes maintenu
-- ✅ **BRUXELLES Entreprises** : Aides maintenues  
+- ✅ **BRUXELLES Entreprises** : Aides maintenues
 - 🔄 **WALLONIE** : Transition vers prêts (Renopack)
 - 🔄 **BRUXELLES Particuliers** : Transition vers prêts
 
@@ -25,12 +25,12 @@ Avec l'arrêt programmé du système de primes en Wallonie et à Bruxelles (part
 
 ### **Parcours existant (8 étapes)**
 1. **Profil utilisateur** → Configuration personnelle
-2. **Enregistrement biens** → Gestion des propriétés  
+2. **Enregistrement biens** → Gestion des propriétés
 3. **Création chantiers** → Définition des projets
 4. **Simulation primes** → Calculs financiers (*À ADAPTER*)
 5. **Espace technique IA** → Conseils et analyses
 6. **Gestion documents** → Classement et organisation
-7. **Formulaires miroir** → Préparation administrative  
+7. **Formulaires miroir** → Préparation administrative
 8. **Suivi automatique** → Tracking des demandes
 
 ### **Forces actuelles**
@@ -46,7 +46,7 @@ Avec l'arrêt programmé du système de primes en Wallonie et à Bruxelles (part
 
 ### **À CONSERVER (Flandre + Entreprises Bruxelles)**
 - ✅ **Étapes 4, 7, 8** : Simulation primes, formulaires, suivi
-- ✅ **Routes API** : 
+- ✅ **Routes API** :
   - `/api/flandre/calculate_prime`
   - `/api/entreprises/bruxelles/aides`
 - ✅ **Contrôleurs** : `simulations_controller.rb` (logique primes)
@@ -61,7 +61,7 @@ Avec l'arrêt programmé du système de primes en Wallonie et à Bruxelles (part
 
 #### **1. 📋 Gestion documentaire et conformité** *(Base existante à enrichir)*
 - Centralisation documents administratifs (permis, attestations, factures)
-- Traçabilité certifications (isolation, ventilation, étanchéité) 
+- Traçabilité certifications (isolation, ventilation, étanchéité)
 - Génération automatique dossiers de conformité
 - Archivage numérique avec horodatage
 - **Intégration** : Extension du système documents existant
@@ -83,7 +83,7 @@ end
 
 #### **3. 💰 Planificateur budgétaire intelligent**
 - Simulation coûts temps réel selon travaux sélectionnés
-- Alerte dépassements budgétaires 
+- Alerte dépassements budgétaires
 - Intégration conditions prêts (Renopack, etc.)
 - Calcul retours sur investissement énergétiques
 - **ROI Calculator** déjà intégré dans pricing strategy
@@ -115,7 +115,7 @@ end
 ## 🏗️ **NOUVEAU PARCOURS INTÉGRÉ (12 ÉTAPES)**
 
 ### **Phase 1 : Configuration** *(Existant - À maintenir)*
-1. **Profil utilisateur** 
+1. **Profil utilisateur**
 2. **Enregistrement biens**
 3. **Création chantiers**
 
@@ -150,14 +150,14 @@ end
 ```ruby
 # Ligne ~46 : Ajouter logique conditionnelle
 def show
-  if @simulation.region&.downcase == 'wallonie' || 
+  if @simulation.region&.downcase == 'wallonie' ||
      (@simulation.region&.downcase == 'bruxelles' && @simulation.type_demandeur == 'particulier')
     # Calculateur prêts Renopack
     @loan_calculator = true
     @grant_calculator = false
     @loan_conditions = calculate_loan_conditions(@simulation)
   else
-    # Calculateur primes existant  
+    # Calculateur primes existant
     @grant_calculator = true
     @primes = Prime.where(region: normalized_region).order(:ordre_affichage)
   end
@@ -172,7 +172,7 @@ namespace :api do
     post 'calculate_loans', to: 'loan_calculations#calculate'
     get 'loan_conditions', to: 'loan_calculations#conditions'
   end
-  
+
   namespace :bruxelles do
     post 'calculate_loans_particuliers', to: 'loan_calculations#calculate_brussels'
   end
@@ -235,7 +235,7 @@ end
 ├── Simulations illimitées + exports PDF
 └── Support email standard (48h)
 
-🏢 PORTFOLIO (89€/mois) : 4-10 propriétés  
+🏢 PORTFOLIO (89€/mois) : 4-10 propriétés
 ├── Target : 15% prospects (1.800 users potentiels)
 ├── Dashboard avancé + analytics ROI
 ├── Collaboration professionnels
@@ -312,7 +312,7 @@ end
 ├── [ ] Routes /api/wallonie/calculate_loans
 └── [ ] Tests intégration Renopack
 
-📅 SEMAINE 3-4 : Collaboration professionnels  
+📅 SEMAINE 3-4 : Collaboration professionnels
 ├── [ ] Implémentation ProjectCollaboration & ProfessionalProfile
 ├── [ ] Interface recherche/invitation entrepreneurs
 ├── [ ] Système permissions granulaires
@@ -366,7 +366,7 @@ end
 
 ### **Risques identifiés**
 1. **Complexité technique** → Développement agile par sprints
-2. **Résistance utilisateurs** → Formation et support renforcé  
+2. **Résistance utilisateurs** → Formation et support renforcé
 3. **Concurrence** → Différenciation par IA et intégration
 4. **Réglementation** → Veille juridique continue
 
@@ -384,7 +384,7 @@ end
 ```
 🔥 HOT (500 prospects) : Contactés 6 derniers mois
 ├── Projets actifs ou récents
-├── Engagement récent prouvé  
+├── Engagement récent prouvé
 ├── Probabilité conversion : 20% (100 users)
 └── Priority 1 pour launch
 
@@ -455,7 +455,7 @@ Cette évolution transforme Ren0vate d'un **calculateur de primes** en **platefo
 
 ### **🔍 Phase de Validation (Semaines 51-52 2025)**
 - [ ] **Architecture Review** : Audit complet collaboration professionnels
-- [ ] **Technical Specs** : Estimation effort APIs prêts Wallonie/Bruxelles  
+- [ ] **Technical Specs** : Estimation effort APIs prêts Wallonie/Bruxelles
 - [ ] **AI Integration** : Tests compatibilité extensions IA existantes
 - [ ] **Database Design** : Schémas loan_calculations & contractor_profiles
 - [ ] **API Planning** : Endpoints prioritaires et authentification

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_03_094516) do
+ActiveRecord::Schema[8.0].define(version: 2025_12_12_200959) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -463,9 +463,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_03_094516) do
     t.string "finalite", default: "residentielle", null: false
     t.boolean "demande_avant_debut", default: true, comment: "Demande introduite avant début de mission/investissement"
     t.boolean "finalite_economique_confirmee", default: true, comment: "Finalité économique et commerciale confirmée"
-    t.string "validation_status"
-    t.integer "validation_score"
-    t.datetime "last_validation_at"
     t.decimal "architecte_devis_montant", precision: 10, scale: 2
     t.decimal "contractor_devis_montant", precision: 10, scale: 2
     t.text "additional_entrepreneurs"

@@ -219,14 +219,6 @@ Rails.application.routes.draw do
     # Routes spéciales pour l'analyse de factures
     get :factures_dashboard, to: 'factures#dashboard'
     post :upload_facture, to: 'factures#upload_facture'
-
-    # Routes pour la validation technique
-    member do
-      get :technical_validation, to: 'technical_validations#show'
-      post :validate_technical, to: 'technical_validations#validate'
-      get :validation_report, to: 'technical_validations#report'
-      post :revalidate, to: 'technical_validations#revalidate'
-    end
   end
 
   # Routes pour les signatures entrepreneurs
@@ -272,14 +264,6 @@ Rails.application.routes.draw do
         get :properties     # Voir toutes les propriétés d'un utilisateur
         get :projects       # Voir tous les projets d'un utilisateur
         post :impersonate   # Se connecter en tant qu'utilisateur (avec Pundit)
-      end
-    end
-
-    resources :technical_validations, only: [:index, :show] do
-      collection do
-        post :bulk_validate
-        get :analytics
-        get :export_issues
       end
     end
 
@@ -387,7 +371,6 @@ Rails.application.routes.draw do
   get '/politique-de-confidentialite', to: 'pages#privacy', as: :privacy
 
   # Routes globales pour les gestionnaires (admin/modérateur)
-  resources :technical_validations, only: [:index, :show]
   resources :contractor_signatures, only: [:index, :show]
   resources :complement_requests, only: [:index, :show]
 

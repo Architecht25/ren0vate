@@ -54,113 +54,25 @@
     </div>
   </div>
 
-  <div class="row">
-    <!-- Colonne latérale - Actions rapides -->
-    <div class="col-lg-4 order-lg-2">
-      <!-- Actions rapides -->
-      <div class="form-section bg-light-subtle border rounded-3 p-4 mb-4">
+  <!-- Première rangée : Informations + Budget -->
+  <div class="row g-3 mb-4">
+    <!-- Colonne 1 : Informations générales -->
+    <div class="col-6">
+      <div class="form-section bg-light-subtle border rounded-3 p-3" style="max-width: 100%; overflow: hidden;">
         <div class="d-flex align-items-center mb-3">
-          <div class="icon-circle me-3">
-            <i class="bi bi-lightning-charge"></i>
-          </div>
-          <h5 class="mb-0 fw-normal text-primary-custom">Actions rapides</h5>
-        </div>
-        <div class="d-grid gap-2">
-          <%= link_to technical_validation_project_path(@project), class: "btn btn-outline-success mb-2" do %>
-            <i class="bi bi-shield-check me-2"></i>Validation technique
-          <% end %>
-          <%= link_to projects_path, class: "btn btn-outline-primary-custom mb-2" do %>
-            <i class="bi bi-file-earmark-pdf me-2"></i>Exporter en PDF
-          <% end %>
-          <%= link_to projects_path, class: "btn btn-outline-primary-custom" do %>
-            <i class="bi bi-share me-2"></i>Partager avec un artisan
-          <% end %>
-        </div>
-      </div>
-
-      <!-- Statut validation technique -->
-      <% if @project.validation_status.present? %>
-        <div class="form-section bg-light-subtle border rounded-3 p-4 mb-4">
-          <div class="d-flex align-items-center mb-3">
-            <div class="icon-circle me-3">
-              <% if @project.validation_status == 'validated' %>
-                <i class="bi bi-shield-check text-success"></i>
-              <% elsif @project.validation_status == 'failed' %>
-                <i class="bi bi-shield-x text-danger"></i>
-              <% else %>
-                <i class="bi bi-shield-question text-warning"></i>
-              <% end %>
-            </div>
-            <h5 class="mb-0 fw-normal text-primary-custom">Validation technique</h5>
-          </div>
-
-          <div class="mb-3">
-            <% case @project.validation_status %>
-            <% when 'validated' %>
-              <div class="alert alert-success mb-2">
-                <i class="bi bi-check-circle me-2"></i>
-                <strong>Validé</strong> - Projet conforme aux exigences techniques
-              </div>
-            <% when 'failed' %>
-              <div class="alert alert-warning mb-2">
-                <i class="bi bi-exclamation-triangle me-2"></i>
-                <strong>Non conforme</strong> - Corrections requises
-              </div>
-            <% else %>
-              <div class="alert alert-info mb-2">
-                <i class="bi bi-info-circle me-2"></i>
-                <strong>En attente</strong> - Validation en cours
-              </div>
-            <% end %>
-
-            <% if @project.validation_score.present? %>
-              <div class="d-flex align-items-center mb-2">
-                <span class="me-2">Score :</span>
-                <div class="progress flex-grow-1 me-2" style="height: 6px;">
-                  <div class="progress-bar
-                    <%= @project.validation_score >= 80 ? 'bg-success' :
-                        @project.validation_score >= 60 ? 'bg-warning' : 'bg-danger' %>"
-                       style="width: <%= @project.validation_score %>%"></div>
-                </div>
-                <span class="fw-bold"><%= @project.validation_score %>/100</span>
-              </div>
-            <% end %>
-
-            <% if @project.last_validation_at.present? %>
-              <small class="text-muted">
-                Dernière validation : <%= @project.last_validation_at.strftime("%d/%m/%Y à %H:%M") %>
-              </small>
-            <% end %>
-          </div>
-
-          <div class="d-grid">
-            <%= link_to technical_validation_project_path(@project), class: "btn btn-outline-success btn-sm" do %>
-              <i class="bi bi-arrow-right me-2"></i>Voir les détails
-            <% end %>
-          </div>
-        </div>
-      <% end %>
-    </div>
-
-    <!-- Informations générales -->
-    <div class="col-lg-8 order-lg-1">
-      <div class="form-section bg-light-subtle border rounded-3 p-4 mb-4">
-        <div class="d-flex align-items-center mb-3">
-          <div class="icon-circle me-3">
+          <div class="icon-circle me-2" style="width: 28px; height: 28px; font-size: 14px;">
             <i class="bi bi-info-circle"></i>
           </div>
-          <h5 class="mb-0 fw-normal text-primary-custom">Informations générales</h5>
+          <h6 class="mb-0 fw-normal text-primary-custom">Informations générales</h6>
         </div>
 
-        <div class="row mb-3">
-          <div class="col-md-6">
-            <div class="mb-3">
+        <div class="mb-2">
+          <div class="row">
+            <div class="col-6">
               <label class="form-label text-muted-custom small">Nom du chantier</label>
-              <p class="mb-0 fs-5"><%= @project.nom %></p>
+              <p class="mb-0 fw-semibold"><%= @project.nom %></p>
             </div>
-          </div>
-          <div class="col-md-6">
-            <div class="mb-3">
+            <div class="col-6">
               <label class="form-label text-muted-custom small">Date de création</label>
               <p class="mb-0"><%= @project.created_at.strftime("%d/%m/%Y") %></p>
             </div>
@@ -239,16 +151,14 @@
               </p>
             </div>
           <% end %>
-        </div>
-      </div>
 
-      <!-- Informations pour l'éligibilité aux primes -->
-      <% if @project.bce_number.present? || @project.invoice_date.present? || @project.work_completion_date.present? %>
-        <div class="card border-0 shadow-sm mb-4">
-          <div class="card-body p-4">
-            <h5 class="card-title text-primary-custom mb-3">
-              <i class="bi bi-award me-2"></i>Informations pour l'éligibilité aux primes
-            </h5>
+        <!-- Informations pour l'éligibilité aux primes -->
+        <% if @project.bce_number.present? || @project.invoice_date.present? || @project.work_completion_date.present? %>
+          <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body p-3">
+              <h6 class="card-title text-primary-custom mb-3">
+                <i class="bi bi-award me-2"></i>Éligibilité primes
+              </h6>
 
             <div class="row">
               <% if @project.bce_number.present? %>
@@ -321,19 +231,20 @@
             </div>
           </div>
         </div>
-      <% end %>
+        <% end %>
+      </div>
     </div>
 
-    <!-- Section Suivi budgétaire : Devis vs Factures -->
-    <% if @project.architecte_devis_montant.present? || @project.contractor_devis_montant.present? %>
-      <div class="col-lg-4 order-lg-2 mb-4">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-header bg-transparent border-0 pt-4">
-            <h5 class="card-title text-primary-custom mb-0">
-              <i class="bi bi-calculator me-2"></i>Suivi budgétaire
-            </h5>
+    <!-- Colonne 2 : Suivi budgétaire -->
+    <div class="col-6">
+      <% if @project.architecte_devis_montant.present? || @project.contractor_devis_montant.present? %>
+        <div class="form-section bg-light-subtle border rounded-3 p-3">
+          <div class="d-flex align-items-center mb-3">
+            <div class="icon-circle me-3">
+              <i class="bi bi-calculator"></i>
+            </div>
+            <h5 class="mb-0 fw-normal text-primary-custom">Suivi budgétaire</h5>
           </div>
-          <div class="card-body">
 
             <!-- Devis Architecte -->
             <% if @project.architecte_devis_montant.present? %>
@@ -410,12 +321,27 @@
             </div>
           </div>
         </div>
-      </div>
-    <% end %>
+      <% else %>
+        <div class="form-section bg-light-subtle border rounded-3 p-3">
+          <div class="d-flex align-items-center mb-3">
+            <div class="icon-circle me-3">
+              <i class="bi bi-calculator"></i>
+            </div>
+            <h5 class="mb-0 fw-normal text-primary-custom">Suivi budgétaire</h5>
+          </div>
+          <div class="text-center py-4">
+            <i class="bi bi-calculator text-muted mb-3" style="font-size: 2rem;"></i>
+            <h6 class="text-muted mb-2">Aucun budget défini</h6>
+            <p class="text-muted small">Renseignez les montants dans l'édition du projet.</p>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
 
-    <!-- Section Équipe projet & Professionnels dans la même row -->
-    <div class="col-lg-8 order-lg-1">
-      <!-- Informations des professionnels -->
+  <!-- Deuxième rangée : Équipe projet (pleine largeur) -->
+  <div class="row">
+    <div class="col-12">
       <%= render 'projects/partials_general/professionals_display' %>
     </div>
   </div>
