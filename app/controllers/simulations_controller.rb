@@ -460,6 +460,9 @@ class SimulationsController < ApplicationController
           # Utiliser le total calculé par le backend et mettre à jour la simulation
           @simulation.update!(total_simule: result[:total_general])
 
+          # Sauvegarder les données Wallonie dans les paramètres de la simulation
+          save_wallonie_specific_data(user_inputs)
+
           # Calculer les économies vs chasseur de primes
           savings_data = nil
           if result[:total_general] > 0 && @simulation.region.present?
@@ -646,6 +649,18 @@ class SimulationsController < ApplicationController
             Rails.logger.info "🔄 Prime Flandre restaurée: #{key} = #{params_data[key]}"
           end
         end
+      end
+
+      # Gestion pour Wallonie - chercher toutes les clés qui commencent par wallonie_
+      if @simulation.region&.downcase == 'wallonie'
+        Rails.logger.info "🔍 Recherche des primes Wallonie dans params_data..."
+        params_data.each do |key, value|
+          if key.to_s.start_with?('wallonie_') && value.present? && value != 0 && value != "0"
+            user_inputs[key] = value
+            Rails.logger.info "🔄 Prime Wallonie restaurée: #{key} = #{value}"
+          end
+        end
+        Rails.logger.info "✅ #{user_inputs.keys.length} primes Wallonie restaurées"
       end
 
       # Rails.logger.info "✅ Restored #{user_inputs.keys.length} user inputs for simulation #{@simulation.id}"
@@ -1191,6 +1206,38 @@ class SimulationsController < ApplicationController
     Rails.logger.info "✅ Données Flandre sauvegardées avec succès"
   rescue => e
     Rails.logger.error "❌ Erreur lors de la sauvegarde Flandre: #{e.message}"
+  end
+
+  def save_wallonie_specific_data(user_inputs)
+    Rails.logger.info "💾 Sauvegarde des données spécifiques Wallonie: #{user_inputs.inspect}"
+
+    # Ne pas sauvegarder si toutes les valeurs sont nulles/vides
+    non_zero_values = user_inputs.select { |k, v| v.present? && v != 0 && v != "0" }
+    if non_zero_values.empty?
+      Rails.logger.info "⚠️ Aucune donnée significative à sauvegarder pour Wallonie"
+      return
+    end
+
+    # Récupérer les paramètres existants ou initialiser
+    existing_params = @simulation.parameters.present? ? JSON.parse(@simulation.parameters) : {}
+
+    # Sauvegarder toutes les données Wallonie directement (clés qui commencent par wallonie_)
+    user_inputs.each do |key, value|
+      if key.to_s.start_with?('wallonie_') && value.present?
+        existing_params[key.to_s] = value
+        Rails.logger.info "💾 Donnée Wallonie sauvegardée: #{key} = #{value}"
+      end
+    end
+
+    # Horodatage de la dernière mise à jour
+    existing_params['last_updated'] = Time.current.iso8601
+
+    # Sauvegarder dans la base de données
+    @simulation.update!(parameters: existing_params.to_json)
+
+    Rails.logger.info "✅ #{non_zero_values.keys.length} données Wallonie sauvegardées avec succès"
+  rescue => e
+    Rails.logger.error "❌ Erreur lors de la sauvegarde Wallonie: #{e.message}"
   end
 
   # Restructurer les données plates en structure attendue par FlandrePostLoginCalculatorService

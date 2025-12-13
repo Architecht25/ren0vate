@@ -26,10 +26,12 @@ export default class extends Controller {
     // Charger les données des primes
     this.loadPrimesData()
 
+    // Restaurer les données sauvegardées
+    this.restoreSavedData()
+
     // Déclencher le premier calcul
     setTimeout(() => {
       this.updateTotalGlobal()
-      this.debouncedAutoSave() // Déclencher l'auto-save
     }, 500)
   }
 
@@ -553,5 +555,122 @@ export default class extends Controller {
         }
       })
     })
+  }
+
+  // RESTAURATION DES DONNÉES SAUVEGARDÉES
+  async restoreSavedData() {
+    console.log("🔄 === DÉBUT RESTAURATION WALLONIE ===")
+    console.log("🔍 simulationIdValue:", this.simulationIdValue)
+
+    if (!this.simulationIdValue) {
+      console.log("⚠️ Pas de simulation ID pour la restauration Wallonie")
+      return
+    }
+
+    // Marquer le début de la restauration pour éviter l'auto-save pendant
+    window.isRestoringValues = true
+    window.restorationStartTime = Date.now()
+
+    try {
+      console.log("📡 Envoi requête de restauration Wallonie...")
+      const response = await fetch(`/fr/simulations/${this.simulationIdValue}/restore_prime_inputs`, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+
+      console.log("📥 Réponse reçue, status:", response.status)
+
+      if (response.ok) {
+        const result = await response.json()
+        console.log("✅ Données brutes reçues:", result)
+
+        if (result.success && result.user_inputs) {
+          console.log("🎯 user_inputs trouvés:", result.user_inputs)
+          console.log("🔍 Nombre de clés dans user_inputs:", Object.keys(result.user_inputs).length)
+          console.log("🔍 Clés disponibles:", Object.keys(result.user_inputs))
+
+          // Restaurer les données de primes Wallonie
+          const inputKeys = Object.keys(result.user_inputs)
+          if (inputKeys.length === 0) {
+            console.warn("⚠️ Aucune donnée à restaurer (user_inputs vide)")
+          }
+
+          inputKeys.forEach(slug => {
+            console.log(`🔧 Restauration prime Wallonie ${slug}:`, result.user_inputs[slug])
+            this.restorePrimeInput(slug, result.user_inputs[slug])
+          })
+
+          // Restaurer le total si disponible
+          if (result.total_amount) {
+            this.backendCalculatedTotal = result.total_amount
+            console.log("💰 Total backend restauré:", result.total_amount, "€")
+          }
+
+          // Recalculer après restauration
+          setTimeout(() => {
+            this.updateTotalGlobal()
+            console.log("✅ === FIN RESTAURATION WALLONIE ===")
+          }, 500)
+        }
+      } else {
+        console.log("⚠️ Erreur lors de la restauration Wallonie:", response.status)
+      }
+    } catch (error) {
+      console.error("❌ Erreur restauration Wallonie:", error)
+    } finally {
+      // Libérer le verrou de restauration après un délai
+      setTimeout(() => {
+        window.isRestoringValues = false
+        console.log("🔓 Verrou de restauration Wallonie libéré")
+      }, 1000)
+    }
+  }
+
+  // Restaurer une donnée de prime Wallonie
+  restorePrimeInput(slug, value) {
+    console.log(`🔄 Restauration Wallonie ${slug}:`, value)
+
+    // Chercher directement l'input par son data-slug (peu importe la carte parente)
+    const input = this.element.querySelector(`input[data-slug="${slug}"], select[data-slug="${slug}"]`)
+
+    if (input) {
+      if (input.type === 'checkbox') {
+        input.checked = (value == 1 || value === true)
+      } else if (input.type === 'number' || input.type === 'text') {
+        input.value = value
+      } else if (input.tagName === 'SELECT') {
+        input.value = value
+      }
+
+      console.log(`✅ Valeur ${value} restaurée pour ${slug} (type: ${input.type})`)
+
+      // Déclencher les événements pour mettre à jour l'affichage et recalculer
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+      input.dispatchEvent(new Event('change', { bubbles: true }))
+    } else {
+      // Si pas trouvé directement, chercher dans la carte correspondante (fallback)
+      const cardElement = this.element.querySelector(`[data-wallonie-simulation-card-slug-value="${slug}"]`)
+      if (cardElement) {
+        const inputs = cardElement.querySelectorAll('input[data-slug], select[data-slug]')
+
+        inputs.forEach(inp => {
+          if (inp.dataset.slug === slug) {
+            if (inp.type === 'checkbox') {
+              inp.checked = (value == 1 || value === true)
+            } else {
+              inp.value = value
+            }
+            console.log(`✅ Valeur ${value} restaurée pour ${slug} (via carte)`)
+            inp.dispatchEvent(new Event('input', { bubbles: true }))
+            inp.dispatchEvent(new Event('change', { bubbles: true }))
+          }
+        })
+      } else {
+        console.warn(`⚠️ Input non trouvé pour ${slug}`)
+      }
+    }
   }
 }

@@ -86,22 +86,118 @@
             </div>
           <% end %>
 
-          <!-- Autres formulaires - EN CONSTRUCTION -->
-          <% if @request.form_type.in?(['formation_bruxelles', 'recherche_bruxelles', 'export_bruxelles', 'innovation_bruxelles', 'transition_bruxelles', 'accessibilite_bruxelles', 'achat_immobilier_bruxelles', 'conformite_normes_bruxelles', 'digitalisation_bruxelles', 'formation_linguistique_bruxelles', 'mobilite_retrofit_bruxelles', 'recrutement_bruxelles']) %>
+          <!-- Formulaire Formation -->
+          <% if @request.form_type == 'formation_bruxelles' %>
+            <div class="card">
+              <div class="card-header bg-info text-white">
+                <h4><i class="bi bi-mortarboard me-2"></i>Formation & Compétences</h4>
+                <p class="mb-0">Aide à la formation professionnelle</p>
+              </div>
+              <div class="card-body">
+                <%= render 'requests/partials_bruxelles_entreprise/formation', form: form %>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Formulaire Recrutement -->
+          <% if @request.form_type == 'recrutement_bruxelles' %>
+            <div class="card">
+              <div class="card-header bg-success text-white">
+                <h4><i class="bi bi-people me-2"></i>Recrutement & RH</h4>
+                <p class="mb-0">Aide au recrutement et gestion RH</p>
+              </div>
+              <div class="card-body">
+                <%= render 'requests/partials_bruxelles_entreprise/recrutement', form: form %>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Formulaire Digitalisation -->
+          <% if @request.form_type == 'digitalisation_bruxelles' %>
+            <div class="card">
+              <div class="card-header bg-primary text-white">
+                <h4><i class="bi bi-laptop me-2"></i>Digitalisation Avancée</h4>
+                <p class="mb-0">Transformation digitale de l'entreprise</p>
+              </div>
+              <div class="card-body">
+                <%= render 'requests/partials_bruxelles_entreprise/digitalisation', form: form %>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Formulaire Accessibilité -->
+          <% if @request.form_type == 'accessibilite_bruxelles' %>
+            <div class="card">
+              <div class="card-header bg-warning text-dark">
+                <h4><i class="bi bi-universal-access me-2"></i>Accessibilité & Inclusion</h4>
+                <p class="mb-0">Adaptation pour l'accessibilité</p>
+              </div>
+              <div class="card-body">
+                <%= render 'requests/partials_bruxelles_entreprise/accessibilité', form: form %>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Formulaire Achat Immobilier -->
+          <% if @request.form_type == 'achat_immobilier_bruxelles' %>
+            <div class="card">
+              <div class="card-header bg-danger text-white">
+                <h4><i class="bi bi-house-add me-2"></i>Achat Immobilier</h4>
+                <p class="mb-0">Aide à l'acquisition de biens immobiliers</p>
+              </div>
+              <div class="card-body">
+                <%= render 'requests/partials_bruxelles_entreprise/achat_immobilier', form: form %>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Formulaire Conformité aux Normes -->
+          <% if @request.form_type == 'conformite_normes_bruxelles' %>
+            <div class="card">
+              <div class="card-header bg-secondary text-white">
+                <h4><i class="bi bi-shield-check me-2"></i>Conformité aux Normes</h4>
+                <p class="mb-0">Mise en conformité réglementaire</p>
+              </div>
+              <div class="card-body">
+                <%= render 'requests/partials_bruxelles_entreprise/conformite_normes', form: form %>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Formulaire Mobilité & Retrofit -->
+          <% if @request.form_type == 'mobilite_retrofit_bruxelles' %>
+            <div class="card">
+              <div class="card-header bg-info text-white">
+                <h4><i class="bi bi-ev-front me-2"></i>Mobilité & Retrofit</h4>
+                <p class="mb-0">Transition vers une mobilité durable</p>
+              </div>
+              <div class="card-body">
+                <%= render 'requests/partials_bruxelles_entreprise/mobilite_retrofit', form: form %>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Formulaire Transition Numérique -->
+          <% if @request.form_type == 'transition_bruxelles' %>
+            <div class="card">
+              <div class="card-header bg-dark text-white">
+                <h4><i class="bi bi-arrow-repeat me-2"></i>Transition Numérique</h4>
+                <p class="mb-0">Accompagnement à la transition digitale</p>
+              </div>
+              <div class="card-body">
+                <%= render 'requests/partials_bruxelles_entreprise/consultance_transition', form: form %>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Formulaires non encore implémentés - Message temporaire -->
+          <% if @request.form_type.in?(['recherche_bruxelles', 'export_bruxelles', 'innovation_bruxelles', 'formation_linguistique_bruxelles']) %>
             <%
               form_labels = {
-                'formation_bruxelles' => 'Formation & Compétences',
                 'recherche_bruxelles' => 'Recherche & Développement',
                 'export_bruxelles' => 'Export & International',
                 'innovation_bruxelles' => 'Innovation Technologique',
-                'transition_bruxelles' => 'Transition Numérique',
-                'accessibilite_bruxelles' => 'Accessibilité & Inclusion',
-                'achat_immobilier_bruxelles' => 'Achat Immobilier',
-                'conformite_normes_bruxelles' => 'Conformité aux Normes',
-                'digitalisation_bruxelles' => 'Digitalisation Avancée',
-                'formation_linguistique_bruxelles' => 'Formation Linguistique',
-                'mobilite_retrofit_bruxelles' => 'Mobilité & Retrofit',
-                'recrutement_bruxelles' => 'Recrutement & RH'
+                'formation_linguistique_bruxelles' => 'Formation Linguistique'
               }
               current_label = form_labels[@request.form_type] || @request.form_type.humanize
             %>
