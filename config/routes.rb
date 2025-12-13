@@ -99,15 +99,6 @@ Rails.application.routes.draw do
     # Dashboard routes
     get '/dashboard', to: 'dashboard#index', as: :dashboard
 
-  # Regulations - Base de connaissance réglementaire
-  resources :regulations, only: [:index] do
-    collection do
-      get :ventilation_guide
-      get :ventilation_calculator
-      get :region_selection  # Page de sélection de région
-    end
-  end
-
   resources :primes
   resources :entreprise_aides, path: 'entreprises/aides', only: [:show]
   resources :categories
@@ -221,25 +212,12 @@ Rails.application.routes.draw do
     post :upload_facture, to: 'factures#upload_facture'
   end
 
-  # Routes pour les signatures entrepreneurs
+  # Routes pour les demandes
   resources :requests do
     member do
       get :debug_export # Debug pour export data
     end
-    resources :contractor_signatures, except: [:show] do
-      member do
-        post :resend
-      end
-      collection do
-        post :send_batch
-      end
-    end
   end
-
-  # Routes publiques pour les entrepreneurs (hors authentification)
-  get '/contractor/:token', to: 'contractor_signatures#show', as: 'contractor_signature'
-  post '/contractor/:token/sign', to: 'contractor_signatures#sign', as: 'sign_contractor'
-  post '/contractor/:token/reject', to: 'contractor_signatures#reject', as: 'reject_contractor'
 
   # Routes pour les demandes de complément
   resources :request_progresses do
@@ -266,22 +244,7 @@ Rails.application.routes.draw do
         post :impersonate   # Se connecter en tant qu'utilisateur (avec Pundit)
       end
     end
-
-    resources :contractor_signatures, only: [:index, :show] do
-      collection do
-        get :analytics
-      end
-    end
-
-    resources :complement_requests, only: [:index, :show] do
-      collection do
-        get :analytics
-      end
-    end
   end
-
-  # Routes pour vérifier le statut AJAX
-  get '/contractor_signatures/:id/status', to: 'contractor_signatures#check_status'
 
   resources :requests do
     # Documents liés à une demande
@@ -371,8 +334,7 @@ Rails.application.routes.draw do
   get '/politique-de-confidentialite', to: 'pages#privacy', as: :privacy
 
   # Routes globales pour les gestionnaires (admin/modérateur)
-  resources :contractor_signatures, only: [:index, :show]
-  resources :complement_requests, only: [:index, :show]
+  # complement_requests sont gérées uniquement via request_progresses (nested)
 
   end # Fin du scope locale
 
