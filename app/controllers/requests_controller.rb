@@ -502,22 +502,22 @@ class RequestsController < ApplicationController
     case property.region&.downcase
     when 'bruxelles'
       if property.type_bien_bruxelles == 'entreprise'
-        # Formulaires entreprises Bruxelles - UNIQUEMENT les 14 formulaires entreprise
+        # Formulaires entreprises Bruxelles - Les 14 formulaires correspondant aux partials existants
         forms += [
           { id: :consultance_bruxelles, name: 'Consultance & Conseil', region: 'bruxelles', category: 'Conseil', eligible: true, description: 'Aide au conseil stratégique et opérationnel' },
-          { id: :investissement_bruxelles, name: 'Investissement productif', region: 'bruxelles', category: 'Investissement', eligible: true, description: 'Soutien aux investissements matériels' },
+          { id: :investissement_bruxelles, name: 'Investissements généraux', region: 'bruxelles', category: 'Investissement', eligible: true, description: 'Soutien aux investissements matériels généraux' },
           { id: :formation_bruxelles, name: 'Formation & Compétences', region: 'bruxelles', category: 'Formation', eligible: true, description: 'Développement des compétences' },
-          { id: :recherche_bruxelles, name: 'Recherche & Développement', region: 'bruxelles', category: 'R&D', eligible: true, description: 'Innovation et développement technologique' },
-          { id: :export_bruxelles, name: 'Export & International', region: 'bruxelles', category: 'Export', eligible: true, description: 'Développement international' },
-          { id: :innovation_bruxelles, name: 'Innovation technologique', region: 'bruxelles', category: 'Innovation', eligible: true, description: 'Projets d\'innovation disruptive' },
-          { id: :transition_bruxelles, name: 'Transition numérique', region: 'bruxelles', category: 'Digital', eligible: true, description: 'Digitalisation et transformation numérique' },
+          { id: :recrutement_bruxelles, name: 'Recrutement & RH', region: 'bruxelles', category: 'RH', eligible: true, description: 'Aide au recrutement et gestion RH' },
+          { id: :digitalisation_bruxelles, name: 'Digitalisation avancée', region: 'bruxelles', category: 'Tech', eligible: true, description: 'Solutions digitales avancées' },
           { id: :accessibilite_bruxelles, name: 'Accessibilité & Inclusion', region: 'bruxelles', category: 'Social', eligible: true, description: 'Amélioration de l\'accessibilité' },
           { id: :achat_immobilier_bruxelles, name: 'Achat immobilier', region: 'bruxelles', category: 'Immobilier', eligible: true, description: 'Acquisition de biens immobiliers' },
           { id: :conformite_normes_bruxelles, name: 'Conformité aux normes', region: 'bruxelles', category: 'Conformité', eligible: true, description: 'Mise en conformité réglementaire' },
-          { id: :digitalisation_bruxelles, name: 'Digitalisation avancée', region: 'bruxelles', category: 'Tech', eligible: true, description: 'Solutions digitales avancées' },
-          { id: :formation_linguistique_bruxelles, name: 'Formation linguistique', region: 'bruxelles', category: 'Langues', eligible: true, description: 'Apprentissage des langues' },
-          { id: :mobilite_retrofit_bruxelles, name: 'Mobilité & Retrofit', region: 'bruxelles', category: 'Mobilité', eligible: true, description: 'Solutions de mobilité durable' },
-          { id: :recrutement_bruxelles, name: 'Recrutement & RH', region: 'bruxelles', category: 'RH', eligible: true, description: 'Aide au recrutement et gestion RH' }
+          { id: :mobilite_retrofit_bruxelles, name: 'Mobilité & Retrofit', region: 'bruxelles', category: 'Mobilité', eligible: true, description: 'Retrofit et transformation de véhicules' },
+          { id: :consultance_transition_bruxelles, name: 'Consultance Transition', region: 'bruxelles', category: 'Transition', eligible: true, description: 'Accompagnement à la transition écologique' },
+          { id: :investissement_transition_bruxelles, name: 'Investissement Transition', region: 'bruxelles', category: 'Transition', eligible: true, description: 'Investissements pour la transition écologique' },
+          { id: :mobilite_velo_cargo_bruxelles, name: 'Vélo Cargo', region: 'bruxelles', category: 'Mobilité', eligible: true, description: 'Acquisition de vélos cargo' },
+          { id: :mobilite_utilistaire_electrique_bruxelles, name: 'Véhicule Utilitaire Électrique', region: 'bruxelles', category: 'Mobilité', eligible: true, description: 'Acquisition de véhicules utilitaires électriques' },
+          { id: :securisation_bruxelles, name: 'Sécurisation', region: 'bruxelles', category: 'Sécurité', eligible: true, description: 'Sécurisation des locaux et équipements' }
         ]
       else
         # Formulaires particuliers Bruxelles - les 4 formulaires de rénovation

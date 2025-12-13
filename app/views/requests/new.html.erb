@@ -177,12 +177,12 @@
             </div>
           <% end %>
 
-          <!-- Formulaire Transition Numérique -->
-          <% if @request.form_type == 'transition_bruxelles' %>
+          <!-- Formulaire Consultance Transition -->
+          <% if @request.form_type == 'consultance_transition_bruxelles' %>
             <div class="card">
               <div class="card-header bg-dark text-white">
-                <h4><i class="bi bi-arrow-repeat me-2"></i>Transition Numérique</h4>
-                <p class="mb-0">Accompagnement à la transition digitale</p>
+                <h4><i class="bi bi-arrow-repeat me-2"></i>Consultance Transition</h4>
+                <p class="mb-0">Accompagnement à la transition écologique</p>
               </div>
               <div class="card-body">
                 <%= render 'requests/partials_bruxelles_entreprise/consultance_transition', form: form %>
@@ -190,63 +190,54 @@
             </div>
           <% end %>
 
-          <!-- Formulaires non encore implémentés - Message temporaire -->
-          <% if @request.form_type.in?(['recherche_bruxelles', 'export_bruxelles', 'innovation_bruxelles', 'formation_linguistique_bruxelles']) %>
-            <%
-              form_labels = {
-                'recherche_bruxelles' => 'Recherche & Développement',
-                'export_bruxelles' => 'Export & International',
-                'innovation_bruxelles' => 'Innovation Technologique',
-                'formation_linguistique_bruxelles' => 'Formation Linguistique'
-              }
-              current_label = form_labels[@request.form_type] || @request.form_type.humanize
-            %>
-
+          <!-- Formulaire Investissement Transition -->
+          <% if @request.form_type == 'investissement_transition_bruxelles' %>
             <div class="card">
-              <div class="card-header bg-info text-white">
-                <h4><i class="bi bi-tools me-2"></i><%= current_label %></h4>
-                <p class="mb-0">Formulaire en cours de construction</p>
+              <div class="card-header bg-dark text-white">
+                <h4><i class="bi bi-piggy-bank me-2"></i>Investissement Transition</h4>
+                <p class="mb-0">Investissements pour la transition écologique</p>
               </div>
               <div class="card-body">
-                <div class="alert alert-warning">
-                  <div class="d-flex align-items-center">
-                    <i class="bi bi-exclamation-triangle fs-2 me-3"></i>
-                    <div>
-                      <h5 class="alert-heading">Formulaire en développement</h5>
-                      <p class="mb-2">Le formulaire <strong><%= current_label %></strong> est actuellement en cours de construction.</p>
-                      <p class="mb-0">En attendant, vous pouvez nous contacter directement pour ce type d'aide :</p>
-                    </div>
-                  </div>
-                </div>
+                <%= render 'requests/partials_bruxelles_entreprise/investissement_transition', form: form %>
+              </div>
+            </div>
+          <% end %>
 
-                <div class="row mt-4">
-                  <div class="col-md-6">
-                    <div class="card border-primary">
-                      <div class="card-body">
-                        <h6 class="card-title text-primary">
-                          <i class="bi bi-envelope me-2"></i>Contact par email
-                        </h6>
-                        <p class="card-text">
-                          <strong>Email :</strong> aide.entreprises@sprb.brussels<br>
-                          <strong>Objet :</strong> <%= current_label %> - <%= @property.full_address %>
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="card border-success">
-                      <div class="card-body">
-                        <h6 class="card-title text-success">
-                          <i class="bi bi-telephone me-2"></i>Contact téléphonique
-                        </h6>
-                        <p class="card-text">
-                          <strong>Téléphone :</strong> 02/800.34.41<br>
-                          <strong>Horaires :</strong> Lun-Ven 9h-17h
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+          <!-- Formulaire Vélo Cargo -->
+          <% if @request.form_type == 'mobilite_velo_cargo_bruxelles' %>
+            <div class="card">
+              <div class="card-header bg-dark text-white">
+                <h4><i class="bi bi-bicycle me-2"></i>Vélo Cargo</h4>
+                <p class="mb-0">Acquisition de vélos cargo pour votre activité</p>
+              </div>
+              <div class="card-body">
+                <%= render 'requests/partials_bruxelles_entreprise/mobilite_velo_cargo', form: form %>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Formulaire Véhicule Utilitaire Électrique -->
+          <% if @request.form_type == 'mobilite_utilistaire_electrique_bruxelles' %>
+            <div class="card">
+              <div class="card-header bg-dark text-white">
+                <h4><i class="bi bi-truck me-2"></i>Véhicule Utilitaire Électrique</h4>
+                <p class="mb-0">Acquisition de véhicules utilitaires électriques</p>
+              </div>
+              <div class="card-body">
+                <%= render 'requests/partials_bruxelles_entreprise/mobilite_utilistaire_electrique', form: form %>
+              </div>
+            </div>
+          <% end %>
+
+          <!-- Formulaire Sécurisation -->
+          <% if @request.form_type == 'securisation_bruxelles' %>
+            <div class="card">
+              <div class="card-header bg-dark text-white">
+                <h4><i class="bi bi-shield-check me-2"></i>Sécurisation</h4>
+                <p class="mb-0">Sécurisation des locaux et équipements</p>
+              </div>
+              <div class="card-body">
+                <%= render 'requests/partials_bruxelles_entreprise/securisation', form: form %>
               </div>
             </div>
           <% end %>
