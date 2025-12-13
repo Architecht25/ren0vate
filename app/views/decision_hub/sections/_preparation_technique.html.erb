@@ -372,17 +372,26 @@ document.addEventListener('DOMContentLoaded', function() {
     // Vérifier isolation
     const isolationFields = document.querySelectorAll('[name^="isolation_"]');
     let isolationComplete = Array.from(isolationFields).some(field => field.value.trim() !== '');
-    document.getElementById('isolation-status').textContent = isolationComplete ? 'En cours' : 'Non renseigné';
+    const isolationStatus = document.getElementById('isolation-status');
+    if (isolationStatus) {
+      isolationStatus.textContent = isolationComplete ? 'En cours' : 'Non renseigné';
+    }
 
     // Vérifier systèmes énergie
     const energieFields = document.querySelectorAll('[name^="pac_"], [name^="cet_"]');
     let energieComplete = Array.from(energieFields).some(field => field.value.trim() !== '');
-    document.getElementById('energie-status').textContent = energieComplete ? 'En cours' : 'Non renseigné';
+    const energieStatus = document.getElementById('energie-status');
+    if (energieStatus) {
+      energieStatus.textContent = energieComplete ? 'En cours' : 'Non renseigné';
+    }
 
     // Vérifier menuiseries
     const menuiseriesFields = document.querySelectorAll('[name^="fenetres_"], [name^="portes_"], [name^="ventilation_"]');
     let menuiseriesComplete = Array.from(menuiseriesFields).some(field => field.value.trim() !== '');
-    document.getElementById('menuiseries-status').textContent = menuiseriesComplete ? 'En cours' : 'Non renseigné';
+    const menuiseriesStatus = document.getElementById('menuiseries-status');
+    if (menuiseriesStatus) {
+      menuiseriesStatus.textContent = menuiseriesComplete ? 'En cours' : 'Non renseigné';
+    }
   }
 
   // Écouter les changements sur tous les champs

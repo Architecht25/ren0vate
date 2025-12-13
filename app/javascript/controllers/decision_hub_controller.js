@@ -87,11 +87,10 @@ export default class extends Controller {
     const simulationId = event.target.value
 
     if (simulationId && simulationId !== "") {
-      this.currentSimulationIdValue = parseInt(simulationId)
-      this.loadSimulationData(simulationId)
-      this.addAIMessage("system", `Simulation ${simulationId} sélectionnée. Je peux maintenant vous aider avec des conseils spécifiques.`)
-    } else {
-      this.clearSections()
+      // Recharger la page avec la simulation sélectionnée
+      const currentUrl = new URL(window.location.href)
+      currentUrl.searchParams.set('simulation_id', simulationId)
+      window.location.href = currentUrl.toString()
     }
   }
 
@@ -103,19 +102,22 @@ export default class extends Controller {
     this.showLoadingState()
 
     try {
-      const response = await fetch(this.loadSimulationUrlValue, {
-        method: 'POST',
-        body: JSON.stringify({ simulation_id: simulationId }),
+      const url = this.loadSimulationUrlValue.replace('SIMULATION_ID', simulationId)
+      const response = await fetch(url, {
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
           "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').getAttribute("content")
         }
       })
 
       if (response.ok) {
-        const data = await response.json()
-        this.updateSections(data.sections)
-        this.updateAIContext(data.ai_context)
+        const responseData = await response.json()
+        if (responseData.success && responseData.data) {
+          this.updateSections(responseData.data)
+          this.updateAIContext(responseData.data.ai_context || {})
+        } else {
+          this.showError(responseData.error || "Erreur lors du chargement")
+        }
       } else {
         this.showError("Erreur lors du chargement des données")
       }

@@ -1,5 +1,6 @@
 <div class="container-fluid py-4"
-     data-controller="decision-hub decision-hub-interactions">
+     data-controller="decision-hub decision-hub-interactions"
+     data-decision-hub-load-simulation-url-value="<%= load_simulation_decision_hub_index_path(simulation_id: 'SIMULATION_ID', locale: I18n.locale) %>">
 
   <!-- Sélecteur de simulations -->
   <div class="row mb-4">
@@ -15,7 +16,11 @@
               </div>
               <div class="simulation-selector flex-grow-1" style="max-width: 600px; min-width: 500px;">
               <% if @simulations.any? %>
-                <select class="form-select" id="simulationSelector" data-decision-hub-target="simulationSelector" style="width: 100%; border: 2px solid var(--bs-primary); border-color: #1e40af;">
+                <select class="form-select"
+                        id="simulationSelector"
+                        data-decision-hub-target="simulationSelector"
+                        data-action="change->decision-hub#simulationChanged"
+                        style="width: 100%; border: 2px solid var(--bs-primary); border-color: #1e40af;">
                   <% @simulations.each do |simulation| %>
                     <option value="<%= simulation.id %>"
                             data-region="<%= simulation.region %>"

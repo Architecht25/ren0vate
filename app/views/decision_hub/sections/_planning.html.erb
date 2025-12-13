@@ -68,6 +68,43 @@
           </div>
         </div>
 
+        <!-- Alerte suppression primes rénovation hauts revenus Flandre -->
+        <div class="col-12 mt-3">
+          <div class="alert alert-danger border-danger">
+            <div class="d-flex align-items-start">
+              <div class="me-3">
+                <i class="bi bi-exclamation-triangle-fill text-danger fs-4"></i>
+              </div>
+              <div class="flex-grow-1">
+                <h6 class="fw-bold mb-2 text-danger">
+                  <i class="bi bi-calendar-x me-1"></i>
+                  Suppression des primes rénovation pour hauts revenus
+                </h6>
+                <p class="mb-2">
+                  <strong>Attention :</strong> Les primes de rénovation pour les <strong>catégories de hauts revenus 1 et 2</strong> seront supprimées après le <strong>28 février 2026</strong>.
+                  Les personnes concernées doivent présenter leur <u>dossier complet</u> avant cette date limite. Après cette date, les hauts revenus n'auront plus droit aux primes rénovation.
+                </p>
+                <%
+                  deadline_hauts_revenus = Date.new(2026, 2, 28)
+                  days_until_hauts_revenus = (deadline_hauts_revenus - Date.current).to_i
+                %>
+                <div class="small">
+                  <% if days_until_hauts_revenus > 0 %>
+                    <strong class="text-primary bg-white px-2 py-1 rounded">
+                      Il reste <%= pluralize(days_until_hauts_revenus, 'jour') %> avant la suppression de ces primes
+                      (<%= deadline_hauts_revenus.strftime("%d/%m/%Y") %>)
+                    </strong>
+                  <% else %>
+                    <strong class="text-white">
+                      ❌ Ces primes ne sont plus disponibles pour les hauts revenus depuis le <%= deadline_hauts_revenus.strftime("%d/%m/%Y") %>
+                    </strong>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Alerte suppression prime PEB Flandre -->
         <div class="col-12 mt-3">
           <div class="alert alert-danger border-danger">
@@ -181,12 +218,22 @@
               <div class="flex-grow-1">
                 <h6 class="fw-bold mb-2 text-danger">
                   <i class="bi bi-calendar-x me-1"></i>
-                  Arrêt potentiel des aides à la rénovation
+                  Fin du régime actuel des primes rénovation
                 </h6>
                 <p class="mb-2">
-                  <strong>Attention :</strong> Les primes à la rénovation pourraient être supprimées après le <strong>30 septembre 2026</strong>.
-                  Votre dossier doit être <u>introduit</u> avant cette date limite pour bénéficier des aides.
+                  <strong>Attention :</strong> Le régime actuel des primes à la rénovation prendra fin le <strong>30 septembre 2026</strong> et sera remplacé par un <strong>système de prêts</strong> comme Rénopack et Rénoprêt.
+                  Votre dossier doit être <u>introduit</u> avant cette date limite pour bénéficier du régime actuel.
                 </p>
+                <div class="small mb-2">
+                  <strong>Le nouveau système :</strong>
+                  <ul class="mb-0 mt-1">
+                    <li>Prêts avec <strong>réduction du montant à rembourser</strong> (assimilée à une prime)</li>
+                    <li>Réduction pour les projets permettant un <strong>"saut de label"</strong> énergétique</li>
+                    <li>Aide calculée selon la <strong>catégorie de revenus</strong> et appliquée sur <strong>l'investissement global</strong></li>
+                    <li>Obligations : réalisation d'un <strong>audit</strong> et travaux de <strong>salubrité + amélioration énergétique</strong></li>
+                    <li>Accessible aux <strong>propriétaires bailleurs</strong></li>
+                  </ul>
+                </div>
                 <%
                   deadline_wallonie_arret = Date.new(2026, 9, 30)
                   days_until_arret = (deadline_wallonie_arret - Date.current).to_i
@@ -194,12 +241,12 @@
                 <div class="small">
                   <% if days_until_arret > 0 %>
                     <strong class="text-primary bg-white px-2 py-1 rounded">
-                      Il reste <%= pluralize(days_until_arret, 'jour') %> avant l'arrêt potentiel des aides
+                      Il reste <%= pluralize(days_until_arret, 'jour') %> avant la fin du régime actuel
                       (<%= deadline_wallonie_arret.strftime("%d/%m/%Y") %>)
                     </strong>
                   <% else %>
                     <strong class="text-white">
-                      ❌ L'arrêt des aides est effectif depuis le <%= deadline_wallonie_arret.strftime("%d/%m/%Y") %>
+                      ❌ Le régime actuel a pris fin le <%= deadline_wallonie_arret.strftime("%d/%m/%Y") %>
                     </strong>
                   <% end %>
                 </div>

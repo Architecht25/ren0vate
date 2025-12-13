@@ -9,8 +9,12 @@ class DecisionHubController < ApplicationController
                                .order(created_at: :desc)
                                .includes(:property, :project)
 
-    # Prendre la première simulation comme défaut pour l'affichage initial
-    @default_simulation = @simulations.first || current_user.simulations.last
+    # Si un simulation_id est fourni en paramètre, l'utiliser, sinon prendre la première
+    if params[:simulation_id].present?
+      @default_simulation = current_user.simulations.find_by(id: params[:simulation_id]) || @simulations.first || current_user.simulations.last
+    else
+      @default_simulation = @simulations.first || current_user.simulations.last
+    end
     @simulation = @default_simulation  # Alias pour les vues partielles
 
     # Sauvegarder la simulation active en session pour l'IA
@@ -49,23 +53,33 @@ class DecisionHubController < ApplicationController
   def load_simulation_data
     # Endpoint AJAX pour charger les données d'une simulation spécifique
     begin
-      simulation = current_user.simulations.find(params[:simulation_id])
-      hub_data = DecisionHub::DataService.new(simulation).generate_dynamic_data
+      @simulation = current_user.simulations.find(params[:simulation_id])
+      @default_simulation = @simulation  # Alias pour compatibilité avec les vues
+      @hub_data = DecisionHub::DataService.new(@simulation).generate_dynamic_data
+
+      # Rendre les sections HTML (les partials utilisent les variables d'instance @simulation et @hub_data)
+      sections_html = {
+        resume: render_to_string(partial: 'decision_hub/sections/resume', layout: false),
+        documents: render_to_string(partial: 'decision_hub/sections/documents', layout: false),
+        planning: render_to_string(partial: 'decision_hub/sections/planning', layout: false),
+        technical: render_to_string(partial: 'decision_hub/sections/preparation_technique', layout: false)
+      }
 
       render json: {
         success: true,
-        data: hub_data,
+        data: sections_html,
         simulation: {
-          id: simulation.id,
-          title: simulation.titre || "Simulation #{simulation.id}",
-          region: simulation.region&.capitalize,
-          created_at: simulation.created_at.strftime("%d/%m/%Y")
+          id: @simulation.id,
+          title: @simulation.titre || "Simulation #{@simulation.id}",
+          region: @simulation.region&.capitalize,
+          created_at: @simulation.created_at.strftime("%d/%m/%Y")
         }
       }
     rescue ActiveRecord::RecordNotFound
       render json: { success: false, error: "Simulation introuvable" }, status: :not_found
     rescue StandardError => e
       Rails.logger.error "Error loading simulation data: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
       render json: { success: false, error: "Erreur lors du chargement des données" }, status: :internal_server_error
     end
   end
