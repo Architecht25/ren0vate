@@ -28,62 +28,44 @@
               <%= form.text_field :title, class: "form-control", placeholder: "Titre court et explicite" %>
             </div>
 
-            <% if @notification.respond_to?(:message) %>
-              <div class="mb-3">
-                <%= form.label :message, "Message*", class: "form-label" %>
-                <%= form.text_area :message, rows: 5, class: "form-control", placeholder: "Contenu détaillé de la notification..." %>
-              </div>
-            <% elsif @notification.respond_to?(:content) %>
-              <div class="mb-3">
-                <%= form.label :content, "Contenu*", class: "form-label" %>
-                <%= form.text_area :content, rows: 5, class: "form-control", placeholder: "Contenu détaillé de la notification..." %>
-              </div>
-            <% end %>
+            <div class="mb-3">
+              <%= form.label :message, "Message*", class: "form-label" %>
+              <%= form.text_area :message, rows: 5, class: "form-control", placeholder: "Contenu détaillé de la notification..." %>
+            </div>
 
-            <% if @notification.respond_to?(:type) %>
-              <div class="mb-3">
-                <%= form.label :type, "Type", class: "form-label" %>
-                <%= form.select :type,
-                    [
-                      ["Information", "info"],
-                      ["Succès", "success"],
-                      ["Avertissement", "warning"],
-                      ["Erreur", "error"]
-                    ],
-                    { include_blank: "-- Sélectionnez un type --" },
-                    { class: "form-select" } %>
-              </div>
-            <% end %>
+            <div class="mb-3">
+              <%= form.label :type, "Type*", class: "form-label" %>
+              <%= form.select :type,
+                  Notification.types.keys.map { |key| [key.humanize, key] },
+                  { include_blank: "-- Sélectionnez un type --" },
+                  { class: "form-select" } %>
+            </div>
 
-            <% if @notification.respond_to?(:category) %>
-              <div class="mb-3">
-                <%= form.label :category, "Catégorie", class: "form-label" %>
-                <%= form.select :category,
-                    [
-                      ["Système", "system"],
-                      ["Chantier", "project"],
-                      ["Bien immobilier", "property"],
-                      ["Simulation", "simulation"],
-                      ["Prime", "prime"]
-                    ],
-                    { include_blank: "-- Sélectionnez une catégorie --" },
-                    { class: "form-select" } %>
-              </div>
-            <% end %>
+            <div class="mb-3">
+              <%= form.label :category, "Catégorie*", class: "form-label" %>
+              <%= form.select :category,
+                  Notification.categories.keys.map { |key| [key.humanize, key] },
+                  { include_blank: "-- Sélectionnez une catégorie --" },
+                  { class: "form-select" } %>
+            </div>
 
-            <% if defined?(User) && User.any? %>
-              <div class="mb-3">
-                <%= form.label :user_id, "Destinataire*", class: "form-label" %>
-                <%= form.collection_select :user_id, User.all, :id, :email, { include_blank: "-- Sélectionner un utilisateur --" }, class: "form-select" %>
-              </div>
-            <% end %>
+            <div class="mb-3">
+              <%= form.label :priority, "Priorité", class: "form-label" %>
+              <%= form.select :priority,
+                  Notification.priorities.keys.map { |key| [key.humanize, key] },
+                  { selected: 'normale' },
+                  { class: "form-select" } %>
+            </div>
 
-            <% if @notification.respond_to?(:link) %>
-              <div class="mb-3">
-                <%= form.label :link, "Lien (optionnel)", class: "form-label" %>
-                <%= form.text_field :link, class: "form-control", placeholder: "URL associée à la notification" %>
-              </div>
-            <% end %>
+            <div class="mb-3">
+              <%= form.label :action_url, "Lien d'action (optionnel)", class: "form-label" %>
+              <%= form.text_field :action_url, class: "form-control", placeholder: "URL associée à la notification" %>
+            </div>
+
+            <div class="mb-3">
+              <%= form.label :expires_at, "Date d'expiration (optionnel)", class: "form-label" %>
+              <%= form.datetime_local_field :expires_at, class: "form-control" %>
+            </div>
 
             <div class="d-flex justify-content-end mt-4">
               <%= link_to "Annuler", notifications_path, class: "btn btn-outline-secondary me-2" %>

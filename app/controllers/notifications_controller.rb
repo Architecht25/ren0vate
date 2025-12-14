@@ -58,6 +58,20 @@ class NotificationsController < ApplicationController
     end
   end
 
+  def new
+    @notification = current_user.notifications.build
+  end
+
+  def create
+    @notification = current_user.notifications.build(notification_params)
+
+    if @notification.save
+      redirect_to notifications_path, notice: 'Notification créée avec succès.'
+    else
+      render :new, status: :unprocessable_entity
+    end
+  end
+
   def destroy
     @notification.destroy
 
@@ -80,7 +94,15 @@ class NotificationsController < ApplicationController
     when 'specific_users'
       target_users = User.where(id: params[:notification][:user_ids])
     when 'by_region'
-      target_users = User.where(region: params[:notification][:target_region])
+      region = params[:notification][:target_region]
+      target_users = User.where("LOWER(region) = ?", region.downcase) if region.present?
+      target_users ||= User.none
+    when 'bruxelles_entreprise'
+      # Cibler uniquement les entreprises à Bruxelles
+      target_users = User.joins(:properties).where(
+        "LOWER(properties.region) = ? AND properties.type_bien_bruxelles = ?",
+        'bruxelles', 'entreprise'
+      ).distinct
     else
       target_users = User.all
     end
@@ -129,7 +151,7 @@ class NotificationsController < ApplicationController
   end
 
   def notification_params
-    params.require(:notification).permit(:title, :message, :type, :category, :priority, :action_url, :expires_at)
+    params.require(:notification).permit(:title, :message, :type, :category, :priority, :action_url, :expires_at, :property_id, :project_id, :simulation_id)
   end
 
   def get_related_items(notification)

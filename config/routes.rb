@@ -161,7 +161,7 @@ Rails.application.routes.draw do
   get 'primes/:id/download_documents', to: 'prime_document_templates#download_prime_documents', as: :download_documents_prime
   get 'simulations/:simulation_id/download_documents', to: 'prime_document_templates#download_simulation_documents', as: :download_documents_simulation
 
-  resources :notifications, only: [:index, :show] do
+  resources :notifications, only: [:index, :show, :new, :create, :destroy] do
     member do
       patch :mark_as_read
     end

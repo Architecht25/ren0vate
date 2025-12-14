@@ -9,6 +9,13 @@ class Notification < ApplicationRecord
   validates :message, :type, :title, presence: true
   validates :category, presence: true
 
+  # Callbacks
+  after_initialize :set_defaults, if: :new_record?
+
+  def set_defaults
+    self.priority ||= :normale
+  end
+
   # Énumérations
   enum :type, {
     # Notifications automatiques système
@@ -38,14 +45,19 @@ class Notification < ApplicationRecord
     simulations: 'simulations',
     systeme: 'systeme',
     legal: 'legal',
-    maintenance: 'maintenance'
+    maintenance: 'maintenance',
+    aide: 'aide',
+    rappel: 'rappel',
+    nouveaute: 'nouveaute',
+    urgent: 'urgent'
   }
 
   enum :priority, {
     basse: 0,
     normale: 1,
     haute: 2,
-    critique: 3
+    critique: 3,
+    urgente: 4
   }
 
   # Scopes
