@@ -47,12 +47,12 @@ class DocumentPhase < ApplicationRecord
     },
     {
       name: 'Phase Réception',
-      description: 'Conformité, garanties et finalisation',
+      description: 'Conformité, garanties et finalisation - Documents DIU',
       icon: '✅',
       color: 'success',
       position: 4,
       required_document_types: ['certificat_peb_apres', 'attestation_conformite'],
-      optional_document_types: ['certificat_protection', 'fiche_technique']
+      optional_document_types: ['plan_diu', 'fiche_technique', 'notice_equipement', 'fiche_securite_materiaux', 'certificat_garantie', 'instruction_entretien']
     }
   ].freeze
 

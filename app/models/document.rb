@@ -40,7 +40,7 @@ class Document < ApplicationRecord
     plan: 'plan',
     permis_urbanisme: 'permis_urbanisme',
     dossier_prime: 'dossier_prime',
-    certificat_protection: 'certificat_protection',
+    plan_diu: 'plan_diu',
     acte_notarial: 'acte_notarial',
     compromis: 'compromis',
     # Documents châssis spécifiques
@@ -54,7 +54,12 @@ class Document < ApplicationRecord
     rib: 'rib',
     aer: 'aer',
     # Fiches techniques
-    fiche_technique: 'fiche_technique'
+    fiche_technique: 'fiche_technique',
+    # Documents DIU (Dossier d'Intervention Ultérieure)
+    notice_equipement: 'notice_equipement',
+    fiche_securite_materiaux: 'fiche_securite_materiaux',
+    certificat_garantie: 'certificat_garantie',
+    instruction_entretien: 'instruction_entretien'
   }
 
   # Status est une colonne string dans la DB, pas un enum integer

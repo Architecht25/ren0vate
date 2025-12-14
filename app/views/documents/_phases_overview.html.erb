@@ -39,18 +39,24 @@
       <% all_types = phase.required_document_types + phase.optional_document_types %>
 
       <div class="col-lg-3 col-md-6 mb-4">
-        <div class="card document-phase-card h-100 phase-card-chantier">
-          <div class="card-body p-4 text-center position-relative">
+        <%= link_to documents_path(
+                      property_id: @property&.id,
+                      project_id: @project&.id,
+                      filter_phase: phase.id
+                    ),
+                   class: "text-decoration-none" do %>
+          <div class="card document-phase-card h-100 phase-card-chantier" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 16px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='';">
+            <div class="card-body p-4 text-center position-relative">
 
-            <div class="mb-4 mt-2">
-              <div class="phase-icon-circle mx-auto mb-3">
-                <%= phase.icon %>
+              <div class="mb-4 mt-2">
+                <div class="phase-icon-circle mx-auto mb-3">
+                  <%= phase.icon %>
+                </div>
               </div>
-            </div>
 
-            <h5 class="card-title mb-4 fw-600" style="color: var(--neutral-800);">
-              <%= phase.name.gsub('Phase ', '') %>
-            </h5>
+              <h5 class="card-title mb-4 fw-600" style="color: var(--neutral-800);">
+                <%= phase.name.gsub('Phase ', '') %>
+              </h5>
 
             <div class="mb-4">
               <div class="small text-muted mb-2">
@@ -115,19 +121,9 @@
               </div>
             </div>
 
-            <!-- Action unique : Voir détails -->
-            <div class="d-flex justify-content-center">
-              <%= link_to documents_path(
-                            property_id: @property&.id,
-                            project_id: @project&.id,
-                            filter_phase: phase.id
-                          ),
-                         class: "btn btn-outline-primary btn-sm" do %>
-                <i class="bi bi-folder2-open me-1"></i>Voir détails
-              <% end %>
             </div>
           </div>
-        </div>
+        <% end %>
       </div>
     <% end %>
   <% end %>
@@ -153,18 +149,24 @@
       <% completion_class = phase_data[:completion_percentage] >= 80 ? 'high' : phase_data[:completion_percentage] >= 50 ? 'medium' : 'low' %>
 
       <div class="col-lg-3 col-md-6 mb-4">
-        <div class="card document-phase-card h-100 phase-card-investissement">
-          <div class="card-body p-4 text-center position-relative">
+        <%= link_to documents_path(
+                      property_id: @property&.id,
+                      project_id: @project&.id,
+                      filter_phase: phase.id
+                    ),
+                   class: "text-decoration-none" do %>
+          <div class="card document-phase-card h-100 phase-card-investissement" style="cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 16px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='';">
+            <div class="card-body p-4 text-center position-relative">
 
-            <div class="mb-4 mt-2">
-              <div class="phase-icon-circle mx-auto mb-3">
-                <%= phase.icon %>
+              <div class="mb-4 mt-2">
+                <div class="phase-icon-circle mx-auto mb-3">
+                  <%= phase.icon %>
+                </div>
               </div>
-            </div>
 
-            <h5 class="card-title mb-4 fw-600" style="color: var(--neutral-800);">
-              <%= phase.name.gsub('Phase ', '') %>
-            </h5>
+              <h5 class="card-title mb-4 fw-600" style="color: var(--neutral-800);">
+                <%= phase.name.gsub('Phase ', '') %>
+              </h5>
 
             <div class="mb-4">
               <div class="small text-muted mb-2">
@@ -197,38 +199,9 @@
               </div>
             </div>
 
-            <!-- Actions -->
-            <div class="d-flex justify-content-center gap-2">
-              <%= link_to documents_path(
-                            property_id: @property&.id,
-                            project_id: @project&.id,
-                            filter_phase: phase.id
-                          ),
-                         class: "btn btn-outline-warning btn-sm" do %>
-                <i class="bi bi-folder2-open me-1"></i>Voir détails
-              <% end %>
-              <% if phase_data[:missing_required]&.any? %>
-                <%= link_to new_document_path(
-                              property_id: @property&.id,
-                              project_id: @project&.id,
-                              type_document: phase_data[:missing_required].first
-                            ),
-                           class: "btn btn-warning btn-sm" do %>
-                  <i class="bi bi-plus me-1"></i>Ajouter
-                <% end %>
-              <% else %>
-                <%= link_to new_document_path(
-                              property_id: @property&.id,
-                              project_id: @project&.id,
-                              type_document: phase.required_document_types.first
-                            ),
-                           class: "btn btn-outline-secondary btn-sm" do %>
-                  <i class="bi bi-plus me-1"></i>Nouveau
-                <% end %>
-              <% end %>
             </div>
           </div>
-        </div>
+        <% end %>
       </div>
     <% end %>
   <% end %>
