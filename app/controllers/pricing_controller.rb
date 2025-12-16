@@ -121,9 +121,12 @@ class PricingController < ApplicationController
         ],
         limitations: [
           "Pas de multi-propriétés",
-          "Pas d'accès IA",
-          "Pas de Decision Hub",
-          "Pas de support prioritaire"
+          "Pas d'import PEB/Audit",
+          "Pas de ROI Calculator",
+          "Pas de gestion permis urbanisme",
+          "Pas de suivi chantier",
+          "Pas de comparateur entrepreneurs",
+          "Support basique uniquement"
         ],
         cta: "Commencer gratuitement",
         popular: false,
@@ -131,51 +134,56 @@ class PricingController < ApplicationController
       },
 
       individual: {
-        name: "Propriétaire",
-        price: 19,
+        name: "Propriétaire Solo",
+        price: 39,
         period: "mois",
-        description: "Pour particuliers 1-3 propriétés",
+        description: "Gestion complète 1-3 propriétés",
         features: [
-          "Jusqu'à 3 propriétés",
-          "Projets illimités par propriété",
-          "Simulations illimitées",
-          "Ren0Bot : Assistant contextuel intelligent",
-          "Decision Hub personnalisé",
-          "Dashboard comparatif propriétés",
-          "Analytics de base ROI",
-          "Recherche BCE illimitée",
-          "Support prioritaire (24h)",
-          "Export données (PDF reports)",
-          "Accès prioritaire aux futures fonctionnalités IA"
+          "🏠 Jusqu'à 3 propriétés",
+          "📊 Simulations illimitées primes/prêts",
+          "📋 Import & Analyse certificat PEB/Audit",
+          "💰 ROI Calculator complet (projections 20 ans)",
+          "🎯 Roadmap évolution label énergétique",
+          "📁 Gestion documentaire de base",
+          "🏛️ Assistant permis urbanisme (évaluation + checklist)",
+          "💼 Planificateur budgétaire intelligent",
+          "👷 Comparateur entrepreneurs (3 devis/mois)",
+          "🔍 Recherche BCE illimitée",
+          "📧 Support prioritaire (24h)",
+          "📄 Export rapports PDF"
         ],
-        roi: "ROI minimum : 200% • ROI réaliste : 500%+",
-        cta: "Choisir Propriétaire",
+        roi: "Économisez 40h admin • +25% d'aides détectées • ROI moyen : 15.000€ sur projet 50K€",
+        cta: "Démarrer avec Propriétaire Solo",
         popular: true,
-        target: "B2C Particuliers"
+        target: "B2C Particuliers",
+        new_badge: "Gestion complète"
       },
 
       portfolio: {
-        name: "Investisseur",
-        price: 49,
+        name: "Portfolio Manager",
+        price: 89,
         period: "mois",
-        description: "Multi-propriétaires 4-10 biens",
+        description: "Gestion avancée 4-10 propriétés + Suivi chantier",
         features: [
-          "Jusqu'à 10 propriétés",
-          "Ren0Bot : Assistant expert multi-modes",
-          "Decision Hub avancé multi-biens",
-          "Dashboard Business Intelligence",
-          "Priorisation intelligente investissements",
-          "Analytics énergétiques avancés",
-          "Optimiseur fiscal multi-propriétés",
-          "Support expert (12h)",
-          "Webinaires formation exclusifs",
-          "Exports avancés et rapports détaillés",
-          "Accès bêta prioritaire aux fonctionnalités IA"
+          "✅ Tout Individual PLUS :",
+          "🏘️ Jusqu'à 10 propriétés",
+          "🔧 Suivi chantier avec état d'avancement",
+          "👥 Collaboration multi-acteurs (architecte, entrepreneurs)",
+          "📝 PV numériques et validation phases",
+          "✅ Checklist clôture complète (garanties, certifications)",
+          "📦 Génération dossier final complet (ZIP + PDF)",
+          "👷 Comparateur entrepreneurs illimité",
+          "📈 Dashboard analytics avancé multi-propriétés",
+          "⚡ Assistant conformité technique",
+          "🎯 Priorisation intelligente investissements",
+          "📞 Support expert (12h)",
+          "🎓 Webinaires formation exclusifs"
         ],
-        roi: "ROI minimum : 300% • ROI réaliste : 800%+",
-        cta: "Choisir Investisseur",
+        roi: "ROI minimum : 300% • Valorisation +5-10% par bien • Conformité 100%",
+        cta: "Choisir Portfolio Manager",
         popular: false,
-        target: "B2C Multi-propriétaires"
+        target: "B2C Multi-propriétaires",
+        new_badge: "Suivi chantier inclus"
       },
 
       premium_mixed: {
@@ -228,26 +236,30 @@ class PricingController < ApplicationController
       },
 
       enterprise: {
-        name: "Platform",
-        price: 199,
+        name: "Enterprise",
+        price: 299,
         period: "mois",
-        description: "Grandes entreprises, gestionnaires patrimoine",
+        description: "Solution complète syndics, promoteurs, bureaux d'études",
         features: [
-          "Gestion propriétés illimitée",
-          "Utilisateurs illimités",
-          "Développements spécifiques",
-          "Dashboard Business Intelligence avancé",
-          "Support multi-régional",
-          "Support prioritaire (2h)",
-          "SLA garantie 99% uptime",
-          "Intégrations sur-mesure",
-          "Account manager dédié",
-          "Accès bêta exclusif nouvelles fonctionnalités"
+          "✅ Tout Portfolio PLUS :",
+          "♾️ Propriétés et utilisateurs illimités",
+          "🔌 API access complet pour intégrations",
+          "🎨 White-label (votre marque)",
+          "👥 Gestion équipes multi-niveaux",
+          "📊 Reporting automatisé clients",
+          "💼 SLA 99.9% + Account manager dédié",
+          "🎓 Formations personnalisées équipe",
+          "🔧 Développements spécifiques sur-mesure",
+          "💾 Export comptable automatisé",
+          "📱 Applications mobiles dédiées",
+          "🔒 Sécurité renforcée + SSO",
+          "🌍 Support multi-régional 24/7"
         ],
-        roi: "ROI minimum : 500% • Scaling illimité",
-        cta: "Nous contacter",
+        roi: "Break-even : 10-15 clients • ROI minimum : 500% • Scaling illimité",
+        cta: "Contacter notre équipe",
         popular: false,
-        target: "B2B Enterprise"
+        target: "B2B Enterprise",
+        new_badge: "Solution pro complète"
       }
     }
   end
