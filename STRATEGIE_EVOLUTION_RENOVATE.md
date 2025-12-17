@@ -990,9 +990,248 @@ end
 - **Transparence** : Visibilité totale sur avancement
 - **Sérénité** : Rappels et alertes pour ne rien oublier
 
-**7. 👷 Comparateur entrepreneurs**
+**7. 🏗️ Comparateur produits et matériaux énergétiques** *(NOUVEAU)*
 
-**8. 💰 Planificateur budgétaire**
+```ruby
+# app/models/energy_product.rb
+class EnergyProduct < ApplicationRecord
+  enum category: {
+    insulation: 'insulation',           # Isolants
+    windows: 'windows',                 # Châssis et vitrages
+    heating: 'heating',                 # Chaudières et PAC
+    ventilation: 'ventilation',         # Systèmes VMC/VMI
+    thermal_regulation: 'thermal_regulation'  # Thermostats et régulation
+  }
+
+  enum insulation_type: {
+    mineral_wool: 'mineral_wool',       # Laine de roche/verre
+    eps: 'eps',                         # Polystyrène expansé
+    pur_pir: 'pur_pir',                # Polyuréthane/Polyisocyanurate
+    wood_fiber: 'wood_fiber',          # Fibre de bois
+    cellulose: 'cellulose',            # Ouate de cellulose
+    hemp: 'hemp',                       # Chanvre
+    cork: 'cork'                        # Liège
+  }
+
+  # Caractéristiques techniques
+  string :brand                         # Marque
+  string :model                         # Modèle/référence
+  decimal :lambda_value                 # λ (W/m·K) pour isolants
+  decimal :r_value                      # Résistance thermique
+  decimal :u_value                      # Coefficient U pour châssis
+  string :fire_rating                   # Classement feu (A1, B, C...)
+  boolean :vapor_barrier                # Pare-vapeur intégré
+  string :certifications                # EPD, PEFC, natureplus, etc.
+
+  # Performance énergétique
+  decimal :efficiency_rating            # COP pour PAC, rendement chaudière
+  string :energy_label                  # Label énergétique A+++, A++, etc.
+  integer :lifespan_years               # Durée de vie estimée
+  boolean :renewable_energy             # Source renouvelable
+
+  # Données commerciales
+  decimal :price_per_unit               # Prix/m² ou prix unitaire
+  string :unit                          # m², pièce, installation
+  text :suppliers                       # Liste fournisseurs/magasins
+  text :installation_difficulty         # Facile/Moyen/Expert
+  boolean :professional_required        # Installation pro obligatoire
+
+  # Caractéristiques environnementales
+  decimal :embodied_carbon              # kg CO2/unité (ACV)
+  boolean :recyclable
+  boolean :local_production             # Production belge/européenne
+  integer :environmental_score          # Score écologique /100
+
+  # Normes et conformité
+  jsonb :certifications_details, default: {}
+  text :technical_specs
+  text :maintenance_requirements
+end
+```
+
+**Interface comparateur par catégorie :**
+
+**A. ISOLATIONS - Comparateur multicritères**
+
+**Filtres intelligents :**
+- **Application** : Toiture, murs, sol, combles
+- **Épaisseur souhaitée** : 100mm, 120mm, 140mm, 160mm, 200mm
+- **Budget** : €/m²
+- **Priorités** : Performance thermique, écologique, économique, phonique
+- **Contraintes** : Espace limité, humidité, feu
+
+**Tableau comparatif :**
+```
+┌────────────────┬──────────┬─────────┬──────────┬────────────┬───────────┐
+│ Isolant        │ λ (W/m·K)│ R (20cm)│ Prix/m²  │ Écologique │ Feu       │
+├────────────────┼──────────┼─────────┼──────────┼────────────┼───────────┤
+│ PUR/PIR        │ 0.022    │ 9.09    │ 45€      │ ⭐⭐       │ B/C       │
+│ Laine de roche │ 0.035    │ 5.71    │ 28€      │ ⭐⭐⭐⭐    │ A1        │
+│ Fibre de bois  │ 0.038    │ 5.26    │ 52€      │ ⭐⭐⭐⭐⭐  │ E         │
+│ EPS Graphite   │ 0.031    │ 6.45    │ 35€      │ ⭐⭐       │ E         │
+│ Cellulose      │ 0.038    │ 5.26    │ 22€      │ ⭐⭐⭐⭐⭐  │ B         │
+└────────────────┴──────────┴─────────┴──────────┴────────────┴───────────┘
+```
+
+**Recommandations contextuelles :**
+- "Pour toiture plate : PUR/PIR recommandé (meilleur R en faible épaisseur)"
+- "Pour murs avec risque humidité : Laine de roche hydrophobe"
+- "Meilleur rapport qualité/prix écologique : Cellulose"
+
+**B. CHÂSSIS - Comparateur profils et vitrages**
+
+**Critères de comparaison :**
+
+**Profils :**
+- **Matériaux** : PVC, Aluminium, Bois, Bois-alu, Composite
+- **U châssis** : 0.8 - 1.4 W/m²K
+- **Durabilité** : 30-50 ans
+- **Entretien** : Faible/Moyen/Élevé
+- **Esthétique** : Finitions, couleurs RAL
+- **Prix indicatif** : €€/m²
+
+**Vitrages :**
+- **Types** : Double (4-16-4), Triple (4-12-4-12-4), HR++, HR+++
+- **U vitrage** : 0.5 - 1.1 W/m²K
+- **Factor solaire g** : 0.50 - 0.70 (gains chaleur)
+- **Isolation acoustique** : 28-45 dB
+- **Options** : Argon/Krypton, Low-E, verre trempé
+
+**Tableau combinaisons :**
+```
+Profil PVC + Triple HR+++ (Uw 0.8) : 850€/m² | Primes Flandre : -20%
+Profil Alu isolé + Triple (Uw 1.0) : 920€/m² | Excellente durabilité
+Profil Bois + Double HR++ (Uw 1.2) : 780€/m² | Écologique mais entretien
+```
+
+**Assistant de choix :**
+```
+Questions :
+→ Orientation fenêtres ? (Sud = privilégier g élevé pour gains gratuits)
+→ Bruit extérieur ? (Route = recommander 40+ dB)
+→ Budget ? (Excellent = Triple, Bon = Double HR++)
+→ Style maison ? (Moderne = Alu, Classique = Bois)
+
+Résultat : "Recommandé : PVC blanc + Triple HR+++ (Ug 0.5, Uw 0.8)"
+```
+
+**C. CHAUDIÈRES ET POMPES À CHALEUR**
+
+**Filtres :**
+- **Type** : Gaz condensation, Mazout condensation, PAC air-eau, PAC air-air, PAC géothermique, Pellets
+- **Puissance** : 10-35 kW (calcul auto selon surface + isolation)
+- **COP/SCOP** : 3.5 - 5.5
+- **Basse température** : Compatible planchers chauffants
+- **Connectivité** : Wi-Fi, modulation, smart grid
+
+**Comparatif détaillé :**
+```
+┌─────────────────┬──────┬──────┬─────────┬──────────┬────────────────┐
+│ Système         │ COP  │ Conso│ €/an *  │ CO2/an   │ Investissement │
+├─────────────────┼──────┼──────┼─────────┼──────────┼────────────────┤
+│ PAC air-eau     │ 4.2  │ 4200│ 1260€   │ 0.8t     │ 12.000€        │
+│ Gaz condensation│ 0.98 │15000│ 1800€   │ 3.0t     │ 4.500€         │
+│ PAC géothermie  │ 5.0  │ 3500│ 1050€   │ 0.7t     │ 22.000€        │
+│ Chaudière pellets│1.05 │ 3.5t │ 1400€   │ 0.2t CO2 │ 15.000€        │
+└─────────────────┴──────┴─────────┴──────────┴────────────────┘
+* Chauffage + ECS pour 150m² PEB D
+```
+
+**ROI intégré :**
+- Calcul retour sur investissement vs référence (gaz)
+- Intégration primes régionales
+- Projection 15 ans avec évolution prix énergie
+- "PAC air-eau : Rentabilisée en 7 ans (avec primes)"
+
+**D. VENTILATION - VMC Simple/Double flux**
+
+**Comparatif systèmes :**
+
+**VMC Simple flux hygro :**
+- Prix : 1.500 - 3.000€
+- Consommation : 50 W
+- Installation : Facile (pas de gaines d'insufflation)
+- Perte chaleur : Oui (air neuf non réchauffé)
+- **Idéal pour** : Rénovation, budget limité
+
+**VMC Double flux avec échangeur :**
+- Prix : 4.000 - 8.000€
+- Rendement : 85-95% récupération chaleur
+- Consommation : 80 W
+- Filtres : F7/G4 (allergies)
+- Installation : Complexe (gaines aller-retour)
+- **Idéal pour** : Maison passive, neuf, confort maximal
+
+**VMI (Ventilation Mécanique par Insufflation) :**
+- Prix : 2.000 - 4.000€
+- Principe : Surpression (1 seul point d'insufflation)
+- Préchauffage air : Option résistance
+- **Idéal pour** : Lutte humidité, rénovation simple
+
+**Critères de choix :**
+```ruby
+def recommend_ventilation_system(property, insulation_level, budget)
+  if insulation_level >= 'PEB_B' && budget >= 5000
+    'VMC Double flux : Récupération 90%, économies 400€/an'
+  elsif property.humidity_issues?
+    'VMI : Solution anti-humidité, installation simple'
+  else
+    'VMC Simple flux hygro : Bon compromis performance/prix'
+  end
+end
+```
+
+**E. RÉGULATION THERMIQUE - Thermostats intelligents**
+
+**Comparatif fonctionnalités :**
+
+**Thermostat classique :**
+- Prix : 50-150€
+- Programmation : Horaire fixe
+- Zones : 1 seule
+
+**Thermostat connecté (Nest, Netatmo, Tado) :**
+- Prix : 200-350€
+- Fonctions :
+  - Auto-apprentissage habitudes
+  - Contrôle smartphone (distance)
+  - Météo intégrée (anticipation)
+  - Zones multiples (vannes thermostatiques)
+  - Détection présence
+  - Statistiques consommation
+- Économies : 15-25% facture chauffage
+- ROI : 2-3 ans
+
+**Régulation pièce par pièce :**
+- Têtes thermostatiques intelligentes : 50€/pièce
+- Configuration idéale : 19°C séjour, 17°C chambres, 22°C SDB
+- "Économie estimée : 320€/an pour maison 150m²"
+
+**Fonctionnalités avancées pour entreprises :**
+- **Building Management System (BMS)** : Régulation centralisée bâtiments tertiaires
+- **Smart Grid** : Pilotage PAC selon prix électricité temps réel
+- **Monitoring** : Alertes surconsommation, maintenance prédictive
+
+---
+
+**Valeur ajoutée du comparateur :**
+
+✅ **Éducation client** : Néophytes comprennent différences techniques
+✅ **Choix éclairé** : Comparaison objective multicritères
+✅ **Optimisation budget** : Rapport performance/prix transparent
+✅ **Écologie** : Indicateurs environnementaux (ACV, recyclabilité)
+✅ **Conformité** : Produits certifiés normes belges/européennes
+✅ **ROI intégré** : Retour investissement selon projet spécifique
+✅ **Mise à jour** : Base données actualise (nouveaux produits, prix)
+
+**Monétisation :**
+- **Référencement fournisseurs** : Partenariats magasins/négoces (commission)
+- **Leads qualifiés** : Transmission coordonnées utilisateurs intéressés
+- **Publicité ciblée** : Marques premium visibilité renforcée
+
+**8. 👷 Comparateur entrepreneurs**
+
+**9. 💰 Planificateur budgétaire**
 
 ### **Phase 4 : Espace technique** *(Existant - À enrichir)*
 9. **🤖 Assistant IA enrichi** *(existant `decision_hub`)*
