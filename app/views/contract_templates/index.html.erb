@@ -1,0 +1,260 @@
+<%
+  set_seo_meta(
+    title: "Templates de contrats - Ren0vate",
+    description: "Modèles de contrats légalement fiables pour vos architectes et entrepreneurs",
+    keywords: ["contrat", "architecte", "entrepreneur", "loi breyne", "rénovation"]
+  )
+%>
+
+<div class="container-fluid px-4 py-5">
+  <!-- En-tête -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="d-flex align-items-center mb-3">
+        <%= link_to dashboard_path, class: "btn btn-outline-secondary me-3" do %>
+          <i class="bi bi-arrow-left"></i> Retour au dashboard
+        <% end %>
+        <div>
+          <h1 class="mb-2">
+            <i class="bi bi-file-earmark-text text-success me-2"></i>
+            Templates de contrats
+          </h1>
+          <p class="text-muted mb-0">
+            Modèles de contrats légalement fiables et conformes à la législation belge
+          </p>
+        </div>
+      </div>
+
+      <!-- Alerte informative -->
+      <div class="alert alert-info">
+        <div class="d-flex align-items-start">
+          <i class="bi bi-info-circle fs-4 me-3"></i>
+          <div>
+            <h5 class="alert-heading mb-2">À propos de ces templates</h5>
+            <p class="mb-2">
+              Ces modèles de contrats sont fournis à titre indicatif et sont conformes aux principales dispositions légales belges
+              (Loi Breyne, Code civil, réglementations professionnelles).
+            </p>
+            <p class="mb-0">
+              <strong>⚠️ Important :</strong> Il est recommandé de faire vérifier et adapter ces contrats par un juriste
+              spécialisé en fonction de votre situation spécifique.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres par catégorie -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="btn-group" role="group" aria-label="Filtrer par catégorie">
+        <button type="button" class="btn btn-outline-primary active" data-filter="all">
+          Tous les templates (<%= @templates.count %>)
+        </button>
+        <% @categories.each do |category| %>
+          <button type="button" class="btn btn-outline-primary" data-filter="<%= category.downcase %>">
+            <%= category %> (<%= @templates.count { |t| t[:category] == category } %>)
+          </button>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Grid de templates -->
+  <div class="row g-4">
+    <% @templates.each do |template| %>
+      <div class="col-md-6 col-lg-4 template-card" data-category="<%= template[:category].downcase %>">
+        <div class="card h-100 shadow-sm hover-lift">
+          <!-- Badge catégorie -->
+          <div class="card-header bg-white border-bottom-0 pt-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="badge rounded-pill <%= category_badge_class(template[:category]) %>">
+                <%= template[:category] %>
+              </span>
+              <small class="text-muted">
+                <i class="bi bi-file-earmark-pdf"></i> <%= template[:pages] %> pages
+              </small>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <h5 class="card-title mb-3">
+              <i class="bi <%= category_icon(template[:category]) %> me-2"></i>
+              <%= template[:title] %>
+            </h5>
+
+            <p class="card-text text-muted mb-3">
+              <%= template[:description] %>
+            </p>
+
+            <!-- Sections incluses -->
+            <div class="mb-3">
+              <h6 class="text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                <i class="bi bi-list-check text-primary me-1"></i>
+                Sections incluses
+              </h6>
+              <ul class="list-unstyled mb-0" style="font-size: 0.85rem;">
+                <% template[:sections].take(3).each do |section| %>
+                  <li class="mb-1">
+                    <i class="bi bi-chevron-right text-success me-1"></i>
+                    <%= section %>
+                  </li>
+                <% end %>
+                <% if template[:sections].count > 3 %>
+                  <li class="text-muted">
+                    <i class="bi bi-three-dots"></i>
+                    et <%= template[:sections].count - 3 %> autres sections
+                  </li>
+                <% end %>
+              </ul>
+            </div>
+
+            <!-- Conformité légale -->
+            <div class="mb-3">
+              <h6 class="text-uppercase fw-bold" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+                <i class="bi bi-shield-check text-success me-1"></i>
+                Conformité légale
+              </h6>
+              <div class="d-flex flex-wrap gap-1">
+                <% template[:legal_compliance].each do |law| %>
+                  <span class="badge bg-success-subtle text-success" style="font-size: 0.7rem;">
+                    <%= law %>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+
+            <!-- Mise à jour -->
+            <small class="text-muted d-block mb-3">
+              <i class="bi bi-calendar3"></i>
+              Mis à jour le <%= l(template[:updated_at], format: :long) %>
+            </small>
+          </div>
+
+          <div class="card-footer bg-white border-top-0 pb-4">
+            <div class="d-grid gap-2">
+              <%= link_to contract_template_path(template[:id]), class: "btn btn-primary" do %>
+                <i class="bi bi-eye me-2"></i>Voir le détail
+              <% end %>
+              <%= link_to preview_contract_template_path(template[:id], format: :pdf),
+                  class: "btn btn-outline-secondary",
+                  target: "_blank" do %>
+                <i class="bi bi-file-earmark-pdf me-2"></i>Aperçu PDF
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Information complémentaire -->
+  <div class="row mt-5">
+    <div class="col-12">
+      <div class="card border-warning">
+        <div class="card-body">
+          <h5 class="card-title text-warning">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            Conseils d'utilisation
+          </h5>
+          <ul class="mb-0">
+            <li class="mb-2">
+              <strong>Personnalisez</strong> chaque contrat en fonction de votre projet spécifique
+            </li>
+            <li class="mb-2">
+              <strong>Vérifiez</strong> que toutes les informations obligatoires sont complétées (identités, adresses, montants, délais)
+            </li>
+            <li class="mb-2">
+              <strong>Consultez</strong> un juriste pour les projets importants ou complexes
+            </li>
+            <li class="mb-2">
+              <strong>Vérifiez</strong> les assurances professionnelles de vos contractants (RC, décennale, tous risques chantier)
+            </li>
+            <li>
+              <strong>Conservez</strong> une copie signée par toutes les parties dans votre gestion documentaire
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .hover-lift {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+  }
+
+  .template-card {
+    transition: opacity 0.3s ease;
+  }
+
+  .template-card.filtered-out {
+    display: none;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const filterButtons = document.querySelectorAll('[data-filter]');
+    const templateCards = document.querySelectorAll('.template-card');
+
+    filterButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const filter = this.dataset.filter;
+
+        // Update active button
+        filterButtons.forEach(btn => btn.classList.remove('active'));
+        this.classList.add('active');
+
+        // Filter cards
+        templateCards.forEach(card => {
+          if (filter === 'all' || card.dataset.category === filter) {
+            card.classList.remove('filtered-out');
+          } else {
+            card.classList.add('filtered-out');
+          }
+        });
+      });
+    });
+  });
+</script>
+
+<%
+  # Helper methods for view
+  def category_badge_class(category)
+    case category
+    when 'Architecte'
+      'bg-primary'
+    when 'Entrepreneur'
+      'bg-success'
+    when 'Coordination'
+      'bg-warning'
+    when 'Études'
+      'bg-info'
+    else
+      'bg-secondary'
+    end
+  end
+
+  def category_icon(category)
+    case category
+    when 'Architecte'
+      'bi-pencil-square'
+    when 'Entrepreneur'
+      'bi-tools'
+    when 'Coordination'
+      'bi-diagram-3'
+    when 'Études'
+      'bi-graph-up'
+    else
+      'bi-file-earmark-text'
+    end
+  end
+%>

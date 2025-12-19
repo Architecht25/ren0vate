@@ -148,6 +148,14 @@ Rails.application.routes.draw do
 
   # Routes OCR
   post 'ocr/scan', to: 'ocr#scan'
+
+  # Routes pour les templates de contrats
+  resources :contract_templates, only: [:index, :show] do
+    member do
+      get :download
+      get :preview
+    end
+  end
   post 'ocr/scan_and_create_document', to: 'ocr#scan_and_create_document'
 
   # Documents officiels des primes (attestations, formulaires, etc.)

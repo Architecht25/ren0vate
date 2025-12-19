@@ -1,0 +1,211 @@
+<%
+  set_seo_meta(
+    title: "#{@template[:title]} - Ren0vate",
+    description: @template[:description],
+    keywords: ["contrat", @template[:category].downcase, "rénovation"]
+  )
+%>
+
+<div class="container-fluid px-4 py-5">
+  <!-- Navigation -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <%= link_to contract_templates_path, class: "btn btn-outline-secondary mb-3" do %>
+        <i class="bi bi-arrow-left"></i> Retour aux templates
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Détails du template -->
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white py-4">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <span class="badge <%= category_badge_class(@template[:category]) %> mb-2">
+                <%= @template[:category] %>
+              </span>
+              <h2 class="mb-2">
+                <i class="bi <%= category_icon(@template[:category]) %> me-2"></i>
+                <%= @template[:title] %>
+              </h2>
+              <p class="text-muted mb-0">
+                <%= @template[:description] %>
+              </p>
+            </div>
+            <div class="text-end">
+              <small class="text-muted d-block">
+                <i class="bi bi-file-earmark-pdf"></i> <%= @template[:pages] %> pages
+              </small>
+              <small class="text-muted d-block">
+                <i class="bi bi-calendar3"></i> <%= l(@template[:updated_at], format: :short) %>
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <!-- Sections incluses -->
+          <h4 class="mb-3">
+            <i class="bi bi-list-check text-primary me-2"></i>
+            Sections du contrat
+          </h4>
+          <div class="list-group mb-4">
+            <% @template[:sections].each_with_index do |section, index| %>
+              <div class="list-group-item">
+                <div class="d-flex align-items-center">
+                  <span class="badge bg-primary rounded-circle me-3" style="width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;">
+                    <%= index + 1 %>
+                  </span>
+                  <span><%= section %></span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Conformité légale -->
+          <h4 class="mb-3">
+            <i class="bi bi-shield-check text-success me-2"></i>
+            Conformité légale
+          </h4>
+          <div class="alert alert-success">
+            <p class="mb-2">Ce template respecte les dispositions suivantes :</p>
+            <ul class="mb-0">
+              <% @template[:legal_compliance].each do |law| %>
+                <li><strong><%= law %></strong></li>
+              <% end %>
+            </ul>
+          </div>
+
+          <!-- Points clés selon le type de contrat -->
+          <h4 class="mb-3">
+            <i class="bi bi-star text-warning me-2"></i>
+            Points clés à vérifier
+          </h4>
+          <%= render partial: 'key_points', locals: { template: @template } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar actions -->
+    <div class="col-lg-4">
+      <div class="card shadow-sm sticky-top" style="top: 20px;">
+        <div class="card-body">
+          <h5 class="card-title mb-4">Actions</h5>
+
+          <div class="d-grid gap-3">
+            <%= link_to preview_contract_template_path(@template[:id], format: :pdf),
+                class: "btn btn-primary btn-lg",
+                target: "_blank" do %>
+              <i class="bi bi-eye me-2"></i>Aperçu PDF
+            <% end %>
+
+            <%= link_to download_contract_template_path(@template[:id], format: :pdf),
+                class: "btn btn-success btn-lg" do %>
+              <i class="bi bi-download me-2"></i>Télécharger
+            <% end %>
+
+            <hr>
+
+            <h6 class="text-uppercase fw-bold mb-3" style="font-size: 0.75rem; letter-spacing: 0.5px;">
+              Besoin d'aide ?
+            </h6>
+
+            <%= link_to decision_hub_index_path, class: "btn btn-outline-info" do %>
+              <i class="bi bi-robot me-2"></i>Consulter l'IA
+            <% end %>
+
+            <%= link_to documents_path, class: "btn btn-outline-secondary" do %>
+              <i class="bi bi-folder me-2"></i>Mes documents
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Informations complémentaires -->
+        <div class="card-footer bg-light">
+          <h6 class="mb-3">
+            <i class="bi bi-info-circle me-2"></i>
+            Information importante
+          </h6>
+          <p class="small text-muted mb-0">
+            Ce template est fourni à titre indicatif. Pour les projets importants,
+            il est recommandé de consulter un juriste spécialisé pour adapter
+            le contrat à votre situation spécifique.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Templates similaires -->
+  <div class="row mt-5">
+    <div class="col-12">
+      <h3 class="mb-4">
+        <i class="bi bi-collection me-2"></i>
+        Templates similaires
+      </h3>
+      <div class="row g-3">
+        <% @templates.select { |t| t[:category] == @template[:category] && t[:id] != @template[:id] }.take(3).each do |similar| %>
+          <div class="col-md-4">
+            <div class="card h-100 hover-lift">
+              <div class="card-body">
+                <h5 class="card-title">
+                  <i class="bi <%= category_icon(similar[:category]) %> me-2"></i>
+                  <%= similar[:title] %>
+                </h5>
+                <p class="card-text text-muted small">
+                  <%= similar[:description].truncate(80) %>
+                </p>
+                <%= link_to "Voir le détail", contract_template_path(similar[:id]), class: "btn btn-sm btn-outline-primary" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .hover-lift {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+  }
+</style>
+
+<%
+  def category_badge_class(category)
+    case category
+    when 'Architecte'
+      'bg-primary'
+    when 'Entrepreneur'
+      'bg-success'
+    when 'Coordination'
+      'bg-warning'
+    when 'Études'
+      'bg-info'
+    else
+      'bg-secondary'
+    end
+  end
+
+  def category_icon(category)
+    case category
+    when 'Architecte'
+      'bi-pencil-square'
+    when 'Entrepreneur'
+      'bi-tools'
+    when 'Coordination'
+      'bi-diagram-3'
+    when 'Études'
+      'bi-graph-up'
+    else
+      'bi-file-earmark-text'
+    end
+  end
+%>
