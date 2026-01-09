@@ -16,8 +16,14 @@ class CloudinaryPdfService
       default_options = {
         resource_type: :raw,  # CORRECT: Utiliser :raw pour les PDFs comme à l'upload !
         secure: true,  # Forcer HTTPS même en développement
-        sign_url: false  # URLs publiques pour les PDFs
+        sign_url: false,  # URLs publiques pour les PDFs
+        flags: 'attachment'  # Force le téléchargement avec le nom original
       }
+
+      # Si un nom de fichier est fourni, l'ajouter à l'URL
+      if options[:filename].present?
+        default_options[:flags] = "attachment:#{options[:filename]}"
+      end
 
       begin
         url = Cloudinary::Utils.cloudinary_url(public_id, default_options.merge(options))

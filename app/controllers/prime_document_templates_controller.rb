@@ -37,8 +37,17 @@ class PrimeDocumentTemplatesController < ApplicationController
     end
 
     if @template.document_file.attached?
-      # Téléchargement via Active Storage
-      redirect_to @template.document_file.url, allow_other_host: true
+      # Téléchargement via Active Storage avec nom original
+      original_filename = @template.document_file.filename.to_s
+      begin
+        file_data = @template.document_file.download
+        send_data file_data,
+                  filename: original_filename,
+                  type: @template.document_file.content_type,
+                  disposition: 'attachment'
+      rescue => e
+        redirect_back fallback_location: root_path, alert: "Erreur lors du téléchargement"
+      end
     elsif @template.file_url.present?
       # Téléchargement via URL externe
       redirect_to @template.file_url, allow_other_host: true

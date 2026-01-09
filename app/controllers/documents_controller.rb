@@ -253,22 +253,28 @@ class DocumentsController < ApplicationController
       return
     end
 
-    Rails.logger.info "⬇️ Download demandé pour document #{@document.id} (#{@document.file.content_type})"
+    # Déterminer la disposition : inline pour visualisation, attachment pour téléchargement
+    disposition = params[:disposition] == 'inline' ? 'inline' : 'attachment'
+    Rails.logger.info "⬇️ Download demandé pour document #{@document.id} (#{@document.file.content_type}) avec disposition: #{disposition}"
 
     if @document.file.attached?
-      # Utiliser l'URL Cloudinary si disponible, sinon fallback Active Storage
-      if @document.file.service_name.to_s == 'cloudinary'
-        cloudinary_url = @document.cloudinary_url
-        if cloudinary_url
-          Rails.logger.info "☁️ Redirection vers Cloudinary: #{cloudinary_url}"
-          redirect_to cloudinary_url, allow_other_host: true
-        else
-          Rails.logger.warn "⚠️ Cloudinary URL indisponible, fallback Active Storage"
-          redirect_to rails_blob_path(@document.file, disposition: "attachment"), allow_other_host: true
-        end
-      else
-        # Service local ou autre
-        redirect_to rails_blob_path(@document.file, disposition: "attachment"), allow_other_host: true
+      # Récupérer le nom original du fichier
+      original_filename = @document.file.filename.to_s
+
+      Rails.logger.info "📥 Envoi du fichier avec nom original: #{original_filename}"
+
+      begin
+        # Toujours télécharger le fichier et l'envoyer avec le nom original
+        # pour avoir un contrôle complet sur le nom de fichier
+        file_data = @document.file.download
+        send_data file_data,
+                  filename: original_filename,
+                  type: @document.file.content_type,
+                  disposition: disposition
+        Rails.logger.info "✅ Fichier envoyé avec succès: #{original_filename} (#{disposition})"
+      rescue => e
+        Rails.logger.error "❌ Erreur téléchargement: #{e.message}"
+        redirect_back(fallback_location: root_path, alert: "Erreur lors du téléchargement")
       end
     elsif @document.file_url.present?
       # Fallback pour les URLs externes
@@ -379,8 +385,8 @@ class DocumentsController < ApplicationController
     end
 
     if @document.file.attached?
-      # Redirection Active Storage standard pour TOUS les types de fichiers
-      redirect_to rails_blob_path(@document.file, disposition: "inline"), allow_other_host: true
+      # Utiliser notre action download avec disposition inline pour garder le nom de fichier
+      redirect_to download_document_path(@document, disposition: 'inline'), allow_other_host: true
     elsif @document.file_url.present?
       # Fallback vers URL externe
       redirect_to @document.file_url, allow_other_host: true

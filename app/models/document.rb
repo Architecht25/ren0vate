@@ -186,8 +186,8 @@ class Document < ApplicationRecord
       Rails.logger.info "🔗 Génération URL Cloudinary pour #{file.filename} (#{file.content_type})"
 
       if file.content_type == 'application/pdf'
-        # Utiliser le service Cloudinary PDF spécialisé
-        url = CloudinaryPdfService.generate_pdf_url(file.key)
+        # Utiliser le service Cloudinary PDF spécialisé avec le nom de fichier original
+        url = CloudinaryPdfService.generate_pdf_url(file.key, filename: file.filename.to_s)
         Rails.logger.info "📄 URL PDF Cloudinary générée: #{url}"
         url
       else

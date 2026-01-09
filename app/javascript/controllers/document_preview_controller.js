@@ -181,6 +181,7 @@ export default class extends Controller {
     if (this.hasPreviewTarget) {
       console.log('✅ Target preview trouvé, affichage en cours...')
       this.showPreviewContainer()
+      const downloadUrl = this.hasDownloadUrlValue ? this.downloadUrlValue : pdfUrl
       this.previewTarget.innerHTML = `
         <div class="text-center">
           <div class="pdf-preview-container border rounded p-3">
@@ -192,10 +193,10 @@ export default class extends Controller {
                 <i class="bi bi-file-earmark-pdf text-danger" style="font-size: 3rem;"></i>
                 <p class="mt-2 mb-3">Document PDF avec prévisualisation</p>
                 <div class="d-grid gap-2">
-                  <a href="${pdfUrl}" target="_blank" class="btn btn-primary">
+                  <a href="${downloadUrl}?disposition=inline" target="_blank" class="btn btn-primary">
                     <i class="bi bi-eye me-2"></i>Ouvrir le PDF
                   </a>
-                  <a href="${pdfUrl}" download class="btn btn-outline-secondary">
+                  <a href="${downloadUrl}" download class="btn btn-outline-secondary">
                     <i class="bi bi-download me-2"></i>Télécharger
                   </a>
                 </div>
@@ -214,16 +215,17 @@ export default class extends Controller {
   showPdfPreview(url) {
     if (this.hasPreviewTarget) {
       this.showPreviewContainer()
+      const downloadUrl = this.hasDownloadUrlValue ? this.downloadUrlValue : url
       this.previewTarget.innerHTML = `
         <div class="text-center">
           <div class="pdf-preview-container border rounded p-3">
             <i class="bi bi-file-earmark-pdf text-danger" style="font-size: 3rem;"></i>
             <p class="mt-2 mb-3">Document PDF prêt à visualiser</p>
             <div class="d-grid gap-2 d-md-flex justify-content-md-center">
-              <a href="${url}" target="_blank" class="btn btn-primary">
+              <a href="${downloadUrl}?disposition=inline" target="_blank" class="btn btn-primary">
                 <i class="bi bi-eye me-2"></i>Ouvrir le PDF
               </a>
-              <a href="${url}" download class="btn btn-outline-secondary">
+              <a href="${downloadUrl}" download class="btn btn-outline-secondary">
                 <i class="bi bi-download me-2"></i>Télécharger
               </a>
             </div>
