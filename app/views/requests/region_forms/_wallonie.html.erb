@@ -128,17 +128,50 @@
       </h5>
     </div>
     <div class="card-body">
+      <%
+        # Mapping pour profil_demandeur
+        profil_demandeur_labels = {
+          "propriétaire_occupant_ou_futur_occupant" => "Propriétaire occupant ou futur occupant",
+          "syndic_copropriété" => "Syndic de copropriété",
+          "bailleur_social" => "Bailleur social"
+        }
+        profil_demandeur_value = profil_demandeur_labels[@property&.profil_demandeur] || @property&.profil_demandeur
+
+        # Mapping pour type_propriete_wallonie
+        type_propriete_labels = {
+          "unique_proprietaire" => "Unique propriétaire",
+          "copropriete_conjoint" => "Copropriétaire avec mon conjoint (couple marié, cohabitants légaux, cohabitants de fait) figurant sur ma composition de ménage",
+          "copropriete_autres" => "Copropriétaire avec d'autres",
+          "usufruitier" => "Usufruitier",
+          "nu_proprietaire" => "Nu-propriétaire",
+          "representant_association" => "Représentant d'une association de copropriétaires",
+          "autre" => "Autre (droit d'habitation, emphytéote...)"
+        }
+        type_propriete_value = type_propriete_labels[@property&.type_propriete_wallonie] || @property&.type_propriete_wallonie
+      %>
       <div class="row">
         <div class="col-md-6">
           <div class="mb-3">
-            <label class="form-label">Type de demandeur</label>
-            <%= form.select :type_demandeur, options_for_select([['Sélectionnez', ''], ['Particulier', 'Particulier'], ['Copropriété', 'Copropriété']]), {}, { class: "form-control" } %>
+            <%= form.label :type_demandeur, class: "form-label" do %>
+              Type de demandeur
+              <%= badge_prerempli_intelligent(@form_data, :type_demandeur, profil_demandeur_value) %>
+            <% end %>
+            <%= form.text_field :type_demandeur,
+                value: preremplir_champ(@form_data, :type_demandeur, profil_demandeur_value),
+                placeholder: "Ex: Propriétaire occupant ou futur occupant",
+                class: "form-control" %>
           </div>
         </div>
         <div class="col-md-6">
           <div class="mb-3">
-            <label class="form-label">En quelle qualité introduisez-vous cette demande ?</label>
-            <%= form.select :qualite_demandeur, options_for_select([["Sélectionnez", ""], ["Unique propriétaire", "Unique propriétaire"], ["Copropriétaire avec mon conjoint (couple marié, cohabitants légaux, cohabitants de fait) figurant sur ma composition de ménage", "Copropriétaire avec mon conjoint"], ["Copropriétaire avec d'autres", "Copropriétaire avec d'autres"], ["Usufruitier", "Usufruitier"], ["Nu-propriétaire", "Nu-propriétaire"], ["Représentant d'une association de copropriétaires", "Représentant d'une association de copropriétaires"], ["Autre (droit d'habitation, emphytéote...)", "Autre (droit d'habitation, emphytéote...)"]]), {}, { class: "form-control" } %>
+            <%= form.label :qualite_demandeur, class: "form-label" do %>
+              En quelle qualité introduisez-vous cette demande ?
+              <%= badge_prerempli_intelligent(@form_data, :qualite_demandeur, type_propriete_value) %>
+            <% end %>
+            <%= form.text_field :qualite_demandeur,
+                value: preremplir_champ(@form_data, :qualite_demandeur, type_propriete_value),
+                placeholder: "Ex: Unique propriétaire, Copropriétaire avec mon conjoint",
+                class: "form-control" %>
           </div>
         </div>
       </div>
@@ -190,12 +223,35 @@
       <div class="row">
         <div class="col-md-4">
           <div class="mb-3">
+            <%
+              # Extraire la date de naissance du numéro de registre national si disponible
+              date_naissance_value = nil
+              if current_user&.national_number.present? && current_user.national_number.length >= 6
+                begin
+                  # Format du registre national belge: AAMMJJ-XXX-XX
+                  rn = current_user.national_number.gsub(/\D/, '') # Enlever les caractères non numériques
+                  if rn.length >= 6
+                    aa = rn[0..1].to_i
+                    mm = rn[2..3].to_i
+                    jj = rn[4..5].to_i
+
+                    # Déterminer le siècle (avant 2000 ou après)
+                    year = aa < 26 ? 2000 + aa : 1900 + aa
+
+                    date_naissance_value = "#{jj.to_s.rjust(2, '0')}-#{mm.to_s.rjust(2, '0')}-#{year}"
+                  end
+                rescue
+                  # En cas d'erreur, ne rien afficher
+                end
+              end
+            %>
             <%= form.label :date_naissance, class: "form-label" do %>
               Date de naissance
-              <%= badge_prerempli(@form_data, :date_naissance) if @form_data.present? %>
+              <%= badge_prerempli_intelligent(@form_data, :date_naissance, date_naissance_value) %>
             <% end %>
-            <%= form.date_field :date_naissance,
-                value: preremplir_champ(@form_data, :date_naissance, nil),
+            <%= form.text_field :date_naissance,
+                value: preremplir_champ(@form_data, :date_naissance, date_naissance_value),
+                placeholder: "jj-mm-aaaa",
                 class: "form-control" %>
           </div>
         </div>
@@ -236,9 +292,10 @@
           <div class="mb-3">
             <%= form.label :numero_demandeur, class: "form-label" do %>
               Numéro
+              <%= badge_prerempli_intelligent(@form_data, :numero_demandeur, current_user.number) %>
             <% end %>
             <%= form.text_field :numero_demandeur,
-                value: preremplir_champ(@form_data, :numero_demandeur, nil),
+                value: preremplir_champ(@form_data, :numero_demandeur, current_user.number),
                 placeholder: "Numéro",
                 class: "form-control" %>
           </div>
@@ -247,6 +304,7 @@
           <div class="mb-3">
             <%= form.label :boite_demandeur, class: "form-label" do %>
               Boîte
+              <%= badge_prerempli_intelligent(@form_data, :boite_demandeur, nil) %>
             <% end %>
             <%= form.text_field :boite_demandeur,
                 value: preremplir_champ(@form_data, :boite_demandeur, nil),
@@ -302,7 +360,7 @@
             <label class="form-label">L'adresse de contact est-elle la même que celle renseignée ci-dessus ?</label>
 
             <div class="form-check mb-2">
-              <%= form.radio_button :adresse_contact_identique, "Oui", { class: "form-check-input", id: "adresse_contact_oui" } %>
+              <%= form.radio_button :adresse_contact_identique, "Oui", { class: "form-check-input", id: "adresse_contact_oui", checked: true } %>
               <label class="form-check-label" for="adresse_contact_oui">
                 Oui
               </label>
@@ -398,7 +456,7 @@
             <label class="form-label fw-bold">Vous demandez le paiement de la prime</label>
 
             <div class="form-check mb-2">
-              <%= form.radio_button :type_compte_bancaire, "compte_propre", { class: "form-check-input", id: "compte_propre" } %>
+              <%= form.radio_button :type_compte_bancaire, "compte_propre", { class: "form-check-input", id: "compte_propre", checked: true } %>
               <label class="form-check-label" for="compte_propre">
                 sur votre compte bancaire
               </label>
@@ -445,20 +503,40 @@
       </h5>
     </div>
     <div class="card-body">
+      <%
+        # Comparer l'adresse du demandeur avec l'adresse de la propriété
+        adresse_demandeur_match = false
+        if current_user.present? && @property.present?
+          user_street = current_user.street&.downcase&.strip
+          user_number = current_user.number&.downcase&.strip
+          user_postal = current_user.postal_code&.downcase&.strip
+          user_city = current_user.city&.downcase&.strip
+
+          property_street = @property.rue&.downcase&.strip
+          property_number = @property.numero&.downcase&.strip
+          property_postal = @property.code_postal&.downcase&.strip
+          property_city = @property.commune&.downcase&.strip
+
+          adresse_demandeur_match = (user_street == property_street &&
+                                      user_number == property_number &&
+                                      user_postal == property_postal &&
+                                      user_city == property_city)
+        end
+      %>
       <div class="row">
         <div class="col-md-12">
           <div class="mb-3">
             <label class="form-label fw-bold">Où se situe le logement dans lequel les travaux ont été exécutés ?</label>
 
             <div class="form-check mb-2">
-              <%= form.radio_button :localisation_travaux, "adresse_demandeur", { class: "form-check-input", id: "loc_adresse_demandeur" } %>
+              <%= form.radio_button :localisation_travaux, "adresse_demandeur", { class: "form-check-input", id: "loc_adresse_demandeur", checked: adresse_demandeur_match } %>
               <label class="form-check-label" for="loc_adresse_demandeur">
                 à l'adresse du demandeur
               </label>
             </div>
 
             <div class="form-check mb-3">
-              <%= form.radio_button :localisation_travaux, "autre_adresse", { class: "form-check-input", id: "loc_autre_adresse" } %>
+              <%= form.radio_button :localisation_travaux, "autre_adresse", { class: "form-check-input", id: "loc_autre_adresse", checked: !adresse_demandeur_match } %>
               <label class="form-check-label" for="loc_autre_adresse">
                 à une autre adresse
               </label>
@@ -528,34 +606,44 @@
       </h5>
     </div>
     <div class="card-body">
+      <%
+        # Mapping pour type_bien_wallonie
+        type_logement_mapping = {
+          "maison_unifamiliale" => "maison_unifamiliale",
+          "appartement_studio" => "appartement_studio",
+          "immeuble_plusieurs_unites" => "immeuble_compose",
+          "autre" => "autres"
+        }
+        type_logement_value = type_logement_mapping[@property&.type_bien_wallonie] || @property&.type_bien_wallonie
+      %>
       <div class="row">
         <div class="col-md-12">
           <div class="mb-3">
             <label class="form-label fw-bold">Type de logement</label>
 
             <div class="form-check mb-2">
-              <%= form.radio_button :type_logement, "maison_unifamiliale", { class: "form-check-input", id: "type_maison" } %>
+              <%= form.radio_button :type_logement, "maison_unifamiliale", { class: "form-check-input", id: "type_maison", checked: type_logement_value == "maison_unifamiliale" } %>
               <label class="form-check-label" for="type_maison">
                 maison unifamiliale
               </label>
             </div>
 
             <div class="form-check mb-2">
-              <%= form.radio_button :type_logement, "appartement_studio", { class: "form-check-input", id: "type_appartement" } %>
+              <%= form.radio_button :type_logement, "appartement_studio", { class: "form-check-input", id: "type_appartement", checked: type_logement_value == "appartement_studio" } %>
               <label class="form-check-label" for="type_appartement">
                 appartement/studio
               </label>
             </div>
 
             <div class="form-check mb-2">
-              <%= form.radio_button :type_logement, "immeuble_compose", { class: "form-check-input", id: "type_immeuble" } %>
+              <%= form.radio_button :type_logement, "immeuble_compose", { class: "form-check-input", id: "type_immeuble", checked: type_logement_value == "immeuble_compose" } %>
               <label class="form-check-label" for="type_immeuble">
                 immeuble composé de plusieurs unités de logement
               </label>
             </div>
 
             <div class="form-check mb-3">
-              <%= form.radio_button :type_logement, "autres", { class: "form-check-input", id: "type_autres" } %>
+              <%= form.radio_button :type_logement, "autres", { class: "form-check-input", id: "type_autres", checked: type_logement_value == "autres" } %>
               <label class="form-check-label" for="type_autres">
                 autres
               </label>
@@ -889,115 +977,87 @@
       <div class="mb-4">
         <h6 class="text-primary mb-3">Déclarations sur l'honneur :</h6>
 
-        <div class="form-check mb-2">
-          <%= form.check_box :declaration_connaissance_conditions, { class: "form-check-input" }, "1", "0" %>
-          <label class="form-check-label" for="<%= form.field_id(:declaration_connaissance_conditions) %>">
-            déclare avoir pris connaissance des conditions d'octroi des primes Habitation ;
-          </label>
-        </div>
-
-        <div class="form-check mb-2">
-          <%= form.check_box :declaration_travaux_15_ans, { class: "form-check-input" }, "1", "0" %>
-          <label class="form-check-label" for="<%= form.field_id(:declaration_travaux_15_ans) %>">
-            déclare que les travaux faisant l'objet de la demande de prime ont été réalisés dans un immeuble âgé de plus de 15 ans principalement affecté au logement au terme des travaux (maximum 49% d'occupation professionnelle) et dans le respect des règles en matière d'urbanisme ;
-          </label>
-        </div>
-
-        <div class="form-check mb-2">
-          <%= form.check_box :declaration_administration_visite, { class: "form-check-input" }, "1", "0" %>
-          <label class="form-check-label" for="<%= form.field_id(:declaration_administration_visite) %>">
-            déclare être informé que l'Administration peut, dans un délai de 5 ans à compter de la liquidation du montant de la prime, visiter le logement et vérifier l'authenticité des informations fournies ;
-          </label>
-        </div>
-
-        <div class="form-check mb-2">
-          <%= form.check_box :declaration_pas_autre_aide, { class: "form-check-input" }, "1", "0" %>
-          <label class="form-check-label" for="<%= form.field_id(:declaration_pas_autre_aide) %>">
-            déclare que les travaux qui font l'objet de cette demande ne font pas ou ne feront pas l'objet d'une autre aide octroyée par la Région Wallonne comme par exemple, la prime « Toiture et petits travaux », le « Rénopack » auprès de la SWCS ou du FLW, ... ;
-          </label>
-        </div>
-
-        <div class="form-check mb-2">
-          <%= form.check_box :declaration_conditions_vigueur_fevrier, { class: "form-check-input" }, "1", "0" %>
-          <label class="form-check-label" for="<%= form.field_id(:declaration_conditions_vigueur_fevrier) %>">
-            déclare que l'ensemble des investissements ou des travaux objet pour les demandes soumises sous les conditions en vigueur depuis le 14 février 2025, qui font l'objet de la demande de prime, sont effectués sur des éléments recommandés dans le rapport d'audit ;
-          </label>
-        </div>
-
-        <div class="form-check mb-2">
-          <%= form.check_box :declaration_investissements_audit, { class: "form-check-input" }, "1", "0" %>
-          <label class="form-check-label" for="<%= form.field_id(:declaration_investissements_audit) %>">
-            déclare que l'ensemble des investissements objet de la demande de prime sont effectués sur des éléments recommandés dans le rapport d'audit ;
-          </label>
-        </div>
-
-        <div class="form-check mb-2">
-          <%= form.check_box :declaration_travaux_toiture_conditions, { class: "form-check-input" }, "1", "0" %>
-          <label class="form-check-label" for="<%= form.field_id(:declaration_travaux_toiture_conditions) %>">
-            déclare que l'ensemble des investissements objet de la demande de prime, à l'exception uniquement des travaux de toiture (pour les demandes soumises aux conditions en vigueur depuis le 14/02/2025), qui font l'objet de la demande de prime, sont effectués sur des éléments recommandés dans le rapport d'audit ;
-          </label>
-        </div>
-
-        <div class="form-check mb-2">
-          <%= form.check_box :declaration_travaux_toiture_norme, { class: "form-check-input" }, "1", "0" %>
-          <label class="form-check-label" for="<%= form.field_id(:declaration_travaux_toiture_norme) %>">
-            déclare que les travaux de toiture sont réalisés sur une toiture isolée répondant à la norme prescrite par la réglementation, à savoir R ≥ 5 m²K/W ;
-          </label>
-        </div>
-
-        <div class="form-check mb-2">
-          <%= form.check_box :declaration_engagement_remplir, { class: "form-check-input" }, "1", "0" %>
-          <label class="form-check-label" for="<%= form.field_id(:declaration_engagement_remplir) %>">
-            remplis ou m'engage à remplir au plus tard dans les 24 mois prenant cours à la date de la première demande de primes Travaux, une des conditions suivantes :
-          </label>
-        </div>
+        <ul class="list-unstyled">
+          <li class="mb-2">
+            - déclare avoir pris connaissance des conditions d'octroi des primes Habitation ;
+          </li>
+          <li class="mb-2">
+            - déclare que les travaux faisant l'objet de la demande de prime ont été réalisés dans un immeuble âgé de plus de 15 ans principalement affecté au logement au terme des travaux (maximum 49% d'occupation professionnelle) et dans le respect des règles en matière d'urbanisme ;
+          </li>
+          <li class="mb-2">
+            - déclare être informé que l'Administration peut, dans un délai de 5 ans à compter de la liquidation du montant de la prime, visiter le logement et vérifier l'authenticité des informations fournies ;
+          </li>
+          <li class="mb-2">
+            - déclare que les travaux qui font l'objet de cette demande ne font pas ou ne feront pas l'objet d'une autre aide octroyée par la Région Wallonne comme par exemple, la prime « Toiture et petits travaux », le « Rénopack » auprès de la SWCS ou du FLW, ... ;
+          </li>
+          <li class="mb-2">
+            - déclare que l'ensemble des investissements ou des travaux objet pour les demandes soumises sous les conditions en vigueur depuis le 14 février 2025, qui font l'objet de la demande de prime, sont effectués sur des éléments recommandés dans le rapport d'audit ;
+          </li>
+          <li class="mb-2">
+            - déclare que l'ensemble des investissements objet de la demande de prime sont effectués sur des éléments recommandés dans le rapport d'audit ;
+          </li>
+          <li class="mb-2">
+          - déclare que l'ensemble des investissements objet de la demande de prime, à l'exception uniquement des travaux de toiture (pour les demandes soumises aux conditions en vigueur depuis le 14/02/2025), qui font l'objet de la demande de prime, sont effectués sur des éléments recommandés dans le rapport d'audit ;
+          </li>
+          <li class="mb-2">
+            - déclare que les travaux de toiture sont réalisés sur une toiture isolée répondant à la norme prescrite par la réglementation, à savoir R ≥ 5 m²K/W ;
+          </li>
+          <li class="mb-2">
+            - remplis ou m'engage à remplir au plus tard dans les 24 mois prenant cours à la date de la première demande de primes Travaux, une des conditions suivantes :
+          </li>
+        </ul>
       </div>
 
       <div class="mb-4 ms-4">
         <h6 class="text-secondary mb-3">Conditions de location :</h6>
+        <%
+          # Mapping pour occupation depuis properties
+          occupation_mapping = {
+            "residence_principale" => "residence_principale_5_ans",
+            "location_5_ans_bail_enregistre" => "location_5_ans",
+            "location_9_ans_ais" => "ais_9_ans",
+            "location_gratuite_1_an" => "parent_1_an"
+          }
+          condition_occupation_value = occupation_mapping[@property&.occupation] || @property&.occupation
+        %>
 
         <div class="form-check mb-2">
-          <%= form.radio_button :condition_occupation, "residence_principale_5_ans", { class: "form-check-input", id: "residence_5_ans" } %>
+          <%= form.radio_button :condition_occupation, "residence_principale_5_ans", { class: "form-check-input", id: "residence_5_ans", checked: condition_occupation_value == "residence_principale_5_ans" } %>
           <label class="form-check-label" for="residence_5_ans">
             <strong>pendant une durée minimale de 5 ans,</strong> occuper la totalité du logement à titre de résidence principale
           </label>
         </div>
 
         <div class="form-check mb-2">
-          <%= form.radio_button :condition_occupation, "location_5_ans", { class: "form-check-input", id: "location_5_ans" } %>
+          <%= form.radio_button :condition_occupation, "location_5_ans", { class: "form-check-input", id: "location_5_ans", checked: condition_occupation_value == "location_5_ans" } %>
           <label class="form-check-label" for="location_5_ans">
             <strong>pendant une durée minimale de 5 ans,</strong> mettre le logement en location par un bail enregistré, dans le respect de la grille des loyers
           </label>
         </div>
 
         <div class="form-check mb-2">
-          <%= form.radio_button :condition_occupation, "ais_9_ans", { class: "form-check-input", id: "ais_9_ans" } %>
+          <%= form.radio_button :condition_occupation, "ais_9_ans", { class: "form-check-input", id: "ais_9_ans", checked: condition_occupation_value == "ais_9_ans" } %>
           <label class="form-check-label" for="ais_9_ans">
             <strong>pendant une durée minimale de 9 ans,</strong> mettre le logement à disposition d'une agence immobilière sociale (AIS) ou d'une société de logement de service public (SLSP) ou d'une association de promotion du logement (APL)
           </label>
         </div>
 
         <div class="form-check mb-3">
-          <%= form.radio_button :condition_occupation, "parent_1_an", { class: "form-check-input", id: "parent_1_an" } %>
+          <%= form.radio_button :condition_occupation, "parent_1_an", { class: "form-check-input", id: "parent_1_an", checked: condition_occupation_value == "parent_1_an" } %>
           <label class="form-check-label" for="parent_1_an">
             <strong>pendant une durée minimale d'un an,</strong> mettre gratuitement et à titre de résidence principale, la totalité du logement à la disposition d'un parent ou allié jusqu'au deuxième degré inclusivement
           </label>
         </div>
       </div>
 
-      <div class="form-check mb-2">
-        <%= form.check_box :declaration_consultation_donnees, { class: "form-check-input" }, "1", "0" %>
-        <label class="form-check-label" for="<%= form.field_id(:declaration_consultation_donnees) %>">
-          déclare autoriser l'Administration à consulter les données nécessaires au traitement de la présente demande de prime auprès des Sources authentiques (Registre national, SPF Finances, réseau de la Banque-Carrefour de la sécurité sociale et son réseau).
-        </label>
-      </div>
-
-      <div class="form-check mb-3">
-        <%= form.check_box :declaration_renseignements_exacts, { class: "form-check-input" }, "1", "0" %>
-        <label class="form-check-label" for="<%= form.field_id(:declaration_renseignements_exacts) %>">
+      <ul class="list-unstyled">
+        <li class="mb-2">
+          - déclare autoriser l'Administration à consulter les données nécessaires au traitement de la présente demande de prime auprès des Sources authentiques (Registre national, SPF Finances, réseau de la Banque-Carrefour de la sécurité sociale et son réseau).
+        </li>
+        <li class="mb-2">
           Déclare sur l'honneur que les renseignements mentionnés dans le présent formulaire sont exacts et complets.
-        </label>
-      </div>
+        </li>
+      </ul>
 
       <div class="form-check mb-3">
         <%= form.check_box :declaration_traitement_automatise, { class: "form-check-input" }, "1", "0" %>
