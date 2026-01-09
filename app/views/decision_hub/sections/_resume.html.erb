@@ -29,33 +29,49 @@
 
   <!-- Liste détaillée des primes -->
   <div class="primes-list mb-3">
-        <% (hub_data.dig(:resume, :primes) || []).each do |prime| %>
-      <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded-3 mb-2 border-start border-3 border-<%= prime[:status] == 'confirmed' ? 'success' : prime[:status] == 'conditional' ? 'warning' : 'secondary' %>">
-        <div class="flex-grow-1">
-          <div class="fw-medium"><%= prime[:name] %></div>
-          <small class="text-muted">
-            <i class="bi bi-geo-alt me-1"></i>
-                        <%= hub_data.dig(:resume, :region) || 'Non défini' %> •
-            <span class="badge badge-sm bg-<%= prime[:status] == 'confirmed' ? 'success' : prime[:status] == 'conditional' ? 'warning' : 'secondary' %>">
-              <%= prime[:status].capitalize %>
-            </span>
-            <% if prime[:urgency] && prime[:urgency] != 'normal' %>
-              • <span class="text-<%= prime[:urgency] == 'high' ? 'danger' : 'warning' %>">
-                <i class="bi bi-<%= prime[:urgency] == 'high' ? 'exclamation-triangle' : 'clock' %> me-1"></i>
-                <%= prime[:urgency].capitalize %>
-              </span>
-            <% end %>
-          </small>
-        </div>
-        <div class="text-end">
-          <div class="fw-bold text-<%= prime[:status] == 'confirmed' ? 'success' : prime[:status] == 'conditional' ? 'warning' : 'muted' %> fs-6">
-            <%= number_to_currency(prime[:amount], unit: "", precision: 0) %>€
+    <% primes_list = (hub_data.dig(:resume, :primes) || []) %>
+    <% if primes_list.any? %>
+      <% primes_list.each do |prime| %>
+        <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded-3 mb-2 border-start border-3 border-<%= prime[:status] == 'eligible' ? 'success' : prime[:status] == 'conditional' ? 'warning' : 'secondary' %>">
+          <div class="flex-grow-1">
+            <div class="fw-medium"><%= prime[:name] %></div>
+            <small class="text-muted">
+              <i class="bi bi-geo-alt me-1"></i>
+              <%= hub_data.dig(:resume, :region) || 'Non défini' %>
+              <% if prime[:slug].present? %>
+                • <code class="small"><%= prime[:slug] %></code>
+              <% end %>
+              <% if prime[:user_input].present? && prime[:user_input].to_f > 0 %>
+                • <%= prime[:user_input] %> m²
+              <% end %>
+              <% if prime[:status] %>
+                • <span class="badge badge-sm bg-<%= prime[:status] == 'eligible' ? 'success' : prime[:status] == 'conditional' ? 'warning' : 'secondary' %>">
+                  <%= prime[:status].capitalize %>
+                </span>
+              <% end %>
+              <% if prime[:urgency] && prime[:urgency] != 'normal' && prime[:urgency] != 'low' %>
+                • <span class="text-<%= prime[:urgency] == 'high' || prime[:urgency] == 'critical' ? 'danger' : 'warning' %>">
+                  <i class="bi bi-<%= prime[:urgency] == 'critical' || prime[:urgency] == 'high' ? 'exclamation-triangle' : 'clock' %> me-1"></i>
+                  <%= prime[:urgency].capitalize %>
+                </span>
+              <% end %>
+            </small>
           </div>
-          <small class="text-muted">
-            <i class="bi bi-tag me-1"></i>
-            <%= prime[:category].capitalize %>
-          </small>
+          <div class="text-end">
+            <div class="fw-bold text-<%= prime[:status] == 'eligible' ? 'success' : prime[:status] == 'conditional' ? 'warning' : 'muted' %> fs-6">
+              <%= number_to_currency(prime[:amount], unit: "", precision: 0) %>€
+            </div>
+            <small class="text-muted">
+              <i class="bi bi-tag me-1"></i>
+              <%= prime[:category]&.capitalize || 'Prime' %>
+            </small>
+          </div>
         </div>
+      <% end %>
+    <% else %>
+      <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        Aucune prime sélectionnée dans cette simulation.
       </div>
     <% end %>
   </div>

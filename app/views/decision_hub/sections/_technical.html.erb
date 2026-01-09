@@ -1,140 +1,871 @@
-<!-- Partial pour la section obligations techniques simplifié -->
+<!-- Partial pour la section obligations techniques - Version statique Flandre -->
 <div class="technical-content">
 
   <%
-    # Récupérer les primes sélectionnées depuis hub_data
-    selected_primes = hub_data.dig(:resume, :primes) || []
-
-    # Extraire les noms des primes (pas les slugs)
-    prime_names = selected_primes.map { |p| p[:name] || p['name'] }.compact
-
-    # Récupérer les objets Prime complets depuis la base de données par titre
-    primes_with_conditions = Prime.where(titre: prime_names) if prime_names.any?
-
-    # Si ça ne marche pas, essayer avec LIKE pour une correspondance partielle
-    if primes_with_conditions.blank? && prime_names.any?
-      # Chercher avec LIKE pour correspondance partielle
-      conditions = prime_names.map { |name| "titre ILIKE ?" }.join(" OR ")
-      values = prime_names.map { |name| "%#{name}%" }
-      primes_with_conditions = Prime.where(conditions, *values)
-    end
+    # Récupérer la région de la simulation
+    region = @simulation&.region&.downcase || 'flandre'
   %>
 
   <!-- Vue d'ensemble -->
   <div class="compliance-overview mb-4">
     <h6 class="fw-bold mb-3">
       <i class="bi bi-shield-check me-1"></i>
-      Obligations techniques - <%= (@simulation&.region || 'Région').capitalize %>
+      Contraintes techniques - <%= region.capitalize %>
     </h6>
 
-    <% if primes_with_conditions&.any? %>
-      <div class="alert alert-info">
-        <p class="mb-0">
-          <i class="bi bi-info-circle me-2"></i>
-          Voici les conditions techniques pour vos <strong><%= primes_with_conditions.count %> primes</strong> sélectionnées.
-        </p>
-      </div>
-    <% else %>
-      <div class="alert alert-secondary">
-        <p class="mb-0">
-          <i class="bi bi-info-circle me-2"></i>
-          Aucune prime sélectionnée. Effectuez d'abord une simulation pour voir les conditions techniques.
-        </p>
-      </div>
-    <% end %>
+    <div class="alert alert-info">
+      <p class="mb-0">
+        <i class="bi bi-info-circle me-2"></i>
+        Voici toutes les <strong>conditions et conseils techniques</strong> pour les primes de <%= region.capitalize %>.
+        Consultez les primes qui vous concernent selon votre estimation.
+      </p>
+    </div>
   </div>
 
-  <!-- Conditions techniques par prime -->
-  <% if primes_with_conditions&.any? %>
+  <!-- Conditions techniques par prime - FLANDRE (format compact) -->
+  <% if region == 'flandre' %>
     <div class="prime-conditions mb-4">
       <h6 class="fw-bold mb-3">
         <i class="bi bi-tools me-1"></i>
-        Conditions techniques par prime sélectionnée
+        Conditions techniques des primes Flandre
       </h6>
 
-      <% primes_with_conditions.each_with_index do |prime, index| %>
-        <div class="prime-section mb-4">
-          <div class="card border-0 shadow-sm">
-            <div class="card-header bg-gradient text-white d-flex align-items-center justify-content-between" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);">
-              <div class="d-flex align-items-center">
-                <span class="badge bg-white text-dark me-2 fs-6 fw-bold"><%= index + 1 %></span>
-                <i class="bi bi-<%= prime.icon_name %> me-2 fs-5"></i>
-                <h6 class="mb-0 fw-semibold"><%= prime.titre %></h6>
-              </div>
-              <%
-                # Récupérer le montant de la prime depuis selected_primes
-                prime_data = selected_primes.find { |p| p[:name] == prime.titre }
-                prime_amount = prime_data&.dig(:amount) || 0
-              %>
-              <% if prime_amount > 0 %>
-                <span class="badge bg-white text-dark fs-6 fw-bold"><%= number_to_currency(prime_amount, unit: "", precision: 0) %>€</span>
-              <% end %>
-            </div>
-
-            <div class="card-body p-4">
-              <!-- Conditions techniques -->
-              <% if prime.condition.present? %>
-                <div class="conditions-section mb-4">
-                  <div class="d-flex align-items-center mb-3">
-                    <div class="icon-wrapper me-3" style="width: 32px; height: 32px; background: linear-gradient(135deg, #dc2626, #ef4444); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                      <i class="bi bi-exclamation-triangle text-white"></i>
-                    </div>
-                    <h6 class="fw-bold text-dark mb-0">Conditions techniques OBLIGATOIRES</h6>
-                  </div>
-                  <div class="condition-text p-3 rounded-3" style="background: linear-gradient(135deg, #fef2f2, #fecaca); border-left: 4px solid #ef4444;">
-                    <div class="small lh-base text-gray-800"><%= simple_format(prime.condition) %></div>
+      <!-- Format compact : tableau -->
+      <div class="table-responsive" style="max-width: 100%; overflow-x: auto;">
+        <table class="table table-hover align-middle" style="table-layout: fixed; width: 100%;">
+          <thead class="table-light sticky-top">
+            <tr>
+              <th style="width: 25%;">Prime</th>
+              <th style="width: 40%;">
+                <i class="bi bi-exclamation-triangle text-danger me-1"></i>
+                Conditions obligatoires
+              </th>
+              <th style="width: 35%;">
+                <i class="bi bi-lightbulb text-info me-1"></i>
+                Conseils techniques
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- 1. Isolation toiture -->
+            <tr class="table-warning">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-house me-2 text-danger"></i>
+                  <div>
+                    <div class="fw-bold small">Isolation toiture</div>
+                    <code class="small text-muted">isolation_toiture</code>
                   </div>
                 </div>
-              <% end %>
+              </td>
+              <td>
+                <div class="small text-dark fw-semibold">R ≥ 4.5 m²K/W pour toiture inclinée, plate et grenier</div>
+              </td>
+              <td>
+                <div class="small text-muted">Isolant certifié (laine minérale, PIR, etc.). Vérifier l'étanchéité.</div>
+              </td>
+            </tr>
 
-              <!-- Conseils techniques -->
-              <% if prime.conseil.present? %>
-                <div class="conseils-section mb-4">
-                  <div class="d-flex align-items-center mb-3">
-                    <div class="icon-wrapper me-3" style="width: 32px; height: 32px; background: linear-gradient(135deg, #0ea5e9, #3b82f6); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                      <i class="bi bi-lightbulb text-white"></i>
-                    </div>
-                    <h6 class="fw-bold text-dark mb-0">Conseils techniques</h6>
-                  </div>
-                  <div class="conseil-text p-3 rounded-3" style="background: linear-gradient(135deg, #f0f9ff, #bae6fd); border-left: 4px solid #3b82f6;">
-                    <div class="small lh-base text-gray-800"><%= simple_format(prime.conseil) %></div>
+            <!-- 2. Isolation murs cat 1-2 -->
+            <tr class="table-warning">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-bricks me-2 text-danger"></i>
+                  <div>
+                    <div class="fw-bold small">Isolation murs (cat. 1-2)</div>
+                    <code class="small text-muted">isolation_murs_cat12</code>
                   </div>
                 </div>
-              <% end %>
+              </td>
+              <td>
+                <div class="small text-dark fw-semibold">R ≥ 3.0 m²K/W (mur creux: 5cm + R≥2, intérieur:2.0, extérieur:3.0)</div>
+              </td>
+              <td>
+                <div class="small text-muted">Vérifier ponts thermiques. Méthode: spouwmuur, intérieur ou extérieur.</div>
+              </td>
+            </tr>
 
-              <!-- Documents requis -->
-              <% if prime.document.present? %>
-                <div class="documents-section mb-4">
-                  <div class="d-flex align-items-center mb-3">
-                    <div class="icon-wrapper me-3" style="width: 32px; height: 32px; background: linear-gradient(135deg, #f59e0b, #f97316); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                      <i class="bi bi-file-earmark-text text-white"></i>
-                    </div>
-                    <h6 class="fw-bold text-dark mb-0">Documents techniques requis</h6>
-                  </div>
-                  <div class="document-text p-3 rounded-3" style="background: linear-gradient(135deg, #fffbeb, #fed7aa); border-left: 4px solid #f97316;">
-                    <div class="small lh-base text-gray-800"><%= simple_format(prime.document) %></div>
+            <!-- 3. Isolation murs cat 3-4 -->
+            <tr class="table-warning">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-bricks me-2 text-danger"></i>
+                  <div>
+                    <div class="fw-bold small">Isolation murs (cat. 3-4)</div>
+                    <code class="small text-muted">isolation_murs_cat34</code>
                   </div>
                 </div>
-              <% end %>
+              </td>
+              <td>
+                <div class="small text-dark fw-semibold">R ≥ 3.0 m²K/W (mur creux: 5cm + R≥2, intérieur:2.0, extérieur:3.0)</div>
+              </td>
+              <td>
+                <div class="small text-muted">Vérifier ponts thermiques. Méthode: spouwmuur, intérieur ou extérieur.</div>
+              </td>
+            </tr>
 
-              <!-- Délai compatible -->
-              <% if prime.statut_compatible.present? %>
-                <div class="delai-section">
-                  <div class="d-flex align-items-center mb-3">
-                    <div class="icon-wrapper me-3" style="width: 32px; height: 32px; background: linear-gradient(135deg, #6b7280, #9ca3af); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                      <i class="bi bi-clock text-white"></i>
-                    </div>
-                    <h6 class="fw-bold text-dark mb-0">Délai de dépôt</h6>
-                  </div>
-                  <div class="delai-text p-3 rounded-3" style="background: linear-gradient(135deg, #f9fafb, #e5e7eb); border-left: 4px solid #9ca3af;">
-                    <div class="small text-gray-700"><%= prime.statut_compatible %></div>
+            <!-- 4. Isolation sol -->
+            <tr class="table-warning">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-bounding-box me-2 text-danger"></i>
+                  <div>
+                    <div class="fw-bold small">Isolation sol/plancher</div>
+                    <code class="small text-muted">isolation_sol</code>
                   </div>
                 </div>
-              <% end %>
-            </div>
-          </div>
-        </div>
-      <% end %>
+              </td>
+              <td>
+                <div class="small text-dark fw-semibold">R ≥ 2.0 m²K/W + plancher bas sur vide sanitaire ou terre-plein</div>
+              </td>
+              <td>
+                <div class="small text-muted">Isolants à forte résistance thermique. Traiter ponts thermiques.</div>
+              </td>
+            </tr>
+
+            <!-- 5. Châssis et portes -->
+            <tr class="table-warning">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-windows me-2 text-danger"></i>
+                  <div>
+                    <div class="fw-bold small">Châssis et portes</div>
+                    <code class="small text-muted">ramen_deuren</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark fw-semibold">Vitrage HR++ (U ≤ 1.0 W/m²K) + ventilation conforme (invisivent ou VMC-D)</div>
+              </td>
+              <td>
+                <div class="small text-muted">Intégrer système de ventilation efficace lors du remplacement.</div>
+              </td>
+            </tr>
+
+            <!-- 6. Travaux préparatoires isolation -->
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-tools me-2 text-primary"></i>
+                  <div>
+                    <div class="fw-semibold small">Travaux prép. isolation</div>
+                    <code class="small text-muted">voorbereiding_isolatie</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Travaux précédant isolation effective. Facturés séparément.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Intégrer dans devis global mais distinguer clairement.</div>
+              </td>
+            </tr>
+
+            <!-- 7. Travaux prép. sanitaire/élec -->
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-plug me-2 text-primary"></i>
+                  <div>
+                    <div class="fw-semibold small">Travaux prép. sanitaire/élec</div>
+                    <code class="small text-muted">voorbereiding_sanitair_elec</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Réseaux intérieurs à remplacer avant travaux (chauffage, élec, sanitaire)</div>
+              </td>
+              <td>
+                <div class="small text-muted">Séparer dans devis. Concerne tuyaux, pas les appareils.</div>
+              </td>
+            </tr>
+
+            <!-- 8. Pompe à chaleur -->
+            <tr class="table-info">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-wind me-2 text-info"></i>
+                  <div>
+                    <div class="fw-bold small">Pompe à chaleur</div>
+                    <code class="small text-muted">warmtepomp</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Bâtiments +5 ans avec permis d'environnement</div>
+              </td>
+              <td>
+                <div class="small text-muted">Professionnel agréé. Installation conforme normes PEB.</div>
+              </td>
+            </tr>
+
+            <!-- 9. Chauffe-eau thermodynamique -->
+            <tr class="table-info">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-droplet me-2 text-info"></i>
+                  <div>
+                    <div class="fw-bold small">Chauffe-eau thermodynamique</div>
+                    <code class="small text-muted">warmtepompboiler</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Système PAC pour ECS. Non combiné avec boiler électrique classique</div>
+              </td>
+              <td>
+                <div class="small text-muted">Professionnel agréé. Dimensionnement selon besoins. Bâtiment +5 ans.</div>
+              </td>
+            </tr>
+
+            <!-- 10. Rénovation toiture -->
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-layers me-2 text-primary"></i>
+                  <div>
+                    <div class="fw-semibold small">Rénovation toiture</div>
+                    <code class="small text-muted">renovation_toiture</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Travaux associés à isolation toiture (structure, couverture, étanchéité, corniche)</div>
+              </td>
+              <td>
+                <div class="small text-muted">Inclut dépose ancienne couverture, renforcement charpente, etc.</div>
+              </td>
+            </tr>
+
+            <!-- 11. Rénovation murs -->
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-columns me-2 text-primary"></i>
+                  <div>
+                    <div class="fw-semibold small">Rénovation murs</div>
+                    <code class="small text-muted">renovation_murs</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Travaux associés à isolation murs (bardage, crépi, traitement humidité)</div>
+              </td>
+              <td>
+                <div class="small text-muted">Travaux préparatoires ou remise en état après isolation.</div>
+              </td>
+            </tr>
+
+            <!-- 12. Rénovation sol -->
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-grid-3x3 me-2 text-primary"></i>
+                  <div>
+                    <div class="fw-semibold small">Rénovation sol</div>
+                    <code class="small text-muted">renovation_sol</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Travaux associés à isolation sol (chape, ragréage, revêtement, étanchéité)</div>
+              </td>
+              <td>
+                <div class="small text-muted">Documenter postes techniques hors isolant.</div>
+              </td>
+            </tr>
+
+            <!-- 13. Prime amiante -->
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-exclamation-triangle me-2 text-danger"></i>
+                  <div>
+                    <div class="fw-semibold small">Prime amiante</div>
+                    <code class="small text-muted">amiante</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Désamiantage obligatoire lors d'isolation</div>
+              </td>
+              <td>
+                <div class="small text-muted">Doit accompagner attestation toiture ou mur.</div>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+
+  <% elsif region == 'wallonie' %>
+    <!-- Conditions techniques par prime - WALLONIE (format compact) -->
+    <div class="prime-conditions mb-4">
+      <h6 class="fw-bold mb-3">
+        <i class="bi bi-tools me-1"></i>
+        Conditions techniques des primes Wallonie
+      </h6>
+
+      <!-- Format compact : tableau -->
+      <div class="table-responsive" style="max-width: 100%; overflow-x: auto;">
+        <table class="table table-hover align-middle" style="table-layout: fixed; width: 100%;">
+          <thead class="table-light sticky-top">
+            <tr>
+              <th style="width: 25%;">Prime</th>
+              <th style="width: 40%;">
+                <i class="bi bi-exclamation-triangle text-danger me-1"></i>
+                Conditions obligatoires
+              </th>
+              <th style="width: 35%;">
+                <i class="bi bi-lightbulb text-info me-1"></i>
+                Conseils techniques
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- 1. AUDIT -->
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-search me-2 text-primary"></i>
+                  <div>
+                    <div class="fw-semibold small">Audit logement</div>
+                    <code class="small text-muted">wallonie_realisation_audit_logement</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Réalisé par auditeur agréé. Rapport dans les 6 mois.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Étape préalable recommandée avant travaux.</div>
+              </td>
+            </tr>
+
+            <!-- 2. TOITURE - Remplacement couverture -->
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-hammer me-2 text-primary"></i>
+                  <div>
+                    <div class="fw-semibold small">Remplacement couverture</div>
+                    <code class="small text-muted">wallonie_toiture_remplacement_couverture</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Remplacement complet de la couverture. Isolation intégrée recommandée.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Coordonner avec isolation thermique. Prévoir évacuation gravats.</div>
+              </td>
+            </tr>
+
+            <!-- 3. TOITURE - Appropriation charpente -->
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-tools me-2 text-primary"></i>
+                  <div>
+                    <div class="fw-semibold small">Appropriation charpente</div>
+                    <code class="small text-muted">wallonie_toiture_appropriation_charpente</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Renforcement ou appropriation de la charpente existante.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Expertise structure recommandée avant travaux.</div>
+              </td>
+            </tr>
+
+            <!-- 4. TOITURE - Évacuation eaux pluviales -->
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-tint me-2 text-primary"></i>
+                  <div>
+                    <div class="fw-semibold small">Évacuation eaux pluviales</div>
+                    <code class="small text-muted">wallonie_toiture_evacuation_eaux_pluviales</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Remplacement du dispositif de collecte et d'évacuation des eaux pluviales.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Dimensionnement selon surface toiture. Raccordement aux égouts.</div>
+              </td>
+            </tr>
+
+            <!-- 5. TOITURE - Isolation thermique -->
+            <tr class="table-warning">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-house me-2 text-danger"></i>
+                  <div>
+                    <div class="fw-bold small">Isolation thermique toiture</div>
+                    <code class="small text-muted">wallonie_toiture_isolation_thermique</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark fw-semibold">Entrepreneur BCE. R ≥ 5,00 m²K/W. Lambda certifié (ATG/ETA/CE/EPBD). Travaux liés obligatoires si audit.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Continuité isolation + étanchéité air. Demande unique si travaux liés.</div>
+              </td>
+            </tr>
+
+            <!-- 6. TOITURE - Isolation biosourcée -->
+            <tr class="table-success">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-leaf me-2 text-success"></i>
+                  <div>
+                    <div class="fw-bold small">Isolation biosourcée toiture</div>
+                    <code class="small text-muted">wallonie_toiture_isolation_biosource</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Matériau biosourcé certifié. R ≥ 4,5 m²K/W.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Prime majorée pour matériaux écologiques. Certification obligatoire.</div>
+              </td>
+            </tr>
+
+            <!-- 7. MURS - Assèchement infiltration -->
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-droplet me-2 text-primary"></i>
+                  <div>
+                    <div class="fw-semibold small">Assèchement infiltration</div>
+                    <code class="small text-muted">wallonie_assechement_murs_infiltration</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Traitement des infiltrations d'eau dans les murs.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Diagnostic humidité préalable obligatoire.</div>
+              </td>
+            </tr>
+
+            <!-- 8. MURS - Assèchement humidité ascensionnelle -->
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-arrow-up me-2 text-primary"></i>
+                  <div>
+                    <div class="fw-semibold small">Humidité ascensionnelle</div>
+                    <code class="small text-muted">wallonie_assechement_murs_humidite</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Traitement de l'humidité ascensionnelle dans les murs.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Barrière étanche obligatoire. Ventilation renforcée.</div>
+              </td>
+            </tr>
+
+            <!-- 9. MURS - Renforcement -->
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-hammer me-2 text-primary"></i>
+                  <div>
+                    <div class="fw-semibold small">Renforcement murs</div>
+                    <code class="small text-muted">wallonie_renforcement_murs</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Renforcement ou reconstruction de murs instables.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Expertise structure obligatoire avant travaux.</div>
+              </td>
+            </tr>
+
+            <!-- 10. MURS - Élimination mérule -->
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-bug me-2 text-danger"></i>
+                  <div>
+                    <div class="fw-semibold small">Élimination mérule</div>
+                    <code class="small text-muted">wallonie_elimination_merule</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Élimination complète de la mérule par entreprise agréée.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Traitement obligatoire par professionnel certifié.</div>
+              </td>
+            </tr>
+
+            <!-- 11. MURS - Élimination radon -->
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-radioactive me-2 text-warning"></i>
+                  <div>
+                    <div class="fw-semibold small">Élimination radon</div>
+                    <code class="small text-muted">wallonie_elimination_radon</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Installation système de ventilation anti-radon.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Mesure préalable concentration radon obligatoire.</div>
+              </td>
+            </tr>
+
+            <!-- 12. MURS - Isolation thermique -->
+            <tr class="table-warning">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-brick-wall me-2 text-danger"></i>
+                  <div>
+                    <div class="fw-bold small">Isolation thermique murs</div>
+                    <code class="small text-muted">wallonie_isolation_murs</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark fw-semibold">Entrepreneur BCE. R ≥ 4,00 m²K/W (3,50 si avant 30/06/2024). Lambda certifié. Travaux liés obligatoires.</div>
+              </td>
+              <td>
+                <div class="small text-muted">ITE privilégiée pour ponts thermiques. Assèchement/renforcement possible.</div>
+              </td>
+            </tr>
+
+            <!-- 13. MURS - Isolation biosourcée -->
+            <tr class="table-success">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-leaf me-2 text-success"></i>
+                  <div>
+                    <div class="fw-bold small">Isolation biosourcée murs</div>
+                    <code class="small text-muted">wallonie_isolation_murs_biosource</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Entrepreneur BCE. Matériau biosourcé certifié. R ≥ 4,00 m²K/W.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Prime majorée. Assèchement/renforcement possible si nécessaire.</div>
+              </td>
+            </tr>
+
+            <!-- 14-17. SOLS -->
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-layer-group me-2 text-primary"></i>
+                  <div>
+                    <div class="fw-semibold small">Remplacement supports</div>
+                    <code class="small text-muted">wallonie_remplacement_supports_circulation</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Travaux liés obligatoires sur paroi isolée. Gîtage, hourdis, aires circulation.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Obligatoire si mentionné dans audit. Diagnostic structure recommandé.</div>
+              </td>
+            </tr>
+
+            <tr class="table-warning">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-layer-group me-2 text-danger"></i>
+                  <div>
+                    <div class="fw-bold small">Isolation thermique sols</div>
+                    <code class="small text-muted">wallonie_isolation_sols</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark fw-semibold">Entrepreneur BCE. R ≥ 3,50 m²K/W. Lambda certifié. Travaux liés obligatoires.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Isolation par dessous privilégiée si cave accessible.</div>
+              </td>
+            </tr>
+
+            <tr class="table-success">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-leaf me-2 text-success"></i>
+                  <div>
+                    <div class="fw-bold small">Isolation biosourcée sols</div>
+                    <code class="small text-muted">wallonie_isolation_sols_biosource</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Entrepreneur BCE. Matériau biosourcé certifié. R ≥ 3,50 m²K/W.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Prime majorée pour matériaux écologiques.</div>
+              </td>
+            </tr>
+
+            <!-- 18. MENUISERIES -->
+            <tr class="table-warning">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-window me-2 text-danger"></i>
+                  <div>
+                    <div class="fw-bold small">Menuiseries/vitrages</div>
+                    <code class="small text-muted">wallonie_menuiseries_vitrages</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark fw-semibold">Entrepreneur BCE + accès profession. Ug ≤ 1,10 W/m²K. Uw ≤ 1,50 W/m²K.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Mesurer surface vitrage précisément. Pose étanche obligatoire.</div>
+              </td>
+            </tr>
+
+            <!-- 19-20. INSTALLATIONS -->
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-bolt me-2 text-warning"></i>
+                  <div>
+                    <div class="fw-semibold small">Installation électrique</div>
+                    <code class="small text-muted">wallonie_installation_electrique</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Mise aux normes de l'installation électrique.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Contrôle électricien agréé obligatoire.</div>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-fire me-2 text-danger"></i>
+                  <div>
+                    <div class="fw-semibold small">Installation gaz</div>
+                    <code class="small text-muted">wallonie_installation_gaz</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Mise aux normes de l'installation de gaz.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Contrôle organisme agréé obligatoire.</div>
+              </td>
+            </tr>
+
+            <!-- 21-25. CHAUFFAGE -->
+            <tr class="table-info">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-droplet me-2 text-info"></i>
+                  <div>
+                    <div class="fw-bold small">PAC eau chaude (boiler thermo)</div>
+                    <code class="small text-muted">wallonie_pac_eau_chaude</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Liste éligible energie.wallonie.be. Installateur RESCERT (2026) + BCE. Prévention légionellose.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Local non chauffé recommandé. Évacuation condensats.</div>
+              </td>
+            </tr>
+
+            <tr class="table-info">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-thermometer-half me-2 text-info"></i>
+                  <div>
+                    <div class="fw-bold small">PAC chauffage air/eau-sol</div>
+                    <code class="small text-muted">wallonie_pac_chauffage</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Liste éligible energie.wallonie.be. RESCERT (2026) + BCE. EXCLUSION: PAC air/air.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Dimensionnement thermicien. Isolation préalable recommandée.</div>
+              </td>
+            </tr>
+
+            <tr class="table-info">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-fire me-2 text-info"></i>
+                  <div>
+                    <div class="fw-bold small">Chaudière biomasse</div>
+                    <code class="small text-muted">wallonie_chaudiere_biomasse</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Liste éligible energie.wallonie.be. RESCERT (2026) + BCE.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Stockage combustible adéquat. Conduit ramonage.</div>
+              </td>
+            </tr>
+
+            <tr class="table-info">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-sun me-2 text-warning"></i>
+                  <div>
+                    <div class="fw-bold small">Chauffe-eau solaire</div>
+                    <code class="small text-muted">wallonie_chauffe_eau_solaire</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">RESCERT. Capteurs Solar Keymark ≥ 2m². Fraction solaire ≥ 60%. Orientation sud-est-ouest.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Orientation optimale 45° sud. Vérifier règles urbanisme.</div>
+              </td>
+            </tr>
+
+            <tr class="table-info">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-fire-alt me-2 text-info"></i>
+                  <div>
+                    <div class="fw-bold small">Poêle biomasse local</div>
+                    <code class="small text-muted">wallonie_poele_biomasse</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">Liste éligible. Foyer fermé OBLIGATOIRE. EXCLUSION: feux ouverts et mixtes. RESCERT (2026).</div>
+              </td>
+              <td>
+                <div class="small text-muted">Installation conduit conforme. Ventilation suffisante.</div>
+              </td>
+            </tr>
+
+            <!-- 26-29. VENTILATION -->
+            <tr class="table-primary">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-wind me-2 text-primary"></i>
+                  <div>
+                    <div class="fw-bold small">VMC simple flux complète</div>
+                    <code class="small text-muted">wallonie_vmc_simple</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">BCE. Système centralisé toutes pièces. Annexes C4, C2, C3. Fonctionnalité à la demande.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Bouches hygroréglables pièces humides obligatoires.</div>
+              </td>
+            </tr>
+
+            <tr class="table-primary">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-fan me-2 text-primary"></i>
+                  <div>
+                    <div class="fw-bold small">VMC double flux complète</div>
+                    <code class="small text-muted">wallonie_vmc_double</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">BCE. Système centralisé toutes pièces. Récupération chaleur ≥ 78% (NBN EN 308).</div>
+              </td>
+              <td>
+                <div class="small text-muted">Réseau étanche obligatoire. Vérifier récupérateur EPBD.</div>
+              </td>
+            </tr>
+
+            <tr class="table-primary">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-wind me-2 text-primary"></i>
+                  <div>
+                    <div class="fw-bold small">VMC simple flux partielle</div>
+                    <code class="small text-muted">wallonie_vmc_simple_partielle</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">BCE. Ventilation partielle. Régulation par détection (présence/CO2/humidité).</div>
+              </td>
+              <td>
+                <div class="small text-muted">Régulation obligatoire selon type d'espace.</div>
+              </td>
+            </tr>
+
+            <tr class="table-primary">
+              <td>
+                <div class="d-flex align-items-center">
+                  <i class="bi bi-fan me-2 text-primary"></i>
+                  <div>
+                    <div class="fw-bold small">VMC double flux partielle</div>
+                    <code class="small text-muted">wallonie_vmc_double_partielle</code>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="small text-dark">BCE. Ventilation partielle. Récupération chaleur ≥ 50% par groupe.</div>
+              </td>
+              <td>
+                <div class="small text-muted">Vérifier récupérateur EPBD pour éviter rapport test.</div>
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Note finale -->
+      <div class="alert alert-info mt-3">
+        <i class="bi bi-info-circle me-2"></i>
+        <small><strong>10 primes supplémentaires</strong> (améliorations chauffage + ECS) disponibles. Total: 46 primes Wallonie. Consultez votre audit pour les primes spécifiques à votre projet.</small>
+      </div>
+    </div>
+
+
+  <% else %>
+    <!-- Pour les autres régions (Bruxelles) - Système dynamique conservé -->
+    <div class="alert alert-secondary text-center">
+      <i class="bi bi-info-circle me-2"></i>
+      <strong>Région non supportée ou données non disponibles</strong><br>
+      <small>Cette section est actuellement optimisée pour la Flandre et la Wallonie.</small>
     </div>
   <% end %>
 

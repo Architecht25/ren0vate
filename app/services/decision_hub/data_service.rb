@@ -95,21 +95,67 @@ class DecisionHub::DataService
   end
 
   def extract_selected_primes
-    # Récupérer les vraies primes de la simulation depuis les paramètres JSON
+    # Récupérer les vraies primes de la simulation depuis simulation_prime_cards
+    return [] unless @simulation
+
+    selected_primes = []
+
+    begin
+      # Méthode principale: utiliser simulation_prime_cards
+      Rails.logger.info "=== Extracting primes for simulation #{@simulation.id} ==="
+      Rails.logger.info "simulation_prime_cards count: #{@simulation.simulation_prime_cards.count}"
+
+      @simulation.simulation_prime_cards.includes(:prime).each do |sim_prime|
+        Rails.logger.info "Processing sim_prime: prime=#{sim_prime.prime&.titre}, amount=#{sim_prime.calculated_amount}"
+
+        next unless sim_prime.prime
+        next if sim_prime.calculated_amount.to_f <= 0
+
+        selected_primes << {
+          name: sim_prime.prime.titre,
+          amount: sim_prime.calculated_amount.to_f.round(0),
+          category: sim_prime.prime.category || extract_category_from_slug(sim_prime.prime.slug),
+          slug: sim_prime.prime.slug,
+          status: "eligible",
+          urgency: determine_prime_urgency_from_slug(sim_prime.prime.slug),
+          user_input: sim_prime.user_input || 0,
+          details: sim_prime.prime.condition || sim_prime.prime.conseil || ""
+        }
+      end
+
+      Rails.logger.info "Found #{selected_primes.count} primes from simulation_prime_cards"
+      return selected_primes if selected_primes.any?
+    rescue StandardError => e
+      Rails.logger.error "Error extracting primes from simulation_prime_cards: #{e.message}"
+      Rails.logger.error e.backtrace.join("\n")
+    end
+
+    # Fallback: essayer d'extraire depuis parameters JSON (ancienne méthode)
     if @simulation&.parameters.present?
       begin
         params_data = JSON.parse(@simulation.parameters)
         primes = extract_primes_from_simulation_data(params_data)
+        Rails.logger.info "Found #{primes.count} primes from JSON parameters"
         return primes if primes.any?
       rescue JSON::ParserError, StandardError => e
         Rails.logger.warn "Failed to parse simulation parameters for Decision Hub: #{e.message}"
       end
-    else
-      # Fallback avec primes simulées si aucune donnée de simulation disponible
     end
 
-    # Retourner un tableau vide au lieu de primes fictives
+    Rails.logger.warn "No primes found, returning empty array"
+    # Retourner un tableau vide si rien n'est trouvé
     []
+  end
+
+  def determine_prime_urgency_from_slug(slug)
+    # Déterminer l'urgence basée sur le slug de la prime
+    case slug
+    when /audit/i then "critical"
+    when /isolation|toiture|mur|sol/i then "high"
+    when /chauffage|pompe|chaudiere/i then "high"
+    when /ventilation|vmc/i then "medium"
+    else "low"
+    end
   end
 
   def extract_primes_from_simulation_data(params_data)
@@ -118,48 +164,60 @@ class DecisionHub::DataService
     # Méthode 1: chercher dans prime_cards
     if params_data["prime_cards"].present?
       params_data["prime_cards"].each do |category_key, category_data|
-        next unless category_data["primes"].present?
+        next unless category_data.is_a?(Hash) && category_data["primes"].present?
 
         category_data["primes"].each do |prime|
-          # Prendre seulement les primes avec montant > 0
+          # Prendre toutes les primes qui ont un user_input > 0 OU un calculated_amount > 0
+          user_input = (prime["user_input_value"] || prime["user_input"] || 0).to_f
           amount = (prime["calculated_amount"] || prime["amount"] || 0).to_f
 
-          if amount > 0
+          if user_input > 0 || amount > 0
             selected_primes << {
-              name: prime["titre"] || prime["name"],
+              name: prime["titre"] || prime["name"] || "Prime #{category_key}",
               amount: amount.round(0),
-              category: prime["category"] || extract_category_from_slug(prime["slug"]),
-              slug: prime["slug"],
-              status: determine_prime_status(prime),
+              category: prime["category"] || category_key || extract_category_from_slug(prime["slug"]),
+              slug: prime["slug"] || "#{@region}_#{category_key}",
+              status: "eligible",
               urgency: determine_prime_urgency(prime),
-              user_input: prime["user_input_value"] || 0,
-              details: prime["description"] || build_prime_details(prime)
+              user_input: user_input,
+              details: prime["description"] || prime["condition"] || prime["conseil"] || build_prime_details(prime)
             }
           end
         end
       end
     end
 
-    # Méthode 2: fallback si prime_cards ne contient pas de primes sélectionnées
-    # mais que la simulation a un total > 0
+    # Méthode 2: si aucune prime trouvée mais total_simule > 0, essayer de les trouver autrement
     if selected_primes.empty? && @simulation&.total_simule.to_f > 0
-      # Essayons d'identifier quelle(s) prime(s) spécifique(s) ont été sélectionnées
-      prime_info = identify_selected_prime_from_simulation(@simulation)
+      # Rechercher dans toutes les clés du JSON pour trouver des primes
+      params_data.each do |key, value|
+        next unless value.is_a?(Hash)
 
-      selected_primes << {
-        name: prime_info[:name],
-        amount: @simulation.total_simule.to_f.round(0),
-        category: prime_info[:category],
-        slug: prime_info[:slug],
-        status: "eligible",
-        urgency: "high",
-        user_input: 0,
-        details: prime_info[:details]
-      }
+        if value["primes"].present? && value["primes"].is_a?(Hash)
+          value["primes"].each do |prime_key, prime_data|
+            next unless prime_data.is_a?(Hash)
+
+            user_input = (prime_data["user_input_value"] || prime_data["value"] || 0).to_f
+            amount = (prime_data["amount"] || prime_data["calculated_amount"] || 0).to_f
+
+            if user_input > 0 || amount > 0
+              selected_primes << {
+                name: prime_data["titre"] || prime_data["name"] || prime_key.to_s.humanize,
+                amount: amount.round(0),
+                category: key || "renovation",
+                slug: prime_data["slug"] || "#{@region}_#{prime_key}",
+                status: "eligible",
+                urgency: "high",
+                user_input: user_input,
+                details: prime_data["condition"] || ""
+              }
+            end
+          end
+        end
+      end
     end
 
-    # Si aucune prime trouvée, retourner tableau vide
-    selected_primes.empty? ? [] : selected_primes
+    selected_primes
   end
 
   def identify_selected_prime_from_simulation(simulation)

@@ -97,40 +97,6 @@
             <div class="card border-0 shadow-sm">
               <div class="card-body p-0">
                 <div class="row g-0">
-                  <!-- Étape 0: Sélection Primes -->
-                  <div class="col-md">
-                    <div class="p-3 text-center border-end position-relative step-tab"
-                         data-section="selection-primes"
-                         data-action="click->decision-hub#switchSection"
-                         style="cursor: pointer;">
-                      <div class="step-number bg-warning text-dark rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
-                        <i class="bi bi-check2-square fs-5"></i>
-                      </div>
-                      <h6 class="mb-2">Sélection Primes</h6>
-                      <small class="text-muted d-block mb-2">Résumé de votre simulation et possibilité de sélectionner les primes qui vous intéressent vraiment</small>
-
-                      <!-- Aperçu sélection vs simulation -->
-                      <div class="text-start mb-2">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Simulation</small>
-                          <small class="fw-bold text-primary"><%= (@hub_data[:resume][:primes] || []).length %> primes</small>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Sélectionnées</small>
-                          <small class="fw-bold text-success">1 prime</small>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Optimisation</small>
-                          <small class="fw-bold text-warning">En cours</small>
-                        </div>
-                      </div>
-
-                      <div class="progress mt-2" style="height: 3px;">
-                        <div class="progress-bar bg-warning" style="width: 20%;"></div>
-                      </div>
-                    </div>
-                  </div>
-
                   <!-- Étape 1: Résumé -->
                   <div class="col-md">
                     <div class="p-3 text-center border-end position-relative step-tab active"
@@ -870,15 +836,6 @@
 
         <!-- Contenu des sections -->
         <div class="sections-content">
-
-          <!-- Section Sélection Primes -->
-          <div class="section-content" data-section="selection-primes" data-decision-hub-target="selectionPrimesSection">
-            <div class="row g-4">
-              <div class="col-12">
-                <%= render 'decision_hub/info_cards/selection_primes' %>
-              </div>
-            </div>
-          </div>
 
           <!-- Actions rapides pour la simulation -->
           <div class="section-content" data-section="resume" data-decision-hub-target="resumeSection">
