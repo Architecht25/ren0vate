@@ -1,0 +1,24 @@
+📧 Document de suivi déposé
+
+Utilisateur : <%= @user.email %>
+Date : <%= Time.current.strftime("%d/%m/%Y à %H:%M") %>
+
+<% if @prime %>
+Prime concernée : <%= @prime.titre %>
+<% end %>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Documents déposés :
+<% if @request_progress.document_suivi_pdf.attached? %>
+✓ PDF administratif : <%= @request_progress.document_suivi_pdf.filename %>
+<% end %>
+<% if @request_progress.document_suivi_photo.attached? %>
+✓ Photo courrier : <%= @request_progress.document_suivi_photo.filename %>
+<% end %>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Voir le document de suivi :
+<%= ENV.fetch('APP_URL', 'https://ren0vate.be') %>/admin/request_progresses/<%= @request_progress.id %>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Cette notification a été envoyée automatiquement par ren0vate.

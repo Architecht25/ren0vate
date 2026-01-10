@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+      .content { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-top: none; }
+      .info-box { background: #dcf8c6; border-left: 4px solid #4caf50; padding: 15px; margin: 15px 0; }
+      .footer { text-align: center; padding: 15px; color: #666; font-size: 12px; }
+      .btn { display: inline-block; padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 6px; margin: 10px 0; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h2>📎 Réponse à demande de complément</h2>
+      </div>
+
+      <div class="content">
+        <p><strong>Utilisateur :</strong> <%= @user.email %></p>
+        <p><strong>Date :</strong> <%= Time.current.strftime("%d/%m/%Y à %H:%M") %></p>
+
+        <% if @request %>
+          <p><strong>Demande :</strong> <%= @request.title %></p>
+        <% end %>
+
+        <div class="info-box">
+          <strong>📊 Réponse :</strong><br>
+          Documents : <%= @complement_request.response_documents.count %><br>
+          <% if @complement_request.response_message.present? %>
+            Message : <%= @complement_request.response_message %>
+          <% end %>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+          <a href="<%= ENV.fetch('APP_URL', 'https://ren0vate.be') %>/admin/complement_requests/<%= @complement_request.id %>" class="btn">
+            Voir la réponse complète
+          </a>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>Cette notification a été envoyée automatiquement par ren0vate.</p>
+      </div>
+    </div>
+  </body>
+</html>

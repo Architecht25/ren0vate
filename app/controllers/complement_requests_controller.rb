@@ -98,9 +98,20 @@ class ComplementRequestsController < ApplicationController
 
       if @complement_request.submit_response!(response_params[:client_response])
         # Attacher les documents de réponse
+        documents_uploaded = false
         if params[:response_documents].present?
           params[:response_documents].each do |file|
             @complement_request.response_documents.attach(file)
+          end
+          documents_uploaded = true
+        end
+
+        # Envoyer une notification par email à l'administrateur
+        if documents_uploaded
+          begin
+            AdminMailer.complement_response_uploaded(current_user, @complement_request).deliver_later
+          rescue => e
+            Rails.logger.error "Erreur lors de l'envoi de notification admin: #{e.message}"
           end
         end
 

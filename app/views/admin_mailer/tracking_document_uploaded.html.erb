@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type' />
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+      .content { background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-top: none; }
+      .info-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 15px 0; }
+      .footer { text-align: center; padding: 15px; color: #666; font-size: 12px; }
+      .btn { display: inline-block; padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 6px; margin: 10px 0; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h2>📧 Document de suivi déposé</h2>
+      </div>
+
+      <div class="content">
+        <p><strong>Utilisateur :</strong> <%= @user.email %></p>
+        <p><strong>Date :</strong> <%= Time.current.strftime("%d/%m/%Y à %H:%M") %></p>
+
+        <% if @prime %>
+          <p><strong>Prime concernée :</strong> <%= @prime.titre %></p>
+        <% end %>
+
+        <div class="info-box">
+          <strong>Type de document :</strong><br>
+          <% if @request_progress.document_suivi_pdf.attached? %>
+            ✓ PDF administratif : <%= @request_progress.document_suivi_pdf.filename %><br>
+          <% end %>
+          <% if @request_progress.document_suivi_photo.attached? %>
+            ✓ Photo courrier : <%= @request_progress.document_suivi_photo.filename %><br>
+          <% end %>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+          <a href="<%= ENV.fetch('APP_URL', 'https://ren0vate.be') %>/admin/request_progresses/<%= @request_progress.id %>" class="btn">
+            Voir le document de suivi
+          </a>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>Cette notification a été envoyée automatiquement par ren0vate.</p>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,37 @@
+📄 Nouveaux documents déposés
+
+Utilisateur : <%= @user.email %>
+Date : <%= Time.current.strftime("%d/%m/%Y à %H:%M") %>
+
+<% if @property %>
+Propriété : <%= @property.address %>
+<% end %>
+
+<% if @project %>
+Projet : <%= @project.title %>
+<% end %>
+
+<% if @request %>
+Demande : <%= @request.title %>
+<% end %>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+TOTAL : <%= @documents.count %> document(s) déposé(s)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Documents déposés :
+<% @documents_by_type.each do |type, docs| %>
+
+► <%= type&.humanize || 'Sans catégorie' %> (<%= docs.count %>)
+<% docs.each do |doc| %>
+  • <% if doc.file.attached? %><%= doc.file.filename %> (<%= number_to_human_size(doc.file.byte_size) %>)<% else %>Document sans fichier<% end %>
+<% end %>
+<% end %>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Voir tous les documents :
+<%= ENV.fetch('APP_URL', 'https://ren0vate.be') %>/admin/documents
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Cette notification a été envoyée automatiquement par ren0vate.

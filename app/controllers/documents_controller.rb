@@ -204,6 +204,23 @@ class DocumentsController < ApplicationController
 
     # Réponse basée sur le succès/échec
     if errors.empty? && created_documents.any?
+      # Envoyer une notification par email à l'administrateur
+      begin
+        AdminMailer.document_uploaded(
+          current_user,
+          created_documents,
+          {
+            property: @property,
+            project: @project,
+            request: @request,
+            simulation: @simulation
+          }
+        ).deliver_later
+      rescue => e
+        Rails.logger.error "Erreur lors de l'envoi de notification admin: #{e.message}"
+        # On continue même si l'email échoue
+      end
+
       # Si upload via AJAX
       if request.xhr?
         render json: {

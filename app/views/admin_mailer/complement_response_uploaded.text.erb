@@ -1,0 +1,22 @@
+📎 Réponse à demande de complément
+
+Utilisateur : <%= @user.email %>
+Date : <%= Time.current.strftime("%d/%m/%Y à %H:%M") %>
+
+<% if @request %>
+Demande : <%= @request.title %>
+<% end %>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Réponse :
+Documents : <%= @complement_request.response_documents.count %>
+<% if @complement_request.response_message.present? %>
+Message : <%= @complement_request.response_message %>
+<% end %>
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Voir la réponse complète :
+<%= ENV.fetch('APP_URL', 'https://ren0vate.be') %>/admin/complement_requests/<%= @complement_request.id %>
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Cette notification a été envoyée automatiquement par ren0vate.

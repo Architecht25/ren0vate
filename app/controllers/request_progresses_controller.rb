@@ -121,13 +121,25 @@ class RequestProgressesController < ApplicationController
   # Action pour upload de documents
   def upload_document
     @request_progress = RequestProgress.find(params[:id])
+    document_uploaded = false
 
     if params[:document_type] == 'suivi_pdf' && params[:document_suivi_pdf].present?
       @request_progress.document_suivi_pdf.attach(params[:document_suivi_pdf])
       @request_progress.update(document_recu: true, date_derniere_maj: Date.current)
+      document_uploaded = true
     elsif params[:document_type] == 'suivi_photo' && params[:document_suivi_photo].present?
       @request_progress.document_suivi_photo.attach(params[:document_suivi_photo])
       @request_progress.update(document_recu: true, date_derniere_maj: Date.current)
+      document_uploaded = true
+    end
+
+    # Envoyer une notification par email à l'administrateur
+    if document_uploaded
+      begin
+        AdminMailer.tracking_document_uploaded(current_user, @request_progress).deliver_later
+      rescue => e
+        Rails.logger.error "Erreur lors de l'envoi de notification admin: #{e.message}"
+      end
     end
 
     redirect_to @request_progress, notice: t('request_progress.document_uploaded')
