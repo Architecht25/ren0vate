@@ -1,4 +1,25 @@
 class RequestsController < ApplicationController
+  # Utiliser null_session au lieu de exception pour la protection CSRF
+  # Cela permet de continuer même si le token est invalide
+  protect_from_forgery with: :null_session, only: [:update, :autosave]
+
+  # Gérer les erreurs de token CSRF expirés pour les autres actions
+  rescue_from ActionController::InvalidAuthenticityToken do |exception|
+    Rails.logger.warn "⚠️ Token CSRF invalide - Session expirée ou page périmée"
+
+    # Pour les requêtes de sauvegarde, sauvegarder les données dans la session et rediriger
+    if params[:commit] == "Sauvegarder en brouillon" && params[:request].present?
+      session[:pending_request_data] = params[:request].to_unsafe_h
+      session[:pending_request_id] = params[:id]
+
+      flash[:warning] = "⚠️ Votre session a expiré. Veuillez recharger la page et réessayer. Vos données ont été temporairement sauvegardées."
+      redirect_to params[:id].present? ? edit_request_path(params[:id]) : new_request_path
+    else
+      flash[:alert] = "Votre session a expiré. Veuillez vous reconnecter."
+      redirect_to new_user_session_path
+    end
+  end
+
   def index
     # Récupérer les demandes, filtrer par property_id si fourni
     base_requests = current_user.requests.includes(:property)
@@ -213,6 +234,14 @@ class RequestsController < ApplicationController
   def edit
     @request = Request.find(params[:id])
 
+    # Restaurer les données temporaires de la session si elles existent (après erreur CSRF)
+    if session[:pending_request_data].present? && session[:pending_request_id].to_s == params[:id].to_s
+      @pending_data = session[:pending_request_data]
+      session.delete(:pending_request_data)
+      session.delete(:pending_request_id)
+      flash.now[:info] = "💾 Vos données non sauvegardées ont été restaurées. Vous pouvez continuer votre saisie."
+    end
+
     # Charger les primes pour le prime_card_controller
     @primes = Prime.all
 
@@ -297,34 +326,58 @@ class RequestsController < ApplicationController
   def update
     @request = Request.find(params[:id])
 
+    # DÉBOGAGE SIMPLE - Écrire dans un fichier pour être sûr de voir les données
+    debug_file = Rails.root.join('log', 'wallonie_debug.log')
+    File.open(debug_file, 'a') do |f|
+      f.puts "=" * 80
+      f.puts "UPDATE appelé à #{Time.current}"
+      f.puts "Request ID: #{params[:id]}"
+      f.puts "Commit: #{params[:commit]}"
+      f.puts "-" * 40
+      f.puts "Title reçu: #{params[:request]&.[](:title).inspect}"
+      f.puts "Maintien régime reçu: #{params[:request]&.[](:maintien_regime).inspect}"
+      f.puts "-" * 40
+      f.puts "Checkbox travaux reçues:"
+      params[:request]&.each do |k, v|
+        if k.to_s.start_with?('travaux_')
+          f.puts "  #{k}: #{v.inspect}"
+        end
+      end
+      f.puts "=" * 80
+    end
+
     Rails.logger.info "=== UPDATE START ==="
     Rails.logger.info "Request ID: #{@request.id}"
     Rails.logger.info ""
     Rails.logger.info "=== PARAMS BRUTS REÇUS ==="
-    Rails.logger.info "Tous les params: #{params.inspect}"
+    Rails.logger.info "Title dans params[:request]: #{params[:request]&.[](:title)}"
+    Rails.logger.info "Maintien regime: #{params[:request]&.[](:maintien_regime)}"
     Rails.logger.info ""
-    Rails.logger.info "=== PARAMS REQUEST ==="
-    Rails.logger.info "request params: #{params[:request]&.keys || 'nil'}"
-    Rails.logger.info ""
-    Rails.logger.info "=== RECHERCHE VALEURS FORMULAIRE ==="
+    Rails.logger.info "=== PARAMS REQUEST (CHECKBOX TRAVAUX) ==="
     if params[:request]
       params[:request].each do |key, value|
-        if key.to_s.include?('toiture') || key.to_s.include?('travaux')
-          Rails.logger.info "  TROUVÉ: #{key} = #{value.inspect}"
+        if key.to_s.include?('travaux_') && key.to_s.include?('remplacement')
+          Rails.logger.info "  #{key} = #{value.inspect}"
         end
       end
     end
     Rails.logger.info ""
-    Rails.logger.info "AVANT UPDATE - form_data existante:"
-    @request.form_data&.each { |k, v| Rails.logger.info "  #{k}: #{v}" if k.to_s.include?('toiture') }
+    Rails.logger.info "AVANT UPDATE - Title actuel: #{@request.title}"
+    Rails.logger.info "AVANT UPDATE - form_data.keys: #{@request.form_data&.keys&.size || 0}"
 
     # Gérer les brouillons pour la mise à jour aussi
     if params[:commit] == "Sauvegarder en brouillon"
       @request.status = 'draft'
 
+      # TEST SIMPLE - Sauvegarder directement le titre sans passer par request_params
+      if params[:request][:title].present?
+        @request.title = params[:request][:title]
+        Rails.logger.info "✅ TITLE ASSIGNÉ DIRECTEMENT: #{@request.title}"
+      end
+
       Rails.logger.info "=== TRAITEMENT PARAMETRES ==="
-      Rails.logger.info "Params bruts reçus (toiture uniquement):"
-      params[:request]&.each { |k, v| Rails.logger.info "  #{k}: #{v}" if k.to_s.include?('toiture') }
+      Rails.logger.info "Params bruts reçus (checkbox travaux):"
+      params[:request]&.each { |k, v| Rails.logger.info "  #{k}: #{v}" if k.to_s.start_with?('travaux_remplacement') }
 
       # Assigner les nouvelles valeurs avec les données extraites
       processed_params = request_params.to_h  # Convertir en hash pour éviter UnfilteredParameters
@@ -336,17 +389,28 @@ class RequestsController < ApplicationController
 
       Rails.logger.info "=== APRÈS request_params ==="
       Rails.logger.info "processed_params keys: #{processed_params.keys}"
-      Rails.logger.info "processed_params[:form_data] class: #{processed_params[:form_data].class}"
-      Rails.logger.info "processed_params[:form_data] (toiture):"
-      processed_params[:form_data]&.each { |k, v| Rails.logger.info "  #{k}: #{v}" if k.to_s.include?('toiture') }
+      Rails.logger.info "processed_params[:title]: #{processed_params[:title].inspect}"
+      Rails.logger.info "processed_params[:form_data] présent?: #{processed_params[:form_data].present?}"
+      if processed_params[:form_data].present?
+        Rails.logger.info "processed_params[:form_data] keys: #{processed_params[:form_data].keys.size}"
+        Rails.logger.info "Title dans form_data?: #{processed_params[:form_data]['title'] || processed_params[:form_data][:title]}"
+      end
 
       @request.assign_attributes(processed_params)
-      @request.title = @request.title.present? ? @request.title : "Brouillon #{Time.current.strftime('%d/%m/%Y %H:%M')}"
-      @request.description = @request.description.present? ? @request.description : "Brouillon en cours de rédaction"
+      # Ne définir un titre par défaut QUE si le titre n'a pas été assigné
+      if @request.title.blank?
+        @request.title = "Brouillon #{Time.current.strftime('%d/%m/%Y %H:%M')}"
+      end
+      if @request.description.blank?
+        @request.description = "Brouillon en cours de rédaction"
+      end
 
       Rails.logger.info "=== APRÈS assign_attributes ==="
-      Rails.logger.info "Form data dans @request (toiture):"
-      @request.form_data&.each { |k, v| Rails.logger.info "  #{k}: #{v}" if k.to_s.include?('toiture') }
+      Rails.logger.info "Title après assign: #{@request.title}"
+      Rails.logger.info "Form data dans @request.form_data.keys: #{@request.form_data&.keys&.size || 0}"
+      Rails.logger.info "Maintien regime dans form_data: #{@request.form_data&.[]('maintien_regime')}"
+      Rails.logger.info "Travaux checkbox dans form_data:"
+      @request.form_data&.each { |k, v| Rails.logger.info "  #{k}: #{v}" if k.to_s.include?('travaux_remplacement') }
 
     elsif params[:commit] == "Créer la demande"
       processed_params = request_params.to_h  # Convertir en hash
@@ -363,8 +427,11 @@ class RequestsController < ApplicationController
     Rails.logger.info "Save result: #{save_result}"
     if save_result
       @request.reload
-      Rails.logger.info "APRÈS RELOAD - form_data sauvegardée:"
-      @request.form_data&.each { |k, v| Rails.logger.info "  #{k}: #{v}" if k.to_s.include?('toiture') }
+      Rails.logger.info "APRÈS RELOAD - Title: #{@request.title}"
+      Rails.logger.info "APRÈS RELOAD - form_data.keys: #{@request.form_data&.keys&.size || 0}"
+      Rails.logger.info "APRÈS RELOAD - Maintien regime: #{@request.form_data&.[]('maintien_regime')}"
+      Rails.logger.info "APRÈS RELOAD - Travaux checkbox:"
+      @request.form_data&.each { |k, v| Rails.logger.info "  #{k}: #{v}" if k.to_s.include?('travaux_remplacement') }
     else
       Rails.logger.info "Erreurs save: #{@request.errors.full_messages}"
     end
@@ -562,15 +629,37 @@ class RequestsController < ApplicationController
                                    # Paramètres Wallonie
                                    :revenus_reference, :composition_menage, :categories_travaux, :logement_principal, :montant_travaux,
                                    :numero_audit, :date_audit, :numero_agrement_auditeur, :nom_auditeur, :adresse_auditeur,
+                                   :date_enregistrement_audit,
                                    # Paramètres Wallonie spécifiques manquants
                                    :type_demandeur, :qualite_demandeur, :numero_registre_national, :compte_bancaire,
                                    :adresse_demandeur, :code_postal_demandeur, :commune_demandeur, :pays_demandeur,
+                                   :numero_demandeur, :date_naissance,
                                    :telephone_fixe, :telephone_mobile, :fax, :email_demandeur,
                                    :numero_bce, :denomination_sociale, :forme_juridique, :siege_social,
                                    :adresse_logement, :numero_logement, :code_postal_logement, :commune_logement,
                                    :numero_parcelle_cadastrale, :date_acquisition_bien, :personnes_charge, :revenus_globaux,
                                    :surface_plancher_chauffee, :affectation_bien, :annee_construction, :periode_travaux,
                                    :desamiantage, :ean_electricite, :ean_gaz, :date_pea,
+                                   # Boutons radio Wallonie
+                                   :maintien_regime, :adresse_contact_identique, :type_compte_bancaire, :localisation_travaux,
+                                   :type_logement, :acces_donnees_revenu, :condition_occupation,
+                                   # Checkbox travaux Wallonie
+                                   :travaux_remplacement_couverture, :travaux_appropriation_charpente, :travaux_dispositif_eaux_pluviales,
+                                   :travaux_isolation_toit_combles, :travaux_assechement_infiltrations, :travaux_assechement_humidite,
+                                   :travaux_renforcement_murs, :travaux_isolation_murs, :travaux_remplacement_supports, :travaux_isolation_sols,
+                                   :travaux_appropriation_electrique, :travaux_appropriation_gaz, :travaux_elimination_merule,
+                                   :travaux_elimination_radon, :travaux_remplacement_menuiseries,
+                                   :travaux_pompe_chaleur_ecs_exclusive, :travaux_pompe_chaleur_chauffage_combinee,
+                                   :travaux_chaudiere_biomasse, :travaux_poele_biomasse, :travaux_chauffe_eau_solaire,
+                                   :travaux_ventilation_simple_flux_ensemble, :travaux_ventilation_double_flux_ensemble,
+                                   :travaux_ventilation_simple_flux_partie, :travaux_ventilation_double_flux_partie,
+                                   :travaux_isolation_conduites_chauffage_hors_volume, :travaux_isolation_ballon_stockage_chauffage,
+                                   :travaux_circulateurs_vitesse_variable, :travaux_remplacement_ballon_stockage_chauffage,
+                                   :travaux_vannes_thermostatiques, :travaux_thermostat_ambiance,
+                                   :travaux_remplacement_reservoir_ecs, :travaux_isolation_conduites_boucle_ecs,
+                                   :travaux_isolation_echangeur_plaques, :travaux_isolation_ballon_stockage_ecs,
+                                   # Checkbox déclarations
+                                   :declaration_traitement_automatise,
                                    # Champs génériques travaux
                                    :travaux_isolation_toiture, :travaux_isolation_murs, :travaux_isolation_sols,
                                    :travaux_fenetres_portes, :travaux_chauffage_ecs, :travaux_ventilation,
@@ -647,7 +736,8 @@ class RequestsController < ApplicationController
                    :document_attestations, :document_photos, :document_autres]
 
     # Extraire les données de formulaire (tous les autres champs)
-    form_data_fields = permitted_params.except(*base_fields, *file_fields).reject { |k, v| v.blank? }
+    # IMPORTANT: Ne pas rejeter les valeurs "0" (checkbox non cochées) ni les chaînes vides pour certains champs
+    form_data_fields = permitted_params.except(*base_fields, *file_fields).reject { |k, v| v.nil? }
 
     Rails.logger.info "=== EXTRACT_FORM_DATA DEBUG ==="
     Rails.logger.info "Form data fields extracted: #{form_data_fields.keys}"

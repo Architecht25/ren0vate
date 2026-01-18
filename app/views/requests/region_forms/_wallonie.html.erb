@@ -12,9 +12,7 @@
     <div class="card-body">
       <div class="mb-3">
         <%= form.label :title, "Nom du formulaire *", class: "form-label" %>
-        <% current_title = @request.title.present? ? @request.title : "Demande de prime Wallonie - #{Date.current.strftime('%d/%m/%Y')}" %>
         <%= form.text_field :title,
-            value: current_title,
             class: "form-control",
             placeholder: "Ex: Demande de prime pour rénovation énergétique",
             required: true %>
@@ -31,20 +29,24 @@
     <div class="card-body">
       <p class="mb-3">Ce formulaire permet d'introduire <strong>une demande de prime pour la réalisation des travaux dans le cadre de la réglementation « Primes Habitation »</strong>.</p>
 
+      <%
+        # Récupérer la valeur depuis form_data
+        maintien_regime_value = @request&.form_data&.[]('maintien_regime')
+      %>
       <div class="row">
         <div class="col-md-12">
           <div class="mb-3">
             <label class="form-label fw-bold">Bénéficiez-vous du maintien des régimes de primes en vigueur jusqu'au 13 février 2025 ?</label>
 
             <div class="form-check mb-2">
-              <%= form.radio_button :maintien_regime, "Oui", { class: "form-check-input", id: "maintien_regime_oui" } %>
+              <%= form.radio_button :maintien_regime, "Oui", { class: "form-check-input", id: "maintien_regime_oui", checked: maintien_regime_value == "Oui" } %>
               <label class="form-check-label" for="maintien_regime_oui">
                 Oui
               </label>
             </div>
 
             <div class="form-check mb-3">
-              <%= form.radio_button :maintien_regime, "Non", { class: "form-check-input", id: "maintien_regime_non" } %>
+              <%= form.radio_button :maintien_regime, "Non", { class: "form-check-input", id: "maintien_regime_non", checked: maintien_regime_value == "Non" } %>
               <label class="form-check-label" for="maintien_regime_non">
                 Non
               </label>
@@ -176,23 +178,6 @@
         </div>
       </div>
 
-      <% if @property.present? %>
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :profil_demandeur, "Profil du demandeur *", class: "form-label" %>
-            <div class="form-control-plaintext fw-bold text-primary">
-              <%= @property&.profil_demandeur&.humanize || "Non défini" %>
-            </div>
-            <%= form.hidden_field :profil_demandeur, value: @property&.profil_demandeur %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <!-- Espace pour équilibrer la mise en page -->
-        </div>
-      </div>
-      <% end %>
-
       <div class="row">
         <div class="col-md-6">
           <div class="mb-3">
@@ -276,7 +261,7 @@
 
       <h6 class="text-muted mb-3">Adresse du demandeur</h6>
       <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-4">
           <div class="mb-3">
             <%= form.label :adresse_demandeur, class: "form-label" do %>
               Rue
@@ -288,7 +273,7 @@
                 class: "form-control" %>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
           <div class="mb-3">
             <%= form.label :numero_demandeur, class: "form-label" do %>
               Numéro
@@ -300,7 +285,7 @@
                 class: "form-control" %>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
           <div class="mb-3">
             <%= form.label :boite_demandeur, class: "form-label" do %>
               Boîte
@@ -315,20 +300,7 @@
       </div>
 
       <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :pays_demandeur, class: "form-label" do %>
-              Pays
-            <% end %>
-            <%= form.select :pays_demandeur, options_for_select([['BELGIQUE', 'BELGIQUE']]), { selected: 'BELGIQUE' }, { class: "form-control" } %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <!-- Espace pour équilibrer -->
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-md-6">
+        <div class="col-md-2">
           <div class="mb-3">
             <%= form.label :code_postal_demandeur, class: "form-label" do %>
               Code postal
@@ -340,7 +312,7 @@
                 class: "form-control" %>
           </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-2">
           <div class="mb-3">
             <%= form.label :localite_demandeur, class: "form-label" do %>
               Localité
@@ -350,6 +322,15 @@
                 value: preremplir_champ(@form_data, :applicant_city, current_user.city),
                 placeholder: "Localité",
                 class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-2">
+          <div class="mb-3">
+            <%= form.label :pays_demandeur, class: "form-label" do %>
+              Pays
+              <%= badge_prerempli_intelligent(@form_data, :pays_demandeur, 'BELGIQUE') %>
+            <% end %>
+            <%= form.select :pays_demandeur, options_for_select([['BELGIQUE', 'BELGIQUE']]), { selected: 'BELGIQUE' }, { class: "form-control" } %>
           </div>
         </div>
       </div>
@@ -664,20 +645,24 @@
     <div class="card-body">
       <p class="mb-3">Le montant de la prime peut être majoré en fonction du revenu de référence de votre ménage (voir conditions sur la page : <a href="https://logement.wallonie.be" target="_blank" rel="noopener">https://logement.wallonie.be</a>).</p>
 
+      <%
+        # Récupérer la valeur depuis form_data
+        acces_donnees_revenu_value = @request&.form_data&.[]('acces_donnees_revenu')
+      %>
       <div class="row">
         <div class="col-md-12">
           <div class="mb-3">
             <label class="form-label fw-bold">Acceptez-vous que l'administration accède à vos données (composition de ménage, avertissement extrait de rôle, allocations familiales, situation de handicap) afin de déterminer votre revenu de référence ?</label>
 
             <div class="form-check mb-2">
-              <%= form.radio_button :acces_donnees_revenu, "Oui", { class: "form-check-input", id: "acces_donnees_oui" } %>
+              <%= form.radio_button :acces_donnees_revenu, "Oui", { class: "form-check-input", id: "acces_donnees_oui", checked: acces_donnees_revenu_value == "Oui" } %>
               <label class="form-check-label" for="acces_donnees_oui">
                 Oui
               </label>
             </div>
 
             <div class="form-check mb-3">
-              <%= form.radio_button :acces_donnees_revenu, "Non", { class: "form-check-input", id: "acces_donnees_non" } %>
+              <%= form.radio_button :acces_donnees_revenu, "Non", { class: "form-check-input", id: "acces_donnees_non", checked: acces_donnees_revenu_value == "Non" } %>
               <label class="form-check-label" for="acces_donnees_non">
                 Non
               </label>
@@ -703,6 +688,11 @@
         <strong>Attention :</strong> Si le rapport d'audit fait mention de « travaux liés », ceux-ci doivent obligatoirement faire l'objet d'une même demande de prime.
       </div>
 
+      <%
+        # Récupérer toutes les valeurs des checkboxes travaux depuis form_data
+        travaux_data = @request&.form_data || {}
+      %>
+
       <p class="mb-3">Sélectionnez les travaux que vous avez réalisés et pour lesquels vous demandez une prime.</p>
       <div class="row">
         <div class="col-md-12">
@@ -713,25 +703,25 @@
               <div class="col-md-6">
                 <h6 class="text-primary fw-bold">Toiture</h6>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_remplacement_couverture, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_remplacement_couverture, { class: "form-check-input", checked: travaux_data['travaux_remplacement_couverture'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_couverture) %>">
                     Remplacement de la couverture
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_appropriation_charpente, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_appropriation_charpente, { class: "form-check-input", checked: travaux_data['travaux_appropriation_charpente'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_appropriation_charpente) %>">
                     Appropriation de la charpente
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_dispositif_eaux_pluviales, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_dispositif_eaux_pluviales, { class: "form-check-input", checked: travaux_data['travaux_dispositif_eaux_pluviales'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_dispositif_eaux_pluviales) %>">
                     Remplacement d'un dispositif de collecte et d'évacuation des eaux pluviales
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_isolation_toit_combles, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_isolation_toit_combles, { class: "form-check-input", checked: travaux_data['travaux_isolation_toit_combles'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_toit_combles) %>">
                     Isolation thermique du toit ou des combles
                   </label>
@@ -739,25 +729,25 @@
 
                 <h6 class="text-primary fw-bold mt-4">Murs</h6>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_assechement_infiltrations, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_assechement_infiltrations, { class: "form-check-input", checked: travaux_data['travaux_assechement_infiltrations'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_assechement_infiltrations) %>">
                     Assèchement des murs – infiltrations
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_assechement_humidite, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_assechement_humidite, { class: "form-check-input", checked: travaux_data['travaux_assechement_humidite'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_assechement_humidite) %>">
                     Assèchement des murs – humidité ascensionnelle
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_renforcement_murs, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_renforcement_murs, { class: "form-check-input", checked: travaux_data['travaux_renforcement_murs'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_renforcement_murs) %>">
                     Renforcement des murs instables/reconstruction totale de ces murs
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_isolation_murs, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_isolation_murs, { class: "form-check-input", checked: travaux_data['travaux_isolation_murs'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_murs) %>">
                     Isolation thermique des murs
                   </label>
@@ -765,13 +755,13 @@
 
                 <h6 class="text-primary fw-bold mt-4">Sols</h6>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_remplacement_supports, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_remplacement_supports, { class: "form-check-input", checked: travaux_data['travaux_remplacement_supports'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_supports) %>">
                     Remplacement des supports des aires de circulation d'un ou plusieurs locaux
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_isolation_sols, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_isolation_sols, { class: "form-check-input", checked: travaux_data['travaux_isolation_sols'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_sols) %>">
                     Isolation thermique des sols
                   </label>
@@ -779,25 +769,25 @@
 
                 <h6 class="text-primary fw-bold mt-4">Sécurité/Salubrité</h6>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_appropriation_electrique, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_appropriation_electrique, { class: "form-check-input", checked: travaux_data['travaux_appropriation_electrique'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_appropriation_electrique) %>">
                     Appropriation de l'installation électrique
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_appropriation_gaz, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_appropriation_gaz, { class: "form-check-input", checked: travaux_data['travaux_appropriation_gaz'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_appropriation_gaz) %>">
                     Appropriation de l'installation de gaz
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_elimination_merule, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_elimination_merule, { class: "form-check-input", checked: travaux_data['travaux_elimination_merule'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_elimination_merule) %>">
                     Élimination de la mérule ou de tout champignon aux effets analogues
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_elimination_radon, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_elimination_radon, { class: "form-check-input", checked: travaux_data['travaux_elimination_radon'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_elimination_radon) %>">
                     Élimination du radon
                   </label>
@@ -805,7 +795,7 @@
 
                 <h6 class="text-primary fw-bold mt-4">Menuiseries extérieures</h6>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_remplacement_menuiseries, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_remplacement_menuiseries, { class: "form-check-input", checked: travaux_data['travaux_remplacement_menuiseries'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_menuiseries) %>">
                     Remplacement des menuiseries extérieures ou des vitrages
                   </label>
@@ -816,31 +806,31 @@
               <div class="col-md-6">
                 <h6 class="text-primary fw-bold">Appareil de production de chaleur et/ou d'eau chaude sanitaire</h6>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_pompe_chaleur_ecs_exclusive, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_pompe_chaleur_ecs_exclusive, { class: "form-check-input", checked: travaux_data['travaux_pompe_chaleur_ecs_exclusive'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_pompe_chaleur_ecs_exclusive) %>">
                     Installation d'une pompe à chaleur pour la production exclusive d'eau chaude sanitaire
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_pompe_chaleur_chauffage_combinee, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_pompe_chaleur_chauffage_combinee, { class: "form-check-input", checked: travaux_data['travaux_pompe_chaleur_chauffage_combinee'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_pompe_chaleur_chauffage_combinee) %>">
                     Installation d'une pompe à chaleur pour le chauffage ou combinée avec l'eau chaude sanitaire
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_chaudiere_biomasse, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_chaudiere_biomasse, { class: "form-check-input", checked: travaux_data['travaux_chaudiere_biomasse'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_chaudiere_biomasse) %>">
                     Installation d'une chaudière biomasse
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_poele_biomasse, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_poele_biomasse, { class: "form-check-input", checked: travaux_data['travaux_poele_biomasse'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_poele_biomasse) %>">
                     Installation d'un poêle biomasse
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_chauffe_eau_solaire, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_chauffe_eau_solaire, { class: "form-check-input", checked: travaux_data['travaux_chauffe_eau_solaire'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_chauffe_eau_solaire) %>">
                     Installation d'un chauffe-eau solaire
                   </label>
@@ -848,25 +838,25 @@
 
                 <h6 class="text-primary fw-bold mt-4">Système de ventilation</h6>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_ventilation_simple_flux_ensemble, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_ventilation_simple_flux_ensemble, { class: "form-check-input", checked: travaux_data['travaux_ventilation_simple_flux_ensemble'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_ventilation_simple_flux_ensemble) %>">
                     Système centralisé de ventilation mécanique simple flux qui assure la ventilation de l'ensemble des espaces du logement
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_ventilation_double_flux_ensemble, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_ventilation_double_flux_ensemble, { class: "form-check-input", checked: travaux_data['travaux_ventilation_double_flux_ensemble'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_ventilation_double_flux_ensemble) %>">
                     Système centralisé de ventilation mécanique double flux avec récupération de chaleur qui assure la ventilation de l'ensemble des espaces du logement
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_ventilation_simple_flux_partie, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_ventilation_simple_flux_partie, { class: "form-check-input", checked: travaux_data['travaux_ventilation_simple_flux_partie'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_ventilation_simple_flux_partie) %>">
                     Système de ventilation mécanique simple flux qui assure la ventilation d'une partie des espaces du logement
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_ventilation_double_flux_partie, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_ventilation_double_flux_partie, { class: "form-check-input", checked: travaux_data['travaux_ventilation_double_flux_partie'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_ventilation_double_flux_partie) %>">
                     Système de ventilation mécanique double flux qui assure la ventilation d'une partie des espaces du logement
                   </label>
@@ -874,37 +864,37 @@
 
                 <h6 class="text-primary fw-bold mt-4">Augmentation des rendements de production, de distribution, de stockage et d'émission des installations de chauffage</h6>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_isolation_conduites_chauffage_hors_volume, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_isolation_conduites_chauffage_hors_volume, { class: "form-check-input", checked: travaux_data['travaux_isolation_conduites_chauffage_hors_volume'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_conduites_chauffage_hors_volume) %>">
                     Isolation des conduites de chauffage et de ses accessoires hors du volume protégé
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_isolation_ballon_stockage_chauffage, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_isolation_ballon_stockage_chauffage, { class: "form-check-input", checked: travaux_data['travaux_isolation_ballon_stockage_chauffage'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_ballon_stockage_chauffage) %>">
                     Isolation d'un ballon de stockage de chauffage
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_circulateurs_vitesse_variable, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_circulateurs_vitesse_variable, { class: "form-check-input", checked: travaux_data['travaux_circulateurs_vitesse_variable'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_circulateurs_vitesse_variable) %>">
                     Installation de circulateurs à vitesse variable pour le chauffage
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_remplacement_ballon_stockage_chauffage, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_remplacement_ballon_stockage_chauffage, { class: "form-check-input", checked: travaux_data['travaux_remplacement_ballon_stockage_chauffage'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_ballon_stockage_chauffage) %>">
                     Remplacement d'un ballon de stockage d'un système de chauffage
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_vannes_thermostatiques, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_vannes_thermostatiques, { class: "form-check-input", checked: travaux_data['travaux_vannes_thermostatiques'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_vannes_thermostatiques) %>">
                     Placement de vannes thermostatiques
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_thermostat_ambiance, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_thermostat_ambiance, { class: "form-check-input", checked: travaux_data['travaux_thermostat_ambiance'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_thermostat_ambiance) %>">
                     Placement d'un thermostat d'ambiance
                   </label>
@@ -912,25 +902,25 @@
 
                 <h6 class="text-primary fw-bold mt-4">Augmentation des rendements de production, de distribution et de stockage des installations d'eau chaude sanitaire</h6>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_remplacement_reservoir_ecs, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_remplacement_reservoir_ecs, { class: "form-check-input", checked: travaux_data['travaux_remplacement_reservoir_ecs'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_reservoir_ecs) %>">
                     Remplacement d'un réservoir de stockage pour l'eau chaude sanitaire
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_isolation_conduites_boucle_ecs, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_isolation_conduites_boucle_ecs, { class: "form-check-input", checked: travaux_data['travaux_isolation_conduites_boucle_ecs'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_conduites_boucle_ecs) %>">
                     Isolation des conduites d'une boucle de circulation d'eau chaude sanitaire et de ses accessoires
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_isolation_echangeur_plaques, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_isolation_echangeur_plaques, { class: "form-check-input", checked: travaux_data['travaux_isolation_echangeur_plaques'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_echangeur_plaques) %>">
                     Isolation d'un échangeur à plaques externe
                   </label>
                 </div>
                 <div class="form-check mb-2">
-                  <%= form.check_box :travaux_isolation_ballon_stockage_ecs, { class: "form-check-input" }, "1", "0" %>
+                  <%= form.check_box :travaux_isolation_ballon_stockage_ecs, { class: "form-check-input", checked: travaux_data['travaux_isolation_ballon_stockage_ecs'] == "1" }, "1", "0" %>
                   <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_ballon_stockage_ecs) %>">
                     Isolation d'un ballon de stockage pour l'eau chaude sanitaire
                   </label>
@@ -1276,7 +1266,7 @@
 </div>
 
 <!-- Script minimal pour Wallonie -->
-<script>
+<script nonce="<%= content_security_policy_nonce %>">
 // Forcer l'affichage de la section Wallonie si on est sur ce formulaire
 (function() {
   const wallonieSection = document.getElementById('wallonie-section');
@@ -1288,44 +1278,200 @@
   }
 })();
 
-// Fonction simple pour sauvegarder le formulaire Wallonie en brouillon
+// Fonction pour sauvegarder le formulaire Wallonie en brouillon (même approche que Flandre)
 window.saveWallonieFormData = function(event) {
+  console.log('🎯 FONCTION APPELÉE !');
+
   // Empêcher la propagation d'événements
   if (event) {
     event.preventDefault();
     event.stopPropagation();
+    console.log('✅ Event prevented');
   }
 
+  console.log('🚀 === SAUVEGARDE WALLONIE VIA FETCH ===');
   console.log('💾 Sauvegarde formulaire Wallonie en brouillon');
 
   const form = document.querySelector('#request-form-main');
+  console.log('📋 Formulaire trouvé:', form ? 'OUI' : 'NON');
+
   if (!form) {
     console.error('❌ Formulaire non trouvé');
     alert('Erreur: formulaire non trouvé');
     return false;
   }
 
-  // Ajouter le champ commit pour indiquer qu'on sauvegarde en brouillon
-  let commitField = form.querySelector('input[name="commit"]');
-  if (!commitField) {
-    commitField = document.createElement('input');
-    commitField.type = 'hidden';
-    commitField.name = 'commit';
-    form.appendChild(commitField);
+  console.log('📍 Form action:', form.action);
+  console.log('📍 Form method:', form.method);
+
+  // Récupérer le token CSRF de plusieurs sources possibles
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+                   document.querySelector('input[name="authenticity_token"]')?.value ||
+                   form.querySelector('input[name="authenticity_token"]')?.value;
+
+  console.log('🔐 CSRF Token trouvé:', csrfToken ? 'OUI' : 'NON');
+
+  if (!csrfToken) {
+    console.error('❌ Token CSRF non trouvé!');
+    alert('Erreur: Token de sécurité manquant. Rechargez la page.');
+    return false;
   }
-  commitField.value = 'Sauvegarder en brouillon';
 
-  console.log('📋 Soumission du formulaire pour sauvegarde en brouillon');
+  // IMPORTANT : Créer un FormData vide et ajouter manuellement UNIQUEMENT les champs de la section Wallonie
+  const formData = new FormData();
 
-  // Désactiver le bouton pendant la soumission
+  // Ajouter le champ _method pour indiquer que c'est un UPDATE (PATCH)
+  const methodField = form.querySelector('input[name="_method"]');
+  if (methodField) {
+    formData.append('_method', methodField.value);
+    console.log('✅ Méthode HTTP ajoutée:', methodField.value);
+  }
+
+  // Ajouter les champs de base du formulaire (hors sections régionales)
+  const baseFields = form.querySelectorAll('input[name="request[region]"], input[name="request[property_id]"], input[name="request[form_type]"]');
+  baseFields.forEach(field => {
+    if (field.value) {
+      formData.append(field.name, field.value);
+    }
+  });
+
+  // Ajouter UNIQUEMENT les champs de la section Wallonie visible
+  const wallonieSection = document.querySelector('#wallonie-section');
+  if (wallonieSection) {
+    const wallonieFields = wallonieSection.querySelectorAll('input, select, textarea');
+    console.log(`📦 Champs Wallonie trouvés: ${wallonieFields.length}`);
+
+    wallonieFields.forEach(field => {
+      if (field.name && !field.disabled) {
+        if (field.type === 'checkbox') {
+          // Pour les checkbox, envoyer "1" si cochée, "0" sinon
+          formData.append(field.name, field.checked ? '1' : '0');
+        } else if (field.type === 'radio') {
+          // Pour les radio, envoyer seulement si sélectionné
+          if (field.checked) {
+            formData.append(field.name, field.value);
+          }
+        } else if (field.type === 'file') {
+          // Pour les fichiers
+          if (field.files.length > 0) {
+            for (let i = 0; i < field.files.length; i++) {
+              formData.append(field.name, field.files[i]);
+            }
+          }
+        } else {
+          // Pour tous les autres champs (text, textarea, select, etc.)
+          formData.append(field.name, field.value);
+        }
+      }
+    });
+  }
+  console.log('📦 FormData créé');
+
+  formData.set('commit', 'Sauvegarder en brouillon');
+  console.log('✅ Commit ajouté');
+
+  // S'assurer que le token CSRF est inclus
+  if (!formData.has('authenticity_token')) {
+    formData.set('authenticity_token', csrfToken);
+    console.log('✅ Token CSRF ajouté au FormData');
+  }
+
+  // Log des données envoyées pour débogage
+  console.log('📋 Données à envoyer:');
+  console.log('  🔐 authenticity_token:', formData.get('authenticity_token') ? 'PRÉSENT' : 'MANQUANT');
+  console.log('  📝 title:', formData.get('request[title]'));
+  console.log('  🏠 maintien_regime:', formData.get('request[maintien_regime]'));
+
+  // Afficher TOUS les champs pour débogage
+  console.log('📦 TOUS LES CHAMPS DU FORMDATA:');
+  let allFields = [];
+  for (let [key, value] of formData.entries()) {
+    allFields.push(`${key}: ${value}`);
+    if (key.includes('request[')) {
+      console.log(`  → ${key}: ${value}`);
+    }
+  }
+  console.log(`📊 Total de champs: ${allFields.length}`);
+
+  let travauxCount = 0;
+  for (let [key, value] of formData.entries()) {
+    if (key.includes('travaux_')) {
+      console.log(`  ✓ ${key}: ${value}`);
+      travauxCount++;
+    }
+  }
+  console.log(`📊 Total de champs travaux_*: ${travauxCount}`);
+
+  // Désactiver le bouton pendant l'envoi
   const button = document.getElementById('wallonie-submit-btn');
-  if (button) {
-    button.disabled = true;
-    button.textContent = 'Sauvegarde...';
-  }
+  const originalText = button.textContent;
+  button.disabled = true;
+  button.textContent = 'Sauvegarde...';
 
-  // Soumettre le formulaire de manière standard
-  form.submit();
+  console.log('🚀 Envoi de la requête fetch...');
+
+  fetch(form.action, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'Accept': 'application/json, text/html',
+      'X-Requested-With': 'XMLHttpRequest',
+      'X-CSRF-Token': csrfToken
+    }
+  })
+  .then(response => {
+    console.log('📡 Response reçue!');
+    console.log('   Status:', response.status);
+    console.log('   OK:', response.ok);
+    console.log('   StatusText:', response.statusText);
+
+    if (response.ok) {
+      console.log('✅ Sauvegarde réussie!');
+
+      // Afficher un message de succès
+      const successMsg = document.createElement('div');
+      successMsg.className = 'alert alert-success alert-dismissible fade show mt-3';
+      successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 400px;';
+      successMsg.innerHTML = `
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <strong>Brouillon sauvegardé !</strong> Les données sont bien enregistrées.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      document.body.appendChild(successMsg);
+
+      // Réactiver le bouton
+      button.disabled = false;
+      button.textContent = originalText;
+
+      // NE PAS RECHARGER pour l'instant - pour déboguer
+      console.log('⚠️ Rechargement désactivé pour débogage');
+
+      // Retirer le message après 10 secondes
+      setTimeout(() => {
+        successMsg.remove();
+      }, 10000);
+
+    } else {
+      console.error('❌ Erreur lors de la sauvegarde:', response.status);
+
+      // Essayer de lire le corps de la réponse pour plus de détails
+      response.text().then(text => {
+        console.error('📄 Corps de la réponse:', text.substring(0, 500));
+      });
+
+      alert('Erreur lors de la sauvegarde. Veuillez réessayer.');
+      button.disabled = false;
+      button.textContent = originalText;
+    }
+  })
+  .catch(error => {
+    console.error('❌ Erreur réseau:', error);
+    console.error('   Message:', error.message);
+    console.error('   Stack:', error.stack);
+    alert('Erreur réseau. Veuillez vérifier votre connexion et réessayer.');
+    button.disabled = false;
+    button.textContent = originalText;
+  });
 
   return false;
 };
