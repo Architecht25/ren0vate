@@ -6,17 +6,19 @@
       <div class="card">
         <div class="card-header">
           <h4 class="mb-0">Nouveau suivi de demande</h4>
-          <p class="text-muted mb-0">
-            Demande pour :
-            <% if @request.property %>
-              <%= @request.property.address %>
-            <% else %>
-              <em>Aucune propriété associée</em>
-            <% end %>
-          </p>
+          <% if @request %>
+            <p class="text-muted mb-0">
+              Demande pour :
+              <% if @request.property %>
+                <%= @request.property.address %>
+              <% else %>
+                <em>Aucune propriété associée</em>
+              <% end %>
+            </p>
+          <% end %>
         </div>
         <div class="card-body">
-          <%= form_with model: [@request, @request_progress], local: true do |form| %>
+          <%= form_with model: @request ? [@request, @request_progress] : @request_progress, local: true do |form| %>
             <% if @request_progress.errors.any? %>
               <div class="alert alert-danger">
                 <h6>Erreurs détectées :</h6>
@@ -29,63 +31,47 @@
             <% end %>
 
             <div class="row">
-              <!-- Sélection du type de suivi -->
+              <!-- Sélection de la demande/formulaire si pas de @request -->
+              <% unless @request %>
+                <div class="col-12">
+                  <div class="mb-3">
+                    <%= form.label :request_id, "Demande / Formulaire associé", class: "form-label required" %>
+                    <%= form.select :request_id,
+                                    options_from_collection_for_select(@user_requests, :id, ->(r) { "#{r.property&.name || 'Bien non spécifié'} - #{r.project&.nom || r.title || 'Projet non défini'}" }, @request_progress.request_id),
+                                    { prompt: "Sélectionnez une demande" },
+                                    { class: "form-select", required: true } %>
+                    <div class="form-text">
+                      Sélectionnez la demande de primes à laquelle ce suivi est lié.
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+
+              <!-- Type de formulaire -->
               <div class="col-12">
                 <div class="mb-3">
-                  <label class="form-label">Type de suivi</label>
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" name="suivi_type" id="suivi_formulaire" value="formulaire" checked>
-                    <label class="form-check-label" for="suivi_formulaire">
-                      <strong>Formulaire de primes</strong> <small class="text-muted">(recommandé)</small>
-                    </label>
-                  </div>
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" name="suivi_type" id="suivi_prime" value="prime">
-                    <label class="form-check-label" for="suivi_prime">
-                      Prime individuelle
-                    </label>
+                  <%= form.label :form_type, "Type de formulaire", class: "form-label" %>
+                  <%= form.select :form_type,
+                                  options_for_select(@available_forms.map { |f| [f[:name], f[:id]] }, @request_progress.form_type),
+                                  { prompt: "Sélectionnez un type de formulaire" },
+                                  { class: "form-select", required: true } %>
+                  <div class="form-text">
+                    Choisissez le type de formulaire qui regroupe plusieurs primes.
                   </div>
                 </div>
               </div>
 
-              <!-- Sélection du formulaire -->
-              <div class="col-12" id="formulaire_section">
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="mb-3">
-                      <%= form.label :form_type, "Formulaire de primes", class: "form-label" %>
-                      <%= form.select :form_type,
-                                      options_for_select(@available_forms.map { |f| [f[:name], f[:id]] }),
-                                      { prompt: "Sélectionnez un formulaire" },
-                                      { class: "form-select", id: "form_type_select" } %>
-                      <div class="form-text">
-                        Choisissez le type de formulaire qui regroupe plusieurs primes.
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="mb-3">
-                      <%= form.label :form_name, "Nom du formulaire", class: "form-label" %>
-                      <%= form.text_field :form_name,
-                                          class: "form-control",
-                                          placeholder: "Ex: Rénovation complète 2024",
-                                          id: "form_name_input" %>
-                      <div class="form-text">
-                        Donnez un nom personnalisé à ce formulaire pour le retrouver facilement.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Sélection de prime individuelle (masquée par défaut) -->
-              <div class="col-md-6 d-none" id="prime_section">
+              <!-- Nom du suivi -->
+              <div class="col-12">
                 <div class="mb-3">
-                  <%= form.label :prime_id, "Prime", class: "form-label" %>
-                  <%= form.select :prime_id,
-                                  options_from_collection_for_select(@primes, :id, :titre, @request_progress.prime_id),
-                                  { prompt: "Sélectionnez une prime" },
-                                  { class: "form-select" } %>
+                  <%= form.label :form_name, "Nom du suivi", class: "form-label" %>
+                  <%= form.text_field :form_name,
+                                      class: "form-control",
+                                      placeholder: "Ex: Rénovation toiture 2026, Isolation complète...",
+                                      required: true %>
+                  <div class="form-text">
+                    Donnez un nom personnalisé à ce suivi pour le retrouver facilement.
+                  </div>
                 </div>
               </div>
 
@@ -219,7 +205,7 @@
 
             <div class="d-flex justify-content-between">
               <%= link_to "Annuler",
-                          request_request_progresses_path(@request),
+                          @request ? request_request_progresses_path(@request) : request_progresses_path,
                           class: "btn btn-outline-secondary" %>
               <%= form.submit "Créer le suivi",
                               class: "btn btn-primary" %>
@@ -251,46 +237,5 @@ document.getElementById('request_progress_status_administratif').addEventListene
   if (statusPercentages[status] !== undefined) {
     pourcentageField.value = statusPercentages[status];
   }
-});
-
-// Gestion du basculement entre formulaire et prime individuelle
-document.addEventListener('DOMContentLoaded', function() {
-  const formulaireRadio = document.getElementById('suivi_formulaire');
-  const primeRadio = document.getElementById('suivi_prime');
-  const formulaireSection = document.getElementById('formulaire_section');
-  const primeSection = document.getElementById('prime_section');
-  const formTypeSelect = document.getElementById('form_type_select');
-  const formNameInput = document.getElementById('form_name_input');
-
-  // Fonction pour basculer les sections
-  function toggleSections() {
-    if (formulaireRadio.checked) {
-      formulaireSection.classList.remove('d-none');
-      primeSection.classList.add('d-none');
-      formTypeSelect.required = true;
-      document.querySelector('#prime_section select').required = false;
-    } else {
-      formulaireSection.classList.add('d-none');
-      primeSection.classList.remove('d-none');
-      formTypeSelect.required = false;
-      document.querySelector('#prime_section select').required = true;
-    }
-  }
-
-  // Écouteurs pour les radio buttons
-  formulaireRadio.addEventListener('change', toggleSections);
-  primeRadio.addEventListener('change', toggleSections);
-
-  // Suggestion automatique du nom de formulaire
-  formTypeSelect.addEventListener('change', function() {
-    if (this.value && !formNameInput.value) {
-      const selectedText = this.options[this.selectedIndex].text;
-      const currentDate = new Date().getFullYear();
-      formNameInput.value = `${selectedText} ${currentDate}`;
-    }
-  });
-
-  // Initialiser l'état
-  toggleSections();
 });
 </script>

@@ -73,15 +73,39 @@ class RequestProgressesController < ApplicationController
   end
 
   def new
-    @request_progress = @request.request_progresses.build
-    @primes = Prime.where(region: @request.region)
-    @available_forms = get_available_forms_for_region(@request.region)
+    if @request
+      @request_progress = @request.request_progresses.build
+      @primes = Prime.where(region: @request.region)
+      @available_forms = get_available_forms_for_region(@request.region)
+    else
+      @request_progress = RequestProgress.new
+      @primes = Prime.all
+      @available_forms = get_available_forms_for_property(nil)
+      @user_requests = current_user.requests.includes(:property).order(created_at: :desc)
+    end
   end
 
   def create
-    @request_progress = @request.request_progresses.build(request_progress_params)
-    @primes = Prime.where(region: @request.region)
-    @available_forms = get_available_forms_for_region(@request.region)
+    if @request
+      @request_progress = @request.request_progresses.build(request_progress_params)
+      @primes = Prime.where(region: @request.region)
+      @available_forms = get_available_forms_for_region(@request.region)
+    else
+      @request_progress = RequestProgress.new(request_progress_params)
+      @primes = Prime.all
+      @available_forms = get_available_forms_for_property(nil)
+      @user_requests = current_user.requests.includes(:property).order(created_at: :desc)
+
+      # Vérifier que la request appartient bien à l'utilisateur
+      if @request_progress.request_id.present?
+        selected_request = current_user.requests.find_by(id: @request_progress.request_id)
+        unless selected_request
+          flash[:alert] = "Demande non trouvée ou non autorisée"
+          render :new, status: :unprocessable_entity
+          return
+        end
+      end
+    end
 
     # Convertir les chaînes vides en nil pour respecter la contrainte d'unicité
     @request_progress.numero_dossier = nil if @request_progress.numero_dossier.blank?
@@ -188,7 +212,7 @@ class RequestProgressesController < ApplicationController
 
   def request_progress_params
     params.require(:request_progress).permit(
-      :prime_id, :step, :pourcentage, :status_administratif,
+      :request_id, :prime_id, :step, :pourcentage, :status_administratif,
       :montant_demande, :montant_accorde, :date_soumission,
       :date_derniere_maj, :commentaires_admin, :document_recu,
       :numero_dossier, :document_suivi_pdf, :document_suivi_photo,
