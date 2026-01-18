@@ -258,7 +258,7 @@ class RequestsController < ApplicationController
     # IMPORTANT: Fusionner avec les données existantes dans form_data
     # Les données des travaux doivent être préservées
     if @request.form_data.present?
-      @form_data = base_form_data.merge(@request.form_data)
+      @form_data = base_form_data.stringify_keys.merge(@request.form_data)
       Rails.logger.info "=== EDIT - FUSION FORM_DATA ==="
       Rails.logger.info "Base form_data keys: #{base_form_data.keys.size}"
       Rails.logger.info "Request form_data keys: #{@request.form_data.keys.size}"
@@ -266,14 +266,26 @@ class RequestsController < ApplicationController
       Rails.logger.info "Surface toiture in @form_data: #{@form_data['surface_toiture'] || '[nil]'}"
       Rails.logger.info "Marque toiture in @form_data: #{@form_data['marque_toiture'] || '[nil]'}"
       Rails.logger.info "Travaux toiture in @form_data: #{@form_data['travaux_toiture'] || '[nil]'}"
+      Rails.logger.info "Date raccordement in @form_data: #{@form_data['date_raccordement_electricite'] || '[nil]'}"
     else
-      @form_data = base_form_data
+      @form_data = base_form_data.stringify_keys
       Rails.logger.info "=== EDIT - PAS DE FORM_DATA EXISTANTE ==="
     end
 
     # CRUCIAL: Créer un objet virtuel qui combine @request avec les données de form_data
     # pour que Rails puisse pré-remplir les champs du formulaire
     form_data_safe = @form_data || {}
+
+    # Méthodes pour les données du bien
+    @request.define_singleton_method(:date_raccordement_electricite) { form_data_safe['date_raccordement_electricite'] }
+    @request.define_singleton_method(:adresse) { form_data_safe['adresse'] }
+    @request.define_singleton_method(:numero) { form_data_safe['numero'] }
+    @request.define_singleton_method(:rue) { form_data_safe['rue'] }
+    @request.define_singleton_method(:code_postal) { form_data_safe['code_postal'] }
+    @request.define_singleton_method(:commune) { form_data_safe['commune'] }
+    @request.define_singleton_method(:type_bien) { form_data_safe['type_bien'] }
+    @request.define_singleton_method(:usage) { form_data_safe['usage'] }
+    @request.define_singleton_method(:chauffage_post_renovation) { form_data_safe['chauffage_post_renovation'] }
 
     @request.define_singleton_method(:surface_toiture) { form_data_safe['surface_toiture'] }
     @request.define_singleton_method(:marque_toiture) { form_data_safe['marque_toiture'] }
@@ -684,7 +696,7 @@ class RequestsController < ApplicationController
                                    :inkomen_gezin, :gezinssamenstelling, :type_renovatie, :eigenaar_bewoner, :kostprijs_werken,
                                    # Nouveaux paramètres Flandre optimisés
                                    :domicile, :registre_national, :nom, :prenom, :telephone, :email,
-                                   :ean, :parcelle, :adresse, :code_postal, :commune, :type_bien, :usage,
+                                   :ean, :parcelle, :adresse, :numero, :rue, :code_postal, :commune, :type_bien, :usage,
                                    :chauffage_post_renovation, :travaux_toiture, :travaux_murs, :travaux_sol,
                                    :travaux_vitrage, :travaux_chauffage, :travaux_complementaires, :travaux_ventilation,
                                    :travaux_solaire, :revenus_annuels, :annee_aer, :compte_bancaire,
@@ -861,7 +873,10 @@ class RequestsController < ApplicationController
 
       # Données du bien
       ean: property.ean_flandre || property.numero_ean,
+      date_raccordement_electricite: property.date_raccordement_electrique,
       adresse: "#{property.numero} #{property.rue}",
+      numero: property.numero,
+      rue: property.rue,
       code_postal: property.code_postal,
       commune: property.commune,
       heritage_address: property.rue,
