@@ -281,6 +281,8 @@ class RequestsController < ApplicationController
     @request.define_singleton_method(:date_placement_toiture) { form_data_safe['date_placement_toiture'] }
     @request.define_singleton_method(:materiau_toiture) { form_data_safe['materiau_toiture'] }
     @request.define_singleton_method(:type_isolation_toiture) { form_data_safe['type_isolation_toiture'] }
+    @request.define_singleton_method(:epaisseur_materiau_toiture) { form_data_safe['epaisseur_materiau_toiture'] }
+    @request.define_singleton_method(:valeur_rd_toiture) { form_data_safe['valeur_rd_toiture'] }
 
     # Ajouter les méthodes pour les murs
     @request.define_singleton_method(:surface_murs) { form_data_safe['surface_murs'] }
@@ -289,6 +291,9 @@ class RequestsController < ApplicationController
     @request.define_singleton_method(:date_placement_murs) { form_data_safe['date_placement_murs'] }
     @request.define_singleton_method(:materiau_murs) { form_data_safe['materiau_murs'] }
     @request.define_singleton_method(:type_isolation_murs) { form_data_safe['type_isolation_murs'] }
+    @request.define_singleton_method(:epaisseur_materiau_murs) { form_data_safe['epaisseur_materiau_murs'] }
+    @request.define_singleton_method(:valeur_rd_murs) { form_data_safe['valeur_rd_murs'] }
+    @request.define_singleton_method(:nombre_couches_murs) { form_data_safe['nombre_couches_murs'] }
 
     # Ajouter les méthodes pour le sol
     @request.define_singleton_method(:surface_sol) { form_data_safe['surface_sol'] }
@@ -297,6 +302,17 @@ class RequestsController < ApplicationController
     @request.define_singleton_method(:date_placement_sol) { form_data_safe['date_placement_sol'] }
     @request.define_singleton_method(:materiau_sol) { form_data_safe['materiau_sol'] }
     @request.define_singleton_method(:type_isolation_sol) { form_data_safe['type_isolation_sol'] }
+    @request.define_singleton_method(:epaisseur_materiau_sol) { form_data_safe['epaisseur_materiau_sol'] }
+    @request.define_singleton_method(:valeur_rd_sol) { form_data_safe['valeur_rd_sol'] }
+
+    # Ajouter les méthodes pour la cave
+    @request.define_singleton_method(:surface_cave) { form_data_safe['surface_cave'] }
+    @request.define_singleton_method(:marque_cave) { form_data_safe['marque_cave'] }
+    @request.define_singleton_method(:date_placement_cave) { form_data_safe['date_placement_cave'] }
+    @request.define_singleton_method(:materiau_cave) { form_data_safe['materiau_cave'] }
+    @request.define_singleton_method(:type_isolation_cave) { form_data_safe['type_isolation_cave'] }
+    @request.define_singleton_method(:epaisseur_materiau_cave) { form_data_safe['epaisseur_materiau_cave'] }
+    @request.define_singleton_method(:valeur_rd_cave) { form_data_safe['valeur_rd_cave'] }
 
     # Ajouter les méthodes pour vitrage, chauffage, ventilation
     @request.define_singleton_method(:surface_vitrage) { form_data_safe['surface_vitrage'] }
@@ -690,20 +706,49 @@ class RequestsController < ApplicationController
                                    :signature_place, :signature_date,
                                    # Champs détaillés pour isolation toiture
                                    :surface_toiture, :methode_toiture, :date_placement_toiture, :materiau_toiture, :marque_toiture, :type_isolation_toiture,
+                                   :epaisseur_materiau_toiture, :valeur_rd_toiture,
                                    # Champs détaillés pour isolation murs
                                    :surface_murs, :methode_murs, :date_placement_murs, :materiau_murs, :marque_murs, :type_isolation_murs,
+                                   :epaisseur_materiau_murs, :valeur_rd_murs, :nombre_couches_murs,
+                                   :facade_avant, :facade_arriere, :facade_gauche, :facade_droite,
                                    # Champs détaillés pour isolation sol
                                    :surface_sol, :methode_sol, :date_placement_sol, :materiau_sol, :marque_sol, :type_isolation_sol,
+                                   :epaisseur_materiau_sol, :valeur_rd_sol,
+                                   # Champs détaillés pour isolation cave
+                                   :travaux_cave, :surface_cave, :date_placement_cave, :materiau_cave, :marque_cave, :type_isolation_cave,
+                                   :epaisseur_materiau_cave, :valeur_rd_cave,
                                    # Champs détaillés pour vitrage
                                    :surface_vitrage, :type_vitrage, :date_placement_vitrage, :marque_vitrage,
+                                   :valeur_ug_vitrage, :vitrage_simple, :vitrage_double, :vitrage_simple_double,
+                                   :nouvelles_fenetres_pieces_seches, :hoogrendement_bevestiging, :vergunningsplichtig,
+                                   # Champs détaillés pour portes
+                                   :travaux_portes, :surface_portes, :date_placement_portes, :type_portes, :marque_portes,
+                                   :valeur_u_portes, :ouvertures_pieces_humides,
                                    # Champs détaillés pour chauffage
                                    :type_systeme_chauffage, :date_placement_chauffage, :marque_chauffage,
+                                   :remplacement_chauffage_electrique, :raccordement_gaz,
+                                   # Champs pompes à chaleur géothermique
+                                   :marque_pac_geo, :type_pac_geo, :puissance_thermique_geo, :puissance_electrique_geo,
+                                   :puissance_gaz_geo, :label_europeen_geo,
+                                   # Champs pompes à chaleur air-eau
+                                   :marque_pac_air_eau, :type_pac_air_eau, :puissance_thermique_air_eau, :puissance_electrique_air_eau,
+                                   :puissance_gaz_air_eau, :label_europeen_air_eau,
+                                   # Champs pompes à chaleur air-air
+                                   :marque_pac_air_air, :type_pac_air_air, :puissance_thermique_air_air, :puissance_electrique_air_air,
+                                   :puissance_gaz_air_air, :label_europeen_air_air,
+                                   # Champs pompes à chaleur hybride
+                                   :marque_pac_hybride, :type_pac_hybride, :puissance_thermique_hybride, :puissance_electrique_hybride,
+                                   :puissance_gaz_hybride, :label_europeen_hybride,
+                                   # Champs boiler thermodynamique
+                                   :puissance_electrique_boiler, :puissance_thermique_boiler, :label_europeen_boiler,
                                    # Champs détaillés pour ventilation
                                    :type_systeme_ventilation, :date_placement_ventilation, :marque_ventilation,
                                    # Champs détaillés pour travaux complémentaires
                                    :description_complementaires,
                                    # Champs pour désamiantage
                                    :localisation_desamiantage,
+                                   # Champ date_raccordement_electricite
+                                   :date_raccordement_electricite,
                                    # Support pour les fichiers
                                    :document_devis, :document_factures, :document_aer, :document_peb,
                                    :document_attestations, :document_photos, :document_autres,
