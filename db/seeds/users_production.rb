@@ -701,21 +701,10 @@ users_data = [
     test_user: false
   },
   {
-    email: 'legc@outlook.be',
+    email: 'leegc@outlook.be',
     password: 'Client2025!',
     first_name: '',
     last_name: 'Talib',
-    role: 'user',
-    phone: '',
-    city: '',
-    postal_code: '',
-    test_user: false
-  },
-  {
-    email: 'celse.maregarege@gmail.com',
-    password: 'Client2025!',
-    first_name: 'Celse',
-    last_name: 'Maregarege - TEST RENOVATE',
     role: 'user',
     phone: '',
     city: '',
