@@ -124,13 +124,18 @@
                 <% end %>
 
                 <!-- Actions pour le document -->
-                <div class="d-flex gap-2">
+                <div class="d-flex gap-2 flex-wrap">
                   <% if document.has_ocr_content? %>
                     <%= link_to ocr_view_document_path(document),
                         class: "btn btn-outline-info btn-sm",
                         title: "Voir le contenu OCR" do %>
                       <i class="bi bi-eye me-1"></i>OCR
                     <% end %>
+                  <% end %>
+                  <%= link_to download_document_path(document),
+                      class: "btn btn-outline-primary btn-sm",
+                      title: "Télécharger le document" do %>
+                    <i class="bi bi-download me-1"></i>Télécharger
                   <% end %>
                   <%= link_to document_path(document,
                         type_document: params[:type_document],
