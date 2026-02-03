@@ -789,17 +789,6 @@ users_data = [
     test_user: false
   },
   {
-    email: 'gaetan@cubeconstruct.be',
-    password: 'Client2025!',
-    first_name: 'Gaetan',
-    last_name: 'Niego Gosselies 3ème étage SANS AUDIT',
-    role: 'user',
-    phone: '',
-    city: '',
-    postal_code: '',
-    test_user: false
-  },
-  {
     email: 'kennethstewart80@hotmail.com',
     password: 'Client2025!',
     first_name: 'Kenneth',
@@ -878,7 +867,7 @@ users_data = [
   },
   {
     email: 'melody.lafleur.89@gmail.com',
-    password: 'Client2025!',
+    password: 'Melody2025!Secure',
     first_name: 'Melody',
     last_name: 'Lafleur',
     role: 'user',
