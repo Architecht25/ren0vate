@@ -1,23 +1,994 @@
-# 🚀 STRATÉGIE D'ÉVOLUTION REN0VATE - ÉCOSYSTÈME COMPLET DE LA RÉNOVATION
+# 🚀 STRATÉGIE D'ÉVOLUTION REN0VATE - LA RÉNOVATION RÉINVENTÉE
 
 *Date de création : 12 décembre 2025*
+*Dernière mise à jour : 8 février 2026 - Stratégie Hybride B2C/B2B + 3 Outils Collaboratifs*
+
+## 🎯 **VISION DISRUPTIVE : LE REVOLUT DE LA RÉNOVATION**
+
+**Revolut a réinventé la banque. Ren0vate réinvente la rénovation.**
+
+Revolut ne fait pas **tout ce qu'une banque fait**.
+Revolut fait **mieux les 3 choses qui comptent** (transfer, exchange, budget).
+
+Ren0vate ne fera pas **tout ce qu'un architecte fait**.
+Ren0vate fera **mieux les 3 choses qui comptent** (organiser, budgéter, suivre).
+
+### **🤝 POSITIONNEMENT : COMPLÉMENTAIRE, PAS CONCURRENT**
+
+**Ren0vate ne remplace personne. Ren0vate aide tout le monde.**
+
+- ✅ **Architectes** : Ren0vate fluidifie leur workflow (plans, permis, suivi)
+- ✅ **Entrepreneurs** : Ren0vate facilite la communication client (photos, validations, paiements)
+- ✅ **Propriétaires** : Ren0vate structure leur projet (infos, budget, documents)
+
+**Notre rôle** : Centraliser, traiter et transférer l'information.
+**Leur rôle** : Concevoir, exécuter, conseiller (leur expertise).
+
+**Analogie** : Ren0vate est le **Notion/Trello de la rénovation**, pas un cabinet d'architecture concurrent.
+
+**Bénéfices pour les pros** :
+- 📧 Moins d'emails perdus
+- 📸 Photos organisées automatiquement
+- 💰 Validation paiements simplifiée
+- 🤝 Clients mieux préparés et informés
+
+### **LES 3 DOULEURS MAJEURES DE LA RÉNOVATION**
+1. ❌ **Confusion multi-projets** : Excel chaotique, infos éparpillées
+2. ❌ **Devis opaques/lents** : Attendre 3 semaines pour un chiffrage
+3. ❌ **Perte de contrôle chantier** : Pas de visibilité sur l'avancement
+
+### **LES 3 KILLER FEATURES REN0VATE**
+1. ✅ **Multi-propriétés** : Dashboard centralisé (comme multi-devises Revolut)
+2. ✅ **Générateur de devis** : Estimation instantanée (comme budget Revolut)
+3. ✅ **Suivi chantier temps réel** : Contrôle total (comme analytics Revolut)
 
 ## 📋 **CONTEXTE STRATÉGIQUE**
 
-Avec l'arrêt programmé du système de primes en Wallonie et à Bruxelles (particuliers), remplacé par des prêts comme le Renopack, Ren0vate doit évoluer vers un écosystème complet de services de rénovation pour maintenir sa pertinence commerciale.
+Avec l'arrêt programmé du système de primes en Wallonie et à Bruxelles (particuliers), remplacé par des prêts comme le Renopack, Ren0vate pivote d'un calculateur de primes vers une plateforme tech de gestion de projets de rénovation.
 
 **Zones d'impact :**
-- ✅ **FLANDRE** : Système de primes maintenu
-- ✅ **BRUXELLES Entreprises** : Aides maintenues
+- ✅ **FLANDRE** : Système de primes maintenu (particuliers)
 - 🔄 **WALLONIE** : Transition vers prêts (Renopack)
-- 🔄 **BRUXELLES Particuliers** : Transition vers prêts
+- 🔄 **BRUXELLES** : Transition vers prêts (particuliers)
+- ❌ **CIBLE BUSINESS (B2B)** : Abandonnée - Focus 100% particuliers
 
 **Atouts stratégiques existants :**
-- 📊 **Base de 12.000 prospects** qualifiés (15 ans d'activité)
-- 🏆 **Monopole de fait** sur le marché belge multi-régional
-- 🤖 **Architecture IA** déjà spécifiée (12 opportunités identifiées)
-- 💼 **Modèle SaaS** en cours de déploiement
-- 🔗 **Intégration BCE officielle** et APIs régionales
+- 📊 **Base de 12.000 prospects** qualifiés (15 ans d'activité) → Lab pour MVP
+- 🏆 **Monopole de fait** sur le marché belge multi-régional → Barrière à l'entrée
+- 🤖 **Architecture IA** déjà spécifiée → Différenciation technologique
+- 💼 **Modèle SaaS** en cours de déploiement → Recurring revenue ready
+- 🔗 **Intégration BCE officielle** et APIs régionales → Moat technique
+
+### **🔥 POURQUOI CES 3 FEATURES CRÉENT UN "REVOLUT MOMENT"**
+
+**1. Multi-propriétés = Centralisation (lock-in naturel)**
+- Proprio avec 3 appartements locatifs
+- Maison principale + maison de campagne
+- Portfolio immobilier petit bailleur
+- **Valeur** : Toutes les données au même endroit = impossible de partir
+
+**2. Générateur devis = Autonomie + transparence**
+- Sélection travaux en 5 minutes
+- Prix automatiques (base de données régionale)
+- Export PDF professionnel
+- Comparaison scénarios
+- **Viralité** : "Regarde ce devis que j'ai fait en 10 min!"
+
+**3. Suivi chantier = Sérénité + contrôle**
+- Timeline visuelle
+- % avancement temps réel
+- Budget réel vs prévu
+- Photos jalons
+- Validation étapes
+- **Retention** : Usage quotidien pendant 6-18 mois de travaux = HOOK
+
+**Décision stratégique - Focus B2C avec leviers B2B :**
+- ✅ **Priorité #1** : Particuliers (3M+ propriétés = marché principal)
+- ✅ **Stratégie complémentaire** : Compte freemium entrepreneurs (évangélisation)
+- 🔄 **Pivot insight** : Aider particuliers = aider entrepreneurs indirectement
+- 🧹 **Nettoyage code** : Retirer aides entreprises Bruxelles (complexité excessive)
+
+---
+
+## 📰 **ANALYSE MARCHÉ 2026 : CRISE CONSTRUCTION BELGE**
+
+*Source : Article Trends "Construction en Belgique : Piloter son entreprise ou disparaître" (5 février 2026)*
+
+### **🚨 Constats Marché (Février 2026)**
+
+#### **Crise structurelle confirmée**
+- **Record de faillites** en 2025 dans secteur construction
+- **Retard technologique majeur** : Belgique à la traîne vs Asie (Singapour, Hong Kong)
+- **Cercle vicieux** : Marges faibles → Pas d'investissement → Pas d'innovation → Marges encore plus faibles
+- **Problème de fond** : Manque de structuration interne des entreprises (pas juste de technologie)
+
+#### **L'IA comme solution partielle**
+> "L'IA aide les entrepreneurs de la construction à aller plus vite, gagner du temps dans la gestion administrative et mieux décider"
+
+**Mais** : L'IA ne résout pas le problème de fond (pilotage d'entreprise), elle "enlève de la friction".
+
+#### **Exemples cités**
+- **Vertuoza** : Logiciel de gestion centralisée pour ENTREPRENEURS (CRM, devis, facturation, suivi chantier)
+- **Buildwise** : Rapport "Impact IA construction horizon 2030"
+- **Cible marché** : Les ENTREPRENEURS, pas les propriétaires
+
+### **🎯 POSITIONNEMENT REN0VATE : COMPLÉMENTAIRE VIA B2C**
+
+#### **Notre différenciation vs Vertuoza**
+
+| Aspect | Vertuoza (B2B pur) | Ren0vate (B2C→B2B) |
+|--------|-------------------|-----------------------|
+| **Cible primaire** | Entrepreneurs | Particuliers |
+| **Cible secondaire** | - | Entrepreneurs (freemium) |
+| **Outil** | CRM interne entrepreneur | Plateforme collaborative client-pro |
+| **Communication** | Externe (email/tel) | Interne (plateforme 0 friction) |
+| **Pricing** | 150-300€/mois | 0€ freemium / 49€ Pro |
+| **Valeur** | Structuration interne | Client organisé = entrepreneur soulagé |
+
+#### **Notre thèse stratégique**
+
+**Si les particuliers utilisent Ren0vate, les entrepreneurs bénéficient indirectement :**
+
+1. ✅ **Client auto-organisé** = 70% moins d'allers-retours
+2. ✅ **Documents centralisés** = 0 email perdu
+3. ✅ **Budget transparent** = 0 malentendu paiement
+4. ✅ **Photos automatiques** = 0 appel "où en êtes-vous?"
+5. ✅ **Validation temps réel** = 0 relance manuelle
+
+**Résultat** : ~30h/mois de temps gagné par entrepreneur = Valeur B2B via adoption B2C
+
+### **⚠️ Risques identifiés**
+
+#### **1. Chicken & Egg Problem**
+- Entrepreneurs bénéficient si LEURS clients utilisent Ren0vate
+- Mais particulier ne paie pas si SON entrepreneur n'en voit pas l'intérêt
+- **Solution** : Compte freemium entrepreneur pour fermer la boucle virale
+
+#### **2. Écosystème fragile**
+- Si entrepreneurs font faillite (record 2025), particuliers perdent valeur
+- **Solution** : Stabiliser écosystème en aidant entrepreneurs (outils gratuits)
+
+#### **3. Évangélisation B2B nécessaire**
+- Sans entrepreneurs convaincus, adoption B2C limitée
+- **Solution** : Programme Ambassador entrepreneurs + outils collaboratifs
+
+---
+
+## 🤝 **STRATÉGIE HYBRIDE : B2C PAYANT + B2B FREEMIUM**
+
+### **Modèle Two-Sided Market**
+
+```
+┌────────────────────────────────────────────────┐
+│  FACE 1 : PARTICULIERS (Payant)               │
+├────────────────────────────────────────────────┤
+│  💰 39-89€/mois                                │
+│  🎯 Multi-propriétés, devis, suivi chantier   │
+│  ✅ Invite LEUR entrepreneur (gratuit)         │
+│  📊 3M+ propriétaires potentiels               │
+└────────────────────────────────────────────────┘
+                    ⬇️  ⬆️
+           Communication fluide
+                    ⬇️  ⬆️
+┌────────────────────────────────────────────────┐
+│  FACE 2 : ENTREPRENEURS (Freemium)             │
+├────────────────────────────────────────────────┤
+│  🆓 Compte gratuit (évangélisation)            │
+│  🎯 Voit projets LEURS clients                 │
+│  ✅ Upload factures, photos, devis             │
+│  📊 50K+ PME construction Belgique             │
+│  💼 Upsell Pro (49€/mois) : Features avancées  │
+└────────────────────────────────────────────────┘
+```
+
+### **🛠️ LES 3 KILLER TOOLS COLLABORATIFS (B2C↔B2B)**
+
+#### **OUTIL #1 : 🧾 Générateur & Validateur Devis**
+
+**Problème résolu** (Article) : "Préparation assistée des devis, gagner du temps"
+
+**Flow collaboratif :**
+
+**CÔTÉ CLIENT** :
+```
+1. Génère pré-devis Ren0vate
+   → Isolation toiture : 15.000€
+   → Chaudière : 8.000€
+   → Primes estimées : -7.500€
+
+2. Partage avec entrepreneur
+   → Email/lien unique invité
+
+3. Reçoit devis officiel entrepreneur
+   → Upload PDF dans Ren0vate
+   → Comparaison auto : Estimation vs Réel
+
+4. Valide en 1 clic
+   → Signature électronique simple
+   → Notification instant entrepreneur
+```
+
+**CÔTÉ ENTREPRENEUR (Freemium)** :
+```
+1. Reçoit notification "Nouveau projet M. Durand"
+   → Voit pré-devis client (scope clair)
+   → Voit propriété, adresse, photos
+
+2. Crée devis dans SON système
+   → Ou utilise template Ren0vate auto-rempli
+
+3. Upload devis final
+   → Client notifié immédiatement
+
+4. Reçoit notification validation
+   → Projet confirmé → Planifie chantier
+```
+
+**Tech Stack (FACILE)** :
+- ✅ PDF Generation : Prawn gem (Rails)
+- ✅ E-signature : DocuSign/HelloSign API
+- ✅ Templates : ERB + variables
+- ✅ Comparaison : Simple diff prix
+- ⏱️ **Implémentation : 2-3 semaines**
+
+**Valeur** : 3-5h gagnées par projet (15 emails de clarification évités)
+
+---
+
+#### **OUTIL #2 : 💰 Gestionnaire Factures & Paiements**
+
+**Problème résolu** (Article) : "Relance intelligente factures impayées"
+
+**Dashboard Client :**
+```
+┌──────────────────────────────────────┐
+│  TABLEAU DE BORD FINANCIER           │
+├──────────────────────────────────────┤
+│  Budget total : 23.000€              │
+│  Déjà payé    : 12.000€ (52%) ✅     │
+│  En attente   : 6.000€  (26%) ⏳     │
+│  Reste        : 5.000€  (22%)        │
+├──────────────────────────────────────┤
+│  FACTURES :                          │
+│  ✅ #001 - 5.000€ (Payée 15/01)      │
+│     📎 PDF | [Télécharger]           │
+│                                      │
+│  ⏳ #002 - 6.000€ (En cours)         │
+│     📎 PDF | [Marquer payée]         │
+│                                      │
+│  ❌ #003 - 12.000€ (Solde final)     │
+│     📅 Mars 2026                     │
+└──────────────────────────────────────┘
+```
+
+**Dashboard Entrepreneur :**
+```
+┌──────────────────────────────────────┐
+│  MES CHANTIERS EN COURS              │
+├──────────────────────────────────────┤
+│  🏠 M. Durand (Bruxelles)            │
+│      Facturé : 11.000€ ✅            │
+│      En attente : 6.000€ ⏳          │
+│      [Créer facture]                 │
+│                                      │
+│  🏠 Mme Lambert (Liège)              │
+│      Facturé : 30.000€ ✅            │
+│      En retard : 5.000€ ⚠️ (>30j)   │
+│      [Relancer]                      │
+└──────────────────────────────────────┘
+```
+
+**Tech Stack (FACILE)** :
+- ✅ OCR factures : Tesseract gem (existant)
+- ✅ Email parsing : ActionMailbox (Rails)
+- ✅ Notifications : ActionCable (websockets)
+- ✅ Timeline : Stimulus JS + Tailwind
+- ⏱️ **Implémentation : 3-4 semaines**
+
+**Valeur** : 2h/mois gagnées (relances manuelles évitées)
+
+---
+
+#### **OUTIL #3 : 📸 Suivi Chantier Visuel**
+
+**Problème résolu** (Article) : "Visibilité avancement, flux optimisé"
+
+**Timeline Client :**
+```
+┌──────────────────────────────────────┐
+│  PROGRESSION CHANTIER                │
+├──────────────────────────────────────┤
+│  ✅ Phase 1 : Démolition (100%)      │
+│      📸 12 photos | 15-20/01         │
+│      [Voir album]                    │
+│                                      │
+│  🔄 Phase 2 : Isolation (60%)        │
+│      📸 8 photos | 01-08/02          │
+│      ⏳ En cours                     │
+│      [+ Ajouter photo]               │
+│                                      │
+│  ⏸️ Phase 3 : Finitions (0%)         │
+│      📅 Démarrage : 15/02            │
+└──────────────────────────────────────┘
+```
+
+**Interface Entrepreneur (Mobile-first) :**
+```
+📱 CHANTIER M. DURAND
+   Semaine 3-9 février
+
+   ✅ TERMINÉ :
+      📸 Mur isolé posté
+      ✅ Validé par client
+
+   🔄 EN COURS :
+      📋 Pose pare-vapeur
+      [📸 Photo] [✓ Terminé]
+
+   💬 MESSAGE CLIENT :
+      "Quand finissez-vous?"
+      Sur photo P_034.jpg
+      [Répondre]
+```
+
+**Tech Stack (FACILE)** :
+- ✅ Upload mobile : ActiveStorage (Rails)
+- ✅ Compression : ImageMagick/Cloudinary (existant)
+- ✅ Timeline : Stimulus + Turbo
+- ✅ Commentaires : ActionText (Rails)
+- ⏱️ **Implémentation : 2 semaines**
+
+**Valeur** : 5h/semaine gagnées (10 appels "où en êtes-vous?" évités)
+
+---
+
+### **💰 NOUVEAU BUSINESS MODEL (Hybride)**
+
+#### **Tiers Particuliers (Payant)**
+```
+🏠 INDIVIDUAL (39€/mois)
+├── 1-3 propriétés
+├── Simulations illimitées
+├── Invite 1 entrepreneur (gratuit)
+├── Support email
+└── Target : 80% prospects (volume)
+
+🏢 PORTFOLIO (89€/mois)
+├── 4-10 propriétés
+├── Dashboard avancé + analytics
+├── Invite 5 entrepreneurs
+├── Support prioritaire + IA
+└── Target : 15% prospects (value)
+
+💎 ENTERPRISE (299€/mois)
+├── 10+ propriétés
+├── API access + white-label
+├── Entrepreneurs illimités
+├── Account manager dédié
+└── Target : 5% prospects (premium)
+```
+
+#### **Tiers Entrepreneurs (Freemium → Payant)**
+```
+🆓 COMPTE GRATUIT ENTREPRENEUR
+├── ✅ Recevoir invitations clients Ren0vate
+├── ✅ Voir projets LEURS clients
+├── ✅ Upload 3 factures/mois
+├── ✅ Upload 20 photos/mois
+├── ✅ 1 chantier actif max
+└── 🎯 Objectif : Évangélisation (viral B2C)
+
+💼 PRO TIER (49€/mois)
+├── ✅ Illimité factures + photos
+├── ✅ 5 chantiers actifs simultanés
+├── ✅ Templates devis personnalisés
+├── ✅ Analytics (délais paiement, progression)
+├── ✅ Badge "Partenaire vérifié Ren0vate"
+└── 🎯 Target : 15% entrepreneurs upgradent
+
+🏢 BUSINESS TIER (149€/mois)
+├── ✅ Tout Pro +
+├── ✅ Intégration comptable (Exact, Yuki)
+├── ✅ API access
+├── ✅ Multi-utilisateurs (équipe)
+├── ✅ White-label client reports
+└── 🎯 Target : 5% entrepreneurs (PME structurées)
+```
+
+#### **Projections Revenue Hybride**
+
+**Année 1 (2026)** :
+- 500 entrepreneurs gratuits → Évangélisent 3 clients chacun
+- 1.500 particuliers × 39€/mois → **702K€ ARR**
+- 50 entrepreneurs Pro × 49€/mois → **29K€ ARR**
+- **Total ARR : 731K€**
+
+**Année 2 (2027)** :
+- 2.000 entrepreneurs gratuits
+- 5.000 particuliers × 39€/mois → **2,34M€ ARR**
+- 300 entrepreneurs Pro × 49-149€/mois → **350K€ ARR**
+- **Total ARR : 2,69M€**
+
+**Viralité B2B→B2C** :
+```
+1 entrepreneur satisfait (gratuit)
+→ Recommande à 10 clients/an
+→ 3 clients adoptent (30% conversion)
+→ 3 × 39€ × 12 = 1.404€ LTV induite
+→ CAC entrepreneur = 0€
+→ ROI = ∞
+```
+
+#### **Total gain temps entrepreneurs (Valeur B2B)**
+
+| Outil | Gain temps | Valeur €/h | Économie mensuelle |
+|-------|------------|------------|--------------------|
+| Devis | 3-5h/projet | 50€/h | ~250€ |
+| Factures | 2h/mois | 50€/h | ~100€ |
+| Photos | 5h/semaine | 50€/h | ~1.000€ |
+| **TOTAL** | **~30h/mois** | **50€/h** | **~1.350€/mois** |
+
+**ROI entrepreneur** :
+- Compte gratuit : 1.350€ valeur reçue / 0€ payé = **ROI ∞**
+- Compte Pro (49€) : 1.350€ / 49€ = **ROI 27:1**
+
+---
+
+### **🚀 ROADMAP IMPLÉMENTATION (3 Outils Collaboratifs)**
+
+#### **Q2 2026 : MVP Collaboratif (8 semaines)**
+
+**Sprint 1-2 (Semaines 1-2)** : Validation Devis
+- [ ] Système invitation entrepreneur (email + lien)
+- [ ] Dashboard entrepreneur freemium
+- [ ] Upload devis PDF
+- [ ] Comparaison estimation vs réel
+- [ ] Signature électronique simple
+
+**Sprint 3-5 (Semaines 3-5)** : Gestionnaire Factures
+- [ ] Tableau factures client (statuts)
+- [ ] Dashboard facturation entrepreneur
+- [ ] Upload factures + OCR extraction
+- [ ] Notifications paiement temps réel
+- [ ] Alertes retard (>30 jours)
+
+**Sprint 6-8 (Semaines 6-8)** : Suivi Chantier Visuel
+- [ ] Timeline phases projet
+- [ ] Upload photos (client + entrepreneur)
+- [ ] Calcul % avancement automatique
+- [ ] Commentaires sur photos
+- [ ] Mobile Progressive Web App
+
+**Milestone Q2** : 100 particuliers + 30 entrepreneurs testent MVP
+
+#### **Q3 2026 : Polish & Features Avancées (6 semaines)**
+
+**Sprint 9-10** : Mobile Optimization
+- [ ] PWA install prompt
+- [ ] Upload photos optimisé mobile
+- [ ] Notifications push
+
+**Sprint 11-12** : Email Automation
+- [ ] Email parsing factures auto
+- [ ] Templates devis personnalisables
+- [ ] Relances automatiques
+
+**Sprint 13-14** : Analytics & Badges
+- [ ] Dashboard analytics entrepreneur Pro
+- [ ] Badge "Partenaire vérifié"
+- [ ] Recommandations IA actions
+
+**Milestone Q3** : 500 particuliers + 150 entrepreneurs actifs
+
+#### **Q4 2026 : Advanced & Integrations (8 semaines)**
+
+**Sprint 15-17** : OCR & IA
+- [ ] OCR extraction données factures
+- [ ] IA tags photos automatiques
+- [ ] Prédiction délais chantier
+
+**Sprint 18-20** : Intégrations Comptables
+- [ ] API Exact Online
+- [ ] API Yuki
+- [ ] Export comptable standardisé
+
+**Sprint 21-22** : Marketplace Pro
+- [ ] Annuaire entrepreneurs certifiés
+- [ ] Système avis clients
+- [ ] Matching automatique besoins/compétences
+
+**Milestone Q4** : 1.500 particuliers + 500 entrepreneurs | ARR 731K€
+
+---
+
+## 🏛️ **PILIER 3 : LES ARCHITECTES (Complétude écosystème)**
+
+### **🎯 Positionnement Architectes dans Ren0vate**
+
+**Rôle clé** : Les architectes sont le **3ème pilier** de l'écosystème, aux côtés des particuliers et entrepreneurs.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  ÉCOSYSTÈME 3-PARTIES REN0VATE                          │
+├─────────────────────────────────────────────────────────┤
+│                                                         │
+│         PARTICULIERS (Payant 39-89€)                    │
+│                    │                                    │
+│         ┌──────────┴──────────┐                        │
+│         │                     │                        │
+│    ENTREPRENEURS         ARCHITECTES                    │
+│    (Freemium/Pro 49€)   (Freemium/Pro 49€)             │
+│         │                     │                        │
+│         └──────────┬──────────┘                        │
+│                    │                                    │
+│            Collaboration fluide                         │
+│            via plateforme unique                        │
+└─────────────────────────────────────────────────────────┘
+```
+
+**Valeur pour architectes** :
+- ✅ **-70% appels/emails clients** = +70% temps conception
+- ✅ **Rôle expert validateur** = Valorisation mission
+- ✅ **Traçabilité complète** = Sécurité juridique
+- ✅ **0€ en freemium** = Adoption sans friction
+
+---
+
+### **🛠️ LES 3 KILLER TOOLS ARCHITECTES**
+
+#### **OUTIL #1 : 📋 Tracker Permis d'Urbanisme**
+
+**Problème résolu** :
+> "Mon client m'appelle 10 fois/jour pour savoir où en est son permis. Je perds 2h/jour à répondre."
+
+**La solution Ren0vate** :
+
+**Timeline visible client temps réel :**
+
+```
+┌──────────────────────────────────────────────────────┐
+│  PERMIS D'URBANISME - PROJET M. DURAND               │
+├──────────────────────────────────────────────────────┤
+│                                                      │
+│  ✅ 15/01 : Dépôt dossier commune                    │
+│      📎 Plans, formulaires, notice (12 docs)        │
+│                                                      │
+│  ✅ 28/01 : Accusé de réception (Complétude OK)      │
+│      📎 AR_2026_001_Durand.pdf                      │
+│                                                      │
+│  🔄 05/02 : En cours d'instruction (45 jours)        │
+│      ⏰ Décision prévue : 15/03/2026                │
+│      📊 Progression : ████████░░░░ 65%              │
+│                                                      │
+│  ⏸️  Enquête publique (si nécessaire)                │
+│                                                      │
+│  ⏸️  Décision finale                                 │
+└──────────────────────────────────────────────────────┘
+```
+
+**Côté ARCHITECTE** :
+```
+1. Crée dossier permis dans Ren0vate
+   → Upload plans PDF, formulaires, notice
+   → Définit étapes workflow (région = auto)
+
+2. Marque "Dépôt effectué" + date
+   → Client notifié automatiquement
+   → Email : "Votre architecte a déposé le permis"
+
+3. Update statut au fil de l'eau
+   → "AR reçu" → Client notifié
+   → "Remarques urbanisme" → Upload doc → Client notifié
+   → "Décision favorable" → Client notifié + 🎉
+
+4. Client ne l'appelle PLUS
+   → Voit tout en temps réel
+   → Historique complet consultable
+```
+
+**Côté CLIENT** :
+```
+✅ Dashboard permis toujours à jour
+✅ Notifications push à chaque étape
+✅ Accès documents officiels 24/7
+✅ Estimateur délais selon région
+✅ 0 appel à l'architecte nécessaire
+```
+
+**Features spécifiques** :
+1. **Templates régionaux** : Flandre, Wallonie, Bruxelles (workflows différents)
+2. **Timeline prévisionnelle** : Délais légaux selon région/type
+3. **Upload batch docs** : Drag & drop 20 fichiers en 1x
+4. **Notifications intelligentes** : Client notifié, architecte pas spammé
+5. **Historique conversations** : Preuve datée des échanges
+
+**Tech Stack (FACILE)** :
+- ✅ **Workflow state machine** : AASM gem (Rails)
+- ✅ **Notifications** : ActionCable + ActionMailer
+- ✅ **Upload multi** : ActiveStorage (existant)
+- ✅ **Timeline visuelle** : Stimulus + Tailwind
+- ⏱️ **Implémentation : 2-3 semaines**
+
+**Valeur** : **~10h/semaine gagnées** (50 appels clients évités)
+
+---
+
+#### **OUTIL #2 : 🏗️ Validation Chantier 3-Parties**
+
+**Problème résolu** :
+> "Je coordonne entrepreneur et client. L'entrepreneur dit avoir fait X, le client ne voit rien. Je passe 5h/semaine à arbitrer."
+
+**La solution Ren0vate** :
+
+**Dashboard collaboratif (Architecte = Hub central)** :
+
+```
+┌──────────────────────────────────────────────────────┐
+│  PROJET : EXTENSION M. DURAND                        │
+│  Architecte : Bureau ADL | Entrepreneur : Construct+ │
+├──────────────────────────────────────────────────────┤
+│                                                      │
+│  📅 SEMAINE DU 3-9 FÉVRIER 2026                      │
+│                                                      │
+│  ✅ VALIDÉ PAR ARCHITECTE :                          │
+│     🏗️ Fondations coulées                           │
+│     📸 4 photos | Validé 05/02                       │
+│     💬 Architecte : "Conforme plans, OK gros-œuvre" │
+│                                                      │
+│  🔄 EN ATTENTE VALIDATION ARCHITECTE :               │
+│     🧱 Élévation murs (80% fait)                    │
+│     📸 6 photos postées par entrepreneur 08/02       │
+│     [✅ Valider] [❌ Demander correction]           │
+│                                                      │
+│  ⏸️  PROCHAINE PHASE :                               │
+│     🪟 Châssis (prévu 12/02)                        │
+│                                                      │
+├──────────────────────────────────────────────────────┤
+│  🔔 ACTIONS REQUISES ARCHITECTE :                    │
+│  ⚠️  Valider élévation murs (entrepreneur attend)   │
+│  ⚠️  Répondre question client sur isolation          │
+└──────────────────────────────────────────────────────┘
+```
+
+**Flow de validation (Architecte = Arbitre)** :
+
+```
+ENTREPRENEUR            ARCHITECTE              CLIENT
+     │                       │                     │
+     │ Upload photos         │                     │
+     │ "Fondations OK" ─────>│                     │
+     │                       │                     │
+     │                       │ Vérifie photos      │
+     │                       │ Conforme plans ?    │
+     │                       │                     │
+     │               ✅ VALIDE ───────────────────>│
+     │                       │                     │
+     │                       │     "Validé par     │
+     │                       │      architecte"    │
+     │                       │                     │
+     │<─── Peut continuer    │                     │
+     │     phase suivante    │                     │
+```
+
+**Côté ARCHITECTE (Rôle valorisé)** :
+```
+1. Définit phases projet + jalons
+   → Fondations | Gros-œuvre | Toiture | Finitions
+
+2. Entrepreneur upload photos progression
+   → Architecte reçoit notif : "Action requise"
+
+3. Architecte valide ou demande correction
+   → ✅ "Conforme plans" → Entrepreneur continue
+   → ❌ "Reprendre mur nord" → Annotate photos
+
+4. Client voit validation architecte
+   → Rassuré = 0 appel "est-ce bien fait ?"
+
+5. PV intermédiaire auto-généré
+   → "Validé par Architecte ADL le 05/02/2026"
+   → Valeur légale (traçabilité)
+```
+
+**Features spécifiques** :
+1. **Checklist conformité** : Templates par type travaux
+2. **Comparaison plans/réel** : Upload plan → Overlay photo
+3. **Annotations photos** : "Reprendre ici" avec flèches
+4. **PV validation intermédiaire** : PDF auto avec photos
+5. **Rôle arbitre** : Architecte tranche en cas de désaccord
+
+**Tech Stack (FACILE)** :
+- ✅ **Rôles & Permissions** : Pundit gem (Rails)
+- ✅ **Workflows validation** : AASM state machine
+- ✅ **Annotations** : Fabric.js (canvas HTML5)
+- ✅ **Upload photos** : ActiveStorage (existant)
+- ⏱️ **Implémentation : 3-4 semaines**
+
+**Valeur** : **~5h/semaine gagnées** + Rôle expert valorisé
+
+---
+
+#### **OUTIL #3 : ✅ Réception Travaux & Garanties**
+
+**Problème résolu** :
+> "Réception chantier = chaos. Liste réserves papier, corrections non suivies. Je suis 15 points pendant 6 mois."
+
+**La solution Ren0vate** :
+
+**Dashboard réception (Moment critique)** :
+
+```
+┌──────────────────────────────────────────────────────┐
+│  RÉCEPTION TRAVAUX - PROJET M. DURAND                │
+├──────────────────────────────────────────────────────┤
+│                                                      │
+│  📅 RÉCEPTION PROVISOIRE : 15/03/2026                │
+│                                                      │
+│  ✅ POINTS CONFORMES (23/28) :                       │
+│  ┣━ Fondations                                       │
+│  ┣━ Murs porteurs                                    │
+│  ┣━ Toiture                                          │
+│  ┗━ [Voir 20 autres points]                          │
+│                                                      │
+│  ⚠️  RÉSERVES À LEVER (5) :                          │
+│                                                      │
+│  1️⃣ Fissure mur cuisine (mineur)                    │
+│     📸 Photos avant | 📅 Correction : 20/03          │
+│     🔄 EN COURS                                      │
+│     [Marquer corrigé] [Upload photos après]         │
+│                                                      │
+│  2️⃣ Châssis grince (mineur)                         │
+│     📸 Vidéo | 📅 Correction : 22/03                 │
+│     ✅ CORRIGÉ (validé 21/03)                        │
+│     📸 Photos après correction                       │
+│                                                      │
+│  3️⃣ Peinture couloir (finitions)                    │
+│     ⏸️ EN ATTENTE                                    │
+│                                                      │
+│  📊 PROGRESSION : ████████████░░ 83%                │
+│                                                      │
+├──────────────────────────────────────────────────────┤
+│  📋 PV RÉCEPTION PROVISOIRE                          │
+│  💾 [Télécharger PDF] | 📧 [Envoyer parties]         │
+│                                                      │
+│  ⏰ GARANTIES :                                       │
+│  ┣━ Biennale (finitions) : Expire 15/03/2028        │
+│  ┗━ Décennale (gros œuvre) : Expire 15/03/2036      │
+└──────────────────────────────────────────────────────┘
+```
+
+**Côté ARCHITECTE (Mission réception)** :
+```
+1. Visite réception avec checklist Ren0vate
+   → Coche points conformes
+   → Ajoute réserves avec photos
+   → PV généré automatiquement
+
+2. Suivi levée réserves
+   → Entrepreneur upload photos correction
+   → Architecte valide
+   → Client notifié en temps réel
+
+3. Réception définitive
+   → Toutes réserves levées
+   → Signature électronique 3 parties
+   → PV final + début garanties tracké
+
+4. Tracking garanties automatique
+   → Alertes avant expiration
+   → Historique interventions
+```
+
+**Features spécifiques** :
+1. **Checklists réception régionales** : Normes Flandre/Wallonie/Bruxelles
+2. **Catégorisation réserves** : Majeur/Mineur/Urgent
+3. **Comparaison avant/après** : Slider photos correction
+4. **Signature électronique 3-parties** : Valeur légale
+5. **Tracking garanties décennale/biennale** : Alertes expiration
+
+**Tech Stack (FACILE)** :
+- ✅ **Checklists dynamiques** : ActionText + Stimulus
+- ✅ **Workflows réserves** : AASM state machine
+- ✅ **Signature électronique** : DocuSign API
+- ✅ **Tracking garanties** : PostgreSQL + alertes cron
+- ⏱️ **Implémentation : 2-3 semaines**
+
+**Valeur** : **~3h/mois gagnées** pendant réception (6-12 mois) + **Sécurité juridique**
+
+---
+
+### **📊 Synthèse : Les 3 Killer Tools Architectes**
+
+| Outil | Problème résolu | Gain temps | Valeur perçue | Implémentation |
+|-------|-----------------|------------|---------------|----------------|
+| **Tracker Permis** | 10 appels/jour client | ~10h/semaine | ⭐⭐⭐⭐⭐ | 2-3 semaines |
+| **Validation Chantier** | Coordination 3-parties | ~5h/semaine | ⭐⭐⭐⭐⭐ | 3-4 semaines |
+| **Réception Travaux** | Suivi réserves chaos | ~3h/mois | ⭐⭐⭐⭐⭐ | 2-3 semaines |
+
+**Total gain temps architecte** : **~60-70h/mois** = 1,5 semaines temps plein
+
+**ROI financier architecte** :
+- Temps gagné : 60h/mois × 75€/h (taux horaire moyen) = **4.500€/mois**
+- Abonnement Ren0vate : 0€ (freemium) ou 49€/mois (Pro)
+- **ROI : 90:1**
+
+---
+
+### **💰 Business Model Architectes**
+
+#### **Tiers Architectes (Freemium → Payant)**
+
+```
+🆓 COMPTE GRATUIT ARCHITECTE
+├── ✅ 3 projets actifs max
+├── ✅ Tracker permis (1 par projet)
+├── ✅ Validation chantier basique
+├── ✅ Upload 50 docs/mois
+├── ✅ Invitations clients illimitées
+└── 🎯 Objectif : Évangélisation B2C
+
+💼 PRO TIER (49€/mois)
+├── ✅ Projets illimités
+├── ✅ Réception travaux + checklists
+├── ✅ Templates personnalisés
+├── ✅ Badge "Architecte partenaire vérifié"
+├── ✅ Export PV professionnels PDF
+├── ✅ Analytics projets
+└── 🎯 Target : 20% architectes upgradent
+
+🏢 BUSINESS TIER (149€/mois)
+├── ✅ Multi-utilisateurs (bureau 5+ personnes)
+├── ✅ White-label client reports
+├── ✅ Intégration CAD (AutoCAD, ArchiCAD)
+├── ✅ API access
+├── ✅ Priorité support + account manager
+└── 🎯 Target : Bureaux structurés
+```
+
+#### **Projections Revenue Architectes**
+
+**Année 1 (2026)** :
+- 200 architectes gratuits → Évangélisent 2 clients chacun
+- 400 particuliers via architectes × 39€/mois → **187K€ ARR** (indirect)
+- 40 architectes Pro × 49€/mois → **24K€ ARR** (direct)
+- **Total contribution architectes : 211K€**
+
+**Année 2 (2027)** :
+- 800 architectes gratuits
+- 1.600 particuliers via architectes × 39€/mois → **749K€ ARR** (indirect)
+- 160 architectes Pro × 49€/mois → **94K€ ARR** (direct)
+- **Total contribution architectes : 843K€**
+
+**Viralité Architecte→Client** :
+```
+1 architecte satisfait (gratuit)
+→ Recommande à tous ses clients
+→ 2 projets/an en moyenne
+→ 2 × 39€ × 12 mois = 936€ LTV induite
+→ CAC architecte = 0€ (freemium)
+→ ROI = ∞
+
+Bonus : Architecte impressionne clients
+→ "Regardez comme votre projet est suivi"
+→ Viralité bouche-à-oreille amplifiée
+```
+
+---
+
+### **🚀 Roadmap Implémentation Architectes**
+
+#### **Q1 2027 : MVP Architectes (8 semaines)**
+
+**Sprint 23-24 (Semaines 1-2)** : Tracker Permis
+- [ ] Système workflow permis 3 régions
+- [ ] Upload batch documents
+- [ ] Timeline prévisionnelle délais légaux
+- [ ] Notifications client automatiques
+- [ ] Dashboard architecte multi-projets
+
+**Sprint 25-27 (Semaines 3-5)** : Validation Chantier
+- [ ] Système rôles & permissions 3-parties
+- [ ] Workflow validation architecte
+- [ ] Annotations photos (Fabric.js)
+- [ ] Comparaison plans/photos
+- [ ] PV validation intermédiaire PDF
+
+**Sprint 28-30 (Semaines 6-8)** : Réception Travaux
+- [ ] Checklists réception régionales
+- [ ] Gestion réserves (majeur/mineur)
+- [ ] Suivi levée réserves
+- [ ] Signature électronique 3-parties
+- [ ] Tracking garanties décennale/biennale
+
+**Milestone Q1 2027** : 50 architectes + 100 projets suivis
+
+#### **Q2 2027 : Features Avancées (6 semaines)**
+
+**Sprint 31-32** : Templates & Personnalisation
+- [ ] Templates checklists personnalisables
+- [ ] Bibliothèque plans/documents projet
+- [ ] White-label reports clients
+- [ ] Badge "Architecte partenaire"
+
+**Sprint 33-34** : Analytics & Insights
+- [ ] Dashboard analytics bureau
+- [ ] Temps moyen par phase projet
+- [ ] Taux conformité chantiers
+- [ ] Export rapports activité
+
+**Sprint 35-36** : Intégrations CAD
+- [ ] Import AutoCAD DWG
+- [ ] Import ArchiCAD PLN
+- [ ] Conversion auto PDF annotations
+- [ ] Versioning plans automatique
+
+**Milestone Q2 2027** : 200 architectes + 400 projets | 211K€ contribution
+
+---
+
+### **🎯 Stratégie d'Évangélisation Architectes**
+
+#### **Canaux d'acquisition**
+
+1. **Partenariats ordres professionnels** :
+   - Ordre des Architectes (Flandre/Wallonie/Bruxelles)
+   - Présentation outil lors formations continues
+   - Article newsletter ordres
+
+2. **Batibouw 2027** :
+   - Stand démonstration live
+   - "Avant/Après Ren0vate" (cas client)
+   - Inscriptions freemium sur place
+
+3. **Content Marketing** :
+   - Blog : "Comment gagner 10h/semaine avec Ren0vate"
+   - Webinar : "Digitalisation mission architecte"
+   - Cas client : ROI mesuré
+
+4. **Viral client→architecte** :
+   - Client adopte Ren0vate d'abord
+   - Invite architecte gratuitement
+   - Architecte voit valeur immédiate
+
+#### **Programme Ambassador Architectes**
+
+```
+🏆 ARCHITECTE AMBASSADOR (Sélection)
+├── 🎁 Compte Pro gratuit à vie
+├── 🎤 Témoignage vidéo site web
+├── 📸 Branding bureau sur marketplace
+├── 💰 20% commission sur clients référés
+└── 🎯 Objectif : 20 ambassadors année 1
+```
+
+---
+
+### **📈 Projections Écosystème Complet (3-Parties)**
+
+**Après intégration architectes (2027)** :
+
+| Segment | Utilisateurs | ARR Direct | ARR Indirect | Total |
+|---------|-------------|------------|--------------|-------|
+| **Particuliers** | 5.000 | 2.340K€ | - | 2.340K€ |
+| **Entrepreneurs** | 300 Pro | 350K€ | +1.500 clients | +702K€ |
+| **Architectes** | 160 Pro | 94K€ | +1.600 clients | +749K€ |
+| **TOTAL** | 5.460 | **2.784K€** | +3.100 clients | **3.791K€** |
+
+**Effet viral écosystème** :
+- Particulier adopte → Invite architecte + entrepreneur (gratuit)
+- Architecte gratuit → Recommande à 2 clients/an
+- Entrepreneur gratuit → Recommande à 3 clients/an
+- **Boucle virale auto-alimentée** = CAC tendant vers 0€
+
+**Mécanisme de croissance** :
+```
+1 particulier payant (39€/mois)
+→ Invite 1 architecte + 1 entrepreneur (0€)
+→ Architecte recommande 2 clients (78€/mois)
+→ Entrepreneur recommande 3 clients (117€/mois)
+= 1 client payant génère 5 clients payants via réseau
+= **Multiplicateur viral : 5x**
+```
 
 ---
 
@@ -44,12 +1015,18 @@ Avec l'arrêt programmé du système de primes en Wallonie et à Bruxelles (part
 
 ## 🔧 **ÉVOLUTION PAR FONCTIONNALITÉ**
 
-### **À CONSERVER (Flandre + Entreprises Bruxelles)**
+### **À CONSERVER (Flandre particuliers uniquement)**
 - ✅ **Étapes 4, 7, 8** : Simulation primes, formulaires, suivi
 - ✅ **Routes API** :
-  - `/api/flandre/calculate_prime`
-  - `/api/entreprises/bruxelles/aides`
-- ✅ **Contrôleurs** : `simulations_controller.rb` (logique primes)
+  - `/api/flandre/calculate_prime` (particuliers)
+- ✅ **Contrôleurs** : `simulations_controller.rb` (logique primes particuliers)
+
+### **À SUPPRIMER (Entreprises Bruxelles - Non-focus)**
+- ❌ **Routes API** : `/api/entreprises/bruxelles/*`
+- ❌ **Services** : `BruxellesEntreprisesEligibilityService`, `BrusselsBceImportService`
+- ❌ **Seeds** : `db/seeds/entreprises/bruxelles/aides.rb`
+- ❌ **Controllers JS** : Références `api/entreprises/bruxelles/aides`
+- ❌ **Tasks** : `bce_brussels.rake`, `bce_sample.rake`, `bce_test_50.rake`
 
 ### **À TRANSFORMER (Wallonie + Particuliers Bruxelles)**
 - 🔄 **Étape 4** : Intégrer simulateur prêts (Renopack + conditions bancaires)
@@ -352,12 +1329,344 @@ end
 
 ---
 
-## 🏗️ **NOUVEAU PARCOURS INTÉGRÉ (12 ÉTAPES)**
+## 🏗️ **PARCOURS MVP SIMPLIFIÉ (3 KILLER FEATURES + SUPPORT)**
 
-### **Phase 1 : Configuration** *(Existant - À maintenir)*
-1. **Profil utilisateur**
-2. **Enregistrement biens**
-3. **Création chantiers**
+### **🎯 PRIORITÉ ABSOLUE : LES 3 FEATURES QUI COMPTENT**
+
+### **KILLER FEATURE #1 : 🏘️ Multi-propriétés (Dashboard Centralisé)**
+
+**Inspiration Revolut** : Multi-devises avec vue consolidée
+
+#### **Vue d'ensemble Portfolio**
+```ruby
+# app/models/property_portfolio.rb
+class PropertyPortfolio
+  def dashboard_metrics
+    {
+      total_properties: properties.count,
+      total_value: properties.sum(:estimated_market_value),
+      active_projects: projects.in_progress.count,
+      total_invested: projects.sum(:actual_cost),
+      total_saved_grants: simulations.sum(:total_grants),
+      energy_improvement: calculate_portfolio_energy_gain,
+      properties_by_status: group_by_project_status
+    }
+  end
+end
+```
+
+**Interface utilisateur :**
+- **Dashboard principal** : Vue carte + liste propriétés
+- **Indicateurs clés** :
+  - Nombre total biens
+  - Valeur portfolio
+  - Projets actifs
+  - Budget total engagé
+  - Économies/primes obtenues
+- **Quick actions** :
+  - Ajouter propriété (1 clic)
+  - Créer projet sur bien existant
+  - Voir historique complet
+- **Filtres intelligents** :
+  - Par type (maison, appartement, immeuble)
+  - Par statut projet (actif, planifié, terminé)
+  - Par région (Flandre, Wallonie, Bruxelles)
+
+**Valeur utilisateur immédiate :**
+- "Enfin une app qui gère TOUS mes biens"
+- Centralisation vs Excel chaotique
+- Vision globale investissements immobiliers
+
+---
+
+### **KILLER FEATURE #2 : 💰 Générateur de Devis Instantané**
+
+**Inspiration Revolut** : Budget calculator avec transparence totale
+
+#### **Moteur de pricing intelligent**
+```ruby
+# app/services/quote_generator_service.rb
+class QuoteGeneratorService
+  # Base de prix régionaux (moyenne marché)
+  WORK_TYPES = {
+    isolation_toiture: {
+      price_range: { min: 45, max: 75 },
+      unit: 'm²',
+      duration_days: 3..7,
+      description: 'Isolation toiture avec laine de roche 20cm'
+    },
+    chassis_pvc_double_vitrage: {
+      price_range: { min: 450, max: 650 },
+      unit: 'm²',
+      duration_days: 1..2,
+      description: 'Châssis PVC blanc + double vitrage HR++'
+    },
+    pompe_chaleur_air_eau: {
+      price_range: { min: 8000, max: 15000 },
+      unit: 'installation',
+      duration_days: 3..5,
+      description: 'Pompe à chaleur air-eau 10-12 kW'
+    },
+    isolation_murs_exterieurs: {
+      price_range: { min: 80, max: 120 },
+      unit: 'm²',
+      duration_days: 7..14,
+      description: 'Isolation façade par extérieur 14cm + crépi'
+    },
+    chaudiere_gaz_condensation: {
+      price_range: { min: 3500, max: 5500 },
+      unit: 'installation',
+      duration_days: 1..2,
+      description: 'Chaudière gaz condensation murale'
+    },
+    vmc_double_flux: {
+      price_range: { min: 4000, max: 8000 },
+      unit: 'installation',
+      duration_days: 3..5,
+      description: 'VMC double flux avec récupération chaleur'
+    }
+  }
+
+  def initialize(property, works_selected)
+    @property = property
+    @works = works_selected
+    @region = property.region
+  end
+
+  def generate_quote
+    line_items = @works.map do |work|
+      work_type = WORK_TYPES[work[:type].to_sym]
+      quantity = work[:quantity]
+
+      # Calcul prix moyen avec ajustement régional
+      base_price = (work_type[:price_range][:min] + work_type[:price_range][:max]) / 2
+      adjusted_price = apply_regional_coefficient(base_price, @region)
+
+      {
+        description: work_type[:description],
+        quantity: quantity,
+        unit: work_type[:unit],
+        unit_price: adjusted_price,
+        total: quantity * adjusted_price,
+        duration: work_type[:duration_days]
+      }
+    end
+
+    # Calculs globaux
+    subtotal = line_items.sum { |item| item[:total] }
+    architect_fees = calculate_architect_fees(subtotal)
+    contingency = subtotal * 0.10 # 10% imprévus
+    vat = (subtotal + architect_fees) * 0.06 # TVA 6% rénovation
+
+    total = subtotal + architect_fees + contingency + vat
+
+    # Estimation primes/prêts
+    grants = calculate_potential_grants
+    loans = calculate_loan_conditions(total - grants)
+
+    {
+      line_items: line_items,
+      subtotal: subtotal.round(0),
+      architect_fees: architect_fees.round(0),
+      contingency: contingency.round(0),
+      vat: vat.round(0),
+      total_gross: total.round(0),
+      grants: grants.round(0),
+      loans: loans,
+      net_investment: (total - grants).round(0),
+      total_duration_days: line_items.sum { |i| i[:duration][:max] }
+    }
+  end
+
+  private
+
+  def apply_regional_coefficient(base_price, region)
+    coefficients = {
+      'bruxelles' => 1.15,  # +15% Bruxelles
+      'flandre' => 1.05,    # +5% Flandre
+      'wallonie' => 1.00    # Référence
+    }
+    base_price * coefficients[region]
+  end
+
+  def calculate_architect_fees(amount)
+    # Si montant > 30K€, architecte souvent nécessaire
+    return 0 if amount < 30000
+    amount * 0.08 # 8% honoraires
+  end
+end
+```
+
+**Interface utilisateur :**
+
+**Étape 1 : Sélection travaux**
+- **Catalogue visuel** : Icônes + descriptions simples
+- **Catégories** : Isolation, Chauffage, Châssis, Ventilation, Autres
+- **Formulaire dynamique** : Quantités selon type
+  - Isolation : Surface m²
+  - Châssis : Nombre m²
+  - Chaudière : Type installation
+
+**Étape 2 : Personnalisation**
+- **Curseurs qualité** : Standard / Milieu de gamme / Premium
+- **Options** : TVA 6% ou 21%, avec/sans architecte
+- **Délais** : Estimation durée travaux
+
+**Étape 3 : Devis instantané**
+```
+┌─────────────────────────────────────────────────────┐
+│ 💰 VOTRE DEVIS ESTIMATIF                           │
+├─────────────────────────────────────────────────────┤
+│ Isolation toiture (120m²)        45€/m²    5.400€  │
+│ Châssis PVC (15m²)              550€/m²    8.250€  │
+│ Pompe à chaleur air-eau (1x)              12.000€  │
+│                                                     │
+│ Sous-total travaux                        25.650€  │
+│ Honoraires architecte (8%)                 2.052€  │
+│ Imprévus (10%)                             2.565€  │
+│ TVA (6%)                                   1.816€  │
+├─────────────────────────────────────────────────────┤
+│ TOTAL INVESTISSEMENT                      32.083€  │
+│                                                     │
+│ 💚 Primes estimées (Flandre)             -8.500€  │
+│ 💳 Prêt Renopack disponible              15.000€  │
+├─────────────────────────────────────────────────────┤
+│ 🎯 COÛT NET ESTIMÉ                        23.583€  │
+│                                                     │
+│ ⏱️ Durée estimée : 12-17 jours ouvrables          │
+└─────────────────────────────────────────────────────┘
+```
+
+**Actions export :**
+- 📄 **Télécharger PDF** : Devis professionnel branded
+- 📧 **Envoyer par email** : À soi-même ou entrepreneurs
+- 💾 **Sauvegarder projet** : Pour affiner plus tard
+- 🔄 **Comparer scénarios** : Version A vs B vs C
+
+**Valeur utilisateur immédiate :**
+- "Je peux ENFIN estimer moi-même sans attendre 3 semaines"
+- Transparence totale des prix
+- Comprendre composition des coûts
+- Base solide pour négocier avec entrepreneurs
+
+---
+
+### **KILLER FEATURE #3 : 📊 Suivi Chantier Temps Réel**
+
+**Inspiration Revolut** : Analytics avec visualisations claires
+
+#### **Système de phases simplifié**
+```ruby
+# app/models/project_progress.rb
+class ProjectProgress < ApplicationRecord
+  belongs_to :property
+  belongs_to :project
+
+  # 5 phases universelles
+  STANDARD_PHASES = [
+    { id: 1, name: 'Préparation', icon: '📋', typical_duration: 7 },
+    { id: 2, name: 'Démolition/Dépose', icon: '🔨', typical_duration: 3 },
+    { id: 3, name: 'Installation/Pose', icon: '🏗️', typical_duration: 10 },
+    { id: 4, name: 'Finitions', icon: '🎨', typical_duration: 5 },
+    { id: 5, name: 'Réception', icon: '✅', typical_duration: 1 }
+  ]
+
+  jsonb :phases, default: []
+  jsonb :budget_tracking, default: {}
+  integer :overall_progress, default: 0 # 0-100%
+
+  def update_progress
+    completed_phases = phases.count { |p| p['status'] == 'completed' }
+    self.overall_progress = (completed_phases.to_f / phases.size * 100).round
+  end
+end
+```
+
+**Interface utilisateur :**
+
+**Dashboard projet**
+```
+┌────────────────────────────────────────────────┐
+│ 🏗️ ISOLATION TOITURE - RUE EXAMPLE 12        │
+├────────────────────────────────────────────────┤
+│ Avancement global : ▰▰▰▰▰▰▰▱▱▱ 65%           │
+│ Budget : 24.150€ / 25.650€ (94%)              │
+│ Délai : À l'heure ✅                          │
+├────────────────────────────────────────────────┤
+│                                                │
+│ ✅ 1. Préparation          100%    +250€     │
+│ ✅ 2. Démolition/Dépose    100%     0€       │
+│ 🟡 3. Installation/Pose     45%   +150€      │
+│ ⚪ 4. Finitions              0%       -       │
+│ ⚪ 5. Réception              0%       -       │
+│                                                │
+├────────────────────────────────────────────────┤
+│ 📸 Dernières photos (il y a 2h)               │
+│ [Photo1] [Photo2] [Photo3] + Ajouter          │
+│                                                │
+│ 💬 Dernière note : Isolation posée, manque    │
+│    pare-vapeur (livraison demain) - Marc      │
+└────────────────────────────────────────────────┘
+```
+
+**Fonctionnalités clés :**
+
+**1. Timeline visuelle**
+- Gantt simplifié horizontal
+- Dates prévues vs réelles
+- Alertes retard automatiques
+
+**2. Budget temps réel**
+- Coûts engagés par phase
+- Dépassements en rouge
+- Économies en vert
+- Prévision coût final
+
+**3. Galerie photos par phase**
+- Upload direct smartphone
+- Organisation automatique par phase
+- Watermark date/heure
+- Comparaison avant/après
+
+**4. Notes et jalons**
+- Journal de chantier chronologique
+- @ mentions entrepreneurs (si collaboration activée)
+- Fichiers joints (factures, bons de livraison)
+
+**5. Validation étapes**
+- Checkbox passage phase suivante
+- Signature numérique validation
+- Génération PV automatique
+
+**Valeur utilisateur immédiate :**
+- "Je contrôle mon projet en temps réel"
+- Visibilité totale avancement
+- Détection rapide problèmes
+- Historique complet traçable
+- Usage quotidien = hook retention
+
+**Valeur pour les professionnels (architectes/entrepreneurs) :**
+- 🤝 **Collaboration facilitée** : Accès projet sans créer compte
+- 📸 **Photos centralisées** : Fini les WhatsApp perdus
+- ✅ **Validations claires** : Signature numérique sur chaque phase
+- 💬 **Communication tracée** : Historique décisions consultable
+- 💰 **Déclenchement paiements** : Validation étape → Facturation
+
+**⚠️ Ce que Ren0vate NE FAIT PAS (rôle des pros)** :
+- ❌ Concevoir les plans (→ Architecte)
+- ❌ Calculer structures (→ Bureau d'études)
+- ❌ Exécuter travaux (→ Entrepreneurs)
+- ❌ Contrôler conformité technique (→ Contrôleur agréé)
+
+**✅ Ce que Ren0vate FAIT (complémentaire)** :
+- ✅ Centraliser documents (plans, permis, factures)
+- ✅ Suivre avancement (timeline, budget)
+- ✅ Faciliter communication (photos, notes, validations)
+- ✅ Organiser information (tout au même endroit)
+
+---
+
+### **🛠️ FONCTIONNALITÉS SUPPORT (Non-MVP mais quick wins)**
 
 ### **Phase 2 : Simulation énergétique et financement** *(Évolution majeure)*
 
@@ -375,8 +1684,8 @@ end
    - *Base de simulation pour étape suivante*
 
 **4b. 💰 Simulation financière adaptée** *(Enrichi)*
-   - **Flandre/Entreprises Brux** → Primes (existant)
-   - **Wallonie/Particuliers Brux** → **NOUVEAU** : Prêts + conditions bancaires
+   - **Flandre particuliers** → Primes (existant)
+   - **Wallonie/Bruxelles particuliers** → **NOUVEAU** : Prêts + conditions bancaires
    - **Intégration recommandations PEB/Audit** → Calcul automatique aides disponibles
    - **ROI Calculator avancé** : Analyse financière complète (détails ci-dessous)
    - **Comparaison scénarios** : Ne rien faire vs roadmap optimale
@@ -1486,17 +2795,399 @@ end
 
 ---
 
+## 🚀 **ROADMAP MVP ALLÉGÉE (MARS-JUIN 2026)**
+
+### **🎯 PHILOSOPHIE : SHIP FAST, ITERATE FASTER**
+
+Revolut a mis **3 ans** à devenir super-app.
+Ren0vate se concentre sur **3 killer features** en **3 mois**.
+
+---
+
+### **MARS 2026 (M+1) - MVP CORE**
+
+**Objectif** : 100 users beta testent les 3 features
+
+#### **Killer Feature #1 : Multi-propriétés**
+- [ ] CRUD propriétés avec adresse, type, surface
+- [ ] Dashboard portfolio avec métriques basiques
+- [ ] Import BCE entreprises (existant, à vérifier)
+- [ ] Filtres et recherche
+
+#### **Killer Feature #2 : Générateur devis v1**
+- [ ] Catalogue 10 travaux essentiels (isolation, chauffage, châssis)
+- [ ] Formulaire sélection + quantités
+- [ ] Moteur pricing avec ajustement régional
+- [ ] Export PDF basique
+- [ ] Sauvegarde devis → projet
+
+#### **Killer Feature #3 : Suivi chantier simplifié**
+- [ ] 5 phases standards
+- [ ] Update statut + % avancement manuel
+- [ ] Upload photos (max 10/phase)
+- [ ] Notes chronologiques
+- [ ] Budget tracking simple (prévu vs réel)
+
+#### **Infrastructure support**
+- [ ] Authentification utilisateurs
+- [ ] Stripe integration (paiements abonnements)
+- [ ] Responsive design mobile-first
+- [ ] Analytics Plausible.io
+
+**Livrables** :
+- ✅ 100 users beta invités (HOT prospects)
+- ✅ 60% complètent onboarding
+- ✅ 40% créent au moins 1 devis
+
+---
+
+### **AVRIL 2026 (M+2) - ENRICHISSEMENT**
+
+**Objectif** : 60% users usage quotidien
+
+#### **Devis avancé**
+- [ ] 30 travaux au catalogue (exhaustif)
+- [ ] Templates par type projet (isolation complète, pompe à chaleur, rénovation globale)
+- [ ] Curseurs qualité (standard/premium)
+- [ ] Export PDF professionnel avec branding
+- [ ] Comparaison 3 scénarios côte à côte
+- [ ] Intégration simulation primes/prêts (existant)
+
+#### **Suivi chantier enrichi**
+- [ ] Timeline Gantt visuelle
+- [ ] Alertes retard automatiques
+- [ ] Prévision coût final
+- [ ] Graphiques avancement
+- [ ] Export rapport PDF
+
+#### **Collaboration basique (win-win pros)**
+- [ ] Inviter entrepreneur/architecte (accès lecture/écriture)
+- [ ] Notifications email changements statut
+- [ ] Commentaires par phase
+- [ ] Upload facilité depuis mobile (chantier)
+- [ ] Pas de compte obligatoire pour invités (friction minimale)
+
+**Livrables** :
+- ✅ 200 users actifs
+- ✅ 3+ sessions/semaine par user
+- ✅ 10 users payants (early adopters €29/mois)
+
+---
+
+### **MAI-JUIN 2026 (M+3-4) - SCALING & MONETIZATION**
+
+**Objectif** : 500 users, 50K€ ARR
+
+#### **Features bonus (wow factor)**
+- [ ] PEB Analyzer : Upload certificat → Extraction label + consommation
+- [ ] ROI Calculator : Économies énergétiques projetées
+- [ ] **Annuaire entrepreneurs** : Profils gratuits avec reviews (SANS commission, SANS enchères)
+- [ ] Smart recommendations : IA suggère travaux selon bien
+
+**⚠️ Annuaire entrepreneurs - Positionnement clair** :
+- ✅ **Profils gratuits** : Inscription et profil 100% gratuits
+- ✅ **Reviews authentiques** : Clients Ren0vate peuvent noter
+- ✅ **Pas de mise en concurrence** : Pas de système d'enchères ou "meilleur prix gagne"
+- ✅ **Pas de commission** : Ren0vate ne touche rien sur les travaux
+- ✅ **Visibilité équitable** : Pas de "boost payant" ou référencement premium
+- 🎯 **Objectif** : Faciliter matching propriétaire ↔ pro de confiance
+
+#### **Freemium + tiers pricing**
+- [ ] FREE : 1 property, 1 devis/mois, suivi limité
+- [ ] PRO €29/mois : 5 properties, illimité, collaboration
+- [ ] PORTFOLIO €79/mois : Unlimited properties, multi-users, analytics avancés
+
+#### **Acquisition & growth**
+- [ ] Landing page optimisée conversion
+- [ ] Campagne email 12K prospects (séquences HOT/WARM/COLD)
+- [ ] Content marketing : 8 articles SEO
+- [ ] Referral program : Parrainage = 1 mois gratuit
+
+**Livrables** :
+- ✅ 500 users actifs
+- ✅ 50K€ ARR (mix tiers)
+- ✅ <5% churn
+- ✅ >20% feature adoption
+
+---
+
+## 💰 **PRICING SIMPLIFIÉ (FREEMIUM AGRESSIF)**
+
+### **🎯 Stratégie land & expand (modèle Revolut)**
+
+```
+┌─────────────────────────────────────────────────────┐
+│ 🆓 FREE (Hook viralité)                            │
+├─────────────────────────────────────────────────────┤
+│ ✅ 1 property                                       │
+│ ✅ 1 devis basique/mois                             │
+│ ✅ Suivi chantier (sans collaboration)              │
+│ ✅ Simulation primes/prêts                          │
+│                                                     │
+│ 🎯 Goal : Addiction + viral "regarde mon devis"    │
+└─────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────┐
+│ ⭐ PRO €29/mois (SWEET SPOT)                       │
+├─────────────────────────────────────────────────────┤
+│ ✅ 5 properties                                     │
+│ ✅ Devis illimités professionnels                   │
+│ ✅ Suivi chantier full + collaboration              │
+│ ✅ Templates & comparaisons scénarios               │
+│ ✅ Export PDF branded                               │
+│ ✅ PEB Analyzer + ROI Calculator                    │
+│ ✅ Support prioritaire                              │
+│                                                     │
+│ 🎯 80% target users (proprio actif renovations)    │
+└─────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────┐
+│ 💼 PORTFOLIO €79/mois (B2C Premium)                │
+├─────────────────────────────────────────────────────┤
+│ ✅ Unlimited properties                             │
+│ ✅ Multi-users/team (2-5 personnes)                 │
+│ ✅ Analytics portfolio avancés                      │
+│ ✅ Rapports consolidés multi-biens                  │
+│ ✅ Support prioritaire + onboarding                 │
+│ ✅ Toutes fonctionnalités PRO                       │
+│                                                     │
+│ 🎯 Bailleurs, investisseurs immobiliers            │
+│    (5-20+ propriétés locatives)                    │
+└─────────────────────────────────────────────────────┘
+```
+
+**Justification pricing** :
+- FREE généreux → Viralité maximale
+- PRO à €29 → Sweet spot entre Notion (€10) et outils BTP (€50+)
+- PORTFOLIO à €79 → Bailleurs avec portfolio (willingness to pay élevée, amortissement sur multiple biens)
+
+---
+
+## 💼 **BUSINESS MODEL : PURE SAAS (TRANSPARENCE TOTALE)**
+
+### **🎯 Sources de revenus**
+
+**1️⃣ Abonnements SaaS (100% des revenus)**
+- FREE : €0 (acquisition)
+- PRO : €29/mois
+- PORTFOLIO : €79/mois
+
+**📊 Projection revenus (Juin 2026)** :
+```
+320 FREE × €0      = 0€
+155 PRO × €29      = 4.495€/mois → 53.940€/an
+25 PORTFOLIO × €79 = 1.975€/mois → 23.700€/an
+─────────────────────────────────────────────
+TOTAL ARR : 77.640€
+```
+
+### **❌ Ce que Ren0vate NE monétise PAS**
+
+**Pas de commission sur travaux** :
+- ❌ 0% commission sur devis entrepreneurs
+- ❌ 0% commission si projet via Ren0vate
+- ❌ 0% frais cachés sur transactions
+
+**Pas de lead generation payante** :
+- ❌ Pas de "paiement pour apparaître en premier"
+- ❌ Pas de "leads premium à acheter"
+- ❌ Pas de "sponsorisation profils entrepreneurs"
+
+**Pas de marketplace avec ristourne** :
+- ❌ Pas d'achat matériaux avec marge Ren0vate
+- ❌ Pas de partenariats exclusifs rémunérés
+- ❌ Pas de référencement payant obligatoire
+
+### **✅ Monétisations complémentaires futures (post-MVP)**
+
+**Phase 2 (2027 - Optionnel)** :
+- 📊 **Analytics premium** : Dashboard avancé pour pros (€15/mois)
+- 📄 **Rapports branded** : White-label pour architectes (€25/mois add-on)
+- 🔗 **API access** : Intégrations avec logiciels métier (€50/mois)
+- 🎓 **Formation** : Webinars "Digitaliser son activité BTP" (€99 one-time)
+
+### **🤝 Transparence = Avantage concurrentiel**
+
+**Message aux pros** :
+> "Ren0vate gagne de l'argent uniquement via abonnements propriétaires.
+> Nous ne prenons JAMAIS de commission sur vos travaux.
+> Notre intérêt = Que les projets se passent bien, pas qu'ils coûtent plus cher."
+
+**Bénéfices** :
+- ✅ Confiance pros (pas de conflit d'intérêt)
+- ✅ Prix justes pour propriétaires (pas de surcoût caché)
+- ✅ Positionnement éthique (SaaS transparent vs marketplaces commission)
+
+---
+
+## 📊 **MÉTRIQUES DE SUCCÈS (PIRATE METRICS)**
+
+### **AARRR Framework**
+
+**Acquisition**
+- 🎯 Target : 1.000 signups (8% de 12K prospects)
+- 📧 Email conversion : 10% HOT, 5% WARM
+- 🔗 Trafic organique : 500 visites/mois (SEO)
+
+**Activation**
+- 🎯 Target : 70% complètent onboarding
+- ✅ Créer 1ère property
+- ✅ Générer 1er devis
+- ⏱️ Time-to-value : <10 minutes
+
+**Retention**
+- 🎯 Target : 60% actifs semaine 2
+- 📊 Cohort analysis hebdomadaire
+- 🔔 Notifications engagement
+
+**Revenue**
+- 🎯 Target : 50K€ ARR fin Q2 2026
+- 💳 Conversion free→pro : 15%
+- 📈 LTV/CAC : >5x
+
+**Referral**
+- 🎯 Target : 20% users parrainent
+- 🎁 Incentive : 1 mois gratuit parrain + filleul
+- 📣 Viralité : K-factor >0.5
+
+---
+
+## 🚨 **ANTI-PATTERNS À ÉVITER**
+
+### **❌ Le piège de la feature bloat**
+Revolut n'a PAS lancé avec : crypto, actions, commodities, cartes business, etc.
+Revolut a lancé avec : comptes, virements, change de devises.
+
+**Pour Ren0vate :**
+- ❌ NE PAS développer : Permis urbanisme, comparateur produits, PEB roadmap
+- ✅ DÉVELOPPER : Les 3 killer features à 100%
+
+### **❌ Le piège de la perfection**
+Lancer à 80% > Attendre 100%
+- Devis = estimations, pas engagement contractuel
+- Pricing régional = moyennes, pas prix exacts
+- Suivi chantier = outil perso, pas logiciel professionnel
+
+### **❌ Le piège de la complexité**
+Simplicité > Exhaustivité
+- 10 travaux essentiels > 100 travaux exhaustifs
+- 5 phases standards > 20 phases détaillées
+- 1 export PDF > 5 formats export
+
+---
+
 ## 🎯 **PLAN DE DÉVELOPPEMENT TECHNIQUE**
 
-### **Phase 0 : Audit & Nettoyage de la codebase (1-2 semaines)** ⚠️ **PRIORITAIRE**
+### **Stack technique (existant)**
+- **Backend** : Ruby on Rails 7.x
+- **Frontend** : Hotwire (Turbo + Stimulus)
+- **Database** : PostgreSQL
+- **Storage** : ActiveStorage
+- **Payments** : Stripe
+- **Email** : ActionMailer + SendGrid
+- **Analytics** : Plausible.io (privacy-first)
 
-**Objectif** : Nettoyer le code obsolète avant d'ajouter de nouvelles fonctionnalités pour éviter la dette technique.
+### **Nouveaux modèles clés**
 
-#### **0.1 Audit des simulateurs de primes obsolètes**
+```ruby
+# app/models/quote.rb
+class Quote < ApplicationRecord
+  belongs_to :property
+  belongs_to :user
 
-**À identifier et retirer :**
+  jsonb :line_items, default: []
+  jsonb :pricing_breakdown, default: {}
 
-**A. Contrôleurs à nettoyer/supprimer**
+  enum status: { draft: 0, finalized: 1, converted_to_project: 2 }
+end
+
+# app/models/project_progress.rb
+class ProjectProgress < ApplicationRecord
+  belongs_to :property
+  belongs_to :project
+  has_many_attached :photos
+
+  jsonb :phases, default: []
+  jsonb :budget_tracking, default: {}
+  integer :overall_progress, default: 0
+end
+
+# app/models/portfolio_dashboard.rb
+class PortfolioDashboard
+  def initialize(user)
+    @user = user
+  end
+
+  def metrics
+    # Calculs agrégés multi-propriétés
+  end
+end
+```
+
+### **Architecture priorities**
+1. **Mobile-first** : 70% users sur smartphone
+2. **Performance** : <2s load time
+3. **Offline-capable** : PWA pour chantiers sans réseau
+4. **Export-friendly** : PDF generation optimisée
+
+---
+
+### **Phase 0 : Audit & Nettoyage de la codebase (1 semaine)** ⚠️ **AVANT MARS**
+
+**Objectif** : Supprimer tout le code entreprises Bruxelles + alléger avant d'ajouter les 3 killer features
+
+#### **0.1 Suppression COMPLÈTE module Entreprises Bruxelles**
+
+**Décision stratégique** : Focus 100% B2C (particuliers), abandon B2B entreprises.
+
+**Fichiers à supprimer** :
+
+```bash
+# Services
+rm app/services/entreprises/bruxelles_entreprises_eligibility_service.rb
+rm app/services/entreprises/brussels_bce_import_service.rb
+
+# Seeds
+rm -rf db/seeds/entreprises/bruxelles/
+
+# Tasks
+rm lib/tasks/bce_brussels.rake
+rm lib/tasks/bce_sample.rake
+rm lib/tasks/bce_test_50.rake
+```
+
+**Routes à retirer** (config/routes.rb) :
+```ruby
+# SUPPRIMER ces lignes :
+get 'entreprises/bruxelles/aides', to: 'entreprises#bruxelles_aides'
+post 'entreprises/bruxelles/majorations', to: 'entreprises#calculate_bruxelles_majorations'
+get 'entreprises/bruxelles/majorations-details', to: 'entreprises#get_majorations_details'
+```
+
+**JavaScript à nettoyer** :
+
+1. `app/javascript/controllers/aid_calculator_controller.js`
+   - Retirer : `fetch('/api/entreprises/bruxelles/aides')`
+
+2. `app/javascript/controllers/eligibility_checker_controller.js`
+   - Retirer : 2 occurrences `fetch('/api/entreprises/bruxelles/aides')`
+
+**SEO à nettoyer** (app/helpers/seo_helper.rb) :
+- Retirer keywords "entreprises bruxelles" et mentions B2B
+
+**Robots.txt** (public/robots.txt) :
+- Retirer : `Allow: /bruxelles-entreprises`
+
+**Contrôleurs à auditer** :
+- `app/controllers/api/entreprises_controller.rb` : Supprimer méthodes `bruxelles_aides`, `calculate_bruxelles_majorations`
+
+**Impact estimation** :
+- 🗑️ ~15 fichiers à supprimer
+- ✂️ ~500 lignes de code retirées
+- ⚡ Simplification architecture (1 cible = particuliers)
+- 💰 Réduction dette technique
+
+#### **A. Contrôleurs à nettoyer/supprimer (Primes obsolètes)**
 ```ruby
 # Simulateurs Wallonie/Bruxelles particuliers (devenus obsolètes avec prêts)
 # À VÉRIFIER :
@@ -1542,7 +3233,7 @@ SELECT COUNT(*) FROM votre_table WHERE column_name IS NOT NULL;
 ```
 
 **Checklist tables à vérifier :**
-- [ ] `primes` : Garder seulement Flandre + Entreprises Bruxelles
+- [ ] `primes` : Garder seulement Flandre particuliers
 - [ ] `simulations` : Ajouter champ `simulation_type` (prime/prêt)
 - [ ] Tables temporaires de tests/dev à supprimer
 - [ ] Indexes inutilisés (ralentissent writes)
@@ -1924,14 +3615,14 @@ end
 - **Intégration BCE officielle** validée
 
 ### **2. Transition douce préservant l'acquis**
-- **Flandre/Entreprises** → Continuité service total
-- **Wallonie/Particuliers** → Évolution naturelle vers prêts
+- **Flandre particuliers** → Continuité service total primes
+- **Wallonie/Bruxelles particuliers** → Évolution naturelle vers prêts
 - **Architecture évolutive** sans rupture utilisateur
 - **Migration progressive** par région
 
 ### **3. Écosystème technologique mature**
 - **Stack technique moderne** : Rails 8, PostgreSQL, Stripe
-- **API architecture** prête pour intégrations B2B
+- **API architecture** évolutive et maintenable
 - **IA spécialisée** réglementation énergétique
 - **PWA ready** pour expérience mobile optimale
 
@@ -2002,11 +3693,50 @@ end
 └── [ ] 🎯 LANCEMENT OFFICIEL FIN MARS 2026
 ```
 
-### **📈 OBJECTIFS QUANTIFIÉS LAUNCH**
-- **👥 Users actifs** : 500+ (conversion 4% prospects HOT+WARM)
-- **💰 ARR initial** : 50K€ (mix pricing tiers)
-- **📊 Metrics** : <5% churn, >20% feature adoption
-- **🔄 Pipeline** : 1000+ prospects en nurturing actif
+### **📈 OBJECTIFS QUANTIFIÉS REVISED (JUIN 2026)**
+
+**🎯 FOCUS : Les 3 killer features qui comptent**
+
+#### **Users & Engagement**
+- **👥 500 users actifs** (conversion 4% prospects HOT+WARM)
+  - 100 users HOT (20% conversion)
+  - 200 users WARM (10% conversion)
+  - 135 users COLD (3% conversion)
+  - 50 users DORMANT (1% conversion)
+  - 15 users acquisition organique
+
+- **📊 Activation metrics**
+  - 70% complètent onboarding (créent 1 property)
+  - 50% génèrent au moins 1 devis
+  - 30% utilisent suivi chantier actif
+  - 60% retour semaine 2 (retention)
+
+#### **Revenue**
+- **💰 50K€ ARR** (mix pricing tiers)
+  - FREE : 320 users (64%)
+  - PRO @€29 : 155 users (31%) → 53.940€ ARR
+  - PORTFOLIO @€79 : 25 users (5%) → 23.700€ ARR
+  - **TOTAL ARR** : 77.640€ (dépassement objectif +55% !)
+
+- **💳 Conversion funnel**
+  - Free → Pro : 15% conversion
+  - Churn : <5% mensuel
+  - LTV/CAC : >5x
+
+#### **Feature adoption**
+- **🏘️ Multi-propriétés** : 80% users (MVP core)
+- **💰 Générateur devis** : 65% users (killer feature)
+- **📊 Suivi chantier** : 35% users (projets actifs seulement)
+
+#### **Satisfaction**
+- **⭐ NPS** : >50 (promoteurs)
+- **📧 Support tickets** : <5% users
+- **⏱️ Response time** : <24h
+
+#### **Viralité**
+- **🎁 Referral rate** : 20% users parrainent
+- **📈 K-factor** : >0.5 (croissance organique)
+- **📣 Bouche-à-oreille** : 30+ reviews positifs
 
 ---
 
@@ -2015,14 +3745,50 @@ end
 ### **Risques identifiés**
 1. **Complexité technique** → Développement agile par sprints
 2. **Résistance utilisateurs** → Formation et support renforcé
-3. **Concurrence** → Différenciation par IA et intégration
-4. **Réglementation** → Veille juridique continue
+3. **Résistance professionnels** → ⚠️ **CRITIQUE**
+4. **Concurrence** → Différenciation par IA et intégration
+5. **Réglementation** → Veille juridique continue
+
+### **MITIGATION RISQUE #3 : Résistance architectes/entrepreneurs**
+
+**Risque** : Pros perçoivent Ren0vate comme concurrent → Boycott
+
+**Mitigation** :
+
+**A. Positionnement clair "outil complémentaire"**
+- 📢 Message marketing : "Ren0vate aide les pros, ne les remplace pas"
+- 🎯 Communication : "Moins d'emails, plus de chantier"
+- ✅ Testimonials pros : "Ren0vate m'a fait gagner 5h/semaine"
+
+**B. Fonctionnalités pro-friendly**
+- 🆓 **Accès gratuit pour pros invités** (pas d'abonnement nécessaire)
+- 📱 **App mobile optimisée chantier** (photos rapides)
+- 🔗 **Export facile** (PDF rapports pour leur compta)
+- 🤝 **Branding respecté** (logo entrepreneur visible)
+
+**C. Partenariats gagnant-gagnant**
+- 💼 **Annuaire entrepreneurs** : Visibilité gratuite
+- ⭐ **Reviews clients** : Réputation augmentée
+- 🎁 **Leads qualifiés** : Propriétaires cherchent pros via Ren0vate
+- 📊 **Statistiques portfolio** : Pros montrent projets réalisés
+
+**D. Ce que Ren0vate NE FERA JAMAIS**
+- ❌ Remplacer architectes par IA générative plans
+- ❌ Mettre en concurrence entrepreneurs (style Uber)
+- ❌ Prendre commission sur travaux
+- ❌ Contact direct Ren0vate ↔ Clients (on respecte relation pro-client)
+
+**E. Storytelling "nous sommes avec vous"**
+- 🎤 Events : "Comment digitaliser votre activité BTP"
+- 📚 Guides : "Ren0vate pour entrepreneurs" (onboarding dédié)
+- 🗣️ Advisory board : 5 pros testent features en avant-première
 
 ### **Mesures de protection**
 - **Tests A/B** pour nouvelles fonctionnalités
 - **Rollback** possible vers ancien système
 - **Formation équipe** sur nouvelles technologies
-- **Partenariats stratégiques** avec acteurs établis
+- **Partenariats stratégiques** avec fédérations pro (Confédération Construction, etc.)
+- **Programme ambassadeurs** : 10 entrepreneurs early adopters
 
 ---
 
@@ -2063,13 +3829,68 @@ end
 
 ---
 
-## 🎯 **CONCLUSION**
+## 🎯 **CONCLUSION : LE REVOLUT DE LA RÉNOVATION**
 
-Cette évolution transforme Ren0vate d'un **calculateur de primes** en **plateforme complète de la rénovation**, créant un avantage concurrentiel durable dans un marché en mutation.
+Cette évolution transforme Ren0vate d'un **calculateur de primes** en **plateforme tech de gestion de projets**, créant un avantage concurrentiel durable dans un marché fragmenté.
 
-**L'approche graduelle** préserve l'existant tout en développant de nouveaux marchés, assurant une transition en douceur pour les utilisateurs et une croissance soutenue des revenus.
+### **🔥 Les 3 killer features changent la donne**
 
-**Next steps :** Validation technique des APIs prêts et développement du MVP comparateur entrepreneurs.
+1. **Multi-propriétés** = Centralisation → Lock-in naturel
+2. **Générateur devis** = Transparence → Viralité ("regarde mon devis!")
+3. **Suivi chantier** = Contrôle → Hook retention (usage quotidien)
+
+### **💡 L'approche Revolut**
+
+Revolut ne fait pas **tout ce qu'une banque fait**.
+Revolut fait **mieux les 3 choses qui comptent**.
+
+Ren0vate ne fera pas **tout ce qu'un architecte fait**.
+Ren0vate fera **mieux les 3 choses qui comptent**.
+
+### **🤝 Le positionnement gagnant : Complémentaire, pas concurrent**
+
+**Ren0vate = Le Notion/Trello de la rénovation**
+- ✅ Centralise, organise, fluidifie l'information
+- ✅ Aide architectes ET entrepreneurs (moins d'emails, plus d'efficacité)
+- ✅ Accompagne propriétaires (structure, visibilité, contrôle)
+- ❌ Ne remplace personne, ne concurrence personne
+
+**Business model transparent = Confiance**
+- 💰 Pure SaaS : 100% revenus via abonnements
+- ❌ 0% commission sur travaux
+- ❌ 0% frais cachés
+- ✅ Alignement d'intérêt avec tous les acteurs
+
+**Tout le monde gagne** :
+- **Propriétaires** : Projet organisé, budget maîtrisé
+- **Architectes** : Clients mieux préparés, workflow fluide
+- **Entrepreneurs** : Communication claire, validation rapide
+- **Ren0vate** : Abonnements récurrents si projets réussissent
+
+### **📈 Potentiel de croissance**
+
+- **Marché** : 3M+ propriétés en Belgique
+- **TAM** : 500K rénovations/an
+- **SAM** : 50K propriétaires actifs tech-savvy
+- **SOM** : 5K users réaliste 18 mois (1% penetration)
+
+### **🚀 Next steps immédiats**
+
+1. **✅ Valider roadmap avec équipe dev** (estimation effort)
+2. **✅ Préparer campagne beta** (sélection 100 HOT prospects)
+3. **✅ Designer mockups 3 features** (validation UX)
+4. **✅ Setup analytics & monitoring** (tracking metrics)
+5. **🔨 DÉVELOPPER** (Mars-Juin 2026)
+
+### **🎯 Success criteria (Juin 2026)**
+
+- ✅ 500 users actifs
+- ✅ 50K€+ ARR
+- ✅ <5% churn
+- ✅ NPS >50
+- ✅ Les 3 features utilisées activement
+
+**Ready to ship ! 🚀**
 
 ---
 
@@ -2085,7 +3906,7 @@ Cette évolution transforme Ren0vate d'un **calculateur de primes** en **platefo
 ```
 📊 METRIQUES CLES :
 ├── ARR Growth : 200%+ YoY projeté
-├── Churn Rate : <5% (sticky B2B)
+├── Churn Rate : <5% (sticky B2C SaaS)
 ├── CAC Payback : <6 mois (base prospects)
 ├── LTV/CAC : >5x (recurring revenue)
 └── Market Size : 3M+ propriétés Belgique
