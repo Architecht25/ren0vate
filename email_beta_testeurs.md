@@ -1,89 +1,69 @@
-# Email Beta-Testeurs - Mises à jour Semaine du 3-10 Décembre 2025
+# Email Beta-Testeurs - Février 2026
 
-**Objet**: 🚀 Nouvelles fonctionnalités Ren0vate - Aperçus PDF, Interface améliorée et Corrections importantes
-
----
-
-Chers beta-testeurs,
-
-Nous avons le plaisir de vous informer des nombreuses améliorations apportées à Ren0vate cette semaine. Voici ce qui a changé pour améliorer votre expérience :
-
-## 🖼️ **NOUVELLE FONCTIONNALITÉ : Aperçus PDF automatiques** *(10 décembre)*
-
-**Ce que cela change pour vous :**
-- Lorsque vous uploadez un PDF (certificat PEB, devis, etc.), vous voyez maintenant automatiquement un aperçu de la première page
-- Plus besoin d'ouvrir le document pour voir rapidement son contenu
-- Gain de temps considérable lors de la navigation dans vos documents
-
-**Comment l'utiliser :**
-- Uploadez vos PDF comme d'habitude
-- L'aperçu s'affiche automatiquement sur la carte du document
-- Cliquez sur l'aperçu pour ouvrir le PDF complet
-
-## 📸 **Amélioration des uploads de photos** *(10 décembre)*
-
-**Ce que cela change pour vous :**
-- La taille limite des photos est passée de 10MB à 100MB
-- Vous pouvez maintenant uploader des photos haute résolution sans compression
-- Idéal pour les photos de chantier détaillées et les documents scannés
-
-## 🏢 **Interface entreprises Bruxelles complètement repensée** *(9 décembre)*
-
-**Ce que cela change pour vous (entrepreneurs bruxellois) :**
-- Formulaires d'investissements entièrement modernisés
-- Interface plus intuitive et rapide à remplir
-- Meilleure correspondance avec les critères officiels mijnverbouwpremie
-- Correction des bugs de sauvegarde
-
-**Comment en profiter :**
-- Accédez à vos projets d'investissement depuis le dashboard
-- Les nouveaux formulaires sont automatiquement disponibles
-
-## 🎨 **Améliorations visuelles majeures** *(5-7 décembre)*
-
-**Ce que cela change pour vous :**
-- **Dashboard optimisé** : Plus de défilement nécessaire, tout est visible d'un coup d'œil
-- **Interface documents repensée** : Barres de progression fonctionnelles et design plus attrayant
-- **Cartes propriétés** : Nouvel design plein écran pour mieux voir vos photos
-- **Couleurs harmonisées** : Interface plus cohérente et professionnelle
-
-## 🔧 **Corrections importantes** *(4-5 décembre)*
-
-**Ce que cela résout :**
-- **Formulaires Wallonie** : Sauvegarde des champs corrigée (type de bien, audit énergétique)
-- **Calculs de primes Bruxelles** : Taux d'investissements transition corrigé (30% au lieu de 25%)
-- **Validation des régions** : Plus d'erreurs lors de la sélection de votre région
-- **Correspondance mijnverbouwpremie** : Ajout des champs manquants pour une compatibilité 100%
-
-## 🎯 **Ce que vous devriez tester en priorité :**
-
-1. **Uploadez des PDF** et vérifiez que les aperçus s'affichent bien
-2. **Testez les nouveaux formulaires d'entreprise** (si vous êtes à Bruxelles)
-3. **Vérifiez vos calculs de primes** existants avec les nouveaux taux
-4. **Naviguez dans vos documents** avec la nouvelle interface
-
-## 🐛 **Comment nous aider :**
-
-Si vous rencontrez des problèmes :
-- **Aperçus PDF qui ne s'affichent pas** → Signalez-nous le type de PDF
-- **Formulaires qui ne se sauvegardent pas** → Indiquez-nous les champs concernés
-- **Calculs incorrects** → Partagez-nous le détail de votre simulation
-
-## 📱 **Prochaines améliorations en cours :**
-
-- Version mobile optimisée
-- Notifications en temps réel
-- Export PDF des simulations
-- Intégration calendrier pour le suivi de chantier
+**Objet : 🚀 Ren0vate - Votre nouvel outil gratuit pour gérer vos dossiers de primes et rénovation**
 
 ---
 
-**Merci pour vos retours précieux qui nous permettent d'améliorer Ren0vate chaque jour !**
+Bonjour,
 
-L'équipe Ren0vate
-📧 support@ren0vate.be
-🌐 https://ren0vate-630b5136c442.herokuapp.com/
+Comme expliqué, Primes-Services a fait évoluer ses services et ne traite plus directement les analyses ni la gestion ni l'introduction des demandes de primes pour compte de tiers. Ceci résulte de la profonde mutation du marché des primes. Mais…
+
+**Bonne nouvelle : j'ai développé Ren0vate, une application web qui vous permet désormais de gérer tout cela vous-même, de manière autonome et instantanée !**
+
+## 🎯 Pourquoi utiliser Ren0vate ?
+
+**Gagnez du temps :**
+• Simulez vos primes (Wallonie, Bruxelles, Flandre) en quelques clics
+• Obtenez vos résultats immédiatement, sans attendre
+• Gérez tous vos documents au même endroit
+
+**Simple et intuitif :**
+• Interface guidée étape par étape
+• Pas besoin de connaissances techniques
+• Tout est expliqué clairement
+
+**Complet et fiable :**
+• Calculs automatiques des primes disponibles
+• Suivi de vos propriétés et projets de rénovation
+• Stockage sécurisé de vos documents (PEB, devis, factures...)
+• Conformité avec les règles officielles des 3 régions
+
+## 💰 Gratuit pendant toute la phase de développement
+
+L'application est **100% gratuite** tant qu'elle est en développement. Profitez-en pour tester toutes les fonctionnalités sans limite !
+
+## 🚀 Comment démarrer ?
+
+1. Rendez-vous sur : **https://ren0vate-630b5136c442.herokuapp.com/**
+2. Créez votre compte en 2 minutes
+3. Ajoutez votre première propriété ainsi que votre premier chantier de rénovation
+4. Lancez votre simulation de primes
+5. Consultez l'espace techniques pour répondre à toutes vos questions
+6. Déposez vos documents dans l'espace prévu
+7. Créer votre formulaire de demande, introduisez votre demande de primes sur la plateforme de l'administration
+8. Et enfin suivi vos demandes en temps réel auprès de chaque administration
+
+**À partir de maintenant, pour chaque nouvelle demande ou question, utilisez directement Ren0vate au lieu de nous solliciter.** Vous aurez vos réponses instantanément et pourrez avancer plus rapidement dans vos démarches.
+
+## 🤝 Votre feedback est précieux
+
+En tant que beta-testeur, vos retours m'aident à améliorer l'application chaque jour. N'hésitez pas à me signaler :
+• Ce qui fonctionne bien
+• Ce qui pourrait être amélioré
+• Les fonctionnalités qui vous manquent
+• Ce que vous trouvez absolument génial
+
+Je reste évidemment disponible si vous avez des questions ou rencontrez des difficultés.
 
 ---
 
-*P.S. : N'hésitez pas à partager vos impressions sur les nouvelles fonctionnalités. Vos suggestions sont toujours les bienvenues !*
+**Prêt à gagner en autonomie ? Testez Ren0vate dès aujourd'hui !**
+
+Robin du Parc (CEO)
+Rue Beckers, 19
+1040 Etterbeek
+GSM (Lun-Ven : 9h-17h): 0485 043 745
+
+---
+
+*P.S. : L'application évolue chaque semaine avec de nouvelles fonctionnalités. Plus vous l'utilisez, plus elle devient performante grâce à vos retours !*

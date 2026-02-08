@@ -255,17 +255,31 @@ export default class extends Controller {
 
     const surface = parseFloat(this.inputTarget.value) || 0
 
-    // Récupérer le type de mur sélectionné
-    let typeMur = "exterieur" // défaut
-    if (this.hasTypeMurTarget) {
-      typeMur = this.typeMurTarget.value || "exterieur"
+    // Si pas de surface, retourner 0
+    if (surface === 0) {
+      console.log(`🔍 ${this.slugValue}: Surface = 0, retour 0€`)
+      return 0
     }
 
+    // Récupérer le type de mur sélectionné
+    let typeMur = null
+    if (this.hasTypeMurTarget) {
+      typeMur = this.typeMurTarget.value
+      console.log(`🔍 ${this.slugValue}: Type de mur depuis select = "${typeMur}"`)
+    }
+
+    // Si aucun type sélectionné, retourner 0
+    if (!typeMur || typeMur === "") {
+      console.log(`⚠️ ${this.slugValue}: Aucun type de mur sélectionné, retour 0€`)
+      return 0
+    }
+
+    console.log(`📊 ${this.slugValue}: calculData.montants_m2 =`, calculData.montants_m2)
     const montantParM2 = calculData.montants_m2?.[typeMur] || 0
     const surfaceMax = calculData.surface_max || Infinity
     const surfaceLimitee = Math.min(surface, surfaceMax)
 
-    console.log(`🏗️ Calcul variable m² - Type: ${typeMur}, Surface: ${surfaceLimitee}m², Montant/m²: ${montantParM2}€`)
+    console.log(`🏭 Calcul variable m² - Slug: ${this.slugValue}, Type: ${typeMur}, Surface: ${surfaceLimitee}m², Montant/m²: ${montantParM2}€`)
 
     return surfaceLimitee * montantParM2
   }
@@ -395,6 +409,7 @@ export default class extends Controller {
 
   // Action déclenchée par les selects
   onSelectChange() {
+    console.log(`🗑️ onSelectChange appelé pour ${this.slugValue}`)
     this.calculate()
   }
 

@@ -38,40 +38,28 @@ export default class extends Controller {
     this.setupPrimesData()
     this.setupGroupesPlafond()
 
+    // Écouter les événements de mise à jour des cartes individuelles
+    this.element.addEventListener('flandre:card:updated', (e) => {
+      console.log(`📬 Événement flandre:card:updated reçu de ${e.detail?.slug}`)
+      // Mettre à jour le total global quand une carte change
+      this.updateTotalGlobal()
+    })
+
     // Restaurer les données sauvegardées
     this.restoreSavedData()
 
-    // Debug: vérifier quelles cartes sont présentes
+    // Attendre que les données de primes soient chargées PUIS que les cartes se connectent
+    // avant de faire le premier calcul du total
     setTimeout(() => {
-      console.log("🔍 Debug: vérification des cartes présentes...")
-      const cartesSlugs = [
-        'isolation_toiture',
-        'isolation_murs_cat12',
-        'isolation_murs_cat34',
-        'isolation_sol',
-        'ramen_deuren',
-        'warmtepomp',
-        'warmtepompboiler',
-        'voorbereiding_isolatie',
-        'voorbereiding_sanitair_elec',
-        'renovation_toiture',
-        'renovation_murs',
-        'renovation_sol'
-      ]
+      console.log("🔍 Vérification initiale et premier calcul du total...")
 
-      cartesSlugs.forEach(slug => {
-        const carteElement = document.querySelector(`[data-flandre-simulation-card-slug-value="${slug}"]`)
-        if (carteElement) {
-          console.log(`✅ Carte trouvée: ${slug}`)
-          const resultTarget = carteElement.querySelector('[data-flandre-simulation-card-target="result"]')
-          console.log(`   - Target result: ${resultTarget ? 'TROUVÉ' : 'MANQUANT'}`)
-        } else {
-          console.log(`❌ Carte manquante: ${slug}`)
-        }
-      })
-
-      this.updateTotalGlobal()
-    }, 1000)
+      // Ne calculer le total que si nous ne sommes pas en train de restaurer
+      if (!window.isRestoringValues) {
+        this.updateTotalGlobal()
+      } else {
+        console.log("⏭️ Calcul du total reporté: restauration en cours")
+      }
+    }, 1500)
   }
 
   setupAutoSaveListeners() {
@@ -198,7 +186,12 @@ export default class extends Controller {
           cartesWithTotal++
 
           // Parser le montant des cartes (format: "1.275,00€" ou "320,00€")
-          let montantText = totalElement.textContent.replace('€', '').replace(/\s/g, '')
+          let montantText = totalElement.textContent.replace('€', '').replace(/\s/g, '').trim()
+
+          // Si le texte est vide ou invalide, utiliser 0
+          if (!montantText || montantText === '-' || montantText === '--') {
+            montantText = '0'
+          }
 
           // Si c'est au format "1.275,00" (avec points de milliers), convertir en "1275.00"
           if (montantText.match(/^\d{1,3}(\.\d{3})*,\d{2}$/)) {
@@ -212,7 +205,15 @@ export default class extends Controller {
             montantText = montantText.replace(',', '.')
           }
 
-          const montant = parseFloat(montantText) || 0
+          // Parser et s'assurer que le montant est positif
+          let montant = parseFloat(montantText) || 0
+
+          // Protection contre les valeurs négatives (ne devrait jamais arriver)
+          if (montant < 0) {
+            console.warn(`⚠️ Montant négatif détecté pour ${slug}: ${montant}€, forcé à 0`)
+            montant = 0
+          }
+
           total += montant
           if (montant > 0) {
             console.log(`✅ Carte ${slug}: ${montant}€ (texte: "${totalElement.textContent}")`)
@@ -946,6 +947,11 @@ export default class extends Controller {
       return
     }
 
+    // Activer le flag de restauration pour éviter les auto-saves concurrents
+    window.isRestoringValues = true
+    window.restorationStartTime = Date.now()
+    console.log("🔒 Flag de restauration activé")
+
     try {
       console.log("📡 Envoi requête de restauration...")
       const response = await fetch(`/fr/simulations/${this.simulationIdValue}/restore_prime_inputs`, {
@@ -985,16 +991,34 @@ export default class extends Controller {
             }
           })
 
-          // Recalculer après restauration
+          // Attendre que toutes les cartes aient recalculé, puis recalculer le total
           setTimeout(() => {
-            this.updateTotalGlobal()
-          }, 500)
+            console.log("🔓 Désactivation du flag de restauration")
+            window.isRestoringValues = false
+            window.restorationStartTime = null
+
+            // Force le recalcul de toutes les cartes
+            this.triggerCardsRecalculation()
+
+            // Puis mettre à jour le total
+            setTimeout(() => {
+              this.updateTotalGlobal()
+            }, 200)
+          }, 800)
+        } else {
+          // Désactiver le flag même en cas d'erreur
+          window.isRestoringValues = false
+          window.restorationStartTime = null
         }
       } else {
         console.log("⚠️ Erreur lors de la restauration:", response.status)
+        window.isRestoringValues = false
+        window.restorationStartTime = null
       }
     } catch (error) {
       console.error("❌ Erreur restauration:", error)
+      window.isRestoringValues = false
+      window.restorationStartTime = null
     }
   }
 
@@ -1030,20 +1054,21 @@ export default class extends Controller {
   restorePrimeInput(slug, value) {
     console.log(`🔄 Restauration ${slug}:`, value)
 
-    // Chercher l'input dans la carte correspondante
-    const cardElement = this.element.querySelector(`[data-flandre-simulation-card-slug-value="${slug}"]`)
-    if (cardElement) {
-      const input = cardElement.querySelector('[data-flandre-simulation-card-target="input"]')
-      if (input) {
-        input.value = value
-        console.log(`✅ Valeur ${value} restaurée pour ${slug}`)
-        // Déclencher les événements pour mettre à jour l'affichage et recalculer
-        input.dispatchEvent(new Event('input', { bubbles: true }))
+    // Chercher l'élément (input ou select) avec ce slug
+    const element = this.element.querySelector(`[data-slug="${slug}"]`)
+
+    if (element) {
+      element.value = value
+      console.log(`✅ Valeur ${value} restaurée pour ${slug}`)
+
+      // Déclencher les événements appropriés selon le type d'élément
+      if (element.tagName === 'SELECT') {
+        element.dispatchEvent(new Event('change', { bubbles: true }))
       } else {
-        console.warn(`❌ Input non trouvé pour ${slug}`)
+        element.dispatchEvent(new Event('input', { bubbles: true }))
       }
     } else {
-      console.warn(`❌ Carte non trouvée pour ${slug}`)
+      console.warn(`❌ Élément non trouvé pour slug: ${slug}`)
     }
   }
 
