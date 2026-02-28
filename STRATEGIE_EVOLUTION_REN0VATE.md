@@ -1,6 +1,6 @@
 # 🚀 STRATÉGIE D'ÉVOLUTION REN0VATE - V2.0
 
-*Date de création : 12 décembre 2025*  
+*Date de création : 12 décembre 2025*
 *Révision majeure : 8 février 2026*
 
 ---
@@ -76,10 +76,10 @@ Tagline : "Un projet, une app, trois acteurs, zéro friction"
 
 ### 🎯 Analogie Clarificatrice
 
-**Ren0vate ≠ Revolut** (B2C pur)  
+**Ren0vate ≠ Revolut** (B2C pur)
 **Ren0vate = Slack de la rénovation** (Collaboratif)
 
-**Slack n'a pas remplacé les employés, il a remplacé l'email.**  
+**Slack n'a pas remplacé les employés, il a remplacé l'email.**
 **Ren0vate ne remplace pas les pros, il remplace le chaos.**
 
 ---
@@ -108,13 +108,13 @@ Tagline : "Un projet, une app, trois acteurs, zéro friction"
 
 ### Les 3 Douleurs Majeures Résolues
 
-1. **Confusion multi-projets** (Proprio avec 3 apparts)  
+1. **Confusion multi-projets** (Proprio avec 3 apparts)
    → ✅ Dashboard centralisé multi-propriétés IA
 
-2. **Devis opaques/lents** (Attendre 3 semaines)  
+2. **Devis opaques/lents** (Attendre 3 semaines)
    → ✅ Estimation IA instantanée (30 sec) + Benchmark
 
-3. **Perte de contrôle chantier**  
+3. **Perte de contrôle chantier**
    → ✅ Score santé projet /10 + IA détection progression
 
 ---
@@ -124,7 +124,7 @@ Tagline : "Un projet, une app, trois acteurs, zéro friction"
 
 ### 🎯 Stratégie Data Moat
 
-**Principe** : Chaque projet = Data pour ML  
+**Principe** : Chaque projet = Data pour ML
 **100.000 chantiers** = Barrière infranchissable concurrence (3-5 ans avance)
 
 ### Les 7 Outils
@@ -140,7 +140,7 @@ class AiBudgetEstimatorService
   def estimate(property, works_selected)
     # ML model entraîné sur 100K+ chantiers réels
     # Facteurs : région, type bien, surfaces, finitions
-    
+
     works_selected.map do |work|
       {
         type: work.type,
@@ -165,15 +165,15 @@ end
 ```ruby
 # GPT-4 Vision + ML custom
 def analyze_construction_progress(photos, phase_expected)
-  gpt4_analysis = OpenAI.analyze_image(photo, 
+  gpt4_analysis = OpenAI.analyze_image(photo,
     prompt: "Construction phase: #{phase_expected}. Completion %?"
   )
-  
+
   # Validation croisée avec modèle ML entraîné
   ml_prediction = ProgressDetectionModel.predict(photo_features)
-  
+
   consensus_score = (gpt4_analysis + ml_prediction) / 2
-  
+
   {
     progress: consensus_score,
     confidence: 0.92,
@@ -283,6 +283,1225 @@ Satisfaction clients : 4.2/5 ⭐
 ```
 
 **Valeur** : Fin de l'asymétrie information
+
+---
+
+#### 8. 🔬 Comparateur Produits & Matériaux IA
+
+**🎯 KILLER FEATURE ÉNERGÉTIQUE**
+
+**Problème** : Propriétaire perdu face aux choix techniques
+- "Laine de verre ou laine de roche pour mon isolation ?"
+- "Quel châssis choisir : PVC, bois, alu ?"
+- "Condensation ou pompe à chaleur pour ma chaudière ?"
+- "Quel impact réel sur ma facture énergie ?"
+
+**95% propriétaires** = Zéro connaissance technique → Choix par défaut entrepreneur
+
+---
+
+**Solution : Comparateur Intelligent 30 Secondes**
+
+**Interface utilisateur** :
+
+```
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃  COMPAREZ VOS MATÉRIAUX EN 30 SECONDES  ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+Votre projet : Isolation toiture 120m²
+Maison Liège, année 1985
+
+┌─────────────────────────────────────────┐
+│ 🔍 Que voulez-vous comparer ?           │
+│                                         │
+│  ☑️ Isolants toiture                    │
+│  ☐ Châssis                              │
+│  ☐ Chaudières                           │
+│  ☐ Panneaux solaires                    │
+└─────────────────────────────────────────┘
+
+[Comparer maintenant] →
+```
+
+---
+
+**Comparaison automatique (30 sec)** :
+
+```
+═══════════════════════════════════════════════════════════
+COMPARATIF ISOLANTS TOITURE (120m², Liège)
+═══════════════════════════════════════════════════════════
+
+                  LAINE ROCHE    LAINE VERRE    POLYURÉTHANE
+                  ════════════   ════════════   ══════════════
+💰 PRIX
+   16cm           5.400€         4.800€         7.200€
+   20cm           6.200€         5.500€         8.100€
+   Verdict        Moyen 🟡       Bas 🟢         Élevé 🔴
+
+🔥 PERFORMANCE THERMIQUE
+   Lambda (W/m.K) 0.034          0.040          0.022
+   R 16cm         4.70 m²K/W     4.00 m²K/W     7.27 m²K/W
+   Verdict        Bon 🟢         Moyen 🟡       Excellent 🟢
+
+💡 ÉCONOMIE ÉNERGIE (20 ans)
+   Gain annuel    680€/an        540€/an        920€/an
+   Total 20 ans   13.600€        10.800€        18.400€
+   ROI            11 ans         10 ans         9 ans
+   Verdict        Bon 🟢         Moyen 🟡       Excellent 🟢
+
+🌱 ÉCOLOGIE
+   Énergie grise  150 kWh/m³     200 kWh/m³     1.000 kWh/m³
+   Recyclable     Oui ♻️         Oui ♻️         Non ❌
+   Biosourcé      Minéral        Minéral        Synthétique
+   Verdict        Bon 🟢         Moyen 🟡       Faible 🔴
+
+🛡️ DURABILITÉ
+   Durée vie      50+ ans        50+ ans        50+ ans
+   Résistance feu A1 🔥          A1 🔥          E 🔥
+   Résistance eau Excellente     Moyenne        Excellente
+   Verdict        Excellent 🟢   Bon 🟡         Excellent 🟢
+
+🏆 PRIMES ÉLIGIBLES
+   Wallonie       3.240€         3.240€         3.240€
+   TVA réduite    6% ✅          6% ✅          6% ✅
+
+🎖️ CERTIFICATIONS
+   CE             ✅             ✅             ✅
+   ATG/ETA        ✅             ✅             ✅
+   Label éco      Oui            Non            Non
+
+═══════════════════════════════════════════════════════════
+
+📊 SCORE GLOBAL (pondéré selon vos priorités)
+
+🥇 LAINE ROCHE      : 8.5/10  🟢 RECOMMANDÉ
+   Meilleur équilibre prix/perf/écologie
+
+🥈 POLYURÉTHANE     : 8.2/10  🟢 Si budget disponible
+   Performance max mais coût + écologie -
+
+🥉 LAINE VERRE      : 7.1/10  🟡 Économique
+   Prix bas mais performances inférieures
+
+═══════════════════════════════════════════════════════════
+
+💡 RECOMMANDATION IA PERSONNALISÉE
+
+Votre profil :
+• Maison 1985 (isolation actuelle faible)
+• Budget moyen indiqué : 5.000-7.000€
+• Priorité déclarée : Écologie + Économies
+
+🎯 CHOIX OPTIMAL : LAINE ROCHE 16cm
+
+Pourquoi ?
+✅ ROI excellent (11 ans, économie 13.600€ sur 20 ans)
+✅ Écologie supérieure (minéral naturel, recyclable)
+✅ Prix dans votre budget (5.400€)
+✅ Éligible prime 3.240€ → Coût réel 2.160€
+✅ Meilleur rapport qualité/prix marché belge
+
+🔄 Alternative si budget limité :
+   Laine verre 20cm (5.500€) = Performance équivalente
+
+⚡ Alternative si performance max :
+   Polyuréthane 16cm (7.200€) = Épaisseur réduite
+```
+
+---
+
+**Comparaisons disponibles Phase 1 (Énergétique)** :
+
+1. **🏠 Isolants** (7 types)
+   - Laine de roche
+   - Laine de verre
+   - Polyuréthane
+   - PIR (polyisocyanurate)
+   - Chanvre (biosourcé)
+   - Ouate cellulose (biosourcé)
+   - Liège expansé (biosourcé)
+
+2. **🪟 Châssis** (3 matériaux × 3 vitrages)
+   - PVC / Bois / Aluminium
+   - Double / Triple / HR++
+   - Facteur Uw (isolation) comparé
+
+3. **🔥 Chaudières** (5 technologies)
+   - Gaz condensation
+   - Mazout condensation
+   - Pompe à chaleur air-eau
+   - Pompe à chaleur géothermique
+   - Chaudière biomasse (pellets)
+
+4. **☀️ Panneaux Solaires** (3 types)
+   - Monocristallin (rendement max)
+   - Polycristallin (rapport qualité/prix)
+   - Tuiles solaires (esthétique)
+
+5. **💧 Chauffe-eau** (4 types)
+   - Électrique classique
+   - Thermodynamique (pompe à chaleur)
+   - Solaire thermique
+   - Combiné chaudière
+
+---
+
+**Technologies & Data IA** :
+
+```ruby
+# app/services/ai_product_comparator.rb
+
+class AiProductComparatorService
+  def compare(product_category, user_context)
+    # Contexte utilisateur enrichi
+    context = {
+      property: user_context.property,        # m², année, région
+      budget: user_context.budget,            # Budget disponible
+      priorities: user_context.priorities,    # [ecology, cost, performance]
+      existing_system: user_context.current   # État actuel
+    }
+
+    # Récupération produits avec specs techniques
+    products = ProductDatabase.where(category: product_category)
+
+    # Enrichissement IA pour chaque produit
+    comparisons = products.map do |product|
+      {
+        product: product,
+
+        # Calculs personnalisés projet
+        price: calculate_project_price(product, context),
+        energy_savings: simulate_energy_savings(product, context),
+        roi_years: calculate_roi(product, context),
+        grants_eligible: check_grants_eligibility(product, context),
+
+        # Scores IA pondérés
+        price_score: score_price(product, context),
+        performance_score: score_thermal_performance(product),
+        ecology_score: score_ecology(product),
+        durability_score: score_durability(product),
+
+        # Score global personnalisé
+        global_score: calculate_weighted_score(product, context.priorities)
+      }
+    end
+
+    # Tri par pertinence IA
+    ranked = comparisons.sort_by { |c| -c[:global_score] }
+
+    # Génération recommandation IA personnalisée
+    recommendation = generate_ai_recommendation(ranked, context)
+
+    {
+      comparisons: ranked,
+      recommendation: recommendation,
+      calculated_in: Time.current
+    }
+  end
+
+  private
+
+  def simulate_energy_savings(product, context)
+    # Simulation énergétique avancée
+    current_consumption = context.property.current_energy_consumption
+    surface = context.property.surface
+
+    # Calcul gain thermique selon isolation
+    thermal_improvement = calculate_thermal_improvement(
+      product: product,
+      surface: surface,
+      current_r_value: context.existing_system&.r_value || 0
+    )
+
+    # Conversion en économie € annuelle
+    annual_saving = thermal_improvement * context.property.energy_unit_cost
+
+    {
+      annual_kwh_saved: thermal_improvement,
+      annual_euro_saved: annual_saving,
+      savings_20_years: annual_saving * 20,
+      co2_reduction_kg: thermal_improvement * 0.21 # Coef CO2 Belgique
+    }
+  end
+
+  def generate_ai_recommendation(products, context)
+    # Claude Opus génère recommandation personnalisée
+    Anthropic::AI.complete(
+      model: "claude-opus-4",
+      prompt: <<~PROMPT
+        Tu es expert énergétique belge. Recommande meilleur produit.
+
+        PRODUITS COMPARÉS :
+        #{products.to_json}
+
+        PROFIL CLIENT :
+        - Bien : #{context.property.type}, #{context.property.year}
+        - Budget : #{context.budget}€
+        - Priorités : #{context.priorities.join(', ')}
+
+        GÉNÈRE :
+        1. Choix optimal (1er produit) avec justification claire
+        2. Alternative budget limité
+        3. Alternative performance maximale
+        4. Explication vulgarisée (pas jargon technique)
+      PROMPT
+    )
+  end
+end
+```
+
+---
+
+**Base de données produits** :
+
+```ruby
+# db/migrate/XXX_create_product_database.rb
+
+create_table :products do |t|
+  t.string :category        # insulation, windows, heating, solar
+  t.string :name            # "Laine de roche Rockwool"
+  t.string :brand           # "Rockwool", "Recticel", etc.
+
+  # Specs techniques
+  t.jsonb :technical_specs  # Lambda, R-value, Uw, rendement, etc.
+  t.jsonb :certifications  # CE, ATG, labels écologiques
+
+  # Prix (mis à jour régulièrement)
+  t.decimal :price_per_unit # €/m² ou €/unité
+  t.string :price_updated_at
+
+  # Performance énergétique
+  t.decimal :thermal_performance
+  t.decimal :energy_efficiency
+  t.integer :lifespan_years
+
+  # Écologie
+  t.integer :grey_energy_kwh   # Énergie grise fabrication
+  t.boolean :recyclable
+  t.boolean :biosourced
+  t.string :eco_labels, array: true
+
+  # Éligibilité primes
+  t.boolean :wallonie_grant_eligible
+  t.boolean :flanders_grant_eligible
+  t.boolean :brussels_grant_eligible
+  t.boolean :vat_6_eligible
+
+  # Métriques marché
+  t.integer :installations_count  # Nombre installations Belgique
+  t.decimal :average_rating       # Note clients
+  t.integer :reviews_count
+
+  t.timestamps
+end
+
+# Exemples données pré-remplies
+Product.create!(
+  category: 'insulation',
+  name: 'Laine de roche Rockwool Rockmur',
+  brand: 'Rockwool',
+  technical_specs: {
+    lambda: 0.034,              # W/m.K
+    r_value_per_cm: 0.294,     # m².K/W par cm
+    fire_resistance: 'A1',
+    water_resistance: 'excellent',
+    vapor_permeability: 'μ = 1'
+  },
+  price_per_unit: 45.0,         # €/m² (16cm)
+  thermal_performance: 4.70,    # R-value 16cm
+  lifespan_years: 50,
+  grey_energy_kwh: 150,
+  recyclable: true,
+  biosourced: false,
+  eco_labels: ['EUCEB', 'CE'],
+  wallonie_grant_eligible: true,
+  vat_6_eligible: true,
+  installations_count: 12_500,  # Data collectée projets Ren0vate
+  average_rating: 4.3
+)
+```
+
+---
+
+**Intégration workflow générateur devis** :
+
+```
+SCÉNARIO UTILISATEUR :
+
+1. Propriétaire crée simulation "Isolation toiture"
+
+2. 🤖 Ren0vate suggère automatiquement :
+   "💡 Comparez les matériaux avant devis (30 sec)"
+   [Comparer isolants] ←
+
+3. Comparateur s'ouvre → Choix "Laine roche 16cm"
+
+4. Retour générateur devis :
+   ✅ Matériau pré-sélectionné : Laine roche Rockwool 16cm
+   ✅ Prix actualisé : 5.400€
+   ✅ Performance indiquée : R=4.70 m².K/W
+   ✅ Économie 20 ans affichée : 13.600€
+
+5. Devis enrichi envoyé entrepreneurs inclut :
+   "Matériau souhaité : Laine roche 16cm (λ=0.034)
+    Alternative acceptée : Laine verre 20cm (performance équivalente)"
+```
+
+---
+
+**UI/UX Mobile-First** :
+
+```
+📱 ÉCRAN MOBILE (Version simplifiée)
+
+┏━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Isolants toiture         ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+ 🥇 RECOMMANDÉ IA
+┌───────────────────────────┐
+│ 🏠 LAINE ROCHE 16cm       │
+│                           │
+│ 💰 5.400€ (-3.240€ prime) │
+│ ⚡ Économie : 680€/an      │
+│ 🌱 Score éco : 8.5/10     │
+│ 🔥 Feu : A1               │
+│                           │
+│ [Détails] [Choisir ✓]    │
+└───────────────────────────┘
+
+ Autres options (2)
+┌───────────────────────────┐
+│ LAINE VERRE 16cm          │
+│ 💰 4.800€ | ⚡ 540€/an     │
+│ [Comparer]                │
+└───────────────────────────┘
+
+┌───────────────────────────┐
+│ POLYURÉTHANE 16cm         │
+│ 💰 7.200€ | ⚡ 920€/an     │
+│ [Comparer]                │
+└───────────────────────────┘
+
+[Voir comparatif détaillé →]
+```
+
+---
+
+**Phase 1 Roadmap (Q2-Q3 2026)** :
+
+**Avril 2026** : Base données produits énergétiques
+- ✅ 50 produits isolants (7 catégories)
+- ✅ 30 châssis (3 matériaux × 3 vitrages)
+- ✅ Specs techniques + prix marché
+
+**Mai 2026** : Comparateur isolation MVP
+- ✅ Interface comparaison 3 produits
+- ✅ Calculs personnalisés (économies, ROI)
+- ✅ Recommandation IA basique
+
+**Juin 2026** : Enrichissement
+- ✅ +20 chaudières (5 technologies)
+- ✅ Intégration workflow devis
+- ✅ Version mobile optimisée
+
+**Juillet 2026** : Extensions
+- ✅ Panneaux solaires (rendements comparés)
+- ✅ Chauffe-eau (4 types)
+- ✅ Système priorisation personnalisée
+
+---
+
+**Valeur Business** :
+
+| Acteur | Avantage | Impact |
+|--------|----------|--------|
+| **Propriétaire** | Choix éclairés (vs manipulation) | Confiance +40% |
+| | Économies optimisées (+20% ROI) | Satisfaction +35% |
+| **Entrepreneur** | Clients éduqués = moins litiges | Conflits -30% |
+| | Specs claires dès devis | Temps clarif -5h |
+| **Architecte** | Recommandations techniques facilités | Crédibilité +25% |
+| **Ren0vate** | Différenciation concurrence | Unique marché |
+| | Hook engagement (+3 sessions) | Retention +20% |
+
+---
+
+**Effort développement** :
+
+| Phase | Effort | Livrable |
+|-------|--------|----------|
+| Base données produits | 40h | 100 produits specs complètes |
+| Moteur calculs énergétiques | 60h | Simulations personnalisées |
+| Interface comparateur | 50h | UI + Mobile responsive |
+| Recommandation IA | 30h | Claude intégration |
+| Intégration workflow | 20h | Devis enrichis |
+| **TOTAL** | **200h** | **Comparateur complet** |
+
+**ROI** : 200h dev (10% budget 6 mois) = **Différenciateur majeur énergétique**
+
+---
+
+**Données compétitives** :
+
+**Concurrents actuels** :
+- ❌ Thermador, Facq : Catalogues statiques, pas comparaison
+- ❌ Sites fabricants : Biais commercial évident
+- ❌ Forums bricolage : Subjectif, non personnalisé
+
+**Ren0vate** :
+- ✅ Comparaison objective basée data réelle
+- ✅ Personnalisation IA selon projet
+- ✅ Intégration directe workflow devis
+- ✅ Mise à jour prix temps réel (API fournisseurs)
+
+---
+
+**Extensions futures (Q4 2026+)** :
+
+**Phase 2 : Catalogue complet construction**
+- Toitures (tuiles, ardoises, EPDM)
+- Revêtements sols (parquet, carrelage)
+- Peintures (écologiques, rendement)
+- Sanitaires (économie eau)
+
+**Phase 3 : Marketplace intégrée**
+- Lien direct boutiques partenaires
+- Commission affiliation 3-5%
+- Garantie meilleur prix
+
+**Phase 4 : IA prédictive tendances**
+- "Matériaux montants (pompe chaleur +300% 2025)"
+- "Obsolescence annoncée (chaudière gaz -2035)"
+- "Primes limitées temps (biomasse jusqu'à été 2026)"
+
+---
+
+### 9️⃣ AGENTS AUTONOMES JURIDIQUES (Anthropic)
+
+**🚨 GAME CHANGER DISRUPTIF**
+
+Suite à l'annonce des agents autonomes d'Anthropic (février 2026) qui ont **déstabilisé le marché legal tech coté en bourse**, Ren0vate intègre 4 agents juridiques autonomes.
+
+**Différence fondamentale** :
+- ❌ Chatbot classique : Répond à des questions (passif)
+- ✅ Agent autonome : Lit, analyse, agit, génère, décide (actif)
+
+**Impact Legal Tech** : Thomson Reuters, LexisNexis ont vu leurs actions baisser car analyse contrats automatisée remplace juristes juniors.
+
+**Opportunité Ren0vate** :
+- 40%+ chantiers rénovation = litiges (retards, malfaçons, garanties)
+- Propriétaires = 0% connaissance juridique
+- Documents standardisés = parfait pour IA
+
+---
+
+#### Agent 1 : 🤖 Analyseur de Contrats Entrepreneur
+
+**Workflow autonome** :
+
+```
+1. UPLOAD
+   Entrepreneur upload contrat PDF (3-50 pages)
+
+2. EXTRACTION AUTOMATIQUE
+   • OCR si document scanné
+   • Parsing structure juridique
+   • Identification clauses clés
+
+3. ANALYSE CONFORMITÉ
+   ✅ Conforme : Garantie décennale mentionnée (art. 1792 Code Civil)
+   ✅ Conforme : Assurance RC décennale n° [XXX]
+   ⚠️  Flou : Délais pénalités non précisés
+   ❌ Non conforme : Clause "Aucune garantie après réception"
+   ❌ Abusif : "Modification prix unilatérale possible"
+
+4. COMPARAISON LÉGALE
+   • Code Civil belge (art. 1787-1799)
+   • Loi protection consommateur
+   • Jurisprudence construction (10.000+ décisions)
+
+5. GÉNÉRATION RAPPORT
+   📊 Score conformité : 6.5/10
+   🔴 3 points bloquants identifiés
+   🟡 5 points à clarifier
+   ✅ 12 points conformes
+
+6. RECOMMANDATIONS ACTIONS
+   "Avant signature, exigez corrections suivantes :
+
+   Clause 7.2 → Remplacer par :
+   'L'entrepreneur garantit décennalement les vices
+    cachés conformément art. 1792 Code Civil'
+
+   Clause 12 → Ajouter :
+   'Retard > 15j : pénalité 0.5% montant/jour'"
+
+7. NOTIFICATION AUTOMATIQUE
+   ⚠️  Email propriétaire : "Contrat nécessite 3 corrections"
+   ⚠️  Email architecte : "Validation recommandée avant signature"
+```
+
+**Technologies** :
+```ruby
+# app/services/autonomous_agents/contract_analyzer_agent.rb
+
+class ContractAnalyzerAgent
+  def analyze(contract_pdf)
+    # 1. Extraction
+    text = extract_with_ocr(contract_pdf)
+
+    # 2. Analyse structure juridique
+    clauses = parse_legal_structure(text)
+
+    # 3. Agent Anthropic autonome
+    analysis = Anthropic::Agent.run(
+      model: "claude-opus-4",
+      tools: [
+        legal_database_tool,    # Accès Code Civil belge
+        jurisprudence_search,   # 10K décisions
+        clause_validator        # Templates conformes
+      ],
+      instructions: <<~PROMPT
+        Tu es un agent juridique spécialisé construction belge.
+
+        MISSION : Analyser contrat entrepreneur, identifier risques,
+                 proposer corrections conformes droit belge.
+
+        ÉTAPES AUTONOMES :
+        1. Lire intégralement le contrat
+        2. Identifier toutes clauses (garanties, délais, paiements, pénalités)
+        3. Pour chaque clause : comparer avec Code Civil et loi consommateur
+        4. Rechercher jurisprudence similaire si clause douteuse
+        5. Scorer conformité globale /10
+        6. Générer corrections précises clause par clause
+        7. Prioriser risques (bloquant/attention/ok)
+      PROMPT
+    )
+
+    # 4. Génération rapport structuré
+    generate_report(analysis, clauses)
+  end
+end
+```
+
+**Valeur** :
+- **Propriétaires** : Protection contre clauses abusives (95% ne lisent pas contrats)
+- **Architectes** : Validation juridique automatisée (5h → 15min)
+- **Entrepreneurs** : Contrats pré-validés = moins litiges ultérieurs
+
+**ROI** : 150h développement → Évite 30%+ litiges juridiques
+
+---
+
+#### Agent 2 : 🛡️ Gestionnaire Garanties Intelligentes
+
+**Workflow autonome** :
+
+```
+DÉCLENCHEMENT AUTOMATIQUE : Réception provisoire signée
+
+1. DÉTECTION ÉVÉNEMENT
+   📅 15/03/2026 : Réception provisoire chantier M. Durand effectuée
+
+2. CALCULS LÉGAUX AUTOMATIQUES
+   📆 Garantie biennale finitions :
+      Début : 15/03/2026
+      Fin : 15/03/2028
+
+   📆 Garantie décennale gros œuvre :
+      Début : 15/03/2026
+      Fin : 15/03/2036
+
+3. CRÉATION ALERTES CALENDRIER
+   ⏰ 15/01/2028 (-60j garantie biennale)
+      → "Inspectez finitions avant expiration garantie"
+      → [Créer checklist inspection]
+
+   ⏰ 15/03/2035 (-1 an garantie décennale)
+      → "Dernière inspection structure recommandée"
+
+4. MONITORING CONTINU
+   🔍 Agent surveille signalements problèmes post-réception
+
+5. ANALYSE JURIDIQUE SI PROBLÈME
+
+   EXEMPLE : Propriétaire signale "Fissure mur porteur" (20/08/2027)
+
+   Agent analyse automatiquement :
+   ✅ Date problème (20/08/2027) < Fin garantie décennale (15/03/2036)
+   ✅ Type problème : Gros œuvre (couvert garantie décennale)
+   ✅ Jurisprudence : 37 cas similaires → 92% victoires propriétaire
+
+   🤖 DÉCISION AGENT : "Problème couvert garantie décennale"
+
+6. GÉNÉRATION AUTOMATIQUE DOCUMENTS
+
+   📝 Lettre recommandée entrepreneur (template juridique conforme) :
+
+   "Monsieur,
+
+   Conformément à l'article 1792 du Code Civil, nous vous notifions
+   d'un vice affectant la solidité de l'ouvrage :
+
+   - Nature : Fissure mur porteur cuisine
+   - Date constatation : 20/08/2027
+   - Photos jointes : 8
+   - Délai intervention exigé : 15 jours
+
+   À défaut, mise en demeure puis recours contentieux.
+
+   Garantie décennale expiration : 15/03/2036
+   Police assurance décennale : [N° extraite contrat initial]"
+
+7. SUIVI AUTOMATIQUE
+
+   J+7 : Relance si pas réponse
+   J+15 : Escalade architecte + assurance
+   J+30 : Proposition avocat partenaire
+
+8. ARCHIVAGE LÉGAL
+
+   Tous échanges stockés 10 ans (obligation légale)
+   Horodatage blockchain si litige judiciaire
+```
+
+**Technologies** :
+```ruby
+# app/services/autonomous_agents/warranty_manager_agent.rb
+
+class WarrantyManagerAgent
+  # Déclenchement automatique via callback
+  after_create :on_provisional_reception, model: ProjectReception
+
+  def on_provisional_reception(reception)
+    # Calcul dates légales
+    warranties = calculate_legal_warranties(reception.date)
+
+    # Création alertes calendrier
+    create_calendar_reminders(warranties)
+
+    # Agent monitoring actif
+    start_continuous_monitoring(reception.project)
+  end
+
+  def handle_issue_reported(issue, project)
+    # Agent Anthropic analyse autonome
+    legal_analysis = Anthropic::Agent.run(
+      model: "claude-opus-4",
+      tools: [
+        warranty_calculator,    # Calculs garanties légales
+        jurisprudence_db,       # Recherche jurisprudence
+        insurance_checker,      # Validation polices assurance
+        document_generator      # Templates lettres juridiques
+      ],
+      instructions: <<~PROMPT
+        MISSION : Analyser problème post-réception, déterminer couverture
+                 garantie, générer documents juridiques si nécessaire.
+
+        CONTEXTE PROJET :
+        - Réception : #{project.reception_date}
+        - Type travaux : #{project.work_types}
+        - Entrepreneur : #{project.contractor_info}
+
+        PROBLÈME SIGNALÉ :
+        - Type : #{issue.category}
+        - Description : #{issue.description}
+        - Date : #{issue.reported_at}
+        - Photos : #{issue.photos.count}
+
+        ACTIONS AUTONOMES :
+        1. Calculer si problème dans période garantie (biennale/décennale)
+        2. Déterminer type garantie applicable selon nature problème
+        3. Rechercher jurisprudence similaire (10K décisions)
+        4. Si couvert : Générer lettre recommandée entrepreneur
+        5. Si litigieux : Proposer recours + contact avocat
+        6. Planifier relances automatiques J+7, J+15, J+30
+      PROMPT
+    )
+
+    # Exécution actions recommandées
+    execute_agent_recommendations(legal_analysis)
+  end
+end
+```
+
+**Valeur** :
+- **Propriétaires** : Zéro oubli garanties (protection juridique permanente)
+- **Sécurité** : Documentation automatique opposable tribunal
+- **Économie** : Évite frais avocat si gestion proactive (1.500-5.000€)
+
+**ROI** : 100h développement → Protège 100% utilisateurs vs oublis garanties
+
+---
+
+#### Agent 3 : ✅ Valideur Conformité Devis
+
+**Workflow autonome** :
+
+```
+DÉCLENCHEMENT : Entrepreneur upload devis dans plateforme
+
+1. RÉCEPTION DEVIS
+   📄 Devis_Isolation_Toiture_Durand.pdf (6 pages)
+
+2. EXTRACTION DONNÉES
+   • Montants (HT/TVA/TTC)
+   • Postes travaux (isolation, châssis, etc.)
+   • Conditions paiement
+   • Délais exécution
+   • Mentions légales
+
+3. VALIDATION CONFORMITÉ LÉGALE (autonome)
+
+   ✅ BCE entrepreneur : BE0123456789 (vérifié via BCE.be API)
+   ✅ Numéro TVA : BE0123456789 (format valide)
+   ✅ Assurance RC : Police AXA n° 789456 (vérifiée)
+
+   ❌ TVA appliquée : 21%
+      → Agent détecte : "Isolation toiture = TVA 6% si conditions"
+      → Recherche automatique : Bien >10 ans + Usage privé
+      → 🤖 DÉCISION : TVA devrait être 6% (économie 810€)
+
+   ⚠️  Délai validité offre : Non mentionné
+      → Loi : 30 jours minimum si travaux >5.000€
+      → 🤖 RECOMMANDATION : Ajouter "Offre valable 30 jours"
+
+   ⚠️  Conditions paiement : "100% à la commande"
+      → Loi consommateur : Max 20% avant début travaux
+      → 🤖 ALERTE : Clause abusive détectée
+
+4. COMPARAISON CAHIER CHARGES
+
+   📋 Cahier charges initial propriétaire :
+   - Isolation 16cm laine roche
+   - Pare-vapeur + finition plafonnage
+
+   📄 Devis entrepreneur :
+   - Isolation 12cm laine verre ❌ DIVERGENCE
+   - Pare-vapeur ✅
+   - Finition plafonnage ✅
+
+   🤖 Agent détecte automatiquement :
+   "Épaisseur isolation réduite (16cm → 12cm)
+    Impact PEB : -0.8 point (simulation)
+    Économie entrepreneur : ~450€
+    Justification : Aucune"
+
+5. BENCHMARK PRIX MARCHÉ (IA #7 intégrée)
+
+   Prix devis : 5.400€ (120m² toiture)
+   Benchmark Wallonie : Médiane 5.760€
+
+   ✅ Prix raisonnable (-6% vs marché)
+
+6. GÉNÉRATION RAPPORT VALIDATION
+
+   📊 RAPPORT CONFORMITÉ DEVIS
+
+   Score global : 6/10 ⚠️
+
+   🔴 BLOQUANTS (2) :
+   1. TVA incorrecte (21% au lieu 6%) → -810€ client
+   2. Acompte abusif (100% vs max 20%) → Non conforme loi
+
+   🟡 À CLARIFIER (3) :
+   1. Isolation 12cm au lieu 16cm cahier charges
+   2. Délai validité offre manquant
+   3. Garantie décennale non mentionnée
+
+   ✅ CONFORME (8) :
+   1. BCE + TVA valides
+   2. Assurance RC vérifiée
+   3. Prix marché raisonnable
+   [...8 autres points...]
+
+   🤖 RECOMMANDATIONS ACTIONS :
+
+   AVANT SIGNATURE, EXIGER :
+   1. Correction TVA 21% → 6% (remboursement 810€)
+   2. Acompte max 20% (1.080€ au lieu 5.400€)
+   3. Justification isolation 12cm ou retour 16cm
+
+7. NOTIFICATIONS AUTOMATIQUES
+
+   📧 Propriétaire :
+   "⚠️ Votre devis nécessite 2 corrections avant signature
+    Économie potentielle : 810€
+    [Voir rapport complet]"
+
+   📧 Architecte (si projet suivi) :
+   "Devis M. Durand diverge cahier charges (isolation)
+    Validation architecte recommandée"
+
+   📧 Entrepreneur :
+   "Votre devis présente 2 non-conformités légales
+    Corrections requises avant validation client
+    [Détails corrections]"
+```
+
+**Technologies** :
+```ruby
+# app/services/autonomous_agents/quote_validator_agent.rb
+
+class QuoteValidatorAgent
+  def validate(quote_pdf, project)
+    # Extraction données devis
+    quote_data = extract_quote_data(quote_pdf)
+
+    # Agent Anthropic validation autonome
+    validation = Anthropic::Agent.run(
+      model: "claude-opus-4",
+      tools: [
+        bce_api_checker,        # Vérification BCE.be
+        vat_rate_calculator,    # Calcul TVA correcte selon travaux
+        legal_validator,        # Loi consommateur belge
+        price_benchmark,        # Comparaison marché (IA #7)
+        specification_matcher   # Comparaison cahier charges
+      ],
+      instructions: <<~PROMPT
+        MISSION : Valider conformité légale devis + cohérence
+                 avec cahier charges initial.
+
+        DEVIS À ANALYSER :
+        #{quote_data.to_json}
+
+        CAHIER CHARGES PROJET :
+        #{project.specifications.to_json}
+
+        ÉTAPES AUTONOMES :
+        1. Vérifier BCE entrepreneur (API officielle)
+        2. Calculer TVA correcte (6% vs 21%) selon type travaux
+        3. Valider mentions légales obligatoires
+        4. Comparer avec cahier charges (divergences)
+        5. Benchmarker prix vs marché (appel IA #7)
+        6. Vérifier conditions paiement (loi consommateur)
+        7. Scorer conformité globale /10
+        8. Générer corrections précises si non-conformité
+
+        RÈGLES STRICTES :
+        - TVA 6% SI travaux éligibles (liste exhaustive fournie)
+        - Acompte MAX 20% avant début travaux
+        - Délai validité offre obligatoire
+        - Assurance RC décennale obligatoire mention
+      PROMPT
+    )
+
+    # Génération rapport + notifications
+    report = generate_validation_report(validation)
+    notify_stakeholders(report, project)
+
+    report
+  end
+end
+```
+
+**Valeur** :
+- **Propriétaires** : Protection contre erreurs coûteuses (TVA, acomptes abusifs)
+- **Entrepreneurs** : Validation pré-envoi = professionnalisme accru
+- **Architectes** : Contrôle cohérence automatisé (5h → 10min)
+
+**ROI** : 120h développement → Économise 500-2.000€/devis validé (erreurs TVA, divergences)
+
+---
+
+#### Agent 4 : 📝 Générateur PV Réception
+
+**Workflow autonome** :
+
+```
+DÉCLENCHEMENT : Propriétaire lance "Réception travaux" (fin chantier)
+
+1. COMPILATION AUTOMATIQUE HISTORIQUE
+
+   🤖 Agent agrège TOUT l'historique projet :
+
+   📸 Photos (127) :
+   - Avant travaux : 23
+   - Pendant chantier : 89 (progressions)
+   - Après travaux : 15
+
+   💬 Messages (342) :
+   - Client ↔ Entrepreneur : 201
+   - Client ↔ Architecte : 89
+   - 3-parties : 52
+   [Agent identifie : 12 échanges sur modifications scope]
+
+   ✅ Validations intermédiaires (18) :
+   - Fondations validées : 12/02/2026 (Architecte)
+   - Isolation posée : 28/02/2026 (Entrepreneur)
+   - Châssis installés : 15/03/2026 (Client)
+   [...15 autres...]
+
+   📄 Documents (23) :
+   - Devis initial (validé)
+   - 3 avenants modificatifs
+   - 8 factures
+   - 11 documents techniques
+
+2. DÉTECTION RÉSERVES AUTOMATIQUE
+
+   🤖 Agent analyse conversations + photos finales :
+
+   IA détecte mentions problèmes non résolus :
+
+   ⚠️  Réserve 1 (détectée message 15/03) :
+      "Fissure légère mur cuisine"
+      📸 Photo jointe message
+      🔍 Statut : Non corrigée (pas photo après)
+
+   ⚠️  Réserve 2 (détectée message 18/03) :
+      "Châssis grince légèrement"
+      📸 Photos jointes
+      ✅ Correction validée 21/03 (nouvelles photos)
+      → Exclue du PV réserves
+
+3. GÉNÉRATION PV CONFORME LÉGAL
+
+   📝 PROCÈS-VERBAL RÉCEPTION PROVISOIRE
+   (Template juridique conforme droit belge)
+
+   ═══════════════════════════════════════
+
+   PROJET :
+   - Cliente : Mme Sophie Durand
+   - Adresse bien : Rue des Lilas 34, 4000 Liège
+   - Type travaux : Isolation toiture + Châssis
+
+   ENTREPRENEUR :
+   - Nom : Rénov'Iso SPRL
+   - BCE : BE0123456789
+   - Assurance RC décennale : AXA Police n° 789456
+
+   ARCHITECTE :
+   - Nom : Bureau ADL
+   - N° Ordre Architectes : A-12345
+
+   DATES :
+   - Début travaux : 10/02/2026
+   - Fin travaux : 20/03/2026
+   - Réception provisoire : 25/03/2026
+
+   TRAVAUX RÉALISÉS :
+   ✅ Isolation toiture laine roche 16cm (120m²)
+   ✅ Pare-vapeur + finition plafonnage
+   ✅ Remplacement 8 châssis PVC triple vitrage
+   ✅ Nettoyage et évacuation déchets
+
+   CONFORMITÉ CAHIER CHARGES :
+   ✅ Conforme spécifications techniques
+   ✅ Conforme réglementation PEB
+   ✅ Délais respectés (+5j justifiés intempéries)
+
+   RÉSERVES À LEVER :
+
+   1️⃣ RÉSERVE MINEURE
+      Nature : Fissure superficielle mur cuisine
+      Localisation : Mur nord, 1,5m hauteur
+      Photo : [Lien photo horodatée 15/03/2026]
+      Correction exigée avant : 10/04/2026
+      Type garantie : Biennale (finitions)
+
+   TRAVAUX SANS RÉSERVES :
+   ✅ Isolation toiture
+   ✅ Châssis (grinceme résolu 21/03)
+   ✅ Nettoyage
+
+   GARANTIES LÉGALES :
+
+   📆 GARANTIE BIENNALE (finitions) :
+      Début : 25/03/2026
+      Fin : 25/03/2028
+      Couvre : Fissure réserve 1, finitions plafonnage
+
+   📆 GARANTIE DÉCENNALE (gros œuvre) :
+      Début : 25/03/2026
+      Fin : 25/03/2036
+      Couvre : Structure toiture, étanchéité
+
+   MONTANT FINAL :
+   - Devis initial : 24.500€
+   - Avenants : +1.200€
+   - Total TTC : 25.700€
+   - Payé à ce jour : 20.560€ (80%)
+   - Solde (retenue garantie 20%) : 5.140€
+      → Libération si réserve 1 levée avant 10/04
+
+   SIGNATURES ÉLECTRONIQUES :
+
+   ✅ Cliente (Mme Durand) : 25/03/2026 14:32
+   ✅ Entrepreneur (Rénov'Iso) : 25/03/2026 15:18
+   ✅ Architecte (Bureau ADL) : 25/03/2026 16:05
+
+   Document juridiquement opposable
+   Horodatage blockchain : 0x7f8e9d...
+
+   ═══════════════════════════════════════
+
+4. WORKFLOW SIGNATURES 3-PARTIES
+
+   📧 Email propriétaire :
+   "Votre PV réception est prêt
+    1 réserve mineure identifiée
+    [Signer électroniquement]"
+
+   → Signature cliente
+
+   📧 Email entrepreneur :
+   "PV réception signé par cliente
+    Réserve 1 à corriger avant 10/04
+    [Signer pour validation]"
+
+   → Signature entrepreneur
+
+   📧 Email architecte :
+   "PV réception bipartite signé
+    Validation finale architecte requise
+    [Signer]"
+
+   → Signature architecte → PV FINALISÉ
+
+5. SUIVI AUTOMATIQUE RÉSERVES
+
+   🤖 Agent crée tâche tracking :
+
+   📋 RÉSERVE 1 : Fissure mur cuisine
+   ⏰ Deadline : 10/04/2026
+   🔔 Alertes :
+   - J-7 (03/04) : Rappel entrepreneur
+   - J-1 (09/04) : Alerte urgente
+   - J+1 (11/04) : Escalade + proposition mise en demeure
+
+   Quand corrigée :
+   📸 Entrepreneur upload photo après
+   ✅ Client valide correction
+   💰 Solde 5.140€ libéré automatiquement
+
+6. ARCHIVAGE LÉGAL 10 ANS
+
+   📦 Archivage automatique :
+   - PV réception (PDF signé)
+   - Toutes photos (127)
+   - Tous messages (342)
+   - Tous documents (23)
+   - Horodatage blockchain
+
+   Accessible 10 ans (obligation légale garantie décennale)
+```
+
+**Technologies** :
+```ruby
+# app/services/autonomous_agents/reception_pv_generator_agent.rb
+
+class ReceptionPvGeneratorAgent
+  def generate(project)
+    # 1. Agent compile historique complet (autonome)
+    compilation = Anthropic::Agent.run(
+      model: "claude-opus-4",
+      tools: [
+        project_history_reader,   # Accès DB complète projet
+        photo_analyzer,           # Analyse photos (GPT-4 Vision)
+        message_parser,           # NLP détection réserves
+        document_aggregator       # Compilation docs
+      ],
+      instructions: <<~PROMPT
+        MISSION : Compiler historique complet projet pour générer
+                 PV réception conforme juridique belge.
+
+        PROJET ID : #{project.id}
+
+        ÉTAPES AUTONOMES :
+        1. Lire TOUS les messages échangés (3 parties)
+        2. Analyser TOUTES les photos (avant/pendant/après)
+        3. Identifier validations intermédiaires effectuées
+        4. Détecter mentions problèmes/réserves conversations
+        5. Vérifier si problèmes détectés ont été corrigés (photos après)
+        6. Lister réserves NON résolues à intégrer PV
+        7. Extraire données contractuelles (montants, dates, garanties)
+      PROMPT
+    )
+
+    # 2. Génération PV juridique (autonome)
+    pv = Anthropic::Agent.run(
+      model: "claude-opus-4",
+      tools: [
+        legal_template_generator,  # Templates PV conformes
+        warranty_calculator,       # Calcul dates garanties
+        signature_workflow_creator # Orchestration signatures
+      ],
+      instructions: <<~PROMPT
+        MISSION : Générer PV réception provisoire juridiquement
+                 opposable conforme droit construction belge.
+
+        DONNÉES COMPILÉES :
+        #{compilation.to_json}
+
+        ÉTAPES AUTONOMES :
+        1. Utiliser template PV légal belge
+        2. Remplir toutes sections (parties, travaux, dates)
+        3. Lister réserves détectées avec photos + deadlines
+        4. Calculer dates garanties (biennale J+2ans, décennale J+10ans)
+        5. Intégrer détail financier (payé/solde/retenue)
+        6. Préparer workflow signatures électroniques 3 parties
+        7. Générer PDF final + horodatage blockchain
+
+        EXIGENCES LÉGALES :
+        - Mention explicite garanties (art. 1792 Code Civil)
+        - Réserves précises (nature + localisation + photos)
+        - Signatures horodatées 3 parties
+        - Délais correction réserves (15-30j standard)
+      PROMPT
+    )
+
+    # 3. Orchestration signatures + archivage
+    orchestrate_signatures(pv, project)
+    archive_legal_documents(pv, project, duration: 10.years)
+
+    pv
+  end
+
+  def track_reserve(reserve, project)
+    # Agent autonome suivi résolution réserves
+    AutomatedReserveTracker.monitor(
+      reserve: reserve,
+      deadline: reserve.correction_deadline,
+      alerts: [
+        { delay: -7.days, action: :remind_contractor },
+        { delay: -1.day, action: :urgent_alert },
+        { delay: +1.day, action: :escalate_legal }
+      ]
+    )
+  end
+end
+```
+
+**Valeur** :
+- **Propriétaires** : Document juridique opposable automatique (évite conflits)
+- **Entrepreneurs** : Clarté réserves = moins contestations ultérieures
+- **Architectes** : PV professionnel automatisé (10h → 30min)
+- **Sécurité** : Archivage légal 10 ans + blockchain = preuve incontestable
+
+**ROI** : 180h développement → Générateur PV = économie 500-1.500€/réception (juriste)
+
+---
+
+### 🏆 Synthèse Agents Autonomes
+
+| Agent | Effort dev | Économie/projet | Différenciation | Priorité |
+|-------|-----------|-----------------|------------------|----------|
+| **#1 Analyseur contrats** | 150h | 500-2.000€ | ⭐⭐⭐⭐⭐ | P0 |
+| **#2 Gestionnaire garanties** | 100h | 1.500-5.000€ | ⭐⭐⭐⭐ | P0 |
+| **#3 Valideur devis** | 120h | 500-2.000€ | ⭐⭐⭐⭐⭐ | P0 |
+| **#4 Générateur PV** | 180h | 500-1.500€ | ⭐⭐⭐⭐ | P1 |
+| **TOTAL** | **550h** | **3.000-10.500€** | **Inégalé marché** | - |
+
+**Effort = 550h sur 2.000h disponibles (6 mois) = 27.5% budget**
+
+**🚀 VERDICT : MUST-HAVE absolu**
+- Différenciation infranchissable (18 mois avance concurrents)
+- Protection juridique = argument vente #1
+- ROI utilisateur = 10-30x coût abonnement
 
 ---
 
@@ -553,7 +1772,7 @@ RÉCEPTION PROVISOIRE : 15/03/2026
 
 ### 🎯 Philosophie : Ship Fast, Iterate Faster
 
-Revolut a mis 3 ans pour devenir super-app.  
+Revolut a mis 3 ans pour devenir super-app.
 Ren0vate : **3 killer features en 3 mois**.
 
 ---
@@ -594,7 +1813,7 @@ Ren0vate : **3 killer features en 3 mois**.
 
 ### Q3 2026 (Juin-Août) : COLLABORATION PROS
 
-#### Juin 2026  
+#### Juin 2026
 - ✅ Outil #1 Entrepreneurs (Générateur devis collaboratif)
 - ✅ Système invitations + rôles permissions
 - ✅ Upload factures + OCR extraction
@@ -986,11 +2205,11 @@ CAC tendant vers 0€
 
 ---
 
-**Document Version** : 2.0  
-**Dernier update** : 8 février 2026  
+**Document Version** : 2.0
+**Dernier update** : 8 février 2026
 **Archive disponible** : `STRATEGIE_EVOLUTION_RENOVATE_ARCHIVE.md`
 
 ---
 
-*"Slack n'a pas remplacé les employés, il a remplacé l'email.*  
+*"Slack n'a pas remplacé les employés, il a remplacé l'email.*
 *Ren0vate ne remplace pas les pros, il remplace le chaos."*

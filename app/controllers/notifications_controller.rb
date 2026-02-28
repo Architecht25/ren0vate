@@ -97,12 +97,6 @@ class NotificationsController < ApplicationController
       region = params[:notification][:target_region]
       target_users = User.where("LOWER(region) = ?", region.downcase) if region.present?
       target_users ||= User.none
-    when 'bruxelles_entreprise'
-      # Cibler uniquement les entreprises à Bruxelles
-      target_users = User.joins(:properties).where(
-        "LOWER(properties.region) = ? AND properties.type_bien_bruxelles = ?",
-        'bruxelles', 'entreprise'
-      ).distinct
     else
       target_users = User.all
     end

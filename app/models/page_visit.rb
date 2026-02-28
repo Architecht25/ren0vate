@@ -34,7 +34,7 @@ class PageVisit < ApplicationRecord
   end
 
   def self.simulation_activity
-    where(page_type: ['simulation', 'bruxelles_particuliers', 'bruxelles_entreprises', 'wallonie_particuliers', 'flandre_particuliers'])
+    where(page_type: ['simulation', 'bruxelles_particuliers', 'wallonie_particuliers', 'flandre_particuliers'])
       .group(:page_name)
       .count
   end

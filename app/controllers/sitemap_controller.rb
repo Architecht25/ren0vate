@@ -51,28 +51,6 @@ class SitemapController < ApplicationController
         priority: 0.9
       }
 
-      # Pages régionales entreprises
-      pages << {
-        url: "#{base_url}#{locale_prefix}/flandre_entreprises",
-        lastmod: Date.current,
-        changefreq: 'weekly',
-        priority: 0.8
-      }
-
-      pages << {
-        url: "#{base_url}#{locale_prefix}/bruxelles_entreprises",
-        lastmod: Date.current,
-        changefreq: 'weekly',
-        priority: 0.8
-      }
-
-      pages << {
-        url: "#{base_url}#{locale_prefix}/wallonie_entreprises",
-        lastmod: Date.current,
-        changefreq: 'weekly',
-        priority: 0.8
-      }
-
       # Page pricing
       pages << {
         url: "#{base_url}#{locale_prefix}/pricing",

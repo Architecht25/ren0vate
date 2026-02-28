@@ -65,12 +65,8 @@ class PropertiesController < ApplicationController
       # Rails.logger.info "[PROPERTY UPDATE] ✅ Mise à jour réussie pour propriété ID: #{@property.id}"
       # Rails.logger.info "[PROPERTY UPDATE] 🔧 Nouvelles valeurs: region=#{@property.region}, ean_flandre=#{@property.ean_flandre}, certificat_peb_flandre=#{@property.certificat_peb_flandre}"
 
-      # Redirection intelligente selon le type de bien et la région
-      if @property.is_entreprise? && @property.region == 'bruxelles'
-        redirect_to bruxelles_entreprises_path, notice: t('notices.property_updated')
-      else
-        redirect_to @property, notice: t('notices.property_updated')
-      end
+      # Redirection vers la propriété mise à jour
+      redirect_to @property, notice: t('notices.property_updated')
     else
       Rails.logger.error "[PROPERTY UPDATE] ❌ Échec de la mise à jour pour propriété ID: #{@property.id}"
       Rails.logger.error "[PROPERTY UPDATE] 🚨 Erreurs: #{@property.errors.full_messages.join(', ')}"

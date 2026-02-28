@@ -36,18 +36,14 @@ class DocumentsController < ApplicationController
     # Données des phases - toujours chargées pour la navigation
     @all_phases = DocumentPhase.all.order(:position)
 
-    # Vérifier si l'utilisateur possède au moins une entreprise bruxelloise
-    # pour conditionner l'affichage des phases d'investissement
-    @user_has_bruxelles_entreprise = current_user.properties.where(region: 'bruxelles').any?(&:is_entreprise?)
-
     # Filtrer les phases selon le contexte utilisateur
     if @property
       # Dans le contexte d'une propriété spécifique, utiliser ses phases
       @phases_data = @property.phases_with_status
       @phase_calculator = DocumentPhaseCalculatorService.new(@property)
     else
-      # Navigation globale : filtrer selon les droits de l'utilisateur
-      phases_to_show = @user_has_bruxelles_entreprise ? @all_phases : @all_phases.chantier
+      # Navigation globale : afficher uniquement les phases de chantier
+      phases_to_show = @all_phases.chantier
 
       # Créer des données de phases génériques pour la navigation globale
       @phases_data = phases_to_show.map do |phase|

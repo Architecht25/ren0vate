@@ -30,11 +30,6 @@ class DecisionHub::DataService
         ai_context: build_ai_context
       }
 
-      # Ajouter les données d'exemplarité pour les entreprises bruxelloises
-      if is_bruxelles_entreprise?
-        data[:exemplarite] = safe_call_service { DecisionHub::ExemplariteCalculatorService.new(@simulation).calculate_exemplarite_potential }
-      end
-
       data
     rescue StandardError => e
       Rails.logger.error "Error generating dynamic data: #{e.message}"
@@ -452,10 +447,6 @@ class DecisionHub::DataService
         derniere_facture_date: nil
       }
     end
-  end
-
-  def is_bruxelles_entreprise?
-    @region == 'bruxelles' && @simulation&.property&.is_entreprise?
   end
 
   # Méthodes de sécurité pour éviter les erreurs 500

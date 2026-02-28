@@ -35,11 +35,7 @@ Rails.application.routes.draw do
   post 'pdf_exports/primes', to: 'pdf_exports#export_primes'
   post 'pdf_exports/complet', to: 'pdf_exports#export_complet'
 
-  # Test page for PDF export
-  get 'test/pdf_export', to: 'pages#test_pdf_export'
-  get 'test/responsive', to: 'pages#test_responsive'
-
-    # API routes for enterprise aids
+  # API routes for enterprise aids
     namespace :api do
       get 'entreprises/bce/:numero_bce', to: 'entreprises#bce_lookup'
       post 'entreprises/bce_lookup', to: 'entreprises#bce_lookup'
@@ -330,14 +326,6 @@ Rails.application.routes.draw do
   post '/bruxelles/test-eligibility', to: 'pages#test_eligibility_bruxelles', as: :test_eligibility_bruxelles
   post '/bruxelles/estimate-category', to: 'pages#estimate_category_bruxelles', as: :estimate_category_bruxelles
 
-  # Nouveau simulateur : Aides aux entreprises Bruxelles
-  get '/bruxelles-entreprises', to: 'pages#bruxelles_entreprises', as: :bruxelles_entreprises
-  post '/bruxelles-entreprises/test-eligibility', to: 'pages#test_eligibility_bruxelles_entreprises', as: :test_eligibility_bruxelles_entreprises
-  post '/bruxelles-entreprises/detailed-analysis', to: 'pages#detailed_business_eligibility_check', as: :detailed_business_eligibility_check
-
-  # Pages d'information sur les aides aux entreprises (autres régions)
-  get '/flandre-entreprises', to: 'pages#flandre_entreprises', as: :flandre_entreprises
-  get '/wallonie-entreprises', to: 'pages#wallonie_entreprises', as: :wallonie_entreprises
   get '/mentions-legales', to: 'pages#legal', as: :legal
   get '/politique-de-confidentialite', to: 'pages#privacy', as: :privacy
 

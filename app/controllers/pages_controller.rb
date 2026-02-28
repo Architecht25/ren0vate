@@ -1,8 +1,8 @@
 class PagesController < ApplicationController
   include PageTracking  # Ajout du concern de tracking
 
-  skip_before_action :authenticate_user!, only: [:home, :flandre, :wallonie, :bruxelles, :bruxelles_entreprises, :flandre_entreprises, :wallonie_entreprises, :select_profile_wallonie, :test_eligibility_wallonie, :estimate_category_wallonie, :select_profile_bruxelles, :test_eligibility_bruxelles, :estimate_category_bruxelles, :test_eligibility_bruxelles_entreprises, :legal, :privacy]
-  skip_before_action :verify_authenticity_token, only: [:select_profile_wallonie, :test_eligibility_wallonie, :estimate_category_wallonie, :select_profile_bruxelles, :test_eligibility_bruxelles, :estimate_category_bruxelles, :test_eligibility_bruxelles_entreprises]
+  skip_before_action :authenticate_user!, only: [:home, :flandre, :wallonie, :bruxelles, :select_profile_wallonie, :test_eligibility_wallonie, :estimate_category_wallonie, :select_profile_bruxelles, :test_eligibility_bruxelles, :estimate_category_bruxelles, :legal, :privacy]
+  skip_before_action :verify_authenticity_token, only: [:select_profile_wallonie, :test_eligibility_wallonie, :estimate_category_wallonie, :select_profile_bruxelles, :test_eligibility_bruxelles, :estimate_category_bruxelles]
 
   def home
     track_page_visit('home', page_type: 'accueil')
@@ -80,168 +80,18 @@ class PagesController < ApplicationController
   end
 
   def select_profile_bruxelles
-    @profile_type = params[:profile_type]
-
-    # Tous les profils sont maintenant éligibles avec leurs questionnaires spécifiques
-    case @profile_type
-    when "prive", "entreprise", "syndic", "bailleur", "asbl", "coproprietaire", "emphytheote", "locataire", "particulier_bailleur", "particulier_indivision"
-      handle_eligible_profile_bruxelles
-    else
-      handle_invalid_profile_bruxelles
-    end
+    # Fonctionnalité désactivée - Programme RENOLUTION suspendu
+    redirect_to bruxelles_path, alert: "Le programme RENOLUTION est actuellement suspendu."
   end
 
   def test_eligibility_bruxelles
-    Rails.logger.info "=== Test Eligibility Bruxelles Action Called ==="
-    Rails.logger.info "Params: #{params.inspect}"
-
-    begin
-      # Utilisation du service d'éligibilité Bruxelles
-      eligibility_service = Regions::Bruxelles::BruxellesEligibilityService.new(
-        params: params,
-        user: current_user,
-        is_post_login: user_signed_in?
-      )
-      result = eligibility_service.check_eligibility
-      Rails.logger.info "Eligibility result: #{result}"
-
-      # Sauvegarder les données d'éligibilité dans la session pour le filtrage des primes
-      session[:bruxelles_eligibility_data] = params.except(:controller, :action, :authenticity_token)
-      Rails.logger.info "💾 Données d'éligibilité sauvegardées: usage_bien = #{params[:usage_bien]}"
-
-      respond_to do |format|
-        format.turbo_stream do
-          if result[:eligible]
-            # Déterminer si l'affinage est nécessaire et la catégorie automatique
-            profile_type = result[:profile]
-
-            # Profils nécessitant un test d'affinage (basé sur les revenus)
-            needs_refinement = profile_type.in?(['prive', 'particulier', 'locataire', 'particulier_indivision', 'emphytheote', 'particulier_bailleur', 'coproprietaire'])
-
-            # Catégorie automatique pour les autres profils (entreprise, asbl, syndic, bailleur)
-            auto_category = get_automatic_category_bruxelles(profile_type) unless needs_refinement
-
-            render turbo_stream: turbo_stream.replace(
-              "eligibility_content",
-              partial: "pages/partials_bruxelles/resultat_eligible_debug",
-              locals: {
-                profile: result[:profile],
-                message: result[:message],
-                needs_refinement: needs_refinement,
-                auto_category: auto_category
-              }
-            )
-          else
-            render turbo_stream: turbo_stream.replace(
-              "eligibility_content",
-              partial: "pages/partials_bruxelles/resultat_ineligible",
-              locals: {
-                profile: result[:profile],
-                message: result[:message],
-                reasons: result[:reasons]
-              }
-            )
-          end
-        end
-        format.html { redirect_to bruxelles_path }
-      end
-
-    rescue => e
-      Rails.logger.error "Eligibility test error: #{e.message}"
-      Rails.logger.error e.backtrace.join("\n")
-
-      respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: turbo_stream.replace(
-            "eligibility_content",
-            partial: "pages/partials_bruxelles/resultat_ineligible",
-            locals: {
-              message: "Erreur lors du calcul d'éligibilité",
-              reasons: ["Erreur technique : #{e.message}"],
-              profile: "erreur"
-            }
-          )
-        end
-        format.html { redirect_to bruxelles_path, alert: "Erreur technique" }
-      end
-    end
+    # Fonctionnalité désactivée - Programme RENOLUTION suspendu
+    redirect_to bruxelles_path, alert: "Le programme RENOLUTION est actuellement suspendu."
   end
 
   def estimate_category_bruxelles
-    Rails.logger.info "=== Estimate Category Bruxelles Action Called ==="
-    Rails.logger.info "Params: #{params.inspect}"
-
-    begin
-      # Récupération des paramètres
-      statut_familial = params[:statut_familial]
-      enfants_charge = params[:enfants_charge].to_i
-      revenu_net = params[:revenu_net]
-
-      # Validation
-      if statut_familial.blank? || revenu_net.blank?
-        raise ArgumentError, "Paramètres manquants"
-      end
-
-      # Déterminer la catégorie selon la tranche de revenus
-      category_info = determine_bruxelles_category_simple(revenu_net, statut_familial, enfants_charge)
-
-      # Récupération des données d'éligibilité pour déterminer le statut du bien
-      eligibility_data = session[:bruxelles_eligibility_data] || {}
-      usage_bien = eligibility_data['usage_bien'] || 'residentiel'
-
-      # Filtrage des primes selon le statut du bien
-      if usage_bien == 'mixte'
-        # Usage mixte : seulement les primes avec statut_compatible incluant "non_residentiel"
-        @primes = Prime.where(region: "bruxelles")
-                      .where("statut_compatible @> ?", ["non_residentiel"].to_json)
-                      .order(:ordre_affichage)
-        Rails.logger.info "🏢 Usage mixte détecté - #{@primes.count} primes compatibles affichées"
-      else
-        # Usage résidentiel : toutes les primes
-        @primes = Prime.where(region: "bruxelles").order(:ordre_affichage)
-        Rails.logger.info "🏠 Usage résidentiel détecté - #{@primes.count} primes affichées"
-      end
-
-      respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: turbo_stream.replace(
-            "eligibility_content",
-            partial: "pages/partials_bruxelles/resultat_categorie",
-            locals: {
-              category: category_info[:category],
-              category_color: category_info[:color],
-              category_details: category_info[:details],
-              primes: @primes,
-              composition_familiale: {
-                statut: statut_familial,
-                enfants: enfants_charge,
-                tranche_revenu: revenu_net
-              }
-            }
-          )
-        end
-        format.html { redirect_to bruxelles_path }
-      end
-
-    rescue => e
-      Rails.logger.error "Category estimation error: #{e.message}"
-      Rails.logger.error e.backtrace.join("\n")
-
-      respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: turbo_stream.replace(
-            "eligibility_content",
-            partial: "shared/alert",
-            locals: {
-              message: "Erreur lors du calcul de catégorie: #{e.message}",
-              type: "danger",
-              title: "❌ Erreur"
-            }
-          )
-        end
-        format.html { redirect_to bruxelles_path, alert: "Erreur technique" }
-      end
-    end
+    # Fonctionnalité désactivée - Programme RENOLUTION suspendu
+    redirect_to bruxelles_path, alert: "Le programme RENOLUTION est actuellement suspendu."
   end
 
   def test_eligibility_wallonie
@@ -318,57 +168,6 @@ class PagesController < ApplicationController
     end
   end
 
-  # Analyse détaillée d'éligibilité entreprises Bruxelles
-  def detailed_business_eligibility_check
-    Rails.logger.info "🔍 Début analyse détaillée d'éligibilité entreprise Bruxelles"
-    Rails.logger.info "Params reçus: #{params.inspect}"
-
-    begin
-      # Créer les paramètres pour le service
-      service_params = {
-        property_id: params[:property_id],
-        project_id: params[:project_id]
-      }
-
-      # Utilisation du service d'éligibilité détaillée
-      eligibility_service = Entreprises::BruxellesEntreprisesDetailedEligibilityService.new(current_user, service_params)
-      @eligibility_analysis = eligibility_service.check_detailed_eligibility
-
-      Rails.logger.info "Detailed business eligibility result: #{@eligibility_analysis.keys}"
-
-      respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: turbo_stream.update("detailed_eligibility_result",
-            partial: "shared/detailed_eligibility_analysis",
-            locals: { eligibility_analysis: @eligibility_analysis }
-          )
-        end
-        format.html { redirect_to bruxelles_entreprises_path }
-      end
-    rescue => e
-      Rails.logger.error "Error in detailed business eligibility check: #{e.message}"
-      Rails.logger.error e.backtrace.join("\n")
-
-      respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: turbo_stream.update("detailed_eligibility_result",
-            partial: "shared/detailed_eligibility_analysis",
-            locals: {
-              eligibility_analysis: {
-                error: "❌ Une erreur est survenue lors de l'analyse détaillée. Veuillez réessayer.",
-                eligible: false,
-                criteria: [],
-                summary: "Erreur système",
-                actions: []
-              }
-            }
-          )
-        end
-        format.html { redirect_to bruxelles_entreprises_path }
-      end
-    end
-  end
-
   private
 
   def handle_eligible_profile
@@ -418,193 +217,6 @@ class PagesController < ApplicationController
     end
   end
 
-  # ===== ACTIONS BRUXELLES =====
-
-  def handle_eligible_profile_bruxelles
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: turbo_stream.replace(
-          "eligibility_content",
-          partial: "pages/partials_bruxelles/questionnaire_eligibilite",
-          locals: { profile_type: @profile_type }
-        )
-      end
-      format.html { redirect_to bruxelles_path }
-    end
-  end
-
-  def handle_ineligible_profile_bruxelles(message)
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: turbo_stream.replace(
-          "eligibility_content",
-          partial: "shared/alert",
-          locals: {
-            message: message,
-            type: "warning",
-            title: "⚠️ Attention"
-          }
-        )
-      end
-      format.html { redirect_to bruxelles_path, alert: message }
-    end
-  end
-
-  def handle_invalid_profile_bruxelles
-    respond_to do |format|
-      format.turbo_stream do
-        render turbo_stream: turbo_stream.replace(
-          "eligibility_content",
-          partial: "shared/alert",
-          locals: {
-            message: "Type de profil non reconnu",
-            type: "danger",
-            title: "❌ Erreur"
-          }
-        )
-      end
-      format.html { redirect_to bruxelles_path, alert: "Type de profil non reconnu" }
-    end
-  end
-
-  def get_automatic_category_bruxelles(profile_type)
-    case profile_type
-    when 'entreprise'
-      {
-        category: 'Catégorie I',
-        color: 'primary',
-        details: 'Catégorie automatique pour les entreprises - Accès aux primes professionnelles'
-      }
-    when 'syndic'
-      {
-        category: 'Catégorie II',
-        color: 'info',
-        details: 'Catégorie automatique pour les syndics de copropriété - Primes pour parties communes'
-      }
-    when 'bailleur'
-      {
-        category: 'Catégorie III',
-        color: 'success',
-        details: 'Catégorie automatique pour les bailleurs sociaux (AIS) - Primes logement social'
-      }
-    when 'asbl'
-      {
-        category: 'Catégorie I',
-        color: 'primary',
-        details: 'Catégorie automatique pour les ASBL - Accès aux primes institutionnelles'
-      }
-    else
-      nil
-    end
-  end
-
-  def determine_bruxelles_category_simple(revenu_net, statut_familial, enfants_charge)
-    # Logique simplifiée pour 3 tranches de revenus
-    case revenu_net
-    when 'faible'
-      {
-        category: 'Revenus Faibles',
-        color: 'success',
-        details: 'Primes maximales disponibles - Vous bénéficiez des montants les plus élevés'
-      }
-    when 'moyen'
-      {
-        category: 'Revenus Moyens',
-        color: 'warning',
-        details: 'Primes moyennes disponibles - Vous bénéficiez de montants substantiels'
-      }
-    when 'eleve'
-      {
-        category: 'Revenus Élevés',
-        color: 'info',
-        details: 'Primes réduites disponibles - Vous bénéficiez de montants de base'
-      }
-    else
-      {
-        category: 'Catégorie Non Déterminée',
-        color: 'primary',
-        details: 'Merci de préciser votre tranche de revenus'
-      }
-    end
-  end
-
-  # Nouveau simulateur pour les aides aux entreprises Bruxelles
-  def bruxelles_entreprises
-    track_page_visit('bruxelles_entreprises', region: 'Bruxelles', page_type: 'entreprise')
-
-    # Page principale du simulateur d'éligibilité aux aides pour entreprises à Bruxelles
-    # Initialiser les données pour le composant de comparaison d'économies
-    @savings_data = {
-      chasseur_cost: 0,
-      saas_cost: 0,
-      savings_amount: 0,
-      savings_percentage: 0,
-      significant: false,
-      subscription_details: {
-        monthly_price: 59.99,
-        duration_months: 24,
-        region: 'bruxelles',
-        client_type: 'entreprise'
-      }
-    }
-  end
-
-  def test_eligibility_bruxelles_entreprises
-    track_page_visit('bruxelles_entreprises_eligibility', region: 'Bruxelles', page_type: 'entreprise')
-    Rails.logger.info "=== Test Eligibility Bruxelles Entreprises Action Called ==="
-    Rails.logger.info "Params: #{params.inspect}"
-
-    begin
-      # Utilisation d'un service d'éligibilité spécialisé pour les entreprises
-      eligibility_service = Entreprises::BruxellesEntreprisesEligibilityService.new(current_user, params)
-      result = eligibility_service.check_eligibility
-      Rails.logger.info "Business eligibility result: #{result}"
-
-      respond_to do |format|
-        format.turbo_stream do
-          if result[:eligible]
-            render turbo_stream: turbo_stream.update("result",
-              partial: "shared/business_eligibility_result",
-              locals: {
-                result: result[:message],
-                is_eligible: true,
-                recommendations: result[:recommendations] || [],
-                subsidy_categories: result[:subsidy_categories] || []
-              }
-            )
-          else
-            render turbo_stream: turbo_stream.update("result",
-              partial: "shared/business_eligibility_result",
-              locals: {
-                result: result[:message],
-                is_eligible: false,
-                recommendations: result[:recommendations] || []
-              }
-            )
-          end
-        end
-        format.html { redirect_to bruxelles_entreprises_path }
-      end
-    rescue => e
-      Rails.logger.error "Error in business eligibility check: #{e.message}"
-      Rails.logger.error e.backtrace.join("\n")
-
-      respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: turbo_stream.update("result",
-            partial: "shared/business_eligibility_result",
-            locals: {
-              result: "❌ Une erreur est survenue lors de la vérification d'éligibilité. Veuillez réessayer.",
-              is_eligible: false,
-              recommendations: ["Vérifiez vos réponses et réessayez", "Contactez le support si le problème persiste"]
-            }
-          )
-        end
-        format.html { redirect_to bruxelles_entreprises_path }
-      end
-    end
-  end
-
   # Pages légales
   def legal
     # Page mentions légales
@@ -612,20 +224,6 @@ class PagesController < ApplicationController
 
   def privacy
     # Page politique de confidentialité
-  end
-
-  def test_responsive
-    # Page de test pour la responsivité
-  end
-
-  def flandre_entreprises
-    # Page d'information sur les aides aux entreprises en Flandre
-    # Simple page de redirection vers les sites officiels flamands
-  end
-
-  def wallonie_entreprises
-    # Page d'information sur les aides aux entreprises en Wallonie
-    # Simple page de redirection vers les sites officiels wallons
   end
 
   private

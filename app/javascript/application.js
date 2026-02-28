@@ -54,9 +54,6 @@ import RequestFormController from "controllers/request_form_controller"
 import PdfExportController from "controllers/pdf_export_controller"
 import RequestAutosaveController from "controllers/request_autosave_controller"
 import SavingsComparisonController from "controllers/savings_comparison_controller"
-import BruxellesEntrepriseCalculController from "controllers/bruxelles_entreprise_calcul_controller"
-import BruxellesEntrepriseCardController from "controllers/bruxelles_entreprise_card_controller"
-import BruxellesEntrepriseCartesController from "controllers/bruxelles_entreprise_cartes_controller"
 import ImagePreviewController from "controllers/image_preview_controller"
 import DocumentPreviewController from "controllers/document_preview_controller"
 import AddressCopyController from "controllers/address_copy_controller"
@@ -66,15 +63,11 @@ import DecisionHubController from "controllers/decision_hub_controller"
 import DecisionHubInteractionsController from "controllers/decision_hub_interactions_controller"
 import ConsultationVerificationController from "controllers/consultation_verification_controller"
 import EntrepreneurVerificationController from "controllers/entrepreneur_verification_controller"
-import AidesEntrepriseController from "controllers/aides_entreprise_controller"
 import PrimeSelectionController from "controllers/prime_selection_controller"
 import PrimesCommunalesController from "controllers/primes_communales_controller"
 import PrimesCommunalesBruxellesController from "controllers/primes_communales_bruxelles_controller"
 import PrimesCommunalesWallonieController from "controllers/primes_communales_wallonie_controller"
 import EligibilityRetesterController from "controllers/eligibility_retester_controller"
-import TestEligibiliteEntreprisesController from "controllers/test_eligibilite_entreprises_controller"
-import EligibilityTestEntrepriseController from "controllers/eligibility_test_entreprise_controller"
-import SimulationCardsEntrepriseController from "controllers/simulation_cards_entreprise_controller"
 import MapboxController from "controllers/mapbox_controller"
 import ContextualBotController from "controllers/contextual_bot_controller"
 import AmianteController from "controllers/amiante_controller"
@@ -115,9 +108,6 @@ application.register("renopack-wallonie", RenopackWallonieController)
 application.register("request-form", RequestFormController)
 application.register("request-autosave", RequestAutosaveController)
 application.register("savings-comparison", SavingsComparisonController)
-application.register("bruxelles-entreprise-calcul", BruxellesEntrepriseCalculController)
-application.register("bruxelles-entreprise-card", BruxellesEntrepriseCardController)
-application.register("bruxelles-entreprise-cartes", BruxellesEntrepriseCartesController)
 application.register("image-preview", ImagePreviewController)
 application.register("document-preview", DocumentPreviewController)
 application.register("address-copy", AddressCopyController)
@@ -127,20 +117,15 @@ application.register("decision-hub", DecisionHubController)
 application.register("decision-hub-interactions", DecisionHubInteractionsController)
 application.register("consultation-verification", ConsultationVerificationController)
 application.register("entrepreneur-verification", EntrepreneurVerificationController)
-application.register("aides-entreprise", AidesEntrepriseController)
 application.register("prime-selection", PrimeSelectionController)
 application.register("primes-communales", PrimesCommunalesController)
 application.register("primes-communales-bruxelles", PrimesCommunalesBruxellesController)
 application.register("primes-communales-wallonie", PrimesCommunalesWallonieController)
 application.register("eligibility-retester", EligibilityRetesterController)
-application.register("test-eligibilite-entreprises", TestEligibiliteEntreprisesController)
-application.register("eligibility-test-entreprise", EligibilityTestEntrepriseController)
-application.register("simulation-cards-entreprise", SimulationCardsEntrepriseController)
 application.register("mapbox", MapboxController)
 application.register("pdf-export", PdfExportController)
 application.register("contextual-bot", ContextualBotController)
 application.register("amiante", AmianteController)
 application.register("entrepreneurs-management", EntrepreneursManagementController)
-application.register("flandre-simulation", FlandreSimulationController)
 
 export { application }
