@@ -14,20 +14,20 @@
   </div>
 
   <!-- Sélection de la région -->
-  <% if params[:region].blank? && params[:type].blank? && @property.region.blank? %>
+  <% if params[:region].blank? && @property.region.blank? %>
     <div class="row justify-content-center">
       <div class="col-lg-8">
         <div class="card border-0 shadow-sm mb-4">
           <div class="card-body p-4">
             <h5 class="card-title text-primary-custom mb-4">
-              <i class="bi bi-geo-alt-fill me-2"></i>Choisissez votre région ou type de bien
+              <i class="bi bi-geo-alt-fill me-2"></i>Choisissez votre région
             </h5>
-            <p class="text-muted-custom mb-4">Le formulaire d'ajout de bien immobilier est adapté en fonction de votre région ou du type de bien (entreprise) pour vous permettre de bénéficier des primes et avantages spécifiques.</p>
+            <p class="text-muted-custom mb-4">Le formulaire d'ajout de bien immobilier est adapté en fonction de votre région pour vous permettre de bénéficier des primes et avantages spécifiques.</p>
 
-            <div class="row g-4 mt-2">
+            <div class="row g-4 mt-2 justify-content-center">
 
               <!-- Carte pour la Flandre -->
-              <div class="col-lg-3 col-md-6">
+              <div class="col-lg-4 col-md-6">
                 <%= link_to new_property_path(region: "flandre"), class: "text-decoration-none" do %>
                   <div class="card h-100 region-card">
                     <div class="card-body text-center p-4">
@@ -42,7 +42,7 @@
               </div>
 
               <!-- Carte pour Bruxelles -->
-              <div class="col-lg-3 col-md-6">
+              <div class="col-lg-4 col-md-6">
                 <%= link_to new_property_path(region: "bruxelles"), class: "text-decoration-none" do %>
                   <div class="card h-100 region-card">
                     <div class="card-body text-center p-4">
@@ -57,7 +57,7 @@
               </div>
 
               <!-- Carte pour la Wallonie -->
-              <div class="col-lg-3 col-md-6">
+              <div class="col-lg-4 col-md-6">
                 <%= link_to new_property_path(region: "wallonie"), class: "text-decoration-none" do %>
                   <div class="card h-100 region-card">
                     <div class="card-body text-center p-4">
@@ -71,38 +71,20 @@
                 <% end %>
               </div>
 
-              <!-- Carte pour les Entreprises -->
-              <div class="col-lg-3 col-md-6">
-                <%= link_to new_property_path(type: "entreprise"), class: "text-decoration-none" do %>
-                  <div class="card h-100 region-card">
-                    <div class="card-body text-center p-4">
-                      <div class="icon-circle-large mx-auto mb-3">
-                        <i class="bi bi-building"></i>
-                      </div>
-                      <h5 class="card-title mb-2">Entreprise</h5>
-                      <p class="text-muted-custom small mb-0">Formulaire spécialisé pour les biens d'entreprise et locaux commerciaux.</p>
-                    </div>
-                  </div>
-                <% end %>
-              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
   <% else %>
-    <!-- Formulaire spécifique à la région ou type sélectionné -->
+    <!-- Formulaire spécifique à la région sélectionnée -->
     <div class="row justify-content-center">
       <div class="col-lg-8">
         <div class="card border-0 bg-light-custom">
           <div class="card-body p-4">
             <% region = params[:region].presence || @property.region %>
-            <% type = params[:type].presence %>
-            <% if type == "entreprise" %>
-              <%= render partial: "form_entreprise" %>
-            <% else %>
-              <% case region %>
-              <% when "bruxelles" %>
+            <% case region %>
+            <% when "bruxelles" %>
                 <%= render partial: "form_bruxelles" %>
               <% when "wallonie" %>
                 <%= render partial: "form_wallonie" %>
@@ -113,7 +95,6 @@
                   Région non reconnue. <%= link_to "Retour à la sélection", new_property_path %>
                 </div>
               <% end %>
-            <% end %>
           </div>
         </div>
       </div>

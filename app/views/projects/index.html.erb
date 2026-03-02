@@ -6,9 +6,6 @@
       <%= link_to new_project_path(project_type: 'renovation'), class: "btn btn-primary-custom px-4" do %>
         <i class="bi bi-hammer me-2"></i>Ajouter un chantier de rénovation résidentiel
       <% end %>
-      <%= link_to new_project_path(project_type: 'investment'), class: "btn btn-outline-primary-custom px-4" do %>
-        <i class="bi bi-building me-2"></i>Ajouter un investissement en entreprise
-      <% end %>
       <% if @property %>
         <%= link_to dashboard_property_path(@property), class: "btn btn-outline-secondary" do %>
           <i class="bi bi-arrow-left me-1"></i>Dashboard bien
@@ -52,11 +49,11 @@
         <div class="row g-3 mb-5">
           <% grouped_projects[region_key].each do |project| %>
         <div class="col-xl-3 col-lg-4 col-md-6">
-          <div class="card border-0 h-100 property-card position-relative overflow-hidden<%= ' property-card-entreprise' if project.property&.is_entreprise? %>" style="min-height: 200px;">
+          <div class="card border-0 h-100 property-card position-relative overflow-hidden" style="min-height: 200px;">
 
-            <!-- Image de fond sur toute la carte selon le type de projet -->
+            <!-- Image de fond sur toute la carte -->
             <div class="position-absolute w-100 h-100"
-                 style="background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_200,q_auto,f_auto/<%= project.project_type == 'investment' ? 'Graph_1_1.png_vwsi85' : 'renovation-interieure-a-bruxelles-CfiLU_qtwkug' %>');
+                 style="background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_200,q_auto,f_auto/renovation-interieure-a-bruxelles-CfiLU_qtwkug');
                         background-size: cover;
                         background-position: center;
                         background-repeat: no-repeat;
@@ -172,9 +169,6 @@
       <div class="d-flex justify-content-center gap-3 flex-wrap">
         <%= link_to new_project_path(project_type: 'renovation'), class: "btn btn-primary-custom px-4" do %>
           <i class="bi bi-hammer me-2"></i>Créer un chantier de rénovation
-        <% end %>
-        <%= link_to new_project_path(project_type: 'investment'), class: "btn btn-outline-primary-custom px-4" do %>
-          <i class="bi bi-building me-2"></i>Créer un investissement d'entreprise
         <% end %>
       </div>
     </div>

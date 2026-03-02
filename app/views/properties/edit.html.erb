@@ -25,20 +25,13 @@
         <div class="card-body p-4">
           <h5 class="card-title text-primary-custom mb-4">
             <i class="bi bi-pencil-square me-2"></i>Informations du bien
-            <% if @property.is_entreprise? %>
-              <span class="badge bg-primary-custom ms-2">Entreprise</span>
-            <% else %>
-              <span class="badge bg-primary-custom ms-2"><%= @property.region&.humanize || 'Région non définie' %></span>
-            <% end %>
+            <span class="badge bg-primary-custom ms-2"><%= @property.region&.humanize || 'Région non définie' %></span>
           </h5>
 
-          <!-- Utiliser les formulaires spécifiques par région ou type -->
+          <!-- Utiliser les formulaires spécifiques par région -->
           <% normalized_region = @property.region&.downcase&.strip %>
-          <% if @property.is_entreprise? %>
-            <%= render partial: "form_entreprise", locals: { property: @property } %>
-          <% else %>
-            <% case normalized_region %>
-            <% when "bruxelles" %>
+          <% case normalized_region %>
+          <% when "bruxelles" %>
               <%= render partial: "form_bruxelles", locals: { property: @property } %>
             <% when "wallonie" %>
               <%= render partial: "form_wallonie", locals: { property: @property } %>
@@ -63,7 +56,6 @@
                 <%= form.submit "Mettre à jour la région", class: "btn btn-primary" %>
               <% end %>
             <% end %>
-          <% end %>
         </div>
       </div>
     </div>

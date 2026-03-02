@@ -97,8 +97,7 @@ module PricingHelper
       freemium: "Découverte",
       individual: "Particuliers 1-3 propriétés",
       portfolio: "Multi-propriétaires 4-10 biens",
-      professional: "Architectes, entrepreneurs",
-      enterprise: "Grandes entreprises"
+      professional: "Architectes, entrepreneurs"
     }
     descriptions[tier.to_sym] || ""
   end

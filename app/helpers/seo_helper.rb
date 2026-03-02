@@ -45,8 +45,8 @@ module SeoHelper
     when 'bruxelles'
       {
         title: "Primes Rénovation Bruxelles - Aides et Subventions Région Bruxelloise",
-        description: "Découvrez toutes les primes à la rénovation à Bruxelles. Simulateur gratuit pour particuliers et entreprises. Isolation, chauffage, audit énergétique.",
-        keywords: "primes bruxelles, rénovation bruxelles, aides région bruxelloise, isolation bruxelles, entreprises bruxelles"
+        description: "Découvrez toutes les primes à la rénovation à Bruxelles. Simulateur gratuit et personnalisé. Isolation, chauffage, audit énergétique.",
+        keywords: "primes bruxelles, rénovation bruxelles, aides région bruxelloise, isolation bruxelles"
       }
     when 'wallonie'
       {
@@ -57,20 +57,10 @@ module SeoHelper
     else
       {
         title: "Ren0vate - Estimez vos aides à la rénovation en Belgique",
-        description: "Estimez gratuitement vos aides et primes à la rénovation en Belgique. Simulateurs pour particuliers et entreprises en Flandre, Bruxelles et Wallonie.",
+        description: "Estimez gratuitement vos aides et primes à la rénovation en Belgique. Simulateurs personnalisés en Flandre, Bruxelles et Wallonie.",
         keywords: "primes rénovation, aides énergétiques, isolation, Belgique, Flandre, Bruxelles, Wallonie"
       }
     end
-  end
-
-  # Métadonnées pour les entreprises
-  def enterprise_seo_data(region)
-    base_data = region_seo_data(region)
-    {
-      title: base_data[:title].gsub("Primes Rénovation", "Aides aux Entreprises"),
-      description: base_data[:description].gsub("particuliers et entreprises", "entreprises").gsub("Estimez", "Calculez"),
-      keywords: "#{base_data[:keywords]}, entreprises, aides entreprises, BCE belgique"
-    }
   end
 
   # Données structurées JSON-LD pour Schema.org
@@ -100,7 +90,7 @@ module SeoHelper
     }.to_json.html_safe
   end
 
-  def structured_data_service(region, service_type = "particuliers")
+  def structured_data_service(region)
     region_data = region_seo_data(region)
 
     {
@@ -119,7 +109,7 @@ module SeoHelper
       "serviceType": "Estimation d'aides à la rénovation",
       "audience": {
         "@type": "Audience",
-        "audienceType": service_type == "entreprises" ? "Business" : "Consumer"
+        "audienceType": "Consumer"
       }
     }.to_json.html_safe
   end

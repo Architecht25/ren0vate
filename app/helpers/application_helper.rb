@@ -29,9 +29,8 @@ module ApplicationHelper
       image_tag image_url_without_locale(property.photo), options
     else
       # Icône par défaut si pas de photo
-      icon_class = property.is_entreprise? ? 'building' : 'house-door'
       content_tag :div, class: "h-100 w-100 d-flex align-items-center justify-content-center bg-light #{options[:class]}" do
-        content_tag :i, '', class: "bi bi-#{icon_class} text-muted fs-4"
+        content_tag :i, '', class: "bi bi-house-door text-muted fs-4"
       end
     end
   end
