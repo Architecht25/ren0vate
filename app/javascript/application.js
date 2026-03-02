@@ -41,7 +41,6 @@ import LogoutModalController from "controllers/logout_modal_controller"
 import LanguageController from "controllers/language_controller"
 import RenopackWallonieController from "controllers/renopack_wallonie_controller"
 import RequestFormController from "controllers/request_form_controller"
-import PdfExportController from "controllers/pdf_export_controller"
 import RequestAutosaveController from "controllers/request_autosave_controller"
 import SavingsComparisonController from "controllers/savings_comparison_controller"
 import ImagePreviewController from "controllers/image_preview_controller"
@@ -96,7 +95,6 @@ application.register("primes-communales", PrimesCommunalesController)
 application.register("primes-communales-bruxelles", PrimesCommunalesBruxellesController)
 application.register("primes-communales-wallonie", PrimesCommunalesWallonieController)
 application.register("mapbox", MapboxController)
-application.register("pdf-export", PdfExportController)
 application.register("contextual-bot", ContextualBotController)
 application.register("amiante", AmianteController)
 application.register("entrepreneurs-management", EntrepreneursManagementController)

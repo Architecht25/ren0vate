@@ -33,12 +33,6 @@
         <span class="badge bg-white text-primary ms-2"><%= @primes_by_region[:bruxelles]&.count || 0 %></span>
       </button>
     </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link" id="entreprises-tab" data-bs-toggle="pill" data-bs-target="#entreprises" type="button" role="tab" aria-controls="entreprises" aria-selected="false">
-        🏭 Entreprises
-        <span class="badge bg-white text-primary ms-2"><%= @primes_by_region[:entreprises]&.count || 0 %></span>
-      </button>
-    </li>
   </ul>
 
   <!-- Contenu des onglets -->
@@ -68,15 +62,6 @@
           region: 'bruxelles',
           region_name: 'Bruxelles',
           color_class: 'warning' %>
-    </div>
-
-    <!-- Onglet Entreprises -->
-    <div class="tab-pane fade" id="entreprises" role="tabpanel" aria-labelledby="entreprises-tab">
-      <%= render 'region_primes',
-          primes: @primes_by_region[:entreprises] || [],
-          region: 'entreprises',
-          region_name: 'Entreprises',
-          color_class: 'info' %>
     </div>
 
   </div>

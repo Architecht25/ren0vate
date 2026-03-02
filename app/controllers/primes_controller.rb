@@ -3,8 +3,7 @@ class PrimesController < ApplicationController
     @primes_by_region = {
       flandre: Prime.where(region: 'flandre').order(:ordre_affichage, :titre),
       wallonie: Prime.where(region: 'wallonie').order(:ordre_affichage, :titre),
-      bruxelles: Prime.where(region: 'bruxelles').order(:ordre_affichage, :titre),
-      entreprises: EntrepriseAide.where(region: 'bruxelles').order(:titre)
+      bruxelles: Prime.where(region: 'bruxelles').order(:ordre_affichage, :titre)
     }
 
     # Pour la compatibilité avec l'ancien code

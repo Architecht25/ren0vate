@@ -30,11 +30,6 @@ Rails.application.routes.draw do
   # Webhook routes
   post '/webhooks/stripe', to: 'webhooks#stripe'
 
-  # PDF Export routes
-  post 'pdf_exports/eligibilite', to: 'pdf_exports#export_eligibilite'
-  post 'pdf_exports/primes', to: 'pdf_exports#export_primes'
-  post 'pdf_exports/complet', to: 'pdf_exports#export_complet'
-
   # API routes for enterprise aids
     namespace :api do
       get 'entreprises/bce/:numero_bce', to: 'entreprises#bce_lookup'
@@ -96,7 +91,6 @@ Rails.application.routes.draw do
     get '/dashboard', to: 'dashboard#index', as: :dashboard
 
   resources :primes
-  resources :entreprise_aides, path: 'entreprises/aides', only: [:show]
   resources :categories
 
   # Routes de test pour la nouvelle architecture de calculs
