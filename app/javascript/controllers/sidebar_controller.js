@@ -5,8 +5,88 @@ export default class extends Controller {
   static targets = ["sidebar", "overlay", "content"]
 
   connect() {
+    // Forcer l'état initial immédiatement sans animation
+    this.forceInitialState()
+    // Empêcher Bootstrap Collapse d'agir sur la sidebar
+    this.preventBootstrapCollapse()
+    // Désactiver les animations Bootstrap pour la sidebar
+    this.disableBootstrapAnimations()
+    this.setupCustomToggle()
     this.initializeSidebar()
     this.setupResponsive()
+    // Intercepter les navigations Turbo
+    this.setupTurboInterception()
+  }
+
+  forceInitialState() {
+    // Forcer immédiatement tous les submenus "show" à être affichés sans transition
+    const allSubmenus = document.querySelectorAll('.sidebar .nav-submenu')
+    allSubmenus.forEach(submenu => {
+      if (submenu.classList.contains('show')) {
+        submenu.style.display = 'block'
+        submenu.style.transition = 'none'
+        submenu.style.height = 'auto'
+      } else {
+        submenu.style.display = 'none'
+      }
+    })
+  }
+
+  setupTurboInterception() {
+    // Empêcher toute animation lors des navigations Turbo
+    document.addEventListener('turbo:before-render', () => {
+      const allSubmenus = document.querySelectorAll('.sidebar .nav-submenu')
+      allSubmenus.forEach(submenu => {
+        submenu.style.transition = 'none'
+      })
+    })
+  }
+
+  preventBootstrapCollapse() {
+    // Supprimer les attributs data-bs-toggle pour empêcher Bootstrap de prendre le contrôle
+    const sectionHeaders = document.querySelectorAll('.sidebar .section-header[data-bs-toggle]')
+    sectionHeaders.forEach(header => {
+      header.removeAttribute('data-bs-toggle')
+    })
+  }
+
+  disableBootstrapAnimations() {
+    // Désactiver toutes les animations collapse dans la sidebar
+    const sidebarCollapses = document.querySelectorAll('.sidebar .collapse')
+    sidebarCollapses.forEach(collapse => {
+      // Forcer l'affichage immédiat sans animation
+      if (collapse.classList.contains('show')) {
+        collapse.style.display = 'block'
+      }
+    })
+  }
+
+  setupCustomToggle() {
+    // Intercepter les clicks sur les headers de section pour gérer le toggle sans animation
+    const sectionHeaders = document.querySelectorAll('.sidebar .section-header')
+    sectionHeaders.forEach(header => {
+      header.addEventListener('click', (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        const targetId = header.getAttribute('data-bs-target')
+        const target = document.querySelector(targetId)
+
+        if (target) {
+          const isExpanded = target.classList.contains('show')
+
+          if (isExpanded) {
+            target.classList.remove('show')
+            target.style.display = 'none'
+            header.setAttribute('aria-expanded', 'false')
+          } else {
+            target.classList.add('show')
+            target.style.display = 'block'
+            header.setAttribute('aria-expanded', 'true')
+          }
+        }
+      })
+    })
   }
 
   initializeSidebar() {
@@ -45,7 +125,9 @@ export default class extends Controller {
       if (submenu && !submenu.classList.contains('show')) {
         const header = submenu.previousElementSibling
         if (header) {
-          const bsCollapse = new bootstrap.Collapse(submenu, { toggle: true })
+          // Désactiver l'animation en forçant l'affichage direct
+          submenu.classList.add('show')
+          submenu.style.display = 'block'
           header.setAttribute('aria-expanded', 'true')
         }
       }
