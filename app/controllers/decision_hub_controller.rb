@@ -207,6 +207,29 @@ class DecisionHubController < ApplicationController
     end
   end
 
+  def expert
+    # Vue dédiée à l'assistant IA expert - interface de chat simple et moderne
+    @simulations = current_user.simulations
+                               .where.not(total_simule: nil)
+                               .order(created_at: :desc)
+                               .includes(:property, :project)
+
+    # Sélectionner la simulation par défaut
+    if params[:simulation_id].present?
+      @simulation = current_user.simulations.find_by(id: params[:simulation_id]) || @simulations.first
+    else
+      @simulation = @simulations.first
+    end
+
+    # Sauvegarder en session pour l'IA contextuelle
+    if @simulation
+      session[:current_simulation_id] = @simulation.id
+      session[:user_location] = @simulation.region
+      session[:property_type] = @simulation.property&.type_propriete || @simulation.property&.type
+      session[:total_primes] = @simulation.total_simule
+    end
+  end
+
   private
 
   def generate_empty_hub_data

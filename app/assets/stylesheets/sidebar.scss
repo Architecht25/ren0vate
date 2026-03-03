@@ -1,0 +1,447 @@
+/* ============================================
+   SIDEBAR VERTICALE MODERNE
+   ============================================ */
+
+:root {
+  --sidebar-width: 280px;
+  --sidebar-bg: #1e293b;
+  --sidebar-text: #cbd5e1;
+  --sidebar-text-hover: #ffffff;
+  --sidebar-active: #3b82f6;
+  --sidebar-hover-bg: #334155;
+  --sidebar-section-bg: #0f172a;
+}
+
+/* Layout principal */
+body {
+  margin: 0;
+  padding: 0 !important;
+  min-height: 100vh;
+}
+
+.sidebar {
+  position: fixed !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: var(--sidebar-width) !important;
+  height: 100vh !important;
+  background: var(--sidebar-bg) !important;
+  color: var(--sidebar-text) !important;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 1030;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+/* Scrollbar personnalisée */
+.sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: var(--sidebar-section-bg);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: var(--sidebar-hover-bg);
+  border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #475569;
+}
+
+/* Header de la sidebar */
+.sidebar-header {
+  padding: 1.5rem 1rem;
+  background: var(--sidebar-section-bg);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 1.25rem;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.sidebar-brand:hover {
+  color: var(--sidebar-active);
+}
+
+.sidebar-brand i {
+  font-size: 1.5rem;
+  color: var(--sidebar-active);
+}
+
+.brand-text {
+  font-weight: 700;
+}
+
+.sidebar-toggle {
+  display: none;
+  background: transparent;
+  border: none;
+  color: var(--sidebar-text);
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+/* Info utilisateur */
+.sidebar-user-info {
+  padding: 1rem;
+  background: var(--sidebar-section-bg);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.user-avatar {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.user-avatar i {
+  font-size: 1.5rem;
+  color: #ffffff;
+}
+
+.user-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-tier {
+  margin-top: 0.25rem;
+}
+
+.user-tier .badge {
+  font-size: 0.7rem;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Navigation */
+.sidebar-nav {
+  flex: 1;
+  padding: 0.5rem 0;
+  overflow-y: auto;
+}
+
+.nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Section de navigation */
+.nav-section {
+  margin-bottom: 0.25rem;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  background: var(--sidebar-section-bg);
+  border-left: 3px solid transparent;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.section-header:hover {
+  background: var(--sidebar-hover-bg);
+  border-left-color: var(--sidebar-active);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--sidebar-text-hover);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.section-icon {
+  font-size: 1.1rem;
+  color: var(--sidebar-active);
+  flex-shrink: 0;
+}
+
+.toggle-icon {
+  color: var(--sidebar-text);
+  transition: transform 0.2s;
+  font-size: 0.85rem;
+}
+
+.section-header[aria-expanded="true"] .toggle-icon {
+  transform: rotate(180deg);
+}
+
+/* Sous-menu */
+.nav-submenu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.nav-item {
+  margin: 0;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 1rem 0.65rem 2.5rem;
+  color: var(--sidebar-text);
+  text-decoration: none;
+  transition: all 0.2s;
+  border-left: 3px solid transparent;
+  font-size: 0.875rem;
+}
+
+.nav-link i {
+  font-size: 1rem;
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+}
+
+.nav-link span {
+  flex: 1;
+}
+
+.nav-link:hover {
+  background: var(--sidebar-hover-bg);
+  color: var(--sidebar-text-hover);
+  border-left-color: var(--sidebar-active);
+  padding-left: 2.75rem;
+}
+
+.nav-link.active {
+  background: var(--sidebar-hover-bg);
+  color: var(--sidebar-text-hover);
+  border-left-color: var(--sidebar-active);
+  font-weight: 600;
+}
+
+.nav-link.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: auto;
+}
+
+.nav-link.disabled:hover {
+  background: transparent;
+  padding-left: 2.5rem;
+  border-left-color: transparent;
+}
+
+.nav-link .badge {
+  font-size: 0.65rem;
+  padding: 0.2rem 0.4rem;
+  margin-left: auto;
+}
+
+/* Liens spéciaux */
+.admin-link {
+  color: #fb923c !important;
+}
+
+.admin-link:hover {
+  color: #ffffff !important;
+}
+
+.logout-link {
+  color: #ef4444 !important;
+}
+
+.logout-link:hover {
+  background: rgba(239, 68, 68, 0.1) !important;
+  color: #ffffff !important;
+}
+
+/* Séparateur */
+.sidebar-divider {
+  margin: 1rem 0;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Badge de notifications */
+.notification-badge {
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+  background: #ef4444;
+  color: white;
+  border-radius: 10px;
+  padding: 0.15rem 0.4rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+/* Contenu principal - décalé pour laisser place à la sidebar */
+.main-content {
+  margin-left: var(--sidebar-width);
+  padding: 2rem;
+  min-height: 100vh;
+  width: calc(100% - var(--sidebar-width));
+  transition: margin-left 0.3s ease, width 0.3s ease;
+}
+
+/* Overlay pour mobile */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1029;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.sidebar-overlay.active {
+  display: block;
+  opacity: 1;
+}
+
+/* Bouton mobile pour ouvrir la sidebar */
+.mobile-sidebar-trigger {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 1028;
+  width: 45px;
+  height: 45px;
+  border-radius: 8px;
+  background: var(--sidebar-bg);
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mobile-sidebar-trigger:hover {
+  background: var(--sidebar-hover-bg);
+  transform: scale(1.05);
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+/* Tablettes */
+@media (max-width: 992px) {
+  :root {
+    --sidebar-width: 260px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebar.active {
+    transform: translateX(0);
+  }
+
+  .sidebar-toggle {
+    display: block;
+  }
+
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .mobile-sidebar-trigger {
+    display: flex;
+  }
+
+  /* Sections fermées par défaut sur mobile */
+  .nav-submenu {
+    display: none;
+  }
+
+  .nav-submenu.show {
+    display: block;
+  }
+}
+
+/* Très petits écrans */
+@media (max-width: 480px) {
+  :root {
+    --sidebar-width: 100%;
+  }
+
+  .sidebar {
+    width: 85%;
+  }
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.sidebar.active {
+  animation: slideIn 0.3s ease;
+}
+
+/* États de focus pour accessibilité */
+.nav-link:focus,
+.section-header:focus {
+  outline: 2px solid var(--sidebar-active);
+  outline-offset: -2px;
+}

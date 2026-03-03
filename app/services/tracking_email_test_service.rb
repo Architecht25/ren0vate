@@ -117,7 +117,7 @@ class TrackingEmailTestService
       description: "Demande de test pour valider le système d'emails de tracking",
       region: "bruxelles",
       status: "submitted",
-      form_type: "regional_bruxelles"
+      form_type: "monuments_bruxelles"
     )
 
     # Créer un RequestProgress de test

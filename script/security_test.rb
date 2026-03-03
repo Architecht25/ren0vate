@@ -78,7 +78,7 @@ request1 = user1.requests.find_or_create_by!(
   status: 'en_cours',
   title: 'Test Request 1',
   description: 'Test description for request 1',
-  form_type: 'regional_bruxelles'
+  form_type: 'monuments_bruxelles'
 )
 
 request2 = user2.requests.find_or_create_by!(
@@ -95,8 +95,8 @@ request_progress1 = request1.request_progresses.find_or_create_by!(
   pourcentage: 50,
   status_administratif: 'en_cours',
   email_suivi: "test1-#{Time.current.to_i}@tracking.ren0vate.be",
-  form_type: 'regional_bruxelles',
-  form_name: 'Prime régionale Bruxelles'
+  form_type: 'monuments_bruxelles',
+  form_name: 'Monuments & Sites Bruxelles'
 )
 
 request_progress2 = request2.request_progresses.find_or_create_by!(

@@ -595,15 +595,6 @@ class PropertiesController < ApplicationController
     when 'bruxelles'
       forms += [
         {
-          code: 'regional_bruxelles',
-          title: 'Prime régionale habitation',
-          description: 'Primes pour travaux de rénovation énergétique',
-          icon: 'bi-house-gear',
-          category: 'Rénovation',
-          eligible: true,
-          external_url: 'https://www.bruxelles.be/logement-et-energie/renovation-de-mon-logement/primes'
-        },
-        {
           code: 'monuments_bruxelles',
           title: 'Monuments & Sites classés',
           description: 'Subventions pour conservation de biens classés',

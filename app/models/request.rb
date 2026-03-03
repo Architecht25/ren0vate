@@ -22,10 +22,9 @@ class Request < ApplicationRecord
   validates :region, presence: true, unless: -> { draft? || autosave_mode? }
   validates :form_type, presence: true, unless: -> { draft? || autosave_mode? }
 
-  # Enum pour les types de formulaires (25 formulaires)
+  # Enum pour les types de formulaires (24 formulaires)
   enum :form_type, {
-    # BRUXELLES (4 formulaires)
-    regional_bruxelles: 'regional_bruxelles',
+    # BRUXELLES (3 formulaires)
     monuments_bruxelles: 'monuments_bruxelles',
     patrimoine_bruxelles: 'patrimoine_bruxelles',
     communal_bruxelles: 'communal_bruxelles',
@@ -181,7 +180,7 @@ class Request < ApplicationRecord
   def get_required_fields_for_form_type
     # Configuration des champs requis selon le type de formulaire
     case form_type
-    when 'regional_bruxelles', 'regional_wallonie', 'regional_flandre'
+    when 'regional_wallonie', 'regional_flandre'
       %w[nom prenom email telephone adresse travaux_description budget_estime]
     when 'monuments_bruxelles', 'monuments_wallonie', 'monuments_flandre'
       %w[nom prenom email telephone adresse bien_classe description_travaux]

@@ -1,0 +1,338 @@
+<!-- Sidebar verticale moderne -->
+<aside class="sidebar" id="mainSidebar">
+  <div class="sidebar-header">
+    <% if user_signed_in? %>
+      <a class="sidebar-brand" href="<%= dashboard_path %>">
+        <i class="bi bi-house-heart-fill me-2"></i>
+        <span class="brand-text">Ren0vate</span>
+      </a>
+    <% else %>
+      <a class="sidebar-brand" href="/">
+        <i class="bi bi-house-heart-fill me-2"></i>
+        <span class="brand-text">Ren0vate</span>
+      </a>
+    <% end %>
+    <button class="sidebar-toggle d-lg-none" id="sidebarToggle">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <% if user_signed_in? %>
+    <div class="sidebar-user-info">
+      <div class="user-avatar">
+        <i class="bi bi-person-circle"></i>
+      </div>
+      <div class="user-details">
+        <div class="user-name"><%= current_user.email.split('@').first.capitalize %></div>
+        <div class="user-tier">
+          <% if defined?(tier_upgrade_available?) && tier_upgrade_available? %>
+            <%= link_to pricing_select_path, class: "badge bg-warning text-dark" do %>
+              <i class="bi bi-gem me-1"></i> <%= upgrade_badge_text %>
+            <% end %>
+          <% else %>
+            <span class="badge bg-primary"><i class="bi bi-gem me-1"></i> Premium</span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ul class="nav-list">
+        <!-- ÉTAPE 1: CONFIGURATION -->
+        <li class="nav-section">
+          <div class="section-header" data-bs-toggle="collapse" data-bs-target="#configSection" aria-expanded="true">
+            <div class="section-title">
+              <i class="bi bi-gear-fill section-icon"></i>
+              <span>1. Configuration</span>
+            </div>
+            <i class="bi bi-chevron-down toggle-icon"></i>
+          </div>
+          <ul class="collapse show nav-submenu" id="configSection">
+            <li class="nav-item">
+              <%= link_to profile_path, class: "nav-link" do %>
+                <i class="bi bi-person-circle"></i>
+                <span>Mon profil</span>
+              <% end %>
+            </li>
+            <li class="nav-item">
+              <%= link_to properties_path, class: "nav-link" do %>
+                <i class="bi bi-house"></i>
+                <span>Mes biens</span>
+              <% end %>
+            </li>
+          </ul>
+        </li>
+
+        <!-- ÉTAPE 2: FINANCEMENT -->
+        <li class="nav-section">
+          <div class="section-header" data-bs-toggle="collapse" data-bs-target="#financementSection" aria-expanded="true">
+            <div class="section-title">
+              <i class="bi bi-currency-euro section-icon"></i>
+              <span>2. Financement</span>
+            </div>
+            <i class="bi bi-chevron-down toggle-icon"></i>
+          </div>
+          <ul class="collapse show nav-submenu" id="financementSection">
+            <li class="nav-item">
+              <%= link_to simulations_path, class: "nav-link" do %>
+                <i class="bi bi-calculator"></i>
+                <span>Mes simulations</span>
+              <% end %>
+            </li>
+            <li class="nav-item">
+              <%= link_to decision_hub_index_path, class: "nav-link" do %>
+                <i class="bi bi-gear-wide-connected"></i>
+                <span>Espace technique</span>
+              <% end %>
+            </li>
+            <li class="nav-item">
+              <%= link_to requests_path, class: "nav-link" do %>
+                <i class="bi bi-list"></i>
+                <span>Mes formulaires</span>
+              <% end %>
+            </li>
+            <li class="nav-item">
+              <%= link_to request_progresses_path, class: "nav-link" do %>
+                <i class="bi bi-clipboard-check"></i>
+                <span>Suivi de primes</span>
+              <% end %>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link disabled" title="Bientôt disponible">
+                <i class="bi bi-bank"></i>
+                <span>Mes financements</span>
+                <span class="badge bg-secondary ms-auto">Bientôt</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- ÉTAPE 3: MES DOCUMENTS -->
+        <li class="nav-section">
+          <div class="section-header" data-bs-toggle="collapse" data-bs-target="#documentsSection" aria-expanded="true">
+            <div class="section-title">
+              <i class="bi bi-file-earmark-text-fill section-icon"></i>
+              <span>3. Mes documents</span>
+            </div>
+            <i class="bi bi-chevron-down toggle-icon"></i>
+          </div>
+          <ul class="collapse show nav-submenu" id="documentsSection">
+            <li class="nav-item">
+              <%= link_to documents_path, class: "nav-link" do %>
+                <i class="bi bi-folder2-open"></i>
+                <span>Tous mes documents</span>
+              <% end %>
+            </li>
+          </ul>
+        </li>
+
+        <!-- ÉTAPE 4: CHAT IA -->
+        <li class="nav-section">
+          <div class="section-header" data-bs-toggle="collapse" data-bs-target="#chatSection" aria-expanded="true">
+            <div class="section-title">
+              <i class="bi bi-chat-dots-fill section-icon"></i>
+              <span>4. Chat IA</span>
+            </div>
+            <i class="bi bi-chevron-down toggle-icon"></i>
+          </div>
+          <ul class="collapse show nav-submenu" id="chatSection">
+            <li class="nav-item">
+              <%= link_to expert_decision_hub_index_path, class: "nav-link" do %>
+                <i class="bi bi-robot"></i>
+                <span>Assistant IA</span>
+              <% end %>
+            </li>
+          </ul>
+        </li>
+
+        <!-- ÉTAPE 5: PRÉPARATION CHANTIER -->
+        <li class="nav-section">
+          <div class="section-header" data-bs-toggle="collapse" data-bs-target="#preparationSection" aria-expanded="false">
+            <div class="section-title">
+              <i class="bi bi-tools section-icon"></i>
+              <span>5. Préparation chantier</span>
+            </div>
+            <i class="bi bi-chevron-down toggle-icon"></i>
+          </div>
+          <ul class="collapse nav-submenu" id="preparationSection">
+            <li class="nav-item">
+              <%= link_to projects_path, class: "nav-link" do %>
+                <i class="bi bi-hammer"></i>
+                <span>Mes chantiers</span>
+              <% end %>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link disabled" title="Bientôt disponible">
+                <i class="bi bi-building"></i>
+                <span>Import PEB/Audit</span>
+                <span class="badge bg-secondary ms-auto">Bientôt</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link disabled" title="Bientôt disponible">
+                <i class="bi bi-calculator-fill"></i>
+                <span>Planificateur de budget</span>
+                <span class="badge bg-secondary ms-auto">Bientôt</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link disabled" title="Bientôt disponible">
+                <i class="bi bi-file-earmark-bar-graph"></i>
+                <span>Comparateur de devis</span>
+                <span class="badge bg-secondary ms-auto">Bientôt</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link disabled" title="Bientôt disponible">
+                <i class="bi bi-box-seam"></i>
+                <span>Comparateur matériaux</span>
+                <span class="badge bg-secondary ms-auto">Bientôt</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link disabled" title="Bientôt disponible">
+                <i class="bi bi-people"></i>
+                <span>Comparateur entrepreneur</span>
+                <span class="badge bg-secondary ms-auto">Bientôt</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link disabled" title="Bientôt disponible">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>Templates contrats</span>
+                <span class="badge bg-secondary ms-auto">Bientôt</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link disabled" title="Bientôt disponible">
+                <i class="bi bi-building-check"></i>
+                <span>Permis urbanisme</span>
+                <span class="badge bg-secondary ms-auto">Bientôt</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- ÉTAPE 6: SUIVI DE CHANTIER -->
+        <li class="nav-section">
+          <div class="section-header" data-bs-toggle="collapse" data-bs-target="#suiviSection" aria-expanded="false">
+            <div class="section-title">
+              <i class="bi bi-clipboard2-check-fill section-icon"></i>
+              <span>6. Suivi de chantier</span>
+            </div>
+            <i class="bi bi-chevron-down toggle-icon"></i>
+          </div>
+          <ul class="collapse nav-submenu" id="suiviSection">
+            <li class="nav-item">
+              <a href="#" class="nav-link disabled" title="Bientôt disponible">
+                <i class="bi bi-kanban"></i>
+                <span>Tableau de bord chantier</span>
+                <span class="badge bg-secondary ms-auto">Bientôt</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link disabled" title="Bientôt disponible">
+                <i class="bi bi-calendar-check"></i>
+                <span>Planning travaux</span>
+                <span class="badge bg-secondary ms-auto">Bientôt</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link disabled" title="Bientôt disponible">
+                <i class="bi bi-camera"></i>
+                <span>Photos de suivi</span>
+                <span class="badge bg-secondary ms-auto">Bientôt</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+
+        <!-- ÉTAPE 7: CLÔTURE DE CHANTIER -->
+        <li class="nav-section">
+          <div class="section-header" data-bs-toggle="collapse" data-bs-target="#clotureSection" aria-expanded="false">
+            <div class="section-title">
+              <i class="bi bi-check-circle-fill section-icon"></i>
+              <span>7. Clôture de chantier</span>
+            </div>
+            <i class="bi bi-chevron-down toggle-icon"></i>
+          </div>
+          <ul class="collapse nav-submenu" id="clotureSection">
+            <li class="nav-item">
+              <a href="#" class="nav-link disabled" title="Bientôt disponible">
+                <i class="bi bi-file-earmark-check"></i>
+                <span>Réception travaux</span>
+                <span class="badge bg-secondary ms-auto">Bientôt</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link disabled" title="Bientôt disponible">
+                <i class="bi bi-shield-check"></i>
+                <span>Garanties</span>
+                <span class="badge bg-secondary ms-auto">Bientôt</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link disabled" title="Bientôt disponible">
+                <i class="bi bi-book"></i>
+                <span>Carnet d'entretien</span>
+                <span class="badge bg-secondary ms-auto">Bientôt</span>
+              </a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+
+      <!-- Séparateur -->
+      <hr class="sidebar-divider">
+
+      <!-- Autres liens -->
+      <ul class="nav-list">
+        <li class="nav-item">
+          <%= link_to notifications_path, class: "nav-link position-relative" do %>
+            <i class="bi bi-bell"></i>
+            <span>Notifications</span>
+            <%= unread_notifications_badge(current_user) %>
+          <% end %>
+        </li>
+
+        <% if current_user&.admin? %>
+          <li class="nav-item">
+            <%= link_to '/admin/dashboard', class: "nav-link admin-link" do %>
+              <i class="bi bi-speedometer2"></i>
+              <span>Administration</span>
+            <% end %>
+          </li>
+        <% end %>
+
+        <li class="nav-item">
+          <%= button_to destroy_user_session_path, method: :delete,
+              data: { action: "click->logout-modal#show" },
+              class: "nav-link border-0 bg-transparent w-100 text-start logout-link",
+              data: { controller: "logout-modal" } do %>
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Déconnexion</span>
+          <% end %>
+        </li>
+      </ul>
+    </nav>
+  <% else %>
+    <!-- Utilisateur non connecté -->
+    <div class="sidebar-nav">
+      <div class="p-3">
+        <%= link_to new_user_session_path, class: "btn btn-primary w-100" do %>
+          <i class="bi bi-box-arrow-in-right me-2"></i> Connexion
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <%= render 'shared/logout_modal' %>
+</aside>
+
+<!-- Overlay pour mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Bouton pour ouvrir la sidebar sur mobile -->
+<button class="mobile-sidebar-trigger d-lg-none" id="mobileSidebarTrigger">
+  <i class="bi bi-list"></i>
+</button>

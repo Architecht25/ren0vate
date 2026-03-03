@@ -42,7 +42,7 @@
     </nav>
 
     <!-- FORMULAIRE DIRECT (patrimoniaux et entreprises) -->
-    <% if (@request&.form_type&.end_with?('_bruxelles') && @request.form_type != 'regional_bruxelles') ||
+    <% if (@request&.form_type&.end_with?('_bruxelles')) ||
           (@request&.form_type&.end_with?('_flandre') && @request.form_type != 'regional_flandre') %>
       <%= form_with model: @request,
                     url: @request.persisted? ? request_path(@request) : requests_path,

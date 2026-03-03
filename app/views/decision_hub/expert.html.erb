@@ -1,0 +1,429 @@
+<%
+  set_seo_meta(
+    title: "Assistant IA Expert - Ren0vate",
+    description: "Posez vos questions à notre assistant IA expert en rénovation",
+    keywords: ["assistant IA", "expert rénovation", "intelligence artificielle", "conseil"]
+  )
+%>
+
+<div class="container-fluid h-100" style="max-width: 1400px;">
+  <div class="row h-100 g-0">
+
+    <!-- Sidebar - Contexte des simulations (3 colonnes) -->
+    <div class="col-md-3 border-end bg-light">
+      <div class="p-4 h-100 overflow-auto">
+        <h5 class="mb-4">
+          <i class="bi bi-cpu me-2 text-primary"></i>
+          Assistant IA Expert
+        </h5>
+
+        <!-- Sélecteur de simulation pour contexte -->
+        <div class="mb-4">
+          <label class="form-label small text-muted">Contexte simulation</label>
+          <% if @simulations.any? %>
+            <select class="form-select form-select-sm" id="aiExpertSimulationSelector">
+              <option value="">Conversation générale</option>
+              <% @simulations.each do |simulation| %>
+                <option value="<%= simulation.id %>" <%= 'selected' if simulation.id == @simulation&.id %>>
+                  <%= simulation.titre || "Simulation #{simulation.id}" %>
+                </option>
+              <% end %>
+            </select>
+          <% else %>
+            <div class="alert alert-sm alert-info">
+              <%= link_to "Créer une simulation", new_simulation_path, class: "alert-link" %>
+              pour un conseil personnalisé
+            </div>
+          <% end %>
+        </div>
+
+        <!-- Informations contextuelles -->
+        <% if @simulation %>
+          <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body p-3">
+              <h6 class="card-subtitle mb-2 text-muted small">Simulation active</h6>
+              <p class="mb-1"><strong><%= @simulation.titre || "Simulation #{@simulation.id}" %></strong></p>
+              <p class="mb-1 small">
+                <i class="bi bi-geo-alt me-1"></i>
+                <%= @simulation.region&.capitalize %>
+              </p>
+              <p class="mb-1 small">
+                <i class="bi bi-currency-euro me-1"></i>
+                <%= number_to_currency(@simulation.total_simule || 0, unit: "", precision: 0) %>€
+              </p>
+              <p class="mb-0 small text-muted">
+                <i class="bi bi-calendar me-1"></i>
+                <%= @simulation.created_at.strftime("%d/%m/%Y") %>
+              </p>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Suggestions de questions -->
+        <div class="mt-4">
+          <h6 class="small text-muted mb-3">Questions suggérées</h6>
+          <div class="d-grid gap-2">
+            <button class="btn btn-sm btn-outline-primary text-start suggested-question">
+              <i class="bi bi-lightning-charge me-2"></i>
+              Résume-moi ma situation
+            </button>
+            <button class="btn btn-sm btn-outline-primary text-start suggested-question">
+              <i class="bi bi-cash-stack me-2"></i>
+              Quelles sont mes primes prioritaires ?
+            </button>
+            <button class="btn btn-sm btn-outline-primary text-start suggested-question">
+              <i class="bi bi-calendar-check me-2"></i>
+              Quel est le calendrier optimal ?
+            </button>
+            <button class="btn btn-sm btn-outline-primary text-start suggested-question">
+              <i class="bi bi-tools me-2"></i>
+              Par quoi dois-je commencer ?
+            </button>
+            <button class="btn btn-sm btn-outline-primary text-start suggested-question">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              Quels sont les pièges à éviter ?
+            </button>
+          </div>
+        </div>
+
+        <!-- Info -->
+        <div class="alert alert-light border mt-4 small">
+          <i class="bi bi-info-circle me-2"></i>
+          L'assistant utilise le contexte de votre simulation pour des réponses personnalisées.
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone de chat principale (9 colonnes) -->
+    <div class="col-md-9 d-flex flex-column">
+
+      <!-- Header -->
+      <div class="border-bottom bg-white p-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <h4 class="mb-1">
+              <i class="bi bi-robot me-2 text-primary"></i>
+              Assistant IA Expert Rénovation
+            </h4>
+            <p class="text-muted mb-0 small">
+              Posez vos questions sur votre projet de rénovation
+            </p>
+          </div>
+          <div>
+            <%= link_to decision_hub_index_path, class: "btn btn-outline-secondary btn-sm" do %>
+              <i class="bi bi-compass me-1"></i>
+              Feuille de route
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Zone de messages -->
+      <div class="flex-grow-1 overflow-auto bg-light p-4" id="chatMessages" style="min-height: 400px;">
+
+        <!-- Message de bienvenue -->
+        <div class="d-flex mb-4">
+          <div class="flex-shrink-0">
+            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+              <i class="bi bi-robot"></i>
+            </div>
+          </div>
+          <div class="flex-grow-1 ms-3">
+            <div class="bg-white rounded-3 p-3 shadow-sm">
+              <p class="mb-2">
+                <strong>Bonjour <%= current_user.first_name || current_user.email.split('@').first.capitalize %> !</strong>
+              </p>
+              <p class="mb-0">
+                Je suis votre assistant IA expert en rénovation. Je peux vous aider à :
+              </p>
+              <ul class="mb-0 mt-2">
+                <li>Analyser votre situation et vos primes</li>
+                <li>Optimiser votre planning de rénovation</li>
+                <li>Répondre à vos questions techniques</li>
+                <li>Vous conseiller sur les démarches administratives</li>
+              </ul>
+              <p class="mt-2 mb-0 text-muted small">
+                💡 Astuce : Sélectionnez une simulation dans la sidebar pour un conseil personnalisé.
+              </p>
+            </div>
+            <small class="text-muted ms-2">À l'instant</small>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Zone de saisie -->
+      <div class="border-top bg-white p-3">
+        <form id="aiExpertForm">
+          <div class="input-group">
+            <input type="text"
+                   class="form-control"
+                   id="aiExpertInput"
+                   placeholder="Posez votre question à l'expert IA..."
+                   autocomplete="off">
+            <button class="btn btn-primary px-4" type="submit" id="aiExpertSendBtn">
+              <i class="bi bi-send me-2"></i>
+              Envoyer
+            </button>
+          </div>
+          <small class="text-muted d-block mt-2">
+            <i class="bi bi-shield-check me-1"></i>
+            Vos conversations sont privées et sécurisées
+          </small>
+        </form>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<style>
+/* Styles pour le chat */
+#chatMessages::-webkit-scrollbar {
+  width: 8px;
+}
+
+#chatMessages::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+#chatMessages::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+#chatMessages::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.user-message {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1rem;
+  border-radius: 1.5rem 1.5rem 0.25rem 1.5rem;
+  max-width: 70%;
+  margin-left: auto;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.ai-message {
+  background: white;
+  padding: 1rem;
+  border-radius: 1.5rem 1.5rem 1.5rem 0.25rem;
+  max-width: 80%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.suggested-question:hover {
+  transform: translateX(4px);
+  transition: transform 0.2s;
+}
+
+.message-loading {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #999;
+  animation: pulse 1.4s infinite ease-in-out;
+}
+
+.message-loading:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.message-loading:nth-child(2) {
+  animation-delay: -0.16s;
+  margin-left: 4px;
+}
+
+.message-loading:nth-child(3) {
+  margin-left: 4px;
+}
+
+@keyframes pulse {
+  0%, 80%, 100% {
+    opacity: 0.3;
+    transform: scale(0.8);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('aiExpertForm');
+  const input = document.getElementById('aiExpertInput');
+  const chatMessages = document.getElementById('chatMessages');
+  const sendBtn = document.getElementById('aiExpertSendBtn');
+  const simulationSelector = document.getElementById('aiExpertSimulationSelector');
+  const suggestedQuestions = document.querySelectorAll('.suggested-question');
+
+  let conversationHistory = [];
+
+  // Questions suggérées
+  suggestedQuestions.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const question = this.textContent.trim().replace(/^.*?\s/, ''); // Retire l'icône
+      input.value = question;
+      form.dispatchEvent(new Event('submit'));
+    });
+  });
+
+  // Changement de simulation
+  if (simulationSelector) {
+    simulationSelector.addEventListener('change', function() {
+      const simulationId = this.value;
+      if (simulationId) {
+        // Recharger la page avec la nouvelle simulation
+        window.location.href = `<%= expert_decision_hub_index_path %>?simulation_id=${simulationId}`;
+      } else {
+        window.location.href = `<%= expert_decision_hub_index_path %>`;
+      }
+    });
+  }
+
+  // Soumission du formulaire
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const question = input.value.trim();
+    if (!question) return;
+
+    // Ajouter le message utilisateur
+    addUserMessage(question);
+    input.value = '';
+
+    // Afficher l'indicateur de chargement
+    const loadingId = addLoadingMessage();
+
+    try {
+      // Récupérer l'ID de simulation actif
+      const simulationId = simulationSelector ? simulationSelector.value : '<%= @simulation&.id %>';
+
+      // Appeler l'API
+      const response = await fetch(`/api/contextual_bot/message`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+        },
+        body: JSON.stringify({
+          message: question,
+          simulation_id: simulationId,
+          conversation_history: conversationHistory
+        })
+      });
+
+      const data = await response.json();
+
+      // Retirer l'indicateur de chargement
+      removeLoadingMessage(loadingId);
+
+      if (data.response) {
+        // Ajouter la réponse de l'IA
+        addAIMessage(data.response);
+
+        // Mettre à jour l'historique
+        conversationHistory.push({
+          question: question,
+          answer: data.response
+        });
+      } else {
+        addAIMessage("Désolé, je n'ai pas pu générer une réponse. Veuillez réessayer.");
+      }
+
+    } catch (error) {
+      console.error('Erreur:', error);
+      removeLoadingMessage(loadingId);
+      addAIMessage("Une erreur s'est produite. Veuillez réessayer.");
+    }
+  });
+
+  function addUserMessage(text) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'd-flex justify-content-end mb-4';
+    messageDiv.innerHTML = `
+      <div class="user-message">
+        ${escapeHtml(text)}
+      </div>
+    `;
+    chatMessages.appendChild(messageDiv);
+    scrollToBottom();
+  }
+
+  function addAIMessage(text) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'd-flex mb-4';
+    messageDiv.innerHTML = `
+      <div class="flex-shrink-0">
+        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+          <i class="bi bi-robot"></i>
+        </div>
+      </div>
+      <div class="flex-grow-1 ms-3">
+        <div class="ai-message">
+          ${formatAIResponse(text)}
+        </div>
+        <small class="text-muted ms-2">À l'instant</small>
+      </div>
+    `;
+    chatMessages.appendChild(messageDiv);
+    scrollToBottom();
+  }
+
+  function addLoadingMessage() {
+    const loadingId = 'loading-' + Date.now();
+    const messageDiv = document.createElement('div');
+    messageDiv.id = loadingId;
+    messageDiv.className = 'd-flex mb-4';
+    messageDiv.innerHTML = `
+      <div class="flex-shrink-0">
+        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+          <i class="bi bi-robot"></i>
+        </div>
+      </div>
+      <div class="flex-grow-1 ms-3">
+        <div class="ai-message">
+          <span class="message-loading"></span>
+          <span class="message-loading"></span>
+          <span class="message-loading"></span>
+        </div>
+      </div>
+    `;
+    chatMessages.appendChild(messageDiv);
+    scrollToBottom();
+    return loadingId;
+  }
+
+  function removeLoadingMessage(loadingId) {
+    const element = document.getElementById(loadingId);
+    if (element) {
+      element.remove();
+    }
+  }
+
+  function scrollToBottom() {
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function formatAIResponse(text) {
+    // Formater la réponse (markdown basique)
+    return text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\n/g, '<br>')
+      .replace(/- (.*?)(<br>|$)/g, '<li>$1</li>')
+      .replace(/(<li>.*<\/li>)+/g, '<ul>$&</ul>');
+  }
+});
+</script>

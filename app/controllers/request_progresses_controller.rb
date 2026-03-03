@@ -234,7 +234,6 @@ class RequestProgressesController < ApplicationController
     if property.nil?
       # Formulaires Bruxelles
       forms += [
-        { id: :regional_bruxelles, name: 'Prime régionale habitation', region: 'bruxelles', category: 'Rénovation' },
         { id: :monuments_bruxelles, name: 'Monuments & Sites classés', region: 'bruxelles', category: 'Patrimoine' },
         { id: :patrimoine_bruxelles, name: 'Petit patrimoine populaire', region: 'bruxelles', category: 'Patrimoine' },
         { id: :communal_bruxelles, name: 'Primes communales', region: 'bruxelles', category: 'Communal' }
@@ -262,7 +261,6 @@ class RequestProgressesController < ApplicationController
     case property.region&.downcase
     when 'bruxelles'
       forms += [
-        { id: :regional_bruxelles, name: 'Prime régionale habitation', region: 'bruxelles', category: 'Rénovation', eligible: true },
         { id: :monuments_bruxelles, name: 'Monuments & Sites classés', region: 'bruxelles', category: 'Patrimoine', eligible: true },
         { id: :patrimoine_bruxelles, name: 'Petit patrimoine populaire', region: 'bruxelles', category: 'Patrimoine', eligible: true },
         { id: :communal_bruxelles, name: 'Primes communales', region: 'bruxelles', category: 'Communal', eligible: true }

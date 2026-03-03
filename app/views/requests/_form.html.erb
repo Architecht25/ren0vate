@@ -10,9 +10,6 @@
   <!-- Token CSRF explicite (au cas où) -->
   <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
 
-  <!-- Indicateur de progression -->
-  <%= render 'requests/progress_indicator' if @request.persisted? %>
-
   <!-- Rangée 1 : Titre et Description -->
   <% if @property.blank? %>
     <div class="row mb-3">
@@ -124,12 +121,6 @@
   <div id="flandre-communal-section" class="region-section"
        style="<%= @request.form_type == 'communal_flandre' ? 'display: block;' : 'display: none;' %>">
     <%= render 'requests/formulaires/communaux_flandre' %>
-  </div>
-
-  <!-- Section Bruxelles -->
-  <div id="bruxelles-section" class="region-section"
-       style="<%= @request.form_type == 'regional_bruxelles' ? 'display: block;' : 'display: none;' %>">
-    <%= render 'requests/region_forms/bruxelles', form: form, form_data: @form_data %>
   </div>
 
   <!-- Section Monuments & Sites Bruxelles -->

@@ -569,7 +569,6 @@ class RequestsController < ApplicationController
     if property.nil?
       # Formulaires Bruxelles
       forms += [
-        { id: :regional_bruxelles, name: 'Prime régionale habitation', region: 'bruxelles', category: 'Rénovation' },
         { id: :monuments_bruxelles, name: 'Monuments & Sites classés', region: 'bruxelles', category: 'Patrimoine' },
         { id: :patrimoine_bruxelles, name: 'Petit patrimoine populaire', region: 'bruxelles', category: 'Patrimoine' },
         { id: :communal_bruxelles, name: 'Primes communales', region: 'bruxelles', category: 'Communal' }
@@ -615,9 +614,8 @@ class RequestsController < ApplicationController
           { id: :securisation_bruxelles, name: 'Sécurisation', region: 'bruxelles', category: 'Sécurité', eligible: true, description: 'Sécurisation des locaux et équipements' }
         ]
       else
-        # Formulaires particuliers Bruxelles - les 4 formulaires de rénovation
+        # Formulaires particuliers Bruxelles - les 3 formulaires de rénovation
         forms += [
-          { id: :regional_bruxelles, name: 'Prime régionale habitation', region: 'bruxelles', category: 'Rénovation', eligible: true },
           { id: :monuments_bruxelles, name: 'Monuments & Sites classés', region: 'bruxelles', category: 'Patrimoine', eligible: true },
           { id: :patrimoine_bruxelles, name: 'Petit patrimoine populaire', region: 'bruxelles', category: 'Patrimoine', eligible: true },
           { id: :communal_bruxelles, name: 'Primes communales', region: 'bruxelles', category: 'Communal', eligible: true }
@@ -957,16 +955,6 @@ class RequestsController < ApplicationController
       property.usage_flandre
     else
       property.usage || property.occupation
-    end
-  end
-
-  def debug_export
-    @request = Request.find(params[:id])
-
-    # Vérification de sécurité
-    unless @request.user == current_user || current_user&.admin?
-      redirect_to requests_path, alert: "Vous n'avez pas accès à cette demande."
-      return
     end
   end
 end

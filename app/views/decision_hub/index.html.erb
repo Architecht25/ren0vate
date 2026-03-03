@@ -74,11 +74,11 @@
     </div>
   </div>
 
-  <!-- Contenu principal avec sections dynamiques + Sidebar IA -->
+  <!-- Contenu principal avec sections dynamiques -->
   <div class="row g-4">
 
-    <!-- Sections principales (8 colonnes) -->
-    <div class="col-lg-8">
+    <!-- Sections principales (pleine largeur) -->
+    <div class="col-lg-12">
       <div class="dynamic-content" data-decision-hub-target="dynamicContent">
 
         <!-- Loading state -->
@@ -856,121 +856,6 @@
           </div>
 
         </div>
-      </div>
-    </div>
-
-    <!-- Sidebar IA (4 colonnes) -->
-    <div class="col-lg-4">
-      <div class="ai-sidebar sticky-top" style="top: 1rem;">
-        <div class="card border-0 shadow-sm h-100">
-          <div class="card-header bg-gradient bg-success text-white">
-            <div class="d-flex align-items-center justify-content-between">
-              <div class="d-flex align-items-center">
-                <i class="bi bi-robot fs-4 me-2"></i>
-                <div>
-                  <h6 class="mb-0">Assistant IA Expert</h6>
-                  <small class="opacity-75">Conseil en temps réel</small>
-                </div>
-              </div>
-              <div class="ai-status">
-                <span class="badge bg-white text-success">
-                  <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>
-                  En ligne
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div class="card-body d-flex flex-column" style="height: 500px;">
-            <!-- Zone de conversation -->
-            <div class="conversation-area mb-3"
-                 data-controller="conversation-fix"
-                 data-conversation-fix-conversation-area-target="conversationArea"
-                 data-decision-hub-interactions-conversation-area-target="conversationArea"
-                 data-decision-hub-interactions-target="conversationArea"
-                 style="
-                   max-height: 350px !important;
-                   height: 350px !important;
-                   overflow-y: auto !important;
-                   overflow-x: hidden !important;
-                   padding: 0.75rem !important;
-                   background: #f8f9fa !important;
-                   border-radius: 8px !important;
-                   width: 100% !important;
-                   max-width: 100% !important;
-                   box-sizing: border-box !important;
-                   border: 1px solid #007bff !important;
-                   position: relative !important;
-                   z-index: 999 !important;
-                 ">
-              <div class="ai-message mb-3" style="display: block; width: 100%; max-width: 100%; overflow: hidden;">
-                <div style="display: grid; grid-template-columns: 40px 1fr; gap: 8px; width: 100%; max-width: 100%;">
-                  <div class="ai-avatar bg-success rounded-circle" style="width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-robot text-white small"></i>
-                  </div>
-                  <div class="message-content bg-light rounded-3 p-3" style="width: 100%; max-width: 100%; word-wrap: break-word; overflow-wrap: break-word; box-sizing: border-box;">
-                    <div class="message-text" style="width: 100%; max-width: 100%; word-wrap: break-word; overflow-wrap: break-word;">
-                      <strong>🤖 Bonjour !</strong><br>
-                      Je suis votre expert IA spécialisé en primes énergétiques.<br><br>
-                      <span data-decision-hub-target="aiWelcomeContext">
-                        J'ai analysé votre simulation : <strong><%= @hub_data[:resume][:total_amount] || 0 %>€</strong> de primes potentielles !
-                      </span><br><br>
-                      💬 Posez-moi vos questions ou cliquez sur une suggestion ci-dessous.
-                    </div>
-                    <small class="text-muted">Il y a quelques instants</small>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Questions rapides -->
-            <div class="quick-questions mb-3">
-              <div class="d-flex flex-wrap gap-2">
-                <button class="btn btn-outline-success btn-sm quick-question"
-                        data-question="Quelle est ma prochaine action prioritaire pour optimiser mes <%= (@hub_data[:resume][:total_amount] || 0).round %>€ de primes ?"
-                        data-context="index">
-                  🎯 Prochaine action
-                </button>
-                <button class="btn btn-outline-success btn-sm quick-question"
-                        data-question="Comment puis-je augmenter mes primes au-delà de <%= (@hub_data[:resume][:total_amount] || 0).round %>€ ?"
-                        data-context="index">
-                  💰 Optimiser
-                </button>
-                <button class="btn btn-outline-success btn-sm quick-question"
-                        data-question="Quels documents administratifs dois-je préparer pour ma demande de primes ?"
-                        data-context="index">
-                  📋 Documents
-                </button>
-                <button class="btn btn-outline-success btn-sm quick-question"
-                        data-question="Y a-t-il des délais critiques à respecter pour mes primes <%= @default_simulation&.region&.capitalize || 'régionales' %> ?"
-                        data-context="index">
-                  ⏰ Délais
-                </button>
-              </div>
-            </div>
-
-            <!-- Zone de saisie -->
-            <div class="input-area">
-              <div class="input-group">
-                <input type="text"
-                       class="form-control"
-                       placeholder="Posez votre question..."
-                       data-decision-hub-interactions-target="aiInput">
-                <button class="btn btn-success"
-                        type="button"
-                        data-decision-hub-interactions-target="aiSendButton">
-                  <i class="bi bi-send"></i>
-                </button>
-              </div>
-              <small class="text-muted">
-                <i class="bi bi-shield-check me-1"></i>
-                Conseils basés sur vos données réelles
-              </small>
-            </div>
-          </div>
-        </div>
-
-
       </div>
     </div>
   </div>

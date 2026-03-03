@@ -55,6 +55,7 @@
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag "application", media: "all", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "sidebar", media: "all", "data-turbo-track": "reload" %>
     <%# SweetAlert2 JS before importmap %>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js" nonce="<%= content_security_policy_nonce %>"></script>
     <%# Bootstrap JS Bundle (includes Popper) %>
@@ -63,9 +64,12 @@
   </head>
 
   <body>
-    <%= render 'shared/navbar' %>
-    <%= render "shared/flashes" %>
-    <%= yield %>
+    <%= render 'shared/sidebar' %>
+
+    <div class="main-content">
+      <%= render "shared/flashes" %>
+      <%= yield %>
+    </div>
 
     <!-- Assistant Bot Contextuel -->
     <% if user_signed_in? %>
@@ -74,5 +78,47 @@
 
     <!-- Widget de Support (toujours visible) -->
     <%= render 'shared/support_widget' %>
+
+    <!-- Script pour gérer la sidebar mobile -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('mainSidebar');
+        const overlay = document.getElementById('sidebarOverlay');
+        const mobileTrigger = document.getElementById('mobileSidebarTrigger');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+
+        function openSidebar() {
+          sidebar.classList.add('active');
+          overlay.classList.add('active');
+          document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebar() {
+          sidebar.classList.remove('active');
+          overlay.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+
+        if (mobileTrigger) {
+          mobileTrigger.addEventListener('click', openSidebar);
+        }
+
+        if (sidebarToggle) {
+          sidebarToggle.addEventListener('click', closeSidebar);
+        }
+
+        if (overlay) {
+          overlay.addEventListener('click', closeSidebar);
+        }
+
+        // Fermer la sidebar lors du clic sur un lien (mobile)
+        if (window.innerWidth < 768) {
+          const navLinks = sidebar.querySelectorAll('.nav-link:not(.disabled)');
+          navLinks.forEach(link => {
+            link.addEventListener('click', closeSidebar);
+          });
+        }
+      });
+    </script>
   </body>
 </html>

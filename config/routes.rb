@@ -177,11 +177,7 @@ Rails.application.routes.draw do
   end
 
   # Routes pour les demandes
-  resources :requests do
-    member do
-      get :debug_export # Debug pour export data
-    end
-  end
+  resources :requests
 
   # Routes pour les demandes de complément
   resources :request_progresses do
@@ -254,6 +250,7 @@ Rails.application.routes.draw do
   # Decision Hub - Carrefour Conseil (page principale)
   resources :decision_hub, only: [:index] do
     collection do
+      get :expert  # Assistant IA Expert dédié
       get :guide  # Guide d'utilisation
       get 'load_simulation/:simulation_id', to: 'decision_hub#load_simulation_data', as: 'load_simulation'
       post 'ai_consultation/:simulation_id', to: 'decision_hub#ai_consultation', as: 'ai_consultation'
