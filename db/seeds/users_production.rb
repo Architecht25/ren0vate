@@ -48,39 +48,6 @@ users_data = [
     postal_code: '1000',
     test_user: true  # Utilisateur de test
   },
-  {
-    email: 'geraldine@primes-services.be',
-    password: 'demo2025',
-    first_name: 'Géraldine',
-    last_name: 't Kint',
-    role: 'user',
-    phone: '+32 2 234 56 78',
-    city: 'Bruxelles',
-    postal_code: '1050',
-    test_user: true  # Utilisateur de test
-  },
-  {
-    email: 'anne@primes-services.be',
-    password: 'demo2025',
-    first_name: 'Anne',
-    last_name: 'Dao',
-    role: 'user',
-    phone: '+32 2 456 78 90',
-    city: 'Uccle',
-    postal_code: '1180',
-    test_user: true  # Utilisateur de test
-  },
-  {
-    email: 'sabenca@primes-services.be',
-    password: 'demo2025',
-    first_name: 'Sabenca',
-    last_name: 'Ozile',
-    role: 'user',
-    phone: '+32 2 567 89 01',
-    city: 'Saint-Gilles',
-    postal_code: '1060',
-    test_user: true  # Utilisateur de test
-  },
   # === VRAIS CLIENTS (pas de données fictives) ===
   {
     email: 'laes.michael@gmail.com',
@@ -878,24 +845,6 @@ users_data = [
   }
 ]
 
-# Adresses Brussels pour les propriétés
-brussels_addresses = [
-  { street: 'Rue de la Loi 15', city: 'Bruxelles', zipcode: '1000', municipality: 'Bruxelles-Ville' },
-  { street: 'Avenue Louise 234', city: 'Bruxelles', zipcode: '1050', municipality: 'Ixelles' },
-  { street: 'Boulevard Anspach 67', city: 'Bruxelles', zipcode: '1000', municipality: 'Bruxelles-Ville' },
-  { street: 'Chaussée de Charleroi 123', city: 'Bruxelles', zipcode: '1060', municipality: 'Saint-Gilles' },
-  { street: 'Avenue des Arts 89', city: 'Bruxelles', zipcode: '1000', municipality: 'Bruxelles-Ville' },
-  { street: 'Rue Royale 145', city: 'Bruxelles', zipcode: '1000', municipality: 'Bruxelles-Ville' },
-  { street: 'Place Eugène Flagey 12', city: 'Bruxelles', zipcode: '1050', municipality: 'Ixelles' },
-  { street: 'Avenue Molière 78', city: 'Bruxelles', zipcode: '1180', municipality: 'Uccle' },
-  { street: 'Rue de la Régence 34', city: 'Bruxelles', zipcode: '1000', municipality: 'Bruxelles-Ville' },
-  { street: 'Boulevard de Waterloo 91', city: 'Bruxelles', zipcode: '1000', municipality: 'Bruxelles-Ville' }
-]
-
-# Types de propriétés et projets
-property_types = ['Maison unifamiliale', 'Appartement', 'Maison de maître', 'Studio', 'Loft']
-project_types = ['Isolation toiture', 'Pompe à chaleur', 'Panneaux solaires', 'Rénovation énergétique', 'Isolation façade']
-
 created_users = []
 
 # Création des utilisateurs
@@ -924,51 +873,6 @@ users_data.each_with_index do |user_data, index|
   )
 
   created_users << user
-
-  # Créer 3 propriétés pour chaque utilisateur de test (sauf admin et vrais clients)
-  next if user.role == 'admin' || user_data[:test_user] == false
-
-  puts "  🏠 Génération de propriétés de test pour #{user.email}"
-
-  3.times do |prop_index|
-    address = brussels_addresses.sample
-    property_type = property_types.sample
-
-    puts "  🏠 Propriété #{prop_index + 1}: #{address[:street]}"
-
-    # Parse street address into number and street name
-    street_parts = address[:street].split(' ', 2)
-    numero = street_parts.first
-    rue = street_parts.size > 1 ? street_parts[1..-1].join(' ') : address[:street]
-
-    property = Property.create!(
-      user: user,
-      rue: rue,
-      numero: numero,
-      code_postal: address[:zipcode],
-      commune: address[:municipality],
-      region: 'bruxelles',
-      type_bien_bruxelles: property_type,
-      annee_construction: rand(1950..2020),
-      peb: ['A', 'B', 'C', 'D', 'E'].sample
-    )
-
-    # Créer 2-4 projets pour chaque propriété
-    rand(2..4).times do |proj_index|
-      project_type = project_types.sample
-      statut = ['preparation', 'en_cours', 'termine'].sample
-
-      puts "    🔧 Projet #{proj_index + 1}: #{project_type}"
-
-      Project.create!(
-        user: user,
-        property: property,
-        nom: "#{project_type} - #{property.commune}",
-        description: "Projet de #{project_type.downcase} pour améliorer l'efficacité énergétique",
-        statut: statut
-      )
-    end
-  end
 end
 
 puts ""
@@ -981,7 +885,3 @@ puts ""
 puts "🔑 Accès admin:"
 puts "  📧 Email: robin@primes-services.be"
 puts "  🔐 Mot de passe: robin123456"
-puts ""
-puts "🔑 Accès utilisateurs demo:"
-puts "  📧 Email: [n'importe lequel des autres emails]"
-puts "  🔐 Mot de passe: demo2025"

@@ -30,14 +30,8 @@ Rails.application.routes.draw do
   # Webhook routes
   post '/webhooks/stripe', to: 'webhooks#stripe'
 
-  # API routes for enterprise aids
+  # API routes
     namespace :api do
-      get 'entreprises/bce/:numero_bce', to: 'entreprises#bce_lookup'
-      post 'entreprises/bce_lookup', to: 'entreprises#bce_lookup'
-      get 'entreprises/bruxelles/aides', to: 'entreprises#bruxelles_aides'
-      post 'entreprises/bruxelles/majorations', to: 'entreprises#calculate_bruxelles_majorations'
-      get 'entreprises/bruxelles/majorations-details', to: 'entreprises#get_majorations_details'
-
       # API Bot Contextuel
       post 'contextual_bot/chat', to: 'contextual_bot#chat'
       post 'contextual_bot/suggestions', to: 'contextual_bot#suggestions'
@@ -85,6 +79,10 @@ Rails.application.routes.draw do
       get 'security/headers_check'
       get 'security/csp_violations'
       get 'security/security_overview'
+
+      # API Calculs Flandre
+      post 'flandre/calculate_prime', to: 'flandre_calculations#calculate_prime'
+      post 'flandre/calculate_all', to: 'flandre_calculations#calculate_all'
     end
 
     # Dashboard routes
@@ -92,38 +90,6 @@ Rails.application.routes.draw do
 
   resources :primes
   resources :categories
-
-  # Routes de test pour la nouvelle architecture de calculs
-  get '/test/wallonie', to: 'calculations#test_wallonie'
-  get '/test/bruxelles', to: 'calculations#test_bruxelles'
-
-  # API pour calculs de primes
-  namespace :api do
-    # API BCE pour recherche d'entreprises
-    post 'bce/search', to: 'bce#search'
-
-    # API IA pour consultation
-    post 'ai_consultations', to: 'ai_consultations#create'
-
-    # API Aides Bruxelles pour entreprises
-    get 'bruxelles_aides/categories', to: 'bruxelles_aides#categories'
-    get 'bruxelles_aides/categories/:category_id', to: 'bruxelles_aides#category_details'
-
-    # API Calculs Flandre
-    post 'flandre/calculate_prime', to: 'flandre_calculations#calculate_prime'
-    post 'flandre/calculate_all', to: 'flandre_calculations#calculate_all'
-
-    namespace :v1 do
-      namespace :wallonie do
-        post 'check_eligibility', to: 'calculations#check_eligibility'
-        post 'calculate_primes', to: 'calculations#calculate_primes'
-        post 'get_category', to: 'calculations#get_category'
-      end
-    end
-
-    # API BCE
-    post '/bce/search', to: 'bce#search'
-  end
 
   # Documents avec routes spéciales pour download et contexte
   resources :documents do
@@ -266,9 +232,7 @@ Rails.application.routes.draw do
 
   resources :simulations do
     member do
-      post :check_eligibility  # Étape 1: Vérification éligibilité (simple)
-      post :check_eligibility_investment  # Étape 1a: Vérification éligibilité investissements (double)
-      post :check_eligibility_renolution  # Étape 1b: Vérification éligibilité RENOLUTION (double)
+      post :check_eligibility  # Étape 1: Vérification éligibilité
       post :calculate_category  # Étape 2: Calcul de catégorie
       post :calculate_primes    # Étape 3: Calcul des primes
       post :calculate_prime     # Calcul d'une prime individuelle

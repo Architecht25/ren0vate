@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_12_14_185620) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_03_075641) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -697,12 +697,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_12_14_185620) do
     t.text "parameters"
     t.string "source"
     t.bigint "project_id"
-    t.boolean "eligible_investment"
-    t.text "investment_ineligibility_reason"
-    t.boolean "eligible_renolution"
-    t.text "renolution_ineligibility_reason"
-    t.index ["eligible_investment"], name: "index_simulations_on_eligible_investment"
-    t.index ["eligible_renolution"], name: "index_simulations_on_eligible_renolution"
     t.index ["project_id"], name: "index_simulations_on_project_id"
     t.index ["property_id"], name: "index_simulations_on_property_id"
     t.index ["user_id"], name: "index_simulations_on_user_id"

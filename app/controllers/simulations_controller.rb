@@ -4,7 +4,7 @@ class SimulationsController < ApplicationController
   skip_before_action :authenticate_user!, only: [:show, :update_prime_inputs, :restore_prime_inputs]
 
   # ✅ SÉCURITÉ: Vérifier que la simulation appartient à l'utilisateur pour les actions individuelles
-  before_action :set_and_verify_simulation, only: [:show, :edit, :update, :destroy, :check_eligibility, :check_eligibility_investment, :check_eligibility_renolution, :calculate_category, :calculate_primes, :calculate_prime, :update_prime_inputs, :restore_prime_inputs]
+  before_action :set_and_verify_simulation, only: [:show, :edit, :update, :destroy, :check_eligibility, :calculate_category, :calculate_primes, :calculate_prime, :update_prime_inputs, :restore_prime_inputs]
 
   def index
     # ✅ CORRECTION SÉCURITÉ: Filtrer les simulations par utilisateur connecté
@@ -186,68 +186,6 @@ class SimulationsController < ApplicationController
           render json: {
             success: false,
             error: "Erreur lors de la vérification d'éligibilité: #{e.message}"
-          }, status: :internal_server_error
-        }
-      end
-    end
-  end
-
-  # Nouveau endpoint pour l'éligibilité investissements (finalité économique)
-  def check_eligibility_investment
-    # @simulation est déjà définie et vérifiée par before_action
-    begin
-      perform_investment_eligibility_test(@simulation)
-
-      respond_to do |format|
-        format.json {
-          render json: {
-            success: true,
-            eligible: @simulation.eligible_investment,
-            message: @simulation.eligible_investment? ? "Éligible aux aides aux investissements" : @simulation.investment_ineligibility_reason,
-            next_step: @simulation.eligible_investment? ? 'majorations' : nil
-          }
-        }
-      end
-    rescue => e
-      Rails.logger.error "Erreur lors du test d'éligibilité investissements: #{e.message}"
-      Rails.logger.error e.backtrace.join("\n")
-
-      respond_to do |format|
-        format.json {
-          render json: {
-            success: false,
-            error: "Erreur lors de la vérification d'éligibilité investissements: #{e.message}"
-          }, status: :internal_server_error
-        }
-      end
-    end
-  end
-
-  # Nouveau endpoint pour l'éligibilité RENOLUTION (finalité économique)
-  def check_eligibility_renolution
-    # @simulation est déjà définie et vérifiée par before_action
-    begin
-      perform_renolution_eligibility_test(@simulation)
-
-      respond_to do |format|
-        format.json {
-          render json: {
-            success: true,
-            eligible: @simulation.eligible_renolution,
-            message: @simulation.eligible_renolution? ? "Éligible aux primes RENOLUTION" : @simulation.renolution_ineligibility_reason,
-            next_step: @simulation.eligible_renolution? ? 'category' : nil
-          }
-        }
-      end
-    rescue => e
-      Rails.logger.error "Erreur lors du test d'éligibilité RENOLUTION: #{e.message}"
-      Rails.logger.error e.backtrace.join("\n")
-
-      respond_to do |format|
-        format.json {
-          render json: {
-            success: false,
-            error: "Erreur lors de la vérification d'éligibilité RENOLUTION: #{e.message}"
           }, status: :internal_server_error
         }
       end
@@ -903,83 +841,6 @@ class SimulationsController < ApplicationController
       simulation.update(
         eligible: false,
         ineligibility_reason: result[:message]
-      )
-    end
-  end
-
-  # NOUVELLES MÉTHODES pour la double éligibilité (finalité économique)
-
-  # Test d'éligibilité pour les investissements entreprise
-  def perform_investment_eligibility_test(simulation)
-    Rails.logger.info "=== PERFORM_INVESTMENT_ELIGIBILITY_TEST ==="
-
-    return unless simulation.property.present? && simulation.project.present?
-    return unless simulation.region&.downcase == 'bruxelles'
-    return unless simulation.project.finalite_economique?
-
-    # Utiliser le service d'éligibilité entreprise Bruxelles
-    eligibility_service = Entreprises::BruxellesEntreprisesEligibilityService.new(current_user, {
-      property_id: simulation.property_id,
-      project_id: simulation.project_id
-    })
-
-    result = eligibility_service.check_eligibility
-
-    if result[:eligible]
-      simulation.update(
-        eligible_investment: true
-      )
-    else
-      simulation.update(
-        eligible_investment: false,
-        investment_ineligibility_reason: result[:message]
-      )
-    end
-  end
-
-  # Test d'éligibilité pour les primes RENOLUTION
-  def perform_renolution_eligibility_test(simulation)
-    Rails.logger.info "=== PERFORM_RENOLUTION_ELIGIBILITY_TEST ==="
-    Rails.logger.info "🔍 Simulation ID: #{simulation.id}"
-    Rails.logger.info "🔍 Simulation property_id: #{simulation.property_id}"
-    Rails.logger.info "🔍 Simulation project_id: #{simulation.project_id}"
-    Rails.logger.info "🔍 Simulation region: #{simulation.region}"
-
-    if simulation.property.present?
-      Rails.logger.info "🏠 Property found: ID=#{simulation.property.id}, region=#{simulation.property.region}"
-      Rails.logger.info "🏠 Property annee_construction: #{simulation.property.annee_construction}"
-      Rails.logger.info "🏠 Property is_entreprise?: #{simulation.property.is_entreprise?}"
-    else
-      Rails.logger.error "❌ No property found for simulation #{simulation.id}"
-    end
-
-    return unless simulation.property.present? && simulation.project.present?
-    return unless simulation.region&.downcase == 'bruxelles'
-
-    # Déterminer le type de simulation basé sur la propriété
-    sim_type = simulation.property.is_entreprise? ? 'entreprise' : 'particulier'
-    Rails.logger.info "🎯 Simulation type determined: #{sim_type}"
-
-    # Utiliser le service d'éligibilité Bruxelles avec le bon type
-    eligibility_service = Regions::Bruxelles::BruxellesEligibilityService.new(
-      {
-        property_id: simulation.property_id,
-        project_id: simulation.project_id,
-        simulation_type: sim_type # Utilise le vrai type (entreprise ou particulier)
-      },
-      user: current_user
-    )
-
-    result = eligibility_service.check_eligibility
-
-    if result[:eligible]
-      simulation.update(
-        eligible_renolution: true
-      )
-    else
-      simulation.update(
-        eligible_renolution: false,
-        renolution_ineligibility_reason: result[:message]
       )
     end
   end

@@ -114,40 +114,6 @@ class Simulation < ApplicationRecord
     end
   end
 
-  # Méthodes pour la double éligibilité (finalité économique)
-  def dual_eligibility_status
-    if project&.finalite_economique?
-      {
-        investment: investment_eligibility_status,
-        renolution: renolution_eligibility_status
-      }
-    else
-      nil
-    end
-  end
-
-  def investment_eligibility_status
-    case eligible_investment
-    when true
-      'eligible'
-    when false
-      'not_eligible'
-    else
-      'pending'
-    end
-  end
-
-  def renolution_eligibility_status
-    case eligible_renolution
-    when true
-      'eligible'
-    when false
-      'not_eligible'
-    else
-      'pending'
-    end
-  end
-
   def processing_step
     return 1 unless eligible.present?
     return 2 if eligible && category.blank?
