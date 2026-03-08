@@ -99,23 +99,18 @@
             </div>
 
             <!-- Menu actions trois points en haut à droite -->
-            <!-- Menu actions trois points en haut à droite -->
             <div class="position-absolute top-0 end-0 m-2" style="z-index: 4;">
-              <div class="dropdown dropup">
+              <div class="dropdown" onclick="event.stopPropagation()">
                 <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="opacity: 0.9;">
                   <i class="bi bi-three-dots-vertical"></i>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow" style="z-index: 1050;">
+                <ul class="dropdown-menu dropdown-menu-end shadow">
                   <li>
                     <%= link_to request_path(request), class: "dropdown-item" do %>
                       <i class="bi bi-eye me-2"></i>Voir les détails
                     <% end %>
                   </li>
-                  <li>
-                    <%= link_to request_request_progresses_path(request), class: "dropdown-item" do %>
-                      <i class="bi bi-clipboard-check me-2"></i>Suivis de demandes
-                    <% end %>
-                  </li>
+
                   <% if request.status != 'submitted' %>
                     <li>
                       <%= link_to edit_request_path(request), class: "dropdown-item" do %>
@@ -138,12 +133,14 @@
                   <% end %>
                   <li><hr class="dropdown-divider"></li>
                   <li>
-                    <%= link_to request_path(request), method: :delete,
-                        data: {
-                          confirm: "Supprimer cette demande ?",
-                          turbo_method: :delete
-                        },
-                        class: "dropdown-item text-danger" do %>
+                    <%= button_to request_path(request),
+                        method: :delete,
+                        class: "dropdown-item text-danger border-0 bg-transparent w-100 text-start",
+                        form: {
+                          data: {
+                            turbo_confirm: "Êtes-vous sûr de vouloir supprimer cette demande ? Cette action est irréversible."
+                          }
+                        } do %>
                       <i class="bi bi-trash me-2"></i>Supprimer
                     <% end %>
                   </li>
@@ -201,4 +198,3 @@
     </div>
   <% end %>
 </div>
-
