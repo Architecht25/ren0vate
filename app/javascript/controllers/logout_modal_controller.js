@@ -5,17 +5,17 @@ export default class extends Controller {
 
   connect() {
     // Attendre que Bootstrap soit chargé et vérifier que l'élément modal existe
-    if (typeof bootstrap !== 'undefined' && this.modalTarget) {
+    if (typeof bootstrap !== 'undefined' && this.hasModalTarget) {
       try {
         this.modal = new bootstrap.Modal(this.modalTarget)
       } catch (error) {
         console.warn('Erreur lors de l\'initialisation de la modal:', error)
         this.modal = null
       }
-    } else {
+    } else if (this.hasModalTarget) {
       // Si Bootstrap n'est pas encore chargé, attendre un peu
       setTimeout(() => {
-        if (typeof bootstrap !== 'undefined' && this.modalTarget) {
+        if (typeof bootstrap !== 'undefined' && this.hasModalTarget) {
           try {
             this.modal = new bootstrap.Modal(this.modalTarget)
           } catch (error) {
