@@ -10,7 +10,7 @@
           <i class="bi bi-info-circle me-3 mt-1" style="font-size: 1.2rem;"></i>
           <p class="mb-0">
             Ici vous pouvez affiner le choix de vos simulations, vérifier les délais à respecter, identifier les documents à collecter, comprendre les contraintes techniques à respecter et entamer un travail de préparation technique des demandes de primes.
-            une fois terminé, vous pouvez passer à l'étape suivante et créer vos formulaires de demandes.
+            Une fois terminé, vous pouvez passer à l'étape suivante et créer vos formulaires de demandes.
           </p>
         </div>
       </div>
@@ -83,6 +83,7 @@
                 <i class="bi bi-compass me-3 mt-1" style="font-size: 1.5rem;"></i>
                 <p class="mb-0 fs-5">
                   Ceci est votre espace technique qui vous permet de préparer votre demande de prime avant de passer à l'étape de création de votre formulaire de demande.
+                  Cliquez sur les différentes étapes pour voir les actions à mener pour maximiser vos chances de recevoir la prime.
                 </p>
               </div>
             </div>
@@ -110,13 +111,13 @@
         </div>
 
         <!-- Navigation par étapes -->
-        <div class="row mb-4" data-decision-hub-target="stepsNavigation">
+        <div class="row mb-" data-decision-hub-target="stepsNavigation">
           <div class="col-12">
             <div class="card border-0 shadow-sm">
               <div class="card-body p-0">
                 <div class="row g-0">
                   <!-- Étape 1: Résumé -->
-                  <div class="col-md">
+                  <div class="col-md-2">
                     <div class="p-3 text-center border-end position-relative step-tab active"
                          data-section="resume"
                          data-action="click->decision-hub#switchSection"
@@ -151,7 +152,7 @@
                   </div>
 
                   <!-- Étape 2: Planning -->
-                  <div class="col-md-3">
+                  <div class="col-md-2">
                     <div class="p-3 text-center border-end position-relative step-tab"
                          data-section="planning"
                          data-action="click->decision-hub#switchSection"
@@ -230,7 +231,7 @@
                   </div>
 
                   <!-- Étape 3: Documents -->
-                  <div class="col-md-3">
+                  <div class="col-md-2">
                     <div class="p-3 text-center border-end position-relative step-tab"
                          data-section="documents"
                          data-action="click->decision-hub#switchSection"
@@ -269,7 +270,7 @@
                   </div>
 
                   <!-- Étape 4: Technique -->
-                  <div class="col-md-3">
+                  <div class="col-md-2">
                     <div class="p-3 text-center border-end position-relative step-tab"
                          data-section="technical"
                          data-action="click->decision-hub#switchSection"
@@ -319,8 +320,8 @@
                     </div>
                   </div>
 
-                  <!-- Étape 6: Préparation technique -->
-                  <div class="col-md-3">
+                  <!-- Étape 5: Préparation technique -->
+                  <div class="col-md-2">
                     <div class="p-3 text-center border-end position-relative step-tab"
                          data-section="preparation-technique"
                          data-action="click->decision-hub#switchSection"
@@ -370,90 +371,9 @@
                     </div>
                   </div>
 
-                  <!-- Étape 7: Factures -->
-                  <div class="col-md-3">
-                    <div class="p-3 text-center border-end position-relative step-tab"
-                         data-section="factures"
-                         data-action="click->decision-hub#switchSection"
-                         style="cursor: pointer;">
-                      <div class="step-number bg-warning text-dark rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
-                        <i class="bi bi-receipt-cutoff fs-5"></i>
-                      </div>
-                      <h6 class="mb-2">Analyse factures</h6>
-                      <small class="text-muted d-block mb-2">Nous comparons ici le devis avec les factures produites</small>
-
-                      <!-- Aperçu des factures -->
-                      <div class="text-start mb-2">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Budget vs Réel</small>
-                          <% if @hub_data.dig(:factures, :budget_ok) %>
-                            <i class="bi bi-check-circle-fill text-success"></i>
-                          <% else %>
-                            <i class="bi bi-exclamation-triangle text-warning"></i>
-                          <% end %>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Délai 12 mois</small>
-                          <% if @hub_data.dig(:factures, :delai_ok) %>
-                            <i class="bi bi-check-circle-fill text-success"></i>
-                          <% else %>
-                            <i class="bi bi-clock text-danger"></i>
-                          <% end %>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">OCR validé</small>
-                          <span class="badge bg-info text-white small"><%= @hub_data.dig(:factures, :ocr_confidence) || 85 %>%</span>
-                        </div>
-                      </div>
-
-                      <div class="fw-bold text-warning mb-2">
-                        <i class="bi bi-calculator me-1"></i>
-                        <%= @hub_data.dig(:factures, :total_factures) || 0 %>€
-                      </div>
-
-                      <div class="progress mt-2" style="height: 3px;">
-                        <div class="progress-bar bg-warning" style="width: <%= @hub_data.dig(:factures, :completion_rate) || 0 %>%" data-decision-hub-target="facturesProgress"></div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Étape 6: Conseils Factures -->
-                  <div class="col-md-3">
-                    <div class="p-3 text-center border-end position-relative step-tab"
-                         data-section="conseils-factures"
-                         data-action="click->decision-hub#switchSection"
-                         style="cursor: pointer;">
-                      <div class="step-number bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
-                        <i class="bi bi-receipt fs-5"></i>
-                      </div>
-                      <h6 class="mb-2">Conseils factures</h6>
-                      <small class="text-muted d-block mb-2">Conseils à suivre pour bien préparer ses factures pour une bonne éligibilité de primes</small>
-
-                      <!-- Aperçu des conseils factures -->
-                      <div class="text-start mb-2">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Format obligatoire</small>
-                          <i class="bi bi-check-circle text-success"></i>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Mentions requises</small>
-                          <i class="bi bi-list-check text-info"></i>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Délais à respecter</small>
-                          <i class="bi bi-clock text-warning"></i>
-                        </div>
-                      </div>
-
-                      <div class="progress mt-2" style="height: 3px;">
-                        <div class="progress-bar bg-success" style="width: 100%;"></div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Étape Audit Logement Wallonie -->
+                  <!-- Étape 6: Audit Logement Wallonie -->
                   <% if @default_simulation&.region == 'Wallonie' %>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                       <div class="p-3 text-center border-end position-relative step-tab"
                            data-section="audit-logement-wallonie"
                            data-action="click->decision-hub#switchSection"
@@ -492,9 +412,9 @@
                     </div>
                   <% end %>
 
-                  <!-- Étape Certificat PEB Flandre -->
+                  <!-- Étape 7: Certificat PEB Flandre -->
                   <% if @default_simulation&.region == 'flandre' %>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                       <div class="p-3 text-center border-end position-relative step-tab"
                            data-section="certificat-peb-flandre"
                            data-action="click->decision-hub#switchSection"
@@ -532,180 +452,6 @@
                       </div>
                     </div>
                   <% end %>
-
-                  <!-- Étape 6: Conseils ACP -->
-                  <% if @default_simulation&.region == 'bruxelles' && @default_simulation&.user&.statut_professionnel == 'syndic' %>
-                  <div class="col-md-3">
-                    <div class="p-3 text-center position-relative step-tab"
-                         data-section="conseils-acp"
-                         data-action="click->decision-hub#switchSection"
-                         style="cursor: pointer;">
-                      <div class="step-number bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
-                        <i class="bi bi-building fs-5"></i>
-                      </div>
-                      <h6 class="mb-2">Conseils ACP</h6>
-                      <small class="text-muted d-block mb-2">Pour bien préparer son Assemblée générale et ses documents en amont</small>
-
-                      <!-- Aperçu des conseils ACP -->
-                      <div class="text-start mb-2">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Documents admin.</small>
-                          <i class="bi bi-folder-check text-success"></i>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Assemblée générale</small>
-                          <i class="bi bi-people text-info"></i>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Gestion financière</small>
-                          <i class="bi bi-calculator text-warning"></i>
-                        </div>
-                      </div>
-
-                      <div class="progress mt-2" style="height: 3px;">
-                        <div class="progress-bar bg-primary" style="width: 100%;"></div>
-                      </div>
-                    </div>
-                  </div>
-                  <% end %>
-
-                  <!-- Étape 8: Conseils Exemplarité (pour entreprises bruxelloises) -->
-                  <% if @default_simulation&.region == 'bruxelles' && @default_simulation&.property&.is_entreprise? %>
-                    <div class="col-md-3">
-                      <div class="p-3 text-center border-end position-relative step-tab"
-                           data-section="conseils-exemplarite"
-                           data-action="click->decision-hub#switchSection"
-                           style="cursor: pointer;">
-                        <div class="step-number bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
-                          <i class="bi bi-award fs-5"></i>
-                        </div>
-                        <h6 class="mb-2">Conseils Exemplarité</h6>
-
-                        <!-- Aperçu des gains potentiels -->
-                        <div class="text-start mb-2">
-                          <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="text-muted">Gain environnemental</small>
-                            <span class="badge bg-success text-white small">+30%</span>
-                          </div>
-                          <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="text-muted">Gain social</small>
-                            <span class="badge bg-primary text-white small">+30%</span>
-                          </div>
-                          <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="text-muted">Taux maximum</small>
-                            <span class="badge bg-warning text-dark small">80%</span>
-                          </div>
-                        </div>
-
-                        <div class="progress mt-2" style="height: 3px;">
-                          <div class="progress-bar bg-success" style="width: 100%;"></div>
-                        </div>
-                      </div>
-                    </div>
-                  <% end %>
-
-                  <!-- Étape 9: Vérification Consultance (pour entreprises bruxelloises) -->
-                  <% if @default_simulation&.region == 'bruxelles' && @default_simulation&.property&.is_entreprise? %>
-                    <div class="col-md-3">
-                      <div class="p-3 text-center border-end position-relative step-tab"
-                           data-section="verification-consultance"
-                           data-action="click->decision-hub#switchSection"
-                           style="cursor: pointer;">
-                        <div class="step-number bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
-                          <i class="bi bi-shield-check fs-5"></i>
-                        </div>
-                        <h6 class="mb-2">Vérification Consultance</h6>
-
-                        <!-- Aperçu vérification consultant -->
-                        <div class="text-start mb-2">
-                          <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="text-muted">Éligibilité BCE</small>
-                            <i class="bi bi-building text-primary"></i>
-                          </div>
-                          <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="text-muted">Code NACE validé</small>
-                            <i class="bi bi-check-square text-success"></i>
-                          </div>
-                          <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="text-muted">Qualifications</small>
-                            <i class="bi bi-award text-warning"></i>
-                          </div>
-                        </div>
-
-                        <div class="progress mt-2" style="height: 3px;">
-                          <div class="progress-bar bg-primary" style="width: 100%;"></div>
-                        </div>
-                      </div>
-                    </div>
-                  <% end %>
-
-                  <!-- Étape 10: Vérification Entrepreneur -->
-                  <div class="col-md-3">
-                    <div class="p-3 text-center border-end position-relative step-tab"
-                         data-section="verification-entrepreneur"
-                         data-action="click->decision-hub#switchSection"
-                         style="cursor: pointer;">
-                      <div class="step-number bg-warning text-dark rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
-                        <i class="bi bi-hammer fs-5"></i>
-                      </div>
-                      <h6 class="mb-2">Entrepreneur éligible?</h6>
-                      <small class="text-muted d-block mb-2">Vérifiez que votre entrepreneur soit bien éligible</small>
-
-                      <!-- Aperçu vérification entrepreneur -->
-                      <div class="text-start mb-2">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Entreprise active</small>
-                          <i class="bi bi-building text-success"></i>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">NACE construction</small>
-                          <i class="bi bi-tools text-warning"></i>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Situation saine</small>
-                          <i class="bi bi-shield-check text-success"></i>
-                        </div>
-                      </div>
-
-                      <div class="progress mt-2" style="height: 3px;">
-                        <div class="progress-bar bg-warning" style="width: 100%;"></div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Étape 10: Conseils Entrepreneurs -->
-                  <div class="col-md-3">
-                    <div class="p-3 text-center position-relative step-tab"
-                         data-section="conseils-entrepreneurs"
-                         data-action="click->decision-hub#switchSection"
-                         style="cursor: pointer;">
-                      <div class="step-number bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
-                        <i class="bi bi-hammer fs-5"></i>
-                      </div>
-                      <h6 class="mb-2">Choisir votre entrepreneur rénovation en tout confiance</h6>
-                      <small class="text-muted d-block mb-2">Pour bien choisir votre entrepreneur rénovation</small>
-
-                      <!-- Aperçu des conseils entrepreneurs -->
-                      <div class="text-start mb-2">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Sélection entrepreneurs agréés</small>
-                          <i class="bi bi-shield-check text-success"></i>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Devis & négociation</small>
-                          <i class="bi bi-handshake text-info"></i>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Suivi chantier</small>
-                          <i class="bi bi-clipboard-check text-warning"></i>
-                        </div>
-                      </div>
-
-                      <div class="progress mt-2" style="height: 3px;">
-                        <div class="progress-bar bg-info" style="width: 100%;"></div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -780,28 +526,6 @@
             </div>
           </div>
 
-          <!-- Section Factures -->
-          <div class="section-content" data-section="factures" data-decision-hub-target="facturesSection">
-            <div class="row g-4">
-              <div class="col-12">
-                <div class="card border-0 shadow-sm">
-                  <div class="card-body">
-                    <%= render 'factures/dashboard' %>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Section Conseils Factures -->
-          <div class="section-content" data-section="conseils-factures" data-decision-hub-target="conseilsFacturesSection">
-            <div class="row g-4">
-              <div class="col-12">
-                <%= render 'decision_hub/info_cards/bonne_facture' %>
-              </div>
-            </div>
-          </div>
-
           <!-- Section Audit Logement Wallonie -->
           <%# if @simulation&.region == 'wallonie' %>
             <div class="section-content" data-section="audit-logement-wallonie" data-decision-hub-target="auditLogementWallonieSection">
@@ -823,55 +547,6 @@
               </div>
             </div>
           <% end %>
-
-          <!-- Section Conseils ACP -->
-          <div class="section-content" data-section="conseils-acp" data-decision-hub-target="conseilsAcpSection">
-            <div class="row g-4">
-              <div class="col-12">
-                <%= render 'decision_hub/info_cards/acp_preparation' %>
-              </div>
-            </div>
-          </div>
-
-          <!-- Section Conseils Exemplarité (pour entreprises bruxelloises) -->
-          <% if @default_simulation&.region == 'bruxelles' && @default_simulation&.property&.is_entreprise? %>
-            <div class="section-content" data-section="conseils-exemplarite" data-decision-hub-target="conseilsExemplariteSection">
-              <div class="row g-4">
-                <div class="col-12">
-                  <%= render 'decision_hub/info_cards/conseils_exemplarite' %>
-                </div>
-              </div>
-            </div>
-          <% end %>
-
-          <!-- Section Vérification Consultance (pour entreprises bruxelloises) -->
-          <% if @default_simulation&.region == 'bruxelles' && @default_simulation&.property&.is_entreprise? %>
-            <div class="section-content" data-section="verification-consultance" data-decision-hub-target="verificationConsultanceSection">
-              <div class="row g-4">
-                <div class="col-12">
-                  <%= render 'decision_hub/info_cards/verification_consultance' %>
-                </div>
-              </div>
-            </div>
-          <% end %>
-
-          <!-- Section Vérification Entrepreneur -->
-          <div class="section-content" data-section="verification-entrepreneur" data-decision-hub-target="verificationEntrepreneurSection">
-            <div class="row g-4">
-              <div class="col-12">
-                <%= render 'decision_hub/info_cards/verification_entrepreneur' %>
-              </div>
-            </div>
-          </div>
-
-          <!-- Section Conseils Entrepreneurs -->
-          <div class="section-content" data-section="conseils-entrepreneurs" data-decision-hub-target="conseilsEntrepreneursSection">
-            <div class="row g-4">
-              <div class="col-12">
-                <%= render 'decision_hub/info_cards/conseils_entrepreneurs' %>
-              </div>
-            </div>
-          </div>
 
         </div>
       </div>
