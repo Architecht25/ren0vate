@@ -131,14 +131,6 @@
     </div>
     <div class="card-body">
       <%
-        # Mapping pour profil_demandeur
-        profil_demandeur_labels = {
-          "propriétaire_occupant_ou_futur_occupant" => "Propriétaire occupant ou futur occupant",
-          "syndic_copropriété" => "Syndic de copropriété",
-          "bailleur_social" => "Bailleur social"
-        }
-        profil_demandeur_value = profil_demandeur_labels[@property&.profil_demandeur] || @property&.profil_demandeur
-
         # Mapping pour type_propriete_wallonie
         type_propriete_labels = {
           "unique_proprietaire" => "Unique propriétaire",
@@ -156,10 +148,10 @@
           <div class="mb-3">
             <%= form.label :type_demandeur, class: "form-label" do %>
               Type de demandeur
-              <%= badge_prerempli_intelligent(@form_data, :type_demandeur, profil_demandeur_value) %>
+              <%= badge_prerempli_intelligent(@form_data, :type_demandeur, nil) %>
             <% end %>
             <%= form.text_field :type_demandeur,
-                value: preremplir_champ(@form_data, :type_demandeur, profil_demandeur_value),
+                value: preremplir_champ(@form_data, :type_demandeur, nil),
                 placeholder: "Ex: Propriétaire occupant ou futur occupant",
                 class: "form-control" %>
           </div>
