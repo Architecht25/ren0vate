@@ -45,7 +45,8 @@
   </div>
 
   <!-- Étapes de collecte -->
-  <% if primes_with_conditions&.any? %>
+  <%# Condition masquée pour afficher toujours les caractéristiques techniques %>
+  <%# if primes_with_conditions&.any? %>
     <div class="data-collection-steps">
 
       <!-- Section 1: Isolation (toiture, murs, sols) -->
@@ -68,28 +69,65 @@
             <div class="col-md-4">
               <div class="form-section">
                 <h6 class="fw-semibold mb-2"><i class="bi bi-house-door me-1"></i> Toiture</h6>
+
                 <div class="mb-2">
-                  <label class="form-label small">Épaisseur (cm)</label>
+                  <label class="form-label small fw-semibold">Marque</label>
+                  <input type="text" class="form-control" name="isolation_toiture_marque"
+                         value="<%= technical_data.dig(:isolation, :toiture, :marque) %>"
+                         placeholder="Ex: Isover, Rockwool...">
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold">Modèle</label>
+                  <input type="text" class="form-control" name="isolation_toiture_modele"
+                         value="<%= technical_data.dig(:isolation, :toiture, :modele) %>"
+                         placeholder="Ex: GR32, Rocksono...">
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold">Type d'isolation</label>
+                  <select class="form-select" name="isolation_toiture_type">
+                    <option value="">Sélectionner...</option>
+                    <option value="laine_de_verre" <%= 'selected' if technical_data.dig(:isolation, :toiture, :type) == 'laine_de_verre' %>>Laine de verre</option>
+                    <option value="laine_de_roche" <%= 'selected' if technical_data.dig(:isolation, :toiture, :type) == 'laine_de_roche' %>>Laine de roche</option>
+                    <option value="polyurethane" <%= 'selected' if technical_data.dig(:isolation, :toiture, :type) == 'polyurethane' %>>Polyuréthane (PUR)</option>
+                    <option value="polyisocyanurate" <%= 'selected' if technical_data.dig(:isolation, :toiture, :type) == 'polyisocyanurate' %>>Polyisocyanurate (PIR)</option>
+                    <option value="polystyrene_expanse" <%= 'selected' if technical_data.dig(:isolation, :toiture, :type) == 'polystyrene_expanse' %>>Polystyrène expansé (EPS)</option>
+                    <option value="polystyrene_extrude" <%= 'selected' if technical_data.dig(:isolation, :toiture, :type) == 'polystyrene_extrude' %>>Polystyrène extrudé (XPS)</option>
+                    <option value="cellulose" <%= 'selected' if technical_data.dig(:isolation, :toiture, :type) == 'cellulose' %>>Ouate de cellulose</option>
+                    <option value="fibre_de_bois" <%= 'selected' if technical_data.dig(:isolation, :toiture, :type) == 'fibre_de_bois' %>>Fibre de bois</option>
+                    <option value="chanvre" <%= 'selected' if technical_data.dig(:isolation, :toiture, :type) == 'chanvre' %>>Chanvre</option>
+                    <option value="laine_de_mouton" <%= 'selected' if technical_data.dig(:isolation, :toiture, :type) == 'laine_de_mouton' %>>Laine de mouton</option>
+                    <option value="autre" <%= 'selected' if technical_data.dig(:isolation, :toiture, :type) == 'autre' %>>Autre</option>
+                  </select>
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold">Superficie (m²)</label>
+                  <input type="number" step="0.01" class="form-control" name="isolation_toiture_superficie"
+                         value="<%= technical_data.dig(:isolation, :toiture, :superficie) %>"
+                         placeholder="Ex: 120">
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold">Épaisseur (cm)</label>
                   <input type="number" class="form-control" name="isolation_toiture_epaisseur"
                          value="<%= technical_data.dig(:isolation, :toiture, :epaisseur) %>"
                          placeholder="Ex: 20">
                 </div>
+
                 <div class="mb-2">
-                  <label class="form-label small">Résistance thermique Rd (m²K/W)</label>
+                  <label class="form-label small fw-semibold">Conductivité thermique λ (W/m·K)</label>
+                  <input type="number" step="0.001" class="form-control" name="isolation_toiture_conductivite"
+                         value="<%= technical_data.dig(:isolation, :toiture, :conductivite) %>"
+                         placeholder="Ex: 0.032">
+                </div>
+
+                <div>
+                  <label class="form-label small fw-semibold">Résistance thermique Rd (m²K/W)</label>
                   <input type="number" step="0.1" class="form-control" name="isolation_toiture_rd"
                          value="<%= technical_data.dig(:isolation, :toiture, :rd) %>"
                          placeholder="Ex: 5.5">
-                </div>
-                <div>
-                  <label class="form-label small">Matériau</label>
-                  <select class="form-select" name="isolation_toiture_materiau">
-                    <option value="">Sélectionner...</option>
-                    <option value="laine_de_verre" <%= 'selected' if technical_data.dig(:isolation, :toiture, :materiau) == 'laine_de_verre' %>>Laine de verre</option>
-                    <option value="laine_de_roche" <%= 'selected' if technical_data.dig(:isolation, :toiture, :materiau) == 'laine_de_roche' %>>Laine de roche</option>
-                    <option value="polyurethane" <%= 'selected' if technical_data.dig(:isolation, :toiture, :materiau) == 'polyurethane' %>>Polyuréthane</option>
-                    <option value="cellulose" <%= 'selected' if technical_data.dig(:isolation, :toiture, :materiau) == 'cellulose' %>>Cellulose</option>
-                    <option value="autre" <%= 'selected' if technical_data.dig(:isolation, :toiture, :materiau) == 'autre' %>>Autre</option>
-                  </select>
                 </div>
               </div>
             </div>
@@ -98,26 +136,75 @@
             <div class="col-md-4">
               <div class="form-section">
                 <h6 class="fw-semibold mb-2"><i class="bi bi-bricks me-1"></i> Murs</h6>
+
                 <div class="mb-2">
-                  <label class="form-label small">Épaisseur (cm)</label>
-                  <input type="number" class="form-control" name="isolation_murs_epaisseur"
-                         value="<%= technical_data.dig(:isolation, :murs, :epaisseur) %>"
-                         placeholder="Ex: 15">
+                  <label class="form-label small fw-semibold">Marque</label>
+                  <input type="text" class="form-control" name="isolation_murs_marque"
+                         value="<%= technical_data.dig(:isolation, :murs, :marque) %>"
+                         placeholder="Ex: Isover, Rockwool...">
                 </div>
+
                 <div class="mb-2">
-                  <label class="form-label small">Résistance thermique Rd (m²K/W)</label>
-                  <input type="number" step="0.1" class="form-control" name="isolation_murs_rd"
-                         value="<%= technical_data.dig(:isolation, :murs, :rd) %>"
-                         placeholder="Ex: 4.2">
+                  <label class="form-label small fw-semibold">Modèle</label>
+                  <input type="text" class="form-control" name="isolation_murs_modele"
+                         value="<%= technical_data.dig(:isolation, :murs, :modele) %>"
+                         placeholder="Ex: GR32, Rocksono...">
                 </div>
-                <div>
-                  <label class="form-label small">Type de façade</label>
+
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold">Type d'isolation</label>
+                  <select class="form-select" name="isolation_murs_type">
+                    <option value="">Sélectionner...</option>
+                    <option value="laine_de_verre" <%= 'selected' if technical_data.dig(:isolation, :murs, :type) == 'laine_de_verre' %>>Laine de verre</option>
+                    <option value="laine_de_roche" <%= 'selected' if technical_data.dig(:isolation, :murs, :type) == 'laine_de_roche' %>>Laine de roche</option>
+                    <option value="polyurethane" <%= 'selected' if technical_data.dig(:isolation, :murs, :type) == 'polyurethane' %>>Polyuréthane (PUR)</option>
+                    <option value="polyisocyanurate" <%= 'selected' if technical_data.dig(:isolation, :murs, :type) == 'polyisocyanurate' %>>Polyisocyanurate (PIR)</option>
+                    <option value="polystyrene_expanse" <%= 'selected' if technical_data.dig(:isolation, :murs, :type) == 'polystyrene_expanse' %>>Polystyrène expansé (EPS)</option>
+                    <option value="polystyrene_extrude" <%= 'selected' if technical_data.dig(:isolation, :murs, :type) == 'polystyrene_extrude' %>>Polystyrène extrudé (XPS)</option>
+                    <option value="cellulose" <%= 'selected' if technical_data.dig(:isolation, :murs, :type) == 'cellulose' %>>Ouate de cellulose</option>
+                    <option value="fibre_de_bois" <%= 'selected' if technical_data.dig(:isolation, :murs, :type) == 'fibre_de_bois' %>>Fibre de bois</option>
+                    <option value="chanvre" <%= 'selected' if technical_data.dig(:isolation, :murs, :type) == 'chanvre' %>>Chanvre</option>
+                    <option value="laine_de_mouton" <%= 'selected' if technical_data.dig(:isolation, :murs, :type) == 'laine_de_mouton' %>>Laine de mouton</option>
+                    <option value="autre" <%= 'selected' if technical_data.dig(:isolation, :murs, :type) == 'autre' %>>Autre</option>
+                  </select>
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold">Type de façade</label>
                   <select class="form-select" name="isolation_murs_facade_type">
                     <option value="">Sélectionner...</option>
                     <option value="exterieur" <%= 'selected' if technical_data.dig(:isolation, :murs, :facade_type) == 'exterieur' %>>Isolation par l'extérieur</option>
                     <option value="interieur" <%= 'selected' if technical_data.dig(:isolation, :murs, :facade_type) == 'interieur' %>>Isolation par l'intérieur</option>
                     <option value="cavity" <%= 'selected' if technical_data.dig(:isolation, :murs, :facade_type) == 'cavity' %>>Isolation de la coulisse</option>
                   </select>
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold">Superficie (m²)</label>
+                  <input type="number" step="0.01" class="form-control" name="isolation_murs_superficie"
+                         value="<%= technical_data.dig(:isolation, :murs, :superficie) %>"
+                         placeholder="Ex: 150">
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold">Épaisseur (cm)</label>
+                  <input type="number" class="form-control" name="isolation_murs_epaisseur"
+                         value="<%= technical_data.dig(:isolation, :murs, :epaisseur) %>"
+                         placeholder="Ex: 15">
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold">Conductivité thermique λ (W/m·K)</label>
+                  <input type="number" step="0.001" class="form-control" name="isolation_murs_conductivite"
+                         value="<%= technical_data.dig(:isolation, :murs, :conductivite) %>"
+                         placeholder="Ex: 0.035">
+                </div>
+
+                <div>
+                  <label class="form-label small fw-semibold">Résistance thermique Rd (m²K/W)</label>
+                  <input type="number" step="0.1" class="form-control" name="isolation_murs_rd"
+                         value="<%= technical_data.dig(:isolation, :murs, :rd) %>"
+                         placeholder="Ex: 4.2">
                 </div>
               </div>
             </div>
@@ -126,26 +213,76 @@
             <div class="col-md-4">
               <div class="form-section">
                 <h6 class="fw-semibold mb-2"><i class="bi bi-layers me-1"></i> Sols</h6>
+
                 <div class="mb-2">
-                  <label class="form-label small">Épaisseur (cm)</label>
+                  <label class="form-label small fw-semibold">Marque</label>
+                  <input type="text" class="form-control" name="isolation_sols_marque"
+                         value="<%= technical_data.dig(:isolation, :sols, :marque) %>"
+                         placeholder="Ex: Isover, Rockwool...">
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold">Modèle</label>
+                  <input type="text" class="form-control" name="isolation_sols_modele"
+                         value="<%= technical_data.dig(:isolation, :sols, :modele) %>"
+                         placeholder="Ex: GR32, Rocksono...">
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold">Type d'isolation</label>
+                  <select class="form-select" name="isolation_sols_type">
+                    <option value="">Sélectionner...</option>
+                    <option value="laine_de_verre" <%= 'selected' if technical_data.dig(:isolation, :sols, :type) == 'laine_de_verre' %>>Laine de verre</option>
+                    <option value="laine_de_roche" <%= 'selected' if technical_data.dig(:isolation, :sols, :type) == 'laine_de_roche' %>>Laine de roche</option>
+                    <option value="polyurethane" <%= 'selected' if technical_data.dig(:isolation, :sols, :type) == 'polyurethane' %>>Polyuréthane (PUR)</option>
+                    <option value="polyisocyanurate" <%= 'selected' if technical_data.dig(:isolation, :sols, :type) == 'polyisocyanurate' %>>Polyisocyanurate (PIR)</option>
+                    <option value="polystyrene_expanse" <%= 'selected' if technical_data.dig(:isolation, :sols, :type) == 'polystyrene_expanse' %>>Polystyrène expansé (EPS)</option>
+                    <option value="polystyrene_extrude" <%= 'selected' if technical_data.dig(:isolation, :sols, :type) == 'polystyrene_extrude' %>>Polystyrène extrudé (XPS)</option>
+                    <option value="cellulose" <%= 'selected' if technical_data.dig(:isolation, :sols, :type) == 'cellulose' %>>Ouate de cellulose</option>
+                    <option value="fibre_de_bois" <%= 'selected' if technical_data.dig(:isolation, :sols, :type) == 'fibre_de_bois' %>>Fibre de bois</option>
+                    <option value="chanvre" <%= 'selected' if technical_data.dig(:isolation, :sols, :type) == 'chanvre' %>>Chanvre</option>
+                    <option value="laine_de_mouton" <%= 'selected' if technical_data.dig(:isolation, :sols, :type) == 'laine_de_mouton' %>>Laine de mouton</option>
+                    <option value="autre" <%= 'selected' if technical_data.dig(:isolation, :sols, :type) == 'autre' %>>Autre</option>
+                  </select>
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold">Localisation</label>
+                  <select class="form-select" name="isolation_sols_localisation">
+                    <option value="">Sélectionner...</option>
+                    <option value="sol_bas" <%= 'selected' if technical_data.dig(:isolation, :sols, :localisation) == 'sol_bas' %>>Sol en contact avec le sol</option>
+                    <option value="cave_chauffee" <%= 'selected' if technical_data.dig(:isolation, :sols, :localisation) == 'cave_chauffee' %>>Cave chauffée</option>
+                    <option value="cave_non_chauffee" <%= 'selected' if technical_data.dig(:isolation, :sols, :localisation) == 'cave_non_chauffee' %>>Cave non chauffée</option>
+                    <option value="vide_sanitaire" <%= 'selected' if technical_data.dig(:isolation, :sols, :localisation) == 'vide_sanitaire' %>>Vide sanitaire</option>
+                  </select>
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold">Superficie (m²)</label>
+                  <input type="number" step="0.01" class="form-control" name="isolation_sols_superficie"
+                         value="<%= technical_data.dig(:isolation, :sols, :superficie) %>"
+                         placeholder="Ex: 120">
+                </div>
+
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold">Épaisseur (cm)</label>
                   <input type="number" class="form-control" name="isolation_sols_epaisseur"
                          value="<%= technical_data.dig(:isolation, :sols, :epaisseur) %>"
                          placeholder="Ex: 12">
                 </div>
+
                 <div class="mb-2">
-                  <label class="form-label small">Résistance thermique Rd (m²K/W)</label>
+                  <label class="form-label small fw-semibold">Conductivité thermique λ (W/m·K)</label>
+                  <input type="number" step="0.001" class="form-control" name="isolation_sols_conductivite"
+                         value="<%= technical_data.dig(:isolation, :sols, :conductivite) %>"
+                         placeholder="Ex: 0.038">
+                </div>
+
+                <div>
+                  <label class="form-label small fw-semibold">Résistance thermique Rd (m²K/W)</label>
                   <input type="number" step="0.1" class="form-control" name="isolation_sols_rd"
                          value="<%= technical_data.dig(:isolation, :sols, :rd) %>"
                          placeholder="Ex: 3.5">
-                </div>
-                <div>
-                  <label class="form-label small">Type d'isolation</label>
-                  <select class="form-select" name="isolation_sols_type">
-                    <option value="">Sélectionner...</option>
-                    <option value="sol_bas" <%= 'selected' if technical_data.dig(:isolation, :sols, :type) == 'sol_bas' %>>Sol en contact avec le sol</option>
-                    <option value="cave_chauffee" <%= 'selected' if technical_data.dig(:isolation, :sols, :type) == 'cave_chauffee' %>>Cave chauffée</option>
-                    <option value="cave_non_chauffee" <%= 'selected' if technical_data.dig(:isolation, :sols, :type) == 'cave_non_chauffee' %>>Cave non chauffée</option>
-                  </select>
                 </div>
               </div>
             </div>
@@ -352,14 +489,14 @@
       </div>
 
     </div>
-  <% else %>
-    <!-- Pas de primes sélectionnées -->
-    <div class="alert alert-secondary text-center">
-      <i class="bi bi-info-circle me-2"></i>
-      <strong>Aucune prime sélectionnée</strong><br>
-      <small>Effectuez d'abord une simulation pour identifier vos primes et leurs exigences techniques.</small>
-    </div>
-  <% end %>
+  <%# else %>
+    <%# Pas de primes sélectionnées %>
+    <%# <div class="alert alert-secondary text-center"> %>
+      <%# <i class="bi bi-info-circle me-2"></i> %>
+      <%# <strong>Aucune prime sélectionnée</strong><br> %>
+      <%# <small>Effectuez d'abord une simulation pour identifier vos primes et leurs exigences techniques.</small> %>
+    <%# </div> %>
+  <%# end %>
 
 </div>
 
@@ -409,19 +546,33 @@ document.addEventListener('DOMContentLoaded', function() {
     // Isolation
     technicalData.isolation = {
       toiture: {
+        marque: document.querySelector('[name="isolation_toiture_marque"]')?.value,
+        modele: document.querySelector('[name="isolation_toiture_modele"]')?.value,
+        type: document.querySelector('[name="isolation_toiture_type"]')?.value,
+        superficie: document.querySelector('[name="isolation_toiture_superficie"]')?.value,
         epaisseur: document.querySelector('[name="isolation_toiture_epaisseur"]')?.value,
-        rd: document.querySelector('[name="isolation_toiture_rd"]')?.value,
-        materiau: document.querySelector('[name="isolation_toiture_materiau"]')?.value
+        conductivite: document.querySelector('[name="isolation_toiture_conductivite"]')?.value,
+        rd: document.querySelector('[name="isolation_toiture_rd"]')?.value
       },
       murs: {
+        marque: document.querySelector('[name="isolation_murs_marque"]')?.value,
+        modele: document.querySelector('[name="isolation_murs_modele"]')?.value,
+        type: document.querySelector('[name="isolation_murs_type"]')?.value,
+        facade_type: document.querySelector('[name="isolation_murs_facade_type"]')?.value,
+        superficie: document.querySelector('[name="isolation_murs_superficie"]')?.value,
         epaisseur: document.querySelector('[name="isolation_murs_epaisseur"]')?.value,
-        rd: document.querySelector('[name="isolation_murs_rd"]')?.value,
-        facade_type: document.querySelector('[name="isolation_murs_facade_type"]')?.value
+        conductivite: document.querySelector('[name="isolation_murs_conductivite"]')?.value,
+        rd: document.querySelector('[name="isolation_murs_rd"]')?.value
       },
       sols: {
+        marque: document.querySelector('[name="isolation_sols_marque"]')?.value,
+        modele: document.querySelector('[name="isolation_sols_modele"]')?.value,
+        type: document.querySelector('[name="isolation_sols_type"]')?.value,
+        localisation: document.querySelector('[name="isolation_sols_localisation"]')?.value,
+        superficie: document.querySelector('[name="isolation_sols_superficie"]')?.value,
         epaisseur: document.querySelector('[name="isolation_sols_epaisseur"]')?.value,
-        rd: document.querySelector('[name="isolation_sols_rd"]')?.value,
-        type: document.querySelector('[name="isolation_sols_type"]')?.value
+        conductivite: document.querySelector('[name="isolation_sols_conductivite"]')?.value,
+        rd: document.querySelector('[name="isolation_sols_rd"]')?.value
       }
     };
 
