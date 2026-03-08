@@ -1,12 +1,15 @@
 class RemoveAllBruxellesData < ActiveRecord::Migration[8.0]
   def up
-    # Nettoyer les request_progresses qui référencent des primes Bruxelles
+    # Nettoyer les request_progresses et prime_document_templates qui référencent des primes Bruxelles
     bruxelles_prime_ids = Prime.where(region: 'bruxelles').pluck(:id)
     if bruxelles_prime_ids.any?
       execute "DELETE FROM request_progresses WHERE prime_id IN (#{bruxelles_prime_ids.join(',')})"
       puts "✅ Request progresses Bruxelles supprimés"
+
+      execute "DELETE FROM prime_document_templates WHERE prime_id IN (#{bruxelles_prime_ids.join(',')})"
+      puts "✅ Prime document templates Bruxelles supprimés"
     end
-    
+
     # Supprimer les primes Bruxelles
     Prime.where(region: 'bruxelles').delete_all
     puts "✅ Primes Bruxelles supprimées"
