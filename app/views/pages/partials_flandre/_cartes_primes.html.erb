@@ -28,7 +28,18 @@
   <div class="row g-3">
     <% @primes.each do |prime| %>
       <% current_categorie = @categorie_id || '1' %>
-      <% if prime.eligible_categories.include?(current_categorie.to_s) && prime.slug != 'amiante' %>
+      <%
+        # Pour les catégories 1 et 2, seules les primes pompe à chaleur et boiler thermodynamique sont disponibles
+        # Les primes d'isolation (toiture, murs, sols, châssis) ont été supprimées par le gouvernement
+        primes_autorisees_cat12 = ['warmtepomp', 'warmtepompboiler']
+        afficher_prime = prime.eligible_categories.include?(current_categorie.to_s) && prime.slug != 'amiante'
+
+        # Filtrer les primes pour catégories 1 et 2
+        if ['1', '2'].include?(current_categorie.to_s)
+          afficher_prime = afficher_prime && primes_autorisees_cat12.include?(prime.slug)
+        end
+      %>
+      <% if afficher_prime %>
         <div class="col-lg-4 col-md-6 col-12" data-controller="prime-card" data-slug="<%= prime.slug %>">
           <div class="card shadow-sm border-1 border-success border-opacity-50 p-3 mb-3 h-100 card-hover">
             <div class="card-body p-2">

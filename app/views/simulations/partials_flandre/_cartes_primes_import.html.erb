@@ -9,18 +9,31 @@
   <!-- Section: Isolation -->
   <div class="mb-5">
     <div class="row g-3">
-      <%= render 'simulations/partials_flandre/cards/isolation_toiture' %>
-      <%= render 'simulations/partials_flandre/cards/isolation_murs_cat12' %>
-      <%= render 'simulations/partials_flandre/cards/isolation_murs_cat34' %>
-      <%= render 'simulations/partials_flandre/cards/isolation_sol' %>
-      <%= render 'simulations/partials_flandre/cards/ramen_deuren' %>
+      <%
+        # Pour les catégories 1 et 2, seules les primes pompe à chaleur et boiler thermodynamique sont disponibles
+        # Les primes d'isolation (toiture, murs, sols, châssis) ont été supprimées par le gouvernement
+        current_category = @simulation&.category.to_s
+        is_cat_1_or_2 = ['1', '2'].include?(current_category)
+      %>
+
+      <% unless is_cat_1_or_2 %>
+        <%= render 'simulations/partials_flandre/cards/isolation_toiture' %>
+        <%= render 'simulations/partials_flandre/cards/isolation_murs_cat12' %>
+        <%= render 'simulations/partials_flandre/cards/isolation_murs_cat34' %>
+        <%= render 'simulations/partials_flandre/cards/isolation_sol' %>
+        <%= render 'simulations/partials_flandre/cards/ramen_deuren' %>
+      <% end %>
+
       <%= render 'simulations/partials_flandre/cards/warmtepomp' %>
       <%= render 'simulations/partials_flandre/cards/warmtepompboiler' %>
-      <%= render 'simulations/partials_flandre/cards/voorbereiding_isolatie' %>
-      <%= render 'simulations/partials_flandre/cards/voorbereiding_sanitair_elec' %>
-      <%= render 'simulations/partials_flandre/cards/renovation_toiture' %>
-      <%= render 'simulations/partials_flandre/cards/renovation_murs' %>
-      <%= render 'simulations/partials_flandre/cards/renovation_sol' %>
+
+      <% unless is_cat_1_or_2 %>
+        <%= render 'simulations/partials_flandre/cards/voorbereiding_isolatie' %>
+        <%= render 'simulations/partials_flandre/cards/voorbereiding_sanitair_elec' %>
+        <%= render 'simulations/partials_flandre/cards/renovation_toiture' %>
+        <%= render 'simulations/partials_flandre/cards/renovation_murs' %>
+        <%= render 'simulations/partials_flandre/cards/renovation_sol' %>
+      <% end %>
     </div>
   </div>
 

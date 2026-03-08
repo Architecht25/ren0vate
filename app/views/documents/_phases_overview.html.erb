@@ -55,7 +55,21 @@
               </div>
 
               <h5 class="card-title mb-4 fw-600" style="color: var(--neutral-800);">
-                <%= phase.name.gsub('Phase ', '') %>
+                <%
+                  display_name = case phase.name
+                  when 'Phase Administrative'
+                    'Documents Administratifs'
+                  when 'Phase Technique'
+                    'Préparation de chantier'
+                  when 'Phase Exécution'
+                    'Suivi de chantier'
+                  when 'Phase Réception'
+                    'Réception de chantier'
+                  else
+                    phase.name.gsub('Phase ', '')
+                  end
+                %>
+                <%= display_name %>
               </h5>
 
             <div class="mb-4">
