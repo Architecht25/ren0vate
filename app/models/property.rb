@@ -134,25 +134,9 @@ class Property < ApplicationRecord
   def is_entreprise?
     # Une propriété est considérée comme entreprise si :
     # 1. Elle a le type "entreprise" dans la propriété elle-même, OU
-    # 2. Elle a des simulations avec category = 'entreprise', OU
-    # 3. Elle a le profil_demandeur "entreprise"
+    # 2. Elle a des simulations avec category = 'entreprise'
     type == 'entreprise' ||
-    simulations.where(category: 'entreprise').exists? ||
-    profil_demandeur == 'entreprise'
-  end
-
-  # Méthodes d'aide pour l'éligibilité des entreprises
-  def is_pme?
-    return true if nombre_salaries.nil? # Si pas spécifié, on considère comme PME
-    nombre_salaries < 250
-  end
-
-  def has_nace_codes?
-    [code_nace_1, code_nace_2, code_nace_3, code_nace_4, code_nace_5].any?(&:present?)
-  end
-
-  def primary_nace_code
-    code_nace_1
+    simulations.where(category: 'entreprise').exists?
   end
 
   def ready_for_request?

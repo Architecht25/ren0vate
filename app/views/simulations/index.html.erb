@@ -87,7 +87,7 @@
             <% end %>
 
             <!-- Menu actions trois points en haut à droite -->
-            <div class="position-absolute top-0 end-0 m-2" style="z-index: 4;">
+            <div class="position-absolute top-0 end-0 m-2" style="z-index: 4;" onclick="event.stopPropagation()">
               <div class="dropdown dropup">
                 <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="opacity: 0.9;">
                   <i class="bi bi-three-dots-vertical"></i>
@@ -105,13 +105,10 @@
                   </li>
                   <li><hr class="dropdown-divider"></li>
                   <li>
-                    <%= link_to simulation_path(simulation), method: :delete,
-                        class: "dropdown-item text-danger",
-                        confirm: "Êtes-vous sûr de vouloir supprimer cette simulation ? Cette action est irréversible.",
-                        data: {
-                          turbo_method: :delete,
-                          turbo_confirm: "Êtes-vous sûr de vouloir supprimer la simulation '#{simulation.titre}' ? Cette action est irréversible."
-                        } do %>
+                    <%= button_to simulation_path(simulation),
+                        method: :delete,
+                        form: { data: { turbo_confirm: "Êtes-vous sûr de vouloir supprimer la simulation '#{simulation.titre}' ? Cette action est irréversible." } },
+                        class: "dropdown-item text-danger border-0 bg-transparent text-start w-100" do %>
                       <i class="bi bi-trash me-2"></i>Supprimer
                     <% end %>
                   </li>
@@ -170,4 +167,3 @@
     </div>
   <% end %>
 </div>
-

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_03_075641) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_08_184847) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -49,67 +49,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_03_075641) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
-  end
-
-  create_table "bce_activities", force: :cascade do |t|
-    t.string "entity_number", null: false
-    t.string "activity_group"
-    t.string "nace_version"
-    t.string "nace_code"
-    t.string "classification"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["entity_number"], name: "index_bce_activities_on_entity_number"
-    t.index ["nace_code"], name: "index_bce_activities_on_nace_code"
-  end
-
-  create_table "bce_addresses", force: :cascade do |t|
-    t.string "entity_number", null: false
-    t.string "type_of_address"
-    t.string "country_nl"
-    t.string "country_fr"
-    t.string "zipcode"
-    t.string "municipality_nl"
-    t.string "municipality_fr"
-    t.string "street_nl"
-    t.string "street_fr"
-    t.string "house_number"
-    t.string "box"
-    t.string "extra_address_info"
-    t.date "date_striking_off"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["entity_number"], name: "index_bce_addresses_on_entity_number"
-    t.index ["municipality_nl", "municipality_fr"], name: "index_bce_addresses_on_municipality_nl_and_municipality_fr"
-    t.index ["zipcode"], name: "index_bce_addresses_on_zipcode"
-  end
-
-  create_table "bce_denominations", force: :cascade do |t|
-    t.string "entity_number", null: false
-    t.string "language"
-    t.string "type_of_denomination"
-    t.text "denomination", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["denomination"], name: "index_bce_denominations_on_denomination"
-    t.index ["entity_number", "language"], name: "index_bce_denominations_on_entity_number_and_language"
-    t.index ["entity_number"], name: "index_bce_denominations_on_entity_number"
-  end
-
-  create_table "bce_enterprises", force: :cascade do |t|
-    t.string "enterprise_number", null: false
-    t.string "status"
-    t.string "juridical_situation"
-    t.string "type_of_enterprise"
-    t.string "juridical_form"
-    t.string "juridical_form_cac"
-    t.date "start_date"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["enterprise_number"], name: "index_bce_enterprises_on_enterprise_number", unique: true
-    t.index ["juridical_form"], name: "index_bce_enterprises_on_juridical_form"
-    t.index ["status"], name: "index_bce_enterprises_on_status"
-    t.index ["type_of_enterprise"], name: "index_bce_enterprises_on_type_of_enterprise"
   end
 
   create_table "categories", force: :cascade do |t|
@@ -151,38 +90,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_03_075641) do
     t.index ["request_progress_id", "status"], name: "index_complement_requests_on_request_progress_id_and_status"
     t.index ["request_progress_id"], name: "index_complement_requests_on_request_progress_id"
     t.index ["status"], name: "index_complement_requests_on_status"
-  end
-
-  create_table "contractor_signatures", force: :cascade do |t|
-    t.bigint "request_id", null: false
-    t.bigint "user_id"
-    t.string "contractor_name", null: false
-    t.string "contractor_email", null: false
-    t.string "contractor_phone", null: false
-    t.string "contractor_company"
-    t.string "contractor_registration_number"
-    t.text "work_description", null: false
-    t.string "work_type", null: false
-    t.decimal "estimated_amount", precision: 10, scale: 2
-    t.string "status", default: "pending", null: false
-    t.string "signature_token", null: false
-    t.date "expiry_date"
-    t.datetime "sent_at"
-    t.datetime "viewed_at"
-    t.datetime "signed_at"
-    t.datetime "rejected_at"
-    t.json "signature_data"
-    t.text "rejection_reason"
-    t.json "technical_requirements"
-    t.integer "compliance_score"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["contractor_email"], name: "index_contractor_signatures_on_contractor_email"
-    t.index ["expiry_date"], name: "index_contractor_signatures_on_expiry_date"
-    t.index ["request_id", "status"], name: "index_contractor_signatures_on_request_id_and_status"
-    t.index ["request_id"], name: "index_contractor_signatures_on_request_id"
-    t.index ["signature_token"], name: "index_contractor_signatures_on_signature_token", unique: true
-    t.index ["user_id"], name: "index_contractor_signatures_on_user_id"
   end
 
   create_table "document_phase_statuses", force: :cascade do |t|
@@ -235,27 +142,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_03_075641) do
     t.index ["request_id"], name: "index_documents_on_request_id"
     t.index ["simulation_id"], name: "index_documents_on_simulation_id"
     t.index ["user_id"], name: "index_documents_on_user_id"
-  end
-
-  create_table "entreprise_aides", force: :cascade do |t|
-    t.string "titre"
-    t.string "slug"
-    t.text "description"
-    t.string "region"
-    t.string "categorie"
-    t.json "secteurs_eligibles"
-    t.json "tailles_eligibles"
-    t.decimal "montant_min"
-    t.decimal "montant_max"
-    t.decimal "taux_aide"
-    t.json "conditions_eligibilite"
-    t.json "documents_requis"
-    t.string "url_officielle"
-    t.string "statut"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.jsonb "modalites_paiement"
-    t.jsonb "delais_procedures"
   end
 
   create_table "factures", force: :cascade do |t|
@@ -393,7 +279,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_03_075641) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "categorie_limite"
-    t.string "categorie_visible"
     t.string "icon_name"
     t.decimal "plafond", precision: 10, scale: 2
     t.bigint "category_id"
@@ -408,8 +293,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_03_075641) do
     t.string "nom"
     t.text "description"
     t.string "statut"
-    t.string "intervenant_entrepreneur"
-    t.string "intervenant_architecte"
     t.date "date_début"
     t.date "date_fin"
     t.datetime "created_at", null: false
@@ -446,29 +329,20 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_03_075641) do
     t.string "entrepreneur_principal_telephone"
     t.string "entrepreneur_principal_email"
     t.text "entrepreneur_principal_adresse"
-    t.string "entrepreneur_principal_assurance"
     t.text "entrepreneur_principal_certifications"
     t.text "corps_metiers"
     t.string "maitre_ouvrage_nom"
     t.string "maitre_ouvrage_contact"
     t.string "coordinateur_securite_nom"
     t.string "coordinateur_securite_contact"
-    t.string "assurance_decennale_architecte"
-    t.string "assurance_decennale_entrepreneur"
     t.text "garanties_travaux"
     t.string "numero_audit"
     t.date "date_audit"
     t.string "numero_agrement_auditeur"
     t.decimal "prix_audit", precision: 10, scale: 2
-    t.string "finalite", default: "residentielle", null: false
-    t.boolean "demande_avant_debut", default: true, comment: "Demande introduite avant début de mission/investissement"
-    t.boolean "finalite_economique_confirmee", default: true, comment: "Finalité économique et commerciale confirmée"
     t.decimal "architecte_devis_montant", precision: 10, scale: 2
     t.decimal "contractor_devis_montant", precision: 10, scale: 2
     t.text "additional_entrepreneurs"
-    t.index ["demande_avant_debut"], name: "index_projects_on_demande_avant_debut"
-    t.index ["finalite"], name: "index_projects_on_finalite"
-    t.index ["finalite_economique_confirmee"], name: "index_projects_on_finalite_economique_confirmee"
     t.index ["property_id"], name: "index_projects_on_property_id"
     t.index ["user_id"], name: "index_projects_on_user_id"
   end
@@ -526,42 +400,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_03_075641) do
     t.boolean "primes_recues"
     t.decimal "valeur_achat", precision: 10, scale: 2
     t.date "date_achat"
-    t.string "profil_demandeur"
-    t.integer "nombre_salaries"
-    t.string "rue_exploitation"
-    t.string "numero_exploitation"
-    t.string "code_postal_exploitation"
-    t.string "commune_exploitation"
-    t.boolean "meme_adresse_exploitation"
-    t.date "date_creation"
-    t.string "code_nace_1"
-    t.string "code_nace_2"
-    t.string "code_nace_3"
-    t.string "code_nace_4"
-    t.string "code_nace_5"
-    t.boolean "regle_minimis", default: false, null: false, comment: "L'entreprise a-t-elle reçu plus de 300.000€ d'aides de minimis sur 3 ans ?"
-    t.boolean "comptes_annuels_conformes", default: true, comment: "En ordre avec obligations de publication des comptes annuels"
-    t.boolean "plan_diversite_actif", default: false, comment: "Plan de diversité obligatoire si > 50 travailleurs"
-    t.decimal "pourcentage_financement_public", precision: 5, scale: 2, comment: "Pourcentage de financement public (max 75%)"
-    t.string "bce_number"
     t.decimal "latitude", precision: 10, scale: 6
     t.decimal "longitude", precision: 10, scale: 6
     t.datetime "geocoded_at"
     t.string "type_bien_wallonie"
-    t.index ["comptes_annuels_conformes"], name: "index_properties_on_comptes_annuels_conformes"
     t.index ["latitude", "longitude"], name: "index_properties_on_latitude_and_longitude"
-    t.index ["plan_diversite_actif"], name: "index_properties_on_plan_diversite_actif"
     t.index ["user_id"], name: "index_properties_on_user_id"
-  end
-
-  create_table "referrals", force: :cascade do |t|
-    t.bigint "user_id", null: false
-    t.string "email_ami"
-    t.string "code"
-    t.string "status"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["user_id"], name: "index_referrals_on_user_id"
   end
 
   create_table "request_progresses", force: :cascade do |t|
@@ -670,21 +514,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_03_075641) do
     t.index ["user_id"], name: "index_requests_on_user_id"
   end
 
-  create_table "simulation_prime_cards", force: :cascade do |t|
-    t.bigint "simulation_id", null: false
-    t.bigint "prime_id", null: false
-    t.decimal "montant_simule"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.text "calcul_details"
-    t.index ["prime_id"], name: "index_simulation_prime_cards_on_prime_id"
-    t.index ["simulation_id"], name: "index_simulation_prime_cards_on_simulation_id"
-  end
-
   create_table "simulations", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "property_id", null: false
-    t.string "categorie"
     t.decimal "total_simule"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -766,8 +598,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_03_075641) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "complement_requests", "request_progresses"
-  add_foreign_key "contractor_signatures", "requests"
-  add_foreign_key "contractor_signatures", "users"
   add_foreign_key "document_phase_statuses", "document_phases"
   add_foreign_key "document_phase_statuses", "properties"
   add_foreign_key "document_phase_statuses", "users", column: "validated_by_id"
@@ -791,15 +621,12 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_03_075641) do
   add_foreign_key "projects", "properties"
   add_foreign_key "projects", "users"
   add_foreign_key "properties", "users"
-  add_foreign_key "referrals", "users"
   add_foreign_key "request_progresses", "primes"
   add_foreign_key "request_progresses", "requests"
   add_foreign_key "requests", "projects"
   add_foreign_key "requests", "properties"
   add_foreign_key "requests", "simulations"
   add_foreign_key "requests", "users"
-  add_foreign_key "simulation_prime_cards", "primes"
-  add_foreign_key "simulation_prime_cards", "simulations"
   add_foreign_key "simulations", "projects"
   add_foreign_key "simulations", "properties"
   add_foreign_key "simulations", "users"

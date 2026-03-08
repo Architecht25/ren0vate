@@ -328,50 +328,17 @@ class SimulationsController < ApplicationController
     end
 
     begin
-      # Si on a un total calculé côté client (pour Bruxelles/Wallonie), l'utiliser directement
-      # TEMPORAIRE: ignorer la condition calculated_total > 0 pour déboguer
-      if %w[bruxelles wallonie flandre].include?(@simulation.region&.downcase)
-        Rails.logger.info "🚀 Utilisation des nouvelles méthodes calculate_all_primes (force debug)"
+      # Si on a un total calculé côté client (pour Wallonie/Flandre), l'utiliser directement
+      if %w[wallonie flandre].include?(@simulation.region&.downcase)
+        Rails.logger.info "🚀 Utilisation des nouvelles méthodes calculate_all_primes"
 
-        # Utiliser le nouveau service pour récupérer les détails des primes
+        # Bruxelles n'est plus supporté
         if @simulation.region&.downcase == 'bruxelles'
-          Rails.logger.info "🔧 Instanciation du nouveau service BruxellesPostLoginCalculatorService"
-          calculator_service = Regions::Bruxelles::BruxellesPostLoginCalculatorService.new(
-            {
-              property_id: @simulation.property_id,
-              project_id: @simulation.project_id,
-              simulation_type: 'particulier'
-            },
-            user: current_user
-          )
-
-          # Appeler la méthode calculate_all_primes du nouveau service
-          Rails.logger.info "🔧 Appel de calculate_all_primes avec: #{user_inputs.inspect}"
-          result = calculator_service.calculate_all_primes(user_inputs)
-          Rails.logger.info "✅ Total calculé avec nouvelles méthodes: #{result[:total_general]}€"
-          Rails.logger.info "🔧 Prime results reçus: #{result[:prime_results].inspect}"
-
-          # Construire la structure updated_cards attendue par le frontend
-          updated_cards = build_updated_cards_from_prime_results(result[:prime_results])
-          Rails.logger.info "🔧 Updated cards construites: #{updated_cards.inspect}"
-
-          # Utiliser le total calculé par le backend et mettre à jour la simulation
-          @simulation.update!(total_simule: result[:total_general])
-
-          # Calculer les économies vs chasseur de primes
-          savings_data = nil
-          if result[:total_general] > 0 && @simulation.region.present?
-            savings_calculator = SavingsCalculatorService.new(result[:total_general], @simulation.region)
-            savings_data = savings_calculator.calculate_savings
-          end
-
           render json: {
-            success: true,
-            total_amount: result[:total_general],
-            updated_cards: updated_cards, # ✅ Structure des primes individuelles
-            savings_data: savings_data,
-            message: "Total mis à jour avec nouvelles méthodes et détails primes"
-          }
+            success: false,
+            error: "La région de Bruxelles n'est plus supportée pour les nouvelles simulations"
+          }, status: :unprocessable_entity
+          return
         elsif @simulation.region&.downcase == 'wallonie'
           # Pour Wallonie, utiliser le nouveau système comme Bruxelles
           Rails.logger.info "🚀 Utilisation des nouvelles méthodes calculate_all_primes pour Wallonie (force debug)"
@@ -601,12 +568,38 @@ class SimulationsController < ApplicationController
         Rails.logger.info "✅ #{user_inputs.keys.length} primes Wallonie restaurées"
       end
 
+      # Recalculer les montants pour updated_cards si nécessaire
+      updated_cards = nil
+      if params_data["prime_cards"].present?
+        # Utiliser la structure prime_cards existante
+        updated_cards = params_data["prime_cards"]
+      elsif @simulation.region&.downcase == 'wallonie' && user_inputs.any?
+        # Recalculer pour Wallonie si on a des inputs
+        Rails.logger.info "🔄 Recalcul des montants Wallonie pour restauration..."
+        begin
+          calculator_service = Regions::Wallonie::WalloniePostLoginCalculatorService.new(
+            {
+              property_id: @simulation.property_id,
+              project_id: @simulation.project_id,
+              simulation_type: 'particulier'
+            },
+            category: @simulation.category
+          )
+          result = calculator_service.calculate_all_primes(user_inputs)
+          updated_cards = build_updated_cards_from_prime_results(result[:prime_results])
+          Rails.logger.info "✅ Montants Wallonie recalculés pour restauration"
+        rescue => calc_error
+          Rails.logger.error "⚠️ Erreur recalcul Wallonie: #{calc_error.message}"
+        end
+      end
+
       # Rails.logger.info "✅ Restored #{user_inputs.keys.length} user inputs for simulation #{@simulation.id}"
       render json: {
         success: true,
         user_inputs: user_inputs,
         total_amount: @simulation.total_simule,
-        category: @simulation.category
+        category: @simulation.category,
+        updated_cards: updated_cards
       }
 
     rescue => e
@@ -818,14 +811,7 @@ class SimulationsController < ApplicationController
         user: current_user
       )
     elsif region == 'bruxelles'
-      eligibility_service = Regions::Bruxelles::BruxellesEligibilityService.new(
-        {
-          property_id: simulation.property_id,
-          project_id: simulation.project_id,
-          simulation_type: params[:simulation_type] || 'particulier'
-        },
-        user: current_user
-      )
+      raise "La région de Bruxelles n'est plus supportée"
     end
 
     result = eligibility_service.check_eligibility
@@ -835,8 +821,8 @@ class SimulationsController < ApplicationController
         eligible: true,
         category_description: result[:message]
       )
-      # Déclencher l'étape 2 automatiquement pour Wallonie, Flandre et Bruxelles
-      perform_category_determination(simulation) if ['wallonie', 'flandre', 'bruxelles'].include?(region)
+      # Déclencher l'étape 2 automatiquement pour Wallonie et Flandre
+      perform_category_determination(simulation) if ['wallonie', 'flandre'].include?(region)
     else
       simulation.update(
         eligible: false,
@@ -848,7 +834,7 @@ class SimulationsController < ApplicationController
   # ÉTAPE 2: Détermination de la catégorie
   def perform_category_determination(simulation)
     region = simulation.region&.downcase
-    return unless simulation.eligible? && ['wallonie', 'flandre', 'bruxelles'].include?(region)
+    return unless simulation.eligible? && ['wallonie', 'flandre'].include?(region)
 
     # Choisir le service de catégorie selon la région
     if region == 'wallonie'
@@ -868,14 +854,7 @@ class SimulationsController < ApplicationController
         user: current_user
       )
     elsif region == 'bruxelles'
-      category_service = Regions::Bruxelles::BruxellesCategoryService.new(
-        {
-          property_id: simulation.property_id,
-          project_id: simulation.project_id,
-          simulation_type: params[:simulation_type] || 'particulier'
-        },
-        user: current_user
-      )
+      raise "La région de Bruxelles n'est plus supportée"
     end
 
     result = category_service.determine_category
@@ -927,15 +906,9 @@ class SimulationsController < ApplicationController
         },
         user: current_user
       )
-    elsif region == 'bruxelles'
-      calculator_service = Regions::Bruxelles::BruxellesPostLoginCalculatorService.new(
-        {
-          property_id: simulation.property_id,
-          project_id: simulation.project_id,
-          simulation_type: params[:simulation_type] || 'particulier'
-        },
-        user: current_user
-      )
+    else
+      Rails.logger.error "❌ Région non supportée pour calcul de primes: #{region}"
+      return
     end
 
     # Préparer les données de catégorie pour le calculateur
@@ -962,16 +935,6 @@ class SimulationsController < ApplicationController
       simulation.update(
         total_simule: cards_data[:total_general],
         parameters: cards_data.to_json
-      )
-    elsif region == 'bruxelles'
-      simulation.update(
-        total_simule: cards_data[:total],
-        parameters: {
-          prime_cards: cards_data[:cards],
-          total_general: cards_data[:total],
-          category_used: cards_data[:category_used],
-          calculation_timestamp: Time.current
-        }.to_json
       )
     end
   end

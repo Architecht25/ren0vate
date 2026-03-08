@@ -90,42 +90,12 @@ class DecisionHub::DataService
   end
 
   def extract_selected_primes
-    # Récupérer les vraies primes de la simulation depuis simulation_prime_cards
+    # Récupérer les primes de la simulation depuis le JSON parameters
     return [] unless @simulation
 
     selected_primes = []
 
-    begin
-      # Méthode principale: utiliser simulation_prime_cards
-      Rails.logger.info "=== Extracting primes for simulation #{@simulation.id} ==="
-      Rails.logger.info "simulation_prime_cards count: #{@simulation.simulation_prime_cards.count}"
-
-      @simulation.simulation_prime_cards.includes(:prime).each do |sim_prime|
-        Rails.logger.info "Processing sim_prime: prime=#{sim_prime.prime&.titre}, amount=#{sim_prime.calculated_amount}"
-
-        next unless sim_prime.prime
-        next if sim_prime.calculated_amount.to_f <= 0
-
-        selected_primes << {
-          name: sim_prime.prime.titre,
-          amount: sim_prime.calculated_amount.to_f.round(0),
-          category: sim_prime.prime.category || extract_category_from_slug(sim_prime.prime.slug),
-          slug: sim_prime.prime.slug,
-          status: "eligible",
-          urgency: determine_prime_urgency_from_slug(sim_prime.prime.slug),
-          user_input: sim_prime.user_input || 0,
-          details: sim_prime.prime.condition || sim_prime.prime.conseil || ""
-        }
-      end
-
-      Rails.logger.info "Found #{selected_primes.count} primes from simulation_prime_cards"
-      return selected_primes if selected_primes.any?
-    rescue StandardError => e
-      Rails.logger.error "Error extracting primes from simulation_prime_cards: #{e.message}"
-      Rails.logger.error e.backtrace.join("\n")
-    end
-
-    # Fallback: essayer d'extraire depuis parameters JSON (ancienne méthode)
+    # Extraire depuis parameters JSON
     if @simulation&.parameters.present?
       begin
         params_data = JSON.parse(@simulation.parameters)

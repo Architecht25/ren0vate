@@ -14,8 +14,6 @@ class Project < ApplicationRecord
   validates :property_id, presence: true
   validates :project_type, presence: true, inclusion: { in: %w[renovation investment],
                                                        message: "doit être 'renovation' ou 'investment'" }
-  validates :finalite, presence: true, inclusion: { in: %w[residentielle economique],
-                                                   message: "doit être 'residentielle' ou 'economique'" }
 
   # Définir un statut et type par défaut
   before_validation :set_default_status
@@ -34,15 +32,6 @@ class Project < ApplicationRecord
 
   def investment?
     project_type == 'investment'
-  end
-
-  # Méthodes pour les finalités
-  def finalite_residentielle?
-    finalite == 'residentielle'
-  end
-
-  def finalite_economique?
-    finalite == 'economique'
   end
 
   def type_display

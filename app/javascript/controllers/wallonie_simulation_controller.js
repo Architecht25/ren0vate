@@ -525,8 +525,34 @@ export default class extends Controller {
       const categoryData = updatedCards[categoryKey]
       console.log(`🔍 Traitement catégorie: ${categoryKey}`, categoryData);
 
+      // Si c'est un nombre direct (slug de prime), mettre à jour directement
+      if (typeof categoryData === 'number') {
+        const slug = categoryKey
+        const calculatedAmount = categoryData
+        console.log(`💰 Prime directe trouvée: ${slug} = ${calculatedAmount}€`);
+
+        // Trouver la carte correspondante pour Wallonie
+        const cardElement = document.querySelector(`[data-wallonie-simulation-card-slug-value="${slug}"]`)
+
+        if (cardElement) {
+          const resultSpan = cardElement.querySelector('[data-wallonie-simulation-card-target="total"]')
+
+          if (resultSpan) {
+            const formattedAmount = calculatedAmount.toLocaleString('fr-FR')
+            resultSpan.textContent = `${formattedAmount} €`
+            console.log(`✅ Span mis à jour pour ${slug}: ${formattedAmount} €`);
+          } else {
+            console.log(`⚠️ Span target 'total' non trouvé pour ${slug}`);
+          }
+        } else {
+          console.log(`⚠️ Élément card non trouvé pour slug: ${slug}`);
+        }
+        return;
+      }
+
+      // Si c'est un objet avec des primes (catégorie), traiter les primes
       if (!categoryData.primes) {
-        console.log(`⚠️ Pas de propriété 'primes' dans ${categoryKey}`);
+        console.log(`⚠️ Pas de propriété 'primes' dans ${categoryKey} et ce n'est pas un nombre`);
         return;
       }
 
@@ -607,6 +633,13 @@ export default class extends Controller {
           if (result.total_amount) {
             this.backendCalculatedTotal = result.total_amount
             console.log("💰 Total backend restauré:", result.total_amount, "€")
+          }
+
+          // Restaurer les cartes mises à jour si disponibles
+          if (result.updated_cards) {
+            console.log("🔄 Restauration des cartes mises à jour:", result.updated_cards)
+            this.updateIndividualPrimeDisplays(result.updated_cards)
+            this.emitPrimeUpdateEvent(result.updated_cards)
           }
 
           // Recalculer après restauration

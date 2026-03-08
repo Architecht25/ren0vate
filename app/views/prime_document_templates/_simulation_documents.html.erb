@@ -1,13 +1,8 @@
 <!-- Partial pour afficher les documents téléchargeables après simulation -->
 <% if defined?(simulation) && simulation&.persisted? %>
   <%
-    # Récupérer les primes de la simulation (à adapter selon votre logique)
-    selected_primes = simulation.respond_to?(:selected_primes) ? simulation.selected_primes : []
-
-    # Si pas de méthode selected_primes, utiliser une logique alternative
-    if selected_primes.empty? && simulation.simulation_prime_cards.any?
-      selected_primes = simulation.simulation_prime_cards.includes(:prime).map(&:prime)
-    end
+    # Récupérer les primes de la simulation depuis le JSON parameters
+    selected_primes = get_simulation_primes(simulation)
 
     # Documents spécifiques aux primes sélectionnées
     available_templates = PrimeDocumentTemplate.joins(:prime)

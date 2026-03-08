@@ -130,14 +130,29 @@ module PrimeDocumentTemplatesHelper
   private
 
   # Méthode pour récupérer les primes d'une simulation
-  # À adapter selon votre logique métier
   def get_simulation_primes(simulation)
-    if simulation.respond_to?(:selected_primes)
-      simulation.selected_primes
-    elsif simulation.respond_to?(:simulation_prime_cards)
-      simulation.simulation_prime_cards.includes(:prime).map(&:prime)
-    else
-      # Logique alternative ou fallback
+    return [] unless simulation&.parameters.present?
+
+    begin
+      params_data = JSON.parse(simulation.parameters)
+      prime_slugs = []
+
+      # Extraire les slugs des primes depuis prime_cards
+      if params_data["prime_cards"].present?
+        params_data["prime_cards"].each do |_category_key, category_data|
+          next unless category_data.is_a?(Hash) && category_data["primes"].present?
+
+          category_data["primes"].each do |prime|
+            amount = (prime["calculated_amount"] || prime["amount"] || 0).to_f
+            prime_slugs << prime["slug"] if amount > 0 && prime["slug"].present?
+          end
+        end
+      end
+
+      # Récupérer les objets Prime correspondants
+      Prime.where(slug: prime_slugs)
+    rescue JSON::ParserError, StandardError => e
+      Rails.logger.warn "Failed to extract primes from simulation parameters: #{e.message}"
       []
     end
   end

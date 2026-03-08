@@ -85,10 +85,8 @@ class ProjectsController < ApplicationController
 
   def project_params
     params.require(:project).permit(
-      :nom, :description, :date_début, :date_fin, :statut, :property_id, :project_type, :finalite,
+      :nom, :description, :date_début, :date_fin, :statut, :property_id, :project_type,
       :bce_number, :invoice_date, :work_completion_date,
-      # Nouveaux champs d'éligibilité pour Bruxelles Entreprises
-      :demande_avant_debut, :finalite_economique_confirmee,
       # Champs spécifiques Flandre
       :type_travaux, :reconstruction_demolition, :tva_reduit_6_pourcent,
       # Checkboxes pour types de travaux Flandre

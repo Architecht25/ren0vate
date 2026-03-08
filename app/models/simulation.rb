@@ -2,8 +2,6 @@ class Simulation < ApplicationRecord
   belongs_to :user
   belongs_to :property
   belongs_to :project, optional: true
-  has_many :simulation_prime_cards, dependent: :destroy
-  has_many :primes, through: :simulation_prime_cards
   has_many :documents, dependent: :destroy
 
   has_one :request, dependent: :destroy
@@ -15,7 +13,7 @@ class Simulation < ApplicationRecord
 
   # Méthodes utiles pour l'interface
   def total_primes_amount
-    simulation_prime_cards.sum(:montant_simule)
+    total_simule || 0
   end
 
   # Calcul du total complet incluant PEB et amiante pour Flandre
@@ -117,8 +115,8 @@ class Simulation < ApplicationRecord
   def processing_step
     return 1 unless eligible.present?
     return 2 if eligible && category.blank?
-    return 3 if eligible && category.present? && simulation_prime_cards.empty?
-    return 4 if eligible && category.present? && simulation_prime_cards.any?
+    return 3 if eligible && category.present? && total_simule.to_f <= 0
+    return 4 if eligible && category.present? && total_simule.to_f > 0
   end
 
   def step_name
@@ -149,5 +147,53 @@ class Simulation < ApplicationRecord
     parsed_params['thresholds_used']
   rescue JSON::ParserError
     nil
+  end
+
+  # Méthode pour extraire les primes depuis le JSON parameters
+  def primes
+    @primes_collection ||= PrimesCollection.new(self)
+  end
+
+  def primes_count
+    return 0 unless parameters.present?
+
+    begin
+      parsed_params = JSON.parse(parameters)
+      count = 0
+
+      if parsed_params['prime_cards'].present?
+        parsed_params['prime_cards'].each do |_category_key, category_data|
+          next unless category_data.is_a?(Hash) && category_data['primes'].present?
+
+          category_data['primes'].each do |prime|
+            amount = (prime['calculated_amount'] || prime['amount'] || 0).to_f
+            count += 1 if amount > 0
+          end
+        end
+      end
+
+      count
+    rescue JSON::ParserError, StandardError
+      0
+    end
+  end
+
+  # Classe helper pour simuler une collection ActiveRecord
+  class PrimesCollection
+    def initialize(simulation)
+      @simulation = simulation
+    end
+
+    def count
+      @simulation.primes_count
+    end
+
+    def any?
+      count > 0
+    end
+
+    def empty?
+      count == 0
+    end
   end
 end

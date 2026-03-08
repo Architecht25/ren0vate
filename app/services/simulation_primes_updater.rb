@@ -110,10 +110,10 @@ class SimulationPrimesUpdater
   end
 
   def get_simulation_category
-    # Utiliser le champ category de la simulation, ou un fallback
-    category = @simulation.category.presence || @simulation.categorie.presence || "2"
-    @logger.info "� Catégorie trouvée: #{category} (category=#{@simulation.category}, categorie=#{@simulation.categorie})"
-    @logger.info "�💰 Recalcul avec catégorie: #{category}"
+    # Utiliser le champ category de la simulation
+    category = @simulation.category.presence || "2"
+    @logger.info "📊 Catégorie trouvée: #{category}"
+    @logger.info "💰 Recalcul avec catégorie: #{category}"
     category
   end
 
@@ -340,14 +340,12 @@ class SimulationPrimesUpdater
   end
 
   def should_use_new_calculation_method?
-    # Utiliser les nouvelles méthodes pour Bruxelles et Wallonie
-    %w[bruxelles wallonie].include?(@simulation.region&.downcase)
+    # Utiliser les nouvelles méthodes pour Wallonie uniquement
+    @simulation.region&.downcase == 'wallonie'
   end
 
   def get_regional_calculator_service
     case @simulation.region&.downcase
-    when 'bruxelles'
-      Regions::Bruxelles::BruxellesPostLoginCalculatorService.new({}, user: @simulation.user)
     when 'wallonie'
       Regions::Wallonie::WalloniePostLoginCalculatorService.new({}, user: @simulation.user)
     else

@@ -461,14 +461,8 @@ class PropertiesController < ApplicationController
       :type_bien_bruxelles, :certificat_peb_bruxelles,
       :domiciliation, :nouvelle_construction, :bien_classe, :petit_patrimoine, :facade_patrimoine,
 
-      # Champs spécifiques Entreprise
-      :nombre_salaries, :date_creation, :regle_minimis, :bce_number,
-      :code_nace_1, :code_nace_2, :code_nace_3, :code_nace_4, :code_nace_5,
-      :comptes_annuels_conformes, :plan_diversite_actif, :pourcentage_financement_public,
-
-      # Champs d'adresse d'exploitation
-      :rue_exploitation, :numero_exploitation, :code_postal_exploitation,
-      :commune_exploitation, :meme_adresse_exploitation
+      # Champ BCE number (numéro entreprise belge - gardé pour identification)
+      :bce_number
     )
   end
 
