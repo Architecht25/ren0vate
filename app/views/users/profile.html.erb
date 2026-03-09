@@ -309,6 +309,37 @@
                         min: 0 %>
                   </div>
                 </div>
+
+                <!-- Nouveaux champs pour déductions fiscales Wallonie -->
+                <div class="row g-3 mt-2">
+                  <div class="col-12">
+                    <div class="alert alert-info border-0 rounded-3 mb-0">
+                      <small><i class="bi bi-info-circle me-1"></i><strong>Wallonie:</strong> Ces informations permettent des déductions de 5.000€ chacune sur vos revenus imposables.</small>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label text-dark fw-medium mb-1">
+                      <i class="bi bi-person-badge me-2 text-info"></i>Personnes de 60 ans et plus
+                    </label>
+                    <%= f.number_field :personnes_60_ans_et_plus,
+                        class: 'form-control border-2 rounded-3 px-3',
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                        placeholder: '0',
+                        min: 0 %>
+                    <small class="text-muted">Nombre de personnes de 60 ans et plus dans le ménage</small>
+                  </div>
+                  <div class="col-6">
+                    <label class="form-label text-dark fw-medium mb-1">
+                      <i class="bi bi-heart-pulse me-2 text-info"></i>Femme enceinte
+                    </label>
+                    <%= f.select :femme_enceinte,
+                        [['Non', false], ['Oui', true]],
+                        { include_blank: 'Sélectionnez...' },
+                        class: 'form-select border-2 rounded-3 px-3',
+                        style: "background: #f8f9fa; border-color: #e9ecef !important;" %>
+                    <small class="text-muted">Y a-t-il une femme enceinte dans le ménage ?</small>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

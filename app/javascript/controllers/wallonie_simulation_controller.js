@@ -159,12 +159,6 @@ export default class extends Controller {
       detail: { total: total, category: this.currentCategory }
     }))
 
-    // Déclencher l'événement de mise à jour des économies
-    this.dispatchSavingsUpdateEvent({
-      total_amount: total,
-      savings_data: null // sera calculé côté serveur lors du prochain appel AJAX
-    });
-
     // Mettre à jour le résumé des primes sélectionnées
     this.updateSelectedPrimesSummary()
   }
@@ -357,9 +351,6 @@ export default class extends Controller {
           // Mettre à jour le total général avec le vrai total backend
           this.updateTotalGlobal();
 
-          // Déclencher l'événement pour mettre à jour le composant d'économie
-          this.dispatchSavingsUpdateEvent(data);
-
           this.showSaveIndicator('success', data.total_amount);
         } else {
           console.error("❌ Erreur auto-save Wallonie:", data.error);
@@ -467,20 +458,6 @@ export default class extends Controller {
   // Méthode appelée par les actions des cartes (compatibilité)
   saveUserInput() {
     this.debouncedSaveUserInputs()
-  }
-
-  // Nouvelle méthode pour déclencher l'événement de mise à jour du composant d'économie
-  dispatchSavingsUpdateEvent(data) {
-    const event = new CustomEvent('savings:update', {
-      detail: {
-        total_amount: data.total_amount,
-        savings_data: data.savings_data
-      },
-      bubbles: true
-    });
-
-    document.dispatchEvent(event);
-    console.log("💰 Événement savings:update déclenché (Wallonie)", data.savings_data);
   }
 
   // Émettre un événement pour que les cartes enfants se mettent à jour

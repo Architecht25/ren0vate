@@ -119,26 +119,6 @@ if project
   puts "✅ Notification suivi projet créée"
 end
 
-# 11. Économie vs chasseur de primes
-if simulation&.total_simule && simulation.total_simule > 10000
-  savings_calculator = SavingsCalculatorService.new(simulation.total_simule, simulation.region)
-  savings_data = savings_calculator.calculate_savings
-
-  if savings_data && savings_data[:savings_amount] > 500
-    notification = Notification.create!(
-      user: user,
-      notification_type: 'conseil_optimisation',
-      title: "💰 Économisez #{savings_data[:savings_amount].round}€ avec notre modèle SaaS",
-      message: "Plutôt que de payer #{savings_data[:chasseur_cost].round}€ à un chasseur de primes (12,5% + TVA), notre abonnement #{simulation.region} ne vous coûte que #{savings_data[:saas_cost].round}€ sur #{savings_data[:subscription_details][:duration_months]} mois. Soit #{savings_data[:savings_percentage]}% d'économie !",
-      priority: 'normale',
-      read: false,
-      expires_at: 30.days.from_now
-    )
-    created_count += 1
-    puts "✅ Notification économie vs chasseur créée"
-  end
-end
-
 # Notifications admin d'exemple
 puts "\n📢 Création de notifications admin d'exemple..."
 

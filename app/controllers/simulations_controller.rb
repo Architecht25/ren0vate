@@ -90,12 +90,6 @@ class SimulationsController < ApplicationController
     @prime_cards_data = @prime_cards
     @simulation_total = @total_amount
 
-    # Calculer les économies vs chasseur de primes
-    if @total_amount > 0 && @simulation.region.present?
-      savings_calculator = SavingsCalculatorService.new(@total_amount, @simulation.region)
-      @savings_data = savings_calculator.calculate_savings
-    end
-
     # Répondre selon le format demandé
     respond_to do |format|
       format.html # Vue normale
@@ -104,8 +98,7 @@ class SimulationsController < ApplicationController
           total_amount: @total_amount,
           peb_data: @peb_data,
           amiante_data: @amiante_data,
-          prime_cards: @prime_cards,
-          savings_data: @savings_data
+          prime_cards: @prime_cards
         }
       }
     end
@@ -358,18 +351,10 @@ class SimulationsController < ApplicationController
           # Utiliser le total calculé par le backend et mettre à jour la simulation
           @simulation.update!(total_simule: result[:total_general])
 
-          # Calculer les économies vs chasseur de primes
-          savings_data = nil
-          if result[:total_general] > 0 && @simulation.region.present?
-            savings_calculator = SavingsCalculatorService.new(result[:total_general], @simulation.region)
-            savings_data = savings_calculator.calculate_savings
-          end
-
           render json: {
             success: true,
             total_amount: result[:total_general],
             updated_cards: updated_cards,
-            savings_data: savings_data,
             message: "Total mis à jour avec nouvelles méthodes Bruxelles"
           }
           return
@@ -402,18 +387,10 @@ class SimulationsController < ApplicationController
           # Sauvegarder les données Wallonie dans les paramètres de la simulation
           save_wallonie_specific_data(user_inputs, result[:prime_results])
 
-          # Calculer les économies vs chasseur de primes
-          savings_data = nil
-          if result[:total_general] > 0 && @simulation.region.present?
-            savings_calculator = SavingsCalculatorService.new(result[:total_general], @simulation.region)
-            savings_data = savings_calculator.calculate_savings
-          end
-
           render json: {
             success: true,
             total_amount: result[:total_general],
             updated_cards: updated_cards, # ✅ Structure des primes individuelles
-            savings_data: savings_data,
             message: "Total mis à jour avec nouvelles méthodes Wallonie"
           }
         elsif @simulation.region&.downcase == 'flandre'
@@ -455,18 +432,10 @@ class SimulationsController < ApplicationController
           # Sauvegarder les données dans les paramètres de la simulation
           save_flandre_specific_data(user_inputs, result[:prime_results])
 
-          # Calculer les économies vs chasseur de primes
-          savings_data = nil
-          if final_total > 0 && @simulation.region.present?
-            savings_calculator = SavingsCalculatorService.new(final_total, @simulation.region)
-            savings_data = savings_calculator.calculate_savings
-          end
-
           render json: {
             success: true,
             total_amount: final_total,
             updated_cards: updated_cards,
-            savings_data: savings_data,
             message: "Total mis à jour avec nouvelles méthodes Flandre (PEB/Amiante inclus)"
           }
         else
@@ -477,18 +446,10 @@ class SimulationsController < ApplicationController
           if result[:success]
             @simulation.update!(total_simule: calculated_total)
 
-            # Calculer les économies vs chasseur de primes
-            savings_data = nil
-            if calculated_total > 0 && @simulation.region.present?
-              savings_calculator = SavingsCalculatorService.new(calculated_total, @simulation.region)
-              savings_data = savings_calculator.calculate_savings
-            end
-
             render json: {
               success: true,
               total_amount: calculated_total,
               updated_cards: result[:updated_cards],
-              savings_data: savings_data,
               message: "Total mis à jour avec ancien système Wallonie"
             }
           else
@@ -496,7 +457,6 @@ class SimulationsController < ApplicationController
             render json: {
               success: true,
               total_amount: calculated_total,
-              savings_data: nil,
               message: "Total mis à jour côté client (détails backend indisponibles)"
             }
           end
@@ -516,14 +476,6 @@ class SimulationsController < ApplicationController
       if result[:success]
         # Rails.logger.info "✅ Simulation #{@simulation.id} updated successfully: #{result[:total_amount]}€"
 
-        # Calculer les économies vs chasseur de primes
-        savings_data = nil
-        if result[:total_amount] && result[:total_amount] > 0 && @simulation.region.present?
-          savings_calculator = SavingsCalculatorService.new(result[:total_amount], @simulation.region)
-          savings_data = savings_calculator.calculate_savings
-        end
-
-        result[:savings_data] = savings_data
         render json: result
       else
         Rails.logger.error "❌ Failed to update simulation #{@simulation.id}: #{result[:error]}"

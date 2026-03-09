@@ -90,24 +90,38 @@ module Regions
         # Déduction enfants à charge
         if @user.nombre_enfants && @user.nombre_enfants > 0
           deductions += @user.nombre_enfants * 5000
+          Rails.logger.info "💰 Déduction enfants: #{@user.nombre_enfants} × 5.000€ = #{@user.nombre_enfants * 5000}€"
         end
 
-        # TODO: Ajouter déductions pour grossesse en cours ou personnes > 60 ans
-        # si ces champs sont ajoutés au modèle User
+        # Déduction personnes de 60 ans et plus
+        if @user.respond_to?(:personnes_60_ans_et_plus) && @user.personnes_60_ans_et_plus && @user.personnes_60_ans_et_plus > 0
+          deductions += @user.personnes_60_ans_et_plus * 5000
+          Rails.logger.info "👴 Déduction personnes 60+: #{@user.personnes_60_ans_et_plus} × 5.000€ = #{@user.personnes_60_ans_et_plus * 5000}€"
+        end
+
+        # Déduction femme enceinte
+        if @user.respond_to?(:femme_enceinte) && @user.femme_enceinte == true
+          deductions += 5000
+          Rails.logger.info "🤰 Déduction femme enceinte: 5.000€"
+        end
+
+        Rails.logger.info "📊 Total déductions: #{deductions}€ (revenu de base: #{base_income}€)"
 
         [base_income - deductions, 0].max
       end
 
       def determine_income_category(adjusted_income)
         # Barèmes Wallonie 2025 (revenus imposables après déductions) - 5 catégories seulement
+        # Seuils harmonisés avec db/seeds/wallonie/categories.rb
         return "R1" if adjusted_income <= 25_400
         return "R2" if adjusted_income <= 36_200
         return "R3" if adjusted_income <= 51_800
         return "R4" if adjusted_income <= 79_000
         return "R5" if adjusted_income <= 114_400
 
-        # Si on arrive ici, c'est une erreur car devrait être détecté plus tôt
-        "INELIGIBLE"
+        # Si on arrive ici, c'est une erreur car l'éligibilité devrait être vérifiée en amont
+        # (check dans determine_category_post_login ligne 49)
+        "R5" # Fallback sur R5 par sécurité
       end
 
       def get_family_composition
@@ -128,7 +142,6 @@ module Regions
         when "R3" then "warning"    # Jaune
         when "R4" then "secondary"  # Gris
         when "R5" then "danger"     # Rouge - Prime la plus faible
-        when "INELIGIBLE" then "dark" # Noir pour inéligible
         else "secondary"
         end
       end
@@ -145,8 +158,6 @@ module Regions
           "Revenus moyens supérieurs (51.801€ - 79.000€) - Primes réduites"
         when "R5"
           "Revenus supérieurs (79.001€ - 114.400€) - Primes minimales"
-        when "INELIGIBLE"
-          "Revenus trop élevés (> 114.400€) - Non éligible"
         else
           "Catégorie à déterminer"
         end

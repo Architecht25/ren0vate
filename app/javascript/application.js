@@ -41,7 +41,6 @@ import LanguageController from "controllers/language_controller"
 import RenopackWallonieController from "controllers/renopack_wallonie_controller"
 import RequestFormController from "controllers/request_form_controller"
 import RequestAutosaveController from "controllers/request_autosave_controller"
-import SavingsComparisonController from "controllers/savings_comparison_controller"
 import ImagePreviewController from "controllers/image_preview_controller"
 import DocumentPreviewController from "controllers/document_preview_controller"
 import PricingController from "controllers/pricing_controller"
@@ -81,7 +80,6 @@ application.register("language", LanguageController)
 application.register("renopack-wallonie", RenopackWallonieController)
 application.register("request-form", RequestFormController)
 application.register("request-autosave", RequestAutosaveController)
-application.register("savings-comparison", SavingsComparisonController)
 application.register("image-preview", ImagePreviewController)
 application.register("document-preview", DocumentPreviewController)
 application.register("pricing", PricingController)

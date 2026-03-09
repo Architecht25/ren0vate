@@ -69,6 +69,89 @@ module Regions
         }
       end
 
+      # Méthode publique pour calculer une prime individuelle (utilisée par l'API AJAX)
+      def calculate_prime(prime_slug, input_value, input_type = nil)
+        Rails.logger.info "🔍 Calcul prime Wallonie: slug=#{prime_slug}, value=#{input_value}, type=#{input_type}"
+
+        # Récupérer la prime depuis la base de données
+        prime = Prime.find_by(slug: prime_slug, region: 'wallonie')
+        unless prime
+          Rails.logger.warn "❌ Prime non trouvée: slug=#{prime_slug}, region=wallonie"
+          return { error: 'Prime non trouvée' }
+        end
+        Rails.logger.info "✅ Prime trouvée: #{prime.titre}"
+
+        # Récupérer la catégorie utilisateur
+        user_category = @category || determine_user_category
+        Rails.logger.info "🏷️ Catégorie utilisateur: #{user_category}"
+
+        # Convertir R1, R2, etc. en wallonie_r1, wallonie_r2, etc.
+        wallonie_category = user_category.match?(/^R\d+$/) ? "wallonie_#{user_category.downcase}" : user_category.to_s
+
+        # Récupérer les données de catégorie
+        category_data = prime.valeurs_par_categorie&.[](wallonie_category)
+        unless category_data
+          Rails.logger.warn "❌ Catégorie #{wallonie_category} non éligible pour #{prime_slug}"
+          return { error: "Catégorie #{wallonie_category} non éligible pour #{prime_slug}" }
+        end
+        Rails.logger.info "📊 Données catégorie: #{category_data.inspect}"
+
+        val = input_value.to_f
+        montant = 0
+
+        # Calculer le montant selon le type de prime
+        case category_data['type']
+        when 'montant_fixe', 'montant_forfaitaire'
+          # Montant fixe forfaitaire (ex: appropriation charpente)
+          # input_value devrait être 1 (oui) ou 0 (non)
+          if val > 0
+            montant = category_data['montant'].to_f
+          end
+
+        when 'montant_m2'
+          # Montant par m² (ex: remplacement couverture, isolation)
+          montant_m2 = category_data['montant_m2'].to_f
+          surface_max = category_data['surface_max']&.to_f || Float::INFINITY
+          surface = [val, surface_max].min
+          montant = surface * montant_m2
+
+        when 'pourcentage'
+          # Pourcentage du montant des travaux avec plafond (ex: certaines installations)
+          pourcentage = category_data['pourcentage'].to_f
+          plafond = category_data['plafond']&.to_f || Float::INFINITY
+          montant_calcule = (val * pourcentage) / 100.0
+          montant = [montant_calcule, plafond].min
+
+        when 'montant_variable'
+          # Montant variable selon sous-type (ex: PAC air/eau vs air/air)
+          if input_type.present? && category_data['montants'].is_a?(Hash)
+            montant = category_data['montants'][input_type].to_f
+          else
+            montant = category_data['montant_defaut']&.to_f || 0
+          end
+
+        when 'montant_unite'
+          # Montant par unité (ex: nombre de fenêtres, radiateurs)
+          montant_par_unite = category_data['montant_par_unite'].to_f
+          nombre_unites = val.to_i
+          montant = nombre_unites * montant_par_unite
+
+        else
+          Rails.logger.warn "⚠️ Type de prime non pris en charge: #{category_data['type']}"
+          return { error: "Type de prime non pris en charge : #{category_data['type']}" }
+        end
+
+        Rails.logger.info "💰 Montant calculé: #{montant}€"
+
+        {
+          calculated_amount: montant,
+          user_input_value: val,
+          category_data: category_data,
+          prime_title: prime.titre,
+          prime_unite: prime.unite
+        }
+      end
+
       private
 
       def calculate_precise_primes(primes, category, property)
@@ -424,14 +507,41 @@ module Regions
 
         total_general = cards_hash.values.sum { |card| card[:total] }
 
+        # Retourner une structure unifiée compatible avec calculate_all_primes
+        # ET rétrocompatible avec l'ancien système de cartes
         {
-          cards: cards_hash,
-          total: total_general,
-          category_used: category
+          prime_cards: cards_hash,      # Pour rétrocompatibilité
+          total_general: total_general, # Format unifié
+          category_used: category,
+
+          # Format compatible avec calculate_all_primes (pour unification future)
+          prime_results: flatten_cards_to_primes(cards_hash),
+          total: total_general          # Alias pour :total_general
         }
       end
 
       private
+
+      # Convertit le format cartes en format prime_results pour unification
+      def flatten_cards_to_primes(cards_hash)
+        prime_results = {}
+
+        cards_hash.each do |card_id, card_data|
+          next unless card_data[:primes].is_a?(Array)
+
+          card_data[:primes].each do |prime_data|
+            prime_slug = prime_data[:slug]
+            prime_results[prime_slug] = {
+              amount: prime_data[:calculated_amount] || 0,
+              prime_id: prime_data[:prime_id],
+              titre: prime_data[:titre],
+              unite: prime_data[:unite]
+            }
+          end
+        end
+
+        prime_results
+      end
 
       def determine_user_category
         # Utiliser le WallonieCategoryService dédié pour le calcul de catégorie

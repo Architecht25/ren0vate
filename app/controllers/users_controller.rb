@@ -27,7 +27,8 @@ private
     :street, :number, :postal_code, :city, :region,
     :protected_client,
     :situation_familiale, :revenu_demandeur, :annee_revenus_demandeur,
-    :revenu_conjoint, :annee_revenus_conjoint, :nombre_enfants
+    :revenu_conjoint, :annee_revenus_conjoint, :nombre_enfants,
+    :personnes_60_ans_et_plus, :femme_enceinte
     )
   end
 end
