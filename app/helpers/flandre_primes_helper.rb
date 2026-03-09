@@ -145,7 +145,7 @@ module FlandrePrimesHelper
       # Fallback avec placeholders de base
       placeholders = {
         "isolation_toiture" => "Montant total de la facture",
-        "isolation_murs_cat34" => "Montant total de la facture",
+        "isolation_murs" => "Montant total de la facture",
         "warmtepomp" => "Choisissez le type de pompe"
       }
     end

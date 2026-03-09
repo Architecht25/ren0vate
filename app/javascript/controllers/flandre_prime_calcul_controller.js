@@ -16,7 +16,7 @@ export default class extends Controller {
     // Configuration des groupes de plafond pour Flandre
     this.groupesPlafond = {
       toiture: ["isolation_toiture", "renovation_toiture"],
-      murs: ["isolation_murs_cat34", "renovation_murs"],
+      murs: ["isolation_murs", "renovation_murs"],
       sol: ["isolation_sol", "renovation_sol"]
     };
 

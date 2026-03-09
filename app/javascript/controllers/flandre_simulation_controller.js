@@ -108,7 +108,7 @@ export default class extends Controller {
     // Configuration des groupes de plafond pour Flandre
     this.groupesPlafond = {
       toiture: ["isolation_toiture", "renovation_toiture"],
-      murs: ["isolation_murs_cat34", "renovation_murs"],
+      murs: ["isolation_murs", "renovation_murs"],
       sol: ["isolation_sol", "renovation_sol"]
     };
 
@@ -152,14 +152,12 @@ export default class extends Controller {
       return
     }
 
-    let total = 0
-    console.log("🔄 Calcul du total global Flandre...")
+    console.log("🔄 Calcul du total global Flandre avec application des plafonds de groupe...")
 
     // Slugs des cartes Flandre principales (correspondant aux cartes HTML)
     const cartesSlugs = [
       'isolation_toiture',
-      'isolation_murs_cat12',
-      'isolation_murs_cat34',
+      'isolation_murs',
       'isolation_sol',
       'ramen_deuren',
       'warmtepomp',
@@ -173,8 +171,9 @@ export default class extends Controller {
 
     let cartesFoundCount = 0
     let cartesWithTotal = 0
+    const cartesMontants = {} // Objet pour collecter les montants avant application des plafonds
 
-    // Calculer le total en parcourant toutes les cartes
+    // ÉTAPE 1: Collecter tous les montants des cartes
     cartesSlugs.forEach(slug => {
       const carteElement = document.querySelector(`[data-flandre-simulation-card-slug-value="${slug}"]`)
       if (carteElement) {
@@ -214,7 +213,7 @@ export default class extends Controller {
             montant = 0
           }
 
-          total += montant
+          cartesMontants[slug] = montant
           if (montant > 0) {
             console.log(`✅ Carte ${slug}: ${montant}€ (texte: "${totalElement.textContent}")`)
           } else {
@@ -225,13 +224,22 @@ export default class extends Controller {
           // Debug plus profond
           const allTargets = carteElement.querySelectorAll('[data-flandre-simulation-card-target]')
           console.log(`   Targets trouvés:`, Array.from(allTargets).map(el => el.dataset.flandreSimulationCardTarget))
+          cartesMontants[slug] = 0
         }
       } else {
         console.log(`❌ Carte ${slug}: carte non trouvée dans le DOM`)
+        cartesMontants[slug] = 0
       }
     })
 
     console.log(`📊 Résumé: ${cartesFoundCount}/${cartesSlugs.length} cartes trouvées, ${cartesWithTotal} avec target result`)
+
+    // ÉTAPE 2: Appliquer les plafonds de groupe (catégories 3 et 4 uniquement)
+    const montantsFinaux = this.appliquerPlafondsGroupes(cartesMontants)
+
+    // ÉTAPE 3: Calculer le total après application des plafonds
+    let total = Object.values(montantsFinaux).reduce((sum, montant) => sum + montant, 0)
+    console.log(`💰 Total des primes après plafonds de groupe: ${total.toFixed(2)}€`)
 
     // Ajouter le montant PEB s'il est visible
     let montantPEB = 0
@@ -370,6 +378,47 @@ export default class extends Controller {
     }
   }
 
+  // Appliquer les plafonds de groupe (catégories 3 et 4 uniquement)
+  appliquerPlafondsGroupes(cartesMontants) {
+    // Récupérer le numéro de catégorie depuis la valeur stockée (ex: 'flandre_cat3' -> '3')
+    const categoryNumber = this.currentCategory.replace('flandre_cat', '')
+
+    if (["1", "2"].includes(categoryNumber)) {
+      console.log(`ℹ️ Catégorie ${categoryNumber}: pas de plafonds de groupe appliqués`)
+      return cartesMontants
+    }
+
+    console.log(`🔧 Application des plafonds de groupe pour catégorie ${categoryNumber}`)
+    const montantsFinaux = { ...cartesMontants }
+
+    // Appliquer les plafonds par groupe
+    for (const [groupe, slugs] of Object.entries(this.groupesPlafond)) {
+      const plafond = this.plafondsParGroupeEtCategorie[groupe][categoryNumber] || Infinity
+
+      // Calculer le total du groupe AVANT application du plafond
+      const totalGroupe = slugs.reduce((sum, slug) => sum + (cartesMontants[slug] || 0), 0)
+
+      if (totalGroupe > plafond && plafond > 0) {
+        // Réduire proportionnellement tous les montants du groupe
+        const facteur = plafond / totalGroupe
+        console.log(`⚖️ Groupe "${groupe}": total ${totalGroupe.toFixed(2)}€ > plafond ${plafond.toFixed(2)}€`)
+        console.log(`   → Application du facteur de réduction: ${(facteur * 100).toFixed(2)}%`)
+
+        slugs.forEach(slug => {
+          if (cartesMontants[slug] && cartesMontants[slug] > 0) {
+            const montantOriginal = cartesMontants[slug]
+            montantsFinaux[slug] = montantOriginal * facteur
+            console.log(`   → ${slug}: ${montantOriginal.toFixed(2)}€ → ${montantsFinaux[slug].toFixed(2)}€`)
+          }
+        })
+      } else if (totalGroupe > 0) {
+        console.log(`✅ Groupe "${groupe}": total ${totalGroupe.toFixed(2)}€ ≤ plafond ${plafond.toFixed(2)}€ - pas de réduction`)
+      }
+    }
+
+    return montantsFinaux
+  }
+
   // Méthode appelée par les cartes enfants pour notifier un changement
   cardUpdated() {
     console.log("🔄 Carte mise à jour - recalcul du total global")
@@ -426,8 +475,7 @@ export default class extends Controller {
     // Parcourir toutes les cartes pour trouver les primes sélectionnées
     const cartesSlugs = [
       'isolation_toiture',
-      'isolation_murs_cat12',
-      'isolation_murs_cat34',
+      'isolation_murs',
       'isolation_sol',
       'ramen_deuren',
       'warmtepomp',
@@ -587,8 +635,7 @@ export default class extends Controller {
     // Utiliser la même logique que updateTotalGlobal
     const cartesSlugs = [
       'isolation_toiture',
-      'isolation_murs_cat12',
-      'isolation_murs_cat34',
+      'isolation_murs',
       'isolation_sol',
       'ramen_deuren',
       'warmtepomp',

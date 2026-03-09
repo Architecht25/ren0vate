@@ -581,7 +581,7 @@ class SimulationsController < ApplicationController
         end
 
         # Fallback: chercher les données directes pour les primes Flandre (nouvelles méthodes)
-        flandre_prime_keys = %w[isolation_toiture isolation_murs_cat12 isolation_murs_cat34 isolation_sol ramen_deuren warmtepomp warmtepompboiler voorbereiding_isolatie voorbereiding_sanitair_elec renovation_toiture renovation_murs renovation_sol]
+        flandre_prime_keys = %w[isolation_toiture isolation_murs isolation_sol ramen_deuren warmtepomp warmtepompboiler voorbereiding_isolatie voorbereiding_sanitair_elec renovation_toiture renovation_murs renovation_sol]
         flandre_prime_keys.each do |key|
           if params_data[key].present? && params_data[key] != 0 && params_data[key] != "0"
             user_inputs[key] = params_data[key]
@@ -1144,7 +1144,7 @@ class SimulationsController < ApplicationController
 
     # Liste des slugs normaux de primes (ni PEB ni Amiante)
     prime_slugs = %w[
-      isolation_toiture isolation_murs_cat12 isolation_murs_cat34 isolation_sol
+      isolation_toiture isolation_murs isolation_sol
       ramen_deuren warmtepomp warmtepompboiler voorbereiding_isolatie
       voorbereiding_sanitair_elec renovation_toiture renovation_murs renovation_sol
     ]

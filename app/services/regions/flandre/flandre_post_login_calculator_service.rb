@@ -103,39 +103,9 @@ module Regions
 
       # Appliquer les plafonds de groupe (comme dans le JS)
       def apply_group_ceiling(prime_slug, montant_propose, user_category)
-        # Catégories 1-2 : pas de plafond
-        return montant_propose if ['1', '2'].include?(user_category.to_s)
-
-        # Définir les groupes de plafond
-        groupes_plafond = {
-          'toiture' => ['isolation_toiture', 'renovation_toiture'],
-          'murs' => ['isolation_murs_cat34', 'renovation_murs'],
-          'sol' => ['isolation_sol', 'renovation_sol']
-        }
-
-        # Plafonds par groupe et catégorie (comme dans le JS)
-        plafonds_par_groupe = {
-          'toiture' => { '1' => 0, '2' => 0, '3' => 4025, '4' => 5750 },
-          'murs' => { '1' => 0, '2' => 0, '3' => 3500, '4' => 5000 },
-          'sol' => { '1' => 0, '2' => 0, '3' => 1050, '4' => 1500 }
-        }
-
-        # Trouver le groupe de cette prime
-        groupe = nil
-        groupes_plafond.each do |g, slugs|
-          if slugs.include?(prime_slug)
-            groupe = g
-            break
-          end
-        end
-
-        return montant_propose unless groupe
-
-        plafond = plafonds_par_groupe[groupe][user_category.to_s] || Float::INFINITY
-
-        # Pour l'instant, on applique juste le plafond simple
-        # Dans une implémentation complète, il faudrait tenir compte des autres primes du groupe
-        [montant_propose, plafond].min
+        # Note: Cette méthode retourne maintenant le montant sans plafond
+        # Les plafonds de groupe sont appliqués globalement dans calculate_all_primes
+        montant_propose
       end
 
       def calculate_all_primes(inputs)
@@ -181,7 +151,8 @@ module Regions
           end
         end
 
-        # Calculer les autres primes normales si présentes
+        # ÉTAPE 1: Calculer toutes les primes normales (sans plafond de groupe)
+        primes_montants = {}
         if inputs['primes'].present?
           Rails.logger.info "🔧 Calcul primes normales"
           inputs['primes'].each do |prime_slug, input_data|
@@ -193,23 +164,103 @@ module Regions
             result = calculate_prime(prime_slug, value, type)
             results[prime_slug] = result
 
-            # Grouper par type de travaux pour les totaux
+            # Stocker le montant calculé pour application des plafonds de groupe
             if result[:calculated_amount] && result[:calculated_amount] > 0
-              work_type = determine_work_type_group_by_slug(prime_slug)
-              totals_by_group[work_type] ||= 0
-              totals_by_group[work_type] += result[:calculated_amount]
-              total_general += result[:calculated_amount]
+              primes_montants[prime_slug] = result[:calculated_amount]
             end
           end
         end
 
-        Rails.logger.info "💰 Total général Flandre: #{total_general}€"
+        # ÉTAPE 2: Appliquer les plafonds de groupe (catégories 3 et 4 uniquement)
+        user_category = @category || determine_user_category
+        montants_finaux = apply_group_ceilings_to_all(primes_montants, user_category)
+
+        # ÉTAPE 3: Mettre à jour les résultats avec les montants après plafonnement
+        montants_finaux.each do |prime_slug, montant_final|
+          if results[prime_slug]
+            montant_original = results[prime_slug][:calculated_amount]
+            results[prime_slug][:calculated_amount] = montant_final
+
+            if montant_final != montant_original
+              results[prime_slug][:ceiling_applied] = true
+              results[prime_slug][:original_amount] = montant_original
+              Rails.logger.info "⚖️ Plafond appliqué à #{prime_slug}: #{montant_original.round(2)}€ → #{montant_final.round(2)}€"
+            end
+          end
+        end
+
+        # ÉTAPE 4: Recalculer les totaux avec les montants plafonnés
+        total_general = totals_by_group['peb'].to_f + totals_by_group['amiante'].to_f
+        totals_by_group = { 'peb' => totals_by_group['peb'].to_f, 'amiante' => totals_by_group['amiante'].to_f }
+
+        montants_finaux.each do |prime_slug, montant_final|
+          work_type = determine_work_type_group_by_slug(prime_slug)
+          totals_by_group[work_type] ||= 0.0
+          totals_by_group[work_type] += montant_final
+          total_general += montant_final
+        end
+
+        Rails.logger.info "💰 Total général Flandre après plafonds: #{total_general.round(2)}€"
 
         {
           prime_results: results,
           group_totals: totals_by_group,
           total_general: total_general
         }
+      end
+
+      # Nouvelle méthode: Appliquer les plafonds de groupe à toutes les primes
+      def apply_group_ceilings_to_all(primes_montants, user_category)
+        # Pas de plafonds pour les catégories 1 et 2
+        if ['1', '2'].include?(user_category.to_s)
+          Rails.logger.info "ℹ️ Catégorie #{user_category}: pas de plafonds de groupe"
+          return primes_montants
+        end
+
+        Rails.logger.info "🔧 Application des plafonds de groupe pour catégorie #{user_category}"
+
+        # Définir les groupes de plafond
+        groupes_plafond = {
+          'toiture' => ['isolation_toiture', 'renovation_toiture'],
+          'murs' => ['isolation_murs', 'renovation_murs'],
+          'sol' => ['isolation_sol', 'renovation_sol']
+        }
+
+        # Plafonds par groupe et catégorie
+        plafonds_par_groupe = {
+          'toiture' => { '1' => 0, '2' => 0, '3' => 4025, '4' => 5750 },
+          'murs' => { '1' => 0, '2' => 0, '3' => 3500, '4' => 5000 },
+          'sol' => { '1' => 0, '2' => 0, '3' => 1050, '4' => 1500 }
+        }
+
+        montants_finaux = primes_montants.dup
+
+        # Appliquer les plafonds par groupe
+        groupes_plafond.each do |groupe, slugs|
+          plafond = plafonds_par_groupe[groupe][user_category.to_s] || Float::INFINITY
+
+          # Calculer le total du groupe AVANT plafonnement
+          total_groupe = slugs.sum { |slug| primes_montants[slug].to_f }
+
+          if total_groupe > plafond && plafond > 0
+            # Réduire proportionnellement tous les montants du groupe
+            facteur = plafond / total_groupe
+            Rails.logger.info "⚖️ Groupe '#{groupe}': total #{total_groupe.round(2)}€ > plafond #{plafond.round(2)}€"
+            Rails.logger.info "   → Facteur de réduction: #{(facteur * 100).round(2)}%"
+
+            slugs.each do |slug|
+              if primes_montants[slug].to_f > 0
+                montant_original = primes_montants[slug]
+                montants_finaux[slug] = montant_original * facteur
+                Rails.logger.info "   → #{slug}: #{montant_original.round(2)}€ → #{montants_finaux[slug].round(2)}€"
+              end
+            end
+          elsif total_groupe > 0
+            Rails.logger.info "✅ Groupe '#{groupe}': total #{total_groupe.round(2)}€ ≤ plafond #{plafond.round(2)}€ - pas de réduction"
+          end
+        end
+
+        montants_finaux
       end
 
       private
@@ -394,8 +445,7 @@ module Regions
         # Mapping des IDs de catégories vers les infos d'affichage
         category_mapping = {
           95 => { key: "isolation_envelope", title: "Isolation de l'enveloppe", icon: "house-gear" },
-          96 => { key: "isolation_murs_cat34", title: "Isolation murs (cat. 3-4)", icon: "bricks" },
-          97 => { key: "isolation_murs_cat12", title: "Isolation murs (cat. 1-2)", icon: "bricks" },
+          96 => { key: "isolation_murs", title: "Isolation murs", icon: "bricks" },
           98 => { key: "chauffage_eau", title: "Chauffage et eau", icon: "thermometer-half" },
           99 => { key: "ouvertures", title: "Ouvertures", icon: "door-open" },
           100 => { key: "travaux_preparatoires", title: "Travaux préparatoires", icon: "tools" },
@@ -438,7 +488,7 @@ module Regions
           "Surface toiture en m²"
         when 'isolation_sol'
           user_category.in?(['3', '4']) ? "Montant total de la facture" : "Surface plancher en m²"
-        when 'isolation_murs_cat34', 'isolation_murs_cat12'
+        when 'isolation_murs'
           "Montant facture isolation murs"
         when 'ramen_deuren'
           "Surface portes et fenêtres en m²"

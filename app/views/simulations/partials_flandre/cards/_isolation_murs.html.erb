@@ -1,15 +1,15 @@
 <div class="col-lg-2 col-md-4 col-sm-6">
   <div class="card border-0 shadow-sm h-100 overflow-hidden card-premium"
        data-controller="flandre-simulation-card"
-       data-flandre-simulation-card-slug-value="isolation_murs_cat12">
+       data-flandre-simulation-card-slug-value="isolation_murs">
 
     <!-- Image de fond avec overlay -->
     <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/renovation_murs_istlqj'); background-size: cover; background-position: center;">
       <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
         <div class="text-center text-white">
           <i class="bi bi-bricks fs-3 mb-2 drop-shadow"></i>
-          <h6 class="fw-bold mb-0 drop-shadow">Murs (cat. 1-2)</h6>
-          <small class="opacity-90">Type + surface</small>
+          <h6 class="fw-bold mb-0 drop-shadow">Murs (cat. 3-4)</h6>
+          <small class="opacity-90">Par m²</small>
         </div>
       </div>
     </div>
@@ -18,41 +18,24 @@
       <!-- Badge informatif -->
       <div class="mb-3">
         <div class="d-flex align-items-center justify-content-between">
-          <span class="badge bg-success bg-opacity-20 text-success rounded-pill px-3">
+          <span class="badge bg-primary bg-opacity-20 text-primary rounded-pill px-3">
             <i class="bi bi-bricks me-1"></i>Murs
           </span>
           <small class="text-muted">
-            <i class="bi bi-shield-check text-success me-1"></i>Isolation thermique
+            <i class="bi bi-shield-check text-primary me-1"></i>Isolation thermique
           </small>
         </div>
       </div>
 
-      <!-- Type de mur -->
-      <div class="mb-2">
-        <label class="form-label small text-muted">Type :</label>
-        <select class="form-select form-select-sm mb-2"
-                data-slug="isolation_murs_cat12_type"
-                data-flandre-simulation-card-target="typeMur"
-                data-action="change->flandre-simulation-card#onSelectChange change->flandre-simulation#saveUserInput">
-          <option value="">Choisir</option>
-          <option value="mur_creux">Creux</option>
-          <option value="interieur">Intérieur</option>
-          <option value="exterieur">Extérieur</option>
-        </select>
-      </div>
-
       <!-- Input superficie -->
       <div class="mb-3">
-        <% prime = Prime.find_by(slug: "isolation_murs_cat12", region: "flandre") %>
-        <label class="form-label small text-muted">
-          Valeur à renseigner :
-        </label>
+        <label class="form-label small text-muted">Valeur à renseigner :</label>
         <input type="number"
                class="form-control form-control-sm"
-               placeholder="<%= placeholder_prime_flandre(prime, @simulation&.category) %>"
+               placeholder="<%= placeholder_prime_flandre(Prime.find_by(slug: 'isolation_murs', region: 'flandre'), @simulation&.category) %>"
                min="0"
-               step="0.1"
-               data-slug="isolation_murs_cat12"
+               step="1"
+               data-slug="isolation_murs"
                data-flandre-simulation-card-target="input"
                data-action="input->flandre-simulation-card#onInputChange">
 
@@ -60,7 +43,7 @@
         <div class="mt-2">
           <small class="text-success d-block">
             <i class="bi bi-info-circle me-1"></i>
-            Conditions : <%= condition_prime("isolation_murs_cat12") %>
+            Conditions : <%= condition_prime("isolation_murs") %>
           </small>
         </div>
       </div>
@@ -68,7 +51,7 @@
       <!-- Résultat -->
       <div class="d-flex justify-content-between align-items-center">
         <span class="text-muted small">Prime calculée :</span>
-        <span class="badge bg-success fs-6" data-flandre-simulation-card-target="result">0 €</span>
+        <span class="badge bg-primary fs-6" data-flandre-simulation-card-target="result">0 €</span>
       </div>
     </div>
   </div>

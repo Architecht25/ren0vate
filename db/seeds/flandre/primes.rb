@@ -28,27 +28,7 @@ Prime.find_or_initialize_by(slug: "isolation_toiture").update!(
 )
 
 
-Prime.find_or_initialize_by(slug: "isolation_murs_cat12").update!(
-  titre: "Isolation des murs extérieurs (cat. 1-2)",
-  ordre_affichage: 2,
-  icon_name: "bricks",
-  unite: "m²",
-  type_de_valeur: "montant_variable_m2_et_limite",
-  categorie_limite: ["1", "2"],
-  eligible_categories: ["1", "2"],
-  valeurs_par_categorie: JSON.parse('{"2": {"type": "montant_variable_m2_et_limite", "montants_m2": {"mur_creux": 7.5, "interieur": 15, "exterieur": 22.5}, "surface_max": 100, "plafond_pourcentage": 25, "condition": "isolation seule"}, "1": {"type": "montant_variable_m2_et_limite", "montants_m2": {"mur_creux": 5, "interieur": 10, "exterieur": 15}, "surface_max": 100, "plafond_pourcentage": 20, "condition": "isolation seule"}}'),
-  condition: "R ≥ 3.0 m²K/W (selon méthode, mur creux: 5 cm de creux et R≥ 2, intérieur:2.0 ou extérieur:3.0)",
-  conseil: "Vérifiez les ponts thermiques, choisissez la méthode adaptée (spouwmuur, intérieur, extérieur).",
-  document: "Facture + devis ou métré + attestation de l entrepreneur. Si isolation par l'intérieur, alors attestation de l'entrepreneur, il faut un architecte ou un entrepreneur avec numéro BIM.",
-  specifique: "Si isolation par murs creux/en coulisse - attestation STS et numéro STS présent dans la facture",
-  placeholder: JSON.parse('{"1": "Surface en m²", "2": "Surface en m²"}'),
-  image: "images/isolation_murs_ext.webp",
-  region: "flandre",
-  category_id: Category.find_by(code: "categorie_2").id
-)
-
-
-Prime.find_or_initialize_by(slug: "isolation_murs_cat34").update!(
+Prime.find_or_initialize_by(slug: "isolation_murs").update!(
   titre: "Isolation des murs extérieurs (cat. 3-4)",
   ordre_affichage: 3,
   icon_name: "bricks",
@@ -234,7 +214,7 @@ Prime.find_or_initialize_by(slug: "renovation_murs").update!(
   type_de_valeur: "dynamique",
   eligible_categories: ["3", "4"],
   categorie_visible: ["3", "4"],
-  valeurs_par_categorie: JSON.parse('{"4": {"type": "pourcentage_et_plafond", "pourcentage": 50, "plafond": 5750}, "3": {"type": "pourcentage_et_plafond", "pourcentage": 35, "plafond": 4025}}'),
+  valeurs_par_categorie: JSON.parse('{"4": {"type": "pourcentage_et_plafond", "pourcentage": 50, "plafond": 5000}, "3": {"type": "pourcentage_et_plafond", "pourcentage": 35, "plafond": 3500}}'),
   condition: "Travaux de rénovation associés à l isolation des murs + Travaux admissibles hors isolation, ex. bardage, crépi, traitement humidité",
   conseil: "Inclut travaux préparatoires ou de remise en état après isolation",
   document: "Facture détaillée avec ventilation des coûts + devis ou métré.",
@@ -254,7 +234,7 @@ Prime.find_or_initialize_by(slug: "renovation_sol").update!(
   type_de_valeur: "dynamique",
   eligible_categories: ["3", "4"],
   categorie_visible: ["3", "4"],
-  valeurs_par_categorie: JSON.parse('{"4": {"type": "pourcentage_et_plafond", "pourcentage": 50, "plafond": 5750}, "3": {"type": "pourcentage_et_plafond", "pourcentage": 35, "plafond": 4025}}'),
+  valeurs_par_categorie: JSON.parse('{"4": {"type": "pourcentage_et_plafond", "pourcentage": 50, "plafond": 1500}, "3": {"type": "pourcentage_et_plafond", "pourcentage": 35, "plafond": 1050}}'),
   condition: "Travaux de rénovation associés à l isolation du sol + Travaux admissibles incluant chape, ragréage, reprise du revêtement, étanchéite.",
   conseil: "Documentez bien les postes techniques hors isolant",
   document: "Facture séparant les postes d isolation et de rénovation + devis ou métré.",
