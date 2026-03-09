@@ -13,12 +13,6 @@ export default class extends Controller {
     // Écouter les événements de recalcul forcé
     this.element.addEventListener('flandre:force:recalculate', this.forceRecalculate.bind(this))
 
-    // AJOUT CRUCIAL: Écouter les changements sur l'input de cette carte
-    if (this.hasInputTarget) {
-      this.inputTarget.addEventListener('input', this.handleInputChange.bind(this))
-      this.inputTarget.addEventListener('change', this.handleInputChange.bind(this))
-    }
-
     // Mettre à jour le placeholder initial avec délai pour attendre les données
     setTimeout(() => {
       this.updatePlaceholder()
@@ -34,33 +28,6 @@ export default class extends Controller {
   disconnect() {
     this.element.removeEventListener('flandre:category:changed', this.recalculate.bind(this))
     this.element.removeEventListener('flandre:force:recalculate', this.forceRecalculate.bind(this))
-
-    // Nettoyer les écouteurs d'input
-    if (this.hasInputTarget) {
-      this.inputTarget.removeEventListener('input', this.handleInputChange.bind(this))
-      this.inputTarget.removeEventListener('change', this.handleInputChange.bind(this))
-    }
-  }
-
-  // Méthode cruciale manquante: gérer les changements d'input
-  handleInputChange(event) {
-    console.log(`📝 Input changé pour ${this.slugValue}:`, event.target.value)
-
-    // Recalculer immédiatement quand l'utilisateur change la valeur
-    this.calculate()
-
-    // Déclencher une sauvegarde via le controller parent
-    const parentController = this.application.getControllerForElementAndIdentifier(
-      document.querySelector('[data-controller*="flandre-simulation"]'),
-      'flandre-simulation'
-    )
-    if (parentController) {
-      // Utiliser un debounce pour éviter les sauvegardes trop fréquentes
-      clearTimeout(this.saveTimeout)
-      this.saveTimeout = setTimeout(() => {
-        parentController.saveAndCalculateAll()
-      }, 500)
-    }
   }
 
   forceRecalculate() {
@@ -392,16 +359,21 @@ export default class extends Controller {
     }
   }
 
-  // Action déclenchée par les inputs
+  // Action déclenchée par les inputs (via data-action dans le HTML)
   onInputChange() {
     console.log(`⌨️ onInputChange appelé pour ${this.slugValue}`)
 
-    // Plus besoin de calculer ici, juste déclencher la sauvegarde
-    // Le contrôleur parent s'occupera de tout
+    // Recalculer immédiatement quand l'utilisateur change la valeur
+    this.calculate()
+
+    // Déclencher une sauvegarde via le controller parent avec debounce
     const parentController = this.getParentController()
     if (parentController) {
-      // Déclencher la sauvegarde qui mettra à jour toutes les cartes
-      parentController.saveUserInput()
+      // Utiliser un debounce pour éviter les sauvegardes trop fréquentes
+      clearTimeout(this.saveTimeout)
+      this.saveTimeout = setTimeout(() => {
+        parentController.saveAndCalculateAll()
+      }, 500)
     } else {
       console.warn(`❌ Parent controller non trouvé pour ${this.slugValue}`)
     }
