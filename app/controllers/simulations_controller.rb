@@ -328,16 +328,50 @@ class SimulationsController < ApplicationController
     end
 
     begin
-      # Si on a un total calculé côté client (pour Wallonie/Flandre), l'utiliser directement
-      if %w[wallonie flandre].include?(@simulation.region&.downcase)
+      # Si on a un total calculé côté client (pour Wallonie/Flandre/Bruxelles), l'utiliser directement
+      if %w[wallonie flandre bruxelles].include?(@simulation.region&.downcase)
         Rails.logger.info "🚀 Utilisation des nouvelles méthodes calculate_all_primes"
 
-        # Bruxelles n'est plus supporté
         if @simulation.region&.downcase == 'bruxelles'
+          # Pour Bruxelles, utiliser le nouveau système
+          Rails.logger.info "🏛️ Utilisation des nouvelles méthodes calculate_all_primes pour Bruxelles"
+          Rails.logger.info "🔧 Instanciation du nouveau service BruxellesPostLoginCalculatorService"
+          calculator_service = Regions::Bruxelles::BruxellesPostLoginCalculatorService.new(
+            {
+              property_id: @simulation.property_id,
+              project_id: @simulation.project_id,
+              simulation_type: 'particulier'
+            },
+            user: current_user
+          )
+
+          # Appeler la méthode calculate_all_primes du nouveau service
+          Rails.logger.info "🔧 Appel de calculate_all_primes avec: #{user_inputs.inspect}"
+          result = calculator_service.calculate_all_primes(user_inputs)
+          Rails.logger.info "✅ Total calculé avec nouvelles méthodes Bruxelles: #{result[:total_general]}€"
+          Rails.logger.info "🔧 Prime results reçus: #{result[:prime_results].inspect}"
+
+          # Construire la structure updated_cards attendue par le frontend
+          updated_cards = build_updated_cards_from_prime_results(result[:prime_results])
+          Rails.logger.info "🔧 Updated cards construites: #{updated_cards.inspect}"
+
+          # Utiliser le total calculé par le backend et mettre à jour la simulation
+          @simulation.update!(total_simule: result[:total_general])
+
+          # Calculer les économies vs chasseur de primes
+          savings_data = nil
+          if result[:total_general] > 0 && @simulation.region.present?
+            savings_calculator = SavingsCalculatorService.new(result[:total_general], @simulation.region)
+            savings_data = savings_calculator.calculate_savings
+          end
+
           render json: {
-            success: false,
-            error: "La région de Bruxelles n'est plus supportée pour les nouvelles simulations"
-          }, status: :unprocessable_entity
+            success: true,
+            total_amount: result[:total_general],
+            updated_cards: updated_cards,
+            savings_data: savings_data,
+            message: "Total mis à jour avec nouvelles méthodes Bruxelles"
+          }
           return
         elsif @simulation.region&.downcase == 'wallonie'
           # Pour Wallonie, utiliser le nouveau système comme Bruxelles
@@ -366,7 +400,7 @@ class SimulationsController < ApplicationController
           @simulation.update!(total_simule: result[:total_general])
 
           # Sauvegarder les données Wallonie dans les paramètres de la simulation
-          save_wallonie_specific_data(user_inputs)
+          save_wallonie_specific_data(user_inputs, result[:prime_results])
 
           # Calculer les économies vs chasseur de primes
           savings_data = nil
@@ -419,7 +453,7 @@ class SimulationsController < ApplicationController
           @simulation.update!(total_simule: final_total)
 
           # Sauvegarder les données dans les paramètres de la simulation
-          save_flandre_specific_data(user_inputs)
+          save_flandre_specific_data(user_inputs, result[:prime_results])
 
           # Calculer les économies vs chasseur de primes
           savings_data = nil
@@ -811,7 +845,13 @@ class SimulationsController < ApplicationController
         user: current_user
       )
     elsif region == 'bruxelles'
-      raise "La région de Bruxelles n'est plus supportée"
+      eligibility_service = Regions::Bruxelles::BruxellesEligibilityService.new(
+        {
+          property_id: simulation.property_id,
+          project_id: simulation.project_id
+        },
+        user: current_user
+      )
     end
 
     result = eligibility_service.check_eligibility
@@ -821,8 +861,8 @@ class SimulationsController < ApplicationController
         eligible: true,
         category_description: result[:message]
       )
-      # Déclencher l'étape 2 automatiquement pour Wallonie et Flandre
-      perform_category_determination(simulation) if ['wallonie', 'flandre'].include?(region)
+      # Déclencher l'étape 2 automatiquement pour Wallonie, Flandre et Bruxelles
+      perform_category_determination(simulation) if ['wallonie', 'flandre', 'bruxelles'].include?(region)
     else
       simulation.update(
         eligible: false,
@@ -854,7 +894,13 @@ class SimulationsController < ApplicationController
         user: current_user
       )
     elsif region == 'bruxelles'
-      raise "La région de Bruxelles n'est plus supportée"
+      category_service = Regions::Bruxelles::BruxellesCategoryService.new(
+        {
+          property_id: simulation.property_id,
+          project_id: simulation.project_id
+        },
+        user: current_user
+      )
     end
 
     result = category_service.determine_category
@@ -958,8 +1004,9 @@ class SimulationsController < ApplicationController
   end
 
   # Nouvelle méthode pour sauvegarder les données spécifiques à la Flandre
-  def save_flandre_specific_data(user_inputs)
+  def save_flandre_specific_data(user_inputs, prime_results = {})
     Rails.logger.info "💾 Sauvegarde des données spécifiques Flandre: #{user_inputs.inspect}"
+    Rails.logger.info "💾 Résultats calculés: #{prime_results.inspect}"
 
     # Ne pas sauvegarder si toutes les valeurs sont nulles/vides (éviter d'écraser les bonnes données)
     non_zero_values = user_inputs.select { |k, v| v.present? && v != 0 && v != "0" }
@@ -1021,6 +1068,17 @@ class SimulationsController < ApplicationController
       end
     end
 
+    # Sauvegarder aussi les montants calculés pour chaque prime
+    if prime_results.present?
+      calculated_amounts = {}
+      prime_results.each do |slug, data|
+        amount = data[:amount] || data[:calculated_amount] || data['amount'] || data['calculated_amount'] || 0
+        calculated_amounts[slug.to_s] = amount
+        Rails.logger.info "💾 Montant calculé sauvegardé: #{slug} = #{amount}€"
+      end
+      existing_params['calculated_amounts'] = calculated_amounts
+    end
+
     # Horodatage de la dernière mise à jour
     existing_params['last_updated'] = Time.current.iso8601
 
@@ -1032,8 +1090,9 @@ class SimulationsController < ApplicationController
     Rails.logger.error "❌ Erreur lors de la sauvegarde Flandre: #{e.message}"
   end
 
-  def save_wallonie_specific_data(user_inputs)
+  def save_wallonie_specific_data(user_inputs, prime_results = {})
     Rails.logger.info "💾 Sauvegarde des données spécifiques Wallonie: #{user_inputs.inspect}"
+    Rails.logger.info "💾 Résultats calculés: #{prime_results.inspect}"
 
     # Ne pas sauvegarder si toutes les valeurs sont nulles/vides
     non_zero_values = user_inputs.select { |k, v| v.present? && v != 0 && v != "0" }
@@ -1051,6 +1110,17 @@ class SimulationsController < ApplicationController
         existing_params[key.to_s] = value
         Rails.logger.info "💾 Donnée Wallonie sauvegardée: #{key} = #{value}"
       end
+    end
+
+    # Sauvegarder aussi les montants calculés pour chaque prime
+    if prime_results.present?
+      calculated_amounts = {}
+      prime_results.each do |slug, data|
+        amount = data[:amount] || data['amount'] || 0
+        calculated_amounts[slug.to_s] = amount
+        Rails.logger.info "💾 Montant calculé sauvegardé: #{slug} = #{amount}€"
+      end
+      existing_params['calculated_amounts'] = calculated_amounts
     end
 
     # Horodatage de la dernière mise à jour

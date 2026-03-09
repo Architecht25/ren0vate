@@ -39,6 +39,52 @@ class DecisionHub::DataService
 
   private
 
+  def calculate_prime_amount(prime_record, user_input_value, simulation)
+    # Recalculer le montant d'une prime basé sur l'input utilisateur
+    return 0 unless prime_record && user_input_value
+
+    # Déterminer la catégorie de l'utilisateur
+    category = simulation.category || determine_default_category(simulation)
+
+    # Récupérer les données de catégorie pour cette prime
+    category_data = prime_record.valeurs_par_categorie&.[](category)
+    return user_input_value if category_data.nil? # Fallback
+
+    case prime_record.type_calcul
+    when 'forfait'
+      category_data['montant'].to_f
+    when 'surface', 'unite'
+      montant_unitaire = category_data['montant'].to_f
+      plafond = category_data['plafond'].to_f
+      calculated = user_input_value * montant_unitaire
+      plafond > 0 ? [calculated, plafond].min : calculated
+    when 'pourcentage'
+      pourcentage = category_data['montant'].to_f / 100.0
+      plafond = category_data['plafond'].to_f
+      calculated = user_input_value * pourcentage
+      plafond > 0 ? [calculated, plafond].min : calculated
+    else
+      user_input_value
+    end
+  rescue => e
+    Rails.logger.error "Erreur calcul montant prime: #{e.message}"
+    user_input_value # Fallback
+  end
+
+  def determine_default_category(simulation)
+    # Déterminer une catégorie par défaut si non spécifiée
+   case simulation.region&.downcase
+    when 'wallonie'
+      'wallonie_r1' # Catégorie la plus courante
+    when 'flandre'
+      '2' # Catégorie moyenne
+    when 'bruxelles'
+      'B' # Catégorie moyenne
+    else
+      'wallonie_r1'
+    end
+  end
+
   def extract_category_from_slug(slug)
     # Extraire la catégorie depuis le slug de la prime
     case slug
@@ -126,6 +172,10 @@ class DecisionHub::DataService
   def extract_primes_from_simulation_data(params_data)
     selected_primes = []
 
+    # Récupérer les montants calculés sauvegardés (disponibles pour toutes les méthodes)
+    calculated_amounts = params_data["calculated_amounts"] || {}
+    Rails.logger.info "💰 Montants calculés disponibles: #{calculated_amounts.inspect}"
+
     # Méthode 1: chercher dans prime_cards
     if params_data["prime_cards"].present?
       params_data["prime_cards"].each do |category_key, category_data|
@@ -134,25 +184,94 @@ class DecisionHub::DataService
         category_data["primes"].each do |prime|
           # Prendre toutes les primes qui ont un user_input > 0 OU un calculated_amount > 0
           user_input = (prime["user_input_value"] || prime["user_input"] || 0).to_f
-          amount = (prime["calculated_amount"] || prime["amount"] || 0).to_f
+          slug = prime["slug"] || "#{@region}_#{category_key}"
+
+          # Récupérer le montant calculé depuis calculated_amounts ou depuis la prime elle-même
+          amount = calculated_amounts[slug]&.to_f || (prime["calculated_amount"] || prime["amount"] || 0).to_f
+
+          # Si toujours 0, essayer de recalculer
+          if amount == 0 && user_input > 0
+            prime_record = Prime.find_by(slug: slug)
+            if prime_record
+              amount = calculate_prime_amount(prime_record, user_input, @simulation)
+              Rails.logger.info "💡 Montant recalculé pour #{slug}: #{amount}€"
+            end
+          end
 
           if user_input > 0 || amount > 0
             selected_primes << {
               name: prime["titre"] || prime["name"] || "Prime #{category_key}",
               amount: amount.round(0),
-              category: prime["category"] || category_key || extract_category_from_slug(prime["slug"]),
-              slug: prime["slug"] || "#{@region}_#{category_key}",
+              category: prime["category"] || category_key || extract_category_from_slug(slug),
+              slug: slug,
               status: "eligible",
               urgency: determine_prime_urgency(prime),
               user_input: user_input,
               details: prime["description"] || prime["condition"] || prime["conseil"] || build_prime_details(prime)
             }
+            Rails.logger.info "✅ Prime extraite (méthode 1): #{prime["titre"] || slug} - #{amount}€ (input: #{user_input})"
           end
         end
       end
     end
 
-    # Méthode 2: si aucune prime trouvée mais total_simule > 0, essayer de les trouver autrement
+    # Méthode 2: Extraire depuis les clés wallonie_* ou flandre_* directement
+    if selected_primes.empty? && @simulation&.total_simule.to_f > 0
+      Rails.logger.info "🔍 Méthode 2: Recherche des clés #{@region}_* dans params_data"
+
+      params_data.each do |key, value|
+        # Chercher les clés qui commencent par wallonie_ ou flandre_
+        next unless key.to_s.start_with?("#{@region}_")
+        next if value.to_f <= 0
+
+        # C'est une prime avec une valeur > 0
+        slug = key.to_s
+
+        # Récupérer le montant calculé sauvegardé, sinon recalculer
+        calculated_amount = calculated_amounts[slug]&.to_f
+
+        # Si pas de montant calculé sauvegardé, essayer de le recalculer
+        if calculated_amount.nil? || calculated_amount == 0
+          prime_record = Prime.find_by(slug: slug)
+          if prime_record
+            calculated_amount = calculate_prime_amount(prime_record, value.to_f, @simulation)
+          else
+            calculated_amount = value.to_f
+          end
+        end
+
+        prime_record = Prime.find_by(slug: slug)
+
+        if prime_record
+          selected_primes << {
+            name: prime_record.titre,
+            amount: calculated_amount.round(0),
+            category: extract_category_from_slug(slug),
+            slug: slug,
+            status: "eligible",
+            urgency: determine_prime_urgency_from_slug(slug),
+            user_input: value.to_f,
+            details: prime_record.conseil || prime_record.condition || ""
+          }
+          Rails.logger.info "✅ Prime trouvée: #{prime_record.titre} - #{calculated_amount}€"
+        else
+          # Fallback si la prime n'existe pas en DB
+          selected_primes << {
+            name: slug.gsub("#{@region}_", "").humanize,
+            amount: calculated_amount.round(0),
+            category: extract_category_from_slug(slug),
+            slug: slug,
+            status: "eligible",
+            urgency: determine_prime_urgency_from_slug(slug),
+            user_input: value.to_f,
+            details: ""
+          }
+          Rails.logger.info "⚠️ Prime trouvée mais pas en DB: #{slug} - #{calculated_amount}€"
+        end
+      end
+    end
+
+    # Méthode 3: si encore aucune prime trouvée, chercher dans toutes les structures imbriquées
     if selected_primes.empty? && @simulation&.total_simule.to_f > 0
       # Rechercher dans toutes les clés du JSON pour trouver des primes
       params_data.each do |key, value|
@@ -182,6 +301,7 @@ class DecisionHub::DataService
       end
     end
 
+    Rails.logger.info "📊 Total primes extraites: #{selected_primes.count}"
     selected_primes
   end
 
