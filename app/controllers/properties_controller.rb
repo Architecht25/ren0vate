@@ -3,19 +3,16 @@ class PropertiesController < ApplicationController
   before_action :set_property, only: [:show, :dashboard, :edit, :update, :destroy, :documents_dashboard]
 
   def index
-    # Tri des propriétés par région : Flandre -> Bruxelles -> Wallonie
-    @properties = current_user.properties.sort_by do |property|
-      case property.region&.downcase
-      when 'flandre'
-        1
-      when 'bruxelles'
-        2
-      when 'wallonie'
-        3
-      else
-        4 # Pour les propriétés sans région définie
-      end
-    end
+    @properties = current_user.properties
+                             .includes(:simulations, :documents)
+                             .order(Arel.sql("CASE region WHEN 'flandre' THEN 1 WHEN 'bruxelles' THEN 2 WHEN 'wallonie' THEN 3 ELSE 4 END"), created_at: :desc)
+
+    @portfolio_stats = {
+      biens_count:        @properties.size,
+      simulations_count:  current_user.simulations.count,
+      total_primes:       current_user.simulations.sum(:total_simule).to_i,
+      projets_actifs:     current_user.projects.where.not(statut: ['termine', 'annule', nil]).count
+    }
   end
 
   def show
