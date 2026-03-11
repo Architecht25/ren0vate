@@ -1,0 +1,109 @@
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">1</span>
+                Identification du demandeur
+                <% if @form_data.present? %>
+                  <%= indicateur_section_complete(@form_data, champs_identite_utilisateur) %>
+                <% end %>
+              </h4>
+            </div>
+
+            <div class="card border-light bg-light p-3 mb-4">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">
+                    <i class="fas fa-user me-1"></i>Type de demandeur*
+                  </label>
+                  <div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="wallonie_demandeur_type" id="wallonie_particulier" value="particulier" required/>
+                      <label class="form-check-label" for="wallonie_particulier">
+                        Particulier (personne physique)
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="wallonie_demandeur_type" id="wallonie_personne_morale" value="personne_morale" required/>
+                      <label class="form-check-label" for="wallonie_personne_morale">
+                        Personne morale (société, ASBL, etc.)
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="wallonie_demandeur_type" id="wallonie_collectivite" value="collectivite" required/>
+                      <label class="form-check-label" for="wallonie_collectivite">
+                        Collectivité publique
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <%= form.label :wallonie_nom_prenom, class: "form-label fw-bold" do %>
+                    <i class="fas fa-id-card me-1"></i>Nom et prénom / Dénomination*
+                    <%= badge_prerempli(@form_data, :applicant_full_name) if @form_data.present? %>
+                  <% end %>
+                  <%= form.text_field :wallonie_nom_prenom,
+                      value: preremplir_champ(@form_data, :applicant_full_name, "#{current_user.first_name} #{current_user.last_name}".strip),
+                      class: "form-control",
+                      required: true %>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <%= form.label :wallonie_adresse_demandeur, class: "form-label fw-bold" do %>
+                    <i class="fas fa-home me-1"></i>Adresse complète*
+                    <%= badge_prerempli(@form_data, :applicant_full_address) if @form_data.present? %>
+                  <% end %>
+                  <%= form.text_field :wallonie_adresse_demandeur,
+                      value: preremplir_champ(@form_data, :applicant_full_address, "#{current_user.street} #{current_user.number}".strip),
+                      placeholder: "Rue, numéro, boîte",
+                      class: "form-control",
+                      required: true %>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <%= form.label :wallonie_cp_ville_demandeur, class: "form-label fw-bold" do %>
+                    Code postal et ville*
+                    <%= badge_prerempli(@form_data, :applicant_postal_city) if @form_data.present? %>
+                  <% end %>
+                  <%= form.text_field :wallonie_cp_ville_demandeur,
+                      value: preremplir_champ(@form_data, :applicant_postal_city, "#{current_user.postal_code} #{current_user.city}".strip),
+                      placeholder: "ex: 5000 Namur",
+                      class: "form-control",
+                      required: true %>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <%= form.label :wallonie_telephone_demandeur, class: "form-label fw-bold" do %>
+                    <i class="fas fa-phone me-1"></i>Téléphone*
+                    <%= badge_prerempli(@form_data, :applicant_phone) if @form_data.present? %>
+                  <% end %>
+                  <%= form.telephone_field :wallonie_telephone_demandeur,
+                      value: preremplir_champ(@form_data, :applicant_phone, current_user.phone),
+                      class: "form-control",
+                      required: true %>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <%= form.label :wallonie_email_demandeur, class: "form-label fw-bold" do %>
+                    <i class="fas fa-envelope me-1"></i>Email*
+                    <%= badge_prerempli(@form_data, :applicant_email) if @form_data.present? %>
+                  <% end %>
+                  <%= form.email_field :wallonie_email_demandeur,
+                      value: preremplir_champ(@form_data, :applicant_email, current_user.email),
+                      class: "form-control",
+                      required: true %>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <%= form.label :wallonie_numero_national, class: "form-label fw-bold" do %>
+                    Numéro national / BCE
+                    <%= badge_prerempli(@form_data, :applicant_national_number) if @form_data.present? %>
+                  <% end %>
+                  <%= form.text_field :wallonie_numero_national,
+                      value: preremplir_champ(@form_data, :applicant_national_number, current_user.national_number),
+                      placeholder: "Pour personnes physiques/morales",
+                      class: "form-control" %>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 2: Identification du bien -->

@@ -9,7 +9,6 @@ export default class extends Controller {
       try {
         this.modal = new bootstrap.Modal(this.modalTarget)
       } catch (error) {
-        console.warn('Erreur lors de l\'initialisation de la modal:', error)
         this.modal = null
       }
     } else if (this.hasModalTarget) {
@@ -19,7 +18,6 @@ export default class extends Controller {
           try {
             this.modal = new bootstrap.Modal(this.modalTarget)
           } catch (error) {
-            console.warn('Erreur lors de l\'initialisation de la modal (retry):', error)
             this.modal = null
           }
         }
@@ -39,7 +37,6 @@ export default class extends Controller {
       try {
         this.modal.show()
       } catch (error) {
-        console.warn('Erreur lors de l\'affichage de la modal:', error)
         // Fallback: soumettre directement le formulaire si la modal ne fonctionne pas
         if (this.form) {
           this.form.submit()
@@ -62,7 +59,6 @@ export default class extends Controller {
       try {
         this.modal.hide()
       } catch (error) {
-        console.warn('Erreur lors de la fermeture de la modal:', error)
       }
     }
   }
@@ -73,7 +69,6 @@ export default class extends Controller {
       try {
         this.modal.hide()
       } catch (error) {
-        console.warn('Erreur lors de l\'annulation de la modal:', error)
       }
     }
   }

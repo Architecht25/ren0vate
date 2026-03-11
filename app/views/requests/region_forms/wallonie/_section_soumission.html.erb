@@ -1,0 +1,169 @@
+  <!-- SECTION 11 : Soumission du formulaire -->
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0"><i class="bi bi-send me-2"></i>Soumission de la demande</h5>
+    </div>
+    <div class="card-body">
+      <!-- Récapitulatif -->
+            <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        <strong>Vérification finale</strong>
+        <p class="mb-0">Vous êtes sur le point de soumettre votre demande de prime habitation en Wallonie. Veuillez vérifier que toutes les informations sont correctes et que les documents justificatifs ont bien été joints.</p>
+      </div>
+
+      <!-- Confirmation utilisateur -->
+      <div class="form-check mb-3">
+        <%= form.check_box :confirmation_veracite, { class: "form-check-input", required: true }, "1", "0" %>
+        <label class="form-check-label fw-bold" for="<%= form.field_id(:confirmation_veracite) %>">
+          Je confirme que les informations fournies sont exactes et complètes à ma connaissance.
+        </label>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- Section de soumission Wallonie -->
+  <div class="card mb-4">
+    <div class="card-header bg-success text-white">
+      <h5 class="mb-0"><i class="bi bi-check-circle me-2"></i>Soumission de la demande</h5>
+    </div>
+    <div class="card-body">
+
+      <div class="mb-4">
+        <%= form.label :status, "Statut de la demande", class: "form-label" %>
+        <%= form.select :status,
+              options_for_select([
+                ['Brouillon', 'draft'],
+                ['En attente', 'pending'],
+                ['En cours', 'in_progress'],
+                ['Terminée', 'completed']
+              ], @request.status || 'draft'),
+              {},
+              { class: "form-select" } %>
+      </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="text-muted">
+          <small>
+            <i class="bi bi-shield-check me-1"></i>
+            Vos données sont traitées de manière sécurisée
+          </small>
+        </div>
+
+        <!-- Les boutons de soumission sont maintenant centralisés dans _form.html.erb -->
+
+        <div>
+          <a href="https://energie.wallonie.be/fr/aides-et-primes.html?IDC=10717"
+             target="_blank"
+             rel="noopener noreferrer"
+             class="btn btn-outline-info btn-sm"
+             id="wallonie-continue-btn">
+            <i class="bi bi-link-45deg me-1"></i>
+            Site officiel Wallonie
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section de sauvegarde -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body text-center">
+          <h5 class="card-title mb-3">
+            <i class="bi bi-check-circle text-success me-2"></i>
+            Sauvegarde de votre demande
+          </h5>
+          <p class="text-muted mb-4">
+            Sauvegardez votre progression à tout moment. Vous pourrez reprendre plus tard.
+          </p>
+
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section de sauvegarde - comme dans Flandre -->
+  <div class="row mt-4">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="text-muted">
+          <small>
+            <i class="bi bi-shield-check me-1"></i>
+            Vos données sont traitées de manière sécurisée
+          </small>
+        </div>
+
+        <!-- Boutons de soumission spécifiques à la Wallonie -->
+        <div class="d-flex flex-column gap-3 align-items-center">
+          <!-- Bouton principal de sauvegarde -->
+          <button type="button"
+                 class="btn btn-primary btn-lg px-4 py-2 wallonie-save-btn"
+                 style="max-width: 300px; width: 100%;"
+                 onclick="saveWallonieFormData(event)"
+                 id="wallonie-submit-btn"
+                 data-region="wallonie">
+            Sauvegarder en brouillon
+          </button>
+
+          <!-- Bouton vers la plateforme officielle -->
+          <% if @request.persisted? %>
+            <%= link_to "https://monespace.wallonie.be/",
+                       class: "btn btn-outline-primary btn-lg px-4 py-2 w-100 mt-2",
+                       style: "max-width: 400px;",
+                       target: "_blank",
+                       rel: "noopener noreferrer" do %>
+              <i class="bi bi-box-arrow-up-right me-2"></i>Introduisez votre demande sur la plateforme officielle
+            <% end %>
+          <% end %>
+
+          <!-- Zone d'explication du processus -->
+          <% if @request.persisted? %>
+            <div class="alert alert-info mt-4 mb-0" style="max-width: 800px;">
+              <div class="row align-items-center">
+                <div class="col-auto">
+                  <i class="bi bi-info-circle fs-4 text-info"></i>
+                </div>
+                <div class="col">
+                  <h6 class="mb-2 fw-semibold">Comment procéder ?</h6>
+                  <div class="row g-2 small">
+                    <div class="col-md-4">
+                      <div class="d-flex align-items-start">
+                        <span class="badge bg-primary rounded-pill me-2 mt-1">1</span>
+                        <div>
+                          <strong>Sauvegardez</strong><br>
+                          <span class="text-muted">Conservez vos données</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="d-flex align-items-start">
+                        <span class="badge bg-success rounded-pill me-2 mt-1">2</span>
+                        <div>
+                          <strong>Soumettez</strong><br>
+                          <span class="text-muted">Sur la plateforme officielle</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="d-flex align-items-start">
+                        <span class="badge bg-warning rounded-pill me-2 mt-1">3</span>
+                        <div>
+                          <strong>Créez le suivi</strong><br>
+                          <%= link_to "Suivi de primes", new_request_progress_path(request_id: @request.id),
+                                     class: "text-decoration-none small" %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+

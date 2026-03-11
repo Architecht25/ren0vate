@@ -22,7 +22,6 @@ export default class extends Controller {
   }
 
   connect() {
-    console.log("🔌 Contrôleur primes communales connecté")
     this.debounceTimer = null
     this.selectedPrime = null
     this.communeData = null
@@ -38,7 +37,6 @@ export default class extends Controller {
   checkPrimes() {
     const codePostal = this.codePostalTarget.value.trim()
 
-    console.log("🔍 Vérification primes pour:", codePostal)
 
     // Reset des états
     this.resetUI()
@@ -65,7 +63,6 @@ export default class extends Controller {
     try {
       this.showLoading()
 
-      console.log("📡 Appel API pour:", codePostal)
 
       const response = await fetch(`${this.apiBaseUrlValue}?code_postal=${codePostal}`, {
         method: 'GET',
@@ -77,7 +74,6 @@ export default class extends Controller {
 
       const data = await response.json()
 
-      console.log("📦 Réponse API:", data)
 
       if (data.success && data.data) {
         this.communeData = data.data
@@ -89,7 +85,6 @@ export default class extends Controller {
       }
 
     } catch (error) {
-      console.error("❌ Erreur API primes:", error)
       this.showError("Erreur de connexion. Veuillez réessayer.")
     } finally {
       this.hideLoading()
@@ -111,7 +106,6 @@ export default class extends Controller {
     this.selectedPrime = this.communeData.primes.find(p => p.id === selectedValue)
 
     if (this.selectedPrime) {
-      console.log("✅ Prime sélectionnée:", this.selectedPrime.nom)
       this.showMontantSection()
 
       // Calculer automatiquement si un montant est déjà saisi
@@ -133,7 +127,6 @@ export default class extends Controller {
     }
 
     try {
-      console.log("🧮 Calcul prime:", {
         prime: this.selectedPrime.nom,
         montant: montantTravaux
       })
@@ -158,12 +151,10 @@ export default class extends Controller {
       if (data.success && data.data) {
         this.showResult(data.data.calcul)
       } else {
-        console.error("Erreur calcul:", data.error)
         this.hideResultSection()
       }
 
     } catch (error) {
-      console.error("❌ Erreur calcul prime:", error)
       this.hideResultSection()
     }
   }

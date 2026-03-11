@@ -4,7 +4,6 @@ export default class extends Controller {
   static targets = ["form", "result", "formCard", "validateButton"]
 
   connect() {
-    console.log("🟡 Contrôleur test-eligibilite-wallonie connecté");
     if (this.hasResultTarget) {
       this.resultTarget.style.display = "none"
     }
@@ -17,7 +16,6 @@ export default class extends Controller {
 
   // WALLONIE PARTICULIER
   handleAnswerWallonieParticulier(event) {
-    console.log("🎯 Test Eligibilité Wallonie Particulier - Réponse:", event.target.name, "=", event.target.value);
 
     const form = this.formTarget;
     const responses = [...form.querySelectorAll("input[type=radio]:checked")];
@@ -114,7 +112,6 @@ export default class extends Controller {
   }
 
   validateTestWallonieParticulier() {
-    console.log("🎯 Validation du test d'éligibilité Wallonie Particulier");
 
     const testData = JSON.parse(localStorage.getItem("eligibiliteWallonieParticulier") || "{}");
 
@@ -175,7 +172,6 @@ export default class extends Controller {
 
   // WALLONIE ENTREPRISE
   handleAnswerWallonieEntreprise(event) {
-    console.log("🎯 Test Eligibilité Wallonie Entreprise - Réponse:", event.target.name, "=", event.target.value);
 
     const form = this.formTarget;
     const responses = [...form.querySelectorAll("input[type=radio]:checked")];
@@ -246,7 +242,6 @@ export default class extends Controller {
   }
 
   validateTestWallonieEntreprise() {
-    console.log("🎯 Validation du test d'éligibilité Wallonie Entreprise");
 
     let message = "✅ Votre entreprise est éligible aux primes Wallonie !";
     message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-primary'>Entreprise</span>";
@@ -269,7 +264,6 @@ export default class extends Controller {
 
   // WALLONIE SYNDIC
   handleAnswerWallonieSyndic(event) {
-    console.log("🎯 Test Eligibilité Wallonie Syndic - Réponse:", event.target.name, "=", event.target.value);
 
     const form = this.formTarget;
     const responses = [...form.querySelectorAll("input[type=radio]:checked")];
@@ -326,7 +320,6 @@ export default class extends Controller {
   }
 
   validateTestWallonieSyndic() {
-    console.log("🎯 Validation du test d'éligibilité Wallonie Syndic");
 
     let message = "✅ Votre copropriété est éligible aux primes Wallonie !";
     message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-danger'>R5 - Syndic/Copropriété</span>";
@@ -353,7 +346,6 @@ export default class extends Controller {
 
   // WALLONIE ASBL
   handleAnswerWallonieAsbl(event) {
-    console.log("🎯 Test Eligibilité Wallonie ASBL - Réponse:", event.target.name, "=", event.target.value);
 
     const form = this.formTarget;
     const responses = [...form.querySelectorAll("input[type=radio]:checked")];
@@ -416,7 +408,6 @@ export default class extends Controller {
   }
 
   validateTestWallonieAsbl() {
-    console.log("🎯 Validation du test d'éligibilité Wallonie ASBL");
 
     let message = "✅ Votre ASBL est éligible aux primes Wallonie !";
     message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-info'>ASBL</span>";
@@ -439,7 +430,6 @@ export default class extends Controller {
 
   // WALLONIE BAILLEUR
   handleAnswerWallonieBailleur(event) {
-    console.log("🎯 Test Eligibilité Wallonie Bailleur - Réponse:", event.target.name, "=", event.target.value);
 
     const form = this.formTarget;
     const responses = [...form.querySelectorAll("input[type=radio]:checked")];
@@ -502,7 +492,6 @@ export default class extends Controller {
   }
 
   validateTestWallonieBailleur() {
-    console.log("🎯 Validation du test d'éligibilité Wallonie Bailleur");
 
     let message = "✅ Votre organisme de logement social est éligible aux primes Wallonie !";
     message += "<br><br><strong>Catégorie :</strong> <span class='badge bg-info'>Bailleur Social</span>";

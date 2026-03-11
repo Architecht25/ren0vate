@@ -69,7 +69,6 @@ export class FlandreCalculations {
       const result = await response.json();
 
       if (result.error) {
-        console.error('Erreur calcul:', result.error);
         return;
       }
 
@@ -77,7 +76,6 @@ export class FlandreCalculations {
       this.updateGroupTotals();
 
     } catch (error) {
-      console.error('Erreur lors du calcul:', error);
     }
   }
 
@@ -202,7 +200,6 @@ export class FlandreCalculations {
       this.updateGrandTotal(results.grand_total);
 
     } catch (error) {
-      console.error('Erreur lors du calcul global:', error);
     }
   }
 

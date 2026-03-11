@@ -83,7 +83,6 @@ export default class extends Controller {
         montant = 0;
         break;
       default:
-        console.warn(`❌ Type de prime non pris en charge : ${categorieData.type}`);
     }
 
     const plafonné = this.appliquerPlafondGroupe(slug, montant);

@@ -3,13 +3,10 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
 
   connect() {
-    console.log('🔗 UserType controller connecté !', this.element)
-    console.log('📊 Element avec data-controller:', this.element.dataset.controller)
   }
 
   select(event) {
     const userType = event.currentTarget.dataset.user
-    console.log('👤 Type utilisateur sélectionné:', userType)
 
     // Stocker le choix
     localStorage.setItem("userType", userType)
@@ -22,7 +19,6 @@ export default class extends Controller {
     const testSection = document.getElementById("eligibility-test")
     if (testSection) {
       testSection.classList.remove("d-none")
-      console.log('📋 Section test d\'éligibilité affichée')
     }
   }
 
@@ -33,7 +29,6 @@ export default class extends Controller {
 
     // Vérifier si SweetAlert est disponible
     if (typeof Swal === 'undefined') {
-      console.warn('⚠️ SweetAlert non disponible, utilisation d\'alert() standard')
 
       if (userType === "entreprise") {
         alert('⚠️ Attention\n\nLes entreprises ne sont pas éligibles aux primes')
@@ -84,11 +79,9 @@ export default class extends Controller {
     }
 
     if (userType === "prive") {
-      console.log('✅ Utilisateur privé - éligible aux primes')
     }
 
     if (userType === "asbl") {
-      console.log('✅ ASBL - éligible aux primes')
     }
   }
 }

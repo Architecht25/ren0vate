@@ -5,7 +5,6 @@ export default class extends Controller {
   static targets = ["bceInput", "entrepreneurType", "result"]
 
   connect() {
-    console.log("Entrepreneur verification controller connected")
   }
 
   formatBceNumber(event) {
@@ -64,7 +63,6 @@ export default class extends Controller {
         this.showError(data.error || "Erreur lors de la vérification")
       }
     } catch (error) {
-      console.error('Error verifying entrepreneur:', error)
       this.showError("Erreur de connexion. Veuillez réessayer.")
     } finally {
       // Restore button
@@ -332,7 +330,6 @@ export default class extends Controller {
 
     // This would save the entrepreneur to the user's project/favorites
     // Implementation depends on your backend structure
-    console.log("Saving entrepreneur:", bceNumber)
 
     // Show success message
     const button = event.target

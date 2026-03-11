@@ -8,7 +8,6 @@ export default class extends Controller {
   }
 
   connect() {
-    console.log("ContextualBot controller connecté")
     this.initializeBot()
     this.setupEventListeners()
 
@@ -37,11 +36,9 @@ export default class extends Controller {
 
       // Débloquer les événements sur l'input
       this.inputTarget.addEventListener('focus', () => {
-        console.log('Input focus!')
       })
 
       this.inputTarget.addEventListener('input', () => {
-        console.log('Input change:', this.inputTarget.value)
       })
     }
   }
@@ -50,7 +47,6 @@ export default class extends Controller {
     const path = window.location.pathname
     const currentPage = this.extractPageFromPath(path)
     this.currentPageValue = currentPage
-    console.log("Page détectée:", currentPage)
   }
 
   extractPageFromPath(path) {
@@ -107,7 +103,6 @@ export default class extends Controller {
       this.addBotMessage(response)
       this.updateSuggestions(response.suggestions)
     } catch (error) {
-      console.error('Erreur bot:', error)
       this.addErrorMessage()
     } finally {
       this.sendButtonTarget.disabled = false
@@ -291,7 +286,6 @@ export default class extends Controller {
         }
       } catch (error) {
         if (error.name !== 'AbortError') {
-          console.error('Erreur suggestions:', error)
         }
         // Suggestions de fallback ultra-rapides
         suggestions = ['💡 Comment puis-je vous aider ?', '🔍 Posez votre question']

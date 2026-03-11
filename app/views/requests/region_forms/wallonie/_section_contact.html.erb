@@ -1,0 +1,64 @@
+  <!-- SECTION 3 – Contact -->
+  <div class="card mb-4">
+    <div class="card-header bg-info text-white">
+      <h5 class="mb-0">
+        <i class="bi bi-telephone me-2"></i>Contact
+      </h5>
+    </div>
+    <div class="card-body">
+      <p class="text-muted mb-3">Veuillez indiquer le numéro où vous êtes le plus facilement joignable.</p>
+
+      <div class="row">
+        <div class="col-md-4">
+          <div class="mb-3">
+            <%= form.label :telephone_1, class: "form-label" do %>
+              Téléphone
+              <%= badge_prerempli(@form_data, :applicant_phone) if @form_data.present? %>
+            <% end %>
+            <%= form.phone_field :telephone_1,
+                value: preremplir_champ(@form_data, :applicant_phone, current_user.phone),
+                placeholder: "Téléphone",
+                class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="mb-3">
+            <%= form.label :telephone_2, class: "form-label" do %>
+              Téléphone
+            <% end %>
+            <%= form.phone_field :telephone_2,
+                value: preremplir_champ(@form_data, :telephone_2, nil),
+                placeholder: "Téléphone",
+                class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="mb-3">
+            <%= form.label :telephone_3, class: "form-label" do %>
+              Téléphone
+            <% end %>
+            <%= form.phone_field :telephone_3,
+                value: preremplir_champ(@form_data, :telephone_3, nil),
+                placeholder: "Téléphone",
+                class: "form-control" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :email, class: "form-label" do %>
+              E-mail
+              <%= badge_prerempli(@form_data, :applicant_email) if @form_data.present? %>
+            <% end %>
+            <%= form.email_field :email,
+                value: preremplir_champ(@form_data, :applicant_email, current_user.email),
+                placeholder: "Adresse e-mail",
+                class: "form-control" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+

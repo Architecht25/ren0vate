@@ -4,7 +4,6 @@ export default class extends Controller {
   static targets = ["conversationArea", "messageContent"]
 
   connect() {
-    console.log("ConversationFix controller connecté")
     this.fixConversationLayout()
 
     // Observer pour les nouveaux messages
@@ -27,7 +26,6 @@ export default class extends Controller {
   }
 
   fixConversationLayout() {
-    console.log("Correction du layout de conversation")
 
     // Force les styles sur la zone de conversation
     if (this.hasConversationAreaTarget) {
@@ -63,6 +61,5 @@ export default class extends Controller {
       })
     })
 
-    console.log("Layout fixé pour", this.messageContentTargets.length, "messages")
   }
 }

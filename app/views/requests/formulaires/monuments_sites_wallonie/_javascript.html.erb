@@ -1,0 +1,283 @@
+<script nonce="<%= content_security_policy_nonce %>">
+// Calculs automatiques
+function calculateFinancialData() {
+  const coutTotal = parseFloat(document.getElementById('wallonie_cout_total').value) || 0;
+  const subventionDemandee = parseFloat(document.getElementById('wallonie_subvention_demandee').value) || 0;
+
+  // Calcul du pourcentage
+  const pourcentage = coutTotal > 0 ? (subventionDemandee / coutTotal * 100).toFixed(1) : 0;
+  document.getElementById('wallonie_pourcentage_demande').value = pourcentage;
+
+  // Calcul du financement propre
+  const financementPropre = Math.max(0, coutTotal - subventionDemandee).toFixed(2);
+  document.getElementById('wallonie_financement_propre').value = financementPropre;
+
+  // Validation du pourcentage (max 80% généralement)
+  const pourcentageField = document.getElementById('wallonie_pourcentage_demande');
+  if (pourcentage > 80) {
+    pourcentageField.classList.add('is-invalid');
+    if (!document.getElementById('wallonie_percentage_warning')) {
+      const warning = document.createElement('div');
+      warning.id = 'wallonie_percentage_warning';
+      warning.className = 'invalid-feedback';
+      warning.textContent = 'Le taux de subvention ne peut généralement pas dépasser 80%';
+      pourcentageField.parentNode.appendChild(warning);
+    }
+  } else {
+    pourcentageField.classList.remove('is-invalid');
+    const warning = document.getElementById('wallonie_percentage_warning');
+    if (warning) warning.remove();
+  }
+}
+
+// Gestion de l'affichage conditionnel
+function toggleAutresFinancements() {
+  const autreSubvention = document.getElementById('wallonie_autre_subvention').checked;
+  const detailsDiv = document.getElementById('wallonie_autre_subvention_details');
+  detailsDiv.style.display = autreSubvention ? 'block' : 'none';
+}
+
+// Validation des dates
+function validateDates() {
+  const dateDebut = new Date(document.getElementById('wallonie_debut_travaux').value);
+  const dateFin = new Date(document.getElementById('wallonie_fin_travaux').value);
+  const aujourdhui = new Date();
+
+  if (dateDebut <= aujourdhui) {
+    alert('La date de début des travaux doit être postérieure à aujourd\'hui.');
+    return false;
+  }
+
+  if (dateFin <= dateDebut) {
+    alert('La date de fin des travaux doit être postérieure à la date de début.');
+    return false;
+  }
+
+  return true;
+}
+
+// Fonctions d'aide et de contact
+function contactWalloniePatrimoine() {
+  const email = 'patrimoine.spw@wallonie.be';
+  const subject = 'Demande d\'information - Prime Monuments et Sites';
+  const body = 'Bonjour,\n\nJe souhaiterais obtenir des informations concernant une demande de prime pour monuments et sites en Wallonie.\n\nMon projet concerne :\n- Nature du bien : \n- Localisation : \n- Type de travaux : \n\nMerci de me recontacter.\n\nCordialement';
+
+  const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  window.location.href = mailtoLink;
+}
+
+function downloadWallonieGuide() {
+  const guideUrl = 'https://patrimoine.wallonie.be/fr/patrimoine-et-archeologie/primes-et-subventions';
+  window.open(guideUrl, '_blank');
+}
+
+function saveWallonieDraft(showAlert = true) {
+  const formData = new FormData();
+
+  // Collecter toutes les données du formulaire
+  const inputs = document.querySelectorAll('input, select, textarea');
+  inputs.forEach(input => {
+    if (input.type === 'checkbox' || input.type === 'radio') {
+      if (input.checked) {
+        formData.append(input.name || input.id, input.value);
+      }
+    } else {
+      formData.append(input.name || input.id, input.value);
+    }
+  });
+
+  // Sauvegarder en localStorage comme brouillon
+  const draftData = {};
+  formData.forEach((value, key) => {
+    draftData[key] = value;
+  });
+
+  localStorage.setItem('wallonie_monuments_draft', JSON.stringify(draftData));
+
+  // Afficher l'alerte seulement si demandé (sauvegarde manuelle)
+  if (showAlert) {
+    alert('Brouillon sauvegardé !\n\nVos données ont été conservées et seront restaurées lors de votre prochaine visite.');
+  } else {
+    // Indication discrète pour sauvegarde automatique
+    showAutoSaveIndicator();
+  }
+}
+
+function showAutoSaveIndicator() {
+  // Créer ou récupérer l'indicateur
+  let indicator = document.getElementById('auto-save-indicator');
+  if (!indicator) {
+    indicator = document.createElement('div');
+    indicator.id = 'auto-save-indicator';
+    indicator.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #28a745;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    `;
+    indicator.innerHTML = '<i class="fas fa-check"></i> Sauvegardé automatiquement';
+    document.body.appendChild(indicator);
+  }
+
+  // Afficher et masquer après 2 secondes
+  indicator.style.opacity = '1';
+  setTimeout(() => {
+    indicator.style.opacity = '0';
+  }, 2000);
+}
+
+function loadWallonieDraft() {
+  const draft = localStorage.getItem('wallonie_monuments_draft');
+  if (draft) {
+    const data = JSON.parse(draft);
+
+    Object.keys(data).forEach(key => {
+      const element = document.getElementById(key);
+      if (element) {
+        if (element.type === 'checkbox' || element.type === 'radio') {
+          element.checked = true;
+        } else {
+          element.value = data[key];
+        }
+      }
+    });
+
+    console.log('Brouillon restauré');
+  }
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+  // Calculs automatiques
+  document.getElementById('wallonie_cout_total').addEventListener('input', calculateFinancialData);
+  document.getElementById('wallonie_subvention_demandee').addEventListener('input', calculateFinancialData);
+
+  // Affichage conditionnel
+  document.getElementById('wallonie_autre_subvention').addEventListener('change', toggleAutresFinancements);
+
+  // Validation des dates
+  document.getElementById('wallonie_debut_travaux').addEventListener('change', validateDates);
+  document.getElementById('wallonie_fin_travaux').addEventListener('change', validateDates);
+
+  // Définir la date d'aujourd'hui par défaut pour la signature
+  document.getElementById('wallonie_date_signature').value = new Date().toISOString().split('T')[0];
+
+  // Charger le brouillon s'il existe
+  loadWallonieDraft();
+
+  // Sauvegarde automatique toutes les 2 minutes
+  setInterval(function() {
+    const inputs = document.querySelectorAll('input, select, textarea');
+    let hasData = false;
+    inputs.forEach(input => {
+      if (input.value && input.value.trim() !== '') {
+        hasData = true;
+      }
+    });
+
+    if (hasData) {
+      saveWallonieDraft(false); // Sauvegarde silencieuse
+    }
+  }, 120000); // 2 minutes
+});
+
+// Validation du formulaire avant soumission
+document.querySelector('form').addEventListener('submit', function(e) {
+  if (!validateDates()) {
+    e.preventDefault();
+    return false;
+  }
+
+  // Vérifier que tous les champs requis sont remplis
+  const requiredFields = document.querySelectorAll('[required]');
+  let allValid = true;
+
+  requiredFields.forEach(field => {
+    if (!field.value || field.value.trim() === '') {
+      field.classList.add('is-invalid');
+      allValid = false;
+    } else {
+      field.classList.remove('is-invalid');
+    }
+  });
+
+  if (!allValid) {
+    alert('Veuillez remplir tous les champs obligatoires marqués d\'un astérisque (*).');
+    e.preventDefault();
+    return false;
+  }
+
+  // Supprimer le brouillon après soumission réussie
+  localStorage.removeItem('wallonie_monuments_draft');
+});
+</script>
+
+<style>
+.section-divider {
+  margin: 2rem 0 1.5rem 0;
+  border-bottom: 2px solid #198754;
+  padding-bottom: 0.5rem;
+}
+
+.section-title {
+  color: #198754;
+  font-weight: bold;
+  margin: 0;
+}
+
+.section-number {
+  background: #198754;
+  color: white;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.card {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.btn-success {
+  font-weight: 500;
+}
+
+.form-check-input:checked {
+  background-color: #198754;
+  border-color: #198754;
+}
+
+.is-invalid {
+  border-color: #dc3545;
+}
+
+.invalid-feedback {
+  display: block;
+  color: #dc3545;
+  font-size: 0.875em;
+  margin-top: 0.25rem;
+}
+
+@media (max-width: 768px) {
+  .container {
+    max-width: 95% !important;
+  }
+
+  .section-number {
+    width: 25px;
+    height: 25px;
+    font-size: 0.875rem;
+  }
+}
+</style>

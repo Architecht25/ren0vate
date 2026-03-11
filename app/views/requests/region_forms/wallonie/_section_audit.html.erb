@@ -1,0 +1,50 @@
+  <!-- SECTION 1 – Informations AUDIT -->->
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0"><i class="bi bi-clipboard-check me-2"></i>Référence de l'audit</h5>
+    </div>
+    <div class="card-body">
+      <div class="alert alert-info">
+        <i class="bi bi-info-circle me-2"></i>
+        Cette demande de prime doit obligatoirement faire suite à un audit Logement, à l'exception des travaux de toiture (y compris l'isolation de celle-ci) pour les demandes soumises sous les conditions en vigueur depuis le 14 février 2025.
+      </div>
+      <div class="row">
+        <div class="col-md-4">
+          <div class="mb-3">
+            <%= form.label :numero_audit, class: "form-label" do %>
+              Numéro d'audit
+              <%= badge_prerempli_intelligent(@form_data, :numero_audit, @property&.projects&.last&.numero_audit) %>
+            <% end %>
+            <%= form.text_field :numero_audit,
+                value: preremplir_champ(@form_data, :numero_audit, @property&.projects&.last&.numero_audit),
+                placeholder: "A20....",
+                class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="mb-3">
+            <%= form.label :date_enregistrement_audit, class: "form-label" do %>
+              Date d'enregistrement de l'audit
+              <%= badge_prerempli_intelligent(@form_data, :date_enregistrement_audit, @property&.projects&.last&.date_audit) %>
+            <% end %>
+            <%= form.date_field :date_enregistrement_audit,
+                value: preremplir_champ(@form_data, :date_enregistrement_audit, @property&.projects&.last&.date_audit),
+                class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="mb-3">
+            <%= form.label :numero_agrement_auditeur, class: "form-label" do %>
+              Numéro d'agrément de l'auditeur
+              <%= badge_prerempli_intelligent(@form_data, :numero_agrement_auditeur, @property&.projects&.last&.numero_agrement_auditeur) %>
+            <% end %>
+            <%= form.text_field :numero_agrement_auditeur,
+                value: preremplir_champ(@form_data, :numero_agrement_auditeur, @property&.projects&.last&.numero_agrement_auditeur),
+                placeholder: "PAE2 - PX-XXXXX",
+                class: "form-control" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+

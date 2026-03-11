@@ -1,0 +1,297 @@
+    <!-- ========== ONGLET SYSTÈME ========== -->
+    <div class="tab-pane fade" id="system-panel" role="tabpanel">
+
+      <!-- Vue d'ensemble du système -->
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="card-body text-white">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h5 class="mb-0"><%= @system_info[:environment][:rails_env].upcase %></h5>
+                  <small class="opacity-75">Environnement</small>
+                </div>
+                <i class="bi bi-server fs-1 opacity-50"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <div class="card-body text-white">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h5 class="mb-0"><%= @system_info[:performance][:active_connections] %></h5>
+                  <small class="opacity-75">Connexions DB actives</small>
+                </div>
+                <i class="bi bi-database fs-1 opacity-50"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <div class="card-body text-white">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h5 class="mb-0"><%= @system_info[:security][:active_sessions] %></h5>
+                  <small class="opacity-75">Sessions actives</small>
+                </div>
+                <i class="bi bi-people fs-1 opacity-50"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card border-0 shadow-sm bg-gradient" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <div class="card-body text-white">
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <h5 class="mb-0"><%= @system_info[:services][:database][:response_time] %></h5>
+                  <small class="opacity-75">Latence DB</small>
+                </div>
+                <i class="bi bi-speedometer2 fs-1 opacity-50"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <!-- Informations d'environnement -->
+        <div class="col-lg-6 mb-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-light">
+              <h5 class="mb-0"><i class="bi bi-gear me-2"></i>Environnement & Infrastructure</h5>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <h6><i class="bi bi-server me-2"></i>Plateforme</h6>
+                  <ul class="list-unstyled mb-3">
+                    <li><strong>Rails:</strong> <code><%= @system_info[:environment][:rails_version] %></code></li>
+                    <li><strong>Ruby:</strong> <code><%= @system_info[:environment][:ruby_version] %></code></li>
+                    <li><strong>Environnement:</strong> <span class="badge bg-primary"><%= @system_info[:environment][:rails_env] %></span></li>
+                    <li><strong>Timezone:</strong> <code><%= @system_info[:environment][:timezone] %></code></li>
+                  </ul>
+
+                  <h6><i class="bi bi-database me-2"></i>Base de données</h6>
+                  <ul class="list-unstyled mb-3">
+                    <li><strong>Type:</strong> <code><%= @system_info[:infrastructure][:database_adapter] %></code></li>
+                    <li><strong>Version:</strong> <code class="small"><%= truncate(@system_info[:infrastructure][:database_version], length: 50) %></code></li>
+                    <li><strong>Pool:</strong> <%= @system_info[:performance][:database_pool][:checked_out] %>/<%= @system_info[:performance][:database_pool][:size] %> utilisées</li>
+                  </ul>
+                </div>
+                <div class="col-md-6">
+                  <h6><i class="bi bi-gem me-2"></i>Gems critiques</h6>
+                  <ul class="list-unstyled mb-3">
+                    <% @system_info[:infrastructure][:critical_gems].each do |gem_name, version| %>
+                      <li><strong><%= gem_name %>:</strong> <code><%= version %></code></li>
+                    <% end %>
+                  </ul>
+
+                  <% if @system_info[:infrastructure][:heroku_info][:dyno_name] %>
+                    <h6><i class="bi bi-cloud me-2"></i>Heroku</h6>
+                    <ul class="list-unstyled mb-3">
+                      <li><strong>Dyno:</strong> <code><%= @system_info[:infrastructure][:heroku_info][:dyno_name] %></code></li>
+                      <li><strong>App:</strong> <code><%= @system_info[:infrastructure][:heroku_info][:heroku_app] %></code></li>
+                      <li><strong>Release:</strong> <code><%= @system_info[:infrastructure][:heroku_info][:release_version] %></code></li>
+                    </ul>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- État des services -->
+        <div class="col-lg-6 mb-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-light">
+              <h5 class="mb-0"><i class="bi bi-activity me-2"></i>État des Services</h5>
+            </div>
+            <div class="card-body">
+              <!-- Base de données -->
+              <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded">
+                <div>
+                  <h6 class="mb-1"><i class="bi bi-database me-2"></i>Base de données</h6>
+                  <small class="text-muted">Connexions: <%= @system_info[:services][:database][:connection_count] %></small>
+                </div>
+                <div class="text-end">
+                  <span class="badge bg-success"><%= @system_info[:services][:database][:status] %></span>
+                  <br><small class="text-muted"><%= @system_info[:services][:database][:response_time] %></small>
+                </div>
+              </div>
+
+              <!-- Email -->
+              <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded">
+                <div>
+                  <h6 class="mb-1"><i class="bi bi-envelope me-2"></i>Service Email</h6>
+                  <small class="text-muted"><%= @system_info[:services][:email][:delivery_method] %></small>
+                </div>
+                <div class="text-end">
+                  <span class="badge bg-<%= @system_info[:services][:email][:status].include?('✅') ? 'success' : 'warning' %>">
+                    <%= @system_info[:services][:email][:status] %>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Stockage -->
+              <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded">
+                <div>
+                  <h6 class="mb-1"><i class="bi bi-cloud-upload me-2"></i>Stockage</h6>
+                  <small class="text-muted"><%= @system_info[:services][:storage][:service] %></small>
+                </div>
+                <div class="text-end">
+                  <span class="badge bg-<%= @system_info[:services][:storage][:status].include?('✅') ? 'success' : 'secondary' %>">
+                    <%= @system_info[:services][:storage][:status] %>
+                  </span>
+                </div>
+              </div>
+
+              <!-- APIs externes -->
+              <% @system_info[:services][:external_apis].each do |api_name, api_info| %>
+                <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded">
+                  <div>
+                    <h6 class="mb-1"><i class="bi bi-globe me-2"></i><%= api_name.to_s.humanize %></h6>
+                    <small class="text-muted"><%= api_info[:service] if api_info[:service] %></small>
+                  </div>
+                  <div class="text-end">
+                    <span class="badge bg-<%= api_info[:status].include?('✅') ? 'success' : 'danger' %>">
+                      <%= api_info[:status] %>
+                    </span>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Performance et Sécurité -->
+        <div class="col-lg-6 mb-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-light">
+              <h5 class="mb-0"><i class="bi bi-speedometer2 me-2"></i>Performance & Sécurité</h5>
+            </div>
+            <div class="card-body">
+              <h6><i class="bi bi-cpu me-2"></i>Mémoire & Performance</h6>
+              <div class="mb-3">
+                <% if @system_info[:performance][:memory_usage][:heap_live_slots] %>
+                  <small class="text-muted d-block">Objets Ruby alloués: <%= number_with_delimiter(@system_info[:performance][:memory_usage][:total_allocated_objects]) %></small>
+                  <small class="text-muted d-block">Slots mémoire actifs: <%= number_with_delimiter(@system_info[:performance][:memory_usage][:heap_live_slots]) %></small>
+                <% else %>
+                  <small class="text-muted"><%= @system_info[:performance][:memory_usage][:status] %></small>
+                <% end %>
+              </div>
+
+              <h6><i class="bi bi-shield-check me-2"></i>Sécurité</h6>
+              <div class="mb-3">
+                <div class="d-flex justify-content-between">
+                  <span>SSL/HTTPS:</span>
+                  <span class="badge bg-<%= @system_info[:security][:ssl_info][:status].include?('✅') ? 'success' : 'warning' %>">
+                    <%= @system_info[:security][:ssl_info][:status] %>
+                  </span>
+                </div>
+                <div class="d-flex justify-content-between mt-2">
+                  <span>CSP:</span>
+                  <span class="badge bg-<%= @system_info[:security][:csp_status][:status].include?('✅') ? 'success' : 'warning' %>">
+                    <%= @system_info[:security][:csp_status][:csp] %>
+                  </span>
+                </div>
+                <div class="d-flex justify-content-between mt-2">
+                  <span>Échecs de connexion (1h):</span>
+                  <% failed_logins = @system_info[:security][:recent_failed_logins].is_a?(Numeric) ? @system_info[:security][:recent_failed_logins] : 0 %>
+                  <span class="badge bg-<%= failed_logins > 5 ? 'danger' : 'success' %>">
+                    <%= failed_logins %>
+                  </span>
+                </div>
+              </div>
+
+              <h6><i class="bi bi-clock me-2"></i>Temps & Uptime</h6>
+              <div class="mb-3">
+                <small class="text-muted d-block">Heure système: <%= @system_info[:environment][:current_time].strftime("%Y-%m-%d %H:%M:%S %Z") %></small>
+                <small class="text-muted d-block">Uptime: <%= @system_info[:environment][:uptime] %></small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Maintenance et Logs -->
+        <div class="col-lg-6 mb-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-light">
+              <h5 class="mb-0"><i class="bi bi-tools me-2"></i>Maintenance & Monitoring</h5>
+            </div>
+            <div class="card-body">
+              <h6><i class="bi bi-database-gear me-2"></i>Base de données</h6>
+              <div class="mb-3">
+                <% if @system_info[:maintenance][:last_migration][:version] %>
+                  <small class="text-muted d-block">Dernière migration: <code><%= @system_info[:maintenance][:last_migration][:version] %></code></small>
+                  <small class="text-muted d-block">Date: <%= @system_info[:maintenance][:last_migration][:formatted] %></small>
+                <% else %>
+                  <small class="text-muted"><%= @system_info[:maintenance][:last_migration][:status] || @system_info[:maintenance][:last_migration][:error] %></small>
+                <% end %>
+              </div>
+
+              <h6><i class="bi bi-cloud-arrow-up me-2"></i>Déploiement</h6>
+              <div class="mb-3">
+                <small class="text-muted d-block">Déployé le: <%= @system_info[:maintenance][:deployment_info][:deployed_at] %></small>
+                <% if @system_info[:maintenance][:deployment_info][:git_commit] != "Non disponible" %>
+                  <small class="text-muted d-block">Commit: <code><%= @system_info[:maintenance][:deployment_info][:git_commit][0..7] %></code></small>
+                <% end %>
+                <% if @system_info[:maintenance][:deployment_info][:release_version] != "Non disponible" %>
+                  <small class="text-muted d-block">Version: <code><%= @system_info[:maintenance][:deployment_info][:release_version] %></code></small>
+                <% end %>
+              </div>
+
+              <h6><i class="bi bi-file-text me-2"></i>Logs</h6>
+              <div class="mb-3">
+                <% if @system_info[:maintenance][:log_size][:status] %>
+                  <small class="text-muted"><%= @system_info[:maintenance][:log_size][:status] %></small>
+                <% else %>
+                  <% @system_info[:maintenance][:log_size].each do |log_name, size| %>
+                    <small class="text-muted d-block"><%= log_name %>: <code><%= size %></code></small>
+                  <% end %>
+                <% end %>
+              </div>
+
+              <h6><i class="bi bi-arrow-clockwise me-2"></i>Nettoyage</h6>
+              <div class="mb-3">
+                <small class="text-muted d-block">Sessions: <%= @system_info[:maintenance][:cleanup_status][:session_cleanup] %></small>
+                <small class="text-muted d-block">Log rotation: <%= @system_info[:maintenance][:cleanup_status][:log_rotation] %></small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions système -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+              <h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Actions Système</h5>
+            </div>
+            <div class="card-body">
+              <div class="d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-outline-primary" onclick="location.reload()">
+                  <i class="bi bi-arrow-clockwise me-2"></i>Actualiser les informations
+                </button>
+                <button type="button" class="btn btn-outline-info" onclick="window.open('/rails/info', '_blank')">
+                  <i class="bi bi-info-circle me-2"></i>Rails Info
+                </button>
+                <% if Rails.env.development? %>
+                  <button type="button" class="btn btn-outline-warning" onclick="alert('Fonction disponible uniquement en développement')">
+                    <i class="bi bi-terminal me-2"></i>Console
+                  </button>
+                <% end %>
+                <button type="button" class="btn btn-outline-success" onclick="testSystemHealth()">
+                  <i class="bi bi-heartbeat me-2"></i>Test de santé
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+

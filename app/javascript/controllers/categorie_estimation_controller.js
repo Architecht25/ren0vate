@@ -162,13 +162,11 @@ export default class extends Controller {
 // ========== MÉTHODES BRUXELLES ==========
 
   estimerCategorieBruxelles() {
-    console.log("🎯 Estimation catégorie Bruxelles");
 
     const statut = document.getElementById("category_estimation_bruxelles_statut_familial")?.value
     const nbCharges = parseInt(document.getElementById("category_estimation_bruxelles_enfants_charge")?.value || "0")
     const revenu = document.getElementById("category_estimation_bruxelles_revenu_net")?.value
 
-    console.log("🎯 Valeurs récupérées:", { statut, nbCharges, revenu });
 
     if (!statut || !revenu) {
       alert("Veuillez remplir tous les champs obligatoires pour estimer votre catégorie.")
@@ -221,7 +219,6 @@ export default class extends Controller {
     localStorage.setItem("bruxelles_categorie_estimee", categorieEstimee)
     localStorage.setItem("bruxellesCategorieEstimee", categorieEstimee);
 
-    console.log("🎯 Catégorie Bruxelles estimée:", categorieEstimee);
 
     // Déclencher un événement pour que les contrôleurs Bruxelles se mettent à jour
     document.dispatchEvent(new CustomEvent('bruxelles:category:changed', {
@@ -249,7 +246,6 @@ export default class extends Controller {
   estimerCategorieWallonie(event) {
     // Empêcher la soumission du formulaire
     event.preventDefault()
-    console.log("🎯 Estimation catégorie Wallonie démarrée")
 
     const statut = document.getElementById("category_estimation_wallonie_statut_familial")?.value
     const enfantsCharge = parseInt(document.getElementById("category_estimation_wallonie_enfants_charge")?.value || "0")
@@ -288,7 +284,6 @@ export default class extends Controller {
         break
     }
 
-    console.log("🎯 Catégorie Wallonie calculée:", categorieWallonie)
 
     // Affichage du résultat
     const badge = `<span class="badge rounded-pill bg-success">Catégorie ${categorieWallonie}</span>`
@@ -318,11 +313,9 @@ export default class extends Controller {
   }
 
   afficherPrimesWallonie(categorie) {
-    console.log("🚀 Affichage primes Wallonie pour catégorie:", categorie)
 
     // Convertir R1 -> wallonie_r1 pour le calculateur
     const categorieCalculateur = `wallonie_${categorie.toLowerCase()}`
-    console.log("🎯 Catégorie pour calculateur:", categorieCalculateur)
 
     // Stocker la catégorie au bon format dans localStorage
     localStorage.setItem('selectedWallonieCategory', categorieCalculateur)

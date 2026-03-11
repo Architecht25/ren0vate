@@ -8,8 +8,6 @@ export default class extends Controller {
   }
 
   connect() {
-    console.log("💰 Pricing controller connected")
-    console.log("🎯 Available targets:", {
       b2cTiers: this.hasB2cTiersTarget,
       b2bTiers: this.hasB2bTiersTarget,
       hybridTiers: this.hasHybridTiersTarget,
@@ -44,7 +42,6 @@ export default class extends Controller {
     const isB2B = this.segmentB2bTarget.checked
     const isHybrid = this.hasSegmentHybridTarget && this.segmentHybridTarget.checked
 
-    console.log("🔄 Toggle segment - B2C:", isB2C, "B2B:", isB2B, "Hybrid:", isHybrid)
 
     // Masquer toutes les sections d'abord en retirant la classe active
     this.b2cTiersTarget.classList.remove('active')
@@ -56,15 +53,12 @@ export default class extends Controller {
 
     if (isB2C) {
       this.b2cTiersTarget.classList.add('active')
-      console.log("📊 Segment B2C activé")
       this.trackSegmentChange('B2C')
     } else if (isB2B) {
       this.b2bTiersTarget.classList.add('active')
-      console.log("🏢 Segment B2B activé")
       this.trackSegmentChange('B2B')
     } else if (isHybrid && this.hasHybridTiersTarget) {
       this.hybridTiersTarget.classList.add('active')
-      console.log("🔄 Segment Hybride activé")
       this.trackSegmentChange('Hybrid')
     }
   }
@@ -74,16 +68,13 @@ export default class extends Controller {
     if (this.hasUserContextValue && this.userContextValue) {
       try {
         const context = this.userContextValue
-        console.log("👤 Contexte utilisateur:", context)
 
         // Logique de recommandation dynamique
         this.highlightRecommendedTier(context)
       } catch (error) {
-        console.log("⚠️ Erreur lors du parsing du contexte utilisateur:", error)
         // Continuer sans recommandations
       }
     } else {
-      console.log("ℹ️ Pas de contexte utilisateur disponible")
     }
   }
 
@@ -101,7 +92,6 @@ export default class extends Controller {
       recommendedTier = 'professional'
     }
 
-    console.log(`🎯 Tier recommandé: ${recommendedTier} (${propertiesCount} propriétés)`)
 
     // Ajouter classe CSS pour highlight
     const recommendedCard = document.querySelector(`[data-tier="${recommendedTier}"]`)
@@ -115,7 +105,6 @@ export default class extends Controller {
     const tier = event.currentTarget.dataset.tier
     const price = event.currentTarget.dataset.price
 
-    console.log(`💳 Tier sélectionné: ${tier} à ${price}€`)
 
     // Visual feedback
     this.highlightSelectedTier(event.currentTarget)
@@ -148,10 +137,8 @@ export default class extends Controller {
     )
 
     if (confirmation) {
-      console.log(`✅ Upgrade confirmé vers ${tier}`)
       // Le formulaire sera soumis par Rails
     } else {
-      console.log(`❌ Upgrade annulé`)
     }
   }
 
@@ -182,7 +169,6 @@ export default class extends Controller {
 
   trackEvent(eventName, data) {
     // Placeholder pour analytics (Google Analytics, Mixpanel, etc.)
-    console.log(`📊 Analytics: ${eventName}`, data)
 
     // À implémenter avec votre solution d'analytics
     // gtag('event', eventName, data)

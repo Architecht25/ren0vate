@@ -17,11 +17,8 @@ export default class extends Controller {
   }
 
   connect() {
-    console.log("PEB Controller connecté")
-    console.log("Catégorie:", this.categorieValue)
 
     // Vérifier les targets
-    console.log("Targets disponibles:", {
       labelInitial: this.hasLabelInitialTarget,
       typeLogement: this.hasTypeLogementTarget,
       ventilation: this.hasVentilationTarget,
@@ -81,7 +78,6 @@ export default class extends Controller {
       }
     }
 
-    console.log("Données PEB chargées:", this.valeursDataStatic)
     this.calculerMontant()
   }
 
@@ -140,11 +136,9 @@ export default class extends Controller {
     const ventilation = this.ventilationTarget?.value
     const categorie = this.categorieValue
 
-    console.log("Calcul PEB:", { labelInitial, typeLogement, labelFinal, ventilation, categorie })
 
     // Vérifier que tous les paramètres sont présents
     if (!labelInitial || !typeLogement || !labelFinal || !ventilation || !categorie) {
-      console.log("Paramètres manquants pour le calcul PEB")
       this.afficherResultat(null)
       return
     }
@@ -153,17 +147,14 @@ export default class extends Controller {
     const valeursData = this.valeursDataStatic
 
     if (!valeursData || Object.keys(valeursData).length === 0) {
-      console.error("Données de valeurs PEB non disponibles ou vides")
       this.afficherResultat(null)
       return
     }
 
-    console.log("Données PEB disponibles:", valeursData)
 
     // Naviguer dans la structure des données
     const montant = valeursData[categorie]?.[typeLogement]?.[labelFinal]?.[ventilation]
 
-    console.log("Montant trouvé:", montant)
 
     if (montant) {
       this.afficherResultat(montant, {
@@ -174,24 +165,20 @@ export default class extends Controller {
         categorie
       })
     } else {
-      console.log("Aucun montant trouvé pour ces paramètres")
       this.afficherResultat(null)
     }
   }
 
   // Affichage du résultat
   afficherResultat(montant, details = null) {
-    console.log("Affichage résultat PEB:", { montant, details })
 
     if (montant) {
       this.montantCalculeTarget.textContent = `${montant.toLocaleString('fr-BE')} €`
       this.resultatContainerTarget.classList.remove('d-none')
-      console.log("Résultat PEB affiché:", montant)
 
       // Mettre à jour le total global des primes
       this.mettreAJourTotalPrimes()
     } else {
-      console.log("Masquage du résultat PEB")
       this.resultatContainerTarget.classList.add('d-none')
 
       // Mettre à jour le total global des primes
@@ -201,7 +188,6 @@ export default class extends Controller {
 
   // Méthode pour mettre à jour le total global des primes
   mettreAJourTotalPrimes() {
-    console.log("🔄 PEB: Mise à jour du total demandée")
 
     // D'abord essayer de déclencher via le controller parent Flandre
     let flandreController = document.querySelector('[data-controller*="flandre-simulation"]')
@@ -210,27 +196,20 @@ export default class extends Controller {
       flandreController = document.querySelector('[data-controller="flandre-simulation"]')
     }
 
-    console.log("🔍 PEB: Controller Flandre trouvé:", !!flandreController)
 
     if (flandreController) {
       const controller = this.application.getControllerForElementAndIdentifier(flandreController, 'flandre-simulation')
-      console.log("🔍 PEB: Instance controller trouvée:", !!controller)
 
       if (controller && typeof controller.updateTotalGlobal === 'function') {
-        console.log("💰 PEB: Déclenchement updateTotalGlobal...")
         controller.updateTotalGlobal()
-        console.log("💰 Total mis à jour via controller Flandre")
         return
       } else {
-        console.log("❌ PEB: updateTotalGlobal non disponible")
       }
     }
 
-    console.log("⚠️ PEB: Fallback vers mise à jour directe")
     // Fallback: mise à jour directe du span total (pour compatibilité)
     const totalSpan = document.querySelector("#total-primes-affiche")
     if (!totalSpan) {
-      console.log("❌ PEB: Span total non trouvé")
       return
     }
 
@@ -255,7 +234,6 @@ export default class extends Controller {
     const totalFinal = totalPrimesNormales + montantPEB
     totalSpan.textContent = `${totalFinal.toFixed(2)} €`
 
-    console.log("💰 Total mis à jour (fallback):", { totalPrimesNormales, montantPEB, totalFinal })
   }
 
   // Nouvelle méthode : Déclencher la sauvegarde automatique
@@ -267,7 +245,6 @@ export default class extends Controller {
       const controller = this.application.getControllerForElementAndIdentifier(flandreController, 'flandre-simulation')
 
       if (controller && typeof controller.triggerSave === 'function') {
-        console.log("💾 PEB: Déclenchement sauvegarde automatique...")
 
         // Délai pour permettre à l'affichage de se mettre à jour
         setTimeout(() => {
@@ -310,10 +287,8 @@ export default class extends Controller {
 
   // Méthode pour restaurer les données PEB sauvegardées
   restoreData(pebData) {
-    console.log("🔄 Restauration données PEB:", pebData)
 
     if (!pebData) {
-      console.log("❌ Aucune donnée PEB à restaurer")
       return
     }
 
@@ -321,33 +296,26 @@ export default class extends Controller {
       // Restaurer les valeurs des selects
       if (pebData.label_initial && this.hasLabelInitialTarget) {
         this.labelInitialTarget.value = pebData.label_initial
-        console.log(`✅ Label initial restauré: ${pebData.label_initial}`)
       }
 
       if (pebData.type_logement && this.hasTypeLogementTarget) {
         this.typeLogementTarget.value = pebData.type_logement
-        console.log(`✅ Type logement restauré: ${pebData.type_logement}`)
       }
 
       if (pebData.ventilation && this.hasVentilationTarget) {
         this.ventilationTarget.value = pebData.ventilation
-        console.log(`✅ Ventilation restaurée: ${pebData.ventilation}`)
       }
 
       if (pebData.label_final && this.hasLabelFinalTarget) {
         this.labelFinalTarget.value = pebData.label_final
-        console.log(`✅ Label final restauré: ${pebData.label_final}`)
       }
 
       // Déclencher le calcul avec un délai pour laisser le temps à l'affichage
       setTimeout(() => {
-        console.log("🔄 Recalcul PEB après restauration...")
         this.calculerMontant()
       }, 100)
 
-      console.log("✅ Restauration PEB terminée")
     } catch (error) {
-      console.error("❌ Erreur lors de la restauration PEB:", error)
     }
   }
 }

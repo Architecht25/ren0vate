@@ -14,7 +14,6 @@ export default class extends Controller {
   ]
 
   connect() {
-    console.log("Prime selection controller connected")
     this.selectedPrimes = new Set()
     this.primeData = this.extractPrimeData()
 
@@ -210,7 +209,6 @@ export default class extends Controller {
     }
 
     // TODO: Sauvegarder en base de données
-    console.log("Saving selection:", selectionData)
 
     // Feedback visuel
     const button = event.target
@@ -235,7 +233,6 @@ export default class extends Controller {
     const plan = this.generateOptimalPlan(selectedPrimes)
 
     // TODO: Afficher le planning dans une modal ou rediriger
-    console.log("Generated plan:", plan)
     alert("Planning généré ! (Fonctionnalité à implémenter)")
   }
 
@@ -284,7 +281,6 @@ export default class extends Controller {
     const selectedSlugs = Array.from(this.selectedPrimes)
 
     // TODO: Générer les documents pour les primes sélectionnées
-    console.log("Exporting documents for:", selectedSlugs)
     alert("Export des documents en cours... (Fonctionnalité à implémenter)")
   }
 

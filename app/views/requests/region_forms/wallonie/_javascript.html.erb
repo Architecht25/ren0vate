@@ -1,0 +1,258 @@
+<script nonce="<%= content_security_policy_nonce %>">
+// Forcer l'affichage de la section Wallonie si on est sur ce formulaire
+(function() {
+  const wallonieSection = document.getElementById('wallonie-section');
+  const formTypeInput = document.querySelector('input[name*="form_type"]');
+
+  if (wallonieSection && formTypeInput && formTypeInput.value === 'regional_wallonie') {
+    console.log('🏠 Affichage forcé de la section Wallonie');
+    wallonieSection.style.display = 'block';
+  }
+})();
+
+// Fonction pour sauvegarder le formulaire Wallonie en brouillon (même approche que Flandre)
+window.saveWallonieFormData = function(event) {
+  console.log('🎯 FONCTION APPELÉE !');
+
+  // Empêcher la propagation d'événements
+  if (event) {
+    event.preventDefault();
+    event.stopPropagation();
+    console.log('✅ Event prevented');
+  }
+
+  console.log('🚀 === SAUVEGARDE WALLONIE VIA FETCH ===');
+  console.log('💾 Sauvegarde formulaire Wallonie en brouillon');
+
+  const form = document.querySelector('#request-form-main');
+  console.log('📋 Formulaire trouvé:', form ? 'OUI' : 'NON');
+
+  if (!form) {
+    console.error('❌ Formulaire non trouvé');
+    alert('Erreur: formulaire non trouvé');
+    return false;
+  }
+
+  console.log('📍 Form action:', form.action);
+  console.log('📍 Form method:', form.method);
+
+  // Récupérer le token CSRF de plusieurs sources possibles
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+                   document.querySelector('input[name="authenticity_token"]')?.value ||
+                   form.querySelector('input[name="authenticity_token"]')?.value;
+
+  console.log('🔐 CSRF Token trouvé:', csrfToken ? 'OUI' : 'NON');
+
+  if (!csrfToken) {
+    console.error('❌ Token CSRF non trouvé!');
+    alert('Erreur: Token de sécurité manquant. Rechargez la page.');
+    return false;
+  }
+
+  // IMPORTANT : Créer un FormData vide et ajouter manuellement UNIQUEMENT les champs de la section Wallonie
+  const formData = new FormData();
+
+  // Ajouter le champ _method pour indiquer que c'est un UPDATE (PATCH)
+  const methodField = form.querySelector('input[name="_method"]');
+  if (methodField) {
+    formData.append('_method', methodField.value);
+    console.log('✅ Méthode HTTP ajoutée:', methodField.value);
+  }
+
+  // Ajouter les champs de base du formulaire (hors sections régionales)
+  const baseFields = form.querySelectorAll('input[name="request[region]"], input[name="request[property_id]"], input[name="request[form_type]"]');
+  baseFields.forEach(field => {
+    if (field.value) {
+      formData.append(field.name, field.value);
+    }
+  });
+
+  // Ajouter UNIQUEMENT les champs de la section Wallonie visible
+  const wallonieSection = document.querySelector('#wallonie-section');
+  if (wallonieSection) {
+    const wallonieFields = wallonieSection.querySelectorAll('input, select, textarea');
+    console.log(`📦 Champs Wallonie trouvés: ${wallonieFields.length}`);
+
+    wallonieFields.forEach(field => {
+      if (field.name && !field.disabled) {
+        if (field.type === 'checkbox') {
+          // Pour les checkbox, envoyer "1" si cochée, "0" sinon
+          formData.append(field.name, field.checked ? '1' : '0');
+        } else if (field.type === 'radio') {
+          // Pour les radio, envoyer seulement si sélectionné
+          if (field.checked) {
+            formData.append(field.name, field.value);
+          }
+        } else if (field.type === 'file') {
+          // Pour les fichiers
+          if (field.files.length > 0) {
+            for (let i = 0; i < field.files.length; i++) {
+              formData.append(field.name, field.files[i]);
+            }
+          }
+        } else {
+          // Pour tous les autres champs (text, textarea, select, etc.)
+          formData.append(field.name, field.value);
+        }
+      }
+    });
+  }
+  console.log('📦 FormData créé');
+
+  formData.set('commit', 'Sauvegarder en brouillon');
+  console.log('✅ Commit ajouté');
+
+  // S'assurer que le token CSRF est inclus
+  if (!formData.has('authenticity_token')) {
+    formData.set('authenticity_token', csrfToken);
+    console.log('✅ Token CSRF ajouté au FormData');
+  }
+
+  // Log des données envoyées pour débogage
+  console.log('📋 Données à envoyer:');
+  console.log('  🔐 authenticity_token:', formData.get('authenticity_token') ? 'PRÉSENT' : 'MANQUANT');
+  console.log('  📝 title:', formData.get('request[title]'));
+  console.log('  🏠 maintien_regime:', formData.get('request[maintien_regime]'));
+
+  // Afficher TOUS les champs pour débogage
+  console.log('📦 TOUS LES CHAMPS DU FORMDATA:');
+  let allFields = [];
+  for (let [key, value] of formData.entries()) {
+    allFields.push(`${key}: ${value}`);
+    if (key.includes('request[')) {
+      console.log(`  → ${key}: ${value}`);
+    }
+  }
+  console.log(`📊 Total de champs: ${allFields.length}`);
+
+  let travauxCount = 0;
+  for (let [key, value] of formData.entries()) {
+    if (key.includes('travaux_')) {
+      console.log(`  ✓ ${key}: ${value}`);
+      travauxCount++;
+    }
+  }
+  console.log(`📊 Total de champs travaux_*: ${travauxCount}`);
+
+  // Désactiver le bouton pendant l'envoi
+  const button = document.getElementById('wallonie-submit-btn');
+  const originalText = button.textContent;
+  button.disabled = true;
+  button.textContent = 'Sauvegarde...';
+
+  console.log('🚀 Envoi de la requête fetch...');
+
+  fetch(form.action, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'Accept': 'application/json, text/html',
+      'X-Requested-With': 'XMLHttpRequest',
+      'X-CSRF-Token': csrfToken
+    }
+  })
+  .then(response => {
+    console.log('📡 Response reçue!');
+    console.log('   Status:', response.status);
+    console.log('   OK:', response.ok);
+    console.log('   StatusText:', response.statusText);
+
+    if (response.ok) {
+      console.log('✅ Sauvegarde réussie!');
+
+      // Afficher un message de succès
+      const successMsg = document.createElement('div');
+      successMsg.className = 'alert alert-success alert-dismissible fade show mt-3';
+      successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; max-width: 400px;';
+      successMsg.innerHTML = `
+        <i class="bi bi-check-circle-fill me-2"></i>
+        <strong>Brouillon sauvegardé !</strong> Les données sont bien enregistrées.
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+      document.body.appendChild(successMsg);
+
+      // Réactiver le bouton
+      button.disabled = false;
+      button.textContent = originalText;
+
+      // NE PAS RECHARGER pour l'instant - pour déboguer
+      console.log('⚠️ Rechargement désactivé pour débogage');
+
+      // Retirer le message après 10 secondes
+      setTimeout(() => {
+        successMsg.remove();
+      }, 10000);
+
+    } else {
+      console.error('❌ Erreur lors de la sauvegarde:', response.status);
+
+      // Essayer de lire le corps de la réponse pour plus de détails
+      response.text().then(text => {
+        console.error('📄 Corps de la réponse:', text.substring(0, 500));
+      });
+
+      alert('Erreur lors de la sauvegarde. Veuillez réessayer.');
+      button.disabled = false;
+      button.textContent = originalText;
+    }
+  })
+  .catch(error => {
+    console.error('❌ Erreur réseau:', error);
+    console.error('   Message:', error.message);
+    console.error('   Stack:', error.stack);
+    alert('Erreur réseau. Veuillez vérifier votre connexion et réessayer.');
+    button.disabled = false;
+    button.textContent = originalText;
+  });
+
+  return false;
+};
+
+// Gestion simple des interactions spécifiques à Wallonie
+document.addEventListener('DOMContentLoaded', function() {
+  // Forcer à nouveau l'affichage au chargement complet
+  const wallonieSection = document.getElementById('wallonie-section');
+  const formTypeInput = document.querySelector('input[name*="form_type"]');
+
+  if (wallonieSection && formTypeInput && formTypeInput.value === 'regional_wallonie') {
+    console.log('🏠 Affichage forcé de la section Wallonie au DOMContentLoaded');
+    wallonieSection.style.display = 'block';
+  }
+
+  // Gestion du maintien du régime
+  const maintienNon = document.getElementById('maintien_regime_non');
+  const infoAlert = document.getElementById('maintien_regime_info');
+
+  function toggleMaintienInfo() {
+    if (maintienNon && maintienNon.checked && infoAlert) {
+      infoAlert.style.display = 'block';
+    } else if (infoAlert) {
+      infoAlert.style.display = 'none';
+    }
+  }
+
+  document.querySelectorAll('input[name*="maintien_regime"]').forEach(radio => {
+    radio.addEventListener('change', toggleMaintienInfo);
+  });
+
+  // Gestion de l'adresse du logement
+  const adresseLogementFields = document.getElementById('adresse_logement_fields');
+
+  function toggleAdresseLogement() {
+    const locAutreAdresse = document.getElementById('loc_autre_adresse');
+    if (locAutreAdresse && locAutreAdresse.checked && adresseLogementFields) {
+      adresseLogementFields.style.display = 'block';
+    } else if (adresseLogementFields) {
+      adresseLogementFields.style.display = 'none';
+    }
+  }
+
+  document.querySelectorAll('input[name*="localisation_travaux"]').forEach(radio => {
+    radio.addEventListener('change', toggleAdresseLogement);
+  });
+
+  // État initial
+  toggleMaintienInfo();
+  toggleAdresseLogement();
+});
+</script>

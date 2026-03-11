@@ -1,0 +1,104 @@
+  <!-- SECTION 5 – Localisation des travaux -->
+  <div class="card mb-4">
+    <div class="card-header bg-warning text-dark">
+      <h5 class="mb-0">
+        <i class="bi bi-geo-alt me-2"></i>Localisation des travaux
+        <%= indicateur_section_complete(@form_data, champs_adresse_propriete) if @form_data.present? %>
+      </h5>
+    </div>
+    <div class="card-body">
+      <%
+        # Comparer l'adresse du demandeur avec l'adresse de la propriété
+        adresse_demandeur_match = false
+        if current_user.present? && @property.present?
+          user_street = current_user.street&.downcase&.strip
+          user_number = current_user.number&.downcase&.strip
+          user_postal = current_user.postal_code&.downcase&.strip
+          user_city = current_user.city&.downcase&.strip
+
+          property_street = @property.rue&.downcase&.strip
+          property_number = @property.numero&.downcase&.strip
+          property_postal = @property.code_postal&.downcase&.strip
+          property_city = @property.commune&.downcase&.strip
+
+          adresse_demandeur_match = (user_street == property_street &&
+                                      user_number == property_number &&
+                                      user_postal == property_postal &&
+                                      user_city == property_city)
+        end
+      %>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Où se situe le logement dans lequel les travaux ont été exécutés ?</label>
+
+            <div class="form-check mb-2">
+              <%= form.radio_button :localisation_travaux, "adresse_demandeur", { class: "form-check-input", id: "loc_adresse_demandeur", checked: adresse_demandeur_match } %>
+              <label class="form-check-label" for="loc_adresse_demandeur">
+                à l'adresse du demandeur
+              </label>
+            </div>
+
+            <div class="form-check mb-3">
+              <%= form.radio_button :localisation_travaux, "autre_adresse", { class: "form-check-input", id: "loc_autre_adresse", checked: !adresse_demandeur_match } %>
+              <label class="form-check-label" for="loc_autre_adresse">
+                à une autre adresse
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="adresse_logement_fields" class="mt-3">
+        <h6 class="text-muted mb-3">Adresse du logement</h6>
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :adresse_logement, class: "form-label" do %>
+                Adresse
+                <%= badge_prerempli_intelligent(@form_data, :property_street, @property&.address) %>
+              <% end %>
+              <%= form.text_field :adresse_logement,
+                  value: preremplir_champ(@form_data, :property_street, @property&.address),
+                  placeholder: "Adresse",
+                  class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :code_postal_logement, class: "form-label" do %>
+                Code postal
+                <%= badge_prerempli_intelligent(@form_data, :property_postal_code, @property&.code_postal) %>
+              <% end %>
+              <%= form.text_field :code_postal_logement,
+                  value: preremplir_champ(@form_data, :property_postal_code, @property&.code_postal),
+                  placeholder: "Code postal",
+                  class: "form-control" %>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <%= form.label :commune_logement, class: "form-label" do %>
+                Commune
+                <%= badge_prerempli_intelligent(@form_data, :property_city, @property&.commune) %>
+              <% end %>
+              <%= form.text_field :commune_logement,
+                  value: preremplir_champ(@form_data, :property_city, @property&.commune),
+                  placeholder: "Commune",
+                  class: "form-control" %>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label class="form-label">Région</label>
+              <%= form.text_field :region_logement, value: "Wallonie", class: "form-control", disabled: true %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+

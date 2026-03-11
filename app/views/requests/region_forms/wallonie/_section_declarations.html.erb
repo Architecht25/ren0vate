@@ -1,0 +1,129 @@
+  <!-- SECTION 9 – Déclarations -->
+  <div class="card mb-4">
+    <div class="card-header bg-warning text-dark">
+      <h5 class="mb-0"><i class="bi bi-clipboard-check me-2"></i>Déclarations</h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :nom_declarant, class: "form-label" do %>
+              Nom
+            <% end %>
+            <%= form.text_field :nom_declarant,
+                value: preremplir_champ(@form_data, :applicant_lastname, current_user.last_name),
+                placeholder: "du Parc Locmaria",
+                class: "form-control" %>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :prenom_declarant, class: "form-label" do %>
+              Prénom
+            <% end %>
+            <%= form.text_field :prenom_declarant,
+                value: preremplir_champ(@form_data, :applicant_firstname, current_user.first_name),
+                placeholder: "Robin",
+                class: "form-control" %>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <h6 class="text-primary mb-3">Déclarations sur l'honneur :</h6>
+
+        <ul class="list-unstyled">
+          <li class="mb-2">
+            - déclare avoir pris connaissance des conditions d'octroi des primes Habitation ;
+          </li>
+          <li class="mb-2">
+            - déclare que les travaux faisant l'objet de la demande de prime ont été réalisés dans un immeuble âgé de plus de 15 ans principalement affecté au logement au terme des travaux (maximum 49% d'occupation professionnelle) et dans le respect des règles en matière d'urbanisme ;
+          </li>
+          <li class="mb-2">
+            - déclare être informé que l'Administration peut, dans un délai de 5 ans à compter de la liquidation du montant de la prime, visiter le logement et vérifier l'authenticité des informations fournies ;
+          </li>
+          <li class="mb-2">
+            - déclare que les travaux qui font l'objet de cette demande ne font pas ou ne feront pas l'objet d'une autre aide octroyée par la Région Wallonne comme par exemple, la prime « Toiture et petits travaux », le « Rénopack » auprès de la SWCS ou du FLW, ... ;
+          </li>
+          <li class="mb-2">
+            - déclare que l'ensemble des investissements ou des travaux objet pour les demandes soumises sous les conditions en vigueur depuis le 14 février 2025, qui font l'objet de la demande de prime, sont effectués sur des éléments recommandés dans le rapport d'audit ;
+          </li>
+          <li class="mb-2">
+            - déclare que l'ensemble des investissements objet de la demande de prime sont effectués sur des éléments recommandés dans le rapport d'audit ;
+          </li>
+          <li class="mb-2">
+          - déclare que l'ensemble des investissements objet de la demande de prime, à l'exception uniquement des travaux de toiture (pour les demandes soumises aux conditions en vigueur depuis le 14/02/2025), qui font l'objet de la demande de prime, sont effectués sur des éléments recommandés dans le rapport d'audit ;
+          </li>
+          <li class="mb-2">
+            - déclare que les travaux de toiture sont réalisés sur une toiture isolée répondant à la norme prescrite par la réglementation, à savoir R ≥ 5 m²K/W ;
+          </li>
+          <li class="mb-2">
+            - remplis ou m'engage à remplir au plus tard dans les 24 mois prenant cours à la date de la première demande de primes Travaux, une des conditions suivantes :
+          </li>
+        </ul>
+      </div>
+
+      <div class="mb-4 ms-4">
+        <h6 class="text-secondary mb-3">Conditions de location :</h6>
+        <%
+          # Mapping pour occupation depuis properties
+          occupation_mapping = {
+            "residence_principale" => "residence_principale_5_ans",
+            "location_5_ans_bail_enregistre" => "location_5_ans",
+            "location_9_ans_ais" => "ais_9_ans",
+            "location_gratuite_1_an" => "parent_1_an"
+          }
+          condition_occupation_value = occupation_mapping[@property&.occupation] || @property&.occupation
+        %>
+
+        <div class="form-check mb-2">
+          <%= form.radio_button :condition_occupation, "residence_principale_5_ans", { class: "form-check-input", id: "residence_5_ans", checked: condition_occupation_value == "residence_principale_5_ans" } %>
+          <label class="form-check-label" for="residence_5_ans">
+            <strong>pendant une durée minimale de 5 ans,</strong> occuper la totalité du logement à titre de résidence principale
+          </label>
+        </div>
+
+        <div class="form-check mb-2">
+          <%= form.radio_button :condition_occupation, "location_5_ans", { class: "form-check-input", id: "location_5_ans", checked: condition_occupation_value == "location_5_ans" } %>
+          <label class="form-check-label" for="location_5_ans">
+            <strong>pendant une durée minimale de 5 ans,</strong> mettre le logement en location par un bail enregistré, dans le respect de la grille des loyers
+          </label>
+        </div>
+
+        <div class="form-check mb-2">
+          <%= form.radio_button :condition_occupation, "ais_9_ans", { class: "form-check-input", id: "ais_9_ans", checked: condition_occupation_value == "ais_9_ans" } %>
+          <label class="form-check-label" for="ais_9_ans">
+            <strong>pendant une durée minimale de 9 ans,</strong> mettre le logement à disposition d'une agence immobilière sociale (AIS) ou d'une société de logement de service public (SLSP) ou d'une association de promotion du logement (APL)
+          </label>
+        </div>
+
+        <div class="form-check mb-3">
+          <%= form.radio_button :condition_occupation, "parent_1_an", { class: "form-check-input", id: "parent_1_an", checked: condition_occupation_value == "parent_1_an" } %>
+          <label class="form-check-label" for="parent_1_an">
+            <strong>pendant une durée minimale d'un an,</strong> mettre gratuitement et à titre de résidence principale, la totalité du logement à la disposition d'un parent ou allié jusqu'au deuxième degré inclusivement
+          </label>
+        </div>
+      </div>
+
+      <ul class="list-unstyled">
+        <li class="mb-2">
+          - déclare autoriser l'Administration à consulter les données nécessaires au traitement de la présente demande de prime auprès des Sources authentiques (Registre national, SPF Finances, réseau de la Banque-Carrefour de la sécurité sociale et son réseau).
+        </li>
+        <li class="mb-2">
+          Déclare sur l'honneur que les renseignements mentionnés dans le présent formulaire sont exacts et complets.
+        </li>
+      </ul>
+
+      <div class="form-check mb-3">
+        <%= form.check_box :declaration_traitement_automatise, { class: "form-check-input" }, "1", "0" %>
+        <label class="form-check-label" for="<%= form.field_id(:declaration_traitement_automatise) %>">
+          Je marque mon accord pour que ma demande de prime fasse l'objet, le cas échéant, d'un traitement exclusivement automatisé. Ce traitement sera réalisé à partir du logiciel de l'Administration sur base des informations fournies dans le cadre de ce formulaire et en appelant si nécessaire des données provenant des sources authentiques. Je peux retirer mon accord à tout moment.
+        </label>
+      </div>
+
+      <div class="alert alert-info">
+        <p class="mb-0">Un <strong>seul exemplaire</strong> de votre demande suffit. Il ne faut donc pas envoyer d'autres exemplaires par email ou courrier postal.</p>
+      </div>
+    </div>
+  </div>
+

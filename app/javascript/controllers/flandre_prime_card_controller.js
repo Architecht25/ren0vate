@@ -5,7 +5,6 @@ export default class extends Controller {
   static values = { slug: String }
 
   connect() {
-    console.log("🎯 Contrôleur Flandre Prime Card connecté pour:", this.slugValue)
 
     // Écouter les changements de catégorie
     this.element.addEventListener('flandre:category:changed', this.recalculate.bind(this))
@@ -39,27 +38,21 @@ export default class extends Controller {
     const primesData = parentController.getPrimesData()
     const prime = primesData[this.slugValue]
 
-    console.log(`🔍 UpdatePlaceholder pour ${this.slugValue}, catégorie: ${currentCategory}`)
 
     if (prime && prime.placeholder) {
-      console.log(`📄 Placeholders disponibles:`, prime.placeholder)
       const placeholderTexte = prime.placeholder[currentCategory]
-      console.log(`🎯 Placeholder pour catégorie ${currentCategory}: "${placeholderTexte}"`)
 
       // Si un placeholder spécifique existe pour cette catégorie, on l'applique
       if (placeholderTexte && placeholderTexte.trim() !== '') {
         this.inputTarget.placeholder = placeholderTexte
-        console.log(`✅ Placeholder appliqué: "${placeholderTexte}"`)
       } else {
         // Fallback plus intelligent basé sur la catégorie
         const fallbackPlaceholder = ["4", "3"].includes(currentCategory)
           ? "Montant total de la facture (€)"
           : "Surface en m²"
         this.inputTarget.placeholder = fallbackPlaceholder
-        console.log(`⚠️ Fallback appliqué: "${fallbackPlaceholder}"`)
       }
     } else {
-      console.log(`❌ Pas de données placeholder pour ${this.slugValue}`)
       // Fallback par défaut
       this.inputTarget.placeholder = ["4", "3"].includes(currentCategory)
         ? "Montant total de la facture (€)"
@@ -68,27 +61,22 @@ export default class extends Controller {
   }
 
   calculate() {
-    console.log(`🔍 Calculate appelé pour ${this.slugValue}`)
     if (!this.slugValue) {
-      console.warn("Pas de slug défini pour cette carte Flandre")
       return
     }
 
     // Récupérer le contrôleur parent pour accéder aux données
     const parentController = this.getParentController()
     if (!parentController) {
-      console.warn("Controller parent Flandre non trouvé")
       return
     }
 
     const currentCategory = parentController.getCurrentCategory()
     const primesData = parentController.getPrimesData()
-    console.log(`📊 Données pour ${this.slugValue} - catégorie: ${currentCategory}`)
 
     // Trouver la prime correspondante
     const prime = primesData[this.slugValue]
     if (!prime) {
-      console.warn(`Prime Flandre non trouvée pour slug: ${this.slugValue}`)
       this.updateResult(0)
       return
     }
@@ -96,11 +84,9 @@ export default class extends Controller {
     // Calculer selon le type de calcul
     const calculData = prime.valeurs_par_categorie?.[currentCategory]
     if (!calculData) {
-      console.warn(`Données de calcul non trouvées pour ${this.slugValue} - catégorie ${currentCategory}`)
       // Vérifier si la prime existe pour d'autres catégories
       const availableCategories = Object.keys(prime.valeurs_par_categorie || {})
       if (availableCategories.length > 0) {
-        console.info(`Prime ${this.slugValue} disponible seulement pour: ${availableCategories.join(', ')}`)
         // Afficher 0€ pour les primes non disponibles
         this.updateResult(0)
         return
@@ -143,7 +129,6 @@ export default class extends Controller {
         total = this.calculatePrimeConditionnelle(calculData)
         break
       default:
-        console.warn(`Type de calcul non pris en charge pour Flandre: ${calculData.type}`)
         total = 0
     }
 
@@ -186,7 +171,6 @@ export default class extends Controller {
 
     // Si pas de surface, retourner 0
     if (surface === 0) {
-      console.log(`🔍 ${this.slugValue}: Surface = 0, retour 0€`)
       return 0
     }
 
@@ -194,21 +178,17 @@ export default class extends Controller {
     let typeMur = null
     if (this.hasTypeMurTarget) {
       typeMur = this.typeMurTarget.value
-      console.log(`🔍 ${this.slugValue}: Type de mur depuis select = "${typeMur}"`)
     }
 
     // Si aucun type sélectionné, retourner 0
     if (!typeMur || typeMur === "") {
-      console.log(`⚠️ ${this.slugValue}: Aucun type de mur sélectionné, retour 0€`)
       return 0
     }
 
-    console.log(`📊 ${this.slugValue}: calculData.montants_m2 =`, calculData.montants_m2)
     const montantParM2 = calculData.montants_m2?.[typeMur] || 0
     const surfaceMax = calculData.surface_max || Infinity
     const surfaceLimitee = Math.min(surface, surfaceMax)
 
-    console.log(`🏭 Calcul variable m² - Slug: ${this.slugValue}, Type: ${typeMur}, Surface: ${surfaceLimitee}m², Montant/m²: ${montantParM2}€`)
 
     return surfaceLimitee * montantParM2
   }
@@ -257,7 +237,6 @@ export default class extends Controller {
   }
 
   updateResult(amount) {
-    console.log(`🔄 updateResult pour ${this.slugValue}: ${amount} €`)
 
     // Récupérer le contrôleur parent pour appliquer les plafonds
     const parentController = this.getParentController()
@@ -268,16 +247,12 @@ export default class extends Controller {
       finalAmount = result.montant
 
       if (finalAmount !== amount) {
-        console.log(`⚖️ Plafond appliqué pour ${this.slugValue}: ${amount.toFixed(2)}€ → ${finalAmount.toFixed(2)}€`)
       }
     }
 
     if (this.hasResultTarget) {
-      console.log(`✅ Target result trouvé pour ${this.slugValue}`)
       this.resultTarget.textContent = `${finalAmount.toFixed(2)} €`
-      console.log(`📝 Span mis à jour: ${this.resultTarget.textContent}`)
     } else {
-      console.error(`❌ Pas de target result pour ${this.slugValue}`)
     }
 
     // Notifier le contrôleur parent

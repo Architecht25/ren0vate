@@ -4,7 +4,6 @@ export default class extends Controller {
   static targets = ["regionSelect", "formTypeSection", "formTypeSelect", "formTypeDescription", "formTypeButtons"]
 
   connect() {
-    console.log('🚀 Request form controller connecté');
 
     // Écouter l'événement de bien pré-sélectionné
     this.element.addEventListener('propertyPreselected', this.handlePropertyPreselected.bind(this));
@@ -22,8 +21,6 @@ export default class extends Controller {
     const button = event.target;
     const debugType = button.dataset.debug;
 
-    console.log('🔴 BOUTON CLIQUÉ:', debugType);
-    console.log('📋 Form data avant soumission:', new FormData(this.element));
 
     // Laisser la soumission normale se poursuivre
     return true;
@@ -32,12 +29,10 @@ export default class extends Controller {
   // Gestionnaire pour l'événement de bien pré-sélectionné
   handlePropertyPreselected(event) {
     const { region } = event.detail;
-    console.log('🏠 Bien pré-sélectionné - région:', region);
     this.initializeForRegion(region);
   }
 
   initializeForRegion(region) {
-    console.log('🔧 initializeForRegion appelée avec:', region);
 
     if (this.hasFormTypeSectionTarget) {
       // Afficher la section de type de formulaire
@@ -50,12 +45,9 @@ export default class extends Controller {
       const buttonSection = document.getElementById('submission-buttons');
       if (buttonSection) {
         buttonSection.style.display = 'flex';
-        console.log('✅ Boutons de soumission affichés pour propriété pré-sélectionnée');
       }
 
-      console.log('✅ Section formulaire initialisée pour', region);
     } else {
-      console.log('❌ formTypeSectionTarget non trouvé');
     }
   }
 
@@ -63,23 +55,18 @@ export default class extends Controller {
   initializeRegionalForms() {
     const sections = document.querySelectorAll('.region-section');
 
-    console.log('Found sections:', sections.length);
     sections.forEach((section, index) => {
-      console.log(`Section ${index}:`, section.id, section);
     });
 
     if (!this.hasRegionSelectTarget) {
-      console.log('❌ regionSelectTarget non trouvé');
       return;
     }
 
     const selectedRegion = this.regionSelectTarget.value;
-    console.log('Selected region:', selectedRegion);
 
     if (selectedRegion) {
       this.initializeForRegion(selectedRegion);
     } else {
-      console.log('❌ Aucune région sélectionnée au démarrage');
     }
   }
 
@@ -93,12 +80,10 @@ export default class extends Controller {
 
   showRegionalSection() {
     if (!this.hasRegionSelectTarget) {
-      console.log('❌ regionSelectTarget non trouvé');
       return;
     }
 
     const selectedRegion = this.regionSelectTarget.value;
-    console.log('Selected region:', selectedRegion);
 
     // Masquer toutes les sections régionales
     const sections = document.querySelectorAll('.region-section');
@@ -118,25 +103,17 @@ export default class extends Controller {
   }
 
   updateFormTypeOptions(region) {
-    console.log('🔄 updateFormTypeOptions appelée pour région:', region);
-    console.log('Type de region:', typeof region);
-    console.log('Région brute:', JSON.stringify(region));
-    console.log('hasFormTypeButtonsTarget:', this.hasFormTypeButtonsTarget);
-    console.log('hasFormTypeDescriptionTarget:', this.hasFormTypeDescriptionTarget);
 
     // Debug spécial pour la Wallonie
     if (region === 'wallonie') {
-      console.log('🔍 WALLONIE DÉTECTÉE - région exacte:', region);
     }
 
     if (!this.hasFormTypeButtonsTarget) {
-      console.log('❌ formTypeButtonsTarget non trouvé');
       return;
     }
 
     // Nettoyer et normaliser la région
     const normalizedRegion = region ? region.toLowerCase().trim() : '';
-    console.log('🔧 Région normalisée:', normalizedRegion);
 
     const formOptions = {
       flandre: [
@@ -158,36 +135,25 @@ export default class extends Controller {
       ]
     };
 
-    console.log('Configuration trouvée pour', normalizedRegion, ':', formOptions[normalizedRegion]);
-    console.log('Toutes les clés disponibles:', Object.keys(formOptions));
-    console.log('Test égalité avec "wallonie":', normalizedRegion === 'wallonie');
-    console.log('Test égalité avec "flandre":', normalizedRegion === 'flandre');
-    console.log('Test égalité avec "bruxelles":', normalizedRegion === 'bruxelles');
 
     // Debug spécial pour la configuration Wallonie
-    console.log('🔍 Configuration Wallonie directe:', formOptions['wallonie']);
-    console.log('🔍 Clé région nettoyée:', normalizedRegion.trim().toLowerCase());
 
     // Vérifier si c'est un profil entreprise
     const profilField = document.querySelector('input[name*="profil_demandeur"]');
     const isEntreprise = profilField && profilField.value === 'entreprise';
 
-    console.log('🏢 Profil détecté lors updateFormTypeOptions:', profilField ? profilField.value : 'non trouvé');
-    console.log('🏢 Est entreprise lors updateFormTypeOptions:', isEntreprise);
 
     // Vider le container des boutons
     this.formTypeButtonsTarget.innerHTML = '';
 
     // Si c'est une entreprise, afficher seulement les formulaires entreprises
     if (isEntreprise) {
-      console.log('🏢 Création des boutons pour entreprises');
 
       const entrepriseOptions = [
         { value: 'entreprise', label: 'Formulaires Entreprises', icon: '🏢', description: 'Aides spécialisées pour entreprises (consultance, investissements, etc.)' }
       ];
 
       entrepriseOptions.forEach((option, index) => {
-        console.log(`Création bouton entreprise ${index}:`, option);
 
         const button = document.createElement('button');
         button.type = 'button';
@@ -211,16 +177,13 @@ export default class extends Controller {
         this.formTypeButtonsTarget.appendChild(button);
       });
 
-      console.log('✅ Boutons entreprises créés');
       return; // Sortir de la fonction pour ne pas créer les boutons régionaux
     }
 
     // Créer les boutons pour la région sélectionnée (particuliers)
     if (formOptions[normalizedRegion]) {
-      console.log('✅ Création des boutons pour', normalizedRegion);
 
       formOptions[normalizedRegion].forEach((option, index) => {
-        console.log(`Création bouton ${index}:`, option);
 
         const button = document.createElement('button');
         button.type = 'button';
@@ -253,15 +216,11 @@ export default class extends Controller {
         this.formTypeButtonsTarget.appendChild(button);
       });
 
-      console.log('✅ Tous les boutons créés pour', normalizedRegion);
     } else {
-      console.log('❌ Aucune configuration trouvée pour la région:', normalizedRegion);
     }
   }
 
   selectFormType(formType) {
-    console.log('🎯 Type de formulaire sélectionné:', formType);
-    console.log('🎯 Region actuelle:', this.hasRegionSelectTarget ? this.regionSelectTarget.value : 'AUCUNE');
 
     // Marquer le bouton comme sélectionné
     this.formTypeButtonsTarget.querySelectorAll('.form-type-btn').forEach(btn => {
@@ -275,21 +234,16 @@ export default class extends Controller {
       const card = selectedButton.querySelector('.card');
       card.classList.remove('border-primary');
       card.classList.add('border-success', 'border');
-      console.log('✅ Bouton sélectionné visuellement:', formType);
     } else {
-      console.log('❌ Bouton non trouvé pour:', formType);
     }
 
     // Mettre à jour le champ caché
     if (this.hasFormTypeSelectTarget) {
       this.formTypeSelectTarget.value = formType;
-      console.log('✅ Champ caché mis à jour:', this.formTypeSelectTarget.value);
     } else {
-      console.log('❌ Champ caché formTypeSelect non trouvé');
     }
 
     // Déclencher l'affichage de la section appropriée
-    console.log('🔄 Appel de showFormTypeSection...');
     this.showFormTypeSection();
   }
 
@@ -297,11 +251,9 @@ export default class extends Controller {
     const selectedFormType = this.hasFormTypeSelectTarget ? this.formTypeSelectTarget.value : null;
     const selectedRegion = this.hasRegionSelectTarget ? this.regionSelectTarget.value : null;
 
-    console.log('📋 showFormTypeSection - Type:', selectedFormType, 'Région:', selectedRegion);
 
     // Gérer le cas spécial entreprise
     if (selectedFormType === 'entreprise') {
-      console.log('🏢 Affichage section entreprise directement');
 
       // Masquer toutes les sections
       const allSections = document.querySelectorAll('.region-section, .entreprise-section');
@@ -313,13 +265,11 @@ export default class extends Controller {
       const entrepriseSection = document.getElementById('entreprise-section');
       if (entrepriseSection) {
         entrepriseSection.style.display = 'block';
-        console.log('✅ Section entreprises affichée');
       }
       return;
     }
 
     if (!selectedFormType || !selectedRegion) {
-      console.log('❌ Type de formulaire ou région manquant');
       return;
     }
 
@@ -349,16 +299,12 @@ export default class extends Controller {
     const profilField = document.querySelector('input[name*="profil_demandeur"]');
     const isEntreprise = profilField && profilField.value === 'entreprise';
 
-    console.log('🏢 Profil détecté:', profilField ? profilField.value : 'non trouvé');
-    console.log('🏢 Est entreprise:', isEntreprise);
 
     // Si c'est une entreprise, afficher la section entreprises et ignorer les formulaires régionaux
     if (isEntreprise) {
-      console.log('🏢 Affichage de la section entreprises');
       const entrepriseSection = document.getElementById('entreprise-section');
       if (entrepriseSection) {
         entrepriseSection.style.display = 'block';
-        console.log('✅ Section entreprises affichée');
       }
       return; // Sortir de la fonction pour ne pas afficher les sections régionales
     }
@@ -367,9 +313,6 @@ export default class extends Controller {
     if (selectedFormType && selectedRegion) {
       let targetSectionId = '';
 
-      console.log('🔍 DEBUG - selectedFormType:', selectedFormType);
-      console.log('🔍 DEBUG - selectedRegion:', selectedRegion);
-      console.log('🔍 DEBUG - normalizedRegion:', normalizedRegion);
 
       // Logique uniforme pour toutes les régions
       if (selectedFormType === 'regional') {
@@ -384,40 +327,25 @@ export default class extends Controller {
         targetSectionId = normalizedRegion + '-petit_patrimoine-section';
       }
 
-      console.log('🔍 DEBUG - targetSectionId calculé:', targetSectionId);
 
       const targetSection = document.getElementById(targetSectionId);
-      console.log('🔍 DEBUG - targetSection trouvé:', !!targetSection);
 
       if (targetSection) {
-        console.log('🔍 DEBUG - avant affichage, style.display:', targetSection.style.display);
         targetSection.style.display = 'block';
-        console.log('🔍 DEBUG - après affichage, style.display:', targetSection.style.display);
-        console.log('🔍 DEBUG - computed style:', window.getComputedStyle(targetSection).display);
 
         // Test immédiat pour voir si quelque chose remet display: none
         setTimeout(() => {
-          console.log('🔍 DEBUG - style après 100ms:', targetSection.style.display);
-          console.log('🔍 DEBUG - computed style après 100ms:', window.getComputedStyle(targetSection).display);
         }, 100);
 
-        console.log('✅ Section affichée:', targetSectionId);
-        console.log('🔍 Section DOM element:', targetSection);
-        console.log('🔍 Section visibility:', window.getComputedStyle(targetSection).display);
-        console.log('🔍 Section HTML preview:', targetSection.innerHTML.substring(0, 200) + '...');
 
         // Force l'affichage avec !important
         targetSection.style.setProperty('display', 'block', 'important');
-        console.log('🔍 DEBUG - après setProperty important:', window.getComputedStyle(targetSection).display);
       } else {
-        console.log('❌ Section non trouvée:', targetSectionId);
-        console.log('🔍 Sections disponibles:', Array.from(document.querySelectorAll('.region-section')).map(s => s.id));
 
         // Fallback vers la section régionale principale
         const fallbackSection = document.getElementById(normalizedRegion + '-section');
         if (fallbackSection) {
           fallbackSection.style.display = 'block';
-          console.log('✅ Fallback vers section régionale:', normalizedRegion + '-section');
         }
       }
     }
@@ -441,7 +369,6 @@ export default class extends Controller {
     const buttonSection = document.getElementById('submission-buttons');
     if (buttonSection && formType && region) {
       buttonSection.style.display = 'flex';
-      console.log('✅ Boutons de soumission affichés pour:', formType, region);
     }
   }
 
@@ -461,7 +388,6 @@ export default class extends Controller {
       const targetBtn = document.getElementById(normalizedRegion + '-continue-btn');
       if (targetBtn) {
         targetBtn.style.display = 'inline-block';
-        console.log('✅ Bouton régional affiché:', normalizedRegion + '-continue-btn');
       }
     }
   }

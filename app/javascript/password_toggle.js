@@ -32,10 +32,6 @@ function togglePasswordVisibility(event) {
   const icon = button.querySelector('i');
 
   if (!passwordInput || !icon) {
-    console.error('Password input or icon not found');
-    console.log('Container:', passwordContainer);
-    console.log('Input:', passwordInput);
-    console.log('Icon:', icon);
     return;
   }
 

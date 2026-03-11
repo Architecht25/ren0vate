@@ -1,0 +1,87 @@
+  <!-- SECTION 1 – Identification du demandeur -->
+  <div class="card mb-4">
+    <div class="card-header bg-success text-white">
+      <h5 class="mb-0">
+        <i class="bi bi-person-circle me-2"></i>Identification du demandeur
+        <% if @form_data.present? %>
+          <%= indicateur_section_complete(@form_data, [:nom, :prenom, :email, :telephone, :registre_national]) %>
+        <% end %>
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :registre_national, class: "form-label" do %>
+              Numéro de registre national ou BCE *
+              <%= badge_prerempli_avec_fallback(@form_data, :registre_national, current_user.national_number) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :registre_national,
+                value: preremplir_champ(@form_data, :registre_national, current_user.national_number),
+                class: "form-control",
+                placeholder: "XX.XX.XX-XXX.XX ou BE0123456789",
+                required: true %>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :nom, class: "form-label" do %>
+              Nom du demandeur *
+              <%= badge_prerempli_avec_fallback(@form_data, :nom, current_user.last_name) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :nom,
+                value: preremplir_champ(@form_data, :nom, current_user.last_name),
+                class: "form-control",
+                placeholder: "Nom complet",
+                required: true %>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :prenom, class: "form-label" do %>
+              Prénom du demandeur *
+              <%= badge_prerempli_avec_fallback(@form_data, :prenom, current_user.first_name) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :prenom,
+                value: preremplir_champ(@form_data, :prenom, current_user.first_name),
+                class: "form-control",
+                placeholder: "Prénom",
+                required: true %>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :telephone, class: "form-label" do %>
+              Téléphone *
+              <%= badge_prerempli_avec_fallback(@form_data, :telephone, current_user.phone) if @form_data.present? %>
+            <% end %>
+            <%= form.telephone_field :telephone,
+                value: preremplir_champ(@form_data, :telephone, current_user.phone),
+                class: "form-control",
+                placeholder: "0x/xxx.xx.xx",
+                required: true %>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :email, class: "form-label" do %>
+              Adresse email *
+              <%= badge_prerempli_avec_fallback(@form_data, :email, current_user.email) if @form_data.present? %>
+            <% end %>
+            <%= form.email_field :email,
+                value: preremplir_champ(@form_data, :email, current_user.email),
+                class: "form-control",
+                placeholder: "nom@email.com",
+                required: true %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+

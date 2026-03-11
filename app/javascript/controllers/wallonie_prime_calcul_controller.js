@@ -5,7 +5,6 @@ export default class extends Controller {
   static targets = ["sectionTitle", "grandTotal"]
 
   connect() {
-    console.log("Wallonie Prime Calcul Controller connected")
     this.setupPrimesData()
     this.updateTotalGlobal()
     this.setupEventListeners()
@@ -14,7 +13,6 @@ export default class extends Controller {
   setupEventListeners() {
     // Écouter les changements de catégorie depuis l'affinage
     document.addEventListener('wallonie:category:changed', (event) => {
-      console.log("🎯 Catégorie changée reçue:", event.detail.categorie)
       this.changeCategory(event.detail.categorie)
     })
   }
@@ -25,9 +23,7 @@ export default class extends Controller {
     if (primesDataElement) {
       try {
         this.primesData = JSON.parse(primesDataElement.textContent)
-        console.log("Primes Wallonie chargées:", this.primesData)
       } catch (error) {
-        console.error("Erreur parsing primes data:", error)
         this.primesData = {}
       }
     }
@@ -44,11 +40,9 @@ export default class extends Controller {
     if (storedCategory === 'wallonie_2') {
       storedCategory = 'wallonie_r2'
       localStorage.setItem('selectedWallonieCategory', storedCategory)
-      console.log("🔧 Correction automatique: wallonie_2 -> wallonie_r2")
     }
 
     this.currentCategory = storedCategory
-    console.log("Catégorie Wallonie actuelle:", this.currentCategory)
 
     this.updateSectionTitle()
   }
@@ -69,7 +63,6 @@ export default class extends Controller {
   updateTotalGlobal() {
     // Calcul du total de toutes les cartes
     let total = 0
-    console.log("🔍 Début calcul total global...")
 
     // Sélecteurs pour tous les totaux des cartes
     const totalSelectors = [
@@ -93,22 +86,17 @@ export default class extends Controller {
         const montantText = element.textContent.replace('€', '').replace(/\s/g, '').replace(',', '.')
         const montant = parseFloat(montantText) || 0
         total += montant
-        console.log(`✅ ${selector}: ${montant}€ (texte: "${element.textContent}")`)
       } else {
-        console.log(`❌ ${selector}: élément non trouvé`)
       }
     })
 
-    console.log(`🎯 Total global calculé: ${total}€`)
 
     if (this.hasGrandTotalTarget) {
       this.grandTotalTarget.textContent = `${total.toLocaleString('fr-FR', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       })} €`
-      console.log(`📝 Total affiché: ${this.grandTotalTarget.textContent}`)
     } else {
-      console.log("❌ Target grandTotal non trouvé!")
     }
   }
 

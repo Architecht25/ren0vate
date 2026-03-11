@@ -18,7 +18,6 @@ export default class extends Controller {
   }
 
   connect() {
-    console.log("🏦 Contrôleur Rénopack Wallonie connecté")
     this.hideAllSections()
   }
 

@@ -1,0 +1,144 @@
+            <div class="section-divider">
+              <h4 class="section-title">
+                <span class="section-number">2</span>
+                Identification du bien patrimonial
+              </h4>
+            </div>
+
+            <div class="card border-primary bg-primary bg-opacity-10 p-3 mb-4">
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="wallonie_adresse_bien" class="form-label fw-bold">
+                    <i class="fas fa-landmark me-1"></i>Adresse du bien classé*
+                    <%= badge_prerempli_intelligent(@form_data, :heritage_address, @property&.address) if @form_data.present? %>
+                  </label>
+                  <input type="text"
+                         class="form-control"
+                         id="wallonie_adresse_bien"
+                         name="heritage_address"
+                         value="<%= preremplir_champ(@form_data, :heritage_address, @property&.address) %>"
+                         placeholder="Adresse complète du monument ou site"
+                         required/>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="wallonie_cp_ville_bien" class="form-label fw-bold">
+                    Code postal et commune*
+                    <%= badge_prerempli_intelligent(@form_data, :heritage_postal_city, "#{@property&.code_postal} #{@property&.commune}".strip) if @form_data.present? %>
+                  </label>
+                  <input type="text"
+                         class="form-control"
+                         id="wallonie_cp_ville_bien"
+                         name="heritage_postal_city"
+                         value="<%= preremplir_champ(@form_data, :heritage_postal_city, "#{@property&.code_postal} #{@property&.commune}".strip) %>"
+                         required/>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">
+                    <i class="fas fa-certificate me-1"></i>Statut patrimonial*
+                  </label>
+                  <div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="wallonie_statut_patrimoine" id="wallonie_monument_classe" value="monument_classe" required/>
+                      <label class="form-check-label" for="wallonie_monument_classe">
+                        Monument classé
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="wallonie_statut_patrimoine" id="wallonie_site_classe" value="site_classe" required/>
+                      <label class="form-check-label" for="wallonie_site_classe">
+                        Site classé
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="wallonie_statut_patrimoine" id="wallonie_liste_sauvegarde" value="liste_sauvegarde" required/>
+                      <label class="form-check-label" for="wallonie_liste_sauvegarde">
+                        Bien inscrit sur la liste de sauvegarde
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="wallonie_statut_patrimoine" id="wallonie_zone_protection" value="zone_protection" required/>
+                      <label class="form-check-label" for="wallonie_zone_protection">
+                        Bien situé en zone de protection
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="wallonie_date_classement" class="form-label fw-bold">
+                    <i class="fas fa-calendar me-1"></i>Date de classement/inscription
+                  </label>
+                  <input type="date" class="form-control" id="wallonie_date_classement"/>
+
+                  <label for="wallonie_numero_classement" class="form-label fw-bold mt-2">
+                    <i class="fas fa-hashtag me-1"></i>Numéro de classement/inscription
+                  </label>
+                  <input type="text" class="form-control" id="wallonie_numero_classement" placeholder="Référence officielle"/>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-12 mb-3">
+                  <label for="wallonie_description_bien" class="form-label fw-bold">
+                    <i class="fas fa-align-left me-1"></i>Description du bien*
+                  </label>
+                  <textarea class="form-control" id="wallonie_description_bien" rows="3"
+                            placeholder="Description détaillée du monument, site ou élément patrimonial concerné" required></textarea>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label class="form-label fw-bold">
+                    <i class="fas fa-key me-1"></i>Qualité du demandeur*
+                  </label>
+                  <div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="wallonie_qualite_demandeur" id="wallonie_proprietaire" value="proprietaire" required/>
+                      <label class="form-check-label" for="wallonie_proprietaire">
+                        Propriétaire
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="wallonie_qualite_demandeur" id="wallonie_usufruitier" value="usufruitier" required/>
+                      <label class="form-check-label" for="wallonie_usufruitier">
+                        Usufruitier
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="wallonie_qualite_demandeur" id="wallonie_emphyteote" value="emphyteote" required/>
+                      <label class="form-check-label" for="wallonie_emphyteote">
+                        Emphytéote
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="wallonie_qualite_demandeur" id="wallonie_autre_droit" value="autre_droit" required/>
+                      <label class="form-check-label" for="wallonie_autre_droit">
+                        Autre droit réel
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="wallonie_reference_cadastrale" class="form-label fw-bold">
+                    <i class="fas fa-map me-1"></i>Référence cadastrale
+                    <%= badge_prerempli_intelligent(@form_data, :heritage_cadastre, @property&.numero_cadastre) if @form_data.present? %>
+                  </label>
+                  <input type="text"
+                         class="form-control"
+                         id="wallonie_reference_cadastrale"
+                         name="heritage_cadastre"
+                         value="<%= preremplir_champ(@form_data, :heritage_cadastre, @property&.numero_cadastre) %>"
+                         placeholder="Division, section, numéro">
+
+                  <label for="wallonie_superficie" class="form-label fw-bold mt-2">
+                    <i class="fas fa-ruler-combined me-1"></i>Superficie concernée
+                  </label>
+                  <input type="text" class="form-control" id="wallonie_superficie" placeholder="en m² ou hectares"/>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 3: Description des travaux -->

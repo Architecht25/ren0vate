@@ -1,0 +1,38 @@
+  <!-- SECTION 7 – Calcul du revenu de référence -->
+  <div class="card mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">
+        <i class="bi bi-calculator me-2"></i>Calcul du revenu de référence
+      </h5>
+    </div>
+    <div class="card-body">
+      <p class="mb-3">Le montant de la prime peut être majoré en fonction du revenu de référence de votre ménage (voir conditions sur la page : <a href="https://logement.wallonie.be" target="_blank" rel="noopener">https://logement.wallonie.be</a>).</p>
+
+      <%
+        # Récupérer la valeur depuis form_data
+        acces_donnees_revenu_value = @request&.form_data&.[]('acces_donnees_revenu')
+      %>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Acceptez-vous que l'administration accède à vos données (composition de ménage, avertissement extrait de rôle, allocations familiales, situation de handicap) afin de déterminer votre revenu de référence ?</label>
+
+            <div class="form-check mb-2">
+              <%= form.radio_button :acces_donnees_revenu, "Oui", { class: "form-check-input", id: "acces_donnees_oui", checked: acces_donnees_revenu_value == "Oui" } %>
+              <label class="form-check-label" for="acces_donnees_oui">
+                Oui
+              </label>
+            </div>
+
+            <div class="form-check mb-3">
+              <%= form.radio_button :acces_donnees_revenu, "Non", { class: "form-check-input", id: "acces_donnees_non", checked: acces_donnees_revenu_value == "Non" } %>
+              <label class="form-check-label" for="acces_donnees_non">
+                Non
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+

@@ -9,9 +9,6 @@ export default class extends Controller {
   }
 
   connect() {
-    console.log('📄 Document preview controller connecté')
-    console.log('📍 Preview URL:', this.previewUrlValue)
-    console.log('⬇️ Download URL:', this.downloadUrlValue)
     this.validateFileInput()
     this.setupExistingFile()
   }
@@ -77,12 +74,10 @@ export default class extends Controller {
 
   // Gestion des actions directes (appelées par data-action)
   showRemotePreview() {
-    console.log('🎬 Action showRemotePreview appelée')
     this.showRemotePreviewInternal()
   }
 
   downloadFile() {
-    console.log('📥 Action downloadFile appelée')
     this.downloadFileInternal()
   }
 
@@ -95,7 +90,6 @@ export default class extends Controller {
 
     try {
       this.showLoading()
-      console.log('🔍 Appel preview URL:', this.previewUrlValue)
 
       const response = await fetch(this.previewUrlValue, {
         headers: {
@@ -104,14 +98,12 @@ export default class extends Controller {
         }
       })
 
-      console.log('📡 Réponse reçue:', response.status, response.statusText)
 
       if (!response.ok) {
         throw new Error(`Erreur HTTP: ${response.status}`)
       }
 
       const data = await response.json()
-      console.log('📊 Données JSON parsées:', data)
 
       if (data.error) {
         throw new Error(data.error)
@@ -121,7 +113,6 @@ export default class extends Controller {
       this.displayRemotePreview(data)
 
     } catch (error) {
-      console.error('❌ Erreur dans showRemotePreviewInternal:', error)
       this.hideLoading()
       this.showError(`Erreur lors de la prévisualisation: ${error.message}`)
 
@@ -134,29 +125,23 @@ export default class extends Controller {
 
   // Affichage de la prévisualisation distante
   displayRemotePreview(data) {
-    console.log('📋 Données de prévisualisation reçues:', data)
 
     switch (data.type) {
       case 'image':
-        console.log('🖼️ Affichage image')
         this.showImagePreview(data.url)
         break
       case 'pdf':
         // Si une preview_url existe, utiliser la prévisualisation avec image
         if (data.preview_url) {
-          console.log('📄 Affichage PDF avec prévisualisation image')
           this.showPdfWithPreview(data.preview_url, data.url)
         } else {
-          console.log('📄 Affichage PDF simple')
           this.showPdfPreview(data.url)
         }
         break
       case 'pdf_with_preview':
-        console.log('📄 Affichage PDF avec prévisualisation (legacy)')
         this.showPdfWithPreview(data.preview_url, data.pdf_url)
         break
       default:
-        console.log('❓ Type non supporté:', data.type)
         this.showError(data.message || 'Prévisualisation non disponible pour ce type de fichier')
     }
   }
@@ -175,11 +160,8 @@ export default class extends Controller {
 
   // Affichage d'un PDF avec prévisualisation image
   showPdfWithPreview(previewUrl, pdfUrl) {
-    console.log('🎯 showPdfWithPreview appelée avec:', previewUrl, pdfUrl)
-    console.log('🎯 hasPreviewTarget:', this.hasPreviewTarget)
 
     if (this.hasPreviewTarget) {
-      console.log('✅ Target preview trouvé, affichage en cours...')
       this.showPreviewContainer()
       const downloadUrl = this.hasDownloadUrlValue ? this.downloadUrlValue : pdfUrl
       this.previewTarget.innerHTML = `
@@ -205,9 +187,7 @@ export default class extends Controller {
           </div>
         </div>
       `
-      console.log('✅ HTML inséré dans le target preview')
     } else {
-      console.error('❌ Target preview non trouvé!')
     }
   }
 
@@ -273,7 +253,6 @@ export default class extends Controller {
     }
 
     try {
-      console.log('⬇️ Appel download URL:', this.downloadUrlValue)
       // Ouvrir le lien de téléchargement dans un nouvel onglet
       window.open(this.downloadUrlValue, '_blank')
     } catch (error) {
@@ -288,7 +267,6 @@ export default class extends Controller {
     try {
       const response = await fetch(this.debugUrlValue)
       const data = await response.json()
-      console.log('Debug info:', data)
 
       if (data.error) {
         this.showError(`Debug: ${data.error}`)
@@ -296,7 +274,6 @@ export default class extends Controller {
         this.showInfo(`Fichier: ${data.filename}, Taille: ${data.byte_size} bytes, Type: ${data.content_type}`)
       }
     } catch (error) {
-      console.error('Debug failed:', error)
     }
   }
 
@@ -349,12 +326,9 @@ export default class extends Controller {
   }
 
   showPreviewContainer() {
-    console.log('👁️ showPreviewContainer appelée')
     if (this.hasPreviewTarget) {
-      console.log('✅ Target preview trouvé, affichage...')
       this.previewTarget.style.display = 'block'
     } else {
-      console.error('❌ Aucun target preview trouvé pour showPreviewContainer!')
     }
   }
 
@@ -385,7 +359,6 @@ export default class extends Controller {
 
   // Gestion des erreurs et messages
   showError(message) {
-    console.error('Document Preview Error:', message)
     if (this.hasPreviewTarget) {
       this.previewTarget.innerHTML = `
         <div class="alert alert-danger" role="alert">

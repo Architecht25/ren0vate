@@ -1,0 +1,356 @@
+<script nonce="<%= content_security_policy_nonce %>">
+// JavaScript pour afficher/masquer les détails des travaux
+function initializeTravauxToggle() {
+  // Vérification préliminaire avant toute exécution
+  if (document.querySelector('#wallonie-section') ||
+      document.querySelector('input[name="request[region]"][value="Wallonie"]') ||
+      document.querySelector('select[name="request[region]"] option[value="Wallonie"]:checked') ||
+      window.location.href.includes('wallonie') ||
+      document.body.textContent.includes('Wallonie')) {
+    console.log('🏠 WALLONIE DETECTÉ - Fonction initializeTravauxToggle() complètement ignorée');
+    return;
+  }
+
+  console.log('🔧 initializeTravauxToggle() appelée - Flandre seulement');
+
+  // Test différents sélecteurs pour trouver les checkboxes
+  let checkboxes = document.querySelectorAll('.form-check-input[id^="request_form_data_travaux_"]');
+  console.log('📦 Test 1 - [id^="request_form_data_travaux_"]: ', checkboxes.length);
+
+  if (checkboxes.length === 0) {
+    // Exclure les champs spécifiques à Wallonie
+    checkboxes = document.querySelectorAll('.form-check-input[id*="travaux"]:not([id*="remplacement_couverture"]):not([id*="appropriation_charpente"]):not([id*="dispositif_eaux_pluviales"]):not([id*="isolation_toit_combles"]):not([id*="appropriation_electrique"]):not([id*="appropriation_gaz"]):not([id*="remplacement_menuiseries"]):not([id*="pompe_chaleur_ecs_exclusive"]):not([id*="pompe_chaleur_chauffage_combinee"]):not([id*="ventilation_simple_flux_ensemble"]):not([id*="ventilation_double_flux_ensemble"]):not([id*="ventilation_simple_flux_partie"]):not([id*="ventilation_double_flux_partie"]):not([id*="isolation_conduites_chauffage_hors_volume"]):not([id*="isolation_ballon_stockage_chauffage"]):not([id*="circulateurs_vitesse_variable"]):not([id*="remplacement_ballon_stockage_chauffage"]):not([id*="remplacement_reservoir_ecs"]):not([id*="isolation_conduites_boucle_ecs"]):not([id*="isolation_echangeur_plaques"]):not([id*="isolation_ballon_stockage_ecs"])');
+    console.log('📦 Test 2 - [id*="travaux"] (hors Wallonie): ', checkboxes.length);
+  }
+
+  if (checkboxes.length === 0) {
+    checkboxes = document.querySelectorAll('.form-check-input');
+    console.log('📦 Test 3 - Toutes les checkboxes: ', checkboxes.length);
+    checkboxes.forEach((cb, i) => {
+      if (cb.id.includes('travaux')) {
+        console.log(`🔲 Checkbox travaux ${i}: id=${cb.id}`);
+      }
+    });
+    // Filtrer seulement celles avec 'travaux' dans l'ID
+    checkboxes = Array.from(checkboxes).filter(cb => cb.id.includes('travaux'));
+  }
+
+  console.log('📦 Checkboxes finales trouvées:', checkboxes.length);
+
+  checkboxes.forEach((checkbox, index) => {
+    console.log(`🔲 Checkbox ${index}: id=${checkbox.id}, checked=${checkbox.checked}`);
+
+    // Fonction pour afficher/masquer les détails
+    function toggleDetails() {
+      const detailsDiv = checkbox.closest('.form-check').nextElementSibling;
+      console.log(`🔍 Details div pour ${checkbox.id}:`, detailsDiv);
+
+      if (detailsDiv && detailsDiv.classList.contains('travaux-details')) {
+        if (checkbox.checked) {
+          console.log(`✅ Affichage détails pour ${checkbox.id}`);
+          detailsDiv.classList.remove('d-none');
+        } else {
+          console.log(`❌ Masquage détails pour ${checkbox.id}`);
+          detailsDiv.classList.add('d-none');
+        }
+      } else {
+        console.log(`⚠️ Pas de div travaux-details trouvée pour ${checkbox.id}`);
+      }
+    }
+
+    // Appliquer l'état initial
+    toggleDetails();
+
+    // Écouter les changements
+    checkbox.addEventListener('change', toggleDetails);
+  });
+}
+
+// Fonction pour sauvegarder via AJAX - Portée globale
+window.saveFormData = function() {
+  console.log('🚀 === SAUVEGARDE VIA FETCH ===');
+  console.log('🎯 Tentative de soumission');
+
+  const form = document.getElementById('request-form-main');
+  if (!form) {
+    console.error('❌ Formulaire non trouvé!');
+    alert('Erreur: formulaire non trouvé');
+    return;
+  }
+
+  // Récupérer le token CSRF de plusieurs sources possibles
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ||
+                   document.querySelector('input[name="authenticity_token"]')?.value ||
+                   form.querySelector('input[name="authenticity_token"]')?.value;
+
+  console.log('🔐 CSRF Token trouvé:', csrfToken ? 'OUI' : 'NON');
+
+  if (!csrfToken) {
+    console.error('❌ Token CSRF non trouvé!');
+    alert('Erreur: Token de sécurité manquant. Rechargez la page.');
+    return;
+  }
+
+  const formData = new FormData(form);
+  formData.set('commit', 'Sauvegarder en brouillon');
+
+  // S'assurer que le token CSRF est inclus
+  if (!formData.has('authenticity_token')) {
+    formData.set('authenticity_token', csrfToken);
+  }
+
+  // Log des données envoyées
+  console.log('📋 Données à envoyer:');
+  console.log('  🔐 authenticity_token:', formData.get('authenticity_token') ? 'PRÉSENT' : 'MANQUANT');
+  for (let [key, value] of formData.entries()) {
+    if (key.includes('toiture')) {
+      console.log(`  ${key}: ${value}`);
+    }
+  }
+
+  // Désactiver le bouton pendant l'envoi
+  const button = document.getElementById('flandre-submit-btn');
+  const originalText = button.textContent;
+  button.disabled = true;
+  button.textContent = 'Sauvegarde...';
+
+  fetch(form.action, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'Accept': 'application/json, text/html',
+      'X-Requested-With': 'XMLHttpRequest',
+      'X-CSRF-Token': csrfToken
+    }
+  })
+  .then(response => {
+    console.log('📡 Response status:', response.status);
+    if (response.ok) {
+      console.log('✅ Sauvegarde réussie!');
+
+      // Afficher un message de succès
+      const successMsg = document.createElement('div');
+      successMsg.className = 'alert alert-success alert-dismissible fade show mt-3';
+      successMsg.innerHTML = `
+        <i class="bi bi-check-circle me-2"></i>
+        Formulaire sauvegardé avec succès !
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      `;
+
+      // Insérer le message au début du formulaire
+      const container = document.querySelector('.request-form-container');
+      if (container) {
+        container.insertBefore(successMsg, container.firstChild);
+      }
+
+      // Auto-masquer après 5 secondes
+      setTimeout(() => {
+        successMsg.remove();
+      }, 5000);
+
+    } else {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return response.text();
+  })
+  .then(data => {
+    console.log('📄 Response data length:', data.length);
+  })
+  .catch(error => {
+    console.error('❌ Erreur de sauvegarde:', error);
+    alert('Erreur lors de la sauvegarde: ' + error.message);
+  })
+  .finally(() => {
+    // Réactiver le bouton
+    button.disabled = false;
+    button.textContent = originalText;
+  });
+}
+
+// Fonction pour déboguer la soumission du formulaire
+function handleFormSubmit(event) {
+  console.log('🚀 === DÉBOGAGE SOUMISSION FORMULAIRE ===');
+  console.log('Event:', event);
+  console.log('Target:', event.target);
+
+  // Trouver le formulaire parent
+  const form = event.target.closest('form');
+  console.log('Form trouvé:', form);
+  console.log('Form ID:', form?.id);
+  console.log('Form action:', form?.action);
+  console.log('Form method:', form?.method);
+
+  // Vérifier les données du formulaire
+  if (form) {
+    const formData = new FormData(form);
+    console.log('📋 Données du formulaire:');
+
+    // Afficher quelques champs clés
+    const keyFields = ['request[form_data][surface_toiture]', 'request[form_data][marque_toiture]', 'request[form_data][travaux_toiture]'];
+    keyFields.forEach(field => {
+      const value = formData.get(field);
+      if (value !== null) {
+        console.log(`  ${field}: ${value}`);
+      }
+    });
+
+    // Afficher tous les champs avec 'toiture'
+    for (let [key, value] of formData.entries()) {
+      if (key.includes('toiture')) {
+        console.log(`  ${key}: ${value}`);
+      }
+    }
+
+    console.log('🎯 Tentative de soumission...');
+
+    // Laisser le navigateur gérer la soumission normale
+    return true;
+  } else {
+    console.error('❌ Aucun formulaire trouvé!');
+    event.preventDefault();
+    return false;
+  }
+}
+
+// Fonction pour copier l'email de tracking
+function copyTrackingEmail() {
+  const trackingEmailField = document.getElementById('tracking_email_field');
+  const trackingEmail = trackingEmailField.value;
+
+  if (trackingEmail && trackingEmail !== 'Email généré après sauvegarde') {
+    navigator.clipboard.writeText(trackingEmail).then(function() {
+      // Afficher un feedback visuel
+      const button = document.querySelector('button[onclick="copyTrackingEmail()"]');
+      const originalText = button.innerHTML;
+      button.innerHTML = '<i class="bi bi-check"></i> Copié !';
+      button.classList.remove('btn-outline-secondary');
+      button.classList.add('btn-success');
+
+      setTimeout(function() {
+        button.innerHTML = originalText;
+        button.classList.remove('btn-success');
+        button.classList.add('btn-outline-secondary');
+      }, 2000);
+
+      console.log('Email de tracking copié: ' + trackingEmail);
+    }).catch(function(err) {
+      console.error('Erreur lors de la copie: ', err);
+      alert('Erreur lors de la copie de l\'email');
+    });
+  }
+}
+
+// Exécuter immédiatement et aussi au chargement du DOM avec vérification
+if (!document.querySelector('#wallonie-section') && !document.body.textContent.includes('Wallonie')) {
+  initializeTravauxToggle();
+}
+
+// JavaScript unifié pour toutes les checkboxes de travaux
+function initializeFlandreCheckboxes() {
+  console.log('🔧 === INITIALISATION CHECKBOXES FLANDRE ===');
+
+  // Fonction pour gérer une checkbox de travaux
+  function setupWorkCheckbox(checkboxName) {
+    const selector = `input[name="request[${checkboxName}]"][type="checkbox"]`;
+    const checkbox = document.querySelector(selector);
+
+    if (checkbox) {
+      // Supprimer les anciens event listeners s'ils existent
+      if (checkbox.toggleDetailsHandler) {
+        checkbox.removeEventListener('change', checkbox.toggleDetailsHandler);
+      }
+
+      function toggleDetails() {
+        const checkDiv = checkbox.closest('.form-check');
+        let detailsDiv = checkDiv ? checkDiv.nextElementSibling : null;
+
+        // Chercher le div travaux-details qui suit
+        while (detailsDiv && !detailsDiv.classList.contains('travaux-details')) {
+          detailsDiv = detailsDiv.nextElementSibling;
+        }
+
+        if (detailsDiv && detailsDiv.classList.contains('travaux-details')) {
+          if (checkbox.checked) {
+            detailsDiv.classList.remove('d-none');
+          } else {
+            detailsDiv.classList.add('d-none');
+          }
+        }
+      }
+
+      // Stocker la référence pour pouvoir la supprimer plus tard
+      checkbox.toggleDetailsHandler = toggleDetails;
+
+      // Appliquer l'état initial
+      toggleDetails();
+
+      // Écouter les changements
+      checkbox.addEventListener('change', toggleDetails);
+
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  // Liste complète des checkboxes à activer
+  const checkboxes = [
+    'travaux_toiture',
+    'travaux_murs',
+    'travaux_sol',
+    'travaux_cave',
+    'travaux_vitrage',
+    'travaux_portes',
+    'travaux_chauffage',
+    'travaux_boiler',
+    'travaux_amiante',
+    'travaux_complementaires',
+    'travaux_ventilation'
+  ];
+
+  console.log(`🎯 Tentative d'activation de ${checkboxes.length} checkboxes`);
+
+  let successCount = 0;
+  checkboxes.forEach(name => {
+    if (setupWorkCheckbox(name)) {
+      successCount++;
+    }
+  });
+
+  console.log(`✅ ${successCount}/${checkboxes.length} checkboxes activées avec succès`);
+
+  // Gérer le sélecteur de type pompe à chaleur
+  const typeSelect = document.querySelector('[data-target="pac-details"]');
+  if (typeSelect) {
+    console.log('🔥 Select type pompe à chaleur trouvé et configuré');
+
+    function showPacSection() {
+      // Masquer toutes les sections PAC
+      document.querySelectorAll('.pac-details').forEach(section => {
+        section.classList.add('d-none');
+      });
+
+      // Afficher la section correspondante
+      const selectedType = typeSelect.value;
+      if (selectedType) {
+        const targetSection = document.querySelector('.pac-details.' + selectedType);
+        if (targetSection) {
+          targetSection.classList.remove('d-none');
+          console.log(`🔥 Section PAC ${selectedType} affichée`);
+        }
+      }
+    }
+
+    // Appliquer l'état initial
+    showPacSection();
+
+    // Écouter les changements
+    typeSelect.addEventListener('change', showPacSection);
+  }
+}
+
+// Événements pour le chargement initial ET navigation Turbo
+document.addEventListener('DOMContentLoaded', initializeFlandreCheckboxes);
+document.addEventListener('turbo:load', initializeFlandreCheckboxes);
+document.addEventListener('turbo:render', initializeFlandreCheckboxes);
+</script>

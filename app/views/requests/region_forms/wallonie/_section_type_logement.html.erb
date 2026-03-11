@@ -1,0 +1,56 @@
+  <!-- SECTION 6 – Type de logement -->
+  <div class="card mb-4">
+    <div class="card-header bg-secondary text-white">
+      <h5 class="mb-0">
+        <i class="bi bi-house me-2"></i>Type de logement
+      </h5>
+    </div>
+    <div class="card-body">
+      <%
+        # Mapping pour type_bien_wallonie
+        type_logement_mapping = {
+          "maison_unifamiliale" => "maison_unifamiliale",
+          "appartement_studio" => "appartement_studio",
+          "immeuble_plusieurs_unites" => "immeuble_compose",
+          "autre" => "autres"
+        }
+        type_logement_value = type_logement_mapping[@property&.type_bien_wallonie] || @property&.type_bien_wallonie
+      %>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Type de logement</label>
+
+            <div class="form-check mb-2">
+              <%= form.radio_button :type_logement, "maison_unifamiliale", { class: "form-check-input", id: "type_maison", checked: type_logement_value == "maison_unifamiliale" } %>
+              <label class="form-check-label" for="type_maison">
+                maison unifamiliale
+              </label>
+            </div>
+
+            <div class="form-check mb-2">
+              <%= form.radio_button :type_logement, "appartement_studio", { class: "form-check-input", id: "type_appartement", checked: type_logement_value == "appartement_studio" } %>
+              <label class="form-check-label" for="type_appartement">
+                appartement/studio
+              </label>
+            </div>
+
+            <div class="form-check mb-2">
+              <%= form.radio_button :type_logement, "immeuble_compose", { class: "form-check-input", id: "type_immeuble", checked: type_logement_value == "immeuble_compose" } %>
+              <label class="form-check-label" for="type_immeuble">
+                immeuble composé de plusieurs unités de logement
+              </label>
+            </div>
+
+            <div class="form-check mb-3">
+              <%= form.radio_button :type_logement, "autres", { class: "form-check-input", id: "type_autres", checked: type_logement_value == "autres" } %>
+              <label class="form-check-label" for="type_autres">
+                autres
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+

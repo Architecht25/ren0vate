@@ -6,8 +6,6 @@ export default class extends Controller {
   static values = { slug: String }
 
   connect() {
-    console.log("🎯 Wallonie Prime Card Controller connected pour:", this.slugValue)
-    console.log("🎯 Controller ECS chargé et actif - hash: 9a20ff68d4d304a80f9d097c1d03c64735bf75f19e8dfe6518eb6e294b844b10")
     this.setupTargets()
     this.calculate()
   }
@@ -21,19 +19,16 @@ export default class extends Controller {
     const resultElements = this.element.querySelectorAll('[data-wallonie-prime-card-target*="result"]')
     this.resultElements = Array.from(resultElements)
 
-    console.log(`Carte ${this.slugValue}: ${this.inputs.length} inputs, ${this.resultElements.length} résultats`)
   }
 
   calculate() {
     if (!this.slugValue) {
-      console.warn("Pas de slug défini pour cette carte")
       return
     }
 
     // Récupérer le controller parent pour accéder aux données
     const parentController = this.getParentController()
     if (!parentController) {
-      console.warn("Controller parent non trouvé")
       return
     }
 
@@ -49,14 +44,12 @@ export default class extends Controller {
     // Trouver la prime correspondante
     const prime = primesData[this.slugValue]
     if (!prime) {
-      console.warn(`Prime non trouvée pour slug: ${this.slugValue}`)
       return
     }
 
     // Calculer selon le type de calcul
     const calculData = prime.valeurs_par_categorie[currentCategory]
     if (!calculData) {
-      console.warn(`Données de calcul non trouvées pour ${currentCategory}`)
       return
     }
 
@@ -78,7 +71,6 @@ export default class extends Controller {
         total = this.calculatePourcentage(calculData)
         break
       default:
-        console.warn(`Type de calcul non reconnu: ${calculData.type}`)
     }
 
     // Mettre à jour l'affichage
@@ -100,7 +92,6 @@ export default class extends Controller {
     const isSelected = inputValue === "1" || inputValue === 1
     const montant = isSelected ? calculData.montant : 0
 
-    console.log(`💰 Montant fixe simple - Input: "${inputValue}", Sélectionné: ${isSelected}, Montant: ${montant}€`)
 
     return montant
   }
@@ -181,20 +172,17 @@ export default class extends Controller {
       const prime = primesData[slug]
 
       if (!prime) {
-        console.warn(`Prime composite non trouvée: ${slug}`)
         return
       }
 
       const calculData = prime.valeurs_par_categorie[currentCategory]
       if (!calculData) {
-        console.warn(`Données de calcul composite non trouvées pour ${slug} - ${currentCategory}`)
         return
       }
 
       // Trouver l'input correspondant
       const input = this.element.querySelector(inputSelector)
       if (!input) {
-        console.warn(`Input non trouvé pour ${inputSelector}`)
         return
       }
 
@@ -202,7 +190,6 @@ export default class extends Controller {
       let montant = 0
       const inputValue = input.value
 
-      console.log(`🔍 Calcul pour ${slug}:`, {
         inputSelector,
         inputValue,
         inputType: input.type,
@@ -216,7 +203,6 @@ export default class extends Controller {
           // Si input = "1" (Oui), on applique le montant, sinon 0
           const isSelected = inputValue === "1" || inputValue === 1
           montant = isSelected ? calculData.montant : 0
-          console.log(`💰 Montant fixe: ${isSelected ? 'Sélectionné' : 'Non sélectionné'} = ${montant}€`)
           break
         case 'par_m2':
         case 'montant_m2':  // Support pour les deux formats
@@ -225,7 +211,6 @@ export default class extends Controller {
           const surface = parseFloat(inputValue) || 0
           const prixParM2 = calculData.montant_m2 || calculData.montant_par_m2 || calculData.prix_par_m2 || calculData.montant || 0
           montant = surface * prixParM2
-          console.log(`📏 Par m²: ${surface}m² × ${prixParM2}€/m² = ${montant}€`)
           break
         case 'par_unite':
         case 'montant_par_unite':  // Support pour les deux formats
@@ -234,7 +219,6 @@ export default class extends Controller {
           const unites = parseFloat(inputValue) || 0
           const prixParUnite = calculData.montant_unitaire || calculData.montant_par_unite || calculData.prix_par_unite || calculData.montant || 0
           montant = unites * prixParUnite
-          console.log(`🔢 Par unité: ${unites} × ${prixParUnite}€ = ${montant}€`)
           break
         case 'pourcentage':
           // Pour les calculs en pourcentage (du montant des travaux)
@@ -243,19 +227,15 @@ export default class extends Controller {
           const montantMax = calculData.montant_max || Infinity
           const calculResult = (montantTravaux * pourcentage) / 100
           montant = Math.min(calculResult, montantMax)
-          console.log(`📊 Pourcentage: ${montantTravaux}€ × ${pourcentage}% = ${montant}€ (max: ${montantMax}€)`)
           break
         default:
-          console.warn(`Type de calcul non reconnu dans composite: ${calculData.type}`)
       }
 
       // Mettre à jour l'affichage de ce résultat spécifique
       const resultElement = this.element.querySelector(resultSelector)
       if (resultElement) {
         resultElement.textContent = `${montant.toLocaleString('fr-FR')} €`
-        console.log(`✅ Résultat mis à jour pour ${slug}: ${montant}€`)
       } else {
-        console.warn(`❌ Element résultat non trouvé: ${resultSelector}`)
       }
 
       totalGlobal += montant

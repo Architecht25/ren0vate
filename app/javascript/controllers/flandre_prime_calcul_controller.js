@@ -4,7 +4,6 @@ export default class extends Controller {
   static targets = ["sectionTitle", "totalGeneral", "selectedPrimesSummary", "currentCategory"]
 
   connect() {
-    console.log("🎯 Contrôleur Flandre Prime Calcul connecté")
     this.setupPrimesData()
     this.setupGroupesPlafond()
     this.setupEventListeners()
@@ -44,9 +43,7 @@ export default class extends Controller {
       const primesScript = document.getElementById('flandre-primes-data')
       if (primesScript) {
         this.primesData = JSON.parse(primesScript.textContent)
-        console.log("📊 Données de primes Flandre chargées:", Object.keys(this.primesData).length, "primes")
       } else {
-        console.warn("⚠️ Script de données primes Flandre non trouvé")
         this.primesData = {}
       }
 
@@ -56,7 +53,6 @@ export default class extends Controller {
         const simulationData = JSON.parse(simulationScript.textContent)
         this.currentCategory = simulationData.category || '1'
         this.simulationId = simulationData.simulationId
-        console.log("🎯 Catégorie actuelle:", this.currentCategory, "Simulation ID:", this.simulationId)
       } else {
         this.currentCategory = '1'
         this.simulationId = null
@@ -66,7 +62,6 @@ export default class extends Controller {
       window.flandreCurrentCategory = this.currentCategory
       window.flandrePrimesData = this.primesData
     } catch (error) {
-      console.error("❌ Erreur lors du chargement des données Flandre:", error)
       this.primesData = {}
       this.currentCategory = '1'
     }
@@ -122,7 +117,6 @@ export default class extends Controller {
         const slug = card.dataset.flandrePrimeCardSlugValue
         const value = parseFloat(element.textContent.replace(/[€\s,]/g, '.').replace(/[^\d.]/g, '')) || 0
         cartesMontants[slug] = value
-        console.log(`📊 Trouvé carte ${slug}: ${value}€`)
       }
     })
 
@@ -133,7 +127,6 @@ export default class extends Controller {
     total = Object.values(montantsFinaux).reduce((sum, montant) => sum + montant, 0)
 
     this.totalGeneralTarget.textContent = `${total.toFixed(2)} €`
-    console.log("💰 Total Flandre mis à jour avec plafonds:", total.toFixed(2), "€")
 
     // Déclencher l'auto-save vers la base de données
     this.saveToDatabase()
@@ -162,7 +155,6 @@ export default class extends Controller {
             montantsFinaux[slug] = cartesMontants[slug] * facteur
           }
         })
-        console.log(`⚖️ Plafond appliqué au groupe ${groupe}: ${totalGroupe.toFixed(2)}€ → ${plafond.toFixed(2)}€`)
       }
     }
 
@@ -209,7 +201,6 @@ export default class extends Controller {
 
   // Méthode pour changer de catégorie (appelée depuis l'interface d'éligibilité)
   changeCategory(newCategory) {
-    console.log("🔄 Changement de catégorie Flandre:", this.currentCategory, "→", newCategory)
 
     this.currentCategory = newCategory
     window.flandreCurrentCategory = newCategory
@@ -229,13 +220,11 @@ export default class extends Controller {
   saveToDatabase() {
     // Vérifier si la restauration est en cours
     if (window.isRestoringValues) {
-      console.log('🔄 Sauvegarde Flandre ignorée: restauration en cours');
       return;
     }
 
     // Protection supplémentaire contre les blocages
     if (window.restorationStartTime && (Date.now() - window.restorationStartTime) > 10000) {
-      console.log('⚠️ Restauration Flandre bloquée depuis > 10s, forçage de la réinitialisation');
       window.isRestoringValues = false;
     }
 
@@ -254,7 +243,6 @@ export default class extends Controller {
 
     // Sauvegarder via API
     if (Object.keys(userInputs).length > 0) {
-      console.log('💾 Sauvegarde Flandre des données:', Object.keys(userInputs).length, 'saisies');
 
       fetch(`/fr/simulations/${this.simulationId}/update_prime_inputs`, {
         method: 'PATCH',
@@ -267,15 +255,12 @@ export default class extends Controller {
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          console.log("✅ Auto-save Flandre réussi:", data.total_amount, "€")
           this.showSaveIndicator('success');
         } else {
-          console.error("❌ Erreur auto-save Flandre:", data.error)
           this.showSaveIndicator('error');
         }
       })
       .catch(error => {
-        console.error("❌ Erreur auto-save Flandre:", error)
         this.showSaveIndicator('error');
       })
     }
@@ -290,7 +275,6 @@ export default class extends Controller {
 
     // Vérifier si la restauration est en cours
     if (window.isRestoringValues) {
-      console.log('🔄 Sauvegarde input Flandre ignorée: restauration en cours');
       return;
     }
 
@@ -307,11 +291,9 @@ export default class extends Controller {
     .then(response => response.json())
     .then(data => {
       if (data.success) {
-        console.log(`💾 Auto-save ${slug}:`, input.value, "→", data.total_amount, "€")
       }
     })
     .catch(error => {
-      console.error("❌ Erreur auto-save:", error)
     })
   }
 

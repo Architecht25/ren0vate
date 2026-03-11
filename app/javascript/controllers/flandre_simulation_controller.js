@@ -16,19 +16,14 @@ export default class extends Controller {
   }
 
   connect() {
-    console.log("🎯 Flandre Simulation controller connected")
-    console.log("📊 Simulation ID:", this.simulationIdValue)
-    console.log("🔍 Element:", this.element)
 
     // Vérifier si nous sommes sur une page avec des cartes de primes
     const hasCards = this.element.querySelector('[data-flandre-simulation-card-slug-value]')
 
     if (!hasCards) {
-      console.log("⚠️ Aucune carte de prime trouvée, arrêt du controller Flandre")
       return
     }
 
-    console.log("✅ Cartes de primes détectées, initialisation du controller")
 
     // Protection contre les auto-saves trop fréquents
     this.lastAutoSaveTime = 0
@@ -40,7 +35,6 @@ export default class extends Controller {
 
     // Écouter les événements de mise à jour des cartes individuelles
     this.element.addEventListener('flandre:card:updated', (e) => {
-      console.log(`📬 Événement flandre:card:updated reçu de ${e.detail?.slug}`)
       // Mettre à jour le total global quand une carte change
       this.updateTotalGlobal()
     })
@@ -51,13 +45,11 @@ export default class extends Controller {
     // Attendre que les données de primes soient chargées PUIS que les cartes se connectent
     // avant de faire le premier calcul du total
     setTimeout(() => {
-      console.log("🔍 Vérification initiale et premier calcul du total...")
 
       // Ne calculer le total que si nous ne sommes pas en train de restaurer
       if (!window.isRestoringValues) {
         this.updateTotalGlobal()
       } else {
-        console.log("⏭️ Calcul du total reporté: restauration en cours")
       }
     }, 1500)
   }
@@ -88,18 +80,15 @@ export default class extends Controller {
       const primesScript = document.getElementById('flandre-primes-data')
       if (primesScript) {
         this.primesData = JSON.parse(primesScript.textContent)
-        console.log("📊 Données de primes Flandre chargées:", Object.keys(this.primesData).length, "primes")
 
         // Déclencher le recalcul de toutes les cartes après chargement des données
         setTimeout(() => {
           this.triggerCardsRecalculation()
         }, 100)
       } else {
-        console.warn("⚠️ Script de données primes Flandre non trouvé")
         this.primesData = {}
       }
     } catch (error) {
-      console.error("❌ Erreur lors du chargement des données primes Flandre:", error)
       this.primesData = {}
     }
   }
@@ -119,11 +108,9 @@ export default class extends Controller {
       sol:     { "1": 0, "2": 0, "3": 1050, "4": 1500 }
     };
 
-    console.log("🏗️ Configuration des groupes de plafond Flandre initialisée")
   }
 
   triggerCardsRecalculation() {
-    console.log("🔄 Déclenchement du recalcul de toutes les cartes Flandre")
     const flandreCards = this.element.querySelectorAll('[data-controller*="flandre-simulation-card"]')
     flandreCards.forEach(cardElement => {
       // Déclencher un événement pour forcer le recalcul
@@ -148,11 +135,9 @@ export default class extends Controller {
     const hasCards = this.element.querySelector('[data-flandre-simulation-card-slug-value]')
 
     if (!hasCards) {
-      console.log("⚠️ Pas de cartes de primes sur cette page, calcul du total ignoré")
       return
     }
 
-    console.log("🔄 Calcul du total global Flandre avec application des plafonds de groupe...")
 
     // Slugs des cartes Flandre principales (correspondant aux cartes HTML)
     const cartesSlugs = [
@@ -178,7 +163,6 @@ export default class extends Controller {
       const carteElement = document.querySelector(`[data-flandre-simulation-card-slug-value="${slug}"]`)
       if (carteElement) {
         cartesFoundCount++
-        console.log(`✅ Carte ${slug} trouvée`)
 
         const totalElement = carteElement.querySelector('[data-flandre-simulation-card-target="result"]')
         if (totalElement) {
@@ -209,41 +193,32 @@ export default class extends Controller {
 
           // Protection contre les valeurs négatives (ne devrait jamais arriver)
           if (montant < 0) {
-            console.warn(`⚠️ Montant négatif détecté pour ${slug}: ${montant}€, forcé à 0`)
             montant = 0
           }
 
           cartesMontants[slug] = montant
           if (montant > 0) {
-            console.log(`✅ Carte ${slug}: ${montant}€ (texte: "${totalElement.textContent}")`)
           } else {
-            console.log(`⚪ Carte ${slug}: 0€ (texte: "${totalElement.textContent}")`)
           }
         } else {
-          console.log(`❌ Carte ${slug}: élément result non trouvé`)
           // Debug plus profond
           const allTargets = carteElement.querySelectorAll('[data-flandre-simulation-card-target]')
-          console.log(`   Targets trouvés:`, Array.from(allTargets).map(el => el.dataset.flandreSimulationCardTarget))
           cartesMontants[slug] = 0
         }
       } else {
-        console.log(`❌ Carte ${slug}: carte non trouvée dans le DOM`)
         cartesMontants[slug] = 0
       }
     })
 
-    console.log(`📊 Résumé: ${cartesFoundCount}/${cartesSlugs.length} cartes trouvées, ${cartesWithTotal} avec target result`)
 
     // ÉTAPE 2: Appliquer les plafonds de groupe (catégories 3 et 4 uniquement)
     const montantsFinaux = this.appliquerPlafondsGroupes(cartesMontants)
 
     // ÉTAPE 3: Calculer le total après application des plafonds
     let total = Object.values(montantsFinaux).reduce((sum, montant) => sum + montant, 0)
-    console.log(`💰 Total des primes après plafonds de groupe: ${total.toFixed(2)}€`)
 
     // Ajouter le montant PEB s'il est visible
     let montantPEB = 0
-    console.log("🔍 Recherche de la carte PEB...")
 
     // Plusieurs sélecteurs possibles pour PEB
     const pebSelectors = [
@@ -256,17 +231,14 @@ export default class extends Controller {
     for (const selector of pebSelectors) {
       pebContainer = document.querySelector(selector)
       if (pebContainer) {
-        console.log(`✅ Conteneur PEB trouvé avec sélecteur: ${selector}`)
         break
       }
     }
 
     if (pebContainer && !pebContainer.classList.contains('d-none')) {
-      console.log("✅ Conteneur PEB visible")
       const pebMontant = pebContainer.querySelector('[data-peb-target="montantCalcule"]')
       if (pebMontant) {
         const montantText = pebMontant.textContent.trim()
-        console.log(`🔍 Texte PEB brut: "${montantText}"`)
 
         // Parser le montant PEB (format: "200.00 €")
         // Supprimer € et espaces, garder le point décimal
@@ -285,32 +257,24 @@ export default class extends Controller {
 
         if (montantPEB > 0) {
           total += montantPEB
-          console.log(`🏢 Prime PEB: ${montantPEB}€`)
         } else {
-          console.log(`⚪ Prime PEB: 0€ (texte: "${montantText}")`)
         }
       } else {
-        console.log("❌ Élément montantCalcule PEB non trouvé")
       }
     } else {
       if (!pebContainer) {
-        console.log("❌ Conteneur PEB non trouvé dans le DOM")
       } else {
-        console.log("❌ Conteneur PEB masqué (classe d-none)")
       }
     }
 
     // Ajouter le montant Amiante s'il est visible
     let montantAmiante = 0
-    console.log("🔍 Recherche de la carte Amiante...")
 
     const amianteContainer = document.querySelector('[data-controller="amiante"]')
     if (amianteContainer) {
-      console.log("✅ Conteneur Amiante trouvé")
       const amianteMontant = amianteContainer.querySelector('[data-amiante-target="result"]')
       if (amianteMontant) {
         const montantText = amianteMontant.textContent.trim()
-        console.log(`🔍 Texte Amiante brut: "${montantText}"`)
 
         // Parser le montant amiante (format: "4000.00 €")
         // Supprimer € et espaces, garder le point décimal
@@ -329,22 +293,17 @@ export default class extends Controller {
 
         if (montantAmiante > 0) {
           total += montantAmiante
-          console.log(`☣️ Prime Amiante: ${montantAmiante}€`)
         } else {
-          console.log(`⚪ Prime Amiante: 0€ (texte: "${montantText}")`)
         }
       } else {
-        console.log("❌ Élément result Amiante non trouvé")
       }
     } else {
-      console.log("❌ Conteneur Amiante non trouvé dans le DOM")
     }
 
     const totalMessage = []
     if (montantPEB > 0) totalMessage.push(`PEB: ${montantPEB}€`)
     if (montantAmiante > 0) totalMessage.push(`Amiante: ${montantAmiante}€`)
 
-    console.log(`🎯 Total global Flandre calculé: ${total}€${totalMessage.length > 0 ? ` (dont ${totalMessage.join(', ')})` : ''}`)
 
     // Mettre à jour l'affichage du total
     if (this.hasTotalGeneralTarget) {
@@ -352,7 +311,6 @@ export default class extends Controller {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       })} €`
-      console.log(`📝 Total affiché: ${this.totalGeneralTarget.textContent}`)
 
       // Animation visuelle
       this.totalGeneralTarget.classList.add('updated')
@@ -360,7 +318,6 @@ export default class extends Controller {
         this.totalGeneralTarget.classList.remove('updated')
       }, 300)
     } else {
-      console.log("❌ Target totalGeneral non trouvé!")
     }
 
     // Émettre un événement pour notifier le total global
@@ -373,7 +330,6 @@ export default class extends Controller {
 
     // Déclencher l'auto-save pour sauvegarder le nouveau total incluant PEB et amiante
     if (this.simulationIdValue) {
-      console.log("💾 Déclenchement auto-save après mise à jour total global")
       this.debouncedAutoSave()
     }
   }
@@ -384,11 +340,9 @@ export default class extends Controller {
     const categoryNumber = this.currentCategory.replace('flandre_cat', '')
 
     if (["1", "2"].includes(categoryNumber)) {
-      console.log(`ℹ️ Catégorie ${categoryNumber}: pas de plafonds de groupe appliqués`)
       return cartesMontants
     }
 
-    console.log(`🔧 Application des plafonds de groupe pour catégorie ${categoryNumber}`)
     const montantsFinaux = { ...cartesMontants }
 
     // Appliquer les plafonds par groupe
@@ -401,18 +355,14 @@ export default class extends Controller {
       if (totalGroupe > plafond && plafond > 0) {
         // Réduire proportionnellement tous les montants du groupe
         const facteur = plafond / totalGroupe
-        console.log(`⚖️ Groupe "${groupe}": total ${totalGroupe.toFixed(2)}€ > plafond ${plafond.toFixed(2)}€`)
-        console.log(`   → Application du facteur de réduction: ${(facteur * 100).toFixed(2)}%`)
 
         slugs.forEach(slug => {
           if (cartesMontants[slug] && cartesMontants[slug] > 0) {
             const montantOriginal = cartesMontants[slug]
             montantsFinaux[slug] = montantOriginal * facteur
-            console.log(`   → ${slug}: ${montantOriginal.toFixed(2)}€ → ${montantsFinaux[slug].toFixed(2)}€`)
           }
         })
       } else if (totalGroupe > 0) {
-        console.log(`✅ Groupe "${groupe}": total ${totalGroupe.toFixed(2)}€ ≤ plafond ${plafond.toFixed(2)}€ - pas de réduction`)
       }
     }
 
@@ -421,7 +371,6 @@ export default class extends Controller {
 
   // Méthode appelée par les cartes enfants pour notifier un changement
   cardUpdated() {
-    console.log("🔄 Carte mise à jour - recalcul du total global")
     this.updateTotalGlobal()
   }
 
@@ -434,7 +383,6 @@ export default class extends Controller {
     localStorage.setItem('flandreCategorieEstimee', categoryNumber)
     this.updateSectionTitle()
 
-    console.log(`🔄 Changement de catégorie vers: ${newCategory}`)
 
     // Déclencher le recalcul de toutes les cartes Flandre
     const flandreCards = this.element.querySelectorAll('[data-controller*="flandre-simulation-card"]')
@@ -532,7 +480,6 @@ export default class extends Controller {
     // Protection contre les auto-saves trop fréquents
     const now = Date.now()
     if (now - this.lastAutoSaveTime < this.minAutoSaveInterval) {
-      console.log("🚫 Auto-save ignoré: trop fréquent (< 5 secondes)")
       return
     }
 
@@ -540,19 +487,16 @@ export default class extends Controller {
     const hasCards = this.element.querySelector('[data-flandre-simulation-card-slug-value]')
 
     if (!hasCards) {
-      console.log("⚠️ Pas de cartes de primes sur cette page, auto-save ignoré")
       return
     }
 
     // Vérifier si la restauration est en cours
     if (window.isRestoringValues) {
-      console.log('🔄 Sauvegarde Flandre ignorée: restauration en cours');
       return;
     }
 
     // Protection supplémentaire contre les blocages
     if (window.restorationStartTime && (Date.now() - window.restorationStartTime) > 10000) {
-      console.log('⚠️ Restauration Flandre bloquée depuis > 10s, forçage de la réinitialisation');
       window.isRestoringValues = false;
     }
 
@@ -587,7 +531,6 @@ export default class extends Controller {
 
     // Sauvegarder via API
     if (Object.keys(userInputs).length > 0) {
-      console.log('💾 Sauvegarde Flandre des données:', Object.keys(userInputs).length, 'saisies');
 
       // Calculer le total côté client pour l'envoyer aussi
       const calculatedTotal = this.calculateCurrentTotal();
@@ -607,19 +550,16 @@ export default class extends Controller {
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          console.log("✅ Auto-save Flandre réussi:", data.total_amount, "€");
 
           // Distribuer les montants calculés aux cartes individuelles
           this.updateCardsWithCalculatedAmounts(data.updated_cards);
 
           // Encart de confirmation supprimé
         } else {
-          console.error("❌ Erreur auto-save Flandre:", data.error);
           // Encart d'erreur supprimé
         }
       })
       .catch(error => {
-        console.error("❌ Erreur auto-save Flandre:", error);
         // Encart d'erreur supprimé
       });
     }
@@ -726,7 +666,6 @@ export default class extends Controller {
       }
     }
 
-    console.log(`💰 Total complet calculé côté client (primes + PEB + amiante): ${total} €`)
     return total;
   }
 
@@ -750,7 +689,6 @@ export default class extends Controller {
     const categoryName = categoryNames[category] || 'Catégorie non définie'
     this.currentCategoryTarget.textContent = `${categoryName} • Estimation selon votre profil de revenus`
 
-    console.log(`📋 Catégorie affichée: ${categoryName}`)
   }
 
   // Méthode appelée par les actions des cartes (compatibilité)
@@ -779,7 +717,6 @@ export default class extends Controller {
           if (resultSpan) {
             const formattedAmount = calculatedAmount.toLocaleString('fr-FR')
             resultSpan.textContent = `${formattedAmount} €`
-            console.log(`💰 Carte ${slug} mise à jour: ${formattedAmount}€`)
           }
         }
       })
@@ -826,7 +763,6 @@ export default class extends Controller {
 
   // Nouvelle méthode : Sauvegarder et calculer toutes les données Flandre (PEB/Amiante inclus)
   async saveAndCalculateAll() {
-    console.log("💾 Sauvegarde et calcul de toutes les données Flandre")
 
     const pebData = this.collectPebData()
     const amianteData = this.collectAmianteData()
@@ -846,10 +782,8 @@ export default class extends Controller {
       userInputs.primes = primesData
     }
 
-    console.log("📊 Données à envoyer:", userInputs)
 
     if (Object.keys(userInputs).length === 0) {
-      console.log("⚠️ Aucune donnée valide à sauvegarder")
       return
     }
 
@@ -869,21 +803,16 @@ export default class extends Controller {
 
       if (response.ok) {
         const result = await response.json()
-        console.log("✅ Réponse serveur:", result)
 
         if (result.success) {
           // Mettre à jour les cartes avec les résultats serveur
           this.updateCardsFromServerResponse(result)
           // Le total global sera recalculé automatiquement par updateCardsFromServerResponse
-          console.log("✅ Données sauvegardées et calculées avec succès")
         } else {
-          console.error("❌ Erreur serveur:", result.message)
         }
       } else {
-        console.error("❌ Erreur HTTP:", response.status)
       }
     } catch (error) {
-      console.error("❌ Erreur lors de la sauvegarde:", error)
     }
   }
 
@@ -969,21 +898,16 @@ export default class extends Controller {
 
   // Restaurer les données sauvegardées depuis la base de données
   async restoreSavedData() {
-    console.log("🔄 === DÉBUT RESTAURATION ===")
-    console.log("🔍 simulationIdValue:", this.simulationIdValue)
 
     if (!this.simulationIdValue) {
-      console.log("⚠️ Pas de simulation ID pour la restauration")
       return
     }
 
     // Activer le flag de restauration pour éviter les auto-saves concurrents
     window.isRestoringValues = true
     window.restorationStartTime = Date.now()
-    console.log("🔒 Flag de restauration activé")
 
     try {
-      console.log("📡 Envoi requête de restauration...")
       const response = await fetch(`/fr/simulations/${this.simulationIdValue}/restore_prime_inputs`, {
         method: 'GET',
         headers: {
@@ -992,38 +916,31 @@ export default class extends Controller {
         }
       })
 
-      console.log("📥 Réponse reçue, status:", response.status)
 
       if (response.ok) {
         const result = await response.json()
-        console.log("✅ Données brutes reçues:", result)
 
         if (result.success && result.user_inputs) {
-          console.log("🎯 user_inputs trouvés:", result.user_inputs)
 
           // Restaurer les données PEB
           if (result.user_inputs.peb) {
-            console.log("🏠 Restauration PEB:", result.user_inputs.peb)
             this.restorePebData(result.user_inputs.peb)
           }
 
           // Restaurer les données Amiante
           if (result.user_inputs.amiante) {
-            console.log("☣️ Restauration Amiante:", result.user_inputs.amiante)
             this.restoreAmianteData(result.user_inputs.amiante)
           }
 
           // Restaurer les autres données de primes
           Object.keys(result.user_inputs).forEach(slug => {
             if (slug !== 'peb' && slug !== 'amiante') {
-              console.log(`🔧 Restauration prime ${slug}:`, result.user_inputs[slug])
               this.restorePrimeInput(slug, result.user_inputs[slug])
             }
           })
 
           // Attendre que toutes les cartes aient recalculé, puis recalculer le total
           setTimeout(() => {
-            console.log("🔓 Désactivation du flag de restauration")
             window.isRestoringValues = false
             window.restorationStartTime = null
 
@@ -1041,12 +958,10 @@ export default class extends Controller {
           window.restorationStartTime = null
         }
       } else {
-        console.log("⚠️ Erreur lors de la restauration:", response.status)
         window.isRestoringValues = false
         window.restorationStartTime = null
       }
     } catch (error) {
-      console.error("❌ Erreur restauration:", error)
       window.isRestoringValues = false
       window.restorationStartTime = null
     }
@@ -1054,7 +969,6 @@ export default class extends Controller {
 
   // Restaurer les données PEB
   restorePebData(pebData) {
-    console.log("🏠 Restauration données PEB:", pebData)
 
     // Trouver et déclencher le controller PEB
     const pebController = this.application.getControllerForElementAndIdentifier(
@@ -1068,7 +982,6 @@ export default class extends Controller {
 
   // Restaurer les données Amiante
   restoreAmianteData(amianteData) {
-    console.log("🏗️ Restauration données Amiante:", amianteData)
 
     // Trouver et déclencher le controller Amiante
     const amianteController = this.application.getControllerForElementAndIdentifier(
@@ -1082,14 +995,12 @@ export default class extends Controller {
 
   // Restaurer une donnée de prime normale
   restorePrimeInput(slug, value) {
-    console.log(`🔄 Restauration ${slug}:`, value)
 
     // Chercher l'élément (input ou select) avec ce slug
     const element = this.element.querySelector(`[data-slug="${slug}"]`)
 
     if (element) {
       element.value = value
-      console.log(`✅ Valeur ${value} restaurée pour ${slug}`)
 
       // Déclencher les événements appropriés selon le type d'élément
       if (element.tagName === 'SELECT') {
@@ -1098,13 +1009,11 @@ export default class extends Controller {
         element.dispatchEvent(new Event('input', { bubbles: true }))
       }
     } else {
-      console.warn(`❌ Élément non trouvé pour slug: ${slug}`)
     }
   }
 
   // Méthode pour mettre à jour le total général affiché
   updateTotalGeneral(totalAmount) {
-    console.log(`🎯 Mise à jour du total général: ${totalAmount}€`)
 
     if (this.hasTotalGeneralTarget) {
       // Formater le montant avec séparateurs de milliers
@@ -1116,9 +1025,7 @@ export default class extends Controller {
       }).format(totalAmount || 0)
 
       this.totalGeneralTarget.textContent = formattedAmount
-      console.log(`✅ Total général mis à jour: ${formattedAmount}`)
     } else {
-      console.error(`❌ Target totalGeneral non trouvé!`)
     }
   }
 

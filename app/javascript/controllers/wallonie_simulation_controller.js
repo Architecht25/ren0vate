@@ -15,8 +15,6 @@ export default class extends Controller {
   }
 
   connect() {
-    console.log("🎯 Wallonie Simulation controller connected")
-    console.log("📊 Simulation ID:", this.simulationIdValue)
 
     this.primesData = []
     this.backendCalculatedTotal = 0  // Stocker le total calculé par le backend
@@ -51,7 +49,6 @@ export default class extends Controller {
 
     // Écouter les événements des contrôleurs enfants
     this.element.addEventListener('wallonie:card-changed', (e) => {
-      console.log(`🔄 Carte Wallonie modifiée: ${e.detail.slug}`);
       this.debouncedAutoSave();
     });
   }
@@ -72,13 +69,9 @@ export default class extends Controller {
       const response = await fetch('/assets/data/primes_wallonie.json')
       if (response.ok) {
         this.primesData = await response.json()
-        console.log("✅ Données primes Wallonie chargées:", Object.keys(this.primesData).length, "primes")
-        console.log("🎯 Catégorie Wallonie actuelle:", this.currentCategory)
       } else {
-        console.error("❌ Erreur chargement primes Wallonie:", response.status)
       }
     } catch (error) {
-      console.error("❌ Erreur chargement primes Wallonie:", error)
     }
   }
 
@@ -89,15 +82,11 @@ export default class extends Controller {
   updateTotalGlobal() {
     // Utiliser le total calculé par le backend si disponible
     let total = this.backendCalculatedTotal || 0;
-    console.log("🔄 Mise à jour du total global Wallonie avec total backend:", total, "€");
-    console.log("🔍 DEBUG - backendCalculatedTotal:", this.backendCalculatedTotal);
 
     // Si on a un total backend, on l'utilise directement (plus fiable)
     if (this.backendCalculatedTotal && this.backendCalculatedTotal > 0) {
       total = this.backendCalculatedTotal;
-      console.log("✅ Utilisation du total backend fiable:", total, "€");
     } else {
-      console.log("📊 Fallback: calcul depuis les spans (backend non disponible)...");
 
       // Slugs des cartes Wallonie principales (basés sur les logs de connexion)
       const cartesSlugs = [
@@ -124,18 +113,14 @@ export default class extends Controller {
             const montant = parseFloat(montantText) || 0
             total += montant
             if (montant > 0) {
-              console.log(`✅ Carte ${slug}: ${montant}€`)
             }
           } else {
-            console.log(`❌ Carte ${slug}: élément total non trouvé`)
           }
         } else {
-          console.log(`❌ Carte ${slug}: carte non trouvée`)
         }
       })
     }
 
-    console.log(`🎯 Total global Wallonie calculé: ${total}€`)
 
     // Mettre à jour l'affichage du total
     if (this.hasGrandTotalTarget) {
@@ -143,7 +128,6 @@ export default class extends Controller {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
       })} €`
-      console.log(`📝 Total affiché: ${this.grandTotalTarget.textContent}`)
 
       // Animation visuelle
       this.grandTotalTarget.classList.add('updated')
@@ -151,7 +135,6 @@ export default class extends Controller {
         this.grandTotalTarget.classList.remove('updated')
       }, 300)
     } else {
-      console.log("❌ Target grandTotal non trouvé!")
     }
 
     // Émettre un événement pour notifier le total global
@@ -165,7 +148,6 @@ export default class extends Controller {
 
   // Méthode appelée par les cartes enfants pour notifier un changement
   cardUpdated() {
-    console.log("🔄 Carte mise à jour - recalcul du total global")
     this.updateTotalGlobal()
   }
 
@@ -178,7 +160,6 @@ export default class extends Controller {
     localStorage.setItem('wallonieCategorieEstimee', categoryNumber)
     this.updateSectionTitle()
 
-    console.log(`🔄 Changement de catégorie vers: ${newCategory}`)
 
     // Déclencher le recalcul de toutes les cartes Wallonie
     const wallonieCards = this.element.querySelectorAll('[data-controller*="wallonie-simulation-card"]')
@@ -277,13 +258,11 @@ export default class extends Controller {
   autoSave() {
     // Vérifier si la restauration est en cours
     if (window.isRestoringValues) {
-      console.log('🔄 Sauvegarde Wallonie ignorée: restauration en cours');
       return;
     }
 
     // Protection supplémentaire contre les blocages
     if (window.restorationStartTime && (Date.now() - window.restorationStartTime) > 10000) {
-      console.log('⚠️ Restauration Wallonie bloquée depuis > 10s, forçage de la réinitialisation');
       window.isRestoringValues = false;
     }
 
@@ -316,7 +295,6 @@ export default class extends Controller {
 
     // Sauvegarder via API
     if (Object.keys(userInputs).length > 0) {
-      console.log('💾 Sauvegarde Wallonie des données:', Object.keys(userInputs).length, 'saisies');
 
       // Calculer le total côté client pour l'envoyer aussi
       const calculatedTotal = this.calculateCurrentTotal();
@@ -336,7 +314,6 @@ export default class extends Controller {
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          console.log("✅ Auto-save Wallonie réussi:", data.total_amount, "€");
 
           // Stocker le total calculé par le backend
           this.backendCalculatedTotal = data.total_amount || 0;
@@ -353,12 +330,10 @@ export default class extends Controller {
 
           this.showSaveIndicator('success', data.total_amount);
         } else {
-          console.error("❌ Erreur auto-save Wallonie:", data.error);
           this.showSaveIndicator('error');
         }
       })
       .catch(error => {
-        console.error("❌ Erreur auto-save Wallonie:", error);
         this.showSaveIndicator('error');
       });
     }
@@ -396,7 +371,6 @@ export default class extends Controller {
       }
     })
 
-    console.log(`📊 Total calculé côté client: ${total} €`)
     return total;
   }
 
@@ -452,7 +426,6 @@ export default class extends Controller {
     const categoryName = categoryNames[category] || 'Catégorie non définie'
     this.currentCategoryTarget.textContent = `${categoryName} • Estimation selon votre profil de revenus`
 
-    console.log(`📋 Catégorie affichée: ${categoryName}`)
   }
 
   // Méthode appelée par les actions des cartes (compatibilité)
@@ -462,7 +435,6 @@ export default class extends Controller {
 
   // Émettre un événement pour que les cartes enfants se mettent à jour
   emitPrimeUpdateEvent(updatedCards) {
-    console.log("📡 Émission événement wallonie:prime-updated", updatedCards);
 
     // Préparer un objet plat avec tous les montants par slug
     const primeAmounts = {};
@@ -489,24 +461,20 @@ export default class extends Controller {
     });
 
     document.dispatchEvent(event);
-    console.log("📡 Événement wallonie:prime-updated émis avec:", primeAmounts);
   }
 
   // Mettre à jour les spans individuels avec les données du backend
   updateIndividualPrimeDisplays(updatedCards) {
-    console.log("🔄 Mise à jour des spans individuels Wallonie:", updatedCards);
 
     if (!updatedCards) return
 
     Object.keys(updatedCards).forEach(categoryKey => {
       const categoryData = updatedCards[categoryKey]
-      console.log(`🔍 Traitement catégorie: ${categoryKey}`, categoryData);
 
       // Si c'est un nombre direct (slug de prime), mettre à jour directement
       if (typeof categoryData === 'number') {
         const slug = categoryKey
         const calculatedAmount = categoryData
-        console.log(`💰 Prime directe trouvée: ${slug} = ${calculatedAmount}€`);
 
         // Trouver la carte correspondante pour Wallonie
         const cardElement = document.querySelector(`[data-wallonie-simulation-card-slug-value="${slug}"]`)
@@ -517,28 +485,22 @@ export default class extends Controller {
           if (resultSpan) {
             const formattedAmount = calculatedAmount.toLocaleString('fr-FR')
             resultSpan.textContent = `${formattedAmount} €`
-            console.log(`✅ Span mis à jour pour ${slug}: ${formattedAmount} €`);
           } else {
-            console.log(`⚠️ Span target 'total' non trouvé pour ${slug}`);
           }
         } else {
-          console.log(`⚠️ Élément card non trouvé pour slug: ${slug}`);
         }
         return;
       }
 
       // Si c'est un objet avec des primes (catégorie), traiter les primes
       if (!categoryData.primes) {
-        console.log(`⚠️ Pas de propriété 'primes' dans ${categoryKey} et ce n'est pas un nombre`);
         return;
       }
 
-      console.log(`📊 ${categoryData.primes.length} primes dans ${categoryKey}`);
 
       categoryData.primes.forEach(prime => {
         const slug = prime.slug
         const calculatedAmount = prime.calculated_amount || 0
-        console.log(`💰 Prime trouvée: ${slug} = ${calculatedAmount}€`);
 
         // Trouver la carte correspondante pour Wallonie (utiliser le bon sélecteur)
         const cardElement = document.querySelector(`[data-wallonie-simulation-card-slug-value="${slug}"]`)
@@ -549,12 +511,9 @@ export default class extends Controller {
           if (resultSpan) {
             const formattedAmount = calculatedAmount.toLocaleString('fr-FR')
             resultSpan.textContent = `${formattedAmount} €`
-            console.log(`✅ Span mis à jour pour ${slug}: ${formattedAmount} €`);
           } else {
-            console.log(`⚠️ Span target 'total' non trouvé pour ${slug}`);
           }
         } else {
-          console.log(`⚠️ Élément card non trouvé pour slug: ${slug}`);
         }
       })
     })
@@ -562,11 +521,8 @@ export default class extends Controller {
 
   // RESTAURATION DES DONNÉES SAUVEGARDÉES
   async restoreSavedData() {
-    console.log("🔄 === DÉBUT RESTAURATION WALLONIE ===")
-    console.log("🔍 simulationIdValue:", this.simulationIdValue)
 
     if (!this.simulationIdValue) {
-      console.log("⚠️ Pas de simulation ID pour la restauration Wallonie")
       return
     }
 
@@ -575,7 +531,6 @@ export default class extends Controller {
     window.restorationStartTime = Date.now()
 
     try {
-      console.log("📡 Envoi requête de restauration Wallonie...")
       const response = await fetch(`/fr/simulations/${this.simulationIdValue}/restore_prime_inputs`, {
         method: 'GET',
         headers: {
@@ -584,37 +539,28 @@ export default class extends Controller {
         }
       })
 
-      console.log("📥 Réponse reçue, status:", response.status)
 
       if (response.ok) {
         const result = await response.json()
-        console.log("✅ Données brutes reçues:", result)
 
         if (result.success && result.user_inputs) {
-          console.log("🎯 user_inputs trouvés:", result.user_inputs)
-          console.log("🔍 Nombre de clés dans user_inputs:", Object.keys(result.user_inputs).length)
-          console.log("🔍 Clés disponibles:", Object.keys(result.user_inputs))
 
           // Restaurer les données de primes Wallonie
           const inputKeys = Object.keys(result.user_inputs)
           if (inputKeys.length === 0) {
-            console.warn("⚠️ Aucune donnée à restaurer (user_inputs vide)")
           }
 
           inputKeys.forEach(slug => {
-            console.log(`🔧 Restauration prime Wallonie ${slug}:`, result.user_inputs[slug])
             this.restorePrimeInput(slug, result.user_inputs[slug])
           })
 
           // Restaurer le total si disponible
           if (result.total_amount) {
             this.backendCalculatedTotal = result.total_amount
-            console.log("💰 Total backend restauré:", result.total_amount, "€")
           }
 
           // Restaurer les cartes mises à jour si disponibles
           if (result.updated_cards) {
-            console.log("🔄 Restauration des cartes mises à jour:", result.updated_cards)
             this.updateIndividualPrimeDisplays(result.updated_cards)
             this.emitPrimeUpdateEvent(result.updated_cards)
           }
@@ -622,26 +568,21 @@ export default class extends Controller {
           // Recalculer après restauration
           setTimeout(() => {
             this.updateTotalGlobal()
-            console.log("✅ === FIN RESTAURATION WALLONIE ===")
           }, 500)
         }
       } else {
-        console.log("⚠️ Erreur lors de la restauration Wallonie:", response.status)
       }
     } catch (error) {
-      console.error("❌ Erreur restauration Wallonie:", error)
     } finally {
       // Libérer le verrou de restauration après un délai
       setTimeout(() => {
         window.isRestoringValues = false
-        console.log("🔓 Verrou de restauration Wallonie libéré")
       }, 1000)
     }
   }
 
   // Restaurer une donnée de prime Wallonie
   restorePrimeInput(slug, value) {
-    console.log(`🔄 Restauration Wallonie ${slug}:`, value)
 
     // Chercher directement l'input par son data-slug (peu importe la carte parente)
     const input = this.element.querySelector(`input[data-slug="${slug}"], select[data-slug="${slug}"]`)
@@ -655,7 +596,6 @@ export default class extends Controller {
         input.value = value
       }
 
-      console.log(`✅ Valeur ${value} restaurée pour ${slug} (type: ${input.type})`)
 
       // Déclencher les événements pour mettre à jour l'affichage et recalculer
       input.dispatchEvent(new Event('input', { bubbles: true }))
@@ -673,13 +613,11 @@ export default class extends Controller {
             } else {
               inp.value = value
             }
-            console.log(`✅ Valeur ${value} restaurée pour ${slug} (via carte)`)
             inp.dispatchEvent(new Event('input', { bubbles: true }))
             inp.dispatchEvent(new Event('change', { bubbles: true }))
           }
         })
       } else {
-        console.warn(`⚠️ Input non trouvé pour ${slug}`)
       }
     }
   }

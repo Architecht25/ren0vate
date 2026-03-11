@@ -1,0 +1,155 @@
+  <!-- SECTION 6 – Soumission de la demande -->
+  <div class="card mb-4">
+    <div class="card-header bg-success text-white">
+      <h5 class="mb-0"><i class="bi bi-check-circle me-2"></i>Soumission de la demande</h5>
+    </div>
+    <div class="card-body">
+      <div class="alert alert-success">
+        <i class="bi bi-info-circle me-2"></i>
+        Vous êtes sur le point de soumettre votre demande de primes.
+        Veuillez vérifier que toutes les informations sont correctes et que les documents obligatoires ont été joints.
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :email_contact, class: "form-label" do %>
+              📧 Email pour le suivi de la demande *
+              <%= badge_prerempli_avec_fallback(@form_data, :email_contact, current_user.email) if @form_data.present? %>
+            <% end %>
+            <%= form.email_field :email_contact,
+                value: preremplir_champ(@form_data, :email_contact, current_user.email),
+                class: "form-control",
+                placeholder: "nom@email.com",
+                data: { required: "true" } %>
+            <div class="form-text">Adresse email pour recevoir les notifications</div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :telephone_contact, class: "form-label" do %>
+              📞 Téléphone de contact
+              <%= badge_prerempli_avec_fallback(@form_data, :telephone_contact, current_user.phone) if @form_data.present? %>
+            <% end %>
+            <%= form.telephone_field :telephone_contact,
+                value: preremplir_champ(@form_data, :telephone_contact, current_user.phone),
+                class: "form-control",
+                placeholder: "0x/xxx.xx.xx" %>
+            <div class="form-text">Numéro de téléphone pour un contact éventuel</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+          <div class="mb-3">
+            <label class="form-label">
+              📧 Email de tracking pour Mijn Verbouwpremie
+              <span class="badge bg-success ms-2">Généré automatiquement</span>
+            </label>
+            <div class="input-group">
+              <input type="text"
+                     class="form-control"
+                     value="<%= @request.tracking_email || 'Email généré après sauvegarde' %>"
+                     readonly
+                     id="tracking_email_field">
+              <button type="button"
+                      class="btn btn-outline-secondary"
+                      onclick="copyTrackingEmail()"
+                      <% unless @request.tracking_email %> disabled <% end %>>
+                <i class="bi bi-clipboard"></i> Copier
+              </button>
+            </div>
+            <div class="form-text">
+              Utilisez cette adresse email dans le champ "Email de contact" sur Mijn Verbouwpremie pour recevoir automatiquement les mises à jour de votre dossier
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-check mb-4">
+        <%= form.check_box :confirmation_veracite, { class: "form-check-input", data: { required: "true" } }, "true", "" %>
+        <%= form.label :confirmation_veracite, "Je confirme que les informations fournies sont exactes et complètes à ma connaissance.", class: "form-check-label fw-bold" %>
+      </div>
+
+      <div class="form-check mb-4">
+        <%= form.check_box :acceptation_conditions, { class: "form-check-input", data: { required: "true" } }, "true", "" %>
+        <%= form.label :acceptation_conditions, "J'accepte les conditions générales et autorise le traitement de mes données personnelles.", class: "form-check-label" %>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="text-muted">
+          <small>
+            <i class="bi bi-shield-check me-1"></i>
+            Vos données sont traitées de manière sécurisée
+          </small>
+        </div>
+
+        <!-- Boutons de soumission spécifiques à la Flandre -->
+        <div class="d-flex flex-column gap-3 align-items-center">
+          <!-- Bouton principal de sauvegarde -->
+          <button type="button"
+                 class="btn btn-primary btn-lg px-4 py-2"
+                 style="max-width: 300px; width: 100%;"
+                 onclick="saveFormData()"
+                 id="flandre-submit-btn">
+            Sauvegarder en brouillon
+          </button>
+
+          <!-- Bouton pour accéder directement à Mijn Verbouwpremie -->
+          <% if @request.persisted? %>
+            <%= link_to "https://loket.mijnverbouwpremie.be/",
+                       class: "btn btn-outline-secondary btn-lg px-4 py-2 w-100 mt-2",
+                       style: "max-width: 400px;",
+                       target: "_blank" do %>
+              <i class="bi bi-box-arrow-up-right me-2"></i>Accéder à Mijn Verbouwpremie
+            <% end %>
+          <% end %>
+
+          <!-- Zone d'explication du processus -->
+          <% if @request.persisted? %>
+            <div class="alert alert-info mt-4 mb-0" style="max-width: 800px;">
+              <div class="row align-items-center">
+                <div class="col-auto">
+                  <i class="bi bi-info-circle fs-4 text-info"></i>
+                </div>
+                <div class="col">
+                  <h6 class="mb-2 fw-semibold">Comment procéder ?</h6>
+                  <div class="row g-2 small">
+                    <div class="col-md-4">
+                      <div class="d-flex align-items-start">
+                        <span class="badge bg-primary rounded-pill me-2 mt-1">1</span>
+                        <div>
+                          <strong>Sauvegardez</strong><br>
+                          <span class="text-muted">Conservez vos données</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="d-flex align-items-start">
+                        <span class="badge bg-success rounded-pill me-2 mt-1">2</span>
+                        <div>
+                          <strong>Soumettez</strong><br>
+                          <span class="text-muted">Sur Mijn Verbouwpremie</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-4">
+                      <div class="d-flex align-items-start">
+                        <span class="badge bg-warning rounded-pill me-2 mt-1">3</span>
+                        <div>
+                          <strong>Créez le suivi</strong><br>
+                          <%= link_to "Suivi de primes", new_request_progress_path(request_id: @request.id),
+                                     class: "text-decoration-none small" %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>

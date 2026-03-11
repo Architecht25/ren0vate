@@ -4,10 +4,6 @@ export default class extends Controller {
   static targets = ["container", "addButton", "additionalContainer"]
 
   connect() {
-    console.log('🏗️ Contrôleur entrepreneurs_management connecté')
-    console.log('🎯 Targets disponibles:', this.targets)
-    console.log('🔍 Container target:', this.hasContainerTarget ? 'trouvé' : 'manquant')
-    console.log('🔍 AdditionalContainer target:', this.hasAdditionalContainerTarget ? 'trouvé' : 'manquant')
 
     this.entrepreneurCount = 1 // Commence à 1 car l'entrepreneur principal existe déjà
     this.initializeExistingEntrepreneurs()
@@ -16,14 +12,12 @@ export default class extends Controller {
 
   initializeExistingEntrepreneurs() {
     if (!this.hasAdditionalContainerTarget) {
-      console.error('❌ Target additionalContainer manquant')
       return
     }
 
     // Calculer le nombre actuel d'entrepreneurs additionnels
     const existingEntrepreneurs = this.additionalContainerTarget.querySelectorAll('.entrepreneur-item')
     this.entrepreneurCount = existingEntrepreneurs.length + 1 // +1 pour l'entrepreneur principal
-    console.log('📊 Nombre d\'entrepreneurs existants:', this.entrepreneurCount)
 
     // Attacher les événements aux boutons de suppression existants
     existingEntrepreneurs.forEach(entrepreneur => {
@@ -36,15 +30,12 @@ export default class extends Controller {
 
   addEntrepreneur(event) {
     event.preventDefault()
-    console.log('👆 Clic sur ajouter entrepreneur - méthode appelée')
 
     if (!this.hasAdditionalContainerTarget) {
-      console.error('❌ Target additionalContainer manquant pour ajouter entrepreneur')
       return
     }
 
     this.entrepreneurCount++
-    console.log('📈 Nouveau count:', this.entrepreneurCount)
 
     const newEntrepreneur = document.createElement('div')
     newEntrepreneur.innerHTML = this.getEntrepreneurTemplate(this.entrepreneurCount)

@@ -1,0 +1,92 @@
+    <!-- ========== ONGLET CARTES ========== -->
+    <div class="tab-pane fade" id="maps-panel" role="tabpanel">
+      <div class="row">
+        <div class="col-12">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+              <h5 class="mb-0">
+                <i class="bi bi-geo-alt me-2"></i>Localisation des Propriétés
+              </h5>
+              <small class="text-muted">Vue d'ensemble géographique de toutes les propriétés avec prix d'acquisition et valeur PEB</small>
+            </div>
+            <div class="card-body p-0">
+              <!-- Filtre et contrôles -->
+              <div class="p-3 border-bottom bg-light">
+                <div class="row align-items-center">
+                  <div class="col-md-6">
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-sm btn-outline-primary" id="show-all-properties">
+                        <i class="bi bi-geo-alt"></i> Toutes (<%= @properties.count %>)
+                      </button>
+                      <button class="btn btn-sm btn-outline-success" id="show-geocoded-properties">
+                        <i class="bi bi-geo-alt-fill"></i> Géolocalisées (<%= @properties.where.not(latitude: nil).count %>)
+                      </button>
+                      <button class="btn btn-sm btn-outline-warning" id="show-not-geocoded-properties">
+                        <i class="bi bi-geo"></i> Non géolocalisées (<%= @properties.where(latitude: nil).count %>)
+                      </button>
+                    </div>
+                  </div>
+                  <div class="col-md-6 text-end">
+                    <div class="d-flex gap-2 justify-content-end">
+                      <button class="btn btn-sm btn-outline-info" id="geocode-all-properties">
+                        <i class="bi bi-compass"></i> Géocoder toutes
+                      </button>
+                      <button class="btn btn-sm btn-outline-secondary" id="center-map">
+                        <i class="bi bi-arrow-clockwise"></i> Recentrer
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Carte -->
+              <div id="properties-map"
+                   style="height: 70vh; min-height: 500px; width: 100%;"
+                   data-controller="mapbox"
+                   data-mapbox-api-key-value="<%= ENV['MAPBOX_ACCESS_TOKEN'] %>"
+                   data-mapbox-properties-value="<%= @properties.where.not(latitude: nil).to_json(
+                     methods: [:map_popup_content],
+                     include: { user: { only: [:email] } }
+                   ) %>">
+                <div class="d-flex justify-content-center align-items-center h-100">
+                  <div class="text-center text-muted">
+                    <div class="spinner-border mb-3" role="status">
+                      <span class="visually-hidden">Chargement de la carte...</span>
+                    </div>
+                    <p>Chargement de la carte Mapbox...</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Légende -->
+              <div class="p-3 bg-light border-top">
+                <div class="row">
+                  <div class="col-md-6">
+                    <h6 class="mb-2">Légende</h6>
+                    <div class="d-flex flex-wrap gap-3">
+                      <div class="d-flex align-items-center">
+                        <span class="badge bg-success rounded-circle me-2" style="width: 12px; height: 12px;"></span>
+                        <small>Propriétés avec PEB</small>
+                      </div>
+                      <div class="d-flex align-items-center">
+                        <span class="badge bg-warning rounded-circle me-2" style="width: 12px; height: 12px;"></span>
+                        <small>Propriétés sans PEB</small>
+                      </div>
+                      <div class="d-flex align-items-center">
+                        <span class="badge bg-primary rounded-circle me-2" style="width: 12px; height: 12px;"></span>
+                        <small>Prix > 200k€</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-6 text-end">
+                    <small class="text-muted">
+                      Cliquez sur un marqueur pour voir les détails de la propriété
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>

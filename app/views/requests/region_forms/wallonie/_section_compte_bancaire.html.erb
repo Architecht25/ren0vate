@@ -1,0 +1,52 @@
+  <!-- SECTION 4 – Compte bancaire -->
+  <div class="card mb-4">
+    <div class="card-header bg-success text-white">
+      <h5 class="mb-0">
+        <i class="bi bi-bank me-2"></i>Compte bancaire
+      </h5>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Vous demandez le paiement de la prime</label>
+
+            <div class="form-check mb-2">
+              <%= form.radio_button :type_compte_bancaire, "compte_propre", { class: "form-check-input", id: "compte_propre", checked: true } %>
+              <label class="form-check-label" for="compte_propre">
+                sur votre compte bancaire
+              </label>
+            </div>
+
+            <div class="form-check mb-3">
+              <%= form.radio_button :type_compte_bancaire, "compte_tiers", { class: "form-check-input", id: "compte_tiers" } %>
+              <label class="form-check-label" for="compte_tiers">
+                sur un compte bancaire ne vous appartenant pas
+              </label>
+            </div>
+
+            <div class="alert alert-info mt-3">
+              <i class="bi bi-info-circle me-2"></i>
+              Il doit s'agir d'un compte dont le demandeur est titulaire (ou co-titulaire). Dans ce cas, le traitement du dossier sera plus rapide.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-6">
+          <div class="mb-3">
+            <%= form.label :compte_bancaire, class: "form-label" do %>
+              Compte bancaire du demandeur
+              <%= badge_prerempli_intelligent(@form_data, :iban, current_user.iban) if @form_data.present? %>
+            <% end %>
+            <%= form.text_field :compte_bancaire,
+                value: preremplir_champ(@form_data, :iban, current_user.iban),
+                placeholder: "IBAN BE...",
+                class: "form-control" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+

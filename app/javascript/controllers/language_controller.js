@@ -5,7 +5,6 @@ export default class extends Controller {
   static targets = ["selector"]
 
   connect() {
-    console.log("🌍 Language controller connected")
     this.detectAndSuggestLanguage()
   }
 
@@ -108,7 +107,6 @@ export default class extends Controller {
         },
         body: JSON.stringify({ preferred_locale: locale })
       }).catch(error => {
-        console.error('Erreur lors de la sauvegarde de la préférence de langue:', error)
       })
     }
   }

@@ -4,7 +4,6 @@ export default class extends Controller {
   static targets = ["form", "result", "formCard", "validateButton"]
 
   connect() {
-    console.log("🟢 Contrôleur test-eligibilite-bruxelles connecté");
     if (this.hasResultTarget) {
       this.resultTarget.style.display = "none"
     }
@@ -16,7 +15,6 @@ export default class extends Controller {
   // ========== MÉTHODES BRUXELLES ==========
 
   handleAnswerBruxelles(event) {
-    console.log("🎯 Test Eligibilité Bruxelles - Réponse:", event.target.name, "=", event.target.value);
 
     const form = this.formTarget;
     const responses = [...form.querySelectorAll("input[type=radio]:checked")];
@@ -102,7 +100,6 @@ export default class extends Controller {
   }
 
   validateTestBruxelles() {
-    console.log("🎯 Validation du test d'éligibilité Bruxelles");
 
     const form = this.formTarget;
     const testData = JSON.parse(localStorage.getItem("eligibiliteBruxelles") || "{}");
@@ -192,7 +189,6 @@ export default class extends Controller {
 
   // BRUXELLES PARTICULIER
   handleAnswerBruxellesParticulier(event) {
-    console.log("🎯 Test Eligibilité Bruxelles Particulier - Réponse:", event.target.name, "=", event.target.value);
 
     const form = this.formTarget;
     const responses = [...form.querySelectorAll("input[type=radio]:checked")];
@@ -277,7 +273,6 @@ export default class extends Controller {
   }
 
   handleUsageBien(event) {
-    console.log("🏠 Gestion de l'usage du bien:", event.target.value);
 
     // Afficher l'info box avec l'impact
     const infoBox = document.getElementById('usage_bien_info');
@@ -445,10 +440,8 @@ export default class extends Controller {
   }
 
   validateTestBruxellesParticulier() {
-    console.log("🎯 Validation du test d'éligibilité Bruxelles Particulier");
 
     const testData = JSON.parse(localStorage.getItem("eligibiliteBruxellesParticulier") || "{}");
-    console.log("🎯 Données récupérées:", testData);
 
     // Logique simple côté client comme pour la Wallonie
     const client_protege = testData["client_protege"];
@@ -468,14 +461,11 @@ export default class extends Controller {
       message += "<br><br><strong>Prochaine étape :</strong> Calculez votre catégorie de revenus pour connaître vos primes exactes";
     }
 
-    console.log("🎯 Message final:", message);
-    console.log("🎯 Recommandations:", recommendations);
 
     this.showResultBruxellesParticulier(message, true, recommendations);
   }
 
   showResultBruxellesParticulier(message, isEligible = true, recommendations = []) {
-    console.log("🎯 showResultBruxellesParticulier appelée", { message, isEligible, recommendations });
 
     // Pour les particuliers, utiliser la méthode finale avec affinage activé
     this.showFinalResultBruxelles(message, isEligible, recommendations, true);
@@ -515,7 +505,6 @@ export default class extends Controller {
       const usageBienHidden = affinageBloc.querySelector('#usage_bien_hidden');
       if (usageBienHidden) {
         usageBienHidden.value = usageBien;
-        console.log("🏠 Usage du bien défini dans le formulaire:", usageBien);
       }
 
       // Appliquer le filtrage des primes selon l'usage du bien
@@ -587,14 +576,12 @@ export default class extends Controller {
   // ENTREPRISE
   handleAnswerBruxellesEntreprise(event) {
     // Logic for entreprise profile
-    console.log("🎯 Test Eligibilité Bruxelles Entreprise - Réponse:", event.target.name, "=", event.target.value);
     // Implementation follows the original structure...
   }
 
   // SYNDIC
   handleAnswerBruxellesSyndic(event) {
     // Logic for syndic profile
-    console.log("🎯 Test Eligibilité Bruxelles Syndic - Réponse:", event.target.name, "=", event.target.value);
     // Implementation follows the original structure...
   }
 
@@ -627,11 +614,9 @@ export default class extends Controller {
    * @param {string} statut - 'residentiel' ou 'mixte'
    */
   filterPrimesByStatut(statut) {
-    console.log(`🎯 Filtrage des primes pour statut: ${statut}`);
 
     const primesSection = document.querySelector('.primes-section-bruxelles');
     if (!primesSection) {
-      console.warn('Section des primes non trouvée');
       return;
     }
 
@@ -666,7 +651,6 @@ export default class extends Controller {
           this.enableAllFields(card);
         }
       } catch (error) {
-        console.error('Erreur lors du parsing des statuts compatibles:', error);
         // En cas d'erreur, afficher la carte par défaut avec tous les champs actifs
         card.style.display = 'block';
         card.style.opacity = '1';
@@ -675,7 +659,6 @@ export default class extends Controller {
       }
     });
 
-    console.log(`✅ Filtrage terminé: ${compatibleCount}/${totalCount} cartes compatibles avec ${statut}`);
   }
 
   /**

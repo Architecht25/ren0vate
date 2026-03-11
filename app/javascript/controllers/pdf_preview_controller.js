@@ -5,11 +5,9 @@ export default class extends Controller {
   static values = { documentId: Number }
 
   connect() {
-    console.log('PDF Preview Controller connecté pour document:', this.documentIdValue)
 
     // Si pas de loading target, l'aperçu est déjà en cache - ne rien faire
     if (!this.hasLoadingTarget) {
-      console.log('Pas de loading target - aperçu déjà en cache')
       return
     }
 
@@ -19,7 +17,6 @@ export default class extends Controller {
 
   async generatePdfPreview() {
     try {
-      console.log('Génération aperçu PDF pour document:', this.documentIdValue)
 
       const response = await fetch(`/api/pdf_preview/${this.documentIdValue}/generate`, {
         method: 'POST',
@@ -30,17 +27,14 @@ export default class extends Controller {
       })
 
       const result = await response.json()
-      console.log('Résultat API:', result)
 
       if (result.success && result.preview_url) {
         // Recharger la page pour afficher l'aperçu en cache
         window.location.reload()
       } else {
-        console.error('Erreur génération aperçu:', result)
         this.showFallback('Impossible de générer l\'aperçu')
       }
     } catch (error) {
-      console.error('Erreur génération aperçu PDF:', error)
       this.showFallback('Erreur de chargement')
     }
   }

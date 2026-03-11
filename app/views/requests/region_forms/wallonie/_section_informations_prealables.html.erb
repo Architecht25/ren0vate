@@ -1,0 +1,50 @@
+  <!-- SECTION 1 – Informations préalables -->
+  <div class="card mb-4">
+    <div class="card-header bg-info text-white">
+      <h5 class="mb-0"><i class="bi bi-info-circle me-2"></i>Informations préalables</h5>
+    </div>
+    <div class="card-body">
+      <p class="mb-3">Ce formulaire permet d'introduire <strong>une demande de prime pour la réalisation des travaux dans le cadre de la réglementation « Primes Habitation »</strong>.</p>
+
+      <%
+        # Récupérer la valeur depuis form_data
+        maintien_regime_value = @request&.form_data&.[]('maintien_regime')
+      %>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Bénéficiez-vous du maintien des régimes de primes en vigueur jusqu'au 13 février 2025 ?</label>
+
+            <div class="form-check mb-2">
+              <%= form.radio_button :maintien_regime, "Oui", { class: "form-check-input", id: "maintien_regime_oui", checked: maintien_regime_value == "Oui" } %>
+              <label class="form-check-label" for="maintien_regime_oui">
+                Oui
+              </label>
+            </div>
+
+            <div class="form-check mb-3">
+              <%= form.radio_button :maintien_regime, "Non", { class: "form-check-input", id: "maintien_regime_non", checked: maintien_regime_value == "Non" } %>
+              <label class="form-check-label" for="maintien_regime_non">
+                Non
+              </label>
+            </div>
+
+            <div class="alert alert-warning mt-3" id="maintien_regime_info" style="display: none;">
+              <p class="mb-0">Votre demande sera traitée suivant le régime actuellement en vigueur depuis le 14 février 2025.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-warning border-start border-4 border-warning">
+        <h6>Pour rappel :</h6>
+        <ul class="mb-0">
+          <li>Les travaux doivent être terminés et avoir été recommandés dans le rapport d'audit (à l'exception des travaux de toiture pour les demandes soumises sous les conditions en vigueur depuis le 14 février 2025) ;</li>
+          <li>Ils doivent avoir été réalisés par un entrepreneur inscrit à la Banque Carrefour des Entreprises (activités indépendantes dans les métiers de la construction et de l'électronique ou de l'entreprise générale) ;</li>
+          <li>Ils doivent respecter certains critères techniques (consultables sur <a href="https://logement.wallonie.be" target="_blank" rel="noopener">https://logement.wallonie.be</a> (notice « critères techniques et pièces justificatives »)) ;</li>
+          <li>Les travaux de mise en conformité électrique et de gaz sont un préalable obligatoire avant toute demande de prime s'ils ont été recommandés dans l'audit et que le logement est occupé.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+

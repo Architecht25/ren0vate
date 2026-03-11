@@ -1,0 +1,260 @@
+  <!-- SECTION 8 – Identification des travaux réalisés -->
+
+  <div class="card mb-4">
+    <div class="card-header bg-dark text-white">
+      <h5 class="mb-0"><i class="bi bi-tools me-2"></i>Identification des travaux réalisés</h5>
+    </div>
+    <div class="card-body">
+      <div class="alert alert-danger" id="travaux_error" style="display: none;">
+        <strong>Erreur :</strong> Au moins un poste doit avoir été sélectionné.
+      </div>
+
+      <div class="alert alert-warning">
+        <strong>Attention :</strong> Si le rapport d'audit fait mention de « travaux liés », ceux-ci doivent obligatoirement faire l'objet d'une même demande de prime.
+      </div>
+
+      <%
+        # Récupérer toutes les valeurs des checkboxes travaux depuis form_data
+        travaux_data = @request&.form_data || {}
+      %>
+
+      <p class="mb-3">Sélectionnez les travaux que vous avez réalisés et pour lesquels vous demandez une prime.</p>
+      <div class="row">
+        <div class="col-md-12">
+          <div class="mb-3">
+            <div class="row">
+
+              <!-- Toiture -->
+              <div class="col-md-6">
+                <h6 class="text-primary fw-bold">Toiture</h6>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_remplacement_couverture, { class: "form-check-input", checked: travaux_data['travaux_remplacement_couverture'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_couverture) %>">
+                    Remplacement de la couverture
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_appropriation_charpente, { class: "form-check-input", checked: travaux_data['travaux_appropriation_charpente'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_appropriation_charpente) %>">
+                    Appropriation de la charpente
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_dispositif_eaux_pluviales, { class: "form-check-input", checked: travaux_data['travaux_dispositif_eaux_pluviales'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_dispositif_eaux_pluviales) %>">
+                    Remplacement d'un dispositif de collecte et d'évacuation des eaux pluviales
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_isolation_toit_combles, { class: "form-check-input", checked: travaux_data['travaux_isolation_toit_combles'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_toit_combles) %>">
+                    Isolation thermique du toit ou des combles
+                  </label>
+                </div>
+
+                <h6 class="text-primary fw-bold mt-4">Murs</h6>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_assechement_infiltrations, { class: "form-check-input", checked: travaux_data['travaux_assechement_infiltrations'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_assechement_infiltrations) %>">
+                    Assèchement des murs – infiltrations
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_assechement_humidite, { class: "form-check-input", checked: travaux_data['travaux_assechement_humidite'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_assechement_humidite) %>">
+                    Assèchement des murs – humidité ascensionnelle
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_renforcement_murs, { class: "form-check-input", checked: travaux_data['travaux_renforcement_murs'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_renforcement_murs) %>">
+                    Renforcement des murs instables/reconstruction totale de ces murs
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_isolation_murs, { class: "form-check-input", checked: travaux_data['travaux_isolation_murs'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_murs) %>">
+                    Isolation thermique des murs
+                  </label>
+                </div>
+
+                <h6 class="text-primary fw-bold mt-4">Sols</h6>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_remplacement_supports, { class: "form-check-input", checked: travaux_data['travaux_remplacement_supports'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_supports) %>">
+                    Remplacement des supports des aires de circulation d'un ou plusieurs locaux
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_isolation_sols, { class: "form-check-input", checked: travaux_data['travaux_isolation_sols'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_sols) %>">
+                    Isolation thermique des sols
+                  </label>
+                </div>
+
+                <h6 class="text-primary fw-bold mt-4">Sécurité/Salubrité</h6>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_appropriation_electrique, { class: "form-check-input", checked: travaux_data['travaux_appropriation_electrique'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_appropriation_electrique) %>">
+                    Appropriation de l'installation électrique
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_appropriation_gaz, { class: "form-check-input", checked: travaux_data['travaux_appropriation_gaz'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_appropriation_gaz) %>">
+                    Appropriation de l'installation de gaz
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_elimination_merule, { class: "form-check-input", checked: travaux_data['travaux_elimination_merule'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_elimination_merule) %>">
+                    Élimination de la mérule ou de tout champignon aux effets analogues
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_elimination_radon, { class: "form-check-input", checked: travaux_data['travaux_elimination_radon'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_elimination_radon) %>">
+                    Élimination du radon
+                  </label>
+                </div>
+
+                <h6 class="text-primary fw-bold mt-4">Menuiseries extérieures</h6>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_remplacement_menuiseries, { class: "form-check-input", checked: travaux_data['travaux_remplacement_menuiseries'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_menuiseries) %>">
+                    Remplacement des menuiseries extérieures ou des vitrages
+                  </label>
+                </div>
+              </div>
+
+              <!-- Colonne de droite -->
+              <div class="col-md-6">
+                <h6 class="text-primary fw-bold">Appareil de production de chaleur et/ou d'eau chaude sanitaire</h6>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_pompe_chaleur_ecs_exclusive, { class: "form-check-input", checked: travaux_data['travaux_pompe_chaleur_ecs_exclusive'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_pompe_chaleur_ecs_exclusive) %>">
+                    Installation d'une pompe à chaleur pour la production exclusive d'eau chaude sanitaire
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_pompe_chaleur_chauffage_combinee, { class: "form-check-input", checked: travaux_data['travaux_pompe_chaleur_chauffage_combinee'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_pompe_chaleur_chauffage_combinee) %>">
+                    Installation d'une pompe à chaleur pour le chauffage ou combinée avec l'eau chaude sanitaire
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_chaudiere_biomasse, { class: "form-check-input", checked: travaux_data['travaux_chaudiere_biomasse'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_chaudiere_biomasse) %>">
+                    Installation d'une chaudière biomasse
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_poele_biomasse, { class: "form-check-input", checked: travaux_data['travaux_poele_biomasse'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_poele_biomasse) %>">
+                    Installation d'un poêle biomasse
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_chauffe_eau_solaire, { class: "form-check-input", checked: travaux_data['travaux_chauffe_eau_solaire'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_chauffe_eau_solaire) %>">
+                    Installation d'un chauffe-eau solaire
+                  </label>
+                </div>
+
+                <h6 class="text-primary fw-bold mt-4">Système de ventilation</h6>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_ventilation_simple_flux_ensemble, { class: "form-check-input", checked: travaux_data['travaux_ventilation_simple_flux_ensemble'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_ventilation_simple_flux_ensemble) %>">
+                    Système centralisé de ventilation mécanique simple flux qui assure la ventilation de l'ensemble des espaces du logement
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_ventilation_double_flux_ensemble, { class: "form-check-input", checked: travaux_data['travaux_ventilation_double_flux_ensemble'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_ventilation_double_flux_ensemble) %>">
+                    Système centralisé de ventilation mécanique double flux avec récupération de chaleur qui assure la ventilation de l'ensemble des espaces du logement
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_ventilation_simple_flux_partie, { class: "form-check-input", checked: travaux_data['travaux_ventilation_simple_flux_partie'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_ventilation_simple_flux_partie) %>">
+                    Système de ventilation mécanique simple flux qui assure la ventilation d'une partie des espaces du logement
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_ventilation_double_flux_partie, { class: "form-check-input", checked: travaux_data['travaux_ventilation_double_flux_partie'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_ventilation_double_flux_partie) %>">
+                    Système de ventilation mécanique double flux qui assure la ventilation d'une partie des espaces du logement
+                  </label>
+                </div>
+
+                <h6 class="text-primary fw-bold mt-4">Augmentation des rendements de production, de distribution, de stockage et d'émission des installations de chauffage</h6>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_isolation_conduites_chauffage_hors_volume, { class: "form-check-input", checked: travaux_data['travaux_isolation_conduites_chauffage_hors_volume'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_conduites_chauffage_hors_volume) %>">
+                    Isolation des conduites de chauffage et de ses accessoires hors du volume protégé
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_isolation_ballon_stockage_chauffage, { class: "form-check-input", checked: travaux_data['travaux_isolation_ballon_stockage_chauffage'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_ballon_stockage_chauffage) %>">
+                    Isolation d'un ballon de stockage de chauffage
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_circulateurs_vitesse_variable, { class: "form-check-input", checked: travaux_data['travaux_circulateurs_vitesse_variable'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_circulateurs_vitesse_variable) %>">
+                    Installation de circulateurs à vitesse variable pour le chauffage
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_remplacement_ballon_stockage_chauffage, { class: "form-check-input", checked: travaux_data['travaux_remplacement_ballon_stockage_chauffage'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_ballon_stockage_chauffage) %>">
+                    Remplacement d'un ballon de stockage d'un système de chauffage
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_vannes_thermostatiques, { class: "form-check-input", checked: travaux_data['travaux_vannes_thermostatiques'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_vannes_thermostatiques) %>">
+                    Placement de vannes thermostatiques
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_thermostat_ambiance, { class: "form-check-input", checked: travaux_data['travaux_thermostat_ambiance'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_thermostat_ambiance) %>">
+                    Placement d'un thermostat d'ambiance
+                  </label>
+                </div>
+
+                <h6 class="text-primary fw-bold mt-4">Augmentation des rendements de production, de distribution et de stockage des installations d'eau chaude sanitaire</h6>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_remplacement_reservoir_ecs, { class: "form-check-input", checked: travaux_data['travaux_remplacement_reservoir_ecs'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_remplacement_reservoir_ecs) %>">
+                    Remplacement d'un réservoir de stockage pour l'eau chaude sanitaire
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_isolation_conduites_boucle_ecs, { class: "form-check-input", checked: travaux_data['travaux_isolation_conduites_boucle_ecs'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_conduites_boucle_ecs) %>">
+                    Isolation des conduites d'une boucle de circulation d'eau chaude sanitaire et de ses accessoires
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_isolation_echangeur_plaques, { class: "form-check-input", checked: travaux_data['travaux_isolation_echangeur_plaques'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_echangeur_plaques) %>">
+                    Isolation d'un échangeur à plaques externe
+                  </label>
+                </div>
+                <div class="form-check mb-2">
+                  <%= form.check_box :travaux_isolation_ballon_stockage_ecs, { class: "form-check-input", checked: travaux_data['travaux_isolation_ballon_stockage_ecs'] == "1" }, "1", "0" %>
+                  <label class="form-check-label" for="<%= form.field_id(:travaux_isolation_ballon_stockage_ecs) %>">
+                    Isolation d'un ballon de stockage pour l'eau chaude sanitaire
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+

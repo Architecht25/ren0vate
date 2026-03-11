@@ -25,7 +25,6 @@ export default class extends Controller {
   static values = { slug: String }
 
   connect() {
-    console.log(`🎯 Contrôleur Wallonie Simulation Card connecté pour: ${this.slugValue}`)
 
     // Initialiser à 0€ en attendant les calculs backend
     this.updateResult(0)
@@ -39,7 +38,6 @@ export default class extends Controller {
   }
 
   handlePrimeUpdate(event) {
-    console.log(`🔄 Mise à jour des primes pour carte: ${this.slugValue}`, event.detail)
 
     const allPrimes = event.detail || {}
     let cardTotal = 0
@@ -48,7 +46,6 @@ export default class extends Controller {
     if (allPrimes[this.slugValue]) {
       const primeAmount = parseFloat(allPrimes[this.slugValue]) || 0
       cardTotal = primeAmount
-      console.log(`💰 Carte simple ${this.slugValue}: ${primeAmount}€`)
       this.updateResult(cardTotal)
       return
     }
@@ -163,11 +160,8 @@ export default class extends Controller {
 
     // Pour les cartes complexes, utiliser le mapping
     const expectedPrimes = cardToPrimesMap[this.slugValue] || []
-    console.log(`🧮 Carte complexe ${this.slugValue} - Primes attendues:`, expectedPrimes)
-    console.log(`🧮 Targets disponibles:`, this.constructor.targets)
 
     expectedPrimes.forEach(primeSlug => {
-      console.log(`🔍 Vérification prime: ${primeSlug}, valeur: ${allPrimes[primeSlug]}`)
 
       if (allPrimes[primeSlug]) {
         const primeAmount = parseFloat(allPrimes[primeSlug]) || 0
@@ -175,33 +169,26 @@ export default class extends Controller {
 
         // Mettre à jour le span individuel si le target existe
         const targetName = slugToTargetMap[primeSlug]
-        console.log(`🎯 Cherche target: ${targetName} pour ${primeSlug}`)
 
         if (targetName) {
           try {
             // Tenter d'accéder au target - cela lèvera une erreur s'il n'existe pas
             const targetElement = this[`${targetName}Target`]
             targetElement.textContent = `${primeAmount} €`
-            console.log(`📍 Mise à jour ${primeSlug} → ${targetName}: ${primeAmount}€`)
           } catch (error) {
-            console.log(`⚠️ Target ${targetName} non disponible pour ${primeSlug}:`, error.message)
           }
         } else {
-          console.log(`⚠️ Pas de mapping target pour ${primeSlug}`)
         }
       }
     })
 
     // Mettre à jour le total de la carte
     this.updateResult(cardTotal)
-    console.log(`🎯 Total carte ${this.slugValue}: ${cardTotal}€`)
   }
 
   calculate() {
-    console.log(`🔍 Calculate appelé pour ${this.slugValue} - déclenchement auto-save`)
 
     if (!this.slugValue) {
-      console.warn("Pas de slug défini pour cette carte Wallonie simulation")
       return
     }
 

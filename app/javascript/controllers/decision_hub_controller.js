@@ -35,7 +35,6 @@ export default class extends Controller {
   }
 
   connect() {
-    console.log("Decision Hub controller connected")
     this.isLoading = false
     this.aiContext = []
 
@@ -55,7 +54,6 @@ export default class extends Controller {
 
     if (!section) return
 
-    console.log(`Switching to section: ${section}`)
 
     // Remove active class from all tabs
     this.element.querySelectorAll('.step-tab').forEach(tab => {
@@ -122,7 +120,6 @@ export default class extends Controller {
         this.showError("Erreur lors du chargement des données")
       }
     } catch (error) {
-      console.error("Error loading simulation data:", error)
       this.showError("Erreur de connexion")
     } finally {
       this.isLoading = false
@@ -245,7 +242,6 @@ export default class extends Controller {
         this.addAIMessage("system", "Désolé, une erreur s'est produite. Veuillez réessayer.")
       }
     } catch (error) {
-      console.error("AI consultation error:", error)
       this.hideAITyping()
       this.addAIMessage("system", "Erreur de connexion. Veuillez vérifier votre connexion internet.")
     }

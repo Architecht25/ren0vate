@@ -4,7 +4,6 @@ export default class extends Controller {
   static targets = ["surfaceToiture", "surfaceMurs", "result"]
 
   connect() {
-    console.log("☣️ Amiante Controller connecté")
     this.calculateAndUpdate()
   }
 
@@ -25,7 +24,6 @@ export default class extends Controller {
     const surfaceToiture = parseFloat(this.surfaceToitureTarget.value) || 0
     const surfaceMurs = parseFloat(this.surfaceMursTarget.value) || 0
 
-    console.log("☣️ Calcul amiante:", { surfaceToiture, surfaceMurs })
 
     let montantTotal = 0
 
@@ -44,7 +42,6 @@ export default class extends Controller {
       montantTotal += surfaceMurs * 4 // 4€/m² murs uniquement
     }
 
-    console.log("☣️ Montant total calculé:", montantTotal)
 
     // Formatage et affichage du résultat
     const montantFormate = montantTotal.toFixed(2) + " €"
@@ -59,7 +56,6 @@ export default class extends Controller {
       this.resultTarget.classList.add('text-muted')
     }
 
-    console.log("☣️ Résultat mis à jour dans le DOM")
 
     // Mettre à jour le total global des primes via le système existant
     this.updateGlobalTotal()
@@ -71,7 +67,6 @@ export default class extends Controller {
     if (flandreController && window.Stimulus) {
       const controller = window.Stimulus.getControllerForElementAndIdentifier(flandreController, 'flandre-simulation')
       if (controller && controller.updateTotalGlobal) {
-        console.log("☣️ Amiante: Déclenchement mise à jour total global")
         controller.updateTotalGlobal()
       }
     }
@@ -85,7 +80,6 @@ export default class extends Controller {
       const controller = window.Stimulus.getControllerForElementAndIdentifier(flandreController, 'flandre-simulation')
 
       if (controller && typeof controller.triggerSave === 'function') {
-        console.log("💾 Amiante: Déclenchement sauvegarde automatique...")
 
         // Délai pour permettre à l'affichage de se mettre à jour
         setTimeout(() => {
@@ -97,19 +91,16 @@ export default class extends Controller {
 
   // Restaurer les données amiante depuis la sauvegarde
   restoreData(amianteData) {
-    console.log("☣️ Restauration des données Amiante:", amianteData)
 
     try {
       // Restaurer la surface toiture
       if (amianteData.surface_toiture !== undefined) {
         this.surfaceToitureTarget.value = amianteData.surface_toiture
-        console.log("✅ Surface toiture restaurée:", amianteData.surface_toiture)
       }
 
       // Restaurer la surface murs
       if (amianteData.surface_murs !== undefined) {
         this.surfaceMursTarget.value = amianteData.surface_murs
-        console.log("✅ Surface murs restaurée:", amianteData.surface_murs)
       }
 
       // Recalculer et mettre à jour l'affichage après restauration
@@ -118,7 +109,6 @@ export default class extends Controller {
       }, 100)
 
     } catch (error) {
-      console.error("❌ Erreur lors de la restauration Amiante:", error)
     }
   }
 }

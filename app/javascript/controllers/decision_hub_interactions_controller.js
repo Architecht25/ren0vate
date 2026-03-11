@@ -11,7 +11,6 @@ export default class extends Controller {
   ]
 
   connect() {
-    console.log("Decision Hub Interactions controller connected")
     this.setupObligationCheckboxes()
   }
 

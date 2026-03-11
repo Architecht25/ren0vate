@@ -5,7 +5,6 @@ export default class extends Controller {
   static values = { slug: String }
 
   connect() {
-    console.log(`🎯 Contrôleur Flandre Simulation Card connecté pour:`, this.slugValue)
 
     // Écouter les changements de catégorie
     this.element.addEventListener('flandre:category:changed', this.recalculate.bind(this))
@@ -20,7 +19,6 @@ export default class extends Controller {
 
     // Calculer le montant initial avec un délai pour laisser le parent se charger
     setTimeout(() => {
-      console.log(`⏰ Calcul initial programmé pour ${this.slugValue}`)
       this.calculate()
     }, 100)
   }
@@ -31,7 +29,6 @@ export default class extends Controller {
   }
 
   forceRecalculate() {
-    console.log(`🔄 Recalcul forcé pour ${this.slugValue}`)
     this.calculate()
   }
 
@@ -53,27 +50,21 @@ export default class extends Controller {
     const primesData = parentController.getPrimesData()
     const prime = primesData[this.slugValue]
 
-    console.log(`🔍 UpdatePlaceholder pour ${this.slugValue}, catégorie: ${currentCategory}`)
 
     if (prime && prime.placeholder) {
-      console.log(`📄 Placeholders disponibles:`, prime.placeholder)
       const placeholderTexte = prime.placeholder[currentCategory]
-      console.log(`🎯 Placeholder pour catégorie ${currentCategory}: "${placeholderTexte}"`)
 
       // Si un placeholder spécifique existe pour cette catégorie, on l'applique
       if (placeholderTexte && placeholderTexte.trim() !== '') {
         this.inputTarget.placeholder = placeholderTexte
-        console.log(`✅ Placeholder appliqué: "${placeholderTexte}"`)
       } else {
         // Fallback plus intelligent basé sur la catégorie
         const fallbackPlaceholder = ["4", "3"].includes(currentCategory)
           ? "Montant total de la facture (€)"
           : "Surface en m²"
         this.inputTarget.placeholder = fallbackPlaceholder
-        console.log(`⚠️ Fallback appliqué: "${fallbackPlaceholder}"`)
       }
     } else {
-      console.log(`❌ Pas de données placeholder pour ${this.slugValue}`)
       // Fallback par défaut
       this.inputTarget.placeholder = ["4", "3"].includes(currentCategory)
         ? "Montant total de la facture (€)"
@@ -82,9 +73,7 @@ export default class extends Controller {
   }
 
   calculate() {
-    console.log(`🔍 Calculate appelé pour ${this.slugValue}`)
     if (!this.slugValue) {
-      console.warn("Pas de slug défini pour cette carte Flandre")
       return
     }
 
@@ -94,51 +83,39 @@ export default class extends Controller {
     // Récupérer le contrôleur parent pour accéder aux données
     const parentController = this.getParentController()
     if (!parentController) {
-      console.warn("Controller parent Flandre non trouvé")
       return
     }
 
-    console.log(`✅ Parent controller trouvé pour ${this.slugValue}`)
 
     // Vérifier que les données de primes sont disponibles
     const primesData = parentController.getPrimesData()
     if (!primesData || Object.keys(primesData).length === 0) {
-      console.warn(`⚠️ Données de primes non disponibles pour ${this.slugValue} - retry dans 500ms`)
       setTimeout(() => this.calculate(), 500)
       return
     }
 
-    console.log(`📦 Données de primes disponibles pour ${this.slugValue}:`, Object.keys(primesData).length, "primes")
 
     const currentCategory = parentController.getCurrentCategory()
-    console.log(`📊 Données pour ${this.slugValue} - catégorie: ${currentCategory}`)
 
     // DEBUG: Affichons la structure exacte des données de primes
-    console.log(`🔍 Structure primesData:`, Object.keys(primesData))
-    console.log(`🔍 Premier objet prime:`, primesData[Object.keys(primesData)[0]])
 
     // Trouver la prime correspondante
     const prime = primesData[this.slugValue]
     if (!prime) {
-      console.warn(`Prime Flandre non trouvée pour slug: ${this.slugValue}`)
       this.updateResult(0)
       return
     }
 
-    console.log(`📦 Prime trouvée pour ${this.slugValue}:`, prime)
 
     // Extraire le numéro de catégorie (ex: 'flandre_cat2' -> '2')
     const categoryNumber = currentCategory.replace('flandre_cat', '')
-    console.log(`📊 Données pour ${this.slugValue} - catégorie: ${currentCategory} (numéro: ${categoryNumber})`)
 
     // Calculer selon le type de calcul
     const calculData = prime.valeurs_par_categorie?.[categoryNumber]
     if (!calculData) {
-      console.warn(`Données de calcul non trouvées pour ${this.slugValue} - catégorie ${currentCategory} (numéro: ${categoryNumber})`)
       // Vérifier si la prime existe pour d'autres catégories
       const availableCategories = Object.keys(prime.valeurs_par_categorie || {})
       if (availableCategories.length > 0) {
-        console.info(`Prime ${this.slugValue} disponible seulement pour: ${availableCategories.join(', ')}`)
         // Afficher 0€ pour les primes non disponibles
         this.updateResult(0)
         return
@@ -181,7 +158,6 @@ export default class extends Controller {
         total = this.calculatePrimeConditionnelle(calculData)
         break
       default:
-        console.warn(`Type de calcul non pris en charge pour Flandre: ${calculData.type}`)
         total = 0
     }
 
@@ -224,7 +200,6 @@ export default class extends Controller {
 
     // Si pas de surface, retourner 0
     if (surface === 0) {
-      console.log(`🔍 ${this.slugValue}: Surface = 0, retour 0€`)
       return 0
     }
 
@@ -232,21 +207,17 @@ export default class extends Controller {
     let typeMur = null
     if (this.hasTypeMurTarget) {
       typeMur = this.typeMurTarget.value
-      console.log(`🔍 ${this.slugValue}: Type de mur depuis select = "${typeMur}"`)
     }
 
     // Si aucun type sélectionné, retourner 0
     if (!typeMur || typeMur === "") {
-      console.log(`⚠️ ${this.slugValue}: Aucun type de mur sélectionné, retour 0€`)
       return 0
     }
 
-    console.log(`📊 ${this.slugValue}: calculData.montants_m2 =`, calculData.montants_m2)
     const montantParM2 = calculData.montants_m2?.[typeMur] || 0
     const surfaceMax = calculData.surface_max || Infinity
     const surfaceLimitee = Math.min(surface, surfaceMax)
 
-    console.log(`🏭 Calcul variable m² - Slug: ${this.slugValue}, Type: ${typeMur}, Surface: ${surfaceLimitee}m², Montant/m²: ${montantParM2}€`)
 
     return surfaceLimitee * montantParM2
   }
@@ -295,29 +266,22 @@ export default class extends Controller {
   }
 
   updateResult(amount) {
-    console.log(`🔄 updateResult pour ${this.slugValue}: ${amount} €`)
 
     // Récupérer le contrôleur parent pour appliquer les plafonds
     const parentController = this.getParentController()
     let finalAmount = amount
 
     if (parentController) {
-      console.log(`🔧 BEFORE calculateMontantAvecPlafond pour ${this.slugValue}: amount=${amount}`)
       const result = parentController.calculateMontantAvecPlafond(this.slugValue, amount)
       finalAmount = result.montant
-      console.log(`🔧 AFTER calculateMontantAvecPlafond pour ${this.slugValue}: finalAmount=${finalAmount}`)
 
       if (finalAmount !== amount) {
-        console.log(`⚖️ Plafond appliqué pour ${this.slugValue}: ${amount.toFixed(2)}€ → ${finalAmount.toFixed(2)}€`)
       }
     }
 
     if (this.hasResultTarget) {
-      console.log(`✅ Target result trouvé pour ${this.slugValue}`)
       this.resultTarget.textContent = `${finalAmount.toFixed(2)} €`
-      console.log(`📝 Span mis à jour: ${this.resultTarget.textContent}`)
     } else {
-      console.error(`❌ Pas de target result pour ${this.slugValue}`)
     }
 
     // Notifier le contrôleur parent
@@ -338,14 +302,11 @@ export default class extends Controller {
       // mais pas 'flandre-simulation-card'
       const controllers = element.dataset.controller
       if (controllers && controllers.includes('flandre-simulation') && !controllers.includes('flandre-simulation-card')) {
-        console.log(`🔍 Parent element trouvé pour ${this.slugValue}:`, element)
         const controller = this.application.getControllerForElementAndIdentifier(element, 'flandre-simulation')
-        console.log(`🎯 Parent controller récupéré pour ${this.slugValue}:`, controller ? 'TROUVÉ' : 'ECHEC')
         return controller
       }
       element = element.parentElement
     }
-    console.warn(`❌ Aucun parent flandre-simulation trouvé pour ${this.slugValue}`)
     return null
   }
 
@@ -361,7 +322,6 @@ export default class extends Controller {
 
   // Action déclenchée par les inputs (via data-action dans le HTML)
   onInputChange() {
-    console.log(`⌨️ onInputChange appelé pour ${this.slugValue}`)
 
     // Recalculer immédiatement quand l'utilisateur change la valeur
     this.calculate()
@@ -375,13 +335,11 @@ export default class extends Controller {
         parentController.saveAndCalculateAll()
       }, 500)
     } else {
-      console.warn(`❌ Parent controller non trouvé pour ${this.slugValue}`)
     }
   }
 
   // Action déclenchée par les selects
   onSelectChange() {
-    console.log(`🗑️ onSelectChange appelé pour ${this.slugValue}`)
     this.calculate()
   }
 

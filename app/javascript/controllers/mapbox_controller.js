@@ -10,11 +10,9 @@ export default class extends Controller {
   static targets = ["map"]
 
   connect() {
-    console.log("Mapbox controller connected")
 
     // Vérifier que Mapbox GL JS est chargé
     if (typeof mapboxgl === 'undefined') {
-      console.error('Mapbox GL JS not loaded')
       this.loadMapboxScript()
       return
     }
@@ -41,7 +39,6 @@ export default class extends Controller {
   }
 
   initializeMap() {
-    console.log("Initializing map with API key:", this.apiKeyValue)
 
     mapboxgl.accessToken = this.apiKeyValue
 
@@ -61,7 +58,6 @@ export default class extends Controller {
     })
 
     this.map.on('load', () => {
-      console.log("Map loaded, adding properties...")
       this.addPropertiesToMap()
       this.setupEventListeners()
 
@@ -82,11 +78,9 @@ export default class extends Controller {
 
   addPropertiesToMap() {
     if (!this.propertiesValue || this.propertiesValue.length === 0) {
-      console.log("No properties to display")
       return
     }
 
-    console.log(`Adding ${this.propertiesValue.length} properties to map`)
 
     this.propertiesValue.forEach(property => {
       if (property.latitude && property.longitude) {
@@ -283,7 +277,6 @@ export default class extends Controller {
         alert(`Erreur : ${data.error}`)
       }
     } catch (error) {
-      console.error('Erreur lors du géocodage:', error)
       alert('Une erreur est survenue lors du géocodage.')
     }
   }

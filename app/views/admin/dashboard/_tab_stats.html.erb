@@ -1,0 +1,462 @@
+    <!-- ========== ONGLET STATISTIQUES ENRICHI ========== -->
+    <div class="tab-pane fade" id="stats-panel" role="tabpanel">
+
+      <!-- Vue d'ensemble rapide -->
+      <div class="row mb-4">
+        <div class="col-md-2 col-sm-4 mb-3">
+          <div class="card text-center border-0 shadow-sm bg-primary bg-opacity-10">
+            <div class="card-body">
+              <h3 class="text-primary mb-1"><%= @admin_stats[:overview][:total_users] %></h3>
+              <small class="text-muted">Utilisateurs</small>
+              <div class="mt-1">
+                <span class="badge bg-success"><%= @admin_stats[:users][:recent_signups] %> cette semaine</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-4 mb-3">
+          <div class="card text-center border-0 shadow-sm bg-info bg-opacity-10">
+            <div class="card-body">
+              <h3 class="text-info mb-1"><%= @admin_stats[:overview][:total_properties] %></h3>
+              <small class="text-muted">Propriétés</small>
+              <div class="mt-1">
+                <span class="badge bg-info"><%= @admin_stats[:properties][:geocoding_rate].round(1) %>% géocodées</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-4 mb-3">
+          <div class="card text-center border-0 shadow-sm bg-warning bg-opacity-10">
+            <div class="card-body">
+              <h3 class="text-warning mb-1"><%= @admin_stats[:overview][:total_projects] %></h3>
+              <small class="text-muted">Projets</small>
+              <div class="mt-1">
+                <span class="badge bg-warning"><%= @admin_stats[:projects][:avg_per_property] %> / propriété</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-4 mb-3">
+          <div class="card text-center border-0 shadow-sm bg-success bg-opacity-10">
+            <div class="card-body">
+              <h3 class="text-success mb-1"><%= @admin_stats[:overview][:total_simulations] %></h3>
+              <small class="text-muted">Simulations</small>
+              <div class="mt-1">
+                <span class="badge bg-success"><%= @admin_stats[:simulations][:this_month] %> ce mois</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-4 mb-3">
+          <div class="card text-center border-0 shadow-sm bg-danger bg-opacity-10">
+            <div class="card-body">
+              <h3 class="text-danger mb-1"><%= @admin_stats[:overview][:total_primes] %></h3>
+              <small class="text-muted">Primes</small>
+              <div class="mt-1">
+                <span class="badge bg-danger">3 régions</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-4 mb-3">
+          <div class="card text-center border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 25%);">
+            <div class="card-body text-white">
+              <h3 class="mb-1"><%= @admin_stats[:overview][:total_request_progresses] %></h3>
+              <small class="opacity-75">Suivis de primes</small>
+              <div class="mt-1">
+                <span class="badge bg-light text-dark"><%= @admin_stats[:request_progresses][:this_week] %> cette semaine</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Graphiques et analyses détaillées -->
+      <div class="row">
+        <!-- Croissance utilisateurs -->
+        <div class="col-lg-4 mb-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-light">
+              <h6 class="mb-0"><i class="bi bi-people me-2"></i>Utilisateurs</h6>
+            </div>
+            <div class="card-body">
+              <div class="row text-center mb-3">
+                <div class="col-6">
+                  <h5 class="text-success mb-0"><%= @admin_stats[:users][:confirmed] %></h5>
+                  <small class="text-muted">Confirmés</small>
+                </div>
+                <div class="col-6">
+                  <h5 class="text-warning mb-0"><%= @admin_stats[:users][:unconfirmed] %></h5>
+                  <small class="text-muted">Non confirmés</small>
+                </div>
+              </div>
+              <div class="progress mb-2" style="height: 8px;">
+                <div class="progress-bar bg-success" role="progressbar"
+                     style="width: <%= @admin_stats[:users][:completion_rate] %>%"></div>
+              </div>
+              <small class="text-muted">Taux de complétion des profils: <%= @admin_stats[:users][:completion_rate] %>%</small>
+
+              <hr class="my-3">
+
+              <div class="d-flex justify-content-between">
+                <span>Croissance 7j:</span>
+                <span class="<%= @admin_stats[:growth][:user_growth_7d].starts_with?('+') ? 'text-success' : 'text-danger' %>">
+                  <%= @admin_stats[:growth][:user_growth_7d] %>
+                </span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span>Croissance 30j:</span>
+                <span class="<%= @admin_stats[:growth][:user_growth_30d].starts_with?('+') ? 'text-success' : 'text-danger' %>">
+                  <%= @admin_stats[:growth][:user_growth_30d] %>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Propriétés et géocodage -->
+        <div class="col-lg-4 mb-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-light">
+              <h6 class="mb-0"><i class="bi bi-house me-2"></i>Propriétés</h6>
+            </div>
+            <div class="card-body">
+              <div class="row text-center mb-3">
+                <div class="col-6">
+                  <h5 class="text-info mb-0"><%= @admin_stats[:properties][:geocoded] %></h5>
+                  <small class="text-muted">Géocodées</small>
+                </div>
+                <div class="col-6">
+                  <h5 class="text-primary mb-0"><%= @admin_stats[:properties][:with_projects] %></h5>
+                  <small class="text-muted">Avec projets</small>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                  <small>Qualité géocodage</small>
+                  <small><%= @admin_stats[:properties][:geocoding_rate].round(1) %>%</small>
+                </div>
+                <div class="progress" style="height: 8px;">
+                  <div class="progress-bar bg-info" role="progressbar"
+                       style="width: <%= @admin_stats[:properties][:geocoding_rate] %>%"></div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <div class="d-flex justify-content-between mb-1">
+                  <small>Taux d'utilisation</small>
+                  <small><%= @admin_stats[:properties][:usage_rate].round(1) %>%</small>
+                </div>
+                <div class="progress" style="height: 8px;">
+                  <div class="progress-bar bg-primary" role="progressbar"
+                       style="width: <%= @admin_stats[:properties][:usage_rate] %>%"></div>
+                </div>
+              </div>
+
+              <hr class="my-3">
+
+              <small class="text-muted">
+                <i class="bi bi-plus-circle me-1"></i>
+                <%= @admin_stats[:properties][:recent_additions] %> ajouts cette semaine
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Répartition géographique -->
+        <div class="col-lg-4 mb-4">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-light">
+              <h6 class="mb-0"><i class="bi bi-geo-alt me-2"></i>Répartition géographique</h6>
+            </div>
+            <div class="card-body">
+              <% @admin_stats[:primes][:by_region].each do |region, count| %>
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="fw-medium"><%= region.capitalize %></span>
+                  <span class="badge bg-primary"><%= count %> primes</span>
+                </div>
+              <% end %>
+
+              <hr class="my-3">
+
+              <h6 class="text-muted mb-2">Top villes utilisateurs:</h6>
+              <% @admin_stats[:geographic][:top_cities].first(3).each do |city, count| %>
+                <div class="d-flex justify-content-between mb-1">
+                  <small><%= city %></small>
+                  <small class="text-muted"><%= count %> users</small>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activité récente et tendances -->
+      <div class="row">
+        <div class="col-lg-6 mb-4">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+              <h6 class="mb-0"><i class="bi bi-activity me-2"></i>Activité des 7 derniers jours</h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-4 text-center">
+                  <canvas id="userActivityChart" width="80" height="80"></canvas>
+                  <p class="small text-muted mt-2">Nouveaux utilisateurs</p>
+                </div>
+                <div class="col-4 text-center">
+                  <canvas id="propertyActivityChart" width="80" height="80"></canvas>
+                  <p class="small text-muted mt-2">Nouvelles propriétés</p>
+                </div>
+                <div class="col-4 text-center">
+                  <canvas id="simulationActivityChart" width="80" height="80"></canvas>
+                  <p class="small text-muted mt-2">Simulations</p>
+                </div>
+              </div>
+
+              <hr class="my-3">
+
+              <div class="row text-center">
+                <div class="col-12">
+                  <small class="text-muted">
+                    <i class="bi bi-clock me-1"></i>
+                    Pic d'activité: <%= @admin_stats[:activity][:peak_hours] %>
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Métriques business -->
+        <div class="col-lg-6 mb-4">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+              <h6 class="mb-0"><i class="bi bi-graph-up me-2"></i>Métriques Business</h6>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-6">
+                  <div class="text-center p-3 bg-light rounded">
+                    <h5 class="text-primary mb-1"><%= @admin_stats[:simulations][:avg_per_user] %></h5>
+                    <small class="text-muted">Simulations / utilisateur</small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="text-center p-3 bg-light rounded">
+                    <h5 class="text-success mb-1"><%= @admin_stats[:documents][:avg_per_user] %></h5>
+                    <small class="text-muted">Documents / utilisateur</small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="text-center p-3 bg-light rounded">
+                    <h5 class="text-warning mb-1"><%= @admin_stats[:simulations][:success_rate] %>%</h5>
+                    <small class="text-muted">Taux de succès simulations</small>
+                  </div>
+                </div>
+                <div class="col-6">
+                  <div class="text-center p-3 bg-light rounded">
+                    <h5 class="text-info mb-1"><%= @admin_stats[:activity][:weekly_growth] %></h5>
+                    <small class="text-muted">Croissance hebdo</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions rapides -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-light">
+              <h6 class="mb-0"><i class="bi bi-lightning me-2"></i>Actions rapides</h6>
+            </div>
+            <div class="card-body">
+              <div class="row g-2">
+                <div class="col-md-3">
+                  <button class="btn btn-outline-primary w-100" onclick="exportStats()">
+                    <i class="bi bi-download me-2"></i>Exporter stats
+                  </button>
+                </div>
+                <div class="col-md-3">
+                  <button class="btn btn-outline-success w-100" onclick="refreshStats()">
+                    <i class="bi bi-arrow-clockwise me-2"></i>Actualiser
+                  </button>
+                </div>
+                <div class="col-md-3">
+                  <button class="btn btn-outline-warning w-100" onclick="geocodeAll()">
+                    <i class="bi bi-geo-alt me-2"></i>Géocoder tout
+                  </button>
+                </div>
+                <div class="col-md-3">
+                  <button class="btn btn-outline-info w-100" onclick="generateReport()">
+                    <i class="bi bi-file-text me-2"></i>Rapport détaillé
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== SECTION ANALYTICS DES PAGES HORS CONNEXION ========== -->
+      <% if @page_visits_stats.any? %>
+      <div class="row mt-5">
+        <div class="col-12">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <h4 class="text-primary mb-1">
+                <i class="bi bi-graph-up-arrow me-2"></i>Analytics des Pages Hors Connexion
+              </h4>
+              <p class="text-muted mb-0">Analyse de l'activité des visiteurs anonymes sur vos simulateurs</p>
+            </div>
+            <div>
+              <span class="badge bg-primary fs-6 px-3 py-2">
+                <i class="bi bi-eye me-1"></i>
+                <%= @page_visits_stats[:total_visits] %> visites totales
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics des Pages Hors Connexion -->
+      <div class="row">
+        <div class="col-12">
+          <div class="card border-0 shadow-sm">
+            <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+              <h5 class="mb-0">
+                <i class="bi bi-activity me-2"></i>Données de fréquentation en temps réel
+              </h5>
+              <small class="opacity-75">Simulateurs utilisés par des visiteurs non-inscrits</small>
+            </div>
+            <div class="card-body">
+
+              <!-- Résumé global -->
+              <div class="row mb-4">
+                <div class="col-md-2">
+                  <div class="text-center p-3 bg-primary bg-opacity-10 rounded">
+                    <h4 class="text-primary mb-1"><%= @page_visits_stats[:total_visits] %></h4>
+                    <small class="text-muted">Total visites</small>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="text-center p-3 bg-warning bg-opacity-10 rounded">
+                    <h4 class="text-warning mb-1"><%= @page_visits_stats[:anonymous_visits] %></h4>
+                    <small class="text-muted">Visiteurs anonymes</small>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="text-center p-3 bg-success bg-opacity-10 rounded">
+                    <h4 class="text-success mb-1"><%= @page_visits_stats[:today_visits] %></h4>
+                    <small class="text-muted">Aujourd'hui</small>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="text-center p-3 bg-info bg-opacity-10 rounded">
+                    <h4 class="text-info mb-1"><%= @page_visits_stats[:week_visits] %></h4>
+                    <small class="text-muted">Cette semaine</small>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="text-center p-3 bg-secondary bg-opacity-10 rounded">
+                    <h4 class="text-secondary mb-1"><%= @page_visits_stats[:month_visits] %></h4>
+                    <small class="text-muted">Ce mois</small>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="text-center p-3 bg-danger bg-opacity-10 rounded">
+                    <% ratio = @page_visits_stats[:total_visits] > 0 ? (@page_visits_stats[:anonymous_visits].to_f / @page_visits_stats[:total_visits] * 100).round(1) : 0 %>
+                    <h4 class="text-danger mb-1"><%= ratio %>%</h4>
+                    <small class="text-muted">Taux anonyme</small>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row">
+                <!-- Pages populaires -->
+                <div class="col-md-4">
+                  <h6 class="text-muted mb-3">
+                    <i class="bi bi-star me-2"></i>Pages les plus visitées
+                  </h6>
+                  <% @page_visits_stats[:popular_pages].each_with_index do |(page, count), index| %>
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                      <div class="d-flex align-items-center">
+                        <span class="badge bg-primary me-2"><%= index + 1 %></span>
+                        <small><%= page.humanize %></small>
+                      </div>
+                      <span class="badge bg-secondary"><%= count %></span>
+                    </div>
+                  <% end %>
+                </div>
+
+                <!-- Activité par région -->
+                <div class="col-md-4">
+                  <h6 class="text-muted mb-3">
+                    <i class="bi bi-geo-alt me-2"></i>Activité par région
+                  </h6>
+                  <% @page_visits_stats[:visits_by_region].each do |region, count| %>
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                      <div class="d-flex align-items-center">
+                        <i class="bi bi-map me-2 text-<%= region == 'Bruxelles' ? 'warning' : region == 'Wallonie' ? 'danger' : 'primary' %>"></i>
+                        <small><%= region %></small>
+                      </div>
+                      <span class="badge bg-<%= region == 'Bruxelles' ? 'warning' : region == 'Wallonie' ? 'danger' : 'primary' %>"><%= count %></span>
+                    </div>
+                  <% end %>
+                </div>
+
+                <!-- Activité simulateurs -->
+                <div class="col-md-4">
+                  <h6 class="text-muted mb-3">
+                    <i class="bi bi-calculator me-2"></i>Simulateurs utilisés
+                  </h6>
+                  <% @page_visits_stats[:simulation_activity].each do |simulator, count| %>
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                      <div class="d-flex align-items-center">
+                        <i class="bi bi-gear me-2 text-success"></i>
+                        <small><%= simulator.humanize %></small>
+                      </div>
+                      <span class="badge bg-success"><%= count %></span>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+
+              <!-- Graphique visites quotidiennes (7 derniers jours) -->
+              <div class="row mt-4">
+                <div class="col-12">
+                  <h6 class="text-muted mb-3">
+                    <i class="bi bi-graph-up me-2"></i>Évolution des visites (7 derniers jours)
+                  </h6>
+                  <div class="bg-light p-3 rounded">
+                    <div class="row text-center">
+                      <% @page_visits_stats[:daily_visits].each do |date, count| %>
+                        <div class="col">
+                          <div class="small text-muted mb-1"><%= Date.parse(date.to_s).strftime("%d/%m") %></div>
+                          <div class="text-primary font-weight-bold"><%= count %></div>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="text-center mt-3">
+                <small class="text-muted">
+                  <i class="bi bi-info-circle me-1"></i>
+                  Ces données permettent d'analyser l'intérêt des visiteurs pour les simulateurs sans créer de compte
+                </small>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+      <% end %>
+
+    </div>
+

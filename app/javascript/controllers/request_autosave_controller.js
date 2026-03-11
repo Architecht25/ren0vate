@@ -12,7 +12,6 @@ export default class extends Controller {
     this.element.addEventListener('input', this.debouncedAutoSave.bind(this))
     this.element.addEventListener('change', this.debouncedAutoSave.bind(this))
 
-    console.log("🔄 Request auto-save controller connecté pour request:", this.requestId)
 
     // Restaurer les données du localStorage au chargement
     this.restoreFromLocalStorage()
@@ -41,11 +40,9 @@ export default class extends Controller {
     const formData = this.collectFormData()
 
     if (Object.keys(formData).length === 0) {
-      console.log("📝 Aucune donnée à sauvegarder")
       return
     }
 
-    console.log('💾 Auto-save request (localStorage):', Object.keys(formData).length, 'champs')
 
     // 1. Toujours sauvegarder dans localStorage (rapide et fiable)
     this.saveToLocalStorage(formData)
@@ -66,13 +63,11 @@ export default class extends Controller {
       }
 
       localStorage.setItem(this.storageKey, JSON.stringify(dataToSave))
-      console.log("✅ Sauvegarde localStorage réussie")
       this.showSaveIndicator('success')
 
       // Déclencher l'événement pour l'indicateur d'état
       window.dispatchEvent(new CustomEvent('autosave-success'))
     } catch (error) {
-      console.error("❌ Erreur localStorage:", error)
       this.showSaveIndicator('error')
       window.dispatchEvent(new CustomEvent('autosave-error'))
     }
@@ -96,15 +91,12 @@ export default class extends Controller {
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          console.log("✅ Auto-save DB réussi")
           // Effacer le localStorage une fois sauvé en DB
           localStorage.removeItem(this.storageKey)
         } else {
-          console.error("❌ Erreur auto-save DB:", data.error)
         }
       })
       .catch(error => {
-        console.error("❌ Erreur réseau auto-save DB:", error)
       })
     }
   }
@@ -131,7 +123,6 @@ export default class extends Controller {
     .then(response => response.json())
     .then(data => {
       if (data.success && data.request_id) {
-        console.log("✅ Nouvelle demande créée:", data.request_id)
         // Mettre à jour l'ID pour les futures sauvegardes
         this.requestId = data.request_id
         this.element.dataset.requestId = data.request_id
@@ -139,11 +130,9 @@ export default class extends Controller {
         // Effacer le localStorage de 'new'
         localStorage.removeItem('request_draft_new')
       } else {
-        console.error("❌ Erreur création demande:", data.error)
       }
     })
     .catch(error => {
-      console.error("❌ Erreur réseau création demande:", error)
     })
   }
 
@@ -161,7 +150,6 @@ export default class extends Controller {
         return
       }
 
-      console.log("🔄 Restauration depuis localStorage")
 
       // Restaurer les champs
       Object.keys(data).forEach(fieldName => {
@@ -185,13 +173,11 @@ export default class extends Controller {
       })
 
       this.showSaveIndicator('restored')
-      console.log("✅ Données restaurées depuis localStorage")
 
       // Déclencher l'événement pour l'indicateur d'état
       window.dispatchEvent(new CustomEvent('autosave-restored'))
 
     } catch (error) {
-      console.error("❌ Erreur restauration localStorage:", error)
       localStorage.removeItem(this.storageKey)
     }
   }  collectFormData() {
@@ -277,6 +263,5 @@ export default class extends Controller {
   // Méthode pour nettoyer le localStorage (utile pour les tests)
   clearLocalStorage() {
     localStorage.removeItem(this.storageKey)
-    console.log("🧹 localStorage nettoyé pour:", this.storageKey)
   }
 }
