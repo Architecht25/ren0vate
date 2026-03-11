@@ -102,11 +102,15 @@ class PropertiesController < ApplicationController
 
   def dashboard
     # Données pour le dashboard du bien
+    data_details = @property.data_completeness_details
     @completion_stats = {
       admin: @property.admin_completion_percentage,
       chantier: @property.chantier_completion_percentage,
       primes: @property.primes_completion_percentage,
-      overall: @property.completion_percentage
+      overall: @property.completion_percentage,
+      data: data_details[:percentage],
+      data_done: data_details[:done],
+      data_total: data_details[:total]
     }
 
     # Requests et simulations liées à ce bien

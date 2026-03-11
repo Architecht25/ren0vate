@@ -94,6 +94,74 @@ class Property < ApplicationRecord
   end
 
   # Méthodes pour les dashboards et le suivi de complétude
+
+  # Retourne une analyse détaillée champ par champ de la complétude des données
+  def data_completeness_details
+    labels = {
+      titre: "Nom du bien",
+      rue: "Rue", numero: "Numéro", code_postal: "Code postal",
+      commune: "Commune", region: "Région",
+      type_propriete_wallonie: "Type de propriété (Wallonie)",
+      type_bien_wallonie: "Type de bien (Wallonie)",
+      profil_demandeur: "Profil demandeur",
+      certificat_peb_wallonie: "Certificat PEB (Wallonie)",
+      occupation: "Type d'occupation",
+      surface_habitable_wallonie: "Surface habitable (m²)",
+      mode_chauffage_wallonie: "Mode de chauffage",
+      annee_construction: "Année de construction",
+      type_bien_flandre: "Type de bien (Flandre)",
+      usage_flandre: "Usage (Flandre)",
+      certificat_peb_flandre: "Certificat PEB (Flandre)",
+      surface_habitable: "Surface habitable (m²)",
+      chauffage_post_renovation_flandre: "Chauffage post-rénovation",
+      ean_flandre: "Numéro EAN (Flandre)",
+      type_bien_bruxelles: "Type de bien (Bruxelles)",
+      certificat_peb_bruxelles: "Certificat PEB (Bruxelles)",
+      surface_totale: "Surface totale (m²)",
+      numero_cadastre: "Numéro cadastral",
+      valeur_achat: "Valeur d'achat",
+      date_achat: "Date d'achat"
+    }
+
+    identite = {
+      label: "Identité du bien",
+      fields: build_field_details([:titre, :rue, :numero, :code_postal, :commune, :region, :numero_cadastre], labels)
+    }
+
+    admin = {
+      label: "Informations administratives",
+      fields: build_field_details(admin_fields_for_region - [:rue, :numero, :code_postal, :commune, :region], labels)
+    }
+
+    technique = {
+      label: "Caractéristiques techniques",
+      fields: build_field_details(chantier_fields_for_region, labels)
+    }
+
+    investissement = {
+      label: "Valeur & investissement",
+      fields: build_field_details([:valeur_achat, :date_achat], labels)
+    }
+
+    categories = [identite, admin, technique, investissement].map do |cat|
+      total = cat[:fields].count
+      done = cat[:fields].count { |f| f[:filled] }
+      cat.merge(total: total, done: done, percentage: total.zero? ? 0 : (done.to_f / total * 100).round)
+    end
+
+    all_fields = categories.flat_map { |c| c[:fields] }
+    global_total = all_fields.count
+    global_done = all_fields.count { |f| f[:filled] }
+
+    {
+      categories: categories,
+      total: global_total,
+      done: global_done,
+      percentage: global_total.zero? ? 0 : (global_done.to_f / global_total * 100).round,
+      missing: all_fields.reject { |f| f[:filled] }.map { |f| f[:label] }
+    }
+  end
+
   def completion_percentage
     # Calcul de complétude incluant les documents
     admin_weight = 0.3
@@ -389,11 +457,11 @@ class Property < ApplicationRecord
     # Ajout des champs régionaux selon la région
     case region&.downcase
     when 'wallonie'
-      fields += [:type_propriete_wallonie, :certificat_peb_wallonie]
+      fields += [:type_propriete_wallonie, :type_bien_wallonie, :profil_demandeur, :certificat_peb_wallonie]
     when 'flandre'
-      fields += [:type_bien_flandre, :usage_flandre, :peb] # Utilise le champ générique peb pour la Flandre
+      fields += [:type_bien_flandre, :usage_flandre, :certificat_peb_flandre]
     when 'bruxelles'
-      fields += [:type_bien_bruxelles, :certificat_peb_bruxelles]
+      fields += [:type_bien_bruxelles, :certificat_peb_bruxelles, :profil_demandeur]
     else
       # Fallback vers l'ancien champ générique si pas de région définie
       fields += [:type] if respond_to?(:type)
@@ -409,8 +477,8 @@ class Property < ApplicationRecord
     # Ajout des champs régionaux spécifiques selon la région
     case region&.downcase
     when 'wallonie'
-      # Pour la Wallonie : surface habitable et mode de chauffage
-      fields += [:surface_habitable_wallonie, :mode_chauffage_wallonie]
+      # Pour la Wallonie : surface habitable, mode de chauffage et occupation
+      fields += [:surface_habitable_wallonie, :mode_chauffage_wallonie, :occupation]
     when 'flandre'
       # Pour la Flandre : surface habitable, système chauffage et EAN
       fields += [:surface_habitable, :chauffage_post_renovation_flandre, :ean_flandre]
@@ -476,6 +544,13 @@ class Property < ApplicationRecord
   end
 
   private
+
+  def build_field_details(fields, labels)
+    fields.uniq.map do |field|
+      value = self[field]
+      { field: field, label: labels[field] || field.to_s.humanize, filled: value.present?, value: value }
+    end
+  end
 
   def normalize_region
     self.region = region&.downcase if region.present?

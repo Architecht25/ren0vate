@@ -94,79 +94,53 @@
             </div>
           </div>
 
-          <div class="row g-3">
-            <div class="col-12">
-              <div class="info-item">
-                <small class="text-muted-custom">Complétude globale</small>
-                <div class="fw-medium mb-2">
-                  <span class="badge bg-<%= @completion_stats && @completion_stats[:overall] > 70 ? 'success' : @completion_stats && @completion_stats[:overall] > 40 ? 'warning' : 'danger' %>">
-                    <%= @completion_stats ? @completion_stats[:overall] : 0 %>%
-                  </span>
-                </div>
-                <div class="progress" style="height: 6px;">
-                  <div class="progress-bar bg-<%= @completion_stats && @completion_stats[:overall] > 70 ? 'success' : @completion_stats && @completion_stats[:overall] > 40 ? 'warning' : 'danger' %>"
-                       style="width: <%= @completion_stats ? @completion_stats[:overall] : 0 %>%"></div>
-                </div>
-              </div>
+          <% details = @property.data_completeness_details %>
+
+          <!-- Score global données -->
+          <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <small class="text-muted-custom fw-medium">Données renseignées</small>
+              <span class="badge bg-<%= details[:percentage] >= 80 ? 'success' : details[:percentage] >= 50 ? 'warning' : 'danger' %> rounded-pill">
+                <%= details[:done] %> / <%= details[:total] %> champs &nbsp;·&nbsp; <%= details[:percentage] %>%
+              </span>
             </div>
-            <div class="col-6">
-              <div class="info-item">
-                <small class="text-muted-custom">Informations administratives</small>
-                <div class="fw-medium">
-                  <span class="badge bg-<%= @completion_stats && @completion_stats[:admin] > 70 ? 'success' : @completion_stats && @completion_stats[:admin] > 40 ? 'warning' : 'danger' %>">
-                    <%= @completion_stats ? @completion_stats[:admin] : 0 %>%
-                  </span>
-                </div>
-                <!-- Détails des champs manquants -->
-                <ul class="list-unstyled mt-2 small">
-                  <li class="d-flex align-items-center">
-                    <i class="bi bi-<%= @property.rue.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-1"></i>
-                    <span class="<%= @property.rue.present? ? 'text-success' : 'text-muted' %>">Adresse</span>
-                  </li>
-                  <li class="d-flex align-items-center">
-                    <i class="bi bi-<%= @property.region.present? ? 'check-circle-fill text-success' : 'circle text-muted' %> me-1"></i>
-                    <span class="<%= @property.region.present? ? 'text-success' : 'text-muted' %>">Région</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="info-item">
-                <small class="text-muted-custom">Informations chantier</small>
-                <div class="fw-medium">
-                  <span class="badge bg-<%= @completion_stats && @completion_stats[:chantier] > 70 ? 'success' : @completion_stats && @completion_stats[:chantier] > 40 ? 'warning' : 'danger' %>">
-                    <%= @completion_stats ? @completion_stats[:chantier] : 0 %>%
-                  </span>
-                </div>
-                <!-- Détails des champs manquants -->
-                <ul class="list-unstyled mt-2 small">
-                  <% @property.chantier_fields_for_region.each do |field| %>
-                    <% field_present = @property[field].present? %>
-                    <% field_label = case field.to_s
-                         when 'annee_construction' then 'Année construction'
-                         when 'surface_habitable' then 'Surface habitable'
-                         when 'surface_habitable_wallonie' then 'Surface habitable'
-                         when 'mode_chauffage_wallonie' then 'Mode de chauffage'
-                         when 'chauffage_post_renovation_flandre' then 'Système de chauffage'
-                         when 'ean_flandre' then 'Numéro EAN'
-                         when 'usage' then 'Usage du bien'
-                         when 'occupation' then 'Type d\'occupation'
-                         when 'surface_totale' then 'Surface totale'
-                         else field.to_s.humanize
-                         end %>
-                    <li class="d-flex align-items-center">
-                      <i class="bi bi-<%= field_present ? 'check-circle-fill text-success' : 'circle text-muted' %> me-1"></i>
-                      <span class="<%= field_present ? 'text-success' : 'text-muted' %>"><%= field_label %></span>
-                    </li>
-                  <% end %>
-                </ul>
-              </div>
+            <div class="progress" style="height: 8px;">
+              <div class="progress-bar bg-<%= details[:percentage] >= 80 ? 'success' : details[:percentage] >= 50 ? 'warning' : 'danger' %>"
+                   style="width: <%= details[:percentage] %>%" role="progressbar"
+                   aria-valuenow="<%= details[:percentage] %>" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
           </div>
 
-          <div class="mt-4 pt-3 border-top">
+          <!-- Catégories détaillées -->
+          <% details[:categories].each do |cat| %>
+            <div class="mb-2">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <small class="text-dark fw-medium"><%= cat[:label] %></small>
+                <small class="badge bg-<%= cat[:percentage] >= 80 ? 'success' : cat[:percentage] >= 50 ? 'warning' : 'danger' %> fw-normal">
+                  <%= cat[:done] %>/<%= cat[:total] %>
+                </small>
+              </div>
+              <div class="progress mb-1" style="height: 4px;">
+                <div class="progress-bar bg-<%= cat[:percentage] >= 80 ? 'success' : cat[:percentage] >= 50 ? 'warning' : 'danger' %>"
+                     style="width: <%= cat[:percentage] %>%"></div>
+              </div>
+              <!-- Champs manquants dans cette catégorie -->
+              <% missing_fields = cat[:fields].reject { |f| f[:filled] } %>
+              <% if missing_fields.any? %>
+                <div class="d-flex flex-wrap gap-1 mt-1">
+                  <% missing_fields.each do |f| %>
+                    <span class="badge bg-light text-danger border border-danger-subtle small" style="font-size: 0.7rem;">
+                      <i class="bi bi-exclamation-circle me-1"></i><%= f[:label] %>
+                    </span>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+
+          <div class="mt-3 pt-3 border-top">
             <%= link_to edit_property_path(@property), class: "btn btn-outline-primary-custom btn-sm w-100" do %>
-              <i class="bi bi-pencil me-2"></i>Modifier les informations
+              <i class="bi bi-pencil me-2"></i>Compléter les informations
             <% end %>
           </div>
         </div>
