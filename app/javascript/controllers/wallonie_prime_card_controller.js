@@ -190,13 +190,6 @@ export default class extends Controller {
       let montant = 0
       const inputValue = input.value
 
-        inputSelector,
-        inputValue,
-        inputType: input.type,
-        calculDataType: calculData.type,
-        calculData
-      })
-
       switch (calculData.type) {
         case 'montant_fixe':
           // Pour les montants fixes (audit, primes ECS, etc.)

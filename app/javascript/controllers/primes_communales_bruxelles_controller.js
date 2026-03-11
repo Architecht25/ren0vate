@@ -133,10 +133,6 @@ export default class extends Controller {
     }
 
     try {
-        prime: this.selectedPrime.nom,
-        montant: montantTravaux
-      })
-
       const response = await fetch(`${this.apiBaseUrlValue}/calculate`, {
         method: 'POST',
         headers: {

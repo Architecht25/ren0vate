@@ -17,16 +17,6 @@ export default class extends Controller {
   }
 
   connect() {
-
-    // Vérifier les targets
-      labelInitial: this.hasLabelInitialTarget,
-      typeLogement: this.hasTypeLogementTarget,
-      ventilation: this.hasVentilationTarget,
-      labelFinal: this.hasLabelFinalTarget,
-      montantCalcule: this.hasMontantCalculeTarget,
-      resultatContainer: this.hasResultatContainerTarget
-    })
-
     // Écouter les événements des autres cartes pour mettre à jour le total
     this.element.addEventListener("prime:input", this.mettreAJourTotalPrimes.bind(this))
 

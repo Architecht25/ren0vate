@@ -64,11 +64,11 @@ export default class extends Controller {
       'wallonie_renforcement_murs': 'resultRenforcement',
       'wallonie_elimination_merule': 'resultMerule',
       'wallonie_elimination_radon': 'resultRadon',
-      'wallonie_murs_isolation_thermique': 'resultIsolationThermique',
-      'wallonie_murs_isolation_biosource': 'resultIsolationBiosource',
+      'wallonie_isolation_murs': 'resultIsolationThermique',
+      'wallonie_isolation_murs_biosource': 'resultIsolationBiosource',
       // Sols
       'wallonie_isolation_sols': 'resultIsolationSols',
-      'wallonie_sols_isolation_biosource': 'resultIsolationBiosource',
+        'wallonie_isolation_sols_biosource': 'resultIsolationBiosource',
       'wallonie_remplacement_supports_circulation': 'resultSupports',
       'wallonie_isolation_finition_planchers': 'resultFinitionPlanchers',
       // Chaudière et PAC
@@ -114,12 +114,12 @@ export default class extends Controller {
         'wallonie_renforcement_murs',
         'wallonie_elimination_merule',
         'wallonie_elimination_radon',
-        'wallonie_murs_isolation_thermique',
-        'wallonie_murs_isolation_biosource'
+        'wallonie_isolation_murs',
+        'wallonie_isolation_murs_biosource'
       ],
       'wallonie_sols_global': [
         'wallonie_isolation_sols',
-        'wallonie_sols_isolation_biosource',
+        'wallonie_isolation_sols_biosource',
         'wallonie_remplacement_supports_circulation',
         'wallonie_isolation_finition_planchers'
       ],

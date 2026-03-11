@@ -8,14 +8,6 @@ export default class extends Controller {
   }
 
   connect() {
-      b2cTiers: this.hasB2cTiersTarget,
-      b2bTiers: this.hasB2bTiersTarget,
-      hybridTiers: this.hasHybridTiersTarget,
-      segmentB2c: this.hasSegmentB2cTarget,
-      segmentB2b: this.hasSegmentB2bTarget,
-      segmentHybrid: this.hasSegmentHybridTarget
-    })
-
     this.setupSegmentToggle()
     this.setupTierRecommendations()
     this.trackAnalytics()
