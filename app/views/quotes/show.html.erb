@@ -1,0 +1,191 @@
+<% content_for :title, "Devis estimatif ##{@quote.id} — #{@property.titre || @property.commune}" %>
+
+<div class="container-fluid px-4 py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-file-earmark-text"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">Devis estimatif</h1>
+        <small class="text-muted-custom">
+          <i class="bi bi-geo-alt me-1"></i>
+          <%= @property.titre || [@property.rue, @property.numero, @property.code_postal, @property.commune].compact.join(', ') %>
+          &nbsp;·&nbsp; créé le <%= @quote.created_at.strftime("%d/%m/%Y") %>
+        </small>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <%= link_to new_property_quote_path(@property), class: "btn btn-primary-custom" do %>
+        <i class="bi bi-plus-lg me-2"></i>Nouveau devis
+      <% end %>
+      <%= link_to property_quotes_path(@property), class: "btn btn-outline-primary-custom" do %>
+        <i class="bi bi-arrow-left me-2"></i>Mes devis
+      <% end %>
+    </div>
+  </div>
+
+  <% if flash[:notice] %>
+    <div class="alert alert-success border-0 mb-4">
+      <i class="bi bi-check-circle me-2"></i><%= flash[:notice] %>
+    </div>
+  <% end %>
+
+  <div class="row g-4">
+    <!-- Tableau des travaux -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow">
+        <div class="card-body p-4">
+          <h5 class="fw-normal mb-4">Détail des travaux</h5>
+
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Travaux</th>
+                  <th class="text-end">Qté</th>
+                  <th class="text-end">Prix unit. min</th>
+                  <th class="text-end">Prix unit. max</th>
+                  <th class="text-end">Total min</th>
+                  <th class="text-end">Total max</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @quote.items_with_work_type.each do |row| %>
+                  <% item = row[:item]; wt = row[:work_type] %>
+                  <tr>
+                    <td>
+                      <% if wt %>
+                        <i class="bi <%= wt.icon %> me-2 text-primary-custom"></i><%= wt.name %>
+                      <% else %>
+                        <%= item.work_type_key.humanize %>
+                      <% end %>
+                    </td>
+                    <td class="text-end text-muted">
+                      <% if item.unit == 'forfait' %>
+                        forfait
+                      <% else %>
+                        <%= number_with_precision(item.quantity, precision: 1, strip_insignificant_zeros: true) %> <%= item.unit %>
+                      <% end %>
+                    </td>
+                    <td class="text-end text-muted">
+                      <% if item.unit != 'forfait' %>
+                        <%= number_to_currency(item.unit_price_min, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
+                      <% else %>
+                        —
+                      <% end %>
+                    </td>
+                    <td class="text-end text-muted">
+                      <% if item.unit != 'forfait' %>
+                        <%= number_to_currency(item.unit_price_max, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
+                      <% else %>
+                        —
+                      <% end %>
+                    </td>
+                    <td class="text-end fw-medium">
+                      <%= number_to_currency(item.total_min, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
+                    </td>
+                    <td class="text-end fw-medium">
+                      <%= number_to_currency(item.total_max, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+              <tfoot class="table-light fw-bold">
+                <tr>
+                  <td colspan="4">TOTAL ESTIMATIF (TVA 6% incluse)</td>
+                  <td class="text-end text-success fs-6">
+                    <%= number_to_currency(@quote.total_min, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
+                  </td>
+                  <td class="text-end text-success fs-6">
+                    <%= number_to_currency(@quote.total_max, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <div class="alert alert-info border-0 mt-3 mb-0" role="alert">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>Note :</strong> Les primes régionales (Wallonie, Bruxelles, Flandre) ne sont pas encore intégrées dans cette version.
+            Elles seront disponibles prochainement pour affiner votre estimation nette.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Résumé & actions -->
+    <div class="col-lg-4">
+      <!-- Résumé chiffres clés -->
+      <div class="card border-0 shadow mb-4">
+        <div class="card-body p-4">
+          <h6 class="fw-medium text-muted-custom mb-3">Résumé</h6>
+
+          <div class="mb-3 pb-3 border-bottom">
+            <small class="text-muted-custom d-block">Fourchette basse</small>
+            <div class="h4 text-success fw-bold mb-0">
+              <%= number_to_currency(@quote.total_min, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
+            </div>
+          </div>
+
+          <div class="mb-3 pb-3 border-bottom">
+            <small class="text-muted-custom d-block">Fourchette haute</small>
+            <div class="h4 text-warning fw-bold mb-0">
+              <%= number_to_currency(@quote.total_max, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
+            </div>
+          </div>
+
+          <div class="mb-3 pb-3 border-bottom">
+            <small class="text-muted-custom d-block">Durée estimée</small>
+            <div class="fw-medium">
+              <i class="bi bi-calendar-range me-1 text-primary-custom"></i>
+              <%= @quote.duration_min_days %> – <%= @quote.duration_max_days %> jours
+            </div>
+          </div>
+
+          <div>
+            <small class="text-muted-custom d-block">Nombre de travaux</small>
+            <div class="fw-medium">
+              <i class="bi bi-hammer me-1 text-primary-custom"></i>
+              <%= @quote.quote_items.count %> type<%= @quote.quote_items.count > 1 ? 's' : '' %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="card border-0 shadow mb-4">
+        <div class="card-body p-4">
+          <h6 class="fw-medium text-muted-custom mb-3">Actions</h6>
+          <div class="d-grid gap-2">
+            <%= link_to new_property_quote_path(@property), class: "btn btn-outline-primary-custom btn-sm" do %>
+              <i class="bi bi-arrow-repeat me-2"></i>Nouveau devis
+            <% end %>
+            <%= link_to dashboard_property_path(@property), class: "btn btn-outline-secondary btn-sm" do %>
+              <i class="bi bi-house me-2"></i>Retour au bien
+            <% end %>
+            <%= link_to property_quote_path(@property, @quote),
+                method: :delete,
+                data: { turbo_method: :delete, turbo_confirm: "Supprimer ce devis ?" },
+                class: "btn btn-outline-danger btn-sm" do %>
+              <i class="bi bi-trash me-2"></i>Supprimer
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Disclaimer -->
+      <div class="card border-0 bg-light">
+        <div class="card-body p-3">
+          <small class="text-muted-custom">
+            <i class="bi bi-shield-exclamation me-1"></i>
+            <strong>Estimation indicative.</strong> Les prix réels peuvent varier selon l'état du bâtiment,
+            les matériaux choisis et les conditions de marché. Consultez plusieurs entrepreneurs pour obtenir
+            des devis détaillés.
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

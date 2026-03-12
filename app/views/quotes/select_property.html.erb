@@ -1,0 +1,49 @@
+<% content_for :title, "Choisir un bien — Estimateur de devis" %>
+
+<div class="container-fluid px-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-calculator"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">Choisir un bien</h1>
+        <small class="text-muted-custom">Sélectionnez le bien auquel rattacher le devis estimatif</small>
+      </div>
+    </div>
+    <%= link_to properties_path, class: "btn btn-outline-primary-custom" do %>
+      <i class="bi bi-arrow-left me-2"></i>Mes biens
+    <% end %>
+  </div>
+
+  <div class="row g-3">
+    <% @properties.each do |property| %>
+      <div class="col-12 col-md-6 col-xl-4">
+        <div class="card border-0 shadow h-100">
+          <div class="card-body p-4 d-flex flex-column">
+            <div class="d-flex align-items-start mb-3">
+              <div class="icon-circle me-3">
+                <i class="bi bi-house-door"></i>
+              </div>
+              <div class="flex-grow-1">
+                <h5 class="card-title mb-1 fw-normal"><%= property.titre.presence || "Bien sans nom" %></h5>
+                <small class="text-muted-custom">
+                  <i class="bi bi-geo-alt me-1"></i>
+                  <%= property.rue %> <%= property.numero %>, <%= property.code_postal %> <%= property.commune %>
+                </small>
+              </div>
+            </div>
+
+            <div class="mt-auto pt-3 border-top">
+              <div class="d-grid">
+                <%= link_to new_property_quote_path(property), class: "btn btn-primary-custom" do %>
+                  <i class="bi bi-arrow-right-circle me-2"></i>Utiliser ce bien
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

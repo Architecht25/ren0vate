@@ -136,6 +136,11 @@ Rails.application.routes.draw do
       post :generate_automatic
     end
   end
+
+  # Point d'entree global vers l'estimateur de devis (choix auto du bien)
+  get 'quotes/start', to: 'quotes#start', as: :start_quotes
+  get 'quotes/select_property', to: 'quotes#select_property', as: :select_property_quotes
+
   resources :properties do
     member do
       get :dashboard  # Dashboard spécifique pour un bien
@@ -157,6 +162,8 @@ Rails.application.routes.draw do
     end
     # Documents liés à une propriété
     resources :documents, shallow: true
+    # Devis estimatifs
+    resources :quotes, only: [:index, :new, :create, :show, :destroy]
   end
 
   # Routes pour la validation technique

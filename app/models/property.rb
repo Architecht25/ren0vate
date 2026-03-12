@@ -7,6 +7,7 @@ class Property < ApplicationRecord
   has_many :requests, dependent: :destroy
   has_many :documents, dependent: :destroy
   has_many :notifications, dependent: :destroy
+  has_many :quotes, dependent: :destroy
 
   # Active Storage pour les images
   has_one_attached :photo

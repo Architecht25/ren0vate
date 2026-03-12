@@ -1,0 +1,93 @@
+<% content_for :title, "Mes devis — #{@property.titre || @property.commune}" %>
+
+<div class="container-fluid px-4 py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-calculator"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">Devis estimatifs</h1>
+        <small class="text-muted-custom">
+          <i class="bi bi-geo-alt me-1"></i>
+          <%= @property.titre || [@property.rue, @property.numero, @property.code_postal, @property.commune].compact.join(', ') %>
+        </small>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <%= link_to new_property_quote_path(@property), class: "btn btn-primary-custom" do %>
+        <i class="bi bi-plus-lg me-2"></i>Nouveau devis
+      <% end %>
+      <%= link_to dashboard_property_path(@property), class: "btn btn-outline-primary-custom" do %>
+        <i class="bi bi-arrow-left me-2"></i>Retour au bien
+      <% end %>
+    </div>
+  </div>
+
+  <% if @quotes.any? %>
+    <div class="row g-3">
+      <% @quotes.each do |quote| %>
+        <div class="col-12 col-md-6 col-xl-4">
+          <div class="card border-0 shadow h-100">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                  <h6 class="fw-medium mb-1">Devis #<%= quote.id %></h6>
+                  <small class="text-muted-custom"><%= quote.created_at.strftime("%d/%m/%Y") %></small>
+                </div>
+                <span class="badge bg-<%= quote.status == 'accepted' ? 'success' : quote.status == 'sent' ? 'warning' : 'secondary' %>">
+                  <%= quote.status.humanize %>
+                </span>
+              </div>
+
+              <div class="row g-3 mb-3">
+                <div class="col-6">
+                  <small class="text-muted-custom d-block">Fourchette basse</small>
+                  <div class="fw-bold text-success">
+                    <%= number_to_currency(quote.total_min, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
+                  </div>
+                </div>
+                <div class="col-6">
+                  <small class="text-muted-custom d-block">Fourchette haute</small>
+                  <div class="fw-bold text-warning">
+                    <%= number_to_currency(quote.total_max, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
+                  </div>
+                </div>
+              </div>
+
+              <div class="d-flex gap-3 mb-3 pb-3 border-bottom">
+                <small class="text-muted-custom">
+                  <i class="bi bi-hammer me-1"></i><%= quote.quote_items.count %> travaux
+                </small>
+                <small class="text-muted-custom">
+                  <i class="bi bi-clock me-1"></i><%= quote.duration_min_days %>–<%= quote.duration_max_days %> jours
+                </small>
+              </div>
+
+              <div class="d-flex gap-2">
+                <%= link_to property_quote_path(@property, quote), class: "btn btn-outline-primary-custom btn-sm flex-grow-1" do %>
+                  <i class="bi bi-eye me-1"></i>Voir
+                <% end %>
+                <%= link_to property_quote_path(@property, quote),
+                    data: { turbo_method: :delete, turbo_confirm: "Supprimer ce devis ?" },
+                    class: "btn btn-outline-danger btn-sm" do %>
+                  <i class="bi bi-trash"></i>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-5 text-muted-custom">
+      <i class="bi bi-calculator fs-1 mb-3 d-block"></i>
+      <h5 class="fw-normal">Aucun devis pour ce bien</h5>
+      <p class="mb-4">Créez votre premier devis estimatif en quelques secondes.</p>
+      <%= link_to new_property_quote_path(@property), class: "btn btn-primary-custom px-4" do %>
+        <i class="bi bi-plus-lg me-2"></i>Créer un devis
+      <% end %>
+    </div>
+  <% end %>
+</div>

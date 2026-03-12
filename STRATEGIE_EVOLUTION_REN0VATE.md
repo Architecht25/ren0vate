@@ -1588,6 +1588,225 @@ WORK_TYPES = {
 
 ---
 
+### 🏗️ CONCEPTION GÉNÉRATEUR DEVIS V1 — 10 TRAVAUX ESSENTIELS
+*Lancée le 12/03/2026 — Sprint Mars 2026*
+
+#### 🎯 Objectif V1
+Permettre à un propriétaire d'obtenir un **devis estimatif en moins de 60 secondes** pour les 10 types de travaux les plus demandés en Belgique.
+
+> ⚠️ **Décision technique 12/03/2026** : Les primes régionales (Wallonie, Bruxelles, Flandre) sont **exclues du périmètre V1**. Le calcul des primes est un sujet en pleine mutation réglementaire. Elles seront intégrées en V2 (Avril 2026) une fois le cadre stabilisé. Le générateur V1 affiche uniquement le **coût brut hors primes**.
+
+---
+
+#### 📋 Les 10 Travaux Essentiels (scope V1)
+
+| # | Travail | Unité | Prix min | Prix max | Durée |
+|---|---------|-------|----------|----------|-------|
+| 1 | Isolation toiture | €/m² | 45€ | 75€ | 3–7j |
+| 2 | Isolation murs extérieurs | €/m² | 80€ | 140€ | 5–10j |
+| 3 | Remplacement châssis (PVC/ALU) | €/m² | 450€ | 900€ | 3–6j |
+| 4 | Pompe à chaleur air-eau | forfait | 8.000€ | 15.000€ | 3–5j |
+| 5 | Chaudière gaz condensation | forfait | 2.500€ | 5.000€ | 1–2j |
+| 6 | Panneaux solaires photovoltaïques | €/kWc | 1.200€ | 1.800€ | 2–4j |
+| 7 | Isolation plancher (sous-sol/chape) | €/m² | 25€ | 60€ | 2–5j |
+| 8 | Électricité mise en conformité | forfait | 3.000€ | 8.000€ | 3–7j |
+| 9 | Salle de bain rénovation complète | forfait | 8.000€ | 20.000€ | 7–14j |
+| 10 | Toiture remplacement (tuiles/ardoises) | €/m² | 80€ | 160€ | 5–12j |
+
+> V1 : prix bruts HT uniquement. Primes régionales prévues en V2.
+
+---
+
+#### 🗺️ Modèle de Données (Rails)
+
+```ruby
+# app/models/work_type.rb  (PORO — pas de table DB)
+CATALOGUE = [
+  {
+    key: 'isolation_toiture',
+    name: 'Isolation de toiture',
+    icon: 'bi-house-fill',
+    unit: 'm²',
+    price_min: 45,
+    price_max: 75,
+    duration_min: 3,
+    duration_max: 7,
+    vat_rate: 6
+  },
+  {
+    key: 'isolation_murs_ext',
+    name: 'Isolation murs extérieurs',
+    icon: 'bi-bricks',
+    unit: 'm²',
+    price_min: 80,
+    price_max: 140,
+    duration_min: 5,
+    duration_max: 10,
+    vat_rate: 6
+  },
+  {
+    key: 'chassis_remplacement',
+    name: 'Remplacement châssis',
+    icon: 'bi-window',
+    unit: 'm²',
+    price_min: 450,
+    price_max: 900,
+    duration_min: 3,
+    duration_max: 6,
+    vat_rate: 6
+  },
+  {
+    key: 'pompe_chaleur_air_eau',
+    name: 'Pompe à chaleur air-eau',
+    icon: 'bi-thermometer-half',
+    unit: 'forfait',
+    price_min: 8000,
+    price_max: 15000,
+    duration_min: 3,
+    duration_max: 5,
+    vat_rate: 6
+  },
+  # ... 6 autres types
+].freeze
+# Primes régionales → V2 (périmètre exclu V1)
+```
+
+---
+
+#### 🖥️ Flux Utilisateur (UX V1)
+
+```
+ÉTAPE 1 — Sélection du bien
+┌─────────────────────────────────┐
+│ Pour quel bien ?                │
+│ ○ Maison unifamiliale           │
+│ ○ Appartement                   │
+│ ○ Villa                         │
+│ Région : [Wallonie ▼]           │
+└─────────────────────────────────┘
+              ↓
+
+ÉTAPE 2 — Sélection des travaux
+┌─────────────────────────────────┐
+│ Quels travaux planifiez-vous ?  │
+│ ☑ 🏠 Isolation toiture          │
+│ ☐ 🧱 Isolation murs ext.        │
+│ ☑ 🪟 Remplacement châssis       │
+│ ☑ ♨️ Pompe à chaleur            │
+│ ☐ ☀️ Panneaux solaires          │
+│ + 5 autres travaux...           │
+└─────────────────────────────────┘
+              ↓
+
+ÉTAPE 3 — Paramètres par travail
+┌─────────────────────────────────┐
+│ 🏠 Isolation toiture            │
+│ Surface : [____] m²             │
+│ État actuel : [Sans isolation▼] │
+│                                 │
+│ 🪟 Remplacement châssis         │
+│ Surface totale : [____] m²      │
+│ Matériau : [PVC ▼]              │
+└─────────────────────────────────┘
+              ↓
+
+RÉSULTAT — Devis estimatif 30 sec
+┌──────────────────────────────────┐
+│ DEVIS ESTIMATIF                  │
+├──────────────────────────────────┤
+│ Isolation toiture (120m²) 5.400€ │
+│ Châssis PVC (15m²)        6.750€ │
+│ Pompe à chaleur          11.500€ │
+│                                  │
+│ FOURCHETTE BASSE        23.650€  │
+│ FOURCHETTE HAUTE        33.250€  │
+├──────────────────────────────────┤
+│ ⏱️ Durée estimée : 9–18 jours   │
+│ 🏷️ TVA 6% incluse               │
+│ ℹ️ Primes : disponibles en V2   │
+└──────────────────────────────────┘
+
+[📄 Télécharger PDF] [📧 Envoyer pros] [💾 Sauvegarder]
+```
+
+---
+
+#### 🛤️ Architecture Technique (Rails)
+
+```
+app/
+├── models/
+│   ├── quote.rb               # Devis principal (belongs_to :property)
+│   ├── quote_item.rb          # Ligne de devis (travail + quantité + prix)
+│   └── work_type.rb           # Catalogue 10 travaux + primes
+├── services/
+│   ├── quotes/
+│   │   ├── calculator.rb      # Calcul prix + primes par région
+│   │   └── pdf_generator.rb   # Export PDF (Prawn ou HexaPDF)
+├── controllers/
+│   └── quotes_controller.rb   # CRUD + actions generate/download
+└── views/
+    └── quotes/
+        ├── new.html.erb       # Formulaire wizard 3 étapes
+        ├── show.html.erb      # Résultat + actions
+        └── _pdf.html.erb      # Template PDF
+```
+
+**Migrations nécessaires** :
+```ruby
+# quotes table
+create_table :quotes do |t|
+  t.references :property, null: false, foreign_key: true
+  t.references :user, null: false, foreign_key: true
+  t.decimal :total_min, precision: 10, scale: 2
+  t.decimal :total_max, precision: 10, scale: 2
+  t.integer :duration_min_days
+  t.integer :duration_max_days
+  t.string :status, default: 'draft'    # draft / sent / accepted
+  t.timestamps
+end
+
+# quote_items table
+create_table :quote_items do |t|
+  t.references :quote, null: false, foreign_key: true
+  t.string :work_type_key, null: false
+  t.decimal :quantity, precision: 10, scale: 2
+  t.string :unit
+  t.decimal :unit_price_min, precision: 10, scale: 2
+  t.decimal :unit_price_max, precision: 10, scale: 2
+  t.decimal :total_min, precision: 10, scale: 2
+  t.decimal :total_max, precision: 10, scale: 2
+  t.jsonb :options, default: {}
+  t.timestamps
+end
+# Note : pas de colonne prime_amount — primes intégrées en V2
+```
+
+---
+
+#### ✅ Critères d'Acceptation V1
+
+- [ ] Propriétaire sélectionne ≥ 1 travail parmi les 10
+- [ ] Calcul automatique basé sur surface/quantité saisie
+- [ ] TVA 6% appliquée sur tous les travaux
+- [ ] Fourchette prix (min/max) affichée clairement
+- [ ] Résultat affiché en < 2 secondes
+- [ ] Devis sauvegardé et accessible depuis le dashboard bien
+- [ ] Durée estimée affichée (min–max jours)
+- [ ] ~~Primes régionales calculées~~ → **reporté V2**
+
+---
+
+#### 📅 Planning Sprint Mars (12–31/03/2026)
+
+| Semaine | Tâches |
+|---------|--------|
+| S1 (12–16/03) | Migration DB + modèles Quote/QuoteItem + WorkType catalogue |
+| S2 (17–23/03) | Service calculateur + contrôleur + vues wizard 3 étapes |
+| S3 (24–31/03) | Export PDF + intégration dashboard bien + tests |
+
+---
+
 #### Feature #3 : 📊 Suivi Chantier Temps Réel
 
 ```ruby
@@ -1782,10 +2001,10 @@ Ren0vate : **3 killer features en 3 mois**.
 **Objectif** : 100 users beta testent 3 features
 
 #### Mars 2026
-- ✅ Multi-propriétés (CRUD + Dashboard)
-- ✅ Générateur devis v1 (10 travaux essentiels)
-- ✅ Upload photos + notes basiques
-- ✅ Stripe integration paiements
+- ✅ ~~Multi-propriétés (CRUD + Dashboard)~~ **LIVRÉ 12/03/2026**
+- 🔄 Générateur devis v1 (10 travaux essentiels) — *en cours, conception lancée 12/03/2026*
+- ⏳ Upload photos + notes basiques
+- ⏳ Stripe integration paiements
 
 **Milestone** : 100 users invités, 60% complètent onboarding
 
@@ -2205,8 +2424,8 @@ CAC tendant vers 0€
 
 ---
 
-**Document Version** : 2.0
-**Dernier update** : 8 février 2026
+**Document Version** : 2.1
+**Dernier update** : 12 mars 2026
 **Archive disponible** : `STRATEGIE_EVOLUTION_RENOVATE_ARCHIVE.md`
 
 ---

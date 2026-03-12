@@ -75,26 +75,76 @@
     </div>
   <% end %>
 
+  <%
+    details = @property.data_completeness_details
+    quotes = @property.quotes.recent
+
+    core_scores = []
+    core_scores << details[:percentage].to_i
+    core_scores << (@property.projects.any? ? 85 : 30)
+    core_scores << (@property.documents.any? ? 75 : 30)
+    core_scores << (@property.simulations.any? ? 80 : 30)
+    core_scores << (quotes.any? ? 90 : 25)
+
+    global_score = (core_scores.sum.to_f / core_scores.size).round
+    global_level = if global_score >= 80
+                     'Excellent'
+                   elsif global_score >= 60
+                     'Bon'
+                   elsif global_score >= 40
+                     'Moyen'
+                   else
+                     'A renforcer'
+                   end
+    global_color = global_score >= 80 ? 'success' : global_score >= 60 ? 'primary' : global_score >= 40 ? 'warning' : 'danger'
+  %>
+
+  <div class="card border-0 shadow mb-4">
+    <div class="card-body p-4">
+      <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+        <div>
+          <h5 class="mb-1 fw-normal">
+            <i class="bi bi-speedometer2 text-primary-custom me-2"></i>
+            Score global du bien
+          </h5>
+          <small class="text-muted-custom">Lecture rapide basée sur les 5 modules prioritaires</small>
+        </div>
+        <div class="text-lg-end">
+          <span class="badge bg-<%= global_color %> fs-6 px-3 py-2"><%= global_score %>/100 · <%= global_level %></span>
+        </div>
+      </div>
+
+      <div class="progress mt-3" style="height: 10px;">
+        <div class="progress-bar bg-<%= global_color %>" style="width: <%= global_score %>%"></div>
+      </div>
+      <div class="d-flex flex-wrap gap-2 mt-3">
+        <span class="badge text-bg-light">P1 Données: <%= details[:percentage] %>%</span>
+        <span class="badge text-bg-light">P2 Devis: <%= quotes.any? ? 'actif' : 'à initier' %></span>
+        <span class="badge text-bg-light">P3 Chantiers: <%= @property.projects.any? ? 'actif' : 'à initier' %></span>
+        <span class="badge text-bg-light">P4 Documents: <%= @property.documents.any? ? 'actif' : 'à initier' %></span>
+        <span class="badge text-bg-light">P5 Simulations: <%= @property.simulations.any? ? 'actif' : 'à initier' %></span>
+      </div>
+    </div>
+  </div>
+
 
 
   <!-- Sections principales épurées -->
-  <div class="row g-4">
+  <div class="row row-cols-1 row-cols-md-2 row-cols-xl-5 g-4">
 
     <!-- État des données du bien -->
-    <div class="col-lg">
-      <div class="card border-0 shadow h-100">
-        <div class="card-body p-4">
+    <div class="col order-1">
+      <div class="card border-0 shadow h-100 dashboard-module">
+        <div class="card-body p-4 d-flex flex-column">
           <div class="d-flex align-items-center mb-3">
             <div class="icon-circle me-3">
               <i class="bi bi-house-gear"></i>
             </div>
             <div>
-              <h5 class="card-title mb-0 fw-normal">État des données du bien</h5>
+              <h5 class="card-title mb-0 fw-normal">État des données du bien <span class="badge text-bg-primary ms-1">P1</span></h5>
               <small class="text-muted-custom">Complétude des informations</small>
             </div>
           </div>
-
-          <% details = @property.data_completeness_details %>
 
           <!-- Score global données -->
           <div class="mb-3">
@@ -138,7 +188,7 @@
             </div>
           <% end %>
 
-          <div class="mt-3 pt-3 border-top">
+          <div class="mt-auto pt-3 border-top">
             <%= link_to edit_property_path(@property), class: "btn btn-outline-primary-custom btn-sm w-100" do %>
               <i class="bi bi-pencil me-2"></i>Compléter les informations
             <% end %>
@@ -148,15 +198,15 @@
     </div>
 
     <!-- État des chantiers -->
-    <div class="col-lg">
-      <div class="card border-0 shadow h-100">
-        <div class="card-body p-4">
+    <div class="col order-3">
+      <div class="card border-0 shadow h-100 dashboard-module">
+        <div class="card-body p-4 d-flex flex-column">
           <div class="d-flex align-items-center mb-3">
             <div class="icon-circle me-3">
               <i class="bi bi-hammer"></i>
             </div>
             <div>
-              <h5 class="card-title mb-0 fw-normal">État des chantiers</h5>
+              <h5 class="card-title mb-0 fw-normal">État des chantiers <span class="badge text-bg-primary ms-1">P3</span></h5>
               <small class="text-muted-custom">Projets en cours et planifiés</small>
             </div>
           </div>
@@ -205,7 +255,7 @@
             </div>
           <% end %>
 
-          <div class="mt-4 pt-3 border-top">
+          <div class="mt-auto pt-3 border-top">
             <div class="row g-2">
               <div class="col-6">
                 <%= link_to projects_path(property_id: @property.id), class: "btn btn-outline-secondary btn-sm w-100" do %>
@@ -224,15 +274,15 @@
     </div>
 
     <!-- État des analyses & simulations -->
-    <div class="col-lg">
-      <div class="card border-0 shadow h-100">
-        <div class="card-body p-4">
+    <div class="col order-5">
+      <div class="card border-0 shadow h-100 dashboard-module">
+        <div class="card-body p-4 d-flex flex-column">
           <div class="d-flex align-items-center mb-3">
             <div class="icon-circle me-3">
               <i class="bi bi-graph-up"></i>
             </div>
             <div>
-              <h5 class="card-title mb-0 fw-normal">Analyses & Simulations</h5>
+              <h5 class="card-title mb-0 fw-normal">Analyses & Simulations <span class="badge text-bg-primary ms-1">P5</span></h5>
               <small class="text-muted-custom">Évaluations et éligibilité primes</small>
             </div>
           </div>
@@ -286,7 +336,7 @@
             </div>
           <% end %>
 
-          <div class="mt-4 pt-3 border-top">
+          <div class="mt-auto pt-3 border-top">
             <div class="row g-2">
               <div class="col-6">
                 <%= link_to simulations_path(property_id: @property.id), class: "btn btn-outline-secondary btn-sm w-100" do %>
@@ -304,15 +354,15 @@
       </div>
     </div>
     <!-- État des documents -->
-    <div class="col-lg">
-      <div class="card border-0 shadow h-100">
-        <div class="card-body p-4">
+    <div class="col order-4">
+      <div class="card border-0 shadow h-100 dashboard-module">
+        <div class="card-body p-4 d-flex flex-column">
           <div class="d-flex align-items-center mb-3">
             <div class="icon-circle me-3">
               <i class="bi bi-file-earmark-text"></i>
             </div>
             <div>
-              <h5 class="card-title mb-0 fw-normal">État des documents</h5>
+              <h5 class="card-title mb-0 fw-normal">État des documents <span class="badge text-bg-primary ms-1">P4</span></h5>
               <small class="text-muted-custom">Gestion documentaire</small>
             </div>
           </div>
@@ -360,7 +410,7 @@
             </div>
           <% end %>
 
-          <div class="mt-4 pt-3 border-top">
+          <div class="mt-auto pt-3 border-top">
             <div class="row g-2">
               <div class="col-6">
                 <%= link_to property_documents_path(@property), class: "btn btn-outline-secondary btn-sm w-100" do %>
@@ -378,10 +428,83 @@
       </div>
     </div>
 
+    <!-- Devis estimatifs -->
+    <div class="col order-2">
+      <div class="card border-0 shadow h-100 dashboard-module">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center mb-3">
+            <div class="icon-circle me-3">
+              <i class="bi bi-calculator"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0 fw-normal">Devis estimatifs <span class="badge text-bg-primary ms-1">P2</span></h5>
+              <small class="text-muted-custom">Estimations de coût par travaux</small>
+            </div>
+          </div>
+          <% if quotes.any? %>
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <div class="info-item text-center">
+                  <small class="text-muted-custom">Total</small>
+                  <div class="fw-medium h4 text-primary-custom mb-0"><%= quotes.count %></div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="info-item text-center">
+                  <small class="text-muted-custom">Dernier</small>
+                  <div class="fw-medium h4 text-primary-custom mb-0">
+                    <small class="fs-6"><%= quotes.first.created_at.strftime("%d/%m") %></small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <% quotes.limit(3).each do |quote| %>
+              <div class="d-flex align-items-center py-2 border-bottom">
+                <i class="bi bi-file-earmark-text me-2 text-primary-custom"></i>
+                <div class="flex-grow-1">
+                  <div class="fw-medium">
+                    <%= number_to_currency(quote.total_min, unit: '', separator: ',', delimiter: '.', precision: 0) %> –
+                    <%= number_to_currency(quote.total_max, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
+                  </div>
+                  <small class="text-muted-custom">
+                    <%= quote.quote_items.count %> travaux · <%= quote.duration_min_days %>–<%= quote.duration_max_days %>j
+                  </small>
+                </div>
+                <%= link_to property_quote_path(@property, quote), class: "btn btn-outline-secondary btn-sm" do %>
+                  <i class="bi bi-eye"></i>
+                <% end %>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="text-center py-4 text-muted-custom">
+              <i class="bi bi-calculator fs-3 mb-2 d-block"></i>
+              <p class="mb-0">Aucun devis</p>
+            </div>
+          <% end %>
+
+          <div class="mt-auto pt-3 border-top">
+            <div class="row g-2">
+              <div class="col-6">
+                <%= link_to property_quotes_path(@property), class: "btn btn-outline-secondary btn-sm w-100" do %>
+                  <i class="bi bi-eye me-1"></i>Voir tous
+                <% end %>
+              </div>
+              <div class="col-6">
+                <%= link_to new_property_quote_path(@property), class: "btn btn-outline-primary-custom btn-sm w-100" do %>
+                  <i class="bi bi-plus-lg me-1"></i>Nouveau
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Suivi des formulaires -->
-    <div class="col-lg">
-      <div class="card border-0 shadow h-100">
-        <div class="card-body p-4">
+    <div class="col order-last">
+      <div class="card border-0 shadow h-100 dashboard-module">
+        <div class="card-body p-4 d-flex flex-column">
           <div class="d-flex align-items-center mb-3">
             <div class="icon-circle me-3">
               <i class="bi bi-card-checklist"></i>
@@ -438,7 +561,7 @@
             </div>
           <% end %>
 
-          <div class="mt-4 pt-3 border-top">
+          <div class="mt-auto pt-3 border-top">
             <div class="row g-2">
               <div class="col-6">
                 <%= link_to requests_path(property_id: @property.id, type: "formulaires"), class: "btn btn-outline-secondary btn-sm w-100" do %>
@@ -457,9 +580,9 @@
     </div>
 
     <!-- Suivi des demandes -->
-    <div class="col-lg">
-      <div class="card border-0 shadow h-100">
-        <div class="card-body p-4">
+    <div class="col order-last">
+      <div class="card border-0 shadow h-100 dashboard-module">
+        <div class="card-body p-4 d-flex flex-column">
           <div class="d-flex align-items-center mb-3">
             <div class="icon-circle me-3">
               <i class="bi bi-clipboard-check"></i>
@@ -518,7 +641,7 @@
             </div>
           <% end %>
 
-          <div class="mt-4 pt-3 border-top">
+          <div class="mt-auto pt-3 border-top">
             <div class="row g-2">
               <div class="col-6">
                 <%= link_to request_progresses_path(property_id: @property.id), class: "btn btn-outline-secondary btn-sm w-100" do %>
@@ -556,6 +679,16 @@
 
 .card.shadow-sm {
   box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
+}
+
+@media (min-width: 1200px) {
+  .dashboard-module .card-body {
+    min-height: 440px;
+  }
+}
+
+.dashboard-module .card-body {
+  padding: 1.1rem !important;
 }
 
 /* Cartes de navigation colorées */

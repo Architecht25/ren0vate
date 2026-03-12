@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_09_155358) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_12_100001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -409,6 +409,35 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_09_155358) do
     t.index ["user_id"], name: "index_properties_on_user_id"
   end
 
+  create_table "quote_items", force: :cascade do |t|
+    t.bigint "quote_id", null: false
+    t.string "work_type_key", null: false
+    t.decimal "quantity", precision: 10, scale: 2, null: false
+    t.string "unit", null: false
+    t.decimal "unit_price_min", precision: 10, scale: 2
+    t.decimal "unit_price_max", precision: 10, scale: 2
+    t.decimal "total_min", precision: 10, scale: 2
+    t.decimal "total_max", precision: 10, scale: 2
+    t.jsonb "options", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["quote_id"], name: "index_quote_items_on_quote_id"
+  end
+
+  create_table "quotes", force: :cascade do |t|
+    t.bigint "property_id", null: false
+    t.bigint "user_id", null: false
+    t.decimal "total_min", precision: 10, scale: 2
+    t.decimal "total_max", precision: 10, scale: 2
+    t.integer "duration_min_days"
+    t.integer "duration_max_days"
+    t.string "status", default: "draft", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["property_id"], name: "index_quotes_on_property_id"
+    t.index ["user_id"], name: "index_quotes_on_user_id"
+  end
+
   create_table "request_progresses", force: :cascade do |t|
     t.bigint "request_id", null: false
     t.bigint "prime_id"
@@ -624,6 +653,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_09_155358) do
   add_foreign_key "projects", "properties"
   add_foreign_key "projects", "users"
   add_foreign_key "properties", "users"
+  add_foreign_key "quote_items", "quotes"
+  add_foreign_key "quotes", "properties"
+  add_foreign_key "quotes", "users"
   add_foreign_key "request_progresses", "primes"
   add_foreign_key "request_progresses", "requests"
   add_foreign_key "requests", "projects"
