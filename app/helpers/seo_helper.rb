@@ -56,9 +56,9 @@ module SeoHelper
       }
     else
       {
-        title: "Ren0vate - Estimez vos aides à la rénovation en Belgique",
-        description: "Estimez gratuitement vos aides et primes à la rénovation en Belgique. Simulateurs personnalisés en Flandre, Bruxelles et Wallonie.",
-        keywords: "primes rénovation, aides énergétiques, isolation, Belgique, Flandre, Bruxelles, Wallonie"
+        title: "Ren0vate - Plateforme de gestion de chantiers de rénovation en Belgique",
+        description: "Gérez vos chantiers de rénovation de A à Z. Planification, intervenants, budget et suivi des travaux en Flandre, Bruxelles et Wallonie.",
+        keywords: "gestion chantier rénovation, suivi travaux, planification, budget rénovation, Belgique, Flandre, Bruxelles, Wallonie"
       }
     end
   end
@@ -71,7 +71,7 @@ module SeoHelper
       "name": "Ren0vate",
       "url": canonical_url_for("/"),
       "logo": "#{request.protocol}#{request.host_with_port}/icon.png",
-      "description": "Plateforme d'estimation des aides à la rénovation énergétique en Belgique",
+      "description": "Plateforme de gestion de chantiers de rénovation en Belgique",
       "address": {
         "@type": "PostalAddress",
         "addressCountry": "BE"
@@ -83,9 +83,9 @@ module SeoHelper
         }
       ],
       "serviceType": [
-        "Conseil en rénovation énergétique",
-        "Estimation d'aides publiques",
-        "Simulation de primes"
+        "Gestion de chantiers de rénovation",
+        "Planification et suivi de travaux",
+        "Coordination d'intervenants"
       ]
     }.to_json.html_safe
   end
@@ -106,7 +106,7 @@ module SeoHelper
         "@type": "State",
         "name": region.capitalize
       },
-      "serviceType": "Estimation d'aides à la rénovation",
+      "serviceType": "Gestion de chantiers de rénovation",
       "audience": {
         "@type": "Audience",
         "audienceType": "Consumer"
