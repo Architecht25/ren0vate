@@ -5,8 +5,8 @@ class BackupStatusService
 
   def call
     {
-      heroku_backup: get_heroku_backup_status,
-      last_manual_backup: get_last_manual_backup,
+      heroku_backup: heroku_backup_status,
+      last_manual_backup: last_manual_backup_data,
       backup_frequency: get_backup_frequency,
       local_backups: get_local_backup_count,
       backup_health: calculate_backup_health
@@ -14,6 +14,15 @@ class BackupStatusService
   end
 
   private
+
+  # Memoized accessors to avoid duplicate calls within the same request
+  def heroku_backup_status
+    @heroku_backup_status ||= get_heroku_backup_status
+  end
+
+  def last_manual_backup_data
+    @last_manual_backup_data ||= get_last_manual_backup
+  end
 
   def get_heroku_backup_status
     return development_mock_data if Rails.env.development?
@@ -25,8 +34,9 @@ class BackupStatusService
         status: heroku_backup_info[:status] || 'active',
         last_backup: heroku_backup_info[:last_backup] || 24.hours.ago,
         next_backup: heroku_backup_info[:next_backup] || Time.current.beginning_of_day + 1.day + 2.hours,
-        size: heroku_backup_info[:size] || '45.2 MB',
-        retention: heroku_backup_info[:retention] || '7 jours'
+        size: heroku_backup_info[:size] || 'N/A',
+        retention: heroku_backup_info[:retention] || '7 jours',
+        simulated: heroku_backup_info[:simulated] || false
       }
     rescue => e
       Rails.logger.error "Erreur récupération statut backup Heroku: #{e.message}"
@@ -42,7 +52,10 @@ class BackupStatusService
   end
 
   def get_last_manual_backup
-    backup_files = Dir.glob(Rails.root.join('tmp', 'backups', '*.tar.gz'))
+    # Scan for archives (bin/backup_production.sh) and JSON user exports (rake backup:critical_data)
+    backup_dir = Rails.root.join('tmp', 'backups')
+    backup_files = Dir.glob(backup_dir.join('*.tar.gz')) +
+                   Dir.glob(backup_dir.join('users_*.json'))
     return nil if backup_files.empty?
 
     latest_backup = backup_files.max_by { |f| File.mtime(f) }
@@ -75,8 +88,8 @@ class BackupStatusService
   end
 
   def calculate_backup_health
-    heroku_status = get_heroku_backup_status
-    manual_backup = get_last_manual_backup
+    heroku_status = heroku_backup_status
+    manual_backup = last_manual_backup_data
 
     score = 0
     max_score = 100
@@ -142,14 +155,40 @@ class BackupStatusService
   end
 
   def fetch_heroku_backup_info
-    # En production, ici on pourrait faire un appel à l'API Heroku
-    # Pour le moment, on simule avec des données réalistes
+    require 'open3'
+    app_name = ENV.fetch('HEROKU_APP_NAME', 'ren0vate')
+    stdout, _stderr, status = Open3.capture3('heroku', 'pg:backups', '--app', app_name)
+    return simulated_defaults unless status.success?
+
+    # Parse first data line: " a204 2026-03-15 01:03:36 +0000 Completed 2026-03-15 01:04:18 +0000 970.62KB  DATABASE"
+    # Lines are indented with a leading space in heroku CLI output
+    first_backup = stdout.lines.find { |l| l.match?(/\A\s+(a|b)\d+\s/) }
+    return simulated_defaults unless first_backup
+
+    parts = first_backup.split
+    last_backup_time = Time.parse("#{parts[1]} #{parts[2]} #{parts[3]}") rescue nil
+
+    {
+      status: parts[4]&.downcase == 'completed' ? 'active' : 'error',
+      last_backup: last_backup_time,
+      next_backup: last_backup_time ? last_backup_time + 1.day : nil,
+      size: parts[8] || 'N/A',
+      retention: '7 jours',
+      simulated: false
+    }
+  rescue => e
+    Rails.logger.warn "Lecture backups Heroku via CLI impossible: #{e.message}"
+    simulated_defaults
+  end
+
+  def simulated_defaults
     {
       status: 'active',
-      last_backup: 8.hours.ago,
+      last_backup: 24.hours.ago,
       next_backup: Time.current.beginning_of_day + 1.day + 2.hours,
-      size: '47.8 MB',
-      retention: '7 jours'
+      size: 'N/A',
+      retention: '7 jours',
+      simulated: true
     }
   end
 
@@ -159,7 +198,8 @@ class BackupStatusService
       last_backup: 6.hours.ago,
       next_backup: Time.current.beginning_of_day + 1.day + 2.hours,
       size: '42.3 MB',
-      retention: '7 jours'
+      retention: '7 jours',
+      simulated: true
     }
   end
 

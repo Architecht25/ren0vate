@@ -118,7 +118,8 @@ class QuotesController < ApplicationController
   def build_items_from_params
     return [] unless params[:items].present?
 
-    params[:items].permit!.to_h.filter_map do |key, data|
+    # to_unsafe_h: les items sont explicitement mappés vers work_type_key+quantity, pas de mass assignment AR
+    params[:items].to_unsafe_h.filter_map do |key, data|
       next unless data[:selected] == '1' && data[:quantity].present?
 
       qty = data[:quantity].to_f

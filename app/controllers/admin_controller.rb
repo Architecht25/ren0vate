@@ -21,6 +21,19 @@ class AdminController < ApplicationController
     @admin_stats = AdminStatsService.call
     @system_info = SystemInfoService.collect_system_info
 
+    # Données de sécurité centralisées (évite les N+1 dans les partials)
+    @security_stats = {
+      admin_count:       User.admin.count,
+      moderator_count:   User.moderator.count,
+      user_count:        User.user.count,
+      confirmed_count:   User.where.not(confirmed_at: nil).count,
+      unconfirmed_count: User.where(confirmed_at: nil).count,
+      total_users:       @users.size,
+      csp_enforced:      Rails.env.production?,
+      ssl_active:        Rails.application.config.force_ssl,
+      hsts_active:       Rails.env.production?,
+    }
+
     # Analytics des pages visitées hors connexion
     @page_visits_stats = calculate_page_visits_stats
   end

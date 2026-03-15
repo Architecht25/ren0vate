@@ -1,6 +1,10 @@
 <script nonce="<%= content_security_policy_nonce %>">
+// Données de sécurité injectées depuis le serveur (via @security_stats)
+const SECURITY_DATA = <%= json_escape(@security_stats.to_json).html_safe %>;
+
 // Test immédiat du chargement
 console.log('🚀 Dashboard JavaScript loading...');
+console.log('🔒 Security stats loaded:', SECURITY_DATA);
 
 // Test SweetAlert2 après un délai
 setTimeout(function() {
@@ -33,20 +37,25 @@ document.addEventListener('click', function(e) {
     console.log('🎯 Test headers button clicked!');
 
     if (typeof Swal !== 'undefined') {
+      const cspMode = SECURITY_DATA.csp_enforced ? 'Enforcement' : 'Report-Only';
+      const cspBadgeClass = SECURITY_DATA.csp_enforced ? 'bg-success' : 'bg-warning text-dark';
+      const sslBadgeClass = SECURITY_DATA.ssl_active ? 'bg-success' : 'bg-danger';
       Swal.fire({
         title: '🛡️ Test Headers de Sécurité',
         html: `
           <div class="text-start">
-            <p><strong>Test des headers de sécurité en cours...</strong></p>
+            <p><strong>État des headers de sécurité :</strong></p>
             <ul class="list-unstyled mt-3">
-              <li>🔒 HTTPS/SSL : <span class="badge bg-success">Actif</span></li>
-              <li>🛡️ HSTS : <span class="badge bg-success">Configuré</span></li>
-              <li>👁️ CSP : <span class="badge bg-success">Enforcement</span></li>
+              <li>🔒 HTTPS/SSL : <span class="badge ${sslBadgeClass}">${SECURITY_DATA.ssl_active ? 'Actif' : 'Inactif'}</span></li>
+              <li>🛡️ HSTS : <span class="badge ${SECURITY_DATA.hsts_active ? 'bg-success' : 'bg-warning text-dark'}">${SECURITY_DATA.hsts_active ? 'Configuré' : 'Dev uniquement'}</span></li>
+              <li>👁️ CSP : <span class="badge ${cspBadgeClass}">${cspMode}</span></li>
               <li>🖼️ X-Frame-Options : <span class="badge bg-success">SAMEORIGIN</span></li>
+              <li>📄 X-Content-Type-Options : <span class="badge bg-success">nosniff</span></li>
+              <li>🔗 Referrer-Policy : <span class="badge bg-success">strict-origin-when-cross-origin</span></li>
             </ul>
           </div>
         `,
-        icon: 'success',
+        icon: SECURITY_DATA.ssl_active ? 'success' : 'warning',
         confirmButtonText: 'OK'
       });
     } else {
@@ -72,7 +81,7 @@ document.addEventListener('click', function(e) {
             <p><strong>Monitoring actif :</strong></p>
             <ul class="list-unstyled">
               <li>• Endpoint : <code>/csp-violation-report-endpoint</code></li>
-              <li>• Mode : Enforcement</li>
+              <li>• Mode : <strong>${SECURITY_DATA.csp_enforced ? 'Enforcement' : 'Report-Only (développement)'}</strong></li>
               <li>• Logging : Automatique</li>
             </ul>
           </div>
@@ -100,7 +109,7 @@ document.addEventListener('click', function(e) {
                 <div class="card border-success">
                   <div class="card-body">
                     <i class="bi bi-check-circle-fill text-success fs-1"></i>
-                    <h5 class="text-success">132</h5>
+                    <h5 class="text-success">${SECURITY_DATA.confirmed_count}</h5>
                     <p class="mb-0">Confirmés</p>
                   </div>
                 </div>
@@ -109,7 +118,7 @@ document.addEventListener('click', function(e) {
                 <div class="card border-warning">
                   <div class="card-body">
                     <i class="bi bi-hourglass-split text-warning fs-1"></i>
-                    <h5 class="text-warning">18</h5>
+                    <h5 class="text-warning">${SECURITY_DATA.unconfirmed_count}</h5>
                     <p class="mb-0">En attente</p>
                   </div>
                 </div>
@@ -129,7 +138,7 @@ document.addEventListener('click', function(e) {
         icon: 'info'
       });
     } else {
-      alert('Confirmations: 132 confirmés, 18 en attente');
+      alert(`Confirmations: ${SECURITY_DATA.confirmed_count} confirmés, ${SECURITY_DATA.unconfirmed_count} en attente`);
     }
     return;
   }
@@ -245,37 +254,40 @@ document.addEventListener('click', function(e) {
     console.log('🎯 Check admin roles button clicked!');
 
     if (typeof Swal !== 'undefined') {
+      const adminStatusBadge = SECURITY_DATA.admin_count === 1
+        ? '<span class="badge bg-success">Optimal</span>'
+        : '<span class="badge bg-danger">Multiples!</span>';
+      const adminAlertClass = SECURITY_DATA.admin_count === 1 ? 'alert-success' : 'alert-warning';
+      const adminAlertMsg  = SECURITY_DATA.admin_count === 1
+        ? 'Configuration des rôles optimale'
+        : 'Attention : plusieurs administrateurs détectés';
       Swal.fire({
         title: '👥 Vérification des Rôles Admin',
         html: `
           <div class="text-start">
-            <div class="alert alert-success">
+            <div class="alert ${adminAlertClass}">
               <i class="bi bi-check-circle me-2"></i>
-              Configuration des rôles optimale
+              ${adminAlertMsg}
             </div>
             <div class="table-responsive">
               <table class="table table-sm">
                 <thead>
-                  <tr>
-                    <th>Rôle</th>
-                    <th>Nombre</th>
-                    <th>Statut</th>
-                  </tr>
+                  <tr><th>Rôle</th><th>Nombre</th><th>Statut</th></tr>
                 </thead>
                 <tbody>
                   <tr>
                     <td>Administrateurs</td>
-                    <td>1</td>
-                    <td><span class="badge bg-success">Optimal</span></td>
+                    <td>${SECURITY_DATA.admin_count}</td>
+                    <td>${adminStatusBadge}</td>
                   </tr>
                   <tr>
                     <td>Modérateurs</td>
-                    <td>0</td>
+                    <td>${SECURITY_DATA.moderator_count}</td>
                     <td><span class="badge bg-info">Normal</span></td>
                   </tr>
                   <tr>
                     <td>Utilisateurs</td>
-                    <td>12</td>
+                    <td>${SECURITY_DATA.user_count}</td>
                     <td><span class="badge bg-secondary">Actifs</span></td>
                   </tr>
                 </tbody>
@@ -283,10 +295,10 @@ document.addEventListener('click', function(e) {
             </div>
           </div>
         `,
-        icon: 'success'
+        icon: SECURITY_DATA.admin_count === 1 ? 'success' : 'warning'
       });
     } else {
-      alert('Rôles: 1 admin (optimal), 12 utilisateurs');
+      alert(`Rôles: ${SECURITY_DATA.admin_count} admin, ${SECURITY_DATA.user_count} utilisateurs`);
     }
     return;
   }
@@ -307,7 +319,7 @@ document.addEventListener('click', function(e) {
                 <div class="card border-success">
                   <div class="card-body">
                     <i class="bi bi-shield-fill-check text-success fs-1"></i>
-                    <h5 class="text-success">1</h5>
+                    <h5 class="text-success">${SECURITY_DATA.admin_count}</h5>
                     <p class="mb-0">Admin</p>
                   </div>
                 </div>
@@ -316,7 +328,7 @@ document.addEventListener('click', function(e) {
                 <div class="card border-info">
                   <div class="card-body">
                     <i class="bi bi-shield text-info fs-1"></i>
-                    <h5 class="text-info">0</h5>
+                    <h5 class="text-info">${SECURITY_DATA.moderator_count}</h5>
                     <p class="mb-0">Modérateurs</p>
                   </div>
                 </div>
@@ -325,7 +337,7 @@ document.addEventListener('click', function(e) {
                 <div class="card border-secondary">
                   <div class="card-body">
                     <i class="bi bi-people text-secondary fs-1"></i>
-                    <h5 class="text-secondary">12</h5>
+                    <h5 class="text-secondary">${SECURITY_DATA.user_count}</h5>
                     <p class="mb-0">Utilisateurs</p>
                   </div>
                 </div>
@@ -337,7 +349,7 @@ document.addEventListener('click', function(e) {
         width: '600px'
       });
     } else {
-      alert('Rôles: 1 admin, 0 modérateurs, 12 utilisateurs');
+      alert(`Rôles: ${SECURITY_DATA.admin_count} admin, ${SECURITY_DATA.moderator_count} modérateurs, ${SECURITY_DATA.user_count} utilisateurs`);
     }
     return;
   }

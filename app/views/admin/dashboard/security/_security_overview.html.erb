@@ -8,9 +8,9 @@
       <div class="row text-center">
         <div class="col-md-2">
           <div class="security-status">
-            <i class="bi bi-shield-fill-check text-success display-4"></i>
+            <i class="bi bi-shield-fill-check <%= @security_stats[:ssl_active] ? 'text-success' : 'text-danger' %> display-4"></i>
             <h6 class="mt-2">HTTPS/SSL</h6>
-            <span class="badge bg-success">ACTIF</span>
+            <span class="badge bg-<%= @security_stats[:ssl_active] ? 'success' : 'danger' %>"><%= @security_stats[:ssl_active] ? 'ACTIF' : 'INACTIF' %></span>
           </div>
         </div>
         <div class="col-md-2">
@@ -29,9 +29,9 @@
         </div>
         <div class="col-md-2">
           <div class="security-status">
-            <i class="bi bi-eye-slash-fill text-success display-4"></i>
+            <i class="bi bi-eye-slash-fill <%= @security_stats[:csp_enforced] ? 'text-success' : 'text-warning' %> display-4"></i>
             <h6 class="mt-2">CSP</h6>
-            <span class="badge bg-success">ENFORCED</span>
+            <span class="badge bg-<%= @security_stats[:csp_enforced] ? 'success' : 'warning' %>"><%= @security_stats[:csp_enforced] ? 'ENFORCED' : 'REPORT-ONLY' %></span>
           </div>
         </div>
         <div class="col-md-2">
@@ -43,28 +43,43 @@
         </div>
         <div class="col-md-2">
           <div class="security-status">
-            <i class="bi bi-people-fill <%= User.admin.count == 1 ? 'text-success' : 'text-warning' %> display-4"></i>
+            <i class="bi bi-people-fill <%= @security_stats[:admin_count] == 1 ? 'text-success' : 'text-warning' %> display-4"></i>
             <h6 class="mt-2">Gestion Rôles</h6>
-            <span class="badge bg-<%= User.admin.count == 1 ? 'success' : 'warning' %>" id="admin-roles-status">
-              <%= User.admin.count %> ADMIN<%= 's' if User.admin.count > 1 %>
+            <span class="badge bg-<%= @security_stats[:admin_count] == 1 ? 'success' : 'warning' %>" id="admin-roles-status">
+              <%= @security_stats[:admin_count] %> ADMIN<%= 's' if @security_stats[:admin_count] > 1 %>
             </span>
           </div>
         </div>
       </div>
 
       <!-- Score global de sécurité -->
+      <%
+        score_points = 0
+        score_points += 20 if @security_stats[:ssl_active]
+        score_points += 20 if @security_stats[:csp_enforced]
+        score_points += 20 if @security_stats[:hsts_active]
+        score_points += 20 if @security_stats[:admin_count] == 1
+        score_points += 20 if @security_stats[:unconfirmed_count].to_i < (@security_stats[:total_users] * 0.2)
+        score_color = score_points >= 80 ? 'success' : score_points >= 60 ? 'warning' : 'danger'
+        score_icon  = score_points >= 80 ? 'check-circle' : 'exclamation-triangle'
+      %>
       <div class="row mt-4">
         <div class="col-12 text-center">
           <div class="security-status">
-            <i class="bi bi-graph-up text-success display-5"></i>
+            <i class="bi bi-graph-up text-<%= score_color %> display-5"></i>
             <h5 class="mt-2 mb-3">Score Global de Sécurité</h5>
-            <span class="badge bg-success fs-4 px-4 py-2" id="global-security-score">
-              <%= User.admin.count == 1 ? '98%' : '85%' %>
-              <i class="bi bi-<%= User.admin.count == 1 ? 'check-circle' : 'exclamation-triangle' %> ms-2"></i>
+            <span class="badge bg-<%= score_color %> fs-4 px-4 py-2" id="global-security-score">
+              <%= score_points %>%
+              <i class="bi bi-<%= score_icon %> ms-2"></i>
             </span>
             <p class="text-muted mt-2 mb-0">
-              <%= User.admin.count == 1 ? 'Configuration optimale' : 'Amélioration possible' %>
+              <%= score_points >= 80 ? 'Configuration optimale' : score_points >= 60 ? 'Améliorations recommandées' : 'Attention requise' %>
             </p>
+            <% unless Rails.env.production? %>
+              <small class="text-muted fst-italic">
+                (score réduit en <%= Rails.env %> — SSL/HSTS/CSP enforcement désactivés intentionnellement)
+              </small>
+            <% end %>
           </div>
         </div>
       </div>

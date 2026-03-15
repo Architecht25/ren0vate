@@ -1,3 +1,5 @@
+require 'open3'
+
 class EmailDocumentExtractionService
   def initialize(attached_file)
     @attached_file = attached_file
@@ -81,10 +83,10 @@ class EmailDocumentExtractionService
   end
 
   def extract_text_with_poppler(file_path)
-    # Fallback avec pdftotext (poppler-utils)
+    # Fallback avec pdftotext (poppler-utils) - arguments séparés pour éviter l'injection
     begin
-      result = `pdftotext "#{file_path}" -`
-      $?.success? ? result : ""
+      result, status = Open3.capture2('pdftotext', file_path, '-')
+      status.success? ? result : ""
     rescue => e
       Rails.logger.error "❌ Erreur pdftotext: #{e.message}"
       ""
@@ -92,11 +94,10 @@ class EmailDocumentExtractionService
   end
 
   def extract_text_from_image(file_path)
-    # Utiliser Tesseract pour l'OCR
+    # Utiliser Tesseract pour l'OCR - arguments séparés pour éviter l'injection
     begin
-      # Utiliser la gem 'rtesseract' ou appel système direct
-      result = `tesseract "#{file_path}" stdout -l fra 2>/dev/null`
-      $?.success? ? result : ""
+      result, status = Open3.capture2('tesseract', file_path, 'stdout', '-l', 'fra')
+      status.success? ? result : ""
     rescue => e
       Rails.logger.error "❌ Erreur Tesseract: #{e.message}"
       ""

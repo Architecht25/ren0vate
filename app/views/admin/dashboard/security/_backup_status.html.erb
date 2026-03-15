@@ -10,6 +10,12 @@
       </h5>
     </div>
     <div class="card-body">
+      <% if @backup_status[:heroku_backup][:simulated] %>
+        <div class="alert alert-warning alert-sm py-2 mb-3">
+          <i class="bi bi-exclamation-triangle me-1"></i>
+          <small><strong>Données estimées</strong> — Statut Heroku non connecté à l'API en temps réel. Exécutez <code>heroku pg:backups:info --app ren0vate</code> pour vérifier.</small>
+        </div>
+      <% end %>
       <div class="row">
         <!-- Statut Heroku Backup -->
         <div class="col-md-3">

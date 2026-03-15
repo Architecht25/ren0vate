@@ -26,15 +26,15 @@
           <div class="d-flex justify-content-between align-items-center">
             <span>Utilisateurs confirmés</span>
             <span class="badge bg-info">
-              <i class="bi bi-people me-1"></i><span id="confirmed-users-count">-</span>
+              <i class="bi bi-people me-1"></i><span id="confirmed-users-count"><%= @security_stats[:confirmed_count] %></span>
             </span>
           </div>
         </div>
         <div class="col-12 mb-3">
           <div class="d-flex justify-content-between align-items-center">
             <span>En attente confirmation</span>
-            <span class="badge bg-warning">
-              <i class="bi bi-hourglass me-1"></i><span id="unconfirmed-users-count">-</span>
+            <span class="badge bg-<%= @security_stats[:unconfirmed_count].to_i > 0 ? 'warning' : 'success' %>">
+              <i class="bi bi-hourglass me-1"></i><span id="unconfirmed-users-count"><%= @security_stats[:unconfirmed_count] %></span>
             </span>
           </div>
         </div>

@@ -48,9 +48,11 @@ class PrimeDocumentTemplatesController < ApplicationController
       rescue => e
         redirect_back fallback_location: root_path, alert: "Erreur lors du téléchargement"
       end
-    elsif @template.file_url.present?
-      # Téléchargement via URL externe
+    elsif @template.file_url.present? && safe_external_url?(@template.file_url)
+      # Téléchargement via URL externe Cloudinary
       redirect_to @template.file_url, allow_other_host: true
+    elsif @template.file_url.present?
+      redirect_back fallback_location: root_path, alert: "URL de fichier non autorisée"
     end
   end
 
@@ -89,7 +91,7 @@ class PrimeDocumentTemplatesController < ApplicationController
     zip_file = zip_service.generate
 
     send_file zip_file,
-              filename: "documents_primes_simulation_#{@simulation.id}.zip",
+              filename: "documents_primes_simulation_#{@simulation.id.to_i}.zip",
               type: 'application/zip',
               disposition: 'attachment'
   end
@@ -115,8 +117,9 @@ class PrimeDocumentTemplatesController < ApplicationController
     zip_service = DocumentZipService.new(@templates)
     zip_file = zip_service.generate
 
+    safe_slug = @prime.slug.to_s.gsub(/[^a-zA-Z0-9_\-]/, '_')
     send_file zip_file,
-              filename: "documents_#{@prime.slug}.zip",
+              filename: "documents_#{safe_slug}.zip",
               type: 'application/zip',
               disposition: 'attachment'
   end

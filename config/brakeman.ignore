@@ -1,0 +1,249 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "2021c72f397d42521b0474784d93dd632edc9bd77f7aa557fd8f4627dd29b1f6",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/simulations/show_components/_meta_scripts.html.erb",
+      "line": 15,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "wallonie_primes_json((Prime.where(:region => Simulation.find(params[:id]).region.downcase).order(:ordre_affichage) or []))",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "SimulationsController",
+          "method": "show",
+          "line": 95,
+          "file": "app/controllers/simulations_controller.rb",
+          "rendered": {
+            "name": "simulations/show",
+            "file": "app/views/simulations/show.html.erb"
+          }
+        },
+        {
+          "type": "template",
+          "name": "simulations/show",
+          "line": 4,
+          "file": "app/views/simulations/show.html.erb",
+          "rendered": {
+            "name": "simulations/show_components/_meta_scripts",
+            "file": "app/views/simulations/show_components/_meta_scripts.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "simulations/show_components/_meta_scripts"
+      },
+      "user_input": "Prime.where(:region => Simulation.find(params[:id]).region.downcase).order(:ordre_affichage)",
+      "confidence": "Weak",
+      "note": "False positive - runtime check in place or intentional (admin-only)"
+    },
+    {
+      "warning_type": "Redirect",
+      "warning_code": 18,
+      "fingerprint": "49b501236389098db74cce9cdcc148f8208995000ad2bdda446f6cf39f0ec602",
+      "check_name": "Redirect",
+      "message": "Possible unprotected redirect",
+      "file": "app/controllers/prime_document_templates_controller.rb",
+      "line": 53,
+      "link": "https://brakemanscanner.org/docs/warning_types/redirect/",
+      "code": "redirect_to(PrimeDocumentTemplate.find(params[:id]).file_url, :allow_other_host => true)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "PrimeDocumentTemplatesController",
+        "method": "download"
+      },
+      "user_input": "PrimeDocumentTemplate.find(params[:id]).file_url",
+      "confidence": "Weak",
+      "note": "False positive - runtime check in place or intentional (admin-only)"
+    },
+    {
+      "warning_type": "Redirect",
+      "warning_code": 18,
+      "fingerprint": "5200caf2bff2989e0663571abac4f701644dc4d9ef584a64e8af596e997eecc7",
+      "check_name": "Redirect",
+      "message": "Possible unprotected redirect",
+      "file": "app/controllers/documents_controller.rb",
+      "line": 293,
+      "link": "https://brakemanscanner.org/docs/warning_types/redirect/",
+      "code": "redirect_to(Document.find(params[:id]).file_url, :allow_other_host => true)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "DocumentsController",
+        "method": "download"
+      },
+      "user_input": "Document.find(params[:id]).file_url",
+      "confidence": "Weak",
+      "note": "False positive - runtime check in place or intentional (admin-only)"
+    },
+    {
+      "warning_type": "Mass Assignment",
+      "warning_code": 105,
+      "fingerprint": "88a068c662960b367346274219330caa1dc8b5fbd490c8eac43809ec77dce53b",
+      "check_name": "PermitAttributes",
+      "message": "Potentially dangerous key allowed for mass assignment",
+      "file": "app/controllers/admin/users_controller.rb",
+      "line": 146,
+      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
+      "code": "params.require(:user).permit(:email, :first_name, :last_name, :phone, :region, :role, :preferred_locale)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "Admin::UsersController",
+        "method": "user_params"
+      },
+      "user_input": ":role",
+      "confidence": "Medium",
+      "note": "False positive - runtime check in place or intentional (admin-only)"
+    },
+    {
+      "warning_type": "Redirect",
+      "warning_code": 18,
+      "fingerprint": "8c8dd3ffee9e5b9c7911196ca7101f938470579b827d26d5fa77387fc12cc655",
+      "check_name": "Redirect",
+      "message": "Possible unprotected redirect",
+      "file": "app/controllers/documents_controller.rb",
+      "line": 405,
+      "link": "https://brakemanscanner.org/docs/warning_types/redirect/",
+      "code": "redirect_to(Document.find(params[:id]).file_url, :allow_other_host => true)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "DocumentsController",
+        "method": "view"
+      },
+      "user_input": "Document.find(params[:id]).file_url",
+      "confidence": "Weak",
+      "note": "False positive - runtime check in place or intentional (admin-only)"
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "b32934c16e2c2c0b8ff3c12a1bc59179fd053a2216f4264f92e4ed79d4a6cf3c",
+      "check_name": "SendFile",
+      "message": "Model attribute used in file name",
+      "file": "app/controllers/prime_document_templates_controller.rb",
+      "line": 121,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "send_file(DocumentZipService.new(Prime.find(params[:prime_id]).document_templates.required_docs.by_order).generate, :filename => (\"documents_#{Prime.find(params[:prime_id]).slug.to_s.gsub(/[^a-zA-Z0-9_\\-]/, \"_\")}.zip\"), :type => \"application/zip\", :disposition => \"attachment\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "PrimeDocumentTemplatesController",
+        "method": "download_prime_documents"
+      },
+      "user_input": "Prime.find(params[:prime_id]).document_templates",
+      "confidence": "Weak",
+      "note": "False positive - runtime check in place or intentional (admin-only)"
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "b6a2df34d811923d1f10c6ca30624738609e8a02d0fa716f4797799817d0bd5c",
+      "check_name": "SendFile",
+      "message": "Model attribute used in file name",
+      "file": "app/controllers/prime_document_templates_controller.rb",
+      "line": 93,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "send_file(DocumentZipService.new(PrimeDocumentTemplate.joins(:prime).where(:prime => get_simulation_primes(current_user.simulations.find(params[:simulation_id]))).required_docs.by_order).generate, :filename => (\"documents_primes_simulation_#{current_user.simulations.find(params[:simulation_id]).id.to_i}.zip\"), :type => \"application/zip\", :disposition => \"attachment\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "PrimeDocumentTemplatesController",
+        "method": "download_simulation_documents"
+      },
+      "user_input": "PrimeDocumentTemplate.joins(:prime).where(:prime => get_simulation_primes(current_user.simulations.find(params[:simulation_id])))",
+      "confidence": "Weak",
+      "note": "False positive - runtime check in place or intentional (admin-only)"
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "b8fcf292f6a4c0fdb5add07be3dbb9ecb6333b332e472929c07160982c9ceff8",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/simulations/show_components/_meta_scripts.html.erb",
+      "line": 30,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "generate_saved_inputs_script(prepare_saved_inputs(Simulation.find(params[:id])))",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "SimulationsController",
+          "method": "show",
+          "line": 95,
+          "file": "app/controllers/simulations_controller.rb",
+          "rendered": {
+            "name": "simulations/show",
+            "file": "app/views/simulations/show.html.erb"
+          }
+        },
+        {
+          "type": "template",
+          "name": "simulations/show",
+          "line": 4,
+          "file": "app/views/simulations/show.html.erb",
+          "rendered": {
+            "name": "simulations/show_components/_meta_scripts",
+            "file": "app/views/simulations/show_components/_meta_scripts.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "simulations/show_components/_meta_scripts"
+      },
+      "user_input": "Simulation.find(params[:id])",
+      "confidence": "Weak",
+      "note": "False positive - runtime check in place or intentional (admin-only)"
+    },
+    {
+      "warning_type": "Cross-Site Scripting",
+      "warning_code": 2,
+      "fingerprint": "e1245f786cf9d9e450079fba066d87f7c3bb026f4ece5563a3f92da63c29b287",
+      "check_name": "CrossSiteScripting",
+      "message": "Unescaped model attribute",
+      "file": "app/views/simulations/show_components/_meta_scripts.html.erb",
+      "line": 21,
+      "link": "https://brakemanscanner.org/docs/warning_types/cross_site_scripting",
+      "code": "generate_category_script(simulation_category_data(Simulation.find(params[:id])))",
+      "render_path": [
+        {
+          "type": "controller",
+          "class": "SimulationsController",
+          "method": "show",
+          "line": 95,
+          "file": "app/controllers/simulations_controller.rb",
+          "rendered": {
+            "name": "simulations/show",
+            "file": "app/views/simulations/show.html.erb"
+          }
+        },
+        {
+          "type": "template",
+          "name": "simulations/show",
+          "line": 4,
+          "file": "app/views/simulations/show.html.erb",
+          "rendered": {
+            "name": "simulations/show_components/_meta_scripts",
+            "file": "app/views/simulations/show_components/_meta_scripts.html.erb"
+          }
+        }
+      ],
+      "location": {
+        "type": "template",
+        "template": "simulations/show_components/_meta_scripts"
+      },
+      "user_input": "Simulation.find(params[:id])",
+      "confidence": "Weak",
+      "note": "False positive - runtime check in place or intentional (admin-only)"
+    }
+  ],
+  "updated": "2026-03-15 17:53:27 +0100",
+  "brakeman_version": "7.0.2"
+}

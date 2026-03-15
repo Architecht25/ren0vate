@@ -159,4 +159,21 @@ class ApplicationController < ActionController::Base
       redirect_to root_path, alert: "Accès non autorisé. Vous devez être administrateur ou modérateur."
     end
   end
+
+  # Valider qu'une URL externe pointe vers un hôte de confiance avant redirection
+  TRUSTED_REDIRECT_HOSTS = %w[
+    res.cloudinary.com
+    res-1.cloudinary.com
+    res-2.cloudinary.com
+    res-3.cloudinary.com
+    res-4.cloudinary.com
+  ].freeze
+
+  def safe_external_url?(url)
+    return false if url.blank?
+    uri = URI.parse(url)
+    TRUSTED_REDIRECT_HOSTS.any? { |host| uri.host == host || uri.host&.end_with?(".cloudinary.com") }
+  rescue URI::InvalidURIError
+    false
+  end
 end

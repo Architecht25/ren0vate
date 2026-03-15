@@ -66,19 +66,21 @@ module ShowHelper
   def wallonie_primes_json(primes)
     return '{}' unless primes.present?
 
-    primes.each_with_object({}) do |prime, hash|
+    data = primes.each_with_object({}) do |prime, hash|
       hash[prime.slug] = {
         titre: prime.titre,
         valeurs_par_categorie: prime.valeurs_par_categorie || {},
         eligible_categories: prime.eligible_categories || []
       }
-    end.to_json
+    end
+    # json_escape empêche les séquences </script> ou <!-- dans un contexte HTML
+    json_escape(data.to_json)
   end
 
   def primes_data_script(primes)
     return '' unless primes.present?
 
-    raw(primes.to_json(
+    json_escape(primes.to_json(
       only: [:slug, :titre, :unite, :type_de_valeur, :valeurs_par_categorie,
              :placeholder, :condition, :conseil, :document, :eligible_categories]
     ))
@@ -91,19 +93,23 @@ module ShowHelper
   def generate_category_script(simulation_category)
     return '' unless simulation_category.present?
 
+    # Encoder en JSON pour éviter l'injection JS par interpolation directe dans une string JS
+    category_json = json_escape(simulation_category.to_json)
     <<~JAVASCRIPT
       // 🎯 Forcer la catégorie avant la connexion des contrôleurs
-      localStorage.setItem('selectedWallonieCategory', '#{simulation_category}');
-      console.log('🎯 Catégorie simulation définie:', '#{simulation_category}');
+      localStorage.setItem('selectedWallonieCategory', #{category_json});
+      console.log('🎯 Catégorie simulation définie:', #{category_json});
     JAVASCRIPT
   end
 
   def generate_saved_inputs_script(saved_inputs)
     return '' if saved_inputs.empty?
 
+    # json_escape pr\u00e9vient l'\u00e9chappement de balises </script> dans le contexte HTML
+    inputs_json = json_escape(saved_inputs.to_json)
     <<~JAVASCRIPT
       // 🔄 Restaurer les valeurs sauvegardées des inputs
-      const savedInputs = #{saved_inputs.to_json.html_safe};
+      const savedInputs = #{inputs_json};
       let restorationApplied = false;
 
       // Marquer temporairement qu'on est en phase de restauration

@@ -289,9 +289,10 @@ class DocumentsController < ApplicationController
         Rails.logger.error "❌ Erreur téléchargement: #{e.message}"
         redirect_back(fallback_location: root_path, alert: "Erreur lors du téléchargement")
       end
+    elsif @document.file_url.present? && safe_external_url?(@document.file_url)
+      redirect_to @document.file_url, allow_other_host: true
     elsif @document.file_url.present?
-      # Fallback pour les URLs externes
-      redirect_to @document.file_url
+      redirect_back(fallback_location: root_path, alert: "URL de fichier non autorisée")
     else
       redirect_back(fallback_location: root_path, alert: "Fichier non trouvé")
     end
@@ -400,9 +401,10 @@ class DocumentsController < ApplicationController
     if @document.file.attached?
       # Utiliser notre action download avec disposition inline pour garder le nom de fichier
       redirect_to download_document_path(@document, disposition: 'inline'), allow_other_host: true
-    elsif @document.file_url.present?
-      # Fallback vers URL externe
+    elsif @document.file_url.present? && safe_external_url?(@document.file_url)
       redirect_to @document.file_url, allow_other_host: true
+    elsif @document.file_url.present?
+      redirect_back(fallback_location: root_path, alert: "URL de fichier non autorisée")
     else
       redirect_back(fallback_location: root_path, alert: "Aucun fichier associé à ce document")
     end

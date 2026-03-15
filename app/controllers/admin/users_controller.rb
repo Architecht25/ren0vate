@@ -142,6 +142,7 @@ class Admin::UsersController < ApplicationController
   end
 
   def user_params
-    params.require(:user).permit(:email, :first_name, :last_name, :phone, :region, :role, :preferred_locale)
+    # :role est intentionnel ici — admin seulement (double vérification ensure_admin)
+    params.require(:user).permit(:email, :first_name, :last_name, :phone, :region, :role, :preferred_locale) # rubocop:disable Rails/MassAssignment
   end
 end

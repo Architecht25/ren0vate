@@ -529,8 +529,72 @@ class RequestsController < ApplicationController
       return
     end
 
-    # Filtrer les paramètres pour l'auto-save (paramètres permis mais flexibles)
-    autosave_params = params.require(:request).permit!.to_h
+    # Filtrer les paramètres pour l'auto-save : uniquement les champs métier du formulaire
+    # (exclut user_id, property_id, status, region pour éviter toute escalade de privilege)
+    autosave_params = params.require(:request).permit(
+      :title, :description, :form_type, :template_version, :form_data,
+      :revenus_menage, :nombre_personnes, :type_travaux, :surface_travaux, :cout_estime,
+      :revenus_reference, :composition_menage, :categories_travaux, :logement_principal, :montant_travaux,
+      :numero_audit, :date_audit, :numero_agrement_auditeur, :nom_auditeur, :adresse_auditeur,
+      :date_enregistrement_audit, :type_demandeur, :qualite_demandeur, :numero_registre_national,
+      :compte_bancaire, :adresse_demandeur, :code_postal_demandeur, :commune_demandeur, :pays_demandeur,
+      :numero_demandeur, :date_naissance, :telephone_fixe, :telephone_mobile, :fax, :email_demandeur,
+      :numero_bce, :denomination_sociale, :forme_juridique, :siege_social,
+      :adresse_logement, :numero_logement, :code_postal_logement, :commune_logement,
+      :numero_parcelle_cadastrale, :date_acquisition_bien, :personnes_charge, :revenus_globaux,
+      :surface_plancher_chauffee, :affectation_bien, :annee_construction, :periode_travaux,
+      :desamiantage, :ean_electricite, :ean_gaz, :date_pea,
+      :maintien_regime, :adresse_contact_identique, :type_compte_bancaire, :localisation_travaux,
+      :type_logement, :acces_donnees_revenu, :condition_occupation,
+      :declaration_traitement_automatise,
+      :travaux_isolation_toiture, :travaux_isolation_murs, :travaux_isolation_sols,
+      :travaux_fenetres_portes, :travaux_chauffage_ecs, :travaux_ventilation,
+      :travaux_energie_renouvelable, :travaux_etancheite, :travaux_autres,
+      :inkomen_gezin, :gezinssamenstelling, :type_renovatie, :eigenaar_bewoner, :kostprijs_werken,
+      :domicile, :registre_national, :nom, :prenom, :telephone, :email,
+      :ean, :parcelle, :adresse, :numero, :rue, :code_postal, :commune, :type_bien, :usage,
+      :chauffage_post_renovation, :travaux_toiture, :travaux_murs, :travaux_sol,
+      :travaux_vitrage, :travaux_chauffage, :travaux_complementaires, :travaux_ventilation,
+      :travaux_solaire, :revenus_annuels, :annee_aer,
+      :email_contact, :telephone_contact, :confirmation_veracite, :acceptation_conditions,
+      :profil_demandeur, :travaux_amiante, :type_chauffage, :type_ventilation, :performance_vitrage,
+      :applicant_title, :applicant_type, :applicant_firstname, :applicant_lastname, :applicant_organization,
+      :applicant_address, :applicant_number, :applicant_postal_code, :applicant_city,
+      :applicant_phone, :applicant_email, :applicant_national_number,
+      :heritage_address, :heritage_number, :heritage_postal_code, :heritage_city,
+      :heritage_protection_id, :heritage_type, :heritage_description,
+      :work_type, :work_description, :work_start_date, :work_end_date, :work_cost_estimate,
+      :requested_premium_percentage,
+      :declaration_owner, :declaration_accuracy, :declaration_conditions, :declaration_no_start, :declaration_quality,
+      :signature_place, :signature_date,
+      :surface_toiture, :methode_toiture, :date_placement_toiture, :materiau_toiture, :marque_toiture, :type_isolation_toiture,
+      :epaisseur_materiau_toiture, :valeur_rd_toiture,
+      :surface_murs, :methode_murs, :date_placement_murs, :materiau_murs, :marque_murs, :type_isolation_murs,
+      :epaisseur_materiau_murs, :valeur_rd_murs, :nombre_couches_murs,
+      :facade_avant, :facade_arriere, :facade_gauche, :facade_droite,
+      :surface_sol, :methode_sol, :date_placement_sol, :materiau_sol, :marque_sol, :type_isolation_sol,
+      :epaisseur_materiau_sol, :valeur_rd_sol,
+      :travaux_cave, :surface_cave, :date_placement_cave, :materiau_cave, :marque_cave, :type_isolation_cave,
+      :epaisseur_materiau_cave, :valeur_rd_cave,
+      :surface_vitrage, :type_vitrage, :date_placement_vitrage, :marque_vitrage,
+      :valeur_ug_vitrage, :vitrage_simple, :vitrage_double, :vitrage_simple_double,
+      :nouvelles_fenetres_pieces_seches, :hoogrendement_bevestiging, :vergunningsplichtig,
+      :travaux_portes, :surface_portes, :date_placement_portes, :type_portes, :marque_portes,
+      :valeur_u_portes, :ouvertures_pieces_humides,
+      :type_systeme_chauffage, :date_placement_chauffage, :marque_chauffage,
+      :remplacement_chauffage_electrique, :raccordement_gaz,
+      :marque_pac_geo, :type_pac_geo, :puissance_thermique_geo, :puissance_electrique_geo,
+      :puissance_gaz_geo, :label_europeen_geo,
+      :marque_pac_air_eau, :type_pac_air_eau, :puissance_thermique_air_eau, :puissance_electrique_air_eau,
+      :puissance_gaz_air_eau, :label_europeen_air_eau,
+      :marque_pac_air_air, :type_pac_air_air, :puissance_thermique_air_air, :puissance_electrique_air_air,
+      :puissance_gaz_air_air, :label_europeen_air_air,
+      :marque_pac_hybride, :type_pac_hybride, :puissance_thermique_hybride, :puissance_electrique_hybride,
+      :puissance_gaz_hybride, :label_europeen_hybride,
+      :puissance_electrique_boiler, :puissance_thermique_boiler, :label_europeen_boiler,
+      :type_systeme_ventilation, :date_placement_ventilation, :marque_ventilation,
+      :description_complementaires, :localisation_desamiantage, :date_raccordement_electricite
+    ).to_h
 
     # Assurer que le statut reste en brouillon pour l'auto-save
     autosave_params['status'] = 'draft'
@@ -804,7 +868,7 @@ class RequestsController < ApplicationController
     if form_data_fields.present?
       # Pour une mise à jour (requête existante)
       request_id = params[:id]
-      if request_id && Request.exists?(request_id)
+      if request_id && Request.exists?(id: request_id)
         current_request = Request.find(request_id)
         existing_form_data = current_request&.form_data || {}
 

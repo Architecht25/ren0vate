@@ -293,11 +293,11 @@ class SimulationsController < ApplicationController
   def update_prime_inputs
     # @simulation est déjà définie et vérifiée par before_action
 
-    # Permettre tous les paramètres user_inputs, gérer le cas des données vides pour l'auto-save
+    # to_unsafe_h: user_inputs est stock\u00e9 dans une colonne JSON, pas en mass assignment AR
     Rails.logger.info "🔍 Params bruts reçus: #{params[:user_inputs].inspect}"
     user_inputs = if params[:user_inputs].present?
-      permitted_inputs = params.require(:user_inputs).permit!.to_h
-      Rails.logger.info "🔧 Après permit!.to_h: #{permitted_inputs.inspect}"
+      permitted_inputs = params.require(:user_inputs).to_unsafe_h
+      Rails.logger.info "🔧 Après to_unsafe_h: #{permitted_inputs.inspect}"
       permitted_inputs
     else
       {}

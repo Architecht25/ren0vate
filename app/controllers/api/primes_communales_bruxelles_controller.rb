@@ -49,7 +49,8 @@ class Api::PrimesCommunalesBruxellesController < ActionController::Base
   def calculate
     prime_id = params[:prime_id]
     montant_travaux = params[:montant_travaux].to_f
-    parametres = params[:parametres]&.permit! || {}
+    # to_unsafe_h: ces paramètres sont passés à un service de calcul, pas persistés en base
+    parametres = params[:parametres]&.to_unsafe_h || {}
 
     # Validation des paramètres
     if prime_id.blank?

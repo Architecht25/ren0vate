@@ -123,11 +123,15 @@ namespace :backup do
       Property.destroy_all
       User.destroy_all
 
-      # 2. Restauration Utilisateurs
+      # 2. Restauration Utilisateurs — preserve original IDs to keep FK integrity
       puts "👥 Restauration des utilisateurs..."
       users_data = JSON.parse(File.read(users_file))
       users_data.each do |user_attrs|
-        User.create!(user_attrs.except('id'))
+        User.create!(user_attrs)
+      end
+      # Reset PG sequence so future inserts don't conflict with restored IDs
+      if ActiveRecord::Base.connection.adapter_name == 'PostgreSQL'
+        ActiveRecord::Base.connection.execute("SELECT setval('users_id_seq', (SELECT MAX(id) FROM users))")
       end
       puts "✅ #{User.count} utilisateurs restaurés"
 
@@ -136,7 +140,10 @@ namespace :backup do
         puts "🏠 Restauration des propriétés..."
         properties_data = JSON.parse(File.read(properties_file))
         properties_data.each do |property_attrs|
-          Property.create!(property_attrs.except('id'))
+          Property.create!(property_attrs)
+        end
+        if ActiveRecord::Base.connection.adapter_name == 'PostgreSQL'
+          ActiveRecord::Base.connection.execute("SELECT setval('properties_id_seq', (SELECT MAX(id) FROM properties))")
         end
         puts "✅ #{Property.count} propriétés restaurées"
       end
@@ -146,7 +153,10 @@ namespace :backup do
         puts "🔧 Restauration des projets..."
         projects_data = JSON.parse(File.read(projects_file))
         projects_data.each do |project_attrs|
-          Project.create!(project_attrs.except('id'))
+          Project.create!(project_attrs)
+        end
+        if ActiveRecord::Base.connection.adapter_name == 'PostgreSQL'
+          ActiveRecord::Base.connection.execute("SELECT setval('projects_id_seq', (SELECT MAX(id) FROM projects))")
         end
         puts "✅ #{Project.count} projets restaurés"
       end
