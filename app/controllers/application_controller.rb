@@ -131,6 +131,10 @@ class ApplicationController < ActionController::Base
     response.headers['Cache-Control'] = 'private, no-store, no-cache, must-revalidate'
     response.headers['Pragma'] = 'no-cache'
     response.headers['Expires'] = '0'
+    # Turbo Drive : empêcher le snapshot preview (cross-user data leak via mémoire navigateur)
+    response.headers['Turbo-Cache-Control'] = 'no-preview'
+    # Thruster (proxy Rails 8) : empêcher le cache des réponses dynamiques authentifiées
+    response.headers['Vary'] = 'Cookie'
   end
 
   protected
