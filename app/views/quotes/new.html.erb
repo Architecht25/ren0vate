@@ -26,6 +26,41 @@
   <% end %>
 
   <%= form_with url: property_quotes_path(@property), method: :post, local: true do |f| %>
+    <%# ── TEMPLATES QUALITÉ ──────────────────────────────────────────────── %>
+    <div class="card border-0 shadow mb-4">
+      <div class="card-body p-4">
+        <h5 class="fw-normal mb-1"><i class="bi bi-lightning-charge text-primary-custom me-2"></i>Démarrer avec un template</h5>
+        <p class="text-muted-custom small mb-3">Sélectionnez un projet type pour pré-remplir les travaux. Vous pourrez ensuite ajuster.</p>
+        <div class="row g-2" id="quote-templates">
+          <% [
+            { id: 'tpl_toiture',   icon: 'bi-house-fill',       color: 'secondary', label: 'Toiture complète',        keys: %w[charpente_renovation couverture_toiture isolation_toiture etancheite_toiture collecte_eaux_pluie] },
+            { id: 'tpl_energie',   icon: 'bi-thermometer-half', color: 'warning',   label: 'Package énergie',          keys: %w[pompe_chaleur_air_eau panneaux_solaires batterie_stockage ventilation_double_flux] },
+            { id: 'tpl_enveloppe', icon: 'bi-bricks',           color: 'success',   label: 'Enveloppe thermique',      keys: %w[isolation_murs_ext chassis_remplacement porte_entree isolation_plancher] },
+            { id: 'tpl_lourde',    icon: 'bi-tools',            color: 'danger',    label: 'Rénovation globale',       keys: %w[toiture_remplacement isolation_murs_ext chassis_remplacement pompe_chaleur_air_eau electricite_conformite plomberie_renovation] },
+            { id: 'tpl_interieur', icon: 'bi-house-heart',      color: 'info',      label: 'Rénovation intérieure',    keys: %w[salle_de_bain cuisine_renovation peinture_int carrelage_sol parquet] },
+            { id: 'tpl_soussol',   icon: 'bi-moisture',         color: 'dark',      label: 'Sous-sol & fondations',    keys: %w[sous_sol_assechement structure_sol enduit_murs_int] },
+            { id: 'tpl_solaire',   icon: 'bi-sun',              color: 'primary',   label: 'Autonomie énergétique',    keys: %w[panneaux_solaires batterie_stockage chauffe_eau_thermodynamique ventilation_double_flux] }
+          ].each do |tpl| %>
+            <div class="col-6 col-md-4 col-lg-3">
+              <button type="button"
+                      class="btn btn-outline-<%= tpl[:color] %> btn-sm w-100 text-start quote-template-btn"
+                      data-template-id="<%= tpl[:id] %>"
+                      data-keys="<%= tpl[:keys].join(',') %>">
+                <i class="bi <%= tpl[:icon] %> me-2"></i><%= tpl[:label] %>
+                <span class="badge bg-light text-muted ms-1 fw-normal"><%= tpl[:keys].size %></span>
+              </button>
+            </div>
+          <% end %>
+          <div class="col-6 col-md-4 col-lg-3">
+            <button type="button" class="btn btn-outline-secondary btn-sm w-100 text-start" id="btn-reset-template">
+              <i class="bi bi-x-circle me-2"></i>Tout effacer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# ── SÉLECTION MANUELLE ─────────────────────────────────────────────── %>
     <div class="card border-0 shadow mb-4">
       <div class="card-body p-4">
         <h5 class="fw-normal mb-1">Sélectionnez vos travaux</h5>
@@ -254,6 +289,56 @@
           toggleWorkType(checkbox, true);
         });
       });
+
+      // ── Templates qualité ──────────────────────────────────────────────
+      root.querySelectorAll('.quote-template-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var keys = this.dataset.keys.split(',');
+          var activeId = this.dataset.templateId;
+
+          // Décocher tous d'abord
+          root.querySelectorAll('.work-type-checkbox').forEach(function (cb) {
+            cb.checked = false;
+            toggleWorkType(cb, false);
+          });
+
+          // Cocher les travaux du template
+          keys.forEach(function (key) {
+            var cb = document.getElementById('check-' + key);
+            if (cb) {
+              cb.checked = true;
+              toggleWorkType(cb, false);
+
+              // Ouvrir la catégorie accordion correspondante
+              var collapse = cb.closest('.accordion-collapse');
+              if (collapse && !collapse.classList.contains('show')) {
+                var bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapse, { toggle: false });
+                bsCollapse.show();
+              }
+            }
+          });
+
+          // Mettre en avant le bouton actif
+          root.querySelectorAll('.quote-template-btn').forEach(function (b) {
+            b.classList.remove('active');
+          });
+          this.classList.add('active');
+        });
+      });
+
+      // Bouton reset
+      var resetBtn = document.getElementById('btn-reset-template');
+      if (resetBtn) {
+        resetBtn.addEventListener('click', function () {
+          root.querySelectorAll('.work-type-checkbox').forEach(function (cb) {
+            cb.checked = false;
+            toggleWorkType(cb, false);
+          });
+          root.querySelectorAll('.quote-template-btn').forEach(function (b) {
+            b.classList.remove('active');
+          });
+        });
+      }
     }
 
     document.addEventListener('turbo:load', initQuoteCalculator);
