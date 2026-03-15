@@ -2002,8 +2002,8 @@ Ren0vate : **3 killer features en 3 mois**.
 
 #### Mars 2026
 - ✅ ~~Multi-propriétés (CRUD + Dashboard)~~ **LIVRÉ 12/03/2026**
-- 🔄 Générateur devis v1 (10 travaux essentiels) — *en cours, conception lancée 12/03/2026*
-- ⏳ Upload photos + notes basiques
+- ✅ ~~Générateur devis v1 (10 travaux essentiels)~~ **LIVRÉ 12/03/2026**
+- ✅ ~~Upload photos + notes basiques~~ **LIVRÉ v680 — widget chantier + galerie + JS interactif**
 - ⏳ Stripe integration paiements
 
 **Milestone** : 100 users invités, 60% complètent onboarding
