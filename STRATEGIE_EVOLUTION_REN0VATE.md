@@ -2000,7 +2000,7 @@ Ren0vate : **3 killer features en 3 mois**.
 
 **Objectif** : 100 users beta testent 3 features
 
-#### Mars 2026
+#### Mars 2026 — ✅ COMPLÉTÉ AVEC 2 SEMAINES D'AVANCE (15/03/2026)
 - ✅ ~~Multi-propriétés (CRUD + Dashboard)~~ **LIVRÉ 12/03/2026**
 - ✅ ~~Générateur devis v1 (10 travaux essentiels)~~ **LIVRÉ 12/03/2026**
 - ✅ ~~Upload photos + notes basiques~~ **LIVRÉ v680 — widget chantier + galerie + JS interactif**
