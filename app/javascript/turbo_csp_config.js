@@ -1,5 +1,13 @@
-// Vider le cache Turbo à chaque chargement de page pour éviter la fuite de données cross-user.
-// Sans cela, Turbo peut servir le snapshot d'un autre utilisateur connecté précédemment.
+// Vider le cache Turbo AVANT chaque navigation pour éviter la fuite de données cross-user.
+// turbo:before-visit s'exécute avant que Turbo affiche un snapshot, contrairement à
+// turbo:load qui s'exécute après (trop tard, le snapshot serait déjà visible).
+document.addEventListener('turbo:before-visit', function() {
+  if (window.Turbo) {
+    Turbo.cache.clear()
+  }
+})
+
+// Vider aussi au premier chargement de page (supprime les snapshots résiduels en mémoire)
 document.addEventListener('turbo:load', function() {
   if (window.Turbo) {
     Turbo.cache.clear()
