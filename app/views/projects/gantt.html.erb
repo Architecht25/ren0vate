@@ -1,0 +1,306 @@
+<%
+  # Compute timeline boundaries
+  all_dates = @gantt_bars.flat_map { |b| [b[:start], b[:end]] } + @milestones.map { |m| m[:date] }
+  timeline_start = all_dates.compact.min || @start_date
+  timeline_end   = all_dates.compact.max || (@start_date + 90.days)
+  timeline_end   = [timeline_end, timeline_start + 7.days].max
+  total_days     = (timeline_end - timeline_start).to_i + 1
+
+  category_colors = {
+    "Toiture"    => "#0d6efd",
+    "Murs"       => "#6f42c1",
+    "Châssis"    => "#0dcaf0",
+    "Sol"        => "#fd7e14",
+    "Énergie"    => "#ffc107",
+    "Pièces"     => "#198754",
+    "Technique"  => "#6c757d"
+  }
+
+  def pct(days, total); [(days.to_f / total * 100).round(2), 0.5].max; end
+
+  # Group months for header
+  months = []
+  cur = timeline_start.beginning_of_month
+  while cur <= timeline_end
+    m_start = [cur, timeline_start].max
+    m_end   = [cur.end_of_month, timeline_end].min
+    left_pct  = ((m_start - timeline_start).to_f / total_days * 100).round(2)
+    width_pct = (((m_end - m_start).to_f + 1) / total_days * 100).round(2)
+    months << { label: I18n.l(cur, format: "%B %Y").capitalize, left: left_pct, width: width_pct }
+    cur = cur.next_month
+  end
+%>
+
+<div class="container-fluid px-4 py-4">
+
+  <%# ── Header ────────────────────────────────────────────── %>
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-calendar-range"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">Planning — <%= @project.nom %></h1>
+        <small class="text-muted">
+          <i class="bi bi-calendar me-1"></i>
+          Période : <%= l(timeline_start, format: :long) %> → <%= l(timeline_end, format: :long) %>
+        </small>
+      </div>
+    </div>
+    <div>
+      <%= link_to project_path(@project), class: "btn btn-outline-secondary" do %>
+        <i class="bi bi-arrow-left me-2"></i>Retour au chantier
+      <% end %>
+    </div>
+  </div>
+
+  <%# ── Alert: no quote ────────────────────────────────────── %>
+  <% if @gantt_bars.empty? %>
+    <div class="alert alert-info d-flex align-items-center gap-3" role="alert">
+      <i class="bi bi-info-circle-fill fs-4"></i>
+      <div>
+        <strong>Aucun planning disponible.</strong>
+        Créez un devis pour ce bien pour générer automatiquement le planning des travaux.
+        <% if @project.property %>
+          <div class="mt-2">
+            <%= link_to new_property_quote_path(@project.property), class: "btn btn-sm btn-primary" do %>
+              <i class="bi bi-file-earmark-plus me-1"></i>Créer un devis
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="row g-4">
+    <%# ── Gantt chart ─────────────────────────────────────── %>
+    <div class="col-lg-9">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-white border-bottom py-3">
+          <h6 class="mb-0 fw-semibold text-primary-custom">
+            <i class="bi bi-bar-chart-steps me-2"></i>Diagramme de Gantt
+          </h6>
+        </div>
+        <div class="card-body p-0">
+          <div class="gantt-wrapper" style="overflow-x: auto;">
+            <div class="gantt-chart" style="min-width: 700px; padding: 0 16px 16px;">
+
+              <%# Month headers %>
+              <div class="gantt-months-row position-relative" style="height: 32px; margin-bottom: 4px;">
+                <% months.each do |m| %>
+                  <div class="gantt-month-label position-absolute d-flex align-items-center justify-content-center"
+                       style="left: <%= m[:left] %>%; width: <%= m[:width] %>%; height: 32px; font-size: 0.72rem; font-weight: 600; color: #495057; border-right: 1px solid #dee2e6; background: #f8f9fa;">
+                    <%= m[:label] %>
+                  </div>
+                <% end %>
+              </div>
+
+              <%# Grid lines – one per week %>
+              <div class="gantt-grid position-relative" style="pointer-events: none;">
+                <% week = 0 %>
+                <% while week * 7 <= total_days %>
+                  <div class="position-absolute" style="left: <%= (week * 7.0 / total_days * 100).round(2) %>%; top: 0; bottom: 0; border-left: 1px dashed #dee2e6; height: 100%; z-index: 0;"></div>
+                  <% week += 1 %>
+                <% end %>
+              </div>
+
+              <%# Bars %>
+              <% if @gantt_bars.any? %>
+                <% @gantt_bars.each_with_index do |bar, idx| %>
+                  <%
+                    bar_left  = ((bar[:start] - timeline_start).to_f / total_days * 100).round(2)
+                    bar_left  = [bar_left, 0].max
+                    bar_width = (((bar[:end] - bar[:start]).to_f) / total_days * 100).round(2)
+                    bar_width = [bar_width, 1].max
+                    color     = category_colors[bar[:category]] || "#6c757d"
+                    color_rgb = color
+                  %>
+                  <div class="gantt-row d-flex align-items-center mb-2" style="min-height: 40px;">
+                    <%# Label column %>
+                    <div class="gantt-label d-flex align-items-center gap-1 flex-shrink-0"
+                         style="width: 0; overflow: visible; position: relative; z-index: 2;">
+                    </div>
+                    <%# Bar track %>
+                    <div class="gantt-track position-relative flex-grow-1" style="height: 36px;">
+                      <div class="gantt-bar position-absolute d-flex align-items-center px-2 rounded-2"
+                           style="left: <%= bar_left %>%; width: <%= bar_width %>%; height: 32px; top: 2px;
+                                  background: <%= color_rgb %>; color: #fff; font-size: 0.75rem;
+                                  white-space: nowrap; overflow: hidden; z-index: 1;
+                                  box-shadow: 0 1px 4px rgba(0,0,0,0.18);"
+                           title="<%= bar[:name] %> : <%= l(bar[:start], format: :short) %> → <%= l(bar[:end], format: :short) %>
+<%= number_to_currency(bar[:total_min], unit: '€', separator: ',', delimiter: ' ', precision: 0) %> – <%= number_to_currency(bar[:total_max], unit: '€', separator: ',', delimiter: ' ', precision: 0) %>">
+                        <i class="bi bi-<%= bar[:icon] %> me-1" style="font-size: 0.8rem;"></i>
+                        <span class="text-truncate"><%= bar[:name] %></span>
+                      </div>
+                      <%# Row label underneath – shown as tooltip only on small bars, else inline %>
+                    </div>
+                  </div>
+                  <%# Row label below bar %>
+                  <div class="d-flex mb-1" style="min-height: 18px;">
+                    <div class="text-muted" style="font-size: 0.72rem; padding-left: calc(<%= bar_left %>% + 4px);">
+                      <span class="badge rounded-pill" style="background: <%= color %>20; color: <%= color %>; border: 1px solid <%= color %>40;">
+                        <i class="bi bi-<%= bar[:icon] %> me-1"></i><%= bar[:name] %>
+                      </span>
+                    </div>
+                  </div>
+                <% end %>
+
+                <%# Milestone markers %>
+                <div class="gantt-milestones position-relative mt-3 pt-3 border-top" style="height: 50px;">
+                  <% @milestones.each do |ms| %>
+                    <%
+                      ms_left = ((ms[:date] - timeline_start).to_f / total_days * 100).round(2)
+                      ms_left = [[ms_left, 0].max, 98].min
+                    %>
+                    <div class="position-absolute d-flex flex-column align-items-center"
+                         style="left: <%= ms_left %>%; transform: translateX(-50%); top: 0; z-index: 3;">
+                      <div style="width: 2px; height: 20px; background: var(--bs-<%= ms[:color] %>);"></div>
+                      <span class="badge bg-<%= ms[:color] %> text-nowrap" style="font-size: 0.65rem; margin-top: 2px;">
+                        <%= ms[:label] %>
+                      </span>
+                    </div>
+                  <% end %>
+                </div>
+
+              <% else %>
+                <div class="text-center text-muted py-5">
+                  <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
+                  Aucune tâche à afficher.
+                </div>
+              <% end %>
+
+            </div><%# /gantt-chart %>
+          </div><%# /gantt-wrapper %>
+        </div><%# /card-body %>
+      </div><%# /card %>
+    </div>
+
+    <%# ── Summary sidebar ─────────────────────────────────── %>
+    <div class="col-lg-3">
+
+      <%# Project info %>
+      <div class="card shadow-sm border-0 mb-3">
+        <div class="card-header bg-white border-bottom py-2">
+          <h6 class="mb-0 fw-semibold text-primary-custom" style="font-size: 0.85rem;">
+            <i class="bi bi-info-circle me-2"></i>Chantier
+          </h6>
+        </div>
+        <div class="card-body p-3">
+          <div class="small">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="text-muted">Statut</span>
+              <span class="badge bg-primary-subtle text-primary-emphasis"><%= @project.statut&.humanize || '—' %></span>
+            </div>
+            <% if @project.date_début %>
+              <div class="d-flex justify-content-between mb-1">
+                <span class="text-muted">Début</span>
+                <span><%= l(@project.date_début, format: :short) %></span>
+              </div>
+            <% end %>
+            <% if @project.date_fin %>
+              <div class="d-flex justify-content-between mb-1">
+                <span class="text-muted">Fin prévue</span>
+                <span><%= l(@project.date_fin, format: :short) %></span>
+              </div>
+            <% end %>
+            <% if @project.date_début && @project.date_fin %>
+              <div class="d-flex justify-content-between">
+                <span class="text-muted">Durée totale</span>
+                <span><%= (@project.date_fin - @project.date_début).to_i %> j</span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <%# Budget summary from bars %>
+      <% if @gantt_bars.any? %>
+        <%
+          total_min = @gantt_bars.sum { |b| b[:total_min].to_f }
+          total_max = @gantt_bars.sum { |b| b[:total_max].to_f }
+          duration_days = (@gantt_bars.last[:end] - @gantt_bars.first[:start]).to_i
+        %>
+        <div class="card shadow-sm border-0 mb-3">
+          <div class="card-header bg-white border-bottom py-2">
+            <h6 class="mb-0 fw-semibold text-primary-custom" style="font-size: 0.85rem;">
+              <i class="bi bi-currency-euro me-2"></i>Budget estimé
+            </h6>
+          </div>
+          <div class="card-body p-3">
+            <div class="text-center">
+              <div class="fw-semibold fs-5 text-primary-custom">
+                <%= number_to_currency(total_min, unit: '€', separator: ',', delimiter: ' ', precision: 0, format: "%n %u") %>
+                <span class="text-muted fw-normal">–</span>
+                <%= number_to_currency(total_max, unit: '€', separator: ',', delimiter: ' ', precision: 0, format: "%n %u") %>
+              </div>
+              <small class="text-muted">HTVA estimé (devis en cours)</small>
+            </div>
+            <hr class="my-2">
+            <div class="d-flex justify-content-between small">
+              <span class="text-muted">Durée travaux</span>
+              <span>~<%= duration_days %> jours</span>
+            </div>
+            <div class="d-flex justify-content-between small">
+              <span class="text-muted">Nb de postes</span>
+              <span><%= @gantt_bars.size %></span>
+            </div>
+          </div>
+        </div>
+
+        <%# Legend %>
+        <div class="card shadow-sm border-0 mb-3">
+          <div class="card-header bg-white border-bottom py-2">
+            <h6 class="mb-0 fw-semibold text-primary-custom" style="font-size: 0.85rem;">
+              <i class="bi bi-palette me-2"></i>Légende
+            </h6>
+          </div>
+          <div class="card-body p-3">
+            <% @gantt_bars.map { |b| b[:category] }.uniq.each do |cat| %>
+              <div class="d-flex align-items-center mb-1 small">
+                <div class="rounded-1 me-2 flex-shrink-0"
+                     style="width: 14px; height: 14px; background: <%= category_colors[cat] || '#6c757d' %>;"></div>
+                <span><%= cat %></span>
+              </div>
+            <% end %>
+            <div class="d-flex align-items-center mb-1 small mt-2">
+              <div class="me-2 flex-shrink-0" style="width: 2px; height: 14px; background: #198754;"></div>
+              <span class="text-muted">Jalons</span>
+            </div>
+          </div>
+        </div>
+      <% end %>
+
+      <%# Milestones list %>
+      <% if @milestones.any? %>
+        <div class="card shadow-sm border-0 mb-3">
+          <div class="card-header bg-white border-bottom py-2">
+            <h6 class="mb-0 fw-semibold text-primary-custom" style="font-size: 0.85rem;">
+              <i class="bi bi-flag me-2"></i>Jalons
+            </h6>
+          </div>
+          <div class="card-body p-3">
+            <% @milestones.each do |ms| %>
+              <div class="d-flex align-items-center gap-2 mb-2 small">
+                <span class="badge bg-<%= ms[:color] %> flex-shrink-0"><%= l(ms[:date], format: :short) %></span>
+                <span><%= ms[:label] %></span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <%# Actions %>
+      <div class="d-grid gap-2">
+        <%= link_to project_path(@project), class: "btn btn-outline-secondary btn-sm" do %>
+          <i class="bi bi-arrow-left me-1"></i>Retour au chantier
+        <% end %>
+        <% if @latest_quote %>
+          <%= link_to property_quote_path(@project.property, @latest_quote), class: "btn btn-outline-primary-custom btn-sm" do %>
+            <i class="bi bi-file-earmark-text me-1"></i>Voir le devis
+          <% end %>
+        <% end %>
+      </div>
+
+    </div><%# /col sidebar %>
+  </div><%# /row %>
+</div><%# /container %>

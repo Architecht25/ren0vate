@@ -2010,9 +2010,10 @@ Ren0vate : **3 killer features en 3 mois**.
 
 ---
 
-#### Avril 2026
+#### Avril 2026 — 🏆 COMPLÉTÉ AVEC 1 MOIS D'AVANCE (15/03/2026)
+
 - ✅ ~~Devis enrichi (30 travaux, templates qualité)~~ **LIVRÉ v682 — 33 travaux, 7 catégories, 7 templates pré-configurés**
-- ✅ Timeline Gantt visuelle
+- ✅ ~~Timeline Gantt visuelle~~ **LIVRÉ v683 — Gantt CSS pur, barres par poste, jalons, preview dans projects/show, lien sidebar**
 - ✅ Collaboration basique (inviter pros)
 - ✅ Notifications email automatiques
 

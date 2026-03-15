@@ -185,6 +185,9 @@ Rails.application.routes.draw do
     # Routes spéciales pour l'analyse de factures
     get :factures_dashboard, to: 'factures#dashboard'
     post :upload_facture, to: 'factures#upload_facture'
+
+    # Planning / Gantt
+    get :gantt, on: :member
   end
 
   # Routes pour les demandes

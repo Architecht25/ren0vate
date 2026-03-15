@@ -1,6 +1,6 @@
 class ProjectsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_project, only: [:show, :edit, :update, :destroy]
+  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt]
 
   def index
     # Récupérer les projets, filtrer par property_id si fourni
@@ -27,6 +27,11 @@ class ProjectsController < ApplicationController
     photo_types = %w[photo_avant photo_pendant photo_apres photo_chassis]
     @photos = @project.documents.where(type_document: photo_types).order(created_at: :desc)
     @photos_by_type = @photos.group_by(&:type_document)
+
+    # Planning preview
+    @latest_quote = @project.property&.quotes&.includes(:quote_items)&.order(created_at: :desc)&.first
+    @planning_items_count = @latest_quote ? @latest_quote.quote_items.count : 0
+    @factures_count = @project.factures.count
   end
 
   def new
@@ -80,7 +85,64 @@ class ProjectsController < ApplicationController
     end
   end
 
+  def gantt
+    @quotes = @project.property.quotes.includes(:quote_items).order(created_at: :desc)
+    @latest_quote = @quotes.first
+    @factures = @project.factures.order(:date_facture)
+
+    # Date de début : date_début du projet ou aujourd'hui
+    @start_date = @project.date_début || Date.today
+
+    # Construire les barres Gantt depuis le dernier devis
+    @gantt_bars = build_gantt_bars(@start_date, @latest_quote)
+
+    # Jalons : date début, factures, date fin
+    @milestones = build_milestones
+  end
+
   private
+
+  def build_gantt_bars(start_date, quote)
+    return [] unless quote
+
+    cursor = start_date
+    bars = []
+
+    quote.quote_items.each do |item|
+      wt = WorkType.find(item.work_type_key)
+      next unless wt
+
+      duration = item.unit_price_min.present? ? (wt.duration_min + wt.duration_max) / 2.0 : wt.duration_min
+      end_date = cursor + duration.ceil.days
+
+      bars << {
+        key:      item.work_type_key,
+        name:     wt.name,
+        icon:     wt.icon,
+        category: wt.category,
+        start:    cursor,
+        end:      end_date,
+        total_min: item.total_min,
+        total_max: item.total_max
+      }
+
+      # Chevauchement léger : démarrage du suivant à J+2 du début (travaux parallèles possibles)
+      cursor = cursor + 2.days
+    end
+
+    bars
+  end
+
+  def build_milestones
+    milestones = []
+    milestones << { date: @project.date_début, label: 'Début chantier', color: 'success' } if @project.date_début
+    @factures.each do |f|
+      next unless f.date_facture
+      milestones << { date: f.date_facture, label: "Facture #{f.type_facture&.humanize}", color: 'warning' }
+    end
+    milestones << { date: @project.date_fin, label: 'Fin prévue', color: 'danger' } if @project.date_fin
+    milestones.sort_by { |m| m[:date] }
+  end
 
   def set_project
     @project = current_user.projects.find(params[:id])

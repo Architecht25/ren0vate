@@ -236,11 +236,19 @@
               </a>
             </li>
             <li class="nav-item">
-              <a href="#" class="nav-link disabled" title="Bientôt disponible">
-                <i class="bi bi-calendar-check"></i>
-                <span>Planning travaux</span>
-                <span class="badge bg-secondary ms-auto">Bientôt</span>
-              </a>
+              <% if current_user&.projects&.any? %>
+                <%= link_to gantt_project_path(current_user.projects.order(updated_at: :desc).first), class: "nav-link" do %>
+                  <i class="bi bi-calendar-check"></i>
+                  <span>Planning travaux</span>
+                  <span class="badge bg-primary ms-auto">Nouveau</span>
+                <% end %>
+              <% else %>
+                <a href="#" class="nav-link disabled">
+                  <i class="bi bi-calendar-check"></i>
+                  <span>Planning travaux</span>
+                  <span class="badge bg-secondary ms-auto">Bientôt</span>
+                </a>
+              <% end %>
             </li>
             <li class="nav-item">
               <%= link_to photos_documents_path, class: "nav-link" do %>
