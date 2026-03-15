@@ -2021,6 +2021,255 @@ Ren0vate : **3 killer features en 3 mois**.
 
 ---
 
+### 🏗️ CONCEPTION COLLABORATION BASIQUE — INVITER DES PROS
+*Sprint Avril 2026 — Entrepreneur + Architecte*
+
+#### 🎯 Objectif
+Permettre à un propriétaire d'**inviter un entrepreneur et/ou un architecte** sur son projet. Chaque pro dispose d'une vue dédiée adaptée à son rôle.
+
+> Contexte : Les 2 semaines de test (15–31/03/2026) servent à valider les features existantes. La collaboration basique est la prochaine brique d'Avril — elle s'appuie sur les modèles `Project`, `Quote`, `QuoteItem` et les vues déjà en place.
+
+---
+
+#### 🗃️ 1. Migration & Modèle `ProjectMember`
+
+```ruby
+# db/migrate/XXX_create_project_members.rb
+create_table :project_members do |t|
+  t.references :project,     null: false, foreign_key: true
+  t.references :user,        null: false, foreign_key: true
+  t.string     :role,        null: false  # owner | entrepreneur | architect
+  t.string     :status,      default: 'pending'  # pending | active
+  t.string     :invite_token
+  t.datetime   :invite_sent_at
+  t.datetime   :accepted_at
+  t.timestamps
+end
+
+add_index :project_members, [:project_id, :user_id], unique: true
+add_index :project_members, :invite_token, unique: true
+```
+
+```ruby
+# app/models/project_member.rb
+class ProjectMember < ApplicationRecord
+  belongs_to :project
+  belongs_to :user
+
+  ROLES = %w[owner entrepreneur architect].freeze
+  validates :role, inclusion: { in: ROLES }
+
+  before_create :generate_invite_token
+
+  def pending?  = status == 'pending'
+  def active?   = status == 'active'
+
+  def accept!
+    update!(status: 'accepted', accepted_at: Time.current, invite_token: nil)
+  end
+
+  private
+
+  def generate_invite_token
+    self.invite_token = SecureRandom.urlsafe_base64(24)
+  end
+end
+```
+
+---
+
+#### 🔑 2. Système d'invitation par email
+
+```ruby
+# app/services/project_invitation_service.rb
+class ProjectInvitationService
+  def invite(project:, invited_by:, email:, role:)
+    user = User.find_or_initialize_by(email: email)
+    user.save! if user.new_record?  # compte minimal créé
+
+    member = project.project_members.create!(
+      user: user,
+      role: role,
+      invite_sent_at: Time.current
+    )
+
+    ProjectMailer.invitation(member, invited_by).deliver_later
+    member
+  end
+end
+```
+
+```ruby
+# app/mailers/project_mailer.rb (ajout)
+def invitation(member, invited_by)
+  @member     = member
+  @project    = member.project
+  @invited_by = invited_by
+  @accept_url = accept_invitation_url(token: member.invite_token)
+
+  mail(
+    to:      member.user.email,
+    subject: "#{invited_by.first_name} vous invite sur le projet #{@project.name} — Ren0vate"
+  )
+end
+```
+
+- Lien d'invitation : expiration 7 jours
+- Onboarding pro simplifié : clic lien → inscription rapide (nom, mot de passe) → accès direct au projet
+
+---
+
+#### 🎛️ 3. Matrice des permissions par rôle
+
+| Action | Propriétaire | Entrepreneur | Architecte |
+|--------|:------------:|:------------:|:----------:|
+| Créer / modifier projet | ✅ | ❌ | ❌ |
+| Inviter des pros | ✅ | ❌ | ❌ |
+| Voir devis estimatif propriétaire | ✅ | ✅ (lecture) | ✅ (lecture) |
+| Uploader son propre devis | ❌ | ✅ | ❌ |
+| Uploader photos chantier | ✅ | ✅ | ✅ |
+| Valider une étape chantier | ✅ | ❌ | ✅ |
+| Voir détail financier complet | ✅ | vue partielle | vue partielle |
+| Poster messages projet | ✅ | ✅ | ✅ |
+
+```ruby
+# app/models/concerns/project_permissions.rb
+module ProjectPermissions
+  def can_invite_pros?  = role == 'owner'
+  def can_upload_quote? = role == 'entrepreneur'
+  def can_validate_step? = %w[owner architect].include?(role)
+  def full_financial_access? = role == 'owner'
+end
+```
+
+---
+
+#### 🖥️ 4. Vue Dashboard Entrepreneur
+
+**Accès** : `/projects/:id/pro_view` (rôle `entrepreneur`)
+
+```
+┌──────────────────────────────────────────────┐
+│ 🏗️ PROJET : Rénovation Liège, Rue des Lilas  │
+│ Propriétaire : Mme Durand                    │
+├──────────────────────────────────────────────┤
+│                                              │
+│ 📋 SCOPE DES TRAVAUX (estimatif client)      │
+│  • Isolation toiture 120m²       5.400€      │
+│  • Remplacement châssis PVC 15m² 6.750€      │
+│  • Pompe à chaleur              11.500€      │
+│  ──────────────────────────────────────      │
+│  Fourchette totale    23.650€ – 33.250€      │
+│                                              │
+│ 📤 VOTRE DEVIS                               │
+│  [📎 Uploader votre devis PDF / montant]     │
+│  ou saisir directement : [_____] €           │
+│                                              │
+│ 💬 MESSAGES DU PROJET (3)                    │
+│  Mme Durand : "Bonjour, pouvez-vous..."      │
+│  [Répondre]                                  │
+│                                              │
+│ 📸 PHOTOS (12)  [Voir] [+ Ajouter]          │
+└──────────────────────────────────────────────┘
+```
+
+---
+
+#### 🏛️ 5. Vue Dashboard Architecte
+
+**Accès** : `/projects/:id/pro_view` (rôle `architect`)
+
+```
+┌──────────────────────────────────────────────┐
+│ 🏛️ PROJET : Rénovation Liège, Rue des Lilas  │
+│ Propriétaire : Mme Durand                   │
+├──────────────────────────────────────────────┤
+│                                              │
+│ 📁 FICHE BIEN                                │
+│  Type : Maison unifamiliale | Liège          │
+│  Année : 1985 | Surface : 145m²              │
+│  PEB actuel : E → Cible : C                  │
+│                                              │
+│ 📋 TRAVAUX PLANIFIÉS (lecture)               │
+│  ✅ Isolation toiture 120m²                  │
+│  ✅ Remplacement châssis PVC 15m²            │
+│  ✅ Pompe à chaleur                          │
+│                                              │
+│ ✅ VALIDATION ÉTAPES                         │
+│  Phase 1 — Préparation      [Valider]        │
+│  Phase 2 — Démolition       [Valider]        │
+│  Phase 3 — Installation     ████░░░ 60%      │
+│                                              │
+│ 📸 PHOTOS CHANTIER (12) [Voir] [+ Ajouter]  │
+│ 💬 MESSAGES (5)         [Voir] [Répondre]   │
+│ 📄 DOCUMENTS (3)        [Voir] [+ Ajouter]  │
+└──────────────────────────────────────────────┘
+```
+
+---
+
+#### 🔔 6. Notifications email automatiques
+
+| Événement | Destinataire(s) |
+|-----------|----------------|
+| Invitation envoyée | Pro invité |
+| Pro accepte l'invitation | Propriétaire |
+| Entrepreneur uploade un devis | Propriétaire + Architecte (si présent) |
+| Photo ajoutée | Tous les membres actifs |
+| Étape validée par architecte | Propriétaire + Entrepreneur |
+| Message posté | Tous sauf expéditeur |
+
+---
+
+#### 🛤️ Architecture Technique (Rails)
+
+```
+app/
+├── models/
+│   └── project_member.rb              # rôle, statut, token
+├── models/concerns/
+│   └── project_permissions.rb         # helpers permission par rôle
+├── services/
+│   └── project_invitation_service.rb  # logique invitation + email
+├── controllers/
+│   ├── invitations_controller.rb      # accept token → activation compte
+│   └── pro_views_controller.rb        # vue unifiée entrepreneur/architecte
+├── mailers/
+│   └── project_mailer.rb              # invitation + notifications
+└── views/
+    ├── pro_views/
+    │   └── show.html.erb              # vue adaptée selon role
+    └── project_mailer/
+        └── invitation.html.erb
+```
+
+---
+
+#### ✅ Critères d'Acceptation — Collaboration Basique
+
+- [ ] Propriétaire peut inviter un entrepreneur par email depuis la fiche projet
+- [ ] Propriétaire peut inviter un architecte par email depuis la fiche projet
+- [ ] Email d'invitation reçu avec lien sécurisé (expiration 7j)
+- [ ] Pro clique lien → inscription simplifiée → accès direct au projet
+- [ ] Vue entrepreneur : scope travaux + upload devis + messages + photos
+- [ ] Vue architecte : fiche bien + travaux + validation étapes + photos + messages
+- [ ] Propriétaire voit les pros invités et leur statut (en attente / actif)
+- [ ] Notifications email sur les événements clés
+- [ ] Permissions respectées (entrepreneur ne peut pas valider étapes, etc.)
+
+---
+
+#### 📅 Planning Sprint Avril 2026
+
+| Semaine | Tâches |
+|---------|--------|
+| S1 (01–05/04) | Migration `project_members` + modèle + permissions + service invitation |
+| S2 (08–12/04) | Mailer invitation + contrôleur `invitations#accept` + onboarding pro |
+| S3 (15–19/04) | Vue pro partagée (entrepreneur + architecte) + upload devis entrepreneur |
+| S4 (22–30/04) | Notifications email événements + tests + intégration dashboard propriétaire |
+
+---
+
 #### Mai 2026
 - ✅ IA #1 : Estimateur Budget (ML basique)
 - ✅ IA #2 : Détection Progression photos (GPT-4 Vision)
