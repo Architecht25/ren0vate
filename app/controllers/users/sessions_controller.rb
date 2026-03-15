@@ -1,8 +1,11 @@
 class Users::SessionsController < Devise::SessionsController
   # Surcharge de la méthode après connexion pour forcer la redirection vers le dashboard
 
-  # Après déconnexion : vider le cache Turbo via header pour éviter la fuite de données cross-user
-  def destroy
+  # Après déconnexion : forcer le navigateur à vider SON cache HTTP pour ce domaine.
+  # Clear-Site-Data: "cache" est le standard W3C — empêche qu'un autre utilisateur
+  # voit des pages en cache appartenant à la session précédente.
+  def respond_to_on_destroy
+    response.headers['Clear-Site-Data'] = '"cache"'
     super
   end
 

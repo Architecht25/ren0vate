@@ -35,7 +35,7 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%# Empêcher Turbo de cacher les pages authentifiées (évite les données cross-user) %>
-    <meta name="turbo-cache-control" content="no-preview">
+    <meta name="turbo-cache-control" content="no-store">
 
     <%= yield :head %>
 
@@ -121,6 +121,14 @@
           });
         }
       });
+    </script>
+    <%# Désinstaller tout Service Worker résiduel — empêche le cache cross-user SW %>
+    <script nonce="<%= content_security_policy_nonce %>">
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          registrations.forEach(function(reg) { reg.unregister(); });
+        });
+      }
     </script>
   </body>
 </html>
