@@ -2004,7 +2004,7 @@ Ren0vate : **3 killer features en 3 mois**.
 - ✅ ~~Multi-propriétés (CRUD + Dashboard)~~ **LIVRÉ 12/03/2026**
 - ✅ ~~Générateur devis v1 (10 travaux essentiels)~~ **LIVRÉ 12/03/2026**
 - ✅ ~~Upload photos + notes basiques~~ **LIVRÉ v680 — widget chantier + galerie + JS interactif**
-- ⏳ Stripe integration paiements
+- 🔧 Stripe integration paiements — *code complet (checkout, webhooks, portal, emails), en attente des clés API Stripe (STRIPE_SECRET_KEY / STRIPE_PUBLISHABLE_KEY / STRIPE_WEBHOOK_SECRET sur Heroku)*
 
 **Milestone** : 100 users invités, 60% complètent onboarding
 
