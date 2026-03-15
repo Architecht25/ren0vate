@@ -6,253 +6,131 @@
   )
 %>
 
-<div class="container-fluid h-100" style="max-width: 1400px;">
-  <div class="row h-100 g-0">
+<div class="expert-ia-page">
+  <div class="row g-3 expert-ia-row">
 
-    <!-- Sidebar - Contexte des simulations (3 colonnes) -->
-    <div class="col-md-3 border-end bg-light">
-      <div class="p-4 h-100 overflow-auto">
-        <h5 class="mb-4">
-          <i class="bi bi-cpu me-2 text-primary"></i>
-          Assistant IA Expert
-        </h5>
+    <!-- Sidebar -->
+    <div class="col-lg-3">
+      <div class="panel expert-ia-sidebar-panel">
+        <div class="panel-header">
+          <h3><i class="bi bi-cpu me-2"></i>Assistant IA Expert</h3>
+        </div>
+        <div class="panel-body">
 
-        <!-- Sélecteur de simulation pour contexte -->
-        <div class="mb-4">
-          <label class="form-label small text-muted">Contexte simulation</label>
-          <% if @simulations.any? %>
-            <select class="form-select form-select-sm" id="aiExpertSimulationSelector">
-              <option value="">Conversation générale</option>
-              <% @simulations.each do |simulation| %>
-                <option value="<%= simulation.id %>" <%= 'selected' if simulation.id == @simulation&.id %>>
-                  <%= simulation.titre || "Simulation #{simulation.id}" %>
-                </option>
-              <% end %>
-            </select>
-          <% else %>
-            <div class="alert alert-sm alert-info">
-              <%= link_to "Créer une simulation", new_simulation_path, class: "alert-link" %>
-              pour un conseil personnalisé
+          <!-- Sélecteur de simulation -->
+          <div class="mb-3">
+            <label class="expert-ia-label">Contexte simulation</label>
+            <% if @simulations.any? %>
+              <select class="form-select form-select-sm" id="aiExpertSimulationSelector">
+                <option value="">Conversation générale</option>
+                <% @simulations.each do |simulation| %>
+                  <option value="<%= simulation.id %>" <%= 'selected' if simulation.id == @simulation&.id %>>
+                    <%= simulation.titre || "Simulation #{simulation.id}" %>
+                  </option>
+                <% end %>
+              </select>
+            <% else %>
+              <div class="expert-ia-empty-state">
+                <i class="bi bi-calculator me-1"></i>
+                <%= link_to "Créer une simulation", new_simulation_path %> pour un conseil personnalisé
+              </div>
+            <% end %>
+          </div>
+
+          <!-- Carte simulation active -->
+          <% if @simulation %>
+            <div class="expert-ia-sim-card">
+              <div class="expert-ia-sim-label">Simulation active</div>
+              <div class="expert-ia-sim-title"><%= @simulation.titre || "Simulation #{@simulation.id}" %></div>
+              <div class="expert-ia-sim-meta">
+                <span><i class="bi bi-geo-alt"></i> <%= @simulation.region&.capitalize %></span>
+                <span><i class="bi bi-currency-euro"></i> <%= number_to_currency(@simulation.total_simule || 0, unit: "", precision: 0) %>€</span>
+                <span><i class="bi bi-calendar"></i> <%= @simulation.created_at.strftime("%d/%m/%Y") %></span>
+              </div>
             </div>
           <% end %>
-        </div>
 
-        <!-- Informations contextuelles -->
-        <% if @simulation %>
-          <div class="card border-0 shadow-sm mb-3">
-            <div class="card-body p-3">
-              <h6 class="card-subtitle mb-2 text-muted small">Simulation active</h6>
-              <p class="mb-1"><strong><%= @simulation.titre || "Simulation #{@simulation.id}" %></strong></p>
-              <p class="mb-1 small">
-                <i class="bi bi-geo-alt me-1"></i>
-                <%= @simulation.region&.capitalize %>
-              </p>
-              <p class="mb-1 small">
-                <i class="bi bi-currency-euro me-1"></i>
-                <%= number_to_currency(@simulation.total_simule || 0, unit: "", precision: 0) %>€
-              </p>
-              <p class="mb-0 small text-muted">
-                <i class="bi bi-calendar me-1"></i>
-                <%= @simulation.created_at.strftime("%d/%m/%Y") %>
-              </p>
+          <!-- Questions suggérées -->
+          <div class="mt-3">
+            <div class="section-title">Questions suggérées</div>
+            <div class="d-grid gap-2">
+              <button class="suggested-question"><i class="bi bi-lightning-charge"></i> Résume-moi ma situation</button>
+              <button class="suggested-question"><i class="bi bi-cash-stack"></i> Quelles sont mes primes prioritaires ?</button>
+              <button class="suggested-question"><i class="bi bi-calendar-check"></i> Quel est le calendrier optimal ?</button>
+              <button class="suggested-question"><i class="bi bi-tools"></i> Par quoi dois-je commencer ?</button>
+              <button class="suggested-question"><i class="bi bi-exclamation-triangle"></i> Quels sont les pièges à éviter ?</button>
             </div>
           </div>
-        <% end %>
 
-        <!-- Suggestions de questions -->
-        <div class="mt-4">
-          <h6 class="small text-muted mb-3">Questions suggérées</h6>
-          <div class="d-grid gap-2">
-            <button class="btn btn-sm btn-outline-primary text-start suggested-question">
-              <i class="bi bi-lightning-charge me-2"></i>
-              Résume-moi ma situation
-            </button>
-            <button class="btn btn-sm btn-outline-primary text-start suggested-question">
-              <i class="bi bi-cash-stack me-2"></i>
-              Quelles sont mes primes prioritaires ?
-            </button>
-            <button class="btn btn-sm btn-outline-primary text-start suggested-question">
-              <i class="bi bi-calendar-check me-2"></i>
-              Quel est le calendrier optimal ?
-            </button>
-            <button class="btn btn-sm btn-outline-primary text-start suggested-question">
-              <i class="bi bi-tools me-2"></i>
-              Par quoi dois-je commencer ?
-            </button>
-            <button class="btn btn-sm btn-outline-primary text-start suggested-question">
-              <i class="bi bi-exclamation-triangle me-2"></i>
-              Quels sont les pièges à éviter ?
-            </button>
+          <!-- Info Claude -->
+          <div class="expert-ia-info-badge">
+            <i class="bi bi-info-circle"></i>
+            Claude accède à tout votre dossier (propriétés, projets, simulations) pour des réponses personnalisées.
           </div>
-        </div>
 
-        <!-- Info -->
-        <div class="alert alert-light border mt-4 small">
-          <i class="bi bi-info-circle me-2"></i>
-          L'assistant utilise le contexte de votre simulation pour des réponses personnalisées.
         </div>
       </div>
     </div>
 
-    <!-- Zone de chat principale (9 colonnes) -->
-    <div class="col-md-9 d-flex flex-column">
+    <!-- Zone de chat -->
+    <div class="col-lg-9">
+      <div class="panel expert-ia-chat-panel d-flex flex-column">
 
-      <!-- Header -->
-      <div class="border-bottom bg-white p-3">
-        <div class="d-flex justify-content-between align-items-center">
-          <div>
-            <h4 class="mb-1">
-              <i class="bi bi-robot me-2 text-primary"></i>
-              Assistant IA Expert Rénovation
-            </h4>
-            <p class="text-muted mb-0 small">
-              Posez vos questions sur votre projet de rénovation
-            </p>
-          </div>
-          <div>
-            <%= link_to decision_hub_index_path, class: "btn btn-outline-secondary btn-sm" do %>
-              <i class="bi bi-compass me-1"></i>
-              Feuille de route
+        <!-- Header chat -->
+        <div class="panel-header">
+          <h3><i class="bi bi-robot me-2"></i>Assistant IA Expert Rénovation</h3>
+          <div class="d-flex align-items-center gap-2">
+            <span class="panel-badge"><i class="bi bi-circle-fill me-1" style="color: #84A98C; font-size: 0.45rem;"></i>Claude Sonnet</span>
+            <%= link_to decision_hub_index_path, class: "btn btn-sm btn-outline-light" do %>
+              <i class="bi bi-compass me-1"></i>Feuille de route
             <% end %>
           </div>
         </div>
-      </div>
 
-      <!-- Zone de messages -->
-      <div class="flex-grow-1 overflow-auto bg-light p-4" id="chatMessages" style="min-height: 400px;">
-
-        <!-- Message de bienvenue -->
-        <div class="d-flex mb-4">
-          <div class="flex-shrink-0">
-            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-              <i class="bi bi-robot"></i>
+        <!-- Messages -->
+        <div class="expert-ia-messages" id="chatMessages">
+          <div class="d-flex mb-4">
+            <div class="flex-shrink-0">
+              <div class="bot-avatar"><i class="bi bi-robot"></i></div>
             </div>
-          </div>
-          <div class="flex-grow-1 ms-3">
-            <div class="bg-white rounded-3 p-3 shadow-sm">
-              <p class="mb-2">
-                <strong>Bonjour <%= current_user.first_name || current_user.email.split('@').first.capitalize %> !</strong>
-              </p>
-              <p class="mb-0">
-                Je suis votre assistant IA expert en rénovation. Je peux vous aider à :
-              </p>
-              <ul class="mb-0 mt-2">
-                <li>Analyser votre situation et vos primes</li>
-                <li>Optimiser votre planning de rénovation</li>
-                <li>Répondre à vos questions techniques</li>
-                <li>Vous conseiller sur les démarches administratives</li>
-              </ul>
-              <p class="mt-2 mb-0 text-muted small">
-                💡 Astuce : Sélectionnez une simulation dans la sidebar pour un conseil personnalisé.
-              </p>
+            <div class="flex-grow-1 ms-3">
+              <div class="ai-message">
+                <p class="mb-2"><strong>Bonjour <%= current_user.first_name || current_user.email.split('@').first.capitalize %> !</strong></p>
+                <p class="mb-2">Je suis votre assistant IA expert en rénovation. Je peux vous aider à :</p>
+                <ul class="mb-2">
+                  <li>Analyser votre situation et vos primes</li>
+                  <li>Optimiser votre planning de rénovation</li>
+                  <li>Répondre à vos questions techniques</li>
+                  <li>Vous conseiller sur les démarches administratives</li>
+                </ul>
+                <p class="mb-0 small text-muted">💡 J'ai accès à l'ensemble de votre dossier : propriétés, projets et simulations.</p>
+              </div>
+              <small class="text-muted ms-2">À l'instant</small>
             </div>
-            <small class="text-muted ms-2">À l'instant</small>
           </div>
         </div>
 
-      </div>
+        <!-- Zone de saisie -->
+        <div class="expert-ia-input-zone">
+          <form id="aiExpertForm">
+            <div class="input-group">
+              <input type="text" class="form-control" id="aiExpertInput"
+                     placeholder="Posez votre question à l'expert IA..." autocomplete="off">
+              <button class="btn btn-ren0vate" type="submit" id="aiExpertSendBtn">
+                <i class="bi bi-send me-1"></i>Envoyer
+              </button>
+            </div>
+            <small class="text-muted mt-2 d-block">
+              <i class="bi bi-shield-check me-1"></i>Vos conversations sont privées et sécurisées
+            </small>
+          </form>
+        </div>
 
-      <!-- Zone de saisie -->
-      <div class="border-top bg-white p-3">
-        <form id="aiExpertForm">
-          <div class="input-group">
-            <input type="text"
-                   class="form-control"
-                   id="aiExpertInput"
-                   placeholder="Posez votre question à l'expert IA..."
-                   autocomplete="off">
-            <button class="btn btn-primary px-4" type="submit" id="aiExpertSendBtn">
-              <i class="bi bi-send me-2"></i>
-              Envoyer
-            </button>
-          </div>
-          <small class="text-muted d-block mt-2">
-            <i class="bi bi-shield-check me-1"></i>
-            Vos conversations sont privées et sécurisées
-          </small>
-        </form>
       </div>
-
     </div>
 
   </div>
 </div>
-
-<style>
-/* Styles pour le chat */
-#chatMessages::-webkit-scrollbar {
-  width: 8px;
-}
-
-#chatMessages::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-#chatMessages::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
-
-#chatMessages::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
-
-.user-message {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 1rem;
-  border-radius: 1.5rem 1.5rem 0.25rem 1.5rem;
-  max-width: 70%;
-  margin-left: auto;
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-}
-
-.ai-message {
-  background: white;
-  padding: 1rem;
-  border-radius: 1.5rem 1.5rem 1.5rem 0.25rem;
-  max-width: 80%;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-}
-
-.suggested-question:hover {
-  transform: translateX(4px);
-  transition: transform 0.2s;
-}
-
-.message-loading {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #999;
-  animation: pulse 1.4s infinite ease-in-out;
-}
-
-.message-loading:nth-child(1) {
-  animation-delay: -0.32s;
-}
-
-.message-loading:nth-child(2) {
-  animation-delay: -0.16s;
-  margin-left: 4px;
-}
-
-.message-loading:nth-child(3) {
-  margin-left: 4px;
-}
-
-@keyframes pulse {
-  0%, 80%, 100% {
-    opacity: 0.3;
-    transform: scale(0.8);
-  }
-  40% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -262,8 +140,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const sendBtn = document.getElementById('aiExpertSendBtn');
   const simulationSelector = document.getElementById('aiExpertSimulationSelector');
   const suggestedQuestions = document.querySelectorAll('.suggested-question');
-
-  let conversationHistory = [];
 
   // Questions suggérées
   suggestedQuestions.forEach(btn => {
@@ -354,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
     messageDiv.className = 'd-flex mb-4';
     messageDiv.innerHTML = `
       <div class="flex-shrink-0">
-        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+        <div class="bot-avatar">
           <i class="bi bi-robot"></i>
         </div>
       </div>
@@ -376,7 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
     messageDiv.className = 'd-flex mb-4';
     messageDiv.innerHTML = `
       <div class="flex-shrink-0">
-        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+        <div class="bot-avatar">
           <i class="bi bi-robot"></i>
         </div>
       </div>

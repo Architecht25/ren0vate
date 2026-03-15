@@ -5,7 +5,7 @@ class ContextualBotService
   ANTHROPIC_VERSION  = '2023-06-01'
   # Haiku = rapide + économique (guide), Sonnet = puissant (expert)
   GUIDE_MODEL        = 'claude-3-5-haiku-20241022'
-  EXPERT_MODEL       = 'claude-3-5-sonnet-20241022'
+  EXPERT_MODEL       = 'claude-3-7-sonnet-20250219'
   MAX_HISTORY        = 20  # messages gardés en mémoire (10 échanges)
   HISTORY_TTL        = 2.hours
 
