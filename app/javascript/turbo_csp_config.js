@@ -1,18 +1,22 @@
 // Vider le cache Turbo AVANT chaque navigation pour éviter la fuite de données cross-user.
-// turbo:before-visit s'exécute avant que Turbo affiche un snapshot, contrairement à
-// turbo:load qui s'exécute après (trop tard, le snapshot serait déjà visible).
-document.addEventListener('turbo:before-visit', function() {
-  if (window.Turbo) {
-    Turbo.cache.clear()
+// turbo:before-visit s'exécute avant que Turbo affiche un snapshot.
+// NOTE: L'API correcte en turbo-rails 2.x est Turbo.clearCache() — pas Turbo.cache.clear()
+function clearTurboCache() {
+  try {
+    if (typeof Turbo !== 'undefined') {
+      if (typeof Turbo.clearCache === 'function') {
+        Turbo.clearCache()
+      } else if (Turbo.cache && typeof Turbo.cache.clear === 'function') {
+        Turbo.cache.clear()
+      }
+    }
+  } catch(e) {
+    // Silently ignore if Turbo cache API unavailable
   }
-})
+}
 
-// Vider aussi au premier chargement de page (supprime les snapshots résiduels en mémoire)
-document.addEventListener('turbo:load', function() {
-  if (window.Turbo) {
-    Turbo.cache.clear()
-  }
-})
+document.addEventListener('turbo:before-visit', clearTurboCache)
+document.addEventListener('turbo:load', clearTurboCache)
 
 // Configurer Turbo pour respecter les nonces CSP
 document.addEventListener('DOMContentLoaded', function() {
