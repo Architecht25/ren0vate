@@ -125,6 +125,12 @@ class ApplicationController < ActionController::Base
       # Expect-CT : Certificate Transparency
       response.headers['Expect-CT'] = 'max-age=86400, enforce'
     end
+
+    # Empêcher le cache HTTP des pages authentifiées (évite la fuite de données cross-user)
+    # Critical : sans cela, Heroku/proxy/navigateur peut servir la page d'un autre utilisateur
+    response.headers['Cache-Control'] = 'private, no-store, no-cache, must-revalidate'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
   end
 
   protected

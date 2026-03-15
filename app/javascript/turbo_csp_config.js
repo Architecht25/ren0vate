@@ -1,3 +1,11 @@
+// Vider le cache Turbo à chaque chargement de page pour éviter la fuite de données cross-user.
+// Sans cela, Turbo peut servir le snapshot d'un autre utilisateur connecté précédemment.
+document.addEventListener('turbo:load', function() {
+  if (window.Turbo) {
+    Turbo.cache.clear()
+  }
+})
+
 // Configurer Turbo pour respecter les nonces CSP
 document.addEventListener('DOMContentLoaded', function() {
   // Patch Turbo pour utiliser les nonces CSP
