@@ -34,61 +34,97 @@
           <strong>Les prix affichés sont des fourchettes estimatives TVA 6% incluse.</strong>
         </p>
 
-        <div class="row g-3">
-          <% @work_types.each do |wt| %>
-            <div class="col-12 col-md-6 col-xl-4">
-              <div class="card border quote-work-card h-100" id="card-<%= wt.key %>">
-                <div class="card-body p-3 d-flex flex-column">
-                  <div class="d-flex align-items-start gap-2 mb-2">
-                    <input class="form-check-input flex-shrink-0 mt-1 work-type-checkbox"
-                           type="checkbox"
-                           name="items[<%= wt.key %>][selected]"
-                           value="1"
-                           id="check-<%= wt.key %>"
-                           data-key="<%= wt.key %>">
-                    <label class="form-check-label fw-medium d-block lh-sm" for="check-<%= wt.key %>" style="cursor: pointer;">
-                      <i class="bi <%= wt.icon %> me-1 text-primary-custom"></i>
-                      <%= wt.name %>
-                    </label>
-                  </div>
+        <%# Compteur global de travaux sélectionnés %>
+        <div class="d-flex align-items-center justify-content-between mb-3" id="selection-summary" style="display:none!important">
+          <span class="text-muted-custom small" id="selection-count">0 travaux sélectionnés</span>
+        </div>
 
-                  <div class="d-flex gap-3 mb-3">
-                    <small class="text-muted-custom">
-                      <i class="bi bi-currency-euro me-1"></i>
-                      <% if wt.forfait? %>
-                        <%= number_to_currency(wt.price_min, unit: '', separator: '.', delimiter: '.', precision: 0) %> -
-                        <%= number_to_currency(wt.price_max, unit: '', separator: '.', delimiter: '.', precision: 0) %> €
-                      <% else %>
-                        <%= wt.price_min %> - <%= wt.price_max %> €/<%= wt.unit_label %>
-                      <% end %>
-                    </small>
-                    <small class="text-muted-custom">
-                      <i class="bi bi-clock me-1"></i><%= wt.duration_min %>-<%= wt.duration_max %> jours
-                    </small>
-                  </div>
+        <div class="accordion" id="work-types-accordion">
+          <% @work_types_by_category.each_with_index do |(category_name, work_types), idx| %>
+            <% category_icons = {
+              'Toiture' => 'bi-house-fill',
+              'Murs & Façades' => 'bi-bricks',
+              'Châssis & Ouvertures' => 'bi-window',
+              'Sol & Structure' => 'bi-layers',
+              'Énergie & Chauffage' => 'bi-thermometer-half',
+              'Pièces de vie' => 'bi-house-heart',
+              'Technique' => 'bi-tools'
+            } %>
+            <% cat_id = category_name.parameterize %>
+            <div class="accordion-item border mb-2 rounded overflow-hidden">
+              <h2 class="accordion-header">
+                <button class="accordion-button <%= idx > 0 ? 'collapsed' : '' %> fw-medium py-3"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#cat-<%= cat_id %>"
+                        aria-expanded="<%= idx == 0 ? 'true' : 'false' %>">
+                  <i class="bi <%= category_icons[category_name] || 'bi-wrench' %> me-2 text-primary-custom"></i>
+                  <%= category_name %>
+                  <span class="badge bg-light text-muted-custom ms-2 fw-normal" id="badge-<%= cat_id %>"><%= work_types.size %></span>
+                </button>
+              </h2>
+              <div id="cat-<%= cat_id %>" class="accordion-collapse collapse <%= idx == 0 ? 'show' : '' %>">
+                <div class="accordion-body p-3">
+                  <div class="row g-3">
+                    <% work_types.each do |wt| %>
+                      <div class="col-12 col-md-6 col-xl-4">
+                        <div class="card border quote-work-card h-100" id="card-<%= wt.key %>">
+                          <div class="card-body p-3 d-flex flex-column">
+                            <div class="d-flex align-items-start gap-2 mb-2">
+                              <input class="form-check-input flex-shrink-0 mt-1 work-type-checkbox"
+                                     type="checkbox"
+                                     name="items[<%= wt.key %>][selected]"
+                                     value="1"
+                                     id="check-<%= wt.key %>"
+                                     data-key="<%= wt.key %>">
+                              <label class="form-check-label fw-medium d-block lh-sm" for="check-<%= wt.key %>" style="cursor: pointer;">
+                                <i class="bi <%= wt.icon %> me-1 text-primary-custom"></i>
+                                <%= wt.name %>
+                              </label>
+                            </div>
 
-                  <div class="mt-auto">
-                    <% if wt.forfait? %>
-                      <input type="hidden" name="items[<%= wt.key %>][quantity]" value="1">
-                      <div class="qty-display rounded p-2 text-center" style="background: #f8f9fa; border: 1px dashed #dee2e6;">
-                        <small class="text-muted-custom">
-                          <i class="bi bi-check2-circle me-1"></i>Prix au forfait - cochez pour inclure
-                        </small>
-                      </div>
-                    <% else %>
-                      <div class="input-group input-group-sm">
-                        <span class="input-group-text text-muted-custom bg-light">
-                          <i class="bi bi-rulers"></i>
-                        </span>
-                        <input type="number"
-                               class="form-control qty-input"
-                               name="items[<%= wt.key %>][quantity]"
-                               id="qty-input-<%= wt.key %>"
-                               placeholder="Saisir la surface / quantité"
-                               min="0.1"
-                               step="0.1"
-                               disabled>
-                        <span class="input-group-text"><%= wt.unit_label %></span>
+                            <div class="d-flex gap-3 mb-3">
+                              <small class="text-muted-custom">
+                                <i class="bi bi-currency-euro me-1"></i>
+                                <% if wt.forfait? %>
+                                  <%= number_to_currency(wt.price_min, unit: '', separator: '.', delimiter: '.', precision: 0) %> –
+                                  <%= number_to_currency(wt.price_max, unit: '', separator: '.', delimiter: '.', precision: 0) %> €
+                                <% else %>
+                                  <%= wt.price_min %> – <%= wt.price_max %> €/<%= wt.unit_label %>
+                                <% end %>
+                              </small>
+                              <small class="text-muted-custom">
+                                <i class="bi bi-clock me-1"></i><%= wt.duration_min %>–<%= wt.duration_max %> j
+                              </small>
+                            </div>
+
+                            <div class="mt-auto">
+                              <% if wt.forfait? %>
+                                <input type="hidden" name="items[<%= wt.key %>][quantity]" value="1">
+                                <div class="qty-display rounded p-2 text-center" style="background: #f8f9fa; border: 1px dashed #dee2e6;">
+                                  <small class="text-muted-custom">
+                                    <i class="bi bi-check2-circle me-1"></i>Prix au forfait
+                                  </small>
+                                </div>
+                              <% else %>
+                                <div class="input-group input-group-sm">
+                                  <span class="input-group-text text-muted-custom bg-light">
+                                    <i class="bi bi-rulers"></i>
+                                  </span>
+                                  <input type="number"
+                                         class="form-control qty-input"
+                                         name="items[<%= wt.key %>][quantity]"
+                                         id="qty-input-<%= wt.key %>"
+                                         placeholder="Surface / quantité"
+                                         min="0.1"
+                                         step="0.1"
+                                         disabled>
+                                  <span class="input-group-text"><%= wt.unit_label %></span>
+                                </div>
+                              <% end %>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     <% end %>
                   </div>
@@ -133,6 +169,42 @@
 
 <script>
   (function () {
+    function getCategoryId(checkbox) {
+      var card = document.getElementById('card-' + checkbox.dataset.key);
+      if (!card) return null;
+      var accordionBody = card.closest('.accordion-collapse');
+      return accordionBody ? accordionBody.id : null;
+    }
+
+    function updateBadge(catCollapseId) {
+      if (!catCollapseId) return;
+      var catId = catCollapseId.replace(/^cat-/, '');
+      var badge = document.getElementById('badge-' + catId);
+      if (!badge) return;
+      var collapse = document.getElementById(catCollapseId);
+      if (!collapse) return;
+      var total = collapse.querySelectorAll('.work-type-checkbox').length;
+      var checked = collapse.querySelectorAll('.work-type-checkbox:checked').length;
+      badge.textContent = checked > 0 ? checked + '/' + total + ' sélectionné' + (checked > 1 ? 's' : '') : total;
+      badge.classList.toggle('bg-primary-custom', checked > 0);
+      badge.classList.toggle('text-white', checked > 0);
+      badge.classList.toggle('bg-light', checked === 0);
+      badge.classList.toggle('text-muted-custom', checked === 0);
+    }
+
+    function updateGlobalCount() {
+      var total = document.querySelectorAll('.work-type-checkbox:checked').length;
+      var summary = document.getElementById('selection-summary');
+      var countEl = document.getElementById('selection-count');
+      if (!summary || !countEl) return;
+      if (total > 0) {
+        summary.style.removeProperty('display');
+        countEl.textContent = total + ' travaux sélectionné' + (total > 1 ? 's' : '');
+      } else {
+        summary.style.display = 'none';
+      }
+    }
+
     function toggleWorkType(checkbox, focusInput) {
       var key = checkbox.dataset.key;
       var card = document.getElementById('card-' + key);
@@ -153,6 +225,9 @@
           input.value = '';
         }
       }
+
+      updateBadge(getCategoryId(checkbox));
+      updateGlobalCount();
     }
 
     function initQuoteCalculator() {
@@ -165,8 +240,6 @@
         checkbox.addEventListener('change', function () {
           toggleWorkType(this, true);
         });
-
-        // Synchronise l'etat visuel au chargement (important avec Turbo cache)
         toggleWorkType(checkbox, false);
       });
 
@@ -175,10 +248,8 @@
           if (e.target.tagName === 'INPUT' || e.target.tagName === 'LABEL' || e.target.closest('label')) {
             return;
           }
-
           var checkbox = card.querySelector('.work-type-checkbox');
           if (!checkbox) return;
-
           checkbox.checked = !checkbox.checked;
           toggleWorkType(checkbox, true);
         });
