@@ -49,17 +49,15 @@ class WebhooksController < ApplicationController
 
     user_id = session['metadata']['user_id']
     tier = session['metadata']['tier']
+    customer_id = session['customer']
 
     if user_id && tier
       user = User.find_by(id: user_id)
       if user
-        Rails.logger.info "👤 Creating subscription for user #{user.email} - tier: #{tier}"
-
-        # La subscription sera créée/mise à jour via l'event subscription.created
-        # Ici on peut juste logger ou envoyer une notification
-
-        # Envoyer email de bienvenue
-        # UserMailer.welcome_premium(user, tier).deliver_later
+        # Sauvegarder le stripe_customer_id pour futurs checkouts et portail
+        user.update_column(:stripe_customer_id, customer_id) if customer_id.present? && user.stripe_customer_id.blank?
+        Rails.logger.info "👤 Checkout complete for user #{user.email} - tier: #{tier}"
+        # Email de bienvenue envoyé dans handle_subscription_created une fois l'abonnement créé
       end
     end
   rescue => e
@@ -70,10 +68,14 @@ class WebhooksController < ApplicationController
     Rails.logger.info "🆕 Subscription created: #{subscription['id']}"
 
     customer_id = subscription['customer']
-    stripe_customer = Stripe::Customer.retrieve(customer_id)
 
-    # Trouver l'utilisateur par email
-    user = User.find_by(email: stripe_customer.email)
+    # Chercher par stripe_customer_id d'abord (plus robuste que l'email)
+    user = User.find_by(stripe_customer_id: customer_id)
+    unless user
+      stripe_customer = Stripe::Customer.retrieve(customer_id)
+      user = User.find_by(email: stripe_customer.email)
+      user&.update_column(:stripe_customer_id, customer_id)
+    end
     return unless user
 
     # Extraire le tier des metadata ou du nom du produit
@@ -93,6 +95,7 @@ class WebhooksController < ApplicationController
 
     if user_subscription.save
       Rails.logger.info "✅ Subscription saved for user #{user.email}"
+      UserMailer.welcome_premium(user, tier).deliver_later
     else
       Rails.logger.error "❌ Failed to save subscription: #{user_subscription.errors.full_messages}"
     end
@@ -161,7 +164,7 @@ class WebhooksController < ApplicationController
     return unless user_subscription
 
     # Notifier l'utilisateur de l'échec du paiement
-    # UserMailer.payment_failed(user_subscription.user).deliver_later
+    UserMailer.payment_failed(user_subscription.user).deliver_later
 
     Rails.logger.info "📧 Payment failure notification sent to #{user_subscription.user.email}"
 

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Problème de paiement - Ren0vate</title>
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { background-color: #dc3545; color: white; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0; }
+      .content { background-color: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+      .btn { display: inline-block; padding: 12px 24px; background-color: #0d6efd; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px; }
+      .footer { text-align: center; margin-top: 20px; font-size: 0.85em; color: #6c757d; }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>⚠️ Problème de paiement</h1>
+    </div>
+    <div class="content">
+      <p>Bonjour <%= @user.prenom || @user.nom || @user.email %>,</p>
+
+      <p>Nous n'avons pas pu traiter le paiement de votre abonnement Ren0vate. Votre accès aux fonctionnalités premium pourrait être suspendu prochainement.</p>
+
+      <p><strong>Que faire ?</strong></p>
+      <ol>
+        <li>Vérifiez que votre carte bancaire est valide et non expirée</li>
+        <li>Assurez-vous que le solde est suffisant</li>
+        <li>Mettez à jour votre moyen de paiement via votre espace client</li>
+      </ol>
+
+      <center>
+        <%= link_to "Mettre à jour mon paiement", pricing_select_url, class: "btn" %>
+      </center>
+
+      <p style="margin-top: 30px;">Si vous pensez qu'il s'agit d'une erreur, contactez-nous en répondant à cet email.</p>
+      <p>Cordialement,<br><strong>L'équipe Ren0vate</strong></p>
+    </div>
+    <div class="footer">
+      <p>Ren0vate — Votre assistant rénovation intelligent en Belgique</p>
+    </div>
+  </body>
+</html>

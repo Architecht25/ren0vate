@@ -37,6 +37,27 @@ class PricingController < ApplicationController
     redirect_to pricing_select_path, notice: "Paiement annulé. Vous pouvez réessayer quand vous voulez."
   end
 
+  def portal
+    unless stripe_configured?
+      redirect_to pricing_select_path, notice: "Portail de gestion non disponible en mode démo."
+      return
+    end
+
+    unless current_user.stripe_customer_id.present?
+      redirect_to pricing_select_path, alert: "Aucun abonnement actif trouvé."
+      return
+    end
+
+    portal_session = Stripe::BillingPortal::Session.create({
+      customer: current_user.stripe_customer_id,
+      return_url: pricing_select_url
+    })
+
+    redirect_to portal_session.url, allow_other_host: true
+  rescue Stripe::StripeError => e
+    redirect_to pricing_select_path, alert: "Erreur d'accès au portail : #{e.message}"
+  end
+
   def checkout
     # Création d'une session Stripe Checkout pour abonnement
     tier = params[:tier].to_sym
@@ -55,11 +76,18 @@ class PricingController < ApplicationController
     end
 
     begin
+      # Utiliser le customer_id existant si disponible (pré-remplit la CB)
+      customer_params = if current_user&.stripe_customer_id.present?
+        { customer: current_user.stripe_customer_id }
+      else
+        { customer_email: current_user&.email }
+      end
+
       # Configuration de la session Stripe
       session = Stripe::Checkout::Session.create(
         payment_method_types: ['card'],
         mode: 'subscription',
-        customer_email: current_user&.email,
+        **customer_params,
 
         line_items: [{
           price_data: {

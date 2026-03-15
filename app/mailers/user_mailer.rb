@@ -25,6 +25,26 @@ class UserMailer < Devise::Mailer
     end
   end
 
+  def welcome_premium(user, tier)
+    @user = user
+    @tier = tier
+    @tier_name = Subscription.new(tier: tier).tier_name
+
+    mail(
+      to: user.email,
+      subject: "🎉 Bienvenue sur Ren0vate #{@tier_name} !"
+    )
+  end
+
+  def payment_failed(user)
+    @user = user
+
+    mail(
+      to: user.email,
+      subject: "⚠️ Problème de paiement sur votre abonnement Ren0vate"
+    )
+  end
+
   def tracking_email_received(user, request_progress)
     @user = user
     @request_progress = request_progress
