@@ -1,0 +1,32 @@
+<div class="col-6 col-md-3">
+  <div class="card border-0 shadow-sm h-100 photo-card">
+    <% if doc.file_url.present? %>
+      <a href="<%= doc.file_url %>" target="_blank" rel="noopener noreferrer">
+        <img src="<%= doc.file_url %>"
+             class="card-img-top"
+             alt="<%= photo_types[doc.type_document]&.dig(:label) || 'Photo' %>"
+             style="height: 120px; object-fit: cover;">
+      </a>
+    <% else %>
+      <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 120px;">
+        <i class="bi bi-image text-muted" style="font-size: 2rem;"></i>
+      </div>
+    <% end %>
+    <div class="card-body p-2">
+      <% meta = photo_types[doc.type_document] %>
+      <% if meta %>
+        <span class="badge bg-<%= meta[:color] %> mb-1" style="font-size: 0.65rem;">
+          <i class="bi <%= meta[:icon] %> me-1"></i><%= meta[:label] %>
+        </span>
+      <% end %>
+      <% if doc.notes.present? && !doc.notes.start_with?('📄') %>
+        <p class="card-text small text-muted mb-1" style="font-size: 0.75rem; line-clamp: 2;">
+          <%= truncate(doc.notes, length: 60) %>
+        </p>
+      <% end %>
+      <p class="card-text" style="font-size: 0.7rem; color: #aaa;">
+        <i class="bi bi-clock me-1"></i><%= time_ago_in_words(doc.created_at) %>
+      </p>
+    </div>
+  </div>
+</div>

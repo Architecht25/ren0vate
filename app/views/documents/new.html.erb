@@ -28,15 +28,43 @@
                         data: { turbo: false } do |form| %>
 
             <!-- Type de document -->
+            <% is_photo_context = %w[photo photo_avant photo_pendant photo_apres photo_chassis].include?(@document.type_document) %>
             <% if @document.type_document.present? %>
-              <!-- Type pré-défini -->
-              <%= form.hidden_field :type_document, value: @document.type_document %>
-              <div class="mb-4">
-                <div class="alert alert-success">
-                  <i class="bi bi-file-earmark-check me-2"></i>
-                  Type de document : <strong><%= @document.type_document.humanize %></strong>
+              <% if is_photo_context %>
+                <!-- Sélecteur visuel pour les photos de suivi -->
+                <div class="mb-4">
+                  <label class="form-label"><i class="bi bi-camera me-1"></i>Type de photo</label>
+                  <% photo_options = [
+                       ['photo_avant',   'Avant travaux',   'bi-clock-history', 'secondary'],
+                       ['photo_pendant', 'Pendant travaux', 'bi-hammer',        'warning'  ],
+                       ['photo_apres',   'Après travaux',   'bi-check-circle',  'success'  ],
+                       ['photo_chassis', 'Châssis',         'bi-window',        'info'     ]
+                     ] %>
+                  <div class="d-flex gap-2 flex-wrap">
+                    <% photo_options.each do |value, label, icon, color| %>
+                      <div class="form-check d-none">
+                        <%= form.radio_button :type_document, value,
+                              id: "type_#{value}",
+                              checked: @document.type_document == value %>
+                      </div>
+                      <label for="type_<%= value %>"
+                             class="btn btn-sm btn-<%= @document.type_document == value ? color : "outline-#{color}" %> photo-type-btn"
+                             data-value="<%= value %>">
+                        <i class="bi <%= icon %> me-1"></i><%= label %>
+                      </label>
+                    <% end %>
+                  </div>
                 </div>
-              </div>
+              <% else %>
+                <!-- Type pré-défini non-photo -->
+                <%= form.hidden_field :type_document, value: @document.type_document %>
+                <div class="mb-4">
+                  <div class="alert alert-success">
+                    <i class="bi bi-file-earmark-check me-2"></i>
+                    Type de document : <strong><%= @document.type_document.humanize %></strong>
+                  </div>
+                </div>
+              <% end %>
             <% else %>
               <!-- Sélection du type -->
               <div class="mb-4">
@@ -215,6 +243,26 @@
                 </div>
               </div>
             </div>
+
+            <!-- Note de suivi (uniquement pour les photos de chantier) -->
+            <% photo_note_placeholders = {
+              'photo_avant'   => 'Ex: état avant démolition, humidité visible au mur nord, châssis simple vitrage...',
+              'photo_pendant' => 'Ex: isolation posée côté nord, pare-vapeur en cours, pont thermique visible en haut à droite...',
+              'photo_apres'   => 'Ex: travaux terminés, finitions validées, résultat conforme au devis...',
+              'photo_chassis' => 'Ex: châssis PVC triple vitrage, dimensions 120x140, marque Schuco...'
+            } %>
+            <% if %w[photo photo_avant photo_pendant photo_apres photo_chassis].include?(@document.type_document) %>
+              <div class="mb-4">
+                <%= form.label :notes, class: "form-label" do %>
+                  <i class="bi bi-pencil me-1"></i>Note de suivi
+                  <span class="text-muted fw-normal">(optionnelle — exploitée par l'agent IA)</span>
+                <% end %>
+                <%= form.text_area :notes,
+                    rows: 3,
+                    class: "form-control",
+                    placeholder: photo_note_placeholders[@document.type_document] || 'Décrivez ce que montre cette photo...' %>
+              </div>
+            <% end %>
 
             <!-- Boutons d'action -->
             <div class="d-flex justify-content-end gap-2">
@@ -728,6 +776,34 @@ document.addEventListener('turbo:load', function() {
     // Plus de bouton d'ajout aux notes puisque le champ a été retiré
   }
 
+  // Boutons radio visuels pour le type de photo
+  document.querySelectorAll('.photo-type-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const value = this.dataset.value;
+      // Cocher le radio button correspondant
+      const radio = document.getElementById('type_' + value);
+      if (radio) radio.checked = true;
+      // Mettre à jour les classes visuelles
+      document.querySelectorAll('.photo-type-btn').forEach(b => {
+        const color = b.classList.toString().match(/btn-outline-(\w+)/) ||
+                      b.classList.toString().match(/btn-(\w+)/);
+        // Retirer la sélection active
+        b.className = b.className.replace(/\bbtn-(secondary|warning|success|info)\b/, 'btn-outline-$1');
+      });
+      // Activer le bouton cliqué (enlever outline)
+      this.className = this.className.replace(/\bbtn-outline-(\w+)\b/, 'btn-$1');
+      // Mettre à jour le placeholder de la note si présent
+      const notesField = document.querySelector('textarea[name="document[notes]"]');
+      const placeholders = {
+        'photo_avant':   'Ex: état avant démolition, humidité visible au mur nord, châssis simple vitrage...',
+        'photo_pendant': 'Ex: isolation posée côté nord, pare-vapeur en cours, pont thermique visible...',
+        'photo_apres':   'Ex: travaux terminés, finitions validées, résultat conforme au devis...',
+        'photo_chassis': 'Ex: châssis PVC triple vitrage, dimensions 120x140, marque Schuco...'
+      };
+      if (notesField && placeholders[value]) notesField.placeholder = placeholders[value];
+    });
+  });
+
   function showOcrError(errorMessage) {
     const errorHtml = `
       <div class="card border-0 bg-danger-subtle mt-3">
@@ -774,4 +850,3 @@ document.addEventListener('turbo:load', function() {
     });
 })();
 </script>
-

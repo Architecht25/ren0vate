@@ -1,0 +1,97 @@
+<% photo_types = {
+  'photo_avant'    => { label: 'Avant travaux',  icon: 'bi-clock-history',    color: 'secondary' },
+  'photo_pendant'  => { label: 'Pendant travaux', icon: 'bi-hammer',          color: 'warning'   },
+  'photo_apres'    => { label: 'Après travaux',   icon: 'bi-check-circle',    color: 'success'   },
+  'photo_chassis'  => { label: 'Châssis',         icon: 'bi-window',          color: 'info'      }
+} %>
+
+<div class="form-section bg-light-subtle border rounded-3 p-3" id="photos-suivi-section">
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-2" style="width: 28px; height: 28px; font-size: 14px;">
+        <i class="bi bi-camera"></i>
+      </div>
+      <h6 class="mb-0 fw-normal text-primary-custom">
+        Photos de suivi
+        <span class="badge bg-secondary ms-2"><%= @photos.size %></span>
+      </h6>
+    </div>
+    <%= link_to new_project_document_path(@project, type_document: 'photo_pendant'),
+          class: "btn btn-sm btn-primary-custom" do %>
+      <i class="bi bi-plus-lg me-1"></i>Ajouter une photo
+    <% end %>
+  </div>
+
+  <% if @photos.empty? %>
+    <div class="text-center py-4">
+      <i class="bi bi-camera text-muted mb-3" style="font-size: 2.5rem;"></i>
+      <h6 class="text-muted mb-1">Aucune photo de suivi</h6>
+      <p class="text-muted small mb-3">Documentez l'avancement de votre chantier avec des photos.</p>
+      <div class="d-flex gap-2 justify-content-center flex-wrap">
+        <% photo_types.each do |type, meta| %>
+          <%= link_to new_project_document_path(@project, type_document: type),
+                class: "btn btn-sm btn-outline-#{meta[:color]}" do %>
+            <i class="bi #{meta[:icon]} me-1"></i><%= meta[:label] %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <!-- Onglets par type -->
+    <ul class="nav nav-pills nav-fill mb-3 gap-1" id="photosTab" role="tablist">
+      <li class="nav-item" role="presentation">
+        <button class="nav-link active py-1 px-2 small" id="all-tab"
+                data-bs-toggle="pill" data-bs-target="#photos-all" type="button">
+          <i class="bi bi-grid me-1"></i>Toutes (<%= @photos.size %>)
+        </button>
+      </li>
+      <% photo_types.each do |type, meta| %>
+        <% count = (@photos_by_type[type] || []).size %>
+        <% next if count == 0 %>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link py-1 px-2 small" id="<%= type %>-tab"
+                  data-bs-toggle="pill" data-bs-target="#photos-<%= type %>" type="button">
+            <i class="bi <%= meta[:icon] %> me-1"></i><%= meta[:label] %> (<%= count %>)
+          </button>
+        </li>
+      <% end %>
+    </ul>
+
+    <div class="tab-content">
+      <!-- Onglet toutes -->
+      <div class="tab-pane fade show active" id="photos-all">
+        <div class="row g-2">
+          <% @photos.first(8).each do |doc| %>
+            <%= render 'projects/partials_general/photo_card', doc: doc, photo_types: photo_types %>
+          <% end %>
+          <% if @photos.size > 8 %>
+            <div class="col-12 text-center mt-2">
+              <%= link_to project_documents_path(@project), class: "btn btn-sm btn-outline-secondary" do %>
+                <i class="bi bi-images me-1"></i>Voir les <%= @photos.size %> photos
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Onglets par type -->
+      <% photo_types.each do |type, meta| %>
+        <% docs = @photos_by_type[type] || [] %>
+        <% next if docs.empty? %>
+        <div class="tab-pane fade" id="photos-<%= type %>">
+          <div class="row g-2">
+            <% docs.each do |doc| %>
+              <%= render 'projects/partials_general/photo_card', doc: doc, photo_types: photo_types %>
+            <% end %>
+          </div>
+          <div class="mt-2">
+            <%= link_to new_project_document_path(@project, type_document: type),
+                  class: "btn btn-sm btn-outline-#{meta[:color]}" do %>
+              <i class="bi bi-plus-lg me-1"></i>Ajouter <%= meta[:label].downcase %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>

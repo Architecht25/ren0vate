@@ -168,6 +168,10 @@ class DocumentsController < ApplicationController
       # Définir le contexte automatiquement
       @document.property = @property if @property
       @document.project = @project if @project
+      # Auto-propager le bien depuis le projet si non défini
+      if @project && @document.property.nil? && @project.property
+        @document.property = @project.property
+      end
       @document.request = @request if @request
       @document.simulation = @simulation if @simulation
 
@@ -254,6 +258,20 @@ class DocumentsController < ApplicationController
     else
       render :edit, status: :unprocessable_entity
     end
+  end
+
+  # GET /documents/photos — Galerie photos de suivi (sidebar section 6)
+  def photos
+    photo_types = %w[photo_avant photo_pendant photo_apres photo_chassis]
+    all_photos = current_user.documents
+                             .where(type_document: photo_types)
+                             .includes(:project, :property)
+                             .order(created_at: :desc)
+
+    # Grouper par projet, puis par photos sans projet
+    @photos_by_project = all_photos.select(&:project_id).group_by(&:project)
+    @photos_no_project = all_photos.reject(&:project_id)
+    @total_photos = all_photos.size
   end
 
   # GET /documents/:id/download
@@ -483,7 +501,7 @@ class DocumentsController < ApplicationController
   end
 
   def document_params
-    params.require(:document).permit(:type_document, :status, :document_source, :file, :file_url, :property_id, :project_id, :request_id, :simulation_id)
+    params.require(:document).permit(:type_document, :status, :document_source, :file, :file_url, :notes, :property_id, :project_id, :request_id, :simulation_id)
   end
 
   def can_access_document?(document)
@@ -525,8 +543,16 @@ class DocumentsController < ApplicationController
     redirect_params[:type_document] = params[:type_document] if params[:type_document].present?
     redirect_params[:filter_phase] = params[:filter_phase] if params[:filter_phase].present?
 
+    photo_types = %w[photo photo_avant photo_pendant photo_apres photo_chassis]
+    came_from_photo_upload = photo_types.include?(params.dig(:document, :type_document))
+
     if @project
-      redirect_to project_documents_path(@project, redirect_params), options
+      # Après upload photo depuis un projet → retour sur la fiche projet (widget photos)
+      if came_from_photo_upload
+        redirect_to project_path(@project), options
+      else
+        redirect_to project_documents_path(@project, redirect_params), options
+      end
     elsif @property
       redirect_to property_documents_path(@property, redirect_params), options
     else

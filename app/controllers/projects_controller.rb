@@ -24,6 +24,9 @@ class ProjectsController < ApplicationController
 
   def show
     @documents = @project.documents.order(created_at: :desc) if @project.documents.respond_to?(:order)
+    photo_types = %w[photo_avant photo_pendant photo_apres photo_chassis]
+    @photos = @project.documents.where(type_document: photo_types).order(created_at: :desc)
+    @photos_by_type = @photos.group_by(&:type_document)
   end
 
   def new

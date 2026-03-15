@@ -1,0 +1,130 @@
+<% photo_types = {
+  'photo_avant'    => { label: 'Avant travaux',   icon: 'bi-clock-history', color: 'secondary' },
+  'photo_pendant'  => { label: 'Pendant travaux',  icon: 'bi-hammer',       color: 'warning'   },
+  'photo_apres'    => { label: 'Après travaux',    icon: 'bi-check-circle', color: 'success'   },
+  'photo_chassis'  => { label: 'Châssis',          icon: 'bi-window',       color: 'info'      }
+} %>
+
+<div class="container-fluid px-4 py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-camera-fill"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">Photos de suivi</h1>
+        <small class="text-muted"><%= @total_photos %> photo<%= 's' if @total_photos != 1 %> au total</small>
+      </div>
+    </div>
+    <%= link_to projects_path, class: "btn btn-outline-secondary" do %>
+      <i class="bi bi-arrow-left me-2"></i>Mes chantiers
+    <% end %>
+  </div>
+
+  <% if @total_photos == 0 %>
+    <!-- État vide -->
+    <div class="text-center py-5">
+      <i class="bi bi-camera text-muted mb-3" style="font-size: 4rem;"></i>
+      <h4 class="text-muted mb-2">Aucune photo de suivi</h4>
+      <p class="text-muted mb-4">Documentez vos chantiers avec des photos avant, pendant et après travaux.</p>
+      <%= link_to projects_path, class: "btn btn-primary-custom" do %>
+        <i class="bi bi-hammer me-2"></i>Aller à mes chantiers
+      <% end %>
+    </div>
+  <% else %>
+    <!-- Photos groupées par projet -->
+    <% @photos_by_project.each do |project, photos| %>
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-light border-0 d-flex align-items-center justify-content-between py-3">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-hammer text-primary-custom me-2"></i>
+            <div>
+              <strong><%= project.nom %></strong>
+              <% if project.property %>
+                <small class="text-muted ms-2">
+                  <i class="bi bi-house me-1"></i><%= project.property.commune.presence || project.property.code_postal %>
+                </small>
+              <% end %>
+            </div>
+            <span class="badge bg-secondary ms-2"><%= photos.size %> photo<%= 's' if photos.size != 1 %></span>
+          </div>
+          <div class="d-flex gap-2">
+            <%= link_to project_path(project), class: "btn btn-sm btn-outline-secondary" do %>
+              <i class="bi bi-eye me-1"></i>Fiche chantier
+            <% end %>
+            <%= link_to new_project_document_path(project, type_document: 'photo_pendant'),
+                  class: "btn btn-sm btn-primary-custom" do %>
+              <i class="bi bi-plus-lg me-1"></i>Ajouter
+            <% end %>
+          </div>
+        </div>
+        <div class="card-body p-3">
+          <div class="row g-2">
+            <% photos.first(12).each do |doc| %>
+              <div class="col-6 col-md-3 col-lg-2">
+                <div class="card border-0 bg-light h-100">
+                  <% if doc.file_url.present? %>
+                    <a href="<%= doc.file_url %>" target="_blank" rel="noopener noreferrer">
+                      <img src="<%= doc.file_url %>"
+                           class="card-img-top"
+                           alt="Photo chantier"
+                           style="height: 100px; object-fit: cover; border-radius: 6px 6px 0 0;">
+                    </a>
+                  <% else %>
+                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 100px;">
+                      <i class="bi bi-image text-muted"></i>
+                    </div>
+                  <% end %>
+                  <div class="p-1">
+                    <% meta = photo_types[doc.type_document] %>
+                    <% if meta %>
+                      <span class="badge bg-<%= meta[:color] %>" style="font-size: 0.6rem;">
+                        <%= meta[:label] %>
+                      </span>
+                    <% end %>
+                    <div class="text-muted mt-1" style="font-size: 0.65rem;">
+                      <%= doc.created_at.strftime('%d/%m/%y') %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+            <% if photos.size > 12 %>
+              <div class="col-6 col-md-3 col-lg-2 d-flex align-items-center justify-content-center">
+                <%= link_to project_documents_path(project), class: "btn btn-outline-secondary btn-sm w-100" do %>
+                  <i class="bi bi-images d-block mb-1" style="font-size: 1.5rem;"></i>
+                  +<%= photos.size - 12 %> autres
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Photos sans projet associé -->
+    <% if @photos_no_project.any? %>
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-light border-0 py-3">
+          <i class="bi bi-image text-muted me-2"></i>
+          <strong>Photos sans chantier associé</strong>
+          <span class="badge bg-secondary ms-2"><%= @photos_no_project.size %></span>
+        </div>
+        <div class="card-body p-3">
+          <div class="row g-2">
+            <% @photos_no_project.each do |doc| %>
+              <div class="col-6 col-md-3 col-lg-2">
+                <% if doc.file_url.present? %>
+                  <a href="<%= doc.file_url %>" target="_blank" rel="noopener noreferrer">
+                    <img src="<%= doc.file_url %>" class="img-fluid rounded" style="height: 100px; width: 100%; object-fit: cover;" alt="Photo">
+                  </a>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+</div>

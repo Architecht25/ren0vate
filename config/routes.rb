@@ -100,6 +100,9 @@ Rails.application.routes.draw do
       get :debug
       get :ocr_view
     end
+    collection do
+      get :photos  # Galerie photos de suivi (sidebar section 6)
+    end
   end
 
   # Routes OCR
