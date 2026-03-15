@@ -305,8 +305,8 @@ document.addEventListener('DOMContentLoaded', function() {
       // Récupérer l'ID de simulation actif
       const simulationId = simulationSelector ? simulationSelector.value : '<%= @simulation&.id %>';
 
-      // Appeler l'API
-      const response = await fetch(`/api/contextual_bot/message`, {
+      // Appeler Claude via l'API (historique géré côté serveur)
+      const response = await fetch(`/api/contextual_bot/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -314,8 +314,8 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         body: JSON.stringify({
           message: question,
-          simulation_id: simulationId,
-          conversation_history: conversationHistory
+          current_page: 'decision_hub',
+          mode: 'expert'
         })
       });
 
@@ -324,15 +324,8 @@ document.addEventListener('DOMContentLoaded', function() {
       // Retirer l'indicateur de chargement
       removeLoadingMessage(loadingId);
 
-      if (data.response) {
-        // Ajouter la réponse de l'IA
-        addAIMessage(data.response);
-
-        // Mettre à jour l'historique
-        conversationHistory.push({
-          question: question,
-          answer: data.response
-        });
+      if (data.response && data.response.content) {
+        addAIMessage(data.response.content);
       } else {
         addAIMessage("Désolé, je n'ai pas pu générer une réponse. Veuillez réessayer.");
       }

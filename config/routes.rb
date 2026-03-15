@@ -33,9 +33,11 @@ Rails.application.routes.draw do
 
   # API routes
     namespace :api do
-      # API Bot Contextuel
-      post 'contextual_bot/chat', to: 'contextual_bot#chat'
-      post 'contextual_bot/suggestions', to: 'contextual_bot#suggestions'
+      # API Bot Contextuel (Claude)
+      post 'contextual_bot/chat',          to: 'contextual_bot#chat'
+      post 'contextual_bot/suggestions',   to: 'contextual_bot#suggestions'
+      post 'contextual_bot/message',       to: 'contextual_bot#chat'       # alias pour decision_hub/expert
+      post 'contextual_bot/clear_history', to: 'contextual_bot#clear_history'
 
       # API pour génération d'aperçus PDF asynchrones
       post 'pdf_preview/:id/generate', to: 'pdf_preview#generate', as: 'generate_pdf_preview'      # API pour les primes communales Flandre

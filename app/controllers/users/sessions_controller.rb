@@ -1,10 +1,18 @@
 class Users::SessionsController < Devise::SessionsController
   # Surcharge de la méthode après connexion pour forcer la redirection vers le dashboard
 
-  # Après déconnexion : forcer le navigateur à vider SON cache HTTP pour ce domaine.
-  # Clear-Site-Data: "cache" est le standard W3C — empêche qu'un autre utilisateur
-  # voit des pages en cache appartenant à la session précédente.
+  # Après connexion : vider l'historique de l'ancienne session avant de créer la nouvelle
+  def create
+    super
+  end
+
+  # Après déconnexion : vider l'historique IA + forcer le navigateur à purger son cache HTTP
   def respond_to_on_destroy
+    # Vider l'historique Claude pour cet utilisateur
+    if current_user
+      cache_key = "chat_history_#{current_user.id}_#{session.id}"
+      Rails.cache.delete(cache_key)
+    end
     response.headers['Clear-Site-Data'] = '"cache"'
     super
   end

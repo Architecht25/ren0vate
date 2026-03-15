@@ -18,7 +18,7 @@ gem "simple_form"
 gem "sassc-rails"
 gem "turbo-rails"
 gem "dotenv-rails"
-gem "ruby-openai"
+# OpenAI remplacé par Claude (Anthropic) — appels via httparty
 gem "cloudinary"
 gem "devise"
 gem "httparty"

@@ -320,6 +320,26 @@ export default class extends Controller {
     this.sendMessage()
   }
 
+  async clearHistory() {
+    try {
+      await fetch('/api/contextual_bot/clear_history', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+        }
+      })
+    } catch (e) {
+      // silencieux — on vide quand même l'affichage
+    }
+
+    // Vider les messages affichés et réafficher le message de bienvenue
+    if (this.hasMessagesTarget) {
+      this.messagesTarget.innerHTML = ''
+    }
+    this.addWelcomeMessage()
+  }
+
   handleBotToggle() {
     // Quand le chat s'ouvre, focus sur l'input
     const chatContainer = document.getElementById('bot-chat-container')
