@@ -5,6 +5,10 @@ class Project < ApplicationRecord
   has_many :documents, dependent: :destroy
   has_many :simulations, dependent: :destroy  # Ajouter cette ligne
 
+  # Collaboration — membres du projet
+  has_many :project_members, dependent: :destroy
+  has_many :member_users, through: :project_members, source: :user
+
   # Relations pour les factures
   has_many :factures, dependent: :destroy
   has_many :factures_devis, -> { where(type_facture: 'devis') }, class_name: 'Facture'

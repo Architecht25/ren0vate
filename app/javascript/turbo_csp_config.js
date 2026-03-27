@@ -1,13 +1,12 @@
 // Vider le cache Turbo AVANT chaque navigation pour éviter la fuite de données cross-user.
 // turbo:before-visit s'exécute avant que Turbo affiche un snapshot.
-// NOTE: L'API correcte en turbo-rails 2.x est Turbo.clearCache() — pas Turbo.cache.clear()
 function clearTurboCache() {
   try {
     if (typeof Turbo !== 'undefined') {
-      if (typeof Turbo.clearCache === 'function') {
-        Turbo.clearCache()
-      } else if (Turbo.cache && typeof Turbo.cache.clear === 'function') {
+      if (Turbo.cache && typeof Turbo.cache.clear === 'function') {
         Turbo.cache.clear()
+      } else if (typeof Turbo.clearCache === 'function') {
+        Turbo.clearCache()
       }
     }
   } catch(e) {

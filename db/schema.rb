@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_15_182459) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_27_123546) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -286,6 +286,24 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_15_182459) do
     t.integer "ordre_affichage"
     t.json "statut_compatible"
     t.index ["slug"], name: "index_primes_on_slug"
+  end
+
+  create_table "project_members", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "user_id", null: false
+    t.string "role", null: false
+    t.string "status", default: "pending", null: false
+    t.string "invite_token"
+    t.string "invited_email"
+    t.datetime "invite_sent_at"
+    t.datetime "accepted_at"
+    t.datetime "invite_expires_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["invite_token"], name: "index_project_members_on_invite_token", unique: true, where: "(invite_token IS NOT NULL)"
+    t.index ["project_id", "user_id"], name: "index_project_members_on_project_id_and_user_id", unique: true
+    t.index ["project_id"], name: "index_project_members_on_project_id"
+    t.index ["user_id"], name: "index_project_members_on_user_id"
   end
 
   create_table "projects", force: :cascade do |t|
@@ -652,6 +670,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_15_182459) do
   add_foreign_key "prime_submissions", "properties"
   add_foreign_key "prime_submissions", "users"
   add_foreign_key "primes", "categories"
+  add_foreign_key "project_members", "projects"
+  add_foreign_key "project_members", "users"
   add_foreign_key "projects", "properties"
   add_foreign_key "projects", "users"
   add_foreign_key "properties", "users"

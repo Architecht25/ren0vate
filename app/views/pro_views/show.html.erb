@@ -1,0 +1,325 @@
+<%# app/views/pro_views/show.html.erb %>
+<%# Dashboard professionnel — vue adaptée selon @membership.role %>
+
+<% content_for :title, "#{@membership.role_label} — #{@project.name} — Ren0vate" %>
+
+<div class="container-fluid py-4 px-3 px-md-4" style="max-width:960px;">
+
+  <%# ── En-tête projet ──────────────────────────── %>
+  <div class="card border-0 shadow-sm rounded-3 mb-4"
+       style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);color:white;">
+    <div class="card-body px-4 py-3">
+      <div class="d-flex align-items-center gap-3">
+        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+             style="width:48px;height:48px;background:rgba(255,255,255,0.15);">
+          <% if @membership.role == 'entrepreneur' %>
+            <i class="bi bi-hammer" style="font-size:1.3rem;"></i>
+          <% else %>
+            <i class="bi bi-building" style="font-size:1.3rem;"></i>
+          <% end %>
+        </div>
+        <div>
+          <div style="font-size:0.75rem;opacity:0.7;text-transform:uppercase;letter-spacing:0.05em;">
+            <%= @membership.role_label %>
+          </div>
+          <h1 class="mb-0 fw-semibold" style="font-size:1.25rem;"><%= @project.name %></h1>
+          <% if @property %>
+            <div style="font-size:0.85rem;opacity:0.75;">
+              <i class="bi bi-geo-alt me-1"></i>
+              <%= @property.try(:adresse) || @property.try(:address) || "" %>
+              ·
+              Propriétaire : <%= @project.user.full_name %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+
+    <%# ── Colonne principale ──────────────────────── %>
+    <div class="col-lg-8">
+
+      <%# SCOPE DES TRAVAUX ── %>
+      <div class="card border-0 shadow-sm rounded-3 mb-3">
+        <div class="card-header bg-white border-bottom pt-3 pb-2 px-4">
+          <h5 class="mb-0 fw-semibold" style="font-size:0.95rem;">
+            <i class="bi bi-list-check me-2 text-primary"></i>Scope des travaux (estimatif client)
+          </h5>
+        </div>
+        <div class="card-body px-4 py-3">
+          <% if @quote&.quote_items&.any? %>
+            <table class="table table-sm mb-0" style="font-size:0.85rem;">
+              <thead>
+                <tr class="text-muted" style="font-size:0.78rem;">
+                  <th class="fw-normal ps-0">Poste de travaux</th>
+                  <% if @membership.full_financial_access? || @membership.role == 'architect' %>
+                    <th class="fw-normal text-end">Fourchette</th>
+                  <% end %>
+                </tr>
+              </thead>
+              <tbody>
+                <% @quote.quote_items.each do |item| %>
+                  <tr>
+                    <td class="ps-0">
+                      <i class="bi bi-check-circle-fill text-success me-1" style="font-size:0.7rem;"></i>
+                      <%= item.work_type&.name || item.work_type_key.humanize %>
+                      <% if item.quantity && item.unit %>
+                        <span class="text-muted ms-1" style="font-size:0.75rem;">
+                          <%= item.quantity %> <%= item.unit %>
+                        </span>
+                      <% end %>
+                    </td>
+                    <% if @membership.full_financial_access? || @membership.role == 'architect' %>
+                      <td class="text-end text-muted" style="white-space:nowrap;">
+                        <% min_p = item.try(:unit_price_min) || item.try(:total_min) %>
+                        <% max_p = item.try(:unit_price_max) || item.try(:total_max) %>
+                        <% if min_p && max_p %>
+                          <%= number_to_currency(min_p, unit: "€", format: "%n %u") %> –
+                          <%= number_to_currency(max_p, unit: "€", format: "%n %u") %>
+                        <% elsif item.try(:total_price) %>
+                          <%= number_to_currency(item.total_price, unit: "€", format: "%n %u") %>
+                        <% end %>
+                      </td>
+                    <% end %>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+            <% if @membership.full_financial_access? %>
+              <% total_min = @quote.quote_items.sum { |i| i.try(:total_min).to_f } %>
+              <% total_max = @quote.quote_items.sum { |i| i.try(:total_max).to_f } %>
+              <% if total_min > 0 || total_max > 0 %>
+                <hr class="my-2">
+                <div class="d-flex justify-content-between fw-semibold" style="font-size:0.88rem;">
+                  <span>Fourchette totale</span>
+                  <span class="text-primary">
+                    <%= number_to_currency(total_min, unit: "€", format: "%n %u") %> –
+                    <%= number_to_currency(total_max, unit: "€", format: "%n %u") %>
+                  </span>
+                </div>
+              <% end %>
+            <% end %>
+          <% else %>
+            <p class="text-muted mb-0" style="font-size:0.85rem;">
+              <i class="bi bi-info-circle me-1"></i>Aucun devis estimatif disponible pour l'instant.
+            </p>
+          <% end %>
+        </div>
+      </div>
+
+      <%# UPLOAD DEVIS (entrepreneur uniquement) ── %>
+      <% if @membership.can_upload_quote? %>
+        <div class="card border-0 shadow-sm rounded-3 mb-3">
+          <div class="card-header bg-white border-bottom pt-3 pb-2 px-4">
+            <h5 class="mb-0 fw-semibold" style="font-size:0.95rem;">
+              <i class="bi bi-upload me-2 text-warning"></i>Votre devis
+            </h5>
+          </div>
+          <div class="card-body px-4 py-3">
+            <% entrepreneur_factures = @factures&.select { |f| f.type_facture == 'devis' } || [] %>
+            <% if entrepreneur_factures.any? %>
+              <% entrepreneur_factures.each do |f| %>
+                <div class="d-flex align-items-center gap-2 mb-2 p-2 bg-light rounded">
+                  <i class="bi bi-file-earmark-pdf text-danger" style="font-size:1.2rem;"></i>
+                  <div class="flex-grow-1">
+                    <div class="fw-medium" style="font-size:0.85rem;"><%= f.nom_fichier || "Devis" %></div>
+                    <div class="text-muted" style="font-size:0.75rem;">
+                      <%= f.montant_ttc ? number_to_currency(f.montant_ttc, unit: "€", format: "%n %u") : "" %>
+                      · Uploadé le <%= f.created_at.strftime("%d/%m/%Y") %>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            <% end %>
+
+            <%= form_with url: upload_facture_project_path(@project), method: :post,
+                          multipart: true, class: "mt-2" do |f| %>
+              <%= hidden_field_tag :type_facture, 'devis' %>
+              <div class="row g-2 align-items-end">
+                <div class="col-md-5">
+                  <%= label_tag :facture_pdf, "Fichier PDF / image", class: "form-label", style: "font-size:0.82rem;" %>
+                  <%= file_field_tag :facture_pdf, class: "form-control form-control-sm", accept: ".pdf,.jpg,.jpeg,.png" %>
+                </div>
+                <div class="col-md-3">
+                  <%= label_tag :montant_ttc, "Montant TTC (€)", class: "form-label", style: "font-size:0.82rem;" %>
+                  <%= number_field_tag :montant_ttc, nil, class: "form-control form-control-sm", placeholder: "Ex: 12500", min: 0, step: 0.01 %>
+                </div>
+                <div class="col-md-4">
+                  <%= f.submit "Envoyer mon devis", class: "btn btn-warning btn-sm w-100", style: "font-size:0.82rem;" %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <%# VALIDATION ÉTAPES (architecte) ── %>
+      <% if @membership.can_validate_step? && @membership.role == 'architect' %>
+        <div class="card border-0 shadow-sm rounded-3 mb-3">
+          <div class="card-header bg-white border-bottom pt-3 pb-2 px-4">
+            <h5 class="mb-0 fw-semibold" style="font-size:0.95rem;">
+              <i class="bi bi-check2-square me-2 text-success"></i>Validation des étapes chantier
+            </h5>
+          </div>
+          <div class="card-body px-4 py-3">
+            <%
+              phases = [
+                { key: 'phase_preparation',  label: 'Phase 1 — Préparation' },
+                { key: 'phase_demolition',   label: 'Phase 2 — Démolition' },
+                { key: 'phase_installation', label: 'Phase 3 — Installation / Travaux' },
+                { key: 'phase_finition',     label: 'Phase 4 — Finition' },
+                { key: 'phase_reception',    label: 'Phase 5 — Réception des travaux' }
+              ]
+            %>
+            <% phases.each do |phase| %>
+              <% validated = @project.try(phase[:key]) %>
+              <div class="d-flex align-items-center justify-content-between mb-2 p-2 rounded
+                           <%= validated ? 'bg-success-subtle' : 'bg-light' %>">
+                <div class="d-flex align-items-center gap-2">
+                  <% if validated %>
+                    <i class="bi bi-check-circle-fill text-success"></i>
+                  <% else %>
+                    <i class="bi bi-circle text-muted"></i>
+                  <% end %>
+                  <span style="font-size:0.85rem;" class="<%= validated ? 'text-success fw-medium' : '' %>">
+                    <%= phase[:label] %>
+                  </span>
+                </div>
+                <%# Future action : patch project phase via PATCH %>
+              </div>
+            <% end %>
+            <p class="text-muted mb-0 mt-2" style="font-size:0.78rem;">
+              <i class="bi bi-info-circle me-1"></i>La validation interactive des étapes sera activée prochainement.
+            </p>
+          </div>
+        </div>
+      <% end %>
+
+    </div>
+
+    <%# ── Colonne latérale ────────────────────────── %>
+    <div class="col-lg-4">
+
+      <%# FICHE BIEN ── %>
+      <% if @property %>
+        <div class="card border-0 shadow-sm rounded-3 mb-3">
+          <div class="card-header bg-white border-bottom pt-3 pb-2 px-4">
+            <h5 class="mb-0 fw-semibold" style="font-size:0.9rem;">
+              <i class="bi bi-house me-2 text-primary"></i>Fiche bien
+            </h5>
+          </div>
+          <div class="card-body px-4 py-3" style="font-size:0.82rem;">
+            <dl class="row mb-0">
+              <% if @property.try(:type_bien).present? %>
+                <dt class="col-6 text-muted fw-normal">Type</dt>
+                <dd class="col-6"><%= @property.type_bien.humanize rescue @property.type_bien %></dd>
+              <% end %>
+              <% if @property.try(:annee_construction).present? %>
+                <dt class="col-6 text-muted fw-normal">Année</dt>
+                <dd class="col-6"><%= @property.annee_construction %></dd>
+              <% end %>
+              <% if @property.try(:superficie).present? %>
+                <dt class="col-6 text-muted fw-normal">Surface</dt>
+                <dd class="col-6"><%= @property.superficie %> m²</dd>
+              <% end %>
+              <% if @property.try(:region).present? %>
+                <dt class="col-6 text-muted fw-normal">Région</dt>
+                <dd class="col-6"><%= @property.region.capitalize %></dd>
+              <% end %>
+              <% if @property.try(:code_postal).present? %>
+                <dt class="col-6 text-muted fw-normal">Code postal</dt>
+                <dd class="col-6"><%= @property.code_postal %></dd>
+              <% end %>
+            </dl>
+          </div>
+        </div>
+      <% end %>
+
+      <%# PHOTOS ── %>
+      <div class="card border-0 shadow-sm rounded-3 mb-3">
+        <div class="card-header bg-white border-bottom pt-3 pb-2 px-4 d-flex justify-content-between align-items-center">
+          <h5 class="mb-0 fw-semibold" style="font-size:0.9rem;">
+            <i class="bi bi-images me-2 text-info"></i>Photos (<%= @photos.count %>)
+          </h5>
+          <%= link_to project_documents_path(@project), class: "btn btn-outline-secondary btn-sm py-0",
+                      style: "font-size:0.75rem;" do %>
+            Voir tout
+          <% end %>
+        </div>
+        <div class="card-body px-3 py-2">
+          <% if @photos.any? %>
+            <div class="row g-1">
+              <% @photos.first(6).each do |photo| %>
+                <div class="col-4">
+                  <div class="rounded overflow-hidden" style="aspect-ratio:1;background:#eee;">
+                    <% has_photo = begin; photo.respond_to?(:blob) ? photo.blob.present? : photo.attachment.present?; rescue; false; end %>
+                    <% if has_photo %>
+                      <%= image_tag rails_blob_path(photo, only_path: true), class: "w-100 h-100", style: "object-fit:cover;" rescue nil %>
+                    <% else %>
+                      <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light">
+                        <i class="bi bi-image text-muted"></i>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <p class="text-muted mb-0" style="font-size:0.82rem;">Aucune photo pour l'instant.</p>
+          <% end %>
+          <div class="mt-2">
+            <%= link_to new_project_document_path(@project, type_document: 'photo_pendant'),
+                  class: "btn btn-outline-info btn-sm w-100", style: "font-size:0.8rem;" do %>
+              <i class="bi bi-camera me-1"></i>+ Ajouter une photo
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <%# MEMBRES DU PROJET ── %>
+      <div class="card border-0 shadow-sm rounded-3 mb-3">
+        <div class="card-header bg-white border-bottom pt-3 pb-2 px-4">
+          <h5 class="mb-0 fw-semibold" style="font-size:0.9rem;">
+            <i class="bi bi-people me-2 text-secondary"></i>Équipe projet
+          </h5>
+        </div>
+        <div class="card-body px-4 py-2">
+          <%# Propriétaire %>
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center flex-shrink-0"
+                 style="width:30px;height:30px;">
+              <i class="bi bi-house-fill text-primary" style="font-size:0.7rem;"></i>
+            </div>
+            <div>
+              <div class="fw-medium" style="font-size:0.82rem;"><%= @project.user.full_name %></div>
+              <div class="text-muted" style="font-size:0.72rem;">Propriétaire</div>
+            </div>
+          </div>
+          <% @members.each do |m| %>
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <div class="rounded-circle bg-light d-flex align-items-center justify-content-center flex-shrink-0"
+                   style="width:30px;height:30px;">
+                <i class="bi bi-person text-muted" style="font-size:0.7rem;"></i>
+              </div>
+              <div>
+                <div class="fw-medium" style="font-size:0.82rem;"><%= m.user.full_name.presence || m.invited_email %></div>
+                <div class="text-muted" style="font-size:0.72rem;"><%= m.role_label %></div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <%# RETOUR AU PROJET (pour propriétaires uniquement) %>
+      <% if @project.user_id == current_user.id %>
+        <%= link_to project_path(@project), class: "btn btn-outline-secondary btn-sm w-100 mb-2",
+                    style: "font-size:0.82rem;" do %>
+          <i class="bi bi-arrow-left me-1"></i>Vue propriétaire complète
+        <% end %>
+      <% end %>
+
+    </div>
+  </div>
+</div>

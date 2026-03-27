@@ -34,15 +34,10 @@ Rails.application.configure do
   # Store uploaded files on Cloudinary for development (same as production)
   config.active_storage.service = :cloudinary
 
-  # Configuration mailer pour développement - utilisation de Mailcatcher
+  # Configuration mailer pour développement - letter_opener ouvre les emails dans le navigateur
   config.action_mailer.raise_delivery_errors = true
   config.action_mailer.perform_deliveries = true
-  config.action_mailer.delivery_method = :smtp
-  config.action_mailer.smtp_settings = {
-    address: 'localhost',
-    port: 1025,
-    domain: 'localhost'
-  }
+  config.action_mailer.delivery_method = :letter_opener_web
 
   # Make template changes take effect immediately.
   config.action_mailer.perform_caching = false

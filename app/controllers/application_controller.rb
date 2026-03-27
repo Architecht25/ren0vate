@@ -148,9 +148,7 @@ class ApplicationController < ActionController::Base
   end
 
   def after_sign_in_path_for(resource)
-    # Rediriger vers le dashboard après connexion au lieu de la page d'accueil
-    # On ignore stored_location_for pour forcer le dashboard
-    dashboard_path
+    stored_location_for(resource) || dashboard_path
   end
 
   def after_sign_up_path_for(resource)

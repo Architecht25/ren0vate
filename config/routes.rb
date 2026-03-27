@@ -2,6 +2,11 @@ Rails.application.routes.draw do
   # Routes ActionMailbox pour la réception d'emails
   mount ActionMailbox::Engine => '/rails/action_mailbox'
 
+  # Boîte aux lettres de dev — accessible sur /letter_opener
+  if Rails.env.development?
+    mount LetterOpenerWeb::Engine, at: "/letter_opener"
+  end
+
   # Redirections pour les anciennes routes Devise vers les nouvelles avec locale
   get '/inscription', to: redirect('/fr/users/inscription')
   get '/connexion', to: redirect('/fr/users/connexion')
@@ -190,7 +195,18 @@ Rails.application.routes.draw do
 
     # Planning / Gantt
     get :gantt, on: :member
+
+    # Collaboration — vue pro & invitations
+    get  :pro_view,       to: 'pro_views#show',         on: :member
+    post :invite,         to: 'pro_views#invite',        on: :member
+    delete 'members/:member_id', to: 'pro_views#remove_member', on: :member, as: :remove_member
   end
+
+  # Acceptation invitations (lien email, sans authentification requise)
+  get  'invitations/:token',            to: 'invitations#show',            as: :invitation
+  post 'invitations/:token/accept',     to: 'invitations#accept',          as: :accept_invitation
+  get  'invitations/:token/onboarding', to: 'invitations#new_onboarding',  as: :new_onboarding_invitation
+  post 'invitations/:token/onboarding', to: 'invitations#create_onboarding'
 
   # Routes pour les demandes
   resources :requests

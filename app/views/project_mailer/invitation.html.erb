@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invitation sur le projet <%= @project.name %></title>
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { background: linear-gradient(135deg, #0d6efd, #0a58ca); color: white; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0; }
+      .header h1 { margin: 0; font-size: 1.4em; }
+      .header .subtitle { margin-top: 8px; opacity: 0.85; font-size: 0.95em; }
+      .content { background-color: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+      .project-card { background: white; border-radius: 8px; padding: 20px; margin: 20px 0; border-left: 4px solid #0d6efd; }
+      .role-badge { display: inline-block; background: #e7f1ff; color: #0d6efd; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9em; }
+      .btn { display: inline-block; padding: 14px 28px; background-color: #0d6efd; color: white !important; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px; font-size: 1.05em; }
+      .expiry { font-size: 0.85em; color: #6c757d; margin-top: 12px; }
+      .footer { text-align: center; margin-top: 20px; font-size: 0.85em; color: #6c757d; }
+      .divider { border: none; border-top: 1px solid #dee2e6; margin: 20px 0; }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>🏗️ Invitation sur un projet Ren0vate</h1>
+      <div class="subtitle">Vous êtes invité(e) à collaborer</div>
+    </div>
+
+    <div class="content">
+      <p>Bonjour,</p>
+
+      <p><strong><%= @invited_by.full_name %></strong> vous invite à rejoindre son projet de rénovation en tant que <span class="role-badge"><%= @role_label %></span>.</p>
+
+      <div class="project-card">
+        <strong>📁 Projet :</strong> <%= @project.name %><br>
+        <% if @property %>
+          <strong>📍 Adresse :</strong> <%= @property.address_display rescue @property.adresse %><br>
+        <% end %>
+        <strong>👤 Invité par :</strong> <%= @invited_by.full_name %>
+      </div>
+
+      <% if @member.role == 'entrepreneur' %>
+        <p>En tant qu'<strong>entrepreneur</strong>, vous pourrez :</p>
+        <ul>
+          <li>📋 Consulter le scope des travaux estimatif</li>
+          <li>📤 Uploader votre devis</li>
+          <li>💬 Communiquer via la messagerie du projet</li>
+          <li>📸 Partager des photos de chantier</li>
+        </ul>
+      <% elsif @member.role == 'architect' %>
+        <p>En tant qu'<strong>architecte</strong>, vous pourrez :</p>
+        <ul>
+          <li>📋 Consulter le planning et les travaux</li>
+          <li>✅ Valider les étapes du chantier</li>
+          <li>💬 Communiquer via la messagerie du projet</li>
+          <li>📸 Partager des photos et documents techniques</li>
+        </ul>
+      <% end %>
+
+      <center>
+        <%= link_to "Accepter l'invitation", @accept_url, class: "btn" %>
+      </center>
+
+      <p class="expiry">⏱️ Ce lien est valable jusqu'au <strong><%= @expires_at.strftime("%d/%m/%Y à %H:%M") rescue "7 jours" %></strong>.</p>
+
+      <hr class="divider">
+      <p style="font-size: 0.9em; color: #666;">Si vous n'avez pas de compte Ren0vate, vous serez guidé(e) pour en créer un rapidement.</p>
+      <p>À bientôt,<br><strong>L'équipe Ren0vate</strong></p>
+    </div>
+
+    <div class="footer">
+      <p>Ren0vate — Votre assistant rénovation intelligent en Belgique</p>
+      <p style="font-size: 0.8em;">Si vous ne connaissez pas cette personne, ignorez simplement cet email.</p>
+    </div>
+  </body>
+</html>

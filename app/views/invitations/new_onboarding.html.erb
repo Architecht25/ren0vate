@@ -1,0 +1,77 @@
+<%# app/views/invitations/new_onboarding.html.erb %>
+<%# Formulaire d'inscription simplifié pour les pros invités sans compte %>
+
+<div class="container py-5" style="max-width:480px;">
+  <div class="card border-0 shadow-sm rounded-3">
+    <div class="card-header bg-white border-bottom pt-4 pb-0 px-4">
+      <div class="text-center mb-3">
+        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+             style="width:56px;height:56px;background:linear-gradient(135deg,#0d6efd,#6610f2);">
+          <i class="bi bi-person-plus text-white" style="font-size:1.4rem;"></i>
+        </div>
+        <h4 class="fw-semibold mb-1">Rejoindre le projet</h4>
+        <p class="text-muted mb-0" style="font-size:0.88rem;">
+          Créez votre compte pour accéder au projet
+          <strong><%= @member.project.name %></strong>
+          en tant que <strong><%= @member.role_label %></strong>.
+        </p>
+      </div>
+    </div>
+
+    <div class="card-body px-4 py-4">
+      <%= form_with url: new_onboarding_invitation_path(@member.invite_token),
+                    method: :post, class: "needs-validation" do |f| %>
+
+        <div class="row g-3">
+          <div class="col-6">
+            <%= label_tag "user[first_name]", "Prénom", class: "form-label", style: "font-size:0.85rem;" %>
+            <%= text_field_tag "user[first_name]", nil,
+                  class: "form-control form-control-sm",
+                  placeholder: "Jean",
+                  required: true %>
+          </div>
+          <div class="col-6">
+            <%= label_tag "user[last_name]", "Nom", class: "form-label", style: "font-size:0.85rem;" %>
+            <%= text_field_tag "user[last_name]", nil,
+                  class: "form-control form-control-sm",
+                  placeholder: "Dupont",
+                  required: true %>
+          </div>
+          <div class="col-12">
+            <%= label_tag :email_display, "Email", class: "form-label", style: "font-size:0.85rem;" %>
+            <input type="email" class="form-control form-control-sm"
+                   value="<%= @member.invited_email %>" disabled>
+          </div>
+          <div class="col-12">
+            <%= label_tag "user[password]", "Mot de passe", class: "form-label", style: "font-size:0.85rem;" %>
+            <%= password_field_tag "user[password]", nil,
+                  class: "form-control form-control-sm",
+                  placeholder: "8 caractères minimum",
+                  required: true,
+                  minlength: 8 %>
+          </div>
+          <div class="col-12">
+            <%= label_tag "user[password_confirmation]", "Confirmer le mot de passe",
+                  class: "form-label", style: "font-size:0.85rem;" %>
+            <%= password_field_tag "user[password_confirmation]", nil,
+                  class: "form-control form-control-sm",
+                  required: true,
+                  minlength: 8 %>
+          </div>
+        </div>
+
+        <% if @member.errors.any? %>
+          <div class="alert alert-danger mt-3 py-2" style="font-size:0.82rem;">
+            <% @member.errors.full_messages.each do |msg| %>
+              <div><i class="bi bi-exclamation-circle me-1"></i><%= msg %></div>
+            <% end %>
+          </div>
+        <% end %>
+
+        <button type="submit" class="btn btn-primary w-100 mt-3 fw-semibold">
+          <i class="bi bi-check2-circle me-2"></i>Créer mon compte et rejoindre le projet
+        </button>
+      <% end %>
+    </div>
+  </div>
+</div>

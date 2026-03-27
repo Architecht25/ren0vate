@@ -1,0 +1,72 @@
+<%# app/views/invitations/show.html.erb %>
+<%# Page intermédiaire — le pro voit le projet et clique "Accepter" %>
+
+<% content_for :title, "Invitation — #{@member.project.name} — Ren0vate" %>
+
+<div class="container py-5" style="max-width:520px;">
+  <div class="card border-0 shadow-sm rounded-3">
+
+    <div class="card-header border-0 text-white pt-4 pb-3 px-4 rounded-top-3"
+         style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);">
+      <div class="d-flex align-items-center gap-3">
+        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+             style="width:48px;height:48px;background:rgba(255,255,255,0.15);">
+          <i class="bi bi-people" style="font-size:1.3rem;"></i>
+        </div>
+        <div>
+          <h4 class="mb-0 fw-semibold" style="font-size:1.1rem;">Invitation à collaborer</h4>
+          <p class="mb-0 opacity-75" style="font-size:0.82rem;">Ren0vate — Plateforme de rénovation</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body px-4 py-4">
+
+      <p class="text-muted mb-3" style="font-size:0.88rem;">
+        <strong><%= @member.project.user.full_name %></strong> vous invite à rejoindre son projet en tant que
+        <% badge = @member.role == 'entrepreneur' ? 'warning' : 'info' %>
+        <span class="badge bg-<%= badge %>-subtle text-<%= badge %>-emphasis fw-semibold">
+          <%= @member.role == 'entrepreneur' ? '🔨' : '🏛️' %> <%= @member.role_label %>
+        </span>
+      </p>
+
+      <div class="rounded-3 p-3 mb-4" style="background:#f0f4ff;border-left:4px solid #0d6efd;">
+        <div class="fw-semibold mb-1">📁 <%= @member.project.name %></div>
+        <% if @member.project.property %>
+          <div class="text-muted" style="font-size:0.82rem;">
+            <i class="bi bi-geo-alt me-1"></i>
+            <%= @member.project.property.try(:adresse) || @member.project.property.try(:address) %>
+          </div>
+        <% end %>
+        <div class="text-muted mt-1" style="font-size:0.78rem;">
+          <i class="bi bi-clock me-1"></i>
+          Invitation valable jusqu'au <strong><%= @member.invite_expires_at&.strftime("%d/%m/%Y") %></strong>
+        </div>
+      </div>
+
+      <% if @member.role == 'entrepreneur' %>
+        <ul class="list-unstyled mb-4" style="font-size:0.85rem;">
+          <li class="mb-1"><i class="bi bi-check2-circle text-success me-2"></i>Consulter le scope des travaux</li>
+          <li class="mb-1"><i class="bi bi-check2-circle text-success me-2"></i>Uploader votre devis</li>
+          <li class="mb-1"><i class="bi bi-check2-circle text-success me-2"></i>Messagerie & photos chantier</li>
+        </ul>
+      <% else %>
+        <ul class="list-unstyled mb-4" style="font-size:0.85rem;">
+          <li class="mb-1"><i class="bi bi-check2-circle text-success me-2"></i>Consulter le planning et les travaux</li>
+          <li class="mb-1"><i class="bi bi-check2-circle text-success me-2"></i>Valider les étapes du chantier</li>
+          <li class="mb-1"><i class="bi bi-check2-circle text-success me-2"></i>Messagerie & documents techniques</li>
+        </ul>
+      <% end %>
+
+      <%= button_to accept_invitation_path(token: @member.invite_token),
+            method: :post,
+            class: "btn btn-primary w-100 fw-semibold py-2" do %>
+        <i class="bi bi-check2-circle me-2"></i>Accepter l'invitation et accéder au projet
+      <% end %>
+
+      <p class="text-center text-muted mt-3 mb-0" style="font-size:0.78rem;">
+        Si vous ne connaissez pas cette personne, ignorez simplement cette page.
+      </p>
+    </div>
+  </div>
+</div>

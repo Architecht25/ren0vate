@@ -23,6 +23,10 @@ class User < ApplicationRecord
   has_many :documents, dependent: :destroy
   has_many :subscriptions, dependent: :destroy
 
+  # Collaboration — projets dont l'utilisateur est membre (pro invité)
+  has_many :project_members, dependent: :destroy
+  has_many :member_projects, through: :project_members, source: :project
+
   belongs_to :last_active_simulation, class_name: "Simulation", optional: true
 
   # Validation pour la langue préférée
