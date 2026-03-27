@@ -52,11 +52,11 @@
   </div>
 
   <!-- ─── Rangée 1 : KPI chips ──────────────────────────────────────── -->
-  <div class="row g-3 mb-4">
+  <div class="row g-3 mb-5">
 
     <!-- Statut -->
     <div class="col-6 col-md-3">
-      <div class="card border-0 shadow-sm h-100">
+      <div class="card border border-2 rounded-4 h-100">
         <div class="card-body p-3 d-flex align-items-center gap-3">
           <div class="rounded-3 p-2 flex-shrink-0" style="background:#e8f4f8;">
             <i class="bi bi-activity fs-5 text-primary"></i>
@@ -83,7 +83,7 @@
 
     <!-- Période -->
     <div class="col-6 col-md-3">
-      <div class="card border-0 shadow-sm h-100">
+      <div class="card border border-2 rounded-4 h-100">
         <div class="card-body p-3 d-flex align-items-center gap-3">
           <div class="rounded-3 p-2 flex-shrink-0" style="background:#f0fdf4;">
             <i class="bi bi-calendar-range fs-5 text-success"></i>
@@ -109,7 +109,7 @@
 
     <!-- Budget -->
     <div class="col-6 col-md-3">
-      <div class="card border-0 shadow-sm h-100">
+      <div class="card border border-2 rounded-4 h-100">
         <div class="card-body p-3 d-flex align-items-center gap-3">
           <div class="rounded-3 p-2 flex-shrink-0" style="background:#fff7ed;">
             <i class="bi bi-currency-euro fs-5 text-warning"></i>
@@ -134,7 +134,7 @@
 
     <!-- Factures -->
     <div class="col-6 col-md-3">
-      <div class="card border-0 shadow-sm h-100">
+      <div class="card border border-2 rounded-4 h-100">
         <div class="card-body p-3 d-flex align-items-center gap-3">
           <div class="rounded-3 p-2 flex-shrink-0" style="background:#fdf4ff;">
             <i class="bi bi-receipt fs-5 text-purple" style="color:#7c3aed;"></i>
@@ -154,15 +154,21 @@
   </div>
 
   <!-- ─── Rangée 2 : Infos | Budget | Éligibilité ───────────────────── -->
-  <div class="row g-3 mb-4">
+  <div class="row g-3 mb-5">
 
     <!-- Infos générales -->
     <div class="col-lg-4">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-header bg-white border-bottom py-3">
-          <h6 class="mb-0 fw-semibold text-primary-custom">
-            <i class="bi bi-info-circle me-2"></i>Informations générales
-          </h6>
+      <div class="card border border-2 rounded-4 h-100">
+        <div class="card-header bg-white border-0 py-3">
+          <div class="d-flex align-items-center">
+            <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;flex-shrink:0;">
+              <i class="bi bi-info-circle text-white fs-6"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0 text-dark fw-normal" style="font-size:0.95rem;">Informations générales</h5>
+              <p class="text-muted mb-0" style="font-size:0.75rem;">Détails du chantier</p>
+            </div>
+          </div>
         </div>
         <div class="card-body p-3">
           <% if @project.property.present? %>
@@ -217,11 +223,17 @@
 
     <!-- Suivi budgétaire -->
     <div class="col-lg-4">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-header bg-white border-bottom py-3">
-          <h6 class="mb-0 fw-semibold text-primary-custom">
-            <i class="bi bi-calculator me-2"></i>Suivi budgétaire
-          </h6>
+      <div class="card border border-2 rounded-4 h-100">
+        <div class="card-header bg-white border-0 py-3">
+          <div class="d-flex align-items-center">
+            <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;flex-shrink:0;">
+              <i class="bi bi-calculator text-white fs-6"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0 text-dark fw-normal" style="font-size:0.95rem;">Suivi budgétaire</h5>
+              <p class="text-muted mb-0" style="font-size:0.75rem;">Devis vs factures</p>
+            </div>
+          </div>
         </div>
         <div class="card-body p-3">
           <% if @project.architecte_devis_montant.present? || @project.contractor_devis_montant.present? %>
@@ -306,11 +318,17 @@
 
     <!-- Éligibilité primes -->
     <div class="col-lg-4">
-      <div class="card border-0 shadow-sm h-100">
-        <div class="card-header bg-white border-bottom py-3">
-          <h6 class="mb-0 fw-semibold text-primary-custom">
-            <i class="bi bi-award me-2"></i>Éligibilité aux primes
-          </h6>
+      <div class="card border border-2 rounded-4 h-100">
+        <div class="card-header bg-white border-0 py-3">
+          <div class="d-flex align-items-center">
+            <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;flex-shrink:0;">
+              <i class="bi bi-award text-white fs-6"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0 text-dark fw-normal" style="font-size:0.95rem;">Éligibilité aux primes</h5>
+              <p class="text-muted mb-0" style="font-size:0.75rem;">Conditions d'éligibilité</p>
+            </div>
+          </div>
         </div>
         <div class="card-body p-3">
           <% if @project.bce_number.present? || @project.invoice_date.present? || @project.work_completion_date.present? %>
@@ -384,9 +402,9 @@
   </div>
 
   <!-- ─── Rangée 3 : Planning Gantt preview ─────────────────────────── -->
-  <div class="row g-3 mb-4">
+  <div class="row g-3 mb-5">
     <div class="col-12">
-      <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%); color: #fff; overflow: hidden;">
+      <div class="card border-0 shadow-lg rounded-4" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%); color: #fff; overflow: hidden;">
         <div class="card-body p-4">
           <div class="row align-items-center">
             <div class="col-lg-7">
@@ -452,23 +470,15 @@
     </div>
   </div>
 
-  <!-- ─── Rangée 4 : Équipe projet ──────────────────────────────────── -->
-  <div class="row g-3 mb-4">
-    <div class="col-12">
+  <!-- ─── Rangée 4+5 : Équipe & Invitations | Photos ─────────────── -->
+  <div class="row g-3">
+    <div class="col-lg-7 d-flex flex-column gap-3">
       <%= render 'projects/partials_general/professionals_display' %>
     </div>
-  </div>
-
-  <!-- ─── Rangée 4b : Inviter des pros (collaboration) ─────────────── -->
-  <div class="row g-3 mb-4">
-    <div class="col-12">
+    <div class="col-lg-5 d-flex flex-column gap-3">
       <%= render 'projects/partials_general/invite_pros', project: @project %>
     </div>
-  </div>
-
-  <!-- ─── Rangée 5 : Photos de suivi ───────────────────────────────── -->
-  <div class="row g-3">
-    <div class="col-12">
+    <div class="col-lg-5">
       <%= render 'projects/partials_general/photos_suivi' %>
     </div>
   </div>
