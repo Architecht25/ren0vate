@@ -84,23 +84,43 @@
 
                 <div class="form-check mb-3">
                   <input class="form-check-input" type="radio" name="notification[target_type]"
-                         id="target_region" value="by_region"
-                         data-action="change->notification-targeting#toggleRegion">
+                         id="target_region" value="by_region">
                   <label class="form-check-label" for="target_region">
                     <strong>Par région</strong>
                   </label>
-                  <div class="mt-2" style="display: none;" id="region_select_container">
-                    <select name="notification[target_region]" class="form-select" id="region_select">
+                  <div class="mt-2 target-sub" id="region_select_container" style="display:none;">
+                    <select name="notification[target_region]" class="form-select">
                       <option value="">-- Sélectionnez une région --</option>
                       <%
-                        wallonie_count = User.where("LOWER(region) = ?", "wallonie").count
-                        flandre_count = User.where("LOWER(region) = ?", "flandre").count
+                        wallonie_count  = User.where("LOWER(region) = ?", "wallonie").count
+                        flandre_count   = User.where("LOWER(region) = ?", "flandre").count
                         bruxelles_count = User.where("LOWER(region) = ?", "bruxelles").count
                       %>
                       <option value="wallonie">🏛️ Wallonie (<%= wallonie_count %> utilisateur<%= 's' if wallonie_count > 1 %>)</option>
                       <option value="flandre">🇳🇱 Flandre (<%= flandre_count %> utilisateur<%= 's' if flandre_count > 1 %>)</option>
                       <option value="bruxelles">🏢 Bruxelles (<%= bruxelles_count %> utilisateur<%= 's' if bruxelles_count > 1 %>)</option>
                     </select>
+                  </div>
+                </div>
+
+                <div class="form-check mb-2">
+                  <input class="form-check-input" type="radio" name="notification[target_type]"
+                         id="target_specific" value="specific_user">
+                  <label class="form-check-label" for="target_specific">
+                    <strong>Utilisateur spécifique</strong>
+                  </label>
+                  <div class="mt-2 target-sub" id="specific_user_container" style="display:none;">
+                    <input type="text" id="user_search_input" class="form-control mb-2"
+                           placeholder="Rechercher par nom ou email…" autocomplete="off">
+                    <select name="notification[user_ids][]" class="form-select" id="user_select" size="5">
+                      <% @users.order(:last_name, :first_name).each do |u| %>
+                        <option value="<%= u.id %>">
+                          <%= u.full_name.presence || u.email %> — <%= u.email %>
+                          <% if u.region.present? %>(<%= u.region %>)<% end %>
+                        </option>
+                      <% end %>
+                    </select>
+                    <small class="text-muted">Ctrl+clic pour sélectionner plusieurs utilisateurs</small>
                   </div>
                 </div>
               </div>
@@ -193,20 +213,30 @@
 </div>
 
 <script nonce="<%= content_security_policy_nonce %>">
-// Afficher/masquer le sélecteur de région
 document.addEventListener('DOMContentLoaded', function() {
-  const regionRadio = document.getElementById('target_region');
-  const regionSelect = document.getElementById('region_select');
-  const allRadios = document.querySelectorAll('input[name="notification[target_type]"]');
+  const radios = document.querySelectorAll('input[name="notification[target_type]"]');
 
-  allRadios.forEach(radio => {
-    radio.addEventListener('change', function() {
-      if (this.value === 'by_region') {
-        regionSelect.style.display = 'block';
-      } else {
-        regionSelect.style.display = 'none';
-      }
+  function updateVisibility() {
+    const val = document.querySelector('input[name="notification[target_type]"]:checked')?.value;
+    document.getElementById('region_select_container').style.display  = (val === 'by_region')    ? 'block' : 'none';
+    document.getElementById('specific_user_container').style.display  = (val === 'specific_user') ? 'block' : 'none';
+  }
+
+  radios.forEach(r => r.addEventListener('change', updateVisibility));
+  updateVisibility();
+
+  // Filtre live sur la liste utilisateurs
+  const searchInput = document.getElementById('user_search_input');
+  const userSelect  = document.getElementById('user_select');
+  if (searchInput && userSelect) {
+    const allOptions = Array.from(userSelect.options);
+    searchInput.addEventListener('input', function() {
+      const q = this.value.toLowerCase();
+      userSelect.innerHTML = '';
+      allOptions
+        .filter(o => o.text.toLowerCase().includes(q))
+        .forEach(o => userSelect.appendChild(o.cloneNode(true)));
     });
-  });
+  }
 });
 </script>

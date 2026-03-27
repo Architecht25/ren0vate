@@ -91,7 +91,7 @@ class NotificationsController < ApplicationController
     case params[:notification][:target_type]
     when 'all_users'
       target_users = User.all
-    when 'specific_users'
+    when 'specific_users', 'specific_user'
       target_users = User.where(id: params[:notification][:user_ids])
     when 'by_region'
       region = params[:notification][:target_region]

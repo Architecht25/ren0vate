@@ -11,6 +11,7 @@ class Notification < ApplicationRecord
 
   # Callbacks
   after_initialize :set_defaults, if: :new_record?
+  after_create_commit :send_email_notification
 
   def set_defaults
     self.priority ||= :normale
@@ -271,5 +272,11 @@ class Notification < ApplicationRecord
         )
       end
     end
+  end
+
+  private
+
+  def send_email_notification
+    NotificationMailer.alert(self).deliver_later
   end
 end
