@@ -95,6 +95,7 @@ Rails.application.configure do
   config.hosts = [
     "ren0vate.be",
     /.*\.ren0vate\.be/,
+    "ren0vate-630b5136c442.herokuapp.com",
     ENV.fetch('APP_HOST', 'ren0vate-630b5136c442.herokuapp.com')
   ]
   #
