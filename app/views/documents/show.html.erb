@@ -151,6 +151,16 @@
                 <i class="bi bi-eye me-2"></i>Voir contenu OCR
               <% end %>
             <% end %>
+            <% if @document.file.attached? %>
+              <button class="btn btn-outline-secondary" id="ocr-scan-btn"
+                      data-document-id="<%= @document.id %>"
+                      data-url="<%= ocr_scan_existing_path(@document) %>">
+                <i class="bi bi-search me-2"></i><%= @document.has_ocr_content? ? 'Rescanner OCR' : 'Scanner OCR' %>
+              </button>
+              <div id="ocr-result" class="mt-2 d-none">
+                <div class="alert alert-info p-2 mb-0 small" id="ocr-result-text"></div>
+              </div>
+            <% end %>
             <% if @document.file.attached? && @document.file.content_type&.include?('pdf') %>
               <%= link_to view_document_path(@document), class: "btn btn-outline-info", target: "_blank" do %>
                 <i class="bi bi-file-earmark-pdf me-2"></i>Prévisualiser fichier
@@ -208,6 +218,53 @@
   </div>
 </div>
 
+<script>
+  document.addEventListener('turbo:load', function() {
+    const btn = document.getElementById('ocr-scan-btn');
+    if (!btn) return;
+
+    btn.addEventListener('click', function() {
+      const url = btn.dataset.url;
+      const resultBox = document.getElementById('ocr-result');
+      const resultText = document.getElementById('ocr-result-text');
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Scan en cours…';
+
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+          'Accept': 'application/json'
+        }
+      })
+      .then(r => r.json())
+      .then(data => {
+        resultBox.classList.remove('d-none');
+        if (data.success) {
+          resultText.className = 'alert alert-success p-2 mb-0 small';
+          resultText.innerHTML = `<strong>OCR réussi</strong> — Confiance : ${data.confidence}% (${data.method})<br>
+            <em>Les notes du document ont été mises à jour.</em>`;
+          btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Scanné';
+          btn.className = 'btn btn-success';
+        } else {
+          resultText.className = 'alert alert-danger p-2 mb-0 small';
+          resultText.textContent = data.error || 'Erreur OCR';
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bi bi-search me-2"></i>Réessayer';
+        }
+      })
+      .catch(() => {
+        resultBox.classList.remove('d-none');
+        resultText.className = 'alert alert-danger p-2 mb-0 small';
+        resultText.textContent = 'Erreur réseau';
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-search me-2"></i>Réessayer';
+      });
+    });
+  });
+</script>
+
 <!-- Styles CSS -->
 <style>
 .icon-circle {
@@ -257,4 +314,3 @@
   color: white;
 }
 </style>
-

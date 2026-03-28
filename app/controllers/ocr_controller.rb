@@ -83,6 +83,69 @@ class OcrController < ApplicationController
     end
   end
 
+  # POST /ocr/scan_existing/:id
+  def scan_existing
+    @document = current_user.documents.find(params[:id])
+
+    unless @document.file.attached?
+      return render json: { error: 'Ce document ne possède pas de fichier attaché' }, status: :unprocessable_entity
+    end
+
+    begin
+      # Télécharger le fichier depuis ActiveStorage dans un Tempfile
+      tempfile = Tempfile.new(['ocr_existing', File.extname(@document.file.filename.to_s)])
+      tempfile.binmode
+      tempfile.write(@document.file.download)
+      tempfile.rewind
+
+      # Construire un objet compatible OcrService
+      uploaded_file = ActionDispatch::Http::UploadedFile.new(
+        tempfile: tempfile,
+        filename: @document.file.filename.to_s,
+        type: @document.file.content_type
+      )
+
+      ocr_service = OcrService.new(uploaded_file)
+      result = ocr_service.call
+
+      if result[:success]
+        # Mettre à jour les notes du document avec le résultat OCR
+        ocr_notes = "📄 Texte extrait par OCR (#{result[:method]}):\n" \
+                    "Confiance: #{result[:confidence]}%\n" \
+                    "Langue: #{result[:language]}\n" \
+                    "Temps de traitement: #{result[:processing_time]}s\n\n" \
+                    "#{result[:text]}"
+
+        existing_notes = @document.notes.to_s.sub(/📄 Texte extrait par OCR.*\z/m, '').strip
+        new_notes = [existing_notes.presence, ocr_notes].compact.join("\n\n")
+        @document.update!(notes: new_notes)
+
+        render json: {
+          success: true,
+          document_id: @document.id,
+          text: result[:text],
+          confidence: result[:confidence],
+          language: result[:language],
+          processing_time: result[:processing_time],
+          method: result[:method]
+        }
+      else
+        render json: { error: result[:error] }, status: :unprocessable_entity
+      end
+    rescue ActiveRecord::RecordNotFound
+      render json: { error: 'Document introuvable' }, status: :not_found
+    rescue StandardError => e
+      Rails.logger.error "OCR scan_existing error: #{e.message}"
+      render json: {
+        error: 'Erreur lors du traitement OCR',
+        details: Rails.env.development? ? e.message : nil
+      }, status: :internal_server_error
+    ensure
+      tempfile&.close
+      tempfile&.unlink
+    end
+  end
+
   private
 
   def build_document_params(ocr_result)

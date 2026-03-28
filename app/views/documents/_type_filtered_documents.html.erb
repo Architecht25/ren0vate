@@ -132,6 +132,16 @@
                       <i class="bi bi-eye me-1"></i>OCR
                     <% end %>
                   <% end %>
+                  <% if document.file.attached? %>
+                    <button class="btn btn-outline-secondary btn-sm ocr-scan-btn"
+                            data-document-id="<%= document.id %>"
+                            data-url="<%= ocr_scan_existing_path(document) %>">
+                      <i class="bi bi-search me-1"></i><%= document.has_ocr_content? ? 'Rescanner OCR' : 'Scanner OCR' %>
+                    </button>
+                    <div id="ocr-result-<%= document.id %>" class="w-100 mt-1 d-none">
+                      <div class="alert alert-info p-2 mb-0 small" id="ocr-result-text-<%= document.id %>"></div>
+                    </div>
+                  <% end %>
                   <%= link_to download_document_path(document),
                       class: "btn btn-outline-primary btn-sm",
                       title: "Télécharger le document" do %>
@@ -162,3 +172,91 @@
     <% end %>
   </div>
 <% end %>
+
+<script>
+  document.addEventListener('turbo:load', function() {
+    const scanBtns = document.querySelectorAll('.ocr-scan-btn');
+
+    // Afficher le bouton "Scanner tous" si des boutons de scan existent
+    const scanAllBtn = document.getElementById('ocr-scan-all-btn');
+    if (scanAllBtn && scanBtns.length > 0) {
+      scanAllBtn.classList.remove('d-none');
+
+      scanAllBtn.addEventListener('click', async function() {
+        const buttons = Array.from(document.querySelectorAll('.ocr-scan-btn:not([disabled])'));
+        if (buttons.length === 0) return;
+
+        const progress = document.getElementById('ocr-scan-all-progress');
+        scanAllBtn.disabled = true;
+        progress.classList.remove('d-none');
+
+        for (let i = 0; i < buttons.length; i++) {
+          progress.textContent = (i + 1) + '/' + buttons.length;
+          buttons[i].click();
+          // Attendre que le scan se termine avant de passer au suivant
+          await new Promise(resolve => setTimeout(resolve, 2500));
+        }
+
+        progress.textContent = '✓ Terminé';
+        scanAllBtn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Tous scannés';
+        scanAllBtn.className = 'btn btn-success';
+      });
+    }
+
+    scanBtns.forEach(function(btn) {
+      if (btn.dataset.ocrBound) return;
+      btn.dataset.ocrBound = 'true';
+
+      btn.addEventListener('click', function() {
+        const docId = btn.dataset.documentId;
+        const url = btn.dataset.url;
+        const resultBox = document.getElementById('ocr-result-' + docId);
+        const resultText = document.getElementById('ocr-result-text-' + docId);
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Scan…';
+
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json'
+          }
+        })
+        .then(r => r.json())
+        .then(data => {
+          resultBox.classList.remove('d-none');
+          if (data.success) {
+            resultText.className = 'alert alert-success p-2 mb-0 small';
+            const previewId = 'ocr-text-preview-' + docId;
+            const preview = data.text ? data.text.substring(0, 300) + (data.text.length > 300 ? '…' : '') : '';
+            resultText.innerHTML =
+              '<strong>OCR réussi</strong> — Confiance : ' + data.confidence + '% (' + data.method + ')' +
+              (data.text ? (
+                '<details class="mt-2">' +
+                  '<summary style="cursor:pointer;">Voir le texte extrait</summary>' +
+                  '<pre class="mt-2 mb-0 p-2 bg-white border rounded" style="white-space:pre-wrap;font-size:0.75rem;max-height:250px;overflow-y:auto;">' +
+                    data.text.replace(/</g, '&lt;').replace(/>/g, '&gt;') +
+                  '</pre>' +
+                '</details>'
+              ) : '<br><em>Aucun texte extrait.</em>');
+            btn.innerHTML = '<i class="bi bi-check-circle me-1"></i>Scanné';
+            btn.className = 'btn btn-success btn-sm';
+          } else {
+            resultText.className = 'alert alert-danger p-2 mb-0 small';
+            resultText.textContent = data.error || 'Erreur OCR';
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-search me-1"></i>Réessayer';
+          }
+        })
+        .catch(function() {
+          resultBox.classList.remove('d-none');
+          resultText.className = 'alert alert-danger p-2 mb-0 small';
+          resultText.textContent = 'Erreur réseau';
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bi bi-search me-1"></i>Réessayer';
+        });
+      });
+    });
+  });
+</script>

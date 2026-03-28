@@ -115,6 +115,7 @@ Rails.application.routes.draw do
 
   # Routes OCR
   post 'ocr/scan', to: 'ocr#scan'
+  post 'ocr/scan_existing/:id', to: 'ocr#scan_existing', as: :ocr_scan_existing
 
   # Routes pour les templates de contrats
   resources :contract_templates, only: [:index, :show] do
