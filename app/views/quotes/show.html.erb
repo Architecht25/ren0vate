@@ -46,8 +46,10 @@
                   <th>Travaux</th>
                   <th class="text-end">Qté</th>
                   <th class="text-end">Prix unit. min</th>
+                  <th class="text-end">Prix unit. moy.</th>
                   <th class="text-end">Prix unit. max</th>
                   <th class="text-end">Total min</th>
+                  <th class="text-end">Total moy.</th>
                   <th class="text-end">Total max</th>
                 </tr>
               </thead>
@@ -78,6 +80,13 @@
                     </td>
                     <td class="text-end text-muted">
                       <% if item.unit != 'forfait' %>
+                        <%= number_to_currency(item.unit_price_avg, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
+                      <% else %>
+                        —
+                      <% end %>
+                    </td>
+                    <td class="text-end text-muted">
+                      <% if item.unit != 'forfait' %>
                         <%= number_to_currency(item.unit_price_max, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
                       <% else %>
                         —
@@ -85,6 +94,9 @@
                     </td>
                     <td class="text-end fw-medium">
                       <%= number_to_currency(item.total_min, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
+                    </td>
+                    <td class="text-end fw-medium text-primary-custom">
+                      <%= number_to_currency(item.total_avg, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
                     </td>
                     <td class="text-end fw-medium">
                       <%= number_to_currency(item.total_max, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
@@ -98,7 +110,10 @@
                   <td class="text-end text-success fs-6">
                     <%= number_to_currency(@quote.total_min, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
                   </td>
-                  <td class="text-end text-success fs-6">
+                  <td class="text-end text-primary-custom fs-6">
+                    <%= number_to_currency(@quote.total_avg, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
+                  </td>
+                  <td class="text-end text-warning fs-6">
                     <%= number_to_currency(@quote.total_max, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
                   </td>
                 </tr>
@@ -126,6 +141,13 @@
             <small class="text-muted-custom d-block">Fourchette basse</small>
             <div class="h4 text-success fw-bold mb-0">
               <%= number_to_currency(@quote.total_min, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
+            </div>
+          </div>
+
+          <div class="mb-3 pb-3 border-bottom">
+            <small class="text-muted-custom d-block">Estimation moyenne</small>
+            <div class="h4 text-primary-custom fw-bold mb-0">
+              <%= number_to_currency(@quote.total_avg, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
             </div>
           </div>
 

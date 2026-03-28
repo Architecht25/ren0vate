@@ -12,8 +12,10 @@ module Quotes
         items: items,
         total_min: items.sum { |i| i[:total_min] },
         total_max: items.sum { |i| i[:total_max] },
+        total_avg: items.sum { |i| i[:total_avg] },
         duration_min_days: items.sum { |i| i[:duration_min] },
-        duration_max_days: items.sum { |i| i[:duration_max] }
+        duration_max_days: items.sum { |i| i[:duration_max] },
+        duration_avg_days: items.sum { |i| i[:duration_avg] }
       }
     end
 
@@ -28,6 +30,7 @@ module Quotes
 
       total_min = (work_type.price_min * qty).round(2)
       total_max = (work_type.price_max * qty).round(2)
+      total_avg = (work_type.price_avg * qty).round(2)
 
       {
         work_type_key: work_type.key,
@@ -35,10 +38,13 @@ module Quotes
         quantity: qty,
         unit_price_min: work_type.price_min,
         unit_price_max: work_type.price_max,
+        unit_price_avg: work_type.price_avg,
         total_min: total_min,
         total_max: total_max,
+        total_avg: total_avg,
         duration_min: work_type.duration_min,
-        duration_max: work_type.duration_max
+        duration_max: work_type.duration_max,
+        duration_avg: work_type.duration_avg
       }
     end
   end

@@ -64,8 +64,10 @@ class QuotesController < ApplicationController
       user: current_user,
       total_min: result[:total_min],
       total_max: result[:total_max],
+      total_avg: result[:total_avg],
       duration_min_days: result[:duration_min_days],
       duration_max_days: result[:duration_max_days],
+      duration_avg_days: result[:duration_avg_days],
       status: 'draft'
     )
 
@@ -78,8 +80,10 @@ class QuotesController < ApplicationController
           quantity: item_data[:quantity],
           unit_price_min: item_data[:unit_price_min],
           unit_price_max: item_data[:unit_price_max],
+          unit_price_avg: item_data[:unit_price_avg],
           total_min: item_data[:total_min],
-          total_max: item_data[:total_max]
+          total_max: item_data[:total_max],
+          total_avg: item_data[:total_avg]
         )
       end
     end

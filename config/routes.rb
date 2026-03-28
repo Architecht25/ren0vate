@@ -193,6 +193,14 @@ Rails.application.routes.draw do
     get :factures_dashboard, to: 'factures#dashboard'
     post :upload_facture, to: 'factures#upload_facture'
 
+    # Budget
+    get  :edit_budget,   on: :member
+    patch :update_budget, on: :member
+
+    # Professionnels
+    get  :edit_professionals,   on: :member
+    patch :update_professionals, on: :member
+
     # Planning / Gantt
     get :gantt, on: :member
 

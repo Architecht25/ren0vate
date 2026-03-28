@@ -495,6 +495,14 @@ class WorkType
     attrs.each { |k, v| instance_variable_set(:"@#{k}", v) }
   end
 
+  def price_avg
+    ((price_min + price_max) / 2.0).round(2)
+  end
+
+  def duration_avg
+    ((duration_min + duration_max) / 2.0).round(1)
+  end
+
   def forfait?
     @forfait
   end

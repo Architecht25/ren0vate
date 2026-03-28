@@ -218,6 +218,7 @@
         <%
           total_min = @gantt_bars.sum { |b| b[:total_min].to_f }
           total_max = @gantt_bars.sum { |b| b[:total_max].to_f }
+          total_avg = @gantt_bars.sum { |b| b[:total_avg].to_f }
           duration_days = (@gantt_bars.last[:end] - @gantt_bars.first[:start]).to_i
         %>
         <div class="card shadow-sm border-0 mb-3">
@@ -229,10 +230,13 @@
           <div class="card-body p-3">
             <div class="text-center">
               <div class="fw-semibold fs-5 text-primary-custom">
+                ~<%= number_to_currency(total_avg, unit: '€', separator: ',', delimiter: ' ', precision: 0, format: "%n %u") %>
+              </div>
+              <small class="text-muted">
                 <%= number_to_currency(total_min, unit: '€', separator: ',', delimiter: ' ', precision: 0, format: "%n %u") %>
                 <span class="text-muted fw-normal">–</span>
                 <%= number_to_currency(total_max, unit: '€', separator: ',', delimiter: ' ', precision: 0, format: "%n %u") %>
-              </div>
+              </small><br>
               <small class="text-muted">HTVA estimé (devis en cours)</small>
             </div>
             <hr class="my-2">

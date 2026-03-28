@@ -173,6 +173,36 @@ module DocumentsHelper
     I18n.t("documents.types.#{type_document}", default: type_document.humanize)
   end
 
+  # Note explicative sur le rôle du document dans l'application
+  DOCUMENT_TYPE_HINTS = {
+    "aer"                        => "Détermine la catégorie de revenus pour le calcul des primes et prêts",
+    "rib"                        => "Coordonnées bancaires pour le versement des primes",
+    "certificat_peb_avant"       => "Détermine la catégorie de primes énergie selon le label actuel",
+    "certificat_peb_apres"       => "Atteste l'amélioration énergétique obtenue après travaux",
+    "certificat_peb"             => "Étiquette énergétique du bien",
+    "devis"                      => "Base de calcul du montant des primes accordées",
+    "facture"                    => "Justifie les dépenses pour le versement des primes",
+    "attestation_entrepreneur"   => "Certifie que l'entrepreneur est agréé / reconnu",
+    "permis_urbanisme"           => "Autorisation légale requise pour les travaux",
+    "copie_carte_identite"       => "Vérifie l'identité du demandeur",
+    "rapport_audit_energetique"  => "Recommande les travaux prioritaires et conditionne les primes audit",
+    "preuve_paiement_audit"      => "Justifie le paiement de l'auditeur pour débloquer la prime",
+    "bordereau_chassis"          => "Détails techniques des châssis pour le calcul des primes",
+    "certificat_label"           => "Label de performance du produit installé requis pour la prime",
+    "fiche_technique"            => "Caractéristiques techniques des matériaux posés",
+    "attestation_conformite"     => "Certifie la conformité des travaux réalisés",
+    "etat_avancement"            => "Preuve de l'avancement des travaux pour déblocage partiel",
+    "photo_avant"                => "Situation initiale avant travaux",
+    "photo_apres"                => "Preuve visuelle des travaux réalisés",
+    "photo"                      => "Suivi visuel des travaux réalisés",
+    "dossier_prime"              => "Dossier complet de demande de prime auprès de l'organisme",
+    "plan_diu"                   => "Plans obligatoires transmis au futur propriétaire (DIU)",
+  }.freeze
+
+  def document_type_hint(type_document)
+    DOCUMENT_TYPE_HINTS[type_document.to_s]
+  end
+
   # Limite de taille selon le type de document
   def max_file_size_for_type(type_document)
     if is_photo_type?(type_document)

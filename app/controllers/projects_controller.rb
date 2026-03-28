@@ -1,6 +1,6 @@
 class ProjectsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt]
+  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt, :edit_budget, :update_budget, :edit_professionals, :update_professionals]
 
   def index
     # Récupérer les projets, filtrer par property_id si fourni
@@ -32,6 +32,7 @@ class ProjectsController < ApplicationController
     @latest_quote = @project.property&.quotes&.includes(:quote_items)&.order(created_at: :desc)&.first
     @planning_items_count = @latest_quote ? @latest_quote.quote_items.count : 0
     @factures_count = @project.factures.count
+    @simulations = @project.simulations.order(created_at: :desc)
   end
 
   def new
@@ -54,6 +55,28 @@ class ProjectsController < ApplicationController
   end
 
   def edit
+  end
+
+  def edit_budget
+  end
+
+  def edit_professionals
+  end
+
+  def update_professionals
+    if @project.update(professionals_params)
+      redirect_to @project, notice: 'Équipe projet mise à jour avec succès.'
+    else
+      render :edit_professionals, status: :unprocessable_entity
+    end
+  end
+
+  def update_budget
+    if @project.update(budget_params)
+      redirect_to @project, notice: 'Budget mis à jour avec succès.'
+    else
+      render :edit_budget, status: :unprocessable_entity
+    end
   end
 
   def update
@@ -123,7 +146,8 @@ class ProjectsController < ApplicationController
         start:    cursor,
         end:      end_date,
         total_min: item.total_min,
-        total_max: item.total_max
+        total_max: item.total_max,
+        total_avg: item.total_avg || ((item.total_min.to_f + item.total_max.to_f) / 2).round(2)
       }
 
       # Chevauchement léger : démarrage du suivant à J+2 du début (travaux parallèles possibles)
@@ -146,6 +170,23 @@ class ProjectsController < ApplicationController
 
   def set_project
     @project = current_user.projects.find(params[:id])
+  end
+
+  def budget_params
+    params.require(:project).permit(:architecte_devis_montant, :contractor_devis_montant)
+  end
+
+  def professionals_params
+    params.require(:project).permit(
+      :architecte_nom, :architecte_prenom, :architecte_entreprise, :architecte_numero_ordre,
+      :architecte_telephone, :architecte_email, :architecte_adresse, :architecte_specialites,
+      :entrepreneur_principal_nom, :entrepreneur_principal_entreprise, :entrepreneur_principal_numero_tva,
+      :entrepreneur_principal_telephone, :entrepreneur_principal_email, :entrepreneur_principal_adresse,
+      :entrepreneur_principal_assurance, :entrepreneur_principal_certifications,
+      :maitre_ouvrage_nom, :maitre_ouvrage_contact, :coordinateur_securite_nom, :coordinateur_securite_contact,
+      :assurance_decennale_architecte, :assurance_decennale_entrepreneur, :garanties_travaux,
+      :additional_entrepreneurs
+    )
   end
 
   def project_params

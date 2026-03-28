@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_27_123546) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_27_203403) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -439,6 +439,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_27_123546) do
     t.jsonb "options", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "unit_price_avg", precision: 10, scale: 2
+    t.decimal "total_avg", precision: 10, scale: 2
     t.index ["quote_id"], name: "index_quote_items_on_quote_id"
   end
 
@@ -452,6 +454,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_27_123546) do
     t.string "status", default: "draft", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "total_avg", precision: 10, scale: 2
+    t.integer "duration_avg_days"
     t.index ["property_id"], name: "index_quotes_on_property_id"
     t.index ["user_id"], name: "index_quotes_on_user_id"
   end
