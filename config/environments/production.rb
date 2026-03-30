@@ -2,7 +2,7 @@ require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
   # Prepare the ingress controller used to receive mail
-  # config.action_mailbox.ingress = :relay
+  config.action_mailbox.ingress = :postmark
 
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -67,12 +67,12 @@ Rails.application.configure do
     protocol: 'https'
   }
 
-  # Configuration SMTP pour production (utiliser les variables d'environnement)
+  # Configuration SMTP pour production via Resend
   config.action_mailer.smtp_settings = {
-    address: ENV.fetch('SMTP_ADDRESS', 'smtp.sendgrid.net'),
+    address: ENV.fetch('SMTP_ADDRESS', 'smtp.resend.com'),
     port: ENV.fetch('SMTP_PORT', 587).to_i,
     domain: ENV.fetch('SMTP_DOMAIN', 'ren0vate.be'),
-    user_name: ENV['SMTP_USERNAME'],
+    user_name: ENV.fetch('SMTP_USERNAME', 'resend'),
     password: ENV['SMTP_PASSWORD'],
     authentication: :plain,
     enable_starttls_auto: true

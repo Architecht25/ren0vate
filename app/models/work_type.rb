@@ -127,6 +127,20 @@ class WorkType
       vat_rate: 6
     },
     {
+      key: 'isolation_murs_coulisse',
+      category: 'murs',
+      name: 'Isolation murs en coulisse (injection)',
+      icon: 'bi-bricks',
+      unit: 'm²',
+      unit_label: 'm²',
+      forfait: false,
+      price_min: 15,
+      price_max: 35,
+      duration_min: 1,
+      duration_max: 3,
+      vat_rate: 6
+    },
+    {
       key: 'enduit_murs_ext',
       category: 'murs',
       name: 'Enduit murs extérieurs (crépi/minéral)',
