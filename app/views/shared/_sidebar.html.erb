@@ -236,8 +236,9 @@
               </a>
             </li>
             <li class="nav-item">
-              <% if current_user&.projects&.any? %>
-                <%= link_to gantt_project_path(current_user.projects.order(updated_at: :desc).first), class: "nav-link" do %>
+              <% first_project = current_user&.projects&.order(updated_at: :desc)&.first %>
+              <% if first_project&.persisted? %>
+                <%= link_to gantt_project_path(first_project), class: "nav-link" do %>
                   <i class="bi bi-calendar-check"></i>
                   <span>Planning travaux</span>
                   <span class="badge bg-primary ms-auto">Nouveau</span>
