@@ -658,8 +658,93 @@
         </div>
       </div>
     </div>
-  </div>
 
+    <!-- Recommandations PEB -->
+    <div class="col order-last">
+      <div class="card border-0 shadow h-100 dashboard-module">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center mb-3">
+            <div class="icon-circle me-3">
+              <i class="bi bi-lightbulb"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0 fw-normal">Recommandations PEB</h5>
+              <small class="text-muted-custom">Améliorations énergétiques détectées</small>
+            </div>
+          </div>
+
+          <% peb_donnees_dash = @peb_donnees_recent || @property.peb_donnees.order(created_at: :desc).limit(3) %>
+          <% total_recs_dash = peb_donnees_dash.sum { |p| (p.donnees_extraites['recommandations'] || []).size } %>
+
+          <% if peb_donnees_dash.any? %>
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <div class="info-item text-center">
+                  <small class="text-muted-custom">Certificats</small>
+                  <div class="fw-medium h4 text-primary-custom mb-0"><%= peb_donnees_dash.count %></div>
+                </div>
+              </div>
+              <div class="col-6">
+                <div class="info-item text-center">
+                  <small class="text-muted-custom">Recommandations</small>
+                  <div class="fw-medium h4 <%= total_recs_dash > 0 ? 'text-success' : 'text-warning' %> mb-0"><%= total_recs_dash %></div>
+                </div>
+              </div>
+            </div>
+
+            <% premier_peb = peb_donnees_dash.first %>
+            <% if premier_peb %>
+              <div class="d-flex align-items-center py-2 border-bottom mb-2">
+                <i class="bi bi-house-gear me-2 text-primary-custom"></i>
+                <div class="flex-grow-1">
+                  <div class="fw-medium">
+                    <%= premier_peb.region&.capitalize %> — Classe <%= premier_peb.label_peb || '?' %>
+                  </div>
+                  <small class="text-muted-custom"><%= premier_peb.score_ep_formate || 'Score non extrait' %></small>
+                </div>
+                <% couleur = { 'A++' => 'success', 'A+' => 'success', 'A' => 'success', 'B' => 'info', 'C' => 'primary', 'D' => 'warning', 'E' => 'warning', 'F' => 'danger', 'G' => 'danger' }[premier_peb.label_peb] || 'secondary' %>
+                <span class="badge bg-<%= couleur %>"><%= premier_peb.label_peb || '?' %></span>
+              </div>
+
+              <% all_recs = premier_peb.donnees_extraites['recommandations'] || [] %>
+              <% top_recs = all_recs.first.is_a?(Hash) \
+                              ? all_recs.select { |r| r['has_recommandation'] }.first(3) \
+                              : all_recs.first(3) %>
+              <% if top_recs.any? %>
+                <% top_recs.each do |rec| %>
+                  <% label = rec.is_a?(Hash) ? rec['recommandation'].to_s : rec.to_s %>
+                  <div class="d-flex align-items-start py-1">
+                    <i class="bi bi-<%= rec.is_a?(Hash) ? rec['icone'].to_s.delete_prefix('bi-') : 'check2' %> me-2 text-warning mt-1 flex-shrink-0"></i>
+                    <small class="text-dark" style="line-height: 1.4;"><%= truncate(label, length: 70) %></small>
+                  </div>
+                <% end %>
+              <% else %>
+                <div class="text-center py-3 text-muted-custom">
+                  <i class="bi bi-info-circle mb-1 d-block"></i>
+                  <small>Aucune recommandation extraite</small>
+                </div>
+              <% end %>
+            <% end %>
+          <% else %>
+            <div class="text-center py-4 text-muted-custom">
+              <i class="bi bi-file-earmark-plus fs-3 mb-2 d-block"></i>
+              <p class="mb-0">Aucun certificat PEB</p>
+              <small>Scannez votre PEB pour obtenir des recommandations</small>
+            </div>
+          <% end %>
+
+          <div class="mt-auto pt-3 border-top">
+            <%= link_to peb_recommandations_property_path(@property), class: "btn btn-outline-primary-custom btn-sm w-100" do %>
+              <i class="bi bi-lightbulb me-2"></i>Voir les recommandations
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Woningpas (Flandre uniquement) -->
+
+  </div>
 
 <style>
 .card {

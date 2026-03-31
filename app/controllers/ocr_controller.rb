@@ -358,7 +358,7 @@ class OcrController < ApplicationController
         confiance_ocr:      result[:confiance_ocr],
         extraction_complete: result[:extraction_complete],
         texte_ocr_brut:     result[:texte_ocr_brut],
-        donnees_extraites:  {}
+        donnees_extraites:  { 'recommandations' => result[:recommandations] || [] }
       )
 
       # Mise à jour automatique du champ certificat_peb_* de la propriété

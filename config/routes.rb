@@ -162,6 +162,7 @@ Rails.application.routes.draw do
       get :documents_dashboard  # Gestion des documents par bien
       get :documents_phases_dashboard  # Nouveau dashboard par phases métier
       get :formulaire_miroir  # Formulaire miroir pré-rempli
+      get :peb_recommandations  # Vue recommandations énergétiques PEB
       post :submit_prime  # Soumission vers l'administration
       delete :destroy  # Route de suppression explicite
 
