@@ -66,6 +66,33 @@ class PebOcrService < OcrService
     'september' => 9, 'oktober' => 10, 'november' => 11, 'december' => 12
   }.freeze
 
+  # ── Définition des postes d'amélioration par région ─────────────────────────
+  # Chaque entrée : cle (interne), icone Bootstrap, libellé affiché, regex de
+  # détection dans le texte OCR brut.
+  POSTES_WALLONIE_DEF = [
+    { cle: 'parois',      icone: 'bi-bricks',                poste_fr: 'Pertes par les parois',         detecteur: /pertes\s+par\s+les\s+parois/i },
+    { cle: 'air',         icone: 'bi-wind',                  poste_fr: "Pertes par les fuites d'air",   detecteur: /pertes\s+par\s+les\s+fuites/i },
+    { cle: 'ventilation', icone: 'bi-arrows-angle-contract', poste_fr: 'Système de ventilation',        detecteur: /syst[eè]me\s+de\s+ventilation|pertes\s+par\s+ventilation/i },
+    { cle: 'chauffage',   icone: 'bi-thermometer-half',      poste_fr: 'Installation de chauffage',     detecteur: /installation\s+de\s+chauffage|performance\s+des\s+installations/i },
+    { cle: 'ecs',         icone: 'bi-droplet-half',          poste_fr: 'Eau chaude sanitaire',          detecteur: /eau\s+chaude\s+sanitaire|production\s+d.eau\s+chaude/i }
+  ].freeze
+
+  POSTES_BRUXELLES_DEF = [
+    { cle: 'parois',      icone: 'bi-bricks',                poste_fr: "Isolation de l'enveloppe",     detecteur: /pertes\s+par\s+les\s+parois|isolation\s+de\s+l.enveloppe/i },
+    { cle: 'air',         icone: 'bi-wind',                  poste_fr: "Étanchéité à l'air",           detecteur: /[eé]tanch[eé]it[eé][\s\w]*air|fuites?\s+d.air/i },
+    { cle: 'ventilation', icone: 'bi-arrows-angle-contract', poste_fr: 'Ventilation',                   detecteur: /ventilation/i },
+    { cle: 'chauffage',   icone: 'bi-thermometer-half',      poste_fr: 'Chauffage',                     detecteur: /chauffage/i },
+    { cle: 'ecs',         icone: 'bi-droplet-half',          poste_fr: 'Eau chaude sanitaire',          detecteur: /eau\s+chaude\s+sanitaire|chauffe.eau/i }
+  ].freeze
+
+  POSTES_FLANDRE_DEF = [
+    { cle: 'parois',      icone: 'bi-bricks',                poste_fr: 'Isolatie dak/muren/vloer',      detecteur: /(?:dak|muur|vloer)isolat/i },
+    { cle: 'air',         icone: 'bi-wind',                  poste_fr: 'Luchtdichtheid',                detecteur: /luchtdicht/i },
+    { cle: 'ventilation', icone: 'bi-arrows-angle-contract', poste_fr: 'Ventilatie',                    detecteur: /ventilatie/i },
+    { cle: 'chauffage',   icone: 'bi-thermometer-half',      poste_fr: 'Verwarmingsinstallatie',        detecteur: /verwarming/i },
+    { cle: 'ecs',         icone: 'bi-droplet-half',          poste_fr: 'Warm water',                    detecteur: /warm\s*water/i }
+  ].freeze
+
   # ─────────────────────────────────────────────────────────────────────────────
   # Point d'entrée
   # ─────────────────────────────────────────────────────────────────────────────
@@ -94,6 +121,9 @@ class PebOcrService < OcrService
     if donnees[:label_peb].blank? && donnees[:score_ep].present?
       donnees[:label_peb] = deduire_label_depuis_score(donnees[:score_ep], region)
     end
+
+    # Extraction des recommandations d'amélioration énergétique
+    donnees[:recommandations] = self.class.recommandations_depuis_texte(texte, region)
 
     confiance = calculer_confiance(donnees)
     donnees[:confiance_ocr]      = confiance
@@ -300,5 +330,92 @@ class PebOcrService < OcrService
     elsif val <= 510 then 'F'
     else                  'G'
     end
+  end
+
+  # ── Recommandations — méthode de classe (utilisable sans instanciation) ───────
+
+  # Principe : "Recommandations? :" suivi du texte sur la même ligne + lignes de
+  # continuation jusqu'à la prochaine ligne vide.
+  # IMPORTANT : utiliser [ \t]* (pas \s*) après le colon pour ne pas traverser les
+  # sauts de ligne et manquer le début de la phrase.
+  #
+  # ── Recommandations — retourne un array de postes structurés ────────────────
+  # Format : [{ 'poste', 'icone', 'cle', 'detecte', 'has_recommandation',
+  #             'recommandation', 'elements' => [{ 'id', 'denomination', 'surface', 'justification' }] }]
+  def self.recommandations_depuis_texte(texte, region)
+    return [] unless texte.present? && region.present?
+
+    texte = texte.gsub(/\r\n/, "\n").gsub(/\r/, "\n")
+
+    postes_def = case region
+                 when 'wallonie'  then POSTES_WALLONIE_DEF
+                 when 'bruxelles' then POSTES_BRUXELLES_DEF
+                 when 'flandre'   then POSTES_FLANDRE_DEF
+                 else return []
+                 end
+
+    reco_kw = (region == 'flandre') \
+      ? /Aanbevelingen?[ \t]*:[ \t]*/i \
+      : /Recommandations?[ \t]*:[ \t]*/i
+
+    postes_def.map do |defn|
+      debut_idx = texte.index(defn[:detecteur])
+
+      unless debut_idx
+        next { 'poste' => defn[:poste_fr], 'icone' => defn[:icone], 'cle' => defn[:cle],
+               'detecte' => false, 'has_recommandation' => false, 'recommandation' => nil, 'elements' => [] }
+      end
+
+      # Section = du poste courant jusqu'au début du suivant détecté
+      fin_idx = postes_def.filter_map { |p|
+        idx = texte.index(p[:detecteur], debut_idx + 1)
+        idx if idx && idx > debut_idx
+      }.min || texte.length
+
+      section = texte[debut_idx...fin_idx]
+
+      # Première recommandation non-nulle de la section
+      reco = nil
+      if (m = section.match(/#{reco_kw}([^\n]+(?:\n(?!\n)[^\n]+)*)/))
+        t = m[1].gsub(/\n/, ' ').gsub(/\s{2,}/, ' ').strip
+        reco = t unless t.match?(/\Aaucune[.\s]*\z/i) || t.length < 8
+      end
+
+      # Éléments de parois (poste 'parois' uniquement)
+      elements = defn[:cle] == 'parois' ? self.extraire_elements_parois(section) : []
+
+      { 'poste' => defn[:poste_fr], 'icone' => defn[:icone], 'cle' => defn[:cle],
+        'detecte' => true, 'has_recommandation' => reco.present?,
+        'recommandation' => reco, 'elements' => elements }
+    end.compact
+  end
+
+  # Extraire les éléments de parois (codes T/M/F/P + dénomination + surface)
+  # Seuls les éléments situés APRÈS un "Recommandations :" sont retenus
+  # (sections ③④⑤ = parois insuffisantes / sans isolation / inconnues)
+  def self.extraire_elements_parois(section)
+    elements = []
+    # Diviser par ligne "Recommandations : ..." → prendre les blocs suivants
+    blocs = section.split(/Recommandations?[ \t]*:[^\n]*\n/i)
+    blocs[1..].each do |bloc|
+      bloc.each_line do |line|
+        line = line.strip
+        next if line.blank?
+        m = line.match(/\A([A-Z]\d+)\s+(.+?)\s+(\d+[,.]?\d*)\s*m[²2]\s*(.*)\z/)
+        next unless m
+        elements << {
+          'id'            => m[1],
+          'denomination'  => m[2].strip,
+          'surface'       => "#{m[3]} m²",
+          'justification' => m[4].gsub(/\s+/, ' ').strip
+        }
+      end
+    end
+    elements.uniq { |e| e['id'] }
+  end
+
+  # ── Recommandations — méthode d'instance (délègue à la méthode de classe) ────
+  def extraire_recommandations(texte, region)
+    self.class.recommandations_depuis_texte(texte, region)
   end
 end

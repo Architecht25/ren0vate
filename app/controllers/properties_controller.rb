@@ -1,6 +1,6 @@
 class PropertiesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_property, only: [:show, :dashboard, :edit, :update, :destroy, :documents_dashboard]
+  before_action :set_property, only: [:show, :dashboard, :edit, :update, :destroy, :documents_dashboard, :peb_recommandations]
 
   def index
     @properties = current_user.properties
@@ -141,11 +141,38 @@ class PropertiesController < ApplicationController
       montant_total_demande: @request_progresses.sum(:montant_demande) || 0,
       montant_total_accorde: @request_progresses.sum(:montant_accorde) || 0
     }
+
+    # Données PEB pour la carte recommandations du dashboard
+    @peb_donnees_recent = @property.peb_donnees.order(created_at: :desc).limit(3)
+  end
+
+  def peb_recommandations
+    all_peb = @property.peb_donnees.includes(:document).order(created_at: :desc)
+
+    # Backfill — force si recommandations absentes OU si fragments détectés (moy < 50 chars)
+    all_peb.each do |peb|
+      next unless peb.texte_ocr_brut.present? && peb.region.present?
+
+      existing = peb.donnees_extraites['recommandations'] || []
+      needs_refresh = existing.empty? ||
+                      existing.first.is_a?(String) ||
+                      (existing.first.is_a?(Hash) && existing.first['poste'].blank?)
+      next unless needs_refresh
+
+      recs = PebOcrService.recommandations_depuis_texte(peb.texte_ocr_brut, peb.region)
+      peb.update_column(:donnees_extraites, peb.donnees_extraites.merge('recommandations' => recs))
+    end
+
+    # Dédupliquer par numero_certificat (garder le plus récent de chaque groupe)
+    all_peb = @property.peb_donnees.includes(:document).order(created_at: :desc)
+    @peb_donnees = all_peb
+      .group_by { |p| p.numero_certificat.presence || "id_#{p.id}" }
+      .map { |_, group| group.first }
+      .sort_by(&:created_at).reverse
   end
 
   def documents_dashboard
     @property = current_user.properties.find(params[:id])
-    @documents_by_type = @property.documents_by_type
     @document_stats = Document.completion_stats_for_property(@property)
 
     # Nouveau système de phases
