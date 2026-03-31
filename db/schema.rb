@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_27_203403) do
+ActiveRecord::Schema[8.0].define(version: 2026_03_31_091528) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -49,6 +49,33 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_27_203403) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "aer_donnees", force: :cascade do |t|
+    t.bigint "document_id", null: false
+    t.bigint "user_id", null: false
+    t.string "annee_revenus"
+    t.string "annee_exercice_imposition"
+    t.decimal "revenu_imposable_global", precision: 12, scale: 2
+    t.decimal "revenu_demandeur", precision: 12, scale: 2
+    t.decimal "revenu_conjoint", precision: 12, scale: 2
+    t.integer "nombre_enfants_charge"
+    t.string "nom_contribuable"
+    t.string "prenom_contribuable"
+    t.string "adresse_contribuable"
+    t.date "date_enrolement"
+    t.string "type_declaration"
+    t.decimal "confiance_ocr", precision: 5, scale: 2
+    t.boolean "valide_manuellement", default: false, null: false
+    t.boolean "extraction_complete", default: false, null: false
+    t.boolean "revenus_potentiellement_perimes", default: false, null: false
+    t.text "texte_ocr_brut"
+    t.jsonb "donnees_extraites", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["document_id"], name: "index_aer_donnees_on_document_id"
+    t.index ["user_id", "annee_revenus"], name: "index_aer_donnees_on_user_id_and_annee_revenus"
+    t.index ["user_id"], name: "index_aer_donnees_on_user_id"
   end
 
   create_table "categories", force: :cascade do |t|
@@ -222,6 +249,29 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_27_203403) do
     t.index ["session_id"], name: "index_page_visits_on_session_id"
     t.index ["user_id"], name: "index_page_visits_on_user_id"
     t.index ["visited_at"], name: "index_page_visits_on_visited_at"
+  end
+
+  create_table "peb_donnees", force: :cascade do |t|
+    t.bigint "property_id", null: false
+    t.bigint "document_id"
+    t.bigint "user_id", null: false
+    t.string "region"
+    t.string "numero_certificat"
+    t.string "label_peb"
+    t.decimal "score_ep", precision: 8, scale: 2
+    t.decimal "surface_reference", precision: 8, scale: 2
+    t.date "date_certificat"
+    t.date "date_validite"
+    t.integer "confiance_ocr"
+    t.boolean "valide_manuellement", default: false
+    t.boolean "extraction_complete", default: false
+    t.text "texte_ocr_brut"
+    t.jsonb "donnees_extraites", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["document_id"], name: "index_peb_donnees_on_document_id"
+    t.index ["property_id"], name: "index_peb_donnees_on_property_id"
+    t.index ["user_id"], name: "index_peb_donnees_on_user_id"
   end
 
   create_table "prime_document_templates", force: :cascade do |t|
@@ -566,6 +616,24 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_27_203403) do
     t.index ["user_id"], name: "index_requests_on_user_id"
   end
 
+  create_table "rib_donnees", force: :cascade do |t|
+    t.bigint "document_id", null: false
+    t.bigint "user_id", null: false
+    t.string "iban"
+    t.string "bic"
+    t.string "nom_titulaire"
+    t.string "nom_banque"
+    t.decimal "confiance_ocr", precision: 5, scale: 2
+    t.boolean "valide_manuellement", default: false, null: false
+    t.boolean "extraction_complete", default: false, null: false
+    t.text "texte_ocr_brut"
+    t.jsonb "donnees_extraites", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["document_id"], name: "index_rib_donnees_on_document_id"
+    t.index ["user_id"], name: "index_rib_donnees_on_user_id"
+  end
+
   create_table "simulations", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "property_id", null: false
@@ -653,6 +721,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_27_203403) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "aer_donnees", "documents"
+  add_foreign_key "aer_donnees", "users"
   add_foreign_key "complement_requests", "request_progresses"
   add_foreign_key "document_phase_statuses", "document_phases"
   add_foreign_key "document_phase_statuses", "properties"
@@ -670,6 +740,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_27_203403) do
   add_foreign_key "notifications", "simulations"
   add_foreign_key "notifications", "users"
   add_foreign_key "page_visits", "users"
+  add_foreign_key "peb_donnees", "documents"
+  add_foreign_key "peb_donnees", "properties"
+  add_foreign_key "peb_donnees", "users"
   add_foreign_key "prime_document_templates", "primes"
   add_foreign_key "prime_submissions", "properties"
   add_foreign_key "prime_submissions", "users"
@@ -688,6 +761,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_27_203403) do
   add_foreign_key "requests", "properties"
   add_foreign_key "requests", "simulations"
   add_foreign_key "requests", "users"
+  add_foreign_key "rib_donnees", "documents"
+  add_foreign_key "rib_donnees", "users"
   add_foreign_key "simulations", "projects"
   add_foreign_key "simulations", "properties"
   add_foreign_key "simulations", "users"

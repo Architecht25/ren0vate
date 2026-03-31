@@ -1,18 +1,5 @@
 <% property ||= @property %>
-<div class="container-fluid px-4 py-3">
-  <!-- Header compact avec avatar -->
-  <div class="row justify-content-center mb-3">
-    <div class="col-lg-10">
-      <div class="text-center">
-        <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
-          <i class="bi bi-house text-white fs-4"></i>
-        </div>
-        <h1 class="h3 text-dark fw-light mb-1">Propriété en Flandre</h1>
-        <p class="text-muted small">Informations sur votre bien à rénover</p>
-      </div>
-    </div>
-  </div>
-
+<div class="container-fluid px-0">
   <%= simple_form_for property, local: true, html: { class: "needs-validation", novalidate: true } do |f| %>
     <!-- Style CSS renforcé pour les champs obligatoires -->
     <style>
@@ -61,7 +48,7 @@
 
           <!-- Carte 1: Nom du bien -->
           <div class="col-lg-6">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
+            <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
                   <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -126,7 +113,7 @@
 
           <!-- Carte 2: Adresse -->
           <div class="col-lg-6">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
+            <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
                   <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -213,7 +200,7 @@
 
           <!-- Carte 3: Type de bien -->
           <div class="col-lg-6">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
+            <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
                   <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -289,7 +276,7 @@
 
           <!-- Carte 4: Informations d'achat -->
           <div class="col-lg-6">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
+            <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
                   <div class="bg-info bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -353,7 +340,7 @@
 
           <!-- Carte 5: Statut de propriété -->
           <div class="col-lg-6">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
+            <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
                   <div class="bg-purple bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background: linear-gradient(45deg, #6f42c1, #8b5cf6) !important;">
@@ -428,7 +415,7 @@
 
           <!-- Carte 6: Domiciliation -->
           <div class="col-lg-6">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
+            <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
                   <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -473,7 +460,7 @@
 
           <!-- Carte 7: Caractéristiques techniques -->
           <div class="col-lg-8">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
+            <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
                   <div class="bg-danger bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -564,7 +551,7 @@
 
           <!-- Carte 8: Questions spécifiques -->
           <div class="col-lg-4">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
+            <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
                   <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -619,7 +606,7 @@
 
           <!-- Carte 9: Questions PEB -->
           <div class="col-lg-6">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
+            <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
                   <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -632,6 +619,67 @@
                 </div>
               </div>
               <div class="card-body px-4 py-3">
+                <!-- Bouton scan PEB -->
+                <div class="mb-3">
+                  <button type="button" id="btn-scan-peb-flandre"
+                          class="btn btn-outline-success btn-sm rounded-3 px-3"
+                          data-bs-toggle="tooltip"
+                          title="Scan uw EPC voor automatisch invullen">
+                    <i class="bi bi-file-earmark-bar-graph me-1"></i>EPC scannen
+                  </button>
+                  <input type="file" id="peb-file-input-flandre" accept=".pdf,image/jpeg,image/png" class="d-none">
+                  <div id="peb-ocr-status-flandre" class="d-none mt-2">
+                    <div class="alert border-0 rounded-3 py-2 mb-0" id="peb-ocr-alert-flandre">
+                      <div class="d-flex align-items-center gap-2">
+                        <div id="peb-ocr-spinner-flandre" class="spinner-border spinner-border-sm text-success d-none" role="status"></div>
+                        <i id="peb-ocr-icon-flandre" class="bi d-none"></i>
+                        <span id="peb-ocr-message-flandre" class="small"></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Données OCR -->
+                <% peb_fl = property&.peb_donnees&.order(created_at: :desc)&.first %>
+                <div class="row g-2 mb-3">
+                  <div class="col-2" style="min-width:55px">
+                    <label class="form-label text-dark fw-medium mb-1 small"><i class="bi bi-award me-1 text-success"></i>Label</label>
+                    <div id="peb-label-display-flandre"
+                      class="form-control border-2 rounded-3 px-2 bg-light text-center fw-bold fs-5 <%= peb_fl&.label_peb ? 'text-' + peb_fl.couleur_bootstrap : 'text-muted' %>"
+                      style="border-color:#e9ecef !important;"><%= peb_fl&.label_peb || '—' %></div>
+                  </div>
+                  <div class="col-3">
+                    <label class="form-label text-dark fw-medium mb-1 small"><i class="bi bi-speedometer me-1 text-success"></i>Energiescore</label>
+                    <div id="peb-score-display-flandre" class="form-control border-2 rounded-3 px-3 bg-light text-muted small" style="border-color:#e9ecef !important;">
+                      <%= peb_fl&.score_ep_formate || '—' %>
+                    </div>
+                  </div>
+                  <div class="col-2">
+                    <label class="form-label text-dark fw-medium mb-1 small"><i class="bi bi-arrows-angle-expand me-1 text-success"></i>Opp. (m²)</label>
+                    <div id="peb-surface-display-flandre" class="form-control border-2 rounded-3 px-3 bg-light text-muted small" style="border-color:#e9ecef !important;">
+                      <%= peb_fl&.surface_reference ? "#{peb_fl.surface_reference.to_i} m²" : '—' %>
+                    </div>
+                  </div>
+                  <div class="col-5">
+                    <label class="form-label text-dark fw-medium mb-1 small"><i class="bi bi-hash me-1 text-success"></i>Certificaatnummer</label>
+                    <div id="peb-numero-display-flandre" class="form-control border-2 rounded-3 px-3 bg-light text-muted" style="border-color:#e9ecef !important;font-size:0.72rem;">
+                      <%= peb_fl&.numero_certificat || '—' %>
+                    </div>
+                  </div>
+                  <div class="col-3">
+                    <label class="form-label text-dark fw-medium mb-1 small"><i class="bi bi-calendar-check me-1 text-success"></i>Datum cert.</label>
+                    <div id="peb-date-cert-display-flandre" class="form-control border-2 rounded-3 px-3 bg-light text-muted small" style="border-color:#e9ecef !important;">
+                      <%= peb_fl&.date_certificat&.strftime('%d/%m/%Y') || '—' %>
+                    </div>
+                  </div>
+                  <div class="col-3">
+                    <label class="form-label text-dark fw-medium mb-1 small"><i class="bi bi-calendar-x me-1 <%= peb_fl&.perime? ? 'text-danger' : 'text-success' %>"></i>Geldig tot</label>
+                    <div id="peb-date-valid-display-flandre"
+                      class="form-control border-2 rounded-3 px-3 bg-light small <%= peb_fl&.perime? ? 'text-danger' : 'text-muted' %>"
+                      style="border-color:#e9ecef !important;">
+                      <%= peb_fl&.date_validite&.strftime('%d/%m/%Y') || '—' %>
+                    </div>
+                  </div>
+                </div>
                 <div class="row g-2">
                   <div class="col-12">
                     <label class="form-label text-dark fw-medium mb-3">
@@ -685,9 +733,50 @@
             </div>
           </div>
 
+<script>
+(function () {
+  var propertyId = '<%= property&.id %>';
+  var btn=document.getElementById('btn-scan-peb-flandre'),
+      inp=document.getElementById('peb-file-input-flandre'),
+      sta=document.getElementById('peb-ocr-status-flandre'),
+      ale=document.getElementById('peb-ocr-alert-flandre'),
+      spi=document.getElementById('peb-ocr-spinner-flandre'),
+      ico=document.getElementById('peb-ocr-icon-flandre'),
+      msg=document.getElementById('peb-ocr-message-flandre');
+  if (!btn) return;
+  btn.addEventListener('click', function(){inp.click();});
+  inp.addEventListener('change', function(){
+    var file=inp.files[0]; if(!file) return;
+    sta.classList.remove('d-none');
+    ale.className='alert border-0 rounded-3 py-2 mb-0 alert-secondary';
+    spi.classList.remove('d-none'); ico.classList.add('d-none');
+    msg.textContent='EPC aan het analyseren…'; btn.disabled=true;
+    var fd=new FormData(); fd.append('file',file);
+    if(propertyId) fd.append('property_id',propertyId);
+    fetch('<%= ocr_scan_peb_path %>',{method:'POST',headers:{'X-CSRF-Token':document.querySelector('meta[name="csrf-token"]').content},body:fd})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      spi.classList.add('d-none'); btn.disabled=false;
+      if(!d.success){show('danger','bi-exclamation-triangle-fill',d.error||'Extractie mislukt.');return;}
+      set('peb-label-display-flandre', d.label_peb||'—');
+      set('peb-score-display-flandre', d.score_ep?d.score_ep+' kWh/(m².an)':'—');
+      set('peb-surface-display-flandre', d.surface_reference?d.surface_reference+' m²':'—');
+      set('peb-numero-display-flandre', d.numero_certificat||'—');
+      set('peb-date-cert-display-flandre', d.date_certificat||'—');
+      set('peb-date-valid-display-flandre', d.date_validite||'—');
+      show(d.extraction_complete?'success':'warning', d.extraction_complete?'bi-check-circle-fill':'bi-exclamation-circle-fill', d.message);
+    })
+    .catch(function(){spi.classList.add('d-none');btn.disabled=false;show('danger','bi-exclamation-triangle-fill','Netwerkfout.');});
+    inp.value='';
+  });
+  function set(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+  function show(t,ic,m){ale.className='alert border-0 rounded-3 py-2 mb-0 alert-'+t;ico.className='bi '+ic+' text-'+t;ico.classList.remove('d-none');msg.textContent=m;}
+})();
+</script>
+
           <!-- Carte 10: Reconstruction -->
           <div class="col-lg-6">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
+            <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
                   <div class="bg-secondary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -726,7 +815,7 @@
     <div class="col-lg-10">
       <div class="row g-4">
         <div class="col-lg-12">
-          <div class="card border-0 shadow-lg rounded-4">
+          <div class="card rounded-4">
             <div class="card-header bg-white border-0 py-3">
               <div class="d-flex align-items-center">
                 <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">

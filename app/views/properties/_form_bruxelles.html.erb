@@ -1,18 +1,5 @@
 <% property ||= @property %>
-<div class="container-fluid px-4 py-3">
-  <!-- Header compact avec avatar -->
-  <div class="row justify-content-center mb-3">
-    <div class="col-lg-10">
-      <div class="text-center">
-        <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
-          <i class="bi bi-building text-white fs-4"></i>
-        </div>
-        <h1 class="h3 text-dark fw-light mb-1">Propriété à Bruxelles-Capitale</h1>
-        <p class="text-muted small">Informations sur votre bien à rénover</p>
-      </div>
-    </div>
-  </div>
-
+<div class="container-fluid px-0">
   <%= simple_form_for property, local: true, html: { class: "needs-validation", novalidate: true } do |f| %>
     <!-- Style CSS renforcé pour les champs obligatoires -->
     <style>
@@ -61,7 +48,7 @@
 
           <!-- Carte 1: Nom du bien -->
           <div class="col-lg-6">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
+            <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
                   <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -127,7 +114,7 @@
 
           <!-- Carte 2: Adresse -->
           <div class="col-lg-6">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
+            <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
                   <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -212,7 +199,7 @@
 
           <!-- Carte 3: Type de bien -->
           <div class="col-lg-6">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
+            <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
                   <div class="bg-secondary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -292,7 +279,7 @@
 
           <!-- Carte 4: Informations d'achat -->
           <div class="col-lg-6">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
+            <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
                   <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -354,7 +341,7 @@
 
           <!-- Section Caractéristiques spécifiques à Bruxelles -->
           <div class="col-12 mb-3">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
+            <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
                   <div class="bg-info bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -368,43 +355,72 @@
               </div>
               <div class="card-body px-4 py-3">
                 <div class="row g-2">
-                  <div class="col-md-4">
-                    <%= f.input :certificat_peb_bruxelles,
-                        label: '<i class="bi bi-speedometer2 me-2 text-primary"></i>Classe PEB'.html_safe,
-                        as: :select,
-                        collection: ["A+", "A", "B", "C", "D", "E", "F", "G"],
-                        prompt: "-- Sélectionnez --",
-                        wrapper_html: { class: "mb-3" },
-                        label_html: { class: "form-label text-dark fw-medium mb-1" },
-                        input_html: {
-                          class: "form-control border-2 rounded-3 px-3",
-                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
-                        } %>
-                  </div>
-                  <div class="col-md-4">
-                    <div class="mb-3">
-                      <label class="form-label text-dark fw-medium mb-1">
-                        <i class="bi bi-calendar3 me-2 text-primary"></i>Date du certificat PEB
-                      </label>
-                      <div class="d-flex gap-2">
-                        <%= f.date_select :date_peb_avant_travaux,
-                            { order: [:day, :month, :year],
-                              start_year: 1950,
-                              end_year: 2040,
-                              include_blank: false },
-                            { class: "form-select border-2 rounded-3 px-3",
-                              style: "background: #f8f9fa; border-color: #e9ecef !important;" } %>
+                  <!-- Scan PEB -->
+                  <div class="col-12 mb-2">
+                    <button type="button" id="btn-scan-peb-bruxelles"
+                            class="btn btn-outline-primary btn-sm rounded-3 px-3"
+                            data-bs-toggle="tooltip"
+                            title="Scanner votre certificat PEB pour remplir automatiquement les champs">
+                      <i class="bi bi-file-earmark-bar-graph me-1"></i>Scanner mon certificat PEB
+                    </button>
+                    <input type="file" id="peb-file-input-bruxelles" accept=".pdf,image/jpeg,image/png" class="d-none">
+                    <div id="peb-ocr-status-bruxelles" class="d-none mt-2">
+                      <div class="alert border-0 rounded-3 py-2 mb-0" id="peb-ocr-alert-bruxelles">
+                        <div class="d-flex align-items-center gap-2">
+                          <div id="peb-ocr-spinner-bruxelles" class="spinner-border spinner-border-sm text-primary d-none" role="status"></div>
+                          <i id="peb-ocr-icon-bruxelles" class="bi d-none"></i>
+                          <span id="peb-ocr-message-bruxelles" class="small"></span>
+                        </div>
                       </div>
-                      <small class="text-muted">
-                        <i class="bi bi-info-circle me-1"></i>Date d'établissement du certificat
-                      </small>
                     </div>
                   </div>
+                  <!-- Affichage données OCR -->
+                  <% peb_bxl = property&.peb_donnees&.order(created_at: :desc)&.first %>
+                  <div class="col-md-2">
+                    <label class="form-label text-dark fw-medium mb-1 small"><i class="bi bi-award me-1 text-primary"></i>Label PEB</label>
+                    <div id="peb-label-display-bruxelles"
+                      class="form-control border-2 rounded-3 px-2 bg-light text-center fw-bold fs-5 <%= peb_bxl&.label_peb ? 'text-' + peb_bxl.couleur_bootstrap : 'text-muted' %>"
+                      style="border-color:#e9ecef !important;"><%= peb_bxl&.label_peb || '—' %></div>
+                  </div>
+                  <div class="col-md-2">
+                    <label class="form-label text-dark fw-medium mb-1 small"><i class="bi bi-speedometer me-1 text-primary"></i>Score EP</label>
+                    <div id="peb-score-display-bruxelles" class="form-control border-2 rounded-3 px-3 bg-light text-muted small" style="border-color:#e9ecef !important;">
+                      <%= peb_bxl&.score_ep_formate || '—' %>
+                    </div>
+                  </div>
+                  <div class="col-md-2">
+                    <label class="form-label text-dark fw-medium mb-1 small"><i class="bi bi-arrows-angle-expand me-1 text-primary"></i>Surface</label>
+                    <div id="peb-surface-display-bruxelles" class="form-control border-2 rounded-3 px-3 bg-light text-muted small" style="border-color:#e9ecef !important;">
+                      <%= peb_bxl&.surface_reference ? "#{peb_bxl.surface_reference.to_i} m²" : '—' %>
+                    </div>
+                  </div>
+                  <div class="col-md-2">
+                    <label class="form-label text-dark fw-medium mb-1 small"><i class="bi bi-hash me-1 text-primary"></i>N° certificat</label>
+                    <div id="peb-numero-display-bruxelles" class="form-control border-2 rounded-3 px-3 bg-light text-muted" style="border-color:#e9ecef !important;font-size:0.72rem;">
+                      <%= peb_bxl&.numero_certificat || '—' %>
+                    </div>
+                  </div>
+                  <div class="col-md-2">
+                    <label class="form-label text-dark fw-medium mb-1 small"><i class="bi bi-calendar-check me-1 text-primary"></i>Établi le</label>
+                    <div id="peb-date-cert-display-bruxelles" class="form-control border-2 rounded-3 px-3 bg-light text-muted small" style="border-color:#e9ecef !important;">
+                      <%= peb_bxl&.date_certificat&.strftime('%d/%m/%Y') || '—' %>
+                    </div>
+                  </div>
+                  <div class="col-md-2">
+                    <label class="form-label text-dark fw-medium mb-1 small"><i class="bi bi-calendar-x me-1 <%= peb_bxl&.perime? ? 'text-danger' : 'text-primary' %>"></i>Valide jusqu'au</label>
+                    <div id="peb-date-valid-display-bruxelles"
+                      class="form-control border-2 rounded-3 px-3 bg-light small <%= peb_bxl&.perime? ? 'text-danger' : 'text-muted' %>"
+                      style="border-color:#e9ecef !important;">
+                      <%= peb_bxl&.date_validite&.strftime('%d/%m/%Y') || '—' %>
+                    </div>
+                  </div>
+
+                  <!-- Champs formulaire -->
                   <div class="col-md-4">
                     <%= f.input :annee_construction,
                         label: '<i class="bi bi-calendar-event me-2 text-primary"></i>Année de construction*'.html_safe,
                         placeholder: "ex. 1985",
-                        wrapper_html: { class: "mb-3" },
+                        wrapper_html: { class: "mb-3 mt-2" },
                         label_html: { class: "form-label text-dark fw-medium mb-1" },
                         input_html: {
                           class: "form-control border-2 rounded-3 px-3",
@@ -412,6 +428,60 @@
                         } %>
                   </div>
                 </div>
+                  <div class="col-md-4">
+                    <%= f.input :annee_construction,
+                        label: '<i class="bi bi-calendar-event me-2 text-primary"></i>Année de construction*'.html_safe,
+                        placeholder: "ex. 1985",
+                        wrapper_html: { class: "mb-3 mt-2" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                        } %>
+                  </div>
+                </div>
+
+<script>
+(function () {
+  var propertyId = '<%= property&.id %>';
+  var btn=document.getElementById('btn-scan-peb-bruxelles'),
+      inp=document.getElementById('peb-file-input-bruxelles'),
+      sta=document.getElementById('peb-ocr-status-bruxelles'),
+      ale=document.getElementById('peb-ocr-alert-bruxelles'),
+      spi=document.getElementById('peb-ocr-spinner-bruxelles'),
+      ico=document.getElementById('peb-ocr-icon-bruxelles'),
+      msg=document.getElementById('peb-ocr-message-bruxelles');
+  if (!btn) return;
+  btn.addEventListener('click', function(){inp.click();});
+  inp.addEventListener('change', function(){
+    var file=inp.files[0]; if(!file) return;
+    sta.classList.remove('d-none');
+    ale.className='alert border-0 rounded-3 py-2 mb-0 alert-secondary';
+    spi.classList.remove('d-none'); ico.classList.add('d-none');
+    msg.textContent='Analyse du certificat PEB…'; btn.disabled=true;
+    var fd=new FormData(); fd.append('file',file);
+    if(propertyId) fd.append('property_id',propertyId);
+    fetch('<%= ocr_scan_peb_path %>',{method:'POST',headers:{'X-CSRF-Token':document.querySelector('meta[name="csrf-token"]').content},body:fd})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      spi.classList.add('d-none'); btn.disabled=false;
+      if(!d.success){show('danger','bi-exclamation-triangle-fill',d.error||'Extraction échouée.');return;}
+      set('peb-label-display-bruxelles', d.label_peb||'—');
+      set('peb-score-display-bruxelles', d.score_ep?d.score_ep+' kWh/(m².an)':'—');
+      set('peb-surface-display-bruxelles', d.surface_reference?d.surface_reference+' m²':'—');
+      set('peb-numero-display-bruxelles', d.numero_certificat||'—');
+      set('peb-date-cert-display-bruxelles', d.date_certificat||'—');
+      set('peb-date-valid-display-bruxelles', d.date_validite||'—');
+      if(d.label_peb){var s=document.getElementById('property_certificat_peb_bruxelles');if(s){Array.from(s.options).forEach(function(o){o.selected=(o.value===d.label_peb);});s.classList.add('border-primary');}}
+      show(d.extraction_complete?'success':'warning', d.extraction_complete?'bi-check-circle-fill':'bi-exclamation-circle-fill', d.message);
+    })
+    .catch(function(){spi.classList.add('d-none');btn.disabled=false;show('danger','bi-exclamation-triangle-fill','Erreur réseau.');});
+    inp.value='';
+  });
+  function set(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}
+  function show(t,ic,m){ale.className='alert border-0 rounded-3 py-2 mb-0 alert-'+t;ico.className='bi '+ic+' text-'+t;ico.classList.remove('d-none');msg.textContent=m;}
+})();
+</script>
 
                 <div class="row g-2 mt-2">
                   <div class="col-md-6">
@@ -484,7 +554,7 @@
 
           <!-- Section Statuts spéciaux -->
           <div class="col-12 mb-3">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
+            <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
                   <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -536,7 +606,7 @@
     <!-- Boutons d'action modernes -->
     <div class="row justify-content-center mb-3">
       <div class="col-lg-10">
-        <div class="card border-0 shadow-lg rounded-4">
+        <div class="card rounded-4">
           <div class="card-header bg-white border-0 py-3">
             <div class="d-flex align-items-center">
               <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">

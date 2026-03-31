@@ -6,7 +6,10 @@ class Document < ApplicationRecord
   belongs_to :simulation, optional: true
 
   # Relation avec les données de facture extraites
-  has_one :facture, dependent: :destroy
+  has_one :facture,     dependent: :destroy
+  has_one :aer_donnee,  dependent: :destroy
+  has_one :rib_donnee,  dependent: :destroy
+  has_one :peb_donnee,  dependent: :destroy
 
   has_one_attached :file
 

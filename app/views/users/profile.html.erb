@@ -95,15 +95,121 @@
                         style: "background: #f8f9fa; border-color: #e9ecef !important;",
                         placeholder: "Ex: 77.15.06.123.88" %>
                   </div>
+                  <% rib_derniere = current_user.rib_donnees.order(created_at: :desc).first %>
                   <div class="col-md-4">
                     <label class="form-label text-dark fw-medium mb-1">
                       <i class="bi bi-bank me-2 text-primary"></i>IBAN
                     </label>
-                    <%= f.text_field :iban,
-                        class: "form-control border-2 rounded-3 px-3",
-                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                        placeholder: "Ex: BE68 5390 0754 7034" %>
+                    <div class="d-flex gap-2 align-items-start">
+                      <%= f.text_field :iban,
+                          id: 'user_iban',
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          placeholder: "Ex: BE68 5390 0754 7034" %>
+                      <button type="button"
+                              id="btn-scan-rib"
+                              class="btn btn-outline-primary btn-sm rounded-3 flex-shrink-0"
+                              style="height: 38px; white-space: nowrap;"
+                              data-bs-toggle="tooltip"
+                              title="Scanner votre RIB pour remplir automatiquement l'IBAN">
+                        <i class="bi bi-upc-scan"></i>
+                      </button>
+                      <input type="file" id="rib-file-input" accept=".pdf,image/jpeg,image/png" class="d-none">
+                    </div>
+                    <!-- Nom de la banque -->
+                    <small id="rib-nom-banque" class="text-muted mt-1 ms-1<%= rib_derniere&.nom_banque ? '' : ' d-none' %>">
+                      <i class="bi bi-building me-1"></i><span id="rib-nom-banque-text"><%= rib_derniere&.nom_banque %></span>
+                    </small>
+                    <!-- Zone statut OCR RIB -->
+                    <div id="rib-ocr-status" class="d-none mt-1">
+                      <div class="alert border-0 rounded-2 py-1 px-2 mb-0 small" id="rib-ocr-alert">
+                        <div class="d-flex align-items-center gap-2">
+                          <div id="rib-ocr-spinner" class="spinner-border spinner-border-sm text-primary d-none" role="status"></div>
+                          <i id="rib-ocr-icon" class="bi d-none"></i>
+                          <span id="rib-ocr-message"></span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
+
+<script>
+(function () {
+  const btnScan   = document.getElementById('btn-scan-rib');
+  const fileInput = document.getElementById('rib-file-input');
+  const statusZone = document.getElementById('rib-ocr-status');
+  const alertBox  = document.getElementById('rib-ocr-alert');
+  const spinner   = document.getElementById('rib-ocr-spinner');
+  const icon      = document.getElementById('rib-ocr-icon');
+  const msgEl     = document.getElementById('rib-ocr-message');
+  const fieldIban     = document.getElementById('user_iban');
+  const nomBanqueEl   = document.getElementById('rib-nom-banque');
+  const nomBanqueText = document.getElementById('rib-nom-banque-text');
+
+  btnScan.addEventListener('click', function () { fileInput.click(); });
+
+  fileInput.addEventListener('change', function () {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    statusZone.classList.remove('d-none');
+    alertBox.className = 'alert border-0 rounded-2 py-1 px-2 mb-0 small alert-secondary';
+    spinner.classList.remove('d-none');
+    icon.classList.add('d-none');
+    msgEl.textContent = 'Lecture du RIB…';
+    btnScan.disabled = true;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    fetch('<%= ocr_scan_rib_path %>', {
+      method: 'POST',
+      headers: { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
+      body: formData
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      spinner.classList.add('d-none');
+      btnScan.disabled = false;
+
+      if (!data.success) {
+        showStatus('danger', 'bi-exclamation-triangle-fill', data.error || 'Extraction échouée.');
+        return;
+      }
+
+      if (data.iban) {
+        // Insérer l'IBAN formaté avec les espaces (BE68 5390 0754 7034)
+        fieldIban.value = data.iban_formate || data.iban;
+        fieldIban.classList.add('border-primary');
+      }
+
+      if (data.nom_banque) {
+        nomBanqueText.textContent = data.nom_banque;
+        nomBanqueEl.classList.remove('d-none');
+      } else {
+        nomBanqueEl.classList.add('d-none');
+      }
+
+      var type = data.extraction_complete ? 'success' : 'warning';
+      var ic   = data.extraction_complete ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill';
+      showStatus(type, ic, data.message);
+    })
+    .catch(function () {
+      spinner.classList.add('d-none');
+      btnScan.disabled = false;
+      showStatus('danger', 'bi-exclamation-triangle-fill', 'Erreur réseau. Veuillez réessayer.');
+    });
+
+    fileInput.value = '';
+  });
+
+  function showStatus(type, iconClass, message) {
+    alertBox.className = 'alert border-0 rounded-2 py-1 px-2 mb-0 small alert-' + type;
+    icon.className = 'bi ' + iconClass + ' text-' + type;
+    icon.classList.remove('d-none');
+    msgEl.textContent = message;
+  }
+})();
+</script>
                 </div>
               </div>
             </div>
@@ -193,16 +299,54 @@
           <div class="col-lg-8">
             <div class="card h-100">
               <div class="card-header bg-white border-0 py-3">
-                <div class="d-flex align-items-center">
-                  <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                    <i class="bi bi-currency-euro text-white fs-6"></i>
+                <div class="d-flex align-items-center justify-content-between">
+                  <div class="d-flex align-items-center">
+                    <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                      <i class="bi bi-currency-euro text-white fs-6"></i>
+                    </div>
+                    <div>
+                      <h5 class="card-title mb-0 text-dark fw-normal">Informations fiscales</h5>
+                      <p class="text-muted small mb-0">Vos revenus pour le calcul des primes</p>
+                    </div>
                   </div>
+                  <!-- Bouton scan AER -->
                   <div>
-                    <h5 class="card-title mb-0 text-dark fw-normal">Informations fiscales</h5>
-                    <p class="text-muted small mb-0">Vos revenus pour le calcul des primes</p>
+                    <button type="button"
+                            id="btn-scan-aer"
+                            class="btn btn-outline-warning btn-sm rounded-3 px-3"
+                            data-bs-toggle="tooltip"
+                            title="Uploadez votre Avertissement-Extrait de Rôle pour remplir automatiquement ces champs">
+                      <i class="bi bi-file-earmark-text me-1"></i>Scanner mon AER
+                    </button>
+                    <input type="file" id="aer-file-input" accept=".pdf,image/jpeg,image/png" class="d-none">
                   </div>
                 </div>
               </div>
+
+              <!-- Zone d'info AER (masquée par défaut) -->
+              <div id="aer-info-banner" class="d-none mx-4 mb-0">
+                <div class="alert alert-warning border-0 rounded-3 py-2 mb-0">
+                  <div class="d-flex align-items-start gap-2">
+                    <i class="bi bi-lightbulb-fill text-warning mt-1 flex-shrink-0"></i>
+                    <div class="small">
+                      <strong>Qu'est-ce que l'AER ?</strong> L'Avertissement-Extrait de Rôle est le document fiscal que le SPF Finances vous envoie chaque année. Il récapitule votre imposition et mentionne vos <strong>revenus nets imposables globalement</strong> — la donnée clé pour le calcul des primes et prêts rénovation. Vous le trouverez aussi sur <a href="https://www.myminfin.be" target="_blank" rel="noopener" class="text-warning fw-medium">MyMinfin.be</a>.
+                      <br><em class="text-muted">Formats acceptés : PDF, JPEG, PNG (max 10 MB).</em>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Zone de progression OCR (masquée par défaut) -->
+              <div id="aer-ocr-status" class="d-none mx-4 mt-2">
+                <div class="alert border-0 rounded-3 py-2 mb-0" id="aer-ocr-alert">
+                  <div class="d-flex align-items-center gap-2">
+                    <div id="aer-ocr-spinner" class="spinner-border spinner-border-sm text-warning d-none" role="status"></div>
+                    <i id="aer-ocr-icon" class="bi d-none"></i>
+                    <span id="aer-ocr-message" class="small"></span>
+                  </div>
+                </div>
+              </div>
+
               <div class="card-body px-4 py-3">
                 <div class="row g-3">
                   <!-- Revenus demandeur -->
@@ -212,25 +356,21 @@
                         <i class="bi bi-person-check me-2 text-warning"></i>Vos revenus
                       </h6>
                       <label class="form-label text-dark fw-medium mb-1">Revenus Imposables Globalement</label>
-                      <div class="mb-2">
-                        <a href="https://www.minfin.fgov.be/myminfin-web/pages/public" target="_blank"
-                           class="text-decoration-none small text-primary">
-                          <i class="bi bi-search me-1"></i>Rechercher votre AER en ligne
-                        </a>
-                      </div>
                       <div class="row g-2">
                         <div class="col-8">
                           <%= f.number_field :revenu_demandeur,
+                              id: 'user_revenu_demandeur',
                               class: 'form-control border-2 rounded-3 px-3',
                               style: "background: white; border-color: #e9ecef !important;",
                               placeholder: 'Ex 21 374',
                               min: 0,
-                              step: 0.01 %>
+                              step: 1 %>
                         </div>
                         <div class="col-4">
                           <%= f.select :annee_revenus_demandeur,
                               [[2025, '2025'], [2024, '2024'], [2023, '2023'], [2022, '2022'], [2021, '2021']],
                               { prompt: 'Année' },
+                              id: 'user_annee_revenus_demandeur',
                               class: 'form-select border-2 rounded-3',
                               style: "background: white; border-color: #e9ecef !important;" %>
                         </div>
@@ -251,26 +391,155 @@
                       <div class="row g-2">
                         <div class="col-8">
                           <%= f.number_field :revenu_conjoint,
+                              id: 'user_revenu_conjoint',
                               class: 'form-control border-2 rounded-3 px-3',
                               style: "background: white; border-color: #e9ecef !important;",
                               placeholder: 'Ex: 19 671',
                               min: 0,
-                              step: 0.01 %>
+                              step: 1 %>
                         </div>
                         <div class="col-4">
                           <%= f.select :annee_revenus_conjoint,
                               [[2025, '2025'], [2024, '2024'], [2023, '2023'], [2022, '2022'], [2021, '2021']],
                               { prompt: 'Année' },
+                              id: 'user_annee_revenus_conjoint',
                               class: 'form-select border-2 rounded-3',
                               style: "background: white; border-color: #e9ecef !important;" %>
                         </div>
                       </div>
                     </div>
                   </div>
+                </div><!-- /row revenus -->
+
+                <!-- Badge confirmation AER scanné -->
+                <div id="aer-scanned-badge" class="d-none mt-3">
+                  <div class="d-flex align-items-center gap-2 text-success small">
+                    <i class="bi bi-patch-check-fill"></i>
+                    <span>Données pré-remplies depuis votre AER — vérifiez et sauvegardez.</span>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </div>
+
+              </div><!-- /card-body -->
+            </div><!-- /card -->
+          </div><!-- /col-lg-8 -->
+
+<script>
+(function () {
+  const btnScan    = document.getElementById('btn-scan-aer');
+  const fileInput  = document.getElementById('aer-file-input');
+  const infoBanner = document.getElementById('aer-info-banner');
+  const statusZone = document.getElementById('aer-ocr-status');
+  const alertBox   = document.getElementById('aer-ocr-alert');
+  const spinner    = document.getElementById('aer-ocr-spinner');
+  const icon       = document.getElementById('aer-ocr-icon');
+  const msgEl      = document.getElementById('aer-ocr-message');
+  const badge      = document.getElementById('aer-scanned-badge');
+
+  // Champs cibles à pré-remplir
+  const fieldRevenuDemandeur  = document.getElementById('user_revenu_demandeur');
+  const fieldRevenuConjoint   = document.getElementById('user_revenu_conjoint');
+  const fieldAnneeDemandeur   = document.getElementById('user_annee_revenus_demandeur');
+  const fieldAnneeConjoint    = document.getElementById('user_annee_revenus_conjoint');
+
+  // ── Formatage belge : 41691.27 → "41.691,27" (nl-BE : point milliers, virgule déc.)
+  function formatBE(num) {
+    if (num == null) return '—';
+    return Number(num).toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  // Premier clic → afficher la bannière pédagogique + ouvrir le sélecteur
+  btnScan.addEventListener('click', function () {
+    infoBanner.classList.remove('d-none');
+    fileInput.click();
+  });
+
+  fileInput.addEventListener('change', function () {
+    const file = fileInput.files[0];
+    if (!file) return;
+
+    // UI : démarrage
+    statusZone.classList.remove('d-none');
+    alertBox.className = 'alert border-0 rounded-3 py-2 mb-0 alert-secondary';
+    spinner.classList.remove('d-none');
+    icon.classList.add('d-none');
+    msgEl.textContent = 'Analyse de votre AER en cours…';
+    btnScan.disabled = true;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    fetch('<%= ocr_scan_aer_path %>', {
+      method: 'POST',
+      headers: { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').getAttribute('content') },
+      body: formData
+    })
+    .then(function (response) { return response.json(); })
+    .then(function (data) {
+      spinner.classList.add('d-none');
+      btnScan.disabled = false;
+
+      if (!data.success) {
+        showStatus('danger', 'bi-exclamation-triangle-fill', data.error || 'Extraction échouée.');
+        return;
+      }
+
+      // Pré-remplir les champs avec la valeur entière arrondie (colonnes integer du profil)
+      if (data.revenu_demandeur) {
+        fieldRevenuDemandeur.value = Math.round(data.revenu_demandeur);
+        fieldRevenuDemandeur.classList.add('border-warning');
+      }
+      if (data.revenu_conjoint) {
+        fieldRevenuConjoint.value = Math.round(data.revenu_conjoint);
+        fieldRevenuConjoint.classList.add('border-warning');
+      }
+      if (data.annee_revenus) {
+        setSelectValue(fieldAnneeDemandeur, data.annee_revenus);
+        if (data.revenu_conjoint) setSelectValue(fieldAnneeConjoint, data.annee_revenus);
+      }
+
+      // Message de retour avec montants formatés en nl-BE
+      var lignesMontants = [];
+      if (data.revenu_demandeur)  lignesMontants.push('Vous : ' + formatBE(data.revenu_demandeur) + ' €');
+      if (data.revenu_conjoint)   lignesMontants.push('Conjoint : ' + formatBE(data.revenu_conjoint) + ' €');
+      var suffixeMontants = lignesMontants.length ? ' (' + lignesMontants.join(' · ') + ')' : '';
+
+      const alertClass = data.revenus_potentiellement_perimes ? 'alert-warning'
+                       : data.extraction_complete            ? 'alert-success'
+                                                             : 'alert-warning';
+      const iconClass  = data.revenus_potentiellement_perimes ? 'bi-clock-history'
+                       : data.extraction_complete            ? 'bi-check-circle-fill'
+                                                             : 'bi-exclamation-circle-fill';
+      showStatus(alertClass.replace('alert-', ''), iconClass, data.message + suffixeMontants);
+
+      if (data.revenu_demandeur || data.revenu_conjoint) {
+        badge.classList.remove('d-none');
+      }
+    })
+    .catch(function (err) {
+      spinner.classList.add('d-none');
+      btnScan.disabled = false;
+      showStatus('danger', 'bi-exclamation-triangle-fill', 'Erreur réseau. Veuillez réessayer.');
+    });
+
+    // Réinitialiser l'input pour permettre un nouvel upload du même fichier
+    fileInput.value = '';
+  });
+
+  function showStatus(type, iconClass, message) {
+    alertBox.className = 'alert border-0 rounded-3 py-2 mb-0 alert-' + type;
+    icon.className = 'bi ' + iconClass + ' text-' + type;
+    icon.classList.remove('d-none');
+    msgEl.textContent = message;
+  }
+
+  function setSelectValue(selectEl, value) {
+    if (!selectEl) return;
+    Array.from(selectEl.options).forEach(function (opt) {
+      opt.selected = (opt.value === String(value));
+    });
+  }
+})();
+</script>
 
           <!-- Carte 4: Situation familiale -->
           <div class="col-lg-4">

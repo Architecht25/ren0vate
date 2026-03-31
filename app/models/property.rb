@@ -3,6 +3,7 @@ class Property < ApplicationRecord
 
   belongs_to :user
   has_many :simulations, dependent: :destroy
+  has_many :peb_donnees, dependent: :destroy
   has_many :projects, dependent: :destroy
   has_many :requests, dependent: :destroy
   has_many :documents, dependent: :destroy

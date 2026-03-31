@@ -1,18 +1,5 @@
 <% property ||= @property %>
-<div class="container-fluid px-4 py-3">
-  <!-- Header compact avec avatar -->
-  <div class="row justify-content-center mb-3">
-    <div class="col-lg-10">
-      <div class="text-center">
-        <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
-          <i class="bi bi-mountain text-white fs-4"></i>
-        </div>
-        <h1 class="h3 text-dark fw-light mb-1">Propriété en Wallonie</h1>
-        <p class="text-muted small">Informations sur votre bien à rénover</p>
-      </div>
-    </div>
-  </div>
-
+<div class="container-fluid px-0">
   <%= simple_form_for property, local: true, html: { class: "needs-validation", novalidate: true } do |f| %>
     <!-- Style CSS renforcé pour les champs obligatoires -->
     <style>
@@ -60,8 +47,8 @@
         <div class="row g-3">
 
           <!-- Carte 1: Nom du bien -->
-          <div class="col-lg-6">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
+          <div class="col-lg-4">
+            <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
                   <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -125,8 +112,8 @@
           </div>
 
           <!-- Carte 2: Adresse du bien -->
-          <div class="col-lg-6">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
+          <div class="col-lg-8">
+            <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
                   <div class="bg-info bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -204,14 +191,14 @@
         </div>
       </div>
     </div>
-    <!-- Deuxième rangée: Type de bien et Informations d'achat -->
+    <!-- Deuxième rangée: Type de bien, Informations d'achat et Occupation -->
     <div class="row justify-content-center mb-3">
       <div class="col-lg-10">
         <div class="row g-3">
 
           <!-- Carte 3: Type de bien -->
-          <div class="col-lg-6">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
+          <div class="col-lg-4">
+            <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
                   <div class="bg-secondary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -285,9 +272,65 @@
             </div>
           </div>
 
-          <!-- Carte 4: Informations d'achat -->
-          <div class="col-lg-6">
-            <div class="card border-0 shadow-lg rounded-4 h-100">
+          <!-- Carte 4: Occupation et usage -->
+          <div class="col-lg-4">
+            <div class="card rounded-4 h-100">
+              <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex align-items-center">
+                  <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                    <i class="bi bi-house-check text-white fs-6"></i>
+                  </div>
+                  <div>
+                    <h5 class="card-title mb-0 text-dark fw-normal">Occupation</h5>
+                    <p class="text-muted small mb-0">Éligibilité aux primes Wallonie</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 py-3">
+                <div class="row g-2">
+                  <div class="col-12">
+                    <%= f.input :occupation,
+                        label: '<i class="bi bi-house me-2 text-warning"></i>Type d\'occupation après travaux'.html_safe,
+                        collection: [
+                          ["Résidence principale pendant une durée minimale de 5 ans", "residence_principale"],
+                          ["Résidence secondaire", "residence_secondaire"],
+                          ["Location par bail enregistré (grille des loyers)", "location_5_ans_bail_enregistre"],
+                          ["Location via AIS / SLSP / APL", "location_9_ans_ais"],
+                          ["Mise à disposition gratuite (parent/allié 2° degré)", "location_gratuite_1_an"]
+                        ],
+                        include_blank: "Sélectionnez le type d'occupation",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-select border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                        } %>
+                    <small class="text-muted"><i class="bi bi-info-circle me-1"></i>Conditions pour l'éligibilité aux primes Wallonie</small>
+                  </div>
+                  <div class="col-12">
+                    <%= f.input :habitation_percentage,
+                        label: '<i class="bi bi-percent me-2 text-warning"></i>Pourcentage d\'habitation (%)'.html_safe,
+                        placeholder: "ex. 100",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          type: "number",
+                          min: "0",
+                          max: "100",
+                          step: "1"
+                        } %>
+                    <small class="text-muted"><i class="bi bi-info-circle me-1"></i>Minimum 50% requis pour les primes Wallonie</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Carte 5: Informations d'achat -->
+          <div class="col-lg-4">
+            <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
                   <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
@@ -338,67 +381,79 @@
             </div>
           </div>
 
+
+
         </div>
       </div>
     </div>
 
-    <!-- Troisième rangée: Occupation et usage -->
+    <!-- Quatrième rangée: Caractéristiques du bâtiment -->
     <div class="row justify-content-center mb-3">
       <div class="col-lg-10">
-        <div class="card border-0 shadow-lg rounded-4">
+        <div class="card rounded-4">
           <div class="card-header bg-white border-0 py-3">
             <div class="d-flex align-items-center">
-              <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                <i class="bi bi-house-check text-white fs-6"></i>
+              <div class="bg-info bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                <i class="bi bi-rulers text-white fs-6"></i>
               </div>
               <div>
-                <h5 class="card-title mb-0 text-dark fw-normal">Occupation et usage du bien</h5>
-                <p class="text-muted small mb-0">Informations pour l'éligibilité aux primes Wallonie</p>
+                <h5 class="card-title mb-0 text-dark fw-normal">Caractéristiques du bâtiment</h5>
+                <p class="text-muted small mb-0">Surface, construction et mode de chauffage</p>
               </div>
             </div>
           </div>
           <div class="card-body px-4 py-3">
             <div class="row g-2">
-              <div class="col-6">
-                <%= f.input :occupation,
-                    label: '<i class="bi bi-house me-2 text-warning"></i>Type d\'occupation après travaux'.html_safe,
-                    collection: [
-                      ["Résidence principale pendant une durée minimale de 5 ans", "residence_principale"],
-                      ["Résidence secondaire", "residence_secondaire"],
-                      ["Mettre le logement en location par un bail enregistré, dans le respect de la grille des loyers", "location_5_ans_bail_enregistre"],
-                      ["Mettre le logement à disposition d'une agence immobilière sociale (AIS) ou d'une société de logement de service public (SLSP) ou d'une association de promotion du logement (APL)", "location_9_ans_ais"],
-                      ["Mettre gratuitement et à titre de résidence principale, la totalité du logement à la disposition d'un parent ou allié jusqu'au deuxième degré inclusivement", "location_gratuite_1_an"]
-                    ],
-                    include_blank: "Sélectionnez le type d'occupation",
-                    wrapper_html: { class: "mb-3" },
-                    label_html: { class: "form-label text-dark fw-medium mb-1" },
-                    input_html: {
-                      class: "form-select border-2 rounded-3 px-3",
-                      style: "background: #f8f9fa; border-color: #e9ecef !important;"
-                    } %>
-                <small class="text-muted">
-                  <i class="bi bi-info-circle me-1"></i>
-                  Conditions de résidence et de location pour l'éligibilité aux primes Wallonie
-                </small>
-              </div>
-              <div class="col-6">
-                <%= f.input :habitation_percentage,
-                    label: '<i class="bi bi-percent me-2 text-warning"></i>Pourcentage d\'habitation (%)'.html_safe,
-                    placeholder: "ex. 100",
+              <div class="col-4">
+                <%= f.input :surface_habitable_wallonie,
+                    label: '<i class="bi bi-rulers me-2 text-info"></i>Surface habitable'.html_safe,
+                    placeholder: "ex. 120",
+                    hint: '<i class="bi bi-info-circle me-1"></i>Surface en m²'.html_safe,
                     wrapper_html: { class: "mb-3" },
                     label_html: { class: "form-label text-dark fw-medium mb-1" },
                     input_html: {
                       class: "form-control border-2 rounded-3 px-3",
                       style: "background: #f8f9fa; border-color: #e9ecef !important;",
                       type: "number",
-                      min: "0",
-                      max: "100",
+                      min: "1",
                       step: "1"
                     } %>
-                <small class="text-muted">
-                  <i class="bi bi-info-circle me-1"></i>
-                  Minimum 50% requis pour l'éligibilité aux primes Wallonie
-                </small>
+              </div>
+              <div class="col-4">
+                <%= f.input :annee_construction,
+                    label: '<i class="bi bi-calendar3 me-2 text-info"></i>Année de construction'.html_safe,
+                    placeholder: "ex. 1985",
+                    wrapper_html: { class: "mb-3" },
+                    label_html: { class: "form-label text-dark fw-medium mb-1" },
+                    input_html: {
+                      class: "form-control border-2 rounded-3 px-3",
+                      style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                      type: "number",
+                      min: "1800",
+                      max: Date.current.year,
+                      required: true
+                    } %>
+              </div>
+              <div class="col-4">
+                <%= f.input :mode_chauffage_wallonie,
+                    label: '<i class="bi bi-thermometer-half me-2 text-info"></i>Mode de chauffage'.html_safe,
+                    collection: [
+                      ["Gaz", "gaz"],
+                      ["Mazout", "mazout"],
+                      ["Électricité", "electricite"],
+                      ["Pompe à chaleur", "pompe_a_chaleur"],
+                      ["Bois/Biomasse", "bois_biomasse"],
+                      ["Charbon", "charbon"],
+                      ["Autre", "autre"]
+                    ],
+                    include_blank: "Sélectionnez le mode de chauffage",
+                    hint: '<i class="bi bi-info-circle me-1"></i>Mode de chauffage principal actuel'.html_safe,
+                    wrapper_html: { class: "mb-3" },
+                    label_html: { class: "form-label text-dark fw-medium mb-1" },
+                    input_html: {
+                      class: "form-select border-2 rounded-3 px-3",
+                      style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                    } %>
               </div>
             </div>
           </div>
@@ -406,60 +461,105 @@
       </div>
     </div>
 
-    <!-- Quatrième rangée: Caractéristiques spécifiques à la Wallonie -->
+    <!-- Cinquième rangée: Performance énergétique (PEB) -->
     <div class="row justify-content-center mb-3">
       <div class="col-lg-10">
-        <div class="card border-0 shadow-lg rounded-4">
+        <div class="card rounded-4">
           <div class="card-header bg-white border-0 py-3">
             <div class="d-flex align-items-center">
-              <div class="bg-danger bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                <i class="bi bi-flag-fill text-white fs-6"></i>
+              <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                <i class="bi bi-lightning-charge text-white fs-6"></i>
               </div>
               <div>
-                <h5 class="card-title mb-0 text-dark fw-normal">Caractéristiques spécifiques à la Wallonie</h5>
-                <p class="text-muted small mb-0">Performance énergétique et caractéristiques du bâtiment</p>
+                <h5 class="card-title mb-0 text-dark fw-normal">Performance énergétique (PEB)</h5>
+                <p class="text-muted small mb-0">Certificat de Performance Énergétique des Bâtiments avant travaux</p>
               </div>
             </div>
           </div>
           <div class="card-body px-4 py-3">
-
-            <!-- Performance énergétique -->
-            <div class="mb-4">
-              <div class="d-flex align-items-center mb-3">
-                <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px;">
-                  <i class="bi bi-lightning-charge text-white" style="font-size: 0.7rem;"></i>
-                </div>
-                <h6 class="mb-0 text-success fw-medium">Performance énergétique</h6>
+            <!-- Bouton scan PEB -->
+              <div class="d-flex align-items-center gap-2 mb-3">
+                <button type="button" id="btn-scan-peb-wallonie"
+                        class="btn btn-outline-success btn-sm rounded-3 px-3"
+                        data-bs-toggle="tooltip"
+                        title="Scanner votre certificat PEB pour remplir automatiquement les champs">
+                  <i class="bi bi-file-earmark-bar-graph me-1"></i>Scanner mon certificat PEB
+                </button>
+                <input type="file" id="peb-file-input-wallonie" accept=".pdf,image/jpeg,image/png" class="d-none">
               </div>
-              <div class="row g-2">
-                <div class="col-md-4">
-                  <%= f.input :certificat_peb_wallonie,
-                      label: '<i class="bi bi-file-earmark-text me-2 text-success"></i>Certificat PEB'.html_safe,
-                      placeholder: "ex. 350 kWh/m²/an",
-                      wrapper_html: { class: "mb-3" },
-                      label_html: { class: "form-label text-dark fw-medium mb-1" },
-                      input_html: {
-                        class: "form-control border-2 rounded-3 px-3",
-                        style: "background: #f8f9fa; border-color: #e9ecef !important;"
-                      } %>
-                </div>
-                <div class="col-md-4">
-                  <div class="mb-3">
-                    <label class="form-label text-dark fw-medium mb-1">
-                      <i class="bi bi-calendar me-2 text-success"></i>Date du certificat PEB
-                    </label>
-                    <div class="d-flex gap-2">
-                      <%= f.date_select :date_peb_avant_travaux,
-                          { order: [:day, :month, :year],
-                            start_year: 1950,
-                            end_year: 2040,
-                            include_blank: false },
-                          { class: "form-select border-2 rounded-3 px-3",
-                            style: "background: #f8f9fa; border-color: #e9ecef !important;" } %>
-                    </div>
+              <!-- Zone statut OCR PEB -->
+              <div id="peb-ocr-status-wallonie" class="d-none mb-3">
+                <div class="alert border-0 rounded-3 py-2 mb-0" id="peb-ocr-alert-wallonie">
+                  <div class="d-flex align-items-center gap-2">
+                    <div id="peb-ocr-spinner-wallonie" class="spinner-border spinner-border-sm text-success d-none" role="status"></div>
+                    <i id="peb-ocr-icon-wallonie" class="bi d-none"></i>
+                    <span id="peb-ocr-message-wallonie" class="small"></span>
                   </div>
                 </div>
-                <div class="col-md-4">
+              </div>
+
+              <div class="row g-2">
+                <!-- Champs OCR — 6 données extraites (lecture seule, pré-remplies par scan) -->
+                <% peb = property&.peb_donnees&.order(created_at: :desc)&.first %>
+                <div class="col-md-2">
+                  <label class="form-label text-dark fw-medium mb-1 small">
+                    <i class="bi bi-award me-1 text-success"></i>Label PEB
+                  </label>
+                  <div id="peb-label-display-wallonie" class="form-control border-2 rounded-3 px-3 bg-light text-center fw-bold fs-5
+                    <%= peb&.label_peb ? 'text-' + peb.couleur_bootstrap : 'text-muted' %>"
+                    style="border-color: #e9ecef !important;">
+                    <%= peb&.label_peb || '—' %>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label text-dark fw-medium mb-1 small">
+                    <i class="bi bi-speedometer me-1 text-success"></i>Score EP
+                  </label>
+                  <div id="peb-score-display-wallonie" class="form-control border-2 rounded-3 px-3 bg-light text-muted small"
+                    style="border-color: #e9ecef !important;">
+                    <%= peb&.score_ep_formate || '—' %>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label text-dark fw-medium mb-1 small">
+                    <i class="bi bi-arrows-angle-expand me-1 text-success"></i>Surface (m²)
+                  </label>
+                  <div id="peb-surface-display-wallonie" class="form-control border-2 rounded-3 px-3 bg-light text-muted small"
+                    style="border-color: #e9ecef !important;">
+                    <%= peb&.surface_reference ? "#{peb.surface_reference.to_i} m²" : '—' %>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label text-dark fw-medium mb-1 small">
+                    <i class="bi bi-hash me-1 text-success"></i>N° certificat
+                  </label>
+                  <div id="peb-numero-display-wallonie" class="form-control border-2 rounded-3 px-3 bg-light text-muted small"
+                    style="border-color: #e9ecef !important; font-size: 0.75rem;">
+                    <%= peb&.numero_certificat || '—' %>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label text-dark fw-medium mb-1 small">
+                    <i class="bi bi-calendar-check me-1 text-success"></i>Établi le
+                  </label>
+                  <div id="peb-date-cert-display-wallonie" class="form-control border-2 rounded-3 px-3 bg-light text-muted small"
+                    style="border-color: #e9ecef !important;">
+                    <%= peb&.date_certificat&.strftime('%d/%m/%Y') || '—' %>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label text-dark fw-medium mb-1 small">
+                    <i class="bi bi-calendar-x me-1 <%= peb&.perime? ? 'text-danger' : 'text-success' %>"></i>Valide jusqu'au
+                  </label>
+                  <div id="peb-date-valid-display-wallonie"
+                    class="form-control border-2 rounded-3 px-3 bg-light small <%= peb&.perime? ? 'text-danger' : 'text-muted' %>"
+                    style="border-color: #e9ecef !important;">
+                    <%= peb&.date_validite&.strftime('%d/%m/%Y') || '—' %>
+                  </div>
+                </div>
+
+                <!-- Champs formulaire -->
+                <div class="col-md-12">
                   <div class="mb-3">
                     <label class="form-label text-dark fw-medium mb-2">
                       <i class="bi bi-file-earmark-check me-2 text-success"></i>Audit énergétique
@@ -486,70 +586,83 @@
                   </div>
                 </div>
               </div>
-            </div>
 
-            <!-- Caractéristiques du bâtiment -->
-            <div class="mb-4">
-              <div class="d-flex align-items-center mb-3">
-                <div class="bg-info bg-gradient rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 24px; height: 24px;">
-                  <i class="bi bi-rulers text-white" style="font-size: 0.7rem;"></i>
-                </div>
-                <h6 class="mb-0 text-info fw-medium">Caractéristiques du bâtiment</h6>
-              </div>
-              <div class="row g-2">
-                <div class="col-4">
-                  <%= f.input :surface_habitable_wallonie,
-                      label: '<i class="bi bi-rulers me-2 text-info"></i>Surface habitable'.html_safe,
-                      placeholder: "ex. 120",
-                      hint: '<i class="bi bi-info-circle me-1"></i>Surface en m²'.html_safe,
-                      wrapper_html: { class: "mb-3" },
-                      label_html: { class: "form-label text-dark fw-medium mb-1" },
-                      input_html: {
-                        class: "form-control border-2 rounded-3 px-3",
-                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                        type: "number",
-                        min: "1",
-                        step: "1"
-                      } %>
-                </div>
-                <div class="col-4">
-                  <%= f.input :annee_construction,
-                      label: '<i class="bi bi-calendar3 me-2 text-info"></i>Année de construction'.html_safe,
-                      placeholder: "ex. 1985",
-                      wrapper_html: { class: "mb-3" },
-                      label_html: { class: "form-label text-dark fw-medium mb-1" },
-                      input_html: {
-                        class: "form-control border-2 rounded-3 px-3",
-                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                        type: "number",
-                        min: "1800",
-                        max: Date.current.year,
-                        required: true
-                      } %>
-                </div>
-                <div class="col-4">
-                  <%= f.input :mode_chauffage_wallonie,
-                      label: '<i class="bi bi-thermometer-half me-2 text-info"></i>Mode de chauffage'.html_safe,
-                      collection: [
-                        ["Gaz", "gaz"],
-                        ["Mazout", "mazout"],
-                        ["Électricité", "electricite"],
-                        ["Pompe à chaleur", "pompe_a_chaleur"],
-                        ["Bois/Biomasse", "bois_biomasse"],
-                        ["Charbon", "charbon"],
-                        ["Autre", "autre"]
-                      ],
-                      include_blank: "Sélectionnez le mode de chauffage",
-                      hint: '<i class="bi bi-info-circle me-1"></i>Mode de chauffage principal actuel'.html_safe,
-                      wrapper_html: { class: "mb-3" },
-                      label_html: { class: "form-label text-dark fw-medium mb-1" },
-                      input_html: {
-                        class: "form-select border-2 rounded-3 px-3",
-                        style: "background: #f8f9fa; border-color: #e9ecef !important;"
-                      } %>
-                </div>
-              </div>
-            </div>
+<script>
+(function () {
+  var propertyId = '<%= property&.id %>';
+  var btn     = document.getElementById('btn-scan-peb-wallonie');
+  var input   = document.getElementById('peb-file-input-wallonie');
+  var status  = document.getElementById('peb-ocr-status-wallonie');
+  var alert   = document.getElementById('peb-ocr-alert-wallonie');
+  var spinner = document.getElementById('peb-ocr-spinner-wallonie');
+  var icon    = document.getElementById('peb-ocr-icon-wallonie');
+  var msg     = document.getElementById('peb-ocr-message-wallonie');
+
+  if (!btn) return;
+  btn.addEventListener('click', function () { input.click(); });
+
+  input.addEventListener('change', function () {
+    var file = input.files[0];
+    if (!file) return;
+
+    status.classList.remove('d-none');
+    alert.className = 'alert border-0 rounded-3 py-2 mb-0 alert-secondary';
+    spinner.classList.remove('d-none');
+    icon.classList.add('d-none');
+    msg.textContent = 'Analyse du certificat PEB…';
+    btn.disabled = true;
+
+    var fd = new FormData();
+    fd.append('file', file);
+    if (propertyId) fd.append('property_id', propertyId);
+
+    fetch('<%= ocr_scan_peb_path %>', {
+      method: 'POST',
+      headers: { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content },
+      body: fd
+    })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      spinner.classList.add('d-none');
+      btn.disabled = false;
+
+      if (!d.success) {
+        showStatus('danger', 'bi-exclamation-triangle-fill', d.error || 'Extraction échouée.');
+        return;
+      }
+
+      // Mise à jour des affichages lecture seule
+      setDisplay('peb-label-display-wallonie',     d.label_peb || '—');
+      setDisplay('peb-score-display-wallonie',     d.score_ep ? d.score_ep + ' kWh/(m².an)' : '—');
+      setDisplay('peb-surface-display-wallonie',   d.surface_reference ? d.surface_reference + ' m²' : '—');
+      setDisplay('peb-numero-display-wallonie',    d.numero_certificat || '—');
+      setDisplay('peb-date-cert-display-wallonie', d.date_certificat || '—');
+      setDisplay('peb-date-valid-display-wallonie',d.date_validite || '—');
+
+      var type = d.extraction_complete ? 'success' : 'warning';
+      var ic   = d.extraction_complete ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill';
+      showStatus(type, ic, d.message);
+    })
+    .catch(function () {
+      spinner.classList.add('d-none');
+      btn.disabled = false;
+      showStatus('danger', 'bi-exclamation-triangle-fill', 'Erreur réseau. Veuillez réessayer.');
+    });
+    input.value = '';
+  });
+
+  function setDisplay(id, val) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = val;
+  }
+  function showStatus(type, iconClass, message) {
+    alert.className = 'alert border-0 rounded-3 py-2 mb-0 alert-' + type;
+    icon.className = 'bi ' + iconClass + ' text-' + type;
+    icon.classList.remove('d-none');
+    msg.textContent = message;
+  }
+})();
+</script>
           </div>
         </div>
       </div>
@@ -558,7 +671,7 @@
     <!-- Boutons d'action modernes -->
     <div class="row justify-content-center mb-5">
       <div class="col-lg-10">
-        <div class="card border-0 shadow-lg rounded-4">
+        <div class="card rounded-4">
           <div class="card-header bg-white border-0 py-3">
             <div class="d-flex align-items-center">
               <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
