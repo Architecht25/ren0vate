@@ -7,6 +7,86 @@
 %>
 
 <div class="expert-ia-page">
+
+<% if @properties.none? %>
+  <%# ── Aucun bien : état vide ─────────────────────────────────────────────── %>
+  <div class="text-center py-5">
+    <div class="icon-circle-large mx-auto mb-3"><i class="bi bi-house-door"></i></div>
+    <h4 class="fw-normal mb-2">Aucun bien enregistré</h4>
+    <p class="text-muted mb-4">Ajoutez un bien immobilier pour accéder à l'assistant IA expert.</p>
+    <%= link_to new_property_path, class: "btn btn-ren0vate" do %>
+      <i class="bi bi-plus-circle me-2"></i>Ajouter un bien
+    <% end %>
+  </div>
+
+<% elsif @property.nil? %>
+  <%# ── Sélection du bien : cartes full-width ──────────────────────────────── %>
+  <div class="mb-4 pb-3 border-bottom d-flex align-items-center justify-content-between">
+    <div>
+      <h2 class="h4 mb-1"><i class="bi bi-cpu me-2" style="color: var(--ren0vate-primary);"></i>Assistant IA Expert</h2>
+      <p class="text-muted mb-0 small">Sélectionnez le bien sur lequel vous souhaitez obtenir des conseils personnalisés</p>
+    </div>
+    <%= link_to decision_hub_index_path, class: "btn btn-sm btn-outline-secondary" do %>
+      <i class="bi bi-compass me-1"></i>Feuille de route
+    <% end %>
+  </div>
+
+  <div class="row g-3">
+    <% @properties.each do |property| %>
+      <% peb = property.certificat_peb_wallonie || property.certificat_peb_flandre || property.certificat_peb_bruxelles || property.peb %>
+      <% best_sim = property.simulations.max_by { |s| s.total_simule.to_i } %>
+      <div class="col-12 col-md-6 col-xl-4">
+        <div class="card border-0 shadow-sm h-100 expert-property-card">
+          <div class="card-body p-4 d-flex flex-column">
+            <div class="d-flex align-items-start mb-3">
+              <div class="icon-circle me-3 flex-shrink-0">
+                <i class="bi bi-house-door"></i>
+              </div>
+              <div class="flex-grow-1 min-w-0">
+                <h5 class="card-title mb-1 fw-semibold text-truncate">
+                  <%= property.titre.presence || "Bien sans nom" %>
+                </h5>
+                <small class="text-muted">
+                  <i class="bi bi-geo-alt me-1"></i>
+                  <%= property.rue %> <%= property.numero %>, <%= property.code_postal %> <%= property.commune %>
+                </small>
+              </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-2 mb-3">
+              <% if peb.present? %>
+                <span class="badge rounded-pill" style="background: rgba(var(--ren0vate-primary-rgb), 0.1); color: var(--ren0vate-primary);">
+                  <i class="bi bi-lightning me-1"></i>PEB <%= peb %>
+                </span>
+              <% end %>
+              <span class="badge rounded-pill" style="background: rgba(var(--ren0vate-accent-rgb, 180,100,50), 0.1); color: var(--ren0vate-text-muted);">
+                <i class="bi bi-geo me-1"></i><%= property.region&.capitalize %>
+              </span>
+              <% if property.projects.any? %>
+                <span class="badge rounded-pill bg-light text-muted">
+                  <i class="bi bi-tools me-1"></i><%= property.projects.count %> chantier<%= property.projects.count > 1 ? 's' : '' %>
+                </span>
+              <% end %>
+              <% if best_sim %>
+                <span class="badge rounded-pill" style="background: rgba(132,169,140,0.15); color: #527a5f;">
+                  <i class="bi bi-currency-euro me-1"></i><%= number_to_currency(best_sim.total_simule || 0, unit: "", precision: 0) %>&thinsp;€ primes
+                </span>
+              <% end %>
+            </div>
+
+            <div class="mt-auto pt-3 border-top">
+              <%= link_to expert_decision_hub_index_path(property_id: property.id), class: "btn btn-ren0vate d-block" do %>
+                <i class="bi bi-robot me-2"></i>Consulter l'expert IA
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+<% else %>
+  <%# ── Interface chat : bien sélectionné ─────────────────────────────────── %>
   <div class="row g-3 expert-ia-row">
 
     <!-- Sidebar -->
@@ -17,55 +97,45 @@
         </div>
         <div class="panel-body">
 
-          <!-- Sélecteur de simulation -->
-          <div class="mb-3">
-            <label class="expert-ia-label">Contexte simulation</label>
-            <% if @simulations.any? %>
-              <select class="form-select form-select-sm" id="aiExpertSimulationSelector">
-                <option value="">Conversation générale</option>
-                <% @simulations.each do |simulation| %>
-                  <option value="<%= simulation.id %>" <%= 'selected' if simulation.id == @simulation&.id %>>
-                    <%= simulation.titre || "Simulation #{simulation.id}" %>
-                  </option>
-                <% end %>
-              </select>
-            <% else %>
-              <div class="expert-ia-empty-state">
-                <i class="bi bi-calculator me-1"></i>
-                <%= link_to "Créer une simulation", new_simulation_path %> pour un conseil personnalisé
+          <!-- Carte bien actif -->
+          <div class="expert-ia-property-active mb-3">
+            <div class="d-flex align-items-start gap-2 mb-2">
+              <div style="width:32px; height:32px; background: var(--ren0vate-gradient-primary); border-radius: 50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <i class="bi bi-house-door text-white" style="font-size:0.85rem;"></i>
               </div>
+              <div class="flex-grow-1 min-w-0">
+                <div class="fw-semibold text-truncate" style="font-size: 0.9rem;">
+                  <%= @property.titre.presence || @property.commune %>
+                </div>
+                <div class="text-muted" style="font-size: 0.75rem;">
+                  <i class="bi bi-geo-alt me-1"></i><%= @property.commune %>, <%= @property.region&.capitalize %>
+                </div>
+              </div>
+            </div>
+
+            <% peb = @property.certificat_peb_wallonie || @property.certificat_peb_flandre || @property.certificat_peb_bruxelles || @property.peb %>
+            <div class="d-flex flex-wrap gap-1 mb-2">
+              <% if peb.present? %>
+                <span class="badge bg-light text-dark" style="font-size: 0.7rem;"><i class="bi bi-lightning me-1" style="color:var(--ren0vate-primary);"></i>PEB <%= peb %></span>
+              <% end %>
+              <% if @property_projects.any? %>
+                <span class="badge bg-light text-dark" style="font-size: 0.7rem;"><i class="bi bi-tools me-1" style="color:var(--ren0vate-accent);"></i><%= @property_projects.count %> chantier<%= @property_projects.count > 1 ? 's' : '' %></span>
+              <% end %>
+              <% if @property_simulations.any? %>
+                <% best_sim = @property_simulations.max_by { |s| s.total_simule.to_i } %>
+                <span class="badge bg-light text-dark" style="font-size: 0.7rem;"><i class="bi bi-currency-euro me-1" style="color:#527a5f;"></i><%= number_to_currency(best_sim.total_simule || 0, unit: "", precision: 0) %>&thinsp;€</span>
+              <% end %>
+            </div>
+
+            <%= link_to expert_decision_hub_index_path, class: "btn btn-sm btn-outline-secondary w-100", style: "font-size: 0.75rem;" do %>
+              <i class="bi bi-arrow-left-right me-1"></i>Changer de bien
             <% end %>
           </div>
 
-          <!-- Carte simulation active -->
-          <% if @simulation %>
-            <div class="expert-ia-sim-card">
-              <div class="expert-ia-sim-label">Simulation active</div>
-              <div class="expert-ia-sim-title"><%= @simulation.titre || "Simulation #{@simulation.id}" %></div>
-              <div class="expert-ia-sim-meta">
-                <span><i class="bi bi-geo-alt"></i> <%= @simulation.region&.capitalize %></span>
-                <span><i class="bi bi-currency-euro"></i> <%= number_to_currency(@simulation.total_simule || 0, unit: "", precision: 0) %>€</span>
-                <span><i class="bi bi-calendar"></i> <%= @simulation.created_at.strftime("%d/%m/%Y") %></span>
-              </div>
-            </div>
-          <% end %>
-
-          <!-- Questions suggérées -->
-          <div class="mt-3">
-            <div class="section-title">Questions suggérées</div>
-            <div class="d-grid gap-2">
-              <button class="suggested-question"><i class="bi bi-lightning-charge"></i> Résume-moi ma situation</button>
-              <button class="suggested-question"><i class="bi bi-cash-stack"></i> Quelles sont mes primes prioritaires ?</button>
-              <button class="suggested-question"><i class="bi bi-calendar-check"></i> Quel est le calendrier optimal ?</button>
-              <button class="suggested-question"><i class="bi bi-tools"></i> Par quoi dois-je commencer ?</button>
-              <button class="suggested-question"><i class="bi bi-exclamation-triangle"></i> Quels sont les pièges à éviter ?</button>
-            </div>
-          </div>
-
           <!-- Info Claude -->
-          <div class="expert-ia-info-badge">
+          <div class="expert-ia-info-badge mt-3">
             <i class="bi bi-info-circle"></i>
-            Claude accède à tout votre dossier (propriétés, projets, simulations) pour des réponses personnalisées.
+            Claude accède au bien sélectionné et à tous ses chantiers, primes, documents et intervenants.
           </div>
 
         </div>
@@ -96,14 +166,17 @@
             <div class="flex-grow-1 ms-3">
               <div class="ai-message">
                 <p class="mb-2"><strong>Bonjour <%= current_user.first_name || current_user.email.split('@').first.capitalize %> !</strong></p>
-                <p class="mb-2">Je suis votre assistant IA expert en rénovation. Je peux vous aider à :</p>
+                <p class="mb-2">Je suis votre assistant IA expert en rénovation. Je connais votre bien
+                  <strong><%= @property.titre.presence || @property.commune %></strong>
+                  (<%= @property.full_address %>) et l'ensemble de ses chantiers, primes et documents.
+                </p>
                 <ul class="mb-2">
-                  <li>Analyser votre situation et vos primes</li>
-                  <li>Optimiser votre planning de rénovation</li>
-                  <li>Répondre à vos questions techniques</li>
-                  <li>Vous conseiller sur les démarches administratives</li>
+                  <li>Analyser le potentiel de vos primes sur ce bien</li>
+                  <li>Optimiser l'ordre et le planning de vos travaux</li>
+                  <li>Répondre à vos questions techniques et administratives</li>
+                  <li>Identifier les risques et les pièges à éviter</li>
                 </ul>
-                <p class="mb-0 small text-muted">💡 J'ai accès à l'ensemble de votre dossier : propriétés, projets et simulations.</p>
+                <p class="mb-0 small text-muted">💡 Posez directement votre question ci-dessous.</p>
               </div>
               <small class="text-muted ms-2">À l'instant</small>
             </div>
@@ -130,150 +203,129 @@
     </div>
 
   </div>
-</div>
+<% end %>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+function initExpertIA() {
   const form = document.getElementById('aiExpertForm');
   const input = document.getElementById('aiExpertInput');
   const chatMessages = document.getElementById('chatMessages');
   const sendBtn = document.getElementById('aiExpertSendBtn');
-  const simulationSelector = document.getElementById('aiExpertSimulationSelector');
-  const suggestedQuestions = document.querySelectorAll('.suggested-question');
+  if (!form || !input || !chatMessages) return;
 
-  // Questions suggérées
-  suggestedQuestions.forEach(btn => {
-    btn.addEventListener('click', function() {
-      const question = this.textContent.trim().replace(/^.*?\s/, ''); // Retire l'icône
-      input.value = question;
-      form.dispatchEvent(new Event('submit'));
-    });
-  });
+  if (form.dataset.initialized === 'true') return;
+  form.dataset.initialized = 'true';
 
-  // Changement de simulation
-  if (simulationSelector) {
-    simulationSelector.addEventListener('change', function() {
-      const simulationId = this.value;
-      if (simulationId) {
-        // Recharger la page avec la nouvelle simulation
-        window.location.href = `<%= expert_decision_hub_index_path %>?simulation_id=${simulationId}`;
-      } else {
-        window.location.href = `<%= expert_decision_hub_index_path %>`;
-      }
-    });
+  const PROPERTY_ID = '<%= @property&.id %>';
+
+  function setLoading(loading) {
+    if (sendBtn) {
+      sendBtn.disabled = loading;
+      sendBtn.innerHTML = loading
+        ? '<span class="spinner-border spinner-border-sm me-1"></span>...'
+        : '<i class="bi bi-send me-1"></i>Envoyer';
+    }
+    if (input) input.disabled = loading;
   }
 
-  // Soumission du formulaire
   form.addEventListener('submit', async function(e) {
     e.preventDefault();
 
     const question = input.value.trim();
     if (!question) return;
 
-    // Ajouter le message utilisateur
     addUserMessage(question);
     input.value = '';
+    setLoading(true);
 
-    // Afficher l'indicateur de chargement
     const loadingId = addLoadingMessage();
 
     try {
-      // Récupérer l'ID de simulation actif
-      const simulationId = simulationSelector ? simulationSelector.value : '<%= @simulation&.id %>';
+      const csrfToken = document.querySelector('[name="csrf-token"]');
 
-      // Appeler Claude via l'API (historique géré côté serveur)
-      const response = await fetch(`/api/contextual_bot/chat`, {
+      const response = await fetch('/api/contextual_bot/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+          'X-CSRF-Token': csrfToken ? csrfToken.content : ''
         },
         body: JSON.stringify({
           message: question,
           current_page: 'decision_hub',
-          mode: 'expert'
+          mode: 'expert',
+          property_id: PROPERTY_ID
         })
       });
 
+      removeLoadingMessage(loadingId);
+      setLoading(false);
+
+      if (!response.ok) {
+        addAIMessage("⚠️ Erreur serveur (" + response.status + "). Veuillez réessayer.");
+        return;
+      }
+
       const data = await response.json();
 
-      // Retirer l'indicateur de chargement
-      removeLoadingMessage(loadingId);
-
       if (data.response && data.response.content) {
-        addAIMessage(data.response.content);
+        addAIMessage(data.response.content, data.response.timestamp);
+      } else if (data.error) {
+        addAIMessage("⚠️ " + data.error);
       } else {
         addAIMessage("Désolé, je n'ai pas pu générer une réponse. Veuillez réessayer.");
       }
 
     } catch (error) {
-      console.error('Erreur:', error);
+      console.error('Expert IA error:', error);
       removeLoadingMessage(loadingId);
-      addAIMessage("Une erreur s'est produite. Veuillez réessayer.");
+      setLoading(false);
+      addAIMessage("🔌 Problème de connexion. Vérifiez votre réseau et réessayez.");
     }
   });
 
   function addUserMessage(text) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'd-flex justify-content-end mb-4';
-    messageDiv.innerHTML = `
-      <div class="user-message">
-        ${escapeHtml(text)}
-      </div>
-    `;
-    chatMessages.appendChild(messageDiv);
+    const d = document.createElement('div');
+    d.className = 'd-flex justify-content-end mb-3';
+    d.innerHTML = `<div class="user-message">${escapeHtml(text)}</div>`;
+    chatMessages.appendChild(d);
     scrollToBottom();
   }
 
-  function addAIMessage(text) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'd-flex mb-4';
-    messageDiv.innerHTML = `
-      <div class="flex-shrink-0">
-        <div class="bot-avatar">
-          <i class="bi bi-robot"></i>
-        </div>
-      </div>
+  function addAIMessage(text, timestamp) {
+    const time = timestamp || new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    const d = document.createElement('div');
+    d.className = 'd-flex mb-3';
+    d.innerHTML = `
+      <div class="flex-shrink-0"><div class="bot-avatar"><i class="bi bi-robot"></i></div></div>
       <div class="flex-grow-1 ms-3">
-        <div class="ai-message">
-          ${formatAIResponse(text)}
-        </div>
-        <small class="text-muted ms-2">À l'instant</small>
-      </div>
-    `;
-    chatMessages.appendChild(messageDiv);
+        <div class="ai-message">${formatAIResponse(text)}</div>
+        <small class="text-muted ms-2">${time}</small>
+      </div>`;
+    chatMessages.appendChild(d);
     scrollToBottom();
   }
 
   function addLoadingMessage() {
-    const loadingId = 'loading-' + Date.now();
-    const messageDiv = document.createElement('div');
-    messageDiv.id = loadingId;
-    messageDiv.className = 'd-flex mb-4';
-    messageDiv.innerHTML = `
-      <div class="flex-shrink-0">
-        <div class="bot-avatar">
-          <i class="bi bi-robot"></i>
-        </div>
-      </div>
+    const id = 'loading-' + Date.now();
+    const d = document.createElement('div');
+    d.id = id;
+    d.className = 'd-flex mb-3';
+    d.innerHTML = `
+      <div class="flex-shrink-0"><div class="bot-avatar"><i class="bi bi-robot"></i></div></div>
       <div class="flex-grow-1 ms-3">
-        <div class="ai-message">
-          <span class="message-loading"></span>
-          <span class="message-loading"></span>
-          <span class="message-loading"></span>
+        <div class="ai-message d-flex align-items-center gap-2" style="padding:0.75rem 1rem;">
+          <span class="spinner-border spinner-border-sm" style="color:var(--ren0vate-primary);"></span>
+          <span class="text-muted small">Claude réfléchit…</span>
         </div>
-      </div>
-    `;
-    chatMessages.appendChild(messageDiv);
+      </div>`;
+    chatMessages.appendChild(d);
     scrollToBottom();
-    return loadingId;
+    return id;
   }
 
-  function removeLoadingMessage(loadingId) {
-    const element = document.getElementById(loadingId);
-    if (element) {
-      element.remove();
-    }
+  function removeLoadingMessage(id) {
+    const el = document.getElementById(id);
+    if (el) el.remove();
   }
 
   function scrollToBottom() {
@@ -287,12 +339,19 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function formatAIResponse(text) {
-    // Formater la réponse (markdown basique)
     return text
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/^### (.+)$/gm, '<h6 class="fw-bold mt-2 mb-1">$1</h6>')
+      .replace(/^## (.+)$/gm, '<h5 class="fw-bold mt-3 mb-1">$1</h5>')
+      .replace(/\n\n/g, '</p><p class="mb-2">')
       .replace(/\n/g, '<br>')
-      .replace(/- (.*?)(<br>|$)/g, '<li>$1</li>')
-      .replace(/(<li>.*<\/li>)+/g, '<ul>$&</ul>');
+      .replace(/^[-•] (.+)$/gm, '<li>$1</li>')
+      .replace(/(<li>[\s\S]*?<\/li>)/g, m => `<ul class="mb-2 ps-3">${m}</ul>`)
+      .replace(/^(?!<[houp5ul]|<li)(.+)$/gm, m => m.includes('<') ? m : `<span>${m}</span>`);
   }
-});
+}
+
+document.addEventListener('DOMContentLoaded', initExpertIA);
+document.addEventListener('turbo:load', initExpertIA);
 </script>

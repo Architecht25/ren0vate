@@ -214,25 +214,28 @@ class DecisionHubController < ApplicationController
   end
 
   def expert
-    # Vue dédiée à l'assistant IA expert - interface de chat simple et moderne
-    @simulations = current_user.simulations
-                               .where.not(total_simule: nil)
-                               .order(created_at: :desc)
-                               .includes(:property, :project)
+    # Charger tous les biens de l'utilisateur — le bien est l'entité centrale
+    @properties = current_user.properties
+                               .order(updated_at: :desc)
+                               .includes(:projects, :simulations)
 
-    # Sélectionner la simulation par défaut
-    if params[:simulation_id].present?
-      @simulation = current_user.simulations.find_by(id: params[:simulation_id]) || @simulations.first
-    else
-      @simulation = @simulations.first
-    end
+    # Sélectionner le bien actif (uniquement si property_id explicite en param)
+    # Sans param → @property = nil → affichage de la grille de sélection
+    @property = params[:property_id].present? ? current_user.properties.find_by(id: params[:property_id]) : nil
 
-    # Sauvegarder en session pour l'IA contextuelle
-    if @simulation
-      session[:current_simulation_id] = @simulation.id
-      session[:user_location] = @simulation.region
-      session[:property_type] = @simulation.property&.type_propriete || @simulation.property&.type
-      session[:total_primes] = @simulation.total_simule
+    # Charger le contexte complet du bien sélectionné
+    if @property
+      @property_projects   = @property.projects.order(updated_at: :desc)
+      @property_simulations = @property.simulations.order(created_at: :desc)
+      @property_documents  = @property.documents.order(created_at: :desc).limit(10)
+
+      # Sauvegarder en session pour l'IA
+      session[:current_property_id] = @property.id
+      session[:user_location]       = @property.region
+      session[:property_type]       = @property.type_propriete_wallonie ||
+                                      @property.type_bien_flandre       ||
+                                      @property.type_bien_bruxelles      ||
+                                      @property.type_propriete
     end
   end
 

@@ -9,8 +9,9 @@ class Api::ContextualBotController < ApplicationController
 
     current_page = params[:current_page] || 'home'
     mode         = params[:mode] || 'expert'
+    property_id  = params[:property_id].presence
 
-    bot    = build_bot_service
+    bot    = build_bot_service(property_id: property_id)
     result = bot.chat(message, mode: mode, current_page: current_page, locale: I18n.locale)
 
     render json: {
@@ -41,8 +42,12 @@ class Api::ContextualBotController < ApplicationController
 
   private
 
-  def build_bot_service
-    ContextualBotService.new(current_user, history_cache_key)
+  def build_bot_service(property_id: nil)
+    # Résoudre le bien sélectionné (vérifié auquel l'user appartient)
+    property = if property_id
+      current_user.properties.find_by(id: property_id)
+    end
+    ContextualBotService.new(current_user, history_cache_key, property: property)
   end
 
   def history_cache_key
