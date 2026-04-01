@@ -500,6 +500,112 @@ class OcrController < ApplicationController
     end
   end
 
+  # POST /ocr/scan_bordereau_chassis
+  # Scanne un bordereau de commande ou fiche technique châssis et persiste les
+  # données dans bordereau_chassis_donnees. Lie le document au chantier project_id.
+  # Les valeurs Uw/Ug et l'éligibilité prime sont calculées automatiquement.
+  def scan_bordereau_chassis
+    return render json: { error: 'Aucun fichier fourni' }, status: :bad_request unless params[:file]
+    return render json: { error: 'project_id requis' }, status: :bad_request unless params[:project_id].present?
+
+    begin
+      project = current_user.projects.find(params[:project_id])
+
+      service = BordereauChassisOcrService.new(params[:file])
+      result  = service.extraire_donnees_bordereau
+
+      unless result[:success]
+        return render json: { error: result[:error] }, status: :unprocessable_entity
+      end
+
+      document = current_user.documents.create!(
+        file:          params[:file],
+        type_document: 'bordereau_chassis',
+        project:       project,
+        status:        'pending',
+        notes:         "Bordereau châssis scanné le #{Date.today.strftime('%d/%m/%Y')} — confiance #{result[:confiance_extraction].to_f.round(1)} %"
+      )
+
+      if document.file.attached? && document.file_url.blank?
+        document.update_column(:file_url, rails_blob_url(document.file))
+      end
+
+      bordereau = BordereauChassisDonnee.create!(
+        document:          document,
+        project:           project,
+        nom_fabricant:     result[:nom_fabricant],
+        nom_poseur:        result[:nom_poseur],
+        numero_bce_poseur: result[:numero_bce_poseur],
+        reference_produit: result[:reference_produit],
+        valeur_uw:         result[:valeur_uw],
+        valeur_ug:         result[:valeur_ug],
+        valeur_uf:         result[:valeur_uf],
+        facteur_solaire:   result[:facteur_solaire],
+        type_vitrage:      result[:type_vitrage],
+        type_chassis:      result[:type_chassis],
+        surface_totale:    result[:surface_totale],
+        nombre_unites:     result[:nombre_unites],
+        date_document:     result[:date_document],
+        numero_document:   result[:numero_document],
+        montant_htva:      result[:montant_htva],
+        montant_tvac:      result[:montant_tvac],
+        taux_tva:          result[:taux_tva],
+        detail_chassis:    result[:detail_chassis] || [],
+        confiance_ocr:     result[:confiance_extraction],
+        extraction_complete: result[:extraction_complete],
+        texte_ocr_brut:    result[:texte_brut],
+        donnees_extraites: result[:donnees_bordereau].to_h
+      )
+
+      render json: {
+        success:             true,
+        document_id:         document.id,
+        bordereau_id:        bordereau.id,
+        nom_fabricant:       result[:nom_fabricant],
+        nom_poseur:          result[:nom_poseur],
+        reference_produit:   result[:reference_produit],
+        valeur_uw:           result[:valeur_uw],
+        valeur_uw_formate:   bordereau.uw_formate,
+        valeur_ug:           result[:valeur_ug],
+        valeur_ug_formate:   bordereau.ug_formate,
+        valeur_uf:           result[:valeur_uf],
+        facteur_solaire:     result[:facteur_solaire],
+        type_vitrage:        result[:type_vitrage],
+        type_vitrage_libelle: bordereau.type_vitrage_libelle,
+        type_chassis:        result[:type_chassis],
+        type_chassis_libelle: bordereau.type_chassis_libelle,
+        surface_totale:      result[:surface_totale],
+        surface_formatee:    bordereau.surface_formatee,
+        nombre_unites:       result[:nombre_unites],
+        date_document:       result[:date_document]&.strftime('%d/%m/%Y'),
+        montant_htva:        result[:montant_htva],
+        montant_htva_formate: bordereau.montant_htva_formate,
+        montant_tvac:        result[:montant_tvac],
+        montant_tvac_formate: bordereau.montant_tvac_formate,
+        taux_tva:            result[:taux_tva],
+        detail_chassis:      result[:detail_chassis],
+        eligible_wallonie:   bordereau.eligible_prime_wallonie,
+        eligible_bruxelles:  bordereau.eligible_prime_bruxelles,
+        eligible_flandre:    bordereau.eligible_prime_flandre,
+        confiance_extraction: result[:confiance_extraction],
+        extraction_complete: result[:extraction_complete],
+        message:             message_retour_bordereau(result, bordereau)
+      }
+
+    rescue ActiveRecord::RecordNotFound
+      render json: { error: 'Chantier introuvable' }, status: :not_found
+    rescue ActiveRecord::RecordInvalid => e
+      Rails.logger.error "Bordereau save error: #{e.message}"
+      render json: { error: "Erreur lors de la sauvegarde du bordereau", details: e.record.errors.full_messages }, status: :unprocessable_entity
+    rescue StandardError => e
+      Rails.logger.error "Bordereau OCR error: #{e.message}\n#{e.backtrace.first(5).join("\n")}"
+      render json: {
+        error:   'Erreur lors du traitement du bordereau châssis',
+        details: Rails.env.development? ? e.message : nil
+      }, status: :internal_server_error
+    end
+  end
+
   private
 
   def message_retour_peb(result, peb_donnee)
@@ -524,6 +630,18 @@ class OcrController < ApplicationController
     return "✅ Données extraites avec succès (confiance #{result[:confiance_extraction].to_f.round(1)} %). Veuillez vérifier les champs pré-remplis avant de sauvegarder." if result[:extraction_complete]
 
     "⚠️ Extraction partielle (confiance #{result[:confiance_extraction].to_f.round(1)} %). Complétez manuellement les champs manquants."
+  end
+
+  def message_retour_bordereau(result, bordereau)
+    if result[:extraction_complete]
+      uw_info = result[:valeur_uw] ? "Uw #{result[:valeur_uw]} W/m²K" : "Uw non détecté"
+      eligib  = bordereau.eligible_prime_wallonie ? " — ✅ Éligible prime Wallonie" : " — ❌ Uw > 1.0 (prime Wallonie)"
+      return "✅ Bordereau extrait (#{uw_info}#{eligib}, confiance #{result[:confiance_extraction].to_f.round(1)} %). Vérifiez et sauvegardez."
+    end
+    if result[:valeur_uw].present?
+      return "⚠️ Extraction partielle — Uw #{result[:valeur_uw]} W/m²K détecté (confiance #{result[:confiance_extraction].to_f.round(1)} %). Complétez manuellement."
+    end
+    "⚠️ Valeur Uw non détectée (confiance #{result[:confiance_extraction].to_f.round(1)} %). Vérifiez que le document est un bordereau de châssis."
   end
 
   def message_retour_devis(result, devis_donnee)

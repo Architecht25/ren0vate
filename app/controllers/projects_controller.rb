@@ -63,7 +63,8 @@ class ProjectsController < ApplicationController
   end
 
   def edit_budget
-    @devis_donnees = @project.devis_donnees.includes(:document).order(created_at: :desc)
+    @devis_donnees        = @project.devis_donnees.includes(:document).order(created_at: :desc)
+    @bordereaux_chassis   = @project.bordereau_chassis_donnees.includes(:document).order(created_at: :desc)
   end
 
   def edit_professionals

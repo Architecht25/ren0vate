@@ -15,7 +15,8 @@ class Project < ApplicationRecord
   has_many :factures_travaux, -> { where(type_facture: ['facture', 'acompte', 'solde']) }, class_name: 'Facture'
 
   # Devis scannés (OCR)
-  has_many :devis_donnees, dependent: :nullify
+  has_many :devis_donnees,             dependent: :nullify
+  has_many :bordereau_chassis_donnees, dependent: :nullify
 
   validates :nom, presence: true
   validates :property_id, presence: true

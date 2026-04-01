@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_01_090000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_01_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -76,6 +76,43 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_01_090000) do
     t.index ["document_id"], name: "index_aer_donnees_on_document_id"
     t.index ["user_id", "annee_revenus"], name: "index_aer_donnees_on_user_id_and_annee_revenus"
     t.index ["user_id"], name: "index_aer_donnees_on_user_id"
+  end
+
+  create_table "bordereau_chassis_donnees", force: :cascade do |t|
+    t.bigint "document_id", null: false
+    t.bigint "project_id"
+    t.string "nom_fabricant"
+    t.string "nom_poseur"
+    t.string "numero_bce_poseur"
+    t.string "reference_produit"
+    t.decimal "valeur_uw", precision: 5, scale: 3
+    t.decimal "valeur_ug", precision: 5, scale: 3
+    t.decimal "valeur_uf", precision: 5, scale: 3
+    t.decimal "facteur_solaire", precision: 5, scale: 3
+    t.string "type_vitrage"
+    t.string "type_chassis"
+    t.decimal "surface_totale", precision: 8, scale: 2
+    t.integer "nombre_unites"
+    t.date "date_document"
+    t.string "numero_document"
+    t.boolean "eligible_prime_wallonie"
+    t.boolean "eligible_prime_bruxelles"
+    t.boolean "eligible_prime_flandre"
+    t.decimal "confiance_ocr", precision: 5, scale: 2, default: "0.0"
+    t.boolean "valide_manuellement", default: false
+    t.boolean "extraction_complete", default: false
+    t.text "texte_ocr_brut"
+    t.jsonb "donnees_extraites", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.decimal "montant_htva", precision: 10, scale: 2
+    t.decimal "montant_tvac", precision: 10, scale: 2
+    t.decimal "taux_tva", precision: 5, scale: 2
+    t.jsonb "detail_chassis", default: []
+    t.index ["detail_chassis"], name: "index_bordereau_chassis_donnees_on_detail_chassis", using: :gin
+    t.index ["document_id"], name: "index_bordereau_chassis_donnees_on_document_id"
+    t.index ["donnees_extraites"], name: "index_bordereau_chassis_donnees_on_donnees_extraites", using: :gin
+    t.index ["project_id"], name: "index_bordereau_chassis_donnees_on_project_id"
   end
 
   create_table "categories", force: :cascade do |t|
@@ -754,6 +791,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_01_090000) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "aer_donnees", "documents"
   add_foreign_key "aer_donnees", "users"
+  add_foreign_key "bordereau_chassis_donnees", "documents"
+  add_foreign_key "bordereau_chassis_donnees", "projects"
   add_foreign_key "complement_requests", "request_progresses"
   add_foreign_key "devis_donnees", "documents"
   add_foreign_key "devis_donnees", "projects"

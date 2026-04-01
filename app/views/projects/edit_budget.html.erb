@@ -309,6 +309,270 @@
         </div>
       </div>
 
+      <!-- Zone scan bordereau châssis -->
+      <div class="card border-0 shadow-sm mb-4" id="scan-zone-chassis">
+        <div class="card-body p-4">
+          <h5 class="card-title text-primary-custom mb-1">
+            <i class="bi bi-window me-2"></i>Bordereau de commande châssis
+          </h5>
+          <p class="text-muted small mb-3">Fiche technique ou bordereau fabricant — extrait automatiquement les valeurs thermiques <strong>Uw/Ug</strong> et vérifie l'éligibilité prime châssis.</p>
+
+          <!-- Bouton scan -->
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <button type="button" class="btn btn-outline-primary btn-sm" id="btn-scan-chassis">
+              <i class="bi bi-camera me-1"></i>Scanner un bordereau châssis
+            </button>
+            <input type="file" id="file-chassis" accept=".pdf,.jpg,.jpeg,.png" class="d-none">
+            <div id="status-chassis" class="d-none flex-grow-1">
+              <div class="alert border-0 rounded-2 py-1 px-2 mb-0 small alert-secondary d-flex align-items-center gap-2" id="alert-chassis">
+                <div class="spinner-border spinner-border-sm d-none" id="spinner-chassis" role="status"></div>
+                <i class="bi d-none" id="icon-chassis"></i>
+                <span id="msg-chassis"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Résultat scan en temps réel -->
+          <div id="result-chassis" class="d-none">
+            <div class="border rounded-3 p-3 bg-light">
+              <div class="row g-2">
+                <div class="col-sm-6">
+                  <small class="text-muted d-block">Fabricant</small>
+                  <span id="r-ch-fabricant" class="fw-medium">—</span>
+                </div>
+                <div class="col-sm-6">
+                  <small class="text-muted d-block">Référence produit</small>
+                  <span id="r-ch-reference" class="fw-medium">—</span>
+                </div>
+                <div class="col-sm-4">
+                  <small class="text-muted d-block">Uw (W/m²K)</small>
+                  <span id="r-ch-uw" class="fw-bold fs-6">—</span>
+                </div>
+                <div class="col-sm-4">
+                  <small class="text-muted d-block">Ug (W/m²K)</small>
+                  <span id="r-ch-ug" class="fw-medium">—</span>
+                </div>
+                <div class="col-sm-4">
+                  <small class="text-muted d-block">g-value</small>
+                  <span id="r-ch-gvalue" class="fw-medium">—</span>
+                </div>
+                <div class="col-sm-4">
+                  <small class="text-muted d-block">Type vitrage</small>
+                  <span id="r-ch-vitrage" class="fw-medium">—</span>
+                </div>
+                <div class="col-sm-4">
+                  <small class="text-muted d-block">Matériau châssis</small>
+                  <span id="r-ch-materiau" class="fw-medium">—</span>
+                </div>
+                <div class="col-sm-4">
+                  <small class="text-muted d-block">Surface / Unités</small>
+                  <span id="r-ch-surface" class="fw-medium">—</span>
+                </div>
+                <div class="col-12">
+                  <small class="text-muted d-block">Éligibilité prime</small>
+                  <span id="r-ch-eligibilite" class="fw-medium">—</span>
+                </div>
+                <div class="col-12 mt-2 pt-2 border-top">
+                  <div class="d-flex gap-4 flex-wrap">
+                    <div>
+                      <small class="text-muted d-block" style="font-size:0.7rem;">TOTAL HTVA</small>
+                      <span id="r-ch-htva" class="fw-bold text-success fs-6">—</span>
+                    </div>
+                    <div>
+                      <small class="text-muted d-block" style="font-size:0.7rem;">TOTAL TVAC <span id="r-ch-tva-label"></span></small>
+                      <span id="r-ch-tvac" class="fw-medium text-muted">—</span>
+                    </div>
+                    <div>
+                      <small class="text-muted d-block" style="font-size:0.7rem;">Postes</small>
+                      <span id="r-ch-nb-postes" class="fw-medium text-muted">—</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="mt-2 d-flex align-items-center gap-2">
+                <div class="progress flex-grow-1" style="height: 6px;">
+                  <div id="r-ch-confiance-bar" class="progress-bar" role="progressbar"></div>
+                </div>
+                <small class="text-muted" id="r-ch-confiance-label"></small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bordereaux déjà scannés -->
+          <% if @bordereaux_chassis.any? %>
+            <div class="mt-3">
+              <small class="text-muted text-uppercase fw-semibold d-block mb-2" style="font-size: 0.7rem; letter-spacing: 0.05em;">
+                Bordereaux scannés (<%= @bordereaux_chassis.count %>)
+              </small>
+              <% @bordereaux_chassis.each do |b| %>
+                <div class="d-flex align-items-start gap-3 p-2 border rounded-2 mb-2 bg-white">
+                  <div class="flex-shrink-0 mt-1">
+                    <i class="bi bi-window text-primary fs-5"></i>
+                  </div>
+                  <div class="flex-grow-1 small">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="fw-medium">
+                        <%= b.nom_fabricant.presence || 'Fabricant non détecté' %>
+                        <% if b.reference_produit.present? %>
+                          <span class="text-muted fw-normal ms-1">— <%= b.reference_produit %></span>
+                        <% end %>
+                      </span>
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted"><%= b.date_document_display %></span>
+                        <% if b.document&.file&.attached? %>
+                          <%= link_to rails_blob_path(b.document.file, only_path: true), target: "_blank", rel: "noopener noreferrer", class: "text-primary", title: "Voir le document" do %>
+                            <i class="bi bi-eye fs-6"></i>
+                          <% end %>
+                        <% end %>
+                        <%= button_to document_path(b.document), method: :delete,
+                            params: { return_context: 'budget' },
+                            data: { turbo_confirm: "Supprimer ce bordereau châssis et ses données extraites ?" },
+                            class: "btn btn-link p-0 border-0 bg-transparent text-danger",
+                            form: { style: "display:inline;" },
+                            title: "Supprimer" do %>
+                          <i class="bi bi-trash3 fs-6"></i>
+                        <% end %>
+                      </div>
+                    </div>
+                    <%# ── Valeurs thermiques ── %>
+                    <div class="d-flex gap-3 mt-1 align-items-center flex-wrap">
+                      <% if b.valeur_uw.present? %>
+                        <span class="badge <%= b.uw_badge_class %> me-1">Uw <%= b.valeur_uw %> W/m²K</span>
+                      <% else %>
+                        <span class="text-danger small"><i class="bi bi-exclamation-circle me-1"></i>Uw non extrait</span>
+                      <% end %>
+                      <% if b.valeur_ug.present? %>
+                        <span class="text-muted">Ug <%= b.valeur_ug %> W/m²K</span>
+                      <% end %>
+                      <% if b.facteur_solaire.present? %>
+                        <span class="text-muted">g = <%= b.facteur_solaire %></span>
+                      <% end %>
+                    </div>
+                    <%# ── Caractéristiques ── %>
+                    <div class="d-flex gap-3 mt-1 flex-wrap">
+                      <% if b.type_vitrage.present? %>
+                        <span class="badge bg-light text-dark border"><%= b.type_vitrage_libelle %></span>
+                      <% end %>
+                      <% if b.type_chassis.present? %>
+                        <span class="badge bg-light text-dark border"><%= b.type_chassis_libelle %></span>
+                      <% end %>
+                      <% if b.surface_totale.present? %>
+                        <span class="text-muted"><i class="bi bi-rulers me-1"></i><%= b.surface_formatee %></span>
+                      <% end %>
+                      <% if b.nombre_unites.present? %>
+                        <span class="text-muted"><%= b.nombre_unites %> unités</span>
+                      <% end %>
+                      <% if b.nom_poseur.present? %>
+                        <span class="text-muted"><i class="bi bi-person-gear me-1"></i><%= b.nom_poseur %></span>
+                      <% end %>
+                    </div>
+                    <%# ── Éligibilité primes ── %>
+                    <div class="d-flex gap-2 mt-1 flex-wrap">
+                      <% if b.eligible_prime_wallonie? %>
+                        <span class="badge bg-success-subtle text-success-emphasis" style="font-size: 0.65rem;">✓ Prime Wallonie</span>
+                      <% elsif b.valeur_uw.present? %>
+                        <span class="badge bg-danger-subtle text-danger-emphasis" style="font-size: 0.65rem;">✗ Hors seuil Wallonie</span>
+                      <% end %>
+                      <% if b.eligible_prime_bruxelles? %>
+                        <span class="badge bg-success-subtle text-success-emphasis" style="font-size: 0.65rem;">✓ Prime Bruxelles</span>
+                      <% end %>
+                    </div>
+                    <%# ── Totaux financiers ── %>
+                    <% if b.montant_htva.present? %>
+                      <div class="d-flex align-items-center gap-3 mt-2 pt-2 border-top flex-wrap">
+                        <div>
+                          <span class="text-muted" style="font-size: 0.7rem;">HTVA</span><br>
+                          <span class="fw-semibold text-success"><%= b.montant_htva_formate %></span>
+                        </div>
+                        <% if b.montant_tvac.present? %>
+                          <div>
+                            <span class="text-muted" style="font-size: 0.7rem;">TVAC<% if b.taux_tva.present? %> (<%= b.taux_tva.to_i %>%)<% end %></span><br>
+                            <span class="text-muted fw-medium"><%= b.montant_tvac_formate %></span>
+                          </div>
+                        <% end %>
+                        <% surf = b.surface_detail_calculee || b.surface_totale %>
+                        <% if surf.present? %>
+                          <div>
+                            <span class="text-muted" style="font-size: 0.7rem;">Surface totale</span><br>
+                            <span class="text-muted"><%= surf.to_f.round(2) %> m²</span>
+                          </div>
+                        <% end %>
+                        <% if b.nb_postes > 0 %>
+                          <div>
+                            <span class="text-muted" style="font-size: 0.7rem;">Postes</span><br>
+                            <span class="text-muted"><%= b.nb_postes %></span>
+                          </div>
+                        <% end %>
+                      </div>
+                    <% end %>
+                    <%# ── Détail postes (collapsible) ── %>
+                    <% if b.detail_chassis.present? && b.detail_chassis.any? %>
+                      <div class="mt-1">
+                        <button class="btn btn-link btn-sm p-0 text-muted text-decoration-none"
+                                type="button"
+                                data-bs-toggle="collapse"
+                                data-bs-target="#detail-chassis-<%= b.id %>"
+                                aria-expanded="false">
+                          <i class="bi bi-list-ul me-1"></i>Voir le détail (<%= b.nb_postes %> postes)
+                        </button>
+                        <div class="collapse" id="detail-chassis-<%= b.id %>">
+                          <table class="table table-sm table-borderless mt-1 mb-0" style="font-size: 0.75rem;">
+                            <thead>
+                              <tr class="text-muted">
+                                <th style="width: 1.5rem;">#</th>
+                                <th>Description</th>
+                                <th class="text-end" style="width: 5rem;">Surf. m²</th>
+                                <th class="text-end" style="width: 3rem;">Qté</th>
+                                <th class="text-end" style="width: 6rem;">Montant HT</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <% b.detail_chassis.each do |poste| %>
+                                <tr>
+                                  <td class="text-muted"><%= poste['numero'] %></td>
+                                  <td>
+                                    <%= poste['description']&.truncate(70) %>
+                                    <% if poste['dimensions'].present? %>
+                                      <br><small class="text-muted"><i class="bi bi-rulers me-1"></i><%= poste['dimensions'] %></small>
+                                    <% end %>
+                                  </td>
+                                  <td class="text-end text-muted">
+                                    <% if poste['surface_m2'].to_f > 0 %>
+                                      <%= poste['surface_m2'].to_f.round(3) %>
+                                    <% else %>
+                                      —
+                                    <% end %>
+                                  </td>
+                                  <td class="text-end"><%= poste['quantite'] || 1 %></td>
+                                  <td class="text-end fw-medium">
+                                    <% if poste['montant_ht'].to_f > 0 %>
+                                      <%= ActiveSupport::NumberHelper.number_to_currency(poste['montant_ht'], unit: '€', separator: ',', delimiter: '.', format: '%n %u') %>
+                                    <% else %>
+                                      —
+                                    <% end %>
+                                  </td>
+                                </tr>
+                              <% end %>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    <% end %>
+                    <div class="mt-1">
+                      <div class="progress" style="height: 4px; width: 80px;">
+                        <div class="progress-bar <%= b.extraction_fiable? ? 'bg-success' : 'bg-warning' %>"
+                             role="progressbar"
+                             style="width: <%= b.confiance_ocr.to_f.round(0) %>%"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
     </div><!-- /col-lg-8 -->
 
     <!-- ─────────────────────────────────────────────────────────────────────── -->
@@ -369,9 +633,10 @@
 
 <script>
 (function () {
-  const SCAN_URL   = '<%= ocr_scan_devis_path %>';
-  const PROJECT_ID = '<%= @project.id %>';
-  const CSRF       = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  const SCAN_URL         = '<%= ocr_scan_devis_path %>';
+  const SCAN_CHASSIS_URL = '<%= ocr_scan_bordereau_chassis_path %>';
+  const PROJECT_ID       = '<%= @project.id %>';
+  const CSRF             = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
   const TRAVAUX_LABELS = {
     isolation_toit:               'Isolation toiture',
@@ -448,7 +713,6 @@
           return;
         }
 
-        // Afficher résultat
         result.classList.remove('d-none');
         var p = prefix;
 
@@ -478,7 +742,122 @@
         icon.classList.remove('d-none');
         msg.textContent = data.message;
 
-        // Recharger la page après 2 s pour afficher le nouveau devis dans la liste
+        setTimeout(function () { window.location.reload(); }, 2500);
+      })
+      .catch(function () {
+        spin.classList.add('d-none');
+        btn.disabled = false;
+        alert.className = 'alert border-0 rounded-2 py-1 px-2 mb-0 small alert-danger d-flex align-items-center gap-2';
+        icon.className  = 'bi bi-exclamation-triangle-fill text-danger';
+        icon.classList.remove('d-none');
+        msg.textContent = 'Erreur réseau. Veuillez réessayer.';
+      });
+
+      input.value = '';
+    });
+  }
+
+  // ── Zone scan châssis ───────────────────────────────────────────────────────
+  function setupScanChassis() {
+    var btn    = document.getElementById('btn-scan-chassis');
+    var input  = document.getElementById('file-chassis');
+    var status = document.getElementById('status-chassis');
+    var alert  = document.getElementById('alert-chassis');
+    var spin   = document.getElementById('spinner-chassis');
+    var icon   = document.getElementById('icon-chassis');
+    var msg    = document.getElementById('msg-chassis');
+    var result = document.getElementById('result-chassis');
+
+    if (!btn) return;
+
+    btn.addEventListener('click', function () { input.click(); });
+
+    input.addEventListener('change', function () {
+      var file = input.files[0];
+      if (!file) return;
+
+      status.classList.remove('d-none');
+      alert.className = 'alert border-0 rounded-2 py-1 px-2 mb-0 small alert-secondary d-flex align-items-center gap-2';
+      spin.classList.remove('d-none');
+      icon.classList.add('d-none');
+      msg.textContent = 'Analyse du bordereau châssis en cours…';
+      btn.disabled = true;
+      result.classList.add('d-none');
+
+      var formData = new FormData();
+      formData.append('file', file);
+      formData.append('project_id', PROJECT_ID);
+
+      fetch(SCAN_CHASSIS_URL, {
+        method: 'POST',
+        headers: { 'X-CSRF-Token': CSRF },
+        body: formData
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        spin.classList.add('d-none');
+        btn.disabled = false;
+
+        if (!data.success) {
+          alert.className = 'alert border-0 rounded-2 py-1 px-2 mb-0 small alert-danger d-flex align-items-center gap-2';
+          icon.className  = 'bi bi-exclamation-triangle-fill text-danger';
+          icon.classList.remove('d-none');
+          msg.textContent = data.error || 'Extraction échouée.';
+          return;
+        }
+
+        result.classList.remove('d-none');
+
+        document.getElementById('r-ch-fabricant').textContent  = data.nom_fabricant   || '—';
+        document.getElementById('r-ch-reference').textContent  = data.reference_produit || '—';
+        document.getElementById('r-ch-vitrage').textContent    = data.type_vitrage_libelle || '—';
+        document.getElementById('r-ch-materiau').textContent   = data.type_chassis_libelle || '—';
+        document.getElementById('r-ch-gvalue').textContent     = data.facteur_solaire ? 'g = ' + data.facteur_solaire : '—';
+
+        // Uw avec couleur selon seuil Wallonie (1.0)
+        var uwEl = document.getElementById('r-ch-uw');
+        if (data.valeur_uw) {
+          uwEl.textContent = data.valeur_uw + ' W/m²K';
+          uwEl.className   = 'fw-bold fs-6 ' + (parseFloat(data.valeur_uw) <= 1.0 ? 'text-success' : 'text-danger');
+        } else {
+          uwEl.textContent = '— non détecté';
+          uwEl.className   = 'fw-bold fs-6 text-danger';
+        }
+
+        document.getElementById('r-ch-ug').textContent = data.valeur_ug_formate || '—';
+
+        var surf = [];
+        if (data.surface_formatee) surf.push(data.surface_formatee);
+        if (data.nombre_unites)    surf.push(data.nombre_unites + ' unités');
+        document.getElementById('r-ch-surface').textContent = surf.length ? surf.join(' / ') : '—';
+
+        // Montants
+        document.getElementById('r-ch-htva').textContent  = data.montant_htva_formate || (data.montant_htva ? formatMontant(data.montant_htva) : '—');
+        document.getElementById('r-ch-tvac').textContent  = data.montant_tvac_formate || (data.montant_tvac ? formatMontant(data.montant_tvac) : '—');
+        document.getElementById('r-ch-tva-label').textContent = data.taux_tva ? '(TVA ' + data.taux_tva + '%)' : '';
+        var nbPostes = (data.detail_chassis && data.detail_chassis.length) ? data.detail_chassis.length : 0;
+        document.getElementById('r-ch-nb-postes').textContent = nbPostes > 0 ? nbPostes + ' poste' + (nbPostes > 1 ? 's' : '') : '—';
+
+        // Éligibilité
+        var elig = [];
+        if (data.eligible_wallonie)  elig.push('✅ Wallonie');
+        else if (data.valeur_uw)     elig.push('❌ Hors seuil Wallonie (>1.0)');
+        if (data.eligible_bruxelles) elig.push('✅ Bruxelles');
+        document.getElementById('r-ch-eligibilite').textContent = elig.length ? elig.join(' — ') : '—';
+
+        var conf = parseFloat(data.confiance_extraction || 0);
+        var bar  = document.getElementById('r-ch-confiance-bar');
+        bar.style.width = conf + '%';
+        bar.className   = 'progress-bar ' + confColor(conf);
+        document.getElementById('r-ch-confiance-label').textContent = conf.toFixed(1) + ' %';
+
+        var type = data.extraction_complete ? 'success' : 'warning';
+        var ic   = data.extraction_complete ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill';
+        alert.className = 'alert border-0 rounded-2 py-1 px-2 mb-0 small alert-' + type + ' d-flex align-items-center gap-2';
+        icon.className  = 'bi ' + ic + ' text-' + type;
+        icon.classList.remove('d-none');
+        msg.textContent = data.message;
+
         setTimeout(function () { window.location.reload(); }, 2500);
       })
       .catch(function () {
@@ -507,5 +886,7 @@
     'status-entrepreneur', 'alert-entrepreneur', 'spinner-entrepreneur', 'icon-entrepreneur', 'msg-entrepreneur',
     'result-entrepreneur', 'r-ent-'
   );
+
+  setupScanChassis();
 })();
 </script>

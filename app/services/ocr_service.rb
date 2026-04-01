@@ -198,4 +198,29 @@ class OcrService
       method: 'error'
     }
   end
+
+  # ── Parse montant format belge : 15.100,00 → 15100.0 ────────────────────────
+  # Disponible dans tous les sous-services (FactureOcr, DevisOcr, BordereauChassis)
+  def parse_montant_belge(str)
+    return nil if str.blank?
+    s = str.strip.gsub(/\s+/, '')
+
+    # Format belge canonique : point = milliers, virgule = décimale (ex: 15.100,00)
+    if s.match?(/^\d{1,3}(?:\.\d{3})+,\d{2}$/)
+      return s.gsub('.', '').gsub(',', '.').to_f
+    end
+
+    # Format international : virgule = milliers, point = décimale (ex: 15,100.00)
+    if s.match?(/^\d{1,3}(?:,\d{3})+\.\d{2}$/)
+      return s.gsub(',', '').to_f
+    end
+
+    # Espace comme séparateur milliers (ex: 15 100,00 ou 15 100.00)
+    if s.match?(/^\d{1,3}(?:\s\d{3})+[,.]\d{2}$/)
+      return s.gsub(/\s/, '').gsub(',', '.').to_f
+    end
+
+    # Fallback: virgule décimale simple (ex: 1.200,00 ou 900,00)
+    s.gsub(/[^\d,.]/, '').gsub(',', '.').to_f.then { |v| v > 0 ? v : nil }
+  end
 end
