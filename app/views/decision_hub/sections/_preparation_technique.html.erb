@@ -1,9 +1,11 @@
 <!-- Partial pour la section préparation technique -->
-<div class="preparation-technique-content">
+<div class="preparation-technique-content"
+     oninput="window.updateTechCompletionStatus && window.updateTechCompletionStatus()"
+     onchange="window.updateTechCompletionStatus && window.updateTechCompletionStatus()">
 
   <%
     # Récupérer les primes sélectionnées depuis hub_data
-    selected_primes = hub_data.dig(:resume, :primes) || []
+    selected_primes = hub_data&.dig(:resume, :primes) || []
 
     # Extraire les noms des primes (pas les slugs)
     prime_names = selected_primes.map { |p| p[:name] || p['name'] }.compact
@@ -19,8 +21,9 @@
       primes_with_conditions = Prime.where(conditions, *values)
     end
 
-    # Variables pour les données techniques sauvegardées
-    technical_data = session[:technical_preparation_data] || {}
+    # Variables pour les données techniques sauvegardées (depuis simulation.parameters)
+    _sim_params = @default_simulation&.parameters.present? ? JSON.parse(@default_simulation.parameters) : {}
+    technical_data = (_sim_params['technical_preparation'] || {}).deep_symbolize_keys
   %>
 
   <!-- Vue d'ensemble de la préparation -->
@@ -338,6 +341,37 @@
             <div class="col-md-6">
               <div class="form-section">
                 <h6 class="fw-semibold mb-2"><i class="bi bi-droplet me-1"></i> Chauffe-eau thermodynamique</h6>
+
+                <!-- Scan label énergétique -->
+                <div class="mb-3 p-2 bg-light rounded border">
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+                    <span class="small fw-semibold text-muted">
+                      <i class="bi bi-tag me-1"></i>Label énergétique
+                    </span>
+                    <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2"
+                            id="cet-label-scan-btn"
+                            onclick="document.getElementById('cet-label-file-input').click()">
+                      <i class="bi bi-camera me-1"></i>Scanner
+                    </button>
+                  </div>
+                  <input type="file" id="cet-label-file-input" accept="image/*,application/pdf" class="d-none"
+                         onchange="cetLabelScanHandler(this)"
+                         data-property-id="<%= @default_simulation&.property&.id %>"
+                         data-project-id="<%= @default_simulation&.project&.id %>"
+                         data-simulation-id="<%= @default_simulation&.id %>"
+                         data-scan-url="<%= ocr_scan_label_energetique_path %>">
+                  <div class="input-group input-group-sm">
+                    <span class="input-group-text">Classe</span>
+                    <select class="form-select form-select-sm" name="cet_label_classe" id="cet_label_classe">
+                      <option value="">—</option>
+                      <% %w[A+++ A++ A+ A B C D E F G].each do |cls| %>
+                        <option value="<%= cls %>" <%= 'selected' if technical_data.dig(:systemes_energie, :cet, :label_classe) == cls %>><%= cls %></option>
+                      <% end %>
+                    </select>
+                  </div>
+                  <div id="cet-label-scan-status" class="mt-1" style="display:none;"></div>
+                </div>
+
                 <div class="mb-2">
                   <label class="form-label small">Capacité (L)</label>
                   <input type="number" class="form-control" name="cet_capacite"
@@ -476,7 +510,9 @@
 
       <!-- Actions -->
       <div class="action-section text-center mb-4">
-        <button type="button" class="btn btn-success btn-lg px-5" id="save-technical-preparation">
+        <button type="button" class="btn btn-success btn-lg px-5" id="save-technical-preparation"
+                data-simulation-id="<%= @default_simulation&.id %>"
+                onclick="window.saveTechnicalPreparation(this)">
           <i class="bi bi-check-circle me-2"></i>
           Sauvegarder mes données techniques
         </button>
@@ -502,49 +538,113 @@
 
 <!-- JavaScript pour la gestion des données -->
 <script>
-document.addEventListener('DOMContentLoaded', function() {
 
-  // Fonction pour mettre à jour le statut de completion
-  function updateCompletionStatus() {
-    // Vérifier isolation
-    const isolationFields = document.querySelectorAll('[name^="isolation_"]');
-    let isolationComplete = Array.from(isolationFields).some(field => field.value.trim() !== '');
-    const isolationStatus = document.getElementById('isolation-status');
-    if (isolationStatus) {
-      isolationStatus.textContent = isolationComplete ? 'En cours' : 'Non renseigné';
-    }
+// ── OCR label CET — défini en global pour survivre aux remplacements innerHTML ──
+window.cetLabelScanHandler = function(input) {
+  const file = input.files[0];
+  if (!file) return;
 
-    // Vérifier systèmes énergie
-    const energieFields = document.querySelectorAll('[name^="pac_"], [name^="cet_"]');
-    let energieComplete = Array.from(energieFields).some(field => field.value.trim() !== '');
-    const energieStatus = document.getElementById('energie-status');
-    if (energieStatus) {
-      energieStatus.textContent = energieComplete ? 'En cours' : 'Non renseigné';
-    }
+  const propertyId   = input.dataset.propertyId;
+  const projectId    = input.dataset.projectId;
+  const simulationId = input.dataset.simulationId;
+  const scanUrl      = input.dataset.scanUrl;
 
-    // Vérifier menuiseries
-    const menuiseriesFields = document.querySelectorAll('[name^="fenetres_"], [name^="portes_"], [name^="ventilation_"]');
-    let menuiseriesComplete = Array.from(menuiseriesFields).some(field => field.value.trim() !== '');
-    const menuiseriesStatus = document.getElementById('menuiseries-status');
-    if (menuiseriesStatus) {
-      menuiseriesStatus.textContent = menuiseriesComplete ? 'En cours' : 'Non renseigné';
-    }
+  const statusEl = document.getElementById('cet-label-scan-status');
+  const btnEl    = document.getElementById('cet-label-scan-btn');
+
+  if (statusEl) {
+    statusEl.style.display = 'block';
+    statusEl.innerHTML = '<span class="spinner-border spinner-border-sm text-primary me-1"></span><small class="text-muted">Analyse du label en cours…</small>';
   }
+  if (btnEl) btnEl.disabled = true;
 
-  // Écouter les changements sur tous les champs
-  const allFields = document.querySelectorAll('.preparation-technique-content input, .preparation-technique-content select');
-  allFields.forEach(field => {
-    field.addEventListener('input', updateCompletionStatus);
-    field.addEventListener('change', updateCompletionStatus);
+  const formData = new FormData();
+  formData.append('file', file);
+  if (propertyId)   formData.append('property_id', propertyId);
+  if (projectId)    formData.append('project_id',  projectId);
+
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+  fetch(scanUrl, {
+    method: 'POST',
+    headers: { 'X-CSRF-Token': csrfToken },
+    body: formData
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (btnEl) btnEl.disabled = false;
+    input.value = '';
+
+    if (data.success) {
+      if (data.label_classe) {
+        const labelSelect = document.querySelector('[name="cet_label_classe"]');
+        if (labelSelect) labelSelect.value = data.label_classe;
+      }
+      if (data.cop) {
+        const copField = document.querySelector('[name="cet_cop"]');
+        if (copField && !copField.value) copField.value = data.cop;
+      }
+      if (data.capacite) {
+        const capField = document.querySelector('[name="cet_capacite"]');
+        if (capField && !capField.value) capField.value = data.capacite;
+      }
+      const confClass = data.confiance_ocr >= 70 ? 'text-success' : 'text-warning';
+      if (statusEl) statusEl.innerHTML = `<small class="${confClass}"><i class="bi bi-check-circle me-1"></i>${data.message}</small>`;
+      cetRefreshDocumentsSection(simulationId);
+    } else {
+      if (statusEl) statusEl.innerHTML = `<small class="text-danger"><i class="bi bi-exclamation-triangle me-1"></i>${data.error || 'Échec du scan'}</small>`;
+    }
+  })
+  .catch(() => {
+    if (btnEl) btnEl.disabled = false;
+    input.value = '';
+    if (statusEl) statusEl.innerHTML = '<small class="text-danger"><i class="bi bi-exclamation-triangle me-1"></i>Erreur réseau lors du scan.</small>';
   });
+};
 
-  // Bouton de sauvegarde
-  document.getElementById('save-technical-preparation')?.addEventListener('click', function() {
-    // Collecter toutes les données
-    const technicalData = {};
+window.cetRefreshDocumentsSection = function(simulationId) {
+  if (!simulationId) return;
+  const hubEl  = document.querySelector('[data-controller~="decision-hub"]');
+  if (!hubEl) return;
+  const loadUrl = hubEl.dataset.decisionHubLoadSimulationUrlValue;
+  if (!loadUrl) return;
+  fetch(loadUrl.replace('SIMULATION_ID', simulationId), {
+    headers: { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content }
+  })
+  .then(r => r.json())
+  .then(resp => {
+    if (resp.success && resp.data?.documents) {
+      const docSection = hubEl.querySelector('[data-decision-hub-target="documentsSection"]');
+      if (docSection) docSection.innerHTML = resp.data.documents;
+    }
+  })
+  .catch(() => {});
+};
 
-    // Isolation
-    technicalData.isolation = {
+// ── Statut de complétion ──
+window.updateTechCompletionStatus = function() {
+  const isolationFields = document.querySelectorAll('[name^="isolation_"]');
+  const isolationComplete = Array.from(isolationFields).some(f => f.value.trim() !== '');
+  const isolationStatus = document.getElementById('isolation-status');
+  if (isolationStatus) isolationStatus.textContent = isolationComplete ? 'En cours' : 'Non renseigné';
+
+  const energieFields = document.querySelectorAll('[name^="pac_"], [name^="cet_"]');
+  const energieComplete = Array.from(energieFields).some(f => f.value.trim() !== '');
+  const energieStatus = document.getElementById('energie-status');
+  if (energieStatus) energieStatus.textContent = energieComplete ? 'En cours' : 'Non renseigné';
+
+  const menuiseriesFields = document.querySelectorAll('[name^="fenetres_"], [name^="portes_"], [name^="ventilation_"]');
+  const menuiseriesComplete = Array.from(menuiseriesFields).some(f => f.value.trim() !== '');
+  const menuiseriesStatus = document.getElementById('menuiseries-status');
+  if (menuiseriesStatus) menuiseriesStatus.textContent = menuiseriesComplete ? 'En cours' : 'Non renseigné';
+};
+
+// ── Sauvegarde des données techniques ──
+window.saveTechnicalPreparation = function(btn) {
+  const simulationId = btn.dataset.simulationId;
+
+  const technicalData = {
+    isolation: {
       toiture: {
         marque: document.querySelector('[name="isolation_toiture_marque"]')?.value,
         modele: document.querySelector('[name="isolation_toiture_modele"]')?.value,
@@ -574,10 +674,8 @@ document.addEventListener('DOMContentLoaded', function() {
         conductivite: document.querySelector('[name="isolation_sols_conductivite"]')?.value,
         rd: document.querySelector('[name="isolation_sols_rd"]')?.value
       }
-    };
-
-    // Systèmes énergétiques
-    technicalData.systemes_energie = {
+    },
+    systemes_energie: {
       pac: {
         type: document.querySelector('[name="pac_type"]')?.value,
         puissance: document.querySelector('[name="pac_puissance"]')?.value,
@@ -586,12 +684,11 @@ document.addEventListener('DOMContentLoaded', function() {
       cet: {
         capacite: document.querySelector('[name="cet_capacite"]')?.value,
         cop: document.querySelector('[name="cet_cop"]')?.value,
-        source: document.querySelector('[name="cet_source"]')?.value
+        source: document.querySelector('[name="cet_source"]')?.value,
+        label_classe: document.querySelector('[name="cet_label_classe"]')?.value
       }
-    };
-
-    // Menuiseries
-    technicalData.menuiseries = {
+    },
+    menuiseries: {
       fenetres: {
         uw: document.querySelector('[name="fenetres_uw"]')?.value,
         vitrage: document.querySelector('[name="fenetres_vitrage"]')?.value,
@@ -607,38 +704,45 @@ document.addEventListener('DOMContentLoaded', function() {
         debit: document.querySelector('[name="ventilation_debit"]')?.value,
         rendement: document.querySelector('[name="ventilation_rendement"]')?.value
       }
-    };
+    }
+  };
 
-    // Sauvegarder via AJAX (à implémenter côté contrôleur)
-    fetch('/decision_hub/save_technical_preparation', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-      },
-      body: JSON.stringify({ technical_preparation: technicalData })
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        this.innerHTML = '<i class="bi bi-check-circle me-2"></i>Données sauvegardées !';
-        this.className = 'btn btn-outline-success btn-lg px-5';
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Sauvegarde en cours…';
 
-        // Mettre à jour les statuts
-        document.getElementById('isolation-status').textContent = 'Complété';
-        document.getElementById('energie-status').textContent = 'Complété';
-        document.getElementById('menuiseries-status').textContent = 'Complété';
-      } else {
-        alert('Erreur lors de la sauvegarde');
-      }
-    })
-    .catch(error => {
-      console.error('Erreur:', error);
-      alert('Erreur lors de la sauvegarde');
-    });
+  fetch('/decision_hub/save_technical_preparation', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+    },
+    body: JSON.stringify({ simulation_id: simulationId, technical_preparation: technicalData })
+  })
+  .then(r => r.json())
+  .then(data => {
+    btn.disabled = false;
+    if (data.success) {
+      btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Données sauvegardées !';
+      btn.className = 'btn btn-outline-success btn-lg px-5';
+      const s1 = document.getElementById('isolation-status');
+      const s2 = document.getElementById('energie-status');
+      const s3 = document.getElementById('menuiseries-status');
+      if (s1) s1.textContent = 'Complété';
+      if (s2) s2.textContent = 'Complété';
+      if (s3) s3.textContent = 'Complété';
+    } else {
+      btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Sauvegarder mes données techniques';
+      alert('Erreur lors de la sauvegarde : ' + (data.error || 'inconnue'));
+    }
+  })
+  .catch(err => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Sauvegarder mes données techniques';
+    console.error('Erreur:', err);
+    alert('Erreur lors de la sauvegarde');
   });
+};
 
-  // Initialiser le statut au chargement
-  updateCompletionStatus();
-});
+// Initialiser le statut au chargement
+window.updateTechCompletionStatus();
 </script>

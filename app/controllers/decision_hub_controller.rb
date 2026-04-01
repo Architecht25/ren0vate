@@ -57,12 +57,13 @@ class DecisionHubController < ApplicationController
       @default_simulation = @simulation  # Alias pour compatibilité avec les vues
       @hub_data = DecisionHub::DataService.new(@simulation).generate_dynamic_data
 
-      # Rendre les sections HTML (les partials utilisent les variables d'instance @simulation et @hub_data)
+      # Rendre les sections HTML (les partials utilisent hub_data comme local variable)
+      locals = { hub_data: @hub_data }
       sections_html = {
-        resume: render_to_string(partial: 'decision_hub/sections/resume', layout: false),
-        documents: render_to_string(partial: 'decision_hub/sections/documents', layout: false),
-        planning: render_to_string(partial: 'decision_hub/sections/planning', layout: false),
-        technical: render_to_string(partial: 'decision_hub/sections/preparation_technique', layout: false)
+        resume: render_to_string(partial: 'decision_hub/sections/resume', layout: false, locals: locals),
+        documents: render_to_string(partial: 'decision_hub/sections/documents', layout: false, locals: locals),
+        planning: render_to_string(partial: 'decision_hub/sections/planning', layout: false, locals: locals),
+        technical: render_to_string(partial: 'decision_hub/sections/preparation_technique', layout: false, locals: locals)
       }
 
       render json: {
@@ -180,18 +181,23 @@ class DecisionHubController < ApplicationController
   end
 
   def save_technical_preparation
-    # Sauvegarde des données techniques de préparation
+    # Sauvegarde des données techniques dans simulation.parameters
     begin
-      # Récupérer les données depuis les paramètres
-      technical_data = params.require(:technical_preparation)
+      simulation_id   = params[:simulation_id]
+      technical_data  = params.require(:technical_preparation).to_unsafe_h
 
-      # Sauvegarder en session pour réutilisation ultérieure
-      session[:technical_preparation_data] = technical_data.to_h
+      if simulation_id.present?
+        simulation = current_user.simulations.find_by(id: simulation_id)
+        if simulation
+          existing = simulation.parameters.present? ? JSON.parse(simulation.parameters) : {}
+          existing['technical_preparation'] = technical_data
+          simulation.update!(parameters: existing.to_json)
+        end
+      end
 
       render json: {
         success: true,
-        message: "Données techniques sauvegardées avec succès",
-        data: technical_data
+        message: "Données techniques sauvegardées avec succès"
       }
     rescue ActionController::ParameterMissing => e
       render json: {

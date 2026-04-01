@@ -127,21 +127,36 @@ export default class extends Controller {
     }
   }
 
+  // Dispose Bootstrap instances inside a section before replacing innerHTML
+  disposeBootstrapInstances(element) {
+    if (!element || typeof bootstrap === 'undefined') return
+    element.querySelectorAll('.modal').forEach(el => {
+      bootstrap.Modal.getInstance(el)?.dispose()
+    })
+    element.querySelectorAll('.collapse').forEach(el => {
+      bootstrap.Collapse.getInstance(el)?.dispose()
+    })
+  }
+
   // Update all sections with new data
   updateSections(sectionsData) {
     if (this.hasResumeSectionTarget) {
+      this.disposeBootstrapInstances(this.resumeSectionTarget)
       this.resumeSectionTarget.innerHTML = sectionsData.resume || ""
     }
 
     if (this.hasDocumentsSectionTarget) {
+      this.disposeBootstrapInstances(this.documentsSectionTarget)
       this.documentsSectionTarget.innerHTML = sectionsData.documents || ""
     }
 
     if (this.hasPlanningSectionTarget) {
+      this.disposeBootstrapInstances(this.planningSectionTarget)
       this.planningSectionTarget.innerHTML = sectionsData.planning || ""
     }
 
     if (this.hasTechnicalSectionTarget) {
+      this.disposeBootstrapInstances(this.technicalSectionTarget)
       this.technicalSectionTarget.innerHTML = sectionsData.technical || ""
     }
 
@@ -154,15 +169,19 @@ export default class extends Controller {
     const emptyMessage = '<div class="text-center py-4"><i class="bi bi-info-circle text-muted fs-1"></i><p class="mt-2 text-muted">Sélectionnez une simulation pour voir les détails</p></div>'
 
     if (this.hasResumeSectionTarget) {
+      this.disposeBootstrapInstances(this.resumeSectionTarget)
       this.resumeSectionTarget.innerHTML = emptyMessage
     }
     if (this.hasDocumentsSectionTarget) {
+      this.disposeBootstrapInstances(this.documentsSectionTarget)
       this.documentsSectionTarget.innerHTML = emptyMessage
     }
     if (this.hasPlanningSectionTarget) {
+      this.disposeBootstrapInstances(this.planningSectionTarget)
       this.planningSectionTarget.innerHTML = emptyMessage
     }
     if (this.hasTechnicalSectionTarget) {
+      this.disposeBootstrapInstances(this.technicalSectionTarget)
       this.technicalSectionTarget.innerHTML = emptyMessage
     }
   }
@@ -172,15 +191,19 @@ export default class extends Controller {
     const loadingMessage = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Chargement...</span></div><p class="mt-2 text-muted">Chargement des données...</p></div>'
 
     if (this.hasResumeSectionTarget) {
+      this.disposeBootstrapInstances(this.resumeSectionTarget)
       this.resumeSectionTarget.innerHTML = loadingMessage
     }
     if (this.hasDocumentsSectionTarget) {
+      this.disposeBootstrapInstances(this.documentsSectionTarget)
       this.documentsSectionTarget.innerHTML = loadingMessage
     }
     if (this.hasPlanningSectionTarget) {
+      this.disposeBootstrapInstances(this.planningSectionTarget)
       this.planningSectionTarget.innerHTML = loadingMessage
     }
     if (this.hasTechnicalSectionTarget) {
+      this.disposeBootstrapInstances(this.technicalSectionTarget)
       this.technicalSectionTarget.innerHTML = loadingMessage
     }
   }

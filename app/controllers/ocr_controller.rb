@@ -606,7 +606,80 @@ class OcrController < ApplicationController
     end
   end
 
+  # POST /ocr/scan_label_energetique
+  # Scanne une photo du label énergétique européen (CET, PAC, …) et extrait
+  # la classe (A+++…G), le COP, la capacité et éventuellement le profil de
+  # soutirage. Crée un document de type 'certificat_label'.
+  def scan_label_energetique
+    return render json: { error: 'Aucun fichier fourni' }, status: :bad_request unless params[:file]
+
+    begin
+      service = LabelEnergetiqueOcrService.new(params[:file])
+      result  = service.extraire_donnees_label
+
+      unless result[:success]
+        return render json: { error: result[:error] }, status: :unprocessable_entity
+      end
+
+      # Document lié à la propriété ou au chantier si fourni
+      property = params[:property_id].present? ? current_user.properties.find_by(id: params[:property_id]) : nil
+      project  = params[:project_id].present?  ? current_user.projects.find_by(id: params[:project_id])   : nil
+
+      document = current_user.documents.create!(
+        file:          params[:file],
+        type_document: 'certificat_label',
+        property:      property,
+        project:       project,
+        status:        'pending',
+        notes:         "Label énergétique scanné le #{Date.today.strftime('%d/%m/%Y')}" \
+                       "#{result[:label_classe].present? ? " — Classe #{result[:label_classe]}" : ''}" \
+                       " — confiance #{result[:confiance_ocr].to_i} %"
+      )
+
+      if document.file.attached? && document.file_url.blank?
+        document.update_column(:file_url, rails_blob_url(document.file))
+      end
+
+      render json: {
+        success:              true,
+        document_id:          document.id,
+        label_classe:         result[:label_classe],
+        cop:                  result[:cop],
+        capacite:             result[:capacite],
+        profil_soutirage:     result[:profil_soutirage],
+        bruit_db:             result[:bruit_db],
+        marque:               result[:marque],
+        modele:               result[:modele],
+        consommation_annuelle: result[:consommation_annuelle],
+        confiance_ocr:        result[:confiance_ocr],
+        extraction_complete:  result[:extraction_complete],
+        message:              message_retour_label(result)
+      }
+
+    rescue ActiveRecord::RecordInvalid => e
+      Rails.logger.error "Label scan save error: #{e.message}"
+      render json: { error: "Erreur lors de la sauvegarde du document", details: e.record.errors.full_messages }, status: :unprocessable_entity
+    rescue StandardError => e
+      Rails.logger.error "Label OCR error: #{e.message}\n#{e.backtrace.first(5).join("\n")}"
+      render json: {
+        error:   'Erreur lors du traitement du label énergétique',
+        details: Rails.env.development? ? e.message : nil
+      }, status: :internal_server_error
+    end
+  end
+
   private
+
+  def message_retour_label(result)
+    if result[:label_classe].present?
+      details = []
+      details << "COP #{result[:cop]}" if result[:cop].present?
+      details << "#{result[:capacite]} L" if result[:capacite].present?
+      info = details.any? ? " (#{details.join(', ')})" : ''
+      return "✅ Label #{result[:label_classe]}#{info} extrait (confiance #{result[:confiance_ocr].to_i} %). Vérifiez et appliquez."
+    end
+    "⚠️ Classe non détectée (confiance #{result[:confiance_ocr].to_i} %). Encodez manuellement la classe du label."
+  end
 
   def message_retour_peb(result, peb_donnee)
     region_label = { 'wallonie' => 'Wallonie', 'flandre' => 'Flandre', 'bruxelles' => 'Bruxelles' }[result[:region]] || 'Région non détectée'
