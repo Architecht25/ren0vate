@@ -14,24 +14,498 @@
     </div>
   </div>
 
-  <div class="row">
-    <div class="col-lg-6">
+  <div class="row g-4">
+
+    <!-- ─────────────────────────────────────────────────────────────────────── -->
+    <!-- Colonne gauche : scan OCR + devis scannés                              -->
+    <!-- ─────────────────────────────────────────────────────────────────────── -->
+    <div class="col-lg-8">
+
+      <!-- Zone scan devis architecte -->
+      <div class="card border-0 shadow-sm mb-4" id="scan-zone-architecte">
+        <div class="card-body p-4">
+          <h5 class="card-title text-primary-custom mb-3">
+            <i class="bi bi-person-badge me-2"></i>Devis / Contrat architecte
+          </h5>
+
+          <!-- Bouton scan -->
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <button type="button" class="btn btn-outline-primary btn-sm" id="btn-scan-architecte">
+              <i class="bi bi-camera me-1"></i>Scanner un devis architecte
+            </button>
+            <input type="file" id="file-architecte" accept=".pdf,.jpg,.jpeg,.png" class="d-none">
+            <div id="status-architecte" class="d-none flex-grow-1">
+              <div class="alert border-0 rounded-2 py-1 px-2 mb-0 small alert-secondary d-flex align-items-center gap-2" id="alert-architecte">
+                <div class="spinner-border spinner-border-sm d-none" id="spinner-architecte" role="status"></div>
+                <i class="bi d-none" id="icon-architecte"></i>
+                <span id="msg-architecte"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Résultat scan en temps réel -->
+          <div id="result-architecte" class="d-none">
+            <div class="border rounded-3 p-3 bg-light">
+              <div class="row g-2">
+                <div class="col-sm-6">
+                  <small class="text-muted d-block">Entreprise</small>
+                  <span id="r-arch-entreprise" class="fw-medium">—</span>
+                </div>
+                <div class="col-sm-6">
+                  <small class="text-muted d-block">Numéro devis</small>
+                  <span id="r-arch-numero" class="fw-medium">—</span>
+                </div>
+                <div class="col-sm-4">
+                  <small class="text-muted d-block">Montant HTVA</small>
+                  <span id="r-arch-htva" class="fw-medium text-success">—</span>
+                </div>
+                <div class="col-sm-4">
+                  <small class="text-muted d-block">Montant TVAC</small>
+                  <span id="r-arch-tvac" class="fw-medium">—</span>
+                </div>
+                <div class="col-sm-4">
+                  <small class="text-muted d-block">TVA</small>
+                  <span id="r-arch-tva" class="fw-medium">—</span>
+                </div>
+                <div class="col-sm-6">
+                  <small class="text-muted d-block">Date devis</small>
+                  <span id="r-arch-date" class="fw-medium">—</span>
+                </div>
+                <div class="col-sm-6">
+                  <small class="text-muted d-block">Valable jusqu'au</small>
+                  <span id="r-arch-validite" class="fw-medium">—</span>
+                </div>
+                <div class="col-12">
+                  <small class="text-muted d-block">Types de travaux</small>
+                  <span id="r-arch-travaux" class="fw-medium">—</span>
+                </div>
+              </div>
+              <div class="mt-2 d-flex align-items-center gap-2">
+                <div class="progress flex-grow-1" style="height: 6px;">
+                  <div id="r-arch-confiance-bar" class="progress-bar" role="progressbar"></div>
+                </div>
+                <small class="text-muted" id="r-arch-confiance-label"></small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Devis architecte déjà scannés -->
+          <% devis_arch = @devis_donnees.select { |d| d.categorie_emetteur == 'architecte' } %>
+          <% if devis_arch.any? %>
+            <div class="mt-3">
+              <small class="text-muted text-uppercase fw-semibold d-block mb-2" style="font-size: 0.7rem; letter-spacing: 0.05em;">
+                Devis architecte scannés (<%= devis_arch.count %>)
+              </small>
+              <% devis_arch.each do |d| %>
+                <div class="d-flex align-items-start gap-3 p-2 border rounded-2 mb-2 bg-white <%= 'border-warning' if d.devis_expire? %>">
+                  <div class="flex-shrink-0 mt-1">
+                    <i class="bi bi-file-earmark-text text-primary fs-5"></i>
+                  </div>
+                  <div class="flex-grow-1 small">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="fw-medium"><%= d.nom_entreprise.presence || 'Entreprise non détectée' %></span>
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted"><%= d.date_devis_display %></span>
+                        <% if d.document&.file&.attached? %>
+                          <%= link_to rails_blob_path(d.document.file, only_path: true), target: "_blank", rel: "noopener noreferrer", class: "text-primary", title: "Voir le document" do %>
+                            <i class="bi bi-eye fs-6"></i>
+                          <% end %>
+                        <% end %>
+                        <%= button_to document_path(d.document), method: :delete,
+                            data: { turbo_confirm: "Supprimer ce devis scanné et ses données extraites ?" },
+                            class: "btn btn-link p-0 border-0 bg-transparent text-danger",
+                            form: { style: "display:inline;" },
+                            title: "Supprimer" do %>
+                          <i class="bi bi-trash3 fs-6"></i>
+                        <% end %>
+                      </div>
+                    </div>
+                    <%# ── Montants HTVA / TVAC ── %>
+                    <div class="d-flex gap-3 mt-1 align-items-baseline">
+                      <% if d.montant_htva_formate %>
+                        <span class="text-success fw-bold fs-6"><%= d.montant_htva_formate %></span>
+                      <% else %>
+                        <span class="text-danger small"><i class="bi bi-exclamation-circle me-1"></i>Montant non extrait</span>
+                      <% end %>
+                      <% if d.montant_tvac_formate %>
+                        <span class="text-muted small"><%= d.montant_tvac_formate %></span>
+                      <% end %>
+                    </div>
+                    <%# ── Métadonnées devis ── %>
+                    <div class="d-flex gap-3 mt-1">
+                      <% if d.taux_tva.present? %><span class="text-muted">TVA <%= d.taux_tva.to_f.round(0) %>%</span><% end %>
+                      <% if d.numero_devis.present? %><span class="text-muted">N° <%= d.numero_devis %></span><% end %>
+                      <% if d.nom_entreprise.present? %><span class="text-muted"><%= d.nom_entreprise %></span><% end %>
+                    </div>
+                    <% if d.types_travaux_libelles.any? %>
+                      <div class="mt-1">
+                        <% d.types_travaux_libelles.each do |tl| %>
+                          <span class="badge bg-primary-subtle text-primary-emphasis me-1" style="font-size: 0.65rem;"><%= tl %></span>
+                        <% end %>
+                      </div>
+                    <% end %>
+                    <% if d.devis_expire? %>
+                      <div class="text-warning small mt-1"><i class="bi bi-exclamation-triangle me-1"></i>Expiré le <%= d.validite_devis_display %></div>
+                    <% elsif d.devis_expire_bientot? %>
+                      <div class="text-warning small mt-1"><i class="bi bi-clock me-1"></i>Expire le <%= d.validite_devis_display %></div>
+                    <% end %>
+                    <div class="mt-1">
+                      <div class="progress" style="height: 4px; width: 80px;">
+                        <div class="progress-bar <%= d.extraction_fiable? ? 'bg-success' : 'bg-warning' %>"
+                             role="progressbar"
+                             style="width: <%= d.confiance_ocr.to_f.round(0) %>%"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Zone scan devis entrepreneur(s) -->
+      <div class="card border-0 shadow-sm mb-4" id="scan-zone-entrepreneur">
+        <div class="card-body p-4">
+          <h5 class="card-title text-primary-custom mb-3">
+            <i class="bi bi-tools me-2"></i>Devis entrepreneur(s) / Métrés
+          </h5>
+
+          <!-- Bouton scan -->
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <button type="button" class="btn btn-outline-primary btn-sm" id="btn-scan-entrepreneur">
+              <i class="bi bi-camera me-1"></i>Scanner un devis entrepreneur / métré
+            </button>
+            <input type="file" id="file-entrepreneur" accept=".pdf,.jpg,.jpeg,.png" class="d-none">
+            <div id="status-entrepreneur" class="d-none flex-grow-1">
+              <div class="alert border-0 rounded-2 py-1 px-2 mb-0 small alert-secondary d-flex align-items-center gap-2" id="alert-entrepreneur">
+                <div class="spinner-border spinner-border-sm d-none" id="spinner-entrepreneur" role="status"></div>
+                <i class="bi d-none" id="icon-entrepreneur"></i>
+                <span id="msg-entrepreneur"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Résultat scan en temps réel -->
+          <div id="result-entrepreneur" class="d-none">
+            <div class="border rounded-3 p-3 bg-light">
+              <div class="row g-2">
+                <div class="col-sm-6">
+                  <small class="text-muted d-block">Entreprise</small>
+                  <span id="r-ent-entreprise" class="fw-medium">—</span>
+                </div>
+                <div class="col-sm-6">
+                  <small class="text-muted d-block">Numéro devis</small>
+                  <span id="r-ent-numero" class="fw-medium">—</span>
+                </div>
+                <div class="col-sm-4">
+                  <small class="text-muted d-block">Montant HTVA</small>
+                  <span id="r-ent-htva" class="fw-medium text-success">—</span>
+                </div>
+                <div class="col-sm-4">
+                  <small class="text-muted d-block">Montant TVAC</small>
+                  <span id="r-ent-tvac" class="fw-medium">—</span>
+                </div>
+                <div class="col-sm-4">
+                  <small class="text-muted d-block">TVA</small>
+                  <span id="r-ent-tva" class="fw-medium">—</span>
+                </div>
+                <div class="col-sm-6">
+                  <small class="text-muted d-block">Date devis</small>
+                  <span id="r-ent-date" class="fw-medium">—</span>
+                </div>
+                <div class="col-sm-6">
+                  <small class="text-muted d-block">Valable jusqu'au</small>
+                  <span id="r-ent-validite" class="fw-medium">—</span>
+                </div>
+                <div class="col-12">
+                  <small class="text-muted d-block">Types de travaux</small>
+                  <span id="r-ent-travaux" class="fw-medium">—</span>
+                </div>
+              </div>
+              <div class="mt-2 d-flex align-items-center gap-2">
+                <div class="progress flex-grow-1" style="height: 6px;">
+                  <div id="r-ent-confiance-bar" class="progress-bar" role="progressbar"></div>
+                </div>
+                <small class="text-muted" id="r-ent-confiance-label"></small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Devis entrepreneur déjà scannés -->
+          <% devis_ent = @devis_donnees.reject { |d| d.categorie_emetteur == 'architecte' } %>
+          <% if devis_ent.any? %>
+            <div class="mt-3">
+              <small class="text-muted text-uppercase fw-semibold d-block mb-2" style="font-size: 0.7rem; letter-spacing: 0.05em;">
+                Devis entrepreneur scannés (<%= devis_ent.count %>)
+              </small>
+              <% devis_ent.each do |d| %>
+                <div class="d-flex align-items-start gap-3 p-2 border rounded-2 mb-2 bg-white <%= 'border-warning' if d.devis_expire? %>">
+                  <div class="flex-shrink-0 mt-1">
+                    <i class="bi bi-file-earmark-text text-primary fs-5"></i>
+                  </div>
+                  <div class="flex-grow-1 small">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="fw-medium"><%= d.nom_entreprise.presence || 'Entreprise non détectée' %></span>
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted"><%= d.date_devis_display %></span>
+                        <% if d.document&.file&.attached? %>
+                          <%= link_to rails_blob_path(d.document.file, only_path: true), target: "_blank", rel: "noopener noreferrer", class: "text-primary", title: "Voir le document" do %>
+                            <i class="bi bi-eye fs-6"></i>
+                          <% end %>
+                        <% end %>
+                        <%= button_to document_path(d.document), method: :delete,
+                            params: { return_context: 'budget' },
+                            data: { turbo_confirm: "Supprimer ce devis scanné et ses données extraites ?" },
+                            class: "btn btn-link p-0 border-0 bg-transparent text-danger",
+                            form: { style: "display:inline;" },
+                            title: "Supprimer" do %>
+                          <i class="bi bi-trash3 fs-6"></i>
+                        <% end %>
+                      </div>
+                    </div>
+                    <%# ── Montants HTVA / TVAC ── %>
+                    <div class="d-flex gap-3 mt-1 align-items-baseline">
+                      <% if d.montant_htva_formate %>
+                        <span class="text-success fw-bold fs-6"><%= d.montant_htva_formate %></span>
+                      <% else %>
+                        <span class="text-danger small"><i class="bi bi-exclamation-circle me-1"></i>Montant non extrait</span>
+                      <% end %>
+                      <% if d.montant_tvac_formate %>
+                        <span class="text-muted small"><%= d.montant_tvac_formate %></span>
+                      <% end %>
+                    </div>
+                    <%# ── Métadonnées devis ── %>
+                    <div class="d-flex gap-3 mt-1">
+                      <% if d.taux_tva.present? %><span class="text-muted">TVA <%= d.taux_tva.to_f.round(0) %>%</span><% end %>
+                      <% if d.numero_devis.present? %><span class="text-muted">N° <%= d.numero_devis %></span><% end %>
+                      <% if d.nom_entreprise.present? %><span class="text-muted"><%= d.nom_entreprise %></span><% end %>
+                      <% if d.surface_travaux.present? %><span class="text-muted"><i class="bi bi-rulers me-1"></i><%= d.surface_travaux %> m²</span><% end %>
+                    </div>
+                    <% if d.types_travaux_libelles.any? %>
+                      <div class="mt-1">
+                        <% d.types_travaux_libelles.each do |tl| %>
+                          <span class="badge bg-primary-subtle text-primary-emphasis me-1" style="font-size: 0.65rem;"><%= tl %></span>
+                        <% end %>
+                      </div>
+                    <% end %>
+                    <% if d.devis_expire? %>
+                      <div class="text-warning small mt-1"><i class="bi bi-exclamation-triangle me-1"></i>Expiré le <%= d.validite_devis_display %></div>
+                    <% elsif d.devis_expire_bientot? %>
+                      <div class="text-warning small mt-1"><i class="bi bi-clock me-1"></i>Expire le <%= d.validite_devis_display %></div>
+                    <% end %>
+                    <div class="mt-1">
+                      <div class="progress" style="height: 4px; width: 80px;">
+                        <div class="progress-bar <%= d.extraction_fiable? ? 'bg-success' : 'bg-warning' %>"
+                             role="progressbar"
+                             style="width: <%= d.confiance_ocr.to_f.round(0) %>%"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+    </div><!-- /col-lg-8 -->
+
+    <!-- ─────────────────────────────────────────────────────────────────────── -->
+    <!-- Colonne droite : formulaire de saisie / correction manuelle            -->
+    <!-- ─────────────────────────────────────────────────────────────────────── -->
+    <div class="col-lg-4">
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-body p-4">
-          <h5 class="card-title text-primary-custom mb-4">
-            <i class="bi bi-pencil-square me-2"></i>Montants des devis
+          <h5 class="card-title text-primary-custom mb-1">
+            <i class="bi bi-pencil-square me-2"></i>Saisie manuelle
           </h5>
+          <p class="text-muted small mb-4">Complétez ou corrigez les montants détectés par scan.</p>
 
           <%= form_with model: @project, url: update_budget_project_path(@project), method: :patch, local: true do |form| %>
             <%= render 'projects/partials_general/budget_fields', form: form %>
 
             <div class="d-flex justify-content-end mt-4">
-              <%= link_to "Annuler", project_path(@project), class: "btn btn-outline-secondary me-2" %>
-              <%= form.submit "Enregistrer", class: "btn btn-primary-custom" %>
+              <%= link_to "Annuler", project_path(@project), class: "btn btn-outline-secondary btn-sm me-2" %>
+              <%= form.submit "Enregistrer", class: "btn btn-primary-custom btn-sm" %>
             </div>
           <% end %>
         </div>
       </div>
-    </div>
-  </div>
+
+      <!-- Récap totaux OCR -->
+      <% total_arch = @devis_donnees.select { |d| d.categorie_emetteur == 'architecte' && d.montant_total_htva }.sum { |d| d.montant_total_htva.to_f } %>
+      <% total_ent  = @devis_donnees.reject { |d| d.categorie_emetteur == 'architecte' }.select { |d| d.montant_total_htva }.sum { |d| d.montant_total_htva.to_f } %>
+      <% if total_arch > 0 || total_ent > 0 %>
+        <div class="card border-0 shadow-sm bg-primary-subtle">
+          <div class="card-body p-4">
+            <h6 class="fw-semibold text-primary-custom mb-3"><i class="bi bi-bar-chart me-2"></i>Totaux extraits par OCR</h6>
+            <% if total_arch > 0 %>
+              <div class="d-flex justify-content-between mb-1 small">
+                <span class="text-muted">Architecte HTVA</span>
+                <span class="fw-semibold"><%= number_to_currency(total_arch, unit: '€', format: '%n %u') %></span>
+              </div>
+            <% end %>
+            <% if total_ent > 0 %>
+              <div class="d-flex justify-content-between mb-1 small">
+                <span class="text-muted">Entrepreneur(s) HTVA</span>
+                <span class="fw-semibold"><%= number_to_currency(total_ent, unit: '€', format: '%n %u') %></span>
+              </div>
+            <% end %>
+            <% if total_arch > 0 || total_ent > 0 %>
+              <hr class="my-2">
+              <div class="d-flex justify-content-between small fw-bold">
+                <span>Total HTVA</span>
+                <span class="text-success"><%= number_to_currency(total_arch + total_ent, unit: '€', format: '%n %u') %></span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div><!-- /col-lg-4 -->
+
+  </div><!-- /row -->
 </div>
+
+<script>
+(function () {
+  const SCAN_URL   = '<%= ocr_scan_devis_path %>';
+  const PROJECT_ID = '<%= @project.id %>';
+  const CSRF       = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+  const TRAVAUX_LABELS = {
+    isolation_toit:               'Isolation toiture',
+    isolation_sol:                'Isolation sol',
+    isolation_murs:               'Isolation murs',
+    chassis_vitrage:              'Châssis / vitrages',
+    chauffage:                    'Chauffage',
+    pompe_chaleur:                'Pompe à chaleur',
+    ventilation:                  'Ventilation',
+    chauffe_eau_thermodynamique:  'Chauffe-eau thermo.',
+    photovoltaique:               'Photovoltaïque',
+    eclairage:                    'Éclairage',
+    audit_energetique:            'Audit énergétique',
+    autre:                        'Autre'
+  };
+
+  function formatMontant(val) {
+    if (!val && val !== 0) return '—';
+    return parseFloat(val).toLocaleString('fr-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+  }
+
+  function confColor(val) {
+    if (val >= 75) return 'bg-success';
+    if (val >= 50) return 'bg-warning';
+    return 'bg-danger';
+  }
+
+  function setupScanZone(categorie, btnId, fileId, statusId, alertId, spinnerId, iconId, msgId, resultId, prefix) {
+    var btn    = document.getElementById(btnId);
+    var input  = document.getElementById(fileId);
+    var status = document.getElementById(statusId);
+    var alert  = document.getElementById(alertId);
+    var spin   = document.getElementById(spinnerId);
+    var icon   = document.getElementById(iconId);
+    var msg    = document.getElementById(msgId);
+    var result = document.getElementById(resultId);
+
+    if (!btn) return;
+
+    btn.addEventListener('click', function () { input.click(); });
+
+    input.addEventListener('change', function () {
+      var file = input.files[0];
+      if (!file) return;
+
+      status.classList.remove('d-none');
+      alert.className = 'alert border-0 rounded-2 py-1 px-2 mb-0 small alert-secondary d-flex align-items-center gap-2';
+      spin.classList.remove('d-none');
+      icon.classList.add('d-none');
+      msg.textContent = 'Analyse du devis en cours…';
+      btn.disabled = true;
+      result.classList.add('d-none');
+
+      var formData = new FormData();
+      formData.append('file', file);
+      formData.append('project_id', PROJECT_ID);
+      formData.append('categorie_emetteur', categorie);
+
+      fetch(SCAN_URL, {
+        method: 'POST',
+        headers: { 'X-CSRF-Token': CSRF },
+        body: formData
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        spin.classList.add('d-none');
+        btn.disabled = false;
+
+        if (!data.success) {
+          alert.className = 'alert border-0 rounded-2 py-1 px-2 mb-0 small alert-danger d-flex align-items-center gap-2';
+          icon.className = 'bi bi-exclamation-triangle-fill text-danger';
+          icon.classList.remove('d-none');
+          msg.textContent = data.error || 'Extraction échouée.';
+          return;
+        }
+
+        // Afficher résultat
+        result.classList.remove('d-none');
+        var p = prefix;
+
+        document.getElementById(p + 'entreprise').textContent = data.nom_entreprise || '—';
+        document.getElementById(p + 'numero').textContent     = data.numero_devis   || '—';
+        document.getElementById(p + 'htva').textContent       = formatMontant(data.montant_htva);
+        document.getElementById(p + 'tvac').textContent       = formatMontant(data.montant_tvac);
+        document.getElementById(p + 'tva').textContent        = data.taux_tva ? data.taux_tva + ' %' : '—';
+        document.getElementById(p + 'date').textContent       = data.date_devis    || '—';
+        document.getElementById(p + 'validite').textContent   = data.validite_devis || '—';
+
+        var travauxLibelles = (data.types_travaux || []).map(function (t) {
+          return TRAVAUX_LABELS[t] || t;
+        });
+        document.getElementById(p + 'travaux').textContent = travauxLibelles.length ? travauxLibelles.join(', ') : '—';
+
+        var conf = parseFloat(data.confiance_extraction || 0);
+        var bar  = document.getElementById(p + 'confiance-bar');
+        bar.style.width = conf + '%';
+        bar.className   = 'progress-bar ' + confColor(conf);
+        document.getElementById(p + 'confiance-label').textContent = conf.toFixed(1) + ' %';
+
+        var type = data.extraction_complete ? 'success' : 'warning';
+        var ic   = data.extraction_complete ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill';
+        alert.className = 'alert border-0 rounded-2 py-1 px-2 mb-0 small alert-' + type + ' d-flex align-items-center gap-2';
+        icon.className  = 'bi ' + ic + ' text-' + type;
+        icon.classList.remove('d-none');
+        msg.textContent = data.message;
+
+        // Recharger la page après 2 s pour afficher le nouveau devis dans la liste
+        setTimeout(function () { window.location.reload(); }, 2500);
+      })
+      .catch(function () {
+        spin.classList.add('d-none');
+        btn.disabled = false;
+        alert.className = 'alert border-0 rounded-2 py-1 px-2 mb-0 small alert-danger d-flex align-items-center gap-2';
+        icon.className  = 'bi bi-exclamation-triangle-fill text-danger';
+        icon.classList.remove('d-none');
+        msg.textContent = 'Erreur réseau. Veuillez réessayer.';
+      });
+
+      input.value = '';
+    });
+  }
+
+  setupScanZone(
+    'architecte',
+    'btn-scan-architecte', 'file-architecte',
+    'status-architecte', 'alert-architecte', 'spinner-architecte', 'icon-architecte', 'msg-architecte',
+    'result-architecte', 'r-arch-'
+  );
+
+  setupScanZone(
+    'entrepreneur',
+    'btn-scan-entrepreneur', 'file-entrepreneur',
+    'status-entrepreneur', 'alert-entrepreneur', 'spinner-entrepreneur', 'icon-entrepreneur', 'msg-entrepreneur',
+    'result-entrepreneur', 'r-ent-'
+  );
+})();
+</script>

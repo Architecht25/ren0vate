@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_03_31_091528) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_01_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -117,6 +117,37 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_31_091528) do
     t.index ["request_progress_id", "status"], name: "index_complement_requests_on_request_progress_id_and_status"
     t.index ["request_progress_id"], name: "index_complement_requests_on_request_progress_id"
     t.index ["status"], name: "index_complement_requests_on_status"
+  end
+
+  create_table "devis_donnees", force: :cascade do |t|
+    t.bigint "document_id", null: false
+    t.bigint "project_id"
+    t.bigint "property_id"
+    t.string "nom_entreprise"
+    t.string "numero_bce_entreprise"
+    t.string "numero_tva_entreprise"
+    t.decimal "montant_total_htva", precision: 12, scale: 2
+    t.decimal "montant_total_tvac", precision: 12, scale: 2
+    t.decimal "taux_tva", precision: 5, scale: 2
+    t.date "date_devis"
+    t.string "numero_devis"
+    t.date "validite_devis"
+    t.jsonb "types_travaux_detectes", default: []
+    t.decimal "surface_travaux", precision: 8, scale: 2
+    t.decimal "confiance_ocr", precision: 5, scale: 2
+    t.boolean "valide_manuellement", default: false, null: false
+    t.boolean "extraction_complete", default: false, null: false
+    t.text "texte_ocr_brut"
+    t.jsonb "donnees_extraites", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "categorie_emetteur"
+    t.index ["categorie_emetteur"], name: "index_devis_donnees_on_categorie_emetteur"
+    t.index ["document_id"], name: "index_devis_donnees_on_document_id"
+    t.index ["extraction_complete"], name: "index_devis_donnees_on_extraction_complete"
+    t.index ["project_id"], name: "index_devis_donnees_on_project_id"
+    t.index ["property_id"], name: "index_devis_donnees_on_property_id"
+    t.index ["types_travaux_detectes"], name: "index_devis_donnees_on_types_travaux_detectes", using: :gin
   end
 
   create_table "document_phase_statuses", force: :cascade do |t|
@@ -724,6 +755,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_03_31_091528) do
   add_foreign_key "aer_donnees", "documents"
   add_foreign_key "aer_donnees", "users"
   add_foreign_key "complement_requests", "request_progresses"
+  add_foreign_key "devis_donnees", "documents"
+  add_foreign_key "devis_donnees", "projects"
+  add_foreign_key "devis_donnees", "properties"
   add_foreign_key "document_phase_statuses", "document_phases"
   add_foreign_key "document_phase_statuses", "properties"
   add_foreign_key "document_phase_statuses", "users", column: "validated_by_id"

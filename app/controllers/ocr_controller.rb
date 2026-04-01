@@ -405,6 +405,101 @@ class OcrController < ApplicationController
     end
   end
 
+  # POST /ocr/scan_devis
+  # Scanne un devis ou métré et persiste les données dans devis_donnees.
+  # Lie le document au chantier project_id (requis).
+  # categorie_emetteur : 'architecte' | 'entrepreneur' (optionnel, défaut 'entrepreneur')
+  def scan_devis
+    return render json: { error: 'Aucun fichier fourni' }, status: :bad_request unless params[:file]
+    return render json: { error: 'project_id requis' }, status: :bad_request unless params[:project_id].present?
+
+    begin
+      project = current_user.projects.find(params[:project_id])
+
+      devis_service = DevisOcrService.new(params[:file])
+      result        = devis_service.extraire_donnees_devis
+
+      unless result[:success]
+        return render json: { error: result[:error] }, status: :unprocessable_entity
+      end
+
+      categorie = params[:categorie_emetteur].presence_in(%w[architecte entrepreneur autre]) || 'entrepreneur'
+
+      document = current_user.documents.create!(
+        file:          params[:file],
+        type_document: 'devis',
+        project:       project,
+        status:        'pending',
+        notes:         "Devis scanné le #{Date.today.strftime('%d/%m/%Y')} — #{categorie.capitalize} — confiance #{result[:confiance_extraction].to_f.round(1)} %"
+      )
+
+      if document.file.attached? && document.file_url.blank?
+        document.update_column(:file_url, rails_blob_url(document.file))
+      end
+
+      devis_donnee = DevisDonnee.create!(
+        document:               document,
+        project:                project,
+        categorie_emetteur:     categorie,
+        nom_entreprise:         result[:nom_entreprise],
+        numero_bce_entreprise:  result[:numero_bce_entreprise],
+        numero_tva_entreprise:  result[:numero_tva_entreprise],
+        montant_total_htva:     result[:montant_total_htva],
+        montant_total_tvac:     result[:montant_total_tvac],
+        taux_tva:               result[:taux_tva],
+        date_devis:             result[:date_devis],
+        numero_devis:           result[:numero_devis],
+        validite_devis:         result[:validite_devis],
+        types_travaux_detectes: result[:types_travaux_detectes],
+        surface_travaux:        result[:surface_travaux],
+        confiance_ocr:          result[:confiance_extraction],
+        extraction_complete:    result[:extraction_complete],
+        texte_ocr_brut:         result[:texte_brut],
+        donnees_extraites:      result[:donnees_devis].to_h
+      )
+
+      # Mise à jour automatique du champ devis_montant du projet si confiance >= 75
+      if result[:confiance_extraction].to_f >= 75 && result[:montant_total_htva].present?
+        champ_montant = categorie == 'architecte' ? :architecte_devis_montant : :contractor_devis_montant
+        project.update(champ_montant => result[:montant_total_htva])
+      end
+
+      render json: {
+        success:                true,
+        document_id:            document.id,
+        devis_donnee_id:        devis_donnee.id,
+        categorie_emetteur:     categorie,
+        nom_entreprise:         result[:nom_entreprise],
+        numero_bce:             result[:numero_bce_entreprise],
+        montant_htva:           result[:montant_total_htva],
+        montant_tvac:           result[:montant_total_tvac],
+        taux_tva:               result[:taux_tva],
+        date_devis:             result[:date_devis]&.strftime('%d/%m/%Y'),
+        numero_devis:           result[:numero_devis],
+        validite_devis:         result[:validite_devis]&.strftime('%d/%m/%Y'),
+        types_travaux:          result[:types_travaux_detectes],
+        surface_travaux:        result[:surface_travaux],
+        confiance_extraction:   result[:confiance_extraction],
+        extraction_complete:    result[:extraction_complete],
+        devis_expire:           devis_donnee.devis_expire?,
+        applied_to_project:     result[:confiance_extraction].to_f >= 75 && result[:montant_total_htva].present?,
+        message:                message_retour_devis(result, devis_donnee)
+      }
+
+    rescue ActiveRecord::RecordNotFound
+      render json: { error: 'Chantier introuvable' }, status: :not_found
+    rescue ActiveRecord::RecordInvalid => e
+      Rails.logger.error "Devis save error: #{e.message}"
+      render json: { error: "Erreur lors de la sauvegarde du devis", details: e.record.errors.full_messages }, status: :unprocessable_entity
+    rescue StandardError => e
+      Rails.logger.error "Devis OCR error: #{e.message}\n#{e.backtrace.first(5).join("\n")}"
+      render json: {
+        error:   'Erreur lors du traitement du devis',
+        details: Rails.env.development? ? e.message : nil
+      }, status: :internal_server_error
+    end
+  end
+
   private
 
   def message_retour_peb(result, peb_donnee)
@@ -429,6 +524,18 @@ class OcrController < ApplicationController
     return "✅ Données extraites avec succès (confiance #{result[:confiance_extraction].to_f.round(1)} %). Veuillez vérifier les champs pré-remplis avant de sauvegarder." if result[:extraction_complete]
 
     "⚠️ Extraction partielle (confiance #{result[:confiance_extraction].to_f.round(1)} %). Complétez manuellement les champs manquants."
+  end
+
+  def message_retour_devis(result, devis_donnee)
+    cat = devis_donnee.categorie_emetteur&.capitalize || 'Devis'
+    if devis_donnee.devis_expire?
+      return "⚠️ #{cat} expiré (validité : #{devis_donnee.validite_devis_display}) — vérifiez sa validité."
+    end
+    if result[:extraction_complete]
+      montant = result[:montant_total_htva] ? "#{result[:montant_total_htva]} € HTVA" : "montant non détecté"
+      return "✅ #{cat} extrait (#{montant}, confiance #{result[:confiance_extraction].to_f.round(1)} %). Vérifiez et sauvegardez."
+    end
+    "⚠️ Extraction partielle #{cat.downcase} (confiance #{result[:confiance_extraction].to_f.round(1)} %). Complétez les champs manquants."
   end
 
   def build_document_params(ocr_result)

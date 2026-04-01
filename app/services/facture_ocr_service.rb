@@ -1,8 +1,9 @@
 class FactureOcrService < OcrService
   # Patterns regex pour extraction de données de factures
   MONTANT_PATTERNS = [
-    /(?:total|montant|somme|due?|à payer|total général|total ttc)\s*:?\s*([0-9]{1,3}(?:\s?[0-9]{3})*(?:[.,][0-9]{1,2})?)\s*[€€]/i,
-    /([0-9]{1,3}(?:\s?[0-9]{3})*(?:[.,][0-9]{1,2})?)\s*[€€]\s*(?:ttc|total|due?)/i,
+    /(?:total|montant|somme|due?|à payer|total général|total ttc)\s*:?\s*([0-9]{1,3}(?:[.\s][0-9]{3})*(?:,[0-9]{1,2})?)\s*[€]/i,
+    /(?:total|montant|somme|due?|à payer|total général|total ttc)\s*:?\s*([0-9]{1,3}(?:[,\s][0-9]{3})*(?:\.[0-9]{1,2})?)\s*[€]/i,
+    /([0-9]{1,3}(?:[.\s][0-9]{3})*(?:,[0-9]{1,2})?)\s*[€]\s*(?:ttc|total|due?|tvac)/i,
     /(\d{1,3}(?:[.,\s]\d{3})*(?:[.,]\d{2})?)\s*(?:€|EUR|euros?)/i
   ].freeze
 
@@ -44,7 +45,7 @@ class FactureOcrService < OcrService
   }.freeze
 
   def initialize(file, language: 'fra+eng')
-    super(file, language)
+    super(file, language: language)
   end
 
   def extraire_donnees_facture
@@ -85,9 +86,8 @@ class FactureOcrService < OcrService
     MONTANT_PATTERNS.each do |pattern|
       match = texte.match(pattern)
       if match
-        montant_str = match[1].gsub(/[\s]/, '').gsub(',', '.')
-        montant = montant_str.to_f
-        return montant if montant > 0 && montant < 1_000_000 # Validation basique
+        montant = parse_montant_belge(match[1])
+        return montant if montant && montant > 0 && montant < 10_000_000
       end
     end
     nil
@@ -193,16 +193,18 @@ class FactureOcrService < OcrService
 
   def extraire_montant_ht(texte)
     patterns_ht = [
-      /(?:total ht|montant ht|sous.total)\s*:?\s*([0-9]{1,3}(?:\s?[0-9]{3})*(?:[.,][0-9]{1,2})?)\s*[€€]/i,
-      /([0-9]{1,3}(?:\s?[0-9]{3})*(?:[.,][0-9]{1,2})?)\s*[€€]\s*ht/i
+      # Format belge : SOUS TOTAL 15.100,00 €
+      /(?:sous[\s\-]?total|total\s+ht|montant\s+ht|htva)\s*[:\-]?\s*([0-9]{1,3}(?:[.\s][0-9]{3})*(?:,[0-9]{1,2})?)\s*[€]/i,
+      /(?:sous[\s\-]?total|total\s+ht|montant\s+ht|htva)\s*[:\-]?\s*([0-9]{1,3}(?:[,\s][0-9]{3})*(?:\.[0-9]{1,2})?)\s*[€]/i,
+      /([0-9]{1,3}(?:[.\s][0-9]{3})*(?:,[0-9]{1,2})?)\s*[€]\s*(?:ht|htva)/i,
+      /([0-9]{1,3}(?:\s?[0-9]{3})*(?:[.,][0-9]{1,2})?)\s*[€]\s*ht/i
     ]
 
     patterns_ht.each do |pattern|
       match = texte.match(pattern)
       if match
-        montant_str = match[1].gsub(/[\s]/, '').gsub(',', '.')
-        montant = montant_str.to_f
-        return montant if montant > 0
+        montant = parse_montant_belge(match[1])
+        return montant if montant && montant > 0
       end
     end
     nil
@@ -210,19 +212,44 @@ class FactureOcrService < OcrService
 
   def extraire_montant_tva(texte)
     patterns_tva = [
-      /(?:tva|t\.v\.a\.)\s*:?\s*([0-9]{1,3}(?:\s?[0-9]{3})*(?:[.,][0-9]{1,2})?)\s*[€€]/i,
-      /([0-9]{1,3}(?:\s?[0-9]{3})*(?:[.,][0-9]{1,2})?)\s*[€€]\s*(?:tva|t\.v\.a\.)/i
+      /(?:tva|t\.v\.a\.|btw)\s*(?:[0-9]{1,2}\s*%)?\s*[:\-]?\s*([0-9]{1,3}(?:[.\s][0-9]{3})*(?:,[0-9]{1,2})?)\s*[€]/i,
+      /([0-9]{1,3}(?:[.\s][0-9]{3})*(?:,[0-9]{1,2})?)\s*[€]\s*(?:tva|t\.v\.a\.)/i,
+      /([0-9]{1,3}(?:\s?[0-9]{3})*(?:[.,][0-9]{1,2})?)\s*[€]\s*(?:tva|t\.v\.a\.)/i
     ]
 
     patterns_tva.each do |pattern|
       match = texte.match(pattern)
       if match
-        montant_str = match[1].gsub(/[\s]/, '').gsub(',', '.')
-        montant = montant_str.to_f
-        return montant if montant > 0
+        montant = parse_montant_belge(match[1])
+        return montant if montant && montant > 0
       end
     end
     nil
+  end
+
+  # ── Parse montant format belge : 15.100,00 ou 15,100.00 ou 15100,00 ──────────
+  def parse_montant_belge(str)
+    return nil if str.blank?
+    s = str.strip
+
+    # Format belge canonique : point = milliers, virgule = décimale (ex: 15.100,00)
+    if s.match?(/^\d{1,3}(?:\.\d{3})+,\d{2}$/)
+      return s.gsub('.', '').gsub(',', '.').to_f
+    end
+
+    # Format international : virgule = milliers, point = décimale (ex: 15,100.00)
+    if s.match?(/^\d{1,3}(?:,\d{3})+\.\d{2}$/)
+      return s.gsub(',', '').to_f
+    end
+
+    # Espace comme séparateur milliers (ex: 15 100,00 ou 15 100.00)
+    if s.match?(/^\d{1,3}(?:\s\d{3})+[,.]\d{2}$/)
+      s = s.gsub(/\s/, '')
+      return s.gsub(',', '.').to_f
+    end
+
+    # Format simple sans séparateur milliers (ex: 1700,00 ou 1700.00)
+    s.gsub(',', '.').to_f.tap { |v| return nil if v == 0.0 }
   end
 
   def calculer_confiance_extraction(donnees, confiance_ocr)

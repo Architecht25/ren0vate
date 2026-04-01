@@ -14,6 +14,9 @@ class Project < ApplicationRecord
   has_many :factures_devis, -> { where(type_facture: 'devis') }, class_name: 'Facture'
   has_many :factures_travaux, -> { where(type_facture: ['facture', 'acompte', 'solde']) }, class_name: 'Facture'
 
+  # Devis scannés (OCR)
+  has_many :devis_donnees, dependent: :nullify
+
   validates :nom, presence: true
   validates :property_id, presence: true
   validates :project_type, presence: true, inclusion: { in: %w[renovation investment],
@@ -162,7 +165,34 @@ class Project < ApplicationRecord
 
   # Méthodes pour les montants de devis
   def total_devis_montant
-    (architecte_devis_montant || 0) + (contractor_devis_montant || 0)
+    ocr = total_devis_ocr
+    ocr > 0 ? ocr : (architecte_devis_montant || 0) + (contractor_devis_montant || 0)
+  end
+
+  # ── Méthodes OCR devis ────────────────────────────────────────────────────
+  def total_devis_ocr(categorie = nil)
+    scope = devis_donnees.with_montant
+    scope = scope.par_categorie(categorie) if categorie
+    scope.sum(:montant_total_htva).to_f
+  end
+
+  def devis_ocr_architecte
+    devis_donnees.par_categorie('architecte').avec_montant.order(created_at: :desc)
+  end
+
+  def devis_ocr_entrepreneur
+    devis_donnees.par_categorie('entrepreneur').avec_montant.order(created_at: :desc)
+  end
+
+  # Montant effectif pour le suivi budgétaire (OCR > manuel)
+  def architecte_devis_montant_effectif
+    ocr = total_devis_ocr('architecte')
+    ocr > 0 ? ocr : architecte_devis_montant&.to_f
+  end
+
+  def contractor_devis_montant_effectif
+    ocr = total_devis_ocr('entrepreneur')
+    ocr > 0 ? ocr : contractor_devis_montant&.to_f
   end
 
   def architecte_factures_total
@@ -176,13 +206,15 @@ class Project < ApplicationRecord
   end
 
   def architecte_devis_vs_factures_difference
-    return nil unless architecte_devis_montant
-    architecte_factures_total - architecte_devis_montant
+    montant = architecte_devis_montant_effectif
+    return nil unless montant
+    architecte_factures_total - montant
   end
 
   def contractor_devis_vs_factures_difference
-    return nil unless contractor_devis_montant
-    contractor_factures_total - contractor_devis_montant
+    montant = contractor_devis_montant_effectif
+    return nil unless montant
+    contractor_factures_total - montant
   end
 
   def total_devis_vs_factures_difference

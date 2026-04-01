@@ -28,6 +28,11 @@ class ProjectsController < ApplicationController
     @photos = @project.documents.where(type_document: photo_types).order(created_at: :desc)
     @photos_by_type = @photos.group_by(&:type_document)
 
+    # Devis scannés par OCR
+    @devis_scanne_architecte  = @project.devis_ocr_architecte
+    @devis_scanne_entrepreneur = @project.devis_ocr_entrepreneur
+    @devis_scanne_autres       = @project.devis_donnees.par_categorie('autre').avec_montant.order(created_at: :desc)
+
     # Planning preview
     @latest_quote = @project.property&.quotes&.includes(:quote_items)&.order(created_at: :desc)&.first
     @planning_items_count = @latest_quote ? @latest_quote.quote_items.count : 0
@@ -58,6 +63,7 @@ class ProjectsController < ApplicationController
   end
 
   def edit_budget
+    @devis_donnees = @project.devis_donnees.includes(:document).order(created_at: :desc)
   end
 
   def edit_professionals

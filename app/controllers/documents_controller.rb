@@ -538,6 +538,15 @@ class DocumentsController < ApplicationController
   end
 
   def redirect_to_context_or_default(options = {})
+    # Contextes nommés sûrs (pas d'open redirect)
+    if params[:return_context].present? && @project
+      case params[:return_context]
+      when 'budget'
+        redirect_to edit_budget_project_path(@project), options
+        return
+      end
+    end
+
     # Préserver les paramètres de filtrage
     redirect_params = {}
     redirect_params[:type_document] = params[:type_document] if params[:type_document].present?
