@@ -74,13 +74,6 @@ class SitemapController < ApplicationController
         priority: 0.3
       }
 
-      # Documents officiels des primes
-      pages << {
-        url: "#{base_url}#{locale_prefix}/prime_document_templates",
-        lastmod: Date.current,
-        changefreq: 'monthly',
-        priority: 0.6
-      }
     end
 
     # Ajouter les primes individuelles si elles existent

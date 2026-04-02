@@ -193,7 +193,7 @@ class Notification < ApplicationRecord
         category: :documents,
         title: "Document requis",
         message: "Pour votre prime #{prime.titre}, vous devez fournir : #{document_type}",
-        action_url: "/prime_document_templates?prime_id=#{prime.id}",
+        action_url: "/documents?prime_id=#{prime.id}",
         priority: :haute,
         expires_at: 20.days.from_now
       )

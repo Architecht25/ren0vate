@@ -50,7 +50,6 @@ class RobotsController < ApplicationController
       Allow: /bruxelles-entreprises
       Allow: /wallonie-entreprises
       Allow: /pricing
-      Allow: /prime_document_templates
 
       # Sitemap
       Sitemap: #{base_url}/sitemap.xml

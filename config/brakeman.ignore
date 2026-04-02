@@ -44,26 +44,6 @@
     {
       "warning_type": "Redirect",
       "warning_code": 18,
-      "fingerprint": "49b501236389098db74cce9cdcc148f8208995000ad2bdda446f6cf39f0ec602",
-      "check_name": "Redirect",
-      "message": "Possible unprotected redirect",
-      "file": "app/controllers/prime_document_templates_controller.rb",
-      "line": 53,
-      "link": "https://brakemanscanner.org/docs/warning_types/redirect/",
-      "code": "redirect_to(PrimeDocumentTemplate.find(params[:id]).file_url, :allow_other_host => true)",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "PrimeDocumentTemplatesController",
-        "method": "download"
-      },
-      "user_input": "PrimeDocumentTemplate.find(params[:id]).file_url",
-      "confidence": "Weak",
-      "note": "False positive - runtime check in place or intentional (admin-only)"
-    },
-    {
-      "warning_type": "Redirect",
-      "warning_code": 18,
       "fingerprint": "5200caf2bff2989e0663571abac4f701644dc4d9ef584a64e8af596e997eecc7",
       "check_name": "Redirect",
       "message": "Possible unprotected redirect",
@@ -118,46 +98,6 @@
         "method": "view"
       },
       "user_input": "Document.find(params[:id]).file_url",
-      "confidence": "Weak",
-      "note": "False positive - runtime check in place or intentional (admin-only)"
-    },
-    {
-      "warning_type": "File Access",
-      "warning_code": 16,
-      "fingerprint": "b32934c16e2c2c0b8ff3c12a1bc59179fd053a2216f4264f92e4ed79d4a6cf3c",
-      "check_name": "SendFile",
-      "message": "Model attribute used in file name",
-      "file": "app/controllers/prime_document_templates_controller.rb",
-      "line": 121,
-      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
-      "code": "send_file(DocumentZipService.new(Prime.find(params[:prime_id]).document_templates.required_docs.by_order).generate, :filename => (\"documents_#{Prime.find(params[:prime_id]).slug.to_s.gsub(/[^a-zA-Z0-9_\\-]/, \"_\")}.zip\"), :type => \"application/zip\", :disposition => \"attachment\")",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "PrimeDocumentTemplatesController",
-        "method": "download_prime_documents"
-      },
-      "user_input": "Prime.find(params[:prime_id]).document_templates",
-      "confidence": "Weak",
-      "note": "False positive - runtime check in place or intentional (admin-only)"
-    },
-    {
-      "warning_type": "File Access",
-      "warning_code": 16,
-      "fingerprint": "b6a2df34d811923d1f10c6ca30624738609e8a02d0fa716f4797799817d0bd5c",
-      "check_name": "SendFile",
-      "message": "Model attribute used in file name",
-      "file": "app/controllers/prime_document_templates_controller.rb",
-      "line": 93,
-      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
-      "code": "send_file(DocumentZipService.new(PrimeDocumentTemplate.joins(:prime).where(:prime => get_simulation_primes(current_user.simulations.find(params[:simulation_id]))).required_docs.by_order).generate, :filename => (\"documents_primes_simulation_#{current_user.simulations.find(params[:simulation_id]).id.to_i}.zip\"), :type => \"application/zip\", :disposition => \"attachment\")",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "PrimeDocumentTemplatesController",
-        "method": "download_simulation_documents"
-      },
-      "user_input": "PrimeDocumentTemplate.joins(:prime).where(:prime => get_simulation_primes(current_user.simulations.find(params[:simulation_id])))",
       "confidence": "Weak",
       "note": "False positive - runtime check in place or intentional (admin-only)"
     },

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_02_102417) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_02_160914) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -350,27 +350,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_02_102417) do
     t.index ["project_id"], name: "index_peb_donnees_on_project_id"
     t.index ["property_id"], name: "index_peb_donnees_on_property_id"
     t.index ["user_id"], name: "index_peb_donnees_on_user_id"
-  end
-
-  create_table "prime_document_templates", force: :cascade do |t|
-    t.string "title"
-    t.text "description"
-    t.string "type_document"
-    t.bigint "prime_id"
-    t.boolean "is_required"
-    t.string "file_url"
-    t.integer "order_position"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.string "commune_name"
-    t.text "postal_codes"
-    t.string "region"
-    t.string "external_url"
-    t.boolean "is_external_form", default: false
-    t.text "contact_info"
-    t.index ["commune_name"], name: "index_prime_document_templates_on_commune_name"
-    t.index ["prime_id"], name: "index_prime_document_templates_on_prime_id"
-    t.index ["region"], name: "index_prime_document_templates_on_region"
   end
 
   create_table "prime_submissions", force: :cascade do |t|
@@ -827,7 +806,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_02_102417) do
   add_foreign_key "peb_donnees", "projects", on_delete: :nullify
   add_foreign_key "peb_donnees", "properties"
   add_foreign_key "peb_donnees", "users"
-  add_foreign_key "prime_document_templates", "primes"
   add_foreign_key "prime_submissions", "properties"
   add_foreign_key "prime_submissions", "users"
   add_foreign_key "primes", "categories"
