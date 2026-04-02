@@ -547,6 +547,25 @@ class DocumentsController < ApplicationController
       when 'reception_chantier'
         redirect_to reception_chantier_project_path(@project), options
         return
+      when 'garanties'
+        redirect_to garanties_project_path(@project), options
+        return
+      when 'carnet_entretien'
+        redirect_to carnet_entretien_project_path(@project), options
+        return
+      end
+    end
+
+    # Redirection via return_to (URL absolue sûre — seulement vers nos routes connues)
+    if params[:return_to].present? && @project
+      allowed_paths = [
+        garanties_project_path(@project),
+        carnet_entretien_project_path(@project),
+        reception_chantier_project_path(@project)
+      ]
+      if allowed_paths.include?(params[:return_to])
+        redirect_to params[:return_to], options
+        return
       end
     end
 

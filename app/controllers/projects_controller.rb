@@ -1,6 +1,6 @@
 class ProjectsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt, :edit_budget, :update_budget, :edit_professionals, :update_professionals, :fin_chantier, :scan_peb_apres, :update_fin_chantier, :reception_chantier, :scan_attestation_conformite]
+  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt, :edit_budget, :update_budget, :edit_professionals, :update_professionals, :fin_chantier, :scan_peb_apres, :update_fin_chantier, :reception_chantier, :scan_attestation_conformite, :garanties, :carnet_entretien]
 
   def index
     # Récupérer les projets, filtrer par property_id si fourni
@@ -280,6 +280,150 @@ class ProjectsController < ApplicationController
     @completion_pct = (@nb_presents.to_f / @checklist.size * 100).round
   end
 
+  # GET /projects/:id/garanties
+  def garanties
+    date_fin = @project.work_completion_date || @project.date_fin
+
+    # Documents garanties
+    docs = @project.documents.order(created_at: :desc)
+    @docs_garantie          = docs.where(type_document: 'certificat_garantie')
+    @docs_assurance_dec     = docs.where(type_document: 'assurance_decennale')
+    @docs_assurance_rc      = docs.where(type_document: 'assurance_rc_pro')
+
+    # Construire la liste des entrepreneurs depuis toutes les sources
+    entrepreneurs = []
+
+    # 1. Entrepreneur principal
+    if @project.entrepreneur_principal_entreprise.present? || @project.entrepreneur_principal_nom.present?
+      entrepreneurs << {
+        nom:       @project.entrepreneur_principal_nom,
+        entreprise: @project.entrepreneur_principal_entreprise,
+        tva:       @project.entrepreneur_principal_numero_tva,
+        email:     @project.entrepreneur_principal_email,
+        telephone: @project.entrepreneur_principal_telephone,
+        source:    :principal
+      }
+    end
+
+    # 2. Entrepreneurs additionnels (JSON)
+    if @project.additional_entrepreneurs.present?
+      begin
+        extra = JSON.parse(@project.additional_entrepreneurs)
+        extra.each do |e|
+          next unless e['entreprise'].present? || e['nom'].present?
+          entrepreneurs << {
+            nom:       e['nom'],
+            entreprise: e['entreprise'],
+            tva:       e['numero_tva'],
+            email:     e['email'],
+            telephone: e['telephone'],
+            source:    :additionnel
+          }
+        end
+      rescue JSON::ParserError
+      end
+    end
+
+    # 3. Entreprises issues des factures (non déjà présentes)
+    noms_factures = @project.factures.pluck(:nom_entreprise).uniq.compact
+    noms_factures.each do |nom|
+      next if entrepreneurs.any? { |e| e[:entreprise]&.downcase == nom.downcase || e[:nom]&.downcase == nom.downcase }
+      entrepreneurs << { nom: nil, entreprise: nom, tva: nil, email: nil, telephone: nil, source: :facture }
+    end
+
+    @entrepreneurs = entrepreneurs
+
+    # Calculer les garanties par entrepreneur
+    @garanties_par_entrepreneur = @entrepreneurs.map do |ent|
+      nom_affiche = ent[:entreprise].presence || ent[:nom] || 'Entreprise inconnue'
+      {
+        entrepreneur:  ent,
+        nom_affiche:   nom_affiche,
+        decennale: {
+          duree: 10,
+          debut: date_fin,
+          fin:   date_fin ? date_fin + 10.years : nil
+        },
+        biennale: {
+          duree: 2,
+          debut: date_fin,
+          fin:   date_fin ? date_fin + 2.years : nil
+        },
+        bon_fonctionnement: {
+          duree: 1,
+          debut: date_fin,
+          fin:   date_fin ? date_fin + 1.year : nil
+        }
+      }
+    end
+
+    @date_fin_travaux = date_fin
+  end
+
+  # GET /projects/:id/carnet_entretien
+  def carnet_entretien
+    docs = @project.documents.order(created_at: :desc)
+
+    # Documents DIU
+    @docs_diu       = docs.where(type_document: 'plan_diu')
+    @docs_notices   = docs.where(type_document: 'notice_equipement')
+    @docs_fiches    = docs.where(type_document: 'fiche_technique')
+    @docs_secu      = docs.where(type_document: 'fiche_securite_materiaux')
+    @docs_entretien = docs.where(type_document: 'instruction_entretien')
+
+    # Rappels maintenance selon les types de travaux
+    @rappels_maintenance = generer_rappels_maintenance
+
+    # Contacts intervenants (architecte + entrepreneurs)
+    @contacts = []
+    if @project.architecte_nom.present? || @project.architecte_entreprise.present?
+      @contacts << {
+        role:      'Architecte',
+        icone:     'bi-person-badge',
+        couleur:   'primary',
+        nom:       [@project.architecte_prenom, @project.architecte_nom].compact.join(' '),
+        entreprise: @project.architecte_entreprise,
+        telephone: @project.architecte_telephone,
+        email:     @project.architecte_email
+      }
+    end
+    if @project.entrepreneur_principal_entreprise.present? || @project.entrepreneur_principal_nom.present?
+      @contacts << {
+        role:      'Entrepreneur principal',
+        icone:     'bi-tools',
+        couleur:   'warning',
+        nom:       @project.entrepreneur_principal_nom,
+        entreprise: @project.entrepreneur_principal_entreprise,
+        telephone: @project.entrepreneur_principal_telephone,
+        email:     @project.entrepreneur_principal_email
+      }
+    end
+    if @project.additional_entrepreneurs.present?
+      begin
+        JSON.parse(@project.additional_entrepreneurs).each do |e|
+          next unless e['entreprise'].present? || e['nom'].present?
+          @contacts << {
+            role:      e['specialite'].presence || 'Entrepreneur',
+            icone:     'bi-hammer',
+            couleur:   'secondary',
+            nom:       e['nom'],
+            entreprise: e['entreprise'],
+            telephone: e['telephone'],
+            email:     e['email']
+          }
+        end
+      rescue JSON::ParserError
+      end
+    end
+    # Ajouter aussi les entreprises des factures non encore listées
+    noms_connus = @contacts.map { |c| c[:entreprise]&.downcase }.compact
+    @project.factures.pluck(:nom_entreprise).uniq.compact.each do |nom|
+      next if noms_connus.include?(nom.downcase)
+      @contacts << { role: 'Entrepreneur (facture)', icone: 'bi-receipt', couleur: 'secondary',
+                     nom: nil, entreprise: nom, telephone: nil, email: nil }
+    end
+  end
+
   def fin_chantier
     @peb_apres = @project.peb_donnees.includes(:document).order(created_at: :desc)
     @peb_avant = @project.property&.peb_donnees&.avant_travaux&.order(created_at: :desc)&.first
@@ -401,6 +545,58 @@ class ProjectsController < ApplicationController
   end
 
   private
+
+  def generer_rappels_maintenance
+    type = @project.type_travaux.to_s.downcase
+    date_fin = @project.work_completion_date || @project.date_fin
+
+    rappels = []
+
+    # Chaudière / chauffage
+    if type.include?('chauffage') || type.include?('boiler') || type.include?('chaudière') || type.include?('pompe')
+      rappels << { categorie: 'Chauffage', icone: 'bi-thermometer-half', couleur: 'warning',
+                   equipement: 'Chaudière / Pompe à chaleur', frequence: 'Annuel',
+                   prochaine: date_fin ? (date_fin + 1.year) : nil, note: 'Entretien annuel obligatoire (AR 12/10/2010)' }
+    end
+
+    # Ventilation / VMC
+    if type.include?('ventilat') || type.include?('vmc') || type.include?('ventilatiesysteem')
+      rappels << { categorie: 'Ventilation', icone: 'bi-wind', couleur: 'info',
+                   equipement: 'VMC / Système de ventilation', frequence: 'Annuel',
+                   prochaine: date_fin ? (date_fin + 1.year) : nil, note: 'Nettoyage filtres, vérification débits' }
+    end
+
+    # Toiture
+    if type.include?('toiture') || type.include?('toit') || type.include?('dak')
+      rappels << { categorie: 'Toiture', icone: 'bi-house-fill', couleur: 'secondary',
+                   equipement: 'Toiture / Couverture', frequence: 'Tous les 5 ans',
+                   prochaine: date_fin ? (date_fin + 5.years) : nil, note: 'Inspection, nettoyage gouttières, contrôle noues' }
+    end
+
+    # Panneaux solaires / PV
+    if type.include?('solaire') || type.include?('photovolt') || type.include?('panneaux pv')
+      rappels << { categorie: 'Énergie solaire', icone: 'bi-sun', couleur: 'warning',
+                   equipement: 'Panneaux photovoltaïques', frequence: 'Annuel',
+                   prochaine: date_fin ? (date_fin + 1.year) : nil, note: 'Nettoyage, vérification onduleur et connexions' }
+    end
+
+    # Châssis / fenêtres
+    if type.include?('ch\u00e2ssis') || type.include?('fen\u00eatre') || type.include?('schrijnwerk')
+      rappels << { categorie: 'Menuiseries', icone: 'bi-window', couleur: 'secondary',
+                   equipement: 'Châssis / Fenêtres / Portes', frequence: 'Tous les 2 ans',
+                   prochaine: date_fin ? (date_fin + 2.years) : nil, note: 'Graissage joints, réglage ferrage, vérification étanchéité' }
+    end
+
+    # Rappels généraux toujours présents
+    rappels << { categorie: 'Électricité', icone: 'bi-lightning-charge', couleur: 'danger',
+                 equipement: 'Installation électrique', frequence: 'Tous les 25 ans',
+                 prochaine: date_fin ? (date_fin + 25.years) : nil, note: 'Renouvellement obligatoire contrôle RGIE (AR 2019)' }
+    rappels << { categorie: 'Peintures / finitions', icone: 'bi-brush', couleur: 'secondary',
+                 equipement: 'Façades, peintures intérieures', frequence: 'Tous les 10 ans',
+                 prochaine: date_fin ? (date_fin + 10.years) : nil, note: 'Selon exposition et qualité des matériaux' }
+
+    rappels.sort_by { |r| r[:prochaine] || Date.today + 99.years }
+  end
 
   def build_gantt_bars(start_date, quote)
     return [] unless quote

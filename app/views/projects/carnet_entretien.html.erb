@@ -1,0 +1,263 @@
+<div class="container-fluid px-4 py-4">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────────── -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-book"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">Carnet d'entretien</h1>
+        <small class="text-muted"><%= @project.nom %></small>
+      </div>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <%= link_to garanties_project_path(@project), class: "btn btn-outline-secondary btn-sm" do %>
+        <i class="bi bi-shield-check me-1"></i>Garanties
+      <% end %>
+      <%= link_to reception_chantier_project_path(@project), class: "btn btn-outline-secondary btn-sm" do %>
+        <i class="bi bi-file-earmark-check me-1"></i>Réception
+      <% end %>
+      <%= link_to project_path(@project), class: "btn btn-outline-secondary btn-sm" do %>
+        <i class="bi bi-arrow-left me-1"></i>Retour
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- COLONNE GAUCHE                                                         -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="col-lg-6">
+
+      <!-- ── Rappels de maintenance ─────────────────────────────────────────── -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+          <h5 class="mb-0 text-primary-custom fw-normal">
+            <i class="bi bi-calendar-check me-2"></i>Rappels de maintenance
+          </h5>
+          <small class="text-muted">Selon type de travaux</small>
+        </div>
+        <div class="card-body p-0">
+          <% if @rappels_maintenance.any? %>
+            <% @rappels_maintenance.each_with_index do |r, i| %>
+              <div class="d-flex align-items-start gap-3 px-4 py-3 <%= 'border-bottom' unless i == @rappels_maintenance.size - 1 %>">
+                <div class="flex-shrink-0 rounded-circle d-flex align-items-center justify-content-center bg-<%= r[:couleur] %>-subtle"
+                     style="width:40px;height:40px;">
+                  <i class="bi <%= r[:icone] %> text-<%= r[:couleur] %>"></i>
+                </div>
+                <div class="flex-grow-1 small">
+                  <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                    <span class="fw-semibold"><%= r[:equipement] %></span>
+                    <span class="badge bg-<%= r[:couleur] %>-subtle text-<%= r[:couleur] %> border border-<%= r[:couleur] %>" style="font-size:0.65rem;">
+                      <%= r[:frequence] %>
+                    </span>
+                  </div>
+                  <div class="text-muted lh-sm"><%= r[:note] %></div>
+                  <% if r[:prochaine].present? %>
+                    <% expired = r[:prochaine] < Date.today %>
+                    <% soon = !expired && r[:prochaine] < Date.today + 6.months %>
+                    <div class="mt-1">
+                      <i class="bi bi-alarm me-1"></i>
+                      <% if expired %>
+                        <span class="text-danger fw-medium">Dépassé — <%= r[:prochaine].strftime('%d/%m/%Y') %></span>
+                      <% elsif soon %>
+                        <span class="text-warning fw-medium">Bientôt — <%= r[:prochaine].strftime('%d/%m/%Y') %></span>
+                      <% else %>
+                        <span class="text-muted">Prochain : <%= r[:prochaine].strftime('%d/%m/%Y') %></span>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="p-4 text-center text-muted small">
+              <i class="bi bi-info-circle fs-4 d-block mb-2"></i>
+              Renseignez le type de travaux dans la fiche projet pour générer les rappels automatiques.
+              <%= link_to edit_project_path(@project), class: "btn btn-sm btn-outline-primary mt-2" do %>
+                Compléter la fiche
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- ── Contacts intervenants ───────────────────────────────────────────── -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+          <h5 class="mb-0 text-primary-custom fw-normal">
+            <i class="bi bi-person-lines-fill me-2"></i>Contacts intervenants
+          </h5>
+          <%= link_to edit_professionals_project_path(@project), class: "btn btn-sm btn-outline-secondary" do %>
+            <i class="bi bi-pencil me-1"></i>Modifier
+          <% end %>
+        </div>
+        <% if @contacts.any? %>
+          <div class="list-group list-group-flush">
+            <% @contacts.each do |c| %>
+              <div class="list-group-item px-4 py-3">
+                <div class="d-flex align-items-start gap-3">
+                  <div class="rounded-circle bg-<%= c[:couleur] %>-subtle d-flex align-items-center justify-content-center flex-shrink-0"
+                       style="width:36px;height:36px;">
+                    <i class="bi <%= c[:icone] %> text-<%= c[:couleur] %> small"></i>
+                  </div>
+                  <div class="flex-grow-1 small">
+                    <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                      <span class="fw-medium">
+                        <%= c[:entreprise].presence || c[:nom] || 'Intervenant' %>
+                      </span>
+                      <span class="badge bg-<%= c[:couleur] %>-subtle text-<%= c[:couleur] %>" style="font-size:0.65rem;">
+                        <%= c[:role] %>
+                      </span>
+                    </div>
+                    <% if c[:nom].present? && c[:entreprise].present? %>
+                      <div class="text-muted"><%= c[:nom] %></div>
+                    <% end %>
+                    <div class="d-flex gap-3 mt-1 flex-wrap">
+                      <% if c[:telephone].present? %>
+                        <a href="tel:<%= c[:telephone].gsub(/\s/, '') %>" class="text-muted text-decoration-none">
+                          <i class="bi bi-telephone me-1"></i><%= c[:telephone] %>
+                        </a>
+                      <% end %>
+                      <% if c[:email].present? %>
+                        <a href="mailto:<%= c[:email] %>" class="text-muted text-decoration-none">
+                          <i class="bi bi-envelope me-1"></i><%= c[:email] %>
+                        </a>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="card-body p-4 text-center text-muted small">
+            <i class="bi bi-people fs-4 d-block mb-2"></i>
+            Aucun intervenant enregistré.
+            <%= link_to edit_professionals_project_path(@project), class: "btn btn-sm btn-outline-primary mt-2" do %>
+              <i class="bi bi-plus me-1"></i>Ajouter les intervenants
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+    </div><!-- /col gauche -->
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- COLONNE DROITE — Documents DIU                                         -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="col-lg-6">
+
+      <!-- ── Dossier d'Intervention Ultérieure (DIU) ─────────────────────────── -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-transparent border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+          <h5 class="mb-0 text-primary-custom fw-normal">
+            <i class="bi bi-folder2-open me-2"></i>DIU — Dossier d'Intervention Ultérieure
+          </h5>
+          <% total_diu = @docs_diu.count + @docs_notices.count + @docs_fiches.count + @docs_secu.count %>
+          <% if total_diu > 0 %>
+            <span class="badge bg-success"><i class="bi bi-check2 me-1"></i><%= total_diu %> doc<%= 's' if total_diu > 1 %></span>
+          <% end %>
+        </div>
+        <div class="card-body p-4">
+          <p class="small text-muted mb-4">
+            <i class="bi bi-info-circle me-1"></i>
+            Le DIU regroupe tous les documents nécessaires aux interventions futures sur le bâtiment
+            (plans, notices, fiches matériaux). Obligatoire pour les chantiers avec coordination sécurité.
+          </p>
+
+          <!-- Plans DIU -->
+          <div class="mb-4">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <i class="bi bi-map text-primary"></i>
+              <span class="fw-medium small">Plans DIU</span>
+              <% if @docs_diu.any? %>
+                <span class="badge bg-success-subtle text-success"><%= @docs_diu.count %></span>
+              <% end %>
+            </div>
+            <%= render 'projects/carnet_doc_upload', docs: @docs_diu, type: 'plan_diu',
+                label: 'plan DIU', project: @project %>
+          </div>
+
+          <!-- Notices équipements -->
+          <div class="mb-4">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <i class="bi bi-file-text text-info"></i>
+              <span class="fw-medium small">Notices d'équipements</span>
+              <% if @docs_notices.any? %>
+                <span class="badge bg-success-subtle text-success"><%= @docs_notices.count %></span>
+              <% end %>
+            </div>
+            <%= render 'projects/carnet_doc_upload', docs: @docs_notices, type: 'notice_equipement',
+                label: "notice d'équipement", project: @project %>
+          </div>
+
+          <!-- Fiches techniques -->
+          <div class="mb-4">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <i class="bi bi-file-earmark-text text-warning"></i>
+              <span class="fw-medium small">Fiches techniques matériaux</span>
+              <% if @docs_fiches.any? %>
+                <span class="badge bg-success-subtle text-success"><%= @docs_fiches.count %></span>
+              <% end %>
+            </div>
+            <%= render 'projects/carnet_doc_upload', docs: @docs_fiches, type: 'fiche_technique',
+                label: 'fiche technique', project: @project %>
+          </div>
+
+          <!-- Fiches sécurité matériaux -->
+          <div class="mb-4">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <i class="bi bi-exclamation-diamond text-danger"></i>
+              <span class="fw-medium small">Fiches sécurité matériaux (FDS)</span>
+              <% if @docs_secu.any? %>
+                <span class="badge bg-success-subtle text-success"><%= @docs_secu.count %></span>
+              <% end %>
+            </div>
+            <%= render 'projects/carnet_doc_upload', docs: @docs_secu, type: 'fiche_securite_materiaux',
+                label: 'fiche de sécurité', project: @project %>
+          </div>
+
+          <!-- Instructions d'entretien -->
+          <div>
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <i class="bi bi-tools text-secondary"></i>
+              <span class="fw-medium small">Instructions d'entretien</span>
+              <% if @docs_entretien.any? %>
+                <span class="badge bg-success-subtle text-success"><%= @docs_entretien.count %></span>
+              <% end %>
+            </div>
+            <%= render 'projects/carnet_doc_upload', docs: @docs_entretien, type: 'instruction_entretien',
+                label: "instruction d'entretien", project: @project %>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Alerte coordinateur sécurité ───────────────────────────────────── -->
+      <% if @project.coordinateur_securite_nom.present? || @project.coordinateur_securite_contact.present? %>
+        <div class="card border-0 shadow-sm mb-4 border-start border-4 border-warning">
+          <div class="card-body p-4">
+            <h6 class="fw-semibold mb-2">
+              <i class="bi bi-cone-striped me-2 text-warning"></i>Coordinateur sécurité-santé
+            </h6>
+            <div class="small text-muted">
+              <% if @project.coordinateur_securite_nom.present? %>
+                <div><i class="bi bi-person me-1"></i><%= @project.coordinateur_securite_nom %></div>
+              <% end %>
+              <% if @project.coordinateur_securite_contact.present? %>
+                <div><i class="bi bi-telephone me-1"></i><%= @project.coordinateur_securite_contact %></div>
+              <% end %>
+            </div>
+            <p class="small text-muted mb-0 mt-2">
+              Le coordinateur-sécurité est le destinataire légal du DIU. Transmettez-lui ce dossier à la fin du chantier.
+            </p>
+          </div>
+        </div>
+      <% end %>
+
+    </div><!-- /col droite -->
+  </div><!-- /row -->
+</div><!-- /container -->

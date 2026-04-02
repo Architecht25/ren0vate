@@ -221,6 +221,12 @@ Rails.application.routes.draw do
     get  :reception_chantier,           on: :member
     post :scan_attestation_conformite,  on: :member
 
+    # Garanties (7.2)
+    get  :garanties,                    on: :member
+
+    # Carnet d'entretien / DIU (7.3)
+    get  :carnet_entretien,             on: :member
+
     # Collaboration — vue pro & invitations
     get  :pro_view,       to: 'pro_views#show',         on: :member
     post :invite,         to: 'pro_views#invite',        on: :member

@@ -64,7 +64,9 @@ class Document < ApplicationRecord
     notice_equipement: 'notice_equipement',
     fiche_securite_materiaux: 'fiche_securite_materiaux',
     certificat_garantie: 'certificat_garantie',
-    instruction_entretien: 'instruction_entretien'
+    instruction_entretien: 'instruction_entretien',
+    assurance_decennale: 'assurance_decennale',
+    assurance_rc_pro: 'assurance_rc_pro'
   }
 
   # Status est une colonne string dans la DB, pas un enum integer

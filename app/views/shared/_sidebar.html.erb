@@ -288,18 +288,30 @@
               <% end %>
             </li>
             <li class="nav-item">
-              <a href="#" class="nav-link disabled" title="Bientôt disponible">
-                <i class="bi bi-shield-check"></i>
-                <span>Garanties</span>
-                <span class="badge bg-secondary ms-auto">Bientôt</span>
-              </a>
+              <% if first_project_cloture&.persisted? %>
+                <%= link_to garanties_project_path(first_project_cloture), class: "nav-link" do %>
+                  <i class="bi bi-shield-check"></i>
+                  <span>Garanties</span>
+                <% end %>
+              <% else %>
+                <a href="#" class="nav-link disabled">
+                  <i class="bi bi-shield-check"></i>
+                  <span>Garanties</span>
+                </a>
+              <% end %>
             </li>
             <li class="nav-item">
-              <a href="#" class="nav-link disabled" title="Bientôt disponible">
-                <i class="bi bi-book"></i>
-                <span>Carnet d'entretien</span>
-                <span class="badge bg-secondary ms-auto">Bientôt</span>
-              </a>
+              <% if first_project_cloture&.persisted? %>
+                <%= link_to carnet_entretien_project_path(first_project_cloture), class: "nav-link" do %>
+                  <i class="bi bi-book"></i>
+                  <span>Carnet d'entretien</span>
+                <% end %>
+              <% else %>
+                <a href="#" class="nav-link disabled">
+                  <i class="bi bi-book"></i>
+                  <span>Carnet d'entretien</span>
+                </a>
+              <% end %>
             </li>
           </ul>
         </li>

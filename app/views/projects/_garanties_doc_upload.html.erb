@@ -1,0 +1,44 @@
+<%# locals: docs, type, label, project %>
+
+<% if docs.any? %>
+  <% docs.each do |doc| %>
+    <div class="d-flex align-items-center gap-2 py-2 <%= 'border-bottom' unless doc == docs.last %>">
+      <i class="bi bi-file-earmark-check text-success fs-5 flex-shrink-0"></i>
+      <div class="flex-grow-1 small">
+        <div class="fw-medium"><%= doc.notes.presence || label.capitalize %></div>
+        <div class="text-muted"><%= doc.created_at.strftime('%d/%m/%Y') %></div>
+      </div>
+      <div class="d-flex gap-1 flex-shrink-0">
+        <% if doc.file.attached? %>
+          <%= link_to rails_blob_url(doc.file), target: '_blank', rel: 'noopener',
+              class: "btn btn-sm btn-outline-secondary", title: "Voir" do %>
+            <i class="bi bi-eye"></i>
+          <% end %>
+        <% end %>
+        <%= button_to document_path(doc, return_context: 'garanties'),
+            method: :delete,
+            form: { data: { turbo_confirm: "Supprimer ce document ?" } },
+            class: "btn btn-sm btn-outline-danger", title: "Supprimer" do %>
+          <i class="bi bi-trash3"></i>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+  <hr class="my-3">
+<% end %>
+
+<%= form_with url: project_documents_path(project), method: :post,
+    html: { class: 'd-flex align-items-center gap-2', id: "form-doc-#{type}" } do |f| %>
+  <%= f.hidden_field :type_document, value: type %>
+  <%= f.hidden_field :return_to, value: garanties_project_path(project) %>
+  <label for="doc-file-<%= type %>" class="btn btn-sm btn-outline-primary mb-0">
+    <i class="bi bi-upload me-1"></i>Ajouter
+  </label>
+  <%= f.file_field :file, id: "doc-file-#{type}", class: "d-none",
+      accept: ".pdf,.jpg,.jpeg,.png",
+      onchange: "this.closest('form').submit()" %>
+<% end %>
+
+<p class="text-muted small mt-2 mb-0">
+  <i class="bi bi-info-circle me-1"></i>PDF, JPG ou PNG — 10 Mo max.
+</p>
