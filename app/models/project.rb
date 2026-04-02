@@ -12,7 +12,8 @@ class Project < ApplicationRecord
   # Relations pour les factures
   has_many :factures, dependent: :destroy
   has_many :factures_devis, -> { where(type_facture: 'devis') }, class_name: 'Facture'
-  has_many :factures_travaux, -> { where(type_facture: ['facture', 'acompte', 'solde']) }, class_name: 'Facture'
+  has_many :factures_travaux, -> { where(type_facture: %w[facture acompte solde etat_avancement]) }, class_name: 'Facture'
+  has_many :peb_donnees, -> { where(phase: 'apres_travaux') }, dependent: :nullify, foreign_key: :project_id
 
   # Devis scannés (OCR)
   has_many :devis_donnees,             dependent: :nullify
@@ -197,13 +198,11 @@ class Project < ApplicationRecord
   end
 
   def architecte_factures_total
-    # FIXME: colonne type_intervenant n'existe pas - retourner 0 temporairement
-    0
+    factures.travaux_only.architecte.sum(:montant).to_f
   end
 
   def contractor_factures_total
-    # FIXME: colonne type_intervenant n'existe pas - retourner 0 temporairement
-    0
+    factures.travaux_only.entrepreneur.sum(:montant).to_f
   end
 
   def architecte_devis_vs_factures_difference

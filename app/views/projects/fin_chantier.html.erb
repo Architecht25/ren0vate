@@ -1,0 +1,561 @@
+<div class="container-fluid px-4 py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi bi-house-check"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">Fin de chantier</h1>
+        <small class="text-muted"><%= @project.nom %></small>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <%= link_to edit_budget_project_path(@project), class: "btn btn-outline-secondary btn-sm" do %>
+        <i class="bi bi-calculator me-1"></i>Suivi budgétaire
+      <% end %>
+      <%= link_to project_path(@project), class: "btn btn-outline-secondary btn-sm" do %>
+        <i class="bi bi-arrow-left me-1"></i>Retour
+      <% end %>
+    </div>
+  </div>
+
+  <%# ── Alerte si pas encore de PEB après travaux ───────────────────────── %>
+  <% unless @peb_apres.any? %>
+    <div class="alert alert-info d-flex align-items-center gap-2 mb-4" role="alert">
+      <i class="bi bi-info-circle-fill fs-5"></i>
+      <div>
+        Aucun certificat PEB après travaux n'a encore été scanné pour ce projet.
+        Utilisez le formulaire ci-dessous pour scanner le certificat délivré à la fin du chantier.
+      </div>
+    </div>
+  <% end %>
+
+  <div class="row g-4">
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- COLONNE GAUCHE : scan PEB après travaux + historique                  -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="col-lg-5">
+
+      <!-- Zone scan PEB après travaux -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4">
+          <h5 class="card-title text-primary-custom mb-3">
+            <i class="bi bi-file-earmark-bar-graph me-2"></i>Certificat PEB après travaux
+          </h5>
+
+          <p class="text-muted small mb-3">
+            Scannez le certificat PEB délivré à la fin des travaux pour comparer les performances
+            obtenues avec la situation initiale et évaluer la conformité réglementaire.
+          </p>
+
+          <!-- Bouton scan -->
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <button type="button" class="btn btn-primary btn-sm" id="btn-scan-peb-apres">
+              <i class="bi bi-camera me-1"></i>Scanner le certificat PEB
+            </button>
+            <input type="file" id="file-peb-apres" accept=".pdf,.jpg,.jpeg,.png" class="d-none">
+            <div id="status-peb-apres" class="d-none flex-grow-1">
+              <div class="alert border-0 rounded-2 py-1 px-2 mb-0 small d-flex align-items-center gap-2" id="alert-peb-apres">
+                <div class="spinner-border spinner-border-sm d-none" id="spinner-peb-apres" role="status"></div>
+                <i class="bi d-none" id="icon-peb-apres"></i>
+                <span id="msg-peb-apres"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Résultat OCR en temps réel -->
+          <div id="result-peb-apres" class="d-none">
+            <div class="border rounded-3 p-3 bg-light mb-3">
+              <div class="row g-2">
+                <div class="col-6">
+                  <small class="text-muted d-block">Label PEB</small>
+                  <span id="r-peb-label" class="fw-bold fs-4 text-primary-custom">—</span>
+                </div>
+                <div class="col-6">
+                  <small class="text-muted d-block">Score EP</small>
+                  <span id="r-peb-score" class="fw-medium">—</span>
+                </div>
+                <div class="col-6">
+                  <small class="text-muted d-block">N° certificat</small>
+                  <span id="r-peb-numero" class="fw-medium small">—</span>
+                </div>
+                <div class="col-6">
+                  <small class="text-muted d-block">Région</small>
+                  <span id="r-peb-region" class="fw-medium">—</span>
+                </div>
+                <div class="col-6">
+                  <small class="text-muted d-block">Date certificat</small>
+                  <span id="r-peb-date-cert" class="fw-medium small">—</span>
+                </div>
+                <div class="col-6">
+                  <small class="text-muted d-block">Valide jusqu'au</small>
+                  <span id="r-peb-date-valid" class="fw-medium small">—</span>
+                </div>
+                <div class="col-12">
+                  <small class="text-muted d-block">Confiance OCR</small>
+                  <div class="progress mt-1" style="height:6px;">
+                    <div class="progress-bar" id="r-peb-confiance" role="progressbar" style="width:0%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div id="r-peb-actions" class="d-flex gap-2"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Historique des certificats PEB après travaux ─────────────────── -->
+      <% if @peb_apres.any? %>
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4">
+            <h6 class="text-primary-custom mb-3">
+              <i class="bi bi-clock-history me-2"></i>Certificats scannés
+              <span class="badge bg-primary ms-1"><%= @peb_apres.count %></span>
+            </h6>
+
+            <% @peb_apres.each do |peb| %>
+              <div class="d-flex align-items-start gap-3 py-3 <%= 'border-bottom' unless peb == @peb_apres.last %>">
+                <div class="flex-shrink-0">
+                  <span class="badge bg-<%= peb.couleur_bootstrap %> fs-5 px-3 py-2">
+                    <%= peb.label_peb || '?' %>
+                  </span>
+                </div>
+                <div class="flex-grow-1 small">
+                  <div class="fw-medium"><%= peb.region&.capitalize %> — <%= peb.score_ep_formate || 'Score non extrait' %></div>
+                  <% if peb.numero_certificat.present? %>
+                    <div class="text-muted">N° <%= peb.numero_certificat %></div>
+                  <% end %>
+                  <div class="text-muted">
+                    <% if peb.date_certificat.present? %>Établi le <%= peb.date_certificat.strftime('%d/%m/%Y') %><% end %>
+                    <% if peb.date_validite.present? %>
+                      — Valide jusqu'au <%= peb.date_validite.strftime('%d/%m/%Y') %>
+                      <% annees = peb.annees_validite_restantes %>
+                      <% if annees && annees > 0 %>
+                        <span class="badge bg-success-subtle text-success ms-1"><%= annees %>a restantes</span>
+                      <% elsif annees && annees <= 0 %>
+                        <span class="badge bg-danger ms-1">Expiré</span>
+                      <% end %>
+                    <% end %>
+                  </div>
+                  <% if peb.confiance_ocr.present? %>
+                    <div class="text-muted">
+                      Confiance OCR : <span class="<%= peb.confiance_ocr >= 70 ? 'text-success' : 'text-warning' %>"><%= peb.confiance_ocr.to_i %> %</span>
+                      <%= peb.extraction_complete? ? '<span class="badge bg-success-subtle text-success ms-1">Complet</span>'.html_safe : '<span class="badge bg-warning-subtle text-warning ms-1">Partiel</span>'.html_safe %>
+                    </div>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+    </div><!-- fin col gauche -->
+
+
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <!-- COLONNE DROITE : comparaison + politique régionale + recommandations  -->
+    <!-- ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="col-lg-7">
+
+      <% peb_actuel = @peb_apres.first %>
+
+      <!-- ─── Carte : comparaison avant / après ─────────────────────────────── -->
+      <% if peb_actuel.present? || @peb_avant.present? %>
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-body p-4">
+            <h5 class="card-title text-primary-custom mb-4">
+              <i class="bi bi-arrow-left-right me-2"></i>Comparaison avant / après travaux
+            </h5>
+
+            <div class="row g-3 align-items-center">
+
+              <!-- Avant -->
+              <div class="col-5 text-center">
+                <div class="small text-muted mb-2">Avant travaux</div>
+                <% if @peb_avant.present? %>
+                  <span class="display-4 fw-bold text-<%= @peb_avant.couleur_bootstrap %>">
+                    <%= @peb_avant.label_peb || '?' %>
+                  </span>
+                  <div class="small text-muted mt-1"><%= @peb_avant.score_ep_formate || '—' %></div>
+                  <% if @peb_avant.date_certificat.present? %>
+                    <div class="small text-muted">(<%= @peb_avant.date_certificat.strftime('%Y') %>)</div>
+                  <% end %>
+                <% else %>
+                  <span class="display-4 fw-bold text-muted">?</span>
+                  <div class="small text-muted mt-1">Non disponible</div>
+                <% end %>
+              </div>
+
+              <!-- Flèche + gain -->
+              <div class="col-2 text-center">
+                <% if @analyse_politique&.dig(:amelioration).present? %>
+                  <% gain = @analyse_politique[:amelioration] %>
+                  <% couleur_gain = gain > 0 ? 'success' : (gain == 0 ? 'secondary' : 'danger') %>
+                  <i class="bi bi-arrow-right fs-3 text-<%= couleur_gain %>"></i>
+                  <div class="small fw-bold text-<%= couleur_gain %>">
+                    <%= gain > 0 ? "+#{gain}" : gain.to_s %> cran<%= gain.abs > 1 ? 's' : '' %>
+                  </div>
+                <% else %>
+                  <i class="bi bi-arrow-right fs-3 text-muted"></i>
+                <% end %>
+              </div>
+
+              <!-- Après -->
+              <div class="col-5 text-center">
+                <div class="small text-muted mb-2">Après travaux</div>
+                <% if peb_actuel.present? %>
+                  <span class="display-4 fw-bold text-<%= peb_actuel.couleur_bootstrap %>">
+                    <%= peb_actuel.label_peb || '?' %>
+                  </span>
+                  <div class="small text-muted mt-1"><%= peb_actuel.score_ep_formate || '—' %></div>
+                  <% if peb_actuel.date_certificat.present? %>
+                    <div class="small text-muted">(<%= peb_actuel.date_certificat.strftime('%Y') %>)</div>
+                  <% end %>
+                <% else %>
+                  <span class="display-4 fw-bold text-muted">?</span>
+                  <div class="small text-muted mt-1">Non encore scanné</div>
+                <% end %>
+              </div>
+
+            </div>
+
+            <!-- Validité du certificat -->
+            <% if peb_actuel&.date_validite.present? %>
+              <hr class="my-3">
+              <div class="d-flex align-items-center justify-content-between small">
+                <span class="text-muted">
+                  <i class="bi bi-calendar3 me-1"></i>
+                  Certificat valide jusqu'au <%= peb_actuel.date_validite.strftime('%d/%m/%Y') %>
+                </span>
+                <% annees = peb_actuel.annees_validite_restantes %>
+                <% if annees && annees > 0 %>
+                  <span class="badge bg-success-subtle text-success"><%= annees %> an<%= annees > 1 ? 's' : '' %> restant<%= annees > 1 ? 's' : '' %></span>
+                <% elsif annees %>
+                  <span class="badge bg-danger">Expiré</span>
+                <% end %>
+              </div>
+            <% end %>
+
+          </div>
+        </div>
+      <% end %>
+
+      <!-- ─── Contexte réglementaire régional ───────────────────────────────── -->
+      <% if @analyse_politique.present? %>
+        <% urgence_globale = @analyse_politique[:urgence_globale] %>
+        <% couleur_urgence = PebPolitiqueRegionale.couleur_urgence(urgence_globale) %>
+
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-transparent border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+            <h5 class="card-title text-primary-custom mb-0">
+              <i class="bi bi-map me-2"></i>Réglementation — <%= @analyse_politique[:nom_region] %>
+            </h5>
+            <% if @analyse_politique[:cadre].present? %>
+              <span class="badge bg-secondary-subtle text-secondary"><%= @analyse_politique[:cadre] %></span>
+            <% end %>
+          </div>
+          <div class="card-body p-4">
+
+            <!-- Description cadre régional -->
+            <p class="text-muted small mb-4"><%= @analyse_politique[:contexte_regional] %></p>
+
+            <!-- Indicateur d'urgence globale -->
+            <% if urgence_globale && urgence_globale != :faible %>
+              <div class="alert alert-<%= couleur_urgence %> d-flex align-items-center gap-2 py-2 mb-4" role="alert">
+                <i class="bi bi-<%= urgence_globale == :critique ? 'exclamation-triangle-fill' : 'exclamation-circle' %>"></i>
+                <strong><%= PebPolitiqueRegionale.libelle_urgence(urgence_globale) %></strong>
+                — Des échéances réglementaires s'appliquent à ce bien.
+              </div>
+            <% end %>
+
+            <!-- Timeline des jalons -->
+            <% milestones = @analyse_politique[:milestones] %>
+            <% if milestones.present? && milestones.any? %>
+              <h6 class="text-muted small text-uppercase fw-semibold mb-3">Calendrier réglementaire</h6>
+              <div class="position-relative ps-4 mb-2">
+                <div class="position-absolute start-0 top-0 h-100" style="width:2px; background:#e9ecef; left:11px;"></div>
+
+                <% milestones.each do |m| %>
+                  <% annees_rest = m[:annees_restantes] || (m[:annee] ? m[:annee] - Date.today.year : nil) %>
+                  <% urgence_m = case annees_rest
+                                 when 0..2   then :critique
+                                 when 3..5   then :eleve
+                                 when 6..10  then :modere
+                                 else             :faible
+                                 end %>
+                  <% coul_m = PebPolitiqueRegionale.couleur_urgence(urgence_m) %>
+                  <% obligatoire = m[:obligatoire] %>
+
+                  <div class="d-flex gap-3 mb-3">
+                    <!-- Dot timeline -->
+                    <div class="flex-shrink-0 mt-1">
+                      <div class="rounded-circle d-flex align-items-center justify-content-center bg-<%= coul_m %>"
+                           style="width:22px; height:22px;">
+                        <i class="bi bi-<%= obligatoire ? 'exclamation' : 'chevron-right' %> text-white"
+                           style="font-size:10px;"></i>
+                      </div>
+                    </div>
+                    <!-- Contenu -->
+                    <div class="flex-grow-1 small">
+                      <div class="d-flex align-items-baseline gap-2 flex-wrap">
+                        <span class="fw-bold text-<%= coul_m %>"><%= m[:annee] %></span>
+                        <span class="fw-medium"><%= m[:titre] %></span>
+                        <% if obligatoire %>
+                          <span class="badge bg-<%= coul_m %> bg-opacity-10 text-<%= coul_m %> border border-<%= coul_m %>" style="font-size:0.65rem;">obligatoire</span>
+                        <% end %>
+                        <% if m[:label_cible].present? %>
+                          <span class="badge bg-secondary-subtle text-secondary" style="font-size:0.65rem;">→ label <%= m[:label_cible] %></span>
+                        <% end %>
+                      </div>
+                      <p class="text-muted mb-0 lh-sm mt-1"><%= m[:description] %></p>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+
+          </div>
+        </div>
+
+        <!-- ─── Recommandations d'action ───────────────────────────────────── -->
+        <% recommandations = @analyse_politique[:recommandations] %>
+        <% if recommandations.present? && recommandations.any? %>
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-transparent border-bottom py-3 px-4">
+              <h5 class="card-title text-primary-custom mb-0">
+                <i class="bi bi-lightbulb me-2"></i>Recommandations
+              </h5>
+            </div>
+            <div class="card-body p-4">
+
+              <% recommandations.each do |rec| %>
+                <% coul_rec = rec[:couleur] || PebPolitiqueRegionale.couleur_urgence(rec[:urgence]) %>
+                <div class="d-flex gap-3 mb-4 <%= 'border-bottom pb-4' unless rec == recommandations.last %>">
+                  <div class="flex-shrink-0">
+                    <div class="rounded-circle bg-<%= coul_rec %>-subtle d-flex align-items-center justify-content-center"
+                         style="width:42px; height:42px;">
+                      <i class="bi <%= rec[:icone] %> text-<%= coul_rec %> fs-5"></i>
+                    </div>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="d-flex align-items-baseline gap-2 flex-wrap mb-1">
+                      <span class="fw-semibold"><%= rec[:titre] %></span>
+                      <span class="badge bg-<%= coul_rec %> bg-opacity-10 text-<%= coul_rec %> border border-<%= coul_rec %>" style="font-size:0.65rem;">
+                        <%= PebPolitiqueRegionale.libelle_urgence(rec[:urgence]) %>
+                      </span>
+                      <span class="text-muted small"><%= rec[:annee] %></span>
+                    </div>
+                    <p class="text-muted small mb-2 lh-sm"><%= rec[:description] %></p>
+                    <% if rec[:action].present? %>
+                      <div class="small bg-light rounded-2 p-2 border-start border-<%= coul_rec %> border-2">
+                        <i class="bi bi-arrow-right-circle me-1 text-<%= coul_rec %>"></i>
+                        <%= rec[:action] %>
+                      </div>
+                    <% end %>
+                    <% if rec[:programme].present? %>
+                      <div class="mt-2 small">
+                        <i class="bi bi-bank me-1 text-muted"></i>
+                        <strong>Programme :</strong> <%= rec[:programme][:nom] %>
+                        <% if rec[:programme][:url_info].present? %>
+                          — <a href="<%= rec[:programme][:url_info] %>" target="_blank" rel="noopener" class="text-primary-custom">Plus d'infos</a>
+                        <% end %>
+                        <% unless rec.dig(:programme, :actif) == false %>
+                          <span class="badge bg-success-subtle text-success ms-1">Actif</span>
+                        <% else %>
+                          <span class="badge bg-warning-subtle text-warning ms-1">Bientôt disponible</span>
+                        <% end %>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+
+            </div>
+          </div>
+        <% end %>
+
+        <!-- ─── Programmes de financement ─────────────────────────────────── -->
+        <% programmes = @analyse_politique[:programmes] %>
+        <% if programmes.present? && programmes.any? %>
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-transparent border-bottom py-3 px-4">
+              <h5 class="card-title text-primary-custom mb-0">
+                <i class="bi bi-bank2 me-2"></i>Programmes d'aide financière
+              </h5>
+            </div>
+            <div class="list-group list-group-flush">
+              <% programmes.each do |prog| %>
+                <div class="list-group-item px-4 py-3">
+                  <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                      <div class="fw-medium">
+                        <%= prog[:nom] %>
+                        <% if prog[:actif] %>
+                          <span class="badge bg-success-subtle text-success ms-1" style="font-size:0.65rem;">Actif</span>
+                        <% else %>
+                          <span class="badge bg-warning-subtle text-warning ms-1" style="font-size:0.65rem;">Bientôt</span>
+                        <% end %>
+                      </div>
+                      <small class="text-muted"><%= prog[:organisme] %></small>
+                      <p class="text-muted small mb-0 mt-1 lh-sm"><%= prog[:description] %></p>
+                    </div>
+                    <% if prog[:url_info].present? %>
+                      <a href="<%= prog[:url_info] %>" target="_blank" rel="noopener"
+                         class="btn btn-outline-secondary btn-sm ms-3 flex-shrink-0">
+                        <i class="bi bi-box-arrow-up-right"></i>
+                      </a>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+      <% elsif @region.present? %>
+        <!-- Région connue mais pas encore de PEB après travaux —> contexte seul -->
+        <% contexte = PebPolitiqueRegionale.contexte_regional(@region) %>
+        <% if contexte.present? %>
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+              <h5 class="text-primary-custom mb-3">
+                <i class="bi bi-map me-2"></i>Contexte réglementaire — <%= contexte[:nom_region] %>
+              </h5>
+              <p class="text-muted small"><%= contexte[:description] %></p>
+              <hr>
+              <p class="small text-muted mb-0">
+                <i class="bi bi-info-circle me-1"></i>
+                Scannez le certificat PEB après travaux pour obtenir une analyse personnalisée
+                et les recommandations adaptées au label obtenu.
+              </p>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+
+      <!-- ─── Directive EU 2024/1275 (contexte européen commun) ─────────────── -->
+      <div class="card border-0 shadow-sm border-start border-4 border-secondary mb-4">
+        <div class="card-body p-4">
+          <h6 class="text-muted small text-uppercase fw-semibold mb-2">
+            <i class="bi bi-globe-europe-africa me-2"></i>Directive EU 2024/1275 (EPBD Recast)
+          </h6>
+          <p class="small text-muted mb-2">
+            La directive européenne sur la performance énergétique des bâtiments impose aux États membres :
+          </p>
+          <ul class="small text-muted mb-2 ps-3">
+            <li><strong>2030</strong> : réduction de <strong>16 %</strong> de la consommation résidentielle moyenne (vs. baseline 2020) — élimination des labels les plus énergivores (F/G) du marché locatif.</li>
+            <li><strong>2035</strong> : réduction de <strong>20 à 22 %</strong> de la consommation résidentielle — label minimum E à disparaître des nouvelles locations.</li>
+            <li><strong>2050</strong> : parc immobilier quasi zéro énergie — ensemble du parc résidentiel décarbonné.</li>
+          </ul>
+          <p class="small text-muted mb-0">
+            Ces objectifs s'imposent aux 3 régions belges, quelle que soit l'ambition de la réglementation régionale.
+          </p>
+        </div>
+      </div>
+
+    </div><!-- fin col droite -->
+  </div><!-- fin row -->
+</div><!-- fin container -->
+
+<%# ═══════════════════════════════════════════════════════════════════════════ %>
+<%# JavaScript OCR scan PEB après travaux                                      %>
+<%# ═══════════════════════════════════════════════════════════════════════════ %>
+<script>
+(function() {
+  const UPLOAD_PEB_URL = "<%= scan_peb_apres_project_path(@project) %>";
+  const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.content || '';
+
+  function setupScanPeb() {
+    const btn       = document.getElementById('btn-scan-peb-apres');
+    const fileInput = document.getElementById('file-peb-apres');
+    if (!btn || !fileInput) return;
+
+    btn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', evt => {
+      const file = evt.target.files[0];
+      if (file) uploadPeb(file);
+      fileInput.value = '';
+    });
+  }
+
+  function show(id, value) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = value || '—';
+  }
+
+  function uploadPeb(file) {
+    const statusDiv = document.getElementById('status-peb-apres');
+    const alertDiv  = document.getElementById('alert-peb-apres');
+    const spinner   = document.getElementById('spinner-peb-apres');
+    const icon      = document.getElementById('icon-peb-apres');
+    const msg       = document.getElementById('msg-peb-apres');
+    const resultDiv = document.getElementById('result-peb-apres');
+
+    // Reset état
+    statusDiv.classList.remove('d-none');
+    alertDiv.className = 'alert border-0 rounded-2 py-1 px-2 mb-0 small d-flex align-items-center gap-2 alert-secondary';
+    spinner.classList.remove('d-none');
+    icon.classList.add('d-none');
+    msg.textContent = 'Analyse du certificat PEB en cours…';
+    resultDiv.classList.add('d-none');
+
+    const fd = new FormData();
+    fd.append('file', file);
+
+    fetch(UPLOAD_PEB_URL, {
+      method: 'POST',
+      headers: { 'X-CSRF-Token': CSRF_TOKEN, 'Accept': 'application/json' },
+      body: fd
+    })
+    .then(r => r.json())
+    .then(data => {
+      spinner.classList.add('d-none');
+
+      if (data.success) {
+        const complet = data.extraction_complete;
+        alertDiv.className = `alert border-0 rounded-2 py-1 px-2 mb-0 small d-flex align-items-center gap-2 alert-${complet ? 'success' : 'warning'}`;
+        icon.className = `bi bi-${complet ? 'check-circle-fill' : 'exclamation-circle'} d-block`;
+        msg.textContent = complet ? 'Extraction complète !' : 'Extraction partielle — vérifiez les données.';
+
+        // Remplir les champs résultat
+        show('r-peb-label',    data.label_peb);
+        show('r-peb-score',    data.score_ep ? data.score_ep + ' kWh/(m².an)' : null);
+        show('r-peb-numero',   data.numero_certificat);
+        show('r-peb-region',   data.region ? data.region.charAt(0).toUpperCase() + data.region.slice(1) : null);
+        show('r-peb-date-cert',  data.date_certificat);
+        show('r-peb-date-valid', data.date_validite);
+
+        const bar = document.getElementById('r-peb-confiance');
+        if (bar) {
+          bar.style.width = (data.confiance_ocr || 0) + '%';
+          bar.className = 'progress-bar bg-' + (data.confiance_ocr >= 70 ? 'success' : data.confiance_ocr >= 40 ? 'warning' : 'danger');
+        }
+
+        const actionsDiv = document.getElementById('r-peb-actions');
+        if (actionsDiv) {
+          actionsDiv.innerHTML = '<button onclick="window.location.reload()" class="btn btn-primary btn-sm"><i class="bi bi-arrow-clockwise me-1"></i>Actualiser l\'analyse</button>';
+        }
+
+        resultDiv.classList.remove('d-none');
+      } else {
+        alertDiv.className = 'alert border-0 rounded-2 py-1 px-2 mb-0 small d-flex align-items-center gap-2 alert-danger';
+        icon.className = 'bi bi-x-circle-fill d-block';
+        msg.textContent = data.error || 'Erreur lors du traitement du certificat PEB.';
+      }
+    })
+    .catch(err => {
+      spinner.classList.add('d-none');
+      alertDiv.className = 'alert border-0 rounded-2 py-1 px-2 mb-0 small d-flex align-items-center gap-2 alert-danger';
+      icon.className = 'bi bi-x-circle-fill d-block';
+      msg.textContent = 'Erreur réseau. Veuillez réessayer.';
+      console.error('PEB OCR error:', err);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', setupScanPeb);
+  document.addEventListener('turbo:load',       setupScanPeb);
+})();
+</script>

@@ -99,6 +99,7 @@ class OcrService
 
   def process_pdf_text_extraction
     begin
+      file.rewind
       reader = PDF::Reader.new(StringIO.new(file.read))
       text = reader.pages.map(&:text).join("\n").strip
 
@@ -135,6 +136,7 @@ class OcrService
 
     temp_file = Tempfile.new(['ocr_scan', extension])
     temp_file.binmode
+    file.rewind
     temp_file.write(file.read)
     temp_file.close
     temp_file
@@ -203,6 +205,7 @@ class OcrService
   # Disponible dans tous les sous-services (FactureOcr, DevisOcr, BordereauChassis)
   def parse_montant_belge(str)
     return nil if str.blank?
+    # Supprimer tous les espaces (séparateurs visuels type "38 . 160 , 00")
     s = str.strip.gsub(/\s+/, '')
 
     # Format belge canonique : point = milliers, virgule = décimale (ex: 15.100,00)
@@ -215,12 +218,17 @@ class OcrService
       return s.gsub(',', '').to_f
     end
 
-    # Espace comme séparateur milliers (ex: 15 100,00 ou 15 100.00)
-    if s.match?(/^\d{1,3}(?:\s\d{3})+[,.]\d{2}$/)
-      return s.gsub(/\s/, '').gsub(',', '.').to_f
+    # Espace comme séparateur milliers (ex: 15 100,00 ou 15 100.00) — déjà nettoyé
+    # Après gsub des espaces : "15100,00"
+    if s.match?(/^\d+,\d{2}$/)
+      return s.gsub(',', '.').to_f
     end
 
-    # Fallback: virgule décimale simple (ex: 1.200,00 ou 900,00)
+    if s.match?(/^\d+\.\d{2}$/)
+      return s.to_f
+    end
+
+    # Fallback: virgule décimale simple
     s.gsub(/[^\d,.]/, '').gsub(',', '.').to_f.then { |v| v > 0 ? v : nil }
   end
 end

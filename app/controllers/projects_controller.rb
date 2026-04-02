@@ -1,6 +1,6 @@
 class ProjectsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt, :edit_budget, :update_budget, :edit_professionals, :update_professionals]
+  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt, :edit_budget, :update_budget, :edit_professionals, :update_professionals, :fin_chantier, :scan_peb_apres, :update_fin_chantier, :reception_chantier, :scan_attestation_conformite]
 
   def index
     # Récupérer les projets, filtrer par property_id si fourni
@@ -113,6 +113,276 @@ class ProjectsController < ApplicationController
     rescue => e
       redirect_to @project, alert: "Erreur lors de la suppression #{project_type.gsub('l\'', 'd\'un ')} : #{e.message}"
     end
+  end
+
+  # POST /projects/:id/scan_attestation_conformite
+  def scan_attestation_conformite
+    unless params[:file].present?
+      return render json: { error: 'Aucun fichier fourni' }, status: :bad_request
+    end
+
+    begin
+      service = AttestationConformiteOcrService.new(params[:file])
+      result  = service.extraire_donnees_attestation
+
+      unless result[:success]
+        return render json: { error: result[:error] }, status: :unprocessable_entity
+      end
+
+      # Résumé lisible pour le champ notes
+      statut_txt = AttestationConformiteOcrService.label_resultat(result[:resultat])[:label]
+      notes_txt  = [statut_txt,
+                    result[:organisme_controleur],
+                    result[:date_controle]&.strftime('%d/%m/%Y'),
+                    result[:numero_rapport].present? ? "N°#{result[:numero_rapport]}" : nil
+                   ].compact.join(' — ')
+
+      document = current_user.documents.create!(
+        file:              params[:file],
+        type_document:     'attestation_conformite',
+        property:          @project.property,
+        status:            result[:extraction_complete] ? 'approved' : 'pending',
+        notes:             notes_txt,
+        donnees_extraites: {
+          'organisme_controleur'   => result[:organisme_controleur],
+          'date_controle'          => result[:date_controle]&.iso8601,
+          'resultat'               => result[:resultat],
+          'numero_rapport'         => result[:numero_rapport],
+          'date_prochain_controle' => result[:date_prochain_controle]&.iso8601,
+          'installateur'           => result[:installateur],
+          'type_controle'          => result[:type_controle],
+          'confiance_ocr'          => result[:confiance_ocr],
+          'extraction_complete'    => result[:extraction_complete]
+        }
+      )
+
+      # Rattacher le document au projet
+      @project.documents << document unless @project.documents.include?(document)
+
+      if document.file.attached? && document.file_url.blank?
+        document.update_column(:file_url, rails_blob_url(document.file))
+      end
+
+      render json: {
+        success:                true,
+        document_id:            document.id,
+        organisme_controleur:   result[:organisme_controleur],
+        date_controle:          result[:date_controle]&.strftime('%d/%m/%Y'),
+        resultat:               result[:resultat],
+        numero_rapport:         result[:numero_rapport],
+        date_prochain_controle: result[:date_prochain_controle]&.strftime('%d/%m/%Y'),
+        installateur:           result[:installateur],
+        type_controle:          result[:type_controle],
+        confiance_ocr:          result[:confiance_ocr],
+        extraction_complete:    result[:extraction_complete]
+      }
+
+    rescue ActiveRecord::RecordInvalid => e
+      render json: { error: 'Erreur sauvegarde', details: e.record.errors.full_messages }, status: :unprocessable_entity
+    rescue StandardError => e
+      Rails.logger.error "scan_attestation_conformite error: #{e.message}\n#{e.backtrace.first(5).join("\n")}"
+      render json: { error: 'Erreur lors du traitement', details: Rails.env.development? ? e.message : nil }, status: :internal_server_error
+    end
+  end
+
+  def reception_chantier
+    property = @project.property
+
+    # ── PEB avant / après ───────────────────────────────────────────────────
+    @peb_apres  = @project.peb_donnees.includes(:document).order(created_at: :desc)
+    @peb_avant  = property&.peb_donnees&.avant_travaux&.order(created_at: :desc)&.first
+    @peb_actuel = @peb_apres.first
+
+    # ── Analyse politique régionale (si label disponible) ───────────────────
+    region = @peb_actuel&.region || @peb_avant&.region || property&.region&.downcase
+    @region = region
+    @analyse_politique = if @peb_actuel&.label_peb.present? && region.present?
+                           PebPolitiqueRegionale.analyse(
+                             region:        region,
+                             label_actuel:  @peb_actuel.label_peb,
+                             label_avant:   @peb_avant&.label_peb,
+                             date_validite: @peb_actuel.date_validite
+                           )
+                         end
+
+    # ── Bilan financier ─────────────────────────────────────────────────────
+    @factures = @project.factures.includes(:document).order(nom_entreprise: :asc, date_facture: :asc)
+    @factures_par_entreprise = @factures.travaux_only.group_by(&:nom_entreprise)
+
+    @total_architecte_devis   = @project.architecte_devis_montant.to_f
+    @total_architecte_factures = @project.architecte_factures_total
+    @total_entrepreneur_devis   = @project.contractor_devis_montant.to_f
+    @total_entrepreneur_factures = @project.contractor_factures_total
+    @total_devis     = @total_architecte_devis + @total_entrepreneur_devis
+    @total_factures  = @total_architecte_factures + @total_entrepreneur_factures
+    @solde_total     = @total_factures - @total_devis
+
+    # ── Documents de réception — checklist ──────────────────────────────────
+    docs = @project.documents.includes(:peb_donnee).order(created_at: :desc)
+    @docs_peb_apres      = docs.where(type_document: 'certificat_peb_apres')
+    @docs_conformite     = docs.where(type_document: 'attestation_conformite')
+    @docs_attestation    = docs.where(type_document: 'attestation_entrepreneur')
+    @docs_etat_avancement = docs.where(type_document: 'etat_avancement')
+    @docs_photos_apres   = docs.where(type_document: 'photo_apres').limit(6)
+
+    # Checklist items : [libellé, présent?, doc, lien_action]
+    @checklist = [
+      {
+        cle:      :peb_apres,
+        icone:    'bi-file-earmark-bar-graph',
+        titre:    "Certificat PEB après travaux",
+        obligatoire: true,
+        present:  @docs_peb_apres.any? || @peb_apres.any?,
+        note:     "Obligatoire pour les demandes de primes et toute vente / location.",
+        action:   fin_chantier_project_path(@project)
+      },
+      {
+        cle:      :conformite_electrique,
+        icone:    'bi-lightning-charge',
+        titre:    "Attestation de conformité électrique (RGIE)",
+        obligatoire: true,
+        present:  @docs_conformite.any?,
+        note:     "Obligatoire si des travaux électriques ont été réalisés.",
+        action:   nil
+      },
+      {
+        cle:      :etat_avancement,
+        icone:    'bi-list-check',
+        titre:    "État d'avancement / PV de réception",
+        obligatoire: false,
+        present:  @docs_etat_avancement.any?,
+        note:     "Procès-verbal de réception signé par l'entrepreneur.",
+        action:   nil
+      },
+      {
+        cle:      :photos_apres,
+        icone:    'bi-camera',
+        titre:    "Photos après travaux",
+        obligatoire: false,
+        present:  @docs_photos_apres.any?,
+        note:     "Photos des postes rénovés (toiture, murs, châssis, chauffage...).",
+        action:   photos_documents_path
+      },
+      {
+        cle:      :attestation_entrepreneur,
+        icone:    'bi-person-badge',
+        titre:    "Attestation(s) entrepreneur",
+        obligatoire: false,
+        present:  @docs_attestation.any?,
+        note:     "Attestation TVA 6% et/ou mentions légales type.",
+        action:   nil
+      }
+    ]
+
+    @nb_presents   = @checklist.count { |c| c[:present] }
+    @nb_obligatoires_ok = @checklist.count { |c| c[:obligatoire] && c[:present] }
+    @nb_obligatoires    = @checklist.count { |c| c[:obligatoire] }
+    @completion_pct = (@nb_presents.to_f / @checklist.size * 100).round
+  end
+
+  def fin_chantier
+    @peb_apres = @project.peb_donnees.includes(:document).order(created_at: :desc)
+    @peb_avant = @project.property&.peb_donnees&.avant_travaux&.order(created_at: :desc)&.first
+
+    region = @peb_apres.first&.region ||
+             @peb_avant&.region ||
+             @project.property&.region&.downcase
+
+    peb_actuel = @peb_apres.first
+    @analyse_politique = if peb_actuel&.label_peb.present? && region.present?
+                           PebPolitiqueRegionale.analyse(
+                             region:        region,
+                             label_actuel:  peb_actuel.label_peb,
+                             label_avant:   @peb_avant&.label_peb,
+                             date_validite: peb_actuel.date_validite
+                           )
+                         elsif region.present?
+                           PebPolitiqueRegionale.contexte_regional(region)
+                         end
+
+    @region = region
+    @upload_peb_url = scan_peb_apres_project_url(@project)
+  end
+
+  # POST /projects/:id/scan_peb_apres
+  def scan_peb_apres
+    unless params[:file].present?
+      return render json: { error: 'Aucun fichier fourni' }, status: :bad_request
+    end
+
+    begin
+      peb_service = PebOcrService.new(params[:file])
+      result      = peb_service.extraire_donnees_peb
+
+      unless result[:success]
+        return render json: { error: result[:error] }, status: :unprocessable_entity
+      end
+
+      # Document
+      document = current_user.documents.create!(
+        file:          params[:file],
+        type_document: 'certificat_peb_apres',
+        property:      @project.property,
+        status:        'pending',
+        notes:         "Certificat PEB après travaux — projet #{@project.nom} " \
+                       "— #{result[:region]&.capitalize} — confiance #{result[:confiance_ocr].to_i} %"
+      )
+
+      if document.file.attached? && document.file_url.blank?
+        document.update_column(:file_url, rails_blob_url(document.file))
+      end
+
+      # PebDonnee rattachée au projet (phase: apres_travaux)
+      peb_donnee = PebDonnee.create!(
+        property:            @project.property,
+        project:             @project,
+        document:            document,
+        user:                current_user,
+        phase:               'apres_travaux',
+        region:              result[:region],
+        numero_certificat:   result[:numero_certificat],
+        label_peb:           result[:label_peb],
+        score_ep:            result[:score_ep],
+        surface_reference:   result[:surface_reference],
+        date_certificat:     result[:date_certificat],
+        date_validite:       result[:date_validite],
+        confiance_ocr:       result[:confiance_ocr],
+        extraction_complete: result[:extraction_complete],
+        texte_ocr_brut:      result[:texte_ocr_brut],
+        donnees_extraites:   { 'recommandations' => result[:recommandations] || [] }
+      )
+
+      # MAJ automatique du champ date_peb_apres_travaux si suffisamment fiable
+      if @project.property && result[:confiance_ocr].to_i >= 70 && result[:date_certificat].present?
+        @project.property.update_column(:date_peb_apres_travaux, result[:date_certificat])
+      end
+
+      render json: {
+        success:             true,
+        document_id:         document.id,
+        peb_donnee_id:       peb_donnee.id,
+        region:              result[:region],
+        numero_certificat:   result[:numero_certificat],
+        label_peb:           result[:label_peb],
+        score_ep:            result[:score_ep],
+        surface_reference:   result[:surface_reference],
+        date_certificat:     result[:date_certificat]&.strftime('%d/%m/%Y'),
+        date_validite:       result[:date_validite]&.strftime('%d/%m/%Y'),
+        confiance_ocr:       result[:confiance_ocr],
+        extraction_complete: result[:extraction_complete]
+      }
+
+    rescue ActiveRecord::RecordInvalid => e
+      render json: { error: "Erreur sauvegarde PEB", details: e.record.errors.full_messages }, status: :unprocessable_entity
+    rescue StandardError => e
+      Rails.logger.error "scan_peb_apres error: #{e.message}\n#{e.backtrace.first(5).join("\n")}"
+      render json: { error: "Erreur lors du traitement du certificat PEB", details: Rails.env.development? ? e.message : nil }, status: :internal_server_error
+    end
+  end
+
+  def update_fin_chantier
+    # réservé pour future mise à jour manuelle (notes, validation)
+    redirect_to fin_chantier_project_path(@project), notice: "Données fin de chantier mises à jour."
   end
 
   def gantt

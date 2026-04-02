@@ -212,6 +212,15 @@ Rails.application.routes.draw do
     # Planning / Gantt
     get :gantt, on: :member
 
+    # Clôture de chantier : PEB après travaux & bilan final
+    get  :fin_chantier,         on: :member
+    post :scan_peb_apres,       on: :member
+    patch :update_fin_chantier, on: :member
+
+    # Réception de chantier (7.1)
+    get  :reception_chantier,           on: :member
+    post :scan_attestation_conformite,  on: :member
+
     # Collaboration — vue pro & invitations
     get  :pro_view,       to: 'pro_views#show',         on: :member
     post :invite,         to: 'pro_views#invite',        on: :member

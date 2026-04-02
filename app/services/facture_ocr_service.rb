@@ -1,10 +1,12 @@
 class FactureOcrService < OcrService
   # Patterns regex pour extraction de données de factures
   MONTANT_PATTERNS = [
-    /(?:total|montant|somme|due?|à payer|total général|total ttc)\s*:?\s*([0-9]{1,3}(?:[.\s][0-9]{3})*(?:,[0-9]{1,2})?)\s*[€]/i,
+    # "Net à Payer : 38.160,00" ou "38 . 160 , 00" (avec espaces autour des séparateurs)
+    /(?:net\s+[àa]\s+payer|total\s+ttc|total\s+tvac|montant\s+ttc)\s*[:\-]?\s*([\d][0-9\s\.\,]+[0-9])\s*(?:€|EUR)?/i,
+    /(?:total|montant|somme|due?|à payer|total général|total ttc)\s*:?\s*([0-9]{1,3}(?:\s*[.\s]\s*[0-9]{3})*\s*(?:[,\s]\s*[0-9]{1,2})?)\s*[€]/i,
     /(?:total|montant|somme|due?|à payer|total général|total ttc)\s*:?\s*([0-9]{1,3}(?:[,\s][0-9]{3})*(?:\.[0-9]{1,2})?)\s*[€]/i,
     /([0-9]{1,3}(?:[.\s][0-9]{3})*(?:,[0-9]{1,2})?)\s*[€]\s*(?:ttc|total|due?|tvac)/i,
-    /(\d{1,3}(?:[.,\s]\d{3})*(?:[.,]\d{2})?)\s*(?:€|EUR|euros?)/i
+    /(\d{1,3}(?:\s*[.,\s]\s*\d{3})*(?:\s*[.,]\s*\d{2})?)\s*(?:€|EUR|euros?)/i
   ].freeze
 
   DATE_PATTERNS = [
@@ -14,9 +16,12 @@ class FactureOcrService < OcrService
   ].freeze
 
   NUMERO_FACTURE_PATTERNS = [
-    /(?:facture|fact|n°|numéro|num|ref|référence)\s*:?\s*([A-Z0-9\-\/]+)/i,
-    /(?:invoice|bill)\s*(?:number|no|#)\s*:?\s*([A-Z0-9\-\/]+)/i,
-    /(?:^|\s)([A-Z]{1,3}[0-9]{4,}[A-Z0-9]*)/
+    # "FACTURE N° : 106" — numéro seul, sans texte long après
+    /FACTURE\s+N[°o]?\s*[:\-]?\s*([A-Z0-9\-\/]{1,20})\b/i,
+    # "N° : 106" ou "Num : FA2024-001"
+    /\bN[°o]\s*[:\-]\s*([A-Z0-9\-\/]{1,20})\b/i,
+    /(?:facture|fact|numéro|num)\s+n[°o]?\s*[:\-]?\s*([A-Z0-9\-\/]{1,20})\b/i,
+    /(?:invoice|bill)\s*(?:number|no|#)\s*[:\-]?\s*([A-Z0-9\-\/]{1,20})\b/i,
   ].freeze
 
   TVA_PATTERNS = [
@@ -50,7 +55,7 @@ class FactureOcrService < OcrService
 
   def extraire_donnees_facture
     # Effectuer d'abord l'OCR standard
-    ocr_result = super.call
+    ocr_result = call
     return ocr_result unless ocr_result[:success]
 
     texte = ocr_result[:text]
@@ -173,22 +178,38 @@ class FactureOcrService < OcrService
   def detecter_type_facture(texte)
     texte_lower = texte.downcase
 
-    TYPE_FACTURE_KEYWORDS.each do |type, keywords|
-      if keywords.any? { |keyword| texte_lower.include?(keyword) }
-        return type
-      end
-    end
+    # Scoring pondéré : on donne du poids selon le contexte
+    # Les types spécifiques (acompte, solde) ont la priorité sur les mots génériques
+    scores = Hash.new(0)
 
-    # Heuristique basée sur la structure
-    if texte_lower.include?('estimation') || texte_lower.include?('proposons')
-      return 'devis'
-    elsif texte_lower.include?('acompte') || texte_lower.include?('provision')
-      return 'acompte'
-    elsif texte_lower.include?('solde') || texte_lower.include?('final')
-      return 'solde'
-    else
-      return 'facture' # Par défaut
-    end
+    # Acompte : poids élevé car terme très spécifique
+    scores['acompte'] += 10 if texte_lower.match?(/\bacompte\b/)
+    scores['acompte'] += 5  if texte_lower.match?(/\b(avance|deposit|provision)\b/)
+
+    # Solde : poids élevé
+    scores['solde'] += 10 if texte_lower.match?(/\bsolde\b/)
+    scores['solde'] += 8  if texte_lower.match?(/\b(final|finale|reliquat|compl[eè]ment)\b/)
+
+    # État d'avancement
+    scores['etat_avancement'] += 10 if texte_lower.match?(/[eé]tat\s+d'?avancement/)
+    scores['etat_avancement'] += 8  if texte_lower.match?(/\bsituation\s+de\s+travaux\b/)
+
+    # Facture générique — le titre "FACTURE" en haut du doc vaut beaucoup
+    scores['facture'] += 15 if texte_lower.match?(/^\s*facture\s*$/)
+    scores['facture'] += 8  if texte_lower.match?(/\b(invoice|bill)\b/)
+
+    # Devis — pénalité si c'est juste une référence ("Réf : DEVIS …")
+    # On ajoute du poids seulement si le mot apparaît hors d'un contexte de référence
+    devis_refs = texte_lower.scan(/r[eé]f\s*:?\s*devis|r[eé]f[eé]rence\s*:?\s*devis|sv\s+devis/).length
+    devis_total = texte_lower.scan(/\bdevis\b/).length
+    scores['devis'] += [(devis_total - devis_refs) * 8, 0].max
+    scores['devis'] += 5 if texte_lower.match?(/\b(estimation|offre|proposition)\b/)
+
+    # Le type avec le score le plus élevé gagne
+    best = scores.max_by { |_, v| v }
+    return best[0] if best && best[1] > 0
+
+    'facture' # par défaut
   end
 
   def extraire_montant_ht(texte)

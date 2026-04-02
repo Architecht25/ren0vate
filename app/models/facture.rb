@@ -4,14 +4,18 @@ class Facture < ApplicationRecord
   belongs_to :property, optional: true
 
   # Validations
-  validates :montant, presence: true, numericality: { greater_than: 0 }
-  validates :type_facture, presence: true, inclusion: { in: %w[devis facture acompte solde] }
+  validates :montant, numericality: { greater_than: 0 }, if: :valide_manuellement?
+  validates :montant, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true, unless: :valide_manuellement?
+  validates :type_facture, presence: true, inclusion: { in: %w[devis facture acompte solde etat_avancement] }
   validates :statut_paiement, presence: true, inclusion: { in: %w[non_paye paye partiel] }
   validates :confiance_ocr, numericality: { in: 0..100 }, allow_nil: true
 
+  # Validations pour le type d'intervenant
+  validates :type_intervenant, inclusion: { in: %w[architecte entrepreneur autre] }, allow_nil: true
+
   # Scopes pour les requêtes courantes
   scope :devis, -> { where(type_facture: 'devis') }
-  scope :factures, -> { where(type_facture: ['facture', 'acompte', 'solde']) }
+  scope :factures, -> { where(type_facture: ['facture', 'acompte', 'solde', 'etat_avancement']) }
   scope :factures_solde, -> { where(facture_solde: true) }
   scope :payees, -> { where(statut_paiement: 'paye') }
   scope :non_payees, -> { where(statut_paiement: 'non_paye') }
@@ -19,6 +23,10 @@ class Facture < ApplicationRecord
   scope :extraction_complete, -> { where(extraction_complete: true) }
   scope :expiration_proche, -> { where('jours_avant_expiration <= ?', 90) }
   scope :expiration_critique, -> { where('jours_avant_expiration <= ?', 30) }
+  scope :par_intervenant, ->(type) { where(type_intervenant: type) }
+  scope :architecte, -> { where(type_intervenant: 'architecte') }
+  scope :entrepreneur, -> { where(type_intervenant: 'entrepreneur') }
+  scope :travaux_only, -> { where(type_facture: %w[facture acompte solde etat_avancement]) }
 
   # Callbacks
   before_save :calculer_date_limite_prime
@@ -88,11 +96,32 @@ class Facture < ApplicationRecord
 
   def type_badge_class
     case type_facture
-    when 'devis' then 'bg-info'
-    when 'facture' then 'bg-primary'
-    when 'acompte' then 'bg-warning'
-    when 'solde' then 'bg-success'
+    when 'devis'            then 'bg-info'
+    when 'facture'          then 'bg-primary'
+    when 'acompte'          then 'bg-warning'
+    when 'solde'            then 'bg-success'
+    when 'etat_avancement'  then 'bg-info text-dark'
     else 'bg-secondary'
+    end
+  end
+
+  def type_facture_display
+    case type_facture
+    when 'devis'            then 'Devis'
+    when 'facture'          then 'Facture'
+    when 'acompte'          then 'Acompte'
+    when 'solde'            then 'Solde'
+    when 'etat_avancement'  then "État d'avancement"
+    else type_facture&.humanize
+    end
+  end
+
+  def type_intervenant_display
+    case type_intervenant
+    when 'architecte'   then 'Architecte'
+    when 'entrepreneur' then 'Entrepreneur'
+    when 'autre'        then 'Autre'
+    else 'Non classifié'
     end
   end
 

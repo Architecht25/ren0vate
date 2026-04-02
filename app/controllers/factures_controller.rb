@@ -45,15 +45,16 @@ class FacturesController < ApplicationController
         ocr_result = facture_ocr_service.extraire_donnees_facture
 
         if ocr_result[:success] && ocr_result[:donnees_facture]
-          # Créer l'enregistrement Facture avec les données extraites
+          # Créer l'enregistrement Facture avec les données extraites (même partielles)
           @facture = creer_facture_depuis_ocr(@document, ocr_result)
+          extraction_partielle = @facture.montant.to_f == 0 || !@facture.extraction_complete
 
           render json: {
             success: true,
             document: document_json(@document),
             facture: facture_json(@facture),
             ocr_result: ocr_result,
-            message: 'Facture uploadée et analysée avec succès'
+            message: extraction_partielle ? 'Facture enregistrée — extraction partielle, veuillez compléter les données manuellement' : 'Facture uploadée et analysée avec succès'
           }
         else
           render json: {
@@ -144,7 +145,8 @@ class FacturesController < ApplicationController
       :montant, :numero_facture, :date_facture, :date_echeance,
       :type_facture, :statut_paiement, :nom_entreprise,
       :numero_tva_entreprise, :numero_bce_entreprise,
-      :montant_ht, :montant_tva, :taux_tva, :facture_solde
+      :montant_ht, :montant_tva, :taux_tva, :facture_solde,
+      :type_intervenant, :adresse_entreprise, :telephone_entreprise, :email_entreprise
     )
   end
 
@@ -155,22 +157,40 @@ class FacturesController < ApplicationController
       document: document,
       project: @project,
       property: @project.property,
-      montant: donnees[:montant],
+      montant: donnees[:montant] || 0,
       numero_facture: donnees[:numero_facture],
       date_facture: donnees[:date_facture],
       type_facture: donnees[:type_facture] || 'facture',
       nom_entreprise: donnees[:nom_entreprise],
       numero_bce_entreprise: donnees[:numero_bce],
+      adresse_entreprise: donnees[:adresse_entreprise],
+      telephone_entreprise: donnees[:telephone_entreprise],
+      email_entreprise: donnees[:email_entreprise],
       montant_ht: donnees[:montant_ht],
       montant_tva: donnees[:montant_tva],
       taux_tva: donnees[:taux_tva],
       confiance_ocr: ocr_result[:confiance_extraction],
       extraction_complete: ocr_result[:extraction_complete],
       texte_ocr_brut: ocr_result[:texte_brut],
-      donnees_extraites: donnees
+      donnees_extraites: donnees,
+      type_intervenant: detecter_type_intervenant(donnees[:nom_entreprise]),
+      valide_manuellement: false
     }
 
     Facture.create!(facture_attrs)
+  end
+
+  # Détecte si la facture provient de l'architecte ou d'un entrepreneur
+  # en comparant le nom d'entreprise avec les données du projet
+  def detecter_type_intervenant(nom_entreprise)
+    return 'entrepreneur' if nom_entreprise.blank?
+
+    nom = nom_entreprise.downcase.strip
+    arch = @project.architecte_entreprise&.downcase&.strip
+
+    return 'architecte' if arch.present? && nom.include?(arch.split.first || '')
+
+    'entrepreneur'
   end
 
   def calcul_statistiques

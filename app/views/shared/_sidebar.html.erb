@@ -272,11 +272,20 @@
           </div>
           <ul class="collapse nav-submenu" id="clotureSection">
             <li class="nav-item">
-              <a href="#" class="nav-link disabled" title="Bientôt disponible">
-                <i class="bi bi-file-earmark-check"></i>
-                <span>Réception travaux</span>
-                <span class="badge bg-secondary ms-auto">Bientôt</span>
-              </a>
+              <% first_project_cloture = current_user&.projects&.order(updated_at: :desc)&.first %>
+              <% if first_project_cloture&.persisted? %>
+                <%= link_to reception_chantier_project_path(first_project_cloture), class: "nav-link" do %>
+                  <i class="bi bi-file-earmark-check"></i>
+                  <span>Réception travaux</span>
+                  <span class="badge bg-success ms-auto">Nouveau</span>
+                <% end %>
+              <% else %>
+                <a href="#" class="nav-link disabled">
+                  <i class="bi bi-file-earmark-check"></i>
+                  <span>Réception travaux</span>
+                  <span class="badge bg-secondary ms-auto">Bientôt</span>
+                </a>
+              <% end %>
             </li>
             <li class="nav-item">
               <a href="#" class="nav-link disabled" title="Bientôt disponible">

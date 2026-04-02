@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_01_120000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_02_102417) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -232,6 +232,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_01_120000) do
     t.string "document_source"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.json "donnees_extraites"
     t.index ["project_id"], name: "index_documents_on_project_id"
     t.index ["property_id"], name: "index_documents_on_property_id"
     t.index ["request_id"], name: "index_documents_on_request_id"
@@ -265,6 +266,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_01_120000) do
     t.json "donnees_extraites", comment: "Données structurées extraites en JSON"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "type_intervenant", default: "entrepreneur", comment: "Type: architecte, entrepreneur, autre"
+    t.text "adresse_entreprise", comment: "Adresse extraite par OCR"
+    t.string "telephone_entreprise", comment: "Téléphone extrait par OCR"
+    t.string "email_entreprise", comment: "Email extrait par OCR"
     t.index ["date_facture"], name: "index_factures_on_date_facture"
     t.index ["date_limite_prime"], name: "index_factures_on_date_limite_prime"
     t.index ["document_id"], name: "index_factures_on_document_id"
@@ -274,6 +279,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_01_120000) do
     t.index ["project_id", "type_facture"], name: "index_factures_on_project_id_and_type_facture"
     t.index ["project_id"], name: "index_factures_on_project_id"
     t.index ["property_id"], name: "index_factures_on_property_id"
+    t.index ["type_intervenant"], name: "index_factures_on_type_intervenant"
   end
 
   create_table "notifications", force: :cascade do |t|
@@ -337,7 +343,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_01_120000) do
     t.jsonb "donnees_extraites", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "phase", default: "avant_travaux", comment: "Phase: avant_travaux, apres_travaux"
+    t.bigint "project_id", comment: "Projet associé (pour PEB après travaux)"
     t.index ["document_id"], name: "index_peb_donnees_on_document_id"
+    t.index ["phase"], name: "index_peb_donnees_on_phase"
+    t.index ["project_id"], name: "index_peb_donnees_on_project_id"
     t.index ["property_id"], name: "index_peb_donnees_on_property_id"
     t.index ["user_id"], name: "index_peb_donnees_on_user_id"
   end
@@ -814,6 +824,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_01_120000) do
   add_foreign_key "notifications", "users"
   add_foreign_key "page_visits", "users"
   add_foreign_key "peb_donnees", "documents"
+  add_foreign_key "peb_donnees", "projects", on_delete: :nullify
   add_foreign_key "peb_donnees", "properties"
   add_foreign_key "peb_donnees", "users"
   add_foreign_key "prime_document_templates", "primes"

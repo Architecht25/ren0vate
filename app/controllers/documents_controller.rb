@@ -544,6 +544,9 @@ class DocumentsController < ApplicationController
       when 'budget'
         redirect_to edit_budget_project_path(@project), options
         return
+      when 'reception_chantier'
+        redirect_to reception_chantier_project_path(@project), options
+        return
       end
     end
 
