@@ -55,6 +55,7 @@ import MapboxController from "controllers/mapbox_controller"
 import ContextualBotController from "controllers/contextual_bot_controller"
 import AmianteController from "controllers/amiante_controller"
 import EntrepreneursManagementController from "controllers/entrepreneurs_management_controller"
+import RoiCalculatorController from "controllers/roi_calculator_controller"
 
 application.register("user_type", UserTypeController)
 application.register("test-eligibilite", TestEligibiliteController)
@@ -94,5 +95,6 @@ application.register("mapbox", MapboxController)
 application.register("contextual-bot", ContextualBotController)
 application.register("amiante", AmianteController)
 application.register("entrepreneurs-management", EntrepreneursManagementController)
+application.register("roi-calculator", RoiCalculatorController)
 
 export { application }

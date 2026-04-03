@@ -1,6 +1,6 @@
 class ProjectsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt, :edit_budget, :update_budget, :edit_professionals, :update_professionals, :fin_chantier, :scan_peb_apres, :update_fin_chantier, :reception_chantier, :scan_attestation_conformite, :garanties, :carnet_entretien]
+  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt, :edit_budget, :update_budget, :edit_professionals, :update_professionals, :fin_chantier, :scan_peb_apres, :update_fin_chantier, :reception_chantier, :scan_attestation_conformite, :garanties, :carnet_entretien, :roi_calculator]
 
   def index
     # Récupérer les projets, filtrer par property_id si fourni
@@ -543,6 +543,33 @@ class ProjectsController < ApplicationController
 
     # Jalons : date début, factures, date fin
     @milestones = build_milestones
+  end
+
+  def roi_calculator
+    # Détail devis (OCR ou manuels)
+    @devis_architecte   = (@project.architecte_devis_montant_effectif || 0).to_f
+    @devis_entrepreneur = (@project.contractor_devis_montant_effectif || 0).to_f
+
+    # Détail factures
+    @factures_architecte   = (@project.architecte_factures_total || 0).to_f
+    @factures_entrepreneur = (@project.contractor_factures_total || 0).to_f
+    total_factures         = @factures_architecte + @factures_entrepreneur
+
+    # Coût : total factures si disponibles, sinon total devis
+    total_devis   = @devis_architecte + @devis_entrepreneur
+    @cout_travaux = (total_factures > 0 ? total_factures : total_devis).to_f
+    @cout_source  = total_factures > 0 ? :factures : (total_devis > 0 ? :devis : :vide)
+
+    # Primes : dernière simulation du projet si elle existe
+    @primes_estimees = @project.simulations
+                               .order(created_at: :desc)
+                               .first
+                               &.total_primes_amount
+                               &.to_f || 0.0
+
+    # Valeur d'achat du bien (seule valeur disponible en base)
+    @property    = @project.property
+    @valeur_bien = (@property&.valeur_achat || 0).to_f
   end
 
   private

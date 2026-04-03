@@ -220,6 +220,9 @@ Rails.application.routes.draw do
     # Carnet d'entretien / DIU (7.3)
     get  :carnet_entretien,             on: :member
 
+    # ROI Calculator
+    get  :roi_calculator,               on: :member
+
     # Collaboration — vue pro & invitations
     get  :pro_view,       to: 'pro_views#show',         on: :member
     post :invite,         to: 'pro_views#invite',        on: :member

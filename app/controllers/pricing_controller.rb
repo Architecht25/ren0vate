@@ -135,26 +135,23 @@ class PricingController < ApplicationController
   def pricing_tiers_data
     {
       freemium: {
-        name: "Découverte",
+        name: "Starter",
         price: 0,
         period: "gratuit",
-        description: "Parfait pour débuter",
+        description: "Découvrez Ren0vate — sans engagement",
         features: [
-          "1 propriété enregistrée",
+          "1 bien enregistré",
           "1 projet de rénovation",
-          "1 simulation complète",
-          "Consultation primes disponibles",
-          "Recherche BCE limitée (5/mois)",
-          "Support email basique (48h)"
+          "Simulation de primes (1×)",
+          "Estimation budget IA (aperçu)",
+          "Consultation guides & ressources"
         ],
         limitations: [
-          "Pas de multi-propriétés",
-          "Pas d'import PEB/Audit",
-          "Pas de ROI Calculator",
-          "Pas de gestion permis urbanisme",
           "Pas de suivi chantier",
+          "Pas d'Expert IA",
           "Pas de comparateur entrepreneurs",
-          "Support basique uniquement"
+          "Pas de dossier documentaire",
+          "Support communautaire uniquement"
         ],
         cta: "Commencer gratuitement",
         popular: false,
@@ -162,132 +159,126 @@ class PricingController < ApplicationController
       },
 
       individual: {
-        name: "Propriétaire Solo",
+        name: "Propriétaire",
         price: 39,
         period: "mois",
-        description: "Gestion complète 1-3 propriétés",
+        description: "Gérez votre rénovation de A à Z — 1 à 3 biens",
         features: [
-          "🏠 Jusqu'à 3 propriétés",
-          "📊 Simulations illimitées primes/prêts",
-          "📋 Import & Analyse certificat PEB/Audit",
-          "💰 ROI Calculator complet (projections 20 ans)",
-          "🎯 Roadmap évolution label énergétique",
-          "📁 Gestion documentaire de base",
-          "🏛️ Assistant permis urbanisme (évaluation + checklist)",
-          "💼 Planificateur budgétaire intelligent",
+          "🏠 Jusqu'à 3 biens",
+          "📊 Simulations de primes illimitées (3 régions)",
+          "💰 ROI Calculator — projections sur 20 ans",
+          "🎯 Roadmap label énergétique personnalisée",
+          "📋 Import & analyse PEB / Audit énergétique",
+          "🏛️ Prédicteur permis urbanisme IA (87% précision)",
           "👷 Comparateur entrepreneurs (3 devis/mois)",
-          "🔍 Recherche BCE illimitée",
-          "📧 Support prioritaire (24h)",
-          "📄 Export rapports PDF"
+          "📁 Dossier documentaire de base",
+          "📄 Export rapports PDF",
+          "📧 Support prioritaire (24h)"
         ],
-        roi: "Économisez 40h admin • +25% d'aides détectées • ROI moyen : 15.000€ sur projet 50K€",
-        cta: "Démarrer avec Propriétaire Solo",
+        roi: "Économisez 40h d'admin • +25% d'aides détectées • ROI moyen : 15 000€ sur projet 50K€",
+        cta: "Gérer mon projet",
         popular: true,
-        target: "B2C Particuliers",
+        target: "Propriétaire particulier",
         new_badge: "Gestion complète"
       },
 
       portfolio: {
-        name: "Portfolio Manager",
+        name: "Investisseur",
         price: 89,
         period: "mois",
-        description: "Gestion avancée 4-10 propriétés + Suivi chantier",
+        description: "Multi-biens + suivi de chantier en temps réel",
         features: [
-          "✅ Tout Individual PLUS :",
-          "🏘️ Jusqu'à 10 propriétés",
-          "🔧 Suivi chantier avec état d'avancement",
-          "👥 Collaboration multi-acteurs (architecte, entrepreneurs)",
-          "📝 PV numériques et validation phases",
-          "✅ Checklist clôture complète (garanties, certifications)",
-          "📦 Génération dossier final complet (ZIP + PDF)",
+          "✅ Tout Propriétaire PLUS :",
+          "🏘️ Jusqu'à 10 biens",
+          "🔧 Suivi chantier IA — avancement en temps réel",
+          "📸 Détection progression IA (photos chantier)",
+          "📊 Score Santé Projet /10 avec alertes automatiques",
+          "👥 Espace collaboratif (architecte, entrepreneurs)",
+          "📝 PV numériques & validation de phases",
+          "✅ Checklist clôture (garanties, certifications)",
+          "📦 Dossier final ZIP/PDF automatisé",
           "👷 Comparateur entrepreneurs illimité",
-          "📈 Dashboard analytics avancé multi-propriétés",
-          "⚡ Assistant conformité technique",
-          "🎯 Priorisation intelligente investissements",
-          "📞 Support expert (12h)",
-          "🎓 Webinaires formation exclusifs"
+          "📈 Dashboard analytics multi-biens",
+          "🤖 Expert IA 24/7 (100 questions/mois)",
+          "📞 Support expert (12h)"
         ],
-        roi: "ROI minimum : 300% • Valorisation +5-10% par bien • Conformité 100%",
-        cta: "Choisir Portfolio Manager",
+        roi: "ROI minimum 300% • Valorisation +5-10% par bien • Conformité garantie",
+        cta: "Gérer mon patrimoine",
         popular: false,
-        target: "B2C Multi-propriétaires",
-        new_badge: "Suivi chantier inclus"
+        target: "Investisseur multi-biens",
+        new_badge: "Suivi chantier IA"
       },
 
       premium_mixed: {
-        name: "Premium Mixed",
-        price: 189,
+        name: "Premium",
+        price: 149,
         period: "mois",
-        description: "Investisseurs-entrepreneurs : patrimoine perso + entreprises",
+        description: "Multi-biens + entreprises + usage professionnel mixte",
         features: [
-          "Jusqu'à 15 propriétés résidentielles",
-          "Jusqu'à 8 entreprises (BCE illimitée)",
-          "Ren0Chat : 200 questions/mois",
-          "Ren0Bot : Support 24/7 illimité",
-          "Decision Hub hybride : Optimisation mixte",
-          "Dashboard unifié perso + pro",
-          "Cross-analytics fiscal mixte",
-          "Recommendations IA hybrides",
-          "Support expert spécialisé (24h)",
-          "3 comptes utilisateurs équipe",
-          "Reporting semi-automatisé",
-          "API accès limité",
-          "Exports avancés : Reporting fiscal mixte"
+          "✅ Tout Investisseur PLUS :",
+          "🏢 Jusqu'à 5 entreprises (BCE illimitée)",
+          "🤖 Expert IA 24/7 illimité",
+          "📊 Decision Hub hybride perso + pro",
+          "💼 Dashboard unifié patrimonial",
+          "🧮 Cross-analytics fiscal mixte",
+          "👥 3 comptes utilisateurs",
+          "📡 API accès limité",
+          "🎓 Formations & webinaires exclusifs",
+          "📞 Support expert dédié (8h)"
         ],
-        roi: "ROI minimum : 1500% • ROI réaliste : 3400%+",
-        cta: "Choisir Premium Mixed",
-        popular: true,
-        target: "Hybride B2C+B2B"
+        roi: "ROI minimum 1 500% • Idéal profils patrimoniaux et entrepreneuriaux",
+        cta: "Choisir Premium",
+        popular: false,
+        target: "Hybride particulier + professionnel"
       },
 
       professional: {
-        name: "Expert",
+        name: "Pro",
         price: 99,
         period: "mois",
         description: "Architectes, entrepreneurs, bureaux d'études",
         features: [
-          "Propriétés clients illimitées",
-          "Multi-utilisateurs équipe (5 comptes)",
-          "Interface personnalisable (logo client)",
-          "Reporting clients automatisé",
-          "Tools B2B avancés",
-          "Analytics multi-clients",
-          "Support prioritaire expert (4h)",
-          "Intégrations comptabilité de base",
-          "Accès API limité (à venir)",
-          "Formations spécialisées"
+          "♾️ Projets clients illimités",
+          "👥 5 comptes équipe",
+          "🎨 Interface marque personnalisée (logo client)",
+          "📊 Tableau de bord multi-clients",
+          "🤖 Expert IA illimité pour vos clients",
+          "📄 Rapports clients automatisés",
+          "📈 Analytics multi-clients",
+          "🔌 Intégrations comptabilité",
+          "🎓 Formations spécialisées",
+          "📞 Support prioritaire expert (4h)"
         ],
-        roi: "Break-even : 3-5 clients aidés/an • Scaling 5x+ ROI",
-        cta: "Choisir Expert",
+        roi: "Break-even : 3-5 clients aidés/an • Scaling 5× ROI",
+        cta: "Démarrer en Pro",
         popular: false,
-        target: "B2B Professionnels"
+        target: "Architecte / Entrepreneur / Bureau d'études"
       },
 
       enterprise: {
-        name: "Enterprise",
+        name: "Entreprise",
         price: 299,
         period: "mois",
-        description: "Solution complète syndics, promoteurs, bureaux d'études",
+        description: "Syndics, promoteurs, grandes équipes — solution sur-mesure",
         features: [
-          "✅ Tout Portfolio PLUS :",
-          "♾️ Propriétés et utilisateurs illimités",
-          "🔌 API access complet pour intégrations",
-          "🎨 White-label (votre marque)",
+          "✅ Tout Pro PLUS :",
+          "♾️ Biens, utilisateurs et projets illimités",
+          "🔌 API complète pour intégrations métier",
+          "🎨 White-label (votre marque, votre domaine)",
           "👥 Gestion équipes multi-niveaux",
           "📊 Reporting automatisé clients",
-          "💼 SLA 99.9% + Account manager dédié",
+          "💼 SLA 99,9% + Account Manager dédié",
           "🎓 Formations personnalisées équipe",
           "🔧 Développements spécifiques sur-mesure",
           "💾 Export comptable automatisé",
-          "📱 Applications mobiles dédiées",
           "🔒 Sécurité renforcée + SSO",
           "🌍 Support multi-régional 24/7"
         ],
-        roi: "Break-even : 10-15 clients • ROI minimum : 500% • Scaling illimité",
-        cta: "Contacter notre équipe",
+        roi: "Break-even : 10-15 clients • ROI minimum 500% • Scaling illimité",
+        cta: "Nous contacter",
         popular: false,
-        target: "B2B Enterprise",
-        new_badge: "Solution pro complète"
+        target: "Syndic / Promoteur / Grande équipe",
+        new_badge: "Solution sur-mesure"
       }
     }
   end
@@ -314,13 +305,13 @@ class PricingController < ApplicationController
   def recommend_tier_for_user
     properties_count = current_user.properties.count
     has_enterprises = current_user.respond_to?(:enterprises) && current_user.enterprises.any?
+    projects_count = current_user.projects.count
 
-    # Logique de recommandation hybride
     if has_enterprises && properties_count >= 4
       :premium_mixed
     elsif properties_count >= 11
       :premium_mixed
-    elsif properties_count >= 4
+    elsif properties_count >= 4 || projects_count >= 3
       :portfolio
     elsif properties_count >= 2
       :individual
