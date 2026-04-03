@@ -193,22 +193,22 @@
       </div>
     </div>
 
-    <!-- Deuxième rangée: Type de bien, Occupation et Informations d'achat -->
+    <!-- Deuxième rangée: Classification du bien et Statut de propriété -->
     <div class="row justify-content-center mb-3">
       <div class="col-lg-10">
         <div class="row g-3">
 
-          <!-- Carte 3: Type de bien -->
-          <div class="col-lg-4">
+          <!-- Carte 3: Type de bien, usage et profil -->
+          <div class="col-lg-6">
             <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
                   <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                    <i class="bi bi-building text-white fs-6"></i>
+                    <i class="bi bi-house text-white fs-6"></i>
                   </div>
                   <div>
-                    <h5 class="card-title mb-0 text-dark fw-normal">Type de logement</h5>
-                    <p class="text-muted small mb-0">Caractéristiques de votre bien</p>
+                    <h5 class="card-title mb-0 text-dark fw-normal">Type de bien & Occupation</h5>
+                    <p class="text-muted small mb-0">Classification et usage de votre bien</p>
                   </div>
                 </div>
               </div>
@@ -216,7 +216,7 @@
                 <div class="row g-2">
                   <div class="col-12">
                     <%= f.input :type_bien_flandre,
-                        label: '<i class="bi bi-house me-2 text-warning"></i>Type de bien (Flandre)'.html_safe,
+                        label: '<i class="bi bi-house me-2 text-warning"></i>Type de bien'.html_safe,
                         as: :select,
                         collection: [
                           ["Maison unifamiliale", "maison"],
@@ -234,30 +234,9 @@
                           required: true
                         } %>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Carte 4: Occupation et usage -->
-          <div class="col-lg-4">
-            <div class="card rounded-4 h-100">
-              <div class="card-header bg-white border-0 py-3">
-                <div class="d-flex align-items-center">
-                  <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                    <i class="bi bi-house-check text-white fs-6"></i>
-                  </div>
-                  <div>
-                    <h5 class="card-title mb-0 text-dark fw-normal">Occupation et usage</h5>
-                    <p class="text-muted small mb-0">Éligibilité aux primes Flandre</p>
-                  </div>
-                </div>
-              </div>
-              <div class="card-body px-4 py-3">
-                <div class="row g-2">
                   <div class="col-12">
                     <%= f.input :usage_flandre,
-                        label: '<i class="bi bi-key me-2 text-warning"></i>Usage (Flandre)'.html_safe,
+                        label: '<i class="bi bi-key me-2 text-warning"></i>Usage du bien'.html_safe,
                         as: :select,
                         collection: [
                           ["Résidence principale", "residence_principale"],
@@ -295,8 +274,92 @@
             </div>
           </div>
 
+          <!-- Carte 4: Statut de propriété, part et usage habitation -->
+          <div class="col-lg-6">
+            <div class="card rounded-4 h-100">
+              <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex align-items-center">
+                  <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background: linear-gradient(45deg, #6f42c1, #8b5cf6);">
+                    <i class="bi bi-person-badge text-white fs-6"></i>
+                  </div>
+                  <div>
+                    <h5 class="card-title mb-0 text-dark fw-normal">Statut de propriété</h5>
+                    <p class="text-muted small mb-0">Votre relation au bien</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 py-3">
+                <div class="row g-2">
+                  <div class="col-12">
+                    <%= f.input :type_propriete_flandre,
+                        label: '<i class="bi bi-shield-check me-2" style="color: #6f42c1;"></i>Statut de propriété'.html_safe,
+                        as: :select,
+                        collection: [
+                          ["Propriétaire occupant", "eigenaar_bewoner"],
+                          ["Plein propriétaire", "volle_eigenaar"],
+                          ["Copropriétaire", "mede_eigenaar"],
+                          ["Usufruitier", "vruchtgebruiker"],
+                          ["Nu-propriétaire", "naakte_eigenaar"],
+                          ["Locataire", "huurder"],
+                          ["Autre", "andere"]
+                        ],
+                        prompt: "-- Sélectionnez votre statut --",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-select border-2 rounded-3 px-3 required-field",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          required: true
+                        } %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= f.input :pourcentage_propriete,
+                        label: '<i class="bi bi-percent me-2" style="color: #6f42c1;"></i>Part de propriété (%)'.html_safe,
+                        placeholder: "ex. 100",
+                        hint: '<i class="bi bi-info-circle me-1"></i>Min. 1% requis'.html_safe,
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3 required-field",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          type: "number",
+                          min: "1",
+                          max: "100",
+                          required: true
+                        } %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= f.input :habitation_percentage,
+                        label: '<i class="bi bi-house-door me-2" style="color: #6f42c1;"></i>Usage habitation (%)'.html_safe,
+                        placeholder: "ex. 100",
+                        hint: '<i class="bi bi-info-circle me-1"></i>Part du bien utilisée comme logement'.html_safe,
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          type: "number",
+                          min: "1",
+                          max: "100",
+                          required: true
+                        } %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Troisième rangée: Informations d'achat et Domiciliation -->
+    <div class="row justify-content-center mb-3">
+      <div class="col-lg-10">
+        <div class="row g-3">
+
           <!-- Carte 5: Informations d'achat -->
-          <div class="col-lg-4">
+          <div class="col-lg-6">
             <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
@@ -336,7 +399,8 @@
                             { order: [:day, :month, :year],
                               start_year: 1800,
                               end_year: 2040,
-                              include_blank: false },
+                              include_blank: false,
+                              use_month_names: %w[Janvier Février Mars Avril Mai Juin Juillet Août Septembre Octobre Novembre Décembre] },
                             { class: "form-select border-2 rounded-3 px-3",
                               style: "background: #f8f9fa; border-color: #e9ecef !important;" } %>
                       </div>
@@ -350,119 +414,73 @@
             </div>
           </div>
 
-        </div>
-      </div>
-    </div>
-
-    <!-- Troisième rangée: Statut et Éligibilité -->
-    <div class="row justify-content-center mb-3">
-      <div class="col-lg-10">
-        <div class="row g-3">
-
-          <!-- Carte 5: Statut de propriété -->
-          <div class="col-lg-6">
-            <div class="card rounded-4 h-100">
-              <div class="card-header bg-white border-0 py-3">
-                <div class="d-flex align-items-center">
-                  <div class="bg-purple bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; background: linear-gradient(45deg, #6f42c1, #8b5cf6) !important;">
-                    <i class="bi bi-person-badge text-white fs-6"></i>
-                  </div>
-                  <div>
-                    <h5 class="card-title mb-0 text-dark fw-normal">Statut de propriété</h5>
-                    <p class="text-muted small mb-0">Votre relation au bien</p>
-                  </div>
-                </div>
-              </div>
-              <div class="card-body px-4 py-3">
-                <div class="row g-2">
-                  <div class="col-12">
-                    <%= f.input :type_propriete_flandre,
-                        label: '<i class="bi bi-shield-check me-2" style="color: #6f42c1;"></i>Statut de propriété (Flandre)'.html_safe,
-                        as: :select,
-                        collection: [
-                          ["Propriétaire occupant", "eigenaar_bewoner"],
-                          ["Plein propriétaire", "volle_eigenaar"],
-                          ["Copropriétaire", "mede_eigenaar"],
-                          ["Usufruitier", "vruchtgebruiker"],
-                          ["Nu-propriétaire", "naakte_eigenaar"],
-                          ["Locataire", "huurder"],
-                          ["Autre", "andere"]
-                        ],
-                        prompt: "-- Sélectionnez votre statut --",
-                        wrapper_html: { class: "mb-3" },
-                        label_html: { class: "form-label text-dark fw-medium mb-1" },
-                        input_html: {
-                          class: "form-select border-2 rounded-3 px-3 required-field",
-                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                          required: true
-                        } %>
-                  </div>
-                  <div class="col-12">
-                    <%= f.input :pourcentage_propriete,
-                        label: '<i class="bi bi-percent me-2" style="color: #6f42c1;"></i>Votre part de propriété (%)'.html_safe,
-                        placeholder: "ex. 100",
-                        hint: '<i class="bi bi-info-circle me-1"></i>De quel % du bien êtes-vous propriétaire ? (Min. 1% requis)'.html_safe,
-                        wrapper_html: { class: "mb-3" },
-                        label_html: { class: "form-label text-dark fw-medium mb-1" },
-                        input_html: {
-                          class: "form-control border-2 rounded-3 px-3 required-field",
-                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                          type: "number",
-                          min: "1",
-                          max: "100",
-                          required: true
-                        } %>
-                  </div>
-                  <div class="col-12">
-                    <%= f.input :habitation_percentage,
-                        label: '<i class="bi bi-house-door me-2" style="color: #6f42c1;"></i>Usage habitation du bien (%)'.html_safe,
-                        placeholder: "ex. 100",
-                        hint: '<i class="bi bi-info-circle me-1"></i>Quel pourcentage du bien est utilisé comme habitation ?'.html_safe,
-                        wrapper_html: { class: "mb-3" },
-                        label_html: { class: "form-label text-dark fw-medium mb-1" },
-                        input_html: {
-                          class: "form-control border-2 rounded-3 px-3",
-                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                          type: "number",
-                          min: "1",
-                          max: "100",
-                          required: true
-                        } %>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Carte 6: Domiciliation -->
+          <!-- Carte 6: Éligibilité & Conditions -->
           <div class="col-lg-6">
             <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
                   <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                    <i class="bi bi-house-heart text-white fs-6"></i>
+                    <i class="bi bi-shield-check text-white fs-6"></i>
                   </div>
                   <div>
-                    <h5 class="card-title mb-0 text-dark fw-normal">Domiciliation</h5>
-                    <p class="text-muted small mb-0">Résidence après rénovation</p>
+                    <h5 class="card-title mb-0 text-dark fw-normal">Éligibilité & Conditions</h5>
+                    <p class="text-muted small mb-0">Domiciliation, situation et TVA</p>
                   </div>
                 </div>
               </div>
               <div class="card-body px-4 py-3">
                 <div class="row g-2">
                   <div class="col-12">
-                    <label class="form-label text-dark fw-medium mb-3">
-                      <i class="bi bi-question-circle me-2 text-success"></i>Serez-vous domicilié sur ce bien après rénovation?
+                    <label class="form-label text-dark fw-medium mb-2">
+                      <i class="bi bi-house-heart me-2 text-success"></i>Serez-vous domicilié sur ce bien après rénovation?
                     </label>
                     <%= f.input :domicilie_flandre,
                         label: false,
                         as: :radio_buttons,
                         collection: [['Oui', true], ['Non', false]],
-                        wrapper_html: { class: "mb-0" },
+                        wrapper_html: { class: "mb-1" },
                         input_html: { class: "form-check-input" } %>
-                    <small class="form-text text-muted">
+                    <small class="form-text text-muted mb-3 d-block">
                       <i class="bi bi-info-circle me-1"></i>Obligatoire pour l'éligibilité aux primes Flandre
                     </small>
+                  </div>
+                  <hr class="my-2">
+                  <div class="col-12">
+                    <label class="form-label text-dark fw-medium mb-2">
+                      <i class="bi bi-house-check me-2 text-warning"></i>Possédez-vous encore un autre logement/appartement/terrain en pleine propriété sur le territoire belge ou à l'étranger?
+                    </label>
+                    <%= f.input :autre_bien,
+                        label: false,
+                        as: :radio_buttons,
+                        collection: [['Oui', 'oui'], ['Non', 'non']],
+                        wrapper_html: { class: "mb-3" },
+                        input_html: { class: "form-check-input" } %>
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label text-dark fw-medium mb-2">
+                      <i class="bi bi-shield-check me-2 text-warning"></i>Êtes-vous un client protégé (tarif social énergie)?
+                    </label>
+                    <%= f.input :client_protege_flandre,
+                        label: false,
+                        as: :radio_buttons,
+                        collection: [['Oui', true], ['Non', false]],
+                        wrapper_html: { class: "mb-1" },
+                        input_html: { class: "form-check-input" } %>
+                    <small class="form-text text-muted mb-3 d-block">
+                      <i class="bi bi-info-circle me-1"></i>Client protégé = catégorie 4 automatique (primes maximales)
+                    </small>
+                  </div>
+                  <hr class="my-2">
+                  <div class="col-12">
+                    <label class="form-label text-dark fw-medium mb-2">
+                      <i class="bi bi-hammer me-2 text-secondary"></i>Le logement est-il un bâtiment démoli avec conservation de résidus (TVA à 6%)?
+                    </label>
+                    <%= f.input :reconstruit,
+                        label: false,
+                        as: :radio_buttons,
+                        collection: [['Oui', 'oui'], ['Non', 'non']],
+                        wrapper_html: { class: "mb-0" },
+                        input_html: { class: "form-check-input" } %>
                   </div>
                 </div>
               </div>
@@ -480,7 +498,7 @@
         <div class="row g-3">
 
           <!-- Carte 7: Caractéristiques techniques -->
-          <div class="col-lg-8">
+          <div class="col-lg-12">
             <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
@@ -570,63 +588,18 @@
             </div>
           </div>
 
-          <!-- Carte 8: Questions spécifiques -->
-          <div class="col-lg-4">
-            <div class="card rounded-4 h-100">
-              <div class="card-header bg-white border-0 py-3">
-                <div class="d-flex align-items-center">
-                  <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                    <i class="bi bi-question-circle text-white fs-6"></i>
-                  </div>
-                  <div>
-                    <h5 class="card-title mb-0 text-dark fw-normal">Questions spécifiques</h5>
-                    <p class="text-muted small mb-0">Éligibilité aux primes</p>
-                  </div>
-                </div>
-              </div>
-              <div class="card-body px-4 py-3">
-                <div class="row g-2">
-                  <div class="col-12">
-                    <label class="form-label text-dark fw-medium mb-3">
-                      <i class="bi bi-house-check me-2 text-warning"></i>Possédez-vous encore un autre logement/appartement/terrain en pleine propriété sur le territoire belge ou à l'étranger?
-                    </label>
-                    <%= f.input :autre_bien,
-                        label: false,
-                        as: :radio_buttons,
-                        collection: [['Oui', 'oui'], ['Non', 'non']],
-                        wrapper_html: { class: "mb-3" },
-                        input_html: { class: "form-check-input" } %>
-                  </div>
-                  <div class="col-12">
-                    <label class="form-label text-dark fw-medium mb-3">
-                      <i class="bi bi-shield-check me-2 text-warning"></i>Êtes-vous un client protégé (tarif social énergie)?
-                    </label>
-                    <%= f.input :client_protege_flandre,
-                        label: false,
-                        as: :radio_buttons,
-                        collection: [['Oui', true], ['Non', false]],
-                        wrapper_html: { class: "mb-1" },
-                        input_html: { class: "form-check-input" } %>
-                    <small class="form-text text-muted">
-                      <i class="bi bi-info-circle me-1"></i>Client protégé = catégorie 4 automatique (primes maximales)
-                    </small>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
 
         </div>
       </div>
     </div>
 
-    <!-- Cinquième rangée: Questions PEB et reconstruction -->
+    <!-- Cinquième rangée: Certificat PEB -->
     <div class="row justify-content-center mb-3">
       <div class="col-lg-10">
         <div class="row g-3">
 
           <!-- Carte 9: Questions PEB -->
-          <div class="col-lg-6">
+          <div class="col-lg-12">
             <div class="card rounded-4 h-100">
               <div class="card-header bg-white border-0 py-3">
                 <div class="d-flex align-items-center">
@@ -760,37 +733,6 @@
 })();
 </script>
 
-          <!-- Carte 10: Reconstruction -->
-          <div class="col-lg-6">
-            <div class="card rounded-4 h-100">
-              <div class="card-header bg-white border-0 py-3">
-                <div class="d-flex align-items-center">
-                  <div class="bg-secondary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                    <i class="bi bi-building text-white fs-6"></i>
-                  </div>
-                  <div>
-                    <h5 class="card-title mb-0 text-dark fw-normal">Reconstruction</h5>
-                    <p class="text-muted small mb-0">TVA à 6%</p>
-                  </div>
-                </div>
-              </div>
-              <div class="card-body px-4 py-3">
-                <div class="row g-2">
-                  <div class="col-12">
-                    <label class="form-label text-dark fw-medium mb-3">
-                      <i class="bi bi-hammer me-2 text-secondary"></i>Le logement est-il un bâtiment qui a été démoli mais en gardant des résidus pour bénéficier de la TVA à 6% ?
-                    </label>
-                    <%= f.input :reconstruit,
-                        label: false,
-                        as: :radio_buttons,
-                        collection: [['Oui', 'oui'], ['Non', 'non']],
-                        wrapper_html: { class: "mb-3" },
-                        input_html: { class: "form-check-input" } %>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
 
         </div>
       </div>
