@@ -1,6 +1,8 @@
 class Property < ApplicationRecord
   self.inheritance_column = nil  # Désactiver l'héritage STI pour la colonne 'type'
 
+  serialize :elements_petit_patrimoine, coder: JSON
+
   belongs_to :user
   has_many :simulations, dependent: :destroy
   has_many :peb_donnees, dependent: :destroy

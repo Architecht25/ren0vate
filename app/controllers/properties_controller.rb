@@ -1,3 +1,5 @@
+require 'net/http'
+
 class PropertiesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_property, only: [:show, :dashboard, :edit, :update, :destroy, :documents_dashboard, :peb_recommandations]
@@ -71,6 +73,29 @@ class PropertiesController < ApplicationController
       flash.now[:alert] = t('errors.property_update_failed', errors: @property.errors.full_messages.join(', '))
       render :edit, status: :unprocessable_entity
     end
+  end
+
+  def check_heritage
+    lat = params[:lat].to_f
+    lon = params[:lon].to_f
+
+    unless lat.between?(-90, 90) && lon.between?(-180, 180) && lat != 0 && lon != 0
+      return render json: { error: 'Coordonnées invalides' }, status: :bad_request
+    end
+
+    margin = 0.0005
+    envelope = "#{lon - margin},#{lat - margin},#{lon + margin},#{lat + margin}"
+    url = "https://geoservices.irisnet.be/arcgis/rest/services/UrbanInformation/Monuments_sites/MapServer/0/query" \
+          "?f=json&returnGeometry=false&outFields=DENOMINATION,DATE_ARRETE,STATUT" \
+          "&geometry=#{envelope}&geometryType=esriGeometryEnvelope&inSR=4326&spatialRel=esriSpatialRelIntersects"
+
+    uri = URI(url)
+    response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https') do |http|
+      http.get(uri.request_uri)
+    end
+    render json: JSON.parse(response.body)
+  rescue => e
+    render json: { error: e.message }, status: :bad_gateway
   end
 
   def destroy
@@ -488,9 +513,8 @@ class PropertiesController < ApplicationController
       # Champs spécifiques Bruxelles
       :type_bien_bruxelles, :certificat_peb_bruxelles,
       :domiciliation, :nouvelle_construction, :bien_classe, :petit_patrimoine, :facade_patrimoine,
-
-      # Champ BCE number (numéro entreprise belge - gardé pour identification)
-      :bce_number
+      :bce_number,
+      elements_petit_patrimoine: []
     )
   end
 

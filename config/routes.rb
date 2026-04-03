@@ -162,6 +162,10 @@ Rails.application.routes.draw do
       get :select_form, to: 'requests#select_form'
     end
 
+    collection do
+      get :check_heritage  # Proxy vérification statut patrimonial Brussels
+    end
+
     # Routes pour les requests liées à une propriété
     resources :requests, except: [:index, :show], shallow: true do
       member do

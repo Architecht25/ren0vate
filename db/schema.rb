@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_02_160914) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_03_154805) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -530,6 +530,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_02_160914) do
     t.datetime "geocoded_at"
     t.string "type_bien_wallonie"
     t.string "profil_demandeur"
+    t.text "elements_petit_patrimoine"
     t.index ["latitude", "longitude"], name: "index_properties_on_latitude_and_longitude"
     t.index ["user_id"], name: "index_properties_on_user_id"
   end

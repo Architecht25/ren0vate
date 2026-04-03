@@ -248,30 +248,9 @@
                           required: true
                         } %>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Carte 4: Occupation et profil -->
-          <div class="col-lg-4">
-            <div class="card rounded-4 h-100">
-              <div class="card-header bg-white border-0 py-3">
-                <div class="d-flex align-items-center">
-                  <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                    <i class="bi bi-house-check text-white fs-6"></i>
-                  </div>
-                  <div>
-                    <h5 class="card-title mb-0 text-dark fw-normal">Occupation et profil</h5>
-                    <p class="text-muted small mb-0">Votre situation d'occupation</p>
-                  </div>
-                </div>
-              </div>
-              <div class="card-body px-4 py-3">
-                <div class="row g-2">
                   <div class="col-12">
                     <%= f.input :profil_demandeur,
-                        label: '<i class="bi bi-person me-2 text-warning"></i>Profil du demandeur'.html_safe,
+                        label: '<i class="bi bi-person me-2 text-secondary"></i>Profil du demandeur'.html_safe,
                         collection: [
                           ["Propriétaire occupant ou futur occupant", "proprietaire_occupant_ou_futur_occupant"],
                           ["Entreprise", "entreprise"],
@@ -291,6 +270,54 @@
                           class: "form-select border-2 rounded-3 px-3",
                           style: "background: #f8f9fa; border-color: #e9ecef !important;",
                           required: true
+                        } %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Carte 4: Occupation et profil -->
+          <div class="col-lg-4">
+            <div class="card rounded-4 h-100">
+              <div class="card-header bg-white border-0 py-3">
+                <div class="d-flex align-items-center">
+                  <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                    <i class="bi bi-house-check text-white fs-6"></i>
+                  </div>
+                  <div>
+                    <h5 class="card-title mb-0 text-dark fw-normal">Données d'occupation</h5>
+                    <p class="text-muted small mb-0">Votre situation d'occupation</p>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body px-4 py-3">
+                <div class="row g-2">
+                  <div class="col-md-6">
+                    <%= f.input :annee_construction,
+                        label: '<i class="bi bi-calendar-event me-2 text-primary"></i>Année de construction*'.html_safe,
+                        placeholder: "ex. 1985",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                        } %>
+                  </div>
+                  <div class="col-md-6">
+                    <%= f.input :surface_habitable,
+                        label: '<i class="bi bi-rulers me-2 text-info"></i>Surface habitable (m²)'.html_safe,
+                        placeholder: "ex. 100",
+                        hint: '<i class="bi bi-info-circle me-1"></i>Surface des espaces habitables du logement'.html_safe,
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-control border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                          type: "number",
+                          min: "1",
+                          max: "10000",
+                          step: "0.01"
                         } %>
                   </div>
                 </div>
@@ -339,7 +366,8 @@
                             { order: [:day, :month, :year],
                               start_year: 1800,
                               end_year: 2040,
-                              include_blank: false },
+                              include_blank: false,
+                              use_month_names: %w[Janvier Février Mars Avril Mai Juin Juillet Août Septembre Octobre Novembre Décembre] },
                             { class: "form-select border-2 rounded-3 px-3",
                               style: "background: #f8f9fa; border-color: #e9ecef !important;" } %>
                       </div>
@@ -436,30 +464,6 @@
                     </div>
                   </div>
 
-                  <!-- Champs formulaire -->
-                  <div class="col-md-4">
-                    <%= f.input :annee_construction,
-                        label: '<i class="bi bi-calendar-event me-2 text-primary"></i>Année de construction*'.html_safe,
-                        placeholder: "ex. 1985",
-                        wrapper_html: { class: "mb-3 mt-2" },
-                        label_html: { class: "form-label text-dark fw-medium mb-1" },
-                        input_html: {
-                          class: "form-control border-2 rounded-3 px-3",
-                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
-                        } %>
-                  </div>
-                </div>
-                  <div class="col-md-4">
-                    <%= f.input :annee_construction,
-                        label: '<i class="bi bi-calendar-event me-2 text-primary"></i>Année de construction*'.html_safe,
-                        placeholder: "ex. 1985",
-                        wrapper_html: { class: "mb-3 mt-2" },
-                        label_html: { class: "form-label text-dark fw-medium mb-1" },
-                        input_html: {
-                          class: "form-control border-2 rounded-3 px-3",
-                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
-                        } %>
-                  </div>
                 </div>
 
 <script>
@@ -504,71 +508,6 @@
 })();
 </script>
 
-                <div class="row g-2 mt-2">
-                  <div class="col-md-6">
-                    <%= f.input :usage,
-                        label: '<i class="bi bi-house-door me-2 text-primary"></i>Usage du bien*'.html_safe,
-                        as: :select,
-                        collection: [
-                          ["Résidentiel uniquement", "residentiel"],
-                          ["Mixte (résidentiel + professionnel)", "mixte"]
-                        ],
-                        prompt: "-- Sélectionnez --",
-                        wrapper_html: { class: "mb-3" },
-                        label_html: { class: "form-label text-dark fw-medium mb-1" },
-                        input_html: {
-                          class: "form-control border-2 rounded-3 px-3",
-                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
-                        } %>
-                  </div>
-                  <div class="col-md-6">
-                    <%= f.input :occupation,
-                        label: '<i class="bi bi-person-check me-2 text-primary"></i>Type d\'occupation*'.html_safe,
-                        as: :select,
-                        collection: [
-                          ["Résidence principale", "residence_principale"],
-                          ["Résidence secondaire", "residence_secondaire"],
-                          ["Investissement locatif", "investissement"]
-                        ],
-                        prompt: "-- Sélectionnez --",
-                        wrapper_html: { class: "mb-3" },
-                        label_html: { class: "form-label text-dark fw-medium mb-1" },
-                        input_html: {
-                          class: "form-control border-2 rounded-3 px-3",
-                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
-                        } %>
-                  </div>
-                </div>
-
-                <div class="row g-2 mt-2">
-                  <div class="col-md-6">
-                    <%= f.input :surface_totale,
-                        label: '<i class="bi bi-arrows-fullscreen me-2 text-primary"></i>Surface totale (m²)'.html_safe,
-                        placeholder: "ex. 120",
-                        wrapper_html: { class: "mb-3" },
-                        label_html: { class: "form-label text-dark fw-medium mb-1" },
-                        input_html: {
-                          class: "form-control border-2 rounded-3 px-3",
-                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
-                        } %>
-                  </div>
-                  <div class="col-md-6">
-                    <%= f.input :surface_habitable,
-                        label: '<i class="bi bi-rulers me-2 text-info"></i>Surface habitable (m²)'.html_safe,
-                        placeholder: "ex. 100",
-                        hint: '<i class="bi bi-info-circle me-1"></i>Surface des espaces habitables du logement'.html_safe,
-                        wrapper_html: { class: "mb-3" },
-                        label_html: { class: "form-label text-dark fw-medium mb-1" },
-                        input_html: {
-                          class: "form-control border-2 rounded-3 px-3",
-                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                          type: "number",
-                          min: "1",
-                          max: "10000",
-                          step: "0.01"
-                        } %>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -595,7 +534,11 @@
                           as: :boolean,
                           label: '<i class="bi bi-shield-check me-2 text-success"></i><strong>Bien classé ou protégé</strong>'.html_safe,
                           wrapper: false,
-                          input_html: { class: "form-check-input me-2", style: "transform: scale(1.3);" } %>
+                          input_html: {
+                            class: "form-check-input me-2",
+                            style: "transform: scale(1.3);",
+                            id: "bien_classe_checkbox"
+                          } %>
                     </div>
                   </div>
                   <div class="col-md-4">
@@ -604,17 +547,83 @@
                           as: :boolean,
                           label: '<i class="bi bi-gem me-2 text-secondary"></i><strong>Éléments petit patrimoine</strong>'.html_safe,
                           wrapper: false,
-                          input_html: { class: "form-check-input me-2", style: "transform: scale(1.3);" } %>
+                          input_html: {
+                            class: "form-check-input me-2",
+                            style: "transform: scale(1.3);",
+                            id: "petit_patrimoine_checkbox",
+                            data: { action: "change->petit-patrimoine-form#toggle" }
+                          } %>
                     </div>
                   </div>
-                  <div class="col-md-4">
-                    <div class="form-check p-3 border rounded-3 shadow-sm" style="background: linear-gradient(135deg, #f8d7da 0%, #f1b0b7 100%); border-color: #dc3545; transition: all 0.2s;">
-                      <%= f.input :facade_patrimoine,
-                          as: :boolean,
-                          label: '<i class="bi bi-building me-2 text-danger"></i><strong>Façade avec patrimoine</strong>'.html_safe,
-                          wrapper: false,
-                          input_html: { class: "form-check-input me-2", style: "transform: scale(1.3);" } %>
+                </div>
+
+                <!-- Vérification Monuments & Sites (affiché si bien classé coché) -->
+                <div id="bien-classe-section"
+                     class="mt-3 p-3 border rounded-3"
+                     style="background: #f0fff4; border-color: #28a745 !important; <%= property&.bien_classe? ? '' : 'display:none;' %>">
+                  <p class="small fw-semibold mb-3 text-success">
+                    <i class="bi bi-bank me-1"></i>Vérifier le statut patrimonial de ce bien
+                  </p>
+
+                  <button type="button" id="btn-verif-monuments-bruxelles"
+                          class="btn btn-success btn-sm w-100 rounded-3 mb-3">
+                    <i class="bi bi-search me-1"></i>Vérifier le statut patrimonial
+                  </button>
+
+                  <div id="mon-loading-bruxelles" class="d-none mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="spinner-border spinner-border-sm text-success" role="status"></div>
+                      <small class="text-muted">Recherche en cours…</small>
                     </div>
+                  </div>
+
+                  <div id="mon-result-bruxelles" class="d-none mb-2 p-2 rounded-3">
+                    <div class="d-flex align-items-start gap-2">
+                      <i id="mon-result-icon" class="bi fs-5 mt-1"></i>
+                      <div>
+                        <p id="mon-result-title" class="fw-bold mb-1 small"></p>
+                        <p id="mon-result-detail" class="mb-0 small text-muted"></p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <a href="https://monument.heritage.brussels/fr/recherche/" target="_blank" rel="noopener"
+                     class="btn btn-outline-success btn-sm w-100 rounded-3 mt-1">
+                    <i class="bi bi-box-arrow-up-right me-1"></i>Consulter la carte officielle
+                  </a>
+                </div>
+
+                <!-- Éléments petit patrimoine (affiché si la case est cochée) -->
+                <div id="elements-petit-patrimoine-section"
+                     class="mt-3 p-3 border rounded-3"
+                     style="background: #f8f9fa; border-color: #6c757d !important; <%= property&.petit_patrimoine? ? '' : 'display:none;' %>">
+                  <p class="small fw-semibold mb-2">
+                    <i class="bi bi-list-check me-1 text-secondary"></i>Sélectionnez les éléments concernés :
+                  </p>
+                  <div class="row g-2">
+                    <% {
+                      "Décor de façade" => [["Sgraffites", "sgraffites"], ["Carreaux de céramique", "ceramique"], ["Panneaux de mosaïques", "mosaiques"], ["Vitraux", "vitraux"], ["Corniches ornementales", "corniches"]],
+                      "Ferronneries" => [["Balustrades", "balustrades"], ["Balcons", "balcons"], ["Grilles", "grilles"], ["Portails", "portails"], ["Jardinières métalliques", "jardinieres"]],
+                      "Serrurerie & Menuiserie" => [["Boîtes aux lettres", "boites_lettres"], ["Sonnettes", "sonnettes"], ["Portes", "portes"], ["Châssis", "chassis"], ["Bow-windows", "bow_windows"]],
+                      "Extérieurs" => [["Clôtures", "clotures"], ["Jardinets en bordure de rue", "jardinets"]]
+                    }.each do |groupe, elements| %>
+                      <div class="col-12">
+                        <p class="text-muted small mb-1 fw-medium"><%= groupe %></p>
+                        <div class="d-flex flex-wrap gap-2">
+                          <% elements.each do |label, val| %>
+                            <div class="form-check form-check-inline">
+                              <input type="checkbox"
+                                     class="form-check-input"
+                                     name="property[elements_petit_patrimoine][]"
+                                     value="<%= val %>"
+                                     id="elem_<%= val %>"
+                                     <%= property&.elements_petit_patrimoine&.include?(val) ? 'checked' : '' %>>
+                              <label class="form-check-label small" for="elem_<%= val %>"><%= label %></label>
+                            </div>
+                          <% end %>
+                        </div>
+                      </div>
+                    <% end %>
                   </div>
                 </div>
               </div>
@@ -622,7 +631,99 @@
           </div>
         </div>
       </div>
-    </div>
+
+    <script>
+      function initFormBruxelles() {
+        var cbClasse = document.getElementById('bien_classe_checkbox');
+        var sectionClasse = document.getElementById('bien-classe-section');
+        if (cbClasse && sectionClasse) {
+          cbClasse.addEventListener('change', function() {
+            sectionClasse.style.display = this.checked ? '' : 'none';
+          });
+        }
+
+        var cb = document.getElementById('petit_patrimoine_checkbox');
+        var section = document.getElementById('elements-petit-patrimoine-section');
+        if (cb && section) {
+          cb.addEventListener('change', function() {
+            section.style.display = this.checked ? '' : 'none';
+          });
+        }
+
+        // Vérification patrimoniale Monuments & Sites
+        var btnVerif = document.getElementById('btn-verif-monuments-bruxelles');
+        if (btnVerif) {
+          btnVerif.addEventListener('click', function() {
+            var rue     = (document.getElementById('property_rue')?.value || '').trim();
+            var num     = (document.getElementById('property_numero')?.value || '').trim();
+            var cp      = (document.getElementById('property_code_postal')?.value || '').trim();
+            var commune = (document.getElementById('property_commune')?.value || '').trim();
+
+            if (!rue || !cp) {
+              alert('Veuillez au minimum renseigner la rue et le code postal dans la section Adresse.');
+              return;
+            }
+
+            var loader  = document.getElementById('mon-loading-bruxelles');
+            var result  = document.getElementById('mon-result-bruxelles');
+            var icon    = document.getElementById('mon-result-icon');
+            var title   = document.getElementById('mon-result-title');
+            var detail  = document.getElementById('mon-result-detail');
+
+            loader.classList.remove('d-none');
+            result.classList.add('d-none');
+            btnVerif.disabled = true;
+
+            var query = encodeURIComponent([num, rue, cp, commune, 'Belgique'].filter(Boolean).join(' '));
+            fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&q=' + query, {
+              headers: { 'Accept-Language': 'fr', 'User-Agent': 'Ren0vate/1.0' }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(geo) {
+              if (!geo || !geo.length) throw new Error('Adresse introuvable. Vérifiez les champs.');
+              var lat = parseFloat(geo[0].lat);
+              var lon = parseFloat(geo[0].lon);
+              return fetch('/properties/check_heritage?lat=' + lat + '&lon=' + lon, {
+                headers: { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content }
+              }).then(function(r) { return r.json(); });
+            })
+            .then(function(data) {
+              loader.classList.add('d-none');
+              btnVerif.disabled = false;
+              result.classList.remove('d-none');
+              if (data.features && data.features.length > 0) {
+                var f = data.features[0].attributes;
+                icon.className = 'bi bi-shield-fill-check fs-5 mt-1 text-success';
+                result.style.background = '#d4edda';
+                result.style.borderLeft = '4px solid #28a745';
+                title.textContent = 'Bien classé ou protégé';
+                detail.textContent = (f.DENOMINATION || 'Monument répertorié')
+                  + (f.DATE_ARRETE ? ' — Arrêté : ' + f.DATE_ARRETE : '')
+                  + (f.STATUT ? ' (' + f.STATUT + ')' : '');
+              } else {
+                icon.className = 'bi bi-shield-x fs-5 mt-1 text-secondary';
+                result.style.background = '#f8f9fa';
+                result.style.borderLeft = '4px solid #6c757d';
+                title.textContent = 'Non classé';
+                detail.textContent = 'Aucun bien classé ou protégé trouvé à cette adresse dans la base Brussels Heritage.';
+              }
+            })
+            .catch(function(err) {
+              loader.classList.add('d-none');
+              btnVerif.disabled = false;
+              result.classList.remove('d-none');
+              icon.className = 'bi bi-exclamation-triangle fs-5 mt-1 text-warning';
+              result.style.background = '#fff3cd';
+              result.style.borderLeft = '4px solid #ffc107';
+              title.textContent = 'Vérification impossible';
+              detail.textContent = err.message || 'Erreur réseau. Consultez la carte officielle.';
+            });
+          });
+        }
+      }
+      document.addEventListener('DOMContentLoaded', initFormBruxelles);
+      document.addEventListener('turbo:load', initFormBruxelles);
+    </script>
 
     <!-- Boutons d'action modernes -->
     <div class="row justify-content-center mb-3">
