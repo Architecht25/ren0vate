@@ -147,6 +147,16 @@
                   </div>
                 </div>
                 <% end %>
+                <% if @default_simulation&.region&.downcase == 'wallonie' %>
+                <div class="mt-3 rounded-2 p-2" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #86efac;">
+                  <p class="small fw-semibold text-success mb-2">
+                    <i class="bi bi-file-earmark-arrow-down me-1"></i>Annexe officielle Wallonie
+                  </p>
+                  <a href="https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/13-03-2025_pdf-annexe-1-toiture-primes-habitation_rochbb.pdf" target="_blank" class="btn btn-outline-success btn-sm w-100 text-start">
+                    <i class="bi bi-file-earmark-pdf me-2"></i>Annexe 1 — Toiture
+                  </a>
+                </div>
+                <% end %>
               </div>
             </div>
 
@@ -231,6 +241,16 @@
                   </p>
                   <a href="https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/v1758468016/Attest_Buitenmuurisolatie_ykbfil.pdf" target="_blank" class="btn btn-outline-primary btn-sm w-100 text-start">
                     <i class="bi bi-file-earmark-pdf me-2"></i>Buitenmuurisolatie
+                  </a>
+                </div>
+                <% end %>
+                <% if @default_simulation&.region&.downcase == 'wallonie' %>
+                <div class="mt-3 rounded-2 p-2" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #86efac;">
+                  <p class="small fw-semibold text-success mb-2">
+                    <i class="bi bi-file-earmark-arrow-down me-1"></i>Annexe officielle Wallonie
+                  </p>
+                  <a href="https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/13-03-2025_pdf-annexe-2-murs-primes-habitation_klxegb.pdf" target="_blank" class="btn btn-outline-success btn-sm w-100 text-start">
+                    <i class="bi bi-file-earmark-pdf me-2"></i>Annexe 2 — Murs
                   </a>
                 </div>
                 <% end %>
@@ -322,6 +342,16 @@
                   </a>
                 </div>
                 <% end %>
+                <% if @default_simulation&.region&.downcase == 'wallonie' %>
+                <div class="mt-3 rounded-2 p-2" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #86efac;">
+                  <p class="small fw-semibold text-success mb-2">
+                    <i class="bi bi-file-earmark-arrow-down me-1"></i>Annexe officielle Wallonie
+                  </p>
+                  <a href="https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/13-03-2025_pdf-annexe-3-sols-primes-habitation_rykpl2.pdf" target="_blank" class="btn btn-outline-success btn-sm w-100 text-start">
+                    <i class="bi bi-file-earmark-pdf me-2"></i>Annexe 3 — Sols
+                  </a>
+                </div>
+                <% end %>
               </div>
             </div>
           </div>
@@ -383,6 +413,16 @@
                       <i class="bi bi-file-earmark-pdf me-2"></i>Warmtepomp (niet-woning)
                     </a>
                   </div>
+                </div>
+                <% end %>
+                <% if @default_simulation&.region&.downcase == 'wallonie' %>
+                <div class="mt-3 rounded-2 p-2" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #86efac;">
+                  <p class="small fw-semibold text-success mb-2">
+                    <i class="bi bi-file-earmark-arrow-down me-1"></i>Annexe officielle Wallonie
+                  </p>
+                  <a href="https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/13-03-2025_pdf-annexe-6-installation-de-chauffage-et-ecs-primes-habitation_ylbxzh.pdf" target="_blank" class="btn btn-outline-success btn-sm w-100 text-start">
+                    <i class="bi bi-file-earmark-pdf me-2"></i>Annexe 6 — Chauffage &amp; ECS
+                  </a>
                 </div>
                 <% end %>
               </div>
@@ -454,6 +494,16 @@
                   </a>
                 </div>
                 <% end %>
+                <% if @default_simulation&.region&.downcase == 'wallonie' %>
+                <div class="mt-3 rounded-2 p-2" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #86efac;">
+                  <p class="small fw-semibold text-success mb-2">
+                    <i class="bi bi-file-earmark-arrow-down me-1"></i>Annexe officielle Wallonie
+                  </p>
+                  <a href="https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/13-03-2025_pdf-annexe-6-installation-de-chauffage-et-ecs-primes-habitation_ylbxzh.pdf" target="_blank" class="btn btn-outline-success btn-sm w-100 text-start">
+                    <i class="bi bi-file-earmark-pdf me-2"></i>Annexe 6 — Chauffage &amp; ECS
+                  </a>
+                </div>
+                <% end %>
               </div>
             </div>
           </div>
@@ -461,12 +511,150 @@
         </div>
       </div>
 
-      <!-- Section 3: Menuiseries -->
+      <!-- Section 3: Techniques -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-gear me-2"></i>
+            <h6 class="mb-0 fw-semibold">3. Techniques</h6>
+            <div class="ms-auto">
+              <span class="badge bg-white text-dark" id="techniques-status">
+                <% if technical_data.dig(:techniques).present? %>À compléter<% else %>Non renseigné<% end %>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+
+            <!-- Ventilation -->
+            <div class="col-md-6">
+              <div class="form-section">
+                <h6 class="fw-semibold mb-3"><i class="bi bi-wind me-1"></i> Ventilation</h6>
+                <div class="mb-2">
+                  <label class="form-label small">Type de système</label>
+                  <select class="form-select" name="ventilation_type">
+                    <option value="">Sélectionner...</option>
+                    <option value="vmc_simple_flux" <%= 'selected' if technical_data.dig(:techniques, :ventilation, :type) == 'vmc_simple_flux' %>>VMC Simple flux</option>
+                    <option value="vmc_double_flux" <%= 'selected' if technical_data.dig(:techniques, :ventilation, :type) == 'vmc_double_flux' %>>VMC Double flux</option>
+                    <option value="naturelle" <%= 'selected' if technical_data.dig(:techniques, :ventilation, :type) == 'naturelle' %>>Ventilation naturelle</option>
+                  </select>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label small">Débit (m³/h)</label>
+                  <input type="number" class="form-control" name="ventilation_debit"
+                         value="<%= technical_data.dig(:techniques, :ventilation, :debit) %>"
+                         placeholder="Ex: 300">
+                </div>
+                <div>
+                  <label class="form-label small">Rendement (%)</label>
+                  <input type="number" class="form-control" name="ventilation_rendement"
+                         value="<%= technical_data.dig(:techniques, :ventilation, :rendement) %>"
+                         placeholder="Ex: 85" max="100">
+                </div>
+                <% if @default_simulation&.region&.downcase == 'wallonie' %>
+                <div class="mt-3 rounded-2 p-2" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #86efac;">
+                  <p class="small fw-semibold text-success mb-2">
+                    <i class="bi bi-file-earmark-arrow-down me-1"></i>Annexe officielle Wallonie
+                  </p>
+                  <a href="https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/13-03-2025_pdf-annexe-7-ventilation-primes-habitation_oxxorf.pdf" target="_blank" class="btn btn-outline-success btn-sm w-100 text-start">
+                    <i class="bi bi-file-earmark-pdf me-2"></i>Annexe 7 — Ventilation
+                  </a>
+                </div>
+                <% end %>
+              </div>
+            </div>
+
+            <!-- Mise en conformité électricité & gaz -->
+            <div class="col-md-6">
+              <div class="form-section">
+                <h6 class="fw-semibold mb-3"><i class="bi bi-plug me-1"></i> Mise en conformité électricité &amp; gaz</h6>
+
+                <!-- Électricité -->
+                <div class="mb-3 pb-3 border-bottom">
+                  <p class="small fw-semibold mb-2 text-muted"><i class="bi bi-lightning-charge me-1"></i>Électricité</p>
+                  <div class="mb-2">
+                    <label class="form-label small">État du tableau électrique</label>
+                    <select class="form-select" name="conformite_elec_tableau">
+                      <option value="">Sélectionner...</option>
+                      <option value="conforme" <%= 'selected' if technical_data.dig(:techniques, :conformite, :elec, :tableau) == 'conforme' %>>Conforme</option>
+                      <option value="a_mettre_a_jour" <%= 'selected' if technical_data.dig(:techniques, :conformite, :elec, :tableau) == 'a_mettre_a_jour' %>>À mettre à jour</option>
+                      <option value="non_conforme" <%= 'selected' if technical_data.dig(:techniques, :conformite, :elec, :tableau) == 'non_conforme' %>>Non conforme</option>
+                    </select>
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label small">Présence différentiel 30mA</label>
+                    <select class="form-select" name="conformite_elec_differentiel">
+                      <option value="">Sélectionner...</option>
+                      <option value="oui" <%= 'selected' if technical_data.dig(:techniques, :conformite, :elec, :differentiel) == 'oui' %>>Oui</option>
+                      <option value="non" <%= 'selected' if technical_data.dig(:techniques, :conformite, :elec, :differentiel) == 'non' %>>Non</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="form-label small">Mise à la terre</label>
+                    <select class="form-select" name="conformite_elec_mise_a_terre">
+                      <option value="">Sélectionner...</option>
+                      <option value="oui" <%= 'selected' if technical_data.dig(:techniques, :conformite, :elec, :mise_a_terre) == 'oui' %>>Oui</option>
+                      <option value="non" <%= 'selected' if technical_data.dig(:techniques, :conformite, :elec, :mise_a_terre) == 'non' %>>Non</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Gaz -->
+                <div>
+                  <p class="small fw-semibold mb-2 text-muted"><i class="bi bi-fire me-1"></i>Gaz</p>
+                  <div class="mb-2">
+                    <label class="form-label small">Installation gaz présente</label>
+                    <select class="form-select" name="conformite_gaz_present">
+                      <option value="">Sélectionner...</option>
+                      <option value="oui" <%= 'selected' if technical_data.dig(:techniques, :conformite, :gaz, :present) == 'oui' %>>Oui</option>
+                      <option value="non" <%= 'selected' if technical_data.dig(:techniques, :conformite, :gaz, :present) == 'non' %>>Non</option>
+                    </select>
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label small">État de la chaudière</label>
+                    <select class="form-select" name="conformite_gaz_chaudiere">
+                      <option value="">Sélectionner...</option>
+                      <option value="conforme" <%= 'selected' if technical_data.dig(:techniques, :conformite, :gaz, :chaudiere) == 'conforme' %>>Conforme</option>
+                      <option value="a_verifier" <%= 'selected' if technical_data.dig(:techniques, :conformite, :gaz, :chaudiere) == 'a_verifier' %>>À vérifier</option>
+                      <option value="non_conforme" <%= 'selected' if technical_data.dig(:techniques, :conformite, :gaz, :chaudiere) == 'non_conforme' %>>Non conforme</option>
+                      <option value="sans_objet" <%= 'selected' if technical_data.dig(:techniques, :conformite, :gaz, :chaudiere) == 'sans_objet' %>>Sans objet</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="form-label small">Attestation de contrôle</label>
+                    <select class="form-select" name="conformite_gaz_attestation">
+                      <option value="">Sélectionner...</option>
+                      <option value="disponible" <%= 'selected' if technical_data.dig(:techniques, :conformite, :gaz, :attestation) == 'disponible' %>>Disponible</option>
+                      <option value="a_obtenir" <%= 'selected' if technical_data.dig(:techniques, :conformite, :gaz, :attestation) == 'a_obtenir' %>>À obtenir</option>
+                      <option value="non_applicable" <%= 'selected' if technical_data.dig(:techniques, :conformite, :gaz, :attestation) == 'non_applicable' %>>Non applicable</option>
+                    </select>
+                  </div>
+                </div>
+                <% if @default_simulation&.region&.downcase == 'wallonie' %>
+                <div class="mt-3 rounded-2 p-2" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #86efac;">
+                  <p class="small fw-semibold text-success mb-2">
+                    <i class="bi bi-file-earmark-arrow-down me-1"></i>Annexe officielle Wallonie
+                  </p>
+                  <a href="https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/13-03-2025_pdf-annexe-5-gaz-electricite-radon-merule-primes-habitation_imn92l.pdf" target="_blank" class="btn btn-outline-success btn-sm w-100 text-start">
+                    <i class="bi bi-file-earmark-pdf me-2"></i>Annexe 5 — Gaz, électricité, radon, mérule
+                  </a>
+                </div>
+                <% end %>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Menuiseries -->
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);">
           <div class="d-flex align-items-center">
             <i class="bi bi-window me-2"></i>
-            <h6 class="mb-0 fw-semibold">3. Menuiseries</h6>
+            <h6 class="mb-0 fw-semibold">4. Menuiseries</h6>
             <div class="ms-auto">
               <span class="badge bg-white text-dark" id="menuiseries-status">
                 <% if technical_data.dig(:menuiseries).present? %>À compléter<% else %>Non renseigné<% end %>
@@ -478,7 +666,7 @@
           <div class="row g-3">
 
             <!-- Fenêtres -->
-            <div class="col-md-4">
+            <div class="col-md-6">
               <div class="form-section">
                 <h6 class="fw-semibold mb-2"><i class="bi bi-window-dock me-1"></i> Fenêtres</h6>
                 <div class="mb-2">
@@ -515,11 +703,21 @@
                   </a>
                 </div>
                 <% end %>
+                <% if @default_simulation&.region&.downcase == 'wallonie' %>
+                <div class="mt-3 rounded-2 p-2" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #86efac;">
+                  <p class="small fw-semibold text-success mb-2">
+                    <i class="bi bi-file-earmark-arrow-down me-1"></i>Annexe officielle Wallonie
+                  </p>
+                  <a href="https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/13-03-2025_pdf-annexe-4-menuiseries-exterieures-primes-habitation_uymsbn.pdf" target="_blank" class="btn btn-outline-success btn-sm w-100 text-start">
+                    <i class="bi bi-file-earmark-pdf me-2"></i>Annexe 4 — Menuiseries extérieures
+                  </a>
+                </div>
+                <% end %>
               </div>
             </div>
 
             <!-- Portes -->
-            <div class="col-md-4">
+            <div class="col-md-6">
               <div class="form-section">
                 <h6 class="fw-semibold mb-2"><i class="bi bi-door-open me-1"></i> Portes</h6>
                 <div class="mb-2">
@@ -549,33 +747,6 @@
               </div>
             </div>
 
-            <!-- Ventilation -->
-            <div class="col-md-4">
-              <div class="form-section">
-                <h6 class="fw-semibold mb-2"><i class="bi bi-wind me-1"></i> Ventilation</h6>
-                <div class="mb-2">
-                  <label class="form-label small">Type de système</label>
-                  <select class="form-select" name="ventilation_type">
-                    <option value="">Sélectionner...</option>
-                    <option value="vmc_simple_flux" <%= 'selected' if technical_data.dig(:menuiseries, :ventilation, :type) == 'vmc_simple_flux' %>>VMC Simple flux</option>
-                    <option value="vmc_double_flux" <%= 'selected' if technical_data.dig(:menuiseries, :ventilation, :type) == 'vmc_double_flux' %>>VMC Double flux</option>
-                    <option value="naturelle" <%= 'selected' if technical_data.dig(:menuiseries, :ventilation, :type) == 'naturelle' %>>Ventilation naturelle</option>
-                  </select>
-                </div>
-                <div class="mb-2">
-                  <label class="form-label small">Débit (m³/h)</label>
-                  <input type="number" class="form-control" name="ventilation_debit"
-                         value="<%= technical_data.dig(:menuiseries, :ventilation, :debit) %>"
-                         placeholder="Ex: 300">
-                </div>
-                <div>
-                  <label class="form-label small">Rendement (%)</label>
-                  <input type="number" class="form-control" name="ventilation_rendement"
-                         value="<%= technical_data.dig(:menuiseries, :ventilation, :rendement) %>"
-                         placeholder="Ex: 85" max="100">
-                </div>
-              </div>
-            </div>
           </div>
 
         </div>
@@ -706,10 +877,15 @@ window.updateTechCompletionStatus = function() {
   const energieStatus = document.getElementById('energie-status');
   if (energieStatus) energieStatus.textContent = energieComplete ? 'En cours' : 'Non renseigné';
 
-  const menuiseriesFields = document.querySelectorAll('[name^="fenetres_"], [name^="portes_"], [name^="ventilation_"]');
+  const menuiseriesFields = document.querySelectorAll('[name^="fenetres_"], [name^="portes_"]');
   const menuiseriesComplete = Array.from(menuiseriesFields).some(f => f.value.trim() !== '');
   const menuiseriesStatus = document.getElementById('menuiseries-status');
   if (menuiseriesStatus) menuiseriesStatus.textContent = menuiseriesComplete ? 'En cours' : 'Non renseigné';
+
+  const techniquesFields = document.querySelectorAll('[name^="ventilation_"], [name^="conformite_elec_"], [name^="conformite_gaz_"]');
+  const techniquesComplete = Array.from(techniquesFields).some(f => f.value.trim() !== '');
+  const techniquesStatus = document.getElementById('techniques-status');
+  if (techniquesStatus) techniquesStatus.textContent = techniquesComplete ? 'En cours' : 'Non renseigné';
 };
 
 // ── Sauvegarde des données techniques ──
@@ -771,11 +947,25 @@ window.saveTechnicalPreparation = function(btn) {
         ud: document.querySelector('[name="portes_ud"]')?.value,
         type: document.querySelector('[name="portes_type"]')?.value,
         materiau: document.querySelector('[name="portes_materiau"]')?.value
-      },
+      }
+    },
+    techniques: {
       ventilation: {
         type: document.querySelector('[name="ventilation_type"]')?.value,
         debit: document.querySelector('[name="ventilation_debit"]')?.value,
         rendement: document.querySelector('[name="ventilation_rendement"]')?.value
+      },
+      conformite: {
+        elec: {
+          tableau: document.querySelector('[name="conformite_elec_tableau"]')?.value,
+          differentiel: document.querySelector('[name="conformite_elec_differentiel"]')?.value,
+          mise_a_terre: document.querySelector('[name="conformite_elec_mise_a_terre"]')?.value
+        },
+        gaz: {
+          present: document.querySelector('[name="conformite_gaz_present"]')?.value,
+          chaudiere: document.querySelector('[name="conformite_gaz_chaudiere"]')?.value,
+          attestation: document.querySelector('[name="conformite_gaz_attestation"]')?.value
+        }
       }
     }
   };
@@ -799,10 +989,12 @@ window.saveTechnicalPreparation = function(btn) {
       btn.className = 'btn btn-outline-success btn-lg px-5';
       const s1 = document.getElementById('isolation-status');
       const s2 = document.getElementById('energie-status');
-      const s3 = document.getElementById('menuiseries-status');
+      const s3 = document.getElementById('techniques-status');
+      const s4 = document.getElementById('menuiseries-status');
       if (s1) s1.textContent = 'Complété';
       if (s2) s2.textContent = 'Complété';
       if (s3) s3.textContent = 'Complété';
+      if (s4) s4.textContent = 'Complété';
     } else {
       btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Sauvegarder mes données techniques';
       alert('Erreur lors de la sauvegarde : ' + (data.error || 'inconnue'));

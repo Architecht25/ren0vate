@@ -223,4 +223,3 @@ namespace :factures do
     puts dry_run ? "\n  [DRY RUN] Relancez sans DRY_RUN=true pour appliquer." : "\n  ✅ Backfill terminé."
   end
 end
-
