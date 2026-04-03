@@ -105,8 +105,16 @@ class OcrController < ApplicationController
         type: @document.file.content_type
       )
 
-      ocr_service = OcrService.new(uploaded_file)
-      result = ocr_service.call
+      # Pour les factures, utiliser FactureOcrService pour extraire les données structurées
+      is_facture = @document.type_document == 'facture'
+
+      if is_facture
+        facture_service = FactureOcrService.new(uploaded_file)
+        result = facture_service.extraire_donnees_facture
+      else
+        ocr_service = OcrService.new(uploaded_file)
+        result = ocr_service.call
+      end
 
       if result[:success]
         # Mettre à jour les notes du document avec le résultat OCR
@@ -120,6 +128,61 @@ class OcrController < ApplicationController
         new_notes = [existing_notes.presence, ocr_notes].compact.join("\n\n")
         @document.update!(notes: new_notes)
 
+        # Pour les factures : créer ou mettre à jour l'enregistrement Facture
+        facture_result = nil
+        if is_facture && result[:donnees_facture] && @document.project_id
+          project = Project.find_by(id: @document.project_id)
+          if project
+            # Supprimer l'ancienne Facture si elle existe (rescanner = remplacer)
+            @document.facture&.destroy
+
+            donnees = result[:donnees_facture]
+            arch_nom = project.architecte_entreprise&.downcase&.strip
+            type_intervenant = if donnees[:nom_entreprise].present? && arch_nom.present? &&
+                                  donnees[:nom_entreprise].downcase.include?(arch_nom.split.first || '')
+                                 'architecte'
+                               else
+                                 'entrepreneur'
+                               end
+
+            facture = Facture.new(
+              document:              @document,
+              project:               project,
+              property:              @document.property || project.property,
+              montant:               donnees[:montant] || 0,
+              numero_facture:        donnees[:numero_facture],
+              date_facture:          donnees[:date_facture],
+              type_facture:          donnees[:type_facture] || 'facture',
+              statut_paiement:       'non_paye',
+              nom_entreprise:        donnees[:nom_entreprise],
+              numero_bce_entreprise: donnees[:numero_bce],
+              montant_ht:            donnees[:montant_ht],
+              montant_tva:           donnees[:montant_tva],
+              taux_tva:              donnees[:taux_tva],
+              confiance_ocr:         result[:confiance_extraction],
+              extraction_complete:   result[:extraction_complete],
+              texte_ocr_brut:        result[:texte_brut],
+              donnees_extraites:     donnees,
+              type_intervenant:      type_intervenant,
+              valide_manuellement:   false
+            )
+
+            if facture.save
+              facture_result = {
+                id: facture.id,
+                montant: facture.montant,
+                date_facture: facture.date_facture_display,
+                type_facture: facture.type_facture,
+                nom_entreprise: facture.nom_entreprise,
+                confiance_ocr: facture.confiance_ocr,
+                extraction_complete: facture.extraction_complete
+              }
+            else
+              Rails.logger.error "scan_existing: échec création Facture pour doc ##{@document.id}: #{facture.errors.full_messages.join(', ')}"
+            end
+          end
+        end
+
         render json: {
           success: true,
           document_id: @document.id,
@@ -127,7 +190,8 @@ class OcrController < ApplicationController
           confidence: result[:confidence],
           language: result[:language],
           processing_time: result[:processing_time],
-          method: result[:method]
+          method: result[:method],
+          facture: facture_result
         }
       else
         render json: { error: result[:error] }, status: :unprocessable_entity

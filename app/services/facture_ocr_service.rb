@@ -9,10 +9,18 @@ class FactureOcrService < OcrService
     /(\d{1,3}(?:\s*[.,\s]\s*\d{3})*(?:\s*[.,]\s*\d{2})?)\s*(?:€|EUR|euros?)/i
   ].freeze
 
+  MOIS_FR = {
+    'janvier' => 1, 'février' => 2, 'fevrier' => 2, 'mars' => 3, 'avril' => 4,
+    'mai' => 5, 'juin' => 6, 'juillet' => 7, 'août' => 8, 'aout' => 8,
+    'septembre' => 9, 'octobre' => 10, 'novembre' => 11, 'décembre' => 12, 'decembre' => 12
+  }.freeze
+
   DATE_PATTERNS = [
     /(?:date|facturé le|émise? le|du)\s*:?\s*([0-3]?[0-9][\/\-\.][0-1]?[0-9][\/\-\.](?:20)?[0-9]{2})/i,
     /([0-3]?[0-9][\/\-\.][0-1]?[0-9][\/\-\.](?:20)?[0-9]{2})/,
-    /(?:date de facturation|date d'émission)\s*:?\s*([0-3]?[0-9][\/\-\.][0-1]?[0-9][\/\-\.](?:20)?[0-9]{2})/i
+    /(?:date de facturation|date d'émission)\s*:?\s*([0-3]?[0-9][\/\-\.][0-1]?[0-9][\/\-\.](?:20)?[0-9]{2})/i,
+    # Date en toutes lettres : "le 3 avril 2025" ou "Bruxelles, le 3 avril 2025"
+    /(?:le\s+)?(\d{1,2})\s+(janvier|f[ée]vrier|mars|avril|mai|juin|juillet|ao[ûu]t|septembre|octobre|novembre|d[ée]cembre)\s+(20\d{2})/i
   ].freeze
 
   NUMERO_FACTURE_PATTERNS = [
@@ -102,13 +110,21 @@ class FactureOcrService < OcrService
     DATE_PATTERNS.each do |pattern|
       match = texte.match(pattern)
       if match
-        date_str = match[1]
         begin
-          # Essayer différents formats de date
-          date = Date.strptime(date_str, '%d/%m/%Y') rescue nil
-          date ||= Date.strptime(date_str, '%d-%m-%Y') rescue nil
-          date ||= Date.strptime(date_str, '%d.%m.%Y') rescue nil
-          date ||= Date.strptime(date_str, '%d/%m/%y') rescue nil
+          date = nil
+          if match.captures.length == 3
+            # Pattern date en toutes lettres : jour, mois, année
+            jour = match[1].to_i
+            mois = MOIS_FR[match[2].downcase]
+            annee = match[3].to_i
+            date = Date.new(annee, mois, jour) if mois
+          else
+            date_str = match[1]
+            date = Date.strptime(date_str, '%d/%m/%Y') rescue nil
+            date ||= Date.strptime(date_str, '%d-%m-%Y') rescue nil
+            date ||= Date.strptime(date_str, '%d.%m.%Y') rescue nil
+            date ||= Date.strptime(date_str, '%d/%m/%y') rescue nil
+          end
           return date if date && date > Date.new(2020) && date <= Date.current + 1.year
         rescue
           next

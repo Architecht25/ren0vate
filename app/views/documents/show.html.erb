@@ -242,9 +242,16 @@
       .then(data => {
         resultBox.classList.remove('d-none');
         if (data.success) {
+          let extraMsg = '';
+          if (data.facture) {
+            extraMsg = `<br><i class="bi bi-receipt me-1"></i><strong>Données extraites dans le suivi budgétaire</strong> — ` +
+              `${data.facture.nom_entreprise || ''}` +
+              (data.facture.montant ? ` · ${parseFloat(data.facture.montant).toLocaleString('fr-BE', {minimumFractionDigits:2})} €` : '') +
+              (data.facture.date_facture ? ` · ${data.facture.date_facture}` : '');
+          }
           resultText.className = 'alert alert-success p-2 mb-0 small';
           resultText.innerHTML = `<strong>OCR réussi</strong> — Confiance : ${data.confidence}% (${data.method})<br>
-            <em>Les notes du document ont été mises à jour.</em>`;
+            <em>Les notes du document ont été mises à jour.</em>${extraMsg}`;
           btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Scanné';
           btn.className = 'btn btn-success';
         } else {

@@ -240,6 +240,7 @@ class FactureValidationService
   end
 
   def determiner_status_delai(jours_restants)
+    return 'inconnu' if jours_restants.nil?
     return 'expire' if jours_restants < 0
     return 'critique' if jours_restants <= 30
     return 'attention' if jours_restants <= 90
@@ -257,6 +258,8 @@ class FactureValidationService
   end
 
   def actions_delai(jours_restants)
+    return ['Date de facture non renseignée — veuillez compléter la facture pour calculer le délai de prime'] if jours_restants.nil?
+
     if jours_restants < 0
       ['Vérifier si une demande a déjà été introduite', 'Contacter l\'administration pour une éventuelle régularisation']
     elsif jours_restants <= 15
