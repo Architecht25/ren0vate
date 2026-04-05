@@ -1,22 +1,71 @@
-<div class="text-center py-5">
-  <div class="mb-4" style="font-size: 4rem; color: #e3e3e3;">
-    <i class="bi bi-folder2-open"></i>
-  </div>
-  <h5 class="text-muted-custom mb-3">Aucun document</h5>
-  <p class="text-muted-custom mb-4">
-    <% if @selected_phase %>
-      Aucun document n'est associé à cette phase.
-    <% elsif @selected_document_type %>
-      Aucun document de ce type n'a été trouvé.
-    <% else %>
-      Vous n'avez pas encore ajouté de documents.
+<% if @selected_phase || @selected_document_type %>
+  <!-- Vide dans un contexte filtré -->
+  <div class="text-center py-5 text-muted">
+    <i class="bi bi-folder2-open fs-1 mb-3 d-block" style="opacity:0.25;"></i>
+    <h5 class="fw-normal mb-2">Aucun document ici</h5>
+    <p class="small mb-4">
+      <% if @selected_phase %>
+        Aucun document n'a encore été ajouté dans cette phase.
+      <% else %>
+        Aucun document de ce type n'a été trouvé.
+      <% end %>
+    </p>
+    <%= link_to new_document_path(
+          property_id: @property&.id,
+          project_id: @project&.id
+        ),
+        class: "btn btn-primary-custom px-4" do %>
+      <i class="bi bi-plus-lg me-2"></i>Ajouter un document
     <% end %>
-  </p>
-  <%= link_to new_document_path(
-        property_id: @property&.id,
-        project_id: @project&.id
-      ),
-      class: "btn btn-primary-custom px-4" do %>
-    <i class="bi bi-plus-lg me-2"></i>Ajouter votre premier document
-  <% end %>
-</div>
+  </div>
+<% else %>
+  <!-- Vide total : guide de démarrage -->
+  <div class="row justify-content-center py-4">
+    <div class="col-lg-8">
+      <div class="text-center mb-4">
+        <i class="bi bi-folder2-open fs-1 mb-3 d-block" style="color:#e2e8f0;"></i>
+        <h5 class="fw-normal mb-1">Aucun document pour l'instant</h5>
+        <p class="text-muted small">Commencez par les documents administratifs — ils sont requis pour toutes vos démarches.</p>
+      </div>
+      <div class="row g-3 mb-4">
+        <div class="col-md-3">
+          <div class="card border-0 text-center p-3" style="background:#eff6ff; border-radius:10px;">
+            <i class="bi bi-building fs-3 mb-2" style="color:#3b82f6;"></i>
+            <div class="fw-semibold small" style="color:#1e40af;">Docs Administratifs</div>
+            <div class="text-muted" style="font-size:0.75rem;">Acte notarial, PEB, permis…</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card border-0 text-center p-3" style="background:#f0fdf4; border-radius:10px;">
+            <i class="bi bi-tools fs-3 mb-2" style="color:#10b981;"></i>
+            <div class="fw-semibold small" style="color:#065f46;">Préparation chantier</div>
+            <div class="text-muted" style="font-size:0.75rem;">Devis, bordereau châssis…</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card border-0 text-center p-3" style="background:#fff7ed; border-radius:10px;">
+            <i class="bi bi-camera fs-3 mb-2" style="color:#f97316;"></i>
+            <div class="fw-semibold small" style="color:#9a3412;">Suivi de chantier</div>
+            <div class="text-muted" style="font-size:0.75rem;">Factures, photos, états…</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card border-0 text-center p-3" style="background:#f5f3ff; border-radius:10px;">
+            <i class="bi bi-patch-check fs-3 mb-2" style="color:#8b5cf6;"></i>
+            <div class="fw-semibold small" style="color:#5b21b6;">Réception chantier</div>
+            <div class="text-muted" style="font-size:0.75rem;">PEB après, certificats…</div>
+          </div>
+        </div>
+      </div>
+      <div class="text-center">
+        <%= link_to new_document_path(
+              property_id: @property&.id,
+              project_id: @project&.id
+            ),
+            class: "btn btn-primary-custom px-5" do %>
+          <i class="bi bi-plus-lg me-2"></i>Ajouter mon premier document
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

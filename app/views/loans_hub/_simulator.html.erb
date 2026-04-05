@@ -1,0 +1,236 @@
+<%# Shared loan simulator layout partial
+    Locals:
+      - title (string)
+      - subtitle (string)
+      - accent_color (CSS color string)
+      - back_path (route helper result)
+      - loan_type (symbol: :classic, :verbouwlening, :renopack, :ecoreno)
+      - min_amount (integer)
+      - max_amount (integer)
+      - default_amount (integer)
+      - max_duration (integer, years)
+      - default_duration (integer, years)
+      - fixed_rate (float or nil — nil means user sets it)
+      - categories (ActiveRecord collection or nil — for verbouwlening)
+      - info_url (string or nil)
+      - conditions (array of strings)
+      - disclaimer (string or nil)
+%>
+
+<div class="container-fluid px-4 py-4" data-controller="loan-simulator">
+
+  <!-- Header -->
+  <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+    <%= link_to back_path, class: "btn btn-outline-secondary btn-sm" do %>
+      <i class="bi bi-arrow-left"></i>
+    <% end %>
+    <div>
+      <h1 class="h3 mb-0 fw-normal" style="color:<%= accent_color %>;"><%= title %></h1>
+      <p class="text-muted small mb-0"><%= subtitle %></p>
+    </div>
+    <% if local_assigns[:info_url].present? %>
+      <a href="<%= info_url %>" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-sm ms-auto">
+        <i class="bi bi-box-arrow-up-right me-1"></i>Site officiel
+      </a>
+    <% end %>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- LEFT: Form -->
+    <div class="col-lg-5">
+
+      <!-- Conditions -->
+      <div class="card border-0 mb-4" style="background:#f8faff;border-radius:10px;">
+        <div class="card-body py-3 px-4">
+          <div class="fw-semibold small mb-2" style="color:<%= accent_color %>;">
+            <i class="bi bi-info-circle me-1"></i>Conditions clés
+          </div>
+          <ul class="list-unstyled small text-muted mb-0" style="line-height:1.9;">
+            <% conditions.each do |cond| %>
+              <li><i class="bi bi-check2 me-2" style="color:<%= accent_color %>;"></i><%= cond.html_safe %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Verbouwlening: income category selector -->
+      <% if loan_type == :verbouwlening && local_assigns[:categories].present? %>
+        <div class="mb-4">
+          <label class="form-label fw-semibold small">Votre catégorie de revenus</label>
+          <select class="form-select" data-loan-simulator-target="categorySelect" data-action="change->loan-simulator#updateCategory">
+            <% categories.each_with_index do |cat, i| %>
+              <%
+                rate = case cat.code
+                       when 'categorie_4' then 0.0
+                       when 'categorie_3' then 0.5
+                       when 'categorie_2' then 1.5
+                       else 1.5
+                       end
+                label = case cat.code
+                        when 'categorie_4' then "Catégorie 4 — isolé ≤ #{number_to_currency(cat.seuil_seul, unit:'€', precision:0, delimiter:'.')}"
+                        when 'categorie_3' then "Catégorie 3 — isolé ≤ #{number_to_currency(cat.seuil_seul, unit:'€', precision:0, delimiter:'.')}"
+                        when 'categorie_2' then "Catégorie 2 — isolé ≤ #{number_to_currency(cat.seuil_seul, unit:'€', precision:0, delimiter:'.')}"
+                        else cat.description
+                        end
+              %>
+              <option value="<%= cat.code %>" data-rate="<%= rate %>" <%= 'selected' if i == 0 %>>
+                <%= label %> → <%= sprintf('%.1f', rate) %>%
+              </option>
+            <% end %>
+          </select>
+          <div class="form-text">Catégorie 4 = revenus très faibles (0%), Catégorie 2 = revenus moyens (1,5%)</div>
+        </div>
+      <% end %>
+
+      <!-- Amount slider -->
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <label class="form-label fw-semibold small mb-0">Montant emprunté</label>
+          <span class="fw-bold" style="color:<%= accent_color %>;" data-loan-simulator-target="amountDisplay">
+            <%= number_to_currency(default_amount, unit:'€', precision:0, delimiter:'.') %>
+          </span>
+        </div>
+        <input type="range"
+               class="form-range"
+               min="<%= min_amount %>"
+               max="<%= max_amount %>"
+               step="<%= min_amount < 5000 ? 500 : 1000 %>"
+               value="<%= default_amount %>"
+               data-loan-simulator-target="amount"
+               data-action="input->loan-simulator#update">
+        <div class="d-flex justify-content-between text-muted" style="font-size:0.75rem;">
+          <span><%= number_to_currency(min_amount, unit:'€', precision:0, delimiter:'.') %></span>
+          <span><%= number_to_currency(max_amount, unit:'€', precision:0, delimiter:'.') %></span>
+        </div>
+      </div>
+
+      <!-- Duration slider -->
+      <div class="mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <label class="form-label fw-semibold small mb-0">Durée de remboursement</label>
+          <span class="fw-bold" style="color:<%= accent_color %>;" data-loan-simulator-target="durationDisplay">
+            <%= default_duration %> ans
+          </span>
+        </div>
+        <input type="range"
+               class="form-range"
+               min="1"
+               max="<%= max_duration %>"
+               step="1"
+               value="<%= default_duration %>"
+               data-loan-simulator-target="duration"
+               data-action="input->loan-simulator#update">
+        <div class="d-flex justify-content-between text-muted" style="font-size:0.75rem;">
+          <span>1 an</span>
+          <span><%= max_duration %> ans</span>
+        </div>
+      </div>
+
+      <!-- Rate input (classic only or verbouwlening display) -->
+      <% if loan_type == :classic %>
+        <div class="mb-4">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <label class="form-label fw-semibold small mb-0">Taux annuel</label>
+            <span class="fw-bold" style="color:<%= accent_color %>;" data-loan-simulator-target="rateDisplay">3,50%</span>
+          </div>
+          <input type="range"
+                 class="form-range"
+                 min="0.5"
+                 max="10"
+                 step="0.25"
+                 value="3.5"
+                 data-loan-simulator-target="rate"
+                 data-action="input->loan-simulator#update">
+          <div class="d-flex justify-content-between text-muted" style="font-size:0.75rem;">
+            <span>0,5%</span>
+            <span class="text-muted">Taux indicatif actuel : 3–5%</span>
+            <span>10%</span>
+          </div>
+        </div>
+      <% elsif loan_type == :verbouwlening %>
+        <!-- Hidden rate input driven by category -->
+        <input type="hidden"
+               value="0"
+               data-loan-simulator-target="rate">
+        <div class="alert border-0 py-2 px-3 small mb-4" style="background:#fffbeb;">
+          <i class="bi bi-lightbulb me-1 text-warning"></i>
+          Le taux est déterminé par votre catégorie de revenus. Taux 2026 basé sur le taux légal de 4,5%.
+        </div>
+      <% else %>
+        <!-- Fixed 0% rate hidden -->
+        <input type="hidden" value="0" data-loan-simulator-target="rate">
+        <div class="alert border-0 py-2 px-3 small mb-0" style="background:#f0fdf4;">
+          <i class="bi bi-patch-check-fill text-success me-1"></i>
+          <strong>Taux : 0%</strong> — Vous ne payez que le capital emprunté.
+        </div>
+      <% end %>
+
+    </div>
+
+    <!-- RIGHT: Results -->
+    <div class="col-lg-7">
+
+      <div data-loan-simulator-target="resultSection">
+
+        <!-- Summary cards -->
+        <div class="row g-3 mb-4">
+          <div class="col-4">
+            <div class="card border-0 text-center h-100" style="border-radius:10px;background:linear-gradient(135deg,<%= accent_color %>22,<%= accent_color %>11);">
+              <div class="card-body py-3">
+                <div class="small text-muted mb-1">Mensualité</div>
+                <div class="fs-4 fw-bold" style="color:<%= accent_color %>;" data-loan-simulator-target="monthlyPayment">—</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="card border-0 text-center h-100" style="border-radius:10px;background:#f8f9fa;">
+              <div class="card-body py-3">
+                <div class="small text-muted mb-1">Coût total</div>
+                <div class="fs-5 fw-bold text-dark" data-loan-simulator-target="totalCost">—</div>
+              </div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="card border-0 text-center h-100" style="border-radius:10px;background:#f8f9fa;">
+              <div class="card-body py-3">
+                <div class="small text-muted mb-1">Intérêts totaux</div>
+                <div class="fs-5 fw-bold <%= loan_type == :classic ? 'text-danger' : 'text-success' %>"
+                     data-loan-simulator-target="totalInterest">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Amortization table -->
+        <div class="card border-0" style="border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+          <div class="card-header bg-white border-bottom py-3">
+            <span class="fw-semibold small">Tableau d'amortissement (par année)</span>
+          </div>
+          <div class="table-responsive" style="max-height:400px;overflow-y:auto;">
+            <table class="table table-sm table-hover mb-0" style="font-size:0.85rem;">
+              <thead class="table-light sticky-top">
+                <tr>
+                  <th>Période</th>
+                  <th>Remboursé</th>
+                  <th>Capital</th>
+                  <th>Intérêts</th>
+                  <th>Solde restant</th>
+                </tr>
+              </thead>
+              <tbody data-loan-simulator-target="amortizationBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <% if local_assigns[:disclaimer].present? %>
+          <p class="text-muted mt-3 mb-0" style="font-size:0.78rem;">
+            <i class="bi bi-exclamation-circle me-1"></i><%= disclaimer %>
+          </p>
+        <% end %>
+
+      </div>
+
+    </div>
+  </div>
+</div>

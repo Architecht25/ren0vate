@@ -56,6 +56,7 @@ import ContextualBotController from "controllers/contextual_bot_controller"
 import AmianteController from "controllers/amiante_controller"
 import EntrepreneursManagementController from "controllers/entrepreneurs_management_controller"
 import RoiCalculatorController from "controllers/roi_calculator_controller"
+import LoanSimulatorController from "controllers/loan_simulator_controller"
 
 application.register("user_type", UserTypeController)
 application.register("test-eligibilite", TestEligibiliteController)
@@ -96,5 +97,6 @@ application.register("contextual-bot", ContextualBotController)
 application.register("amiante", AmianteController)
 application.register("entrepreneurs-management", EntrepreneursManagementController)
 application.register("roi-calculator", RoiCalculatorController)
+application.register("loan-simulator", LoanSimulatorController)
 
 export { application }

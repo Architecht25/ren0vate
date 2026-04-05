@@ -27,9 +27,6 @@
       <%= link_to properties_path, class: "btn btn-outline-primary-custom" do %>
         <i class="bi bi-arrow-left me-2"></i>Mes biens
       <% end %>
-      <%= link_to edit_property_path(@property), class: "btn btn-primary-custom px-4" do %>
-        <i class="bi bi-pencil me-2"></i>Modifier
-      <% end %>
       <%= link_to property_path(@property),
           class: "btn btn-outline-danger",
           data: {
@@ -119,10 +116,13 @@
       </div>
       <div class="d-flex flex-wrap gap-2 mt-3">
         <span class="badge text-bg-light">P1 Données: <%= details[:percentage] %>%</span>
-        <span class="badge text-bg-light">P2 Devis: <%= quotes.any? ? 'actif' : 'à initier' %></span>
-        <span class="badge text-bg-light">P3 Chantiers: <%= @property.projects.any? ? 'actif' : 'à initier' %></span>
-        <span class="badge text-bg-light">P4 Documents: <%= @property.documents.any? ? 'actif' : 'à initier' %></span>
-        <span class="badge text-bg-light">P5 Simulations: <%= @property.simulations.any? ? 'actif' : 'à initier' %></span>
+        <span class="badge text-bg-light">P2 Chantiers: <%= @property.projects.any? ? 'actif' : 'à initier' %></span>
+        <span class="badge text-bg-light">P3 Devis: <%= quotes.any? ? 'actif' : 'à initier' %></span>
+        <span class="badge text-bg-light">P4 Primes: <%= @property.simulations.any? || (@property.requests.any? rescue false) ? 'actif' : 'à initier' %></span>
+        <span class="badge text-bg-light">P5 Prêts: actif</span>
+        <span class="badge text-bg-light">P6 PEB: <%= @property.peb_donnees.any? ? 'actif' : 'à initier' %></span>
+        <span class="badge text-bg-light">P7 Documents: <%= @property.documents.any? ? 'actif' : 'à initier' %></span>
+        <% if @property.region == 'flandre' %><span class="badge text-bg-light">P8 Woningpas: actif</span><% end %>
       </div>
     </div>
   </div>
@@ -198,7 +198,7 @@
     </div>
 
     <!-- État des chantiers -->
-    <div class="col order-3">
+    <div class="col order-2">
       <div class="card border-0 shadow h-100 dashboard-module">
         <div class="card-body p-4 d-flex flex-column">
           <div class="d-flex align-items-center mb-3">
@@ -206,48 +206,128 @@
               <i class="bi bi-hammer"></i>
             </div>
             <div>
-              <h5 class="card-title mb-0 fw-normal">État des chantiers <span class="badge text-bg-primary ms-1">P3</span></h5>
+              <h5 class="card-title mb-0 fw-normal">État des chantiers <span class="badge text-bg-primary ms-1">P2</span></h5>
               <small class="text-muted-custom">Projets en cours et planifiés</small>
             </div>
           </div>
 
           <% if @property.projects.any? %>
-            <!-- Indicateurs de suivi des chantiers -->
-            <div class="row g-3 mb-3">
-              <div class="col-4">
-                <div class="info-item text-center">
-                  <small class="text-muted-custom">Total</small>
-                  <div class="fw-medium h4 text-primary-custom mb-0"><%= @property.projects.count %></div>
+            <%
+              active_project = @property.projects.find_by(statut: ['en_cours', 'commencé']) ||
+                               @property.projects.order(created_at: :desc).first
+              other_count = @property.projects.count - 1
+
+              # Recommandations PEB de la propriété
+              peb_recs_count = @property.peb_donnees.sum { |p|
+                recs = p.donnees_extraites['recommandations'] || []
+                recs.is_a?(Array) ? recs.count { |r| r.is_a?(Hash) ? r['has_recommandation'] : true } : 0
+              }
+
+              # Montant primes simulées (simulations du projet ou de la propriété)
+              prime_sims = active_project.simulations.any? ? active_project.simulations : @property.simulations
+              montant_primes = prime_sims.sum { |s| s.respond_to?(:montant_total) ? s.montant_total.to_f : 0 }
+
+              # Nombre d'entrepreneurs
+              nb_entrepreneurs = active_project.entrepreneur_principal_entreprise.present? ? 1 : 0
+              begin
+                extras = active_project.additional_entrepreneurs.present? ?
+                  JSON.parse(active_project.additional_entrepreneurs) : []
+                nb_entrepreneurs += extras.count
+              rescue
+              end
+
+              # Indicateurs préparation
+              prep_items = [
+                { label: 'Date début',      ok: active_project.date_début.present? },
+                { label: 'Devis',           ok: active_project.contractor_devis_montant.present? },
+                { label: 'Montant primes',  ok: prime_sims.any? },
+                { label: "Entrepreneur#{'s' if nb_entrepreneurs > 1} (#{nb_entrepreneurs})", ok: nb_entrepreneurs > 0 },
+                { label: 'Architecte',      ok: active_project.architecte_nom.present? },
+                { label: "Reco PEB (#{peb_recs_count})", ok: peb_recs_count > 0 },
+                { label: 'Permis',          ok: active_project.permis_urbanisme_number.present? }
+              ]
+              prep_done = prep_items.count { |i| i[:ok] }
+
+              # Indicateur suivi : factures vs corps de métiers
+              nb_corps = active_project.corps_metiers_list.count
+              nb_factures = active_project.factures_travaux.count
+              suivi_pct = nb_corps > 0 ? [((nb_factures.to_f / nb_corps) * 100).round, 100].min :
+                          (active_project.statut.in?(['en_cours', 'commencé']) ? 10 : 0)
+              suivi_color = suivi_pct >= 80 ? '#10b981' : suivi_pct >= 40 ? '#f59e0b' : '#ef4444'
+
+              # Indicateur clôture : documents requis uploadés
+              required_phases = DocumentPhase.where(category: 'chantier')
+              proj_docs = active_project.documents.to_a
+              total_required = required_phases.sum { |ph| ph.required_document_types.count }
+              present_required = required_phases.sum { |ph|
+                proj_docs.count { |d| ph.required_document_types.include?(d.type_document) }
+              }
+            %>
+
+            <!-- Projet actif -->
+            <div class="mb-3 pb-2 border-bottom">
+              <div class="d-flex align-items-center justify-content-between">
+                <div class="fw-medium text-dark text-truncate" style="max-width:70%;">
+                  <%= active_project.nom || "Projet sans nom" %>
                 </div>
+                <span class="badge bg-<%= active_project.statut.in?(['en_cours', 'commencé']) ? 'warning' : active_project.statut.in?(['termine', 'fini', 'completed']) ? 'success' : 'secondary' %> rounded-pill">
+                  <%= active_project.statut&.humanize || 'À planifier' %>
+                </span>
               </div>
-              <div class="col-4">
-                <div class="info-item text-center">
-                  <small class="text-muted-custom">En cours</small>
-                  <div class="fw-medium h4 text-warning mb-0"><%= @property.projects.where(statut: ['en_cours', 'commencé']).count %></div>
-                </div>
+              <% if other_count > 0 %>
+                <small class="text-muted-custom">+ <%= other_count %> autre<%= 's' if other_count > 1 %></small>
+              <% end %>
+            </div>
+
+            <!-- Préparation -->
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <small class="text-dark fw-medium">Préparation</small>
+                <span class="badge bg-<%= prep_done == prep_items.count ? 'success' : prep_done >= prep_items.count / 2 ? 'warning' : 'danger' %> fw-normal">
+                  <%= prep_done %>/<%= prep_items.count %>
+                </span>
               </div>
-              <div class="col-4">
-                <div class="info-item text-center">
-                  <small class="text-muted-custom">Terminés</small>
-                  <div class="fw-medium h4 text-success mb-0"><%= @property.projects.where(statut: ['termine', 'fini', 'completed']).count %></div>
-                </div>
+              <div class="progress mb-2" style="height: 4px;">
+                <div class="progress-bar bg-<%= prep_done == prep_items.count ? 'success' : prep_done >= prep_items.count / 2 ? 'warning' : 'danger' %>"
+                     style="width: <%= (prep_done.to_f / prep_items.count * 100).round %>%"></div>
+              </div>
+              <div class="d-flex flex-wrap gap-1 mt-1">
+                <% prep_items.each do |item| %>
+                  <span class="badge <%= item[:ok] ? 'bg-success-subtle text-success' : 'bg-light text-danger' %> border <%= item[:ok] ? 'border-success-subtle' : 'border-danger-subtle' %>" style="font-size: 0.7rem;">
+                    <i class="bi bi-<%= item[:ok] ? 'check' : 'x' %> me-1"></i><%= item[:label] %>
+                  </span>
+                <% end %>
               </div>
             </div>
 
-            <% @property.projects.limit(3).each do |project| %>
-              <div class="d-flex align-items-center py-2 border-bottom">
-                <i class="bi bi-hammer me-2 text-primary-custom"></i>
-                <div class="flex-grow-1">
-                  <div class="fw-medium"><%= project.nom || "Projet sans nom" %></div>
-                  <small class="text-muted-custom">
-                    Statut: <%= project.statut || "Non défini" %>
-                    <% if project.date_début %>
-                      | Début: <%= project.date_début.strftime("%d/%m/%Y") %>
-                    <% end %>
-                  </small>
-                </div>
+            <!-- Suivi -->
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <small class="text-dark fw-medium">Suivi chantier</small>
+                <small class="fw-semibold" style="color:<%= suivi_color %>;"><%= suivi_pct %>%</small>
               </div>
-            <% end %>
+              <div class="progress" style="height: 8px; border-radius: 10px; background-color: #e5e7eb;">
+                <div class="progress-bar" style="width:<%= suivi_pct %>%; background-color:<%= suivi_color %>; border-radius:10px; transition: width 0.4s;"></div>
+              </div>
+              <small class="text-muted-custom mt-1 d-block">
+                <%= nb_factures %> facture<%= 's' if nb_factures != 1 %> · <%= nb_corps %> corp<%= 's' if nb_corps != 1 %> de métier
+              </small>
+            </div>
+
+            <!-- Clôture : documents -->
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <small class="text-dark fw-medium">Clôture chantier</small>
+                <span class="badge bg-<%= present_required == total_required ? 'success' : present_required > 0 ? 'warning' : 'danger' %> fw-normal">
+                  <%= present_required %> / <%= total_required %> docs requis
+                </span>
+              </div>
+              <div class="progress" style="height: 4px;">
+                <div class="progress-bar bg-<%= present_required == total_required ? 'success' : present_required > 0 ? 'warning' : 'danger' %>"
+                     style="width: <%= total_required > 0 ? [[present_required.to_f / total_required * 100, 100].min, 0].max.round : 0 %>%"></div>
+              </div>
+            </div>
+
           <% else %>
             <div class="text-center py-4 text-muted-custom">
               <i class="bi bi-hammer fs-3 mb-2 d-block"></i>
@@ -273,79 +353,121 @@
       </div>
     </div>
 
-    <!-- État des analyses & simulations -->
-    <div class="col order-5">
+    <!-- Primes Hub -->
+    <%
+      prop_simulations       = @property.simulations.order(created_at: :desc)
+      prop_simulations_count = prop_simulations.count
+      prop_eligible_count    = prop_simulations.where(eligible: true).count
+      prop_montant_simule    = prop_simulations.sum { |s| s.total_simule.to_f }
+
+      prop_requests          = @property.requests.order(created_at: :desc) rescue []
+      prop_requests_count    = prop_requests.count
+      prop_progresses        = RequestProgress.joins(:request)
+                                 .where(requests: { property_id: @property.id }) rescue []
+      prop_accordees_count   = prop_progresses.where(status_administratif: ['approved', 'accepte', 'accorde']).count
+      prop_montant_accorde   = prop_progresses.sum { |p| p.montant_accorde.to_f }
+
+      # Étapes du parcours primes (pour la barre de progression)
+      prime_steps = [
+        { label: 'Simulation',  done: prop_simulations_count > 0, count: prop_simulations_count },
+        { label: 'Éligibilité', done: prop_eligible_count > 0,    count: prop_eligible_count },
+        { label: 'Demande',     done: prop_requests_count > 0,    count: prop_requests_count },
+        { label: 'Accordée',    done: prop_accordees_count > 0,   count: prop_accordees_count }
+      ]
+      prime_steps_done = prime_steps.count { |s| s[:done] }
+      prime_pct = (prime_steps_done.to_f / prime_steps.count * 100).round
+      prime_bar_color = prime_steps_done == prime_steps.count ? '#10b981' : prime_steps_done >= 2 ? '#f59e0b' : '#ef4444'
+    %>
+    <div class="col order-4">
       <div class="card border-0 shadow h-100 dashboard-module">
         <div class="card-body p-4 d-flex flex-column">
           <div class="d-flex align-items-center mb-3">
             <div class="icon-circle me-3">
-              <i class="bi bi-graph-up"></i>
+              <i class="bi bi-award"></i>
             </div>
             <div>
-              <h5 class="card-title mb-0 fw-normal">Analyses & Simulations <span class="badge text-bg-primary ms-1">P5</span></h5>
-              <small class="text-muted-custom">Évaluations et éligibilité primes</small>
+              <h5 class="card-title mb-0 fw-normal">Mes primes <span class="badge text-bg-primary ms-1">P4</span></h5>
+              <small class="text-muted-custom">Simulation, demande et suivi</small>
             </div>
           </div>
 
-          <!-- Éligibilité primes -->
+          <!-- Parcours primes : 4 étapes -->
           <div class="mb-3">
-            <% if @property.simulations.any? %>
-              <p class="text-success mb-2">
-                <i class="bi bi-check-circle-fill me-2"></i>
-                <strong><%= pluralize(@property.simulations.count, 'simulation') %> réalisée(s)</strong>
-              </p>
-              <small class="text-muted">Éligibilité aux primes confirmée</small>
-            <% else %>
-              <p class="text-warning mb-2">
-                <i class="bi bi-exclamation-triangle me-2"></i>
-                <strong>Aucune simulation réalisée</strong>
-              </p>
-              <small class="text-muted">Calculez vos primes potentielles</small>
-            <% end %>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <small class="text-dark fw-medium">Parcours primes</small>
+              <span class="badge bg-<%= prime_steps_done == prime_steps.count ? 'success' : prime_steps_done >= 2 ? 'warning' : 'danger' %> fw-normal">
+                <%= prime_steps_done %>/<%= prime_steps.count %> étapes
+              </span>
+            </div>
+            <div class="progress mb-2" style="height: 8px; border-radius:10px; background-color:#e5e7eb;">
+              <div class="progress-bar" style="width:<%= prime_pct %>%; background-color:<%= prime_bar_color %>; border-radius:10px; transition:width 0.4s;"></div>
+            </div>
+            <div class="d-flex flex-wrap gap-1 mt-1">
+              <% prime_steps.each do |step| %>
+                <span class="badge <%= step[:done] ? 'bg-success-subtle text-success border border-success-subtle' : 'bg-light text-muted border' %>" style="font-size:0.7rem;">
+                  <i class="bi bi-<%= step[:done] ? 'check' : 'circle' %> me-1"></i><%= step[:label] %><%= " (#{step[:count]})" if step[:done] && step[:count] > 0 %>
+                </span>
+              <% end %>
+            </div>
           </div>
 
-          <% if @property.simulations.any? %>
-            <div class="row g-3 mb-3">
-              <div class="col-6">
-                <div class="info-item text-center">
-                  <small class="text-muted-custom">Simulations totales</small>
-                  <div class="fw-medium h4 text-primary-custom mb-0"><%= @property.simulations.count %></div>
+          <!-- Montants clés -->
+          <% if prop_simulations_count > 0 || prop_montant_accorde > 0 %>
+            <div class="row g-2 mb-3">
+              <% if prop_montant_simule > 0 %>
+                <div class="col-6">
+                  <div class="mb-2">
+                    <small class="text-muted-custom d-block">Potentiel simulé</small>
+                    <span class="fw-semibold text-primary-custom">
+                      <%= number_to_currency(prop_montant_simule, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <div class="col-6">
-                <div class="info-item text-center">
-                  <small class="text-muted-custom">Complètes</small>
-                  <div class="fw-medium h4 text-primary-custom mb-0"><%= @property.simulations.where.not(region: nil).count %></div>
+              <% end %>
+              <% if prop_montant_accorde > 0 %>
+                <div class="col-6">
+                  <div class="mb-2">
+                    <small class="text-muted-custom d-block">Montant accordé</small>
+                    <span class="fw-semibold text-success">
+                      <%= number_to_currency(prop_montant_accorde, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
+                    </span>
+                  </div>
                 </div>
+              <% end %>
+            </div>
+          <% end %>
+
+          <!-- Dernière simulation ou demande -->
+          <% if prop_simulations.any? %>
+            <% latest = prop_simulations.first %>
+            <div class="d-flex align-items-center py-2 border-bottom">
+              <i class="bi bi-calculator me-2 text-primary-custom"></i>
+              <div class="flex-grow-1">
+                <div class="fw-medium small"><%= latest.titre.presence || latest.region&.humanize || "Simulation" %></div>
+                <small class="text-muted-custom">
+                  <%= latest.region&.capitalize %>
+                  <% if latest.eligible? %> · <span class="text-success">Éligible</span><% end %>
+                  · <%= time_ago_in_words(latest.created_at) %>
+                </small>
               </div>
             </div>
-
-            <% @property.simulations.limit(2).each do |simulation| %>
-              <div class="d-flex align-items-center py-2 border-bottom">
-                <i class="bi bi-calculator me-2 text-primary-custom"></i>
-                <div class="flex-grow-1">
-                  <div class="fw-medium"><%= simulation.region&.humanize || "Simulation" %></div>
-                  <small class="text-muted-custom"><%= time_ago_in_words(simulation.created_at) %></small>
-                </div>
-              </div>
-            <% end %>
           <% else %>
-            <div class="text-center py-4 text-muted-custom">
-              <i class="bi bi-calculator fs-3 mb-2 d-block"></i>
-              <p class="mb-0">Aucune simulation</p>
+            <div class="text-center py-3 text-muted-custom">
+              <i class="bi bi-award fs-3 mb-2 d-block"></i>
+              <small>Aucune démarche prime — commencez par simuler</small>
             </div>
           <% end %>
 
           <div class="mt-auto pt-3 border-top">
             <div class="row g-2">
               <div class="col-6">
-                <%= link_to simulations_path(property_id: @property.id), class: "btn btn-outline-secondary btn-sm w-100" do %>
-                  <i class="bi bi-eye me-1"></i>Voir toutes
+                <%= link_to primes_hub_path, class: "btn btn-outline-secondary btn-sm w-100" do %>
+                  <i class="bi bi-eye me-1"></i>Voir tout
                 <% end %>
               </div>
               <div class="col-6">
                 <%= link_to new_simulation_path(property_id: @property.id), class: "btn btn-outline-primary-custom btn-sm w-100" do %>
-                  <i class="bi bi-plus-lg me-1"></i>Nouvelle
+                  <i class="bi bi-plus-lg me-1"></i>Simuler
                 <% end %>
               </div>
             </div>
@@ -354,7 +476,24 @@
       </div>
     </div>
     <!-- État des documents -->
-    <div class="col order-4">
+    <%
+      all_docs      = @property.documents.order(created_at: :desc)
+      docs_total    = all_docs.count
+      docs_approved = all_docs.where(status: 'approved').count
+      docs_pending  = all_docs.where(status: 'pending').count
+      docs_pct      = docs_total > 0 ? (docs_approved.to_f / docs_total * 100).round : 0
+      docs_bar_color = docs_pct == 100 ? '#10b981' : docs_pct >= 50 ? '#f59e0b' : '#ef4444'
+
+      doc_categories = {
+        'Chantier' => { icon: 'bi-hammer',           types: %w[facture etat_avancement attestation_entrepreneur attestation_conformite plan plan_diu dossier_prime] },
+        'Photos'   => { icon: 'bi-camera',           types: %w[photo photo_avant photo_pendant photo_apres photo_chassis] },
+        'PEB'      => { icon: 'bi-lightning-charge', types: %w[certificat_peb certificat_peb_avant certificat_peb_apres rapport_audit_energetique preuve_paiement_audit] },
+        'Admin'    => { icon: 'bi-folder2',          types: %w[acte_notarial compromis copie_carte_identite rib aer permis_urbanisme devis fiche_technique assurance_decennale assurance_rc_pro] }
+      }
+      cat_counts = doc_categories.transform_values { |v| all_docs.where(type_document: v[:types]).count }
+      latest_doc = all_docs.first
+    %>
+    <div class="col" style="order: 7;">
       <div class="card border-0 shadow h-100 dashboard-module">
         <div class="card-body p-4 d-flex flex-column">
           <div class="d-flex align-items-center mb-3">
@@ -362,45 +501,53 @@
               <i class="bi bi-file-earmark-text"></i>
             </div>
             <div>
-              <h5 class="card-title mb-0 fw-normal">État des documents <span class="badge text-bg-primary ms-1">P4</span></h5>
+              <h5 class="card-title mb-0 fw-normal">État des documents <span class="badge text-bg-primary ms-1">P7</span></h5>
               <small class="text-muted-custom">Gestion documentaire</small>
             </div>
           </div>
 
-          <% if @property.documents.any? %>
-            <div class="row g-3 mb-3">
-              <div class="col-4">
-                <div class="info-item text-center">
-                  <small class="text-muted-custom">Total</small>
-                  <div class="fw-medium h4 text-primary-custom mb-0"><%= @property.documents.count %></div>
-                </div>
+          <% if docs_total > 0 %>
+            <!-- Barre approuvés / total -->
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <small class="text-dark fw-medium">Documents approuvés</small>
+                <span class="badge bg-<%= docs_pct == 100 ? 'success' : docs_pct >= 50 ? 'warning text-dark' : 'danger' %> fw-normal">
+                  <%= docs_approved %>/<%= docs_total %>
+                </span>
               </div>
-              <div class="col-4">
-                <div class="info-item text-center">
-                  <small class="text-muted-custom">Approuvés</small>
-                  <div class="fw-medium h4 text-success mb-0"><%= @property.documents.where(status: 'approved').count rescue 0 %></div>
-                </div>
+              <div class="progress mb-2" style="height: 8px; border-radius:10px; background-color:#e5e7eb;">
+                <div class="progress-bar" style="width:<%= docs_pct %>%; background-color:<%= docs_bar_color %>; border-radius:10px; transition:width 0.4s;"></div>
               </div>
-              <div class="col-4">
-                <div class="info-item text-center">
-                  <small class="text-muted-custom">En attente</small>
-                  <div class="fw-medium h4 text-warning mb-0"><%= @property.documents.where(status: 'pending').count rescue 0 %></div>
-                </div>
-              </div>
+              <% if docs_pending > 0 %>
+                <small class="text-muted-custom"><i class="bi bi-hourglass-split me-1 text-warning"></i><%= docs_pending %> en attente de validation</small>
+              <% end %>
             </div>
 
-            <% @property.documents.limit(3).each do |document| %>
+            <!-- 4 catégories -->
+            <div class="d-flex flex-wrap gap-2 mb-3">
+              <% doc_categories.each do |label, cat| %>
+                <% count = cat_counts[label] %>
+                <span class="badge <%= count > 0 ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-light text-muted border' %>" style="font-size:0.72rem;">
+                  <i class="bi <%= cat[:icon] %> me-1"></i><%= label %> (<%= count %>)
+                </span>
+              <% end %>
+            </div>
+
+            <!-- Dernier document -->
+            <% if latest_doc %>
               <div class="d-flex align-items-center py-2 border-bottom">
-                <i class="bi bi-file-earmark-text me-2 text-primary-custom"></i>
+                <i class="bi bi-file-earmark me-2 text-primary-custom flex-shrink-0"></i>
                 <div class="flex-grow-1">
-                  <div class="fw-medium"><%= document.type_document&.humanize || "Document" %></div>
-                  <small class="text-muted-custom">
-                    <%= document.created_at.strftime("%d/%m/%Y") %>
-                    <% if document.respond_to?(:status) && document.status %>
-                      | <%= document.status.humanize %>
-                    <% end %>
-                  </small>
+                  <div class="fw-medium small"><%= latest_doc.type_document&.humanize || "Document" %></div>
+                  <small class="text-muted-custom"><%= latest_doc.created_at.strftime("%d/%m/%Y") %></small>
                 </div>
+                <% status_color = { 'approved' => 'success', 'pending' => 'warning', 'rejected' => 'danger' }[latest_doc.status] || 'secondary' %>
+                <% status_label = { 'approved' => 'Approuvé', 'pending' => 'En attente', 'rejected' => 'Refusé' }[latest_doc.status] %>
+                <% if status_label %>
+                  <span class="badge bg-<%= status_color %>-subtle text-<%= status_color %> border border-<%= status_color %>-subtle ms-2" style="font-size:0.65rem;">
+                    <%= status_label %>
+                  </span>
+                <% end %>
               </div>
             <% end %>
           <% else %>
@@ -429,7 +576,7 @@
     </div>
 
     <!-- Devis estimatifs -->
-    <div class="col order-2">
+    <div class="col order-3">
       <div class="card border-0 shadow h-100 dashboard-module">
         <div class="card-body p-4 d-flex flex-column">
           <div class="d-flex align-items-center mb-3">
@@ -437,49 +584,75 @@
               <i class="bi bi-calculator"></i>
             </div>
             <div>
-              <h5 class="card-title mb-0 fw-normal">Devis estimatifs <span class="badge text-bg-primary ms-1">P2</span></h5>
+              <h5 class="card-title mb-0 fw-normal">Devis estimatifs des travaux <span class="badge text-bg-primary ms-1">P3</span></h5>
               <small class="text-muted-custom">Estimations de coût par travaux</small>
             </div>
           </div>
+
           <% if quotes.any? %>
-            <div class="row g-3 mb-3">
-              <div class="col-6">
-                <div class="info-item text-center">
-                  <small class="text-muted-custom">Total</small>
-                  <div class="fw-medium h4 text-primary-custom mb-0"><%= quotes.count %></div>
-                </div>
+            <%
+              latest_quote = quotes.first
+              other_quotes_count = quotes.count - 1
+              status_color = { 'draft' => 'secondary', 'sent' => 'warning', 'accepted' => 'success' }[latest_quote.status] || 'secondary'
+              status_label = { 'draft' => 'Brouillon', 'sent' => 'Envoyé', 'accepted' => 'Accepté' }[latest_quote.status] || latest_quote.status.humanize
+              work_types = latest_quote.quote_items.map(&:work_type_key).uniq
+              all_min = quotes.sum { |q| q.total_min.to_f }
+              all_max = quotes.sum { |q| q.total_max.to_f }
+            %>
+
+            <!-- Devis actif en vedette -->
+            <div class="mb-3 pb-2 border-bottom">
+              <div class="d-flex align-items-center justify-content-between mb-1">
+                <small class="text-muted-custom">Devis le plus récent</small>
+                <span class="badge bg-<%= status_color %> rounded-pill"><%= status_label %></span>
               </div>
-              <div class="col-6">
-                <div class="info-item text-center">
-                  <small class="text-muted-custom">Dernier</small>
-                  <div class="fw-medium h4 text-primary-custom mb-0">
-                    <small class="fs-6"><%= quotes.first.created_at.strftime("%d/%m") %></small>
-                  </div>
-                </div>
+              <div class="fw-bold text-dark" style="font-size: 1.05rem;">
+                <%= number_to_currency(latest_quote.total_min, unit: '', separator: ',', delimiter: '.', precision: 0) %> –
+                <%= number_to_currency(latest_quote.total_max, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
               </div>
+              <small class="text-muted-custom">
+                <%= latest_quote.quote_items.count %> poste<%= 's' if latest_quote.quote_items.count > 1 %> ·
+                <%= latest_quote.duration_min_days %>–<%= latest_quote.duration_max_days %> jours ·
+                <%= latest_quote.created_at.strftime("%d/%m/%Y") %>
+              </small>
             </div>
 
-            <% quotes.limit(3).each do |quote| %>
-              <div class="d-flex align-items-center py-2 border-bottom">
-                <i class="bi bi-file-earmark-text me-2 text-primary-custom"></i>
-                <div class="flex-grow-1">
-                  <div class="fw-medium">
-                    <%= number_to_currency(quote.total_min, unit: '', separator: ',', delimiter: '.', precision: 0) %> –
-                    <%= number_to_currency(quote.total_max, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
-                  </div>
-                  <small class="text-muted-custom">
-                    <%= quote.quote_items.count %> travaux · <%= quote.duration_min_days %>–<%= quote.duration_max_days %>j
-                  </small>
+            <!-- Types de travaux -->
+            <% if work_types.any? %>
+              <div class="mb-3">
+                <small class="text-dark fw-medium d-block mb-2">Types de travaux</small>
+                <div class="d-flex flex-wrap gap-1">
+                  <% work_types.first(5).each do |wk| %>
+                    <span class="badge bg-light text-dark border" style="font-size:0.7rem;">
+                      <i class="bi bi-tools me-1"></i><%= wk.humanize %>
+                    </span>
+                  <% end %>
+                  <% if work_types.count > 5 %>
+                    <span class="badge bg-light text-muted border" style="font-size:0.7rem;">+<%= work_types.count - 5 %></span>
+                  <% end %>
                 </div>
-                <%= link_to property_quote_path(@property, quote), class: "btn btn-outline-secondary btn-sm" do %>
-                  <i class="bi bi-eye"></i>
-                <% end %>
               </div>
             <% end %>
+
+            <!-- Synthèse si plusieurs devis -->
+            <% if other_quotes_count > 0 %>
+              <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <small class="text-dark fw-medium">Enveloppe globale (<%= quotes.count %> devis)</small>
+                </div>
+                <div class="fw-medium text-primary-custom">
+                  <%= number_to_currency(all_min, unit: '', separator: ',', delimiter: '.', precision: 0) %> –
+                  <%= number_to_currency(all_max, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
+                </div>
+                <small class="text-muted-custom">+ <%= other_quotes_count %> autre<%= 's' if other_quotes_count > 1 %> devis</small>
+              </div>
+            <% end %>
+
           <% else %>
             <div class="text-center py-4 text-muted-custom">
               <i class="bi bi-calculator fs-3 mb-2 d-block"></i>
-              <p class="mb-0">Aucun devis</p>
+              <p class="mb-2">Aucun devis estimatif</p>
+              <small>Estimez le coût de vos travaux de rénovation</small>
             </div>
           <% end %>
 
@@ -501,156 +674,70 @@
       </div>
     </div>
 
-    <!-- Suivi des formulaires -->
-    <div class="col order-last">
+    <!-- Loans Hub -->
+    <%
+      regional_loan = case @property.region&.downcase
+                      when 'flandre'   then { label: 'Verbouwlening', sub: 'Flandre · Taux 0%', icon: 'bi-house-heart', path: loans_hub_verbouwlening_path }
+                      when 'wallonie'  then { label: 'Écopack',       sub: 'Wallonie · Taux 0%', icon: 'bi-building',   path: loans_hub_renopack_path }
+                      when 'bruxelles' then { label: 'EcoReno',       sub: 'Bruxelles · Taux 0%', icon: 'bi-geo-alt',   path: loans_hub_ecoreno_path }
+                      else                  nil
+                      end
+    %>
+    <div class="col order-5">
       <div class="card border-0 shadow h-100 dashboard-module">
         <div class="card-body p-4 d-flex flex-column">
           <div class="d-flex align-items-center mb-3">
             <div class="icon-circle me-3">
-              <i class="bi bi-card-checklist"></i>
+              <i class="bi bi-bank"></i>
             </div>
             <div>
-              <h5 class="card-title mb-0 fw-normal">Suivi des formulaires</h5>
-              <small class="text-muted-custom">Formulaires relatifs à ce bien</small>
+              <h5 class="card-title mb-0 fw-normal">Mes prêts <span class="badge text-bg-primary ms-1">P5</span></h5>
+              <small class="text-muted-custom">Crédit classique &amp; prêt à taux 0 régional</small>
             </div>
           </div>
 
-          <% if @property.requests&.any? %>
-            <!-- Indicateurs de suivi des formulaires -->
-            <div class="row g-3 mb-3">
-              <div class="col-4">
-                <div class="info-item text-center">
-                  <small class="text-muted-custom">Total</small>
-                  <div class="fw-medium h4 text-primary-custom mb-0"><%= @property.requests.count %></div>
-                </div>
-              </div>
-              <div class="col-4">
-                <div class="info-item text-center">
-                  <small class="text-muted-custom">Complétés</small>
-                  <div class="fw-medium h4 text-success mb-0"><%= @property.requests.where(status: ['complete', 'completed', 'fini']).count %></div>
-                </div>
-              </div>
-              <div class="col-4">
-                <div class="info-item text-center">
-                  <small class="text-muted-custom">En cours</small>
-                  <div class="fw-medium h4 text-warning mb-0"><%= @property.requests.where(status: ['draft', 'en_cours', 'brouillon', nil]).count %></div>
-                </div>
-              </div>
+          <!-- Crédit classique rénovation -->
+          <div class="d-flex align-items-center py-3 border-bottom">
+            <div class="icon-circle me-3" style="width:36px;height:36px;font-size:0.9rem;">
+              <i class="bi bi-credit-card"></i>
             </div>
-
-            <% @property.requests.limit(3).each do |request| %>
-              <div class="d-flex align-items-center py-2 border-bottom">
-                <i class="bi bi-card-checklist me-2 text-primary-custom"></i>
-                <div class="flex-grow-1">
-                  <div class="fw-medium"><%= request.form_type&.humanize || request.type_travaux&.humanize || "Formulaire" %></div>
-                  <small class="text-muted-custom">
-                    <%= time_ago_in_words(request.created_at) %>
-                    <% if request.status %>
-                      | <span class="badge bg-<%= request.status == 'complete' ? 'success' : request.status == 'draft' ? 'secondary' : request.status == 'en_cours' ? 'warning' : 'primary' %>">
-                        <%= request.status.humanize %>
-                      </span>
-                    <% end %>
-                  </small>
-                </div>
-              </div>
+            <div class="flex-grow-1">
+              <div class="fw-medium">Crédit classique rénovation</div>
+              <small class="text-muted-custom">Toutes régions · Taux du marché</small>
+            </div>
+            <%= link_to loans_hub_credit_classique_path, class: "btn btn-outline-secondary btn-sm ms-2" do %>
+              <i class="bi bi-calculator"></i>
             <% end %>
-          <% else %>
-            <div class="text-center py-4 text-muted-custom">
-              <i class="bi bi-card-text fs-3 mb-2 d-block"></i>
-              <p class="mb-0">Aucun formulaire</p>
-            </div>
-          <% end %>
-
-          <div class="mt-auto pt-3 border-top">
-            <div class="row g-2">
-              <div class="col-6">
-                <%= link_to requests_path(property_id: @property.id, type: "formulaires"), class: "btn btn-outline-secondary btn-sm w-100" do %>
-                  <i class="bi bi-eye me-1"></i>Voir tous
-                <% end %>
-              </div>
-              <div class="col-6">
-                <%= link_to new_request_path(property_id: @property.id), class: "btn btn-outline-primary-custom btn-sm w-100" do %>
-                  <i class="bi bi-plus-lg me-1"></i>Nouveau
-                <% end %>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Suivi des demandes -->
-    <div class="col order-last">
-      <div class="card border-0 shadow h-100 dashboard-module">
-        <div class="card-body p-4 d-flex flex-column">
-          <div class="d-flex align-items-center mb-3">
-            <div class="icon-circle me-3">
-              <i class="bi bi-clipboard-check"></i>
-            </div>
-            <div>
-              <h5 class="card-title mb-0 fw-normal">Suivi des primes</h5>
-              <small class="text-muted-custom">Avancement des dossiers de primes</small>
-            </div>
           </div>
 
-          <% if @property.requests.joins(:request_progresses).any? %>
-            <!-- Indicateurs de suivi des primes -->
-            <div class="row g-3 mb-3">
-              <div class="col-4">
-                <div class="info-item text-center">
-                  <small class="text-muted-custom">Total</small>
-                  <div class="fw-medium h4 text-primary-custom mb-0"><%= @property.requests.joins(:request_progresses).count %></div>
-                </div>
+          <!-- Prêt à taux 0 régional -->
+          <% if regional_loan %>
+            <div class="d-flex align-items-center py-3 border-bottom">
+              <div class="icon-circle me-3" style="width:36px;height:36px;font-size:0.9rem;">
+                <i class="bi <%= regional_loan[:icon] %>"></i>
               </div>
-              <div class="col-4">
-                <div class="info-item text-center">
-                  <small class="text-muted-custom">Approuvées</small>
-                  <div class="fw-medium h4 text-success mb-0"><%= @property.requests.joins(:request_progresses).where(request_progresses: { status_administratif: ['approved', 'accepte'] }).count %></div>
+              <div class="flex-grow-1">
+                <div class="fw-medium d-flex align-items-center gap-2">
+                  <%= regional_loan[:label] %>
+                  <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size:0.65rem;">0%</span>
                 </div>
+                <small class="text-muted-custom"><%= regional_loan[:sub] %></small>
               </div>
-              <div class="col-4">
-                <div class="info-item text-center">
-                  <small class="text-muted-custom">En cours</small>
-                  <div class="fw-medium h4 text-warning mb-0"><%= @property.requests.joins(:request_progresses).where(request_progresses: { status_administratif: ['en_cours', 'pending'] }).count %></div>
-                </div>
-              </div>
-            </div>
-
-            <% @property.requests.joins(:request_progresses).includes(:request_progresses).limit(3).each do |request| %>
-              <% request.request_progresses.limit(1).each do |progress| %>
-                <div class="d-flex align-items-center py-2 border-bottom">
-                  <i class="bi bi-award me-2 text-primary-custom"></i>
-                  <div class="flex-grow-1">
-                    <div class="fw-medium"><%= progress.form_type&.humanize || progress.prime&.titre || "Prime" %></div>
-                    <small class="text-muted-custom">
-                      <%= time_ago_in_words(progress.created_at) %>
-                      <% if progress.status_administratif %>
-                        | <span class="badge bg-<%= progress.status_administratif == 'approved' ? 'success' : progress.status_administratif == 'pending' ? 'warning' : progress.status_administratif == 'rejected' ? 'danger' : 'secondary' %>">
-                          <%= progress.status_administratif.humanize %>
-                        </span>
-                      <% end %>
-                    </small>
-                  </div>
-                </div>
+              <%= link_to regional_loan[:path], class: "btn btn-outline-secondary btn-sm ms-2" do %>
+                <i class="bi bi-calculator"></i>
               <% end %>
-            <% end %>
+            </div>
           <% else %>
-            <div class="text-center py-4 text-muted-custom">
-              <i class="bi bi-award fs-3 mb-2 d-block"></i>
-              <p class="mb-0">Aucune prime en suivi</p>
+            <div class="py-3 text-muted-custom text-center">
+              <small><i class="bi bi-info-circle me-1"></i>Renseignez la région du bien pour voir le prêt à taux 0 disponible</small>
             </div>
           <% end %>
 
           <div class="mt-auto pt-3 border-top">
             <div class="row g-2">
-              <div class="col-6">
-                <%= link_to request_progresses_path(property_id: @property.id), class: "btn btn-outline-secondary btn-sm w-100" do %>
-                  <i class="bi bi-eye me-1"></i>Voir toutes
-                <% end %>
-              </div>
-              <div class="col-6">
-                <%= link_to new_request_path(property_id: @property.id), class: "btn btn-outline-primary-custom btn-sm w-100" do %>
-                  <i class="bi bi-plus-lg me-1"></i>Nouvelle
+              <div class="col-12">
+                <%= link_to loans_hub_path, class: "btn btn-outline-primary-custom btn-sm w-100" do %>
+                  <i class="bi bi-bank me-2"></i>Tous les simulateurs de prêts
                 <% end %>
               </div>
             </div>
@@ -660,7 +747,18 @@
     </div>
 
     <!-- Recommandations PEB -->
-    <div class="col order-last">
+    <%
+      peb_all         = @property.peb_donnees.order(created_at: :desc)
+      peb_avant       = peb_all.avant_travaux.first
+      peb_apres       = peb_all.apres_travaux.first
+      peb_recs        = peb_avant ? (peb_avant.donnees_extraites['recommandations'] || []) : []
+      peb_recs_with   = peb_recs.is_a?(Array) ? peb_recs.select { |r| r.is_a?(Hash) ? r['has_recommandation'] : r.present? } : []
+      peb_recs_labels = peb_recs_with.map { |r| r.is_a?(Hash) ? r['recommandation'].to_s : r.to_s }.reject(&:blank?).first(3)
+
+      # Progression label : score_label_numerique (A++=9 … G=1)
+      gain_label = peb_avant && peb_apres ? (peb_apres.score_label_numerique - peb_avant.score_label_numerique) : nil
+    %>
+    <div class="col" style="order: 6;">
       <div class="card border-0 shadow h-100 dashboard-module">
         <div class="card-body p-4 d-flex flex-column">
           <div class="d-flex align-items-center mb-3">
@@ -668,67 +766,83 @@
               <i class="bi bi-lightbulb"></i>
             </div>
             <div>
-              <h5 class="card-title mb-0 fw-normal">Recommandations PEB</h5>
-              <small class="text-muted-custom">Améliorations énergétiques détectées</small>
+              <h5 class="card-title mb-0 fw-normal">Recommandations PEB <span class="badge text-bg-primary ms-1">P6</span></h5>
+              <small class="text-muted-custom">Performance énergétique du bien</small>
             </div>
           </div>
 
-          <% peb_donnees_dash = @peb_donnees_recent || @property.peb_donnees.order(created_at: :desc).limit(3) %>
-          <% total_recs_dash = peb_donnees_dash.sum { |p| (p.donnees_extraites['recommandations'] || []).size } %>
-
-          <% if peb_donnees_dash.any? %>
-            <div class="row g-3 mb-3">
-              <div class="col-6">
-                <div class="info-item text-center">
-                  <small class="text-muted-custom">Certificats</small>
-                  <div class="fw-medium h4 text-primary-custom mb-0"><%= peb_donnees_dash.count %></div>
-                </div>
+          <% if peb_avant %>
+            <!-- Label PEB actuel -->
+            <div class="d-flex align-items-center py-3 border-bottom">
+              <div class="me-3 text-center" style="min-width:52px;">
+                <span class="badge bg-<%= peb_avant.couleur_bootstrap %>" style="font-size:1.1rem;padding:0.4em 0.6em;letter-spacing:0.05em;">
+                  <%= peb_avant.label_peb || '?' %>
+                </span>
+                <div style="font-size:0.65rem;" class="text-muted mt-1">Actuel</div>
               </div>
-              <div class="col-6">
-                <div class="info-item text-center">
-                  <small class="text-muted-custom">Recommandations</small>
-                  <div class="fw-medium h4 <%= total_recs_dash > 0 ? 'text-success' : 'text-warning' %> mb-0"><%= total_recs_dash %></div>
-                </div>
-              </div>
-            </div>
-
-            <% premier_peb = peb_donnees_dash.first %>
-            <% if premier_peb %>
-              <div class="d-flex align-items-center py-2 border-bottom mb-2">
-                <i class="bi bi-house-gear me-2 text-primary-custom"></i>
-                <div class="flex-grow-1">
-                  <div class="fw-medium">
-                    <%= premier_peb.region&.capitalize %> — Classe <%= premier_peb.label_peb || '?' %>
-                  </div>
-                  <small class="text-muted-custom"><%= premier_peb.score_ep_formate || 'Score non extrait' %></small>
-                </div>
-                <% couleur = { 'A++' => 'success', 'A+' => 'success', 'A' => 'success', 'B' => 'info', 'C' => 'primary', 'D' => 'warning', 'E' => 'warning', 'F' => 'danger', 'G' => 'danger' }[premier_peb.label_peb] || 'secondary' %>
-                <span class="badge bg-<%= couleur %>"><%= premier_peb.label_peb || '?' %></span>
-              </div>
-
-              <% all_recs = premier_peb.donnees_extraites['recommandations'] || [] %>
-              <% top_recs = all_recs.first.is_a?(Hash) \
-                              ? all_recs.select { |r| r['has_recommandation'] }.first(3) \
-                              : all_recs.first(3) %>
-              <% if top_recs.any? %>
-                <% top_recs.each do |rec| %>
-                  <% label = rec.is_a?(Hash) ? rec['recommandation'].to_s : rec.to_s %>
-                  <div class="d-flex align-items-start py-1">
-                    <i class="bi bi-<%= rec.is_a?(Hash) ? rec['icone'].to_s.delete_prefix('bi-') : 'check2' %> me-2 text-warning mt-1 flex-shrink-0"></i>
-                    <small class="text-dark" style="line-height: 1.4;"><%= truncate(label, length: 70) %></small>
-                  </div>
+              <div class="flex-grow-1">
+                <% if peb_avant.score_ep_formate %>
+                  <div class="fw-medium small"><%= peb_avant.score_ep_formate %></div>
                 <% end %>
-              <% else %>
-                <div class="text-center py-3 text-muted-custom">
-                  <i class="bi bi-info-circle mb-1 d-block"></i>
-                  <small>Aucune recommandation extraite</small>
+                <div class="mt-1">
+                  <% if peb_avant.perime? %>
+                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                      <i class="bi bi-exclamation-circle me-1"></i>Certificat expiré
+                    </span>
+                  <% elsif peb_avant.date_validite %>
+                    <%
+                      ans_restants = peb_avant.annees_validite_restantes
+                      validite_color = ans_restants && ans_restants <= 1 ? 'warning' : 'success'
+                      validite_date  = peb_avant.date_validite.strftime('%d/%m/%Y')
+                    %>
+                    <span class="badge bg-<%= validite_color %>-subtle <%= validite_color == 'warning' ? 'text-dark' : "text-#{validite_color}" %> border border-<%= validite_color %>-subtle">
+                      <i class="bi bi-calendar-check me-1"></i>Valide jusqu'au <%= validite_date %>
+                    </span>
+                  <% else %>
+                    <small class="text-muted-custom"><%= peb_avant.region&.capitalize %></small>
+                  <% end %>
+                </div>
+              </div>
+              <% if peb_apres %>
+                <div class="text-center ms-2">
+                  <i class="bi bi-arrow-right text-muted mx-1"></i>
+                  <span class="badge bg-<%= peb_apres.couleur_bootstrap %>" style="font-size:1.1rem;padding:0.4em 0.6em;">
+                    <%= peb_apres.label_peb %>
+                  </span>
+                  <div style="font-size:0.65rem;" class="<%= gain_label.to_i > 0 ? 'text-success' : 'text-muted' %> mt-1">
+                    Après trav.
+                  </div>
                 </div>
               <% end %>
+            </div>
+
+            <!-- Recommandations -->
+            <% if peb_recs_labels.any? %>
+              <div class="mt-3 mb-2">
+                <small class="text-muted-custom fw-medium d-block mb-2">
+                  <i class="bi bi-lightbulb me-1 text-warning"></i>
+                  Recommandations (<%= peb_recs_with.size %>)
+                </small>
+                <% peb_recs_labels.each do |rec| %>
+                  <div class="d-flex align-items-start py-1">
+                    <i class="bi bi-check2-circle me-2 text-warning mt-1 flex-shrink-0"></i>
+                    <small class="text-dark" style="line-height:1.4;"><%= truncate(rec, length: 72) %></small>
+                  </div>
+                <% end %>
+                <% if peb_recs_with.size > 3 %>
+                  <small class="text-muted-custom ms-4">+ <%= peb_recs_with.size - 3 %> autres recommandations</small>
+                <% end %>
+              </div>
+            <% else %>
+              <div class="text-center py-3 text-muted-custom">
+                <small><i class="bi bi-info-circle me-1"></i>Aucune recommandation extraite du certificat</small>
+              </div>
             <% end %>
+
           <% else %>
             <div class="text-center py-4 text-muted-custom">
               <i class="bi bi-file-earmark-plus fs-3 mb-2 d-block"></i>
-              <p class="mb-0">Aucun certificat PEB</p>
+              <p class="mb-1">Aucun certificat PEB</p>
               <small>Scannez votre PEB pour obtenir des recommandations</small>
             </div>
           <% end %>
@@ -744,7 +858,7 @@
 
     <!-- Woningpas (Flandre uniquement) -->
     <% if @property.region == 'flandre' %>
-    <div class="col order-last">
+    <div class="col" style="order: 8;">
       <div class="card border-0 shadow h-100 dashboard-module">
         <div class="card-body p-4 d-flex flex-column">
           <div class="d-flex align-items-center mb-3">
@@ -752,7 +866,7 @@
               <i class="bi bi-house-check"></i>
             </div>
             <div>
-              <h5 class="card-title mb-0 fw-normal">Woningpas</h5>
+              <h5 class="card-title mb-0 fw-normal">Woningpas <span class="badge text-bg-primary ms-1">P8</span></h5>
               <small class="text-muted-custom">Passeport du logement flamand</small>
             </div>
           </div>

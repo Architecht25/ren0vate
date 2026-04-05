@@ -1,0 +1,402 @@
+<style>
+  .primes-hub-step {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: box-shadow 0.2s ease;
+  }
+  .primes-hub-step:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  }
+  .primes-hub-step .step-banner {
+    padding: 1.5rem 1.75rem 1.25rem;
+    position: relative;
+  }
+  .primes-hub-step .step-number {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.75;
+    margin-bottom: 0.35rem;
+  }
+  .primes-hub-step .step-icon-wrap {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+  .primes-hub-step .step-count {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .primes-hub-step .step-subtitle {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin-top: 0.2rem;
+  }
+  .primes-hub-step .step-body {
+    background: #fff;
+    border-top: 1px solid rgba(0,0,0,0.06);
+  }
+  .primes-hub-step .step-item {
+    padding: 0.75rem 1.25rem;
+    border-bottom: 1px solid #f3f4f6;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .primes-hub-step .step-item:last-child {
+    border-bottom: none;
+  }
+  .primes-hub-step .step-empty {
+    padding: 2.5rem 1.25rem;
+    text-align: center;
+    color: #9ca3af;
+  }
+  .primes-hub-step .step-footer {
+    border-top: 1px solid #f3f4f6;
+    padding: 0.6rem 1.25rem;
+    text-align: center;
+    background: #fafafa;
+  }
+  /* Couleurs par type */
+  .step-estimation .step-banner { background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%); color: #fff; }
+  .step-estimation .step-icon-wrap { background: rgba(255,255,255,0.2); color: #fff; }
+  .step-estimation .step-actions .btn-outline { border-color: rgba(255,255,255,0.5); color: #fff; }
+  .step-formulaire .step-banner { background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%); color: #fff; }
+  .step-formulaire .step-icon-wrap { background: rgba(255,255,255,0.2); color: #fff; }
+  .step-suivi .step-banner { background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #fff; }
+  .step-suivi .step-icon-wrap { background: rgba(255,255,255,0.2); color: #fff; }
+  .step-actions .btn-white {
+    background: rgba(255,255,255,0.18);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.4);
+    font-size: 0.8rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: 6px;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .step-actions .btn-white:hover {
+    background: rgba(255,255,255,0.30);
+    color: #fff;
+  }
+  .step-actions .btn-white-solid {
+    background: #fff;
+    border: none;
+    font-size: 0.8rem;
+    padding: 0.3rem 0.85rem;
+    border-radius: 6px;
+    text-decoration: none;
+    white-space: nowrap;
+    font-weight: 600;
+  }
+  .step-estimation .btn-white-solid { color: #7c3aed; }
+  .step-formulaire .btn-white-solid { color: #1d4ed8; }
+  .step-suivi .btn-white-solid { color: #059669; }
+</style>
+
+<div class="container-fluid px-4 py-4">
+
+  <!-- Header -->
+  <div class="mb-4 pb-3 border-bottom">
+    <h1 class="h3 text-primary-custom mb-1 fw-normal">Estimer mes primes</h1>
+    <p class="text-muted small mb-0">3 étapes pour maximiser vos aides à la rénovation</p>
+  </div>
+
+  <!-- Bandeau explicatif -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="d-flex align-items-start gap-3 p-3 rounded-3 h-100" style="background:#f5f3ff;">
+        <i class="bi bi-search fs-4 flex-shrink-0" style="color:#7c3aed;"></i>
+        <div>
+          <div class="fw-semibold small" style="color:#5b21b6;">Découvrez vos droits</div>
+          <div class="text-muted small mt-1">Simulez les primes auxquelles vous avez droit avant d'entamer vos travaux. Une simulation bien préparée peut révéler des milliers d'euros d'aides insoupçonnées.</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="d-flex align-items-start gap-3 p-3 rounded-3 h-100" style="background:#eff6ff;">
+        <i class="bi bi-file-earmark-check fs-4 flex-shrink-0" style="color:#1d4ed8;"></i>
+        <div>
+          <div class="fw-semibold small" style="color:#1e40af;">Constituez votre dossier</div>
+          <div class="text-muted small mt-1">Remplissez les formulaires de demande région par région. Nos formulaires pré-remplis vous font gagner un temps précieux dans vos démarches administratives.</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="d-flex align-items-start gap-3 p-3 rounded-3 h-100" style="background:#f0fdf4;">
+        <i class="bi bi-clipboard2-pulse fs-4 flex-shrink-0" style="color:#059669;"></i>
+        <div>
+          <div class="fw-semibold small" style="color:#065f46;">Suivez vos dossiers</div>
+          <div class="text-muted small mt-1">Après soumission, suivez l'avancement de chaque prime en temps réel : statut administratif, montants accordés, documents reçus.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Statistique accordé — mise en avant discrète -->
+  <% if @stats[:montant_total] > 0 %>
+    <div class="alert border-0 mb-4 py-3" style="background: #f0fdf4; border-left: 4px solid #10b981 !important; border-left-width: 4px !important; border-radius: 8px;">
+      <div class="d-flex align-items-center gap-3">
+        <i class="bi bi-patch-check-fill text-success fs-4"></i>
+        <div>
+          <span class="fw-semibold text-success">
+            <%= number_to_currency(@stats[:montant_total], unit: "€", precision: 0, delimiter: ".", format: "%n %u") %>
+          </span>
+          <span class="text-muted small ms-1">accordés au total · <%= @stats[:accordees] %> dossier<%= 's' if @stats[:accordees] != 1 %> validé<%= 's' if @stats[:accordees] != 1 %></span>
+        </div>
+        <% if @stats[:en_attente] > 0 %>
+          <span class="badge ms-auto" style="background:#fef3c7; color:#92400e;">
+            <i class="bi bi-hourglass-split me-1"></i><%= @stats[:en_attente] %> en attente
+          </span>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Les 3 étapes -->
+  <div class="row g-4">
+
+    <!-- ÉTAPE 1 : Estimer -->
+    <div class="col-lg-4">
+      <div class="primes-hub-step step-estimation border-0 h-100">
+        <div class="step-banner">
+          <div class="step-number">Étape 1</div>
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="step-icon-wrap">
+              <i class="bi bi-calculator"></i>
+            </div>
+            <div>
+              <div class="fs-5 fw-semibold lh-sm">Estimer mes primes</div>
+              <div class="step-subtitle">Simulez les aides disponibles pour votre projet</div>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between">
+            <div>
+              <div class="step-count"><%= @simulations_count %></div>
+              <div class="step-subtitle">simulation<%= 's' if @simulations_count != 1 %></div>
+            </div>
+            <div class="step-actions d-flex gap-2">
+              <%= link_to new_simulation_path, class: "btn-white-solid" do %>
+                <i class="bi bi-plus-lg me-1"></i>Nouvelle
+              <% end %>
+              <%= link_to simulations_path, class: "btn-white" do %>
+                Voir tout
+              <% end %>
+            </div>
+          </div>
+        </div>
+        <div class="step-body">
+          <% if @simulations.any? %>
+            <% @simulations.each do |simulation| %>
+              <div class="step-item">
+                <div class="min-w-0 flex-grow-1">
+                  <div class="fw-semibold small text-truncate" style="max-width: 200px;">
+                    <%= simulation.property&.address || "Bien non précisé" %>
+                  </div>
+                  <div class="d-flex align-items-center gap-1 mt-1">
+                    <span class="badge bg-light text-dark" style="font-size:0.7rem;"><%= simulation.region&.capitalize || "—" %></span>
+                    <span class="text-muted" style="font-size:0.75rem;"><%= l(simulation.created_at, format: :short) %></span>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                  <% if simulation.total_simule.present? && simulation.total_simule > 0 %>
+                    <span class="text-success fw-semibold" style="font-size:0.8rem; white-space:nowrap;">
+                      <%= number_to_currency(simulation.total_simule, unit: "€", precision: 0, delimiter: ".", format: "%n %u") %>
+                    </span>
+                  <% end %>
+                  <%= link_to simulation_path(simulation), class: "btn btn-sm btn-outline-secondary py-0 px-2" do %>
+                    <i class="bi bi-arrow-right" style="font-size:0.75rem;"></i>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+            <% if @simulations_count > 3 %>
+              <div class="step-footer">
+                <%= link_to simulations_path, class: "text-muted small text-decoration-none" do %>
+                  + <%= @simulations_count - 3 %> autres simulations
+                <% end %>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="step-empty">
+              <i class="bi bi-calculator fs-3 mb-2 d-block" style="opacity:0.3;"></i>
+              <div class="small mb-3">Aucune simulation pour l'instant.</div>
+              <%= link_to new_simulation_path, class: "btn btn-sm btn-primary-custom px-3" do %>
+                <i class="bi bi-plus-lg me-1"></i>Créer une simulation
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 2 : Formulaires -->
+    <div class="col-lg-4">
+      <div class="primes-hub-step step-formulaire border-0 h-100">
+        <div class="step-banner">
+          <div class="step-number">Étape 2</div>
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="step-icon-wrap">
+              <i class="bi bi-file-earmark-text"></i>
+            </div>
+            <div>
+              <div class="fs-5 fw-semibold lh-sm">Mes formulaires</div>
+              <div class="step-subtitle">Préparez et soumettez vos demandes</div>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between">
+            <div>
+              <div class="step-count"><%= @requests_count %></div>
+              <div class="step-subtitle">formulaire<%= 's' if @requests_count != 1 %></div>
+            </div>
+            <div class="step-actions d-flex gap-2">
+              <%= link_to new_request_path, class: "btn-white-solid" do %>
+                <i class="bi bi-plus-lg me-1"></i>Nouveau
+              <% end %>
+              <%= link_to requests_path, class: "btn-white" do %>
+                Voir tout
+              <% end %>
+            </div>
+          </div>
+        </div>
+        <div class="step-body">
+          <% if @requests.any? %>
+            <% @requests.each do |request| %>
+              <div class="step-item">
+                <div class="min-w-0 flex-grow-1">
+                  <div class="fw-semibold small text-truncate" style="max-width: 200px;">
+                    <%= request.title.presence || request.property&.address || "Demande sans titre" %>
+                  </div>
+                  <div class="d-flex align-items-center gap-1 mt-1">
+                    <span class="badge bg-light text-dark" style="font-size:0.7rem;"><%= request.property&.region&.capitalize || "—" %></span>
+                    <span class="text-muted" style="font-size:0.75rem;"><%= l(request.created_at, format: :short) %></span>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                  <% status_class = case request.status
+                       when 'submitted' then 'bg-success'
+                       when 'draft' then 'bg-warning text-dark'
+                       else 'bg-secondary'
+                     end %>
+                  <span class="badge <%= status_class %>" style="font-size:0.7rem;">
+                    <%= t("request.status.#{request.status}", default: request.status&.humanize) %>
+                  </span>
+                  <%= link_to request_path(request), class: "btn btn-sm btn-outline-secondary py-0 px-2" do %>
+                    <i class="bi bi-arrow-right" style="font-size:0.75rem;"></i>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+            <% if @requests_count > 3 %>
+              <div class="step-footer">
+                <%= link_to requests_path, class: "text-muted small text-decoration-none" do %>
+                  + <%= @requests_count - 3 %> autres formulaires
+                <% end %>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="step-empty">
+              <i class="bi bi-file-earmark-text fs-3 mb-2 d-block" style="opacity:0.3;"></i>
+              <div class="small mb-3">Aucun formulaire pour l'instant.</div>
+              <%= link_to new_request_path, class: "btn btn-sm btn-primary px-3" do %>
+                <i class="bi bi-plus-lg me-1"></i>Créer un formulaire
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 3 : Suivi -->
+    <div class="col-lg-4">
+      <div class="primes-hub-step step-suivi border-0 h-100">
+        <div class="step-banner">
+          <div class="step-number">Étape 3</div>
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="step-icon-wrap">
+              <i class="bi bi-clipboard-check"></i>
+            </div>
+            <div>
+              <div class="fs-5 fw-semibold lh-sm">Suivi des primes</div>
+              <div class="step-subtitle">Suivez l'avancement de vos dossiers</div>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between">
+            <div>
+              <div class="step-count"><%= @progresses_count %></div>
+              <div class="step-subtitle">suivi<%= 's' if @progresses_count != 1 %> actif<%= 's' if @progresses_count != 1 %></div>
+            </div>
+            <div class="step-actions d-flex gap-2">
+              <%= link_to new_request_progress_path, class: "btn-white-solid" do %>
+                <i class="bi bi-plus-lg me-1"></i>Nouveau
+              <% end %>
+              <%= link_to request_progresses_path, class: "btn-white" do %>
+                Voir tout
+              <% end %>
+            </div>
+          </div>
+        </div>
+        <div class="step-body">
+          <% if @progresses.any? %>
+            <% @progresses.each do |progress| %>
+              <div class="step-item">
+                <div class="min-w-0 flex-grow-1">
+                  <div class="fw-semibold small text-truncate" style="max-width: 180px;">
+                    <%= progress.prime&.titre || progress.form_name.presence || progress.request&.title.presence || "Suivi ##{progress.id}" %>
+                  </div>
+                  <div class="text-muted mt-1" style="font-size:0.75rem;">
+                    <%= l(progress.updated_at, format: :short) %>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                  <% status_class = case progress.status_administratif
+                       when 'accorde' then 'bg-success'
+                       when 'refuse' then 'bg-danger'
+                       when 'soumis', 'en_cours' then 'bg-warning text-dark'
+                       else 'bg-secondary'
+                     end %>
+                  <span class="badge <%= status_class %>" style="font-size:0.7rem;">
+                    <%= t("request_progress.status.#{progress.status_administratif}", default: progress.status_administratif&.humanize) %>
+                  </span>
+                  <% if progress.montant_accorde.present? && progress.montant_accorde > 0 %>
+                    <span class="text-success fw-semibold" style="font-size:0.78rem; white-space:nowrap;">
+                      <%= number_to_currency(progress.montant_accorde, unit: "€", precision: 0, delimiter: ".", format: "%n %u") %>
+                    </span>
+                  <% end %>
+                  <%= link_to request_progress_path(progress), class: "btn btn-sm btn-outline-secondary py-0 px-2" do %>
+                    <i class="bi bi-arrow-right" style="font-size:0.75rem;"></i>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+            <% if @progresses_count > 3 %>
+              <div class="step-footer">
+                <%= link_to request_progresses_path, class: "text-muted small text-decoration-none" do %>
+                  + <%= @progresses_count - 3 %> autres suivis
+                <% end %>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="step-empty">
+              <i class="bi bi-clipboard-check fs-3 mb-2 d-block" style="opacity:0.3;"></i>
+              <div class="small mb-3">Aucun suivi pour l'instant.</div>
+              <%= link_to new_request_progress_path, class: "btn btn-sm btn-success px-3" do %>
+                <i class="bi bi-plus-lg me-1"></i>Commencer un suivi
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /row -->
+</div>

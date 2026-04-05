@@ -31,7 +31,16 @@
                               filter_phase: phase.id
                             ),
                            class: "btn #{'btn-primary-custom' if @selected_phase == phase} #{'btn-outline-primary-custom' unless @selected_phase == phase} btn-sm" do %>
-                  <%= phase.icon %> <%= phase.name.gsub('Phase ', '') %>
+                  <%
+                    btn_label = case phase.name
+                    when 'Phase Administrative' then 'Docs Administratifs'
+                    when 'Phase Technique'      then 'Préparation de chantier'
+                    when 'Phase Exécution'      then 'Suivi de chantier'
+                    when 'Phase Réception'      then 'Réception de chantier'
+                    else phase.name.gsub('Phase ', '')
+                    end
+                  %>
+                  <%= phase.icon %> <%= btn_label %>
                   <span class="badge bg-light text-dark ms-1"><%= phase_data[:count] %></span>
                 <% end %>
               <% end %>

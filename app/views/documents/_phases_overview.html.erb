@@ -1,41 +1,13 @@
 <!-- Mini vue des phases -->
 <div class="row mb-5">
-  <div class="col-12 mb-4">
-    <div class="d-flex align-items-center justify-content-between">
-      <div>
-        <h4 class="mb-1 fw-600" style="color: var(--neutral-800);">
-          <i class="bi bi-kanban me-2 text-primary"></i>Progression par phases
-        </h4>
-        <p class="text-muted mb-0 small">
-          <% if @property %>
-            Avancement spécifique pour <%= @property.name %>
-          <% else %>
-            Vue d'ensemble de vos documents
-          <% end %>
-        </p>
-      </div>
-    </div>
-  </div>
 
   <!-- Phases pour particuliers (chantier) -->
   <% phases_chantier = @phases_data.select { |phase_data| phase_data[:phase].category == 'chantier' } %>
   <% if phases_chantier.any? %>
-    <div class="col-12 mb-3">
-      <div class="alert alert-light border-start border-primary border-4">
-        <div class="d-flex align-items-center">
-          <i class="bi bi-person-circle text-primary me-2 fs-4"></i>
-          <div>
-            <h6 class="mb-0 text-primary">Documents pour Particuliers</h6>
-            <small class="text-muted">Phases de chantier et rénovation résidentielle</small>
-          </div>
-        </div>
-      </div>
-    </div>
 
     <% phases_chantier.each do |phase_data| %>
       <% phase = phase_data[:phase] %>
       <% docs_in_phase = @documents.select { |d| d.document_phase == phase } %>
-      <% completion_class = phase_data[:completion_percentage] >= 80 ? 'high' : phase_data[:completion_percentage] >= 50 ? 'medium' : 'low' %>
       <% all_types = phase.required_document_types + phase.optional_document_types %>
 
       <div class="col-lg-3 col-md-6 mb-4">
@@ -73,21 +45,31 @@
               </h5>
 
             <div class="mb-4">
-              <div class="small text-muted mb-2">
-                <%= docs_in_phase.count %> document<%= docs_in_phase.count > 1 ? 's' : '' %>
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="small text-muted">
+                  <%= docs_in_phase.count %> document<%= docs_in_phase.count > 1 ? 's' : '' %>
+                </div>
+                <%
+                   required_types = phase.required_document_types
+                   total_req = required_types.length
+                   uploaded_req_types = docs_in_phase.map(&:type_document).uniq & required_types
+                   present_req = uploaded_req_types.count
+                   upload_pct = total_req > 0 ? ((present_req.to_f / total_req) * 100).round : 0
+                   bar_color = present_req == total_req ? '#10b981' : upload_pct >= 50 ? '#f59e0b' : '#ef4444'
+                %>
+                <% if total_req > 0 %>
+                  <div class="small <%= present_req == total_req ? 'text-success' : 'text-warning' %> fw-semibold">
+                    <i class="bi bi-<%= present_req == total_req ? 'check-circle-fill' : 'exclamation-circle' %> me-1"></i><%= present_req %>/<%= total_req %> requis
+                  </div>
+                <% end %>
               </div>
-              <!-- Progress bar moderne -->
-              <div class="progress mb-3" style="height: 8px; border-radius: 10px; background-color: var(--neutral-100);">
+              <!-- Progress bar : progression basée sur les types requis uploadés -->
+              <div class="progress mb-3" style="height: 8px; border-radius: 10px; background-color: #e5e7eb;">
                 <div class="progress-bar"
-                     style="width: <%= phase_data[:completion_percentage] %>%;
-                            background: linear-gradient(90deg,
-                              <%= completion_class == 'high' ? 'var(--success-color)' :
-                                  completion_class == 'medium' ? 'var(--warning-color)' :
-                                  'var(--danger-color)' %>,
-                              <%= completion_class == 'high' ? '#10b981' :
-                                  completion_class == 'medium' ? '#f59e0b' :
-                                  '#ef4444' %>);
-                            border-radius: 10px;"></div>
+                     style="width: <%= upload_pct %>%;
+                            background-color: <%= bar_color %>;
+                            border-radius: 10px;
+                            transition: width 0.4s ease;"></div>
               </div>
             </div>
 
@@ -134,6 +116,25 @@
                 <% end %>
               </div>
             </div>
+
+            <!-- À faire : documents manquants -->
+            <% missing = phase_data[:missing_required].to_a %>
+            <% if missing.any? %>
+              <div class="mt-3 pt-3 border-top">
+                <div class="fw-medium small text-dark mb-2">
+                  <i class="bi bi-clipboard-x me-1 text-warning"></i>À ajouter (<%= missing.count %>)
+                </div>
+                <% missing.first(3).each do |doc_type| %>
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <i class="bi bi-dash-circle text-warning" style="font-size:0.75rem; flex-shrink:0;"></i>
+                    <span class="small text-muted text-truncate"><%= document_type_name(doc_type) %></span>
+                  </div>
+                <% end %>
+                <% if missing.count > 3 %>
+                  <div class="small text-muted mt-1">+ <%= missing.count - 3 %> autre<%= missing.count - 3 > 1 ? 's' : '' %>…</div>
+                <% end %>
+              </div>
+            <% end %>
 
             </div>
           </div>
