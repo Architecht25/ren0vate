@@ -1,3 +1,6 @@
+<% content_for :title, "Mes primes à la rénovation – Ren0vate" %>
+
+<% content_for :head do %>
 <style>
   .primes-hub-step {
     border-radius: 12px;
@@ -46,7 +49,7 @@
   }
   .primes-hub-step .step-item {
     padding: 0.75rem 1.25rem;
-    border-bottom: 1px solid #f3f4f6;
+    border-bottom: 1px solid var(--ren0vate-border, #f3f4f6);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -58,21 +61,23 @@
   .primes-hub-step .step-empty {
     padding: 2.5rem 1.25rem;
     text-align: center;
-    color: #9ca3af;
+    color: var(--ren0vate-text-muted, #9ca3af);
   }
   .primes-hub-step .step-footer {
-    border-top: 1px solid #f3f4f6;
+    border-top: 1px solid var(--ren0vate-border, #f3f4f6);
     padding: 0.6rem 1.25rem;
     text-align: center;
-    background: #fafafa;
+    background: var(--ren0vate-background-light, #fafafa);
   }
-  /* Couleurs par type */
-  .step-estimation .step-banner { background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%); color: #fff; }
+  /* Couleurs par type — alignées sur le design system Ren0vate */
+  .step-estimation .step-banner { background: linear-gradient(135deg, var(--ren0vate-primary-dark, #1e293b) 0%, var(--ren0vate-primary, #334155) 100%); color: #fff; }
   .step-estimation .step-icon-wrap { background: rgba(255,255,255,0.2); color: #fff; }
   .step-estimation .step-actions .btn-outline { border-color: rgba(255,255,255,0.5); color: #fff; }
+  .step-technique .step-banner { background: linear-gradient(135deg, var(--ren0vate-accent-dark, #b45309) 0%, var(--ren0vate-accent, #D97706) 100%); color: #fff; }
+  .step-technique .step-icon-wrap { background: rgba(255,255,255,0.2); color: #fff; }
   .step-formulaire .step-banner { background: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 100%); color: #fff; }
   .step-formulaire .step-icon-wrap { background: rgba(255,255,255,0.2); color: #fff; }
-  .step-suivi .step-banner { background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #fff; }
+  .step-suivi .step-banner { background: linear-gradient(135deg, var(--ren0vate-success-dark, #6b8a72) 0%, var(--ren0vate-success, #84A98C) 100%); color: #fff; }
   .step-suivi .step-icon-wrap { background: rgba(255,255,255,0.2); color: #fff; }
   .step-actions .btn-white {
     background: rgba(255,255,255,0.18);
@@ -98,22 +103,24 @@
     white-space: nowrap;
     font-weight: 600;
   }
-  .step-estimation .btn-white-solid { color: #7c3aed; }
+  .step-estimation .btn-white-solid { color: var(--ren0vate-primary, #334155); }
+  .step-technique .btn-white-solid { color: var(--ren0vate-accent, #D97706); }
   .step-formulaire .btn-white-solid { color: #1d4ed8; }
-  .step-suivi .btn-white-solid { color: #059669; }
+  .step-suivi .btn-white-solid { color: var(--ren0vate-success-dark, #6b8a72); }
 </style>
+<% end %>
 
 <div class="container-fluid px-4 py-4">
 
   <!-- Header -->
   <div class="mb-4 pb-3 border-bottom">
-    <h1 class="h3 text-primary-custom mb-1 fw-normal">Estimer mes primes</h1>
-    <p class="text-muted small mb-0">3 étapes pour maximiser vos aides à la rénovation</p>
+    <h1 class="h3 text-primary-custom mb-1 fw-normal">Mes primes à la rénovation</h1>
+    <p class="text-muted small mb-0">4 étapes pour maximiser vos aides à la rénovation</p>
   </div>
 
   <!-- Bandeau explicatif -->
   <div class="row g-3 mb-4">
-    <div class="col-md-4">
+    <div class="col-md-3">
       <div class="d-flex align-items-start gap-3 p-3 rounded-3 h-100" style="background:#f5f3ff;">
         <i class="bi bi-search fs-4 flex-shrink-0" style="color:#7c3aed;"></i>
         <div>
@@ -122,7 +129,16 @@
         </div>
       </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
+      <div class="d-flex align-items-start gap-3 p-3 rounded-3 h-100" style="background:#fffbeb;">
+        <i class="bi bi-tools fs-4 flex-shrink-0" style="color:#d97706;"></i>
+        <div>
+          <div class="fw-semibold small" style="color:#92400e;">Préparez techniquement</div>
+          <div class="text-muted small mt-1">Analysez vos simulations, vérifiez les conditions d'octroi, collectez les données techniques et préparez vos dossiers avant de passer aux formulaires.</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
       <div class="d-flex align-items-start gap-3 p-3 rounded-3 h-100" style="background:#eff6ff;">
         <i class="bi bi-file-earmark-check fs-4 flex-shrink-0" style="color:#1d4ed8;"></i>
         <div>
@@ -131,7 +147,7 @@
         </div>
       </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
       <div class="d-flex align-items-start gap-3 p-3 rounded-3 h-100" style="background:#f0fdf4;">
         <i class="bi bi-clipboard2-pulse fs-4 flex-shrink-0" style="color:#059669;"></i>
         <div>
@@ -162,11 +178,11 @@
     </div>
   <% end %>
 
-  <!-- Les 3 étapes -->
+  <!-- Les 4 étapes -->
   <div class="row g-4">
 
     <!-- ÉTAPE 1 : Estimer -->
-    <div class="col-lg-4">
+    <div class="col-lg-3">
       <div class="primes-hub-step step-estimation border-0 h-100">
         <div class="step-banner">
           <div class="step-number">Étape 1</div>
@@ -239,11 +255,77 @@
       </div>
     </div>
 
-    <!-- ÉTAPE 2 : Formulaires -->
-    <div class="col-lg-4">
-      <div class="primes-hub-step step-formulaire border-0 h-100">
+    <!-- ÉTAPE 2 : Préparation technique (Decision Hub) -->
+    <div class="col-lg-3">
+      <div class="primes-hub-step step-technique border-0 h-100">
         <div class="step-banner">
           <div class="step-number">Étape 2</div>
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="step-icon-wrap">
+              <i class="bi bi-tools"></i>
+            </div>
+            <div>
+              <div class="fs-5 fw-semibold lh-sm">Préparation technique</div>
+              <div class="step-subtitle">Analysez et préparez vos dossiers</div>
+            </div>
+          </div>
+          <div class="d-flex align-items-end justify-content-between">
+            <div>
+              <div class="step-count"><%= @simulations_count %></div>
+              <div class="step-subtitle">simulation<%= 's' if @simulations_count != 1 %> à analyser</div>
+            </div>
+            <div class="step-actions d-flex gap-2">
+              <%= link_to decision_hub_index_path, class: "btn-white-solid" do %>
+                <i class="bi bi-arrow-right me-1"></i>Ouvrir
+              <% end %>
+            </div>
+          </div>
+        </div>
+        <div class="step-body">
+          <% if @simulations.any? %>
+            <% @simulations.each do |simulation| %>
+              <div class="step-item">
+                <div class="min-w-0 flex-grow-1">
+                  <div class="fw-semibold small text-truncate" style="max-width: 180px;">
+                    <%= simulation.property&.address || "Bien non précisé" %>
+                  </div>
+                  <div class="d-flex align-items-center gap-1 mt-1">
+                    <span class="badge bg-light text-dark" style="font-size:0.7rem;"><%= simulation.region&.capitalize || "—" %></span>
+                    <span class="text-muted" style="font-size:0.75rem;"><%= l(simulation.created_at, format: :short) %></span>
+                  </div>
+                </div>
+                <div class="flex-shrink-0">
+                  <%= link_to decision_hub_index_path(simulation_id: simulation.id), class: "btn btn-sm btn-outline-secondary py-0 px-2" do %>
+                    <i class="bi bi-arrow-right" style="font-size:0.75rem;"></i>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+            <% if @simulations_count > 3 %>
+              <div class="step-footer">
+                <%= link_to decision_hub_index_path, class: "text-muted small text-decoration-none" do %>
+                  + <%= @simulations_count - 3 %> autres simulations
+                <% end %>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="step-empty">
+              <i class="bi bi-tools fs-3 mb-2 d-block" style="opacity:0.3;"></i>
+              <div class="small mb-3">Créez d'abord une simulation pour préparer votre dossier.</div>
+              <%= link_to new_simulation_path, class: "btn btn-sm px-3", style: "background:#f59e0b; color:#fff;" do %>
+                <i class="bi bi-plus-lg me-1"></i>Créer une simulation
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÉTAPE 3 : Formulaires -->
+    <div class="col-lg-3">
+      <div class="primes-hub-step step-formulaire border-0 h-100">
+        <div class="step-banner">
+          <div class="step-number">Étape 3</div>
           <div class="d-flex align-items-center gap-3 mb-3">
             <div class="step-icon-wrap">
               <i class="bi bi-file-earmark-text"></i>
@@ -316,11 +398,11 @@
       </div>
     </div>
 
-    <!-- ÉTAPE 3 : Suivi -->
-    <div class="col-lg-4">
+    <!-- ÉTAPE 4 : Suivi -->
+    <div class="col-lg-3">
       <div class="primes-hub-step step-suivi border-0 h-100">
         <div class="step-banner">
-          <div class="step-number">Étape 3</div>
+          <div class="step-number">Étape 4</div>
           <div class="d-flex align-items-center gap-3 mb-3">
             <div class="step-icon-wrap">
               <i class="bi bi-clipboard-check"></i>
