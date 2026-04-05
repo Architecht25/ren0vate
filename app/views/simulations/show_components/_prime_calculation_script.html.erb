@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
       this.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Vérification en cours...';
       this.disabled = true;
 
-      fetch(`/simulations/${simulationId}/check_eligibility`, {
+      fetch(`/<%= I18n.locale %>/simulations/${simulationId}/check_eligibility`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -58,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
       this.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Mise à jour en cours...';
       this.disabled = true;
 
-      fetch(`/simulations/${simulationId}/check_eligibility`, {
+      fetch(`/<%= I18n.locale %>/simulations/${simulationId}/check_eligibility`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -68,7 +68,6 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       .then(response => response.json())
       .then(data => {
-        console.log('📋 Résultat mise à jour éligibilité:', data);
         if (data.success) {
           // Recharger la page pour afficher les nouveaux résultats
           console.log('✅ Éligibilité mise à jour, rechargement de la page...');

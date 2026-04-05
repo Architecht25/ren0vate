@@ -64,9 +64,9 @@ export default class extends Controller {
   // Mettre à jour le total global
   updateGlobalTotal() {
     const flandreController = document.querySelector('[data-controller="flandre-simulation"]')
-    if (flandreController && window.Stimulus) {
-      const controller = window.Stimulus.getControllerForElementAndIdentifier(flandreController, 'flandre-simulation')
-      if (controller && controller.updateTotalGlobal) {
+    if (flandreController) {
+      const controller = this.application.getControllerForElementAndIdentifier(flandreController, 'flandre-simulation')
+      if (controller && typeof controller.updateTotalGlobal === 'function') {
         controller.updateTotalGlobal()
       }
     }
@@ -76,11 +76,10 @@ export default class extends Controller {
   triggerAutoSave() {
     const flandreController = document.querySelector('[data-controller="flandre-simulation"]')
 
-    if (flandreController && window.Stimulus) {
-      const controller = window.Stimulus.getControllerForElementAndIdentifier(flandreController, 'flandre-simulation')
+    if (flandreController) {
+      const controller = this.application.getControllerForElementAndIdentifier(flandreController, 'flandre-simulation')
 
       if (controller && typeof controller.triggerSave === 'function') {
-
         // Délai pour permettre à l'affichage de se mettre à jour
         setTimeout(() => {
           controller.triggerSave()

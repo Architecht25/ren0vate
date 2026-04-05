@@ -37,21 +37,24 @@ module FlandrePrimesHelper
   end
 
   # Helper pour préparer les valeurs sauvegardées pour restauration
+  # Clés plates sauvées directement dans les paramètres (hors prime_cards)
+  FLAT_PARAM_SLUGS = %w[warmtepomp_type].freeze
+
   def prepare_saved_flandre_inputs(simulation)
     saved_inputs = {}
     return saved_inputs unless simulation.parameters.present?
 
     begin
       params_data = JSON.parse(simulation.parameters)
+
+      # 1. Lire les primes standard depuis prime_cards
       if params_data['prime_cards'].present?
-        # Récupérer les slugs des primes Flandre pour filtrer
         flandre_slugs = Prime.where(region: 'flandre').pluck(:slug)
 
         params_data['prime_cards'].each do |category_key, category_data|
           next unless category_data['primes']
 
           category_data['primes'].each do |prime|
-            # Filtrer pour ne garder que les primes Flandre
             next unless flandre_slugs.include?(prime['slug'])
 
             if prime['user_input_value'].present? &&
@@ -62,8 +65,14 @@ module FlandrePrimesHelper
           end
         end
       end
+
+      # 2. Lire les clés plates spéciales (ex: warmtepomp_type)
+      FLAT_PARAM_SLUGS.each do |key|
+        saved_inputs[key] = params_data[key] if params_data[key].present?
+      end
+
     rescue JSON::ParserError
-      # Si le JSON est invalide, on ignore et retourne un hash vide
+      # JSON invalide, retourner hash vide
     end
 
     saved_inputs

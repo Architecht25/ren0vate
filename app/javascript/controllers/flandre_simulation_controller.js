@@ -7,7 +7,8 @@ export default class extends Controller {
     "totalGeneral",
     "sectionTitle",
     "currentCategory",
-    "selectedPrimesSummary"
+    "selectedPrimesSummary",
+    "saveStatus"
   ]
 
   static values = {
@@ -69,9 +70,18 @@ export default class extends Controller {
     });
   }
 
+  // Normalise n'importe quel format de catégorie vers le numéro ("1".."4")
+  normalizeCategoryNumber(raw) {
+    if (!raw) return '4'
+    const s = String(raw)
+    // "flandre_cat3" -> "3", ou déjà "3" -> "3"
+    const m = s.match(/(\d)$/)
+    return m ? m[1] : '4'
+  }
+
   getCurrentCategory() {
-    // Utiliser la catégorie de la simulation au lieu du localStorage
-    return this.categoryValue || 'flandre_cat2'
+    // Retourne toujours le numéro de catégorie ("1".."4")
+    return this.normalizeCategoryNumber(this.categoryValue)
   }
 
   setupPrimesData() {
@@ -336,8 +346,7 @@ export default class extends Controller {
 
   // Appliquer les plafonds de groupe (catégories 3 et 4 uniquement)
   appliquerPlafondsGroupes(cartesMontants) {
-    // Récupérer le numéro de catégorie depuis la valeur stockée (ex: 'flandre_cat3' -> '3')
-    const categoryNumber = this.currentCategory.replace('flandre_cat', '')
+    const categoryNumber = this.normalizeCategoryNumber(this.currentCategory)
 
     if (["1", "2"].includes(categoryNumber)) {
       return cartesMontants
@@ -376,10 +385,10 @@ export default class extends Controller {
 
   // Méthode pour changer de catégorie (appelée depuis l'interface d'éligibilité)
   changeCategory(newCategory) {
-    this.currentCategory = newCategory
-    localStorage.setItem('selectedFlandreCategory', newCategory)
-    // Mettre à jour aussi la catégorie estimée pour cohérence
-    const categoryNumber = newCategory.replace('flandre_cat', '')
+    // Normaliser : on stocke toujours le numéro ("1".."4")
+    const categoryNumber = this.normalizeCategoryNumber(newCategory)
+    this.currentCategory = categoryNumber
+    localStorage.setItem('selectedFlandreCategory', categoryNumber)
     localStorage.setItem('flandreCategorieEstimee', categoryNumber)
     this.updateSectionTitle()
 
@@ -387,9 +396,9 @@ export default class extends Controller {
     // Déclencher le recalcul de toutes les cartes Flandre
     const flandreCards = this.element.querySelectorAll('[data-controller*="flandre-simulation-card"]')
     flandreCards.forEach(cardElement => {
-      // Émettre un événement pour que chaque carte se mette à jour
+      // Émettre un événement avec le numéro normalisé
       cardElement.dispatchEvent(new CustomEvent('flandre:category:changed', {
-        detail: { categorie: newCategory }
+        detail: { categorie: categoryNumber }
       }))
     })
 
@@ -408,11 +417,25 @@ export default class extends Controller {
     const categoryNames = {
       'flandre_cat1': 'Catégorie I (revenus très modestes)',
       'flandre_cat2': 'Catégorie II (revenus modestes)',
-      'flandre_cat3': 'Catégorie III (revenus moyens-élevés)'
+      'flandre_cat3': 'Catégorie III (revenus moyens-élevés)',
+      'flandre_cat4': 'Catégorie IV (tous revenus)',
+      '1': 'Catégorie I (revenus très modestes)',
+      '2': 'Catégorie II (revenus modestes)',
+      '3': 'Catégorie III (revenus moyens-élevés)',
+      '4': 'Catégorie IV (tous revenus)'
     }
 
     const categoryName = categoryNames[this.currentCategory] || 'Catégorie non définie'
     this.sectionTitleTarget.textContent = `Primes Flandre • ${categoryName}`
+  }
+
+  // Parse un montant affiché en format français ("4.000,00 €" → 4000.0)
+  parseFrenchAmount(text) {
+    const clean = text
+      .replace(/[€\s]/g, '')          // retirer € et espaces
+      .replace(/\.(?=\d{3}(,|$))/g, '') // retirer les points séparateurs de milliers
+      .replace(',', '.')              // virgule décimale → point
+    return parseFloat(clean) || 0
   }
 
   updateSelectedPrimesSummary() {
@@ -440,11 +463,9 @@ export default class extends Controller {
       if (carteElement) {
         const totalElement = carteElement.querySelector('[data-flandre-simulation-card-target="result"]')
         if (totalElement) {
-          const montantText = totalElement.textContent.replace(/[€\s\.]/g, '').replace(',', '.')
-          const montant = parseFloat(montantText) || 0
+          const montant = this.parseFrenchAmount(totalElement.textContent)
 
           if (montant > 0) {
-            // Trouver le titre de la carte
             const titleElement = carteElement.querySelector('h6, h5, .card-title')
             const title = titleElement ? titleElement.textContent.trim() : slug
 
@@ -457,13 +478,34 @@ export default class extends Controller {
       }
     })
 
+    // Ajouter la prime PEB si visible
+    const pebContainer = document.querySelector('[data-peb-target="resultatContainer"]')
+    if (pebContainer && !pebContainer.classList.contains('d-none')) {
+      const pebMontantEl = pebContainer.querySelector('[data-peb-target="montantCalcule"]')
+      if (pebMontantEl) {
+        const montant = this.parseFrenchAmount(pebMontantEl.textContent)
+        if (montant > 0) {
+          selectedPrimes.push({ title: 'Prime PEB (label énergétique)', amount: montant })
+        }
+      }
+    }
+
+    // Ajouter la prime Amiante si non nulle
+    const amianteResultEl = document.querySelector('[data-amiante-target="result"]')
+    if (amianteResultEl) {
+      const montant = this.parseFrenchAmount(amianteResultEl.textContent)
+      if (montant > 0) {
+        selectedPrimes.push({ title: 'Prime désamiantage', amount: montant })
+      }
+    }
+
     // Générer le HTML du résumé
     let summaryHTML = ''
     if (selectedPrimes.length > 0) {
       summaryHTML = selectedPrimes.map(prime =>
         `<div class="d-flex justify-content-between align-items-center py-1 border-bottom">
           <span class="small">${prime.title}</span>
-          <span class="badge bg-secondary">${prime.amount.toLocaleString('fr-FR')} €</span>
+          <span class="badge bg-secondary">${prime.amount.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} €</span>
         </div>`
       ).join('')
     } else {
@@ -535,6 +577,8 @@ export default class extends Controller {
       // Calculer le total côté client pour l'envoyer aussi
       const calculatedTotal = this.calculateCurrentTotal();
 
+      this.showSaveStatus('saving');
+
       fetch(`/fr/simulations/${this.simulationIdValue}/update_prime_inputs`, {
         method: 'PATCH',
         headers: {
@@ -554,13 +598,13 @@ export default class extends Controller {
           // Distribuer les montants calculés aux cartes individuelles
           this.updateCardsWithCalculatedAmounts(data.updated_cards);
 
-          // Encart de confirmation supprimé
+          this.showSaveStatus('saved');
         } else {
-          // Encart d'erreur supprimé
+          this.showSaveStatus('error');
         }
       })
       .catch(error => {
-        // Encart d'erreur supprimé
+        this.showSaveStatus('error');
       });
     }
   }
@@ -569,102 +613,30 @@ export default class extends Controller {
   calculateCurrentTotal() {
     let total = 0;
 
-    // Utiliser la même logique que updateTotalGlobal
     const cartesSlugs = [
-      'isolation_toiture',
-      'isolation_murs',
-      'isolation_sol',
-      'ramen_deuren',
-      'warmtepomp',
-      'warmtepompboiler',
-      'voorbereiding_isolatie',
-      'voorbereiding_sanitair_elec',
-      'renovation_toiture',
-      'renovation_murs',
-      'renovation_sol'
+      'isolation_toiture', 'isolation_murs', 'isolation_sol',
+      'ramen_deuren', 'warmtepomp', 'warmtepompboiler',
+      'voorbereiding_isolatie', 'voorbereiding_sanitair_elec',
+      'renovation_toiture', 'renovation_murs', 'renovation_sol'
     ]
 
-    // Calculer le total des cartes normales
     cartesSlugs.forEach(slug => {
-      const carteElement = document.querySelector(`[data-flandre-simulation-card-slug-value="${slug}"]`)
-      if (carteElement) {
-        const totalElement = carteElement.querySelector('[data-flandre-simulation-card-target="result"]')
-        if (totalElement) {
-          // Parser le montant des cartes (format: "1.275,00€" ou "320,00€")
-          let montantText = totalElement.textContent.replace('€', '').replace(/\s/g, '')
-
-          // Si c'est au format "1.275,00" (avec points de milliers), convertir en "1275.00"
-          if (montantText.match(/^\d{1,3}(\.\d{3})*,\d{2}$/)) {
-            // Retirer les points de milliers et remplacer virgule par point
-            const parts = montantText.split(',')
-            const decimales = parts[1] // Partie après la virgule = décimales
-            const entier = parts[0].replace(/\./g, '') // Partie avant la virgule sans points
-            montantText = entier + '.' + decimales
-          } else {
-            // Format simple, juste remplacer virgule par point
-            montantText = montantText.replace(',', '.')
-          }
-
-          const montant = parseFloat(montantText) || 0
-          total += montant
-        }
-      }
+      const totalElement = document.querySelector(
+        `[data-flandre-simulation-card-slug-value="${slug}"] [data-flandre-simulation-card-target="result"]`
+      )
+      if (totalElement) total += this.parseFrenchAmount(totalElement.textContent)
     })
 
-    // Ajouter le montant PEB s'il est visible
-    const pebSelectors = [
-      '[data-peb-target="resultatContainer"]',
-      '[data-controller="peb"] [data-peb-target="resultatContainer"]',
-      '.alert[data-peb-target="resultatContainer"]'
-    ]
-
-    let pebContainer = null
-    for (const selector of pebSelectors) {
-      pebContainer = document.querySelector(selector)
-      if (pebContainer) break
-    }
-
+    // PEB
+    const pebContainer = document.querySelector('[data-peb-target="resultatContainer"]')
     if (pebContainer && !pebContainer.classList.contains('d-none')) {
-      const pebMontantElement = pebContainer.querySelector('.fw-bold')
-      if (pebMontantElement) {
-        let montantText = pebMontantElement.textContent.replace(/[€\s]/g, '')
-
-        // Format français "4.000,00" vers "4000.00"
-        if (montantText.match(/^\d{1,3}(\.\d{3})*,\d{2}$/)) {
-          const parts = montantText.split(',')
-          const decimales = parts[1]
-          const entier = parts[0].replace(/\./g, '')
-          montantText = entier + '.' + decimales
-        } else {
-          montantText = montantText.replace(',', '.')
-        }
-
-        const montantPEB = parseFloat(montantText) || 0
-        total += montantPEB
-      }
+      const pebEl = pebContainer.querySelector('[data-peb-target="montantCalcule"]')
+      if (pebEl) total += this.parseFrenchAmount(pebEl.textContent)
     }
 
-    // Ajouter le montant amiante s'il est visible
-    const amianteContainer = document.querySelector('[data-amiante-target="resultatContainer"]')
-    if (amianteContainer && !amianteContainer.classList.contains('d-none')) {
-      const amianteMontantElement = amianteContainer.querySelector('.fw-bold')
-      if (amianteMontantElement) {
-        let montantText = amianteMontantElement.textContent.replace(/[€\s]/g, '')
-
-        // Format français "1.000,00" vers "1000.00"
-        if (montantText.match(/^\d{1,3}(\.\d{3})*,\d{2}$/)) {
-          const parts = montantText.split(',')
-          const decimales = parts[1]
-          const entier = parts[0].replace(/\./g, '')
-          montantText = entier + '.' + decimales
-        } else {
-          montantText = montantText.replace(',', '.')
-        }
-
-        const montantAmiante = parseFloat(montantText) || 0
-        total += montantAmiante
-      }
-    }
+    // Amiante
+    const amianteEl = document.querySelector('[data-amiante-target="result"]')
+    if (amianteEl) total += this.parseFrenchAmount(amianteEl.textContent)
 
     return total;
   }
@@ -672,8 +644,28 @@ export default class extends Controller {
   // Sauvegarde débounced pour éviter trop d'appels
   debouncedAutoSave() {
     clearTimeout(this.saveTimeout);
+    this.showSaveStatus('pending');
     // Augmentation du délai à 3 secondes pour éviter les appels trop fréquents
     this.saveTimeout = setTimeout(() => this.autoSave(), 3000);
+  }
+
+  // Afficher l'état de sauvegarde dans le panneau total
+  showSaveStatus(state) {
+    if (!this.hasSaveStatusTarget) return
+    const el = this.saveStatusTarget
+    clearTimeout(this.saveStatusTimer)
+    el.classList.remove('d-none')
+    if (state === 'pending') {
+      el.innerHTML = '<small class="text-muted"><i class="bi bi-three-dots me-1"></i>Saisie en cours...</small>'
+    } else if (state === 'saving') {
+      el.innerHTML = '<small class="text-muted"><i class="bi bi-arrow-repeat spin me-1"></i>Sauvegarde...</small>'
+    } else if (state === 'saved') {
+      el.innerHTML = '<small style="color: var(--ren0vate-success);"><i class="bi bi-cloud-check me-1"></i>Sauvegardé</small>'
+      this.saveStatusTimer = setTimeout(() => el.classList.add('d-none'), 4000)
+    } else if (state === 'error') {
+      el.innerHTML = '<small class="text-danger"><i class="bi bi-exclamation-circle me-1"></i>Erreur de sauvegarde</small>'
+      this.saveStatusTimer = setTimeout(() => el.classList.add('d-none'), 6000)
+    }
   }
 
   // Méthode pour mettre à jour l'affichage de la catégorie
@@ -683,7 +675,12 @@ export default class extends Controller {
     const categoryNames = {
       'flandre_cat1': 'Catégorie I',
       'flandre_cat2': 'Catégorie II',
-      'flandre_cat3': 'Catégorie III'
+      'flandre_cat3': 'Catégorie III',
+      'flandre_cat4': 'Catégorie IV',
+      '1': 'Catégorie I',
+      '2': 'Catégorie II',
+      '3': 'Catégorie III',
+      '4': 'Catégorie IV'
     }
 
     const categoryName = categoryNames[category] || 'Catégorie non définie'
@@ -842,16 +839,15 @@ export default class extends Controller {
 
   // Collecter les données Amiante
   collectAmianteData() {
-    const surfaceToiture = parseFloat(document.getElementById('surface_toiture_amiante')?.value) || 0
-    const surfaceMurs = parseFloat(document.getElementById('surface_murs_amiante')?.value) || 0
+    const toitureEl = document.getElementById('surface_toiture_amiante')
+    const mursEl    = document.getElementById('surface_murs_amiante')
 
-    if (surfaceToiture <= 0 && surfaceMurs <= 0) {
-      return null
-    }
+    // La carte n'est pas présente sur cette page
+    if (!toitureEl && !mursEl) return null
 
     return {
-      surface_toiture: surfaceToiture,
-      surface_murs: surfaceMurs
+      surface_toiture: parseFloat(toitureEl?.value) || 0,
+      surface_murs:    parseFloat(mursEl?.value)    || 0
     }
   }
 
@@ -892,8 +888,7 @@ export default class extends Controller {
 
   // Valider les données Amiante
   isValidAmianteData(data) {
-    return data &&
-           (data.surface_toiture > 0 || data.surface_murs > 0)
+    return data !== null && data !== undefined
   }
 
   // Restaurer les données sauvegardées depuis la base de données

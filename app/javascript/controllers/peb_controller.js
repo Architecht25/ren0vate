@@ -133,6 +133,14 @@ export default class extends Controller {
       return
     }
 
+    // Vérifier que le label final est strictement meilleur que le label initial
+    // Ordre PEB : A (meilleur) > B > C > D > E > F (pire)
+    const labelOrder = { 'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5, 'F': 6 }
+    if ((labelOrder[labelFinal] || 99) >= (labelOrder[labelInitial] || 99)) {
+      this.afficherResultat(null)
+      return
+    }
+
     // Utiliser les données statiques
     const valeursData = this.valeursDataStatic
 

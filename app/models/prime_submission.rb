@@ -108,9 +108,15 @@ class PrimeSubmission < ApplicationRecord
   private
 
   def calculate_flandre_amount
-    # Logique de calcul pour la Flandre
-    # À implémenter selon les barèmes
-    10000 # Exemple
+    # Utiliser le total de la simulation Flandre la plus récente de cette propriété
+    simulation = property.simulations
+                         .where(region: 'flandre')
+                         .order(updated_at: :desc)
+                         .first
+    return simulation.total_complet_amount.to_f if simulation&.total_complet_amount&.positive?
+
+    # Fallback sur form_data si disponible (clé total_simule sauvegardée lors de la soumission)
+    form_data&.dig('total_simule').to_f
   end
 
   def calculate_wallonie_amount

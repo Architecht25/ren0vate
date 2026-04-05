@@ -35,7 +35,17 @@ function saveSimulationManually() {
   // Collecter les données selon la région
   const userInputs = collectAllUserInputs();
 
-  console.log('💾 Sauvegarde manuelle:', Object.keys(userInputs).length, 'saisies');
+  // Lire le total affiché dans le DOM (inclut primes + PEB + Amiante)
+  const totalDomEl = document.querySelector('[data-flandre-simulation-target="totalGeneral"]');
+  let calculatedTotal = null;
+  if (totalDomEl) {
+    // Format "8 570,00 €" → 8570.0
+    const rawText = totalDomEl.textContent.replace(/[€\s]/g, '').replace(/\./g, '').replace(',', '.');
+    const parsed = parseFloat(rawText);
+    if (!isNaN(parsed) && parsed > 0) calculatedTotal = parsed;
+  }
+
+  console.log('💾 Sauvegarde manuelle:', Object.keys(userInputs).length, 'saisies', calculatedTotal ? `| total: ${calculatedTotal}€` : '');
 
   // Envoyer la requête
   fetch(`/simulations/${simulationId}/update_prime_inputs`, {
@@ -45,7 +55,10 @@ function saveSimulationManually() {
       'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
       'Accept': 'application/json'
     },
-    body: JSON.stringify({ user_inputs: userInputs })
+    body: JSON.stringify({
+      user_inputs: userInputs,
+      ...(calculatedTotal !== null ? { calculated_total: calculatedTotal } : {})
+    })
   })
   .then(response => response.json())
   .then(data => {
@@ -119,13 +132,37 @@ function collectAllUserInputs() {
     });
   });
 
-  // Flandre
+  // Flandre — inputs standards avec data-slug
   document.querySelectorAll('input[data-slug], select[data-slug]').forEach(input => {
     const slug = input.dataset.slug;
     if (slug && input.value && input.value !== '0' && input.value !== '') {
       userInputs[slug] = input.value;
     }
   });
+
+  // Flandre — type de pompe à chaleur (select sans data-slug)
+  const typePompeSelect = document.querySelector('[data-flandre-simulation-card-target="typePompe"]');
+  if (typePompeSelect && typePompeSelect.value) {
+    userInputs['warmtepomp_type'] = typePompeSelect.value;
+  }
+
+  // Flandre — données PEB (selects avec data-peb-target)
+  const pebLabelInitial  = document.querySelector('[data-peb-target="labelInitial"]')?.value;
+  const pebTypeLogement  = document.querySelector('[data-peb-target="typeLogement"]')?.value;
+  const pebVentilation   = document.querySelector('[data-peb-target="ventilation"]')?.value;
+  const pebLabelFinal    = document.querySelector('[data-peb-target="labelFinal"]')?.value;
+  if (pebLabelInitial || pebTypeLogement || pebVentilation || pebLabelFinal) {
+    userInputs['peb_label_initial']  = pebLabelInitial  || '';
+    userInputs['peb_type_logement']  = pebTypeLogement  || '';
+    userInputs['peb_ventilation']    = pebVentilation   || '';
+    userInputs['peb_label_final']    = pebLabelFinal    || '';
+  }
+
+  // Flandre — données Amiante
+  const amianteToiture = document.getElementById('surface_toiture_amiante')?.value;
+  const amianteMurs    = document.getElementById('surface_murs_amiante')?.value;
+  if (amianteToiture && amianteToiture !== '0') userInputs['amiante_surface_toiture'] = amianteToiture;
+  if (amianteMurs    && amianteMurs    !== '0') userInputs['amiante_surface_murs']    = amianteMurs;
 
   // Bruxelles (similaire à Flandre)
   document.querySelectorAll('[data-controller*="bruxelles"] input[data-slug], [data-controller*="bruxelles"] select[data-slug]').forEach(input => {

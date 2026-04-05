@@ -930,9 +930,41 @@ class SimulationsController < ApplicationController
         }.to_json
       )
     elsif region == 'flandre'
+      existing_params = safe_parse_simulation_parameters(simulation)
+
+      # Convertir les nouvelles cartes (clés symbol) en string
+      new_prime_cards = (cards_data[:prime_cards] || {}).transform_keys(&:to_s)
+
+      # Restaurer les user_input_value depuis l'ancienne structure prime_cards
+      if existing_params['prime_cards'].present?
+        new_prime_cards.each do |group_key, group_data|
+          old_group = existing_params['prime_cards'][group_key]
+          next unless old_group && old_group['primes']
+
+          primes_list = group_data.is_a?(Hash) ? (group_data[:primes] || group_data['primes'] || []) : []
+          primes_list.each do |new_prime|
+            slug = (new_prime[:slug] || new_prime['slug']).to_s
+            old_prime = old_group['primes'].find { |p| (p['slug'] || p[:slug]).to_s == slug }
+            next unless old_prime && old_prime['user_input_value'].present?
+            if new_prime.is_a?(Hash)
+              new_prime.store(:user_input_value, old_prime['user_input_value'])
+            end
+          end
+        end
+      end
+
+      # Partir des params existants (préserve tous les inputs plats + PEB + amiante)
+      # et mettre à jour uniquement les données calculées fraîches
+      merged_params = existing_params.merge({
+        'prime_cards'           => new_prime_cards,
+        'total_general'         => cards_data[:total_general],
+        'category_used'         => cards_data[:category_used],
+        'calculation_timestamp' => cards_data[:calculation_timestamp]
+      })
+
       simulation.update(
         total_simule: cards_data[:total_general],
-        parameters: cards_data.to_json
+        parameters: merged_params.to_json
       )
     end
   end
@@ -1101,25 +1133,38 @@ class SimulationsController < ApplicationController
       voorbereiding_sanitair_elec renovation_toiture renovation_murs renovation_sol
     ]
 
+    # Extraire le type de pompe s'il est présent (envoyé séparément)
+    warmtepomp_type = flat_inputs['warmtepomp_type'].presence
+
     # Traiter chaque input
     flat_inputs.each do |key, value|
       if prime_slugs.include?(key.to_s)
         # C'est une prime normale
         if value.present? && value.to_f > 0
+          type = key.to_s == 'warmtepomp' ? warmtepomp_type : nil
           structured['primes'][key] = {
             'value' => value.to_f,
-            'type' => nil
+            'type'  => type
+          }
+        elsif key.to_s == 'warmtepomp' && warmtepomp_type.present?
+          # Pompe à chaleur : le montant est un forfait, pas besoin de valeur de facture
+          structured['primes'][key] = {
+            'value' => 0,
+            'type'  => warmtepomp_type
           }
         end
       elsif key.to_s.start_with?('peb_')
-        # Données PEB - TODO: à implémenter si nécessaire
         structured['peb'] ||= {}
         structured['peb'][key.to_s.sub('peb_', '')] = value
       elsif key.to_s.start_with?('amiante_')
-        # Données Amiante - TODO: à implémenter si nécessaire
         structured['amiante'] ||= {}
         structured['amiante'][key.to_s.sub('amiante_', '')] = value
       end
+    end
+
+    # Si warmtepomp_type présent mais pas encore dans primes
+    if warmtepomp_type.present? && !structured['primes']['warmtepomp']
+      structured['primes']['warmtepomp'] = { 'value' => 0, 'type' => warmtepomp_type }
     end
 
     # Supprimer les clés vides
@@ -1137,25 +1182,49 @@ class SimulationsController < ApplicationController
 
     label_initial = peb_data['label_initial']
     type_logement = peb_data['type_logement']
-    ventilation = peb_data['ventilation']
-    label_final = peb_data['label_final']
+    ventilation    = peb_data['ventilation']
+    label_final    = peb_data['label_final']
+    categorie      = peb_data['categorie'].to_s.presence || '4'
 
-    return 0 unless label_initial.present? && label_final.present? && type_logement.present?
+    return 0 unless label_initial.present? && label_final.present? && type_logement.present? && ventilation.present?
 
-    # Matrice PEB Flandre (même logique que côté frontend)
-    if label_initial == 'F' && label_final == 'A' && type_logement == 'maison'
-      if ventilation == 'avec_ventilation'
-        return 4000
-      else
-        return 2000
-      end
-    elsif label_initial == 'E' && label_final == 'A' && type_logement == 'maison'
-      return 3000
-    elsif label_initial == 'D' && label_final == 'A'
-      return 2000
-    end
+    # Vérifier que le label final est strictement meilleur que le label initial
+    label_order = { 'A' => 1, 'B' => 2, 'C' => 3, 'D' => 4, 'E' => 5, 'F' => 6 }
+    return 0 unless (label_order[label_final] || 99) < (label_order[label_initial] || 99)
 
-    return 0
+    # Matrice PEB Flandre - identique au seed db/seeds/flandre/peb.rb et au peb_controller.js
+    peb_matrix = {
+      '4' => {
+        'maison'      => { 'A' => { 'avec_ventilation' => 7000, 'sans_ventilation' => 6000 },
+                           'B' => { 'avec_ventilation' => 5250, 'sans_ventilation' => 4500 },
+                           'C' => { 'avec_ventilation' => 3500, 'sans_ventilation' => 3000 } },
+        'appartement' => { 'A' => { 'avec_ventilation' => 5250, 'sans_ventilation' => 4500 },
+                           'B' => { 'avec_ventilation' => 3500, 'sans_ventilation' => 3000 } }
+      },
+      '3' => {
+        'maison'      => { 'A' => { 'avec_ventilation' => 6000, 'sans_ventilation' => 5000 },
+                           'B' => { 'avec_ventilation' => 4500, 'sans_ventilation' => 3750 },
+                           'C' => { 'avec_ventilation' => 3000, 'sans_ventilation' => 2500 } },
+        'appartement' => { 'A' => { 'avec_ventilation' => 4500, 'sans_ventilation' => 3750 },
+                           'B' => { 'avec_ventilation' => 3000, 'sans_ventilation' => 2500 } }
+      },
+      '2' => {
+        'maison'      => { 'A' => { 'avec_ventilation' => 5000, 'sans_ventilation' => 4000 },
+                           'B' => { 'avec_ventilation' => 3750, 'sans_ventilation' => 3000 },
+                           'C' => { 'avec_ventilation' => 2500, 'sans_ventilation' => 2000 } },
+        'appartement' => { 'A' => { 'avec_ventilation' => 3750, 'sans_ventilation' => 3000 },
+                           'B' => { 'avec_ventilation' => 2500, 'sans_ventilation' => 2000 } }
+      },
+      '1' => {
+        'maison'      => { 'A' => { 'avec_ventilation' => 4000, 'sans_ventilation' => 3000 },
+                           'B' => { 'avec_ventilation' => 3000, 'sans_ventilation' => 2000 },
+                           'C' => { 'avec_ventilation' => 2000, 'sans_ventilation' => 1000 } },
+        'appartement' => { 'A' => { 'avec_ventilation' => 3000, 'sans_ventilation' => 2250 },
+                           'B' => { 'avec_ventilation' => 2000, 'sans_ventilation' => 1500 } }
+      }
+    }
+
+    peb_matrix.dig(categorie, type_logement, label_final, ventilation).to_i
   end
 
   # Calcul du montant amiante à partir des données
@@ -1233,7 +1302,23 @@ class SimulationsController < ApplicationController
   end
 
   def check_flandre_real_eligibility(user)
-    # TODO: Implémenter la logique Flandre si nécessaire
+    return { eligible: false, reason: "Revenus non renseignés" } unless user.revenu_demandeur
+
+    # Calcul du revenu total du ménage
+    total_income = user.revenu_demandeur
+    if user.situation_familiale.in?(%w[marie cohabitant couple]) && user.revenu_conjoint
+      total_income += user.revenu_conjoint
+    end
+
+    # Déductions Flandre : 4 320 € par personne à charge
+    nb_charges = (user.nombre_enfants || 0)
+    nb_charges += user.personnes_agees_charge if user.respond_to?(:personnes_agees_charge) && user.personnes_agees_charge
+    deductions = nb_charges * 4_320
+    adjusted_income = [total_income - deductions, 0].max
+
+    # Seuils de revenu Flandre 2025 — catégorie 1 = revenus élevés, toujours éligible
+    # En Flandre il n'y a pas de seuil d'inéligibilité, seulement des catégories
+    # Toutes les catégories sont éligibles (la catégorie détermine le montant de la prime)
     { eligible: true }
   end
 
