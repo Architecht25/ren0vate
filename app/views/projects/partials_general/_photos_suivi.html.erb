@@ -27,7 +27,7 @@
   <% if @photos.empty? %>
 
     <%# ── État vide compact ── %>
-    <div class="text-center py-3">
+    <div class="d-flex flex-column align-items-center justify-content-center py-4 h-100" style="min-height:160px;">
       <i class="bi bi-camera text-muted d-block mb-2" style="font-size:1.8rem;"></i>
       <p class="text-muted small mb-3">Documentez l'avancement de votre chantier avec des photos.</p>
       <div class="d-flex gap-1 justify-content-center flex-wrap">
@@ -42,10 +42,10 @@
 
   <% else %>
 
-    <%# ── Grille thumbnails (3 colonnes, 6 max) ── %>
+    <%# ── Grille thumbnails (4 colonnes, 8 max) ── %>
     <div class="row g-1 mb-2">
-      <% @photos.first(6).each do |doc| %>
-        <div class="col-4">
+      <% @photos.first(8).each do |doc| %>
+        <div class="col-3">
           <div class="rounded overflow-hidden position-relative" style="aspect-ratio:1;background:#eee;">
             <% if doc.file_url.present? %>
               <a href="<%= doc.file_url %>" target="_blank" rel="noopener noreferrer">
@@ -74,7 +74,7 @@
     <%= link_to project_documents_path(@project),
           class: "btn btn-sm btn-outline-secondary w-100", style: "font-size:0.8rem;" do %>
       <i class="bi bi-images me-1"></i>
-      <% if @photos.size > 6 %>
+      <% if @photos.size > 8 %>
         Voir les <%= @photos.size %> photos
       <% else %>
         Voir toutes les photos
