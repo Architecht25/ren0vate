@@ -3,18 +3,37 @@
 <%= render 'simulations/partials_wallonie/styles_cartes_wallonie' %>
 
 <!-- Section Primes Wallonie - 11 cartes modularisées -->
-<div data-controller="wallonie-simulation" data-wallonie-simulation-simulation-id-value="<%= @simulation.id %>"<% if defined?(local_assigns) && local_assigns[:simulation_category] %> data-simulation-category="<%= local_assigns[:simulation_category] %>"<% end %>>
-  <h4 class="mb-3">
-    <i class="bi bi-calculator text-primary me-2"></i>
-    <span data-wallonie-simulation-target="sectionTitle">
-      Vos primes Wallonie - Toutes catégories R1 à R5
-    </span>
-  </h4>
-  <p class="text-muted small mb-4">
-    💡 Les montants s'ajustent automatiquement selon votre catégorie de revenus
-  </p>
+<div<% if defined?(local_assigns) && local_assigns[:simulation_category] %> data-simulation-category="<%= local_assigns[:simulation_category] %>"<% end %>>
 
-  <div class="row g-3">
+  <!-- En-tête Étape 3 -->
+  <div class="card border-0 shadow mb-4">
+    <div class="card-header" style="background-color: var(--ren0vate-background-light); border-bottom: 1px solid var(--ren0vate-border);">
+      <div class="d-flex align-items-start justify-content-between flex-wrap gap-2">
+        <div>
+          <h5 class="card-title mb-1">
+            <i class="bi bi-calculator me-2" style="color: var(--ren0vate-primary);"></i>
+            Étape 3 : Simulation des primes —
+            <span data-wallonie-simulation-target="sectionTitle">Primes Wallonie</span>
+          </h5>
+          <p class="text-muted small mb-0">
+            Renseignez les données de vos travaux dans chaque carte ci-dessous pour simuler vos primes
+          </p>
+        </div>
+        <span class="badge align-self-center" style="background-color: var(--ren0vate-accent); color: white;">
+          <i class="bi bi-arrow-down-circle me-1"></i>Complétez les cartes
+        </span>
+      </div>
+    </div>
+    <div class="card-body p-2 py-1">
+      <p class="text-muted small mb-0">
+        <i class="bi bi-info-circle me-1"></i>
+        Les montants s'ajustent automatiquement selon votre catégorie de revenus
+        (<span data-wallonie-simulation-target="currentCategory" class="fw-semibold">Catégorie non définie</span>)
+      </p>
+    </div>
+  </div>
+
+  <div class="row g-2 gy-3">
     <!-- CARTE 1: AUDIT -->
     <%= render 'simulations/partials_wallonie/cartes/carte_audit' %>
 
@@ -49,82 +68,22 @@
     <%= render 'simulations/partials_wallonie/cartes/carte_installation_gaz' %>
   </div>
 
-      <!-- Section Résultats Wallonie -->
-      <div class="mt-5">
-        <div class="card border-0 shadow-lg">
-          <div class="card-body p-4">
-            <div class="text-center mb-4">
-              <h4 class="text-primary-custom mb-2">
-                <i class="bi bi-calculator me-2"></i>
-                Total estimé de vos primes Wallonie
-              </h4>
-              <p class="text-muted-custom small">Les montants s'ajustent automatiquement selon votre catégorie de revenus</p>
-            </div>
-
-            <!-- Organisation en 3 colonnes -->
-            <div class="row g-4">
-
-              <!-- Colonne 1: Affichage du total principal -->
-              <div class="col-12 col-lg-4">
-                <div class="bg-primary bg-opacity-10 rounded-3 p-4 text-center h-100 d-flex flex-column justify-content-center">
-                  <h2 class="display-5 fw-bold text-primary mb-2" data-wallonie-simulation-target="grandTotal">0,00 €</h2>
-                  <p class="text-muted mb-2">
-                    <span data-wallonie-simulation-target="currentCategory">Catégorie non définie</span>
-                  </p>
-                  <small class="text-muted">Estimation selon votre profil de revenus</small>
-                  <div class="mt-3">
-                    <i class="bi bi-info-circle text-primary fs-5 mb-2"></i>
-                    <p class="small text-muted mb-0">Ce montant est une estimation basée sur vos travaux sélectionnés</p>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Colonne 2: Résumé des primes sélectionnées -->
-              <div class="col-12 col-lg-4">
-                <div class="card border-0 bg-light h-100">
-                  <div class="card-body p-4">
-                    <h6 class="fw-bold text-dark mb-3">
-                      <i class="bi bi-list-check me-2"></i>
-                      Résumé de vos primes sélectionnées
-                    </h6>
-
-                    <!-- Liste dynamique des primes sélectionnées -->
-                    <div id="selected-primes-summary" data-wallonie-simulation-target="selectedPrimesSummary">
-                      <div class="text-muted text-center py-3">
-                        <i class="bi bi-info-circle me-2"></i>
-                        Sélectionnez des travaux dans les cartes ci-dessus pour voir le détail de vos primes
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Colonne 3: Note informative -->
-              <div class="col-12 col-lg-4">
-                <div class="alert alert-info mb-0 h-100">
-                  <div class="d-flex align-items-start h-100">
-                    <i class="bi bi-lightbulb me-3 mt-1 fs-5 flex-shrink-0"></i>
-                    <div>
-                      <h6 class="alert-heading mb-2">Bon à savoir</h6>
-                      <p class="mb-2 small">Ces montants sont des estimations basées sur les grilles tarifaires officielles de la Wallonie.</p>
-                      <ul class="mb-0 small">
-                        <li>Les primes varient selon votre catégorie de revenus (R1 à R4)</li>
-                        <li>Certaines primes sont forfaitaires, d'autres calculées au m² ou en pourcentage</li>
-                        <li>Des conditions techniques spécifiques peuvent s'appliquer</li>
-                        <li>Il est recommandé de vérifier votre éligibilité auprès des organismes officiels</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
+
+<script nonce="<%= content_security_policy_nonce %>">
+(function() {
+  function initPopovers() {
+    document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function(el) {
+      var existing = bootstrap.Popover.getInstance(el);
+      if (!existing) { new bootstrap.Popover(el, { html: false, trigger: 'hover focus' }); }
+    });
+  }
+  document.addEventListener('DOMContentLoaded', initPopovers);
+  document.addEventListener('turbo:load', initPopovers);
+  document.addEventListener('turbo:render', initPopovers);
+})();
+</script>
 
 <script nonce="<%= content_security_policy_nonce %>">
 document.addEventListener('DOMContentLoaded', function() {

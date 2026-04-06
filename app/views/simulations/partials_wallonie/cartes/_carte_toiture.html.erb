@@ -1,181 +1,72 @@
-<!-- CARTE 2: TOITURE - Complexe (5 inputs) -->
-<div class="col-lg-3 col-md-4 col-sm-6">
-  <div class="card border-0 shadow h-100 overflow-hidden card-premium" data-controller="wallonie-simulation-card" data-wallonie-simulation-card-slug-value="wallonie_toiture_global">
-    <!-- Image de fond avec overlay -->
-    <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/renovation_toiture_guwknw'); background-size: cover; background-position: center;">
-      <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));">
-        <div class="text-center text-white">
-          <i class="bi bi-house-door fs-3 mb-2 drop-shadow"></i>
-          <h6 class="fw-bold mb-0 drop-shadow">Travaux Toiture</h6>
-          <small class="opacity-90">5 types de primes</small>
+<!-- CARTE 2: TOITURE - Horizontal layout -->
+<div class="col-12">
+  <div class="card border-0 shadow overflow-hidden card-premium" data-controller="wallonie-simulation-card" data-wallonie-simulation-card-slug-value="wallonie_toiture_global">
+    <div class="d-flex">
+      <!-- Bannière latérale -->
+      <div class="flex-shrink-0 position-relative" style="width: 140px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_280,h_200,q_auto,f_auto/renovation_toiture_guwknw'); background-size: cover; background-position: center;">
+        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(51,65,85,0.65), rgba(51,65,85,0.45);">
+          <i class="bi bi-house-door fs-3 text-white drop-shadow mb-1"></i>
+          <span class="fw-bold text-white small text-center px-1 drop-shadow">Travaux Toiture</span>
+          <span class="badge bg-white bg-opacity-25 text-white mt-1">5 primes</span>
         </div>
       </div>
-    </div>
-
-    <div class="card-body">
-      <!-- Badge informatif -->
-      <div class="mb-3">
-        <div class="d-flex align-items-center justify-content-between">
-          <span class="badge bg-warning bg-opacity-20 text-warning rounded-pill px-3">
-            <i class="bi bi-house-door me-1"></i>Toiture
-          </span>
-          <small class="text-success">
-            <i class="bi bi-tools me-1"></i>5 primes
-          </small>
-        </div>
-      </div>
-
-      <div class="row g-3">
-        <!-- Remplacement couverture -->
-        <div class="col-md-6">
-          <label class="form-label small">Remplacement couverture (m²) :</label>
-          <div class="input-group input-group-sm">
-            <input type="number"
-                   class="form-control"
-                   placeholder="Surface m²"
-                   data-wallonie-simulation-card-target="inputCouverture"
-                   data-action="input->wallonie-simulation-card#calculateToiture"
-                   data-slug="wallonie_toiture_remplacement_couverture">
-            <span class="input-group-text bg-warning text-white"
-                  data-wallonie-simulation-card-target="resultCouverture">0 €</span>
-          </div>
-        <!-- Informations de la prime -->
-        <% condition_text = condition_prime("wallonie_toiture_remplacement_couverture") %>
-        <% if condition_text.present? %>
-          <div class="mt-1">
-            <div class="mb-1">
-              <small class="text-success">
-                <i class="bi bi-info-circle me-1"></i>
-                <%= condition_text %>
-              </small>
+      <!-- Contenu -->
+      <div class="flex-grow-1 p-3">
+        <div class="row g-2 align-items-end mb-2">
+          <% [['wallonie_toiture_remplacement_couverture','Remplacement couverture (m²)','inputCouverture','number','Surface m²','resultCouverture','calculateToiture','input'],
+              ['wallonie_toiture_appropriation_charpente','Appropriation charpente','inputCharpente',nil,nil,'resultCharpente','calculateToiture','change'],
+              ['wallonie_toiture_evacuation_eaux_pluviales','Évacuation eaux pluviales','inputEvacuation',nil,nil,'resultEvacuation','calculateToiture','change']
+          ].each do |slug, lbl, tgt, type, ph, res_tgt, action, evt| %>
+          <div class="col-md-4 col-lg-2">
+            <% cond = condition_prime(slug) %>
+            <label class="form-label small fw-medium mb-1"><%= lbl %>
+              <% if cond.present? %><i class="bi bi-info-circle text-info ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="<%= h(cond) %>" data-bs-placement="top"></i><% end %>
+            </label>
+            <div class="input-group input-group-sm">
+              <% if type == 'number' %>
+                <input type="number" class="form-control" placeholder="<%= ph %>"
+                       data-wallonie-simulation-card-target="<%= tgt %>"
+                       data-action="<%= evt %>->wallonie-simulation-card#<%= action %>"
+                       data-slug="<%= slug %>">
+              <% else %>
+                <select class="form-control"
+                        data-wallonie-simulation-card-target="<%= tgt %>"
+                        data-action="<%= evt %>->wallonie-simulation-card#<%= action %>"
+                        data-slug="<%= slug %>">
+                  <option value="0">Non</option>
+                  <option value="1">Oui</option>
+                </select>
+              <% end %>
+              <span class="input-group-text text-white" style="background-color: var(--ren0vate-primary);" data-wallonie-simulation-card-target="<%= res_tgt %>">0 €</span>
             </div>
           </div>
-        <% end %>
-
+          <% end %>
         </div>
-
-        <!-- Appropriation charpente -->
-        <div class="col-md-6">
-          <label class="form-label small">Appropriation charpente :</label>
-          <div class="input-group input-group-sm">
-            <select class="form-control"
-                    data-wallonie-simulation-card-target="inputCharpente"
-                    data-action="change->wallonie-simulation-card#calculateToiture"
-                    data-slug="wallonie_toiture_appropriation_charpente">
-              <option value="0">Non</option>
-              <option value="1">Oui</option>
-            </select>
-            <span class="input-group-text bg-warning text-white"
-                  data-wallonie-simulation-card-target="resultCharpente">0 €</span>
-          </div>
-        <!-- Informations de la prime -->
-        <% condition_text = condition_prime("wallonie_toiture_appropriation_charpente") %>
-        <% if condition_text.present? %>
-          <div class="mt-1">
-            <div class="mb-1">
-              <small class="text-success">
-                <i class="bi bi-info-circle me-1"></i>
-                <%= condition_text %>
-              </small>
+        <div class="row g-2 align-items-end">
+          <% [['wallonie_toiture_isolation_thermique','Isolation thermique (m²)','inputIsolationThermique','number','Surface m²','resultIsolationThermique','calculateToiture','input'],
+              ['wallonie_toiture_isolation_biosource','Isolation biosourcée (m²)','inputIsolationBiosource','number','Surface m²','resultIsolationBiosource','calculateToiture','input']
+          ].each do |slug, lbl, tgt, type, ph, res_tgt, action, evt| %>
+          <div class="col-md-4 col-lg-2">
+            <% cond = condition_prime(slug) %>
+            <label class="form-label small fw-medium mb-1"><%= lbl %>
+              <% if cond.present? %><i class="bi bi-info-circle text-info ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="<%= h(cond) %>" data-bs-placement="top"></i><% end %>
+            </label>
+            <div class="input-group input-group-sm">
+              <input type="number" class="form-control" placeholder="<%= ph %>"
+                     data-wallonie-simulation-card-target="<%= tgt %>"
+                     data-action="<%= evt %>->wallonie-simulation-card#<%= action %>"
+                     data-slug="<%= slug %>">
+              <span class="input-group-text text-white" style="background-color: var(--ren0vate-primary);" data-wallonie-simulation-card-target="<%= res_tgt %>">0 €</span>
             </div>
           </div>
-        <% end %>
-
-        </div>
-
-        <!-- Évacuation eaux pluviales -->
-        <div class="col-md-6">
-          <label class="form-label small">Évacuation eaux pluviales :</label>
-          <div class="input-group input-group-sm">
-            <select class="form-control"
-                    data-wallonie-simulation-card-target="inputEvacuation"
-                    data-action="change->wallonie-simulation-card#calculateToiture"
-                    data-slug="wallonie_toiture_evacuation_eaux_pluviales">
-              <option value="0">Non</option>
-              <option value="1">Oui</option>
-            </select>
-            <span class="input-group-text bg-warning text-white"
-                  data-wallonie-simulation-card-target="resultEvacuation">0 €</span>
-          </div>
-        <!-- Informations de la prime -->
-        <% condition_text = condition_prime("wallonie_toiture_evacuation_eaux_pluviales") %>
-        <% if condition_text.present? %>
-          <div class="mt-1">
-            <div class="mb-1">
-              <small class="text-success">
-                <i class="bi bi-info-circle me-1"></i>
-                <%= condition_text %>
-              </small>
+          <% end %>
+          <!-- Total -->
+          <div class="col-md-4 col-lg-2 ms-auto d-flex align-items-end justify-content-end">
+            <div class="text-end">
+              <strong class="small d-block fw-semibold" style="color: var(--ren0vate-accent);">Total Toiture :</strong>
+              <span class="badge fs-6" style="background-color: var(--ren0vate-accent); color: white;" data-wallonie-simulation-card-target="total">0 €</span>
             </div>
           </div>
-        <% end %>
-
-        </div>
-
-        <!-- Isolation thermique -->
-        <div class="col-md-6">
-          <label class="form-label small">Isolation thermique (m²) :</label>
-          <div class="input-group input-group-sm">
-            <input type="number"
-                   class="form-control"
-                   placeholder="Surface m²"
-                   data-wallonie-simulation-card-target="inputIsolationThermique"
-                   data-action="input->wallonie-simulation-card#calculateToiture"
-                   data-slug="wallonie_toiture_isolation_thermique">
-            <span class="input-group-text bg-warning text-white"
-                  data-wallonie-simulation-card-target="resultIsolationThermique">0 €</span>
-          </div>
-        <!-- Informations de la prime -->
-        <% condition_text = condition_prime("wallonie_toiture_isolation_thermique") %>
-        <% if condition_text.present? %>
-          <div class="mt-1">
-            <div class="mb-1">
-              <small class="text-success">
-                <i class="bi bi-info-circle me-1"></i>
-                <%= condition_text %>
-              </small>
-            </div>
-          </div>
-        <% end %>
-
-        </div>
-
-        <!-- Isolation biosourcée -->
-        <div class="col-md-12">
-          <label class="form-label small">Isolation biosourcée (m²) :</label>
-          <div class="input-group input-group-sm">
-            <input type="number"
-                   class="form-control"
-                   placeholder="Surface m²"
-                   data-wallonie-simulation-card-target="inputIsolationBiosource"
-                   data-action="input->wallonie-simulation-card#calculateToiture"
-                   data-slug="wallonie_toiture_isolation_biosource">
-            <span class="input-group-text bg-warning text-white"
-                  data-wallonie-simulation-card-target="resultIsolationBiosource">0 €</span>
-          </div>
-        <!-- Informations de la prime -->
-        <% condition_text = condition_prime("wallonie_toiture_isolation_biosource") %>
-        <% if condition_text.present? %>
-          <div class="mt-1">
-            <div class="mb-1">
-              <small class="text-success">
-                <i class="bi bi-info-circle me-1"></i>
-                <%= condition_text %>
-              </small>
-            </div>
-          </div>
-        <% end %>
-
-        </div>
-      </div>
-
-      <!-- Total Toiture -->
-      <div class="mt-3 pt-2 border-top">
-        <div class="d-flex justify-content-between align-items-center">
-          <strong class="text-warning">Total Toiture :</strong>
-          <span class="badge bg-warning fs-5" data-wallonie-simulation-card-target="total">
-            0 €
-          </span>
         </div>
       </div>
     </div>

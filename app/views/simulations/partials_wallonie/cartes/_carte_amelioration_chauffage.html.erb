@@ -1,335 +1,78 @@
-<!-- CARTE 7: AMÉLIORATION CHAUFFAGE - Très complexe (9 inputs) -->
-<div class="col-lg-6 col-md-4 col-sm-6">
-  <div class="card border-0 shadow h-100 overflow-hidden card-premium" data-controller="wallonie-simulation-card" data-wallonie-simulation-card-slug-value="wallonie_amelioration_chauffage_global">
-
-    <!-- Image de fond avec overlay -->
-    <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/efficacite-energetique-batiment_mlgdaj'); background-size: cover; background-position: center;">
-      <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(255, 193, 7, 0.35), rgba(255, 193, 7, 0.2));">
-        <div class="text-center text-white">
-          <i class="bi bi-gear fs-3 mb-2 drop-shadow"></i>
-          <h6 class="fw-bold mb-0 drop-shadow">Améliorations</h6>
-          <small class="opacity-90">9 améliorations</small>
+<div class="col-12">
+  <div class="card border-0 shadow overflow-hidden card-premium" data-controller="wallonie-simulation-card" data-wallonie-simulation-card-slug-value="wallonie_amelioration_chauffage_global">
+    <div class="d-flex">
+      <div class="flex-shrink-0 position-relative" style="width: 140px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_280,h_200,q_auto,f_auto/efficacite-energetique-batiment_mlgdaj'); background-size: cover; background-position: center;">
+        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(51,65,85,0.65), rgba(51,65,85,0.45);">
+          <i class="bi bi-thermometer-sun fs-3 text-white drop-shadow mb-1"></i>
+          <span class="fw-bold text-white small text-center px-1 drop-shadow">Amélioration chauffage</span>
+          <span class="badge bg-white bg-opacity-25 text-white mt-1">10 primes</span>
         </div>
       </div>
-    </div>
-
-    <div class="card-body">
-      <!-- Badge informatif -->
-      <div class="mb-3">
-        <div class="d-flex align-items-center justify-content-between">
-          <span class="badge bg-warning bg-opacity-20 text-warning rounded-pill px-3">
-            <i class="bi bi-gear me-1"></i>Améliorations
-          </span>
-          <small class="text-success">
-            <i class="bi bi-tools me-1"></i>9 types
-          </small>
+      <div class="flex-grow-1 p-3">
+        <%# Ligne 1 : 5 premiers champs %>
+        <div class="row g-2 align-items-end mb-2">
+          <% [["wallonie_chauffage_isol_conduites","Isol. conduites","inputIsolationConduites",nil,nil,"resultIsolationConduites","calculateAmeliorationChauffage","change"],
+              ["wallonie_chauffage_isol_ballon_500","Isol. ballon ≤500l","inputIsolationBallon500",nil,nil,"resultIsolationBallon500","calculateAmeliorationChauffage","change"],
+              ["wallonie_chauffage_isol_ballon_sup","Isol. ballon >500l","inputIsolationBallonPlus500",nil,nil,"resultIsolationBallonPlus500","calculateAmeliorationChauffage","change"],
+              ["wallonie_chauffage_circ_3logt","Circ. max 3 logt.","inputCirculateurMax3Logements",nil,nil,"resultCirculateurMax3Logements","calculateAmeliorationChauffage","change"],
+              ["wallonie_chauffage_circ_4logt","Circ. min 4 logt.","inputCirculateurMin4Logements",nil,nil,"resultCirculateurMin4Logements","calculateAmeliorationChauffage","change"]
+          ].each do |slug, lbl, tgt, type, ph, res_tgt, action, evt| %>
+          <div class="col-md-4 col-lg-2">
+            <% cond = condition_prime(slug) %>
+            <label class="form-label small fw-medium mb-1"><%= lbl %>
+              <% if cond.present? %><i class="bi bi-info-circle text-info ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="<%= h(cond) %>" data-bs-placement="top"></i><% end %>
+            </label>
+            <div class="input-group input-group-sm">
+              <select class="form-control"
+                      data-wallonie-simulation-card-target="<%= tgt %>"
+                      data-action="<%= evt %>->wallonie-simulation-card#<%= action %>"
+                      data-slug="<%= slug %>">
+                <option value="0">Non</option>
+                <option value="1">Oui</option>
+              </select>
+              <span class="input-group-text text-white" style="background-color: var(--ren0vate-primary);" data-wallonie-simulation-card-target="<%= res_tgt %>">0 €</span>
+            </div>
+          </div>
+          <% end %>
         </div>
-      </div>
-
-      <div class="row g-3">
-        <!-- Colonne 1 -->
-        <div class="col-md-6">
-          <!-- Isolation conduites de chauffage -->
-          <div class="mb-2">
-            <label class="form-label small">Isolation conduites de chauffage :</label>
+        <%# Ligne 2 : 5 derniers champs + total à droite %>
+        <div class="row g-2 align-items-end">
+          <% [["wallonie_chauffage_ballon_500","Rempl. ballon ≤500l","inputRemplacementBallon500",nil,nil,"resultRemplacementBallon500","calculateAmeliorationChauffage","change"],
+              ["wallonie_chauffage_ballon_sup","Rempl. ballon >500l","inputRemplacementBallonPlus500",nil,nil,"resultRemplacementBallonPlus500","calculateAmeliorationChauffage","change"],
+              ["wallonie_chauffage_vannes_base","Min 5 vannes therm.","inputMin5VannesThermostatiques",nil,nil,"resultMin5VannesThermostatiques","calculateAmeliorationChauffage","change"],
+              ["wallonie_chauffage_vannes_sup","Vannes supplémentaires","inputVannesSupplementaires","number","Nombre","resultVannesSupplementaires","calculateAmeliorationChauffage","input"],
+              ["wallonie_chauffage_thermostat","Thermostat ambiance","inputThermostatAmbiance",nil,nil,"resultThermostatAmbiance","calculateAmeliorationChauffage","change"]
+          ].each do |slug, lbl, tgt, type, ph, res_tgt, action, evt| %>
+          <div class="col-md-4 col-lg-2">
+            <% cond = condition_prime(slug) %>
+            <label class="form-label small fw-medium mb-1"><%= lbl %>
+              <% if cond.present? %><i class="bi bi-info-circle text-info ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="<%= h(cond) %>" data-bs-placement="top"></i><% end %>
+            </label>
             <div class="input-group input-group-sm">
-              <select class="form-control"
-                      data-wallonie-simulation-card-target="inputIsolationConduites"
-                      data-slug="wallonie_chauffage_isol_conduites"
-                      data-action="change->wallonie-simulation-card#calculateAmeliorationChauffage">
-                <option value="0">Non</option>
-                <option value="1">Oui</option>
-              </select>
-              <span class="input-group-text bg-warning text-white"
-                    data-wallonie-simulation-card-target="resultIsolationConduites">0 €</span>
-            </div>
-        <!-- Informations de la prime -->
-        <% condition_text = condition_prime("wallonie_chauffage_isol_conduites") %>
-        <% if condition_text.present? %>
-          <div class="mt-1">
-            <div class="mb-1">
-              <small class="text-success">
-                <i class="bi bi-info-circle me-1"></i>
-                <%= condition_text %>
-              </small>
+              <% if type == 'number' %>
+                <input type="number" class="form-control" placeholder="<%= ph %>"
+                       data-wallonie-simulation-card-target="<%= tgt %>"
+                       data-action="<%= evt %>->wallonie-simulation-card#<%= action %>"
+                       data-slug="<%= slug %>">
+              <% else %>
+                <select class="form-control"
+                        data-wallonie-simulation-card-target="<%= tgt %>"
+                        data-action="<%= evt %>->wallonie-simulation-card#<%= action %>"
+                        data-slug="<%= slug %>">
+                  <option value="0">Non</option>
+                  <option value="1">Oui</option>
+                </select>
+              <% end %>
+              <span class="input-group-text text-white" style="background-color: var(--ren0vate-primary);" data-wallonie-simulation-card-target="<%= res_tgt %>">0 €</span>
             </div>
           </div>
-        <% end %>
-
-          </div>
-
-          <!-- Isolation ballon ≤500l -->
-          <div class="mb-2">
-            <label class="form-label small">Isolation ballon ≤500l :</label>
-            <div class="input-group input-group-sm">
-              <select class="form-control"
-                      data-wallonie-simulation-card-target="inputIsolationBallon500"
-                      data-slug="wallonie_chauffage_isol_ballon_500"
-                      data-action="change->wallonie-simulation-card#calculateAmeliorationChauffage">
-                <option value="0">Non</option>
-                <option value="1">Oui</option>
-              </select>
-              <span class="input-group-text bg-warning text-white"
-                    data-wallonie-simulation-card-target="resultIsolationBallon500">0 €</span>
-            </div>
-        <!-- Informations de la prime -->
-        <% condition_text = condition_prime("wallonie_chauffage_isol_ballon_500") %>
-        <% if condition_text.present? %>
-          <div class="mt-1">
-            <div class="mb-1">
-              <small class="text-success">
-                <i class="bi bi-info-circle me-1"></i>
-                <%= condition_text %>
-              </small>
+          <% end %>
+          <div class="col-md-4 col-lg-2 ms-auto d-flex align-items-end justify-content-end">
+            <div class="text-end">
+              <strong class="small d-block fw-semibold" style="color: var(--ren0vate-accent);">Total Chauffage :</strong>
+              <span class="badge fs-6" style="background-color: var(--ren0vate-accent); color: white;" data-wallonie-simulation-card-target="total">0 €</span>
             </div>
           </div>
-        <% end %>
-
-          </div>
-
-          <!-- Isolation ballon >500l -->
-          <div class="mb-2">
-            <label class="form-label small">Isolation ballon >500l :</label>
-            <div class="input-group input-group-sm">
-              <select class="form-control"
-                      data-wallonie-simulation-card-target="inputIsolationBallonPlus500"
-                      data-slug="wallonie_chauffage_isol_ballon_sup"
-                      data-action="change->wallonie-simulation-card#calculateAmeliorationChauffage">
-                <option value="0">Non</option>
-                <option value="1">Oui</option>
-              </select>
-              <span class="input-group-text bg-warning text-white"
-                    data-wallonie-simulation-card-target="resultIsolationBallonPlus500">0 €</span>
-            </div>
-        <!-- Informations de la prime -->
-        <% condition_text = condition_prime("wallonie_chauffage_isol_ballon_sup") %>
-        <% if condition_text.present? %>
-          <div class="mt-1">
-            <div class="mb-1">
-              <small class="text-success">
-                <i class="bi bi-info-circle me-1"></i>
-                <%= condition_text %>
-              </small>
-            </div>
-          </div>
-        <% end %>
-
-          </div>
-
-          <!-- Circulateur max 3 logements -->
-          <div class="mb-2">
-            <label class="form-label small">Circulateur (max 3 logements) :</label>
-            <div class="input-group input-group-sm">
-              <select class="form-control"
-                      data-wallonie-simulation-card-target="inputCirculateurMax3Logements"
-                      data-slug="wallonie_chauffage_circ_3logt"
-                      data-action="change->wallonie-simulation-card#calculateAmeliorationChauffage">
-                <option value="0">Non</option>
-                <option value="1">Oui</option>
-              </select>
-              <span class="input-group-text bg-warning text-white"
-                    data-wallonie-simulation-card-target="resultCirculateurMax3Logements">0 €</span>
-            </div>
-        <!-- Informations de la prime -->
-        <% condition_text = condition_prime("wallonie_chauffage_circ_3logt") %>
-        <% if condition_text.present? %>
-          <div class="mt-1">
-            <div class="mb-1">
-              <small class="text-success">
-                <i class="bi bi-info-circle me-1"></i>
-                <%= condition_text %>
-              </small>
-            </div>
-          </div>
-        <% end %>
-
-          </div>
-
-          <!-- Circulateur min 4 logements -->
-          <div class="mb-2">
-            <label class="form-label small">Circulateur (min 4 logements) :</label>
-            <div class="input-group input-group-sm">
-              <select class="form-control"
-                      data-wallonie-simulation-card-target="inputCirculateurMin4Logements"
-                      data-slug="wallonie_chauffage_circ_4logt"
-                      data-action="change->wallonie-simulation-card#calculateAmeliorationChauffage">
-                <option value="0">Non</option>
-                <option value="1">Oui</option>
-              </select>
-              <span class="input-group-text bg-warning text-white"
-                    data-wallonie-simulation-card-target="resultCirculateurMin4Logements">0 €</span>
-            </div>
-        <!-- Informations de la prime -->
-        <% condition_text = condition_prime("wallonie_chauffage_circ_4logt") %>
-        <% if condition_text.present? %>
-          <div class="mt-1">
-            <div class="mb-1">
-              <small class="text-success">
-                <i class="bi bi-info-circle me-1"></i>
-                <%= condition_text %>
-              </small>
-            </div>
-          </div>
-        <% end %>
-
-          </div>
-        </div>
-
-        <!-- Colonne 2 -->
-        <div class="col-md-6">
-          <!-- Remplacement ballon ≤500l -->
-          <div class="mb-2">
-            <label class="form-label small">Remplacement ballon ≤500l :</label>
-            <div class="input-group input-group-sm">
-              <select class="form-control"
-                      data-wallonie-simulation-card-target="inputRemplacementBallon500"
-                      data-slug="wallonie_chauffage_ballon_500"
-                      data-action="change->wallonie-simulation-card#calculateAmeliorationChauffage">
-                <option value="0">Non</option>
-                <option value="1">Oui</option>
-              </select>
-              <span class="input-group-text bg-warning text-white"
-                    data-wallonie-simulation-card-target="resultRemplacementBallon500">0 €</span>
-            </div>
-        <!-- Informations de la prime -->
-        <% condition_text = condition_prime("wallonie_chauffage_ballon_500") %>
-        <% if condition_text.present? %>
-          <div class="mt-1">
-            <div class="mb-1">
-              <small class="text-success">
-                <i class="bi bi-info-circle me-1"></i>
-                <%= condition_text %>
-              </small>
-            </div>
-          </div>
-        <% end %>
-
-          </div>
-
-          <!-- Remplacement ballon >500l -->
-          <div class="mb-2">
-            <label class="form-label small">Remplacement ballon >500l :</label>
-            <div class="input-group input-group-sm">
-              <select class="form-control"
-                      data-wallonie-simulation-card-target="inputRemplacementBallonPlus500"
-                      data-slug="wallonie_chauffage_ballon_sup"
-                      data-action="change->wallonie-simulation-card#calculateAmeliorationChauffage">
-                <option value="0">Non</option>
-                <option value="1">Oui</option>
-              </select>
-              <span class="input-group-text bg-warning text-white"
-                    data-wallonie-simulation-card-target="resultRemplacementBallonPlus500">0 €</span>
-            </div>
-        <!-- Informations de la prime -->
-        <% condition_text = condition_prime("wallonie_chauffage_ballon_sup") %>
-        <% if condition_text.present? %>
-          <div class="mt-1">
-            <div class="mb-1">
-              <small class="text-success">
-                <i class="bi bi-info-circle me-1"></i>
-                <%= condition_text %>
-              </small>
-            </div>
-          </div>
-        <% end %>
-
-          </div>
-
-          <!-- Minimum 5 vannes thermostatiques -->
-          <div class="mb-2">
-            <label class="form-label small">Min 5 vannes thermostatiques :</label>
-            <div class="input-group input-group-sm">
-              <select class="form-control"
-                      data-wallonie-simulation-card-target="inputMin5VannesThermostatiques"
-                      data-slug="wallonie_chauffage_vannes_base"
-                      data-action="change->wallonie-simulation-card#calculateAmeliorationChauffage">
-                <option value="0">Non</option>
-                <option value="1">Oui</option>
-              </select>
-              <span class="input-group-text bg-warning text-white"
-                    data-wallonie-simulation-card-target="resultMin5VannesThermostatiques">0 €</span>
-            </div>
-        <!-- Informations de la prime -->
-        <% condition_text = condition_prime("wallonie_chauffage_vannes_base") %>
-        <% if condition_text.present? %>
-          <div class="mt-1">
-            <div class="mb-1">
-              <small class="text-success">
-                <i class="bi bi-info-circle me-1"></i>
-                <%= condition_text %>
-              </small>
-            </div>
-          </div>
-        <% end %>
-
-          </div>
-
-          <!-- Vannes supplémentaires -->
-          <div class="mb-2">
-            <label class="form-label small">Vannes supplémentaires :</label>
-            <div class="input-group input-group-sm">
-              <input type="number"
-                     min="0"
-                     class="form-control"
-                     placeholder="Nombre"
-                     data-wallonie-simulation-card-target="inputVannesSupplementaires"
-                     data-slug="wallonie_chauffage_vannes_sup"
-                     data-action="input->wallonie-simulation-card#calculateAmeliorationChauffage">
-              <span class="input-group-text bg-warning text-white"
-                    data-wallonie-simulation-card-target="resultVannesSupplementaires">0 €</span>
-            </div>
-        <!-- Informations de la prime -->
-        <% condition_text = condition_prime("wallonie_chauffage_vannes_sup") %>
-        <% if condition_text.present? %>
-          <div class="mt-1">
-            <div class="mb-1">
-              <small class="text-success">
-                <i class="bi bi-info-circle me-1"></i>
-                <%= condition_text %>
-              </small>
-            </div>
-          </div>
-        <% end %>
-
-          </div>
-        </div>
-      </div>
-
-      <!-- Thermostat d'ambiance en pleine largeur -->
-      <div class="mt-2">
-        <label class="form-label small">Thermostat d'ambiance :</label>
-        <div class="input-group input-group-sm">
-          <select class="form-control"
-                  data-wallonie-simulation-card-target="inputThermostatAmbiance"
-                  data-slug="wallonie_chauffage_thermostat"
-                  data-action="change->wallonie-simulation-card#calculateAmeliorationChauffage">
-            <option value="0">Non</option>
-            <option value="1">Oui</option>
-          </select>
-          <span class="input-group-text bg-warning text-white"
-                data-wallonie-simulation-card-target="resultThermostatAmbiance">0 €</span>
-        </div>
-        <!-- Informations de la prime -->
-        <% condition_text = condition_prime("wallonie_chauffage_thermostat") %>
-        <% if condition_text.present? %>
-          <div class="mt-1">
-            <div class="mb-1">
-              <small class="text-success">
-                <i class="bi bi-info-circle me-1"></i>
-                <%= condition_text %>
-              </small>
-            </div>
-          </div>
-        <% end %>
-      </div>
-
-      <!-- Total Amélioration Chauffage -->
-      <div class="mt-3 pt-2 border-top">
-        <div class="d-flex justify-content-between align-items-center">
-          <strong class="text-warning">Total Améliorations :</strong>
-          <span class="badge bg-warning fs-6" data-wallonie-simulation-card-target="total">
-            0 €
-          </span>
         </div>
       </div>
     </div>

@@ -54,8 +54,14 @@ export default class extends Controller {
   }
 
   getCurrentCategory() {
-    // Récupérer la catégorie depuis localStorage ou par défaut
-    return localStorage.getItem('selectedWallonieCategory') || 'wallonie_r4'
+    let category = localStorage.getItem('selectedWallonieCategory') || 'wallonie_r4'
+    // Migrer les anciens formats vers wallonie_r{n}
+    if (!category.startsWith('wallonie_r')) {
+      const numMatch = category.match(/(\d+)$/)
+      category = numMatch ? 'wallonie_r' + numMatch[1] : 'wallonie_r4'
+      localStorage.setItem('selectedWallonieCategory', category)
+    }
+    return category
   }
 
   get simulationId() {
@@ -69,10 +75,21 @@ export default class extends Controller {
       const response = await fetch('/assets/data/primes_wallonie.json')
       if (response.ok) {
         this.primesData = await response.json()
-      } else {
+        this.recalculateAllCards()
       }
     } catch (error) {
     }
+  }
+
+  recalculateAllCards() {
+    const cards = this.element.querySelectorAll('[data-controller~="wallonie-simulation-card"]')
+    cards.forEach(card => {
+      const controller = this.application.getControllerForElementAndIdentifier(card, 'wallonie-simulation-card')
+      if (controller) {
+        controller.calculate()
+      }
+    })
+    this.updateTotalGlobal()
   }
 
   getPrimesData() {
@@ -80,46 +97,34 @@ export default class extends Controller {
   }
 
   updateTotalGlobal() {
-    // Utiliser le total calculé par le backend si disponible
-    let total = this.backendCalculatedTotal || 0;
+    // Toujours calculer depuis les totaux DOM des cartes (valeur fraîche, jamais depuis un cache)
+    let total = 0;
 
-    // Si on a un total backend, on l'utilise directement (plus fiable)
-    if (this.backendCalculatedTotal && this.backendCalculatedTotal > 0) {
-      total = this.backendCalculatedTotal;
-    } else {
+    const cartesSlugs = [
+      'wallonie_realisation_audit_logement',
+      'wallonie_toiture_global',
+      'wallonie_murs_global',
+      'wallonie_sols_global',
+      'wallonie_ventilation_global',
+      'wallonie_chaudiere_global',
+      'wallonie_amelioration_chauffage_global',
+      'wallonie_eau_chaude_sanitaire_global',
+      'wallonie_menuiseries_vitrages',
+      'wallonie_installation_electrique',
+      'wallonie_installation_gaz'
+    ]
 
-      // Slugs des cartes Wallonie principales (basés sur les logs de connexion)
-      const cartesSlugs = [
-        'wallonie_realisation_audit_logement',
-        'wallonie_toiture_global',
-        'wallonie_murs_global',
-        'wallonie_sols_global',
-        'wallonie_ventilation_global',
-        'wallonie_chaudiere_global',
-        'wallonie_amelioration_chauffage_global',
-        'wallonie_eau_chaude_sanitaire_global',
-        'wallonie_menuiseries_vitrages',
-        'wallonie_installation_electrique',
-        'wallonie_installation_gaz'
-      ]
-
-      // Calculer le total en parcourant toutes les cartes (utiliser les bons sélecteurs)
-      cartesSlugs.forEach(slug => {
-        const carteElement = document.querySelector(`[data-wallonie-simulation-card-slug-value="${slug}"]`)
-        if (carteElement) {
-          const totalElement = carteElement.querySelector('[data-wallonie-simulation-card-target="total"]')
-          if (totalElement) {
-            const montantText = totalElement.textContent.replace('€', '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.')
-            const montant = parseFloat(montantText) || 0
-            total += montant
-            if (montant > 0) {
-            }
-          } else {
-          }
-        } else {
+    cartesSlugs.forEach(slug => {
+      const carteElement = document.querySelector(`[data-wallonie-simulation-card-slug-value="${slug}"]`)
+      if (carteElement) {
+        const totalElement = carteElement.querySelector('[data-wallonie-simulation-card-target="total"]')
+        if (totalElement) {
+          const montantText = totalElement.textContent.replace('€', '').replace(/\s/g, '').replace(/\./g, '').replace(',', '.')
+          const montant = parseFloat(montantText) || 0
+          total += montant
         }
-      })
-    }
+      }
+    })
 
 
     // Mettre à jour l'affichage du total
@@ -223,8 +228,8 @@ export default class extends Controller {
           const montant = parseFloat(montantText) || 0
 
           if (montant > 0) {
-            // Trouver le titre de la carte
-            const titleElement = carteElement.querySelector('h6, h5, .card-title')
+            // Trouver le titre de la carte (bannière latérale)
+            const titleElement = carteElement.querySelector('.drop-shadow.fw-bold, h6, h5, .card-title')
             const title = titleElement ? titleElement.textContent.trim() : slug
 
             selectedPrimes.push({
@@ -530,6 +535,9 @@ export default class extends Controller {
     window.isRestoringValues = true
     window.restorationStartTime = Date.now()
 
+    let hasUpdatedCards = false
+    let hasRestoredInputs = false
+
     try {
       const response = await fetch(`/fr/simulations/${this.simulationIdValue}/restore_prime_inputs`, {
         method: 'GET',
@@ -547,7 +555,9 @@ export default class extends Controller {
 
           // Restaurer les données de primes Wallonie
           const inputKeys = Object.keys(result.user_inputs)
-          if (inputKeys.length === 0) {
+
+          if (inputKeys.length > 0) {
+            hasRestoredInputs = true
           }
 
           inputKeys.forEach(slug => {
@@ -561,6 +571,7 @@ export default class extends Controller {
 
           // Restaurer les cartes mises à jour si disponibles
           if (result.updated_cards) {
+            hasUpdatedCards = true
             this.updateIndividualPrimeDisplays(result.updated_cards)
             this.emitPrimeUpdateEvent(result.updated_cards)
           }
@@ -575,8 +586,12 @@ export default class extends Controller {
     } catch (error) {
     } finally {
       // Libérer le verrou de restauration après un délai
+      // Si le serveur n'a pas fourni les montants calculés, forcer un recalcul via autoSave
       setTimeout(() => {
         window.isRestoringValues = false
+        if (hasRestoredInputs && !hasUpdatedCards) {
+          this.autoSave()
+        }
       }, 1000)
     }
   }

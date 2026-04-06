@@ -567,10 +567,10 @@ class SimulationsController < ApplicationController
             {
               property_id: @simulation.property_id,
               project_id: @simulation.project_id,
-              simulation_type: 'particulier'
             },
-            category: @simulation.category
+            user: @simulation.user
           )
+          calculator_service.instance_variable_set(:@category, @simulation.category)
           result = calculator_service.calculate_all_primes(user_inputs)
           updated_cards = build_updated_cards_from_prime_results(result[:prime_results])
           Rails.logger.info "✅ Montants Wallonie recalculés pour restauration"
@@ -920,14 +920,19 @@ class SimulationsController < ApplicationController
 
     # Mettre à jour la simulation avec les données des cartes
     if region == 'wallonie'
+      existing_params = safe_parse_simulation_parameters(simulation)
+
+      # Préserver toutes les saisies utilisateur (clés wallonie_*) et fusionner avec les nouvelles données calculées
+      merged_params = existing_params.merge({
+        'prime_cards'           => cards_data[:cards],
+        'total_general'         => cards_data[:total],
+        'category_used'         => cards_data[:category_used],
+        'calculation_timestamp' => Time.current
+      })
+
       simulation.update(
         total_simule: cards_data[:total],
-        parameters: {
-          prime_cards: cards_data[:cards],
-          total_general: cards_data[:total],
-          category_used: cards_data[:category_used],
-          calculation_timestamp: Time.current
-        }.to_json
+        parameters: merged_params.to_json
       )
     elsif region == 'flandre'
       existing_params = safe_parse_simulation_parameters(simulation)

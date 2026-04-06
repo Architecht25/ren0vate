@@ -6,8 +6,12 @@ export default class extends Controller {
 
   connect() {
     this.setupPrimesData()
-    this.updateTotalGlobal()
     this.setupEventListeners()
+    // Recalculer les cartes enfants après que le parent soit prêt
+    // (les cartes peuvent s'être connectées avant et avoir eu primesData = undefined)
+    setTimeout(() => {
+      this.recalculateAllCards()
+    }, 0)
   }
 
   setupEventListeners() {
@@ -31,14 +35,15 @@ export default class extends Controller {
     // Récupérer la catégorie de revenus depuis le localStorage
     let storedCategory = localStorage.getItem('selectedWallonieCategory') || 'wallonie_r3'
 
-    // S'assurer que la catégorie a le bon format (avec préfixe wallonie_)
-    if (!storedCategory.startsWith('wallonie_')) {
-      storedCategory = 'wallonie_' + storedCategory
-    }
-
-    // CORRECTION TEMPORAIRE: Forcer le bon format si on a wallonie_2 -> wallonie_r2
-    if (storedCategory === 'wallonie_2') {
-      storedCategory = 'wallonie_r2'
+    // S'assurer que la catégorie a le bon format (avec préfixe wallonie_r)
+    if (!storedCategory.startsWith('wallonie_r')) {
+      // Migrer les anciens formats : "2" -> "wallonie_r2", "wallonie_2" -> "wallonie_r2"
+      const numMatch = storedCategory.match(/(\d+)$/)
+      if (numMatch) {
+        storedCategory = 'wallonie_r' + numMatch[1]
+      } else {
+        storedCategory = 'wallonie_r3'
+      }
       localStorage.setItem('selectedWallonieCategory', storedCategory)
     }
 
@@ -102,6 +107,17 @@ export default class extends Controller {
 
   // Méthode appelée par les cartes enfants pour notifier un changement
   cardUpdated() {
+    this.updateTotalGlobal()
+  }
+
+  recalculateAllCards() {
+    const cards = this.element.querySelectorAll('[data-controller~="wallonie-prime-card"]')
+    cards.forEach(card => {
+      const controller = this.application.getControllerForElementAndIdentifier(card, 'wallonie-prime-card')
+      if (controller) {
+        controller.calculate()
+      }
+    })
     this.updateTotalGlobal()
   }
 

@@ -1,156 +1,47 @@
-<!-- CARTE 5: VENTILATION - Complexe (4 inputs) -->
-<div class="col-lg-3 col-md-4 col-sm-6">
-  <div class="card border-0 shadow h-100 overflow-hidden card-premium" data-controller="wallonie-simulation-card" data-wallonie-simulation-card-slug-value="wallonie_ventilation_global">
-
-    <!-- Image de fond avec overlay -->
-    <div class="position-relative image-overlay" style="height: 120px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_120,q_auto,f_auto/Housing-Ventilation-Shutterstock-16-9-1920x1080px_uxckrq'); background-size: cover; background-position: center;">
-      <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(13, 110, 253, 0.7), rgba(13, 110, 253, 0.4));">
-        <div class="text-center text-white">
-          <i class="bi bi-wind fs-3 mb-2 drop-shadow"></i>
-          <h6 class="fw-bold mb-0 drop-shadow">Ventilation</h6>
-          <small class="opacity-90">4 types VMC</small>
+<!-- CARTE 5: VENTILATION - Horizontal layout -->
+<div class="col-12">
+  <div class="card border-0 shadow overflow-hidden card-premium" data-controller="wallonie-simulation-card" data-wallonie-simulation-card-slug-value="wallonie_ventilation_global">
+    <div class="d-flex">
+      <!-- Bannière latérale -->
+      <div class="flex-shrink-0 position-relative" style="width: 140px; background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_280,h_200,q_auto,f_auto/Housing-Ventilation-Shutterstock-16-9-1920x1080px_uxckrq'); background-size: cover; background-position: center;">
+        <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center" style="background: linear-gradient(135deg, rgba(51,65,85,0.65), rgba(51,65,85,0.45);">
+          <i class="bi bi-fan fs-3 text-white drop-shadow mb-1"></i>
+          <span class="fw-bold text-white small text-center px-1 drop-shadow">Ventilation VMC</span>
+          <span class="badge bg-white bg-opacity-25 text-white mt-1">4 primes</span>
         </div>
       </div>
-    </div>
-
-    <div class="card-body">
-      <!-- Badge informatif -->
-      <div class="mb-3">
-        <div class="d-flex align-items-center justify-content-between">
-          <span class="badge bg-primary bg-opacity-20 text-primary rounded-pill px-3">
-            <i class="bi bi-wind me-1"></i>Ventilation
-          </span>
-          <small class="text-success">
-            <i class="bi bi-tools me-1"></i>4 types VMC
-          </small>
-        </div>
-      </div>
-
-      <div class="row g-2">
-        <!-- VMC simple flux complète -->
-        <div class="col-12">
-          <label class="form-label small">VMC simple flux (complète) :</label>
-          <div class="input-group input-group-sm">
-            <select class="form-control"
-                    data-wallonie-simulation-card-target="inputVmcSimpleComplete"
-                    data-action="change->wallonie-simulation-card#calculateVentilation"
-                    data-slug="wallonie_vmc_simple">
-              <option value="0">Non</option>
-              <option value="1">Oui</option>
-            </select>
-            <span class="input-group-text bg-primary text-white"
-                  data-wallonie-simulation-card-target="resultVmcSimpleComplete">0 €</span>
-          </div>
-        <!-- Informations de la prime -->
-        <% condition_text = condition_prime("wallonie_vmc_simple") %>
-        <% if condition_text.present? %>
-          <div class="mt-1">
-            <div class="mb-1">
-              <small class="text-success">
-                <i class="bi bi-info-circle me-1"></i>
-                <%= condition_text %>
-              </small>
+      <!-- Contenu -->
+      <div class="flex-grow-1 p-3">
+        <div class="row g-2 align-items-end">
+          <% [['wallonie_vmc_simple','VMC simple flux (complète)','inputVmcSimpleComplete',nil,nil,'primary','resultVmcSimpleComplete','calculateVentilation','change'],
+              ['wallonie_vmc_double','VMC double flux (complète)','inputVmcDoubleComplete',nil,nil,'primary','resultVmcDoubleComplete','calculateVentilation','change'],
+              ['wallonie_vmc_simple_partielle','VMC simple (partielle)','inputVmcSimplePartielle',nil,nil,'primary','resultVmcSimplePartielle','calculateVentilation','change'],
+              ['wallonie_vmc_double_partielle','VMC double (partielle)','inputVmcDoublePartielle',nil,nil,'primary','resultVmcDoublePartielle','calculateVentilation','change']
+          ].each do |slug, lbl, tgt, type, ph, color, res_tgt, action, evt| %>
+          <div class="col-md-4 col-lg-2">
+            <% cond = condition_prime(slug) %>
+            <label class="form-label small fw-medium mb-1"><%= lbl %>
+              <% if cond.present? %><i class="bi bi-info-circle text-info ms-1" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="<%= h(cond) %>" data-bs-placement="top"></i><% end %>
+            </label>
+            <div class="input-group input-group-sm">
+              <select class="form-control"
+                      data-wallonie-simulation-card-target="<%= tgt %>"
+                      data-action="<%= evt %>->wallonie-simulation-card#<%= action %>"
+                      data-slug="<%= slug %>">
+                <option value="0">Non</option>
+                <option value="1">Oui</option>
+              </select>
+              <span class="input-group-text text-white" style="background-color: var(--ren0vate-primary);" data-wallonie-simulation-card-target="<%= res_tgt %>">0 €</span>
             </div>
           </div>
-        <% end %>
-
-        </div>
-
-        <!-- VMC double flux complète -->
-        <div class="col-12">
-          <label class="form-label small">VMC double flux (complète) :</label>
-          <div class="input-group input-group-sm">
-            <select class="form-control"
-                    data-wallonie-simulation-card-target="inputVmcDoubleComplete"
-                    data-action="change->wallonie-simulation-card#calculateVentilation"
-                    data-slug="wallonie_vmc_double">
-              <option value="0">Non</option>
-              <option value="1">Oui</option>
-            </select>
-            <span class="input-group-text bg-primary text-white"
-                  data-wallonie-simulation-card-target="resultVmcDoubleComplete">0 €</span>
-          </div>
-        <!-- Informations de la prime -->
-        <% condition_text = condition_prime("wallonie_vmc_double") %>
-        <% if condition_text.present? %>
-          <div class="mt-1">
-            <div class="mb-1">
-              <small class="text-success">
-                <i class="bi bi-info-circle me-1"></i>
-                <%= condition_text %>
-              </small>
+          <% end %>
+          <!-- Total -->
+          <div class="col-md-4 col-lg-2 ms-auto d-flex align-items-end justify-content-end">
+            <div class="text-end">
+              <strong class="small d-block fw-semibold" style="color: var(--ren0vate-accent);">Total Ventilation :</strong>
+              <span class="badge fs-6" style="background-color: var(--ren0vate-accent); color: white;" data-wallonie-simulation-card-target="total">0 €</span>
             </div>
           </div>
-        <% end %>
-
-        </div>
-
-        <!-- VMC simple flux partielle -->
-        <div class="col-12">
-          <label class="form-label small">VMC simple (partielle) :</label>
-          <div class="input-group input-group-sm">
-            <select class="form-control"
-                    data-wallonie-simulation-card-target="inputVmcSimplePartielle"
-                    data-action="change->wallonie-simulation-card#calculateVentilation"
-                    data-slug="wallonie_vmc_simple_partielle">
-              <option value="0">Non</option>
-              <option value="1">Oui</option>
-            </select>
-            <span class="input-group-text bg-primary text-white"
-                  data-wallonie-simulation-card-target="resultVmcSimplePartielle">0 €</span>
-          </div>
-        <!-- Informations de la prime -->
-        <% condition_text = condition_prime("wallonie_vmc_simple_partielle") %>
-        <% if condition_text.present? %>
-          <div class="mt-1">
-            <div class="mb-1">
-              <small class="text-success">
-                <i class="bi bi-info-circle me-1"></i>
-                <%= condition_text %>
-              </small>
-            </div>
-          </div>
-        <% end %>
-
-        </div>
-
-        <!-- VMC double flux partielle -->
-        <div class="col-12">
-          <label class="form-label small">VMC double (partielle) :</label>
-          <div class="input-group input-group-sm">
-            <select class="form-control"
-                    data-wallonie-simulation-card-target="inputVmcDoublePartielle"
-                    data-action="change->wallonie-simulation-card#calculateVentilation"
-                    data-slug="wallonie_vmc_double_partielle">
-              <option value="0">Non</option>
-              <option value="1">Oui</option>
-            </select>
-            <span class="input-group-text bg-primary text-white"
-                  data-wallonie-simulation-card-target="resultVmcDoublePartielle">0 €</span>
-          </div>
-        <!-- Informations de la prime -->
-        <% condition_text = condition_prime("wallonie_vmc_double_partielle") %>
-        <% if condition_text.present? %>
-          <div class="mt-1">
-            <div class="mb-1">
-              <small class="text-success">
-                <i class="bi bi-info-circle me-1"></i>
-                <%= condition_text %>
-              </small>
-            </div>
-          </div>
-        <% end %>
-
-        </div>
-      </div>
-
-      <!-- Total Ventilation -->
-      <div class="mt-3 pt-2 border-top">
-        <div class="d-flex justify-content-between align-items-center">
-          <strong class="text-primary">Total Ventilation :</strong>
-          <span class="badge bg-primary fs-6" data-wallonie-simulation-card-target="total">
-            0 €
-          </span>
         </div>
       </div>
     </div>

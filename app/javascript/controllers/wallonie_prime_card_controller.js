@@ -97,13 +97,7 @@ export default class extends Controller {
   }
 
   calculateParM2(calculData) {
-    // Pour les calculs par m² (isolation par exemple)
-    // montant = surface_m2 * prix_par_m2
-    const surfaceInput = this.inputs.find(input =>
-      input.placeholder?.toLowerCase().includes('m²') ||
-      input.placeholder?.toLowerCase().includes('surface')
-    )
-
+    const surfaceInput = this.inputs[0]
     if (!surfaceInput) return 0
 
     const surface = parseFloat(surfaceInput.value) || 0
@@ -113,13 +107,7 @@ export default class extends Controller {
   }
 
   calculateParUnite(calculData) {
-    // Pour les calculs par unité (fenêtres, radiateurs, etc.)
-    // montant = nombre_unites * prix_par_unite
-    const uniteInput = this.inputs.find(input =>
-      input.placeholder?.toLowerCase().includes('nombre') ||
-      input.type === 'number'
-    )
-
+    const uniteInput = this.inputs[0]
     if (!uniteInput) return 0
 
     const unites = parseFloat(uniteInput.value) || 0
@@ -129,13 +117,7 @@ export default class extends Controller {
   }
 
   calculatePourcentage(calculData) {
-    // Pour les calculs en pourcentage (du montant des travaux)
-    const montantInput = this.inputs.find(input =>
-      input.placeholder?.toLowerCase().includes('montant') ||
-      input.placeholder?.toLowerCase().includes('coût') ||
-      input.placeholder?.toLowerCase().includes('prix')
-    )
-
+    const montantInput = this.inputs[0]
     if (!montantInput) return 0
 
     const montantTravaux = parseFloat(montantInput.value) || 0
