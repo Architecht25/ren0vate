@@ -113,9 +113,16 @@
 <div class="container-fluid px-4 py-4">
 
   <!-- Header -->
-  <div class="mb-4 pb-3 border-bottom">
-    <h1 class="h3 text-primary-custom mb-1 fw-normal">Mes primes à la rénovation</h1>
-    <p class="text-muted small mb-0">4 étapes pour maximiser vos aides à la rénovation</p>
+  <div class="mb-4 pb-3 border-bottom d-flex align-items-start justify-content-between gap-3">
+    <div>
+      <h1 class="h3 text-primary-custom mb-1 fw-normal">Mes primes à la rénovation</h1>
+      <p class="text-muted small mb-0">4 étapes pour maximiser vos aides à la rénovation</p>
+    </div>
+    <% if @property %>
+      <%= link_to dashboard_property_path(@property), class: "btn btn-outline-secondary btn-sm flex-shrink-0" do %>
+        <i class="bi bi-arrow-left me-1"></i>Retour au bien
+      <% end %>
+    <% end %>
   </div>
 
   <!-- Bandeau explicatif -->
@@ -481,4 +488,31 @@
     </div>
 
   </div><!-- /row -->
+
+  <!-- Documents dossier primes -->
+  <%
+    dossier_prime_docs = current_user.documents.where(type_document: 'dossier_prime').order(created_at: :desc)
+  %>
+  <div class="mt-5 pt-4 border-top">
+    <h6 class="text-muted text-uppercase mb-3" style="font-size:0.72rem; letter-spacing:0.08em;">
+      <i class="bi bi-paperclip me-1"></i>Documents — Dossier primes
+    </h6>
+    <div class="card border border-2 rounded-4" style="max-width:360px;">
+      <div class="card-body p-4 text-center d-flex flex-column">
+        <i class="bi bi-award mb-3 text-muted" style="font-size:2rem;"></i>
+        <h6 class="fw-semibold mb-1">Dossier primes</h6>
+        <div class="text-muted small mb-2"><%= dossier_prime_docs.count %> document(s)</div>
+        <%= link_to new_document_path(type_document: 'dossier_prime'), class: "text-primary small fw-medium mb-2 d-block" do %>
+          <i class="bi bi-plus me-1"></i>Ajouter
+        <% end %>
+        <% if dossier_prime_docs.any? %>
+          <%= link_to documents_path(type_document: 'dossier_prime'), class: "btn btn-sm btn-outline-secondary mb-2" do %>
+            <i class="bi bi-folder2-open me-1"></i>Voir tous (<%= dossier_prime_docs.count %>)
+          <% end %>
+        <% end %>
+        <p class="text-muted mt-auto mb-0" style="font-size:0.72rem; font-style:italic;">Dossier complet de demande de prime auprès de l'organisme</p>
+      </div>
+    </div>
+  </div>
+
 </div>

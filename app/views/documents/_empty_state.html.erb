@@ -10,12 +10,16 @@
         Aucun document de ce type n'a été trouvé.
       <% end %>
     </p>
-    <%= link_to new_document_path(
-          property_id: @property&.id,
-          project_id: @project&.id
-        ),
-        class: "btn btn-primary-custom px-4" do %>
-      <i class="bi bi-plus-lg me-2"></i>Ajouter un document
+    <% if @property %>
+      <%= link_to new_property_document_path(@property),
+          class: "btn btn-primary-custom px-4" do %>
+        <i class="bi bi-plus-lg me-2"></i>Ajouter un document
+      <% end %>
+    <% elsif @project %>
+      <%= link_to new_project_document_path(@project),
+          class: "btn btn-primary-custom px-4" do %>
+        <i class="bi bi-plus-lg me-2"></i>Ajouter un document
+      <% end %>
     <% end %>
   </div>
 <% else %>
@@ -58,12 +62,16 @@
         </div>
       </div>
       <div class="text-center">
-        <%= link_to new_document_path(
-              property_id: @property&.id,
-              project_id: @project&.id
-            ),
-            class: "btn btn-primary-custom px-5" do %>
-          <i class="bi bi-plus-lg me-2"></i>Ajouter mon premier document
+        <% if @property %>
+          <%= link_to new_property_document_path(@property),
+              class: "btn btn-primary-custom px-5" do %>
+            <i class="bi bi-plus-lg me-2"></i>Ajouter mon premier document
+          <% end %>
+        <% elsif @project %>
+          <%= link_to new_project_document_path(@project),
+              class: "btn btn-primary-custom px-5" do %>
+            <i class="bi bi-plus-lg me-2"></i>Ajouter mon premier document
+          <% end %>
         <% end %>
       </div>
     </div>

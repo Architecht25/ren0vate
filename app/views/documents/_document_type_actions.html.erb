@@ -38,7 +38,7 @@
   <% end %>
 <% end %>
 
-<% # Bouton d'ajout %>
+<% # Bouton d'ajout — uniquement via contexte bien ou chantier %>
 <% if @property %>
   <%= link_to new_property_document_path(@property, type_document: doc_type),
              class: "btn btn-#{is_required ? 'primary' : 'outline-secondary'} btn-sm" do %>
@@ -46,11 +46,6 @@
   <% end %>
 <% elsif @project %>
   <%= link_to new_project_document_path(@project, type_document: doc_type),
-             class: "btn btn-#{is_required ? 'primary' : 'outline-secondary'} btn-sm" do %>
-    <i class="bi bi-plus me-1"></i>Ajouter
-  <% end %>
-<% else %>
-  <%= link_to new_document_path(type_document: doc_type),
              class: "btn btn-#{is_required ? 'primary' : 'outline-secondary'} btn-sm" do %>
     <i class="bi bi-plus me-1"></i>Ajouter
   <% end %>

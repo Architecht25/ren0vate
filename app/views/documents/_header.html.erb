@@ -41,12 +41,20 @@
       <i class="bi bi-search me-1"></i>Scanner tous
       <span id="ocr-scan-all-progress" class="ms-1 small d-none"></span>
     </button>
-    <%= link_to new_document_path(
-          property_id: @property&.id,
-          project_id: @project&.id
-        ),
-        class: "btn btn-primary-custom" do %>
-      <i class="bi bi-plus-lg me-2"></i>Ajouter un document
+    <% if @property %>
+      <%= link_to new_property_document_path(@property),
+          class: "btn btn-primary-custom" do %>
+        <i class="bi bi-plus-lg me-2"></i>Ajouter un document
+      <% end %>
+    <% elsif @project %>
+      <%= link_to new_project_document_path(@project),
+          class: "btn btn-primary-custom" do %>
+        <i class="bi bi-plus-lg me-2"></i>Ajouter un document
+      <% end %>
+    <% else %>
+      <span class="badge bg-light text-muted border" style="font-size:0.75rem;">
+        <i class="bi bi-eye me-1"></i>Vue consultative
+      </span>
     <% end %>
     <% if @property %>
       <%= link_to dashboard_property_path(@property),

@@ -440,7 +440,7 @@
           <!-- Dernière simulation ou demande -->
           <% if prop_simulations.any? %>
             <% latest = prop_simulations.first %>
-            <div class="d-flex align-items-center py-2 border-bottom">
+            <%= link_to simulation_path(latest), class: "d-flex align-items-center py-2 border-bottom text-decoration-none text-reset", style: "cursor:pointer;" do %>
               <i class="bi bi-calculator me-2 text-primary-custom"></i>
               <div class="flex-grow-1">
                 <div class="fw-medium small"><%= latest.titre.presence || latest.region&.humanize || "Simulation" %></div>
@@ -450,7 +450,8 @@
                   · <%= time_ago_in_words(latest.created_at) %>
                 </small>
               </div>
-            </div>
+              <i class="bi bi-chevron-right text-muted ms-2" style="font-size:0.75rem;"></i>
+            <% end %>
           <% else %>
             <div class="text-center py-3 text-muted-custom">
               <i class="bi bi-award fs-3 mb-2 d-block"></i>
@@ -461,7 +462,7 @@
           <div class="mt-auto pt-3 border-top">
             <div class="row g-2">
               <div class="col-6">
-                <%= link_to primes_hub_path, class: "btn btn-outline-secondary btn-sm w-100" do %>
+                <%= link_to primes_hub_path(property_id: @property.id), class: "btn btn-outline-secondary btn-sm w-100" do %>
                   <i class="bi bi-eye me-1"></i>Voir tout
                 <% end %>
               </div>
@@ -723,7 +724,7 @@
                 </div>
                 <small class="text-muted-custom"><%= regional_loan[:sub] %></small>
               </div>
-              <%= link_to regional_loan[:path], class: "btn btn-outline-secondary btn-sm ms-2" do %>
+              <%= link_to regional_loan[:path] + "?property_id=#{@property.id}", class: "btn btn-outline-secondary btn-sm ms-2" do %>
                 <i class="bi bi-calculator"></i>
               <% end %>
             </div>
@@ -736,7 +737,7 @@
           <div class="mt-auto pt-3 border-top">
             <div class="row g-2">
               <div class="col-12">
-                <%= link_to loans_hub_path, class: "btn btn-outline-primary-custom btn-sm w-100" do %>
+                <%= link_to loans_hub_path(property_id: @property.id), class: "btn btn-outline-primary-custom btn-sm w-100" do %>
                   <i class="bi bi-bank me-2"></i>Tous les simulateurs de prêts
                 <% end %>
               </div>

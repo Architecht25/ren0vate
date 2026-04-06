@@ -2,7 +2,7 @@ class PrimesHubController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    # Dernières simulations (max 3 pour l'aperçu)
+    @property = current_user.properties.find_by(id: params[:property_id]) if params[:property_id].present?
     @simulations = current_user.simulations.includes(:property)
                                .order(created_at: :desc)
                                .limit(3)

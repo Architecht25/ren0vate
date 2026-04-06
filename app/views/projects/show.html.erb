@@ -622,6 +622,42 @@
 
   </div>
 
+  <!-- Documents optionnels — Préparation de chantier -->
+  <%
+    prep_optional_doc_types = [
+      { key: 'permis_urbanisme', label: "Permis d'urbanisme", hint: "Autorisation légale requise pour les travaux",    icon: 'bi-building-gear' },
+      { key: 'plan',             label: "Plans",              hint: "Plans architecturaux du bien ou du chantier",    icon: 'bi-rulers' }
+    ]
+  %>
+  <div class="row g-3 mb-5">
+    <div class="col-12">
+      <h6 class="text-muted text-uppercase mb-3" style="font-size:0.72rem; letter-spacing:0.08em;">
+        <i class="bi bi-paperclip me-1"></i>Documents optionnels — Préparation de chantier
+      </h6>
+    </div>
+    <% prep_optional_doc_types.each do |opt| %>
+      <% docs_of_type = @project.documents.where(type_document: opt[:key]).order(created_at: :desc) %>
+      <div class="col-lg-4 col-md-6">
+        <div class="card border border-2 rounded-4 h-100">
+          <div class="card-body p-4 text-center d-flex flex-column">
+            <i class="bi <%= opt[:icon] %> mb-3 text-muted" style="font-size:2rem;"></i>
+            <h6 class="fw-semibold mb-1"><%= opt[:label] %></h6>
+            <div class="text-muted small mb-2"><%= docs_of_type.count %> document(s)</div>
+            <%= link_to new_project_document_path(@project, type_document: opt[:key]), class: "text-primary small fw-medium mb-2 d-block" do %>
+              <i class="bi bi-plus me-1"></i>Ajouter
+            <% end %>
+            <% if docs_of_type.any? %>
+              <%= link_to project_documents_path(@project, type_document: opt[:key]), class: "btn btn-sm btn-outline-secondary mb-2" do %>
+                <i class="bi bi-folder2-open me-1"></i>Voir tous (<%= docs_of_type.count %>)
+              <% end %>
+            <% end %>
+            <p class="text-muted mt-auto mb-0" style="font-size:0.72rem; font-style:italic;"><%= opt[:hint] %></p>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
   <!-- ═══════════════════════════════════════════════════════════════════
        SECTION 2 — SUIVI DE CHANTIER
   ════════════════════════════════════════════════════════════════════ -->
@@ -709,6 +745,41 @@
     <div class="col-lg-6">
       <%= render 'projects/partials_general/photos_suivi' %>
     </div>
+  </div>
+
+  <!-- Documents optionnels du chantier -->
+  <%
+    chantier_optional_doc_types = [
+      { key: 'etat_avancement', label: "État d'avancement", hint: "Preuve de l'avancement des travaux pour déblocage partiel", icon: 'bi-list-check' }
+    ]
+  %>
+  <div class="row g-3 mb-5">
+    <div class="col-12">
+      <h6 class="text-muted text-uppercase mb-3" style="font-size:0.72rem; letter-spacing:0.08em;">
+        <i class="bi bi-paperclip me-1"></i>Documents optionnels du chantier
+      </h6>
+    </div>
+    <% chantier_optional_doc_types.each do |opt| %>
+      <% docs_of_type = @project.documents.where(type_document: opt[:key]).order(created_at: :desc) %>
+      <div class="col-lg-4 col-md-6">
+        <div class="card border border-2 rounded-4 h-100">
+          <div class="card-body p-4 text-center d-flex flex-column">
+            <i class="bi <%= opt[:icon] %> mb-3 text-muted" style="font-size:2rem;"></i>
+            <h6 class="fw-semibold mb-1"><%= opt[:label] %></h6>
+            <div class="text-muted small mb-2"><%= docs_of_type.count %> document(s)</div>
+            <%= link_to new_project_document_path(@project, type_document: opt[:key]), class: "text-primary small fw-medium mb-2 d-block" do %>
+              <i class="bi bi-plus me-1"></i>Ajouter
+            <% end %>
+            <% if docs_of_type.any? %>
+              <%= link_to project_documents_path(@project, type_document: opt[:key]), class: "btn btn-sm btn-outline-secondary mb-2" do %>
+                <i class="bi bi-folder2-open me-1"></i>Voir tous (<%= docs_of_type.count %>)
+              <% end %>
+            <% end %>
+            <p class="text-muted mt-auto mb-0" style="font-size:0.72rem; font-style:italic;"><%= opt[:hint] %></p>
+          </div>
+        </div>
+      </div>
+    <% end %>
   </div>
 
   <!-- ═══════════════════════════════════════════════════════════════════

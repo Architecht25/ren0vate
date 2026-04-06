@@ -36,6 +36,10 @@
         border: 4px solid #a2c5a2 !important;
         background-color: #f0f8f0 !important;
       }
+      /* Année de la date d'achat — largeur minimale pour ne pas tronquer l'année */
+      select[id$="_date_achat_1i"] {
+        min-width: 78px;
+      }
     </style>
 
     <!-- Champ caché pour la région -->
@@ -344,7 +348,7 @@
               </div>
               <div class="card-body px-4 py-3">
                 <div class="row g-2">
-                  <div class="col-12">
+                  <div class="col-md-6">
                     <%= f.input :valeur_achat,
                         label: '<i class="bi bi-currency-euro me-2 text-success"></i>Valeur d\'achat (€)'.html_safe,
                         placeholder: "ex. 250000",
@@ -359,7 +363,7 @@
                           min: "0"
                         } %>
                   </div>
-                  <div class="col-12">
+                  <div class="col-md-6">
                     <div class="mb-3">
                       <label class="form-label text-dark fw-medium mb-1">
                         <i class="bi bi-calendar me-2 text-success"></i>Date d'achat
@@ -376,13 +380,33 @@
                       <small class="text-muted">Date d'acquisition du bien</small>
                     </div>
                   </div>
+                  <!-- Documents liés à l'achat -->
+                  <% if @property.persisted? %>
+                    <div class="col-12">
+                      <div class="border-top pt-3 mt-1">
+                        <small class="text-dark fw-medium d-block mb-2"><i class="bi bi-paperclip me-1"></i>Documents liés à l'achat</small>
+                        <div class="row g-2">
+                          <% [['acte_notarial', 'Acte notarial', 'bi-file-earmark-text'], ['compromis', 'Compromis de vente', 'bi-pen']].each do |key, label, icon| %>
+                            <% docs_count = @property.documents.where(type_document: key).count %>
+                            <div class="col-6">
+                              <div class="card border rounded-3 text-center p-3">
+                                <i class="bi <%= icon %> mb-1 text-muted"></i>
+                                <div class="fw-medium" style="font-size:0.8rem;"><%= label %></div>
+                                <div class="text-muted mb-2" style="font-size:0.72rem;"><%= docs_count %> doc(s)</div>
+                                <%= link_to new_property_document_path(@property, type_document: key), class: "btn btn-outline-secondary btn-sm w-100", style: "font-size:0.75rem;" do %>
+                                  <i class="bi bi-plus me-1"></i>Ajouter
+                                <% end %>
+                              </div>
+                            </div>
+                          <% end %>
+                        </div>
+                      </div>
+                    </div>
+                  <% end %>
                 </div>
               </div>
             </div>
           </div>
-
-
-
         </div>
       </div>
     </div>

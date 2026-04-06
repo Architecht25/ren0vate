@@ -1,5 +1,6 @@
 class LoansHubController < ApplicationController
   before_action :authenticate_user!
+  before_action :load_property
 
   def index
   end
@@ -17,5 +18,11 @@ class LoansHubController < ApplicationController
   end
 
   def ecoreno
+  end
+
+  private
+
+  def load_property
+    @property = current_user.properties.find_by(id: params[:property_id]) if params[:property_id].present?
   end
 end
