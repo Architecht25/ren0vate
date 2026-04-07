@@ -1,0 +1,84 @@
+<%#
+  Bottom navigation bar — mobile only (hidden on md+)
+  Remplace le hamburger flottant par une navigation native-style en bas d'écran.
+  5 tabs : Accueil · Chantiers · Primes · IA Expert · Menu (ouvre la sidebar)
+%>
+<% if user_signed_in? %>
+
+  <%
+    p = request.path
+    tab_home     = p == "/dashboard" || p == "/"
+    tab_biens    = p.start_with?("/properties")
+    tab_projects = p.start_with?("/projects")
+    tab_primes   = p.start_with?("/primes_hub") || p.start_with?("/simulations") || p.start_with?("/loans_hub") || p.start_with?("/quotes")
+    tab_ia       = p.start_with?("/decision_hub") || p.start_with?("/expert_decision_hub") || p.start_with?("/conseil")
+    tab_more     = !(tab_home || tab_biens || tab_projects || tab_primes || tab_ia)
+  %>
+
+  <nav class="mobile-bottom-nav d-md-none" role="navigation" aria-label="Navigation principale">
+
+    <%# ── Accueil ── %>
+    <%= link_to dashboard_path,
+          class: "bottom-nav-item #{"active" if tab_home}",
+          aria: { label: "Accueil" } do %>
+      <span class="bottom-nav-icon">
+        <i class="bi #{ tab_home ? "bi-house-fill" : "bi-house" }"></i>
+      </span>
+      <span class="bottom-nav-label">Accueil</span>
+    <% end %>
+
+    <%# ── Chantiers ── %>
+    <%= link_to projects_path,
+          class: "bottom-nav-item #{"active" if tab_projects}",
+          aria: { label: "Mes chantiers" } do %>
+      <span class="bottom-nav-icon">
+        <i class="bi #{ tab_projects ? "bi-hammer" : "bi-hammer" }"></i>
+      </span>
+      <span class="bottom-nav-label">Chantiers</span>
+    <% end %>
+
+    <%# ── Primes / Financement (tab central mis en valeur) ── %>
+    <%= link_to primes_hub_path,
+          class: "bottom-nav-item bottom-nav-item--cta #{"active" if tab_primes}",
+          aria: { label: "Estimer mes primes" } do %>
+      <span class="bottom-nav-fab">
+        <i class="bi bi-calculator-fill"></i>
+      </span>
+      <span class="bottom-nav-label">Primes</span>
+    <% end %>
+
+    <%# ── IA Expert ── %>
+    <%= link_to expert_decision_hub_index_path,
+          class: "bottom-nav-item #{"active" if tab_ia}",
+          aria: { label: "Assistant IA Expert" } do %>
+      <span class="bottom-nav-icon">
+        <i class="bi #{ tab_ia ? "bi-robot" : "bi-robot" }"></i>
+      </span>
+      <span class="bottom-nav-label">Expert IA</span>
+    <% end %>
+
+    <%# ── Menu (ouvre la sidebar existante) ── %>
+    <button type="button"
+            class="bottom-nav-item #{"active" if tab_more}"
+            aria-label="Menu principal"
+            onclick="(function(){
+              var s=document.getElementById('mainSidebar');
+              var o=document.getElementById('sidebarOverlay');
+              if(s && o){
+                s.classList.add('active');
+                o.classList.add('active');
+                document.body.style.overflow='hidden';
+              }
+            })()">
+      <span class="bottom-nav-icon">
+        <i class="bi bi-grid-3x3-gap-fill"></i>
+      </span>
+      <span class="bottom-nav-label">Menu</span>
+    </button>
+
+  </nav>
+
+  <%# Spacer invisible qui empêche le contenu d'être masqué sous la barre %>
+  <div class="bottom-nav-spacer d-md-none" aria-hidden="true"></div>
+
+<% end %>

@@ -479,6 +479,182 @@ body {
   }
 }
 
+/* ============================================================
+   BOTTOM NAVIGATION BAR  — mobile PWA-native style
+   Visible uniquement en dessous de md (Bootstrap < 768px)
+   ============================================================ */
+
+$bottom-nav-height: 62px;
+
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1042;                       // au-dessus du support widget (1050 → on ajuste en dessous)
+  height: calc(#{$bottom-nav-height} + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.07);
+  display: flex;
+  align-items: stretch;
+}
+
+/* Spacer pour éviter que le contenu passe sous la barre */
+.bottom-nav-spacer {
+  height: calc(#{$bottom-nav-height} + env(safe-area-inset-bottom, 0px) + 8px);
+  flex-shrink: 0;
+}
+
+/* ─── Items ───────────────────────────────────────── */
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-decoration: none !important;
+  color: #94a3b8;
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  border: none;
+  background: transparent;
+  padding: 6px 2px 4px;
+  cursor: pointer;
+  transition: color 0.15s ease;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+
+  &:active {
+    .bottom-nav-icon i,
+    .bottom-nav-fab {
+      transform: scale(0.88);
+    }
+  }
+
+  &:hover {
+    color: #64748b;
+    text-decoration: none;
+  }
+}
+
+/* Icon wrapper standard */
+.bottom-nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 28px;
+  border-radius: 10px;
+  transition: background 0.15s ease, transform 0.12s ease;
+
+  i {
+    font-size: 1.25rem;
+    line-height: 1;
+    transition: transform 0.15s ease;
+  }
+}
+
+/* Label */
+.bottom-nav-label {
+  line-height: 1;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+
+/* ─── Active state ──────────────────────────────── */
+.bottom-nav-item.active {
+  color: var(--ren0vate-accent, #D97706);
+
+  .bottom-nav-icon {
+    background: rgba(217, 119, 6, 0.1);
+
+    i {
+      transform: translateY(-1px);
+    }
+  }
+
+  .bottom-nav-label {
+    font-weight: 600;
+  }
+
+  /* Indicateur top — trait terracotta */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 28px;
+    height: 3px;
+    background: var(--ren0vate-accent, #D97706);
+    border-radius: 0 0 4px 4px;
+  }
+}
+
+/* ─── Tab central "Primes" — FAB mis en valeur ───── */
+.bottom-nav-item--cta {
+  .bottom-nav-icon {
+    display: none;                     // masqué, remplacé par le FAB
+  }
+}
+
+.bottom-nav-fab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--ren0vate-primary, #334155);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(51, 65, 85, 0.35);
+  margin-top: -14px;                   // survole légèrement la barre
+  transition: transform 0.12s ease, box-shadow 0.15s ease;
+  flex-shrink: 0;
+
+  i {
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+}
+
+.bottom-nav-item--cta.active {
+  color: var(--ren0vate-accent, #D97706);
+
+  &::before { display: none; }         // pas de trait pour le FAB
+
+  .bottom-nav-fab {
+    background: var(--ren0vate-accent, #D97706);
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.4);
+  }
+}
+
+.bottom-nav-item--cta:active .bottom-nav-fab {
+  transform: scale(0.9);
+  box-shadow: 0 2px 8px rgba(51, 65, 85, 0.2);
+}
+
+/* ─── Ajustements globaux sur mobile quand la barre est active ─ */
+@media (max-width: 767px) {
+  /* Masquer le bouton hamburger flottant (remplacé par l'onglet Menu) */
+  .mobile-sidebar-trigger {
+    display: none !important;
+  }
+
+  /* Remonter le bouton support au-dessus de la barre */
+  #support-widget {
+    bottom: calc(#{$bottom-nav-height} + env(safe-area-inset-bottom, 0px) + 12px) !important;
+  }
+}
+
+
 .sidebar.active {
   animation: slideIn 0.3s ease;
 }
