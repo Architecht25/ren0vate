@@ -533,11 +533,11 @@ class SimulationsController < ApplicationController
         end
 
         # Fallback: chercher les données directes pour les primes Flandre (nouvelles méthodes)
-        flandre_prime_keys = %w[isolation_toiture isolation_murs isolation_sol ramen_deuren warmtepomp warmtepompboiler voorbereiding_isolatie voorbereiding_sanitair_elec renovation_toiture renovation_murs renovation_sol]
+        flandre_prime_keys = %w[isolation_toiture isolation_murs isolation_sol ramen_deuren warmtepomp warmtepompboiler voorbereiding_isolatie voorbereiding_sanitair_elec renovation_toiture renovation_murs renovation_sol warmtepomp_type]
         flandre_prime_keys.each do |key|
-          if params_data[key].present? && params_data[key] != 0 && params_data[key] != "0"
+          unless params_data[key].nil?
             user_inputs[key] = params_data[key]
-            Rails.logger.info "🔄 Prime Flandre restaurée: #{key} = #{params_data[key]}"
+            Rails.logger.info "🔄 Donnée Flandre restaurée: #{key} = #{params_data[key]}"
           end
         end
       end
@@ -1051,7 +1051,7 @@ class SimulationsController < ApplicationController
 
     # Sauvegarder aussi les données brutes pour la restructuration (fallback)
     user_inputs.each do |key, value|
-      if key != 'peb' && key != 'amiante' && key != 'primes' && value.present?
+      if key != 'peb' && key != 'amiante' && key != 'primes' && !value.nil?
         existing_params[key] = value
       end
     end
@@ -1138,25 +1138,17 @@ class SimulationsController < ApplicationController
     ]
 
     # Extraire le type de pompe s'il est présent (envoyé séparément)
-    warmtepomp_type = flat_inputs['warmtepomp_type'].presence
+    warmtepomp_type = flat_inputs['warmtepomp_type'] # permet la chaîne vide (reset "Choisir")
 
     # Traiter chaque input
     flat_inputs.each do |key, value|
       if prime_slugs.include?(key.to_s)
-        # C'est une prime normale
-        if value.present? && value.to_f > 0
-          type = key.to_s == 'warmtepomp' ? warmtepomp_type : nil
-          structured['primes'][key] = {
-            'value' => value.to_f,
-            'type'  => type
-          }
-        elsif key.to_s == 'warmtepomp' && warmtepomp_type.present?
-          # Pompe à chaleur : le montant est un forfait, pas besoin de valeur de facture
-          structured['primes'][key] = {
-            'value' => 0,
-            'type'  => warmtepomp_type
-          }
-        end
+        # C'est une prime normale - inclure même 0 pour effacer les anciennes valeurs
+        type = key.to_s == 'warmtepomp' ? warmtepomp_type : nil
+        structured['primes'][key] = {
+          'value' => value.to_f,
+          'type'  => type
+        }
       elsif key.to_s.start_with?('peb_')
         structured['peb'] ||= {}
         structured['peb'][key.to_s.sub('peb_', '')] = value
@@ -1166,10 +1158,7 @@ class SimulationsController < ApplicationController
       end
     end
 
-    # Si warmtepomp_type présent mais pas encore dans primes
-    if warmtepomp_type.present? && !structured['primes']['warmtepomp']
-      structured['primes']['warmtepomp'] = { 'value' => 0, 'type' => warmtepomp_type }
-    end
+    # warmtepomp_type géré directement dans la boucle ci-dessus
 
     # Supprimer les clés vides
     structured.delete('primes') if structured['primes'].empty?

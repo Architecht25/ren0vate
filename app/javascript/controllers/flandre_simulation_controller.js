@@ -552,22 +552,16 @@ export default class extends Controller {
 
     allInputs.forEach(input => {
       const slug = input.dataset.slug;
-      if (slug) {
-        let value = null;
+      if (!slug) return;
 
-        if (input.type === 'checkbox') {
-          value = input.checked ? 1 : 0;
-        } else if (input.type === 'number') {
-          value = parseFloat(input.value) || 0;
-        } else if (input.tagName === 'SELECT') {
-          value = input.value;
-        } else {
-          value = input.value;
-        }
-
-        if (value !== null && value !== '') {
-          userInputs[slug] = value;
-        }
+      if (input.type === 'checkbox') {
+        userInputs[slug] = input.checked ? 1 : 0;
+      } else if (input.type === 'number') {
+        userInputs[slug] = parseFloat(input.value) || 0;
+      } else if (input.tagName === 'SELECT') {
+        userInputs[slug] = input.value; // inclure même vide (reset à "Choisir")
+      } else if (input.value !== '') {
+        userInputs[slug] = input.value;
       }
     });
 

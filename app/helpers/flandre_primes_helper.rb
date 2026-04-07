@@ -57,18 +57,14 @@ module FlandrePrimesHelper
           category_data['primes'].each do |prime|
             next unless flandre_slugs.include?(prime['slug'])
 
-            if prime['user_input_value'].present? &&
-               prime['user_input_value'] != 0 &&
-               prime['user_input_value'] != "0"
-              saved_inputs[prime['slug']] = prime['user_input_value']
-            end
+            saved_inputs[prime['slug']] = prime['user_input_value'] unless prime['user_input_value'].nil?
           end
         end
       end
 
       # 2. Lire les clés plates spéciales (ex: warmtepomp_type)
       FLAT_PARAM_SLUGS.each do |key|
-        saved_inputs[key] = params_data[key] if params_data[key].present?
+        saved_inputs[key] = params_data[key] unless params_data[key].nil?
       end
 
     rescue JSON::ParserError
