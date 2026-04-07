@@ -127,7 +127,9 @@ class OcrService
     # Dernier recours : OCR page par page via pdftoppm + RTesseract
     # Nécessaire pour les PDFs VEKA (Flandre) dont l'encodage de police est incompatible
     if pdftotext_available? && defined?(RTesseract)
+      Rails.logger.info "PDF: tentative OCR page-par-page (TESSDATA_PREFIX=#{ENV['TESSDATA_PREFIX']})"
       result = extract_pdf_pages_with_ocr
+      Rails.logger.info "PDF page OCR result: method=#{result[:method]} text_length=#{result[:text]&.length} valid=#{text_looks_valid?(result[:text].to_s)}"
       return result if result[:success] && result[:text].present?
     end
 
@@ -166,7 +168,10 @@ class OcrService
         return fallback_processing if pages.empty?
 
         text = pages.map do |img|
-          RTesseract.new(img, lang: 'nld+fra+eng').to_s.strip
+          tessdata = ENV['TESSDATA_PREFIX']&.then { |p| File.join(p, 'tessdata') }
+          opts = { lang: 'nld+fra+eng' }
+          opts[:tessdata] = tessdata if tessdata && Dir.exist?(tessdata)
+          RTesseract.new(img, **opts).to_s.strip
         rescue => e
           Rails.logger.warn "RTesseract page error: #{e.message}"
           ''
