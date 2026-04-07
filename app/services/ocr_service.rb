@@ -168,10 +168,7 @@ class OcrService
         return fallback_processing if pages.empty?
 
         text = pages.map do |img|
-          tessdata = ENV['TESSDATA_PREFIX']&.then { |p| File.join(p, 'tessdata') }
-          opts = { lang: 'nld+fra+eng' }
-          opts[:tessdata] = tessdata if tessdata && Dir.exist?(tessdata)
-          RTesseract.new(img, **opts).to_s.strip
+          RTesseract.new(img, lang: 'nld+fra+eng').to_s.strip
         rescue => e
           Rails.logger.warn "RTesseract page error: #{e.message}"
           ''
