@@ -53,6 +53,13 @@ class User < ApplicationRecord
     admin? || moderator?
   end
 
+  # Returns true if the user has no owned properties and is actively
+  # a member (entrepreneur or architect) on at least one project.
+  # These users get a simplified "guest pro" sidebar instead of the owner sidebar.
+  def professional_guest?
+    properties.none? && project_members.active.pros.any?
+  end
+
   def full_name
     "#{first_name} #{last_name}".strip
   end

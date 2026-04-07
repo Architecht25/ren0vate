@@ -22,6 +22,11 @@ class ProjectsController < ApplicationController
     end
   end
 
+  # Vue pour les professionals invités (entrepreneurs, architectes)
+  def member_projects
+    @memberships = current_user.project_members.active.pros.includes(project: :property)
+  end
+
   def show
     @documents = @project.documents.order(created_at: :desc) if @project.documents.respond_to?(:order)
     photo_types = %w[photo_avant photo_pendant photo_apres photo_chassis]

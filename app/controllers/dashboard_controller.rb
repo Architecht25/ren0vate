@@ -2,6 +2,11 @@ class DashboardController < ApplicationController
   before_action :authenticate_user!
 
   def index
+    # Les professionnels invités (entrepreneurs/architectes sans bien propre) ont leur propre vue
+    if current_user.professional_guest?
+      redirect_to member_projects_path and return
+    end
+
     @properties = current_user.properties.includes(:requests, :simulations).limit(10)
     @total_properties = current_user.properties.count
     @total_requests = current_user.requests.count

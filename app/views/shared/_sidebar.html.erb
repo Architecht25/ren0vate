@@ -37,7 +37,57 @@
     </div>
 
     <nav class="sidebar-nav">
-      <ul class="nav-list">
+      <% if current_user.professional_guest? %>
+        <!-- ========== SIDEBAR INVITÉ PROFESSIONNEL (Entrepreneur / Architecte) ========== -->
+        <ul class="nav-list">
+          <li class="nav-section">
+            <div class="section-header" data-bs-toggle="collapse" data-bs-target="#proSection" aria-expanded="true">
+              <div class="section-title">
+                <i class="bi bi-person-badge-fill section-icon"></i>
+                <span>Mon espace pro</span>
+              </div>
+              <i class="bi bi-chevron-down toggle-icon"></i>
+            </div>
+            <ul class="collapse show nav-submenu" id="proSection">
+              <li class="nav-item">
+                <%= link_to profile_path, class: "nav-link" do %>
+                  <i class="bi bi-person-circle"></i>
+                  <span>Mon profil</span>
+                <% end %>
+              </li>
+              <li class="nav-item">
+                <%= link_to member_projects_path, class: "nav-link" do %>
+                  <i class="bi bi-briefcase"></i>
+                  <span>Mes projets</span>
+                <% end %>
+              </li>
+            </ul>
+          </li>
+        </ul>
+
+        <hr class="sidebar-divider">
+
+        <ul class="nav-list">
+          <li class="nav-item">
+            <%= link_to notifications_path, class: "nav-link position-relative" do %>
+              <i class="bi bi-bell"></i>
+              <span>Notifications</span>
+              <%= unread_notifications_badge(current_user) %>
+            <% end %>
+          </li>
+
+          <li class="nav-item">
+            <%= button_to destroy_user_session_path, method: :delete,
+                class: "nav-link border-0 bg-transparent w-100 text-start logout-link" do %>
+              <i class="bi bi-box-arrow-right"></i>
+              <span>Déconnexion</span>
+            <% end %>
+          </li>
+        </ul>
+
+      <% else %>
+        <!-- ========== SIDEBAR PROPRIÉTAIRE / INVESTISSEUR (défaut) ========== -->
+        <ul class="nav-list">
         <!-- ÉTAPE 1: CONFIGURATION -->
         <li class="nav-section">
           <div class="section-header" data-bs-toggle="collapse" data-bs-target="#configSection" aria-expanded="true">
@@ -150,6 +200,7 @@
           <% end %>
         </li>
       </ul>
+      <% end %> <%# fin du bloc professional_guest? / else %>
     </nav>
   <% else %>
     <!-- Utilisateur non connecté -->

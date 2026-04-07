@@ -99,6 +99,7 @@ Rails.application.routes.draw do
 
     # Dashboard routes
     get '/dashboard', to: 'dashboard#index', as: :dashboard
+    get '/mes-projets-pro', to: 'projects#member_projects', as: :member_projects
 
   resources :primes
   resources :categories
