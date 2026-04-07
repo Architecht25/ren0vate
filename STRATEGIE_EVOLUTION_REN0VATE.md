@@ -14,6 +14,7 @@
 5. [Roadmap Implémentation](#5-roadmap)
 6. [Business Model](#6-business-model)
 7. [Stack Technique](#7-stack-technique)
+8. [Mobile & Progressive Web App](#8-mobile-pwa)
 
 ---
 
@@ -2024,7 +2025,11 @@ Ren0vate : **3 killer features en 3 mois**.
 #### Mai 2026
 - ✅ IA #1 : Estimateur Budget (ML basique)
 - ✅ IA #2 : Détection Progression photos (GPT-4 Vision)
-- ✅ Mobile Progressive Web App
+- 🔜 Mobile Progressive Web App
+  - Sprint M1 (Avril S3) : Fix responsive critiques (decision_hub min-width, contextual bot, boutons flottants)
+  - Sprint M2 (Avril S4) : UX mobile polish (sidebar swipe, tabs mobile, typography)
+  - Sprint PWA-1 (Mai S1) : Manifest JSON + Service Worker + offline page
+  - Sprint PWA-2 (Mai S2) : Install prompt iOS/Android + Lighthouse PWA score > 90
 - ✅ Dashboard analytics pros
 
 **Milestone** : 500 users, 50 payants, 25 pros freemium
@@ -2425,9 +2430,288 @@ CAC tendant vers 0€
 
 ---
 
-**Document Version** : 2.1
-**Dernier update** : 12 mars 2026
+**Document Version** : 2.2
+**Dernier update** : 7 avril 2026
 **Archive disponible** : `STRATEGIE_EVOLUTION_RENOVATE_ARCHIVE.md`
+
+---
+
+<a name="8-mobile-pwa"></a>
+## 8️⃣ MOBILE & PROGRESSIVE WEB APP
+
+*Audit réalisé le 7 avril 2026 — Analyse complète du codebase*
+
+---
+
+### 🔍 État des Lieux (Audit Avril 2026)
+
+#### Infrastructure existante
+
+| Élément | Statut | Détail |
+|---------|--------|--------|
+| `<meta name="viewport">` | ✅ Présent | `width=device-width,initial-scale=1` |
+| `apple-mobile-web-app-capable` | ✅ Présent | Meta tag dans layout |
+| `apple-touch-icon` | ✅ Présent | `/icon.png` configuré |
+| Bootstrap 5 CDN | ✅ Présent | v5.3.2 — grid responsive natif |
+| Sidebar mobile (hamburger) | ✅ Fonctionnel | Transform translateX, overlay, Stimulus |
+| Manifest JSON | ❌ Absent | Lien commenté dans le layout |
+| Service Worker | ❌ Absent | Script de nettoyage SW actif dans layout |
+| Offline caching | ❌ Absent | Aucune stratégie cache |
+| Push notifications web | ❌ Absent | ActionCable prévu Q3 2026 |
+
+#### Score Responsive Global : **6.5/10**
+
+```
+✅ Properties index     : 9/10  — col-xl-3 col-lg-4 col-md-6, parfait
+✅ Projects index       : 9/10  — même pattern, tables table-responsive
+✅ Quotes index         : 8/10  — col-12 col-md-6 col-xl-4, bon
+✅ Primes hub           : 7/10  — col-lg-3 ok, tablet manque col-md-6
+⚠️ Dashboard            : 6/10  — bell widget en position fixe mobile
+⚠️ Sidebar              : 6/10  — fonctionne mais UX rough (CSS/JS conflit)
+❌ Decision Hub         : 4/10  — min-width: 500px cassé sur phone
+❌ Contextual Bot       : 3/10  — 450×650px fixe, déborde sur tous phones
+```
+
+---
+
+### 🚨 Problèmes Responsive Prioritaires
+
+#### CRITIQUE — À corriger immédiatement
+
+**1. `min-width: 500px` sur le sélecteur Decision Hub**
+```
+Fichier : app/views/decision_hub/index.html.erb (L32)
+Problème : overflow horizontal sur tous téléphones (375–430px)
+Fix : supprimer min-width: 500px, ajouter flex-wrap: wrap
+Impact : page Decision Hub cassée sur ~95% des téléphones
+```
+
+**2. Chat bot contextuel 450×650px fixe**
+```
+Fichier : app/views/shared/_contextual_bot.html.erb (L22)
+Problème : panel 450px > largeur iPhone (375px), sort du viewport gauche
+Fix : width: min(450px, calc(100vw - 1rem)), height: min(650px, 80vh)
+Impact : IA Expert inutilisable sur mobile
+```
+
+#### ÉLEVÉ — À corriger avant beta
+
+**3. Collision de 3 boutons flottants en bottom-right**
+```
+Fichiers :
+  - shared/_support_widget.html.erb     → bottom: 20px; right: 20px
+  - shared/_save_simulation_button.html.erb → bottom: 20px; right: 20px  ← MÊME POSITION
+  - shared/_contextual_bot.html.erb     → bottom: 20px; right: 100px
+Problème : superposition exacte support widget + save button
+Fix : CSS custom properties pour coordination verticale (--fab-stack)
+```
+
+**4. Notification bell overlay sur le hero dashboard**
+```
+Fichier : app/views/dashboard/index.html.erb (L13)
+Problème : position: fixed; top: 80px; right: 20px couvre le titre hero
+Fix : padding-right: 80px sur le hero text, ou intégrer dans navbar
+```
+
+**5. Tabs Decision Hub non adaptées à l'empilement vertical**
+```
+Fichier : app/views/decision_hub/index.html.erb (L120+)
+Problème : 6 × col-md-2 avec border-end, look cassé en col-12 vertical
+Fix : sur mobile → icône seule + badge numéroté, menu dropdown collapse
+```
+
+#### MOYEN — À corriger avant lancement public
+
+**6. Boutons header sans flex-wrap**
+```
+Fichiers : projects/index.html.erb, quotes/index.html.erb
+Problème : "Ajouter un chantier de rénovation résidentiel" overflow < 600px
+Fix : flex-wrap: wrap + btn-sm sur mobile via @media
+```
+
+**7. Contradiction CSS sidebar < 480px**
+```
+Fichier : sidebar.scss (L457-L471)
+Problème : --sidebar-width: 100% mais .sidebar { width: 85% } incohérent
+Fix : aligner les deux à 85vw
+```
+
+**8. Sidebar : toutes sections ouvertes au chargement sur mobile**
+```
+Fichier : shared/_sidebar.html.erb
+Problème : collapse show par défaut → sidebar très longue sur phone
+Fix : JS conditionnel — fermer les sections sur mobile à l'ouverture
+```
+
+---
+
+### 📱 Plan Mobile — Phase 1 : Responsive First (Avant PWA)
+
+**Principe** : Une PWA sur une interface cassée = produit cassé. Responsive d'abord.
+
+#### Sprint M1 (1 semaine)
+
+| Tâche | Fichier | Complexité |
+|-------|---------|------------|
+| Fix `min-width: 500px` decision hub | `decision_hub/index.html.erb` | 🟢 15 min |
+| Fix contextual bot dimensions | `shared/_contextual_bot.html.erb` | 🟢 30 min |
+| Fix collision boutons flottants | 3 fichiers shared | 🟡 1h |
+| Fix notification bell dashboard | `dashboard/index.html.erb` | 🟢 20 min |
+| Fix contradiction CSS sidebar 480px | `sidebar.scss` | 🟢 10 min |
+| Fix flex-wrap boutons header | `projects/index.html.erb`, `quotes/index.html.erb` | 🟢 30 min |
+
+**Résultat attendu** : Score responsive **8.5/10**
+
+#### Sprint M2 (1 semaine)
+
+| Tâche | Fichier | Complexité |
+|-------|---------|------------|
+| Decision Hub tabs → scroll horizontal sur mobile | `decision_hub.scss` | 🟡 2h |
+| Sidebar : collapse sections à l'ouverture mobile | `sidebar_controller.js` | 🟡 1h |
+| Swipe gesture pour fermer la sidebar | JS Stimulus | 🟡 2h |
+| Optimiser typography scale mobile (rem) | `base/typography.scss` | 🟡 2h |
+| Audit et fix des vues restantes (factures, primes detail) | Multiple | 🔴 4h |
+
+**Résultat attendu** : Score responsive **9/10**, prêt pour PWA
+
+---
+
+### 🚀 Plan PWA — Phase 2 : Progressive Web App
+
+**Objectif** : Installable sur iOS et Android, offline partiel, expérience native
+
+#### Étape 1 : Web App Manifest
+
+```json
+// public/manifest.json
+{
+  "name": "Ren0vate",
+  "short_name": "Ren0vate",
+  "description": "Gérez vos rénovations en Belgique",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#1e3a5f",
+  "theme_color": "#1e3a5f",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["productivity", "business"],
+  "lang": "fr",
+  "dir": "ltr",
+  "scope": "/",
+  "screenshots": [
+    { "src": "/screenshots/mobile-dashboard.png", "sizes": "390x844", "type": "image/png", "form_factor": "narrow" }
+  ]
+}
+```
+
+**Actions Rails** :
+- Décommenter `tag.link rel: "manifest"` dans `application.html.erb`
+- Activer la route PWA dans `config/routes.rb`
+- Créer `app/views/pwa/manifest.json.erb` (dynamique par locale si besoin)
+
+#### Étape 2 : Service Worker (stratégie cache)
+
+```javascript
+// public/sw.js — Stratégie Cache Then Network
+const CACHE_VERSION = 'ren0vate-v1';
+const STATIC_CACHE = [
+  '/',
+  '/dashboard',
+  '/offline',
+  // Assets CSS/JS (hash-busting via importmap manifest)
+];
+
+// Stratégie par type de ressource :
+// - Assets statiques (CSS/JS/images) → Cache First
+// - Pages Rails → Network First avec fallback offline
+// - Appels API IA → Network Only (pas de données stale)
+// - Formulaires → Network Only (intégrité données)
+```
+
+**Périmètre offline minimal** (must-have pour installabilité) :
+- `/offline` — page "sans connexion" élégante avec les données en cache
+- Dashboard (lecture seule des données déjà chargées)
+- Pas de formulaires, pas d'IA hors ligne (V1)
+
+#### Étape 3 : Install Prompt & UX d'installation
+
+```javascript
+// app/javascript/controllers/pwa_install_controller.js
+// Stimulus controller pour gérer beforeinstallprompt
+// Afficher une bannière discrète après 2ème visite
+// "Installer Ren0vate sur votre téléphone →"
+// Mémoriser le refus (localStorage) pendant 30 jours
+```
+
+**iOS spécifique** (pas de beforeinstallprompt) :
+- Bannière conditionnelle : "Appuyez sur Partager > Sur l'écran d'accueil"
+- Détection via `navigator.standalone` (iOS Safari)
+- Afficher uniquement si `!navigator.standalone && /iPhone|iPad/.test(UA)`
+
+#### Étape 4 : Push Notifications (Q3 2026 — aligned avec ActionCable)
+
+```
+Prérequis : Service Worker actif (Étape 2) + VAPID keys
+Stack :   Web Push + ActionCable couplés
+Cas d'usage prioritaires :
+  1. Nouvelle facture ajoutée par l'entrepreneur → Propriétaire
+  2. Invitation pro acceptée → Propriétaire
+  3. Réponse Expert IA → Propriétaire (si chat hors focus)
+  4. Progression chantier mise à jour → Propriétaire
+```
+
+---
+
+### 📊 Impact Business Attendu
+
+| Métrique | Sans PWA | Avec PWA |
+|----------|----------|----------|
+| Taux de retour (D7) | ~25% | ~45-55% (benchmark PWA) |
+| Sessions/mois/user | 3-4 | 8-12 |
+| Coût développement app native | 80-150K€ | ~0€ supplémentaire |
+| Time-to-install | N/A | < 3 secondes |
+| Engagement notifications | Email: 22% open | Push: 60-70% open |
+
+**Référence** : Starbucks PWA → +2% conversion. Twitter Lite PWA → +65% pages/session. Pour Ren0vate l'enjeu est le **suivi de chantier en mobilité** : l'utilisateur doit pouvoir consulter ses documents et uploader des photos depuis le chantier même.
+
+---
+
+### 🎯 Critères de Succès PWA Ren0vate
+
+```
+✅ Installable (manifest + SW + HTTPS + icons)
+✅ Affichage standalone (sans barre d'adresse)
+✅ First Contentful Paint < 2s sur 4G
+✅ Lighthouse PWA Score > 90
+✅ Offline page élégante (pas d'erreur Chrome)
+✅ iOS : bannière installation affichée
+✅ Android : prompt natif "Ajouter à l'écran"
+```
+
+**Non-objectifs V1** :
+- ❌ Sync background offline (trop complexe)
+- ❌ Notifications push immédiates (Q3 2026)
+- ❌ App stores (AppStore / PlayStore) — PWA standalone suffit
+
+---
+
+### 🗓️ Timeline Mobile/PWA
+
+```
+Avril 2026 — Sprint M1 : Fix critiques responsive (1 semaine)
+Avril 2026 — Sprint M2 : UX mobile polish + sidebar (1 semaine)
+Mai 2026   — Sprint PWA-1 : Manifest + SW basique + offline page (3 jours)
+Mai 2026   — Sprint PWA-2 : Install prompt iOS/Android + Lighthouse audit (2 jours)
+Juillet 2026 — Sprint PWA-3 : Push notifications (couplé ActionCable)
+```
+
+---
+
+*"Sur un chantier, l'entrepreneur a les mains sales.*
+*Notre app doit fonctionner avec une seule main, en 4G, au soleil."*
 
 ---
 

@@ -3,6 +3,101 @@
 // ============================================================================
 // Palette Ren0vate : Bleu ardoise • Terracotta • Vert sauge • Beige sable
 
+// ─── PWA Install Banner ──────────────────────────────────────────────────────
+
+.pwa-install-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2100;
+  background: var(--ren0vate-primary-dark, #1e3a5f);
+  color: #fff;
+  padding: 0.75rem 1rem;
+  box-shadow: 0 -2px 16px rgba(0, 0, 0, 0.15);
+  animation: pwa-slide-up 0.3s ease;
+
+  @media (min-width: 768px) {
+    // Sur desktop : bannière plus compacte en bas à droite
+    left: auto;
+    right: 1rem;
+    bottom: 1rem;
+    width: 360px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.pwa-install-banner--ios {
+  // iOS : flèche vers le haut → bannière en bas logique
+  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+}
+
+.pwa-install-inner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.pwa-install-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.pwa-install-text {
+  flex: 1;
+  min-width: 0;
+
+  strong {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  span {
+    display: block;
+    font-size: 0.8rem;
+    opacity: 0.85;
+    line-height: 1.3;
+    margin-top: 0.15rem;
+  }
+}
+
+.pwa-install-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  flex-shrink: 0;
+}
+
+.pwa-install-btn {
+  background: #fff;
+  color: var(--ren0vate-primary-dark, #1e3a5f);
+  border: none;
+  font-weight: 600;
+  white-space: nowrap;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--ren0vate-primary-dark, #1e3a5f);
+  }
+}
+
+.pwa-dismiss-btn {
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0.25rem 0.4rem;
+
+  &:hover { color: #fff; }
+}
+
+@keyframes pwa-slide-up {
+  from { transform: translateY(100%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
 // ─── Widget flottant ─────────────────────────────────────────────────────────
 
 .contextual-bot-widget {

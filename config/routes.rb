@@ -1,4 +1,8 @@
 Rails.application.routes.draw do
+  # PWA — manifest et service worker (hors locale scope pour URL propre)
+  get "manifest" => "pwa#manifest", as: :pwa_manifest, defaults: { format: :json }
+  get "service-worker" => "pwa#service_worker", as: :pwa_service_worker
+
   # Routes ActionMailbox pour la réception d'emails
   mount ActionMailbox::Engine => '/rails/action_mailbox'
 

@@ -1,0 +1,120 @@
+// ============================================================
+// REN0VATE SERVICE WORKER
+// Stratégie : Network-first pour les pages HTML
+//              Cache-first pour les assets statiques (CSS/JS/images)
+//              Fallback sur /offline pour les pages hors connexion
+// ============================================================
+
+const CACHE_NAME = "ren0vate-v1";
+const OFFLINE_URL = "/offline.html";
+
+// Assets statiques à précacher au moment de l'installation
+const PRECACHE_ASSETS = [
+  OFFLINE_URL,
+  "/icon.png",
+  "/icon.svg"
+];
+
+// ============================================================
+// INSTALL — précache des ressources essentielles
+// ============================================================
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(PRECACHE_ASSETS);
+    })
+  );
+  // Prendre le contrôle immédiatement sans attendre le rechargement
+  self.skipWaiting();
+});
+
+// ============================================================
+// ACTIVATE — nettoyer les anciens caches
+// ============================================================
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter((name) => name !== CACHE_NAME)
+          .map((name) => caches.delete(name))
+      );
+    })
+  );
+  // Prendre le contrôle de tous les clients ouverts
+  self.clients.claim();
+});
+
+// ============================================================
+// FETCH — stratégie par type de ressource
+// ============================================================
+self.addEventListener("fetch", (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Ignorer les requêtes non-GET et hors-domaine
+  if (request.method !== "GET") return;
+  if (url.origin !== self.location.origin) return;
+
+  // Ignorer les routes Rails sensibles (API, Auth, Admin, Webhooks)
+  const skipPaths = ["/api/", "/rails/", "/admin/", "/webhooks/", "/users/"];
+  if (skipPaths.some((path) => url.pathname.startsWith(path))) return;
+
+  // Assets statiques (CSS, JS, images, fonts) → Cache-first
+  if (isStaticAsset(url.pathname)) {
+    event.respondWith(cacheFirst(request));
+    return;
+  }
+
+  // Pages HTML → Network-first avec fallback offline
+  if (request.headers.get("Accept")?.includes("text/html")) {
+    event.respondWith(networkFirstWithOfflineFallback(request));
+    return;
+  }
+});
+
+// ============================================================
+// HELPERS
+// ============================================================
+
+function isStaticAsset(pathname) {
+  return /\.(css|js|png|jpg|jpeg|svg|webp|woff|woff2|ttf|ico)(\?.*)?$/.test(pathname);
+}
+
+// Cache-first : retourne le cache s'il existe, sinon réseau + mise en cache
+async function cacheFirst(request) {
+  const cached = await caches.match(request);
+  if (cached) return cached;
+
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      const cache = await caches.open(CACHE_NAME);
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch {
+    return new Response("Asset non disponible hors connexion.", { status: 503 });
+  }
+}
+
+// Network-first : essaie le réseau, fallback cache puis page offline
+async function networkFirstWithOfflineFallback(request) {
+  try {
+    const response = await fetch(request);
+    // Mettre en cache les réponses réussies (pas les redirections auth)
+    if (response.ok && response.status === 200) {
+      const cache = await caches.open(CACHE_NAME);
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch {
+    // Essayer le cache en dernier recours
+    const cached = await caches.match(request);
+    if (cached) return cached;
+
+    // Page offline élégante
+    const offlinePage = await caches.match(OFFLINE_URL);
+    return offlinePage || new Response("Hors connexion", { status: 503 });
+  }
+}

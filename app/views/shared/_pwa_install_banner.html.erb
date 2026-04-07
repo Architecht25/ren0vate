@@ -1,0 +1,55 @@
+<%# Bannière d'installation PWA — Ren0vate
+    Rendu sur toutes les pages authentifiées via application.html.erb
+    Contrôlée par pwa_install_controller.js (Stimulus) %>
+
+<div data-controller="pwa-install">
+
+  <%# ——— Bannière Android / Chrome (beforeinstallprompt) ——— %>
+  <div data-pwa-install-target="banner"
+       class="d-none pwa-install-banner"
+       role="alert"
+       aria-live="polite">
+    <div class="pwa-install-inner">
+      <img src="/icon.png" alt="Ren0vate" class="pwa-install-icon">
+      <div class="pwa-install-text">
+        <strong>Installer Ren0vate</strong>
+        <span>Accès rapide depuis votre écran d'accueil</span>
+      </div>
+      <div class="pwa-install-actions">
+        <button class="btn btn-sm btn-primary pwa-install-btn"
+                data-action="click->pwa-install#install">
+          Installer
+        </button>
+        <button class="btn btn-sm btn-link pwa-dismiss-btn"
+                data-action="click->pwa-install#close"
+                aria-label="Fermer">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <%# ——— Bannière iOS / Safari (pas de beforeinstallprompt) ——— %>
+  <div data-pwa-install-target="iosBanner"
+       class="d-none pwa-install-banner pwa-install-banner--ios"
+       role="alert"
+       aria-live="polite">
+    <div class="pwa-install-inner">
+      <img src="/icon.png" alt="Ren0vate" class="pwa-install-icon">
+      <div class="pwa-install-text">
+        <strong>Installer Ren0vate</strong>
+        <span>
+          Appuyez sur
+          <i class="bi bi-box-arrow-up" style="font-size:1rem; vertical-align:middle;"></i>
+          puis <em>« Sur l'écran d'accueil »</em>
+        </span>
+      </div>
+      <button class="btn btn-sm btn-link pwa-dismiss-btn ms-auto"
+              data-action="click->pwa-install#close"
+              aria-label="Fermer">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+  </div>
+
+</div>

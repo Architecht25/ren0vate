@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ren0vate — Hors connexion</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #1e3a5f;
+      --accent: #c0794a;
+      --text: #2d3748;
+      --text-muted: #718096;
+      --bg: #f7f8fa;
+      --white: #ffffff;
+      --border: #e2e8f0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      max-width: 440px;
+      width: 100%;
+      padding: 2.5rem 2rem;
+      text-align: center;
+    }
+
+    .icon {
+      width: 72px;
+      height: 72px;
+      background: linear-gradient(135deg, var(--primary), #2d5282);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+    }
+
+    .icon svg {
+      width: 36px;
+      height: 36px;
+      fill: none;
+      stroke: white;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin-bottom: 0.75rem;
+    }
+
+    p {
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+
+    .suggestions {
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 1rem 1.25rem;
+      text-align: left;
+      margin-bottom: 1.75rem;
+    }
+
+    .suggestions p {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.5rem;
+    }
+
+    .suggestions ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .suggestions li {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      padding: 0.2rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .suggestions li::before {
+      content: "→";
+      color: var(--accent);
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    .btn:active { transform: scale(0.98); }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      width: 100%;
+      margin-bottom: 0.75rem;
+    }
+
+    .btn-primary:hover { background: #163057; }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--primary);
+      border: 1.5px solid var(--border);
+      width: 100%;
+    }
+
+    .btn-secondary:hover { background: var(--bg); }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-top: 2rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    .brand strong { color: var(--primary); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">
+      <!-- wifi-off icon -->
+      <svg viewBox="0 0 24 24">
+        <line x1="1" y1="1" x2="23" y2="23"/>
+        <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/>
+        <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/>
+        <path d="M10.71 5.05A16 16 0 0 1 22.56 9"/>
+        <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/>
+        <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+        <circle cx="12" cy="20" r="1" fill="white" stroke="none"/>
+      </svg>
+    </div>
+
+    <h1>Vous êtes hors connexion</h1>
+    <p>
+      Ren0vate nécessite une connexion internet pour charger cette page.
+      Reconnectez-vous et réessayez.
+    </p>
+
+    <div class="suggestions">
+      <p>Ce qui reste accessible :</p>
+      <ul>
+        <li>Les pages déjà visitées (en cache)</li>
+        <li>Les documents téléchargés</li>
+        <li>Vos notes locales</li>
+      </ul>
+    </div>
+
+    <button class="btn btn-primary" onclick="window.location.reload()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="23 4 23 10 17 10"/>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+      </svg>
+      Réessayer
+    </button>
+
+    <a href="/dashboard" class="btn btn-secondary">
+      Retour au tableau de bord
+    </a>
+
+    <div class="brand">
+      <img src="/icon.png" alt="Ren0vate" width="16" height="16" style="border-radius:3px;">
+      <span><strong>Ren0vate</strong> — Gérez vos rénovations en Belgique</span>
+    </div>
+  </div>
+</body>
+</html>

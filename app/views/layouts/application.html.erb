@@ -4,7 +4,10 @@
     <title><%= content_for(:title) || "Ren0vate - Plateforme de gestion de chantiers de rénovation en Belgique" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Ren0vate">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1e3a5f">
 
     <!-- Meta Description -->
     <meta name="description" content="<%= content_for(:meta_description) || "Gérez vos chantiers de rénovation de A à Z en Belgique. Planification, intervenants, budget et documents centralisés pour propriétaires en Flandre, Bruxelles et Wallonie." %>">
@@ -39,8 +42,8 @@
 
     <%= yield :head %>
 
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+    <%# PWA manifest %>
+    <%= tag.link rel: "manifest", href: pwa_manifest_path %>
 
     <link rel="icon" href="/icon.png" type="image/png">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
@@ -75,6 +78,11 @@
 
     <!-- Widget de Support (toujours visible) -->
     <%= render 'shared/support_widget' %>
+
+    <%# Bannière d'installation PWA (Android + iOS) %>
+    <% if user_signed_in? %>
+      <%= render 'shared/pwa_install_banner' %>
+    <% end %>
 
     <!-- Script pour gérer la sidebar mobile -->
     <script>
@@ -117,11 +125,14 @@
         }
       });
     </script>
-    <%# Désinstaller tout Service Worker résiduel — empêche le cache cross-user SW %>
+    <%# Enregistrement du Service Worker PWA %>
     <script nonce="<%= content_security_policy_nonce %>">
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(registrations) {
-          registrations.forEach(function(reg) { reg.unregister(); });
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('/service-worker', { scope: '/' })
+            .catch(function(err) {
+              console.warn('Service Worker registration failed:', err);
+            });
         });
       }
     </script>

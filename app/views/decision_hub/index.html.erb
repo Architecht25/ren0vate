@@ -29,7 +29,7 @@
                 <h6 class="mb-1">Sélectionnez votre simulation</h6>
                 <small class="text-muted">Choisissez la simulation à analyser</small>
               </div>
-              <div class="simulation-selector flex-grow-1" style="max-width: 600px; min-width: 500px;">
+              <div class="simulation-selector flex-grow-1" style="max-width: 600px; min-width: 0;">
               <% if @simulations.any? %>
                 <select class="form-select"
                         id="simulationSelector"
@@ -115,9 +115,10 @@
           <div class="col-12">
             <div class="card border-0 shadow-sm">
               <div class="card-body p-0">
-                <div class="row g-0">
+                <div class="steps-tabs-wrapper">
+                <div class="row g-0 flex-nowrap steps-tabs-row">
                   <!-- Étape 1: Résumé -->
-                  <div class="col-md-2">
+                  <div class="col-md-2 steps-tab-col">
                     <div class="p-3 text-center border-end position-relative step-tab active"
                          data-section="resume"
                          data-action="click->decision-hub#switchSection"
@@ -152,7 +153,7 @@
                   </div>
 
                   <!-- Étape 2: Planning -->
-                  <div class="col-md-2">
+                  <div class="col-md-2 steps-tab-col">
                     <div class="p-3 text-center border-end position-relative step-tab"
                          data-section="planning"
                          data-action="click->decision-hub#switchSection"
@@ -231,7 +232,7 @@
                   </div>
 
                   <!-- Étape 3: Documents -->
-                  <div class="col-md-2">
+                  <div class="col-md-2 steps-tab-col">
                     <div class="p-3 text-center border-end position-relative step-tab"
                          data-section="documents"
                          data-action="click->decision-hub#switchSection"
@@ -270,7 +271,7 @@
                   </div>
 
                   <!-- Étape 4: Technique -->
-                  <div class="col-md-2">
+                  <div class="col-md-2 steps-tab-col">
                     <div class="p-3 text-center border-end position-relative step-tab"
                          data-section="technical"
                          data-action="click->decision-hub#switchSection"
@@ -321,7 +322,7 @@
                   </div>
 
                   <!-- Étape 5: Préparation technique -->
-                  <div class="col-md-2">
+                  <div class="col-md-2 steps-tab-col">
                     <div class="p-3 text-center border-end position-relative step-tab"
                          data-section="preparation-technique"
                          data-action="click->decision-hub#switchSection"
@@ -373,7 +374,7 @@
 
                   <!-- Étape 6: Audit Logement Wallonie -->
                   <% if @default_simulation&.region == 'Wallonie' %>
-                    <div class="col-md-2">
+                    <div class="col-md-2 steps-tab-col">
                       <div class="p-3 text-center border-end position-relative step-tab"
                            data-section="audit-logement-wallonie"
                            data-action="click->decision-hub#switchSection"
@@ -414,7 +415,7 @@
 
                   <!-- Étape 7: Certificat PEB Flandre -->
                   <% if @default_simulation&.region == 'flandre' %>
-                    <div class="col-md-2">
+                    <div class="col-md-2 steps-tab-col">
                       <div class="p-3 text-center border-end position-relative step-tab"
                            data-section="certificat-peb-flandre"
                            data-action="click->decision-hub#switchSection"
@@ -452,7 +453,8 @@
                       </div>
                     </div>
                   <% end %>
-                </div>
+                </div> <!-- /steps-tabs-row -->
+                </div> <!-- /steps-tabs-wrapper -->
               </div>
             </div>
           </div>

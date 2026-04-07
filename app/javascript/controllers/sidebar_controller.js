@@ -16,6 +16,8 @@ export default class extends Controller {
     this.setupResponsive()
     // Intercepter les navigations Turbo
     this.setupTurboInterception()
+    // Swipe-to-close sur mobile
+    this.setupSwipeGesture()
   }
 
   forceInitialState() {
@@ -141,6 +143,11 @@ export default class extends Controller {
     sidebar?.classList.add('active')
     overlay?.classList.add('active')
     document.body.style.overflow = 'hidden'
+
+    // Sur mobile : fermer toutes les sections sauf celle contenant le lien actif
+    if (window.innerWidth < 768) {
+      this.collapseInactiveSectionsOnMobile()
+    }
   }
 
   closeSidebar() {
@@ -159,5 +166,57 @@ export default class extends Controller {
     } else {
       this.openSidebar()
     }
+  }
+
+  collapseInactiveSectionsOnMobile() {
+    // Trouve la section contenant le lien actif
+    const activeLink = document.querySelector('.sidebar .nav-link.active')
+    const activeSubmenu = activeLink?.closest('.nav-submenu')
+
+    // Ferme toutes les sections sauf celle active
+    const allSubmenus = document.querySelectorAll('.sidebar .nav-submenu')
+    allSubmenus.forEach(submenu => {
+      if (submenu !== activeSubmenu) {
+        submenu.classList.remove('show')
+        submenu.style.display = 'none'
+        const header = submenu.previousElementSibling
+        if (header) header.setAttribute('aria-expanded', 'false')
+      }
+    })
+
+    // S'assurer que la section active est ouverte
+    if (activeSubmenu) {
+      activeSubmenu.classList.add('show')
+      activeSubmenu.style.display = 'block'
+      const header = activeSubmenu.previousElementSibling
+      if (header) header.setAttribute('aria-expanded', 'true')
+    }
+  }
+
+  setupSwipeGesture() {
+    const sidebar = document.getElementById('mainSidebar')
+    if (!sidebar) return
+
+    let touchStartX = 0
+    let touchStartY = 0
+    const SWIPE_THRESHOLD = 60   // px minimum pour déclencher la fermeture
+    const SWIPE_MAX_Y = 80        // px max de déplacement vertical toléré
+
+    sidebar.addEventListener('touchstart', (e) => {
+      touchStartX = e.touches[0].clientX
+      touchStartY = e.touches[0].clientY
+    }, { passive: true })
+
+    sidebar.addEventListener('touchend', (e) => {
+      if (!sidebar.classList.contains('active')) return
+
+      const deltaX = touchStartX - e.changedTouches[0].clientX
+      const deltaY = Math.abs(touchStartY - e.changedTouches[0].clientY)
+
+      // Swipe vers la gauche (fermer) avec déplacement majoritairement horizontal
+      if (deltaX > SWIPE_THRESHOLD && deltaY < SWIPE_MAX_Y) {
+        this.closeSidebar()
+      }
+    }, { passive: true })
   }
 }
