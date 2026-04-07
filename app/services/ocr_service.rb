@@ -46,11 +46,12 @@ class OcrService
   def process_ocr
     start_time = Time.current
 
-    # Stratégie selon la disponibilité des services
-    result = if tesseract_available?
-      process_with_tesseract
-    elsif pdf_text_extractable?
+    # Pour les PDFs : pdftotext > PDF::Reader > Tesseract (Tesseract en dernier car il
+    # n'est fiable que page 1 via ImageMagick et produit du garbage sur les PDFs vectoriels)
+    result = if file.content_type == 'application/pdf' && pdf_text_extractable?
       process_pdf_text_extraction
+    elsif tesseract_available?
+      process_with_tesseract
     else
       fallback_processing
     end
@@ -66,7 +67,11 @@ class OcrService
   end
 
   def pdf_text_extractable?
-    file.content_type == 'application/pdf' && defined?(PDF::Reader)
+    file.content_type == 'application/pdf' && (pdftotext_available? || defined?(PDF::Reader))
+  end
+
+  def pdftotext_available?
+    @pdftotext_available ||= system('which pdftotext > /dev/null 2>&1')
   end
 
   def process_with_tesseract
@@ -98,21 +103,95 @@ class OcrService
   end
 
   def process_pdf_text_extraction
-    begin
-      file.rewind
-      reader = PDF::Reader.new(StringIO.new(file.read))
-      text = reader.pages.map(&:text).join("\n").strip
+    # pdftotext (poppler) gère mieux les encodages de polices personnalisées (ex: EPC flamand VEKA)
+    if pdftotext_available?
+      result = extract_with_pdftotext
+      return result if result[:success] && text_looks_valid?(result[:text])
+      Rails.logger.info "pdftotext: texte invalide (mauvais encodage de police), tentative PDF::Reader"
+    end
 
+    if defined?(PDF::Reader)
+      begin
+        file.rewind
+        reader = PDF::Reader.new(StringIO.new(file.read))
+        text = reader.pages.map(&:text).join("\n").strip
+        if text_looks_valid?(text)
+          return { success: true, text: text, confidence: 90, method: 'pdf_reader' }
+        end
+        Rails.logger.info "PDF::Reader: texte invalide, tentative OCR sur pages"
+      rescue PDF::Reader::MalformedPDFError => e
+        Rails.logger.warn "PDF malformé: #{e.message}"
+      end
+    end
+
+    # Dernier recours : OCR page par page via pdftoppm + RTesseract
+    # Nécessaire pour les PDFs VEKA (Flandre) dont l'encodage de police est incompatible
+    if pdftotext_available? && defined?(RTesseract)
+      result = extract_pdf_pages_with_ocr
+      return result if result[:success] && result[:text].present?
+    end
+
+    fallback_processing
+  end
+
+  def extract_with_pdftotext
+    temp_file = create_temp_file
+    begin
+      require 'shellwords'
+      output = `pdftotext -layout -enc UTF-8 #{Shellwords.escape(temp_file.path)} - 2>/dev/null`
       {
         success: true,
-        text: text,
-        confidence: text.present? ? 90 : 0,
-        method: 'pdf_reader'
+        text: output.to_s.strip,
+        confidence: output.present? ? 85 : 0,
+        method: 'pdftotext'
       }
-    rescue PDF::Reader::MalformedPDFError => e
-      Rails.logger.warn "PDF malformé, tentative OCR: #{e.message}"
-      fallback_processing
+    ensure
+      temp_file&.unlink
     end
+  end
+
+  # Converti les premières pages du PDF en images (pdftoppm) puis OCR avec Tesseract.
+  # Utilisé pour les PDFs avec encodage de police personnalisé (ex: EPCs VEKA flamands).
+  def extract_pdf_pages_with_ocr
+    return fallback_processing unless defined?(RTesseract)
+    require 'shellwords'
+    require 'tmpdir'
+    Dir.mktmpdir do |tmpdir|
+      temp_pdf = create_temp_file
+      begin
+        output_prefix = File.join(tmpdir, 'p')
+        # 200 dpi, 3 premières pages (données clés = page 1)
+        system("pdftoppm -r 200 -png -l 3 #{Shellwords.escape(temp_pdf.path)} #{Shellwords.escape(output_prefix)} 2>/dev/null")
+        pages = Dir.glob("#{output_prefix}-*.png").sort
+        return fallback_processing if pages.empty?
+
+        text = pages.map do |img|
+          RTesseract.new(img, lang: 'nld+fra+eng').to_s.strip
+        rescue => e
+          Rails.logger.warn "RTesseract page error: #{e.message}"
+          ''
+        end.join("\n")
+
+        { success: true, text: text, confidence: 70, method: 'pdf_page_ocr' }
+      ensure
+        temp_pdf&.unlink
+      end
+    end
+  rescue => e
+    Rails.logger.error "PDF page OCR error: #{e.message}"
+    fallback_processing
+  end
+
+  # Vérifie que le texte extrait contient suffisamment de lettres réelles.
+  # Les PDFs avec encodage de police personnalisé (ex: VEKA Flandre) produisent du texte
+  # composé uniquement de symboles ASCII (!"#$%&...) qui sont «imprimables» mais pas des lettres.
+  def text_looks_valid?(text)
+    return false if text.blank?
+    non_space = text.gsub(/\s/, '')
+    return false if non_space.empty?
+    # Au moins 40% de lettres alphabétiques (a-z, accents) dans les caractères non-espaces
+    alpha = non_space.scan(/[a-zA-ZÀ-ÿ]/).length
+    alpha.to_f / non_space.length > 0.4
   end
 
   def fallback_processing

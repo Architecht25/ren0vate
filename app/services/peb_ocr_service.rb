@@ -9,7 +9,8 @@ class PebOcrService < OcrService
   # ── Détection de région ──────────────────────────────────────────────────────
   SIGNAL_FLANDRE   = /energieprestatiecertificaat|certificaatnummer|vlaanderen\.be\/epc|bruikbare\s+vloeroppervlakte/i
   SIGNAL_WALLONIE  = /b[aâ]timent\s+r[eé]sidentiel\s+existant|energie\.wallonie\.be|certif-p\d|validit[eé]\s+maximale/i
-  SIGNAL_BRUXELLES = /r[eé]gion\s+de\s+bruxelles.capitale|bruxelles\s+environnement|homegrade\.brussels|kwhep\//i
+  # Bruxelles : version FR et version NL (certificat bilingue)
+  SIGNAL_BRUXELLES = /r[eé]gion\s+de\s+bruxelles.capitale|bruxelles\s+environnement|homegrade\.brussels|kwhep\/|leefmilieu\.brussels|brussels\s+hoofdstedelijk\s+gewest/i
 
   # ── Numéro de certificat ─────────────────────────────────────────────────────
   # Flandre   : 20240507-0003240119-RES-1
@@ -20,9 +21,13 @@ class PebOcrService < OcrService
   NUMERO_BRUXELLES = /num[eé]ro\s*:\s*[\r\n\s]*(\d{8}-\d{10}-\d{2}-\d)/im
 
   # ── Label PEB ────────────────────────────────────────────────────────────────
-  # Flandre : "Uw energielabel: F" ou dans le graphique "F" isolé avec contexte
-  LABEL_FLANDRE_1  = /uw\s+energielabel\s*:?\s*\n?\s*([A-G][+]{0,2})/i
-  LABEL_FLANDRE_2  = /energielabel\s+([A-G][+]{0,2})\b/i
+  # Flandre : "Uw energielabel:" suivi du score puis de la lettre
+  # IMPORTANT : éviter "energielabel A voor uw woning" (= doelstelling/cible)
+  LABEL_FLANDRE_1  = /uw\s+energielabel\s*:?\s*\n?\s*([A-G][+]{0,2})(?!\s*voor)/i
+  # Score kWh suivi immédiatement de la lettre de label (ex: "817 kWh / (m² jaar)\nF")
+  LABEL_FLANDRE_2  = /\d{3,4}\s+kWh\s*\/\s*\(m[²2]\s*jaar\)\s*\n\s*([A-G][+]{0,2})\b/i
+  # Huidig energielabel suivi de la lettre (page 5 du PDF VEKA)
+  LABEL_FLANDRE_3  = /huidig\s+energielabel\s*\n?\s*\d{3,4}\s+kWh[\s\S]{0,30}?\b([A-G][+]{0,2})\b/i
   # Wallonie : "Ce logement obtient une classe G" ou "classe G"
   LABEL_WALLONIE_1 = /logement\s+obtient\s+une\s+classe\s+([A-G][+]{0,2})/i
   LABEL_WALLONIE_2 = /[Cc]lasse\s+([A-G][+]{0,2})\b/
@@ -103,6 +108,10 @@ class PebOcrService < OcrService
     texte = ocr_result[:text].to_s
     return { success: false, error: "Document vide ou illisible" } if texte.blank?
 
+    # Normaliser les tirets conditionnels Unicode (U+00AD → tiret ordinaire)
+    # Présents dans les numéros de certificat des PDFs bruxellois
+    texte = texte.gsub("\u00AD", '-')
+
     region = detecter_region(texte)
 
     donnees = {
@@ -122,6 +131,16 @@ class PebOcrService < OcrService
       donnees[:label_peb] = deduire_label_depuis_score(donnees[:score_ep], region)
     end
 
+    # Cohérence label/score pour Flandre : si l'OCR a capturé le label "cible"
+    # (doelstelling) au lieu du label actuel, on corrige par déduction depuis le score.
+    if region == 'flandre' && donnees[:label_peb].present? && donnees[:score_ep].present?
+      label_deduit = deduire_label_depuis_score(donnees[:score_ep], region)
+      if label_deduit && label_deduit != donnees[:label_peb]
+        Rails.logger.info "PEB Flandre: label OCR '#{donnees[:label_peb]}' remplacé par '#{label_deduit}' (score #{donnees[:score_ep]})"
+        donnees[:label_peb] = label_deduit
+      end
+    end
+
     # Extraction des recommandations d'amélioration énergétique
     donnees[:recommandations] = self.class.recommandations_depuis_texte(texte, region)
 
@@ -135,10 +154,12 @@ class PebOcrService < OcrService
   private
 
   # ── Détection de région ──────────────────────────────────────────────────────
+  # Bruxelles AVANT Flandre : les PDFs bruxellois bilingues contiennent
+  # "ENERGIEPRESTATIECERTIFICAAT" (version NL) qui matcherait SIGNAL_FLANDRE.
   def detecter_region(texte)
+    return 'bruxelles' if texte.match?(SIGNAL_BRUXELLES)
     return 'flandre'   if texte.match?(SIGNAL_FLANDRE)
     return 'wallonie'  if texte.match?(SIGNAL_WALLONIE)
-    return 'bruxelles' if texte.match?(SIGNAL_BRUXELLES)
     nil
   end
 
@@ -161,7 +182,8 @@ class PebOcrService < OcrService
     raw = case region
     when 'flandre'
       texte.match(LABEL_FLANDRE_1)&.captures&.first ||
-        texte.match(LABEL_FLANDRE_2)&.captures&.first
+        texte.match(LABEL_FLANDRE_2)&.captures&.first ||
+        texte.match(LABEL_FLANDRE_3)&.captures&.first
     when 'wallonie'
       texte.match(LABEL_WALLONIE_1)&.captures&.first ||
         texte.match(LABEL_WALLONIE_3)&.captures&.first ||
@@ -304,31 +326,37 @@ class PebOcrService < OcrService
   end
 
   # ── Déduction du label depuis le score ───────────────────────────────────────
-  # Les seuils Wallonie et Bruxelles sont identiques pour le résidentiel
-  # Flandre : label toujours explicite dans le document → pas de déduction
-  # Grille officielle Wallonie (et Bruxelles résidentiel) — Réglementation E_spec kWh/m².an
-  # Source : certificat PEB wallon officiel
-  # A++ : E_spec ≤ 0
-  # A+  : 0  < E_spec ≤  45
-  # A   : 45 < E_spec ≤  85
-  # B   : 85 < E_spec ≤ 170
-  # C   : 170< E_spec ≤ 255
-  # D   : 255< E_spec ≤ 340
-  # E   : 340< E_spec ≤ 425
-  # F   : 425< E_spec ≤ 510
-  # G   : E_spec > 510
+  # Flandre — seuils officiels VEKA (visibles sur le graphique du certificat)
+  # A+ : ≤ -100  |  A : -100 à 100  |  B : 100 à 200  |  C : 200 à 300
+  # D  : 300 à 400  |  E : 400 à 500  |  F : > 500
+  #
+  # Wallonie & Bruxelles résidentiel — E_spec kWh/m².an
+  # A++: ≤ 0  |  A+: 0-45  |  A: 45-85  |  B: 85-170  |  C: 170-255
+  # D: 255-340  |  E: 340-425  |  F: 425-510  |  G: > 510
   def deduire_label_depuis_score(score, region)
-    return nil unless score && %w[wallonie bruxelles].include?(region)
+    return nil unless score
     val = score.to_f
-    if    val <= 0   then 'A++'
-    elsif val <= 45  then 'A+'
-    elsif val <= 85  then 'A'
-    elsif val <= 170 then 'B'
-    elsif val <= 255 then 'C'
-    elsif val <= 340 then 'D'
-    elsif val <= 425 then 'E'
-    elsif val <= 510 then 'F'
-    else                  'G'
+    case region
+    when 'flandre'
+      if    val <= -100 then 'A+'
+      elsif val <= 100  then 'A'
+      elsif val <= 200  then 'B'
+      elsif val <= 300  then 'C'
+      elsif val <= 400  then 'D'
+      elsif val <= 500  then 'E'
+      else                   'F'
+      end
+    when 'wallonie', 'bruxelles'
+      if    val <= 0   then 'A++'
+      elsif val <= 45  then 'A+'
+      elsif val <= 85  then 'A'
+      elsif val <= 170 then 'B'
+      elsif val <= 255 then 'C'
+      elsif val <= 340 then 'D'
+      elsif val <= 425 then 'E'
+      elsif val <= 510 then 'F'
+      else                  'G'
+      end
     end
   end
 
