@@ -513,7 +513,7 @@ class SimulationsController < ApplicationController
           next unless category_data["primes"].present?
 
           category_data["primes"].each do |prime|
-            if prime["user_input_value"].present? && prime["user_input_value"] != 0 && prime["user_input_value"] != "0"
+            if prime["user_input_value"].present?
               user_inputs[prime["slug"]] = prime["user_input_value"]
             end
           end
@@ -997,10 +997,9 @@ class SimulationsController < ApplicationController
     Rails.logger.info "💾 Sauvegarde des données spécifiques Flandre: #{user_inputs.inspect}"
     Rails.logger.info "💾 Résultats calculés: #{prime_results.inspect}"
 
-    # Ne pas sauvegarder si toutes les valeurs sont nulles/vides (éviter d'écraser les bonnes données)
-    non_zero_values = user_inputs.select { |k, v| v.present? && v != 0 && v != "0" }
-    if non_zero_values.empty?
-      Rails.logger.info "⚠️ Aucune donnée significative à sauvegarder (toutes les valeurs sont nulles)"
+    # Ne pas sauvegarder si user_inputs est complètement vide
+    if user_inputs.empty?
+      Rails.logger.info "⚠️ Aucune donnée à sauvegarder (user_inputs vide)"
       return
     end
 
@@ -1024,7 +1023,7 @@ class SimulationsController < ApplicationController
       existing_params['prime_cards'] ||= {}
 
       user_inputs['primes'].each do |slug, prime_data|
-        next unless prime_data['value'].present? && prime_data['value'] != 0
+        next unless prime_data['value'].present?
 
         # Déterminer la catégorie pour cette prime
         category = determine_category_from_slug(slug)
@@ -1052,7 +1051,7 @@ class SimulationsController < ApplicationController
 
     # Sauvegarder aussi les données brutes pour la restructuration (fallback)
     user_inputs.each do |key, value|
-      if key != 'peb' && key != 'amiante' && key != 'primes' && value.present? && value != 0
+      if key != 'peb' && key != 'amiante' && key != 'primes' && value.present?
         existing_params[key] = value
       end
     end

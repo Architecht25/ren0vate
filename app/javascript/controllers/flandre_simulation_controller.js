@@ -565,7 +565,7 @@ export default class extends Controller {
           value = input.value;
         }
 
-        if (value !== null && value !== '' && value !== '0') {
+        if (value !== null && value !== '') {
           userInputs[slug] = value;
         }
       }
