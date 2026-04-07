@@ -62,7 +62,16 @@ module FlandrePrimesHelper
         end
       end
 
-      # 2. Lire les clés plates spéciales (ex: warmtepomp_type)
+      # 2. Lire les slugs Flandre directs (sauvegardés par le flat auto-save — priorité sur prime_cards)
+      # Ces clés sont mises à jour à chaque auto-save y compris pour les valeurs 0
+      flandre_flat_slugs = %w[isolation_toiture isolation_murs isolation_sol ramen_deuren
+                               warmtepomp warmtepompboiler voorbereiding_isolatie
+                               voorbereiding_sanitair_elec renovation_toiture renovation_murs renovation_sol]
+      flandre_flat_slugs.each do |key|
+        saved_inputs[key] = params_data[key] unless params_data[key].nil?
+      end
+
+      # 3. Lire les clés plates spéciales (ex: warmtepomp_type)
       FLAT_PARAM_SLUGS.each do |key|
         saved_inputs[key] = params_data[key] unless params_data[key].nil?
       end

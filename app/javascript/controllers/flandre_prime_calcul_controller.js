@@ -236,7 +236,12 @@ export default class extends Controller {
 
     allInputs.forEach(input => {
       const slug = input.dataset.slug
-      if (slug && input.value && input.value !== '0' && input.value !== '') {
+      if (!slug) return
+      if (input.type === 'number') {
+        userInputs[slug] = parseFloat(input.value) || 0
+      } else if (input.tagName === 'SELECT') {
+        userInputs[slug] = input.value
+      } else if (input.value !== '') {
         userInputs[slug] = input.value
       }
     })
