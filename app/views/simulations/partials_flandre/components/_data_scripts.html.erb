@@ -25,6 +25,9 @@
   function restoreFlandreInputs() {
     if (!window.flandrePendingRestore) return;
 
+    // Verrouiller immédiatement pour éviter les doubles appels
+    window.flandrePendingRestore = false;
+
     const savedInputs = window.flandreSavedInputs;
     let restoredCount = 0;
 
@@ -97,7 +100,6 @@
 
           // Réactiver les auto-saves
           window.isRestoringValues = false;
-          window.flandrePendingRestore = false;
 
           console.log('✅ Restauration Flandre terminée avec recalculs');
         }, 300);
