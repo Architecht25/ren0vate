@@ -47,15 +47,58 @@
       </div>
     </div>
 
+    <!-- ═══ PANNEAU DE CONSENTEMENT (affiché avant la 1ère utilisation) ═══ -->
+    <div data-contextual-bot-target="consentPanel"
+         class="p-3 overflow-auto d-flex flex-column"
+         style="height: calc(100% - 65px);">
+      <div class="alert alert-warning border-0 mb-3">
+        <strong><i class="bi bi-shield-lock me-2"></i>Transfert de données vers l'IA</strong>
+      </div>
+      <p class="small mb-2">
+        L'assistant Ren0vate utilise <strong>Claude (Anthropic, États-Unis)</strong>.
+        À chaque message, les données suivantes sont transmises de façon pseudonymisée :
+      </p>
+      <ul class="small mb-3">
+        <li>Prénom, localisation (code postal + commune), région</li>
+        <li>Situation familiale, composition du ménage, statut BIM/RIS</li>
+        <li><strong>Tranche de revenus</strong> (pas le montant exact) issue de votre AER</li>
+        <li>Données de vos biens : commune, PEB, type, travaux, simulations de primes</li>
+      </ul>
+      <p class="small mb-3 text-muted">
+        Ces données <strong>ne servent pas à entraîner les modèles IA</strong> (API policy Anthropic).
+        Le transfert est encadré par des Clauses Contractuelles Types (SCC — art. 46 RGPD).
+        Vous pouvez retirer votre consentement à tout moment en fermant le chat.
+      </p>
+      <div class="mt-auto">
+        <button data-action="click->contextual-bot#acceptConsent"
+                class="btn btn-primary w-100 mb-2">
+          <i class="bi bi-check-circle me-2"></i>J'accepte et j'active l'assistant
+        </button>
+        <button class="btn btn-outline-secondary w-100 btn-sm"
+                data-bs-toggle="collapse"
+                data-bs-target="#bot-chat-container">
+          Annuler
+        </button>
+        <p class="text-center mt-2 mb-0">
+          <a href="/politique-confidentialite" target="_blank" class="small text-muted">
+            Politique de confidentialité
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <!-- ═══ INTERFACE CHAT (masquée avant consentement) ═══ -->
+    <div data-contextual-bot-target="chatContent" class="d-none d-flex flex-column" style="height: calc(100% - 65px);">
+
     <!-- Zone des messages - AGRANDIE -->
-    <div class="bot-messages-container p-3 overflow-auto"
+    <div class="bot-messages-container p-3 overflow-auto flex-grow-1"
          data-contextual-bot-target="messages"
-         style="height: 450px; background-color: #fafafa;">
+         style="background-color: #fafafa; min-height: 0;">
       <!-- Les messages seront ajoutés ici dynamiquement -->
     </div>
 
     <!-- Zone des suggestions -->
-    <div class="bot-suggestions p-2 border-top bg-light" style="min-height: 50px;">
+    <div class="bot-suggestions p-2 border-top bg-light flex-shrink-0" style="min-height: 50px;">
       <div class="small text-muted mb-1">Suggestions :</div>
       <div data-contextual-bot-target="suggestions" class="d-flex flex-wrap">
         <!-- Les suggestions seront ajoutées ici -->
@@ -63,7 +106,7 @@
     </div>
 
     <!-- Zone de saisie -->
-    <div class="bot-input-container p-3 border-top bg-white rounded-bottom-3">
+    <div class="bot-input-container p-3 border-top bg-white rounded-bottom-3 flex-shrink-0">
       <div class="input-group">
         <input type="text"
                class="form-control"
@@ -82,6 +125,8 @@
         🧠 <strong>Expert :</strong> Questions générales
       </div>
     </div>
+
+    </div><!-- /chatContent -->
   </div>
 </div>
 

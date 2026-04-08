@@ -365,6 +365,7 @@ Rails.application.routes.draw do
 
   get '/mentions-legales', to: 'pages#legal', as: :legal
   get '/politique-de-confidentialite', to: 'pages#privacy', as: :privacy
+  get '/conditions-generales', to: 'pages#terms', as: :terms
 
   # Routes globales pour les gestionnaires (admin/modérateur)
   # complement_requests sont gérées uniquement via request_progresses (nested)

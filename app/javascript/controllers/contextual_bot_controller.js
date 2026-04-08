@@ -1,18 +1,48 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["messages", "input", "sendButton", "suggestions", "modeIndicator", "toggleMode"]
+  static targets = ["messages", "input", "sendButton", "suggestions", "modeIndicator", "toggleMode", "consentPanel", "chatContent"]
   static values = {
     currentPage: String,
     mode: { type: String, default: "guide" }
   }
 
-  connect() {
-    this.initializeBot()
-    this.setupEventListeners()
+  static CONSENT_KEY = 'rn0_ia_consent_v1'
 
-    // Gérer l'ouverture/fermeture du bot
+  connect() {
+    this.checkConsent()
+    this.setupEventListeners()
     this.handleBotToggle()
+  }
+
+  // ─── Consentement ────────────────────────────────────────────────────────
+
+  checkConsent() {
+    const hasConsent = localStorage.getItem(this.constructor.CONSENT_KEY)
+    if (hasConsent) {
+      this.showChat()
+    } else {
+      this.showConsentPanel()
+    }
+  }
+
+  showConsentPanel() {
+    if (this.hasConsentPanelTarget) this.consentPanelTarget.classList.remove('d-none')
+    if (this.hasChatContentTarget) this.chatContentTarget.classList.add('d-none')
+  }
+
+  showChat() {
+    if (this.hasConsentPanelTarget) this.consentPanelTarget.classList.add('d-none')
+    if (this.hasChatContentTarget) {
+      this.chatContentTarget.classList.remove('d-none')
+      this.chatContentTarget.classList.add('d-flex')
+    }
+    this.initializeBot()
+  }
+
+  acceptConsent() {
+    localStorage.setItem(this.constructor.CONSENT_KEY, new Date().toISOString())
+    this.showChat()
   }
 
   initializeBot() {

@@ -226,6 +226,10 @@ class PagesController < ApplicationController
     # Page politique de confidentialité
   end
 
+  def terms
+    # Conditions générales de vente et d'utilisation
+  end
+
   private
 
 end

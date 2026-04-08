@@ -166,12 +166,14 @@ class ContextualBotService
 
     lines = []
 
-    # ══ PROFIL COMPLET DU DEMANDEUR ══════════════════════════════════════════
+    # ══ PROFIL PSEUDONYMISÉ DU DEMANDEUR ══════════════════════════════════════
+    # NOTE RGPD : les données directement identifiantes (nom complet, email,
+    # téléphone, adresse exacte, revenus précis, IBAN) sont pseudonymisées
+    # avant transmission à l'API Anthropic (serveurs USA).
     lines << "═══ PROFIL DU DEMANDEUR ═══"
-    lines << "Identité    : #{@user.first_name} #{@user.last_name} | #{@user.email}"
-    lines << "Téléphone   : #{@user.phone || 'N/A'}"
-    lines << "Adresse     : #{[@user.street, @user.number, @user.postal_code, @user.city].compact.join(' ')}"
-    lines << "Région      : #{@user.region&.capitalize || 'N/A'}"
+    lines << "Prénom      : #{@user.first_name}"
+    lines << "ID interne  : USR-#{Digest::SHA256.hexdigest(@user.id.to_s)[0..7]}"
+    lines << "Localisation: #{[@user.postal_code, @user.city].compact.join(' ')} — #{@user.region&.capitalize || 'N/A'}"
     lines << "Type demandeur : #{@user.type_demandeur || 'N/A'}"
     lines << "Statut prof.: #{@user.statut_professionnel || 'N/A'} | Indépendant: #{bool_fr(@user.independant)} | TVA déductible: #{bool_fr(@user.tva_deductible)}"
 
@@ -184,20 +186,20 @@ class ContextualBotService
     lines << "  BIM/RIS    : #{bool_fr(@user.bim || @user.ris)}"
     lines << "  Client protégé Bxl: #{bool_fr(@user.client_protege_bruxelles)}"
 
-    # Revenus déclarés
-    lines << "\n── Revenus déclarés ──"
+    # Revenus — transmis en tranche (pas de montant exact)
+    lines << "\n── Tranche de revenus ──"
     if @user.revenu_demandeur.present?
-      lines << "  Revenu demandeur  : #{number_to_currency_simple(@user.revenu_demandeur)} (année #{@user.annee_revenus_demandeur || 'N/A'})"
+      lines << "  Revenu demandeur  : #{revenue_bracket(@user.revenu_demandeur)} (année #{@user.annee_revenus_demandeur || 'N/A'})"
     end
     if @user.revenu_conjoint.present?
-      lines << "  Revenu conjoint   : #{number_to_currency_simple(@user.revenu_conjoint)} (année #{@user.annee_revenus_conjoint || 'N/A'})"
+      lines << "  Revenu conjoint   : #{revenue_bracket(@user.revenu_conjoint)} (année #{@user.annee_revenus_conjoint || 'N/A'})"
     end
-    lines << "  IBAN belge : #{@user.compte_bancaire_belge ? 'Oui (' + (@user.iban.present? ? @user.iban[0..6] + '****' : 'renseigné') + ')' : 'Non'}"
+    lines << "  IBAN belge : #{@user.compte_bancaire_belge ? 'Oui' : 'Non'}"
 
-    # AER (avertissement-extrait de rôle) — source officielle des revenus
+    # AER (avertissement-extrait de rôle) — tranche uniquement
     aer = @user.aer_donnees.order(created_at: :desc).first
     if aer
-      lines << "  AER officiel: Revenu imposable #{number_to_currency_simple(aer.revenu_imposable_global)} | Année #{aer.annee_revenus} | #{aer.valide_manuellement ? '✅ validé' : '⏳ en attente'}"
+      lines << "  AER officiel: Revenu imposable #{revenue_bracket(aer.revenu_imposable_global)} | Année #{aer.annee_revenus} | #{aer.valide_manuellement ? '✅ validé' : '⏳ en attente'}"
     end
 
     # Vente prévue dans 5 ans — impacte l'éligibilité Wallonie
@@ -227,7 +229,8 @@ class ContextualBotService
   end
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # Contexte complet d'un bien : données directes + toutes les données indirectes
+  # Contexte pseudonymisé d'un bien — RGPD art. 5.1.c (minimisation)
+  # Données supprimées : adresse exacte, EAN, cadastre, noms tiers, montants exacts
   # ─────────────────────────────────────────────────────────────────────────────
   def build_property_context(p)
     lines = []
@@ -235,29 +238,29 @@ class ContextualBotService
     type_bien = p.type_propriete_wallonie || p.type_bien_flandre || p.type_bien_bruxelles || p.type_propriete
 
     lines << "\n═══ BIEN SÉLECTIONNÉ ═══"
-    lines << "  Nom       : #{p.titre.presence || 'Sans nom'}"
-    lines << "  Adresse   : #{p.full_address}"
-    lines << "  Région    : #{p.region&.capitalize}"
+    lines << "  Ref interne : BIEN-#{Digest::SHA256.hexdigest(p.id.to_s)[0..7]}"
+    # Localisation : commune + code postal uniquement (pas rue/numéro)
+    lines << "  Localisation: #{[p.postal_code, p.city || p.commune].compact.join(' ')} — #{p.region&.capitalize}"
     lines << "  Type bien : #{type_bien || 'N/A'}"
     lines << "  Occupation: #{p.occupation || p.usage || p.usage_flandre || 'N/A'}"
     lines << "  Surface   : #{p.surface_habitable || p.surface_habitable_wallonie || p.surface_totale || 'N/A'} m²"
 
-    # Données énergétiques
+    # Données énergétiques — aucune donnée d'identification de compteur
     lines << "\n── Énergie & technique ──"
     lines << "  PEB actuel  : #{peb || 'non renseigné'}"
     lines << "  Année constr: #{p.annee_construction || 'N/A'}"
     lines << "  Chauffage   : #{p.mode_chauffage_principal || p.mode_chauffage_wallonie || 'N/A'}"
     lines << "  Audit énerg.: #{p.audit_energetique || 'N/A'}"
-    lines << "  EAN         : #{p.numero_ean || p.ean_flandre || 'N/A'}"
-    lines << "  Cadastre    : #{p.numero_cadastre || p.parcelle_flandre || 'N/A'}"
+    lines << "  EAN         : #{(p.numero_ean || p.ean_flandre).present? ? 'Renseigné' : 'Non renseigné'}"
+    lines << "  Cadastre    : #{(p.numero_cadastre || p.parcelle_flandre).present? ? 'Renseigné' : 'Non renseigné'}"
     lines << "  Été reconstr: #{bool_fr(p.reconstruit)}"
     lines << "  Bien classé : #{bool_fr(p.bien_classe)} | Petit patrimoine: #{bool_fr(p.petit_patrimoine)}"
 
-    # Données financières du bien
+    # Données financières — tranche uniquement
     if p.valeur_achat.present?
-      lines << "  Valeur achat: #{number_to_currency_simple(p.valeur_achat)} (#{p.date_achat&.strftime('%d/%m/%Y') || 'N/A'})"
+      lines << "  Valeur achat: #{amount_bracket(p.valeur_achat)}"
     end
-    lines << "  Primes déjà reçues: #{p.primes_recues || 'aucune déclarée'}"
+    lines << "  Primes déjà reçues: #{p.primes_recues.present? ? 'Oui' : 'Non'}"
 
     # Spécificités régionales
     case p.region&.downcase
@@ -270,13 +273,13 @@ class ContextualBotService
       lines << "  Type bien Bruxelles: #{p.type_bien_bruxelles || 'N/A'}"
     end
 
-    # Certificats PEB scannés (OCR)
+    # Certificats PEB scannés (OCR) — données techniques conservées, pas d'identifiant
     peb_donnees = p.peb_donnees.order(created_at: :desc)
     if peb_donnees.any?
       lines << "\n── Certificats PEB scannés (#{peb_donnees.count}) ──"
       peb_donnees.each do |pd|
         valid = pd.valide_manuellement ? '✅' : '⏳'
-        lines << "  #{valid} PEB #{pd.label_peb || 'N/A'} | Score EP: #{pd.score_ep || 'N/A'} | Surf. réf: #{pd.surface_reference || 'N/A'} m² | #{pd.date_certificat&.strftime('%d/%m/%Y') || 'N/A'}"
+        lines << "  #{valid} PEB #{pd.label_peb || 'N/A'} | Score EP: #{pd.score_ep || 'N/A'} | Surf. réf: #{pd.surface_reference || 'N/A'} m² | #{pd.date_certificat&.strftime('%m/%Y') || 'N/A'}"
       end
     end
 
@@ -285,67 +288,68 @@ class ContextualBotService
     if projects.any?
       lines << "\n── Chantiers liés (#{projects.count}) ──"
       projects.each do |pr|
-        lines << "  ▸ #{pr.nom || 'Sans nom'} [#{pr.statut || 'en cours'}]"
+        lines << "  ▸ Chantier [#{pr.statut || 'en cours'}]"
         lines << "    Type travaux    : #{pr.type_travaux || 'N/A'}"
-        lines << "    Période         : #{pr.date_début&.strftime('%d/%m/%Y') || '?'} → #{pr.date_fin&.strftime('%d/%m/%Y') || '?'}"
-        lines << "    Permis urbanisme: #{pr.permis_urbanisme_number || 'N/A'}"
-        lines << "    Budget architecte: #{pr.architecte_devis_montant ? number_to_currency_simple(pr.architecte_devis_montant) : 'N/A'}"
-        lines << "    Budget entrepreneur: #{pr.contractor_devis_montant ? number_to_currency_simple(pr.contractor_devis_montant) : 'N/A'}"
+        lines << "    Période         : #{pr.date_début&.strftime('%m/%Y') || '?'} → #{pr.date_fin&.strftime('%m/%Y') || '?'}"
+        lines << "    Permis urbanisme: #{pr.permis_urbanisme_number.present? ? 'Oui' : 'Non'}"
+        lines << "    Budget architecte: #{pr.architecte_devis_montant ? amount_bracket(pr.architecte_devis_montant) : 'N/A'}"
+        lines << "    Budget entrepreneur: #{pr.contractor_devis_montant ? amount_bracket(pr.contractor_devis_montant) : 'N/A'}"
 
-        # Architecte
+        # Architecte — rôle + certifications uniquement, pas d'identité
         if pr.architecte_nom.present? || pr.architecte_entreprise.present?
-          lines << "    Architecte      : #{[pr.architecte_nom, pr.architecte_prenom].compact.join(' ')} | #{pr.architecte_entreprise || ''} | N°ordre: #{pr.architecte_numero_ordre || 'N/A'}"
+          lines << "    Architecte      : Renseigné | N°ordre: #{pr.architecte_numero_ordre.present? ? 'Oui' : 'Non'}"
         end
 
-        # Entrepreneur principal
+        # Entrepreneur principal — certifications uniquement
         if pr.entrepreneur_principal_nom.present? || pr.entrepreneur_principal_entreprise.present?
-          lines << "    Entrepreneur    : #{pr.entrepreneur_principal_nom || ''} | #{pr.entrepreneur_principal_entreprise || ''} | TVA: #{pr.entrepreneur_principal_numero_tva || 'N/A'}"
+          has_tva = pr.entrepreneur_principal_numero_tva.present?
+          lines << "    Entrepreneur    : Renseigné | TVA enregistrée: #{bool_fr(has_tva)}"
           if pr.entrepreneur_principal_certifications.present?
             certs = Array(pr.entrepreneur_principal_certifications).join(', ')
             lines << "    Certifications  : #{certs}"
           end
         end
 
-        # Audit énergétique
+        # Audit énergétique — présence + date, pas le numéro
         if pr.numero_audit.present?
-          lines << "    Audit N°#{pr.numero_audit} du #{pr.date_audit&.strftime('%d/%m/%Y') || 'N/A'} | Prix: #{pr.prix_audit ? number_to_currency_simple(pr.prix_audit) : 'N/A'}"
+          lines << "    Audit énergétique: #{pr.date_audit&.strftime('%m/%Y') || 'N/A'} | Prix: #{pr.prix_audit ? amount_bracket(pr.prix_audit) : 'N/A'}"
         end
 
-        # Devis scannés (OCR)
+        # Devis scannés — tranche de montant, type travaux, pas de nom d'entreprise
         devis = pr.devis_donnees.order(created_at: :desc)
         if devis.any?
           lines << "    Devis scannés (#{devis.count}) :"
           devis.each do |dv|
             valid = dv.valide_manuellement ? '✅' : '⏳'
-            lines << "      #{valid} #{dv.nom_entreprise || 'N/A'} | #{number_to_currency_simple(dv.montant_total_tvac)} TVAC | #{dv.types_travaux_detectes&.first(3)&.join(', ') || 'N/A'} | #{dv.date_devis&.strftime('%d/%m/%Y') || 'N/A'}"
+            lines << "      #{valid} #{amount_bracket(dv.montant_total_tvac)} TVAC | #{dv.types_travaux_detectes&.first(3)&.join(', ') || 'N/A'} | #{dv.date_devis&.strftime('%m/%Y') || 'N/A'}"
           end
         end
 
-        # Factures
+        # Factures — tranche de montant, type, pas de nom d'entreprise
         factures = pr.factures.order(date_facture: :desc)
         if factures.any?
           total = factures.sum { |f| f.montant.to_f }
-          lines << "    Factures (#{factures.count}) — Total: #{number_to_currency_simple(total)} :"
+          lines << "    Factures (#{factures.count}) — Total: #{amount_bracket(total)} :"
           factures.each do |f|
             expire = f.date_limite_prime ? " | ⚠️ Délai prime: #{f.date_limite_prime.strftime('%d/%m/%Y')}" : ""
-            lines << "      • [#{f.type_facture}] #{f.nom_entreprise || 'N/A'} | #{number_to_currency_simple(f.montant)} | #{f.statut_paiement || 'N/A'}#{expire}"
+            lines << "      • [#{f.type_facture}] #{amount_bracket(f.montant)} | #{f.statut_paiement || 'N/A'}#{expire}"
           end
         end
       end
     end
 
-    # ── SIMULATIONS DE PRIMES ───────────────────────────────────────────────
+    # ── SIMULATIONS DE PRIMES — montants conservés (utiles pour conseils) ──
     simulations = p.simulations.order(created_at: :desc)
     if simulations.any?
       lines << "\n── Simulations de primes (#{simulations.count}) ──"
       simulations.each do |s|
         eligible = s.eligible ? "✅ éligible" : "❌ non éligible"
         cat = s.category.present? ? " | Catégorie: #{s.category}" : ""
-        lines << "  #{eligible} #{s.titre || s.region&.capitalize} — #{number_to_currency_simple(s.total_simule)}#{cat} (#{s.created_at.strftime('%d/%m/%Y')})"
+        lines << "  #{eligible} #{s.titre || s.region&.capitalize} — #{amount_bracket(s.total_simule)}#{cat}"
         lines << "    Raison inéligibilité: #{s.ineligibility_reason}" if s.ineligibility_reason.present?
       end
       best = simulations.select(&:eligible).max_by { |s| s.total_simule.to_i }
-      lines << "  → Meilleure simulation éligible : #{best ? number_to_currency_simple(best.total_simule) + ' (' + (best.titre || best.region) + ')' : 'aucune éligible'}"
+      lines << "  → Meilleure simulation éligible : #{best ? amount_bracket(best.total_simule) + ' (' + (best.titre || best.region) + ')' : 'aucune éligible'}"
     end
 
     # ── DEMANDES OFFICIELLES ────────────────────────────────────────────────
@@ -353,7 +357,7 @@ class ContextualBotService
     if requests.any?
       lines << "\n── Demandes officielles (#{requests.count}) ──"
       requests.each do |r|
-        montant = r.montant_total.present? ? " | Montant: #{number_to_currency_simple(r.montant_total)}" : ""
+        montant = r.montant_total.present? ? " | Montant: #{amount_bracket(r.montant_total)}" : ""
         lines << "  • #{r.title || r.type_travaux || 'N/A'} [#{r.status || 'N/A'}] #{r.region&.capitalize}#{montant}"
       end
     end
@@ -363,7 +367,7 @@ class ContextualBotService
     if quotes.any?
       lines << "\n── Devis estimatifs (#{quotes.count}) ──"
       quotes.each do |q|
-        lines << "  • #{number_to_currency_simple(q.total_min)} – #{number_to_currency_simple(q.total_max)} | Durée: #{q.duration_min_days}–#{q.duration_max_days} jours | #{q.status || 'N/A'}"
+        lines << "  • #{amount_bracket(q.total_min)} – #{amount_bracket(q.total_max)} | Durée: #{q.duration_min_days}–#{q.duration_max_days} jours | #{q.status || 'N/A'}"
       end
     end
 
@@ -384,6 +388,42 @@ class ContextualBotService
   def number_to_currency_simple(amount)
     return "N/A" unless amount
     "#{amount.to_i.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1 ').reverse} €"
+  end
+
+  # Tranches pour les montants de travaux / devis / primes (calées sur barèmes belges)
+  def amount_bracket(amount)
+    return 'N/A' unless amount
+    val = amount.to_f
+    case val
+    when 0...1_000      then "< 1 000 €"
+    when 1_000...5_000  then "1 000–5 000 €"
+    when 5_000...10_000 then "5 000–10 000 €"
+    when 10_000...20_000 then "10 000–20 000 €"
+    when 20_000...35_000 then "20 000–35 000 €"
+    when 35_000...50_000 then "35 000–50 000 €"
+    when 50_000...75_000 then "50 000–75 000 €"
+    when 75_000...100_000 then "75 000–100 000 €"
+    when 100_000...150_000 then "100 000–150 000 €"
+    when 150_000...250_000 then "150 000–250 000 €"
+    else                    "> 250 000 €"
+    end
+  end
+  # envoyés à l'API Anthropic. Les tranches correspondent aux seuils des
+  # régimes de primes belges (Wallonie, Bruxelles, Flandre).
+  def revenue_bracket(amount)
+    return 'N/A' unless amount
+    val = amount.to_f
+    case val
+    when 0...15_000   then "< 15 000 €"
+    when 15_000...20_000 then "15 000–20 000 €"
+    when 20_000...25_000 then "20 000–25 000 €"
+    when 25_000...30_000 then "25 000–30 000 €"
+    when 30_000...35_000 then "30 000–35 000 €"
+    when 35_000...45_000 then "35 000–45 000 €"
+    when 45_000...60_000 then "45 000–60 000 €"
+    when 60_000...80_000 then "60 000–80 000 €"
+    else                   "> 80 000 €"
+    end
   end
 
   def bool_fr(val)
