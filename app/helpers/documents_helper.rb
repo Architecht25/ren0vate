@@ -170,7 +170,8 @@ module DocumentsHelper
 
   # Nom localisé du type de document
   def document_type_name(type_document)
-    I18n.t("documents.types.#{type_document}", default: type_document.humanize)
+    return type_document.map { |t| document_type_name(t) }.join(", ") if type_document.is_a?(Array)
+    I18n.t("documents.types.#{type_document}", default: type_document.to_s.humanize)
   end
 
   # Note explicative sur le rôle du document dans l'application
