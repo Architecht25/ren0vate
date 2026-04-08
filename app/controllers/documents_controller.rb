@@ -592,9 +592,13 @@ class DocumentsController < ApplicationController
     photo_types = %w[photo photo_avant photo_pendant photo_apres photo_chassis]
     came_from_photo_upload = photo_types.include?(params.dig(:document, :type_document))
 
+    # Récupérer le contexte depuis le document lui-même si non défini (ex: destroy)
+    @project  ||= @document&.project
+    @property ||= @document&.property
+
     if @project
-      # Après upload photo depuis un projet → retour sur la fiche projet (widget photos)
-      if came_from_photo_upload
+      # Après suppression ou upload photo → retour sur la fiche projet (widget photos)
+      if came_from_photo_upload || photo_types.include?(@document&.type_document)
         redirect_to project_path(@project), options
       else
         redirect_to project_documents_path(@project, redirect_params), options

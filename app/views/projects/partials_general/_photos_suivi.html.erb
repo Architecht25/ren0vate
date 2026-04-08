@@ -65,6 +65,15 @@
                 <%= meta[:label].split(' ').first %>
               </span>
             <% end %>
+            <%# ── Bouton suppression ── %>
+            <%= button_to document_path(doc),
+                  method: :delete,
+                  data: { turbo_confirm: "Supprimer cette photo ?" },
+                  form: { style: "position:absolute;top:2px;right:2px;" },
+                  class: "btn btn-danger btn-sm p-0 d-flex align-items-center justify-content-center",
+                  style: "width:20px;height:20px;font-size:0.65rem;opacity:0.85;border-radius:50%;" do %>
+              <i class="bi bi-x"></i>
+            <% end %>
           </div>
         </div>
       <% end %>
