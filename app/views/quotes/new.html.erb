@@ -26,6 +26,79 @@
   <% end %>
 
   <%= form_with url: property_quotes_path(@property), method: :post, local: true do |f| %>
+    <%# ── ESTIMATION IA ──────────────────────────────────────────────────── %>
+    <div class="card border-0 shadow mb-4" style="border-left: 4px solid #e87722 !important;">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+          <div>
+            <h5 class="fw-normal mb-1">
+              <i class="bi bi-robot text-primary-custom me-2"></i>Estimation IA
+            </h5>
+            <p class="text-muted-custom small mb-0">
+              Pré-remplit automatiquement les travaux recommandés selon le PEB, l'année de construction et la surface du bien.
+            </p>
+          </div>
+          <div class="d-flex align-items-center gap-2 flex-shrink-0">
+            <% if @projects.any? %>
+              <select class="form-select form-select-sm" id="ia-project-select" style="min-width: 180px; max-width: 240px;">
+                <option value="">Sans description projet</option>
+                <% @projects.each do |proj| %>
+                  <option value="<%= proj.id %>"><%= proj.nom.presence || "Projet ##{proj.id}" %></option>
+                <% end %>
+              </select>
+            <% end %>
+            <button type="button"
+                    class="btn btn-primary-custom btn-sm text-nowrap"
+                    id="btn-ia-estimate"
+                    data-estimate-url="<%= estimate_property_quotes_path(@property) %>">
+              <i class="bi bi-stars me-1"></i>Lancer l'estimation IA
+            </button>
+          </div>
+        </div>
+        <div class="mt-3">
+          <label class="form-label small text-muted-custom mb-1" for="ia-description">
+            <i class="bi bi-pencil me-1"></i>Description libre des travaux envisagés <span class="fw-normal">(optionnel)</span>
+          </label>
+          <textarea id="ia-description"
+                    class="form-control form-control-sm"
+                    rows="2"
+                    placeholder="Ex : remplacement châssis, isolation toiture, nouvelle salle de bain, mise en conformité électrique…"></textarea>
+        </div>
+
+        <%# Zone résultats — masquée par défaut %>
+        <div id="ia-result" class="mt-4" style="display:none;">
+          <div id="ia-loading" class="text-center py-3" style="display:none;">
+            <div class="spinner-border spinner-border-sm text-primary-custom me-2" role="status"></div>
+            <span class="text-muted-custom small">Analyse en cours…</span>
+          </div>
+
+          <div id="ia-content" style="display:none;">
+            <div class="d-flex align-items-center gap-3 mb-2 pb-2 border-bottom">
+              <small class="text-muted-custom" id="ia-summary"></small>
+              <span class="badge ms-auto" id="ia-confidence-badge"></span>
+            </div>
+            <p class="small mb-3 lh-base" id="ia-narrative" style="display:none;"></p>
+
+            <div class="row g-2 mb-3" id="ia-suggestions-list"></div>
+
+            <div class="d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-outline-secondary btn-sm" id="btn-ia-dismiss">
+                <i class="bi bi-x me-1"></i>Ignorer
+              </button>
+              <button type="button" class="btn btn-primary-custom btn-sm" id="btn-ia-apply">
+                <i class="bi bi-check2-all me-1"></i>Appliquer les suggestions
+              </button>
+            </div>
+          </div>
+
+          <div id="ia-error" class="alert alert-warning border-0 small mb-0 py-2" style="display:none;">
+            <i class="bi bi-exclamation-triangle me-1"></i>
+            <span id="ia-error-msg">Une erreur est survenue.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <%# ── TEMPLATES QUALITÉ ──────────────────────────────────────────────── %>
     <div class="card border-0 shadow mb-4">
       <div class="card-body p-4">
@@ -35,8 +108,8 @@
           <% [
             { id: 'tpl_toiture',   icon: 'bi-house-fill',       color: 'secondary', label: 'Toiture complète',        keys: %w[charpente_renovation couverture_toiture isolation_toiture etancheite_toiture collecte_eaux_pluie] },
             { id: 'tpl_energie',   icon: 'bi-thermometer-half', color: 'warning',   label: 'Package énergie',          keys: %w[pompe_chaleur_air_eau panneaux_solaires batterie_stockage ventilation_double_flux] },
-            { id: 'tpl_enveloppe', icon: 'bi-bricks',           color: 'success',   label: 'Enveloppe thermique',      keys: %w[isolation_murs_ext chassis_remplacement porte_entree isolation_plancher] },
-            { id: 'tpl_lourde',    icon: 'bi-tools',            color: 'danger',    label: 'Rénovation globale',       keys: %w[toiture_remplacement isolation_murs_ext chassis_remplacement pompe_chaleur_air_eau electricite_conformite plomberie_renovation] },
+            { id: 'tpl_enveloppe', icon: 'bi-bricks',           color: 'success',   label: 'Enveloppe thermique',      keys: %w[isolation_murs_ext chassis_pvc porte_entree isolation_plancher] },
+            { id: 'tpl_lourde',    icon: 'bi-tools',            color: 'danger',    label: 'Rénovation globale',       keys: %w[toiture_remplacement isolation_murs_ext chassis_pvc pompe_chaleur_air_eau electricite_conformite plomberie_renovation] },
             { id: 'tpl_interieur', icon: 'bi-house-heart',      color: 'info',      label: 'Rénovation intérieure',    keys: %w[salle_de_bain cuisine_renovation peinture_int carrelage_sol parquet] },
             { id: 'tpl_soussol',   icon: 'bi-moisture',         color: 'dark',      label: 'Sous-sol & fondations',    keys: %w[sous_sol_assechement structure_sol enduit_murs_int] },
             { id: 'tpl_solaire',   icon: 'bi-sun',              color: 'primary',   label: 'Autonomie énergétique',    keys: %w[panneaux_solaires batterie_stockage chauffe_eau_thermodynamique ventilation_double_flux] }
@@ -344,5 +417,222 @@
 
     document.addEventListener('turbo:load', initQuoteCalculator);
     document.addEventListener('DOMContentLoaded', initQuoteCalculator);
+  })();
+</script>
+
+<script>
+  // ── Estimation IA ──────────────────────────────────────────────────────────
+  (function () {
+    var _iaSuggestions = [];
+
+    var CONFIDENCE_LABELS = {
+      high:   { label: 'Confiance haute',   cls: 'bg-success' },
+      medium: { label: 'Confiance moyenne', cls: 'bg-warning text-dark' },
+      low:    { label: 'Confiance faible',  cls: 'bg-secondary' }
+    };
+
+    function initIaEstimator() {
+      var btn = document.getElementById('btn-ia-estimate');
+      if (!btn || btn.dataset.iaInitialized === 'true') return;
+      btn.dataset.iaInitialized = 'true';
+
+      btn.addEventListener('click', runEstimate);
+
+      var applyBtn = document.getElementById('btn-ia-apply');
+      if (applyBtn) applyBtn.addEventListener('click', applyIaSuggestions);
+
+      var dismissBtn = document.getElementById('btn-ia-dismiss');
+      if (dismissBtn) dismissBtn.addEventListener('click', function () {
+        document.getElementById('ia-result').style.display = 'none';
+        _iaSuggestions = [];
+      });
+    }
+
+    function runEstimate() {
+      var btn     = document.getElementById('btn-ia-estimate');
+      var baseUrl = btn.dataset.estimateUrl;
+      var select  = document.getElementById('ia-project-select');
+      var textarea = document.getElementById('ia-description');
+      var params  = new URLSearchParams();
+      if (select && select.value) params.set('project_id', select.value);
+      if (textarea && textarea.value.trim()) params.set('description', textarea.value.trim());
+      var url = params.toString() ? baseUrl + '?' + params.toString() : baseUrl;
+
+      showLoading(true);
+
+      fetch(url, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept':           'application/json',
+          'X-CSRF-Token':     document.querySelector('meta[name="csrf-token"]')?.content || ''
+        },
+        credentials: 'same-origin'
+      })
+      .then(function (r) {
+        if (!r.ok) throw new Error('Erreur serveur (' + r.status + ')');
+        return r.json();
+      })
+      .then(function (data) {
+        showLoading(false);
+        renderIaResult(data);
+      })
+      .catch(function (err) {
+        showLoading(false);
+        showIaError("Impossible de contacter le serveur. Réessayez.");
+      });
+    }
+
+    function showLoading(on) {
+      var result  = document.getElementById('ia-result');
+      var loading = document.getElementById('ia-loading');
+      var content = document.getElementById('ia-content');
+      var error   = document.getElementById('ia-error');
+
+      result.style.display  = on ? '' : result.style.display;
+      loading.style.display = on ? '' : 'none';
+      if (on) {
+        content.style.display = 'none';
+        error.style.display   = 'none';
+        result.style.display  = '';
+      }
+    }
+
+    function renderIaResult(data) {
+      _iaSuggestions = data.suggestions || [];
+
+      // Badge confiance
+      var conf = CONFIDENCE_LABELS[data.confidence] || CONFIDENCE_LABELS.low;
+      var badge = document.getElementById('ia-confidence-badge');
+      badge.textContent  = conf.label;
+      badge.className    = 'badge ms-auto ' + conf.cls;
+
+      // Résumé
+      document.getElementById('ia-summary').textContent = data.summary || '';
+
+      // Narrative
+      var narrativeEl = document.getElementById('ia-narrative');
+      if (narrativeEl) {
+        if (data.narrative) {
+          narrativeEl.textContent = data.narrative;
+          narrativeEl.style.display = '';
+        } else {
+          narrativeEl.style.display = 'none';
+        }
+      }
+
+      // Liste suggestions
+      var list = document.getElementById('ia-suggestions-list');
+      list.innerHTML = '';
+
+      if (_iaSuggestions.length === 0) {
+        list.innerHTML = '<div class="col-12"><p class="text-muted-custom small mb-0">Aucune suggestion disponible avec les données actuelles du bien.</p></div>';
+      } else {
+        _iaSuggestions.forEach(function (sug) {
+          var col = document.createElement('div');
+          col.className = 'col-12 col-md-6 col-xl-4';
+          var isForFait = !document.getElementById('qty-input-' + sug.work_type_key);
+          var qtyText = isForFait ? 'forfait' : (sug.quantity + ' ' + getUnit(sug.work_type_key));
+          col.innerHTML =
+            '<div class="d-flex align-items-start gap-2 p-2 rounded border bg-light-subtle">' +
+              '<i class="bi bi-check-circle-fill text-success mt-1 flex-shrink-0"></i>' +
+              '<div class="min-w-0">' +
+                '<div class="small fw-medium text-truncate">' + escHtml(getWorkTypeName(sug.work_type_key)) + '</div>' +
+                '<div class="small text-muted-custom">' + escHtml(qtyText) + ' — ' + escHtml(sug.reason) + '</div>' +
+              '</div>' +
+            '</div>';
+          list.appendChild(col);
+        });
+      }
+
+      var content = document.getElementById('ia-content');
+      var result  = document.getElementById('ia-result');
+      content.style.display = '';
+      result.style.display  = '';
+    }
+
+    function applyIaSuggestions() {
+      var root = document.getElementById('quote-calculator-root');
+      if (!root || !_iaSuggestions.length) return;
+
+      // Décocher tous d'abord
+      root.querySelectorAll('.work-type-checkbox').forEach(function (cb) {
+        cb.checked = false;
+        applyToggle(cb, false);
+      });
+
+      _iaSuggestions.forEach(function (sug) {
+        var cb    = document.getElementById('check-' + sug.work_type_key);
+        var input = document.getElementById('qty-input-' + sug.work_type_key);
+
+        if (cb) {
+          cb.checked = true;
+          applyToggle(cb, false);
+
+          // Ouvrir l'onglet accordion de la catégorie
+          var collapse = cb.closest('.accordion-collapse');
+          if (collapse && !collapse.classList.contains('show')) {
+            var bsCollapse = bootstrap.Collapse.getOrCreateInstance(collapse, { toggle: false });
+            bsCollapse.show();
+          }
+        }
+
+        // Remplir la quantité s'il y a un input (non-forfait)
+        if (input && sug.quantity) {
+          input.disabled = false;
+          input.value    = sug.quantity;
+        }
+      });
+
+      // Masquer la zone résultat
+      document.getElementById('ia-result').style.display = 'none';
+
+      // Scroll vers le formulaire de sélection
+      var accordion = document.getElementById('work-types-accordion');
+      if (accordion) accordion.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Réimplémentation locale de toggleWorkType (indépendante du 1er IIFE)
+    function applyToggle(checkbox, focusInput) {
+      var key   = checkbox.dataset.key;
+      var card  = document.getElementById('card-' + key);
+      var input = document.getElementById('qty-input-' + key);
+      if (!card) return;
+      if (checkbox.checked) {
+        card.classList.add('selected');
+        if (input) { input.disabled = false; if (focusInput) input.focus(); }
+      } else {
+        card.classList.remove('selected');
+        if (input) { input.disabled = true; input.value = ''; }
+      }
+    }
+
+    function showIaError(msg) {
+      document.getElementById('ia-error-msg').textContent = msg;
+      document.getElementById('ia-error').style.display  = '';
+      document.getElementById('ia-result').style.display = '';
+    }
+
+    function getWorkTypeName(key) {
+      var card = document.getElementById('card-' + key);
+      if (!card) return key;
+      var label = card.querySelector('.form-check-label');
+      return label ? label.textContent.trim() : key;
+    }
+
+    function getUnit(key) {
+      var card = document.getElementById('card-' + key);
+      if (!card) return '';
+      var span = card.querySelector('.input-group-text:last-child');
+      return span ? span.textContent.trim() : '';
+    }
+
+    function escHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    document.addEventListener('turbo:load', initIaEstimator);
+    document.addEventListener('DOMContentLoaded', initIaEstimator);
   })();
 </script>

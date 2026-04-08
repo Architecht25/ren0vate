@@ -2023,14 +2023,14 @@ Ren0vate : **3 killer features en 3 mois**.
 ---
 
 #### Mai 2026
-- ✅ IA #1 : Estimateur Budget (ML basique)
-- ✅ IA #2 : Détection Progression photos (GPT-4 Vision)
-- 🔜 Mobile Progressive Web App
-  - Sprint M1 (Avril S3) : Fix responsive critiques (decision_hub min-width, contextual bot, boutons flottants)
-  - Sprint M2 (Avril S4) : UX mobile polish (sidebar swipe, tabs mobile, typography)
-  - Sprint PWA-1 (Mai S1) : Manifest JSON + Service Worker + offline page
-  - Sprint PWA-2 (Mai S2) : Install prompt iOS/Android + Lighthouse PWA score > 90
-- ✅ Dashboard analytics pros
+- 🔜 IA #1 : Estimateur Budget (ML basique)
+- ✅ ~~IA #2 : Détection Progression photos (GPT-4 Vision)~~ **LIVRÉ 08/04/2026 — ChantierVisionService, Claude Vision API, analyse async, widget polling, historique chantier_analyses**
+- ✅ ~~Mobile Progressive Web App~~ **LIVRÉ 08/04/2026**
+  - ✅ ~~Sprint M1 (Avril S3) : Fix responsive critiques (decision_hub min-width, contextual bot, boutons flottants)~~ **LIVRÉ**
+  - ✅ ~~Sprint M2 (Avril S4) : UX mobile polish (sidebar swipe, tabs mobile, typography)~~ **LIVRÉ**
+  - ✅ ~~Sprint PWA-1 (Mai S1) : Manifest JSON + Service Worker + offline page~~ **LIVRÉ — manifest.json, service worker, icônes PWA 512/192/apple-touch**
+  - ✅ ~~Sprint PWA-2 (Mai S2) : Install prompt iOS/Android + Lighthouse PWA score > 90~~ **LIVRÉ — bottom nav bar iOS/Android, safe-area, install prompt**
+- 🔜 Dashboard analytics pros
 
 **Milestone** : 500 users, 50 payants, 25 pros freemium
 

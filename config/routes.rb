@@ -180,7 +180,11 @@ Rails.application.routes.draw do
     # Documents liés à une propriété
     resources :documents, shallow: true
     # Devis estimatifs
-    resources :quotes, only: [:index, :new, :create, :show, :destroy]
+    resources :quotes, only: [:index, :new, :create, :show, :destroy] do
+      collection do
+        get :estimate
+      end
+    end
   end
 
   # Routes pour la validation technique

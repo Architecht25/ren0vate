@@ -46,6 +46,20 @@ class QuotesController < ApplicationController
   # GET /properties/:property_id/quotes/new
   def new
     @work_types_by_category = WorkType.by_category
+    @projects = @property.projects.order(updated_at: :desc).limit(5)
+  end
+
+  # GET /properties/:property_id/quotes/estimate
+  def estimate
+    project = if params[:project_id].present?
+      @property.projects.find_by(id: params[:project_id])
+    else
+      @property.projects.order(updated_at: :desc).first
+    end
+
+    description = [project&.type_travaux, params[:description]].compact.join(" ")
+    result = BudgetEstimatorService.new(@property, type_travaux: description).call
+    render json: result
   end
 
   # POST /properties/:property_id/quotes

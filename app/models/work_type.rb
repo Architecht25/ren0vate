@@ -185,17 +185,73 @@ class WorkType
 
     # ── CHÂSSIS & OUVERTURES ─────────────────────────────────────────────────
     {
-      key: 'chassis_remplacement',
+      key: 'chassis_pvc',
       category: 'ouvertures',
-      name: 'Remplacement châssis (PVC/ALU)',
+      name: 'Châssis PVC (double/triple vitrage)',
       icon: 'bi-window',
       unit: 'm²',
       unit_label: 'm²',
       forfait: false,
-      price_min: 450,
-      price_max: 900,
+      price_min: 350,
+      price_max: 650,
+      duration_min: 2,
+      duration_max: 5,
+      vat_rate: 6
+    },
+    {
+      key: 'chassis_alu',
+      category: 'ouvertures',
+      name: 'Châssis aluminium (double/triple vitrage)',
+      icon: 'bi-window',
+      unit: 'm²',
+      unit_label: 'm²',
+      forfait: false,
+      price_min: 700,
+      price_max: 1_100,
       duration_min: 3,
       duration_max: 6,
+      vat_rate: 6
+    },
+    {
+      key: 'chassis_bois',
+      category: 'ouvertures',
+      name: 'Châssis bois (double/triple vitrage)',
+      icon: 'bi-window',
+      unit: 'm²',
+      unit_label: 'm²',
+      forfait: false,
+      price_min: 900,
+      price_max: 1_600,
+      duration_min: 3,
+      duration_max: 7,
+      vat_rate: 6
+    },
+    {
+      key: 'velux',
+      category: 'ouvertures',
+      name: 'Fenêtre de toiture (Velux/équivalent)',
+      icon: 'bi-window-fullscreen',
+      unit: 'forfait',
+      unit_label: 'pièce',
+      forfait: true,
+      price_min: 800,
+      price_max: 2_500,
+      duration_min: 1,
+      duration_max: 2,
+      vat_rate: 6
+    },
+    {
+      key: 'store_isolant',
+      category: 'ouvertures',
+      name: 'Store extérieur isolant / brise-soleil',
+      icon: 'bi-columns',
+      unit: 'forfait',
+      unit_label: 'pièce',
+      forfait: true,
+      price_min: 300,
+      price_max: 900,
+      duration_min: 1,
+      duration_max: 2,
       vat_rate: 6
     },
     {
@@ -340,6 +396,34 @@ class WorkType
       price_max: 3_500,
       duration_min: 1,
       duration_max: 2,
+      vat_rate: 6
+    },
+    {
+      key: 'plancher_chauffant',
+      category: 'energie',
+      name: 'Plancher chauffant (eau ou électrique)',
+      icon: 'bi-grid-3x3-gap-fill',
+      unit: 'm²',
+      unit_label: 'm²',
+      forfait: false,
+      price_min: 50,
+      price_max: 110,
+      duration_min: 3,
+      duration_max: 8,
+      vat_rate: 6
+    },
+    {
+      key: 'radiateurs_remplacement',
+      category: 'energie',
+      name: 'Remplacement radiateurs (acier/aluminium)',
+      icon: 'bi-thermometer',
+      unit: 'forfait',
+      unit_label: 'installation',
+      forfait: true,
+      price_min: 2_000,
+      price_max: 6_000,
+      duration_min: 2,
+      duration_max: 4,
       vat_rate: 6
     },
     {
@@ -499,6 +583,48 @@ class WorkType
       duration_min: 2,
       duration_max: 5,
       vat_rate: 6
+    },
+    {
+      key: 'desamiantage',
+      category: 'technique',
+      name: 'Désamiantage (retrait amiante certifié)',
+      icon: 'bi-exclamation-triangle-fill',
+      unit: 'forfait',
+      unit_label: 'forfait',
+      forfait: true,
+      price_min: 3_000,
+      price_max: 20_000,
+      duration_min: 3,
+      duration_max: 15,
+      vat_rate: 21
+    },
+    {
+      key: 'detection_incendie',
+      category: 'technique',
+      name: 'Détecteurs incendie/CO (obligations légales)',
+      icon: 'bi-alarm',
+      unit: 'forfait',
+      unit_label: 'installation',
+      forfait: true,
+      price_min: 300,
+      price_max: 1_500,
+      duration_min: 1,
+      duration_max: 1,
+      vat_rate: 21
+    },
+    {
+      key: 'citerne_mazout_retrait',
+      category: 'technique',
+      name: 'Retrait citerne à mazout (dépose + neutralisation)',
+      icon: 'bi-droplet-slash',
+      unit: 'forfait',
+      unit_label: 'forfait',
+      forfait: true,
+      price_min: 1_500,
+      price_max: 5_000,
+      duration_min: 1,
+      duration_max: 3,
+      vat_rate: 21
     }
   ].freeze
 
