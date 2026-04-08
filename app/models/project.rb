@@ -3,6 +3,7 @@ class Project < ApplicationRecord
   belongs_to :property
   belongs_to :request, optional: true
   has_many :documents, dependent: :destroy
+  has_many :chantier_analyses, dependent: :destroy
   has_many :simulations, dependent: :destroy  # Ajouter cette ligne
 
   # Collaboration — membres du projet

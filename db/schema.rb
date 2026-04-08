@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_05_165731) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_08_120451) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -130,6 +130,20 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_05_165731) do
     t.string "region"
     t.index ["region", "code"], name: "index_categories_on_region_and_code", unique: true
     t.index ["region"], name: "index_categories_on_region"
+  end
+
+  create_table "chantier_analyses", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.integer "avancement"
+    t.string "phase"
+    t.text "observations"
+    t.text "alertes"
+    t.text "prochaines_etapes"
+    t.integer "photos_count"
+    t.datetime "analysed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_chantier_analyses_on_project_id"
   end
 
   create_table "complement_requests", force: :cascade do |t|
@@ -468,6 +482,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_05_165731) do
     t.decimal "architecte_devis_montant", precision: 10, scale: 2
     t.decimal "contractor_devis_montant", precision: 10, scale: 2
     t.text "additional_entrepreneurs"
+    t.jsonb "vision_analysis"
+    t.datetime "vision_analysed_at"
     t.index ["property_id"], name: "index_projects_on_property_id"
     t.index ["user_id"], name: "index_projects_on_user_id"
   end
@@ -783,6 +799,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_05_165731) do
   add_foreign_key "aer_donnees", "users"
   add_foreign_key "bordereau_chassis_donnees", "documents"
   add_foreign_key "bordereau_chassis_donnees", "projects"
+  add_foreign_key "chantier_analyses", "projects"
   add_foreign_key "complement_requests", "request_progresses"
   add_foreign_key "devis_donnees", "documents"
   add_foreign_key "devis_donnees", "projects"

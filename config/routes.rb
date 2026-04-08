@@ -228,6 +228,10 @@ Rails.application.routes.draw do
     # ROI Calculator
     get  :roi_calculator,               on: :member
 
+    # Analyse IA photos chantier
+    post :analyze_photos,               on: :member
+    get  :vision_status,                on: :member
+
     # Collaboration — vue pro & invitations
     get  :pro_view,       to: 'pro_views#show',         on: :member
     post :invite,         to: 'pro_views#invite',        on: :member

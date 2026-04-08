@@ -71,15 +71,20 @@
     </div>
 
     <%# ── Lien voir tout ── %>
-    <%= link_to project_documents_path(@project),
+    <%= link_to project_documents_path(@project, type_document: %w[photo_avant photo_pendant photo_apres photo_chassis]),
           class: "btn btn-sm btn-outline-secondary w-100", style: "font-size:0.8rem;" do %>
       <i class="bi bi-images me-1"></i>
       <% if @photos.size > 8 %>
         Voir les <%= @photos.size %> photos
       <% else %>
-        Voir toutes les photos
+        Voir toutes les photos du chantier
       <% end %>
     <% end %>
 
   <% end %>
+
+  <%# ── Séparateur + Analyse IA ── %>
+  <hr class="my-3">
+  <%= render 'projects/partials_general/vision_analysis' %>
+
 </div>

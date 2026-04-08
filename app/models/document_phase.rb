@@ -13,6 +13,9 @@ class DocumentPhase < ApplicationRecord
   scope :chantier, -> { where(category: 'chantier') }
   scope :investissement, -> { where(category: 'investissement') }
 
+  # Types uploadés au niveau profil utilisateur (sans property_id)
+  USER_LEVEL_TYPES = %w[aer rib].freeze
+
   # Les colonnes JSON sont automatiquement gérées par Rails 8
   # Plus besoin de serialize pour les colonnes JSON
 
@@ -63,24 +66,9 @@ class DocumentPhase < ApplicationRecord
     total_types = (required_document_types + optional_document_types).uniq
     return 100 if total_types.empty?
 
-    # Compter simplement les types de documents qui ont au moins un document
-    completed_types = property.documents
-                              .where(type_document: total_types)
-                              .distinct
-                              .count(:type_document)
+    required_completed = existing_type_names(property, required_document_types).count
+    optional_completed = existing_type_names(property, optional_document_types).count
 
-    # Pondération : documents requis comptent plus
-    required_completed = property.documents
-                                 .where(type_document: required_document_types)
-                                 .distinct
-                                 .count(:type_document)
-
-    optional_completed = property.documents
-                                 .where(type_document: optional_document_types)
-                                 .distinct
-                                 .count(:type_document)
-
-    # Score pondéré : 70% pour les requis, 30% pour les optionnels
     total_required = required_document_types.count
     total_optional = optional_document_types.count
 
@@ -119,19 +107,16 @@ class DocumentPhase < ApplicationRecord
   def missing_required_documents_for_property(property)
     return required_document_types if property.nil?
 
-    existing_approved_types = property.documents
-                                      .where(status: 'approved')
-                                      .pluck(:type_document)
-
-    required_document_types - existing_approved_types
+    existing_approved = existing_type_names(property, required_document_types, approved_only: true)
+    required_document_types - existing_approved
   end
 
   # Documents optionnels manquants pour une propriété
   def missing_optional_documents_for_property(property)
     return optional_document_types if property.nil?
 
-    existing_types = property.documents.pluck(:type_document)
-    optional_document_types - existing_types
+    existing = existing_type_names(property, optional_document_types)
+    optional_document_types - existing
   end
 
   # Classe CSS pour la couleur de la phase
@@ -179,5 +164,28 @@ class DocumentPhase < ApplicationRecord
       phase.required_document_types.include?(document_type) ||
       phase.optional_document_types.include?(document_type)
     end
+  end
+
+  private
+
+  # Retourne les type_document existants pour une phase, en incluant les docs
+  # uploadés au niveau profil (sans property_id) pour les types USER_LEVEL_TYPES.
+  def existing_type_names(property, types, approved_only: false)
+    return [] if types.empty?
+
+    # Docs liés au bien
+    property_scope = property.documents.where(type_document: types)
+    property_scope = property_scope.where(status: 'approved') if approved_only
+    found = property_scope.distinct.pluck(:type_document)
+
+    # Docs utilisateur sans property_id (aer, rib…)
+    user_level = types & USER_LEVEL_TYPES
+    if user_level.any?
+      user_scope = property.user.documents.where(property_id: nil, type_document: user_level)
+      user_scope = user_scope.where(status: 'approved') if approved_only
+      found |= user_scope.distinct.pluck(:type_document)
+    end
+
+    found
   end
 end

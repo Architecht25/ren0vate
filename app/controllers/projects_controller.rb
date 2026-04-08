@@ -1,6 +1,6 @@
 class ProjectsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt, :edit_budget, :update_budget, :edit_professionals, :update_professionals, :fin_chantier, :scan_peb_apres, :update_fin_chantier, :reception_chantier, :scan_attestation_conformite, :garanties, :carnet_entretien, :roi_calculator]
+  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt, :edit_budget, :update_budget, :edit_professionals, :update_professionals, :fin_chantier, :scan_peb_apres, :update_fin_chantier, :reception_chantier, :scan_attestation_conformite, :garanties, :carnet_entretien, :roi_calculator, :analyze_photos, :vision_status]
 
   def index
     # Récupérer les projets, filtrer par property_id si fourni
@@ -575,6 +575,43 @@ class ProjectsController < ApplicationController
     # Valeur d'achat du bien (seule valeur disponible en base)
     @property    = @project.property
     @valeur_bien = (@property&.valeur_achat || 0).to_f
+  end
+
+  # POST /projects/:id/analyze_photos
+  # Lance l'analyse IA des photos en arrière-plan
+  def analyze_photos
+    photos_count = @project.documents.where(type_document: %w[photo_avant photo_pendant photo_apres photo_chassis]).count
+
+    if photos_count.zero?
+      return render json: { success: false, error: 'Aucune photo de chantier disponible' }, status: :unprocessable_entity
+    end
+
+    ChantierVisionJob.perform_later(@project.id)
+    render json: { success: true, message: 'Analyse lancée, résultat disponible dans quelques secondes', photos_count: photos_count }
+  end
+
+  # GET /projects/:id/vision_status
+  # Retourne le dernier résultat d'analyse IA + historique
+  def vision_status
+    if @project.vision_analysis.present?
+      history = @project.chantier_analyses.recent_first.limit(10).map do |a|
+        {
+          id:           a.id,
+          avancement:   a.avancement,
+          phase:        a.phase,
+          photos_count: a.photos_count,
+          analysed_at:  a.analysed_at
+        }
+      end
+      render json: {
+        success:      true,
+        analysed_at:  @project.vision_analysed_at,
+        analysis:     @project.vision_analysis,
+        history:      history
+      }
+    else
+      render json: { success: false, pending: true }
+    end
   end
 
   private

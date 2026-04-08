@@ -1,0 +1,209 @@
+<%# ── Analyse IA photos chantier ─────────────────────────────────────────── %>
+<% analysis    = @project.vision_analysis %>
+<% analysed_at = @project.vision_analysed_at %>
+
+<div id="vision-analysis-card">
+  <%# ── En-tête section ── %>
+  <div class="d-flex align-items-center justify-content-between mb-2">
+    <div class="d-flex align-items-center gap-2">
+      <div class="icon-circle" style="width:28px;height:28px;font-size:14px;">
+        <i class="bi bi-robot"></i>
+      </div>
+      <div>
+        <h6 class="mb-0 fw-normal text-primary-custom" style="font-size:0.88rem;">Analyse IA chantier</h6>
+        <% if analysed_at %>
+          <small class="text-muted" style="font-size:0.7rem;">
+            Analysé le <%= analysed_at.strftime("%d/%m/%Y à %H:%M") %>
+          </small>
+        <% end %>
+      </div>
+    </div>
+
+    <button class="btn btn-sm btn-outline-primary rounded-3"
+            id="btn-analyze"
+            data-project-id="<%= @project.id %>"
+            data-analyze-url="<%= analyze_photos_project_path(@project) %>"
+            data-status-url="<%= vision_status_project_path(@project) %>"
+            style="font-size:0.78rem;">
+      <span id="btn-analyze-label">
+        <i class="bi bi-magic me-1"></i><%= analysis ? 'Relancer' : 'Analyser' %>
+      </span>
+      <span id="btn-analyze-spinner" class="d-none">
+        <span class="spinner-border spinner-border-sm me-1" role="status"></span>En cours…
+      </span>
+    </button>
+  </div>
+
+  <div id="vision-result">
+    <% if analysis %>
+      <%# ── Barre de progression ── %>
+      <% pct = analysis['avancement'].to_i %>
+      <div class="mb-2">
+        <div class="d-flex justify-content-between mb-1">
+          <small class="text-muted">Avancement estimé</small>
+          <small class="fw-bold text-primary"><%= pct %>%</small>
+        </div>
+        <div class="progress" style="height:6px;">
+          <div class="progress-bar bg-primary" role="progressbar"
+               style="width:<%= pct %>%"
+               aria-valuenow="<%= pct %>" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+        <small class="text-muted" style="font-size:0.72rem;">
+          Phase : <strong><%= analysis['phase'] %></strong>
+        </small>
+      </div>
+
+      <%# ── Alertes (si présentes) ── %>
+      <% alertes = Array(analysis['alertes']).reject(&:blank?) %>
+      <% if alertes.any? %>
+        <div class="alert alert-warning py-2 px-3 mb-2" style="font-size:0.78rem;">
+          <i class="bi bi-exclamation-triangle-fill me-1"></i>
+          <% alertes.each do |a| %><div><%= a %></div><% end %>
+        </div>
+      <% end %>
+
+      <%# ── Observations ── %>
+      <% observations = Array(analysis['observations']) %>
+      <% if observations.any? %>
+        <div class="mb-2">
+          <p class="text-muted mb-1" style="font-size:0.72rem;font-weight:600;letter-spacing:.04em;">OBSERVATIONS</p>
+          <ul class="list-unstyled mb-0">
+            <% observations.each do |obs| %>
+              <li class="mb-1" style="font-size:0.78rem;"><i class="bi bi-dot text-primary"></i><%= obs %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <%# ── Prochaines étapes ── %>
+      <% etapes = Array(analysis['prochaines_etapes']) %>
+      <% if etapes.any? %>
+        <div>
+          <p class="text-muted mb-1" style="font-size:0.72rem;font-weight:600;letter-spacing:.04em;">PROCHAINES ÉTAPES</p>
+          <ul class="list-unstyled mb-0">
+            <% etapes.each_with_index do |etape, i| %>
+              <li class="mb-1" style="font-size:0.78rem;">
+                <span class="badge bg-primary bg-opacity-10 text-primary me-1"><%= i + 1 %></span><%= etape %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <%# ── Historique des analyses ── %>
+      <% history = @project.chantier_analyses.recent_first %>
+      <% if history.size > 1 %>
+        <hr class="my-2">
+        <details>
+          <summary style="font-size:0.72rem;font-weight:600;letter-spacing:.04em;color:#6b7280;cursor:pointer;">
+            HISTORIQUE (<%= history.size %> analyses)
+          </summary>
+          <div class="mt-2">
+            <% history.each do |entry| %>
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <small class="text-muted" style="font-size:0.7rem;min-width:90px;">
+                  <%= entry.analysed_at.strftime("%d/%m %H:%M") %>
+                </small>
+                <div class="flex-grow-1">
+                  <div class="progress" style="height:5px;">
+                    <div class="progress-bar bg-primary" style="width:<%= entry.avancement %>%"></div>
+                  </div>
+                </div>
+                <small class="fw-bold text-primary" style="font-size:0.72rem;min-width:30px;text-align:right;">
+                  <%= entry.avancement %>%
+                </small>
+                <small class="text-muted" style="font-size:0.68rem;"><%= entry.phase %></small>
+              </div>
+            <% end %>
+          </div>
+        </details>
+      <% end %>
+
+    <% else %>
+      <p class="text-muted small text-center mb-0">
+        <i class="bi bi-magic me-1"></i>Cliquez sur "Analyser" pour obtenir un bilan IA de vos photos.
+      </p>
+    <% end %>
+  </div>
+</div>
+
+<script>
+(function() {
+  function initVisionAnalysis() {
+    const btn = document.getElementById('btn-analyze');
+    if (!btn || btn.dataset.initialized) return;
+    btn.dataset.initialized = 'true';
+
+    const label   = document.getElementById('btn-analyze-label');
+    const spinner = document.getElementById('btn-analyze-spinner');
+    const result  = document.getElementById('vision-result');
+
+    btn.addEventListener('click', function () {
+      btn.disabled = true;
+      label.classList.add('d-none');
+      spinner.classList.remove('d-none');
+
+      fetch(btn.dataset.analyzeUrl, {
+        method: 'POST',
+        headers: {
+          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          pollVisionStatus(btn.dataset.statusUrl);
+        } else {
+          showError(data.error || 'Erreur inconnue');
+          resetBtn();
+        }
+      })
+      .catch(() => { showError('Erreur réseau'); resetBtn(); });
+    });
+
+    function pollVisionStatus(url) {
+      let attempts = 0;
+      const max = 45; // ~90s max
+      const interval = setInterval(function () {
+        attempts++;
+        if (attempts > max) {
+          clearInterval(interval);
+          showError('Délai dépassé — relancez l\'analyse');
+          resetBtn();
+          return;
+        }
+
+        fetch(url, { headers: { 'Accept': 'application/json' } })
+          .then(r => r.json())
+          .then(data => {
+            if (data.success && data.analysis) {
+              clearInterval(interval);
+              location.reload();
+            }
+          })
+          .catch(() => { /* retry silencieux */ });
+      }, 2000);
+    }
+
+    function showError(msg) {
+      result.innerHTML = `<div class="alert alert-danger py-2 small">${msg}</div>`;
+    }
+
+    function resetBtn() {
+      btn.disabled = false;
+      label.classList.remove('d-none');
+      spinner.classList.add('d-none');
+    }
+  }
+
+  // Fonctionne avec Turbo et sans
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initVisionAnalysis);
+  } else {
+    initVisionAnalysis();
+  }
+  document.addEventListener('turbo:load', initVisionAnalysis);
+})();
+</script>
