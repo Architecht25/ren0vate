@@ -1,0 +1,64 @@
+<%# Planning de chantier — diagramme de Gantt %>
+<div class="card border-0 shadow-lg rounded-4 h-100" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%); color: #fff; overflow: hidden;">
+  <div class="card-body p-4">
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <div class="d-flex align-items-center mb-3">
+          <div class="me-3" style="width:44px; height:44px; background:rgba(255,255,255,0.12); border-radius:12px; display:flex; align-items:center; justify-content:center;">
+            <i class="bi bi-calendar-range fs-4"></i>
+          </div>
+          <div>
+            <h5 class="mb-0 fw-semibold text-white">Planning de chantier</h5>
+            <small class="text-white" style="opacity:0.7;">Diagramme de Gantt automatique depuis le devis</small>
+          </div>
+        </div>
+        <div class="d-flex flex-wrap gap-3 mb-3">
+          <div class="d-flex align-items-center gap-2">
+            <span style="width:8px;height:8px;border-radius:50%;background:#4ade80;display:inline-block;"></span>
+            <span style="font-size:0.85rem;opacity:0.9;">
+              <% if @project.date_début %>Début <%= @project.date_début.strftime("%d/%m/%Y") %>
+              <% else %><span style="opacity:0.6;">Date début non définie</span><% end %>
+            </span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <span style="width:8px;height:8px;border-radius:50%;background:#f87171;display:inline-block;"></span>
+            <span style="font-size:0.85rem;opacity:0.9;">
+              <% if @project.date_fin %>Fin <%= @project.date_fin.strftime("%d/%m/%Y") %>
+              <% else %><span style="opacity:0.6;">Date fin non définie</span><% end %>
+            </span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-list-task" style="opacity:0.7;"></i>
+            <span style="font-size:0.85rem;opacity:0.9;"><%= @planning_items_count %> poste<%= 's' if @planning_items_count != 1 %></span>
+          </div>
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-receipt" style="opacity:0.7;"></i>
+            <span style="font-size:0.85rem;opacity:0.9;"><%= @factures_count %> facture<%= 's' if @factures_count != 1 %></span>
+          </div>
+        </div>
+        <% if @project.date_début && @project.date_fin %>
+          <%
+            total_g = (@project.date_fin - @project.date_début).to_i
+            elapsed_g = [(Date.today - @project.date_début).to_i, 0].max
+            pct_g = total_g > 0 ? [[elapsed_g.to_f / total_g * 100, 0].max, 100].min.round : 0
+          %>
+          <div class="mb-1" style="font-size:0.75rem;opacity:0.7;">Avancement temporel — <%= pct_g %>%</div>
+          <div style="height:6px;background:rgba(255,255,255,0.15);border-radius:4px;overflow:hidden;">
+            <div style="height:100%;width:<%= pct_g %>%;background:linear-gradient(90deg,#4ade80,#22d3ee);border-radius:4px;"></div>
+          </div>
+        <% end %>
+      </div>
+      <div class="col-lg-5 text-lg-end mt-4 mt-lg-0">
+        <%= link_to gantt_project_path(@project), class: "btn px-5 py-3 fw-semibold",
+            style: "background:#fff;color:#1a1a2e;border-radius:12px;font-size:0.95rem;box-shadow:0 4px 20px rgba(0,0,0,0.2);" do %>
+          <i class="bi bi-calendar-range me-2"></i>Voir le planning Gantt
+        <% end %>
+        <% unless @latest_quote %>
+          <div class="mt-2" style="font-size:0.78rem;opacity:0.6;">
+            <i class="bi bi-info-circle me-1"></i>Créez un devis pour générer le planning
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

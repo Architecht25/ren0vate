@@ -1,0 +1,66 @@
+<%# Recommandations PEB — certificat énergétique du bien %>
+<%# peb is computed locally to avoid dependency on show.html.erb locals %>
+<% _peb = @project.property&.peb_donnees&.order(created_at: :desc)&.first rescue nil %>
+
+<div class="card border border-2 rounded-4 h-100">
+  <div class="card-header bg-white border-0 py-3">
+    <div class="d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center">
+        <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;flex-shrink:0;">
+          <i class="bi bi-lightbulb text-white fs-6"></i>
+        </div>
+        <div>
+          <h5 class="card-title mb-0 text-dark fw-normal" style="font-size:0.95rem;">Recommandations PEB</h5>
+          <p class="text-muted mb-0" style="font-size:0.75rem;">Certificat énergétique du bien</p>
+        </div>
+      </div>
+      <% if @project.property.present? %>
+        <%= link_to peb_recommandations_property_path(@project.property), class: "btn btn-sm btn-outline-warning rounded-3" do %>
+          <i class="bi bi-arrow-right me-1"></i><span style="font-size:0.78rem;">Voir tout</span>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+  <div class="card-body p-3">
+    <% if @project.property.present? && _peb.present? %>
+      <% all_recs = _peb.donnees_extraites['recommandations'] || [] rescue [] %>
+      <% top_recs = all_recs.first.is_a?(Hash) \
+                      ? all_recs.select { |r| r['has_recommandation'] }.first(4) \
+                      : all_recs.first(4) %>
+      <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+        <i class="bi bi-house-gear text-primary"></i>
+        <span class="fw-semibold small"><%= @project.property.region&.capitalize %></span>
+        <% couleur = { 'A++' => 'success', 'A+' => 'success', 'A' => 'success', 'B' => 'info', 'C' => 'primary', 'D' => 'warning', 'E' => 'warning', 'F' => 'danger', 'G' => 'danger' }[_peb.label_peb] || 'secondary' %>
+        <span class="badge bg-<%= couleur %> ms-auto">Classe <%= _peb.label_peb || '?' %></span>
+        <span class="text-muted small"><%= _peb.score_ep_formate || '' %></span>
+      </div>
+      <% if top_recs.any? %>
+        <% top_recs.each do |rec| %>
+          <% label = rec.is_a?(Hash) ? rec['recommandation'].to_s : rec.to_s %>
+          <div class="d-flex align-items-start py-1">
+            <i class="bi bi-<%= rec.is_a?(Hash) ? rec['icone'].to_s.delete_prefix('bi-') : 'check2' %> me-2 text-warning mt-1 flex-shrink-0"></i>
+            <small class="text-dark" style="line-height:1.4;"><%= truncate(label, length: 80) %></small>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="text-center py-3 text-muted">
+          <i class="bi bi-info-circle d-block mb-1"></i>
+          <small>Aucune recommandation extraite</small>
+        </div>
+      <% end %>
+    <% elsif @project.property.present? %>
+      <div class="text-center py-4 text-muted">
+        <i class="bi bi-file-earmark-plus fs-3 d-block mb-2"></i>
+        <p class="small mb-3">Aucun certificat PEB pour ce bien</p>
+        <%= link_to peb_recommandations_property_path(@project.property), class: "btn btn-sm btn-outline-warning" do %>
+          <i class="bi bi-lightbulb me-1"></i>Scanner un PEB
+        <% end %>
+      </div>
+    <% else %>
+      <div class="text-center py-4 text-muted">
+        <i class="bi bi-house-x fs-3 d-block mb-2"></i>
+        <p class="small mb-0">Aucun bien associé à ce chantier</p>
+      </div>
+    <% end %>
+  </div>
+</div>

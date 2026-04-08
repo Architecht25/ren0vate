@@ -143,8 +143,7 @@ class PricingController < ApplicationController
           "1 bien enregistré",
           "1 projet de rénovation",
           "Simulation de primes (1×)",
-          "Estimation budget IA (aperçu)",
-          "Consultation guides & ressources"
+          "Estimation budget IA (aperçu)"
         ],
         limitations: [
           "Pas de suivi chantier",
@@ -167,13 +166,12 @@ class PricingController < ApplicationController
           "🏠 Jusqu'à 3 biens",
           "📊 Simulations de primes illimitées (3 régions)",
           "💰 ROI Calculator — projections sur 20 ans",
-          "🎯 Roadmap label énergétique personnalisée",
+          "🎯 Recommandations PEB",
           "📋 Import & analyse PEB / Audit énergétique",
           "🏛️ Prédicteur permis urbanisme IA (87% précision)",
           "👷 Comparateur entrepreneurs (3 devis/mois)",
           "📁 Dossier documentaire de base",
-          "📄 Export rapports PDF",
-          "📧 Support prioritaire (24h)"
+          " Support prioritaire (24h)"
         ],
         roi: "Économisez 40h d'admin • +25% d'aides détectées • ROI moyen : 15 000€ sur projet 50K€",
         cta: "Gérer mon projet",
@@ -213,10 +211,9 @@ class PricingController < ApplicationController
         name: "Premium",
         price: 149,
         period: "mois",
-        description: "Multi-biens + entreprises + usage professionnel mixte",
+        description: "Multi-biens + usage professionnel mixte",
         features: [
           "✅ Tout Investisseur PLUS :",
-          "🏢 Jusqu'à 5 entreprises (BCE illimitée)",
           "🤖 Expert IA 24/7 illimité",
           "📊 Decision Hub hybride perso + pro",
           "💼 Dashboard unifié patrimonial",

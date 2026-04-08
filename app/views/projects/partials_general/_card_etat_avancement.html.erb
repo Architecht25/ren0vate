@@ -1,0 +1,45 @@
+<%# État d'avancement — preuve d'avancement des travaux %>
+<% etat_avancement_docs = @project.documents.where(type_document: 'etat_avancement').order(created_at: :desc) %>
+
+<div class="card border border-2 rounded-4 h-100">
+  <div class="card-header bg-white border-0 py-3">
+    <div class="d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center">
+        <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;flex-shrink:0;">
+          <i class="bi bi-list-check text-white fs-6"></i>
+        </div>
+        <div>
+          <h5 class="card-title mb-0 text-dark fw-normal" style="font-size:0.95rem;">État d'avancement</h5>
+          <p class="text-muted mb-0" style="font-size:0.75rem;">Preuve d'avancement des travaux</p>
+        </div>
+      </div>
+      <%= link_to new_project_document_path(@project, type_document: 'etat_avancement'), class: "btn btn-sm btn-outline-warning rounded-3" do %>
+        <i class="bi bi-plus me-1"></i><span style="font-size:0.78rem;">Ajouter</span>
+      <% end %>
+    </div>
+  </div>
+  <div class="card-body p-3">
+    <% if etat_avancement_docs.any? %>
+      <% etat_avancement_docs.first(5).each do |doc| %>
+        <div class="d-flex align-items-center gap-2 mb-2 pb-2 border-bottom">
+          <i class="bi bi-file-earmark-check text-warning flex-shrink-0"></i>
+          <div class="flex-grow-1 overflow-hidden">
+            <div class="fw-semibold text-truncate" style="font-size:0.85rem;"><%= doc.nom || doc.fichier.filename rescue "État d'avancement" %></div>
+            <div class="text-muted" style="font-size:0.72rem;"><%= doc.created_at.strftime("%d/%m/%Y") %></div>
+          </div>
+        </div>
+      <% end %>
+      <%= link_to project_documents_path(@project, type_document: 'etat_avancement'), class: "btn btn-sm btn-outline-warning w-100 mt-1" do %>
+        <i class="bi bi-folder2-open me-1"></i>Voir tous (<%= etat_avancement_docs.count %>)
+      <% end %>
+    <% else %>
+      <div class="text-center py-4 text-muted">
+        <i class="bi bi-list-check fs-3 d-block mb-2"></i>
+        <p class="small mb-3">Aucun état d'avancement ajouté</p>
+        <%= link_to new_project_document_path(@project, type_document: 'etat_avancement'), class: "btn btn-sm btn-outline-warning" do %>
+          <i class="bi bi-plus-circle me-1"></i>Ajouter un document
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

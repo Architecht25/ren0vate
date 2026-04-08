@@ -1,0 +1,171 @@
+<%# Informations générales du chantier %>
+<div class="card border border-2 rounded-4 h-100">
+  <div class="card-header bg-white border-0 py-3">
+    <div class="d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center">
+        <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;flex-shrink:0;">
+          <i class="bi bi-info-circle text-white fs-6"></i>
+        </div>
+        <div>
+          <h5 class="card-title mb-0 text-dark fw-normal" style="font-size:0.95rem;">Informations générales</h5>
+          <p class="text-muted mb-0" style="font-size:0.75rem;">Détails du chantier</p>
+        </div>
+      </div>
+      <%= link_to edit_project_path(@project), class: "btn btn-sm btn-outline-primary rounded-3" do %>
+        <i class="bi bi-pencil me-1"></i><span style="font-size:0.78rem;">Modifier</span>
+      <% end %>
+    </div>
+  </div>
+  <div class="card-body p-3">
+    <% if @project.property.present? %>
+      <div class="mb-3">
+        <div class="text-muted small mb-1">Bien associé</div>
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-house-door text-primary"></i>
+          <span class="fw-semibold"><%= @project.property.rue %> <%= @project.property.numero %>, <%= @project.property.commune %></span>
+        </div>
+      </div>
+    <% end %>
+    <% if @project.description.present? %>
+      <div class="mb-3">
+        <div class="text-muted small mb-1">Description</div>
+        <p class="mb-0 small"><%= @project.description %></p>
+      </div>
+    <% end %>
+    <div class="mb-3">
+      <div class="text-muted small mb-1">Créé le</div>
+      <span><%= @project.created_at.strftime("%d/%m/%Y") %></span>
+    </div>
+    <% if @project.date_début.present? || @project.date_fin.present? %>
+      <div class="row gx-2 mb-3">
+        <% if @project.date_début.present? %>
+          <div class="col-6">
+            <div class="text-muted small mb-1">Début</div>
+            <span class="text-success fw-semibold"><%= @project.date_début.strftime("%d/%m/%Y") %></span>
+          </div>
+        <% end %>
+        <% if @project.date_fin.present? %>
+          <div class="col-6">
+            <div class="text-muted small mb-1">Fin prévue</div>
+            <span class="text-danger fw-semibold"><%= @project.date_fin.strftime("%d/%m/%Y") %></span>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+    <% if @project.date_début && @project.date_fin %>
+      <%
+        total_d = (@project.date_fin - @project.date_début).to_i
+        elapsed_d = [(Date.today - @project.date_début).to_i, 0].max
+        pct_d = total_d > 0 ? [[elapsed_d.to_f / total_d * 100, 0].max, 100].min.round : 0
+      %>
+      <div class="text-muted small mb-1">Avancement temporel — <%= pct_d %>%</div>
+      <div class="progress mb-3" style="height:6px;">
+        <div class="progress-bar bg-success" style="width:<%= pct_d %>%;"></div>
+      </div>
+    <% end %>
+
+    <%# ── Type de travaux ── %>
+    <% if @project.type_travaux.present? %>
+      <div class="mb-3 pt-2 border-top">
+        <div class="text-muted small mb-2">Types de travaux</div>
+        <div class="d-flex flex-wrap gap-1">
+          <% @project.type_travaux_array.each do |t| %>
+            <span class="badge text-bg-light border" style="font-size:0.72rem;">
+              <%= { 'isolation' => '🧱 Isolation', 'chauffage' => '🔥 Chauffage', 'ventilation' => '💨 Ventilation',
+                    'fenetres' => '🪟 Fenêtres', 'toiture' => '🏠 Toiture', 'autre' => '🔧 Autre' }[t] || t.humanize %>
+            </span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <%# ── Surfaces ── %>
+    <% if @project.surface_totale.present? || @project.surface_professionnelle.present? %>
+      <div class="mb-3 <%= @project.type_travaux.present? ? '' : 'pt-2 border-top' %>">
+        <div class="text-muted small mb-1">Surfaces</div>
+        <div class="row gx-2">
+          <% if @project.surface_totale.present? %>
+            <div class="col-6">
+              <div class="text-muted" style="font-size:0.72rem;">Surface totale</div>
+              <span class="fw-semibold"><%= @project.surface_totale %> m²</span>
+            </div>
+          <% end %>
+          <% if @project.surface_professionnelle.present? %>
+            <div class="col-6">
+              <div class="text-muted" style="font-size:0.72rem;">Surface pro</div>
+              <span class="fw-semibold"><%= @project.surface_professionnelle %> m²</span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <%# ── Caractéristiques ── %>
+    <%
+      flags = []
+      flags << "TVA 6%" if @project.tva_reduit_6_pourcent?
+      flags << "Parties communes" if @project.try(:parties_communes?)
+      flags << "Façade" if @project.try(:facade_works?)
+      flags << "Toiture modif." if @project.try(:toiture_modification?)
+    %>
+    <% if flags.any? %>
+      <div class="mb-3">
+        <div class="text-muted small mb-1">Caractéristiques</div>
+        <div class="d-flex flex-wrap gap-1">
+          <% flags.each do |f| %>
+            <span class="badge text-bg-info" style="font-size:0.72rem;"><%= f %></span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <%# ── Données audit (Wallonie) ── %>
+    <% if @project.property&.region == 'wallonie' %>
+      <% has_audit = @project.numero_audit.present? || @project.date_audit.present? ||
+                     @project.numero_agrement_auditeur.present? || @project.prix_audit.present? %>
+      <div class="pt-2 border-top">
+        <div class="d-flex align-items-center gap-1 mb-2">
+          <i class="bi bi-clipboard-data text-success" style="font-size:0.85rem;"></i>
+          <span class="text-muted small fw-semibold">Audit énergétique (Wallonie)</span>
+        </div>
+        <% if has_audit %>
+          <div class="row gx-2 gy-2">
+            <% if @project.numero_audit.present? %>
+              <div class="col-6">
+                <div class="text-muted" style="font-size:0.72rem;">N° audit</div>
+                <span class="fw-semibold" style="font-size:0.82rem;"><%= @project.numero_audit %></span>
+              </div>
+            <% end %>
+            <% if @project.date_audit.present? %>
+              <div class="col-6">
+                <div class="text-muted" style="font-size:0.72rem;">Date audit</div>
+                <span class="fw-semibold" style="font-size:0.82rem;"><%= @project.date_audit.strftime("%d/%m/%Y") %></span>
+              </div>
+            <% end %>
+            <% if @project.numero_agrement_auditeur.present? %>
+              <div class="col-6">
+                <div class="text-muted" style="font-size:0.72rem;">Agrément auditeur</div>
+                <span class="fw-semibold" style="font-size:0.82rem;"><%= @project.numero_agrement_auditeur %></span>
+              </div>
+            <% end %>
+            <% if @project.prix_audit.present? %>
+              <div class="col-6">
+                <div class="text-muted" style="font-size:0.72rem;">Prix audit</div>
+                <span class="fw-semibold text-success" style="font-size:0.82rem;"><%= number_to_currency(@project.prix_audit, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %></span>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="d-flex align-items-center gap-2 text-muted" style="font-size:0.78rem;">
+            <i class="bi bi-info-circle"></i>
+            <span>Aucune donnée d'audit renseignée</span>
+            <%= link_to edit_project_path(@project), class: "ms-auto text-primary text-decoration-none", style: "font-size:0.72rem;" do %>
+              <i class="bi bi-pencil me-1"></i>Compléter
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+  </div>
+</div>
