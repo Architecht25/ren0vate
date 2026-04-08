@@ -2023,7 +2023,7 @@ Ren0vate : **3 killer features en 3 mois**.
 ---
 
 #### Mai 2026
-- 🔜 IA #1 : Estimateur Budget (ML basique)
+- ✅ ~~IA #1 : Estimateur Budget (ML basique)~~ **LIVRÉ 08/04/2026 — BudgetEstimatorService rule-based (PEB+âge+description), narrative IA, catalogue 43 travaux (châssis PVC/ALU/BOIS, velux, plancher chauffant, désamiantage…), pré-remplissage formulaire**
 - ✅ ~~IA #2 : Détection Progression photos (GPT-4 Vision)~~ **LIVRÉ 08/04/2026 — ChantierVisionService, Claude Vision API, analyse async, widget polling, historique chantier_analyses**
 - ✅ ~~Mobile Progressive Web App~~ **LIVRÉ 08/04/2026**
   - ✅ ~~Sprint M1 (Avril S3) : Fix responsive critiques (decision_hub min-width, contextual bot, boutons flottants)~~ **LIVRÉ**
