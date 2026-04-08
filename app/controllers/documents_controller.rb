@@ -68,10 +68,12 @@ class DocumentsController < ApplicationController
 
     # Filtrage par type de document spécifique
     if params[:type_document].present?
-      @documents = @documents.where(type_document: params[:type_document])
-      @selected_document_type = params[:type_document]
-      # Trouver la phase correspondante pour le breadcrumb
-      @selected_phase ||= DocumentPhase.find_phase_for_document_type(params[:type_document])
+      types = Array(params[:type_document]).flatten
+      @documents = @documents.where(type_document: types)
+      # @selected_document_type reste nil si plusieurs types (tableau) — la vue affiche un titre générique
+      @selected_document_type = types.size == 1 ? types.first : nil
+      # Trouver la phase correspondante pour le breadcrumb (uniquement si type unique)
+      @selected_phase ||= DocumentPhase.find_phase_for_document_type(types.first) if types.size == 1
     end
   end
 
