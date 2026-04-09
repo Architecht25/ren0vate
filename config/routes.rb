@@ -236,6 +236,9 @@ Rails.application.routes.draw do
     post :analyze_photos,               on: :member
     get  :vision_status,                on: :member
 
+    # IA #3 — Score Santé Projet
+    get  :score_sante,                  on: :member
+
     # Collaboration — vue pro & invitations
     get  :pro_view,       to: 'pro_views#show',         on: :member
     post :invite,         to: 'pro_views#invite',        on: :member

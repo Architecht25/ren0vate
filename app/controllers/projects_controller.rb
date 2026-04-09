@@ -1,6 +1,6 @@
 class ProjectsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt, :edit_budget, :update_budget, :edit_professionals, :update_professionals, :fin_chantier, :scan_peb_apres, :update_fin_chantier, :reception_chantier, :scan_attestation_conformite, :garanties, :carnet_entretien, :roi_calculator, :analyze_photos, :vision_status]
+  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt, :edit_budget, :update_budget, :edit_professionals, :update_professionals, :fin_chantier, :scan_peb_apres, :update_fin_chantier, :reception_chantier, :scan_attestation_conformite, :garanties, :carnet_entretien, :roi_calculator, :analyze_photos, :vision_status, :score_sante]
 
   def index
     # Récupérer les projets, filtrer par property_id si fourni
@@ -612,6 +612,12 @@ class ProjectsController < ApplicationController
     else
       render json: { success: false, pending: true }
     end
+  end
+
+  # IA #3 — Score Santé Projet /10
+  def score_sante
+    result = ProjectHealthScoreService.new(@project).call
+    render json: result
   end
 
   private

@@ -1,0 +1,101 @@
+<%# IA #3 — Score Santé Projet /10
+    Chargement async via Stimulus : fetch GET /projects/:id/score_sante %>
+
+<div class="card border-0 shadow-sm rounded-4 mb-4"
+     data-controller="health-score"
+     data-health-score-url-value="<%= score_sante_project_path(@project) %>">
+
+  <!-- En-tête card -->
+  <div class="card-header border-0 rounded-top-4 d-flex align-items-center justify-content-between py-3 px-4"
+       style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-heart-pulse-fill text-white fs-5"></i>
+      <span class="fw-semibold text-white">Score Santé Projet</span>
+      <span class="badge rounded-pill ms-1"
+            style="background:rgba(255,255,255,0.15); color:white; font-size:0.7rem;">IA #3</span>
+    </div>
+    <button class="btn btn-sm text-white d-flex align-items-center gap-1"
+            style="background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2);"
+            data-action="click->health-score#refresh"
+            data-health-score-target="refreshBtn"
+            title="Recalculer le score">
+      <i class="bi bi-arrow-clockwise" data-health-score-target="refreshIcon"></i>
+      <span class="d-none d-sm-inline" style="font-size:0.8rem;">Recalculer</span>
+    </button>
+  </div>
+
+  <div class="card-body p-4">
+
+    <!-- État de chargement -->
+    <div data-health-score-target="loadingState" class="text-center py-4">
+      <div class="spinner-border text-primary mb-3" role="status" style="width:2rem;height:2rem;">
+        <span class="visually-hidden">Chargement…</span>
+      </div>
+      <p class="text-muted mb-0" style="font-size:0.85rem;">Analyse IA en cours…</p>
+    </div>
+
+    <!-- État d'erreur -->
+    <div data-health-score-target="errorState" class="text-center py-3 d-none">
+      <i class="bi bi-exclamation-triangle text-warning fs-4 mb-2 d-block"></i>
+      <p class="text-muted mb-2" style="font-size:0.85rem;">Impossible de calculer le score</p>
+      <button class="btn btn-sm btn-outline-secondary" data-action="click->health-score#refresh">
+        Réessayer
+      </button>
+    </div>
+
+    <!-- Résultat -->
+    <div data-health-score-target="resultState" class="d-none">
+
+      <!-- Score principal -->
+      <div class="d-flex align-items-center gap-4 mb-4">
+        <!-- Cercle score -->
+        <div class="position-relative flex-shrink-0" style="width:90px;height:90px;">
+          <svg viewBox="0 0 36 36" class="w-100 h-100" style="transform:rotate(-90deg);">
+            <circle cx="18" cy="18" r="15.5" fill="none" stroke="#e2e8f0" stroke-width="3"/>
+            <circle cx="18" cy="18" r="15.5" fill="none" stroke-width="3"
+                    stroke-linecap="round"
+                    data-health-score-target="scoreCircle"
+                    stroke-dasharray="97.4 97.4"
+                    style="transition:stroke-dashoffset 1s ease;"/>
+          </svg>
+          <div class="position-absolute top-50 start-50 translate-middle text-center">
+            <div class="fw-bold lh-1" style="font-size:1.5rem;" data-health-score-target="scoreValue">—</div>
+            <div class="text-muted" style="font-size:0.65rem;">/10</div>
+          </div>
+        </div>
+        <!-- Texte score -->
+        <div>
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="fs-4" data-health-score-target="scoreGrade"></span>
+            <span class="fw-semibold fs-5" data-health-score-target="scoreLabel"></span>
+          </div>
+          <small class="text-muted" data-health-score-target="scoreDate"></small>
+        </div>
+      </div>
+
+      <!-- Indicateurs -->
+      <div class="mb-4" data-health-score-target="indicators">
+        <!-- Injecté dynamiquement par Stimulus -->
+      </div>
+
+      <!-- Recommandations Claude -->
+      <div class="rounded-3 p-3" style="background:#f8fafc; border:1px solid #e2e8f0;">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <i class="bi bi-lightbulb-fill" style="color:#d97706;"></i>
+          <span class="fw-semibold" style="font-size:0.85rem;">Recommandations IA</span>
+        </div>
+        <ul class="list-unstyled mb-0 d-flex flex-column gap-2"
+            data-health-score-target="recommendations">
+          <!-- Injecté dynamiquement -->
+        </ul>
+      </div>
+
+      <div class="text-end mt-2">
+        <small class="text-muted" style="font-size:0.7rem;">
+          Calculé le <span data-health-score-target="computedAt"></span>
+        </small>
+      </div>
+
+    </div>
+  </div>
+</div>

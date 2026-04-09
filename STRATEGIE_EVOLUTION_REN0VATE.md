@@ -2059,7 +2059,7 @@ Ren0vate : **3 killer features en 3 mois**.
 ---
 
 #### Août 2026
-- ✅ IA #3 : Score Santé Projet /10
+- ~~✅ IA #3 : Score Santé Projet /10~~ ✅ **LIVRÉ — avril 2026**
 - ✅ IA #4 : Prédicteur Permis (ML 87%)
 - ✅ Comparaison devis automatique
 - ✅ Badge "Partenaire vérifié"

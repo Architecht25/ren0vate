@@ -59,6 +59,7 @@ import RoiCalculatorController from "controllers/roi_calculator_controller"
 import LoanSimulatorController from "controllers/loan_simulator_controller"
 import PwaInstallController from "controllers/pwa_install_controller"
 import SidebarController from "controllers/sidebar_controller"
+import HealthScoreController from "controllers/health_score_controller"
 
 application.register("user_type", UserTypeController)
 application.register("test-eligibilite", TestEligibiliteController)
@@ -102,5 +103,6 @@ application.register("roi-calculator", RoiCalculatorController)
 application.register("loan-simulator", LoanSimulatorController)
 application.register("pwa-install", PwaInstallController)
 application.register("sidebar", SidebarController)
+application.register("health-score", HealthScoreController)
 
 export { application }
