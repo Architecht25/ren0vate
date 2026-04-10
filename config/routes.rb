@@ -269,6 +269,14 @@ Rails.application.routes.draw do
   end
 
   # Routes admin pour les nouvelles fonctionnalités
+  # Support tickets — utilisateurs avec plan payant
+  resources :support_tickets, only: [:index, :new, :create, :show] do
+    member do
+      post :reply
+      patch :close
+    end
+  end
+
   namespace :admin do
     # Gestion des utilisateurs pour les administrateurs
     resources :users do
@@ -278,6 +286,15 @@ Rails.application.routes.draw do
         get :properties     # Voir toutes les propriétés d'un utilisateur
         get :projects       # Voir tous les projets d'un utilisateur
         post :impersonate   # Se connecter en tant qu'utilisateur (avec Pundit)
+      end
+    end
+
+    # Support tickets — admin
+    resources :support_tickets, only: [:index, :show] do
+      member do
+        post :reply
+        patch :resolve
+        patch :close
       end
     end
   end

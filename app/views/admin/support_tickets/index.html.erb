@@ -1,0 +1,74 @@
+<% content_for :title, "Support — Administration" %>
+
+<div class="container-fluid py-4">
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <h1 class="h4 fw-bold mb-0">
+      <i class="bi bi-headset me-2"></i>Tickets support
+    </h1>
+    <div class="d-flex gap-2">
+      <span class="badge bg-warning fs-6"><%= @open_count %> ouvert(s)</span>
+      <% if @overdue_count > 0 %>
+        <span class="badge bg-danger fs-6"><%= @overdue_count %> SLA dépassé(s)</span>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0 align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Utilisateur</th>
+            <th>Sujet</th>
+            <th>Priorité</th>
+            <th>Statut</th>
+            <th>SLA</th>
+            <th>Messages</th>
+            <th>Créé le</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <% @tickets.each do |ticket| %>
+            <tr class="<%= 'table-danger' unless ticket.within_sla? || ticket.responded_at %>">
+              <td class="text-muted small">#<%= ticket.id %></td>
+              <td>
+                <div class="fw-semibold small"><%= ticket.user.email %></div>
+                <div class="text-muted" style="font-size:11px;"><%= ticket.user.subscription_tier_name %></div>
+              </td>
+              <td><%= ticket.subject %></td>
+              <td>
+                <span class="badge bg-<%= ticket.priority == 'urgent' ? 'danger' : 'secondary' %>">
+                  <%= ticket.priority %>
+                </span>
+              </td>
+              <td>
+                <span class="badge bg-<%= ticket.status_color %>"><%= ticket.status_label %></span>
+              </td>
+              <td class="small">
+                <% if ticket.responded_at %>
+                  <span class="text-success"><i class="bi bi-check2"></i> Répondu</span>
+                <% elsif ticket.within_sla? %>
+                  <span class="text-warning"><%= ticket.sla_remaining_hours %>h restantes</span>
+                <% else %>
+                  <span class="text-danger fw-bold">Dépassé</span>
+                <% end %>
+              </td>
+              <td class="text-center"><%= ticket.support_messages.size %></td>
+              <td class="small text-muted"><%= ticket.created_at.strftime('%d/%m %Hh%M') %></td>
+              <td>
+                <%= link_to admin_support_ticket_path(ticket), class: "btn btn-sm btn-outline-primary" do %>
+                  Répondre <i class="bi bi-arrow-right ms-1"></i>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+          <% if @tickets.empty? %>
+            <tr><td colspan="9" class="text-center py-4 text-muted">Aucun ticket de support.</td></tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

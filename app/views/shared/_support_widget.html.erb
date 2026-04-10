@@ -12,47 +12,84 @@
   <!-- Menu déroulant -->
   <div class="collapse" id="support-menu">
     <div class="card mt-2 shadow-lg" style="width: 280px; border: none;">
+      <% if user_signed_in? && current_user.has_active_subscription? %>
+      <div class="card-header text-white text-center" style="background:var(--ren0vate-primary-dark,#1e293b);">
+        <h6 class="mb-0">
+          <i class="bi bi-shield-check me-2 text-warning"></i>
+          Support prioritaire 24h
+        </h6>
+      </div>
+      <% else %>
       <div class="card-header bg-primary text-white text-center">
         <h6 class="mb-0">
           <i class="bi bi-headset me-2"></i>
           Besoin d'aide ?
         </h6>
       </div>
+      <% end %>
       <div class="card-body p-3">
         <p class="small text-muted mb-3">
-          Notre équipe est là pour vous accompagner dans vos démarches de rénovation.
+          <% if user_signed_in? && current_user.has_active_subscription? %>
+            Votre plan inclut le support prioritaire &mdash; réponse garantie sous 24h.
+          <% else %>
+            Notre équipe est là pour vous accompagner dans vos démarches de rénovation.
+          <% end %>
         </p>
 
         <!-- Options de contact -->
         <div class="d-grid gap-2">
-          <!-- Téléphone -->
-          <a href="tel:+32485043745"
-             class="btn btn-outline-success btn-sm d-flex align-items-center">
-            <i class="bi bi-telephone-fill me-2"></i>
-            <div class="text-start">
-              <div class="fw-semibold">Appeler maintenant</div>
-              <small class="text-muted">0485 043 745</small>
-            </div>
-          </a>
-
-          <!-- Email -->
-          <a href="mailto:robin@architecht.be?subject=Support Ren0vate - Demande d'aide"
-             class="btn btn-outline-primary btn-sm d-flex align-items-center">
-            <i class="bi bi-envelope-fill me-2"></i>
-            <div class="text-start">
-              <div class="fw-semibold">Envoyer un email</div>
-              <small class="text-muted">robin@architecht.be</small>
-            </div>
-          </a>
+          <% if user_signed_in? && current_user.has_active_subscription? %>
+            <!-- Support prioritaire in-app -->
+            <%= link_to new_support_ticket_path,
+                  class: "btn btn-sm d-flex align-items-center text-white",
+                  style: "background:var(--ren0vate-primary-dark,#1e293b);" do %>
+              <i class="bi bi-ticket-detailed-fill me-2"></i>
+              <div class="text-start">
+                <div class="fw-semibold">Ouvrir un ticket</div>
+                <small style="opacity:.8;">Réponse garantie 24h</small>
+              </div>
+            <% end %>
+            <%= link_to support_tickets_path,
+                  class: "btn btn-outline-secondary btn-sm d-flex align-items-center" do %>
+              <i class="bi bi-list-check me-2"></i>
+              <div class="text-start">
+                <div class="fw-semibold">Mes demandes</div>
+                <small class="text-muted">Historique &amp; suivi</small>
+              </div>
+            <% end %>
+          <% else %>
+            <!-- Téléphone -->
+            <a href="tel:+32485043745"
+               class="btn btn-outline-success btn-sm d-flex align-items-center">
+              <i class="bi bi-telephone-fill me-2"></i>
+              <div class="text-start">
+                <div class="fw-semibold">Appeler maintenant</div>
+                <small class="text-muted">0485 043 745</small>
+              </div>
+            </a>
+            <!-- Email -->
+            <a href="mailto:robin@architecht.be?subject=Support Ren0vate - Demande d'aide"
+               class="btn btn-outline-primary btn-sm d-flex align-items-center">
+              <i class="bi bi-envelope-fill me-2"></i>
+              <div class="text-start">
+                <div class="fw-semibold">Envoyer un email</div>
+                <small class="text-muted">robin@architecht.be</small>
+              </div>
+            </a>
+          <% end %>
         </div>
 
         <!-- Heures de disponibilité -->
         <div class="mt-3 pt-2 border-top">
           <small class="text-muted">
             <i class="bi bi-clock me-1"></i>
-            <strong>Disponibilité :</strong><br>
-            Lun-Ven: 9h-17h<br>
-            Réponse email: < 24h
+            <% if user_signed_in? && current_user.has_active_subscription? %>
+              <strong>Plan <%= current_user.subscription_tier_name %></strong><br>
+              Support prioritaire &mdash; Lun-Ven, réponse &lt; 24h
+            <% else %>
+              <strong>Disponibilité :</strong><br>
+              Lun-Ven: 9h-17h &mdash; Réponse email &lt; 24h
+            <% end %>
           </small>
         </div>
       </div>

@@ -1,0 +1,67 @@
+<% content_for :title, "Nouvelle demande de support" %>
+
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-xl-7">
+      <div class="mb-4">
+        <%= link_to support_tickets_path, class: "btn btn-sm btn-outline-secondary me-2" do %>
+          <i class="bi bi-arrow-left me-1"></i>Retour
+        <% end %>
+        <span class="fw-bold">Nouvelle demande de support</span>
+      </div>
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0"><i class="bi bi-headset me-2"></i>Support prioritaire 24h</h5>
+        </div>
+        <div class="card-body p-4">
+          <%= form_with model: @ticket, url: support_tickets_path, local: false do |f| %>
+            <%= render 'shared/alert' if @ticket.errors.any? %>
+
+            <div class="mb-3">
+              <%= f.label :subject, "Sujet de votre demande", class: "form-label fw-semibold" %>
+              <%= f.text_field :subject,
+                    class: "form-control #{'is-invalid' if @ticket.errors[:subject].any?}",
+                    placeholder: "Ex : Problème avec le calcul de ma prime toiture",
+                    maxlength: 200 %>
+              <% if @ticket.errors[:subject].any? %>
+                <div class="invalid-feedback"><%= @ticket.errors[:subject].first %></div>
+              <% end %>
+            </div>
+
+            <div class="mb-3">
+              <%= f.label :priority, "Priorité", class: "form-label fw-semibold" %>
+              <%= f.select :priority,
+                    [["Normal", "normal"], ["Urgent", "urgent"]],
+                    {},
+                    class: "form-select" %>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold" for="initial_message">
+                Description de votre problème <span class="text-danger">*</span>
+              </label>
+              <textarea name="support_ticket[initial_message]"
+                        id="initial_message"
+                        rows="6"
+                        class="form-control"
+                        placeholder="Décrivez votre problème en détail : région concernée, étape du simulateur, message d'erreur éventuel..."
+                        required
+                        minlength="10"></textarea>
+              <div class="form-text">Plus vous êtes précis, plus vite nous pourrons vous aider.</div>
+            </div>
+
+            <div class="d-grid">
+              <%= f.submit "Envoyer ma demande", class: "btn btn-primary btn-lg" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="mt-3 small text-muted text-center">
+        <i class="bi bi-shield-check me-1"></i>
+        Réponse garantie sous 24h · Plan Propriétaire actif
+      </div>
+    </div>
+  </div>
+</div>

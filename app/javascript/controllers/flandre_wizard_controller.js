@@ -26,7 +26,11 @@ export default class extends Controller {
     })
 
     // Catégorie affinée → passer aux primes
-    document.addEventListener("flandre:category:refined", () => this.goToStep(4))
+    document.addEventListener("flandre:category:refined", (e) => {
+      this.goToStep(4)
+      const cat = e.detail?.categorie
+      if (cat) this.updatePrimesCards(cat.toString())
+    })
   }
 
   goToStep(step) {
@@ -88,5 +92,21 @@ export default class extends Controller {
       const pct = ((step - 1) / (this.totalStepsValue - 1)) * 100
       this.progressFillTarget.style.width = `${pct}%`
     }
+  }
+
+  updatePrimesCards(categorie) {
+    const cat12Only = ['warmtepomp', 'warmtepompboiler']
+    const isCat12 = ['1', '2'].includes(categorie)
+
+    document.querySelectorAll('[data-controller*="prime-card"]').forEach(card => {
+      const slug = card.dataset.slug
+      const prime = window.primes?.find(p => p.slug === slug)
+      if (!prime) return
+
+      const isEligible = prime.eligible_categories?.includes(categorie)
+      const isAllowed = isCat12 ? cat12Only.includes(slug) : true
+
+      card.style.display = (isEligible && isAllowed) ? '' : 'none'
+    })
   }
 }

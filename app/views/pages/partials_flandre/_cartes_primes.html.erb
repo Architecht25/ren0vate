@@ -26,21 +26,20 @@
   </div>
 
   <div class="row g-3">
+    <%
+      current_categorie = (@categorie_id || 1).to_s
+      primes_autorisees_cat12 = ['warmtepomp', 'warmtepompboiler']
+    %>
     <% @primes.each do |prime| %>
-      <% current_categorie = @categorie_id || '1' %>
+      <% next if prime.slug == 'amiante' %>
       <%
-        # Pour les catégories 1 et 2, seules les primes pompe à chaleur et boiler thermodynamique sont disponibles
-        # Les primes d'isolation (toiture, murs, sols, châssis) ont été supprimées par le gouvernement
-        primes_autorisees_cat12 = ['warmtepomp', 'warmtepompboiler']
-        afficher_prime = prime.eligible_categories.include?(current_categorie.to_s) && prime.slug != 'amiante'
-
-        # Filtrer les primes pour catégories 1 et 2
-        if ['1', '2'].include?(current_categorie.to_s)
-          afficher_prime = afficher_prime && primes_autorisees_cat12.include?(prime.slug)
+        if ['1', '2'].include?(current_categorie)
+          initially_visible = primes_autorisees_cat12.include?(prime.slug)
+        else
+          initially_visible = prime.eligible_categories.include?(current_categorie)
         end
       %>
-      <% if afficher_prime %>
-        <div class="col-xl-3 col-lg-4 col-md-6 col-12" data-controller="prime-card" data-slug="<%= prime.slug %>">
+        <div class="col-xl-3 col-lg-4 col-md-6 col-12" data-controller="prime-card" data-slug="<%= prime.slug %>"<%= initially_visible ? '' : ' style="display:none;"' %>>
           <div class="card shadow-sm border-1 border-success border-opacity-50 p-2 mb-3 h-100 card-hover">
             <div class="card-body p-2">
               <div class="d-flex align-items-center gap-3 mb-3">
@@ -106,7 +105,6 @@
             </div>
           </div>
         </div>
-      <% end %>
     <% end %>
       </div>
 

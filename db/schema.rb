@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_08_120451) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_10_114808) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -740,6 +740,28 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_08_120451) do
     t.index ["user_id"], name: "index_subscriptions_on_user_id"
   end
 
+  create_table "support_messages", force: :cascade do |t|
+    t.bigint "support_ticket_id", null: false
+    t.bigint "user_id", null: false
+    t.text "body"
+    t.boolean "is_admin_reply"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["support_ticket_id"], name: "index_support_messages_on_support_ticket_id"
+    t.index ["user_id"], name: "index_support_messages_on_user_id"
+  end
+
+  create_table "support_tickets", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "subject"
+    t.string "status"
+    t.string "priority"
+    t.datetime "responded_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_support_tickets_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "nom"
     t.string "email"
@@ -847,4 +869,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_08_120451) do
   add_foreign_key "simulations", "properties"
   add_foreign_key "simulations", "users"
   add_foreign_key "subscriptions", "users"
+  add_foreign_key "support_messages", "support_tickets"
+  add_foreign_key "support_messages", "users"
+  add_foreign_key "support_tickets", "users"
 end

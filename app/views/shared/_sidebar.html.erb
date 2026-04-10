@@ -190,6 +190,25 @@
               <span>Administration</span>
             <% end %>
           </li>
+          <li class="nav-item">
+            <%= link_to admin_support_tickets_path, class: "nav-link admin-link" do %>
+              <i class="bi bi-headset"></i>
+              <span>Tickets support</span>
+              <% overdue = SupportTicket.overdue.count %>
+              <% if overdue > 0 %>
+                <span class="badge bg-danger rounded-pill ms-auto"><%= overdue %></span>
+              <% end %>
+            <% end %>
+          </li>
+        <% end %>
+
+        <% if current_user&.has_active_subscription? %>
+          <li class="nav-item">
+            <%= link_to support_tickets_path, class: "nav-link" do %>
+              <i class="bi bi-headset"></i>
+              <span>Support prioritaire</span>
+            <% end %>
+          </li>
         <% end %>
 
         <li class="nav-item">
