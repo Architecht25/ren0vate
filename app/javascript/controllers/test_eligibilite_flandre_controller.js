@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["form", "result", "formCard", "validateButton"]
+  static targets = ["form", "result", "formCard", "validateButton", "questionCounter", "progressBar"]
 
   connect() {
     if (this.hasResultTarget) {
@@ -10,9 +10,50 @@ export default class extends Controller {
     if (this.hasValidateButtonTarget) {
       this.validateButtonTarget.style.display = "none"
     }
+
+    // Mode wizard : afficher une question à la fois
+    this.wizardMode = this.element.dataset.wizardMode === "true"
+    if (this.wizardMode && this.hasFormCardTarget) {
+      this.currentQuestionIndex = 0
+      this.showCurrentQuestion()
+    }
   }
 
-  // ========== MÉTHODES FLANDRE ==========
+  // Navigation question précédente
+  prevQuestion() {
+    if (this.currentQuestionIndex > 0) {
+      this.currentQuestionIndex--
+      this.showCurrentQuestion()
+    }
+  }
+
+  showCurrentQuestion() {
+    const cards = this.formCardTargets
+    cards.forEach((card, i) => {
+      if (i === this.currentQuestionIndex) {
+        card.classList.remove("d-none", "question-answered")
+        card.classList.add("question-active")
+      } else if (i < this.currentQuestionIndex) {
+        card.classList.remove("d-none", "question-active")
+        card.classList.add("question-answered")
+      } else {
+        card.classList.add("d-none")
+        card.classList.remove("question-active", "question-answered")
+      }
+    })
+    this.updateQuestionCounter()
+  }
+
+  updateQuestionCounter() {
+    const total = this.formCardTargets.length
+    const current = this.currentQuestionIndex + 1
+    if (this.hasQuestionCounterTarget) {
+      this.questionCounterTarget.textContent = `Question ${current} / ${total}`
+    }
+    if (this.hasProgressBarTarget) {
+      this.progressBarTarget.style.width = `${Math.round((this.currentQuestionIndex / total) * 100)}%`
+    }
+  }
 
   handleAnswer(event) {
     const form = this.formTarget;
@@ -66,6 +107,21 @@ export default class extends Controller {
     if (travaux === "non") {
       this.showResult("❌ Vous devez prévoir des travaux éligibles pour bénéficier des primes actuelles.", false);
       return;
+    }
+
+    // Mode wizard : avancer à la question suivante après 350ms
+    if (this.wizardMode) {
+      setTimeout(() => {
+        const total = this.formCardTargets.length
+        if (this.currentQuestionIndex < total - 1) {
+          this.currentQuestionIndex++
+          this.showCurrentQuestion()
+        } else {
+          // Dernière question répondue → valider automatiquement
+          this.validateTest()
+        }
+      }, 350)
+      return
     }
 
     // Vérifier si toutes les questions sont répondues
@@ -208,6 +264,11 @@ export default class extends Controller {
     };
     localStorage.setItem("eligibiliteRenovate", JSON.stringify(testData));
     localStorage.setItem("categorie", categorie.toString());
+
+    // Notifier le wizard de la progression
+    document.dispatchEvent(new CustomEvent("flandre:eligibility:done", {
+      detail: { eligible: true, categorie }
+    }))
 
     // Log et affichage
     this.showResult(message, true);

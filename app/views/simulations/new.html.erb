@@ -13,173 +13,235 @@
     <% end %>
   </div>
 
-  <!-- Formulaire dans une card épurée -->
-  <div class="row">
-    <div class="col-lg-8">
-      <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body p-4">
-          <h5 class="card-title text-primary-custom mb-4">
-            <i class="bi bi-info-circle me-2"></i>Informations de la simulation
-          </h5>
+  <p class="text-muted mb-4">Sélectionnez le chantier pour lequel vous souhaitez simuler les primes. Les données du bien et la région seront reprises automatiquement.</p>
 
-          <%= form_with model: @simulation, local: true do |form| %>
-            <div class="mb-3">
-              <%= form.label :titre, "Titre de la simulation*", class: "form-label" %>
-              <%= form.text_field :titre, class: "form-control", placeholder: "Ex: Simulation primes isolation toiture" %>
-            </div>
-
-            <div class="mb-3">
-              <%= form.label :region, "Région*", class: "form-label" %>
-              <%= form.select :region,
-                  [
-                    ["Bruxelles", "bruxelles"],
-                    ["Wallonie", "Wallonie"],
-                    ["Flandre", "flandre"]
-                  ],
-                  { include_blank: "-- Sélectionnez votre région --" },
-                  { class: "form-select" } %>
-            </div>
-
-            <!-- Type de simulation pour Bruxelles -->
-            <div class="mb-3" id="simulation-type-section" style="display: none;">
-              <label class="form-label">Type de simulation*</label>
-              <div class="d-flex gap-3">
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="simulation_type" id="simulation_particulier" value="particulier" checked>
-                  <label class="form-check-label" for="simulation_particulier">
-                    <i class="bi bi-house me-2"></i>Particulier (Rénovation)
-                  </label>
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input" type="radio" name="simulation_type" id="simulation_entreprise" value="entreprise">
-                  <label class="form-check-label" for="simulation_entreprise">
-                    <i class="bi bi-building me-2"></i>Entreprise (Investissement)
-                  </label>
-                </div>
-              </div>
-              <div class="form-text">Sélectionnez le type de simulation selon votre profil</div>
-            </div>
-
-            <% if @simulation.respond_to?(:parameters) %>
-              <div class="mb-3">
-                <%= form.label :parameters, "Paramètres de simulation", class: "form-label" %>
-                <%= form.text_area :parameters, rows: 4, class: "form-control", placeholder: "Surface, matériaux, coefficient d'isolation..." %>
-              </div>
-            <% end %>
-
-            <% if defined?(Property) && current_user.properties.any? %>
-              <div class="mb-3">
-                <%= form.label :property_id, "Bien immobilier concerné*", class: "form-label" %>
-                <%= form.collection_select :property_id, current_user.properties, :id, :full_address,
-                    {
-                      include_blank: "-- Sélectionner un bien --",
-                      selected: (@simulation.property_id if @simulation.property.present?)
-                    },
-                    { class: "form-select", required: true } %>
-                <div class="form-text">La sélection d'un bien immobilier est obligatoire pour effectuer une simulation.</div>
-              </div>
-            <% else %>
-              <div class="mb-3">
-                <div class="alert alert-warning" role="alert">
-                  <i class="bi bi-exclamation-triangle me-2"></i>
-                  <strong>Aucun bien immobilier trouvé !</strong><br>
-                  Vous devez d'abord ajouter un bien immobilier avant de pouvoir créer une simulation.
-                  <%= link_to "Ajouter un bien", new_property_path, class: "btn btn-sm btn-outline-primary ms-2" %>
-                </div>
-              </div>
-            <% end %>
-
-            <% if defined?(Project) && current_user.projects.any? %>
-              <div class="mb-3">
-                <%= form.label :project_id, "Chantier/Projet concerné", class: "form-label" %>
-                <%= form.collection_select :project_id, current_user.projects, :id, :nom,
-                    {
-                      include_blank: "-- Sélectionner un chantier --",
-                      selected: (@simulation.project_id if @simulation.respond_to?(:project) && @simulation.project.present?)
-                    },
-                    class: "form-select" %>
-                <small class="form-text text-muted">Associez cette simulation à un chantier spécifique pour des résultats plus précis</small>
-              </div>
-            <% end %>
-
-            <%= form.hidden_field :user_id, value: current_user.id %>
-
-            <div class="d-flex justify-content-end mt-4">
-              <%= link_to "Annuler", simulations_path, class: "btn btn-outline-secondary me-2" %>
-              <% if current_user.properties.any? %>
-                <%= form.submit "Lancer la simulation", class: "btn btn-primary-custom" %>
-              <% else %>
-                <button type="button" class="btn btn-primary-custom" disabled>
-                  <i class="bi bi-exclamation-triangle me-2"></i>Ajoutez d'abord un bien
-                </button>
-              <% end %>
-            </div>
+  <% if @projects.blank? %>
+    <!-- Aucun chantier -->
+    <div class="row justify-content-center">
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm text-center p-5">
+          <div class="mb-3">
+            <i class="bi bi-building-x text-muted" style="font-size: 3rem;"></i>
+          </div>
+          <h5 class="fw-normal text-muted mb-2">Aucun chantier trouvé</h5>
+          <p class="text-muted small mb-4">Vous devez d'abord créer un chantier associé à un bien immobilier avant de lancer une simulation.</p>
+          <%= link_to new_project_path, class: "btn btn-primary-custom px-4" do %>
+            <i class="bi bi-plus me-2"></i>Créer un chantier
           <% end %>
         </div>
       </div>
     </div>
+  <% else %>
+    <!-- Formulaire caché soumis par JS -->
+    <%= form_with model: @simulation, local: true, id: "simulation-launch-form" do |form| %>
+      <%= form.hidden_field :titre,       id: "sim-titre" %>
+      <%= form.hidden_field :region,      id: "sim-region" %>
+      <%= form.hidden_field :property_id, id: "sim-property-id" %>
+      <%= form.hidden_field :project_id,  id: "sim-project-id" %>
+      <%= form.hidden_field :user_id,     value: current_user.id %>
+      <input type="hidden" name="type" id="sim-type" value="particulier">
+    <% end %>
 
-    <div class="col-lg-4">
-      <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body p-4">
-          <h5 class="card-title text-primary-custom mb-3">
-            <i class="bi bi-lightbulb me-2"></i>Conseils
-          </h5>
-          <p class="text-muted-custom small mb-3">Cette simulation vous permet d'estimer les primes et aides financières auxquelles vous pourriez avoir droit pour vos travaux de rénovation énergétique.</p>
-          <p class="text-muted-custom small mb-0">Les résultats varient selon votre région, le type de bien et les travaux envisagés. Associez la simulation à un bien existant et/ou un chantier spécifique pour des résultats plus précis.</p>
+    <!-- Sélecteur Bruxelles type (caché par défaut) -->
+    <div id="bruxelles-type-selector" class="alert alert-info border-0 rounded-3 mb-4 d-none">
+      <div class="d-flex align-items-center gap-3 flex-wrap">
+        <i class="bi bi-info-circle-fill fs-5"></i>
+        <span class="fw-medium">Type de simulation pour Bruxelles :</span>
+        <div class="form-check form-check-inline mb-0">
+          <input class="form-check-input" type="radio" name="bruxelles_type" id="brux-particulier" value="particulier" checked>
+          <label class="form-check-label" for="brux-particulier"><i class="bi bi-house me-1"></i>Particulier (Rénovation)</label>
         </div>
-      </div>
-
-      <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body p-4">
-          <h5 class="card-title text-primary-custom mb-3">
-            <i class="bi bi-check-circle me-2"></i>Primes disponibles
-          </h5>
-          <ul class="text-muted-custom small mb-0 ps-3">
-            <li class="mb-2">Primes régionales pour la rénovation énergétique</li>
-            <li class="mb-2">Primes provinciales et communales</li>
-            <li class="mb-2">Primes Eco-chèque et crédit d'impôt</li>
-            <li>Prêts à taux zéro pour la rénovation</li>
-          </ul>
+        <div class="form-check form-check-inline mb-0">
+          <input class="form-check-input" type="radio" name="bruxelles_type" id="brux-entreprise" value="entreprise">
+          <label class="form-check-label" for="brux-entreprise"><i class="bi bi-building me-1"></i>Entreprise (Investissement)</label>
         </div>
       </div>
     </div>
-  </div>
+
+    <!-- Grille de chantiers -->
+    <div class="row g-3 mb-4">
+      <% @projects.each do |project| %>
+        <% property = project.property %>
+        <% region = property&.region&.downcase %>
+        <% region_label = case region
+           when 'flandre'   then 'Flandre'
+           when 'wallonie'  then 'Wallonie'
+           when 'bruxelles' then 'Bruxelles'
+           else property&.region.presence || '—'
+           end %>
+        <% region_color = case region
+           when 'flandre'   then 'warning'
+           when 'wallonie'  then 'orange'
+           when 'bruxelles' then 'info'
+           else 'secondary'
+           end %>
+        <% statut_color = case project.statut
+           when 'en_cours'    then 'success'
+           when 'planifié'    then 'primary'
+           when 'terminé'     then 'secondary'
+           when 'suspendu'    then 'warning'
+           else 'secondary'
+           end %>
+        <div class="col-lg-4 col-md-6">
+          <div class="card border-2 rounded-4 h-100 chantier-card"
+               style="cursor: pointer; transition: border-color 0.2s ease, box-shadow 0.2s ease;"
+               data-project-id="<%= project.id %>"
+               data-property-id="<%= project.property_id %>"
+               data-region="<%= property&.region %>"
+               data-nom="<%= project.nom %>">
+            <div class="card-body p-4">
+              <div class="d-flex justify-content-between align-items-start mb-3">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="rounded-circle d-flex align-items-center justify-content-center"
+                       style="width: 38px; height: 38px; background: linear-gradient(135deg, #0d6efd22, #0d6efd44);">
+                    <i class="bi bi-building text-primary fs-6"></i>
+                  </div>
+                  <span class="badge bg-<%= region_color == 'orange' ? 'warning' : region_color %> bg-opacity-10 text-<%= region_color == 'orange' ? 'warning' : region_color %> border border-<%= region_color == 'orange' ? 'warning' : region_color %> border-opacity-25 rounded-pill">
+                    <%= region_label %>
+                  </span>
+                </div>
+                <% if project.statut.present? %>
+                  <span class="badge bg-<%= statut_color %> bg-opacity-10 text-<%= statut_color %> rounded-pill" style="font-size: 0.7rem;">
+                    <%= project.statut.humanize %>
+                  </span>
+                <% end %>
+              </div>
+
+              <h6 class="fw-semibold text-dark mb-1"><%= project.nom %></h6>
+
+              <% if property.present? %>
+                <p class="text-muted small mb-2">
+                  <i class="bi bi-geo-alt me-1"></i>
+                  <%= [property.rue, property.numero].compact.join(' ') %>
+                  <% if property.code_postal.present? || property.commune.present? %>
+                    — <%= [property.code_postal, property.commune].compact.join(' ') %>
+                  <% end %>
+                </p>
+              <% end %>
+
+              <% if project.type_travaux.present? %>
+                <p class="text-muted small mb-0">
+                  <i class="bi bi-tools me-1"></i><%= project.type_travaux.split(',').first(3).map(&:strip).map(&:humanize).join(', ') %><%= project.type_travaux.split(',').size > 3 ? '…' : '' %>
+                </p>
+              <% end %>
+            </div>
+
+            <!-- Indicateur de sélection -->
+            <div class="selected-indicator d-none card-footer bg-primary border-0 rounded-bottom-4 py-2 text-center">
+              <i class="bi bi-check-circle-fill text-white me-1"></i>
+              <span class="text-white small fw-medium">Chantier sélectionné</span>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Champ titre : visible après sélection d'un chantier -->
+    <div id="titre-panel" class="d-none mb-4">
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body px-4 py-3">
+          <label for="titre-visible" class="form-label fw-medium text-dark mb-1">
+            <i class="bi bi-pencil me-2 text-arch-orange"></i>Nom de la simulation
+          </label>
+          <input type="text" id="titre-visible" class="form-control border-2 rounded-3"
+                 placeholder="ex. Simulation isolation toiture · Flandre · Avr. 2026">
+          <small class="text-muted"><i class="bi bi-info-circle me-1"></i>Nom généré automatiquement — modifiez-le si vous le souhaitez.</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bouton de lancement -->
+    <div class="d-flex justify-content-end gap-2">
+      <%= link_to simulations_path, class: "btn btn-outline-secondary px-4" do %>
+        <i class="bi bi-x me-2"></i>Annuler
+      <% end %>
+      <button type="button" id="btn-launch-simulation"
+              class="btn btn-primary-custom px-5"
+              disabled>
+        <i class="bi bi-play-fill me-2"></i>Lancer la simulation
+      </button>
+    </div>
+  <% end %>
 </div>
 
-
-<!-- Script pour gérer l'affichage conditionnel du type de simulation -->
 <script nonce="<%= content_security_policy_nonce %>">
-document.addEventListener('DOMContentLoaded', function() {
-  const regionSelect = document.querySelector('select[name="simulation[region]"]')
-  const simulationTypeSection = document.getElementById('simulation-type-section')
+document.addEventListener('DOMContentLoaded', function () {
+  var cards      = document.querySelectorAll('.chantier-card');
+  var btnLaunch  = document.getElementById('btn-launch-simulation');
+  var form       = document.getElementById('simulation-launch-form');
+  var bruxSection = document.getElementById('bruxelles-type-selector');
 
-  function toggleSimulationType() {
-    if (regionSelect.value === 'bruxelles') {
-      simulationTypeSection.style.display = 'block'
-    } else {
-      simulationTypeSection.style.display = 'none'
-    }
-  }
+  var titrePanel  = document.getElementById('titre-panel');
+  var titreVisible = document.getElementById('titre-visible');
 
-  // Affichage initial
-  toggleSimulationType()
+  if (!cards.length) return;
 
-  // Écouter les changements de région
-  regionSelect.addEventListener('change', toggleSimulationType)
+  cards.forEach(function (card) {
+    card.addEventListener('click', function () {
+      // Désélectionner les autres
+      cards.forEach(function (c) {
+        c.classList.remove('chantier-selected');
+        c.querySelector('.selected-indicator').classList.add('d-none');
+      });
 
-  // Gérer la soumission du formulaire pour inclure le type de simulation
-  const form = document.querySelector('form')
-  form.addEventListener('submit', function(e) {
-    const simulationType = document.querySelector('input[name="simulation_type"]:checked')
-    if (regionSelect.value === 'bruxelles' && simulationType) {
-      // Ajouter le type de simulation comme paramètre
-      const hiddenInput = document.createElement('input')
-      hiddenInput.type = 'hidden'
-      hiddenInput.name = 'type'
-      hiddenInput.value = simulationType.value
-      form.appendChild(hiddenInput)
-    }
-  })
-})
+      // Sélectionner cette carte
+      card.classList.add('chantier-selected');
+      card.querySelector('.selected-indicator').classList.remove('d-none');
+
+      // Remplir les champs cachés
+      var region = card.dataset.region || '';
+      var regionLabel = region ? (region.charAt(0).toUpperCase() + region.slice(1)) : '';
+      var now = new Date();
+      var mois = now.toLocaleDateString('fr-BE', { month: 'short', year: 'numeric' });
+      var titreGenere = card.dataset.nom + ' · ' + regionLabel + ' · ' + mois;
+
+      document.getElementById('sim-project-id').value  = card.dataset.projectId;
+      document.getElementById('sim-property-id').value = card.dataset.propertyId;
+      document.getElementById('sim-region').value      = region;
+      document.getElementById('sim-titre').value       = titreGenere;
+
+      // Afficher et pré-remplir le champ titre éditable
+      titrePanel.classList.remove('d-none');
+      titreVisible.value = titreGenere;
+
+      // Bruxelles : afficher le sélecteur de type
+      if (region.toLowerCase() === 'bruxelles') {
+        bruxSection.classList.remove('d-none');
+      } else {
+        bruxSection.classList.add('d-none');
+        document.getElementById('sim-type').value = 'particulier';
+      }
+
+      btnLaunch.disabled = false;
+    });
+  });
+
+  // Synchroniser le titre éditable vers le champ caché
+  titreVisible.addEventListener('input', function () {
+    document.getElementById('sim-titre').value = titreVisible.value || 'Sans titre';
+  });
+
+  // Synchroniser le type Bruxelles avec le champ caché
+  document.querySelectorAll('input[name="bruxelles_type"]').forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      document.getElementById('sim-type').value = radio.value;
+    });
+  });
+
+  // Soumission
+  btnLaunch.addEventListener('click', function () {
+    form.submit();
+  });
+});
 </script>
+
+<style>
+  .chantier-card { border-color: #dee2e6 !important; }
+  .chantier-card.chantier-selected {
+    border-color: #0d6efd !important;
+    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15) !important;
+  }
+  .chantier-card:hover:not(.chantier-selected) {
+    border-color: #adb5bd !important;
+  }
+</style>

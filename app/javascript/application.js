@@ -36,6 +36,8 @@ import FlandrePrimeCardController from "controllers/flandre_prime_card_controlle
 import FlandrePrimeCalculController from "controllers/flandre_prime_calcul_controller"
 import FlandreSimulationController from "controllers/flandre_simulation_controller"
 import FlandreSimulationCardController from "controllers/flandre_simulation_card_controller"
+import FlandreWizardController from "controllers/flandre_wizard_controller"
+import WallonieWizardController from "controllers/wallonie_wizard_controller"
 import LogoutModalController from "controllers/logout_modal_controller"
 import LanguageController from "controllers/language_controller"
 import RenopackWallonieController from "controllers/renopack_wallonie_controller"
@@ -80,6 +82,8 @@ application.register("flandre-prime-card", FlandrePrimeCardController)
 application.register("flandre-prime-calcul", FlandrePrimeCalculController)
 application.register("flandre-simulation", FlandreSimulationController)
 application.register("flandre-simulation-card", FlandreSimulationCardController)
+application.register("flandre-wizard", FlandreWizardController)
+application.register("wallonie-wizard", WallonieWizardController)
 application.register("logout-modal", LogoutModalController)
 application.register("language", LanguageController)
 application.register("renopack-wallonie", RenopackWallonieController)

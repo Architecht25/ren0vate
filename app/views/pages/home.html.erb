@@ -13,208 +13,314 @@
   </script>
 <% end %>
 
-<!-- Hero Section - Style Carnet d'Architecte -->
-<div class="architectural-hero position-relative d-flex min-vh-100"
-     data-controller="architectural-parallax"
-     data-architectural-parallax-hero-target="hero">
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  WRAPPER GLOBAL (image de fond commune)                 -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="home-bg-wrapper">
 
-  <!-- Image de fond directe -->
+  <!-- Image de fond couvrant hero + fonctionnalités + CTA -->
   <img src="<%= asset_path('arcliine.jpg') %>"
-       alt="Architectural watercolor background"
-       class="architectural-bg-image"
-       style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.2; z-index: 0;">
+       alt="Rénovation architecturale"
+       class="home-hero-bg"
+       style="pointer-events:none;">
 
-  <!-- Overlay léger pour la lisibilité -->
-  <div class="architectural-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.3); z-index: 1;"></div>
+  <!-- Overlay dégradé -->
+  <div class="home-hero-overlay" style="pointer-events:none;"></div>
 
-  <!-- Sketch Overlay avec effet parallax -->
-  <div class="sketch-overlay position-absolute w-100 h-100" style="top: 0; left: 0; z-index: 2;">
-    <div class="blueprint-grid"></div>
-    <div class="technical-lines"></div>
-  </div>
+  <!-- Grille blueprint déco -->
+  <div class="home-hero-grid" style="pointer-events:none;"></div>
 
-  <div class="container position-relative d-flex flex-column justify-content-center align-items-center h-100 py-5" style="z-index: 3;">
-    <div class="architectural-content text-center">
-      <!-- Annotation principale -->
-      <div class="architect-annotation mb-4">
-        <span class="annotation-line"></span>
-        <span class="annotation-text">PROJET RÉNOVATION</span>
-      </div>
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  HERO                                                   -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="home-hero">
 
-      <h1 class="architectural-title display-4 mb-4">Ren<span class="highlight-watercolor">0</span>vate</h1>
-      <div class="subtitle-sketch mb-4">
-        <p class="architect-subtitle">Plateforme complète de gestion de chantiers de rénovation<br>Planifiez, coordonnez et suivez vos travaux de A à Z</p>
-        <div class="sketch-underline"></div>
-        <div class="evolution-badge mt-3">
-          <span class="badge bg-arch-orange text-white px-3 py-2">
-            <i class="bi bi-tools me-1"></i>
-            Gestion intégrée de vos chantiers de rénovation
-          </span>
+  <div class="container position-relative py-5" style="z-index:4;">
+    <div class="row align-items-center g-5 py-4">
+
+      <!-- Colonne texte -->
+      <div class="col-lg-6">
+        <div class="architect-annotation mb-4">
+          <span class="annotation-line"></span>
+          <span class="annotation-text">PROJET RÉNOVATION · BELGIQUE</span>
+          <span class="annotation-line"></span>
+        </div>
+
+        <h1 class="architectural-title display-3 mb-3">
+          Ren<span class="highlight-watercolor">0</span>vate
+        </h1>
+
+        <p class="home-hero-lead mb-4">
+          Planifiez, coordonnez et suivez vos travaux de rénovation de A&nbsp;à&nbsp;Z.
+          Une seule plateforme pour propriétaires, entrepreneurs et architectes en Belgique.
+        </p>
+
+        <div class="d-flex flex-wrap gap-3 mb-5">
+          <%= link_to new_user_registration_path, class: "btn btn-accent btn-lg shadow-sm fw-semibold" do %>
+            <i class="bi bi-person-plus me-2"></i>Créer mon espace gratuit
+          <% end %>
+          <%= link_to new_user_session_path, class: "btn btn-outline-primary btn-lg" do %>
+            <i class="bi bi-box-arrow-in-right me-2"></i>Se connecter
+          <% end %>
+        </div>
+
+        <!-- Preuves sociales mini -->
+        <div class="d-flex flex-wrap gap-4 home-trust-badges">
+          <span><i class="bi bi-shield-check text-accent me-1"></i>Sans engagement</span>
+          <span><i class="bi bi-geo-alt text-accent me-1"></i>3 régions couvertes</span>
+          <span><i class="bi bi-gift text-accent me-1"></i>Simulateur gratuit</span>
         </div>
       </div>
 
-      <!-- Positionnement -->
-      <div class="evolution-announcement mb-4">
-        <div class="description-box bg-white border border-arch-orange">
-          <div class="handwritten-note text-arch-orange mb-2">
-            <i class="bi bi-building me-2"></i>
-            <strong>Votre chantier, piloté de A à Z</strong>
+      <!-- Colonne simulateurs — mise en avant -->
+      <div class="col-lg-6">
+        <div class="home-sim-card">
+          <div class="home-sim-card-header">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <span class="home-sim-badge">
+                <i class="bi bi-stars me-1"></i>100% Gratuit
+              </span>
+            </div>
+            <h2 class="h4 fw-bold mb-1" style="color:var(--ren0vate-text);">
+              Simulateurs de primes régionaux
+            </h2>
+            <p class="small text-muted mb-0">
+              Testez votre éligibilité et estimez vos montants en 2 minutes — sans inscription.
+            </p>
           </div>
-          <p class="text-ink small mb-0">
-            Ren0vate centralise tout ce dont vous avez besoin pour gérer vos projets de rénovation :
-            <strong>planification, intervenants, budget, documents et suivi des travaux</strong>.
-            <br>
-            <span class="text-muted">Une seule plateforme pour coordonner propriétaires, entrepreneurs et architectes en Belgique.</span>
+
+          <div class="home-sim-regions">
+
+            <!-- Flandre -->
+            <div class="home-sim-region home-sim-flandre">
+              <div class="d-flex align-items-center gap-3 mb-2">
+                <div class="home-sim-region-icon" style="background:rgba(0,97,184,0.12);color:#0061b8;">
+                  <i class="bi bi-house-heart-fill"></i>
+                </div>
+                <div>
+                  <div class="fw-semibold" style="color:var(--ren0vate-text);">Flandre</div>
+                  <div class="small text-muted">Mijn VerbouwPremie · jusqu'à 8 000 €/mesure</div>
+                </div>
+              </div>
+              <%= link_to flandre_path, class: "btn btn-flandre btn-sm w-100" do %>
+                Simuler mes primes Flandre <i class="bi bi-arrow-right ms-1"></i>
+              <% end %>
+            </div>
+
+            <!-- Bruxelles -->
+            <div class="home-sim-region home-sim-bruxelles">
+              <div class="d-flex align-items-center gap-3 mb-2">
+                <div class="home-sim-region-icon" style="background:rgba(110,40,130,0.1);color:#6e2882;">
+                  <i class="bi bi-buildings-fill"></i>
+                </div>
+                <div>
+                  <div class="fw-semibold" style="color:var(--ren0vate-text);">Bruxelles</div>
+                  <div class="small text-muted">Renolution · primes énergie & rénovation</div>
+                </div>
+              </div>
+              <%= link_to bruxelles_path, class: "btn btn-bruxelles btn-sm w-100" do %>
+                Simuler mes primes Bruxelles <i class="bi bi-arrow-right ms-1"></i>
+              <% end %>
+            </div>
+
+            <!-- Wallonie -->
+            <div class="home-sim-region home-sim-wallonie">
+              <div class="d-flex align-items-center gap-3 mb-2">
+                <div class="home-sim-region-icon" style="background:rgba(46,125,50,0.12);color:#2e7d32;">
+                  <i class="bi bi-tree-fill"></i>
+                </div>
+                <div>
+                  <div class="fw-semibold" style="color:var(--ren0vate-text);">Wallonie</div>
+                  <div class="small text-muted">Primes habitation · catégories R1–R5</div>
+                </div>
+              </div>
+              <%= link_to wallonie_path, class: "btn btn-wallonie btn-sm w-100" do %>
+                Simuler mes primes Wallonie <i class="bi bi-arrow-right ms-1"></i>
+              <% end %>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Vague bas -->
+  <div class="home-hero-wave" style="pointer-events:none;"></div>
+</div><!-- end .home-hero -->
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  FONCTIONNALITÉS PLATEFORME                             -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="home-features-section py-5">
+  <div class="container">
+
+    <div class="text-center mb-5">
+      <div class="architect-annotation mb-3">
+        <span class="annotation-line"></span>
+        <span class="annotation-text">PLATEFORME DE GESTION</span>
+        <span class="annotation-line"></span>
+      </div>
+      <h2 class="h3 fw-bold" style="color:var(--ren0vate-text);">Tout pour piloter votre chantier</h2>
+      <p class="text-muted">De la demande de primes à la réception des travaux</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="home-feature-card h-100">
+          <div class="home-feature-icon" style="background:rgba(51,65,85,0.08);color:var(--ren0vate-primary);">
+            <i class="bi bi-kanban-fill fs-3"></i>
+          </div>
+          <h3 class="h5 fw-bold mt-3 mb-2">Planification</h3>
+          <p class="text-muted small mb-0">
+            Créez votre planning de travaux, définissez les jalons et suivez l'avancement en temps réel.
           </p>
         </div>
       </div>
-
-      <!-- Fonctionnalités clés avec style architectural -->
-      <div class="annotated-section mb-5">
-        <div class="architect-annotation mb-3">
-          <span class="annotation-line"></span>
-          <span class="annotation-text">FONCTIONNALITÉS</span>
-        </div>
-
-        <h2 class="h4 mb-4 text-ink">Tout pour gérer votre chantier</h2>
-        <div class="row g-3 text-start">
-          <div class="col-md-4">
-            <div class="choice-box h-100">
-              <div class="handwritten-note text-arch-blue mb-2">
-                <i class="bi bi-calendar3 me-2"></i><strong>Planification</strong>
-              </div>
-              <small class="text-muted">Créez votre planning de travaux, définissez les jalons et suivez l'avancement en temps réel.</small>
-            </div>
+      <div class="col-md-4">
+        <div class="home-feature-card h-100">
+          <div class="home-feature-icon" style="background:rgba(217,119,6,0.1);color:var(--ren0vate-accent);">
+            <i class="bi bi-people-fill fs-3"></i>
           </div>
-          <div class="col-md-4">
-            <div class="choice-box h-100">
-              <div class="handwritten-note text-arch-orange mb-2">
-                <i class="bi bi-people me-2"></i><strong>Intervenants</strong>
-              </div>
-              <small class="text-muted">Gérez vos entrepreneurs, architectes et fournisseurs depuis un seul endroit.</small>
-            </div>
-          </div>
-          <div class="col-md-4">
-            <div class="choice-box h-100">
-              <div class="handwritten-note text-arch-green mb-2">
-                <i class="bi bi-wallet2 me-2"></i><strong>Budget & Documents</strong>
-              </div>
-              <small class="text-muted">Suivez votre budget, centralisez devis, factures, contrats et photos de chantier.</small>
-            </div>
-          </div>
+          <h3 class="h5 fw-bold mt-3 mb-2">Intervenants</h3>
+          <p class="text-muted small mb-0">
+            Gérez vos entrepreneurs, architectes et fournisseurs depuis un seul endroit.
+          </p>
         </div>
       </div>
-
-      <!-- Simulateurs Primes avec style architectural -->
-      <div class="annotated-section mb-5">
-        <div class="architect-annotation mb-3">
-          <span class="annotation-line"></span>
-          <span class="annotation-text">SIMULATEURS DE PRIMES</span>
+      <div class="col-md-4">
+        <div class="home-feature-card h-100">
+          <div class="home-feature-icon" style="background:rgba(132,169,140,0.15);color:var(--ren0vate-success-dark);">
+            <i class="bi bi-wallet2 fs-3"></i>
+          </div>
+          <h3 class="h5 fw-bold mt-3 mb-2">Budget & Documents</h3>
+          <p class="text-muted small mb-0">
+            Centralisez devis, factures, contrats et photos. Suivez votre budget en un coup d'œil.
+          </p>
         </div>
-
-        <h2 class="h4 mb-4 text-ink">Simulateurs pour Particuliers</h2>
-        <div class="region-buttons mb-4">
-          <%= link_to "Primes Flandre", flandre_path,
-              class: "btn-region-flandre",
-              data: { region: "VL" } %>
-          <%= link_to "Primes Bruxelles", bruxelles_path,
-              class: "btn-region-bruxelles",
-              data: { region: "BXL" } %>
-          <%= link_to "Primes Wallonie", wallonie_path,
-              class: "btn-region-wallonie",
-              data: { region: "WAL" } %>
+      </div>
+      <div class="col-md-4">
+        <div class="home-feature-card h-100">
+          <div class="home-feature-icon" style="background:rgba(51,65,85,0.08);color:var(--ren0vate-primary);">
+            <i class="bi bi-file-earmark-check-fill fs-3"></i>
+          </div>
+          <h3 class="h5 fw-bold mt-3 mb-2">Dossiers de primes</h3>
+          <p class="text-muted small mb-0">
+            Formulaires pré-remplis, délais et documents requis pour chaque prime régionale.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="home-feature-card h-100">
+          <div class="home-feature-icon" style="background:rgba(217,119,6,0.1);color:var(--ren0vate-accent);">
+            <i class="bi bi-graph-up-arrow fs-3"></i>
+          </div>
+          <h3 class="h5 fw-bold mt-3 mb-2">Valorisation</h3>
+          <p class="text-muted small mb-0">
+            Estimez l'impact de vos travaux sur la valeur de votre bien et le label PEB.
+          </p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="home-feature-card h-100">
+          <div class="home-feature-icon" style="background:rgba(132,169,140,0.15);color:var(--ren0vate-success-dark);">
+            <i class="bi bi-bell-fill fs-3"></i>
+          </div>
+          <h3 class="h5 fw-bold mt-3 mb-2">Alertes & Échéances</h3>
+          <p class="text-muted small mb-0">
+            Rappels automatiques pour vos délais de dépôt de dossiers et fin des régimes en vigueur.
+          </p>
         </div>
       </div>
     </div>
+
   </div>
-</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!--  CTA BAS DE PAGE                                        -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<section class="home-cta-section py-5">
+  <div class="container">
+    <div class="home-cta-box text-center">
+      <h2 class="h3 fw-bold mb-3">Prêt à démarrer votre rénovation ?</h2>
+      <p class="text-muted mb-4">
+        Créez votre espace gratuit et commencez par simuler vos primes régionales.
+      </p>
+      <div class="d-flex flex-wrap justify-content-center gap-3">
+        <%= link_to new_user_registration_path, class: "btn btn-accent btn-lg shadow-sm fw-semibold" do %>
+          <i class="bi bi-person-plus me-2"></i>Créer mon espace gratuit
+        <% end %>
+        <%= link_to flandre_path, class: "btn btn-outline-primary btn-lg" do %>
+          <i class="bi bi-calculator me-2"></i>Simuler mes primes
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- end .home-bg-wrapper -->
 
 <footer class="bg-dark text-white py-4">
   <div class="container">
     <div class="row">
-      <!-- Informations principales -->
       <div class="col-md-4 mb-3">
         <h6 class="fw-semibold mb-3 text-arch-orange">
-          <i class="bi bi-house-heart-fill me-2"></i>
-          Ren0vate
+          <i class="bi bi-house-heart-fill me-2"></i>Ren0vate
         </h6>
         <p class="small mb-2">
           Plateforme de gestion de chantiers de rénovation pour propriétaires, entrepreneurs et architectes en Belgique.
         </p>
-        <p class="small text-white-75 mb-0">© 2026 Ren0vate — ArchiTecht SRL</p>
+        <p class="small text-white-50 mb-0">© 2026 Ren0vate — ArchiTecht SRL</p>
       </div>
-
-      <!-- Support & Contact -->
       <div class="col-md-4 mb-3">
         <h6 class="fw-semibold mb-3 text-arch-orange">
-          <i class="bi bi-headset me-2"></i>
-          Support & Contact
+          <i class="bi bi-headset me-2"></i>Support & Contact
         </h6>
         <div class="small">
           <p class="mb-2">
             <i class="bi bi-telephone-fill me-2 text-success"></i>
-            <a href="tel:+32485043745" class="text-white text-decoration-none">
-              0485 043 745
-            </a>
+            <a href="tel:+32485043745" class="text-white text-decoration-none">0485 043 745</a>
           </p>
           <p class="mb-2">
             <i class="bi bi-envelope-fill me-2 text-primary"></i>
-            <a href="mailto:robin@architecht.be" class="text-white text-decoration-none">
-              robin@architecht.be
-            </a>
+            <a href="mailto:robin@architecht.be" class="text-white text-decoration-none">robin@architecht.be</a>
           </p>
-          <p class="small text-light mb-0">
-            Lun-Ven: 9h-17h | Réponse &lt; 24h
-          </p>
+          <p class="small text-light mb-0">Lun-Ven: 9h-17h | Réponse &lt; 24h</p>
         </div>
       </div>
-
-      <!-- Liens légaux -->
       <div class="col-md-4 mb-3">
         <h6 class="fw-semibold mb-3 text-arch-orange">
-          <i class="bi bi-shield-check me-2"></i>
-          Informations légales
+          <i class="bi bi-shield-check me-2"></i>Informations légales
         </h6>
         <div class="small">
           <p class="mb-2">
             <a href="<%= legal_path %>" class="text-white text-decoration-none">
-              <i class="bi bi-file-text me-2"></i>
-              Mentions légales
+              <i class="bi bi-file-text me-2"></i>Mentions légales
             </a>
           </p>
           <p class="mb-2">
             <a href="<%= privacy_path %>" class="text-white text-decoration-none">
-              <i class="bi bi-lock me-2"></i>
-              Politique de confidentialité
+              <i class="bi bi-lock me-2"></i>Politique de confidentialité
             </a>
           </p>
           <p class="mb-0">
             <a href="<%= terms_path %>" class="text-white text-decoration-none">
-              <i class="bi bi-file-earmark-text me-2"></i>
-              Conditions générales de vente
+              <i class="bi bi-file-earmark-text me-2"></i>Conditions générales de vente
             </a>
           </p>
         </div>
       </div>
     </div>
-
-    <!-- Séparateur -->
     <hr class="my-3 opacity-25">
-
-    <!-- Couverture régionale -->
     <div class="row">
       <div class="col-12 text-center">
         <p class="small text-light mb-2">Disponible dans les trois régions de Belgique :</p>
         <div class="d-flex justify-content-center flex-wrap gap-3">
-          <span class="text-white small">
-            <i class="bi bi-geo-alt me-1"></i>Bruxelles-Capitale
-          </span>
-          <span class="text-white small">
-            <i class="bi bi-geo-alt me-1"></i>Flandre
-          </span>
-          <span class="text-white small">
-            <i class="bi bi-geo-alt me-1"></i>Wallonie
-          </span>
+          <span class="text-white small"><i class="bi bi-geo-alt me-1"></i>Bruxelles-Capitale</span>
+          <span class="text-white small"><i class="bi bi-geo-alt me-1"></i>Flandre</span>
+          <span class="text-white small"><i class="bi bi-geo-alt me-1"></i>Wallonie</span>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["form", "result", "formCard", "validateButton"]
+  static targets = ["form", "result", "formCard", "validateButton", "questionCounter", "progressBar"]
 
   connect() {
     if (this.hasResultTarget) {
@@ -10,6 +10,62 @@ export default class extends Controller {
     if (this.hasValidateButtonTarget) {
       this.validateButtonTarget.style.display = "none"
     }
+
+    // Mode wizard : une question à la fois
+    this.wizardMode = this.element.dataset.wizardMode === "true"
+    if (this.wizardMode && this.hasFormCardTarget) {
+      this.currentQuestionIndex = 0
+      this.showCurrentQuestion()
+    }
+  }
+
+  // Navigation question précédente
+  prevQuestion() {
+    if (this.currentQuestionIndex > 0) {
+      this.currentQuestionIndex--
+      this.showCurrentQuestion()
+    }
+  }
+
+  showCurrentQuestion() {
+    const cards = this.formCardTargets
+    cards.forEach((card, i) => {
+      if (i === this.currentQuestionIndex) {
+        card.classList.remove("d-none", "question-answered")
+        card.classList.add("question-active")
+      } else if (i < this.currentQuestionIndex) {
+        card.classList.remove("d-none", "question-active")
+        card.classList.add("question-answered")
+      } else {
+        card.classList.add("d-none")
+        card.classList.remove("question-active", "question-answered")
+      }
+    })
+    this.updateQuestionCounter()
+  }
+
+  updateQuestionCounter() {
+    const total = this.formCardTargets.length
+    const current = this.currentQuestionIndex + 1
+    if (this.hasQuestionCounterTarget) {
+      this.questionCounterTarget.textContent = `Question ${current} / ${total}`
+    }
+    if (this.hasProgressBarTarget) {
+      this.progressBarTarget.style.width = `${Math.round((this.currentQuestionIndex / total) * 100)}%`
+    }
+  }
+
+  // Avancer à la question suivante (wizard mode)
+  advanceWizard(validateMethod) {
+    setTimeout(() => {
+      const total = this.formCardTargets.length
+      if (this.currentQuestionIndex < total - 1) {
+        this.currentQuestionIndex++
+        this.showCurrentQuestion()
+      } else {
+        validateMethod.call(this)
+      }
+    }, 350)
   }
 
   // ========== MÉTHODES WALLONIE ==========
@@ -91,7 +147,13 @@ export default class extends Controller {
       return;
     }
 
-    // Vérifier si toutes les questions sont répondues
+    // Mode wizard : avancer à la question suivante
+    if (this.wizardMode) {
+      this.advanceWizard(this.validateTestWallonieParticulier)
+      return
+    }
+
+    // Mode classique : vérifier si toutes les questions sont répondues
     this.checkIfAllAnsweredWallonieParticulier();
   }
 
@@ -300,6 +362,12 @@ export default class extends Controller {
       return;
     }
 
+    // Mode wizard : avancer à la question suivante
+    if (this.wizardMode) {
+      this.advanceWizard(this.validateTestWallonieSyndic)
+      return
+    }
+
     this.checkIfAllAnsweredWallonieSyndic();
   }
 
@@ -472,6 +540,12 @@ export default class extends Controller {
       return;
     }
 
+    // Mode wizard : avancer à la question suivante
+    if (this.wizardMode) {
+      this.advanceWizard(this.validateTestWallonieBailleur)
+      return
+    }
+
     this.checkIfAllAnsweredWallonieBailleur();
   }
 
@@ -559,6 +633,10 @@ export default class extends Controller {
       // Si demandé ET éligible, afficher le formulaire d'affinage de catégorie (seulement pour particuliers)
       if (isEligible && showAffinage) {
         this.showAffinageWallonieParticulier();
+        // Pour les particuliers, l'avancement du wizard se fait après l'affinage (wallonie:category:refined)
+      } else if (isEligible) {
+        // Non-particuliers : avancer directement vers les primes
+        document.dispatchEvent(new CustomEvent("wallonie:eligibility:done", { detail: { eligible: true } }))
       }
     }
   }

@@ -2,7 +2,7 @@ require 'net/http'
 
 class PropertiesController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_property, only: [:show, :dashboard, :edit, :update, :destroy, :documents_dashboard, :peb_recommandations]
+  before_action :set_property, only: [:show, :dashboard, :edit, :update, :destroy, :purge_photo, :documents_dashboard, :peb_recommandations]
 
   def index
     @properties = current_user.properties
@@ -96,6 +96,11 @@ class PropertiesController < ApplicationController
     render json: JSON.parse(response.body)
   rescue => e
     render json: { error: e.message }, status: :bad_gateway
+  end
+
+  def purge_photo
+    @property.photo.purge
+    redirect_to edit_property_path(@property), notice: "Photo supprimée."
   end
 
   def destroy

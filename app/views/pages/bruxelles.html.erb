@@ -27,97 +27,137 @@
   )) if @primes %>;
 </script>
 
-<div class="container-fluid py-4">
-  <!-- Header moderne et cohérent -->
-  <div class="row mb-4">
-    <div class="col-12">
-      <div class="card border-0 shadow-sm">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center">
-              <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                <i class="bi bi-house-check text-primary fs-4"></i>
-              </div>
-              <div>
-                <h1 class="h3 mb-1 text-primary">Bruxelles - Primes de Rénovation</h1>
-                <p class="text-muted mb-0">Testez votre éligibilité et découvrez vos primes RENOLUTION</p>
-              </div>
-            </div>
-            <%= link_to root_path, class: "btn btn-outline-primary" do %>
-              <i class="bi bi-arrow-left me-2"></i>Retour à l'accueil
-            <% end %>
-          </div>
+<style nonce="<%= content_security_policy_nonce %>">
+  .bruxelles-hero {
+    background: linear-gradient(135deg, var(--ren0vate-primary-darker) 0%, var(--ren0vate-primary-dark) 45%, var(--ren0vate-primary) 100%);
+    color: white;
+    padding: 3.5rem 0 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .bruxelles-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(255,255,255,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+</style>
+
+<%# ── HERO BRUXELLES ── %>
+<section class="bruxelles-hero pb-5 position-relative overflow-hidden" style="padding-bottom:4rem!important;">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-8 text-center text-lg-start">
+        <div class="d-flex align-items-center gap-2 mb-3 justify-content-center justify-content-lg-start">
+          <span class="badge bg-white text-purple px-3 py-2" style="color:#6a1b9a;">
+            <i class="bi bi-geo-alt-fill me-1"></i>Bruxelles-Capitale
+          </span>
+          <span class="text-white-50 small">Rénovation &amp; financement</span>
         </div>
+        <h1 class="display-5 fw-bold mb-3 lh-sm text-white">
+          Rénovation à Bruxelles :<br>ce qui a changé
+        </h1>
+        <p class="lead mb-4" style="color:rgba(255,255,255,0.8);">
+          Le système de primes est définitivement aboli — découvrez le nouveau dispositif de prêts à taux 0%
+        </p>
+        <div class="d-flex flex-wrap gap-3 small justify-content-center justify-content-lg-start">
+          <span class="bg-white bg-opacity-10 rounded-pill px-3 py-1 d-inline-flex align-items-center gap-2">
+            <i class="bi bi-buildings text-warning"></i> Région bruxelloise
+          </span>
+          <span class="bg-white bg-opacity-10 rounded-pill px-3 py-1 d-inline-flex align-items-center gap-2">
+            <i class="bi bi-percent text-warning"></i> Prêts à taux 0%
+          </span>
+          <span class="bg-white bg-opacity-10 rounded-pill px-3 py-1 d-inline-flex align-items-center gap-2">
+            <i class="bi bi-x-circle text-warning"></i> Primes abolies
+          </span>
+        </div>
+      </div>
+      <div class="col-lg-4 d-none d-lg-block text-end">
+        <%= link_to root_path, class: "btn btn-outline-light btn-sm" do %>
+          <i class="bi bi-arrow-left me-1"></i>Accueil
+        <% end %>
       </div>
     </div>
   </div>
+  <div class="position-absolute bottom-0 start-0 end-0" style="height:24px;background:#f8f9fa;clip-path:ellipse(55% 100% at 50% 100%);"></div>
+</section>
 
-  <!-- Panneau d'avertissement - Situation gouvernementale Bruxelles -->
-  <div class="row mb-4 justify-content-center">
-    <div class="col-lg-10 col-xl-8">
-      <div class="alert alert-warning border-warning shadow-sm" role="alert">
-        <div class="text-center mb-4">
-          <i class="bi bi-exclamation-triangle-fill text-warning fs-1 mb-2 d-block"></i>
-          <h4 class="alert-heading mb-2">
-            <i class="bi bi-building me-2"></i>
-            Situation exceptionnelle - Primes RENOLUTION suspendues
-          </h4>
-        </div>
+<%# ── CONTENU ── %>
+<div class="bg-light pb-5">
+  <div class="container pt-4">
 
-        <div class="d-flex flex-column gap-3">
-          <div class="bg-light rounded p-4 border-start border-warning border-4">
-            <h5 class="text-warning mb-3">
-              <i class="bi bi-pause-circle me-2"></i>
-              Programme 2025 inexistant
-            </h5>
-            <p class="mb-0">
-              En raison de l'<strong>absence de gouvernement de plein droit</strong>,
-              le programme RENOLUTION 2025 n'a pas été adopté.
-              <strong>Aucune prime n'est disponible</strong> pour les travaux exécutés en 2025.
-            </p>
-          </div>
+    <!-- Panneau d'avertissement - Situation gouvernementale Bruxelles -->
+    <div class="row justify-content-center">
+      <div class="col-lg-10 col-xl-8">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4">
 
-          <div class="bg-light rounded p-4 border-start border-warning border-4">
-            <h5 class="text-warning mb-3">
-              <i class="bi bi-question-circle me-2"></i>
-              Perspectives 2026 incertaines
-            </h5>
-            <p class="mb-3">
-              <strong>Aucune perspective claire</strong> n'est actuellement dessinée pour 2026.
-              La reprise du programme RENOLUTION dépendra de la formation d'un nouveau gouvernement régional.
-            </p>
-            <div class="alert alert-light border mb-0">
-              <p class="mb-2">
-                <strong><i class="bi bi-lightbulb me-2"></i>Projection possible :</strong>
-              </p>
-              <p class="small mb-0">
-                Le système à venir pourrait s'inspirer du modèle wallon en développement :
-                <strong>prêts à taux 0%</strong> avec possibilité de <strong>réduction du montant à rembourser</strong>
-                (assimilée à une prime) en échange de conditions liées à la performance énergétique et aux revenus.
-              </p>
+            <div class="text-center mb-4">
+              <i class="bi bi-x-octagon-fill text-danger fs-1 mb-2 d-block"></i>
+              <h4 class="fw-bold mb-1">Fin définitive du système de primes à Bruxelles</h4>
+              <p class="text-muted mb-0">Le gouvernement bruxellois a confirmé l'abolition totale du régime d'incitants à la rénovation</p>
             </div>
-          </div>
 
-          <div class="bg-light rounded p-4 border-start border-info border-4">
-            <h5 class="text-info mb-3">
-              <i class="bi bi-info-circle me-2"></i>
-              Recommandations
-            </h5>
-            <p class="mb-0">
-              <strong>Reportez vos travaux</strong> si possible. Si vous réalisez vos travaux, tâcher de disposer de la facture de solde de l'entrepreneur quand une période de prime sera ouverte.
-              Suivez l'actualité politique pour connaître l'évolution de la situation.
-            </p>
-          </div>
-        </div>
+            <div class="d-flex flex-column gap-3">
 
-        <div class="mt-4 pt-3 border-top text-center">
-          <small class="text-muted">
-            <i class="bi bi-calendar3 me-1"></i>
-            Situation mise à jour en novembre 2025 - Consultez régulièrement <a href="https://renolution.brussels" target="_blank" class="text-decoration-none">renolution.brussels</a> pour les dernières nouvelles
-          </small>
+              <div class="rounded p-4 border-start border-danger border-4 bg-danger bg-opacity-10">
+                <h5 class="text-danger mb-3">
+                  <i class="bi bi-slash-circle me-2"></i>
+                  2025 &amp; 2026 : aucune prime, aucun remboursement
+                </h5>
+                <p class="mb-0">
+                  Le gouvernement bruxellois a <strong>officiellement confirmé</strong> qu'aucune prime RENOLUTION ne couvrira les travaux réalisés ou terminés en <strong>2025 et 2026</strong>.
+                  Il n'y aura <strong>aucun mécanisme de rattrapage</strong> pour ces années.
+                </p>
+              </div>
+
+              <div class="rounded p-4 border-start border-danger border-4 bg-danger bg-opacity-10">
+                <h5 class="text-danger mb-3">
+                  <i class="bi bi-ban me-2"></i>
+                  Un système vieux de 45 ans définitivement aboli
+                </h5>
+                <p class="mb-0">
+                  Le système d'<strong>incitants à la rénovation existait depuis 1981</strong> et les <strong>primes énergie depuis 2004</strong>.
+                  Ce régime est <strong>définitivement supprimé</strong> — il ne sera pas rétabli sous sa forme actuelle.
+                </p>
+              </div>
+
+              <div class="rounded p-4 border-start border-primary border-4" style="background:rgba(51,65,85,0.06);">
+                <h5 class="mb-3" style="color:var(--ren0vate-primary);">
+                  <i class="bi bi-percent me-2"></i>
+                  Ce qui prend le relais : les prêts à taux 0%
+                </h5>
+                <p class="mb-0">
+                  Le nouveau dispositif repose sur des <strong>prêts à taux d'intérêt zéro</strong> pour financer les travaux de rénovation énergétique.
+                  Ce mécanisme remplace les anciennes primes directes et s'adresse aux propriétaires occupants et bailleurs bruxellois.
+                </p>
+              </div>
+
+              <div class="rounded p-4 border-start border-secondary border-4" style="background:rgba(0,0,0,0.03);">
+                <h5 class="text-secondary mb-3">
+                  <i class="bi bi-dash-circle me-2"></i>
+                  Pas de recommandation à ce jour
+                </h5>
+                <p class="mb-0 text-muted">
+                  À ce stade, <strong>aucune recommandation pratique</strong> ne peut être formulée concernant le nouveau dispositif bruxellois.
+                  Les modalités précises des prêts à taux 0% sont encore en cours de définition.
+                </p>
+              </div>
+
+            </div>
+
+            <div class="mt-4 pt-3 border-top text-center">
+              <small class="text-muted">
+                <i class="bi bi-calendar3 me-1"></i>
+                Situation confirmée en avril 2026 — consultez <a href="https://renolution.brussels" target="_blank" rel="noopener" class="text-decoration-none">renolution.brussels</a> pour les évolutions
+              </small>
+            </div>
+
+          </div>
         </div>
       </div>
     </div>
+
   </div>
 </div>
-

@@ -86,21 +86,26 @@ export default class extends Controller {
       button.style.display = "inline-block";
       button.className = "btn btn-success btn-lg mt-3";
       button.innerHTML = "🎯 Voir mes primes personnalisées";
-
-      // Supprimer ancien event listener s'il existe
-      button.replaceWith(button.cloneNode(true));
-      const newButton = document.getElementById("go-simulateur");
-
-      newButton.addEventListener("click", () => {
-        const cat = localStorage.getItem("categorie");
-        const catEstimee = localStorage.getItem("categorieEstimee");
-
-        // Masquer le placeholder et afficher les cartes
-        this.togglePrimesSection(true);
-
-        window.location.href = `/flandre?categorie=${cat}&categorieEstimee=${catEstimee || ""}`;
-      });
     }
+  }
+
+  // Méthode appelée par data-action sur #go-simulateur
+  goToSimulateur() {
+    const cat = localStorage.getItem("categorie");
+    const catEstimee = localStorage.getItem("categorieEstimee");
+
+    // Mode wizard (page flandre pré-login) : naviguer vers étape 4 sans rechargement
+    const wizardEl = document.getElementById("flandre-wizard")
+    if (wizardEl) {
+      document.dispatchEvent(new CustomEvent("flandre:category:refined", {
+        detail: { categorie: catEstimee || cat }
+      }))
+      return
+    }
+
+    // Mode hors-wizard : rechargement avec paramètres
+    this.togglePrimesSection(true);
+    window.location.href = `/flandre?categorie=${cat}&categorieEstimee=${catEstimee || ""}`;
   }
 
   // Méthode pour calculer la catégorie Flandre selon les vraies règles du seed
@@ -331,6 +336,11 @@ export default class extends Controller {
 
     // Afficher un bouton pour voir toutes les primes
     this.addViewPrimesButtonWallonie(categorie)
+
+    // Notifier le wizard Wallonie que la catégorie est déterminée → passer aux primes
+    document.dispatchEvent(new CustomEvent("wallonie:category:refined", {
+      detail: { categorie: categorieCalculateur }
+    }))
   }
 
   updatePrimesSectionTitleWallonie(categorie) {

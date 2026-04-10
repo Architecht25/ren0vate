@@ -1,47 +1,84 @@
-<!-- Sélection du profil - Version button_to -->
-<h5 class="mb-3">
-  <i class="bi bi-person-circle text-primary me-2"></i>
-  Quel est votre profil ?
-</h5>
-<div class="row g-2">
-  <div class="col-md-6">
-    <%= button_to select_profile_wallonie_path, method: :post,
+<!-- Sélection du profil - Cartes visuelles Wallonie -->
+<div class="row g-3 justify-content-center">
+
+  <%# Propriétaire occupant %>
+  <div class="col-sm-6 col-lg-4">
+    <%= button_to select_profile_wallonie_path,
+        method: :post,
         params: { profile_type: "prive" },
-        class: "btn btn-outline-primary w-100",
-        data: { turbo_frame: "eligibility_content", disable_with: "Sélection..." } do %>
-      <i class="bi bi-house-door me-2"></i>Propriétaire occupant ou futur occupant
+        class: "profile-card-wallonie",
+        form: { class: "profile-card-wallonie-form", data: { turbo_frame: "eligibility_content", action: "submit->wallonie-wizard#onProfileSelected" } },
+        data: { disable_with: "Chargement..." } do %>
+      <div class="icon-bubble bg-success bg-opacity-10 mx-auto">
+        <i class="bi bi-house-heart-fill text-success fs-4"></i>
+      </div>
+      <div class="fw-semibold small mb-1">Propriétaire occupant</div>
+      <div class="text-muted" style="font-size:.75rem;">Vous habitez ou allez habiter le logement</div>
     <% end %>
   </div>
-  <div class="col-md-6">
-    <%= button_to select_profile_wallonie_path, method: :post,
-        params: { profile_type: "entreprise" },
-        class: "btn btn-outline-primary w-100",
-        data: { turbo_frame: "eligibility_content", disable_with: "Sélection..." } do %>
-      <i class="bi bi-building me-2"></i>Entreprise
-    <% end %>
-  </div>
-  <div class="col-md-6">
-    <%= button_to select_profile_wallonie_path, method: :post,
-        params: { profile_type: "syndic" },
-        class: "btn btn-outline-primary w-100",
-        data: { turbo_frame: "eligibility_content", disable_with: "Sélection..." } do %>
-      <i class="bi bi-buildings me-2"></i>Syndic de copropriété
-    <% end %>
-  </div>
-  <div class="col-md-6">
-    <%= button_to select_profile_wallonie_path, method: :post,
+
+  <%# Bailleur %>
+  <div class="col-sm-6 col-lg-4">
+    <%= button_to select_profile_wallonie_path,
+        method: :post,
         params: { profile_type: "bailleur" },
-        class: "btn btn-outline-primary w-100",
-        data: { turbo_frame: "eligibility_content", disable_with: "Sélection..." } do %>
-      <i class="bi bi-house-heart me-2"></i>Bailleur social
+        class: "profile-card-wallonie",
+        form: { class: "profile-card-wallonie-form", data: { turbo_frame: "eligibility_content", action: "submit->wallonie-wizard#onProfileSelected" } },
+        data: { disable_with: "Chargement..." } do %>
+      <div class="icon-bubble bg-primary bg-opacity-10 mx-auto">
+        <i class="bi bi-key-fill text-primary fs-4"></i>
+      </div>
+      <div class="fw-semibold small mb-1">Propriétaire bailleur</div>
+      <div class="text-muted" style="font-size:.75rem;">Vous louez le logement à un tiers</div>
     <% end %>
   </div>
-  <div class="col-12">
-    <%= button_to select_profile_wallonie_path, method: :post,
+
+  <%# Syndic %>
+  <div class="col-sm-6 col-lg-4">
+    <%= button_to select_profile_wallonie_path,
+        method: :post,
+        params: { profile_type: "syndic" },
+        class: "profile-card-wallonie",
+        form: { class: "profile-card-wallonie-form", data: { turbo_frame: "eligibility_content", action: "submit->wallonie-wizard#onProfileSelected" } },
+        data: { disable_with: "Chargement..." } do %>
+      <div class="icon-bubble bg-info bg-opacity-10 mx-auto">
+        <i class="bi bi-buildings-fill text-info fs-4"></i>
+      </div>
+      <div class="fw-semibold small mb-1">Syndic de copropriété</div>
+      <div class="text-muted" style="font-size:.75rem;">Vous gérez les parties communes</div>
+    <% end %>
+  </div>
+
+  <%# Entreprise %>
+  <div class="col-sm-6 col-lg-4">
+    <%= button_to select_profile_wallonie_path,
+        method: :post,
+        params: { profile_type: "entreprise" },
+        class: "profile-card-wallonie",
+        form: { class: "profile-card-wallonie-form", data: { turbo_frame: "eligibility_content", action: "submit->wallonie-wizard#onProfileSelected" } },
+        data: { disable_with: "Chargement..." } do %>
+      <div class="icon-bubble bg-warning bg-opacity-15 mx-auto">
+        <i class="bi bi-briefcase-fill text-warning fs-4"></i>
+      </div>
+      <div class="fw-semibold small mb-1">Entreprise</div>
+      <div class="text-muted" style="font-size:.75rem;">Société ou indépendant professionnel</div>
+    <% end %>
+  </div>
+
+  <%# ASBL / Coopérative %>
+  <div class="col-sm-6 col-lg-4">
+    <%= button_to select_profile_wallonie_path,
+        method: :post,
         params: { profile_type: "asbl" },
-        class: "btn btn-outline-primary w-100",
-        data: { turbo_frame: "eligibility_content", disable_with: "Sélection..." } do %>
-      <i class="bi bi-heart me-2"></i>ASBL/Coopérative
+        class: "profile-card-wallonie",
+        form: { class: "profile-card-wallonie-form", data: { turbo_frame: "eligibility_content", action: "submit->wallonie-wizard#onProfileSelected" } },
+        data: { disable_with: "Chargement..." } do %>
+      <div class="icon-bubble bg-success bg-opacity-15 mx-auto">
+        <i class="bi bi-heart-fill text-success fs-4"></i>
+      </div>
+      <div class="fw-semibold small mb-1">ASBL / Coopérative</div>
+      <div class="text-muted" style="font-size:.75rem;">Association sans but lucratif</div>
     <% end %>
   </div>
+
 </div>

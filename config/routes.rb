@@ -162,6 +162,7 @@ Rails.application.routes.draw do
       get :peb_recommandations  # Vue recommandations énergétiques PEB
       post :submit_prime  # Soumission vers l'administration
       delete :destroy  # Route de suppression explicite
+      delete :purge_photo  # Suppression de la photo du bien
 
       # Nouvelle route pour sélecteur formulaires
       get :select_form, to: 'requests#select_form'

@@ -15,19 +15,15 @@
 <% end %>
 
 <script nonce="<%= content_security_policy_nonce %>">
-  // Initialisation automatique de la région Wallonie dès que le DOM est prêt
   document.addEventListener('DOMContentLoaded', function() {
     localStorage.setItem("region", "wallonie");
-    console.log('🌍 Région Wallonie initialisée dans localStorage');
   });
 
-  // Données des primes Wallonie
   window.primes = <%= raw(@primes.to_json(
     only: [:slug, :titre, :unite, :type_de_valeur, :valeurs_par_categorie, :placeholder, :condition, :conseil, :document, :eligible_categories]
   )) if @primes %>;
 </script>
 
-<!-- Données pour le calcul des primes Wallonie -->
 <script type="application/json" id="wallonie-primes-data">
   <%= raw(@primes.each_with_object({}) { |prime, hash|
     hash[prime.slug] = {
@@ -38,315 +34,422 @@
   }.to_json) if @primes %>
 </script>
 
-<div class="container-fluid py-4">
-  <!-- Header moderne et cohérent -->
-  <div class="row mb-4">
-    <div class="col-12">
-      <div class="card border-0 shadow-sm">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center">
-              <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                <i class="bi bi-house-check text-primary fs-4"></i>
-              </div>
-              <div>
-                <h1 class="h3 mb-1 text-primary">Wallonie - Primes de Rénovation</h1>
-                <p class="text-muted mb-0">Testez votre éligibilité et découvrez vos primes</p>
+<style>
+  /* === HERO WALLONIE === */
+  .wallonie-hero {
+    background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 40%, #33691e 75%, #1a237e 100%);
+    color: white;
+    padding: 3.5rem 0 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .wallonie-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .wallonie-hero .hero-badge {
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(4px);
+    border-radius: 50px;
+    padding: .35rem .9rem;
+    font-size: .78rem;
+    color: white;
+    opacity: .85;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+  }
+  .wallonie-hero .hero-badge-warning {
+    background: rgba(249,168,37,0.25);
+    border-color: rgba(249,168,37,0.5);
+  }
+  /* === WIZARD === */
+  .wizard-panel-enter {
+    animation: wizardSlideIn 0.35s ease forwards;
+  }
+  @keyframes wizardSlideIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .wizard-nav-bubble { transition: all 0.3s ease; border: 2px solid transparent; }
+  .wizard-nav-bubble.bg-light { border-color: #dee2e6 !important; }
+  @keyframes wizardFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .question-active { animation: wizardFadeIn 0.3s ease; }
+  .question-answered { border-left: 4px solid #2e7d32 !important; background: #f8fff9 !important; }
+
+  /* === PROFILE CARDS WALLONIE === */
+  /* button_to wraps dans un <form> + bouton : on neutralise la form et on style le bouton */
+  .profile-card-wallonie-form {
+    margin: 0; padding: 0; border: none; background: none;
+  }
+  .profile-card-wallonie {
+    cursor: pointer;
+    border: 2px solid #dee2e6;
+    border-radius: .75rem;
+    padding: 1.25rem .75rem;
+    transition: all 0.2s ease;
+    background: white;
+    text-align: center;
+    width: 100%;
+  }
+  .profile-card-wallonie:hover, .profile-card-wallonie:focus {
+    border-color: #2e7d32;
+    background: #f1f8e9;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(46,125,50,0.15);
+    outline: none;
+  }
+  .profile-card-wallonie .icon-bubble {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: .6rem;
+  }
+</style>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--  HERO WALLONIE                                  -->
+<!-- ═══════════════════════════════════════════════ -->
+<section class="wallonie-hero pb-5 position-relative overflow-hidden" style="padding-bottom:4rem!important;">
+  <div class="container">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-8 text-center text-lg-start">
+        <div class="mb-3 d-flex flex-wrap justify-content-center justify-content-lg-start gap-2">
+          <span class="hero-badge"><i class="bi bi-geo-alt-fill"></i> Wallonie</span>
+          <span class="hero-badge"><i class="bi bi-house-check-fill"></i> 10 types de travaux</span>
+          <span class="hero-badge"><i class="bi bi-people-fill"></i> Catégories R1 à R5</span>
+          <span class="hero-badge hero-badge-warning"><i class="bi bi-clock-fill"></i> Régime actuel jusqu'au 30/09/2026</span>
+        </div>
+        <h1 class="display-5 fw-bold text-white mb-3">
+          Primes Wallonie — <span style="color:#f9a825;">Simulation gratuite</span>
+        </h1>
+        <p class="lead mb-4" style="color:white;opacity:.85;">
+          Testez votre éligibilité, estimez vos montants par catégorie de revenus (R1–R5)
+          et planifiez votre rénovation avant la fin du régime actuel.
+        </p>
+      </div>
+      <div class="col-lg-4 d-none d-lg-block text-end">
+        <%= link_to root_path, class: "btn btn-outline-light btn-sm" do %>
+          <i class="bi bi-arrow-left me-1"></i>Accueil
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <div class="position-absolute bottom-0 start-0 end-0" style="height:24px;background:#f8f9fa;clip-path:ellipse(55% 100% at 50% 100%);"></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════ -->
+<!--  WIZARD WALLONIE                                -->
+<!-- ═══════════════════════════════════════════════ -->
+<div class="bg-light pb-5" data-controller="wallonie-wizard" id="wallonie-wizard">
+  <div class="container pt-4">
+
+    <%# Alerte réglementaire accordéon %>
+    <div class="row justify-content-center mb-3">
+      <div class="col-xl-9">
+        <div class="accordion" id="wallonieRegAlert">
+          <div class="accordion-item border-warning border-opacity-50">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed py-2 fw-semibold small"
+                      style="background:#fff8e1;"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#wallonieRegBody"
+                      aria-expanded="false">
+                <i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>
+                Arrêt progressif des primes Wallonie
+                <span class="badge bg-warning text-dark ms-2 fw-normal">~6 mois restants</span>
+              </button>
+            </h2>
+            <div id="wallonieRegBody" class="accordion-collapse collapse">
+              <div class="accordion-body bg-white">
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <div class="rounded p-3 border-start border-danger border-4 bg-danger bg-opacity-10 h-100">
+                      <h6 class="text-danger mb-2"><i class="bi bi-calendar-x me-2"></i>Fin du régime actuel : 30 septembre 2026</h6>
+                      <p class="small mb-0">
+                        <strong>Les demandes ne seront plus acceptées après cette date.</strong>
+                        Déposez votre dossier complet avant l'échéance pour bénéficier des primes actuelles.
+                      </p>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="rounded p-3 border-start border-success border-4 bg-success bg-opacity-10 h-100">
+                      <h6 class="text-success mb-2"><i class="bi bi-arrow-right-circle me-2"></i>Nouveau système dès le 1er octobre 2026</h6>
+                      <ul class="small mb-0 ps-3">
+                        <li>💰 <strong>Prêts à 0%</strong> + réduction selon "saut de label" énergétique</li>
+                        <li>📊 Calculé sur <strong>l'investissement global</strong></li>
+                        <li>✅ Garanti par la Région, sans garantie hypothécaire</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+                <small class="text-muted d-block mt-2">
+                  <i class="bi bi-calendar3 me-1"></i>Mis à jour le 6 avril 2026 —
+                  <a href="https://energie.wallonie.be" target="_blank" rel="noopener" class="text-decoration-none">energie.wallonie.be</a>
+                </small>
               </div>
             </div>
-            <%= link_to root_path, class: "btn btn-outline-primary" do %>
-              <i class="bi bi-arrow-left me-2"></i>Retour à l'accueil
-            <% end %>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Panneau d'avertissement - Arrêt progressif des primes Wallonie -->
-  <div class="row mb-4">
-    <div class="col-12">
-      <div class="alert alert-warning border-warning shadow-sm" role="alert">
-        <div class="d-flex align-items-start">
-          <div class="alert-icon me-3 mt-1">
-            <i class="bi bi-exclamation-triangle-fill text-warning fs-4"></i>
+    <%# ── Progress nav ── %>
+    <div class="row justify-content-center mb-4">
+      <div class="col-xl-9">
+        <div class="d-flex align-items-start position-relative" style="padding: 0 5%;">
+          <%# Progress bar line %>
+          <div style="position:absolute;top:20px;left:12%;right:12%;height:2px;background:#dee2e6;z-index:0;">
+            <div data-wallonie-wizard-target="progressFill"
+                 style="height:100%;width:0%;background:#2e7d32;transition:width .5s ease;"></div>
           </div>
-          <div class="flex-grow-1">
-            <h4 class="alert-heading mb-3">
-              <i class="bi bi-hourglass-split me-2"></i>
-              Arrêt progressif des primes à la rénovation en Wallonie
-            </h4>
 
-            <div class="row g-3">
-              <div class="col-md-6">
-                <div class="bg-light rounded p-3 h-100 border-start border-danger border-4">
-                  <h6 class="text-danger mb-2">
-                    <i class="bi bi-calendar-x me-2"></i>
-                    Fin du régime actuel : 30 septembre 2026
-                  </h6>
-                  <p class="small mb-2">
-                    <strong>Le régime actuel de primes Habitation prendra fin le 30 septembre 2026.</strong>
-                    Après cette date, les demandes de primes ne seront plus acceptées.
-                  </p>
-                  <div class="alert alert-light border-0 mb-0 py-2 px-3">
-                    <small class="text-danger">
-                      <i class="bi bi-exclamation-triangle me-1"></i>
-                      <strong>Action requise :</strong> Si vos travaux sont prêts, déposez votre <strong>demande de prime complète</strong> avant cette date
-                    pour bénéficier des primes actuelles..
-                    </small>
-                  </div>
+          <% [["1","bi-person-circle","Profil"], ["2","bi-clipboard-check","Éligibilité"], ["3","bi-award","Primes"], ["4","bi-rocket","Planifier"]].each_with_index do |(num, icon, label), idx| %>
+            <div class="text-center" style="flex:1;z-index:1;"
+                 data-step="<%= num %>" data-wallonie-wizard-target="navStep">
+              <div class="wizard-nav-bubble mx-auto d-flex align-items-center justify-content-center rounded-circle fw-bold
+                          <%= idx == 0 ? 'bg-success text-white' : 'bg-light text-muted' %>"
+                   style="width:40px;height:40px;font-size:13px;<%= idx == 0 ? 'border:2px solid #2e7d32;' : 'border:2px solid #dee2e6;' %>"
+                   data-action="click->wallonie-wizard#jumpToStep"
+                   data-step-number="<%= num %>">
+                <%= num %>
+              </div>
+              <div class="wizard-nav-label mt-1 d-none d-md-block small fw-semibold
+                          <%= idx == 0 ? 'text-success' : 'text-muted' %>">
+                <i class="bi <%= icon %> me-1"></i><%= label %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <%# ── Steps 1 & 2 : colonne centrée ── %>
+    <div class="row justify-content-center" id="wizard-narrow-wallonie">
+      <div class="col-xl-9 col-12">
+
+        <%# ─ ÉTAPE 1 : Sélection du profil ─ %>
+        <div class="wizard-panel" data-wizard-step="1" data-wallonie-wizard-target="panel">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 p-md-5">
+              <div class="text-center mb-4">
+                <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2 mb-3">Étape 1 / 4</span>
+                <h2 class="h4 mb-1 fw-bold">Quel est votre profil ?</h2>
+                <p class="text-muted small">La sélection charge automatiquement votre test d'éligibilité</p>
+              </div>
+              <%= render 'pages/partials_wallonie/selection_profil' %>
+            </div>
+          </div>
+        </div>
+
+        <%# ─ ÉTAPE 2 : Éligibilité + affinage ─ %>
+        <div class="wizard-panel d-none" data-wizard-step="2" data-wallonie-wizard-target="panel">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 p-md-5">
+              <div class="d-flex align-items-center mb-4 gap-3">
+                <button class="btn btn-sm btn-outline-secondary flex-shrink-0"
+                        data-action="click->wallonie-wizard#prevStep">
+                  <i class="bi bi-arrow-left me-1"></i>Retour
+                </button>
+                <div class="flex-grow-1 text-center">
+                  <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2 mb-1">Étape 2 / 4</span>
+                  <h2 class="h4 mb-0 fw-bold">Test d'éligibilité</h2>
                 </div>
+                <div style="width:70px;"></div>
               </div>
 
-              <div class="col-md-6">
-                <div class="bg-light rounded p-3 h-100 border-start border-success border-4">
-                  <h6 class="text-success mb-2">
-                    <i class="bi bi-arrow-right-circle me-2"></i>
-                    Nouveau système à partir du 1er octobre 2026
-                  </h6>
-                  <p class="small mb-2">
-                    Un <strong>nouveau système de prêts à taux 0%</strong> remplacera les primes actuelles :
-                  </p>
-                  <ul class="small mb-2 ps-3">
-                    <li>💰 <strong>Prêts à 0%</strong> jusqu'à <strong>XXXXX €</strong> remboursables sur <strong>YYYYY ans</strong></li>
-                    <li>🎁 <strong>Réduction du montant à rembourser</strong> (assimilée à une prime) pour les projets avec <strong>"saut de label"</strong> de performance énergétique</li>
-                    <li>📊 Réduction calculée selon la <strong>catégorie de revenus</strong> - priorité au public qui en a le plus besoin</li>
-                    <li>🏗️ Aide appliquée sur l'<strong>investissement global</strong> (non plus poste par poste)</li>
-                    <li>✅ <strong>Garantis par la Région</strong> (sans garantie hypothécaire)</li>
-                    <li>🏠 Mécanisme ouvert aux <strong>propriétaires bailleurs</strong></li>
-                  </ul>
-                  <div class="alert alert-info border-0 mb-0 py-2 px-3">
-                    <small>
-                      <i class="bi bi-clipboard-check me-1"></i>
-                      <strong>Obligations :</strong> Audit énergétique + travaux de salubrité + amélioration énergétique
-                    </small>
+              <%# Contenu chargé via Turbo Frame après sélection du profil %>
+              <%= turbo_frame_tag "eligibility_content" do %>
+                <div class="text-center text-muted py-4">
+                  <i class="bi bi-arrow-up fs-1 mb-2 d-block text-success" style="opacity:.3;"></i>
+                  <p class="mb-0">Retournez à l'étape 1 pour sélectionner votre profil</p>
+                </div>
+              <% end %>
+
+              <%# Affinage de catégorie (affiché après validation éligible pour particuliers) %>
+              <div id="affinage-categorie-wallonie" style="display: none;">
+                <%= render 'pages/partials_wallonie/affinage_categorie' %>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div><%# /col-xl-9 — fin steps 1-2 %>
+    </div><%# /row narrow %>
+
+    <%# ── Steps 3 & 4 : pleine largeur ── %>
+    <div class="row">
+      <div class="col-12">
+
+        <%# ─ ÉTAPE 3 : Primes éligibles ─ %>
+        <div class="wizard-panel d-none" data-wizard-step="3" data-wallonie-wizard-target="panel">
+
+          <div class="d-flex align-items-center mb-4 gap-3">
+            <button class="btn btn-sm btn-outline-secondary flex-shrink-0"
+                    data-action="click->wallonie-wizard#prevStep">
+              <i class="bi bi-arrow-left me-1"></i>Retour
+            </button>
+            <div class="flex-grow-1 text-center">
+              <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2 mb-1">Étape 3 / 4 — Résultats</span>
+              <h2 class="h4 mb-0 fw-bold">Vos primes éligibles Wallonie</h2>
+              <p class="text-muted small mb-0">Catégorie R<%= @categorie_id || '1–5' %> — simulation indicative</p>
+            </div>
+            <div style="width:80px;"></div>
+          </div>
+
+          <%# Cartes primes pleine largeur %>
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+              <%= render 'pages/partials_wallonie/cartes_primes' %>
+            </div>
+          </div>
+
+          <%# Aides complémentaires %>
+          <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-light">
+              <h5 class="mb-0">
+                <i class="bi bi-gift text-success me-2"></i>Aides complémentaires
+              </h5>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-4">
+                  <%= render 'pages/partials_wallonie/primes_communales_card' %>
+                </div>
+                <div class="col-md-4">
+                  <%= render 'pages/partials_wallonie/monuments_et_sites' %>
+                </div>
+                <div class="col-md-4">
+                  <div class="alert alert-success border-success h-100 mb-0">
+                    <h6 class="alert-heading mb-2">
+                      <i class="bi bi-bank me-2"></i>Rénopack Wallonie
+                    </h6>
+                    <p class="mb-2 small">Prêt à 0% jusqu'à 60 000€ pour vos travaux de rénovation énergétique.</p>
+                    <%= render 'pages/partials_wallonie/carte_renopack' %>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div class="mt-3 pt-2 border-top">
-              <div class="d-flex justify-content-between align-items-center">
-                <small class="text-muted">
-                  <i class="bi bi-calendar3 me-1"></i>
-                  Informations mises à jour le 6 avril 2026 - Consultez <a href="https://energie.wallonie.be" target="_blank" class="text-decoration-none">energie.wallonie.be</a>
-                </small>
-                <span class="badge bg-warning text-dark">
-                  <i class="bi bi-clock me-1"></i>
-                  Temps restant : ~6 mois
+          <%# CTA vers étape 4 %>
+          <div class="text-center mb-4">
+            <button type="button" class="btn btn-success btn-lg px-5 shadow fw-semibold"
+                    data-action="click->wallonie-wizard#nextStep">
+              <i class="bi bi-rocket me-2"></i>Planifier mon projet de rénovation
+            </button>
+          </div>
+
+        </div><%# /étape 3 %>
+
+        <%# ─ ÉTAPE 4 : CTA "Pilotez votre chantier" ─ %>
+        <div class="wizard-panel d-none" data-wizard-step="4" data-wallonie-wizard-target="panel">
+
+          <div class="d-flex align-items-center mb-4 gap-3">
+            <button class="btn btn-sm btn-outline-secondary flex-shrink-0"
+                    data-action="click->wallonie-wizard#prevStep">
+              <i class="bi bi-arrow-left me-1"></i>Retour
+            </button>
+            <div class="flex-grow-1 text-center">
+              <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2 mb-1">Étape 4 / 4</span>
+              <h2 class="h4 mb-0 fw-bold">Planifiez votre rénovation</h2>
+            </div>
+            <div style="width:80px;"></div>
+          </div>
+
+          <%# Bannière CTA principale %>
+          <div class="rounded-4 p-4 p-lg-5 mb-4 text-white"
+               style="background:linear-gradient(135deg, #0a2e6e 0%, #0d47a1 45%, #1b5e20 100%);">
+            <div class="row align-items-center g-4">
+
+              <%# Pitch %>
+              <div class="col-lg-5">
+                <span class="badge bg-warning text-dark px-3 py-2 fs-6 mb-3 d-inline-block">
+                  <i class="bi bi-stars me-1"></i>Passez à la vitesse supérieure
                 </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="row g-4">
-    <!-- ÉTAPES DU PROCESSUS -->
-    <div class="col-12 mb-4">
-      <div class="card border-0 shadow-sm">
-        <div class="card-body">
-          <h2 class="h4 mb-4 text-center">
-            <i class="bi bi-list-check text-primary me-2"></i>
-            Processus en 4 étapes simples
-          </h2>
-          <div class="row g-3">
-            <div class="col-md-3 text-center">
-              <div class="bg-primary bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 50px; height: 50px;">
-                <span class="text-primary fw-bold">1</span>
-              </div>
-              <h6 class="text-primary mb-1">Sélection du profil</h6>
-              <small class="text-muted">Définissez votre situation</small>
-            </div>
-            <div class="col-md-3 text-center">
-              <div class="bg-info bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 50px; height: 50px;">
-                <span class="text-info fw-bold">2</span>
-              </div>
-              <h6 class="text-info mb-1">Test d'éligibilité</h6>
-              <small class="text-muted">Calculez votre catégorie</small>
-            </div>
-            <div class="col-md-3 text-center">
-              <div class="bg-success bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 50px; height: 50px;">
-                <span class="text-success fw-bold">3</span>
-              </div>
-              <h6 class="text-success mb-1">Primes éligibles</h6>
-              <small class="text-muted">Découvrez vos montants</small>
-            </div>
-            <div class="col-md-3 text-center">
-              <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2" style="width: 50px; height: 50px;">
-                <span class="text-warning fw-bold">4</span>
-              </div>
-              <h6 class="text-warning mb-1">Connectez-vous</h6>
-              <small class="text-muted">Accès complet</small>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- COLONNE GAUCHE : Étapes 1 & 2 -->
-    <div class="col-lg-6">
-      <div class="h-100">
-        <!-- ÉTAPE 1 : Sélection du profil -->
-        <div class="card border-0 shadow-sm mb-4">
-          <div class="card-header bg-primary bg-opacity-10">
-            <h3 class="h5 mb-0 text-primary">
-              <span class="badge bg-primary me-2">1</span>
-              Sélection du profil
-            </h3>
-          </div>
-          <div class="card-body">
-            <%= render 'pages/partials_wallonie/selection_profil' %>
-          </div>
-        </div>
-
-        <!-- ÉTAPE 2 : Test d'éligibilité -->
-        <div class="card border-0 shadow-sm">
-          <div class="card-header bg-info bg-opacity-10">
-            <h3 class="h5 mb-0 text-info">
-              <span class="badge bg-info me-2">2</span>
-              Test d'éligibilité et catégorie de primes
-            </h3>
-          </div>
-          <div class="card-body">
-            <!-- Contenu dynamique pour l'éligibilité -->
-            <%= turbo_frame_tag "eligibility_content" do %>
-              <div class="text-center text-muted">
-                <i class="bi bi-arrow-up fs-1 mb-2 d-block"></i>
-                <p>Sélectionnez votre type de profil ci-dessus pour commencer</p>
-              </div>
-            <% end %>
-
-            <!-- Affinage de catégorie Wallonie (masqué par défaut) -->
-            <div id="affinage-categorie-wallonie" style="display: none;">
-              <%= render 'pages/partials_wallonie/affinage_categorie' %>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- COLONNE DROITE : Étape 3 -->
-    <div class="col-lg-6">
-      <div class="h-100">
-        <!-- ÉTAPE 3 : Primes éligibles -->
-        <div class="card border-0 shadow-sm mb-3">
-          <div class="card-header bg-success bg-opacity-10">
-            <h3 class="h5 mb-0 text-success">
-              <span class="badge bg-success me-2">3</span>
-              Vos primes éligibles - Catégorie R<%= @categorie_id || '1' %>
-            </h3>
-          </div>
-          <div class="card-body">
-            <%= render 'pages/partials_wallonie/cartes_primes' %>
-          </div>
-        </div>
-
-        <!-- Autres aides disponibles -->
-        <div class="card border-0 shadow-sm">
-          <div class="card-header bg-light">
-            <h5 class="card-title mb-0">
-              <i class="bi bi-gift text-info me-2"></i>
-              Autres aides disponibles
-            </h5>
-            <p class="text-muted small mb-0 mt-1">
-              Aides complémentaires et informations pratiques
-            </p>
-          </div>
-          <div class="card-body">
-            <!-- Informations complémentaires intégrées -->
-            <div class="alert alert-info mb-3">
-              <h6 class="alert-heading">
-                <i class="bi bi-info-circle me-2"></i>
-                Comment utiliser ce simulateur
-              </h6>
-              <ul class="mb-0 small">
-                <li><strong>Saisie simple :</strong> Indiquez vos surfaces (m²) ou sélectionnez Oui/Non</li>
-                <li><strong>Calcul automatique :</strong> Les montants s'ajustent selon votre catégorie de revenus (R1 à R5)</li>
-                <li><strong>Cumul possible :</strong> Toutes les primes peuvent se cumuler selon vos travaux</li>
-                <li><strong>Estimation :</strong> Montants indicatifs, demande officielle requise pour confirmation</li>
-              </ul>
-            </div>
-
-            <div class="row g-3">
-              <div class="col-md-4">
-                <%= render 'pages/partials_wallonie/primes_communales_card' %>
-              </div>
-              <div class="col-md-4">
-                <%= render 'pages/partials_wallonie/monuments_et_sites' %>
-              </div>
-              <div class="col-md-4">
-                <!-- CARTE RÉNOPACK - Financement complémentaire -->
-                <div class="alert alert-success border-success h-100 mb-0">
-                  <h6 class="alert-heading mb-2">
-                    <i class="bi bi-bank me-2"></i>
-                    Rénopack Wallonie
-                  </h6>
-                  <p class="mb-2 small">Prêt à 0% jusqu'à 60 000€ pour vos travaux de rénovation énergétique.</p>
-
-                  <!-- Intégration de la carte Rénopack -->
-                  <%= render 'pages/partials_wallonie/carte_renopack' %>
+                <h2 class="fw-bold mb-3" style="font-size:1.7rem;">
+                  Pilotez votre chantier avec <span style="color:#f9a825;">René</span>
+                </h2>
+                <p class="mb-4" style="opacity:.85;">
+                  Vous avez estimé vos primes. Gérez maintenant votre projet de rénovation de A à Z —
+                  de la demande de primes jusqu'à la réception des travaux.
+                </p>
+                <div class="d-flex flex-column flex-sm-row gap-2">
+                  <%= link_to new_user_registration_path, class: "btn btn-warning btn-lg shadow fw-semibold" do %>
+                    <i class="bi bi-person-plus me-2"></i>Créer mon espace gratuit
+                  <% end %>
+                  <%= link_to new_user_session_path, class: "btn btn-outline-light btn-lg" do %>
+                    <i class="bi bi-box-arrow-in-right me-2"></i>Se connecter
+                  <% end %>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ÉTAPE 4 : CTA Principal pour connexion -->
-  <div class="row mt-4">
-    <div class="col-12">
-      <div class="card border-0 shadow-sm">
-        <div class="card-header bg-warning text-dark">
-          <h3 class="h4 mb-0 text-center">
-            <span class="badge bg-dark me-2">4</span>
-            🚀 Connectez-vous pour aller plus loin !
-          </h3>
-        </div>
-        <div class="card-body text-center py-4">
-          <div class="row align-items-center">
-            <div class="col-md-8 mb-3 mb-md-0">
-              <h4 class="text-primary mb-3">Débloquez toutes les fonctionnalités de l'application</h4>
-              <div class="row g-3 text-start">
-                <div class="col-md-6">
-                  <ul class="list-unstyled">
-                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Démarches détaillées</strong> pour chaque prime</li>
-                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Conseils d'expert</strong> personnalisés</li>
-                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Documents officiels</strong> à télécharger</li>
-                  </ul>
-                </div>
-                <div class="col-md-6">
-                  <ul class="list-unstyled">
-                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Suivi de vos projets</strong> de rénovation</li>
-                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Alertes</strong> sur les nouvelles primes</li>
-                    <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><strong>Support expert</strong> inclus</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="d-grid gap-2">
-                <%= link_to new_user_session_path, class: "btn btn-primary btn-lg shadow" do %>
-                  <i class="bi bi-box-arrow-in-right me-2"></i>
-                  Se connecter
-                <% end %>
-                <%= link_to new_user_registration_path, class: "btn btn-success btn-lg shadow" do %>
-                  <i class="bi bi-person-plus me-2"></i>
-                  Créer un compte gratuit
-                <% end %>
-                <small class="text-muted mt-2 d-block">
-                  <i class="bi bi-shield-check me-1"></i>
-                  Gratuit • Sans engagement • Sécurisé
+                <small class="d-block mt-3" style="opacity:.7;">
+                  <i class="bi bi-shield-check me-1"></i>Gratuit · Sans engagement · 100% sécurisé
                 </small>
               </div>
+
+              <%# Fonctionnalités %>
+              <div class="col-lg-7">
+                <div class="row g-3">
+                  <div class="col-md-4 col-sm-6">
+                    <div class="rounded-3 p-3 h-100" style="background:rgba(255,255,255,0.1);">
+                      <i class="bi bi-kanban fs-4 mb-2 d-block" style="color:#f9a825;"></i>
+                      <strong class="small">Tableau de bord</strong>
+                      <p class="mb-0 small" style="opacity:.8;">Suivez vos dossiers d'un coup d'œil</p>
+                    </div>
+                  </div>
+                  <div class="col-md-4 col-sm-6">
+                    <div class="rounded-3 p-3 h-100" style="background:rgba(255,255,255,0.1);">
+                      <i class="bi bi-people fs-4 mb-2 d-block" style="color:#f9a825;"></i>
+                      <strong class="small">Réseau d'artisans</strong>
+                      <p class="mb-0 small" style="opacity:.8;">Entrepreneurs certifiés en Wallonie</p>
+                    </div>
+                  </div>
+                  <div class="col-md-4 col-sm-6">
+                    <div class="rounded-3 p-3 h-100" style="background:rgba(255,255,255,0.1);">
+                      <i class="bi bi-calendar-check fs-4 mb-2 d-block" style="color:#f9a825;"></i>
+                      <strong class="small">Échéances</strong>
+                      <p class="mb-0 small" style="opacity:.8;">Rappels et deadline du 30/09/2026</p>
+                    </div>
+                  </div>
+                  <div class="col-md-4 col-sm-6">
+                    <div class="rounded-3 p-3 h-100" style="background:rgba(255,255,255,0.1);">
+                      <i class="bi bi-file-earmark-text fs-4 mb-2 d-block" style="color:#f9a825;"></i>
+                      <strong class="small">Documents officiels</strong>
+                      <p class="mb-0 small" style="opacity:.8;">Formulaires et démarches guidées</p>
+                    </div>
+                  </div>
+                  <div class="col-md-4 col-sm-6">
+                    <div class="rounded-3 p-3 h-100" style="background:rgba(255,255,255,0.1);">
+                      <i class="bi bi-cash-coin fs-4 mb-2 d-block" style="color:#f9a825;"></i>
+                      <strong class="small">Calcul optimisé</strong>
+                      <p class="mb-0 small" style="opacity:.8;">Maximisez vos montants R1–R5</p>
+                    </div>
+                  </div>
+                  <div class="col-md-4 col-sm-6">
+                    <div class="rounded-3 p-3 h-100" style="background:rgba(255,255,255,0.1);">
+                      <i class="bi bi-graph-up-arrow fs-4 mb-2 d-block" style="color:#f9a825;"></i>
+                      <strong class="small">Valorisation</strong>
+                      <p class="mb-0 small" style="opacity:.8;">Impact sur la valeur de votre bien</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+
+        </div><%# /étape 4 %>
+
+      </div><%# /col-12 %>
+    </div><%# /row full-width %>
+
+  </div><%# /container %>
+</div><%# /wallonie-wizard %>

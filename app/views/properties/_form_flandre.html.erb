@@ -59,8 +59,8 @@
                     <i class="bi bi-tag text-white fs-6"></i>
                   </div>
                   <div>
-                    <h5 class="card-title mb-0 text-dark fw-normal">Naam van de woning</h5>
-                    <p class="text-muted small mb-0">Identificatie van uw eigendom</p>
+                    <h5 class="card-title mb-0 text-dark fw-normal">Nom du bien</h5>
+                    <p class="text-muted small mb-0">Identification de votre propriété</p>
                   </div>
                 </div>
               </div>
@@ -68,9 +68,9 @@
                 <div class="row g-2">
                   <div class="col-12">
                     <%= f.input :titre,
-                        label: '<i class="bi bi-tag me-2 text-primary"></i>Naam of titel van de woning'.html_safe,
-                        placeholder: "ex. Mijn huis Vlaanderen, Appartement Gent...",
-                        hint: '<i class="bi bi-info-circle me-1"></i>Geef een naam aan uw woning om deze gemakkelijk terug te vinden'.html_safe,
+                        label: '<i class="bi bi-tag me-2 text-primary"></i>Nom ou titre du bien'.html_safe,
+                        placeholder: "ex. Ma maison Flandre, Appartement Gand...",
+                        hint: '<i class="bi bi-info-circle me-1"></i>Donnez un nom à votre bien pour le retrouver facilement'.html_safe,
                         wrapper_html: { class: "mb-3" },
                         label_html: { class: "form-label text-dark fw-medium mb-1" },
                         input_html: {
@@ -83,8 +83,8 @@
                   <div class="col-12" data-controller="image-preview">
                     <%= f.input :photo,
                         as: :file,
-                        label: '<i class="bi bi-camera me-2 text-primary"></i>Foto van de woning'.html_safe,
-                        hint: '<i class="bi bi-info-circle me-1"></i>Voeg een foto van uw woning toe (JPG, PNG, max 5MB)'.html_safe,
+                        label: '<i class="bi bi-camera me-2 text-primary"></i>Photo du bien'.html_safe,
+                        hint: '<i class="bi bi-info-circle me-1"></i>Ajoutez une photo de votre bien (JPG, PNG, max 5 Mo)'.html_safe,
                         wrapper_html: { class: "mb-3" },
                         label_html: { class: "form-label text-dark fw-medium mb-1" },
                         input_html: {
@@ -99,14 +99,22 @@
 
                     <!-- Zone de prévisualisation -->
                     <div data-image-preview-target="preview" class="mt-2" style="display: none;">
-                      <img data-image-preview-target="previewImg" src="" alt="Voorbeeld" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
+                      <img data-image-preview-target="previewImg" src="" alt="Aperçu" class="img-thumbnail" style="max-width: 200px; max-height: 150px;">
                     </div>
 
                     <!-- Photo existante -->
                     <% if property.photo.attached? %>
-                      <div class="mt-2">
-                        <small class="form-text text-muted d-block">Huidige foto:</small>
-                        <%= image_tag property.photo, class: "img-thumbnail", style: "max-width: 200px; max-height: 150px;" %>
+                      <div class="mt-2 position-relative d-inline-block">
+                        <%= image_tag property.photo, class: "img-thumbnail", style: "max-width: 200px; max-height: 150px; display: block;" %>
+                        <% if property.persisted? %>
+                          <%= link_to purge_photo_property_path(property),
+                              data: { turbo_method: :delete, turbo_confirm: "Supprimer cette photo ?" },
+                              class: "btn btn-danger btn-sm position-absolute top-0 end-0 m-1 p-1 lh-1",
+                              title: "Supprimer la photo",
+                              style: "width: 26px; height: 26px;" do %>
+                            <i class="bi bi-trash3" style="font-size: 0.75rem;"></i>
+                          <% end %>
+                        <% end %>
                       </div>
                     <% end %>
                   </div>
@@ -500,7 +508,7 @@
                   <hr class="my-2">
                   <div class="col-12">
                     <label class="form-label text-dark fw-medium mb-2">
-                      <i class="bi bi-hammer me-2 text-secondary"></i>Le logement est-il un bâtiment démoli avec conservation de résidus (TVA à 6%)?
+                      <i class="bi bi-hammer me-2 text-secondary"></i>Le logement a-t-il été démoli puis reconstruit avec maintien de murs par exemple pour bénéficier du taux de 6% de TVA?
                     </label>
                     <%= f.input :reconstruit,
                         label: false,
@@ -645,8 +653,8 @@
                   <button type="button" id="btn-scan-peb-flandre"
                           class="btn btn-outline-success btn-sm rounded-3 px-3"
                           data-bs-toggle="tooltip"
-                          title="Scan uw EPC voor automatisch invullen">
-                    <i class="bi bi-file-earmark-bar-graph me-1"></i>EPC scannen
+                          title="Scanner votre PEB pour remplissage automatique">
+                    <i class="bi bi-file-earmark-bar-graph me-1"></i>Scanner le PEB
                   </button>
                   <input type="file" id="peb-file-input-flandre" accept=".pdf,image/jpeg,image/png" class="d-none">
                   <div id="peb-ocr-status-flandre" class="d-none mt-2">
@@ -669,31 +677,31 @@
                       style="border-color:#e9ecef !important;"><%= peb_fl&.label_peb || '—' %></div>
                   </div>
                   <div class="col-3">
-                    <label class="form-label text-dark fw-medium mb-1 small"><i class="bi bi-speedometer me-1 text-success"></i>Energiescore</label>
+                    <label class="form-label text-dark fw-medium mb-1 small"><i class="bi bi-speedometer me-1 text-success"></i>Score énergétique</label>
                     <div id="peb-score-display-flandre" class="form-control border-2 rounded-3 px-3 bg-light text-muted small" style="border-color:#e9ecef !important;">
                       <%= peb_fl&.score_ep_formate || '—' %>
                     </div>
                   </div>
                   <div class="col-2">
-                    <label class="form-label text-dark fw-medium mb-1 small"><i class="bi bi-arrows-angle-expand me-1 text-success"></i>Opp. (m²)</label>
+                    <label class="form-label text-dark fw-medium mb-1 small"><i class="bi bi-arrows-angle-expand me-1 text-success"></i>Surf. (m²)</label>
                     <div id="peb-surface-display-flandre" class="form-control border-2 rounded-3 px-3 bg-light text-muted small" style="border-color:#e9ecef !important;">
                       <%= peb_fl&.surface_reference ? "#{peb_fl.surface_reference.to_i} m²" : '—' %>
                     </div>
                   </div>
                   <div class="col-5">
-                    <label class="form-label text-dark fw-medium mb-1 small"><i class="bi bi-hash me-1 text-success"></i>Certificaatnummer</label>
+                    <label class="form-label text-dark fw-medium mb-1 small"><i class="bi bi-hash me-1 text-success"></i>N° certificat</label>
                     <div id="peb-numero-display-flandre" class="form-control border-2 rounded-3 px-3 bg-light text-muted" style="border-color:#e9ecef !important;font-size:0.72rem;">
                       <%= peb_fl&.numero_certificat || '—' %>
                     </div>
                   </div>
                   <div class="col-3">
-                    <label class="form-label text-dark fw-medium mb-1 small"><i class="bi bi-calendar-check me-1 text-success"></i>Datum cert.</label>
+                    <label class="form-label text-dark fw-medium mb-1 small"><i class="bi bi-calendar-check me-1 text-success"></i>Date cert.</label>
                     <div id="peb-date-cert-display-flandre" class="form-control border-2 rounded-3 px-3 bg-light text-muted small" style="border-color:#e9ecef !important;">
                       <%= peb_fl&.date_certificat&.strftime('%d/%m/%Y') || '—' %>
                     </div>
                   </div>
                   <div class="col-3">
-                    <label class="form-label text-dark fw-medium mb-1 small"><i class="bi bi-calendar-x me-1 <%= peb_fl&.perime? ? 'text-danger' : 'text-success' %>"></i>Geldig tot</label>
+                    <label class="form-label text-dark fw-medium mb-1 small"><i class="bi bi-calendar-x me-1 <%= peb_fl&.perime? ? 'text-danger' : 'text-success' %>"></i>Valide jusqu'au</label>
                     <div id="peb-date-valid-display-flandre"
                       class="form-control border-2 rounded-3 px-3 bg-light small <%= peb_fl&.perime? ? 'text-danger' : 'text-muted' %>"
                       style="border-color:#e9ecef !important;">
@@ -736,14 +744,14 @@
     sta.classList.remove('d-none');
     ale.className='alert border-0 rounded-3 py-2 mb-0 alert-secondary';
     spi.classList.remove('d-none'); ico.classList.add('d-none');
-    msg.textContent='EPC aan het analyseren…'; btn.disabled=true;
+    msg.textContent='Analyse du PEB en cours…'; btn.disabled=true;
     var fd=new FormData(); fd.append('file',file);
     if(propertyId) fd.append('property_id',propertyId);
     fetch('<%= ocr_scan_peb_path %>',{method:'POST',headers:{'X-CSRF-Token':document.querySelector('meta[name="csrf-token"]').content},body:fd})
     .then(function(r){return r.json();})
     .then(function(d){
       spi.classList.add('d-none'); btn.disabled=false;
-      if(!d.success){show('danger','bi-exclamation-triangle-fill',d.error||'Extractie mislukt.');return;}
+      if(!d.success){show('danger','bi-exclamation-triangle-fill',d.error||'Extraction échouée.');return;}
       set('peb-label-display-flandre', d.label_peb||'—');
       set('peb-score-display-flandre', d.score_ep?d.score_ep+' kWh/(m².an)':'—');
       set('peb-surface-display-flandre', d.surface_reference?d.surface_reference+' m²':'—');
@@ -752,7 +760,7 @@
       set('peb-date-valid-display-flandre', d.date_validite||'—');
       show(d.extraction_complete?'success':'warning', d.extraction_complete?'bi-check-circle-fill':'bi-exclamation-circle-fill', d.message);
     })
-    .catch(function(){spi.classList.add('d-none');btn.disabled=false;show('danger','bi-exclamation-triangle-fill','Netwerkfout.');});
+    .catch(function(){spi.classList.add('d-none');btn.disabled=false;show('danger','bi-exclamation-triangle-fill','Erreur réseau.');});
     inp.value='';
   });
   function set(id,v){var e=document.getElementById(id);if(e)e.textContent=v;}

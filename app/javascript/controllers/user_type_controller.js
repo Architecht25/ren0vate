@@ -15,11 +15,14 @@ export default class extends Controller {
     // Afficher les alertes immédiatement selon le type
     this.showUserTypeAlert(userType)
 
-    // Afficher la section de test d'éligibilité
+    // Afficher la section de test d'éligibilité (mode non-wizard)
     const testSection = document.getElementById("eligibility-test")
     if (testSection) {
       testSection.classList.remove("d-none")
     }
+
+    // Mode wizard : notifier le contrôleur de progression
+    document.dispatchEvent(new CustomEvent("userType:selected", { detail: { userType } }))
   }
 
   showUserTypeAlert(userType) {
