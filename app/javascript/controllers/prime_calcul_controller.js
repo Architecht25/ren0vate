@@ -19,6 +19,17 @@ export default class extends Controller {
     };
 
     this.element.addEventListener("prime:input", this.calculer.bind(this));
+
+    // Mettre à jour la catégorie active quand l'utilisateur change de catégorie
+    this._onCategoryChanged = (event) => {
+      const cat = event.detail?.categorie || window.categorieId
+      if (cat) this.categorie = cat.toString()
+    }
+    document.addEventListener("category:changed", this._onCategoryChanged)
+  }
+
+  disconnect() {
+    document.removeEventListener("category:changed", this._onCategoryChanged)
   }
 
   calculer(event) {
@@ -27,8 +38,10 @@ export default class extends Controller {
     const prime = this.primes.find(p => p.slug === slug);
     if (!prime) return console.warn(`❌ Prime inconnue : ${slug}`);
 
-    const categorieData = prime.valeurs_par_categorie?.[this.categorie];
-    if (!categorieData) return console.warn(`❌ Catégorie ${this.categorie} non éligible pour ${slug}`);
+    // Toujours utiliser la valeur live de window.categorieId si disponible
+    const categorie = window.categorieId || this.categorie;
+    const categorieData = prime.valeurs_par_categorie?.[categorie];
+    if (!categorieData) return console.warn(`❌ Catégorie ${categorie} non éligible pour ${slug}`);
 
     const val = parseFloat(valeur || 0);
 
@@ -90,7 +103,8 @@ export default class extends Controller {
   }
 
   appliquerPlafondGroupe(slug, montantPropose) {
-    if (["1", "2"].includes(this.categorie)) {
+    const categorie = window.categorieId || this.categorie;
+    if (["1", "2"].includes(categorie)) {
       return { montant: montantPropose, resteDisponible: Infinity };
     }
 
@@ -105,7 +119,7 @@ export default class extends Controller {
 
     if (!groupe) return { montant: montantPropose, resteDisponible: Infinity };
 
-    const plafond = this.plafondsParGroupeEtCategorie[groupe][this.categorie] || Infinity;
+    const plafond = this.plafondsParGroupeEtCategorie[groupe][categorie] || Infinity;
     const slugsGroupe = this.groupesPlafond[groupe];
 
     const totalDejaAffiche = slugsGroupe.reduce((somme, s) => {

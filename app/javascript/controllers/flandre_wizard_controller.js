@@ -29,7 +29,10 @@ export default class extends Controller {
     document.addEventListener("flandre:category:refined", (e) => {
       this.goToStep(4)
       const cat = e.detail?.categorie
-      if (cat) this.updatePrimesCards(cat.toString())
+      if (cat) {
+        window.categorieId = cat.toString()
+        this.updatePrimesCards(cat.toString())
+      }
     })
   }
 
@@ -95,18 +98,26 @@ export default class extends Controller {
   }
 
   updatePrimesCards(categorie) {
+    const cat = categorie.toString()
     const cat12Only = ['warmtepomp', 'warmtepompboiler']
-    const isCat12 = ['1', '2'].includes(categorie)
+    const isCat12 = ['1', '2'].includes(cat)
 
     document.querySelectorAll('[data-controller*="prime-card"]').forEach(card => {
       const slug = card.dataset.slug
       const prime = window.primes?.find(p => p.slug === slug)
       if (!prime) return
 
-      const isEligible = prime.eligible_categories?.includes(categorie)
+      const isEligible = prime.eligible_categories?.includes(cat)
       const isAllowed = isCat12 ? cat12Only.includes(slug) : true
 
       card.style.display = (isEligible && isAllowed) ? '' : 'none'
     })
+
+    // Mettre à jour le label affiché
+    const label = document.getElementById('primes-categorie-label')
+    if (label) label.textContent = `Catégorie ${cat} — simulation indicative`
+
+    // Propager aux contrôleurs prime-card pour recalcul
+    document.dispatchEvent(new CustomEvent('category:changed', { detail: { categorie: cat } }))
   }
 }

@@ -360,6 +360,10 @@ export default class extends Controller {
       }
     });
 
+    // Mettre à jour le label de catégorie affiché en étape 4
+    const label = document.getElementById('primes-categorie-label')
+    if (label) label.textContent = `Catégorie ${cat} — simulation indicative`
+
     // Déclencher un événement pour que les contrôleurs prime-card se mettent à jour
     document.dispatchEvent(new CustomEvent('category:changed', {
       detail: { categorie }
