@@ -165,7 +165,7 @@
 </div>
 
 <script nonce="<%= content_security_policy_nonce %>">
-document.addEventListener('DOMContentLoaded', function () {
+function initChantierSelection() {
   var cards      = document.querySelectorAll('.chantier-card');
   var btnLaunch  = document.getElementById('btn-launch-simulation');
   var form       = document.getElementById('simulation-launch-form');
@@ -232,7 +232,10 @@ document.addEventListener('DOMContentLoaded', function () {
   btnLaunch.addEventListener('click', function () {
     form.submit();
   });
-});
+}
+
+document.addEventListener('DOMContentLoaded', initChantierSelection);
+document.addEventListener('turbo:load', initChantierSelection);
 </script>
 
 <style>
