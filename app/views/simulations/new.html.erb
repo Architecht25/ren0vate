@@ -39,24 +39,7 @@
       <%= form.hidden_field :property_id, id: "sim-property-id" %>
       <%= form.hidden_field :project_id,  id: "sim-project-id" %>
       <%= form.hidden_field :user_id,     value: current_user.id %>
-      <input type="hidden" name="type" id="sim-type" value="particulier">
     <% end %>
-
-    <!-- Sélecteur Bruxelles type (caché par défaut) -->
-    <div id="bruxelles-type-selector" class="alert alert-info border-0 rounded-3 mb-4 d-none">
-      <div class="d-flex align-items-center gap-3 flex-wrap">
-        <i class="bi bi-info-circle-fill fs-5"></i>
-        <span class="fw-medium">Type de simulation pour Bruxelles :</span>
-        <div class="form-check form-check-inline mb-0">
-          <input class="form-check-input" type="radio" name="bruxelles_type" id="brux-particulier" value="particulier" checked>
-          <label class="form-check-label" for="brux-particulier"><i class="bi bi-house me-1"></i>Particulier (Rénovation)</label>
-        </div>
-        <div class="form-check form-check-inline mb-0">
-          <input class="form-check-input" type="radio" name="bruxelles_type" id="brux-entreprise" value="entreprise">
-          <label class="form-check-label" for="brux-entreprise"><i class="bi bi-building me-1"></i>Entreprise (Investissement)</label>
-        </div>
-      </div>
-    </div>
 
     <!-- Grille de chantiers -->
     <div class="row g-3 mb-4">
@@ -204,14 +187,6 @@ function initChantierSelection() {
       titrePanel.classList.remove('d-none');
       titreVisible.value = titreGenere;
 
-      // Bruxelles : afficher le sélecteur de type
-      if (region.toLowerCase() === 'bruxelles') {
-        bruxSection.classList.remove('d-none');
-      } else {
-        bruxSection.classList.add('d-none');
-        document.getElementById('sim-type').value = 'particulier';
-      }
-
       btnLaunch.disabled = false;
     });
   });
@@ -219,13 +194,6 @@ function initChantierSelection() {
   // Synchroniser le titre éditable vers le champ caché
   titreVisible.addEventListener('input', function () {
     document.getElementById('sim-titre').value = titreVisible.value || 'Sans titre';
-  });
-
-  // Synchroniser le type Bruxelles avec le champ caché
-  document.querySelectorAll('input[name="bruxelles_type"]').forEach(function (radio) {
-    radio.addEventListener('change', function () {
-      document.getElementById('sim-type').value = radio.value;
-    });
   });
 
   // Soumission
