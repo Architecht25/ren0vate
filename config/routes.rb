@@ -337,6 +337,7 @@ Rails.application.routes.draw do
       post :calculate_prime     # Calcul d'une prime individuelle
       patch :update_prime_inputs # Sauvegarde des saisies utilisateur
       get :restore_prime_inputs # Restauration des saisies utilisateur
+      patch :save_total         # Sauvegarde du total global calculé côté client
 
       # Decision Hub - Carrefour Conseil IA
       get :decision_hub  # Vue principale du carrefour conseil

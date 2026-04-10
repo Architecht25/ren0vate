@@ -4,7 +4,7 @@ class SimulationsController < ApplicationController
   skip_before_action :authenticate_user!, only: [:show, :update_prime_inputs, :restore_prime_inputs]
 
   # ✅ SÉCURITÉ: Vérifier que la simulation appartient à l'utilisateur pour les actions individuelles
-  before_action :set_and_verify_simulation, only: [:show, :edit, :update, :destroy, :check_eligibility, :calculate_category, :calculate_primes, :calculate_prime, :update_prime_inputs, :restore_prime_inputs]
+  before_action :set_and_verify_simulation, only: [:show, :edit, :update, :destroy, :check_eligibility, :calculate_category, :calculate_primes, :calculate_prime, :update_prime_inputs, :restore_prime_inputs, :save_total]
 
   def index
     # ✅ CORRECTION SÉCURITÉ: Filtrer les simulations par utilisateur connecté
@@ -491,6 +491,22 @@ class SimulationsController < ApplicationController
       Rails.logger.error "❌ Exception backtrace: #{e.backtrace.join("\n")}"
       render json: { success: false, error: "Erreur lors de la sauvegarde: #{e.message}" }, status: :internal_server_error
     end
+  end
+
+  def save_total
+    total = params[:total].to_f
+    @simulation.update_column(:total_simule, total)
+
+    # Persister les sélections communales Bruxelles si fournies
+    if params[:bruxelles_communales].present?
+      current_params = safe_parse_simulation_parameters(@simulation)
+      current_params['bruxelles_communales'] = Array(params[:bruxelles_communales])
+      @simulation.update_column(:parameters, current_params.to_json)
+    end
+
+    render json: { success: true, total_simule: total }
+  rescue => e
+    render json: { success: false, error: e.message }, status: :internal_server_error
   end
 
   def restore_prime_inputs

@@ -317,7 +317,47 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
       console.log('❌ Élément total non trouvé');
     }
+
+    // Persister le total en base avec debounce (1,5 s)
+    debounceSaveTotal(total);
   }
+
+  // Sauvegarde debounce du total global
+  let _saveTotalTimer = null;
+  function debounceSaveTotal(total) {
+    clearTimeout(_saveTotalTimer);
+    _saveTotalTimer = setTimeout(function() {
+      const simulationId = '<%= @simulation.id %>';
+      const csrfToken = document.querySelector('[name="csrf-token"]');
+      if (!csrfToken) return;
+      fetch(`/<%= I18n.locale %>/simulations/${simulationId}/save_total`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken.content,
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          total: total,
+          bruxelles_communales: typeof window.getBruxellesCommunalesSelection === 'function'
+            ? window.getBruxellesCommunalesSelection() : undefined
+        })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          console.log('💾 Total sauvegardé:', data.total_simule, '€');
+          // Mettre à jour le badge de la carte index si présent dans le DOM
+          const badgeTotal = document.getElementById('badge-total-simule');
+          if (badgeTotal) badgeTotal.textContent = `${total.toLocaleString('fr-BE')} €`;
+        }
+      })
+      .catch(err => console.warn('⚠️ Erreur save_total:', err));
+    }, 1500);
+  }
+
+  // Exposer globalement pour utilisation depuis les partials (ex: _communes.html.erb)
+  window.debounceSaveTotal = debounceSaveTotal;
 
   // Initialiser les listeners
   setupPrimeInputListeners();

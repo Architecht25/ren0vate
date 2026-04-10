@@ -35,15 +35,24 @@ function saveSimulationManually() {
   // Collecter les données selon la région
   const userInputs = collectAllUserInputs();
 
-  // Lire le total affiché dans le DOM (inclut primes + PEB + Amiante)
-  const totalDomEl = document.querySelector('[data-flandre-simulation-target="totalGeneral"]');
+  // Lire le total réel depuis le DOM (tous éléments .prime-result / .calculated-amount)
+  // Cela couvre Bruxelles (communales, patrimoine) + Flandre + Wallonie
   let calculatedTotal = null;
-  if (totalDomEl) {
-    // Format "8 570,00 €" → 8570.0
-    const rawText = totalDomEl.textContent.replace(/[€\s]/g, '').replace(/\./g, '').replace(',', '.');
-    const parsed = parseFloat(rawText);
-    if (!isNaN(parsed) && parsed > 0) calculatedTotal = parsed;
-  }
+  (function() {
+    let domTotal = 0;
+    document.querySelectorAll('.calculated-amount, .calculated-result, .prime-result').forEach(function(el) {
+      domTotal += parseFloat(el.textContent.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+    });
+    if (domTotal > 0) { calculatedTotal = domTotal; return; }
+
+    // Fallback Flandre — target Stimulus totalGeneral
+    const totalDomEl = document.querySelector('[data-flandre-simulation-target="totalGeneral"]');
+    if (totalDomEl) {
+      const rawText = totalDomEl.textContent.replace(/[€\s]/g, '').replace(/\./g, '').replace(',', '.');
+      const parsed = parseFloat(rawText);
+      if (!isNaN(parsed) && parsed > 0) calculatedTotal = parsed;
+    }
+  })();
 
   console.log('💾 Sauvegarde manuelle:', Object.keys(userInputs).length, 'saisies', calculatedTotal ? `| total: ${calculatedTotal}€` : '');
 
@@ -66,7 +75,9 @@ function saveSimulationManually() {
       // Succès
       button.className = 'btn btn-success btn-lg shadow';
       textSpan.textContent = 'Sauvegardé !';
-      showSuccessMessage(data.total_amount);
+      // Afficher le total DOM réel (calculatedTotal) plutôt que data.total_amount (peut être 0 pour Bruxelles)
+      const displayTotal = calculatedTotal !== null ? calculatedTotal : (data.total_amount || 0);
+      showSuccessMessage(displayTotal);
 
       // Réinitialiser après 3 secondes
       setTimeout(() => {
@@ -207,6 +218,9 @@ function collectAllUserInputs() {
 }
 
 function showSuccessMessage(totalAmount) {
+  const formatted = totalAmount > 0
+    ? totalAmount.toLocaleString('fr-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'
+    : '—';
   // Créer une notification de succès
   const notification = document.createElement('div');
   notification.className = 'alert alert-success alert-dismissible fade show position-fixed';
@@ -214,7 +228,7 @@ function showSuccessMessage(totalAmount) {
   notification.innerHTML = `
     <i class="bi bi-check-circle me-2"></i>
     <strong>Simulation sauvegardée !</strong><br>
-    Total calculé: <strong>${totalAmount}€</strong>
+    Total calculé: <strong>${formatted}</strong>
     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
   `;
 

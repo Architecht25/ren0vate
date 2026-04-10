@@ -1,70 +1,339 @@
-<div class="card shadow-sm border-0 p-3 text-center mb-3 h-100">
-    <div class="card-body d-flex flex-column align-items-center gap-3">
-      <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
-        <i class="bi bi-building fs-5 text-warning"></i>
+<%
+  cp = @simulation.property&.code_postal.to_s.strip
+  saved_communales = begin
+    params_data = @simulation.parameters.present? ? JSON.parse(@simulation.parameters) : {}
+    params_data['bruxelles_communales'] || []
+  rescue
+    []
+  end
+%>
+<div class="card shadow-sm border-0 p-3 mb-3 h-100" id="card-communales-bruxelles">
+  <div class="card-body d-flex flex-column gap-3">
+    <div class="d-flex align-items-center gap-2">
+      <div class="bg-warning bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 40px; height: 40px;">
+        <i class="bi bi-building fs-6 text-warning"></i>
       </div>
-      <h6 class="card-title mb-2">Primes Communales</h6>
-
-      <!-- Formulaire de vérification -->
-      <div class="w-100" style="max-width: 300px;">
-        <div class="mb-3">
-          <label for="code_postal_communales" class="form-label text-start w-100 small">Code postal</label>
-          <input type="text"
-                 class="form-control form-control-sm"
-                 id="code_postal_communales_bruxelles"
-                 placeholder="ex: 1000, 1050, 1180..."
-                 pattern="[0-9]{4}"
-                 maxlength="4">
-          <small class="text-muted">Saisissez votre code postal bruxellois pour découvrir les primes disponibles</small>
-        </div>
-
-        <!-- Loading indicator -->
-        <div class="mb-3" id="loading_communales_bruxelles" style="display: none;">
-          <div class="d-flex align-items-center justify-content-center gap-2">
-            <div class="spinner-border spinner-border-sm text-warning" role="status"></div>
-            <small class="text-muted">Recherche en cours...</small>
-          </div>
-        </div>
-
-        <!-- Statut de vérification -->
-        <div class="mb-3" id="status_communales_bruxelles" style="display: none;">
-          <div class="d-flex align-items-center justify-content-center gap-2">
-            <i id="status_icon_communales_bruxelles" class="bi"></i>
-            <small id="status_text_communales_bruxelles" class="fw-bold"></small>
-          </div>
-        </div>
-
-        <!-- Sélection des primes (si disponibles) -->
-        <div class="mb-3" id="primes_selection_bruxelles" style="display: none;">
-          <label for="prime_communale_select_bruxelles" class="form-label text-start w-100 small">Sélectionnez une prime</label>
-          <select class="form-select form-select-sm" id="prime_communale_select_bruxelles">
-            <option value="">Choisir une prime...</option>
-          </select>
-        </div>
-
-        <!-- Champ montant travaux (si prime sélectionnée) -->
-        <div class="mb-3" id="montant_section_communales_bruxelles" style="display: none;">
-          <label for="montant_travaux_communales_bruxelles" class="form-label text-start w-100 small">Montant des travaux (€)</label>
-          <input type="number"
-                 class="form-control form-control-sm"
-                 id="montant_travaux_communales_bruxelles"
-                 placeholder="0"
-                 min="0"
-                 step="0.01">
-        </div>
-
-        <!-- Résultat -->
-        <div class="alert alert-warning alert-sm mb-2" id="result_section_communales_bruxelles" style="display: none;" role="alert">
-          <small class="fw-bold">Prime estimée : </small>
-          <span class="fw-bold prime-result" id="result_communales_bruxelles">0.00 €</span>
-          <div class="mt-1">
-            <small id="prime_details_communales_bruxelles" class="text-muted"></small>
-          </div>
-        </div>
-
-        <small class="text-muted d-block">
-          Les primes communales varient selon votre commune bruxelloise et le type de travaux
-        </small>
+      <div>
+        <h6 class="card-title mb-0">Primes Communales</h6>
+        <small class="text-muted">Bruxelles-Capitale</small>
       </div>
     </div>
+
+    <!-- Code postal -->
+    <div>
+      <label for="cp_communales_brx" class="form-label small mb-1">Code postal du chantier</label>
+      <div class="input-group input-group-sm">
+        <input type="text"
+               class="form-control"
+               id="cp_communales_brx"
+               placeholder="1000"
+               pattern="[0-9]{4}"
+               maxlength="4"
+               value="<%= cp %>">
+        <button class="btn btn-warning btn-sm" type="button" id="btn_detect_commune_brx">
+          <i class="bi bi-search"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Commune détectée -->
+    <div id="commune_detected_brx" style="display:none;">
+      <div class="d-flex align-items-center gap-2 p-2 rounded" style="background: rgba(255,193,7,0.1); border: 1px solid rgba(255,193,7,0.3);">
+        <i class="bi bi-geo-alt-fill text-warning"></i>
+        <span class="small fw-medium" id="commune_name_brx"></span>
+      </div>
+    </div>
+
+    <!-- Primes disponibles -->
+    <div id="primes_list_brx" style="display:none;">
+      <p class="small text-muted mb-2">Sélectionnez les primes applicables :</p>
+      <div id="primes_items_brx" class="d-flex flex-column gap-2"></div>
+    </div>
+
+    <!-- Aucune donnée -->
+    <div id="primes_generic_brx" style="display:none;">
+      <div class="alert alert-info alert-sm mb-0 p-2">
+        <small><i class="bi bi-info-circle me-1"></i>Contactez directement votre administration communale pour connaître les primes disponibles.</small>
+      </div>
+    </div>
+
+    <!-- Total sélectionné (invisible, intégration grand total) -->
+    <span class="prime-result d-none" id="result_communales_bruxelles">0</span>
+
+    <!-- Données persistées (lues par JS) -->
+    <span id="brx-saved-data" data-communales="<%= saved_communales.to_json %>" class="d-none"></span>
+
+    <!-- Récap sélection -->
+    <div id="recap_communales_brx" style="display:none;">
+      <div class="alert alert-warning alert-sm mb-0 p-2">
+        <div class="d-flex justify-content-between align-items-center">
+          <small class="fw-bold">Total primes communales :</small>
+          <span class="fw-bold text-warning" id="total_communales_brx">0 €</span>
+        </div>
+      </div>
+    </div>
+
   </div>
+</div>
+
+<script nonce="<%= content_security_policy_nonce %>">
+(function() {
+  // ─── Base de données communes bruxelloises ───────────────────────────────
+  const CP_TO_COMMUNE = {
+    '1000': 'bruxelles', '1020': 'bruxelles', '1120': 'bruxelles', '1130': 'bruxelles',
+    '1030': 'schaerbeek',
+    '1040': 'etterbeek',
+    '1050': 'ixelles',
+    '1060': 'saint-gilles',
+    '1070': 'anderlecht',
+    '1080': 'molenbeek',
+    '1081': 'koekelberg',
+    '1082': 'berchem',
+    '1083': 'ganshoren',
+    '1090': 'jette',
+    '1140': 'evere',
+    '1150': 'woluwe-pierre',
+    '1160': 'auderghem',
+    '1170': 'watermael',
+    '1180': 'uccle',
+    '1190': 'forest',
+    '1200': 'woluwe-lambert',
+    '1210': 'saint-josse'
+  };
+
+  const COMMUNES_DATA = {
+    'bruxelles': {
+      nom: 'Bruxelles-Ville',
+      primes: [
+        { id: 'brx_facade',      nom: 'Prime rénovation façade',   montant: 5000, desc: "Jusqu'à 75% des travaux de façade" },
+        { id: 'brx_energie',     nom: 'Prime énergie',             montant: 3000, desc: 'Isolation, chauffage écologique' },
+        { id: 'brx_patrimoine',  nom: 'Prime patrimoine',          montant: 2500, desc: 'Conservation éléments remarquables' },
+        { id: 'brx_pmr',         nom: 'Prime accessibilité PMR',   montant: 1500, desc: 'Adaptation logement PMR' },
+        { id: 'brx_commerce',    nom: 'Prime commerce',            montant: 2000, desc: 'Embellissement façade commerciale' }
+      ]
+    },
+    'anderlecht': {
+      nom: 'Anderlecht',
+      primes: [
+        { id: 'and_facade',      nom: 'Prime rénovation façade',   montant: 5000, desc: "Jusqu'à 80% des travaux" },
+        { id: 'and_energie',     nom: 'Prime énergie',             montant: 3000, desc: 'Isolation, chauffage, solaire' },
+        { id: 'and_pmr',         nom: 'Prime accessibilité PMR',   montant: 1500, desc: 'Adaptation PMR' },
+        { id: 'and_embelliss',   nom: 'Prime embellissement',      montant: 1000, desc: 'Espaces verts privés' }
+      ]
+    },
+    'auderghem': {
+      nom: 'Auderghem',
+      primes: [
+        { id: 'aud_facade',      nom: 'Prime façade',              montant: 3000, desc: 'Rénovation et embellissement' },
+        { id: 'aud_energie',     nom: 'Prime énergie',             montant: 2500, desc: 'Efficacité énergétique' },
+        { id: 'aud_verdur',      nom: 'Prime verdurisation',       montant: 1000, desc: 'Toitures vertes et espaces verts' }
+      ]
+    },
+    'ixelles': {
+      nom: 'Ixelles',
+      primes: [
+        { id: 'ixl_artnouv',     nom: 'Prime façade Art Nouveau',  montant: 4000, desc: 'Conservation patrimoine architectural' },
+        { id: 'ixl_isolation',   nom: 'Prime isolation',           montant: 2500, desc: 'Amélioration énergétique' },
+        { id: 'ixl_verdur',      nom: 'Prime verdurisation',       montant: 1000, desc: 'Création espaces verts' },
+        { id: 'ixl_pmr',         nom: 'Prime accessibilité PMR',   montant: 1500, desc: 'Adaptation PMR' }
+      ]
+    },
+    'schaerbeek': {
+      nom: 'Schaerbeek',
+      primes: [
+        { id: 'sch_embelliss',   nom: 'Prime embellissement façade', montant: 3500, desc: 'Rénovation et peinture' },
+        { id: 'sch_energie',     nom: 'Prime énergie',               montant: 2500, desc: 'Isolation et chauffage' },
+        { id: 'sch_commerce',    nom: 'Prime commerce',              montant: 2000, desc: 'Façades commerciales' },
+        { id: 'sch_verdur',      nom: 'Prime verdurisation',         montant: 1000, desc: 'Espaces verts privés' }
+      ]
+    },
+    'saint-gilles': {
+      nom: 'Saint-Gilles',
+      primes: [
+        { id: 'stg_facade',      nom: 'Prime façade',              montant: 3500, desc: 'Rénovation façade' },
+        { id: 'stg_energie',     nom: 'Prime énergie',             montant: 2500, desc: 'Efficacité énergétique' },
+        { id: 'stg_verdur',      nom: 'Prime verdurisation',       montant: 1000, desc: 'Espaces verts' }
+      ]
+    },
+    'etterbeek': {
+      nom: 'Etterbeek',
+      primes: [
+        { id: 'ett_facade',      nom: 'Prime façade',              montant: 3000, desc: 'Rénovation façade' },
+        { id: 'ett_energie',     nom: 'Prime énergie',             montant: 2000, desc: 'Efficacité énergétique' }
+      ]
+    },
+    'uccle': {
+      nom: 'Uccle',
+      primes: [
+        { id: 'ucc_facade',      nom: 'Prime façade',              montant: 3500, desc: 'Rénovation façade' },
+        { id: 'ucc_energie',     nom: 'Prime énergie',             montant: 2500, desc: 'Efficacité énergétique' },
+        { id: 'ucc_verdur',      nom: 'Prime verdurisation',       montant: 1500, desc: 'Jardin et espaces verts' }
+      ]
+    },
+    'forest': {
+      nom: 'Forest',
+      primes: [
+        { id: 'for_facade',      nom: 'Prime façade',              montant: 3000, desc: 'Rénovation façade' },
+        { id: 'for_energie',     nom: 'Prime énergie',             montant: 2000, desc: 'Efficacité énergétique' }
+      ]
+    },
+    'molenbeek': {
+      nom: 'Molenbeek-Saint-Jean',
+      primes: [
+        { id: 'mol_facade',      nom: 'Prime façade',              montant: 3500, desc: 'Rénovation façade' },
+        { id: 'mol_energie',     nom: 'Prime énergie',             montant: 2500, desc: 'Efficacité énergétique' },
+        { id: 'mol_pmr',         nom: 'Prime accessibilité PMR',   montant: 1500, desc: 'Adaptation PMR' }
+      ]
+    },
+    'woluwe-lambert': {
+      nom: 'Woluwe-Saint-Lambert',
+      primes: [
+        { id: 'wsl_facade',      nom: 'Prime façade',              montant: 3000, desc: 'Rénovation façade' },
+        { id: 'wsl_energie',     nom: 'Prime énergie',             montant: 2500, desc: 'Efficacité énergétique' },
+        { id: 'wsl_verdur',      nom: 'Prime verdurisation',       montant: 1000, desc: 'Espaces verts' }
+      ]
+    },
+    'woluwe-pierre': {
+      nom: 'Woluwe-Saint-Pierre',
+      primes: [
+        { id: 'wsp_facade',      nom: 'Prime façade',              montant: 3000, desc: 'Rénovation façade' },
+        { id: 'wsp_energie',     nom: 'Prime énergie',             montant: 2500, desc: 'Efficacité énergétique' },
+        { id: 'wsp_verdur',      nom: 'Prime verdurisation',       montant: 1000, desc: 'Espaces verts' }
+      ]
+    }
+  };
+
+  const GENERIC_COMMUNES = {
+    'koekelberg':    'Koekelberg',
+    'berchem':       'Berchem-Sainte-Agathe',
+    'ganshoren':     'Ganshoren',
+    'jette':         'Jette',
+    'evere':         'Evere',
+    'watermael':     'Watermael-Boitsfort',
+    'saint-josse':   'Saint-Josse-ten-Noode'
+  };
+
+  // ─── Éléments DOM ──────────────────────────────────────────────────────────
+  const cpInput       = document.getElementById('cp_communales_brx');
+  const btnDetect     = document.getElementById('btn_detect_commune_brx');
+  const detectedDiv   = document.getElementById('commune_detected_brx');
+  const communeName   = document.getElementById('commune_name_brx');
+  const listDiv       = document.getElementById('primes_list_brx');
+  const itemsDiv      = document.getElementById('primes_items_brx');
+  const genericDiv    = document.getElementById('primes_generic_brx');
+  const recapDiv      = document.getElementById('recap_communales_brx');
+  const totalSpan     = document.getElementById('total_communales_brx');
+  const resultHidden  = document.getElementById('result_communales_bruxelles');
+
+  // sélections actives { primeId: montant }
+  const selected = {};
+
+  // Sélections sauvegardées (restaurées depuis la base via data-attribute)
+  const _savedEl = document.getElementById('brx-saved-data');
+  const savedCommunales = _savedEl ? JSON.parse(_savedEl.dataset.communales || '[]') : [];
+
+  // Pré-charger les sélections sauvegardées dans `selected` avant le premier rendu
+  function preloadSavedSelections(primes) {
+    primes.forEach(function(p) {
+      if (savedCommunales.includes(p.id)) {
+        selected[p.id] = p.montant;
+      }
+    });
+  }
+
+  function detectFromCP(cp) {
+    const key = CP_TO_COMMUNE[cp];
+    if (!key) return;
+
+    detectedDiv.style.display = 'block';
+    listDiv.style.display     = 'none';
+    genericDiv.style.display  = 'none';
+    itemsDiv.innerHTML        = '';
+
+    if (COMMUNES_DATA[key]) {
+      const data = COMMUNES_DATA[key];
+      communeName.textContent = data.nom;
+      preloadSavedSelections(data.primes);
+      renderPrimes(data.primes);
+      listDiv.style.display = 'block';
+      // Mettre à jour le total si des sélections ont été restaurées
+      if (Object.keys(selected).length > 0) updateTotal();
+    } else if (GENERIC_COMMUNES[key]) {
+      communeName.textContent = GENERIC_COMMUNES[key];
+      genericDiv.style.display = 'block';
+    }
+  }
+
+  function renderPrimes(primes) {
+    primes.forEach(function(p) {
+      const isSelected = !!selected[p.id];
+      const item = document.createElement('div');
+      item.className = 'prime-communale-item d-flex align-items-center justify-content-between p-2 rounded border' +
+                       (isSelected ? ' border-warning bg-warning bg-opacity-10' : ' border-light bg-light');
+      item.style.cursor = 'pointer';
+      item.dataset.primeId = p.id;
+      item.dataset.montant = p.montant;
+      item.innerHTML = `
+        <div class="d-flex align-items-center gap-2">
+          <div class="form-check mb-0">
+            <input class="form-check-input" type="checkbox" ${isSelected ? 'checked' : ''} id="chk_${p.id}">
+          </div>
+          <div>
+            <div class="small fw-medium">${p.nom}</div>
+            <div class="text-muted" style="font-size:0.72rem;">${p.desc}</div>
+          </div>
+        </div>
+        <span class="badge bg-warning text-dark ms-2 flex-shrink-0">${p.montant.toLocaleString('fr-BE')} €</span>`;
+      item.addEventListener('click', function(e) {
+        if (e.target.tagName === 'A') return;
+        togglePrime(p.id, p.montant, item);
+      });
+      itemsDiv.appendChild(item);
+    });
+  }
+
+  function togglePrime(id, montant, item) {
+    const chk = item.querySelector('input[type="checkbox"]');
+    if (selected[id]) {
+      delete selected[id];
+      chk.checked = false;
+      item.classList.remove('border-warning', 'bg-warning', 'bg-opacity-10');
+      item.classList.add('border-light', 'bg-light');
+    } else {
+      selected[id] = montant;
+      chk.checked = true;
+      item.classList.add('border-warning', 'bg-warning', 'bg-opacity-10');
+      item.classList.remove('border-light', 'bg-light');
+    }
+    updateTotal();
+  }
+
+  function updateTotal() {
+    const total = Object.values(selected).reduce(function(s, v) { return s + v; }, 0);
+    resultHidden.textContent = total;  // entier sans décimales pour compatibilité avec updateTotalImmediate
+    totalSpan.textContent    = total.toLocaleString('fr-BE') + ' €';
+    recapDiv.style.display   = total > 0 ? 'block' : 'none';
+    saveSelections(total);
+  }
+
+  btnDetect.addEventListener('click', function() {
+    const cp = (cpInput.value || '').trim();
+    if (/^\d{4}$/.test(cp)) detectFromCP(cp);
+  });
+
+  cpInput.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') btnDetect.click();
+  });
+
+  // Exposer les sélections pour debounceSaveTotal
+  window.getBruxellesCommunalesSelection = function() {
+    return Object.keys(selected);
+  };
+
+  // Auto-déclenchement si code postal déjà disponible
+  const initialCP = '<%= cp %>';
+  if (/^\d{4}$/.test(initialCP)) {
+    detectFromCP(initialCP);
+  }
+})();
+</script>
