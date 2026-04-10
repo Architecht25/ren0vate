@@ -2040,8 +2040,8 @@ Ren0vate : **3 killer features en 3 mois**.
 
 #### Juin 2026
 - ✅ Outil #1 Entrepreneurs (Générateur devis collaboratif)
-- ✅ Système invitations + rôles permissions
-- ✅ Upload factures + OCR extraction
+- ~~✅ Système invitations + rôles permissions~~ ✅ **LIVRÉ — avril 2026**
+- ~~✅ Upload factures + OCR extraction~~ ✅ **LIVRÉ — avril 2026**
 - ✅ Signature électronique DocuSign
 
 **Milestone** : 150 entrepreneurs freemium testent
@@ -2051,7 +2051,7 @@ Ren0vate : **3 killer features en 3 mois**.
 #### Juillet 2026
 - ✅ Outil #2 Entrepreneurs (Gestionnaire factures)
 - ✅ Outil #3 Entrepreneurs (Suivi chantier visuel)
-- ✅ Email parsing ActionMailbox
+- ~~✅ Email parsing ActionMailbox~~ ✅ **LIVRÉ — avril 2026**
 - ✅ Notifications push ActionCable
 
 **Milestone** : 1.000 users, 100 payants, 200 pros
@@ -2072,7 +2072,7 @@ Ren0vate : **3 killer features en 3 mois**.
 
 #### Septembre 2026
 - ✅ IA #5 : Assistant Primes/Prêts optimisation
-- ✅ IA #6 : Chatbot Expert 24/7
+- ~~✅ IA #6 : Chatbot Expert 24/7~~ ✅ **LIVRÉ — avril 2026**
 - ✅ Intégrations comptables (Exact, Yuki)
 - ✅ Marketplace entrepreneurs v1
 
@@ -2095,8 +2095,8 @@ Ren0vate : **3 killer features en 3 mois**.
 #### Janvier-Mars 2027
 - ✅ IA #7 : Benchmark Marché (transparence totale)
 - ✅ ML training sur 5.000+ projets réels
-- ✅ OCR certificats PEB/Audits énergétiques
-- ✅ Roadmap évolution labels automatique
+- ~~✅ OCR certificats PEB/Audits énergétiques~~ ✅ **LIVRÉ — avril 2026**
+- ✅ Roadmap évolution labels PEB automatique
 
 **Milestone** : 3.000 users, 500 payants
 
