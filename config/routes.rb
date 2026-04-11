@@ -246,6 +246,14 @@ Rails.application.routes.draw do
     delete 'members/:member_id', to: 'pro_views#remove_member', on: :member, as: :remove_member
   end
 
+  # Comparateur Produits & Matériaux (lié ou non à un projet)
+  resources :product_comparators, only: [] do
+    collection do
+      get  :index    # Sélecteur catégorie standalone
+      get  :compare  # GET /product_comparators/compare?category=insulation&subcategory=toiture&project_id=X
+    end
+  end
+
   # Acceptation invitations (lien email, sans authentification requise)
   get  'invitations/:token',            to: 'invitations#show',            as: :invitation
   post 'invitations/:token/accept',     to: 'invitations#accept',          as: :accept_invitation

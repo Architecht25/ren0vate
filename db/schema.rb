@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_10_114808) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_11_110618) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -407,6 +407,38 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_10_114808) do
     t.integer "ordre_affichage"
     t.json "statut_compatible"
     t.index ["slug"], name: "index_primes_on_slug"
+  end
+
+  create_table "products", force: :cascade do |t|
+    t.string "category", null: false
+    t.string "subcategory"
+    t.string "name", null: false
+    t.string "brand"
+    t.text "description"
+    t.jsonb "technical_specs", default: {}
+    t.jsonb "certifications", default: []
+    t.decimal "price_per_unit", precision: 10, scale: 2
+    t.string "price_unit"
+    t.date "price_updated_at"
+    t.decimal "thermal_performance"
+    t.integer "lifespan_years"
+    t.integer "grey_energy_kwh"
+    t.boolean "recyclable", default: false
+    t.boolean "biosourced", default: false
+    t.string "fire_class"
+    t.boolean "wallonie_grant_eligible", default: false
+    t.boolean "flanders_grant_eligible", default: false
+    t.boolean "brussels_grant_eligible", default: false
+    t.boolean "vat_6_eligible", default: false
+    t.integer "installations_count", default: 0
+    t.decimal "average_rating", precision: 3, scale: 1
+    t.integer "reviews_count", default: 0
+    t.integer "display_order", default: 0
+    t.boolean "active", default: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category", "active"], name: "index_products_on_category_and_active"
+    t.index ["category"], name: "index_products_on_category"
   end
 
   create_table "project_members", force: :cascade do |t|

@@ -1,0 +1,283 @@
+<%# Partial centrale : résultats comparateur
+    Utilisé par compare.html.erb ET turbo_stream
+    locals : result, project, category, subcategory, priorities %>
+
+<% enriched   = result[:products]
+   reco        = result[:recommendation]
+   ctx         = result[:context]
+   cat_label   = Product::CATEGORIES[category] || category
+   icons = {
+     'insulation' => 'bi-house-fill',
+     'windows'    => 'bi-window',
+     'heating'    => 'bi-fire',
+     'solar'      => 'bi-sun-fill',
+     'hot_water'  => 'bi-droplet-fill'
+   }
+   cat_icon = icons[category] || 'bi-box'
+%>
+
+<turbo-frame id="comparator_modal_frame">
+<div class="comparator-wrapper">
+
+  <!-- ── Bandeau titre ───────────────────────────────────────────────────── -->
+  <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <span class="rounded-circle d-flex align-items-center justify-content-center text-white"
+            style="width:38px;height:38px;background:var(--ren0vate-primary);font-size:1rem;">
+        <i class="bi <%= cat_icon %>"></i>
+      </span>
+      <div>
+        <h5 class="mb-0 fw-semibold">Comparatif <%= cat_label %></h5>
+        <% if ctx[:surface] %>
+          <small class="text-muted"><%= ctx[:surface].to_i %>m² · <%= ctx[:region].capitalize %> · <%= ctx[:property_year] %></small>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Filtres priorités -->
+    <div class="d-flex gap-1 flex-wrap">
+      <% [%w[performance Perf. bi-lightning-fill], %w[ecology Écolo bi-leaf-fill], %w[price Prix bi-tag-fill]].each do |key, label, icon| %>
+        <% active = priorities.include?(key) %>
+        <span class="badge rounded-pill <%= active ? 'bg-primary text-white' : 'bg-light text-muted' %>"
+              style="font-size:0.72rem; cursor:default;">
+          <i class="bi <%= icon %> me-1"></i><%= label %>
+        </span>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- ── Recommandation IA ──────────────────────────────────────────────── -->
+  <% if reco.present? %>
+    <div class="alert border-0 rounded-3 mb-4 d-flex gap-3 align-items-start"
+         style="background:linear-gradient(135deg,#f0fdf4,#dcfce7); border-left:4px solid #16a34a !important; border-left-width:4px !important;">
+      <span class="d-flex align-items-center justify-content-center rounded-circle text-white flex-shrink-0 mt-1"
+            style="width:28px;height:28px;background:#16a34a;font-size:0.75rem;">
+        <i class="bi bi-stars"></i>
+      </span>
+      <div>
+        <div class="fw-semibold mb-1" style="font-size:0.82rem; color:#15803d;">Recommandation IA</div>
+        <p class="mb-0" style="font-size:0.84rem; color:#166534;"><%= reco %></p>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- ── Tableau comparatif ─────────────────────────────────────────────── -->
+  <div class="table-responsive rounded-3 border">
+    <table class="table table-hover mb-0 align-middle" style="font-size:0.82rem;">
+      <thead style="background:#f8fafc;">
+        <tr>
+          <th class="py-3 ps-3" style="min-width:180px;">Produit</th>
+          <th class="py-3 text-center">Score IA</th>
+          <% if category == 'insulation' %>
+            <th class="py-3 text-center">λ (W/m·K)</th>
+            <th class="py-3 text-center">R 16cm</th>
+          <% elsif category == 'windows' %>
+            <th class="py-3 text-center">Uw (W/m²K)</th>
+            <th class="py-3 text-center">Vitrage</th>
+          <% elsif category == 'heating' %>
+            <th class="py-3 text-center">COP / Rdt</th>
+            <th class="py-3 text-center">Énergie</th>
+          <% elsif category == 'solar' %>
+            <th class="py-3 text-center">Rendement</th>
+            <th class="py-3 text-center">Durée vie</th>
+          <% else %>
+            <th class="py-3 text-center">COP</th>
+            <th class="py-3 text-center">Type</th>
+          <% end %>
+          <% if ctx[:surface] %>
+            <th class="py-3 text-center">Prix total</th>
+            <th class="py-3 text-center">Prime est.</th>
+            <th class="py-3 text-center">Coût net</th>
+          <% else %>
+            <th class="py-3 text-center">Prix unit.</th>
+          <% end %>
+          <% if category == 'insulation' %>
+            <th class="py-3 text-center">Éco/an</th>
+            <th class="py-3 text-center">ROI</th>
+          <% end %>
+          <th class="py-3 text-center">Écolo</th>
+          <th class="py-3 text-center">Feu</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% enriched.each_with_index do |entry, idx| %>
+          <% p = entry[:product] %>
+          <% is_best = idx == 0 %>
+          <tr class="<%= is_best ? 'table-success' : '' %>">
+            <!-- Nom + badge -->
+            <td class="py-3 ps-3">
+              <div class="d-flex align-items-start gap-2">
+                <% if is_best %>
+                  <span class="badge rounded-pill bg-success" style="font-size:0.65rem; margin-top:1px; white-space:nowrap;">🥇 Recommandé</span>
+                <% elsif idx == 1 %>
+                  <span class="badge rounded-pill bg-secondary" style="font-size:0.65rem; margin-top:1px; white-space:nowrap;">🥈</span>
+                <% elsif idx == 2 %>
+                  <span class="badge rounded-pill" style="background:#cd7f32; font-size:0.65rem; margin-top:1px; white-space:nowrap; color:white;">🥉</span>
+                <% end %>
+                <div>
+                  <div class="fw-semibold" style="font-size:0.82rem;"><%= p.name %></div>
+                  <div class="text-muted" style="font-size:0.74rem;"><%= p.brand %></div>
+                </div>
+              </div>
+            </td>
+
+            <!-- Score global -->
+            <td class="text-center">
+              <% score = entry[:global_score]
+                 color = score >= 8 ? '#16a34a' : score >= 6.5 ? '#d97706' : '#dc2626' %>
+              <span class="fw-bold" style="color:<%= color %>; font-size:0.9rem;"><%= score %></span>
+              <span class="text-muted" style="font-size:0.7rem;">/10</span>
+            </td>
+
+            <!-- Specs techniques -->
+            <% if category == 'insulation' %>
+              <td class="text-center"><%= p.technical_specs['lambda'] %></td>
+              <td class="text-center">
+                <% r = entry[:r_value_16cm]
+                   r_color = r.to_f >= 5 ? 'text-success' : r.to_f >= 4 ? 'text-warning' : 'text-danger' %>
+                <span class="<%= r_color %> fw-semibold"><%= r&.round(2) %></span>
+              </td>
+            <% elsif category == 'windows' %>
+              <td class="text-center">
+                <% uw = p.technical_specs['uw']&.to_f
+                   uw_color = uw.to_f <= 0.9 ? 'text-success' : uw.to_f <= 1.2 ? 'text-warning' : 'text-danger' %>
+                <span class="<%= uw_color %> fw-semibold"><%= uw %></span>
+              </td>
+              <td class="text-center">
+                <span class="badge rounded-pill <%= p.technical_specs['glazing'] == 'triple' ? 'bg-success' : 'bg-warning text-dark' %>"
+                      style="font-size:0.7rem;">
+                  <%= p.technical_specs['glazing'] %>
+                </span>
+              </td>
+            <% elsif category == 'heating' %>
+              <td class="text-center fw-semibold">
+                <%= p.technical_specs['cop'] || p.technical_specs['efficiency_pct']&.then { |e| "#{e}%" } %>
+              </td>
+              <td class="text-center">
+                <span class="badge rounded-pill bg-light text-dark" style="font-size:0.7rem;">
+                  <%= p.technical_specs['energy_source']&.gsub('_', ' ') %>
+                </span>
+              </td>
+            <% elsif category == 'solar' %>
+              <td class="text-center fw-semibold">
+                <%= p.technical_specs['efficiency_pct'] %>%
+              </td>
+              <td class="text-center"><%= p.lifespan_years %> ans</td>
+            <% else %>
+              <td class="text-center fw-semibold">
+                <%= p.technical_specs['cop'] %>
+              </td>
+              <td class="text-center">
+                <span class="badge rounded-pill bg-light text-dark" style="font-size:0.7rem;">
+                  <%= p.technical_specs['type']&.gsub('_', ' ') %>
+                </span>
+              </td>
+            <% end %>
+
+            <!-- Prix -->
+            <% if ctx[:surface] %>
+              <td class="text-center">
+                <% if entry[:total_price] %>
+                  <span class="fw-semibold"><%= number_to_currency(entry[:total_price], unit: '€', format: '%n %u', separator: ',', delimiter: '.', precision: 0) %></span>
+                <% else %>
+                  <span class="text-muted">—</span>
+                <% end %>
+              </td>
+              <td class="text-center">
+                <% if entry[:grant_estimate]&.positive? %>
+                  <span class="text-success fw-semibold">-<%= number_to_currency(entry[:grant_estimate], unit: '€', format: '%n %u', separator: ',', delimiter: '.', precision: 0) %></span>
+                <% else %>
+                  <span class="text-muted">—</span>
+                <% end %>
+              </td>
+              <td class="text-center">
+                <% if entry[:net_cost] %>
+                  <span class="fw-bold text-primary"><%= number_to_currency(entry[:net_cost], unit: '€', format: '%n %u', separator: ',', delimiter: '.', precision: 0) %></span>
+                <% else %>
+                  <span class="text-muted">—</span>
+                <% end %>
+              </td>
+            <% else %>
+              <td class="text-center">
+                <% if p.price_per_unit %>
+                  <span class="fw-semibold"><%= number_to_currency(p.price_per_unit, unit: '€', format: '%n %u', separator: ',', delimiter: '.', precision: 0) %>/<%= p.price_unit %></span>
+                <% else %>
+                  <span class="text-muted">—</span>
+                <% end %>
+              </td>
+            <% end %>
+
+            <!-- Économie / ROI (isolants) -->
+            <% if category == 'insulation' %>
+              <td class="text-center">
+                <% if entry[:annual_saving]&.positive? %>
+                  <span class="text-success fw-semibold"><%= number_to_currency(entry[:annual_saving], unit: '€', format: '%n %u', precision: 0) %>/an</span>
+                <% else %>
+                  <span class="text-muted">—</span>
+                <% end %>
+              </td>
+              <td class="text-center">
+                <% if entry[:roi_years] %>
+                  <span class="fw-semibold"><%= entry[:roi_years] %> ans</span>
+                <% else %>
+                  <span class="text-muted">—</span>
+                <% end %>
+              </td>
+            <% end %>
+
+            <!-- Écologie -->
+            <td class="text-center">
+              <% if p.biosourced? %>
+                <span class="badge rounded-pill bg-success" style="font-size:0.65rem;" title="Biosourcé">🌿 Bio</span>
+              <% elsif p.recyclable? %>
+                <span class="badge rounded-pill bg-info text-white" style="font-size:0.65rem;" title="Recyclable">♻️</span>
+              <% else %>
+                <span class="text-muted" style="font-size:0.75rem;">—</span>
+              <% end %>
+            </td>
+
+            <!-- Classe feu -->
+            <td class="text-center">
+              <% fire = p.fire_class
+                 fire_color = %w[A1 A2].include?(fire) ? 'text-success' : %w[B C D].include?(fire) ? 'text-warning' : 'text-danger' %>
+              <% if fire %>
+                <span class="fw-semibold <%= fire_color %>" style="font-size:0.8rem;"><%= fire %></span>
+              <% else %>
+                <span class="text-muted">—</span>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── Légende & retour ───────────────────────────────────────────────── -->
+  <div class="d-flex align-items-center justify-content-between mt-3 flex-wrap gap-2">
+    <div class="d-flex gap-3 flex-wrap">
+      <small class="text-muted"><i class="bi bi-info-circle me-1"></i>Prime estimée Wallonie · Éco calculée sur <%= ctx[:surface]&.to_i %>m² · Maison <%= ctx[:property_year] %></small>
+    </div>
+    <% if project %>
+      <%= link_to project_path(project, tab: 'preparation'), class: "btn btn-sm btn-outline-secondary rounded-pill" do %>
+        <i class="bi bi-arrow-left me-1"></i>Retour au projet
+      <% end %>
+    <% end %>
+  </div>
+
+  <!-- ── Sous-catégories (isolants) ─────────────────────────────────────── -->
+  <% if category == 'insulation' %>
+    <div class="mt-3 d-flex gap-2 flex-wrap">
+      <small class="text-muted me-1">Voir aussi :</small>
+      <% [%w[toiture Toiture], %w[murs Murs], %w[plancher Plancher]].each do |sub, label| %>
+        <% unless subcategory == sub %>
+          <%= link_to label,
+                compare_product_comparators_path(category: 'insulation', subcategory: sub, project_id: project&.id),
+                class: "badge rounded-pill bg-light text-dark text-decoration-none",
+                data: { turbo_frame: "comparator_modal_frame" } %>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
+</div>
+</turbo-frame>

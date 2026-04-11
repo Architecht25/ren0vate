@@ -1,0 +1,61 @@
+<%# Card Comparateur Produits & Matériaux — Tab Préparation %>
+
+<% categories = [
+  { key: 'insulation', label: 'Isolants',          icon: 'bi-house-fill',       color: '#0ea5e9' },
+  { key: 'windows',    label: 'Châssis',            icon: 'bi-window',           color: '#8b5cf6' },
+  { key: 'heating',    label: 'Chauffage',          icon: 'bi-fire',             color: '#f97316' },
+  { key: 'solar',      label: 'Solaire',            icon: 'bi-sun-fill',         color: '#eab308' },
+  { key: 'hot_water',  label: 'Chauffe-eau',        icon: 'bi-droplet-fill',     color: '#06b6d4' }
+] %>
+
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+
+  <!-- En-tête -->
+  <div class="card-header border-0 rounded-top-4 d-flex align-items-center justify-content-between py-3 px-4"
+       style="background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-graph-up-arrow text-white fs-5"></i>
+      <span class="fw-semibold text-white">Comparateur Matériaux</span>
+      <span class="badge rounded-pill ms-1"
+            style="background:rgba(255,255,255,0.15); color:white; font-size:0.7rem;">IA</span>
+    </div>
+    <span class="badge rounded-pill" style="background:rgba(255,255,255,0.15); color:rgba(255,255,255,0.85); font-size:0.7rem;">
+      30 sec
+    </span>
+  </div>
+
+  <div class="card-body p-4">
+    <p class="text-muted mb-3" style="font-size:0.82rem;">
+      Comparez les matériaux selon votre projet et obtenez une recommandation personnalisée.
+    </p>
+
+    <!-- Catégories -->
+    <div class="d-flex flex-wrap gap-2 mb-3">
+      <% categories.each do |cat| %>
+        <%= link_to compare_product_comparators_path(
+              category: cat[:key],
+              project_id: @project.id
+            ),
+            class: "btn btn-sm d-flex align-items-center gap-1 rounded-pill",
+            style: "background:#{cat[:color]}20; color:#{cat[:color]}; border:1px solid #{cat[:color]}40; font-size:0.78rem;",
+            data: { turbo_frame: "comparator_modal_frame" },
+            title: "Comparer les #{cat[:label].downcase}" do %>
+          <i class="bi <%= cat[:icon] %>"></i>
+          <span><%= cat[:label] %></span>
+        <% end %>
+      <% end %>
+    </div>
+
+    <p style="font-size:0.75rem; color: var(--ren0vate-text-muted);">
+      <i class="bi bi-lightbulb me-1"></i>
+      Choisissez un matériau pour voir le comparatif personnalisé avec calcul de ROI.
+    </p>
+  </div>
+</div>
+
+<!-- Turbo Frame pour les résultats (affichés dans un modal ou inline) -->
+<%= turbo_frame_tag "comparator_modal_frame",
+      src: nil,
+      loading: "lazy",
+      class: "d-block" do %>
+<% end %>

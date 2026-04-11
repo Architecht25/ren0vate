@@ -58,4 +58,12 @@ if File.exist?(prime_documents_path)
   load prime_documents_path
 end
 
+# ➤ PRODUITS & MATÉRIAUX - Comparateur
+puts "\n🔬 === PRODUITS & MATÉRIAUX ==="
+products_path = Rails.root.join("db", "seeds", "products.rb")
+if File.exist?(products_path)
+  puts "🔹 Chargement de : #{products_path}"
+  load products_path
+end
+
 puts "✅ Seeds terminés"

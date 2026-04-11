@@ -17,6 +17,7 @@
 
   ia_steps_done = [has_profile, has_property, has_project, has_simulation].count(true)
   ia_ready      = ia_steps_done == 4
+  next_step     = !has_profile ? :profile : !has_property ? :property : !has_project ? :project : !has_simulation ? :simulation : nil
 %>
 
 <!-- Widget Notifications -->
@@ -57,24 +58,24 @@
         <% if ia_ready %>
           Votre assistant IA est connecté à toutes vos données et prêt à vous répondre
         <% else %>
-          Complétez votre profil pour que l'assistant IA puisse vous accompagner pleinement
+          <strong>5 minutes suffisent</strong> pour activer votre assistant IA personnalisé
         <% end %>
       </p>
     </div>
 
     <!-- ===== MAIN IA CARD ===== -->
     <div class="mx-auto w-100 mb-4" style="max-width: 780px;">
-      <div class="rounded-4 overflow-hidden" style="background: white; box-shadow: 0 8px 40px rgba(0,0,0,0.13); border: 1px solid rgba(0,0,0,0.07);">
+      <div class="rounded-4 overflow-hidden" style="background: var(--ren0vate-white); box-shadow: var(--ren0vate-shadow-lg); border: 1px solid var(--ren0vate-border);">
 
         <!-- Header gradient -->
-        <div class="p-4 text-white" style="background: linear-gradient(135deg, var(--ren0vate-primary) 0%, #059669 100%);">
+        <div class="p-4 text-white" style="background: linear-gradient(135deg, var(--ren0vate-primary) 0%, var(--ren0vate-success-dark) 100%);">
           <div class="d-flex align-items-center gap-3 flex-wrap">
             <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
                  style="width:56px; height:56px; background: rgba(255,255,255,0.2); font-size: 1.7rem;">
               <i class="bi bi-robot"></i>
             </div>
             <div class="flex-grow-1">
-              <h4 class="mb-1 fw-bold">Expert IA Ren0vate</h4>
+              <h4 class="mb-1 fw-bold" style="color: var(--ren0vate-accent);">Expert IA Ren0vate</h4>
               <p class="mb-0 opacity-90" style="font-size: 0.9rem;">
                 Connecté à toutes vos données — primes, chantiers, financements, réglementations
               </p>
@@ -94,52 +95,52 @@
         </div>
 
         <!-- Data sources bar -->
-        <div class="px-4 py-3 d-flex gap-3 flex-wrap align-items-center" style="background: #f8fafb; border-bottom: 1px solid #e9ecef;">
-          <span class="small text-muted fw-medium me-1">Sources connectées :</span>
+        <div class="px-4 py-3 d-flex gap-3 flex-wrap align-items-center" style="background: var(--ren0vate-light); border-bottom: 1px solid var(--ren0vate-border);">
+          <span class="small fw-medium me-1" style="color: var(--ren0vate-text-muted);">Sources connectées :</span>
 
           <span class="d-flex align-items-center gap-1 small">
             <% if has_profile %>
-              <i class="bi bi-check-circle-fill text-success"></i>
-              <span class="text-success fw-medium">Profil</span>
+              <i class="bi bi-check-circle-fill" style="color: var(--ren0vate-success-dark);"></i>
+              <span class="fw-medium" style="color: var(--ren0vate-success-dark);">Profil</span>
             <% else %>
-              <i class="bi bi-dash-circle text-warning"></i>
-              <span class="text-warning fw-medium">Profil</span>
+              <i class="bi bi-dash-circle" style="color: var(--ren0vate-accent);"></i>
+              <span class="fw-medium" style="color: var(--ren0vate-accent);">Profil</span>
             <% end %>
           </span>
 
-          <span class="text-muted">·</span>
+          <span style="color: var(--ren0vate-border-dark);">·</span>
 
           <span class="d-flex align-items-center gap-1 small">
             <% if has_property %>
-              <i class="bi bi-check-circle-fill text-success"></i>
-              <span class="text-success fw-medium"><%= property_count %> bien<%= property_count > 1 ? 's' : '' %></span>
+              <i class="bi bi-check-circle-fill" style="color: var(--ren0vate-success-dark);"></i>
+              <span class="fw-medium" style="color: var(--ren0vate-success-dark);"><%= property_count %> bien<%= property_count > 1 ? 's' : '' %></span>
             <% else %>
-              <i class="bi bi-dash-circle text-warning"></i>
-              <span class="text-warning fw-medium">Aucun bien</span>
+              <i class="bi bi-dash-circle" style="color: var(--ren0vate-accent);"></i>
+              <span class="fw-medium" style="color: var(--ren0vate-accent);">Aucun bien</span>
             <% end %>
           </span>
 
-          <span class="text-muted">·</span>
+          <span style="color: var(--ren0vate-border-dark);">·</span>
 
           <span class="d-flex align-items-center gap-1 small">
             <% if has_project %>
-              <i class="bi bi-check-circle-fill text-success"></i>
-              <span class="text-success fw-medium"><%= project_count %> chantier<%= project_count > 1 ? 's' : '' %></span>
+              <i class="bi bi-check-circle-fill" style="color: var(--ren0vate-success-dark);"></i>
+              <span class="fw-medium" style="color: var(--ren0vate-success-dark);"><%= project_count %> chantier<%= project_count > 1 ? 's' : '' %></span>
             <% else %>
-              <i class="bi bi-dash-circle text-warning"></i>
-              <span class="text-warning fw-medium">Aucun chantier</span>
+              <i class="bi bi-dash-circle" style="color: var(--ren0vate-accent);"></i>
+              <span class="fw-medium" style="color: var(--ren0vate-accent);">Aucun chantier</span>
             <% end %>
           </span>
 
-          <span class="text-muted">·</span>
+          <span style="color: var(--ren0vate-border-dark);">·</span>
 
           <span class="d-flex align-items-center gap-1 small">
             <% if has_simulation %>
-              <i class="bi bi-check-circle-fill text-success"></i>
-              <span class="text-success fw-medium"><%= simulation_count %> simulation<%= simulation_count > 1 ? 's' : '' %> primes</span>
+              <i class="bi bi-check-circle-fill" style="color: var(--ren0vate-success-dark);"></i>
+              <span class="fw-medium" style="color: var(--ren0vate-success-dark);"><%= simulation_count %> simulation<%= simulation_count > 1 ? 's' : '' %> primes</span>
             <% else %>
-              <i class="bi bi-dash-circle text-warning"></i>
-              <span class="text-warning fw-medium">Aucune simulation</span>
+              <i class="bi bi-dash-circle" style="color: var(--ren0vate-accent);"></i>
+              <span class="fw-medium" style="color: var(--ren0vate-accent);">Aucune simulation</span>
             <% end %>
           </span>
         </div>
@@ -148,7 +149,7 @@
         <div class="p-4">
           <% if ia_ready %>
             <%# Toutes les données sont là - montrer le CTA principal %>
-            <p class="text-body-secondary mb-4" style="font-size: 0.95rem;">
+            <p class="mb-4" style="font-size: 0.95rem; color: var(--ren0vate-text-secondary);">
               L'assistant connaît <strong>votre profil</strong>, <strong>vos biens</strong>, <strong>vos chantiers</strong> et <strong>vos simulations de primes</strong>.
               Posez-lui n'importe quelle question : montants de primes, travaux prioritaires, démarches administratives,
               prêts disponibles, ou prochaine étape de votre projet.
@@ -160,15 +161,15 @@
               <!-- Vue d'ensemble -->
               <div class="col-md-6">
                 <div class="rounded-3 p-3 h-100 d-flex flex-column"
-                     style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1.5px solid #86efac;">
+                     style="background: rgba(var(--ren0vate-success-rgb), 0.1); border: 1.5px solid rgba(var(--ren0vate-success-rgb), 0.45);">
                   <div class="d-flex align-items-center gap-2 mb-2">
                     <i class="bi bi-layers fs-5" style="color: var(--ren0vate-primary);"></i>
                     <span class="fw-semibold" style="color: var(--ren0vate-primary);">Vue d'ensemble</span>
                   </div>
-                  <p class="text-muted small mb-3 flex-grow-1">
+                  <p class="small mb-3 flex-grow-1" style="color: var(--ren0vate-text-muted);">
                     Questions transversales sur <strong>tous vos biens</strong> : priorisation patrimoine, comparaison primes, stratégie globale.
                   </p>
-                  <%= link_to expert_decision_hub_index_path(all: 1), class: "btn btn-success fw-semibold w-100" do %>
+                  <%= link_to expert_decision_hub_index_path(all: 1), class: "btn btn-ren0vate fw-semibold w-100" do %>
                     <i class="bi bi-chat-dots-fill me-2"></i>Tous mes biens
                   <% end %>
                 </div>
@@ -177,15 +178,15 @@
               <!-- Bien spécifique -->
               <div class="col-md-6">
                 <div class="rounded-3 p-3 h-100 d-flex flex-column"
-                     style="background: #f8faff; border: 1.5px solid #c7d7f5;">
+                     style="background: rgba(var(--ren0vate-primary-rgb), 0.05); border: 1.5px solid rgba(var(--ren0vate-primary-rgb), 0.2);">
                   <div class="d-flex align-items-center gap-2 mb-2">
-                    <i class="bi bi-house-door fs-5" style="color: #3b6fd4;"></i>
-                    <span class="fw-semibold" style="color: #3b6fd4;">Bien spécifique</span>
+                    <i class="bi bi-house-door fs-5" style="color: var(--ren0vate-info);"></i>
+                    <span class="fw-semibold" style="color: var(--ren0vate-info);">Bien spécifique</span>
                   </div>
-                  <p class="text-muted small mb-3 flex-grow-1">
+                  <p class="small mb-3 flex-grow-1" style="color: var(--ren0vate-text-muted);">
                     Questions ciblées sur <strong>un bien précis</strong> : primes détaillées, chantiers, PEB, documents, intervenants.
                   </p>
-                  <%= link_to expert_decision_hub_index_path, class: "btn fw-semibold w-100", style: "background: #3b6fd4; color: white;" do %>
+                  <%= link_to expert_decision_hub_index_path, class: "btn btn-primary fw-semibold w-100" do %>
                     <i class="bi bi-arrow-right-circle me-2"></i>Choisir un bien
                   <% end %>
                 </div>
@@ -193,42 +194,60 @@
 
             </div>
 
-            <div class="d-flex gap-3 flex-wrap align-items-center">
-              <% if project_count > 0 %>
-                <%= link_to projects_path, class: "btn btn-outline-secondary btn-sm" do %>
-                  <i class="bi bi-kanban me-1"></i>Mes chantiers (<%= project_count %>)
-                <% end %>
-              <% end %>
-              <%= link_to simulations_path, class: "btn btn-outline-secondary btn-sm" do %>
-                <i class="bi bi-calculator me-1"></i>Mes simulations
-              <% end %>
-            </div>
+
 
           <% else %>
             <%# Données manquantes - afficher la checklist %>
-            <p class="text-body-secondary mb-4" style="font-size: 0.95rem;">
-              Pour des conseils personnalisés et précis, l'IA a besoin de vos données.
-              Complétez les 4 étapes ci-dessous — cela ne prend que quelques minutes.
-            </p>
+
+            <!-- Bandeau motivation -->
+            <div class="d-flex align-items-start gap-3 p-3 rounded-3 mb-4"
+                 style="background: rgba(var(--ren0vate-accent-rgb), 0.07); border: 1.5px solid rgba(var(--ren0vate-accent-rgb), 0.25);">
+              <i class="bi bi-lightning-charge-fill fs-5 flex-shrink-0 mt-1" style="color: var(--ren0vate-accent);"></i>
+              <div style="font-size: 0.9rem; color: var(--ren0vate-text-secondary);">
+                En <strong>5 minutes</strong>, l'assistant IA sera calibré sur votre situation et pourra calculer vos <strong>primes exactes</strong>, identifier vos <strong>travaux prioritaires</strong> et vous guider à chaque étape de votre chantier.
+              </div>
+            </div>
+
+            <!-- Barre de progression -->
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="small fw-semibold" style="color: var(--ren0vate-text-secondary);">
+                <% case ia_steps_done
+                   when 0 then %>Démarrons ensemble
+                <% when 1 then %>Bon début, continuez !
+                <% when 2 then %>Vous y êtes presque…
+                <% when 3 then %>Plus qu'une étape !
+                <% end %>
+              </span>
+              <span class="small" style="color: var(--ren0vate-text-muted);"><%= ia_steps_done %>/4 complétées</span>
+            </div>
+            <div class="progress mb-4" style="height: 7px; border-radius: 4px; background: var(--ren0vate-border);">
+              <div class="progress-bar" role="progressbar"
+                   style="width: <%= ia_steps_done * 25 %>%; background: var(--ren0vate-success-dark); border-radius: 4px;"
+                   aria-valuenow="<%= ia_steps_done * 25 %>" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
 
             <div class="d-flex flex-column gap-2 mb-4">
 
               <!-- Étape 1 : Profil -->
               <div class="d-flex align-items-center gap-3 p-3 rounded-3"
-                   style="background: <%= has_profile ? '#f0fdf4' : '#fffbeb' %>; border: 1px solid <%= has_profile ? '#86efac' : '#fde68a' %>;">
+                   style="background: <%= has_profile ? 'rgba(var(--ren0vate-success-rgb), 0.1)' : 'rgba(var(--ren0vate-accent-rgb), 0.07)' %>; border: <%= next_step == :profile ? '2px solid var(--ren0vate-accent)' : has_profile ? '1px solid rgba(var(--ren0vate-success-rgb), 0.4)' : '1px solid rgba(var(--ren0vate-accent-rgb), 0.35)' %>;">
                 <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-white"
-                     style="width:34px; height:34px; font-size:0.85rem; min-width:34px; background: <%= has_profile ? '#16a34a' : '#d97706' %>;">
+                     style="width:34px; height:34px; font-size:0.85rem; min-width:34px; background: <%= has_profile ? 'var(--ren0vate-success-dark)' : 'var(--ren0vate-accent)' %>;">
                   <%= has_profile ? '✓' : '1' %>
                 </div>
                 <div class="flex-grow-1">
-                  <div class="fw-semibold small" style="color: <%= has_profile ? '#166534' : '#92400e' %>;">
+                  <div class="fw-semibold small d-flex align-items-center gap-2" style="color: <%= has_profile ? 'var(--ren0vate-success-dark)' : 'var(--ren0vate-accent-dark)' %>;">
                     Complétez votre profil
-                    <% if has_profile %><span class="ms-1 fw-normal text-success">— fait</span><% end %>
+                    <% if has_profile %>
+                      <span class="fw-normal" style="color: var(--ren0vate-success-dark);">— fait</span>
+                    <% elsif next_step == :profile %>
+                      <span class="badge fw-normal" style="background: var(--ren0vate-accent); font-size: 0.7rem;">→ À faire maintenant</span>
+                    <% end %>
                   </div>
-                  <div class="text-muted" style="font-size: 0.8rem;">Région, revenus, situation familiale — données essentielles pour calculer vos primes</div>
+                  <div style="font-size: 0.8rem; color: var(--ren0vate-text-muted);">Région, revenus, situation — débloque le calcul exact de vos primes &nbsp;<span class="text-nowrap"><i class="bi bi-clock" style="font-size:0.7rem;"></i> ~2 min</span></div>
                 </div>
                 <% unless has_profile %>
-                  <%= link_to edit_user_registration_path, class: "btn btn-sm btn-warning fw-semibold flex-shrink-0" do %>
+                  <%= link_to edit_user_registration_path, class: "btn btn-sm btn-accent-ren0vate fw-semibold flex-shrink-0" do %>
                     <i class="bi bi-pencil me-1"></i>Compléter
                   <% end %>
                 <% end %>
@@ -236,20 +255,24 @@
 
               <!-- Étape 2 : Bien -->
               <div class="d-flex align-items-center gap-3 p-3 rounded-3"
-                   style="background: <%= has_property ? '#f0fdf4' : '#fffbeb' %>; border: 1px solid <%= has_property ? '#86efac' : '#fde68a' %>;">
+                   style="background: <%= has_property ? 'rgba(var(--ren0vate-success-rgb), 0.1)' : 'rgba(var(--ren0vate-accent-rgb), 0.07)' %>; border: <%= next_step == :property ? '2px solid var(--ren0vate-accent)' : has_property ? '1px solid rgba(var(--ren0vate-success-rgb), 0.4)' : '1px solid rgba(var(--ren0vate-accent-rgb), 0.35)' %>;">
                 <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-white"
-                     style="width:34px; height:34px; font-size:0.85rem; min-width:34px; background: <%= has_property ? '#16a34a' : '#d97706' %>;">
+                     style="width:34px; height:34px; font-size:0.85rem; min-width:34px; background: <%= has_property ? 'var(--ren0vate-success-dark)' : 'var(--ren0vate-accent)' %>;">
                   <%= has_property ? '✓' : '2' %>
                 </div>
                 <div class="flex-grow-1">
-                  <div class="fw-semibold small" style="color: <%= has_property ? '#166534' : '#92400e' %>;">
+                  <div class="fw-semibold small d-flex align-items-center gap-2" style="color: <%= has_property ? 'var(--ren0vate-success-dark)' : 'var(--ren0vate-accent-dark)' %>;">
                     Ajoutez votre bien
-                    <% if has_property %><span class="ms-1 fw-normal text-success">— <%= property_count %> bien<%= property_count > 1 ? 's' : '' %> renseigné<%= property_count > 1 ? 's' : '' %></span><% end %>
+                    <% if has_property %>
+                      <span class="fw-normal" style="color: var(--ren0vate-success-dark);">— <%= property_count %> bien<%= property_count > 1 ? 's' : '' %> renseigné<%= property_count > 1 ? 's' : '' %></span>
+                    <% elsif next_step == :property %>
+                      <span class="badge fw-normal" style="background: var(--ren0vate-accent); font-size: 0.7rem;">→ À faire maintenant</span>
+                    <% end %>
                   </div>
-                  <div class="text-muted" style="font-size: 0.8rem;">Adresse, type, PEB — l'IA analyse votre bien pour cibler vos travaux prioritaires</div>
+                  <div style="font-size: 0.8rem; color: var(--ren0vate-text-muted);">Adresse, type, PEB — l'IA cible vos travaux prioritaires et primes applicables &nbsp;<span class="text-nowrap"><i class="bi bi-clock" style="font-size:0.7rem;"></i> ~2 min</span></div>
                 </div>
                 <% unless has_property %>
-                  <%= link_to new_property_path, class: "btn btn-sm btn-warning fw-semibold flex-shrink-0" do %>
+                  <%= link_to new_property_path, class: "btn btn-sm btn-accent-ren0vate fw-semibold flex-shrink-0" do %>
                     <i class="bi bi-plus-circle me-1"></i>Ajouter
                   <% end %>
                 <% end %>
@@ -257,20 +280,24 @@
 
               <!-- Étape 3 : Chantier -->
               <div class="d-flex align-items-center gap-3 p-3 rounded-3"
-                   style="background: <%= has_project ? '#f0fdf4' : '#fffbeb' %>; border: 1px solid <%= has_project ? '#86efac' : '#fde68a' %>;">
+                   style="background: <%= has_project ? 'rgba(var(--ren0vate-success-rgb), 0.1)' : 'rgba(var(--ren0vate-accent-rgb), 0.07)' %>; border: <%= next_step == :project ? '2px solid var(--ren0vate-accent)' : has_project ? '1px solid rgba(var(--ren0vate-success-rgb), 0.4)' : '1px solid rgba(var(--ren0vate-accent-rgb), 0.35)' %>;">
                 <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-white"
-                     style="width:34px; height:34px; font-size:0.85rem; min-width:34px; background: <%= has_project ? '#16a34a' : '#d97706' %>;">
+                     style="width:34px; height:34px; font-size:0.85rem; min-width:34px; background: <%= has_project ? 'var(--ren0vate-success-dark)' : 'var(--ren0vate-accent)' %>;">
                   <%= has_project ? '✓' : '3' %>
                 </div>
                 <div class="flex-grow-1">
-                  <div class="fw-semibold small" style="color: <%= has_project ? '#166534' : '#92400e' %>;">
+                  <div class="fw-semibold small d-flex align-items-center gap-2" style="color: <%= has_project ? 'var(--ren0vate-success-dark)' : 'var(--ren0vate-accent-dark)' %>;">
                     Créez un chantier
-                    <% if has_project %><span class="ms-1 fw-normal text-success">— <%= project_count %> chantier<%= project_count > 1 ? 's' : '' %> renseigné<%= project_count > 1 ? 's' : '' %></span><% end %>
+                    <% if has_project %>
+                      <span class="fw-normal" style="color: var(--ren0vate-success-dark);">— <%= project_count %> chantier<%= project_count > 1 ? 's' : '' %> renseigné<%= project_count > 1 ? 's' : '' %></span>
+                    <% elsif next_step == :project %>
+                      <span class="badge fw-normal" style="background: var(--ren0vate-accent); font-size: 0.7rem;">→ À faire maintenant</span>
+                    <% end %>
                   </div>
-                  <div class="text-muted" style="font-size: 0.8rem;">Planification, budget, suivi des travaux — l'IA intègre l'avancement de votre chantier</div>
+                  <div style="font-size: 0.8rem; color: var(--ren0vate-text-muted);">Type de travaux, budget — l'IA suit l'avancement et ajuste ses conseils en temps réel &nbsp;<span class="text-nowrap"><i class="bi bi-clock" style="font-size:0.7rem;"></i> ~1 min</span></div>
                 </div>
                 <% unless has_project %>
-                  <%= link_to new_property_path, class: "btn btn-sm btn-warning fw-semibold flex-shrink-0" do %>
+                  <%= link_to new_property_path, class: "btn btn-sm btn-accent-ren0vate fw-semibold flex-shrink-0" do %>
                     <i class="bi bi-plus-circle me-1"></i>Créer
                   <% end %>
                 <% end %>
@@ -278,20 +305,21 @@
 
               <!-- Étape 4 : Simulation primes -->
               <div class="d-flex align-items-center gap-3 p-3 rounded-3"
-                   style="background: <%= has_simulation ? '#f0fdf4' : '#fffbeb' %>; border: 1px solid <%= has_simulation ? '#86efac' : '#fde68a' %>;">
+                   style="background: <%= has_simulation ? 'rgba(var(--ren0vate-success-rgb), 0.1)' : 'rgba(var(--ren0vate-accent-rgb), 0.07)' %>; border: <%= next_step == :simulation ? '2px solid var(--ren0vate-accent)' : has_simulation ? '1px solid rgba(var(--ren0vate-success-rgb), 0.4)' : '1px solid rgba(var(--ren0vate-accent-rgb), 0.35)' %>;">
                 <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-white"
-                     style="width:34px; height:34px; font-size:0.85rem; min-width:34px; background: <%= has_simulation ? '#16a34a' : '#d97706' %>;">
+                     style="width:34px; height:34px; font-size:0.85rem; min-width:34px; background: <%= has_simulation ? 'var(--ren0vate-success-dark)' : 'var(--ren0vate-accent)' %>;">
                   <%= has_simulation ? '✓' : '4' %>
                 </div>
                 <div class="flex-grow-1">
-                  <div class="fw-semibold small" style="color: <%= has_simulation ? '#166534' : '#92400e' %>;">
+                  <div class="fw-semibold small d-flex align-items-center gap-2" style="color: <%= has_simulation ? 'var(--ren0vate-success-dark)' : 'var(--ren0vate-accent-dark)' %>;">
                     Simulez vos primes régionales
-                    <% if has_simulation %><span class="ms-1 fw-normal text-success">— <%= simulation_count %> simulation<%= simulation_count > 1 ? 's' : '' %></span><% end %>
+                    <% if has_simulation %><span class="fw-normal" style="color: var(--ren0vate-success-dark);">— <%= simulation_count %> simulation<%= simulation_count > 1 ? 's' : '' %></span>
+                    <% elsif next_step == :simulation %><span class="badge fw-normal" style="background: var(--ren0vate-accent); font-size: 0.7rem;">→ À faire maintenant</span><% end %>
                   </div>
-                  <div class="text-muted" style="font-size: 0.8rem;">Calculez vos primes Bruxelles / Wallonie / Flandre — l'IA utilise ces montants pour vous conseiller</div>
+                  <div style="font-size: 0.8rem; color: var(--ren0vate-text-muted);">Bruxelles / Wallonie / Flandre — l'IA connaît vos montants et optimise votre dossier de primes &nbsp;<span class="text-nowrap"><i class="bi bi-clock" style="font-size:0.7rem;"></i> quelques secondes</span></div>
                 </div>
                 <% unless has_simulation %>
-                  <%= link_to new_simulation_path, class: "btn btn-sm btn-warning fw-semibold flex-shrink-0" do %>
+                  <%= link_to new_simulation_path, class: "btn btn-sm btn-accent-ren0vate fw-semibold flex-shrink-0" do %>
                     <i class="bi bi-calculator me-1"></i>Simuler
                   <% end %>
                 <% end %>
@@ -302,9 +330,9 @@
             <!-- CTA partiel si au moins profil + bien renseignés -->
             <% if has_profile && has_property %>
               <div class="d-flex align-items-center gap-3 flex-wrap pt-1">
-                <p class="text-muted small mb-0">Vous pouvez déjà interroger l'IA avec les données disponibles :</p>
+                <p class="small mb-0" style="color: var(--ren0vate-text-muted);">Vous pouvez déjà interroger l'IA avec les données disponibles :</p>
                 <%= link_to expert_decision_hub_index_path(property_id: first_property.id),
-                      class: "btn btn-outline-success fw-semibold" do %>
+                      class: "btn btn-outline-primary fw-semibold" do %>
                   <i class="bi bi-chat-dots me-2"></i>Consulter quand même
                 <% end %>
               </div>
@@ -314,28 +342,5 @@
         </div>
       </div>
     </div>
-
-    <!-- Quick links -->
-    <div class="mx-auto w-100 text-center" style="max-width: 780px;">
-      <p class="text-muted small mb-3">Navigation rapide</p>
-      <div class="d-flex gap-2 flex-wrap justify-content-center">
-        <%= link_to properties_path, class: "btn btn-sm btn-outline-secondary" do %>
-          <i class="bi bi-houses me-1"></i>Biens
-        <% end %>
-        <%= link_to simulations_path, class: "btn btn-sm btn-outline-secondary" do %>
-          <i class="bi bi-calculator me-1"></i>Simulations
-        <% end %>
-        <%= link_to projects_path, class: "btn btn-sm btn-outline-secondary" do %>
-          <i class="bi bi-kanban me-1"></i>Chantiers
-        <% end %>
-        <%= link_to start_quotes_path, class: "btn btn-sm btn-outline-secondary" do %>
-          <i class="bi bi-file-earmark-text me-1"></i>Devis
-        <% end %>
-        <%= link_to decision_hub_index_path, class: "btn btn-sm btn-outline-secondary" do %>
-          <i class="bi bi-compass me-1"></i>Decision Hub
-        <% end %>
-      </div>
-    </div>
-
   </div>
 </div>

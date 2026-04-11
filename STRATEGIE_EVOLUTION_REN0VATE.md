@@ -2097,6 +2097,8 @@ Ren0vate : **3 killer features en 3 mois**.
 - ✅ ML training sur 5.000+ projets réels
 - ~~✅ OCR certificats PEB/Audits énergétiques~~ ✅ **LIVRÉ — avril 2026**
 - ✅ Roadmap évolution labels PEB automatique
+- ~~✅ IA #8 : Comparateur Produits & Matériaux IA (30 produits, calcul ROI, recommandation Claude)~~ ✅ **LIVRÉ — avril 2026**
+- ✅ IA #9 : assistant juridique (contrats, garanties, PV)
 
 **Milestone** : 3.000 users, 500 payants
 
