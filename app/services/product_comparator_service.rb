@@ -29,8 +29,8 @@ class ProductComparatorService
   end
 
   # Compare tous les produits d'une catégorie + sous-catégorie
-  # Retourne { products: [...], recommendation: "...", context: {...} }
-  def compare(category:, subcategory: nil)
+  # skip_ai: true = retour instantané sans appel Claude (reco chargée séparément)
+  def compare(category:, subcategory: nil, skip_ai: false)
     products = Product.active.by_category(category)
     products = products.by_subcategory(subcategory) if subcategory.present?
     products = products.ordered
@@ -41,7 +41,7 @@ class ProductComparatorService
     enriched = products.map { |p| enrich_product(p, context) }
     enriched.sort_by! { |e| -e[:global_score] }
 
-    recommendation = generate_recommendation(enriched, context, category)
+    recommendation = skip_ai ? nil : generate_recommendation(enriched, context, category)
 
     {
       products:       enriched,

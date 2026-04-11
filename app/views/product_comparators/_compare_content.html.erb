@@ -46,17 +46,28 @@
     </div>
   </div>
 
-  <!-- ── Recommandation IA ──────────────────────────────────────────────── -->
-  <% if reco.present? %>
-    <div class="alert border-0 rounded-3 mb-4 d-flex gap-3 align-items-start"
-         style="background:linear-gradient(135deg,#f0fdf4,#dcfce7); border-left:4px solid #16a34a !important; border-left-width:4px !important;">
-      <span class="d-flex align-items-center justify-content-center rounded-circle text-white flex-shrink-0 mt-1"
-            style="width:28px;height:28px;background:#16a34a;font-size:0.75rem;">
-        <i class="bi bi-stars"></i>
-      </span>
+  <!-- ── Recommandation IA (chargée en lazy) ───────────────────────────── -->
+  <%
+    reco_url = recommendation_product_comparators_path(
+      category:   category,
+      subcategory: subcategory,
+      project_id:  project&.id,
+      priorities:  priorities
+    )
+  %>
+  <%= turbo_frame_tag "comparator_ai_recommendation",
+        src: reco_url,
+        loading: "eager" do %>
+    <!-- Placeholder pendant le chargement IA -->
+    <div class="rounded-3 mb-4 p-3 d-flex gap-3 align-items-center"
+         style="background:linear-gradient(135deg,#f0fdf4,#dcfce7); border:1px dashed #86efac;">
+      <div class="spinner-border spinner-border-sm flex-shrink-0" role="status"
+           style="width:18px;height:18px;color:#16a34a;"></div>
       <div>
-        <div class="fw-semibold mb-1" style="font-size:0.82rem; color:#15803d;">Recommandation IA</div>
-        <p class="mb-0" style="font-size:0.84rem; color:#166534;"><%= reco %></p>
+        <div class="fw-semibold" style="font-size:0.82rem;color:#15803d;">
+          <i class="bi bi-stars me-1"></i>Recommandation IA en cours…
+        </div>
+        <small style="color:#166534;">Notre IA analyse les produits selon votre projet, cela prend 5–10 secondes.</small>
       </div>
     </div>
   <% end %>

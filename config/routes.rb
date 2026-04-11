@@ -249,8 +249,9 @@ Rails.application.routes.draw do
   # Comparateur Produits & Matériaux (lié ou non à un projet)
   resources :product_comparators, only: [] do
     collection do
-      get  :index    # Sélecteur catégorie standalone
-      get  :compare  # GET /product_comparators/compare?category=insulation&subcategory=toiture&project_id=X
+      get  :index          # Sélecteur catégorie standalone
+      get  :compare        # tableau instantané (sans IA)
+      get  :recommendation # recommandation IA seule (lazy)
     end
   end
 
