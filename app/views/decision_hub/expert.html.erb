@@ -19,6 +19,120 @@
     <% end %>
   </div>
 
+<% elsif @overview %>
+  <%# ── Mode vue d'ensemble : chat générique sur tous les biens ───────────── %>
+  <div class="row g-3 expert-ia-row">
+
+    <!-- Sidebar -->
+    <div class="col-lg-3">
+      <div class="panel expert-ia-sidebar-panel">
+        <div class="panel-header">
+          <h3><i class="bi bi-cpu me-2"></i>Assistant IA Expert</h3>
+        </div>
+        <div class="panel-body">
+
+          <!-- Contexte : tous les biens -->
+          <div class="expert-ia-property-active mb-3">
+            <div class="d-flex align-items-start gap-2 mb-2">
+              <div style="width:32px; height:32px; background: var(--ren0vate-gradient-primary); border-radius: 50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <i class="bi bi-houses text-white" style="font-size:0.85rem;"></i>
+              </div>
+              <div class="flex-grow-1 min-w-0">
+                <div class="fw-semibold" style="font-size: 0.9rem;">Vue d'ensemble</div>
+                <div class="text-muted" style="font-size: 0.75rem;">
+                  <i class="bi bi-layers me-1"></i><%= @properties.count %> bien<%= @properties.count > 1 ? 's' : '' %> connecté<%= @properties.count > 1 ? 's' : '' %>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex flex-wrap gap-1 mb-3">
+              <% @properties.each do |p| %>
+                <span class="badge bg-light text-dark" style="font-size: 0.7rem;">
+                  <i class="bi bi-house-door me-1" style="color:var(--ren0vate-primary);"></i><%= p.titre.presence || p.commune %>
+                </span>
+              <% end %>
+            </div>
+
+            <%= link_to expert_decision_hub_index_path, class: "btn btn-sm btn-outline-secondary w-100 mb-2", style: "font-size: 0.75rem;" do %>
+              <i class="bi bi-house-door me-1"></i>Consulter sur un bien précis
+            <% end %>
+          </div>
+
+          <!-- Info Claude -->
+          <div class="expert-ia-info-badge mt-3">
+            <i class="bi bi-info-circle"></i>
+            Claude a accès à l'ensemble de vos biens, chantiers, simulations de primes et documents.
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone de chat -->
+    <div class="col-lg-9">
+      <div class="panel expert-ia-chat-panel d-flex flex-column">
+
+        <!-- Header chat -->
+        <div class="panel-header">
+          <h3><i class="bi bi-robot me-2"></i>Assistant IA Expert Rénovation</h3>
+          <div class="d-flex align-items-center gap-2">
+            <span class="panel-badge"><i class="bi bi-circle-fill me-1" style="color: #84A98C; font-size: 0.45rem;"></i>Claude Sonnet</span>
+            <span class="panel-badge" style="background: rgba(var(--ren0vate-primary-rgb),0.15); color: var(--ren0vate-primary);">
+              <i class="bi bi-layers me-1"></i>Tous les biens
+            </span>
+            <%= link_to decision_hub_index_path, class: "btn btn-sm btn-outline-light" do %>
+              <i class="bi bi-compass me-1"></i>Feuille de route
+            <% end %>
+          </div>
+        </div>
+
+        <!-- Messages -->
+        <div class="expert-ia-messages" id="chatMessages">
+          <div class="d-flex mb-4">
+            <div class="flex-shrink-0">
+              <div class="bot-avatar"><i class="bi bi-robot"></i></div>
+            </div>
+            <div class="flex-grow-1 ms-3">
+              <div class="ai-message">
+                <p class="mb-2"><strong>Bonjour <%= current_user.first_name || current_user.email.split('@').first.capitalize %> !</strong></p>
+                <p class="mb-2">Je suis votre assistant IA expert en rénovation. En mode <strong>vue d'ensemble</strong>, je connais l'intégralité de votre patrimoine :
+                  <strong><%= @properties.map { |p| p.titre.presence || p.commune }.to_sentence %></strong>.
+                </p>
+                <p class="mb-2">Posez-moi des questions transversales, par exemple :</p>
+                <ul class="mb-2">
+                  <li>Quels biens ont le meilleur potentiel de primes ?</li>
+                  <li>Quelle est la priorité travaux sur l'ensemble de mon patrimoine ?</li>
+                  <li>Quel bien rénover en premier pour maximiser la valeur ?</li>
+                  <li>Comparaison des simulations primes entre mes biens</li>
+                </ul>
+                <p class="mb-0 small text-muted">💡 Pour des questions spécifiques à un bien, utilisez le mode "Consulter sur un bien précis".</p>
+              </div>
+              <small class="text-muted ms-2">À l'instant</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Zone de saisie -->
+        <div class="expert-ia-input-zone">
+          <form id="aiExpertForm">
+            <div class="input-group">
+              <input type="text" class="form-control" id="aiExpertInput"
+                     placeholder="Posez votre question sur l'ensemble de vos biens..." autocomplete="off">
+              <button class="btn btn-ren0vate" type="submit" id="aiExpertSendBtn">
+                <i class="bi bi-send me-1"></i>Envoyer
+              </button>
+            </div>
+            <small class="text-muted mt-2 d-block">
+              <i class="bi bi-shield-check me-1"></i>Vos conversations sont privées et sécurisées
+            </small>
+          </form>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
 <% elsif @property.nil? %>
   <%# ── Sélection du bien : cartes full-width ──────────────────────────────── %>
   <div class="mb-4 pb-3 border-bottom d-flex align-items-center justify-content-between">
@@ -86,7 +200,6 @@
   </div>
 
 <% else %>
-  <%# ── Interface chat : bien sélectionné ─────────────────────────────────── %>
   <div class="row g-3 expert-ia-row">
 
     <!-- Sidebar -->
@@ -216,7 +329,7 @@ function initExpertIA() {
   if (form.dataset.initialized === 'true') return;
   form.dataset.initialized = 'true';
 
-  const PROPERTY_ID = '<%= @property&.id %>';
+  const PROPERTY_ID = '<%= @property&.id.to_s %>';
 
   function setLoading(loading) {
     if (sendBtn) {

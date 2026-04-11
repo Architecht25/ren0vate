@@ -29,7 +29,8 @@ class ContextualBotController < ApplicationController
   private
 
   def build_bot_service
-    ContextualBotService.new(current_user, history_cache_key)
+    property = params[:property_id].present? ? current_user.properties.find_by(id: params[:property_id]) : nil
+    ContextualBotService.new(current_user, history_cache_key, property: property)
   end
 
   def history_cache_key

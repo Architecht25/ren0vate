@@ -38,100 +38,41 @@
   <!-- ─── KPI chips ───────────────────────────────────────────────────── -->
   <%= render 'projects/partials_general/kpi_chips' %>
 
-  <!-- ═══════════════════════════════════════════════════════════════════
-       SECTION 1 — PRÉPARATION DE CHANTIER
-  ════════════════════════════════════════════════════════════════════ -->
-  <div class="row mb-4 mt-2">
-    <div class="col-12">
-      <div class="d-flex align-items-center gap-3 py-3 px-4 rounded-3" style="background: rgba(51,65,85,0.06); border-left: 4px solid var(--ren0vate-primary);">
-        <span class="d-flex align-items-center justify-content-center rounded-circle text-white fw-bold flex-shrink-0" style="width:34px;height:34px;background:var(--ren0vate-primary);font-size:0.85rem;">1</span>
-        <div>
-          <h5 class="mb-0 fw-semibold" style="color:var(--ren0vate-primary); font-size:1rem;">
-            <i class="bi bi-clipboard-check me-2"></i>Préparation de chantier
-          </h5>
-          <small style="color:var(--ren0vate-text-muted);">Informations, équipe &amp; éligibilité aux primes</small>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- ─── Navigation par onglets ─────────────────────────────────────── -->
+  <ul class="nav nav-pills mb-4 gap-1 border-bottom pb-3">
+    <li class="nav-item">
+      <%= link_to project_path(@project, tab: :preparation),
+            class: "nav-link #{'active' if @current_tab == 'preparation'}",
+            data: { turbo_frame: "project_content", turbo_action: "advance" } do %>
+        <i class="bi bi-clipboard-check me-2"></i>Préparation
+      <% end %>
+    </li>
+    <li class="nav-item">
+      <%= link_to project_path(@project, tab: :suivi),
+            class: "nav-link #{'active' if @current_tab == 'suivi'}",
+            data: { turbo_frame: "project_content", turbo_action: "advance" } do %>
+        <i class="bi bi-hammer me-2"></i>Suivi
+      <% end %>
+    </li>
+    <li class="nav-item">
+      <%= link_to project_path(@project, tab: :reception),
+            class: "nav-link #{'active' if @current_tab == 'reception'}",
+            data: { turbo_frame: "project_content", turbo_action: "advance" } do %>
+        <i class="bi bi-file-earmark-check me-2"></i>Réception
+      <% end %>
+    </li>
+  </ul>
 
-  <!-- ── ROW 1 : Informations générales + Équipe & Invitations ── -->
-  <div class="row g-3 mb-4">
-    <div class="col-lg-4">
-      <%= render 'projects/partials_general/card_infos_generales' %>
-    </div>
-    <div class="col-lg-8 d-flex flex-column gap-3">
-      <%= render 'projects/partials_general/professionals_display' %>
-      <%= render 'projects/partials_general/invite_pros', project: @project %>
-    </div>
-  </div>
-
-  <!-- ── ROW 2 : Suivi budgétaire + Éligibilité primes + Recommandations PEB ── -->
-  <div class="row g-3 mb-4">
-    <div class="col-lg-4">
-      <%= render 'projects/partials_general/card_suivi_budgetaire' %>
-    </div>
-    <div class="col-lg-4">
-      <%= render 'projects/partials_general/card_eligibilite_primes' %>
-    </div>
-    <div class="col-lg-4">
-      <%= render 'projects/partials_general/card_peb_recommandations' %>
-    </div>
-  </div>
-
-  <!-- ── ROW 3 : Devis estimatifs + Plans + Permis d'urbanisme ── -->
-  <div class="row g-3 mb-4">
-    <div class="col-lg-4">
-      <%= render 'projects/partials_general/card_devis_estimatifs' %>
-    </div>
-    <div class="col-lg-4">
-      <%= render 'projects/partials_general/card_plans' %>
-    </div>
-    <div class="col-lg-4">
-      <%= render 'projects/partials_general/card_permis' %>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════════════════════════
-       SECTION 2 — SUIVI DE CHANTIER
-  ════════════════════════════════════════════════════════════════════ -->
-  <div class="row mb-4 mt-2">
-    <div class="col-12">
-      <div class="d-flex align-items-center gap-3 py-3 px-4 rounded-3" style="background: rgba(217,119,6,0.07); border-left: 4px solid var(--ren0vate-accent);">
-        <span class="d-flex align-items-center justify-content-center rounded-circle text-white fw-bold flex-shrink-0" style="width:34px;height:34px;background:var(--ren0vate-accent);font-size:0.85rem;">2</span>
-        <div>
-          <h5 class="mb-0 fw-semibold" style="color:var(--ren0vate-accent-dark); font-size:1rem;">
-            <i class="bi bi-hammer me-2"></i>Suivi de chantier
-          </h5>
-          <small style="color:var(--ren0vate-text-muted);">Planning, avancement &amp; photos de suivi</small>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ── Planning Gantt + Photos de suivi + État d'avancement ── -->
-  <div class="row g-3 mb-4">
-    <div class="col-lg-4">
-      <%= render 'projects/partials_general/card_planning_gantt' %>
-    </div>
-    <div class="col-lg-4">
-      <%= render 'projects/partials_general/photos_suivi' %>
-    </div>
-    <div class="col-lg-4">
-      <%= render 'projects/partials_general/card_etat_avancement' %>
-    </div>
-  </div>
-
-  <!-- ── IA #3 : Score Santé Projet ── -->
-  <div class="row mb-5">
-    <div class="col-12">
-      <%= render 'projects/partials_general/card_score_sante' %>
-    </div>
-  </div>
-
-  <!-- ═══════════════════════════════════════════════════════════════════
-       SECTION 3 — RÉCEPTION DE CHANTIER
-  ════════════════════════════════════════════════════════════════════ -->
-  <%= render 'projects/partials_general/section_reception' %>
+  <!-- ─── Contenu de la section active (Turbo Frame) ─────────────────── -->
+  <%= turbo_frame_tag "project_content", target: "_top" do %>
+    <% case @current_tab %>
+    <% when 'suivi' %>
+      <%= render 'projects/partials_general/tab_suivi' %>
+    <% when 'reception' %>
+      <%= render 'projects/partials_general/tab_reception' %>
+    <% else %>
+      <%= render 'projects/partials_general/tab_preparation' %>
+    <% end %>
+  <% end %>
 
 </div>

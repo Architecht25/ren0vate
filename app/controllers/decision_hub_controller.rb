@@ -2,10 +2,8 @@ class DecisionHubController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    # Page d'index du Decision Hub - liste des simulations éligibles pour conseil
+    # Page d'index du Decision Hub - toutes les simulations sans seuil minimum
     @simulations = current_user.simulations
-                               .where.not(total_simule: nil)
-                               .where('total_simule > ?', 500) # Seuil minimum pour conseil (réduit de 1000 à 500)
                                .order(created_at: :desc)
                                .includes(:property, :project)
 
@@ -37,16 +35,12 @@ class DecisionHubController < ApplicationController
       @hub_data = generate_empty_hub_data
     end
 
-    # Statistiques rapides
-    base_simulations = current_user.simulations
-                                  .where.not(total_simule: nil)
-                                  .where('total_simule > ?', 1000)
-
+    # Statistiques rapides — sur toutes les simulations
     @stats = {
       total_simulations: @simulations.count,
-      total_potential: base_simulations.sum(:total_simule),
-      regions: base_simulations.group(:region).count,
-      last_activity: base_simulations.maximum(:updated_at)
+      total_potential: @simulations.sum(:total_simule),
+      regions: @simulations.unscope(:order).group(:region).count,
+      last_activity: @simulations.maximum(:updated_at)
     }
   end
 
@@ -219,8 +213,11 @@ class DecisionHubController < ApplicationController
                                .order(updated_at: :desc)
                                .includes(:projects, :simulations)
 
+    # Mode vue d'ensemble : ?all=1 → chat générique sans bien sélectionné
+    @overview = params[:all] == '1'
+
     # Sélectionner le bien actif (uniquement si property_id explicite en param)
-    # Sans param → @property = nil → affichage de la grille de sélection
+    # Sans param → @property = nil → affichage de la grille de sélection (sauf si @overview)
     @property = params[:property_id].present? ? current_user.properties.find_by(id: params[:property_id]) : nil
 
     # Charger le contexte complet du bien sélectionné

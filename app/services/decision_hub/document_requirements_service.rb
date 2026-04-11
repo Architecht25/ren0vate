@@ -60,7 +60,7 @@ class DecisionHub::DocumentRequirementsService
           urgency: "critical",
           required_for: primes_with_category("audit"),
           deadline: "Avant travaux",
-          details: "Audit énergétique obligatoire pour toute demande Renolution"
+          details: "Audit énergétique PAE obligatoire pour primes de rénovation Bruxelles"
         },
         {
           id: "declaration_urbanisme",

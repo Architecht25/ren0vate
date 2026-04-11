@@ -298,7 +298,7 @@ class BudgetEstimatorService
     # Note régionale primes
     if region.present?
       note = case region
-      when 'wallonie'   then "En Wallonie, les primes Renolution peuvent couvrir jusqu'à 70 % des travaux d'isolation et de chauffage selon vos revenus."
+      when 'wallonie'   then "En Wallonie, les primes Habitation (isolation, chauffage, audit) peuvent couvrir jusqu'à 70 % des travaux selon vos revenus."
       when 'bruxelles'  then "À Bruxelles, les primes Bruxelles-Rénovation sont cumulables avec le prêt vert à taux zéro de Bruxelles Environnement."
       when 'flandre'    then "En Flandre, le Mijn VerbouwPremie et le Mijn VerbouwLening permettent de financer une large partie des travaux de rénovation."
       end

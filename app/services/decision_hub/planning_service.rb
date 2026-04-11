@@ -75,14 +75,9 @@ class DecisionHub::PlanningService
     # Délais spécifiques par région
     case @region
     when "bruxelles"
-      if has_renolution_prime?
-        deadlines << {
-          description: "Dépôt prime Renolution avant fin année fiscale",
-          date: Date.new(Date.current.year, 12, 31),
-          urgency: "high",
-          benefit: "+10% bonus annuel"
-        }
-      end
+      # RENoLUTION terminé depuis janvier 2025 — aucun délai de dépôt actif pour ce programme
+      # Primes disponibles : Monuments & Sites, Petit Patrimoine, primes communales
+      nil
     else
       if has_isolation_prime?
         # Bonus hivernal Wallonie

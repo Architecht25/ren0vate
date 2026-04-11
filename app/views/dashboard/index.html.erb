@@ -1,102 +1,341 @@
 <%
-  # Page d'accueil après connexion - Dashboard des fonctionnalités
-  # Style architectural en grille 3x3 avec les 9 fonctionnalités principales
-
   set_seo_meta(
     title: "Tableau de bord - Ren0vate",
-    description: "Accédez à toutes vos fonctionnalités Ren0vate depuis votre tableau de bord",
-    keywords: ["dashboard", "tableau de bord", "fonctionnalités", "rénovation", "gestion chantier", "suivi travaux"]
+    description: "Votre assistant IA expert en rénovation — gérez vos projets, primes et chantiers depuis votre tableau de bord",
+    keywords: ["dashboard", "tableau de bord", "assistant IA", "primes rénovation", "gestion chantier"]
   )
+
+  # Complétude des données pour l'IA
+  has_profile    = current_user.first_name.present? && current_user.region.present?
+  has_property   = @properties.any?
+  first_property = @properties.first
+  has_simulation = (current_user.simulations.any? rescue false)
+  simulation_count = (current_user.simulations.count rescue 0)
+  project_count    = (current_user.projects.count rescue 0)
+  has_project   = project_count > 0
+  property_count   = @total_properties
+
+  ia_steps_done = [has_profile, has_property, has_project, has_simulation].count(true)
+  ia_ready      = ia_steps_done == 4
 %>
 
-  <!-- Widget Notifications en haut à droite -->
-  <div class="notification-widget position-fixed d-none d-md-block" style="top: 80px; right: 20px; z-index: 2000;">
-    <% unread_count = current_user.respond_to?(:notifications) ? current_user.notifications.unread.count : 0 %>
-    <%= link_to notifications_path, class: "btn btn-outline-primary position-relative notification-widget-btn", style: "border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);" do %>
-      <i class="bi bi-bell fs-4"></i>
-      <% if unread_count > 0 %>
-        <span class="badge bg-danger position-absolute" style="top: -5px; right: -5px; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem;">
-          <%= unread_count %>
-        </span>
-      <% end %>
+<!-- Widget Notifications -->
+<div class="notification-widget position-fixed d-none d-md-block" style="top: 80px; right: 20px; z-index: 2000;">
+  <% unread_count = current_user.respond_to?(:notifications) ? current_user.notifications.unread.count : 0 %>
+  <%= link_to notifications_path, class: "btn btn-outline-primary position-relative notification-widget-btn", style: "border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);" do %>
+    <i class="bi bi-bell fs-4"></i>
+    <% if unread_count > 0 %>
+      <span class="badge bg-danger position-absolute" style="top: -5px; right: -5px; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem;"><%= unread_count %></span>
     <% end %>
-  </div>
+  <% end %>
+</div>
 
-<!-- Hero Section - Full page avec image background -->
+<!-- Hero Section -->
 <div class="architectural-hero position-relative"
      data-controller="architectural-parallax"
      data-architectural-parallax-hero-target="hero"
      style="min-height: 100vh;">
 
-  <!-- Image de fond directe avec opacité réduite -->
-  <img src="<%= asset_path('arcliine.jpg') %>"
-       alt="Architectural watercolor background"
+  <img src="<%= asset_path('arcliine.jpg') %>" alt=""
        class="architectural-bg-image"
        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.2; z-index: 0;">
-
-  <!-- Overlay léger pour la lisibilité -->
-  <div class="architectural-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.3); z-index: 1;"></div>
-
-  <!-- Sketch Overlay avec effet parallax -->
+  <div class="architectural-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.3); z-index: 1;"></div>
   <div class="sketch-overlay position-absolute w-100 h-100" style="top: 0; left: 0; z-index: 2;">
     <div class="blueprint-grid"></div>
     <div class="technical-lines"></div>
   </div>
 
-  <!-- Contenu positionné par-dessus l'image -->
-  <div class="container position-relative d-flex flex-column justify-content-center align-items-center h-100 py-5" style="z-index: 3; min-height: 100vh;">
-    <div class="architectural-content text-center mb-4">
+  <div class="container position-relative d-flex flex-column justify-content-center align-items-center py-5" style="z-index: 3; min-height: 100vh;">
 
-      <h1 class="architectural-title display-4 mb-4">
+    <!-- Greeting -->
+    <div class="text-center mb-5">
+      <h1 class="architectural-title display-4 mb-2">
         <i class="bi bi-house-gear me-3"></i>
         Bonjour <span class="highlight-watercolor"><%= current_user.first_name || current_user.email.split('@').first.capitalize %></span>
       </h1>
-
-      <div class="subtitle-sketch mb-4">
-        <p class="architect-subtitle">
-          Guide d'utilisation Ren0vate<br>
-          Suivez ce parcours pour optimiser vos rénovations et investissements
-        </p>
-        <div class="sketch-underline"></div>
-      </div>
-
+      <p class="text-muted" style="font-size: 1.05rem;">
+        <% if ia_ready %>
+          Votre assistant IA est connecté à toutes vos données et prêt à vous répondre
+        <% else %>
+          Complétez votre profil pour que l'assistant IA puisse vous accompagner pleinement
+        <% end %>
+      </p>
     </div>
 
-    <!-- Annonce Évolution -->
-    <div class="alert alert-success text-center mx-auto mb-5" style="max-width: 800px;">
-      <h5 class="mb-2">
-        <i class="bi bi-rocket-takeoff me-2"></i>
-        <strong>Ren0vate évolue vers une plateforme complète de gestion de rénovation !</strong>
-      </h5>
-      <p class="mb-2">
-        Nouvelles fonctionnalités disponibles progressivement d'ici <strong>fin mars 2026</strong>
-      </p>
-      <small class="text-muted">
-        Les étapes marquées "Bientôt" seront activées au fur et à mesure
-      </small>
-    </div>
+    <!-- ===== MAIN IA CARD ===== -->
+    <div class="mx-auto w-100 mb-4" style="max-width: 780px;">
+      <div class="rounded-4 overflow-hidden" style="background: white; box-shadow: 0 8px 40px rgba(0,0,0,0.13); border: 1px solid rgba(0,0,0,0.07);">
 
-    <!-- Message d'orientation (sur l'image) -->
-    <div class="text-center mx-auto" style="max-width: 700px; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
-      <p class="lead mb-4">
-        <strong>Ren0vate</strong> est votre partenaire pour gérer vos projets de rénovation de A à Z
-      </p>
-      <p class="mb-4">
-        Utilisez la <strong>sidebar à gauche</strong> pour naviguer entre les différentes fonctionnalités :
-      </p>
-      <div class="row g-3 text-start">
-        <div class="col-md-6">
-          <p class="mb-2"><i class="bi bi-gear-fill text-primary me-2"></i> <strong>Configuration</strong> - Profil et biens</p>
-          <p class="mb-2"><i class="bi bi-currency-euro text-success me-2"></i> <strong>Financement</strong> - Budget et suivi des coûts</p>
-          <p class="mb-2"><i class="bi bi-file-earmark-text-fill text-info me-2"></i> <strong>Documents</strong> - Classement intelligent</p>
-          <p class="mb-2"><i class="bi bi-chat-dots-fill text-warning me-2"></i> <strong>Chat IA</strong> - Assistant personnalisé</p>
+        <!-- Header gradient -->
+        <div class="p-4 text-white" style="background: linear-gradient(135deg, var(--ren0vate-primary) 0%, #059669 100%);">
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                 style="width:56px; height:56px; background: rgba(255,255,255,0.2); font-size: 1.7rem;">
+              <i class="bi bi-robot"></i>
+            </div>
+            <div class="flex-grow-1">
+              <h4 class="mb-1 fw-bold">Expert IA Ren0vate</h4>
+              <p class="mb-0 opacity-90" style="font-size: 0.9rem;">
+                Connecté à toutes vos données — primes, chantiers, financements, réglementations
+              </p>
+            </div>
+            <% if ia_ready %>
+              <span class="badge fs-6 fw-normal px-3 py-2 flex-shrink-0"
+                    style="background: rgba(255,255,255,0.2);">
+                <i class="bi bi-check2-circle me-1"></i>Prêt
+              </span>
+            <% else %>
+              <span class="badge fs-6 fw-normal px-3 py-2 flex-shrink-0"
+                    style="background: rgba(255,255,255,0.15);">
+                <%= ia_steps_done %>/4 données renseignées
+              </span>
+            <% end %>
+          </div>
         </div>
-        <div class="col-md-6">
-          <p class="mb-2"><i class="bi bi-tools" style="color: #8b5cf6;" me-2></i> <strong>Préparation chantier</strong> - Planification</p>
-          <p class="mb-2"><i class="bi bi-clipboard2-check-fill me-2"></i> <strong>Suivi chantier</strong> <small class="text-muted">(Bientôt)</small></p>
-          <p class="mb-2"><i class="bi bi-check-circle-fill me-2"></i> <strong>Clôture</strong> <small class="text-muted">(Bientôt)</small></p>
+
+        <!-- Data sources bar -->
+        <div class="px-4 py-3 d-flex gap-3 flex-wrap align-items-center" style="background: #f8fafb; border-bottom: 1px solid #e9ecef;">
+          <span class="small text-muted fw-medium me-1">Sources connectées :</span>
+
+          <span class="d-flex align-items-center gap-1 small">
+            <% if has_profile %>
+              <i class="bi bi-check-circle-fill text-success"></i>
+              <span class="text-success fw-medium">Profil</span>
+            <% else %>
+              <i class="bi bi-dash-circle text-warning"></i>
+              <span class="text-warning fw-medium">Profil</span>
+            <% end %>
+          </span>
+
+          <span class="text-muted">·</span>
+
+          <span class="d-flex align-items-center gap-1 small">
+            <% if has_property %>
+              <i class="bi bi-check-circle-fill text-success"></i>
+              <span class="text-success fw-medium"><%= property_count %> bien<%= property_count > 1 ? 's' : '' %></span>
+            <% else %>
+              <i class="bi bi-dash-circle text-warning"></i>
+              <span class="text-warning fw-medium">Aucun bien</span>
+            <% end %>
+          </span>
+
+          <span class="text-muted">·</span>
+
+          <span class="d-flex align-items-center gap-1 small">
+            <% if has_project %>
+              <i class="bi bi-check-circle-fill text-success"></i>
+              <span class="text-success fw-medium"><%= project_count %> chantier<%= project_count > 1 ? 's' : '' %></span>
+            <% else %>
+              <i class="bi bi-dash-circle text-warning"></i>
+              <span class="text-warning fw-medium">Aucun chantier</span>
+            <% end %>
+          </span>
+
+          <span class="text-muted">·</span>
+
+          <span class="d-flex align-items-center gap-1 small">
+            <% if has_simulation %>
+              <i class="bi bi-check-circle-fill text-success"></i>
+              <span class="text-success fw-medium"><%= simulation_count %> simulation<%= simulation_count > 1 ? 's' : '' %> primes</span>
+            <% else %>
+              <i class="bi bi-dash-circle text-warning"></i>
+              <span class="text-warning fw-medium">Aucune simulation</span>
+            <% end %>
+          </span>
+        </div>
+
+        <!-- Card body -->
+        <div class="p-4">
+          <% if ia_ready %>
+            <%# Toutes les données sont là - montrer le CTA principal %>
+            <p class="text-body-secondary mb-4" style="font-size: 0.95rem;">
+              L'assistant connaît <strong>votre profil</strong>, <strong>vos biens</strong>, <strong>vos chantiers</strong> et <strong>vos simulations de primes</strong>.
+              Posez-lui n'importe quelle question : montants de primes, travaux prioritaires, démarches administratives,
+              prêts disponibles, ou prochaine étape de votre projet.
+            </p>
+
+            <!-- Deux modes d'accès à l'IA -->
+            <div class="row g-3 mb-3">
+
+              <!-- Vue d'ensemble -->
+              <div class="col-md-6">
+                <div class="rounded-3 p-3 h-100 d-flex flex-column"
+                     style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1.5px solid #86efac;">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-layers fs-5" style="color: var(--ren0vate-primary);"></i>
+                    <span class="fw-semibold" style="color: var(--ren0vate-primary);">Vue d'ensemble</span>
+                  </div>
+                  <p class="text-muted small mb-3 flex-grow-1">
+                    Questions transversales sur <strong>tous vos biens</strong> : priorisation patrimoine, comparaison primes, stratégie globale.
+                  </p>
+                  <%= link_to expert_decision_hub_index_path(all: 1), class: "btn btn-success fw-semibold w-100" do %>
+                    <i class="bi bi-chat-dots-fill me-2"></i>Tous mes biens
+                  <% end %>
+                </div>
+              </div>
+
+              <!-- Bien spécifique -->
+              <div class="col-md-6">
+                <div class="rounded-3 p-3 h-100 d-flex flex-column"
+                     style="background: #f8faff; border: 1.5px solid #c7d7f5;">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-house-door fs-5" style="color: #3b6fd4;"></i>
+                    <span class="fw-semibold" style="color: #3b6fd4;">Bien spécifique</span>
+                  </div>
+                  <p class="text-muted small mb-3 flex-grow-1">
+                    Questions ciblées sur <strong>un bien précis</strong> : primes détaillées, chantiers, PEB, documents, intervenants.
+                  </p>
+                  <%= link_to expert_decision_hub_index_path, class: "btn fw-semibold w-100", style: "background: #3b6fd4; color: white;" do %>
+                    <i class="bi bi-arrow-right-circle me-2"></i>Choisir un bien
+                  <% end %>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="d-flex gap-3 flex-wrap align-items-center">
+              <% if project_count > 0 %>
+                <%= link_to projects_path, class: "btn btn-outline-secondary btn-sm" do %>
+                  <i class="bi bi-kanban me-1"></i>Mes chantiers (<%= project_count %>)
+                <% end %>
+              <% end %>
+              <%= link_to simulations_path, class: "btn btn-outline-secondary btn-sm" do %>
+                <i class="bi bi-calculator me-1"></i>Mes simulations
+              <% end %>
+            </div>
+
+          <% else %>
+            <%# Données manquantes - afficher la checklist %>
+            <p class="text-body-secondary mb-4" style="font-size: 0.95rem;">
+              Pour des conseils personnalisés et précis, l'IA a besoin de vos données.
+              Complétez les 4 étapes ci-dessous — cela ne prend que quelques minutes.
+            </p>
+
+            <div class="d-flex flex-column gap-2 mb-4">
+
+              <!-- Étape 1 : Profil -->
+              <div class="d-flex align-items-center gap-3 p-3 rounded-3"
+                   style="background: <%= has_profile ? '#f0fdf4' : '#fffbeb' %>; border: 1px solid <%= has_profile ? '#86efac' : '#fde68a' %>;">
+                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-white"
+                     style="width:34px; height:34px; font-size:0.85rem; min-width:34px; background: <%= has_profile ? '#16a34a' : '#d97706' %>;">
+                  <%= has_profile ? '✓' : '1' %>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="fw-semibold small" style="color: <%= has_profile ? '#166534' : '#92400e' %>;">
+                    Complétez votre profil
+                    <% if has_profile %><span class="ms-1 fw-normal text-success">— fait</span><% end %>
+                  </div>
+                  <div class="text-muted" style="font-size: 0.8rem;">Région, revenus, situation familiale — données essentielles pour calculer vos primes</div>
+                </div>
+                <% unless has_profile %>
+                  <%= link_to edit_user_registration_path, class: "btn btn-sm btn-warning fw-semibold flex-shrink-0" do %>
+                    <i class="bi bi-pencil me-1"></i>Compléter
+                  <% end %>
+                <% end %>
+              </div>
+
+              <!-- Étape 2 : Bien -->
+              <div class="d-flex align-items-center gap-3 p-3 rounded-3"
+                   style="background: <%= has_property ? '#f0fdf4' : '#fffbeb' %>; border: 1px solid <%= has_property ? '#86efac' : '#fde68a' %>;">
+                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-white"
+                     style="width:34px; height:34px; font-size:0.85rem; min-width:34px; background: <%= has_property ? '#16a34a' : '#d97706' %>;">
+                  <%= has_property ? '✓' : '2' %>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="fw-semibold small" style="color: <%= has_property ? '#166534' : '#92400e' %>;">
+                    Ajoutez votre bien
+                    <% if has_property %><span class="ms-1 fw-normal text-success">— <%= property_count %> bien<%= property_count > 1 ? 's' : '' %> renseigné<%= property_count > 1 ? 's' : '' %></span><% end %>
+                  </div>
+                  <div class="text-muted" style="font-size: 0.8rem;">Adresse, type, PEB — l'IA analyse votre bien pour cibler vos travaux prioritaires</div>
+                </div>
+                <% unless has_property %>
+                  <%= link_to new_property_path, class: "btn btn-sm btn-warning fw-semibold flex-shrink-0" do %>
+                    <i class="bi bi-plus-circle me-1"></i>Ajouter
+                  <% end %>
+                <% end %>
+              </div>
+
+              <!-- Étape 3 : Chantier -->
+              <div class="d-flex align-items-center gap-3 p-3 rounded-3"
+                   style="background: <%= has_project ? '#f0fdf4' : '#fffbeb' %>; border: 1px solid <%= has_project ? '#86efac' : '#fde68a' %>;">
+                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-white"
+                     style="width:34px; height:34px; font-size:0.85rem; min-width:34px; background: <%= has_project ? '#16a34a' : '#d97706' %>;">
+                  <%= has_project ? '✓' : '3' %>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="fw-semibold small" style="color: <%= has_project ? '#166534' : '#92400e' %>;">
+                    Créez un chantier
+                    <% if has_project %><span class="ms-1 fw-normal text-success">— <%= project_count %> chantier<%= project_count > 1 ? 's' : '' %> renseigné<%= project_count > 1 ? 's' : '' %></span><% end %>
+                  </div>
+                  <div class="text-muted" style="font-size: 0.8rem;">Planification, budget, suivi des travaux — l'IA intègre l'avancement de votre chantier</div>
+                </div>
+                <% unless has_project %>
+                  <%= link_to new_property_path, class: "btn btn-sm btn-warning fw-semibold flex-shrink-0" do %>
+                    <i class="bi bi-plus-circle me-1"></i>Créer
+                  <% end %>
+                <% end %>
+              </div>
+
+              <!-- Étape 4 : Simulation primes -->
+              <div class="d-flex align-items-center gap-3 p-3 rounded-3"
+                   style="background: <%= has_simulation ? '#f0fdf4' : '#fffbeb' %>; border: 1px solid <%= has_simulation ? '#86efac' : '#fde68a' %>;">
+                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 fw-bold text-white"
+                     style="width:34px; height:34px; font-size:0.85rem; min-width:34px; background: <%= has_simulation ? '#16a34a' : '#d97706' %>;">
+                  <%= has_simulation ? '✓' : '4' %>
+                </div>
+                <div class="flex-grow-1">
+                  <div class="fw-semibold small" style="color: <%= has_simulation ? '#166534' : '#92400e' %>;">
+                    Simulez vos primes régionales
+                    <% if has_simulation %><span class="ms-1 fw-normal text-success">— <%= simulation_count %> simulation<%= simulation_count > 1 ? 's' : '' %></span><% end %>
+                  </div>
+                  <div class="text-muted" style="font-size: 0.8rem;">Calculez vos primes Bruxelles / Wallonie / Flandre — l'IA utilise ces montants pour vous conseiller</div>
+                </div>
+                <% unless has_simulation %>
+                  <%= link_to new_simulation_path, class: "btn btn-sm btn-warning fw-semibold flex-shrink-0" do %>
+                    <i class="bi bi-calculator me-1"></i>Simuler
+                  <% end %>
+                <% end %>
+              </div>
+
+            </div>
+
+            <!-- CTA partiel si au moins profil + bien renseignés -->
+            <% if has_profile && has_property %>
+              <div class="d-flex align-items-center gap-3 flex-wrap pt-1">
+                <p class="text-muted small mb-0">Vous pouvez déjà interroger l'IA avec les données disponibles :</p>
+                <%= link_to expert_decision_hub_index_path(property_id: first_property.id),
+                      class: "btn btn-outline-success fw-semibold" do %>
+                  <i class="bi bi-chat-dots me-2"></i>Consulter quand même
+                <% end %>
+              </div>
+            <% end %>
+
+          <% end %>
         </div>
       </div>
     </div>
+
+    <!-- Quick links -->
+    <div class="mx-auto w-100 text-center" style="max-width: 780px;">
+      <p class="text-muted small mb-3">Navigation rapide</p>
+      <div class="d-flex gap-2 flex-wrap justify-content-center">
+        <%= link_to properties_path, class: "btn btn-sm btn-outline-secondary" do %>
+          <i class="bi bi-houses me-1"></i>Biens
+        <% end %>
+        <%= link_to simulations_path, class: "btn btn-sm btn-outline-secondary" do %>
+          <i class="bi bi-calculator me-1"></i>Simulations
+        <% end %>
+        <%= link_to projects_path, class: "btn btn-sm btn-outline-secondary" do %>
+          <i class="bi bi-kanban me-1"></i>Chantiers
+        <% end %>
+        <%= link_to start_quotes_path, class: "btn btn-sm btn-outline-secondary" do %>
+          <i class="bi bi-file-earmark-text me-1"></i>Devis
+        <% end %>
+        <%= link_to decision_hub_index_path, class: "btn btn-sm btn-outline-secondary" do %>
+          <i class="bi bi-compass me-1"></i>Decision Hub
+        <% end %>
+      </div>
+    </div>
+
   </div>
 </div>

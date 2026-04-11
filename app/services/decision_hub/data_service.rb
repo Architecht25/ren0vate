@@ -380,7 +380,7 @@ class DecisionHub::DataService
     if @region == "bruxelles"
       [
         {
-          name: "Prime Renolution Isolation",
+          name: "Prime Isolation Bruxelles",
           amount: 4200,
           category: "isolation",
           status: "eligible",

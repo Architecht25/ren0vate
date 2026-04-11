@@ -143,18 +143,18 @@ class DecisionHub::TechnicalRequirementsService
           details: "Rendement ≥ 85% pour rénovation lourde si PEB < C.",
           verification_method: "Fiche technique + calcul débit",
           deadline: "Si PEB < C",
-          related_primes: ["Prime Renolution"]
+          related_primes: ["Prime isolation Bruxelles"]
         },
         {
-          id: "lambda_renolution",
+          id: "lambda_bruxelles",
           description: "Isolants lambda ≤ 0,04 W/mK",
           category: "isolation",
           importance: "critical",
           status: "pending",
-          details: "Exigence spécifique Prime Renolution Bruxelles.",
+          details: "Exigence technique primes isolation Bruxelles.",
           verification_method: "Marquage CE matériau",
           deadline: "Choix matériaux",
-          related_primes: ["Prime Renolution"]
+          related_primes: ["Prime isolation Bruxelles"]
         }
       ]
     else

@@ -2071,7 +2071,7 @@ Ren0vate : **3 killer features en 3 mois**.
 ### Q4 2026 (Sept-Nov) : IA ADVANCED + ARCHITECTES
 
 #### Septembre 2026
-- ✅ IA #5 : Assistant Primes/Prêts optimisation
+- ~~✅ IA #5 : Assistant Primes/Prêts optimisation~~ ✅ **LIVRÉ — avril 2026**
 - ~~✅ IA #6 : Chatbot Expert 24/7~~ ✅ **LIVRÉ — avril 2026**
 - ✅ Intégrations comptables (Exact, Yuki)
 - ✅ Marketplace entrepreneurs v1

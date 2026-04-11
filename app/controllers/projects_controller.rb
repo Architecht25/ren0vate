@@ -28,6 +28,7 @@ class ProjectsController < ApplicationController
   end
 
   def show
+    @current_tab = params[:tab].presence_in(%w[preparation suivi reception]) || 'preparation'
     @documents = @project.documents.order(created_at: :desc) if @project.documents.respond_to?(:order)
     photo_types = %w[photo_avant photo_pendant photo_apres photo_chassis]
     @photos = @project.documents.where(type_document: photo_types).order(created_at: :desc)
