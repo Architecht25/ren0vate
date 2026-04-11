@@ -1,0 +1,333 @@
+<%# Audit énergétique Walloreno — Wallonie uniquement %>
+<% _audit = @project.property&.audit_energ_donnees&.order(created_at: :desc)&.first rescue nil %>
+<% _upload_url = scan_audit_energ_project_path(@project) %>
+
+<div class="card border border-2 rounded-4 h-100" id="audit-energ-card">
+  <%# ─────────────────────────── Header ──────────────────────────────────── %>
+  <div class="card-header bg-white border-0 py-3">
+    <div class="d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center">
+        <div class="rounded-circle d-flex align-items-center justify-content-center me-3 flex-shrink-0"
+             style="width:40px;height:40px;background:#1a7a4a;">
+          <i class="bi bi-file-earmark-text text-white fs-6"></i>
+        </div>
+        <div>
+          <h5 class="card-title mb-0 text-dark fw-normal" style="font-size:0.95rem;">Audit énergétique</h5>
+          <p class="text-muted mb-0" style="font-size:0.75rem;">
+            Rapport Walloreno — SPW Énergie
+          </p>
+        </div>
+      </div>
+      <%# Bouton upload toujours visible pour re-scanner %>
+      <button class="btn btn-sm btn-outline-success rounded-3"
+              onclick="document.getElementById('audit-energ-file-input').click()"
+              title="Scanner un rapport d'audit">
+        <i class="bi bi-upload me-1"></i>
+        <span style="font-size:0.78rem;"><%= _audit ? 'Remplacer' : 'Scanner' %></span>
+      </button>
+    </div>
+
+    <%# Input file caché %>
+    <input type="file" id="audit-energ-file-input" class="d-none"
+           accept=".pdf,image/*"
+           data-upload-url="<%= _upload_url %>"
+           onchange="auditEnergScan(this)">
+  </div>
+
+  <div class="card-body p-3">
+    <%# ── État : aucun audit ── %>
+    <% unless _audit %>
+      <div class="text-center py-4 text-muted" id="audit-energ-empty">
+        <i class="bi bi-file-earmark-plus fs-3 d-block mb-2" style="color:#1a7a4a;"></i>
+        <p class="small mb-3">Aucun audit énergétique pour ce bien</p>
+        <button class="btn btn-sm rounded-3 text-white" style="background:#1a7a4a;"
+                onclick="document.getElementById('audit-energ-file-input').click()">
+          <i class="bi bi-upload me-1"></i>Scanner le rapport d'audit
+        </button>
+      </div>
+    <% end %>
+
+    <%# ── Spinner OCR (caché par défaut) ── %>
+    <div id="audit-energ-spinner" class="text-center py-4 d-none">
+      <div class="spinner-border text-success mb-2" role="status" style="width:2rem;height:2rem;"></div>
+      <p class="small text-muted mb-0">Extraction en cours…</p>
+    </div>
+
+    <%# ── Données extraites ── %>
+    <% if _audit %>
+      <%# Badge confiance %>
+      <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+        <i class="bi bi-patch-check text-success"></i>
+        <span class="small text-muted">Confiance OCR</span>
+        <span class="badge ms-auto <%= _audit.confiance_ocr.to_i >= 70 ? 'bg-success' : 'bg-warning text-dark' %>">
+          <%= _audit.confiance_ocr.to_i %> %
+        </span>
+        <% if _audit.perime? %>
+          <span class="badge bg-danger">Périmé</span>
+        <% end %>
+      </div>
+
+      <%# ── Sections 1 + 2 : Identification & Labels côte à côte ── %>
+      <div class="row gx-4 mb-3">
+
+        <%# Colonne identification %>
+        <div class="col-lg-8 col-12">
+          <div class="text-uppercase fw-semibold mb-2" style="font-size:0.68rem;color:#1a7a4a;letter-spacing:0.05em;">
+            <i class="bi bi-card-heading me-1"></i>Identification
+          </div>
+          <div class="row g-0">
+            <% if _audit.numero_audit.present? %>
+              <div class="col-6 pe-3">
+                <div class="d-flex justify-content-between py-1 border-bottom">
+                  <span class="text-muted small">N° audit</span>
+                  <span class="small fw-semibold font-monospace"><%= _audit.numero_audit %></span>
+                </div>
+              </div>
+            <% end %>
+            <% if _audit.date_enregistrement.present? %>
+              <div class="col-6 ps-3">
+                <div class="d-flex justify-content-between py-1 border-bottom">
+                  <span class="text-muted small">Enregistré le</span>
+                  <span class="small"><%= _audit.date_enregistrement.strftime('%d/%m/%Y') %></span>
+                </div>
+              </div>
+            <% end %>
+            <% if _audit.numero_pae.present? %>
+              <div class="col-6 pe-3">
+                <div class="d-flex justify-content-between py-1 border-bottom">
+                  <span class="text-muted small">N° agréé</span>
+                  <span class="small fw-semibold"><%= _audit.numero_pae %></span>
+                </div>
+              </div>
+            <% end %>
+            <% if _audit.denomination_auditeur.present? %>
+              <div class="col-6 ps-3">
+                <div class="d-flex justify-content-between py-1 border-bottom">
+                  <span class="text-muted small">Auditeur</span>
+                  <span class="small text-end" style="max-width:60%;"><%= _audit.denomination_auditeur %></span>
+                </div>
+              </div>
+            <% end %>
+            <% if _audit.adresse_auditeur.present? %>
+              <div class="col-12">
+                <div class="d-flex justify-content-between py-1">
+                  <span class="text-muted small flex-shrink-0 me-2">Adresse auditeur</span>
+                  <span class="small text-end"><%= _audit.adresse_auditeur %></span>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <%# Colonne labels énergétiques %>
+        <% if _audit.label_initial.present? || _audit.label_final.present? %>
+          <div class="col-lg-4 col-12 mt-3 mt-lg-0">
+            <div class="text-uppercase fw-semibold mb-2" style="font-size:0.68rem;color:#1a7a4a;letter-spacing:0.05em;">
+              <i class="bi bi-lightning me-1"></i>Performance énergétique
+            </div>
+            <div class="d-flex align-items-center justify-content-center gap-3 py-3 rounded-3 h-100"
+                 style="background:rgba(26,122,74,0.04);min-height:80px;">
+              <% if _audit.label_initial.present? %>
+                <div class="text-center">
+                  <div class="badge bg-<%= _audit.couleur_label_initial %> fs-4 px-3 py-2"><%= _audit.label_initial %></div>
+                  <div class="text-muted mt-1" style="font-size:0.68rem;">Actuel</div>
+                </div>
+              <% end %>
+              <% if _audit.label_initial.present? && _audit.label_final.present? %>
+                <i class="bi bi-arrow-right fs-3 text-muted"></i>
+              <% end %>
+              <% if _audit.label_final.present? %>
+                <div class="text-center">
+                  <div class="badge bg-<%= _audit.couleur_label_final %> fs-4 px-3 py-2"><%= _audit.label_final %></div>
+                  <div class="text-muted mt-1" style="font-size:0.68rem;">Objectif</div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+      </div>
+
+      <%# ── Section 3 : Bilan scénario complet ── %>
+      <% _bilan = _audit.bilan %>
+      <% if _bilan.present? && (_bilan[:cout_total].to_i > 0 || _bilan[:economie_an].to_i > 0) %>
+        <div class="mb-3 pt-2 border-top">
+          <div class="text-uppercase fw-semibold mb-2" style="font-size:0.68rem;color:#1a7a4a;letter-spacing:0.05em;">
+            <i class="bi bi-calculator me-1"></i>Scénario complet
+          </div>
+          <div class="row gx-2 gy-1">
+            <% if _bilan[:economie_an].to_i > 0 %>
+              <div class="col-6 col-lg-3">
+                <div class="p-2 rounded-3 text-center" style="background:rgba(26,122,74,0.07);">
+                  <div class="fw-bold text-success" style="font-size:0.95rem;">
+                    <%= number_with_delimiter(_bilan[:economie_an].to_i) %> €/an
+                  </div>
+                  <div class="text-muted" style="font-size:0.65rem;">Économie</div>
+                </div>
+              </div>
+            <% end %>
+            <% if _bilan[:cout_total].to_i > 0 %>
+              <div class="col-6 col-lg-3">
+                <div class="p-2 rounded-3 text-center" style="background:rgba(0,0,0,0.04);">
+                  <div class="fw-bold" style="font-size:0.95rem;">
+                    <%= number_with_delimiter(_bilan[:cout_total].to_i) %> €
+                  </div>
+                  <div class="text-muted" style="font-size:0.65rem;">Coût total</div>
+                </div>
+              </div>
+            <% end %>
+            <% if _bilan[:subsides_total].to_i > 0 %>
+              <div class="col-6 col-lg-3">
+                <div class="p-2 rounded-3 text-center" style="background:rgba(13,110,253,0.07);">
+                  <div class="fw-bold text-primary" style="font-size:0.95rem;">
+                    <%= number_with_delimiter(_bilan[:subsides_total].to_i) %> €
+                  </div>
+                  <div class="text-muted" style="font-size:0.65rem;">Subsides</div>
+                </div>
+              </div>
+            <% end %>
+            <% if _bilan[:temps_retour].to_i > 0 %>
+              <div class="col-6 col-lg-3">
+                <div class="p-2 rounded-3 text-center" style="background:rgba(0,0,0,0.04);">
+                  <div class="fw-bold" style="font-size:0.95rem;"><%= _bilan[:temps_retour] %> ans</div>
+                  <div class="text-muted" style="font-size:0.65rem;">Retour invest.</div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <%# ── Section 4 : Recommandations par bouquet ── %>
+      <% _recos = _audit.recommandations %>
+      <% if _recos.any? %>
+        <div class="pt-2 border-top">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <div class="text-uppercase fw-semibold" style="font-size:0.68rem;color:#1a7a4a;letter-spacing:0.05em;">
+              <i class="bi bi-list-check me-1"></i>Recommandations par bouquet
+            </div>
+            <span class="badge rounded-pill" style="background:rgba(26,122,74,0.12);color:#1a7a4a;font-size:0.68rem;">
+              <%= _recos.size %> travaux
+            </span>
+          </div>
+
+          <%# Grille 4 bouquets par ligne (2 lignes × 4 = 8 bouquets) %>
+          <div class="row g-2">
+            <% _recos.group_by { |r| r[:bouquet] }.sort.each do |bouquet_num, lignes| %>
+              <% _label_avant  = lignes.map { |l| l[:label_avant]  }.compact.first %>
+              <% _label_apres  = lignes.map { |l| l[:label_apres]  }.compact.last %>
+              <% _eco_bouquet  = lignes.sum { |l| l[:economie_euro_an].to_i } %>
+              <div class="col-6 col-lg-3">
+                <div class="border rounded-3 h-100 overflow-hidden">
+                  <%# En-tête bouquet %>
+                  <div class="px-2 py-2 d-flex align-items-center justify-content-between" style="background:#1a7a4a;">
+                    <span class="text-white fw-semibold" style="font-size:0.72rem;">Bouquet <%= bouquet_num %></span>
+                    <% if _label_avant.present? && _label_apres.present? %>
+                      <div class="d-flex align-items-center gap-1">
+                        <span class="badge bg-white text-dark" style="font-size:0.6rem;opacity:0.85;"><%= _label_avant %></span>
+                        <i class="bi bi-arrow-right text-white" style="font-size:0.55rem;"></i>
+                        <span class="badge bg-warning text-dark" style="font-size:0.6rem;"><%= _label_apres %></span>
+                      </div>
+                    <% end %>
+                  </div>
+                  <%# Sous-total économie %>
+                  <% if _eco_bouquet > 0 %>
+                    <div class="px-2 py-1 border-bottom text-center" style="background:rgba(26,122,74,0.06);">
+                      <span class="fw-semibold text-success" style="font-size:0.72rem;">
+                        <%= number_with_delimiter(_eco_bouquet) %> €/an
+                      </span>
+                    </div>
+                  <% end %>
+                  <%# Liste des travaux %>
+                  <div class="p-2">
+                    <% lignes.each_with_index do |reco, idx| %>
+                      <div class="<%= idx < lignes.size - 1 ? 'mb-2 pb-2 border-bottom' : '' %>">
+                        <div style="font-size:0.72rem;line-height:1.35;color:#333;">
+                          <% if reco[:reference].present? %>
+                            <span class="badge text-bg-light border me-1" style="font-size:0.58rem;font-family:monospace;vertical-align:middle;">
+                              <%= reco[:reference] %>
+                            </span>
+                          <% end %>
+                          <%= truncate(reco[:recommandation].to_s, length: 55) %>
+                        </div>
+                        <div class="d-flex flex-wrap gap-1 mt-1">
+                          <% if reco[:economie_euro_an].to_i > 0 %>
+                            <span class="badge" style="background:rgba(26,122,74,0.12);color:#1a7a4a;font-size:0.6rem;">
+                              <%= number_with_delimiter(reco[:economie_euro_an].to_i) %> €/an
+                            </span>
+                          <% end %>
+                          <% if reco[:cout_estime_euro].to_i > 0 %>
+                            <span class="badge bg-light text-secondary border" style="font-size:0.6rem;">
+                              <%= number_with_delimiter(reco[:cout_estime_euro].to_i) %> €
+                            </span>
+                          <% end %>
+                          <% if reco[:subsides_euro].to_i > 0 %>
+                            <span class="badge" style="background:rgba(13,110,253,0.1);color:#0d6efd;font-size:0.6rem;">
+                              −<%= number_with_delimiter(reco[:subsides_euro].to_i) %> €
+                            </span>
+                          <% end %>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
+
+    <%# ── Message d'erreur OCR ── %>
+    <div id="audit-energ-error" class="alert alert-danger alert-sm d-none mt-2 mb-0 py-2" style="font-size:0.8rem;"></div>
+  </div>
+</div>
+
+<%# ── Script upload OCR ────────────────────────────────────────────────────── %>
+<script>
+function auditEnergScan(input) {
+  if (!input.files || !input.files[0]) return;
+
+  const uploadUrl = input.dataset.uploadUrl;
+  const card      = document.getElementById('audit-energ-card');
+  const spinner   = document.getElementById('audit-energ-spinner');
+  const emptyEl   = document.getElementById('audit-energ-empty');
+  const errorEl   = document.getElementById('audit-energ-error');
+
+  // Afficher spinner
+  if (spinner)  spinner.classList.remove('d-none');
+  if (emptyEl)  emptyEl.classList.add('d-none');
+  if (errorEl)  errorEl.classList.add('d-none');
+
+  const formData = new FormData();
+  formData.append('file', input.files[0]);
+  formData.append('authenticity_token', document.querySelector('meta[name="csrf-token"]').content);
+
+  fetch(uploadUrl, { method: 'POST', body: formData, headers: { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content } })
+    .then(r => r.json())
+    .then(data => {
+      if (spinner) spinner.classList.add('d-none');
+      if (data.success) {
+        // Recharger la page pour afficher les données extraites
+        window.location.reload();
+      } else {
+        if (errorEl) {
+          errorEl.textContent = data.error || "Erreur lors de l'extraction.";
+          errorEl.classList.remove('d-none');
+        }
+        if (emptyEl) emptyEl.classList.remove('d-none');
+      }
+    })
+    .catch(() => {
+      if (spinner) spinner.classList.add('d-none');
+      if (emptyEl) emptyEl.classList.remove('d-none');
+      if (errorEl) {
+        errorEl.textContent = "Erreur réseau lors de l'envoi du fichier.";
+        errorEl.classList.remove('d-none');
+      }
+    });
+
+  // Reset input pour permettre re-upload du même fichier
+  input.value = '';
+}
+</script>

@@ -1,6 +1,6 @@
 class ProjectsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt, :edit_budget, :update_budget, :edit_professionals, :update_professionals, :fin_chantier, :scan_peb_apres, :update_fin_chantier, :reception_chantier, :scan_attestation_conformite, :garanties, :carnet_entretien, :roi_calculator, :analyze_photos, :vision_status, :score_sante]
+  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt, :edit_budget, :update_budget, :edit_professionals, :update_professionals, :fin_chantier, :scan_peb_apres, :scan_audit_energ, :update_fin_chantier, :reception_chantier, :scan_attestation_conformite, :garanties, :carnet_entretien, :roi_calculator, :analyze_photos, :vision_status, :score_sante]
 
   def index
     # Récupérer les projets, filtrer par property_id si fourni
@@ -528,6 +528,88 @@ class ProjectsController < ApplicationController
     rescue StandardError => e
       Rails.logger.error "scan_peb_apres error: #{e.message}\n#{e.backtrace.first(5).join("\n")}"
       render json: { error: "Erreur lors du traitement du certificat PEB", details: Rails.env.development? ? e.message : nil }, status: :internal_server_error
+    end
+  end
+
+  # POST /projects/:id/scan_audit_energ
+  def scan_audit_energ
+    unless params[:file].present?
+      return render json: { error: 'Aucun fichier fourni' }, status: :bad_request
+    end
+
+    unless @project.property&.region == 'wallonie'
+      return render json: { error: "L'audit énergétique Walloreno est réservé aux biens wallons" }, status: :unprocessable_entity
+    end
+
+    begin
+      service = AuditEnergOcrService.new(params[:file])
+      result  = service.extraire_donnees_audit
+
+      unless result[:success]
+        return render json: { error: result[:error] }, status: :unprocessable_entity
+      end
+
+      document = current_user.documents.create!(
+        file:          params[:file],
+        type_document: 'rapport_audit_energetique',
+        property:      @project.property,
+        project:       @project,
+        status:        'pending',
+        notes:         "Audit énergétique Walloreno — #{result[:numero_audit]} " \
+                       "— auditeur #{result[:numero_pae]} — confiance #{result[:confiance_ocr].to_i} %"
+      )
+
+      if document.file.attached? && document.file_url.blank?
+        document.update_column(:file_url, rails_blob_url(document.file))
+      end
+
+      audit = AuditEnergDonnee.create!(
+        document:             document,
+        user:                 current_user,
+        property:             @project.property,
+        project:              @project,
+        numero_audit:         result[:numero_audit],
+        date_enregistrement:  result[:date_enregistrement],
+        numero_pae:           result[:numero_pae],
+        denomination_auditeur: result[:denomination_auditeur],
+        adresse_auditeur:     result[:adresse_auditeur],
+        label_initial:        result[:label_initial],
+        label_final:          result[:label_final],
+        recommandations_json: result[:recommandations_json] || [],
+        bilan_json:           result[:bilan_json] || {},
+        confiance_ocr:        result[:confiance_ocr],
+        extraction_complete:  result[:extraction_complete],
+        texte_ocr_brut:       result[:texte_ocr_brut]
+      )
+
+      # Synchroniser le numéro d'audit sur le projet si absent
+      if @project.numero_audit.blank? && result[:numero_audit].present?
+        @project.update_column(:numero_audit, result[:numero_audit])
+      end
+      if @project.numero_agrement_auditeur.blank? && result[:numero_pae].present?
+        @project.update_column(:numero_agrement_auditeur, result[:numero_pae])
+      end
+
+      render json: {
+        success:              true,
+        audit_id:             audit.id,
+        document_id:          document.id,
+        numero_audit:         result[:numero_audit],
+        date_enregistrement:  result[:date_enregistrement]&.strftime('%d/%m/%Y'),
+        numero_pae:           result[:numero_pae],
+        denomination_auditeur: result[:denomination_auditeur],
+        label_initial:        result[:label_initial],
+        label_final:          result[:label_final],
+        nb_recommandations:   (result[:recommandations_json] || []).size,
+        confiance_ocr:        result[:confiance_ocr],
+        extraction_complete:  result[:extraction_complete]
+      }
+
+    rescue ActiveRecord::RecordInvalid => e
+      render json: { error: "Erreur sauvegarde audit", details: e.record.errors.full_messages }, status: :unprocessable_entity
+    rescue StandardError => e
+      Rails.logger.error "scan_audit_energ error: #{e.message}\n#{e.backtrace.first(5).join("\n")}"
+      render json: { error: "Erreur lors du traitement de l'audit", details: Rails.env.development? ? e.message : nil }, status: :internal_server_error
     end
   end
 

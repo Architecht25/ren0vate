@@ -218,6 +218,7 @@ Rails.application.routes.draw do
     # Clôture de chantier : PEB après travaux & bilan final
     get  :fin_chantier,         on: :member
     post :scan_peb_apres,       on: :member
+    post :scan_audit_energ,     on: :member
     patch :update_fin_chantier, on: :member
 
     # Réception de chantier (7.1)

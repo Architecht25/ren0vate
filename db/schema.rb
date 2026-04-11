@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_11_110618) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_11_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -76,6 +76,35 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_11_110618) do
     t.index ["document_id"], name: "index_aer_donnees_on_document_id"
     t.index ["user_id", "annee_revenus"], name: "index_aer_donnees_on_user_id_and_annee_revenus"
     t.index ["user_id"], name: "index_aer_donnees_on_user_id"
+  end
+
+  create_table "audit_energ_donnees", force: :cascade do |t|
+    t.bigint "document_id"
+    t.bigint "user_id", null: false
+    t.bigint "property_id"
+    t.bigint "project_id"
+    t.string "numero_audit"
+    t.date "date_enregistrement"
+    t.string "numero_pae"
+    t.string "denomination_auditeur"
+    t.text "adresse_auditeur"
+    t.string "label_initial"
+    t.string "label_final"
+    t.jsonb "recommandations_json", default: []
+    t.jsonb "bilan_json", default: {}
+    t.decimal "confiance_ocr", precision: 5, scale: 2
+    t.boolean "extraction_complete", default: false, null: false
+    t.boolean "valide_manuellement", default: false, null: false
+    t.text "texte_ocr_brut"
+    t.jsonb "donnees_extraites", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["document_id"], name: "index_audit_energ_donnees_on_document_id"
+    t.index ["numero_audit"], name: "index_audit_energ_donnees_on_numero_audit"
+    t.index ["project_id"], name: "index_audit_energ_donnees_on_project_id"
+    t.index ["property_id"], name: "index_audit_energ_donnees_on_property_id"
+    t.index ["recommandations_json"], name: "index_audit_energ_donnees_on_recommandations_json", using: :gin
+    t.index ["user_id"], name: "index_audit_energ_donnees_on_user_id"
   end
 
   create_table "bordereau_chassis_donnees", force: :cascade do |t|
@@ -851,6 +880,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_11_110618) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "aer_donnees", "documents"
   add_foreign_key "aer_donnees", "users"
+  add_foreign_key "audit_energ_donnees", "documents"
+  add_foreign_key "audit_energ_donnees", "projects", on_delete: :nullify
+  add_foreign_key "audit_energ_donnees", "properties"
+  add_foreign_key "audit_energ_donnees", "users"
   add_foreign_key "bordereau_chassis_donnees", "documents"
   add_foreign_key "bordereau_chassis_donnees", "projects"
   add_foreign_key "chantier_analyses", "projects"
