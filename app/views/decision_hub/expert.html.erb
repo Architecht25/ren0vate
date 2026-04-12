@@ -206,7 +206,7 @@
     <div class="col-lg-3">
       <div class="panel expert-ia-sidebar-panel">
         <div class="panel-header">
-          <h3><i class="bi bi-cpu me-2"></i>Assistant IA Expert</h3>
+          <h3><i class="bi bi-cpu me-2"></i>Bien sélectionné pour le chat</h3>
         </div>
         <div class="panel-body">
 
@@ -298,7 +298,7 @@
 
         <!-- Zone de saisie -->
         <div class="expert-ia-input-zone">
-          <form id="aiExpertForm">
+          <form id="aiExpertForm" data-property-id="<%= @property.id %>">
             <div class="input-group">
               <input type="text" class="form-control" id="aiExpertInput"
                      placeholder="Posez votre question à l'expert IA..." autocomplete="off">
@@ -328,8 +328,6 @@ function initExpertIA() {
 
   if (form.dataset.initialized === 'true') return;
   form.dataset.initialized = 'true';
-
-  const PROPERTY_ID = '<%= @property&.id.to_s %>';
 
   function setLoading(loading) {
     if (sendBtn) {
@@ -366,7 +364,7 @@ function initExpertIA() {
           message: question,
           current_page: 'decision_hub',
           mode: 'expert',
-          property_id: PROPERTY_ID
+          property_id: form.dataset.propertyId || ''
         })
       });
 

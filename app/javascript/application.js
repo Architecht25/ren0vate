@@ -54,7 +54,6 @@ import PrimesCommunalesController from "controllers/primes_communales_controller
 import PrimesCommunalesBruxellesController from "controllers/primes_communales_bruxelles_controller"
 import PrimesCommunalesWallonieController from "controllers/primes_communales_wallonie_controller"
 import MapboxController from "controllers/mapbox_controller"
-import ContextualBotController from "controllers/contextual_bot_controller"
 import AmianteController from "controllers/amiante_controller"
 import EntrepreneursManagementController from "controllers/entrepreneurs_management_controller"
 import RoiCalculatorController from "controllers/roi_calculator_controller"
@@ -100,7 +99,7 @@ application.register("primes-communales", PrimesCommunalesController)
 application.register("primes-communales-bruxelles", PrimesCommunalesBruxellesController)
 application.register("primes-communales-wallonie", PrimesCommunalesWallonieController)
 application.register("mapbox", MapboxController)
-application.register("contextual-bot", ContextualBotController)
+
 application.register("amiante", AmianteController)
 application.register("entrepreneurs-management", EntrepreneursManagementController)
 application.register("roi-calculator", RoiCalculatorController)

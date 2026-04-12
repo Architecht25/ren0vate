@@ -240,7 +240,7 @@ class ContextualBotService
     lines << "\n═══ BIEN SÉLECTIONNÉ ═══"
     lines << "  Ref interne : BIEN-#{Digest::SHA256.hexdigest(p.id.to_s)[0..7]}"
     # Localisation : commune + code postal uniquement (pas rue/numéro)
-    lines << "  Localisation: #{[p.postal_code, p.city || p.commune].compact.join(' ')} — #{p.region&.capitalize}"
+    lines << "  Localisation: #{[p.code_postal, p.commune].compact.join(' ')} — #{p.region&.capitalize}"
     lines << "  Type bien : #{type_bien || 'N/A'}"
     lines << "  Occupation: #{p.occupation || p.usage || p.usage_flandre || 'N/A'}"
     lines << "  Surface   : #{p.surface_habitable || p.surface_habitable_wallonie || p.surface_totale || 'N/A'} m²"
