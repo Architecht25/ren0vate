@@ -19,6 +19,7 @@ export default class extends Controller {
         // Si cat déjà précise (1, 2 ou 3), skip l'étape affinage
         if (cat && cat.toString() !== "4") {
           this.goToStep(4)
+          this.updatePrimesCards(cat.toString())
         } else {
           this.goToStep(3)
         }
@@ -99,16 +100,29 @@ export default class extends Controller {
 
   updatePrimesCards(categorie) {
     const cat = categorie.toString()
-    const cat12Only = ['warmtepomp', 'warmtepompboiler']
+    const cat1Only = ['warmtepomp', 'warmtepompboiler']
+    const isCat1 = cat === '1'
     const isCat12 = ['1', '2'].includes(cat)
 
     document.querySelectorAll('[data-controller*="prime-card"]').forEach(card => {
       const slug = card.dataset.slug
+
+      // Catégorie 1 : uniquement pompe à chaleur et chauffe-eau thermodynamique,
+      // quelle que soit la raison (autre bien, appartement, revenus élevés, etc.)
+      if (isCat1) {
+        card.style.display = cat1Only.includes(slug) ? '' : 'none'
+        return
+      }
+
       const prime = window.primes?.find(p => p.slug === slug)
-      if (!prime) return
+      // Si la prime n'est pas trouvée dans les données, on la cache par sécurité
+      if (!prime) {
+        card.style.display = 'none'
+        return
+      }
 
       const isEligible = prime.eligible_categories?.includes(cat)
-      const isAllowed = isCat12 ? cat12Only.includes(slug) : true
+      const isAllowed = isCat12 ? cat1Only.includes(slug) : true
 
       card.style.display = (isEligible && isAllowed) ? '' : 'none'
     })

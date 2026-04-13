@@ -337,27 +337,31 @@ export default class extends Controller {
 
   updatePrimesCards(categorie) {
     const cat = categorie.toString()
-    const cat12Only = ['warmtepomp', 'warmtepompboiler']
+    const cat1Only = ['warmtepomp', 'warmtepompboiler']
+    const isCat1 = cat === '1'
     const isCat12 = ['1', '2'].includes(cat)
 
-    // Trouver toutes les cartes de primes
-    const allPrimeCards = document.querySelectorAll('[data-controller*="prime-card"]');
+    document.querySelectorAll('[data-controller*="prime-card"]').forEach(card => {
+      const slug = card.dataset.slug
 
-    allPrimeCards.forEach(card => {
-      const slug = card.dataset.slug;
-      const prime = window.primes?.find(p => p.slug === slug);
-
-      if (prime) {
-        const isEligible = prime.eligible_categories?.includes(cat);
-        // Pour cat 1/2 : uniquement pompe à chaleur et chauffe-eau thermodynamique
-        const isAllowed = isCat12 ? cat12Only.includes(slug) : true;
-
-        if (isEligible && isAllowed) {
-          card.style.display = '';
-        } else {
-          card.style.display = 'none';
-        }
+      // Catégorie 1 : uniquement pompe à chaleur et chauffe-eau thermodynamique,
+      // quelle que soit la raison (autre bien, appartement, revenus élevés, etc.)
+      if (isCat1) {
+        card.style.display = cat1Only.includes(slug) ? '' : 'none'
+        return
       }
+
+      const prime = window.primes?.find(p => p.slug === slug)
+      // Si la prime n'est pas trouvée dans les données, on la cache par sécurité
+      if (!prime) {
+        card.style.display = 'none'
+        return
+      }
+
+      const isEligible = prime.eligible_categories?.includes(cat)
+      const isAllowed = isCat12 ? cat1Only.includes(slug) : true
+
+      card.style.display = (isEligible && isAllowed) ? '' : 'none'
     });
 
     // Mettre à jour le label de catégorie affiché en étape 4

@@ -221,25 +221,28 @@ module Regions
 
       def determine_income_category_flandre(adjusted_income)
         # Barèmes Flandre 2025 - 4 catégories (logique inversée : 4 = meilleure)
-        # Seuils de base pour personne seule
+        # Le revenu ajusté a déjà subi une déduction de 4.320€ par personne à charge
+        # dans calculate_adjusted_income — on compare donc contre les seuils de base,
+        # sans ré-ajouter nb_charges ici (évite le double comptage).
         situation_familiale = @user.situation_familiale || 'seul'
-        nb_charges = (@user.nombre_enfants || 0) + (@user.respond_to?(:personnes_agees_charge) ? (@user.personnes_agees_charge || 0) : 0)
 
-        # Seuils de base selon la situation (adaptés du JS)
+        # Seuils de base selon la situation familiale (revenu déjà ajusté)
         if situation_familiale.in?(%w[seul celibataire])
+          nb_charges = (@user.nombre_enfants || 0) + (@user.respond_to?(:personnes_agees_charge) ? (@user.personnes_agees_charge || 0) : 0)
           if nb_charges > 0
-            return "4" if adjusted_income <= 36_340 + (nb_charges - 1) * 4320
-            return "3" if adjusted_income <= 59_270 + (nb_charges - 1) * 4320
-            return "2" if adjusted_income <= 76_980 + (nb_charges - 1) * 4320
+            # Seuils personne seule avec charge(s) — base rehaussée pour couvrir le 1er enfant
+            return "4" if adjusted_income <= 36_340
+            return "3" if adjusted_income <= 59_270
+            return "2" if adjusted_income <= 76_980
           else
             return "4" if adjusted_income <= 24_230
             return "3" if adjusted_income <= 42_340
             return "2" if adjusted_income <= 53_880
           end
-        else # couple
-          return "4" if adjusted_income <= 36_340 + nb_charges * 4320
-          return "3" if adjusted_income <= 59_270 + nb_charges * 4320
-          return "2" if adjusted_income <= 76_980 + nb_charges * 4320
+        else # couple — seuils de base couple, déductions déjà appliquées au revenu
+          return "4" if adjusted_income <= 36_340
+          return "3" if adjusted_income <= 59_270
+          return "2" if adjusted_income <= 76_980
         end
 
         # Catégorie 1 pour revenus élevés
