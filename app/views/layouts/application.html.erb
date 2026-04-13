@@ -70,9 +70,11 @@
   </head>
 
   <body>
-    <%= render 'shared/sidebar' %>
+    <% if user_signed_in? %>
+      <%= render 'shared/sidebar' %>
+    <% end %>
 
-    <div class="main-content">
+    <div class="main-content<%= ' no-sidebar' unless user_signed_in? %>">
       <%= render "shared/flashes" %>
       <%= yield %>
     </div>
