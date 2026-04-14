@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_11_140000) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_14_083628) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -545,6 +545,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_11_140000) do
     t.text "additional_entrepreneurs"
     t.jsonb "vision_analysis"
     t.datetime "vision_analysed_at"
+    t.string "permis_urbanisme_statut"
+    t.string "permis_urbanisme_autorite"
+    t.text "permis_urbanisme_notes"
     t.index ["property_id"], name: "index_projects_on_property_id"
     t.index ["user_id"], name: "index_projects_on_user_id"
   end

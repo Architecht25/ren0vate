@@ -127,28 +127,7 @@
                         <i class="bi bi-clipboard-check fs-5"></i>
                       </div>
                       <h6 class="mb-2">Résumé</h6>
-                      <small class="text-muted d-block mb-2">Résumé simple de votre simulation</small>
-
-                      <!-- Aperçu des primes principales -->
-                      <div class="text-start mb-2">
-                        <% (@hub_data[:resume][:primes] || []).first(3).each do |prime| %>
-                          <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="text-muted"><%= prime[:name].truncate(20) %></small>
-                            <small class="fw-bold text-success"><%= prime[:amount] %>€</small>
-                          </div>
-                        <% end %>
-                        <% if (@hub_data[:resume][:primes] || []).count > 3 %>
-                          <small class="text-muted">+ <%= (@hub_data[:resume][:primes] || []).count - 3 %> autres...</small>
-                        <% end %>
-                      </div>
-
-                      <div class="fw-bold text-primary mb-2">
-                        Total: <%= @hub_data[:resume][:total_amount] || 0 %>€
-                      </div>
-
-                      <div class="progress mt-2" style="height: 3px;">
-                        <div class="progress-bar bg-success" style="width: 100%"></div>
-                      </div>
+                      <small class="text-muted d-block">Résumé simple de votre simulation</small>
                     </div>
                   </div>
 
@@ -162,72 +141,7 @@
                         <i class="bi bi-calendar-event fs-5"></i>
                       </div>
                       <h6 class="mb-2">Délais à respecter</h6>
-                      <small class="text-muted d-block mb-2">Échéances à tenir pour bien introduire sa demande dans les temps</small>
-
-                      <!-- Aperçu des délais critiques -->
-                      <div class="text-start mb-2">
-                        <% if @simulation&.region&.downcase == 'flandre' %>
-                          <%
-                            # Calcul des délais pour la Flandre
-                            deadline_peb_suppression = Date.new(2026, 6, 30)
-                            days_peb_suppression = (deadline_peb_suppression - Date.current).to_i
-
-                            deadline_acompte = nil
-                            days_acompte = nil
-                            if @simulation&.project&.date_début.present?
-                              deadline_acompte = @simulation.project.date_début + 2.years
-                              days_acompte = (deadline_acompte - Date.current).to_i
-                            end
-                          %>
-
-                          <!-- Délai Prime PEB -->
-                          <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="text-muted">Prime PEB</small>
-                            <% if days_peb_suppression <= 0 %>
-                              <i class="bi bi-x-circle-fill text-danger"></i>
-                            <% elsif days_peb_suppression <= 180 %>
-                              <i class="bi bi-exclamation-triangle-fill text-danger"></i>
-                            <% elsif days_peb_suppression <= 365 %>
-                              <i class="bi bi-exclamation-triangle text-warning"></i>
-                            <% else %>
-                              <i class="bi bi-check-circle text-success"></i>
-                            <% end %>
-                          </div>
-
-                          <!-- Délai Prime Régionale -->
-                          <% if deadline_acompte.present? %>
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                              <small class="text-muted">Prime régionale</small>
-                              <% if days_acompte <= 0 %>
-                                <i class="bi bi-x-circle-fill text-danger"></i>
-                              <% elsif days_acompte <= 90 %>
-                                <i class="bi bi-exclamation-triangle-fill text-danger"></i>
-                              <% elsif days_acompte <= 365 %>
-                                <i class="bi bi-exclamation-triangle text-warning"></i>
-                              <% else %>
-                                <i class="bi bi-check-circle text-success"></i>
-                              <% end %>
-                            </div>
-                          <% end %>
-
-                        <% else %>
-                          <!-- Autres régions - à adapter -->
-                          <% (@hub_data[:planning][:critical_steps] || []).first(3).each do |step| %>
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                              <small class="text-muted"><%= step[:name].truncate(15) %></small>
-                              <% if step[:status] == 'completed' %>
-                                <i class="bi bi-check-circle-fill text-success"></i>
-                              <% elsif step[:status] == 'current' %>
-                                <i class="bi bi-arrow-right-circle text-primary"></i>
-                              <% elsif step[:urgent] %>
-                                <i class="bi bi-exclamation-triangle-fill text-danger"></i>
-                              <% else %>
-                                <i class="bi bi-circle text-secondary"></i>
-                              <% end %>
-                            </div>
-                          <% end %>
-                        <% end %>
-                      </div>
+                      <small class="text-muted d-block">Échéances à tenir pour bien introduire sa demande dans les temps</small>
                     </div>
                   </div>
 
@@ -241,32 +155,7 @@
                         <i class="bi bi-file-earmark-text fs-5"></i>
                       </div>
                       <h6 class="mb-2">Documents à collecter</h6>
-                      <small class="text-muted d-block mb-2">Liste des documents à collecter pour préparer votre demande de primes</small>
-
-                      <!-- Aperçu des documents principaux -->
-                      <div class="text-start mb-2">
-                        <% (@hub_data[:documents][:key_documents] || []).first(3).each do |doc| %>
-                          <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="text-muted"><%= doc[:name].truncate(15) %></small>
-                            <% if doc[:status] == 'completed' %>
-                              <i class="bi bi-check-circle-fill text-success"></i>
-                            <% elsif doc[:status] == 'pending' %>
-                              <i class="bi bi-clock text-warning"></i>
-                            <% else %>
-                              <i class="bi bi-x-circle text-danger"></i>
-                            <% end %>
-                          </div>
-                        <% end %>
-                      </div>
-
-                      <div class="d-flex justify-content-between text-xs mb-2">
-                        <span class="text-success"><%= (@hub_data[:documents][:completed] || []).count %> OK</span>
-                        <span class="text-danger"><%= (@hub_data[:documents][:missing] || []).count %> manquants</span>
-                      </div>
-
-                      <div class="progress mt-2" style="height: 3px;">
-                        <div class="progress-bar bg-warning" style="width: <%= (@hub_data.dig(:documents, :completion_rate) || 0) %>%" data-decision-hub-target="documentsProgress"></div>
-                      </div>
+                      <small class="text-muted d-block">Liste des documents à collecter pour préparer votre demande de primes</small>
                     </div>
                   </div>
 
@@ -280,44 +169,7 @@
                         <i class="bi bi-gear fs-5"></i>
                       </div>
                       <h6 class="mb-2">Contraintes techniques</h6>
-                      <small class="text-muted d-block mb-2">Contraintes techniques à respecter pour bénéficier des primes</small>
-
-                      <!-- Aperçu des exigences techniques -->
-                      <div class="text-start mb-2">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Isolation thermique</small>
-                          <% if @hub_data.dig(:technical, :isolation_compliant) == true %>
-                            <i class="bi bi-check-circle-fill text-success"></i>
-                          <% else %>
-                            <i class="bi bi-exclamation-triangle text-warning"></i>
-                          <% end %>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Ventilation PEB</small>
-                          <% if @hub_data.dig(:technical, :ventilation_compliant) == true %>
-                            <i class="bi bi-check-circle-fill text-success"></i>
-                          <% else %>
-                            <i class="bi bi-exclamation-triangle text-warning"></i>
-                          <% end %>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Performance énerg.</small>
-                          <% if @hub_data.dig(:technical, :energy_performance_ok) == true %>
-                            <i class="bi bi-check-circle-fill text-success"></i>
-                          <% else %>
-                            <i class="bi bi-exclamation-triangle text-warning"></i>
-                          <% end %>
-                        </div>
-                      </div>
-
-                                            <div class="fw-bold text-secondary mb-2">
-                        <%= (@hub_data.dig(:technical, :compliance_score) || 0) %>% conforme
-                      </div>
-
-                      <div class="progress mt-2" style="height: 3px;">
-                        <% compliance_score = (@hub_data.dig(:technical, :compliance_score) || 0).to_i %>
-                        <div class="progress-bar bg-<%= compliance_score > 80 ? 'success' : compliance_score > 50 ? 'warning' : 'danger' %>" style="width: <%= compliance_score %>%" data-decision-hub-target="technicalProgress"></div>
-                      </div>
+                      <small class="text-muted d-block">Contraintes techniques à respecter pour bénéficier des primes</small>
                     </div>
                   </div>
 
@@ -331,90 +183,28 @@
                         <i class="bi bi-clipboard-data fs-5"></i>
                       </div>
                       <h6 class="mb-2">Préparation technique</h6>
-                      <small class="text-muted d-block mb-2">Collectez et enregistrez vos données techniques réelles</small>
-
-                      <!-- Aperçu des données collectées -->
-                      <div class="text-start mb-2">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Isolation toiture</small>
-                          <% if @hub_data.dig(:preparation, :isolation_toiture_data) %>
-                            <i class="bi bi-check-circle-fill text-success"></i>
-                          <% else %>
-                            <i class="bi bi-circle text-muted"></i>
-                          <% end %>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Systèmes énergie</small>
-                          <% if @hub_data.dig(:preparation, :systemes_energie_data) %>
-                            <i class="bi bi-check-circle-fill text-success"></i>
-                          <% else %>
-                            <i class="bi bi-circle text-muted"></i>
-                          <% end %>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                          <small class="text-muted">Menuiseries</small>
-                          <% if @hub_data.dig(:preparation, :menuiseries_data) %>
-                            <i class="bi bi-check-circle-fill text-success"></i>
-                          <% else %>
-                            <i class="bi bi-circle text-muted"></i>
-                          <% end %>
-                        </div>
-                      </div>
-
-                      <div class="fw-bold text-info mb-2">
-                        <% preparation_completion = (@hub_data.dig(:preparation, :completion_rate) || 0) %>
-                        <%= preparation_completion %>% collecté
-                      </div>
-
-                      <div class="progress mt-2" style="height: 3px;">
-                        <div class="progress-bar bg-info" style="width: <%= preparation_completion %>%" data-decision-hub-target="preparationProgress"></div>
-                      </div>
+                      <small class="text-muted d-block">Collectez et enregistrez vos données techniques réelles</small>
                     </div>
                   </div>
 
                   <!-- Étape 6: Audit Logement Wallonie -->
-                  <% if @default_simulation&.region == 'Wallonie' %>
+                  <% if @default_simulation&.region&.downcase == 'wallonie' %>
                     <div class="col-md-2 steps-tab-col">
                       <div class="p-3 text-center border-end position-relative step-tab"
                            data-section="audit-logement-wallonie"
                            data-action="click->decision-hub#switchSection"
                            style="cursor: pointer;">
-                        <div class="step-number bg-orange text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px; background-color: #fd7e14;">
+                        <div class="step-number text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px; background-color: var(--ren0vate-accent);">
                           <i class="bi bi-house-check fs-5"></i>
                         </div>
-                        <h6 class="mb-2">Audit Logement Wallonie - c'est quoi?</h6>
-                        <small class="text-muted d-block mb-2">Pour bien comprendre la nécessité d'un audit énergétique</small>
-
-                        <!-- Aperçu de l'audit logement -->
-                        <div class="text-start mb-2">
-                          <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="text-muted">Auditeur agréé</small>
-                            <i class="bi bi-person-check text-success"></i>
-                          </div>
-                          <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="text-muted">Accès aux primes</small>
-                            <i class="bi bi-award text-warning"></i>
-                          </div>
-                          <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="text-muted">Rapport détaillé</small>
-                            <i class="bi bi-file-earmark-check text-info"></i>
-                          </div>
-                        </div>
-
-                        <div class="fw-bold text-orange mb-2" style="color: #fd7e14;">
-                          <i class="bi bi-shield-check me-1"></i>
-                          Obligatoire
-                        </div>
-
-                        <div class="progress mt-2" style="height: 3px;">
-                          <div class="progress-bar" style="width: 100%; background-color: #fd7e14;"></div>
-                        </div>
+                        <h6 class="mb-2">Audit Logement Wallonie</h6>
+                        <small class="text-muted d-block">Pour bien comprendre la nécessité d'un audit énergétique</small>
                       </div>
                     </div>
                   <% end %>
 
                   <!-- Étape 7: Certificat PEB Flandre -->
-                  <% if @default_simulation&.region == 'flandre' %>
+                  <% if @default_simulation&.region&.downcase == 'flandre' %>
                     <div class="col-md-2 steps-tab-col">
                       <div class="p-3 text-center border-end position-relative step-tab"
                            data-section="certificat-peb-flandre"
@@ -424,32 +214,7 @@
                           <i class="bi bi-award fs-5"></i>
                         </div>
                         <h6 class="mb-2">Certificat PEB Flandre</h6>
-                        <small class="text-muted d-block mb-2">Accédez aux certificateurs agréés en Flandre</small>
-
-                        <!-- Aperçu du certificat PEB -->
-                        <div class="text-start mb-2">
-                          <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="text-muted">Certificateur agréé</small>
-                            <i class="bi bi-person-check text-success"></i>
-                          </div>
-                          <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="text-muted">Vente/Location</small>
-                            <i class="bi bi-house-door text-warning"></i>
-                          </div>
-                          <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="text-muted">Valable 10 ans</small>
-                            <i class="bi bi-calendar-check text-info"></i>
-                          </div>
-                        </div>
-
-                        <div class="fw-bold mb-2" style="color: #e74c3c;">
-                          <i class="bi bi-shield-check me-1"></i>
-                          Obligatoire
-                        </div>
-
-                        <div class="progress mt-2" style="height: 3px;">
-                          <div class="progress-bar" style="width: 100%; background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);"></div>
-                        </div>
+                        <small class="text-muted d-block">Accédez aux certificateurs agréés en Flandre</small>
                       </div>
                     </div>
                   <% end %>

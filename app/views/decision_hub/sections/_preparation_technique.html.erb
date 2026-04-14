@@ -26,6 +26,155 @@
     technical_data = (_sim_params['technical_preparation'] || {}).deep_symbolize_keys
   %>
 
+  <!-- ========================================================
+       SECTION PRÉLIMINAIRE — Formulaires de demande de prime
+       (Wallonie uniquement)
+  ======================================================== -->
+  <% if @default_simulation&.region&.downcase == 'wallonie' %>
+  <div class="mb-5">
+
+    <%# — En-tête de section — %>
+    <div class="d-flex align-items-center gap-3 py-3 px-4 rounded-3 mb-4"
+         style="background: rgba(var(--ren0vate-primary-rgb), 0.06); border-left: 4px solid var(--ren0vate-primary);">
+      <span class="d-flex align-items-center justify-content-center rounded-circle text-white fw-bold flex-shrink-0"
+            style="width:34px;height:34px;background:var(--ren0vate-primary);font-size:0.85rem;">0</span>
+      <div>
+        <h5 class="mb-0 fw-semibold" style="color:var(--ren0vate-primary); font-size:1rem;">
+          <i class="bi bi-file-earmark-text me-2"></i>Formulaires de demande de prime — Wallonie
+        </h5>
+        <small style="color:var(--ren0vate-text-muted);">À soumettre accompagnés des annexes techniques ci-dessous</small>
+      </div>
+    </div>
+
+    <%# — Bandeau date limite — %>
+    <div class="d-flex align-items-start gap-3 p-3 rounded-3 mb-4"
+         style="background: rgba(var(--ren0vate-accent-rgb), 0.08); border: 1px solid rgba(var(--ren0vate-accent-rgb), 0.25);">
+      <i class="bi bi-clock-history flex-shrink-0 mt-1" style="color:var(--ren0vate-accent); font-size:1.1rem;"></i>
+      <div>
+        <p class="fw-semibold mb-1" style="font-size:0.88rem; color:var(--ren0vate-accent-dark);">
+          Date limite de dépôt : <strong>30 septembre 2026</strong>
+        </p>
+        <p class="mb-0" style="font-size:0.8rem; color:var(--ren0vate-text-muted);">
+          Envoyez les formulaires complétés, signés et accompagnés des annexes par courrier
+          (<em>SPW – Rue des Brigades d'Irlande, 1 – 5100 Jambes</em>)
+          ou via <a href="https://monespace.wallonie.be" target="_blank" rel="noopener"
+                    style="color:var(--ren0vate-accent); font-weight:600;">monespace.wallonie.be</a>.
+          Sans accusé de réception dans les 15 jours, contactez le <strong>1718</strong> (appel gratuit).
+        </p>
+      </div>
+    </div>
+
+    <%# — Deux cartes formulaires — %>
+    <div class="row g-3 mb-3">
+
+      <%# — Formulaire Travaux — %>
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100"
+             style="border-top: 4px solid var(--ren0vate-primary) !important; border-top-left-radius: 1rem !important; border-top-right-radius: 1rem !important;">
+          <div class="card-header border-0 rounded-top-4 py-3 px-4"
+               style="background: var(--ren0vate-gradient-primary);">
+            <div class="d-flex align-items-center gap-3">
+              <div class="d-flex align-items-center justify-content-center rounded-circle bg-white flex-shrink-0"
+                   style="width:40px;height:40px;">
+                <i class="bi bi-file-earmark-ruled" style="color:var(--ren0vate-primary); font-size:1.1rem;"></i>
+              </div>
+              <div>
+                <h6 class="mb-0 fw-semibold text-white" style="font-size:0.9rem;">Demande de prime Travaux</h6>
+                <small class="text-white" style="opacity:0.75; font-size:0.72rem;">Primes Habitation – Travaux</small>
+              </div>
+            </div>
+          </div>
+          <div class="card-body p-4">
+            <p style="font-size:0.82rem; color:var(--ren0vate-text-muted);" class="mb-3">
+              Formulaire à compléter <strong style="color:var(--ren0vate-text);">après la réalisation des travaux</strong>.
+              Un formulaire par audit, pour un ou plusieurs travaux. Les travaux doivent figurer dans la liste recommandée par l'audit.
+            </p>
+            <ul class="list-unstyled mb-4" style="font-size:0.8rem;">
+              <% [
+                   "Factures et devis relatifs aux travaux",
+                   "Annexes techniques complétées (sections ci-dessous)",
+                   "Photos des travaux (avant, pendant, après)",
+                   "Copie carte bancaire ou RIB"
+                 ].each do |item| %>
+                <li class="d-flex align-items-start gap-2 mb-1">
+                  <i class="bi bi-check2 flex-shrink-0 mt-1" style="color:var(--ren0vate-success-dark);"></i>
+                  <span style="color:var(--ren0vate-text-light);"><%= item %></span>
+                </li>
+              <% end %>
+            </ul>
+            <a href="https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/2025-02-13_prime_habitation_travaux_2023_et_temporaire_2025_svl6fm.pdf"
+               target="_blank" rel="noopener"
+               class="btn btn-sm w-100 fw-semibold rounded-3"
+               style="background:var(--ren0vate-gradient-primary); color:white; border:none; font-size:0.82rem; padding: 0.5rem;">
+              <i class="bi bi-file-earmark-arrow-down me-2"></i>Télécharger le formulaire Travaux
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <%# — Formulaire Audit — %>
+      <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 h-100"
+             style="border-top: 4px solid var(--ren0vate-accent) !important; border-top-left-radius: 1rem !important; border-top-right-radius: 1rem !important;">
+          <div class="card-header border-0 rounded-top-4 py-3 px-4"
+               style="background: var(--ren0vate-gradient-accent);">
+            <div class="d-flex align-items-center gap-3">
+              <div class="d-flex align-items-center justify-content-center rounded-circle bg-white flex-shrink-0"
+                   style="width:40px;height:40px;">
+                <i class="bi bi-house-check" style="color:var(--ren0vate-accent-dark); font-size:1.1rem;"></i>
+              </div>
+              <div>
+                <h6 class="mb-0 fw-semibold text-white" style="font-size:0.9rem;">Demande de prime Audit</h6>
+                <small class="text-white" style="opacity:0.75; font-size:0.72rem;">Primes Habitation – Audit Logement</small>
+              </div>
+            </div>
+          </div>
+          <div class="card-body p-4">
+            <p style="font-size:0.82rem; color:var(--ren0vate-text-muted);" class="mb-3">
+              Formulaire à envoyer <strong style="color:var(--ren0vate-text);">dans les 8 mois</strong> suivant l'enregistrement du rapport d'audit.
+              Un formulaire par audit. Les coordonnées pourront être réutilisées pour les primes Travaux.
+            </p>
+            <ul class="list-unstyled mb-4" style="font-size:0.8rem;">
+              <% [
+                   "N° audit, date d'enregistrement, N° agrément auditeur",
+                   "Factures relatives à la réalisation de l'audit",
+                   "Copie carte bancaire ou RIB",
+                   "Informations ménage (handicap, enfants, +60 ans…)"
+                 ].each do |item| %>
+                <li class="d-flex align-items-start gap-2 mb-1">
+                  <i class="bi bi-check2 flex-shrink-0 mt-1" style="color:var(--ren0vate-success-dark);"></i>
+                  <span style="color:var(--ren0vate-text-light);"><%= item %></span>
+                </li>
+              <% end %>
+            </ul>
+            <a href="https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/2025-02-13_prime_audit_grcjd3.pdf"
+               target="_blank" rel="noopener"
+               class="btn btn-sm w-100 fw-semibold rounded-3"
+               style="background:var(--ren0vate-gradient-accent); color:white; border:none; font-size:0.82rem; padding: 0.5rem;">
+              <i class="bi bi-file-earmark-arrow-down me-2"></i>Télécharger le formulaire Audit
+            </a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <%# — Note de liaison avec les annexes — %>
+    <div class="d-flex align-items-center gap-2 px-3 py-2 rounded-3"
+         style="background: rgba(var(--ren0vate-success-rgb), 0.08); border: 1px solid rgba(var(--ren0vate-success-rgb), 0.2); font-size:0.78rem;">
+      <i class="bi bi-lightbulb flex-shrink-0" style="color:var(--ren0vate-success-dark);"></i>
+      <span style="color:var(--ren0vate-text-muted);">
+        <strong style="color:var(--ren0vate-text);">Conseil :</strong>
+        complétez d'abord vos données techniques ci-dessous — elles correspondent aux annexes à joindre au formulaire Travaux.
+        Pour toute information, contactez un Guichet Énergie ou le <strong>1718</strong>.
+      </span>
+    </div>
+
+  </div>
+
+  <hr class="mb-4" style="border-color: var(--ren0vate-border);">
+  <% end %>
+
   <!-- Vue d'ensemble de la préparation -->
   <div class="preparation-overview mb-4">
     <h5 class="fw-bold mb-3">

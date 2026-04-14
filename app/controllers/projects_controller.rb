@@ -843,6 +843,9 @@ class ProjectsController < ApplicationController
       :maitre_ouvrage_nom, :maitre_ouvrage_contact, :coordinateur_securite_nom, :coordinateur_securite_contact,
       # Champs assurances
       :assurance_decennale_architecte, :assurance_decennale_entrepreneur, :garanties_travaux,
+      # Champs permis d'urbanisme
+      :permis_urbanisme_statut, :permis_urbanisme_number, :permis_urbanisme_date,
+      :permis_urbanisme_autorite, :permis_urbanisme_notes,
       # Champs audit énergétique (Wallonie)
       :numero_audit, :date_audit, :numero_agrement_auditeur, :prix_audit,
       # Corps de métiers (JSON)
