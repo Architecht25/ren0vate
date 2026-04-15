@@ -106,7 +106,7 @@
               </tbody>
               <tfoot class="table-light fw-bold">
                 <tr>
-                  <td colspan="4">TOTAL ESTIMATIF (TVA 6% incluse)</td>
+                  <td colspan="5">TOTAL ESTIMATIF (TVA 6% incluse)</td>
                   <td class="text-end text-success fs-6">
                     <%= number_to_currency(@quote.total_min, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
                   </td>
@@ -181,8 +181,16 @@
         <div class="card-body p-4">
           <h6 class="fw-medium text-muted-custom mb-3">Actions</h6>
           <div class="d-grid gap-2">
-            <%= link_to new_property_quote_path(@property), class: "btn btn-outline-primary-custom btn-sm" do %>
-              <i class="bi bi-arrow-repeat me-2"></i>Nouveau devis
+            <%= link_to print_property_quote_path(@property, @quote, autoprint: 1), target: "_blank",
+                class: "btn btn-primary-custom btn-sm" do %>
+              <i class="bi bi-file-earmark-pdf me-2"></i>Télécharger PDF
+            <% end %>
+            <button type="button" class="btn btn-outline-primary-custom btn-sm"
+                    data-bs-toggle="modal" data-bs-target="#modalEnvoyerPro">
+              <i class="bi bi-send me-2"></i>Envoyer à un entrepreneur
+            </button>
+            <%= link_to new_property_quote_path(@property), class: "btn btn-outline-secondary btn-sm" do %>
+              <i class="bi bi-arrow-repeat me-2"></i>Nouveau devis / comparer
             <% end %>
             <%= link_to dashboard_property_path(@property), class: "btn btn-outline-secondary btn-sm" do %>
               <i class="bi bi-house me-2"></i>Retour au bien
@@ -208,6 +216,48 @@
           </small>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal : Envoyer à un professionnel -->
+<div class="modal fade" id="modalEnvoyerPro" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-normal">
+          <i class="bi bi-send me-2 text-primary-custom"></i>Envoyer le devis à un professionnel
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <%= form_with url: send_to_pro_property_quote_path(@property, @quote),
+                    method: :post, local: true do |f| %>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label fw-medium">Email du destinataire <span class="text-danger">*</span></label>
+            <%= f.email_field :recipient_email, class: "form-control",
+                placeholder: "entrepreneur@exemple.be", required: true,
+                autocomplete: "email" %>
+            <div class="form-text">Email de l'entrepreneur ou architecte à qui envoyer ce devis.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-medium">Message personnalisé <span class="text-muted fw-normal">(optionnel)</span></label>
+            <%= f.text_area :message, class: "form-control", rows: 3,
+                placeholder: "Ex : Suite à notre échange, voici l'estimation pour les travaux d'isolation...",
+                maxlength: 1000 %>
+          </div>
+          <div class="alert alert-info border-0 mb-0 py-2 small">
+            <i class="bi bi-info-circle me-1"></i>
+            Le destinataire recevra un récapitulatif du devis et un lien pour le consulter.
+          </div>
+        </div>
+        <div class="modal-footer border-0">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="submit" class="btn btn-primary-custom">
+            <i class="bi bi-send me-2"></i>Envoyer le devis
+          </button>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>

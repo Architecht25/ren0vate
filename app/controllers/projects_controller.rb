@@ -852,7 +852,9 @@ class ProjectsController < ApplicationController
       :corps_metiers,
       # Entrepreneurs additionnels
       :additional_entrepreneurs,
-      additional_entrepreneurs: []
+      additional_entrepreneurs: [],
+      # Avancement des phases de chantier
+      phases_avancement: {}
     )
   end
 end

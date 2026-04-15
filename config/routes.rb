@@ -185,6 +185,10 @@ Rails.application.routes.draw do
       collection do
         get :estimate
       end
+      member do
+        get  :print
+        post :send_to_pro
+      end
     end
   end
 

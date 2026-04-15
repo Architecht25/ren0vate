@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devis estimatif — Ren0vate</title>
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 620px; margin: 0 auto; padding: 20px; }
+      .header { background: #1e3a5f; color: white; padding: 28px 28px 20px; border-radius: 8px 8px 0 0; }
+      .header h1 { margin: 0 0 4px; font-size: 1.25em; }
+      .header .sub { opacity: 0.75; font-size: 0.88em; }
+      .content { background: #f8f9fa; padding: 28px; border-radius: 0 0 8px 8px; }
+      .quote-card { background: white; border-radius: 8px; padding: 20px; margin: 16px 0; border-left: 4px solid #1e3a5f; }
+      .quote-card table { width: 100%; border-collapse: collapse; font-size: 0.88em; }
+      .quote-card th { text-align: left; color: #666; font-weight: normal; padding: 4px 8px 4px 0; border-bottom: 1px solid #eee; }
+      .quote-card td { padding: 6px 8px 6px 0; border-bottom: 1px solid #f5f5f5; }
+      .quote-card td.num { text-align: right; font-weight: bold; }
+      .total-row td { font-weight: bold; color: #1e3a5f; font-size: 1.05em; border-top: 2px solid #1e3a5f; }
+      .message-box { background: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; padding: 14px 16px; margin-bottom: 16px; font-size: 0.92em; }
+      .btn { display: inline-block; padding: 13px 26px; background-color: #1e3a5f; color: white !important; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 16px; font-size: 0.95em; }
+      .disclaimer { font-size: 0.8em; color: #888; margin-top: 20px; background: white; padding: 12px 14px; border-radius: 6px; border-left: 3px solid #ffc107; }
+      .footer { text-align: center; margin-top: 20px; font-size: 0.8em; color: #aaa; }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>🏗️ Devis estimatif de rénovation</h1>
+      <div class="sub">Partagé via la plateforme Ren0vate</div>
+    </div>
+
+    <div class="content">
+      <p>Bonjour,</p>
+      <p><strong><%= @sender_name %></strong> partage avec vous un devis estimatif de rénovation.</p>
+
+      <% if @message.present? %>
+        <div class="message-box">
+          <strong>Message de <%= @sender_name %> :</strong><br>
+          <%= @message %>
+        </div>
+      <% end %>
+
+      <div class="quote-card">
+        <p style="margin:0 0 12px; color:#666; font-size:0.85em; text-transform:uppercase; letter-spacing:0.05em;">
+          📍 <%= @property.titre || [@property.rue, @property.numero, @property.code_postal, @property.commune].compact.join(', ') %>
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Travaux</th>
+              <th style="text-align:right;">Estimation moy.</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @quote.items_with_work_type.each do |row| %>
+              <% item = row[:item]; wt = row[:work_type] %>
+              <tr>
+                <td><%= wt ? wt.name : item.work_type_key.humanize %></td>
+                <td class="num"><%= number_to_currency(item.total_avg, unit: '', separator: ',', delimiter: '.', precision: 0) %> €</td>
+              </tr>
+            <% end %>
+            <tr class="total-row">
+              <td>TOTAL (TVA 6% incluse)</td>
+              <td class="num"><%= number_to_currency(@quote.total_avg, unit: '', separator: ',', delimiter: '.', precision: 0) %> €</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p style="margin:12px 0 0; font-size:0.82em; color:#666;">
+          Fourchette : <%= number_to_currency(@quote.total_min, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
+          — <%= number_to_currency(@quote.total_max, unit: '', separator: ',', delimiter: '.', precision: 0) %> € &nbsp;·&nbsp;
+          Durée estimée : <%= @quote.duration_min_days %>–<%= @quote.duration_max_days %> jours
+        </p>
+      </div>
+
+      <a href="<%= @quote_print_url %>" class="btn">Voir le devis complet →</a>
+
+      <div class="disclaimer">
+        <strong>⚠️ Estimation indicative</strong> — Basée sur les prix moyens du marché belge.
+        Les montants réels peuvent varier selon l'état du bâtiment et les matériaux.
+        Primes régionales non incluses.
+      </div>
+    </div>
+
+    <div class="footer">
+      Ren0vate · Plateforme de gestion de rénovation en Belgique<br>
+      Vous recevez cet email car il vous a été partagé directement.
+    </div>
+  </body>
+</html>

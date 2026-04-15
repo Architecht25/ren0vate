@@ -233,6 +233,29 @@ class Project < ApplicationRecord
     "#{contractor_devis_montant.to_f.round(2)} €"
   end
 
+  # ── Phases d'avancement du chantier ──────────────────────────────────────
+  PHASES_CHANTIER = [
+    { key: 'preparation',    label: 'Préparation',        icon: 'bi-clipboard-check' },
+    { key: 'demolition',     label: 'Démolition/Dépose',  icon: 'bi-tools' },
+    { key: 'installation',   label: 'Installation/Pose',  icon: 'bi-hammer' },
+    { key: 'finitions',      label: 'Finitions',          icon: 'bi-brush' },
+    { key: 'reception',      label: 'Réception',          icon: 'bi-file-earmark-check' }
+  ].freeze
+
+  def phase_pct(key)
+    ((phases_avancement || {})[key.to_s].to_i).clamp(0, 100)
+  end
+
+  def avancement_global_pct
+    return 0 if PHASES_CHANTIER.empty?
+    total = PHASES_CHANTIER.sum { |p| phase_pct(p[:key]) }
+    (total.to_f / PHASES_CHANTIER.length).round
+  end
+
+  def total_facture
+    architecte_factures_total + contractor_factures_total
+  end
+
   private
 
   def set_default_status

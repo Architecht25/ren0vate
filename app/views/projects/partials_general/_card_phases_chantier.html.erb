@@ -1,0 +1,91 @@
+<%# Card Avancement par phases de chantier %>
+<%
+  global_pct = @project.avancement_global_pct
+  bar_color = case global_pct
+    when 0..30   then '#dc3545'
+    when 31..60  then '#ffc107'
+    when 61..99  then '#0d6efd'
+    else              '#198754'
+  end
+%>
+
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+  <div class="card-header border-0 py-3 px-4 d-flex align-items-center justify-content-between"
+       style="background:linear-gradient(135deg,#0f172a,#1e3a5f); border-radius: 1rem 1rem 0 0 !important;">
+    <div class="d-flex align-items-center gap-2">
+      <i class="bi bi-bar-chart-steps text-white fs-5"></i>
+      <span class="fw-semibold text-white">Avancement du chantier</span>
+    </div>
+    <span class="fw-bold text-white" style="font-size:1.1rem;"><%= global_pct %>%</span>
+  </div>
+
+  <div class="card-body px-4 py-3">
+    <!-- Barre globale -->
+    <div class="mb-3">
+      <div class="d-flex justify-content-between mb-1">
+        <small class="text-muted">Avancement global</small>
+        <small class="fw-semibold" style="color:<%= bar_color %>;"><%= global_pct %>%</small>
+      </div>
+      <div style="height:10px; background:#e9ecef; border-radius:8px; overflow:hidden;">
+        <div style="height:100%; width:<%= global_pct %>%; background:<%= bar_color %>; border-radius:8px; transition:width .4s ease;"></div>
+      </div>
+    </div>
+
+    <!-- Phases individuelles (lecture seule, mise à jour via formulaire) -->
+    <div class="d-flex flex-column gap-2 mb-3">
+      <% Project::PHASES_CHANTIER.each do |phase| %>
+        <% pct = @project.phase_pct(phase[:key]) %>
+        <%
+          icon_color = case pct
+            when 100        then 'text-success'
+            when 1..99      then 'text-warning'
+            else                 'text-muted'
+          end
+          label_icon = case pct
+            when 100   then '✅'
+            when 1..99 then '🟡'
+            else            '⚪'
+          end
+        %>
+        <div class="d-flex align-items-center gap-2">
+          <span style="width:22px; text-align:center; font-size:0.9rem;"><%= label_icon %></span>
+          <span style="width:165px; font-size:0.83rem; color:#444;"><%= phase[:label] %></span>
+          <div style="flex:1; height:6px; background:#e9ecef; border-radius:4px; overflow:hidden;">
+            <div style="height:100%; width:<%= pct %>%; background:<%= pct == 100 ? '#198754' : (pct > 0 ? '#ffc107' : '#e9ecef') %>; border-radius:4px; transition:width .3s;"></div>
+          </div>
+          <span style="width:36px; text-align:right; font-size:0.8rem; color:#666;"><%= pct %>%</span>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Formulaire de mise à jour -->
+    <details class="mt-2">
+      <summary class="text-muted small" style="cursor:pointer;">
+        <i class="bi bi-pencil me-1"></i>Mettre à jour les pourcentages
+      </summary>
+      <div class="mt-3 p-3 rounded-3" style="background:#f8f9fa;">
+        <%= form_with url: project_path(@project), method: :patch, local: false,
+                      data: { turbo_action: "replace" } do |f| %>
+          <% Project::PHASES_CHANTIER.each do |phase| %>
+            <div class="mb-2">
+              <label class="form-label mb-1 small fw-medium">
+                <%= phase[:label] %>
+                <span class="text-muted" id="lbl-<%= phase[:key] %>">(<%= @project.phase_pct(phase[:key]) %>%)</span>
+              </label>
+              <input type="range" class="form-range"
+                     name="project[phases_avancement][<%= phase[:key] %>]"
+                     min="0" max="100" step="5"
+                     value="<%= @project.phase_pct(phase[:key]) %>"
+                     oninput="document.getElementById('lbl-<%= phase[:key] %>').textContent = '(' + this.value + '%)'">
+            </div>
+          <% end %>
+          <div class="d-flex justify-content-end mt-2">
+            <button type="submit" class="btn btn-sm btn-primary-custom">
+              <i class="bi bi-check2 me-1"></i>Enregistrer
+            </button>
+          </div>
+        <% end %>
+      </div>
+    </details>
+  </div>
+</div>

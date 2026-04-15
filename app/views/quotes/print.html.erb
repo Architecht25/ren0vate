@@ -1,0 +1,164 @@
+<% content_for :title, "Devis estimatif ##{@quote.id} — #{@property.titre || @property.commune}" %>
+
+<!-- Barre d'actions (cachée à l'impression) -->
+<div class="no-print d-flex align-items-center justify-content-between px-4 py-2"
+     style="background:#f8f9fa; border-bottom:1px solid #dee2e6; position:sticky; top:0; z-index:10;">
+  <div class="d-flex gap-2">
+    <button onclick="window.print()" class="btn btn-sm btn-primary">
+      <i class="bi bi-printer me-1"></i>Imprimer / Enregistrer PDF
+    </button>
+    <%= link_to property_quote_path(@property, @quote), class: "btn btn-sm btn-outline-secondary" do %>
+      <i class="bi bi-arrow-left me-1"></i>Retour
+    <% end %>
+  </div>
+  <small class="text-muted">Utilisez <strong>Enregistrer en PDF</strong> dans la boîte d'impression du navigateur</small>
+</div>
+
+<!-- En-tête -->
+<div class="print-header">
+  <div class="d-flex justify-content-between align-items-start">
+    <div>
+      <h2 class="mb-1" style="font-size:1.3rem;">DEVIS ESTIMATIF &nbsp;#<%= @quote.id %></h2>
+      <div style="opacity:0.8; font-size:0.88rem;">
+        <i class="bi bi-geo-alt me-1"></i>
+        <%= @property.titre || [@property.rue, @property.numero, @property.code_postal, @property.commune].compact.join(', ') %>
+      </div>
+    </div>
+    <div class="text-end">
+      <div style="font-size:1.4rem; font-weight:bold; letter-spacing:0.05em;">REN0VATE</div>
+      <div style="opacity:0.7; font-size:0.78rem;">Plateforme de gestion de rénovation</div>
+      <div style="opacity:0.7; font-size:0.78rem;">Généré le <%= @quote.created_at.strftime("%d/%m/%Y") %></div>
+    </div>
+  </div>
+</div>
+
+<div class="container-fluid px-4 py-4">
+
+  <!-- Client / Bien -->
+  <div class="row mb-4">
+    <div class="col-md-6">
+      <p class="text-muted text-uppercase mb-1" style="font-size:0.7rem; letter-spacing:0.08em;">Demandeur</p>
+      <div class="fw-semibold"><%= @quote.user.full_name rescue @quote.user.email %></div>
+      <div class="text-muted small"><%= @quote.user.email %></div>
+    </div>
+    <div class="col-md-6 text-md-end">
+      <p class="text-muted text-uppercase mb-1" style="font-size:0.7rem; letter-spacing:0.08em;">Bien concerné</p>
+      <div class="fw-semibold"><%= @property.titre || @property.commune %></div>
+      <% addr = [@property.rue, @property.numero, @property.code_postal, @property.commune].compact.join(', ') %>
+      <% unless addr.blank? %><div class="text-muted small"><%= addr %></div><% end %>
+      <% if @property.region.present? %>
+        <div class="text-muted small"><%= @property.region.humanize %></div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Résumé chiffres clés -->
+  <div class="row g-3 mb-4">
+    <div class="col-4">
+      <div class="border rounded p-3 text-center">
+        <div class="text-muted small mb-1">Fourchette basse</div>
+        <div class="fw-bold text-success" style="font-size:1.1rem;">
+          <%= number_to_currency(@quote.total_min, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
+        </div>
+      </div>
+    </div>
+    <div class="col-4">
+      <div class="border-2 rounded p-3 text-center" style="border:2px solid #1e3a5f; background:#f0f4f8;">
+        <div class="text-muted small mb-1">Estimation moyenne</div>
+        <div class="fw-bold" style="font-size:1.15rem; color:#1e3a5f;">
+          <%= number_to_currency(@quote.total_avg, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
+        </div>
+      </div>
+    </div>
+    <div class="col-4">
+      <div class="border rounded p-3 text-center">
+        <div class="text-muted small mb-1">Fourchette haute</div>
+        <div class="fw-bold text-warning" style="font-size:1.1rem;">
+          <%= number_to_currency(@quote.total_max, unit: '', separator: ',', delimiter: '.', precision: 0) %> €
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tableau détail travaux -->
+  <table class="table table-bordered mb-4" style="font-size:0.85rem;">
+    <thead style="background:#1e3a5f; color:white;">
+      <tr>
+        <th style="width:32%;">Poste de travaux</th>
+        <th class="text-center" style="width:14%;">Quantité</th>
+        <th class="text-end">Min (€)</th>
+        <th class="text-end">Moy. (€)</th>
+        <th class="text-end">Max (€)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @quote.items_with_work_type.each do |row| %>
+        <% item = row[:item]; wt = row[:work_type] %>
+        <tr>
+          <td>
+            <%= wt ? wt.name : item.work_type_key.humanize %>
+            <% if wt&.vat_rate.present? %>
+              <span class="badge bg-success-subtle text-success ms-1" style="font-size:0.68rem;">TVA <%= wt.vat_rate %>%</span>
+            <% end %>
+          </td>
+          <td class="text-center text-muted">
+            <% if item.unit == 'forfait' %>
+              Forfait
+            <% else %>
+              <%= number_with_precision(item.quantity, precision: 1, strip_insignificant_zeros: true) %>&nbsp;<%= item.unit %>
+            <% end %>
+          </td>
+          <td class="text-end"><%= number_to_currency(item.total_min, unit: '', separator: ',', delimiter: '.', precision: 0) %></td>
+          <td class="text-end fw-semibold" style="color:#1e3a5f;">
+            <%= number_to_currency(item.total_avg, unit: '', separator: ',', delimiter: '.', precision: 0) %>
+          </td>
+          <td class="text-end"><%= number_to_currency(item.total_max, unit: '', separator: ',', delimiter: '.', precision: 0) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+    <tfoot style="background:#e9ecef; font-weight:bold;">
+      <tr>
+        <td colspan="2">TOTAL ESTIMATIF — TVA 6% incluse</td>
+        <td class="text-end text-success">
+          <%= number_to_currency(@quote.total_min, unit: '', separator: ',', delimiter: '.', precision: 0) %>
+        </td>
+        <td class="text-end" style="color:#1e3a5f; font-size:1.05rem;">
+          <%= number_to_currency(@quote.total_avg, unit: '', separator: ',', delimiter: '.', precision: 0) %>
+        </td>
+        <td class="text-end text-warning">
+          <%= number_to_currency(@quote.total_max, unit: '', separator: ',', delimiter: '.', precision: 0) %>
+        </td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <!-- Durée + infos -->
+  <div class="row mb-4">
+    <div class="col-auto">
+      <small class="text-muted">
+        <i class="bi bi-calendar-range me-1"></i>
+        Durée estimée : <strong><%= @quote.duration_min_days %> – <%= @quote.duration_max_days %> jours</strong>
+        &nbsp;·&nbsp;<%= @quote.quote_items.count %> type<%= @quote.quote_items.count > 1 ? 's' : '' %> de travaux
+        &nbsp;·&nbsp;Primes régionales : disponibles prochainement
+      </small>
+    </div>
+  </div>
+
+  <!-- Avertissement légal -->
+  <div style="background:#fff8e1; border-left:4px solid #ffc107; padding:12px 16px; border-radius:4px; font-size:0.82rem; color:#555;">
+    <strong>⚠️ Estimation indicative</strong> —
+    Ce document est une estimation basée sur les prix moyens du marché belge de la rénovation.
+    Les montants réels peuvent varier selon l'état du bâtiment, les matériaux choisis et les conditions du marché local.
+    Obtenez toujours plusieurs devis formels auprès d'entrepreneurs agréés avant de prendre une décision.
+  </div>
+
+</div>
+
+<% content_for :scripts do %>
+  <script>
+    // Auto-print si paramètre ?autoprint=1
+    if (new URLSearchParams(window.location.search).get('autoprint') === '1') {
+      window.addEventListener('load', function() { window.print(); });
+    }
+  </script>
+<% end %>

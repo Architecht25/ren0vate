@@ -61,18 +61,25 @@
         <div class="rounded-3 p-2 flex-shrink-0" style="background:#fff7ed;">
           <i class="bi bi-currency-euro fs-5 text-warning"></i>
         </div>
-        <div style="min-width:0;overflow:hidden;">
-          <div class="text-muted" style="font-size:0.72rem; text-transform:uppercase;">Budget total</div>
-          <% total = @project.total_devis_montant.to_f %>
-          <div class="fw-semibold" style="font-size:0.82rem;">
-            <% if total > 0 %>
-              <%= number_to_currency(total, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
-            <% else %>
+        <div style="min-width:0; overflow:hidden; width:100%;">
+          <div class="text-muted" style="font-size:0.72rem; text-transform:uppercase;">Budget</div>
+          <% devis_total = @project.total_devis_montant.to_f %>
+          <% facture_total = @project.total_facture.to_f %>
+          <% if devis_total > 0 %>
+            <div class="fw-semibold" style="font-size:0.82rem; line-height:1.3;">
+              <%= number_to_currency(facture_total, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
+              <span class="text-muted fw-normal">/ <%= number_to_currency(devis_total, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %></span>
+            </div>
+            <% budget_pct = [(facture_total / devis_total * 100).round, 100].min %>
+            <% bar_color = budget_pct >= 95 ? '#dc3545' : (budget_pct >= 80 ? '#ffc107' : '#198754') %>
+            <div style="height:4px; background:#e9ecef; border-radius:4px; margin-top:4px; overflow:hidden;">
+              <div style="height:100%; width:<%= budget_pct %>%; background:<%= bar_color %>; border-radius:4px;"></div>
+            </div>
+            <small class="text-muted"><%= budget_pct %>% facturé</small>
+          <% else %>
+            <div class="fw-semibold" style="font-size:0.82rem;">
               <span class="text-muted">Non renseigné</span>
-            <% end %>
-          </div>
-          <% if @planning_items_count > 0 %>
-            <small class="text-muted"><%= @planning_items_count %> poste<%= 's' if @planning_items_count != 1 %> au devis</small>
+            </div>
           <% end %>
         </div>
       </div>

@@ -1,7 +1,7 @@
 class QuotesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_property, except: [:start, :select_property]
-  before_action :set_quote, only: [:show, :destroy]
+  before_action :set_quote, only: [:show, :destroy, :print, :send_to_pro]
 
   # GET /quotes/start
   # Point d'entree depuis la sidebar: ouvre le createur de devis.
@@ -112,6 +112,32 @@ class QuotesController < ApplicationController
 
   # GET /properties/:property_id/quotes/:id
   def show; end
+
+  # GET /properties/:property_id/quotes/:id/print
+  def print
+    render layout: 'print'
+  end
+
+  # POST /properties/:property_id/quotes/:id/send_to_pro
+  def send_to_pro
+    recipient_email = params[:recipient_email].to_s.strip
+    message         = params[:message].to_s.strip.truncate(1000)
+
+    unless recipient_email.match?(/\A[^@\s]+@[^@\s]+\z/)
+      return redirect_to property_quote_path(@property, @quote),
+             alert: "Adresse email invalide."
+    end
+
+    QuoteMailer.share_with_pro(
+      @quote, @property,
+      recipient_email,
+      current_user.full_name,
+      message.presence
+    ).deliver_later
+
+    redirect_to property_quote_path(@property, @quote),
+                notice: "Devis envoyé à #{recipient_email} avec succès."
+  end
 
   # DELETE /properties/:property_id/quotes/:id
   def destroy

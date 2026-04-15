@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title><%= content_for(:title) || "Document — Ren0vate" %></title>
+    <%= csrf_meta_tags %>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    <%= stylesheet_link_tag "application", media: "all" %>
+    <style>
+      @media print {
+        .no-print { display: none !important; }
+        body { margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        table { page-break-inside: auto; }
+        tr { page-break-inside: avoid; }
+        .print-header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      }
+      body { font-family: Arial, sans-serif; color: #222; background: #fff; }
+      .print-header { background: #1e3a5f; color: white; padding: 24px 32px; }
+      .print-footer { text-align: center; color: #888; font-size: 0.78rem; padding: 12px 32px; border-top: 1px solid #ddd; margin-top: 24px; }
+    </style>
+  </head>
+  <body>
+    <%= yield %>
+    <div class="print-footer no-print">
+      Document généré par Ren0vate · <%= Date.today.strftime("%d/%m/%Y") %> · Estimation indicative
+    </div>
+    <div class="print-footer" style="display:none;" id="print-footer-visible">
+      Document généré par Ren0vate · <%= Date.today.strftime("%d/%m/%Y") %> · Estimation indicative — prix réels peuvent varier
+    </div>
+    <script>
+      document.getElementById('print-footer-visible').style.display = 'block';
+      document.getElementById('print-footer-visible').classList.add('no-print');
+      // Remove the hidden one on print
+      window.addEventListener('beforeprint', function() {
+        document.querySelector('.print-footer.no-print').style.display = 'none';
+        document.getElementById('print-footer-visible').style.removeProperty('display');
+      });
+      window.addEventListener('afterprint', function() {
+        document.querySelector('.print-footer.no-print').style.display = '';
+        document.getElementById('print-footer-visible').style.display = 'none';
+      });
+    </script>
+    <%= yield :scripts %>
+  </body>
+</html>
