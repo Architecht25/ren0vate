@@ -303,6 +303,15 @@ class ProjectsController < ApplicationController
 
     # Réserves de réception
     @reserves = @project.reserves.order(statut: :asc, created_at: :desc)
+
+    # Plans disponibles pour annotations (documents de type :plan attachés au projet)
+    @plan_documents = @project.documents.where(type_document: 'plan').includes(file_attachment: :blob)
+
+    # Checklists d'inspection
+    @project_checklists   = @project.project_checklists
+                                     .includes(:checklist_template)
+                                     .order(created_at: :desc)
+    @checklist_templates  = ChecklistTemplate.ordered
   end
 
   # GET /projects/:id/garanties

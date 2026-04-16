@@ -2060,7 +2060,10 @@ Ren0vate : **3 killer features en 3 mois**.
 
 #### Août 2026
 - ~~✅ IA #3 : Score Santé Projet /10~~ ✅ **LIVRÉ — avril 2026**
-- ✅ IA #4 : Prédicteur Permis (ML 87%)
+- ~~✅ IA #4 : Prédicteur Permis (ML 87%)~~ ✅ **LIVRÉ — avril 2026 — `PermisPredicatorService` : 30+ types de travaux, règles CWATUPE/VCRO/CoBAT, détection zones protégées (Natura 2000, bien classé, façade patrimoine), verdict :oui/:non/:conditionnel/:probable, confiance 0-100%, liste documents requis, délais instruction par région, widget IA dans `_card_permis` avec fetch async**
+- ~~✅ Annotations sur plans (inspiré Aproplan)~~ ✅ **LIVRÉ — avril 2026 — épinglage XY% sur plan PDF/image, champs `pin_x/pin_y/plan_document_id/etage` sur Reserve, viewer plan interactif avec markers color-coded par statut réserve, capture photo par réserve**
+- ~~✅ Checklists d'inspection chantier (inspiré Aproplan)~~ ✅ **LIVRÉ — avril 2026 — 4 templates (Gros œuvre/Second œuvre/Finitions/Réception provisoire), 43 items, `ChecklistTemplate/ProjectChecklist/ProjectChecklistItem`, progression auto, toggle OK/décocher avec notes inline**
+- ~~✅ PWA offline robuste (inspiré Aproplan)~~ ✅ **LIVRÉ — avril 2026 — Service Worker v2 avec Background Sync, queue IndexedDB (`ren0vate-offline`), mutations POST/PATCH/DELETE sérialisées offline et rejouées à la reconnexion, réponse 202 optimiste, cache proactif projets**
 - ~~✅ Comparaison devis automatique~~ ✅ **LIVRÉ — avril 2026 — comparateur OCR multi-devis : upload PDF entrepreneurs → `DevisOcrService` extrait entreprise/BCE/montant HTVA+TVAC/TVA%/types travaux/validité → tableau côte à côte avec coloration min/max, écart vs estimatif, confiance OCR**
 - ~~✅ Badge "Partenaire vérifié"~~ ✅ **LIVRÉ — avril 2026 — vérification automatique N° TVA entrepreneur via API VIES Europe (`BceVerificationService`), badge ✓ BCE vérifié affiché dans l'équipe projet, job async `BceVerificationJob`**
 

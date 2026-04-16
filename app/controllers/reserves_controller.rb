@@ -55,6 +55,9 @@ class ReservesController < ApplicationController
   end
 
   def reserve_params
-    params.require(:reserve).permit(:description, :responsable, :date_constat, :date_limite, :statut, :notes)
+    params.require(:reserve).permit(
+      :description, :responsable, :date_constat, :date_limite, :statut, :notes,
+      :photo, :pin_x, :pin_y, :plan_document_id, :etage
+    )
   end
 end

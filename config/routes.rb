@@ -49,7 +49,12 @@ Rails.application.routes.draw do
       post 'contextual_bot/clear_history', to: 'contextual_bot#clear_history'
 
       # API pour génération d'aperçus PDF asynchrones
-      post 'pdf_preview/:id/generate', to: 'pdf_preview#generate', as: 'generate_pdf_preview'      # API pour les primes communales Flandre
+      post 'pdf_preview/:id/generate', to: 'pdf_preview#generate', as: 'generate_pdf_preview'
+
+      # IA #4 — Prédicteur Permis d'Urbanisme
+      post 'permis_predicator/:project_id', to: 'permis_predicator#predict', as: 'permis_predicator'
+
+      # API pour les primes communales Flandre
       resources :primes_communales, only: [] do
         collection do
           get :index          # GET /api/primes_communales?code_postal=9000
@@ -264,6 +269,9 @@ Rails.application.routes.draw do
     # Réserves de réception (punch list)
     resources :reserves, only: %i[create update destroy]
 
+    # Checklists d'inspection par phase
+    resources :project_checklists, only: %i[create show destroy]
+
     # PV de réception numérique
     resource :pv_reception, only: %i[show create destroy] do
       member do
@@ -272,6 +280,9 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  # Items de checklists (toggle checked/unchecked) — shallow route
+  resources :project_checklist_items, only: [:update]
 
   # Comparateur Produits & Matériaux (lié ou non à un projet)
   resources :product_comparators, only: [] do

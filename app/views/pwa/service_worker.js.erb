@@ -1,12 +1,16 @@
 // ============================================================
-// REN0VATE SERVICE WORKER
+// REN0VATE SERVICE WORKER v2
 // Stratégie : Network-first pour les pages HTML
 //              Cache-first pour les assets statiques (CSS/JS/images)
+//              Background Sync pour les mutations POST/PATCH/DELETE
 //              Fallback sur /offline pour les pages hors connexion
 // ============================================================
 
-const CACHE_NAME = "ren0vate-v1";
-const OFFLINE_URL = "/offline.html";
+const CACHE_NAME      = "ren0vate-v2";
+const OFFLINE_URL     = "/offline.html";
+const SYNC_TAG        = "ren0vate-offline-queue";
+const IDB_NAME        = "ren0vate-offline";
+const IDB_STORE       = "queue";
 
 // Assets statiques à précacher au moment de l'installation
 const PRECACHE_ASSETS = [
@@ -15,16 +19,20 @@ const PRECACHE_ASSETS = [
   "/icon.svg"
 ];
 
+// Routes HTML à mettre en cache proactivement après login
+const CACHE_HTML_PATHS = [
+  "/dashboard",
+  "/projects",
+  "/properties"
+];
+
 // ============================================================
-// INSTALL — précache des ressources essentielles
+// INSTALL
 // ============================================================
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(PRECACHE_ASSETS);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_ASSETS))
   );
-  // Prendre le contrôle immédiatement sans attendre le rechargement
   self.skipWaiting();
 });
 
@@ -33,15 +41,14 @@ self.addEventListener("install", (event) => {
 // ============================================================
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
+    caches.keys().then((cacheNames) =>
+      Promise.all(
         cacheNames
           .filter((name) => name !== CACHE_NAME)
           .map((name) => caches.delete(name))
-      );
-    })
+      )
+    )
   );
-  // Prendre le contrôle de tous les clients ouverts
   self.clients.claim();
 });
 
@@ -52,15 +59,20 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Ignorer les requêtes non-GET et hors-domaine
-  if (request.method !== "GET") return;
+  // Ignorer hors-domaine
   if (url.origin !== self.location.origin) return;
 
-  // Ignorer les routes Rails sensibles (API, Auth, Admin, Webhooks)
+  // Ignorer les routes Rails sensibles
   const skipPaths = ["/api/", "/rails/", "/admin/", "/webhooks/", "/users/"];
-  if (skipPaths.some((path) => url.pathname.startsWith(path))) return;
+  if (skipPaths.some((p) => url.pathname.startsWith(p))) return;
 
-  // Assets statiques (CSS, JS, images, fonts) → Cache-first
+  // Mutations (POST/PATCH/DELETE) → Background Sync queue quand offline
+  if (["POST", "PATCH", "DELETE"].includes(request.method)) {
+    event.respondWith(mutationWithSync(request));
+    return;
+  }
+
+  // Assets statiques → Cache-first
   if (isStaticAsset(url.pathname)) {
     event.respondWith(cacheFirst(request));
     return;
@@ -74,6 +86,27 @@ self.addEventListener("fetch", (event) => {
 });
 
 // ============================================================
+// BACKGROUND SYNC — rejouer la queue quand le réseau revient
+// ============================================================
+self.addEventListener("sync", (event) => {
+  if (event.tag === SYNC_TAG) {
+    event.waitUntil(replayQueue());
+  }
+});
+
+// ============================================================
+// MESSAGE — communication avec la page (ex : forcer refresh)
+// ============================================================
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "CACHE_PROJECT") {
+    const projectUrl = event.data.url;
+    if (projectUrl) {
+      caches.open(CACHE_NAME).then((cache) => cache.add(projectUrl));
+    }
+  }
+});
+
+// ============================================================
 // HELPERS
 // ============================================================
 
@@ -81,11 +114,10 @@ function isStaticAsset(pathname) {
   return /\.(css|js|png|jpg|jpeg|svg|webp|woff|woff2|ttf|ico)(\?.*)?$/.test(pathname);
 }
 
-// Cache-first : retourne le cache s'il existe, sinon réseau + mise en cache
+// Cache-first
 async function cacheFirst(request) {
   const cached = await caches.match(request);
   if (cached) return cached;
-
   try {
     const response = await fetch(request);
     if (response.ok) {
@@ -98,23 +130,94 @@ async function cacheFirst(request) {
   }
 }
 
-// Network-first : essaie le réseau, fallback cache puis page offline
+// Network-first avec fallback cache puis offline.html
 async function networkFirstWithOfflineFallback(request) {
   try {
     const response = await fetch(request);
-    // Mettre en cache les réponses réussies (pas les redirections auth)
     if (response.ok && response.status === 200) {
       const cache = await caches.open(CACHE_NAME);
       cache.put(request, response.clone());
     }
     return response;
   } catch {
-    // Essayer le cache en dernier recours
     const cached = await caches.match(request);
     if (cached) return cached;
-
-    // Page offline élégante
     const offlinePage = await caches.match(OFFLINE_URL);
     return offlinePage || new Response("Hors connexion", { status: 503 });
+  }
+}
+
+// Mutation avec background sync : tente le réseau, sinon queue + sync
+async function mutationWithSync(request) {
+  try {
+    const response = await fetch(request.clone());
+    return response;
+  } catch {
+    // Hors ligne : sérialiser la requête dans IndexedDB
+    await enqueueRequest(request);
+    // Enregistrer le sync tag
+    self.registration.sync?.register(SYNC_TAG).catch(() => {});
+    // Retourner une réponse "optimiste" pour ne pas bloquer l'UI
+    return new Response(
+      JSON.stringify({ offline: true, message: "Action enregistrée, sera synchronisée dès le retour du réseau." }),
+      { status: 202, headers: { "Content-Type": "application/json" } }
+    );
+  }
+}
+
+// ============================================================
+// IndexedDB helpers
+// ============================================================
+
+function openDb() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open(IDB_NAME, 1);
+    req.onupgradeneeded = (e) => {
+      e.target.result.createObjectStore(IDB_STORE, { keyPath: "id", autoIncrement: true });
+    };
+    req.onsuccess = (e) => resolve(e.target.result);
+    req.onerror   = (e) => reject(e.target.error);
+  });
+}
+
+async function enqueueRequest(request) {
+  const body    = await request.text().catch(() => "");
+  const headers = {};
+  request.headers.forEach((v, k) => { headers[k] = v; });
+
+  const db    = await openDb();
+  const tx    = db.transaction(IDB_STORE, "readwrite");
+  const store = tx.objectStore(IDB_STORE);
+  store.add({
+    url:     request.url,
+    method:  request.method,
+    headers,
+    body,
+    queued_at: Date.now()
+  });
+  return new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+}
+
+async function replayQueue() {
+  const db    = await openDb();
+  const tx    = db.transaction(IDB_STORE, "readwrite");
+  const store = tx.objectStore(IDB_STORE);
+  const items = await new Promise((res) => {
+    const req = store.getAll();
+    req.onsuccess = (e) => res(e.target.result);
+  });
+
+  for (const item of items) {
+    try {
+      await fetch(item.url, {
+        method:  item.method,
+        headers: item.headers,
+        body:    item.body || undefined
+      });
+      // Supprime l'entrée si succès
+      store.delete(item.id);
+    } catch {
+      // Restera en queue pour le prochain sync
+    }
   }
 }

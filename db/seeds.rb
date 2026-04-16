@@ -66,4 +66,12 @@ if File.exist?(products_path)
   load products_path
 end
 
+# ➤ CHECKLISTS D'INSPECTION - Templates de contrôle qualité
+puts "\n✅ === CHECKLISTS D'INSPECTION ==="
+checklists_path = Rails.root.join("db", "seeds", "checklists.rb")
+if File.exist?(checklists_path)
+  puts "🔹 Chargement de : #{checklists_path}"
+  load checklists_path
+end
+
 puts "✅ Seeds terminés"

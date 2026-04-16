@@ -1,0 +1,151 @@
+<div class="container-fluid px-4 py-4">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────────── -->
+  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+    <div class="d-flex align-items-center">
+      <div class="icon-circle me-3">
+        <i class="bi <%= @checklist.checklist_template.phase_icon %>"></i>
+      </div>
+      <div>
+        <h1 class="h3 text-primary-custom mb-0 fw-normal">
+          <%= @checklist.checklist_template.name %>
+        </h1>
+        <small class="text-muted">
+          <span class="badge bg-<%= @checklist.checklist_template.phase_color %>-subtle
+                       text-<%= @checklist.checklist_template.phase_color %> border me-2">
+            <%= @checklist.checklist_template.phase_label %>
+          </span>
+          <%= @project.nom %>
+        </small>
+      </div>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+      <!-- Progression -->
+      <div class="text-end me-3" style="min-width:80px;">
+        <div class="fw-bold text-primary"><%= @checklist.progress_pct %>%</div>
+        <div class="progress" style="height:6px;width:80px;">
+          <div class="progress-bar bg-<%= @checklist.progress_pct == 100 ? 'success' : 'primary' %>"
+               style="width:<%= @checklist.progress_pct %>%"></div>
+        </div>
+      </div>
+      <%= link_to reception_chantier_project_path(@project, anchor: 'checklists'),
+                  class: "btn btn-outline-secondary btn-sm" do %>
+        <i class="bi bi-arrow-left me-1"></i>Retour
+      <% end %>
+      <%= button_to project_project_checklist_path(@project, @checklist), method: :delete,
+                    form: { data: { turbo_confirm: "Supprimer cette inspection ?" } },
+                    class: "btn btn-outline-danger btn-sm" do %>
+        <i class="bi bi-trash3"></i>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @checklist.completed? %>
+    <div class="alert alert-success d-flex align-items-center gap-2 mb-4">
+      <i class="bi bi-patch-check-fill fs-5"></i>
+      <strong>Inspection terminée</strong> — complétée le <%= @checklist.completed_at.strftime('%d/%m/%Y à %H:%M') %>.
+    </div>
+  <% end %>
+
+  <!-- ── Items de la checklist ──────────────────────────────────────────────── -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-transparent border-bottom py-3 px-4">
+      <h5 class="mb-0 text-primary-custom fw-normal">
+        <i class="bi bi-list-check me-2"></i>
+        Points de contrôle
+        <span class="badge bg-secondary ms-2"><%= @items.count { |i| i.checked } %> / <%= @items.count %></span>
+      </h5>
+    </div>
+
+    <div class="list-group list-group-flush">
+      <% @items.each do |item| %>
+        <div class="list-group-item px-4 py-3 <%= 'bg-success-subtle' if item.checked %>">
+          <div class="d-flex align-items-start gap-3">
+
+            <!-- Checkbox -->
+            <div class="flex-shrink-0 mt-1">
+              <%= form_with url: project_checklist_item_path(item), method: :patch,
+                            data: { turbo: false } do |f| %>
+                <% if item.checked %>
+                  <input type="hidden" name="checked" value="false">
+                  <button type="submit" class="btn btn-success rounded-circle p-0 d-flex align-items-center justify-content-center"
+                          style="width:28px;height:28px;" title="Cocher / décocher">
+                    <i class="bi bi-check2 text-white" style="font-size:14px;"></i>
+                  </button>
+                <% else %>
+                  <input type="hidden" name="checked" value="true">
+                  <button type="submit" class="btn btn-outline-secondary rounded-circle p-0 d-flex align-items-center justify-content-center"
+                          style="width:28px;height:28px;" title="Marquer OK">
+                    <i class="bi bi-circle" style="font-size:14px;"></i>
+                  </button>
+                <% end %>
+              <% end %>
+            </div>
+
+            <!-- Contenu -->
+            <div class="flex-grow-1">
+              <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                <span class="<%= item.checked ? 'text-decoration-line-through text-muted' : '' %> fw-medium small">
+                  <%= item.checklist_item.description %>
+                </span>
+                <% if item.checklist_item.required %>
+                  <span class="badge bg-danger-subtle text-danger border border-danger" style="font-size:0.6rem;">Obligatoire</span>
+                <% end %>
+                <% if item.checked %>
+                  <span class="badge bg-success-subtle text-success" style="font-size:0.6rem;">
+                    <i class="bi bi-check-circle me-1"></i>OK
+                    <% if item.checked_at %>— <%= item.checked_at.strftime('%d/%m') %><% end %>
+                  </span>
+                <% end %>
+              </div>
+
+              <!-- Notes inline -->
+              <% if item.notes.present? %>
+                <p class="mb-0 text-muted fst-italic" style="font-size:0.78rem;">
+                  <i class="bi bi-chat-text me-1"></i><%= item.notes %>
+                </p>
+              <% end %>
+
+              <!-- Formulaire notes (toujours visible, compact) -->
+              <% unless item.checked %>
+                <div class="mt-2">
+                  <%= form_with url: project_checklist_item_path(item), method: :patch,
+                                data: { turbo: false }, class: "d-flex gap-2 align-items-center" do |f| %>
+                    <input type="hidden" name="checked" value="true">
+                    <input type="text" name="notes" value="<%= item.notes %>"
+                           class="form-control form-control-sm rounded-3 flex-grow-1"
+                           placeholder="Note (optionnelle)…" style="font-size:0.8rem;">
+                    <button type="submit" class="btn btn-sm btn-outline-success rounded-3 text-nowrap" style="font-size:0.75rem;">
+                      <i class="bi bi-check2 me-1"></i>OK + Note
+                    </button>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Footer résumé -->
+    <div class="card-footer bg-transparent py-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <div class="small text-muted">
+        <% nb_ok = @items.count { |i| i.checked } %>
+        <% nb_requis_ko = @items.count { |i| !i.checked && i.checklist_item.required } %>
+        <%= nb_ok %> / <%= @items.count %> points validés
+        <% if nb_requis_ko > 0 %>
+          <span class="text-danger ms-2">
+            <i class="bi bi-exclamation-triangle me-1"></i>
+            <%= nb_requis_ko %> point<%= 's' if nb_requis_ko > 1 %> obligatoire<%= 's' if nb_requis_ko > 1 %> en attente
+          </span>
+        <% end %>
+      </div>
+      <%= link_to reception_chantier_project_path(@project, anchor: 'checklists'),
+                  class: "btn btn-sm btn-outline-primary rounded-3" do %>
+        <i class="bi bi-arrow-left me-1"></i>Retour à la réception
+      <% end %>
+    </div>
+  </div>
+
+</div>

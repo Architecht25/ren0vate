@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_16_125117) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_16_130001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -173,6 +173,25 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_16_125117) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["project_id"], name: "index_chantier_analyses_on_project_id"
+  end
+
+  create_table "checklist_items", force: :cascade do |t|
+    t.bigint "checklist_template_id", null: false
+    t.text "description", null: false
+    t.boolean "required", default: false
+    t.integer "position", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["checklist_template_id"], name: "index_checklist_items_on_checklist_template_id"
+  end
+
+  create_table "checklist_templates", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "phase", null: false
+    t.text "description"
+    t.integer "position", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "complement_requests", force: :cascade do |t|
@@ -471,6 +490,27 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_16_125117) do
     t.datetime "updated_at", null: false
     t.index ["category", "active"], name: "index_products_on_category_and_active"
     t.index ["category"], name: "index_products_on_category"
+  end
+
+  create_table "project_checklist_items", force: :cascade do |t|
+    t.bigint "project_checklist_id", null: false
+    t.bigint "checklist_item_id", null: false
+    t.boolean "checked", default: false
+    t.text "notes"
+    t.datetime "checked_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_checklist_id"], name: "index_project_checklist_items_on_project_checklist_id"
+  end
+
+  create_table "project_checklists", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "checklist_template_id", null: false
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["checklist_template_id"], name: "index_project_checklists_on_checklist_template_id"
+    t.index ["project_id"], name: "index_project_checklists_on_project_id"
   end
 
   create_table "project_members", force: :cascade do |t|
@@ -803,6 +843,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_16_125117) do
     t.text "notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.float "pin_x"
+    t.float "pin_y"
+    t.bigint "plan_document_id"
+    t.string "etage"
+    t.index ["plan_document_id"], name: "index_reserves_on_plan_document_id"
     t.index ["project_id", "statut"], name: "index_reserves_on_project_id_and_statut"
     t.index ["project_id"], name: "index_reserves_on_project_id"
   end
@@ -943,6 +988,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_16_125117) do
   add_foreign_key "bordereau_chassis_donnees", "documents"
   add_foreign_key "bordereau_chassis_donnees", "projects"
   add_foreign_key "chantier_analyses", "projects"
+  add_foreign_key "checklist_items", "checklist_templates"
   add_foreign_key "complement_requests", "request_progresses"
   add_foreign_key "devis_donnees", "documents"
   add_foreign_key "devis_donnees", "projects"
@@ -970,6 +1016,10 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_16_125117) do
   add_foreign_key "prime_submissions", "properties"
   add_foreign_key "prime_submissions", "users"
   add_foreign_key "primes", "categories"
+  add_foreign_key "project_checklist_items", "checklist_items"
+  add_foreign_key "project_checklist_items", "project_checklists"
+  add_foreign_key "project_checklists", "checklist_templates"
+  add_foreign_key "project_checklists", "projects"
   add_foreign_key "project_members", "projects"
   add_foreign_key "project_members", "users"
   add_foreign_key "projects", "properties"
@@ -985,6 +1035,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_16_125117) do
   add_foreign_key "requests", "properties"
   add_foreign_key "requests", "simulations"
   add_foreign_key "requests", "users"
+  add_foreign_key "reserves", "documents", column: "plan_document_id"
   add_foreign_key "reserves", "projects"
   add_foreign_key "rib_donnees", "documents"
   add_foreign_key "rib_donnees", "users"

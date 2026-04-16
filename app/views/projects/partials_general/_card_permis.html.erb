@@ -267,6 +267,44 @@
 
     <hr class="my-3">
 
+    <%# ── Widget IA Prédicteur Permis ──────────────────────────────────────── %>
+    <div id="permis-ia-widget-<%= @project.id %>" class="mb-3">
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <div class="d-flex align-items-center gap-2">
+          <span class="fw-semibold" style="font-size:0.85rem;">
+            <i class="bi bi-robot me-1 text-primary"></i>Analyse IA — Permis requis ?
+          </span>
+          <span class="badge bg-primary-subtle text-primary border" style="font-size:0.6rem;">IA #4</span>
+        </div>
+        <button type="button"
+                class="btn btn-sm btn-outline-primary rounded-3 py-0 px-2"
+                style="font-size:0.75rem;"
+                onclick="analyzePermis('<%= @project.id %>')">
+          <i class="bi bi-search me-1"></i>Analyser
+        </button>
+      </div>
+
+      <%# État vide -->
+      <div id="permis-ia-idle-<%= @project.id %>" class="rounded-3 p-2 text-center text-muted"
+           style="background:rgba(13,110,253,0.05); font-size:0.78rem;">
+        <i class="bi bi-lightbulb me-1"></i>
+        Cliquez sur « Analyser » pour que l'IA détermine si un permis est nécessaire pour ce projet.
+      </div>
+
+      <%# Loader %>
+      <div id="permis-ia-loading-<%= @project.id %>" class="d-none text-center py-3">
+        <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+        <span class="small text-muted">Analyse en cours…</span>
+      </div>
+
+      <%# Résultat %>
+      <div id="permis-ia-result-<%= @project.id %>" class="d-none">
+        <!-- Rempli dynamiquement par JS -->
+      </div>
+    </div>
+
+    <hr class="my-3">
+
     <%# —— Section Plans du bien —— %>
     <div class="d-flex align-items-center justify-content-between mb-2">
       <div class="d-flex align-items-center gap-2">
@@ -312,3 +350,119 @@
 
   </div>
 </div>
+
+<%# ── JavaScript Prédicteur Permis IA ──────────────────────────────────────── %>
+<script>
+function analyzePermis(projectId) {
+  const idle    = document.getElementById('permis-ia-idle-'    + projectId);
+  const loading = document.getElementById('permis-ia-loading-' + projectId);
+  const result  = document.getElementById('permis-ia-result-'  + projectId);
+
+  if (!idle || !loading || !result) return;
+
+  idle.classList.add('d-none');
+  loading.classList.remove('d-none');
+  result.classList.add('d-none');
+
+  const csrf = document.querySelector('meta[name="csrf-token"]')?.content || '';
+
+  fetch('/api/permis_predicator/' + projectId, {
+    method:  'POST',
+    headers: { 'X-CSRF-Token': csrf, 'Content-Type': 'application/json' }
+  })
+  .then(r => {
+    if (!r.ok) throw new Error('Erreur serveur ' + r.status);
+    return r.json();
+  })
+  .then(data => {
+    loading.classList.add('d-none');
+    result.classList.remove('d-none');
+    result.innerHTML = buildPermisResult(data);
+  })
+  .catch(err => {
+    loading.classList.add('d-none');
+    idle.classList.remove('d-none');
+    idle.innerHTML = '<i class="bi bi-exclamation-triangle me-1 text-warning"></i>Erreur lors de l\'analyse. Réessayez.';
+    console.error('PermisIA error:', err);
+  });
+}
+
+function buildPermisResult(data) {
+  const colorMap = { danger: '#dc3545', warning: '#fd7e14', success: '#198754', info: '#0dcaf0', secondary: '#6c757d' };
+  const bgMap    = { danger: 'rgba(220,53,69,0.07)', warning: 'rgba(253,126,20,0.07)', success: 'rgba(25,135,84,0.07)', info: 'rgba(13,202,240,0.07)', secondary: 'rgba(108,117,125,0.06)' };
+
+  const color = data.color || 'secondary';
+  const bg    = bgMap[color] || bgMap.secondary;
+  const hex   = colorMap[color] || colorMap.secondary;
+
+  let html = `
+    <div class="rounded-3 p-3 mb-2" style="background:${bg}; border-left: 3px solid ${hex};">
+      <div class="d-flex align-items-start gap-2 mb-2">
+        <i class="bi ${data.icon} text-${color} fs-5 flex-shrink-0 mt-1"></i>
+        <div class="flex-grow-1">
+          <div class="fw-semibold" style="font-size:0.88rem;">${data.label}</div>
+          <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
+            <span class="badge bg-${color}-subtle text-${color} border" style="font-size:0.6rem;">
+              ${data.confiance}% de confiance
+            </span>
+            <span class="badge bg-light text-muted border" style="font-size:0.6rem;">
+              <i class="bi bi-geo-alt me-1"></i>${data.region}
+            </span>
+            ${data.delai_jours ? `<span class="badge bg-light text-muted border" style="font-size:0.6rem;"><i class="bi bi-clock me-1"></i>${data.delai_jours} jours</span>` : ''}
+          </div>
+        </div>
+      </div>`;
+
+  // Alertes zones protégées
+  if (data.alertes && data.alertes.length > 0) {
+    data.alertes.forEach(a => {
+      html += `
+        <div class="d-flex align-items-start gap-2 mb-2 p-2 rounded-2"
+             style="background:rgba(${a.niveau === 'danger' ? '220,53,69' : '253,126,20'},0.08); font-size:0.76rem;">
+          <i class="bi ${a.icon} text-${a.niveau} flex-shrink-0"></i>
+          <div>
+            <strong>${a.titre}</strong>
+            <div class="text-muted">${a.detail}</div>
+          </div>
+        </div>`;
+    });
+  }
+
+  // Travaux analysés
+  if (data.travaux_analyses && data.travaux_analyses.length > 0) {
+    html += `<details class="mt-2"><summary style="font-size:0.75rem; cursor:pointer; color:#6c757d;">
+               <i class="bi bi-list-check me-1"></i>Détail par type de travaux (${data.travaux_analyses.length})
+             </summary><div class="mt-2 ps-2">`;
+    data.travaux_analyses.forEach(t => {
+      html += `
+        <div class="d-flex align-items-start gap-2 mb-1" style="font-size:0.75rem;">
+          <span class="badge bg-${t.color}-subtle text-${t.color} border flex-shrink-0 mt-0" style="font-size:0.6rem;">${t.label_verdict}</span>
+          <div>
+            <span class="fw-medium">${t.label}</span>
+            <div class="text-muted">${t.note}</div>
+          </div>
+        </div>`;
+    });
+    html += `</div></details>`;
+  }
+
+  // Documents requis
+  if (data.documents && data.documents.length > 0) {
+    html += `<details class="mt-2"><summary style="font-size:0.75rem; cursor:pointer; color:#6c757d;">
+               <i class="bi bi-folder2-open me-1"></i>Documents requis (${data.documents.length})
+             </summary><ul class="mt-2 mb-0 ps-3" style="font-size:0.75rem;">`;
+    data.documents.forEach(d => {
+      html += `<li class="text-muted mb-1">${d}</li>`;
+    });
+    html += `</ul></details>`;
+  }
+
+  html += `</div>
+    <div class="text-muted mt-1" style="font-size:0.68rem;">
+      <i class="bi bi-info-circle me-1"></i>
+      Analyse indicative — ne remplace pas l'avis d'un architecte ou du service communal d'urbanisme.
+    </div>`;
+
+  return html;
+}
+</script>

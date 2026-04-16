@@ -1,5 +1,8 @@
 class Reserve < ApplicationRecord
   belongs_to :project
+  belongs_to :plan_document, class_name: 'Document', optional: true
+
+  has_one_attached :photo
 
   STATUTS = %w[ouverte en_cours levee].freeze
 
@@ -25,5 +28,9 @@ class Reserve < ApplicationRecord
 
   def statut_icon
     { 'ouverte' => 'bi-exclamation-circle', 'en_cours' => 'bi-clock', 'levee' => 'bi-check-circle-fill' }[statut] || 'bi-circle'
+  end
+
+  def has_pin?
+    pin_x.present? && pin_y.present?
   end
 end

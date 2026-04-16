@@ -26,6 +26,9 @@ class Project < ApplicationRecord
   # PV de réception numérique
   has_one :pv_reception, dependent: :destroy
 
+  # Checklists d'inspection par phase
+  has_many :project_checklists, dependent: :destroy
+
   validates :nom, presence: true
   validates :property_id, presence: true
   validates :project_type, presence: true, inclusion: { in: %w[renovation investment],
