@@ -5,7 +5,9 @@
       <div class="icon-circle me-3">
         <i class="bi bi-calculator"></i>
       </div>
-      <h1 class="h3 text-primary-custom mb-0 fw-normal">Suivi budgétaire</h1>
+      <h1 class="h3 text-primary-custom mb-0 fw-normal">
+        <% if params[:context] == 'devis' %>Synthèse des devis<% elsif params[:context] == 'factures' %>Suivi des factures<% else %>Suivi budgétaire<% end %>
+      </h1>
     </div>
     <div>
       <%= link_to project_path(@project), class: "btn btn-outline-secondary" do %>
@@ -14,12 +16,14 @@
     </div>
   </div>
 
+  <% budget_context = params[:context] %>
   <div class="row g-4">
 
     <!-- ─────────────────────────────────────────────────────────────────────── -->
     <!-- Colonne gauche : devis scannés (architecte + entrepreneurs)           -->
     <!-- ─────────────────────────────────────────────────────────────────────── -->
-    <div class="col-lg-6">
+    <% unless budget_context == 'factures' %>
+    <div class="<%= budget_context == 'devis' ? 'col-lg-10 mx-auto' : 'col-lg-6' %>">
 
       <!-- Zone scan devis architecte -->
       <div class="card border-0 shadow-sm mb-4" id="scan-zone-architecte">
@@ -622,12 +626,14 @@
         </div>
       <% end %>
 
-    </div><!-- /col-lg-6 -->
+    </div><!-- /col gauche -->
+    <% end %>
 
     <!-- ─────────────────────────────────────────────────────────────────────── -->
     <!-- Colonne droite : factures reçues                                       -->
     <!-- ─────────────────────────────────────────────────────────────────────── -->
-    <div class="col-lg-6">
+    <% unless budget_context == 'devis' %>
+    <div class="<%= budget_context == 'factures' ? 'col-lg-10 mx-auto' : 'col-lg-6' %>">
 
       <!-- Zone scan factures -->
       <div class="card border-0 shadow-sm mb-4" id="scan-zone-factures">
@@ -746,7 +752,8 @@
         </div>
       </div>
 
-    </div><!-- /col-lg-6 -->
+    </div><!-- /col droite -->
+    <% end %>
   </div><!-- /row -->
 </div>
 

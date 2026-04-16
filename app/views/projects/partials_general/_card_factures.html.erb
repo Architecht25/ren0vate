@@ -1,0 +1,133 @@
+<%# Suivi des factures — architecte & entrepreneur %>
+<div class="card border border-2 rounded-4 h-100">
+  <div class="card-header bg-white border-0 py-3">
+    <div class="d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center">
+        <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;flex-shrink:0;">
+          <i class="bi bi-receipt text-white fs-6"></i>
+        </div>
+        <div>
+          <h5 class="card-title mb-0 text-dark fw-normal" style="font-size:0.95rem;">Suivi des factures</h5>
+          <p class="text-muted mb-0" style="font-size:0.75rem;">Facturé vs devis</p>
+        </div>
+      </div>
+      <%= link_to edit_budget_project_path(@project, context: 'factures'), class: "btn btn-sm btn-outline-warning rounded-3" do %>
+        <i class="bi bi-pencil me-1"></i><span style="font-size:0.78rem;">Modifier</span>
+      <% end %>
+    </div>
+  </div>
+  <div class="card-body p-3">
+    <% arch_devis    = @project.architecte_devis_montant_effectif
+       arch_factures = @project.architecte_factures_total
+       cont_devis    = @project.contractor_devis_montant_effectif
+       cont_factures = @project.contractor_factures_total
+       total_devis   = (arch_devis || 0) + (cont_devis || 0)
+       total_factures = arch_factures + cont_factures
+       has_data = arch_devis.present? || cont_devis.present? || arch_factures > 0 || cont_factures > 0 %>
+
+    <% if has_data %>
+
+      <% if arch_devis.present? || arch_factures > 0 %>
+        <%  arch_diff = @project.architecte_devis_vs_factures_difference
+            arch_pct  = arch_devis && arch_devis > 0 ? [(arch_factures / arch_devis * 100).round, 100].min : 0 %>
+        <div class="mb-3 pb-3 border-bottom">
+          <div class="text-muted small mb-2"><i class="bi bi-building me-1"></i>Architecte</div>
+          <div class="d-flex justify-content-between mb-2">
+            <div>
+              <div class="text-muted" style="font-size:0.72rem;">Devis</div>
+              <span class="fw-semibold text-primary"><%= arch_devis ? number_to_currency(arch_devis, unit: "€", separator: ",", delimiter: " ") : '—' %></span>
+            </div>
+            <div>
+              <div class="text-muted" style="font-size:0.72rem;">Facturé</div>
+              <span class="fw-semibold"><%= number_to_currency(arch_factures, unit: "€", separator: ",", delimiter: " ") %></span>
+            </div>
+            <% if arch_diff %>
+              <div class="text-end">
+                <div class="text-muted" style="font-size:0.72rem;">Écart</div>
+                <span class="fw-semibold <%= arch_diff > 0 ? 'text-danger' : 'text-success' %>">
+                  <%= arch_diff > 0 ? '+' : '' %><%= number_to_currency(arch_diff, unit: "€", separator: ",", delimiter: " ") %>
+                </span>
+              </div>
+            <% end %>
+          </div>
+          <% if arch_devis && arch_devis > 0 %>
+            <div class="d-flex align-items-center gap-2">
+              <div class="progress flex-grow-1" style="height:5px;">
+                <div class="progress-bar <%= arch_pct >= 100 ? 'bg-danger' : 'bg-success' %>" style="width:<%= arch_pct %>%"></div>
+              </div>
+              <small class="text-muted" style="font-size:0.7rem;white-space:nowrap;"><%= arch_pct %>%</small>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <% if cont_devis.present? || cont_factures > 0 %>
+        <% cont_diff = @project.contractor_devis_vs_factures_difference
+           cont_pct  = cont_devis && cont_devis > 0 ? [(cont_factures / cont_devis * 100).round, 100].min : 0 %>
+        <div class="mb-3 pb-3 border-bottom">
+          <div class="text-muted small mb-2"><i class="bi bi-hammer me-1"></i>Entrepreneur</div>
+          <div class="d-flex justify-content-between mb-2">
+            <div>
+              <div class="text-muted" style="font-size:0.72rem;">Devis</div>
+              <span class="fw-semibold text-primary"><%= cont_devis ? number_to_currency(cont_devis, unit: "€", separator: ",", delimiter: " ") : '—' %></span>
+            </div>
+            <div>
+              <div class="text-muted" style="font-size:0.72rem;">Facturé</div>
+              <span class="fw-semibold"><%= number_to_currency(cont_factures, unit: "€", separator: ",", delimiter: " ") %></span>
+            </div>
+            <% if cont_diff %>
+              <div class="text-end">
+                <div class="text-muted" style="font-size:0.72rem;">Écart</div>
+                <span class="fw-semibold <%= cont_diff > 0 ? 'text-danger' : 'text-success' %>">
+                  <%= cont_diff > 0 ? '+' : '' %><%= number_to_currency(cont_diff, unit: "€", separator: ",", delimiter: " ") %>
+                </span>
+              </div>
+            <% end %>
+          </div>
+          <% if cont_devis && cont_devis > 0 %>
+            <div class="d-flex align-items-center gap-2">
+              <div class="progress flex-grow-1" style="height:5px;">
+                <div class="progress-bar <%= cont_pct >= 100 ? 'bg-danger' : 'bg-success' %>" style="width:<%= cont_pct %>%"></div>
+              </div>
+              <small class="text-muted" style="font-size:0.7rem;white-space:nowrap;"><%= cont_pct %>%</small>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <% total_diff = @project.total_devis_vs_factures_difference
+         total_pct  = total_devis > 0 ? [(total_factures / total_devis * 100).round, 100].min : 0 %>
+      <div class="d-flex justify-content-between align-items-start pt-1">
+        <div>
+          <div class="text-muted small">Total devis</div>
+          <span class="fw-bold text-primary"><%= number_to_currency(total_devis, unit: "€", separator: ",", delimiter: " ") %></span>
+        </div>
+        <div>
+          <div class="text-muted small">Total facturé</div>
+          <span class="fw-bold"><%= number_to_currency(total_factures, unit: "€", separator: ",", delimiter: " ") %></span>
+        </div>
+        <div class="text-end">
+          <div class="text-muted small">Écart</div>
+          <span class="fw-bold <%= total_diff > 0 ? 'text-danger' : 'text-success' %>">
+            <%= total_diff > 0 ? '+' : '' %><%= number_to_currency(total_diff, unit: "€", separator: ",", delimiter: " ") %>
+          </span>
+        </div>
+      </div>
+      <% if total_devis > 0 %>
+        <div class="d-flex align-items-center gap-2 mt-2">
+          <div class="progress flex-grow-1" style="height:6px;">
+            <div class="progress-bar <%= total_pct >= 100 ? 'bg-danger' : 'bg-success' %>" style="width:<%= total_pct %>%"></div>
+          </div>
+          <small class="text-muted" style="font-size:0.7rem;white-space:nowrap;"><%= total_pct %>% facturé</small>
+        </div>
+      <% end %>
+
+    <% else %>
+      <div class="text-center py-5">
+        <i class="bi bi-receipt text-muted mb-3 d-block" style="font-size:2rem;"></i>
+        <div class="text-muted small">Aucune facture enregistrée</div>
+        <p class="text-muted mb-0 mt-1" style="font-size:0.78rem;">Les factures apparaîtront ici au fur et à mesure de l'avancement du chantier.</p>
+      </div>
+    <% end %>
+  </div>
+</div>
