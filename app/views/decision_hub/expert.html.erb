@@ -118,6 +118,9 @@
             <div class="input-group">
               <input type="text" class="form-control" id="aiExpertInput"
                      placeholder="Posez votre question sur l'ensemble de vos biens..." autocomplete="off">
+              <button type="button" class="btn btn-outline-secondary" id="aiVoiceBtn" title="Dicter votre question">
+                <i class="bi bi-mic"></i>
+              </button>
               <button class="btn btn-ren0vate" type="submit" id="aiExpertSendBtn">
                 <i class="bi bi-send me-1"></i>Envoyer
               </button>
@@ -302,6 +305,9 @@
             <div class="input-group">
               <input type="text" class="form-control" id="aiExpertInput"
                      placeholder="Posez votre question à l'expert IA..." autocomplete="off">
+              <button type="button" class="btn btn-outline-secondary" id="aiVoiceBtn" title="Dicter votre question">
+                <i class="bi bi-mic"></i>
+              </button>
               <button class="btn btn-ren0vate" type="submit" id="aiExpertSendBtn">
                 <i class="bi bi-send me-1"></i>Envoyer
               </button>
@@ -460,6 +466,47 @@ function initExpertIA() {
       .replace(/^[-•] (.+)$/gm, '<li>$1</li>')
       .replace(/(<li>[\s\S]*?<\/li>)/g, m => `<ul class="mb-2 ps-3">${m}</ul>`)
       .replace(/^(?!<[houp5ul]|<li)(.+)$/gm, m => m.includes('<') ? m : `<span>${m}</span>`);
+  }
+
+  // Commande vocale
+  const voiceBtn = document.getElementById('aiVoiceBtn');
+  const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (voiceBtn && SpeechRecognitionAPI) {
+    const recognition = new SpeechRecognitionAPI();
+    recognition.lang = 'fr-FR';
+    recognition.interimResults = true;
+    recognition.continuous = false;
+    let isListening = false;
+
+    function setListening(listening) {
+      isListening = listening;
+      voiceBtn.classList.toggle('btn-danger', listening);
+      voiceBtn.classList.toggle('btn-outline-secondary', !listening);
+      voiceBtn.innerHTML = listening
+        ? '<i class="bi bi-mic-fill voice-pulse"></i>'
+        : '<i class="bi bi-mic"></i>';
+      voiceBtn.title = listening ? 'Je vous écoute… (cliquez pour arrêter)' : 'Dicter votre question';
+    }
+
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results).map(r => r[0].transcript).join('');
+      input.value = transcript;
+    };
+
+    recognition.onend = () => { setListening(false); };
+    recognition.onerror = () => { setListening(false); };
+
+    voiceBtn.addEventListener('click', () => {
+      if (isListening) {
+        recognition.stop();
+      } else {
+        input.value = '';
+        recognition.start();
+        setListening(true);
+      }
+    });
+  } else if (voiceBtn) {
+    voiceBtn.style.display = 'none';
   }
 }
 
