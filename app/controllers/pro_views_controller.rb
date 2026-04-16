@@ -12,6 +12,22 @@ class ProViewsController < ApplicationController
     @photos = @project.documents.where(type_document: photo_types).order(created_at: :desc)
     @factures = @project.factures.order(created_at: :desc) if @membership.role == 'entrepreneur'
 
+    # Données permis & documents architecte
+    if @membership.can_manage_permis? || @membership.can_view_metre?
+      @metres        = @project.documents.where(type_document: 'metre').order(created_at: :desc)
+    end
+    if @membership.can_manage_permis?
+      @permis_docs   = @project.documents.where(type_document: 'permis_urbanisme').order(created_at: :desc)
+      @plans_docs    = @project.documents.where(type_document: 'plan').order(created_at: :desc)
+      @permis_statut_config = {
+        'non_requis' => { label: 'Non requis',  color: 'secondary', icon: 'bi-slash-circle'       },
+        'en_cours'   => { label: 'En cours',    color: 'warning',   icon: 'bi-hourglass-split'    },
+        'obtenu'     => { label: 'Obtenu',      color: 'success',   icon: 'bi-check-circle-fill'  },
+        'refuse'     => { label: 'Refusé',      color: 'danger',    icon: 'bi-x-circle-fill'      },
+        'a_deposer'  => { label: 'À déposer',   color: 'info',      icon: 'bi-send'               }
+      }
+    end
+
     # Suivi chantier visuel — photos groupées par phase
     @phases_avancement = @project.phases_avancement || {}
     @photos_by_phase = @photos.group_by do |photo|
@@ -53,8 +69,7 @@ class ProViewsController < ApplicationController
 
   # POST /projects/:id/upload_facture_pro
   # Entrepreneur uploade une facture/devis depuis sa vue pro — partagé automatiquement avec le client
-  def upload_facture_pro
-    unless @membership&.role == 'entrepreneur'
+  def upload_facture_pro    unless @membership&.role == 'entrepreneur'
       redirect_back fallback_location: root_path, alert: "Seul un entrepreneur peut utiliser cette action." and return
     end
     unless params[:facture_pdf].present?
@@ -93,6 +108,76 @@ class ProViewsController < ApplicationController
 
     redirect_to pro_view_project_path(@project),
                 notice: "#{type_facture == 'devis' ? 'Devis' : 'Facture'} envoyé#{type_facture == 'devis' ? '' : 'e'} au client ✓"
+  end
+
+  # POST /projects/:id/upload_document_pro
+  # Architecte uploade un plan, un métré ou un document permis depuis sa vue pro
+  def upload_document_pro
+    unless @membership&.can_manage_permis?
+      redirect_back fallback_location: root_path, alert: "Action réservée à l'architecte." and return
+    end
+
+    allowed_types = %w[plan metre permis_urbanisme]
+    type_doc = params[:type_document].presence_in(allowed_types)
+    unless type_doc
+      redirect_back fallback_location: pro_view_project_path(@project), alert: "Type de document invalide." and return
+    end
+    unless params[:document_file].present?
+      redirect_back fallback_location: pro_view_project_path(@project), alert: "Veuillez joindre un fichier." and return
+    end
+
+    document = Document.new(
+      user:          current_user,
+      project:       @project,
+      property:      @project.property,
+      type_document: type_doc,
+      status:        'approved',
+      description:   params[:description].presence
+    )
+    document.file.attach(params[:document_file])
+
+    if document.save
+      labels = { 'plan' => 'Plan', 'metre' => 'Métré', 'permis_urbanisme' => 'Document permis' }
+      redirect_to pro_view_project_path(@project), notice: "#{labels[type_doc]} ajouté ✓"
+    else
+      redirect_back fallback_location: pro_view_project_path(@project),
+                    alert: "Erreur : #{document.errors.full_messages.join(', ')}"
+    end
+  end
+
+  # PATCH /projects/:id/update_permis_pro
+  # Architecte met à jour les infos du permis d'urbanisme
+  def update_permis_pro
+    unless @membership&.can_manage_permis?
+      redirect_back fallback_location: root_path, alert: "Action réservée à l'architecte." and return
+    end
+
+    permis_attrs = params.require(:project).permit(
+      :permis_urbanisme_statut,
+      :permis_urbanisme_number,
+      :permis_urbanisme_date,
+      :permis_urbanisme_autorite,
+      :permis_urbanisme_notes
+    )
+
+    # Suivi historique si le statut change
+    if permis_attrs[:permis_urbanisme_statut].present? &&
+       permis_attrs[:permis_urbanisme_statut] != @project.permis_urbanisme_statut
+      historique = (@project.permis_urbanisme_historique || []).dup
+      historique << {
+        'statut'     => permis_attrs[:permis_urbanisme_statut],
+        'changed_at' => Time.current.iso8601,
+        'changed_by' => current_user.id
+      }
+      permis_attrs = permis_attrs.merge(permis_urbanisme_historique: historique)
+    end
+
+    if @project.update(permis_attrs)
+      redirect_to pro_view_project_path(@project), notice: "Infos permis mises à jour ✓"
+    else
+      redirect_back fallback_location: pro_view_project_path(@project),
+                    alert: "Erreur : #{@project.errors.full_messages.join(', ')}"
+    end
   end
 
   private

@@ -29,6 +29,18 @@ module ProjectPermissions
     role == 'owner'
   end
 
+  def can_manage_permis?
+    %w[owner architect].include?(role)
+  end
+
+  def can_upload_metre?
+    %w[owner architect].include?(role)
+  end
+
+  def can_view_metre?
+    %w[owner architect entrepreneur].include?(role)
+  end
+
   def role_label
     case role
     when 'owner'       then 'Propriétaire'

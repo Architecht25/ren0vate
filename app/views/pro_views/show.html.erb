@@ -213,6 +213,315 @@
         <% end %>
       <% end %>
 
+      <%# ── BLOC ARCHITECTE : Permis, Plans & Métré ─────────────────────── %>
+      <% if @membership.can_manage_permis? %>
+        <div class="card border-0 shadow-sm rounded-3 mb-3" style="border-left:3px solid #0dcaf0 !important;">
+          <div class="card-header bg-white border-bottom pt-3 pb-2 px-4">
+            <h5 class="mb-0 fw-semibold" style="font-size:0.95rem;">
+              <i class="bi bi-building-gear me-2 text-info"></i>Permis d'urbanisme
+            </h5>
+          </div>
+          <div class="card-body px-4 py-3">
+
+            <%# Stepper statut %>
+            <%
+              statut_config = @permis_statut_config
+              current_statut = statut_config[@project.permis_urbanisme_statut] ||
+                               { label: 'Non renseigné', color: 'light text-muted', icon: 'bi-question-circle' }
+              stepper_steps = [
+                { key: 'a_deposer', label: 'À déposer',  icon: 'bi-send',              color: 'info'    },
+                { key: 'en_cours',  label: 'En cours',   icon: 'bi-hourglass-split',   color: 'warning' },
+                { key: 'obtenu',    label: 'Obtenu',     icon: 'bi-check-circle-fill', color: 'success' }
+              ]
+              current = @project.permis_urbanisme_statut.to_s
+              current_idx = stepper_steps.index { |s| s[:key] == current }
+              historique = (@project.permis_urbanisme_historique || []).sort_by { |h| h['changed_at'] || '' }
+              statut_date = historique.group_by { |h| h['statut'] }.transform_values { |arr| arr.last['changed_at'] }
+            %>
+
+            <% if current == 'refuse' %>
+              <div class="d-flex align-items-center gap-2 mb-3 px-2 py-2 rounded-3" style="background:rgba(220,53,69,0.07);">
+                <i class="bi bi-x-circle-fill text-danger"></i>
+                <span class="text-danger fw-semibold" style="font-size:0.85rem;">Permis refusé</span>
+              </div>
+            <% elsif current == 'non_requis' %>
+              <div class="d-flex align-items-center gap-2 mb-3 px-2 py-2 rounded-3" style="background:rgba(108,117,125,0.08);">
+                <i class="bi bi-slash-circle text-secondary"></i>
+                <span class="text-muted fw-semibold" style="font-size:0.82rem;">Permis non requis</span>
+              </div>
+            <% elsif current.present? %>
+              <div class="d-flex align-items-center mb-3" style="gap:0;">
+                <% stepper_steps.each_with_index do |step, idx| %>
+                  <%
+                    is_done    = current_idx && idx < current_idx
+                    is_current = current_idx && idx == current_idx
+                    step_date  = statut_date[step[:key]]
+                  %>
+                  <div class="d-flex flex-column align-items-center flex-shrink-0" style="min-width:64px;">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center
+                                <%= is_done || is_current ? "bg-#{step[:color]}" : 'bg-light border' %>"
+                         style="width:32px;height:32px;">
+                      <% if is_done %>
+                        <i class="bi bi-check2 text-white" style="font-size:0.85rem;"></i>
+                      <% elsif is_current %>
+                        <i class="bi <%= step[:icon] %> text-white" style="font-size:0.75rem;"></i>
+                      <% else %>
+                        <i class="bi <%= step[:icon] %> text-secondary" style="font-size:0.75rem;"></i>
+                      <% end %>
+                    </div>
+                    <div class="text-center mt-1" style="font-size:0.62rem; line-height:1.2;
+                                 color:<%= is_current ? "var(--bs-#{step[:color]})" : is_done ? '#6c757d' : '#adb5bd' %>;
+                                 font-weight:<%= is_current ? '600' : '400' %>;">
+                      <%= step[:label] %>
+                      <% if step_date.present? %>
+                        <div style="font-size:0.58rem;color:#adb5bd;">
+                          <%= Time.zone.parse(step_date).strftime('%d/%m') rescue '' %>
+                        </div>
+                      <% end %>
+                    </div>
+                  </div>
+                  <% if idx < stepper_steps.size - 1 %>
+                    <div class="flex-grow-1" style="height:2px;margin-bottom:22px;
+                                 background:<%= is_done ? "var(--bs-#{step[:color]})" : '#dee2e6' %>;"></div>
+                  <% end %>
+                <% end %>
+              </div>
+            <% end %>
+
+            <%# Infos permis existantes %>
+            <% if [@project.permis_urbanisme_number, @project.permis_urbanisme_date, @project.permis_urbanisme_autorite].any?(&:present?) %>
+              <div class="mb-3 p-2 rounded-3" style="background:rgba(0,0,0,0.03);">
+                <% if @project.permis_urbanisme_number.present? %>
+                  <div style="font-size:0.75rem;"><span class="text-muted">N° :</span> <strong class="ms-1"><%= @project.permis_urbanisme_number %></strong></div>
+                <% end %>
+                <% if @project.permis_urbanisme_date.present? %>
+                  <div style="font-size:0.75rem;"><span class="text-muted">Délivré le :</span> <span class="ms-1"><%= @project.permis_urbanisme_date.strftime("%d/%m/%Y") %></span></div>
+                <% end %>
+                <% if @project.permis_urbanisme_autorite.present? %>
+                  <div class="text-muted" style="font-size:0.72rem;"><%= @project.permis_urbanisme_autorite %></div>
+                <% end %>
+                <% if @project.permis_urbanisme_notes.present? %>
+                  <div class="text-muted fst-italic mt-1" style="font-size:0.72rem;"><%= truncate(@project.permis_urbanisme_notes, length: 80) %></div>
+                <% end %>
+              </div>
+            <% end %>
+
+            <%# Formulaire mise à jour permis %>
+            <details class="mb-3">
+              <summary class="btn btn-sm btn-outline-info rounded-3 py-0 px-2" style="font-size:0.78rem; list-style:none; cursor:pointer; display:inline-block;">
+                <i class="bi bi-pencil me-1"></i>Mettre à jour le permis
+              </summary>
+              <div class="mt-2 p-3 rounded-3 border bg-light">
+                <%= form_with url: update_permis_pro_project_path(@project), method: :patch do |f| %>
+                  <div class="mb-2">
+                    <label class="form-label text-muted mb-1" style="font-size:0.75rem;">Statut</label>
+                    <select name="project[permis_urbanisme_statut]" class="form-select form-select-sm rounded-3">
+                      <option value="">— Non renseigné —</option>
+                      <option value="non_requis" <%= 'selected' if @project.permis_urbanisme_statut == 'non_requis' %>>Non requis</option>
+                      <option value="a_deposer"  <%= 'selected' if @project.permis_urbanisme_statut == 'a_deposer'  %>>À déposer</option>
+                      <option value="en_cours"   <%= 'selected' if @project.permis_urbanisme_statut == 'en_cours'   %>>En cours</option>
+                      <option value="obtenu"     <%= 'selected' if @project.permis_urbanisme_statut == 'obtenu'     %>>Obtenu</option>
+                      <option value="refuse"     <%= 'selected' if @project.permis_urbanisme_statut == 'refuse'     %>>Refusé</option>
+                    </select>
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label text-muted mb-1" style="font-size:0.75rem;">Numéro de permis</label>
+                    <input type="text" name="project[permis_urbanisme_number]"
+                           value="<%= @project.permis_urbanisme_number %>"
+                           class="form-control form-control-sm rounded-3" placeholder="URB/2025/00123">
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label text-muted mb-1" style="font-size:0.75rem;">Date de délivrance</label>
+                    <input type="date" name="project[permis_urbanisme_date]"
+                           value="<%= @project.permis_urbanisme_date&.strftime('%Y-%m-%d') %>"
+                           class="form-control form-control-sm rounded-3">
+                  </div>
+                  <div class="mb-2">
+                    <label class="form-label text-muted mb-1" style="font-size:0.75rem;">Autorité délivrante</label>
+                    <input type="text" name="project[permis_urbanisme_autorite]"
+                           value="<%= @project.permis_urbanisme_autorite %>"
+                           class="form-control form-control-sm rounded-3" placeholder="Administration communale de…">
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label text-muted mb-1" style="font-size:0.75rem;">Notes / conditions</label>
+                    <textarea name="project[permis_urbanisme_notes]"
+                              class="form-control form-control-sm rounded-3" rows="2"
+                              placeholder="Conditions particulières, recours…"><%= @project.permis_urbanisme_notes %></textarea>
+                  </div>
+                  <%= f.submit "Enregistrer", class: "btn btn-sm btn-info w-100 rounded-3" %>
+                <% end %>
+              </div>
+            </details>
+
+            <%# Documents permis existants %>
+            <% if @permis_docs.any? %>
+              <div class="mb-2">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                  <span class="small fw-semibold text-muted">Documents permis (<%= @permis_docs.count %>)</span>
+                </div>
+                <% @permis_docs.first(3).each do |doc| %>
+                  <div class="d-flex align-items-center gap-2 mb-1 pb-1 border-bottom">
+                    <i class="bi bi-file-earmark-text text-secondary flex-shrink-0" style="font-size:0.85rem;"></i>
+                    <div class="flex-grow-1 overflow-hidden">
+                      <div class="text-truncate" style="font-size:0.8rem;"><%= doc.file_name.presence || "Document permis" %></div>
+                      <div class="text-muted" style="font-size:0.7rem;"><%= doc.created_at.strftime("%d/%m/%Y") %></div>
+                    </div>
+                    <%= link_to rails_blob_path(doc, disposition: 'inline'), target: '_blank', class: "btn btn-sm btn-outline-secondary py-0 px-1" do %>
+                      <i class="bi bi-eye" style="font-size:0.75rem;"></i>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+
+            <%# Upload document permis %>
+            <%= form_with url: upload_document_pro_project_path(@project), method: :post, multipart: true, class: "mb-0" do |f| %>
+              <%= hidden_field_tag :type_document, 'permis_urbanisme' %>
+              <div class="row g-2 align-items-end">
+                <div class="col-8">
+                  <label class="form-label text-muted mb-0" style="font-size:0.75rem;">Ajouter un document permis</label>
+                  <%= file_field_tag :document_file, class: "form-control form-control-sm mt-1 rounded-3",
+                        accept: ".pdf,.jpg,.jpeg,.png" %>
+                </div>
+                <div class="col-4">
+                  <button type="submit" class="btn btn-sm btn-outline-secondary w-100 rounded-3" style="font-size:0.78rem;">
+                    <i class="bi bi-upload me-1"></i>Ajouter
+                  </button>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <%# ── Plans du bien ── %>
+        <div class="card border-0 shadow-sm rounded-3 mb-3" style="border-left:3px solid #0dcaf0 !important;">
+          <div class="card-header bg-white border-bottom pt-3 pb-2 px-4">
+            <h5 class="mb-0 fw-semibold" style="font-size:0.95rem;">
+              <i class="bi bi-rulers me-2 text-info"></i>Plans architecturaux
+            </h5>
+          </div>
+          <div class="card-body px-4 py-3">
+            <% if @plans_docs.any? %>
+              <% @plans_docs.each do |doc| %>
+                <div class="d-flex align-items-center gap-2 mb-2 pb-2 border-bottom">
+                  <i class="bi bi-file-earmark-ruled text-info flex-shrink-0" style="font-size:1rem;"></i>
+                  <div class="flex-grow-1 overflow-hidden">
+                    <div class="text-truncate fw-medium" style="font-size:0.82rem;"><%= doc.file_name.presence || "Plan" %></div>
+                    <div class="text-muted" style="font-size:0.7rem;"><%= doc.created_at.strftime("%d/%m/%Y") %></div>
+                  </div>
+                  <%= link_to rails_blob_path(doc, disposition: 'inline'), target: '_blank',
+                        class: "btn btn-sm btn-outline-info py-0 px-2 flex-shrink-0" do %>
+                    <i class="bi bi-eye" style="font-size:0.75rem;"></i>
+                  <% end %>
+                </div>
+              <% end %>
+            <% else %>
+              <p class="text-muted mb-2" style="font-size:0.83rem;">
+                <i class="bi bi-info-circle me-1"></i>Aucun plan ajouté.
+              </p>
+            <% end %>
+            <%= form_with url: upload_document_pro_project_path(@project), method: :post, multipart: true do |f| %>
+              <%= hidden_field_tag :type_document, 'plan' %>
+              <div class="row g-2 align-items-end">
+                <div class="col-8">
+                  <label class="form-label text-muted mb-0" style="font-size:0.75rem;">Ajouter un plan (PDF/image)</label>
+                  <%= file_field_tag :document_file, class: "form-control form-control-sm mt-1 rounded-3",
+                        accept: ".pdf,.jpg,.jpeg,.png,.dwg" %>
+                </div>
+                <div class="col-4">
+                  <button type="submit" class="btn btn-sm btn-outline-info w-100 rounded-3" style="font-size:0.78rem;">
+                    <i class="bi bi-upload me-1"></i>Ajouter
+                  </button>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <%# ── Métré ── %>
+        <div class="card border-0 shadow-sm rounded-3 mb-3" style="border-left:3px solid #0dcaf0 !important;">
+          <div class="card-header bg-white border-bottom pt-3 pb-2 px-4">
+            <h5 class="mb-0 fw-semibold" style="font-size:0.95rem;">
+              <i class="bi bi-list-columns-reverse me-2 text-info"></i>Métré
+              <span class="badge bg-info-subtle text-info border border-info-subtle ms-1" style="font-size:0.6rem;">
+                partagé avec l'entrepreneur
+              </span>
+            </h5>
+          </div>
+          <div class="card-body px-4 py-3">
+            <p class="text-muted mb-3" style="font-size:0.8rem;">
+              Le métré liste tous les postes de travaux avec quantités et unités. L'entrepreneur peut le consulter pour y adjoindre ses prix.
+            </p>
+            <% if @metres&.any? %>
+              <% @metres.each do |doc| %>
+                <div class="d-flex align-items-center gap-2 mb-2 pb-2 border-bottom">
+                  <i class="bi bi-file-earmark-spreadsheet text-info flex-shrink-0" style="font-size:1rem;"></i>
+                  <div class="flex-grow-1 overflow-hidden">
+                    <div class="text-truncate fw-medium" style="font-size:0.82rem;"><%= doc.file_name.presence || "Métré" %></div>
+                    <div class="text-muted" style="font-size:0.7rem;"><%= doc.created_at.strftime("%d/%m/%Y") %></div>
+                  </div>
+                  <%= link_to rails_blob_path(doc, disposition: 'inline'), target: '_blank',
+                        class: "btn btn-sm btn-outline-info py-0 px-2 flex-shrink-0" do %>
+                    <i class="bi bi-eye" style="font-size:0.75rem;"></i>
+                  <% end %>
+                </div>
+              <% end %>
+            <% else %>
+              <p class="text-muted mb-2" style="font-size:0.83rem;">
+                <i class="bi bi-info-circle me-1"></i>Aucun métré déposé.
+              </p>
+            <% end %>
+            <%= form_with url: upload_document_pro_project_path(@project), method: :post, multipart: true do |f| %>
+              <%= hidden_field_tag :type_document, 'metre' %>
+              <div class="row g-2 align-items-end">
+                <div class="col-8">
+                  <label class="form-label text-muted mb-0" style="font-size:0.75rem;">Déposer un métré (PDF / Excel)</label>
+                  <%= file_field_tag :document_file, class: "form-control form-control-sm mt-1 rounded-3",
+                        accept: ".pdf,.xlsx,.xls,.csv,.jpg,.jpeg,.png" %>
+                </div>
+                <div class="col-4">
+                  <button type="submit" class="btn btn-sm btn-info w-100 rounded-3 text-white" style="font-size:0.78rem;">
+                    <i class="bi bi-upload me-1"></i>Déposer
+                  </button>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <%# ── BLOC ENTREPRENEUR : Lecture du métré ────────────────────────── %>
+      <% if @membership.can_view_metre? && !@membership.can_manage_permis? && @metres&.any? %>
+        <div class="card border-0 shadow-sm rounded-3 mb-3" style="border-left:3px solid #ffc107 !important;">
+          <div class="card-header bg-white border-bottom pt-3 pb-2 px-4">
+            <h5 class="mb-0 fw-semibold" style="font-size:0.95rem;">
+              <i class="bi bi-list-columns-reverse me-2 text-warning"></i>Métré de l'architecte
+            </h5>
+          </div>
+          <div class="card-body px-4 py-3">
+            <p class="text-muted mb-3" style="font-size:0.8rem;">
+              Document de référence transmis par l'architecte — liste les postes à chiffrer.
+            </p>
+            <% @metres.each do |doc| %>
+              <div class="d-flex align-items-center gap-2 mb-2 pb-2 border-bottom">
+                <i class="bi bi-file-earmark-spreadsheet text-warning flex-shrink-0" style="font-size:1rem;"></i>
+                <div class="flex-grow-1 overflow-hidden">
+                  <div class="text-truncate fw-medium" style="font-size:0.82rem;"><%= doc.file_name.presence || "Métré" %></div>
+                  <div class="text-muted" style="font-size:0.7rem;"><%= doc.created_at.strftime("%d/%m/%Y") %></div>
+                </div>
+                <%= link_to rails_blob_path(doc, disposition: 'inline'), target: '_blank',
+                      class: "btn btn-sm btn-outline-warning py-0 px-2 flex-shrink-0" do %>
+                  <i class="bi bi-download" style="font-size:0.75rem;"></i>
+                <% end %>
+              </div>
+            <% end %>
+            <p class="text-muted fst-italic mb-0" style="font-size:0.75rem;">
+              <i class="bi bi-lock me-1"></i>Lecture seule — contactez l'architecte pour toute modification.
+            </p>
+          </div>
+        </div>
+      <% end %>
+
     </div>
 
     <%# ── Colonne latérale ────────────────────────── %>

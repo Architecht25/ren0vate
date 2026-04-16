@@ -261,7 +261,11 @@ Rails.application.routes.draw do
     patch :validate_phase, on: :member
 
     # Upload facture côté entrepreneur (pro_view)
-    post :upload_facture_pro, to: 'pro_views#upload_facture_pro', on: :member
+    post :upload_facture_pro,   to: 'pro_views#upload_facture_pro',   on: :member
+
+    # Upload document côté architecte (plan, métré, permis)
+    post  :upload_document_pro, to: 'pro_views#upload_document_pro',  on: :member
+    patch :update_permis_pro,   to: 'pro_views#update_permis_pro',    on: :member
 
     # Comparateur de devis reçus par email (OCR)
     get  :compare_devis, on: :member

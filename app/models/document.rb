@@ -43,6 +43,7 @@ class Document < ApplicationRecord
     certificat_label: 'certificat_label',
     attestation_conformite: 'attestation_conformite',
     plan: 'plan',
+    metre: 'metre',
     permis_urbanisme: 'permis_urbanisme',
     dossier_prime: 'dossier_prime',
     plan_diu: 'plan_diu',
