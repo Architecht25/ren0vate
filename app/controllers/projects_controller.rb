@@ -1,6 +1,6 @@
 class ProjectsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt, :edit_budget, :update_budget, :edit_professionals, :update_professionals, :fin_chantier, :scan_peb_apres, :scan_audit_energ, :update_fin_chantier, :reception_chantier, :scan_attestation_conformite, :garanties, :carnet_entretien, :roi_calculator, :analyze_photos, :vision_status, :score_sante]
+  before_action :set_project, only: [:show, :edit, :update, :destroy, :gantt, :edit_budget, :update_budget, :edit_professionals, :update_professionals, :fin_chantier, :scan_peb_apres, :scan_audit_energ, :update_fin_chantier, :reception_chantier, :scan_attestation_conformite, :garanties, :check_contrat, :carnet_entretien, :roi_calculator, :analyze_photos, :vision_status, :score_sante, :validate_phase, :compare_devis]
 
   def index
     # Récupérer les projets, filtrer par property_id si fourni
@@ -78,7 +78,14 @@ class ProjectsController < ApplicationController
   end
 
   def update_professionals
+    tva_avant = @project.entrepreneur_principal_numero_tva
     if @project.update(professionals_params)
+      # Relancer la vérification BCE si le N° TVA a changé
+      tva_apres = @project.entrepreneur_principal_numero_tva
+      if tva_apres.present? && tva_apres != tva_avant
+        @project.update_columns(entrepreneur_bce_statut: nil, entrepreneur_bce_verifie_at: nil)
+        BceVerificationJob.perform_later(@project.id)
+      end
       redirect_to @project, notice: 'Équipe projet mise à jour avec succès.'
     else
       render :edit_professionals, status: :unprocessable_entity
@@ -100,6 +107,14 @@ class ProjectsController < ApplicationController
         entrepreneur.permit(:nom, :entreprise, :numero_tva, :telephone, :email, :adresse, :assurance, :specialite, :devis_montant)
       end
       @project.additional_entrepreneurs = additional_entrepreneurs_data.to_json
+    end
+
+    # Suivi historique du permis d'urbanisme
+    nouveau_statut = project_params[:permis_urbanisme_statut]
+    if nouveau_statut.present? && nouveau_statut != @project.permis_urbanisme_statut
+      historique = (@project.permis_urbanisme_historique || []).dup
+      historique << { statut: nouveau_statut, changed_at: Time.current.iso8601, user_id: current_user.id }
+      @project.permis_urbanisme_historique = historique
     end
 
     if @project.update(project_params)
@@ -285,6 +300,9 @@ class ProjectsController < ApplicationController
     @nb_obligatoires_ok = @checklist.count { |c| c[:obligatoire] && c[:present] }
     @nb_obligatoires    = @checklist.count { |c| c[:obligatoire] }
     @completion_pct = (@nb_presents.to_f / @checklist.size * 100).round
+
+    # Réserves de réception
+    @reserves = @project.reserves.order(statut: :asc, created_at: :desc)
   end
 
   # GET /projects/:id/garanties
@@ -365,6 +383,34 @@ class ProjectsController < ApplicationController
     end
 
     @date_fin_travaux = date_fin
+  end
+
+  # POST /projects/:id/check_contrat (IA #9 — Analyse clauses contrat)
+  def check_contrat
+    unless params[:file].present?
+      return render json: { error: 'Aucun fichier fourni' }, status: :bad_request
+    end
+
+    # Extraction texte via OCR
+    ocr = OcrService.new(params[:file])
+    ocr_result = ocr.call
+
+    unless ocr_result[:success]
+      return render json: { error: "Extraction texte impossible : #{ocr_result[:error]}" },
+                    status: :unprocessable_entity
+    end
+
+    texte = ocr_result[:text].to_s
+    if texte.strip.length < 50
+      return render json: { error: 'Texte extrait trop court — vérifiez que le fichier est lisible.' },
+                    status: :unprocessable_entity
+    end
+
+    analyse = ContratChecklistService.new(texte).analyser
+    render json: analyse
+  rescue StandardError => e
+    Rails.logger.error "check_contrat error: #{e.message}\n#{e.backtrace.first(3).join("\n")}"
+    render json: { error: 'Erreur lors de l\'analyse' }, status: :internal_server_error
   end
 
   # GET /projects/:id/carnet_entretien
@@ -703,7 +749,69 @@ class ProjectsController < ApplicationController
     render json: result
   end
 
+  # PATCH /projects/:id/validate_phase
+  # Validation 3-parties : propriétaire, architecte, entrepreneur
+  CHANTIER_PHASES = %w[phase_preparation phase_demolition phase_installation phase_finition phase_reception].freeze
+
+  def validate_phase
+    phase_key = params[:phase_key].to_s
+    unless CHANTIER_PHASES.include?(phase_key)
+      redirect_back fallback_location: pro_view_project_path(@project), alert: "Phase invalide." and return
+    end
+
+    # Déterminer le rôle du validateur
+    role = if @project.user_id == current_user.id
+             'owner'
+           elsif @project.project_members.active.where(user: current_user, role: 'architect').exists?
+             'architect'
+           elsif @project.project_members.active.where(user: current_user, role: 'entrepreneur').exists?
+             'entrepreneur'
+           end
+
+    unless role
+      redirect_back fallback_location: pro_view_project_path(@project), alert: "Non autorisé." and return
+    end
+
+    avancement = @project.phases_avancement.dup
+    phase_data = (avancement[phase_key] || {}).dup
+
+    # Structure V2 : chaque rôle a sa propre validation
+    # Rétrocompatibilité : si ancienne structure (validated_at à la racine), on migre
+    if phase_data['validated_at'].present? && phase_data['owner'].nil? && phase_data['architect'].nil?
+      phase_data = { 'owner' => { 'validated_at' => phase_data['validated_at'], 'validated_by' => phase_data['validated_by'] } }
+    end
+
+    if phase_data[role].present?
+      redirect_back fallback_location: pro_view_project_path(@project),
+                    notice: "Vous avez déjà validé cette phase." and return
+    end
+
+    phase_data[role] = { 'validated_at' => Time.current.iso8601, 'validated_by' => current_user.id }
+    avancement[phase_key] = phase_data
+    @project.update!(phases_avancement: avancement)
+
+    # Message selon rôle et nombre de validations
+    role_label = { 'owner' => 'Propriétaire', 'architect' => 'Architecte', 'entrepreneur' => 'Entrepreneur' }[role]
+    validation_count = phase_data.keys.count
+    all_roles_present = determine_required_roles.all? { |r| phase_data[r].present? }
+
+    notice = if all_roles_present
+               "Phase « #{phase_key.delete_prefix('phase_').humanize} » validée par les 3 parties ✓"
+             else
+               "#{role_label} : phase « #{phase_key.delete_prefix('phase_').humanize} » validée (#{validation_count}/#{determine_required_roles.size})"
+             end
+
+    redirect_back fallback_location: pro_view_project_path(@project), notice: notice
+  end
+
   private
+
+  def determine_required_roles
+    roles = ['owner']
+    roles << 'architect'    if @project.project_members.active.where(role: 'architect').exists?
+    roles << 'entrepreneur' if @project.project_members.active.where(role: 'entrepreneur').exists?
+    roles
+  end
 
   def generer_rappels_maintenance
     type = @project.type_travaux.to_s.downcase
@@ -852,7 +960,9 @@ class ProjectsController < ApplicationController
       :corps_metiers,
       # Entrepreneurs additionnels
       :additional_entrepreneurs,
+      # Keyword args (arrays/hashes) — doivent être en dernier
       additional_entrepreneurs: [],
+      permis_urbanisme_historique: [],
       # Avancement des phases de chantier
       phases_avancement: {}
     )

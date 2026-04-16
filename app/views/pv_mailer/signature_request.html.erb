@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial, sans-serif; color: #333; background: #f5f5f5; margin: 0; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .header { background: #1a3c5e; color: #fff; padding: 28px 32px; }
+    .header h1 { margin: 0; font-size: 22px; font-weight: 600; }
+    .header p { margin: 4px 0 0; opacity: 0.8; font-size: 14px; }
+    .body { padding: 28px 32px; }
+    .role-badge { display: inline-block; background: #e8f0fe; color: #1a3c5e; border-radius: 4px; padding: 4px 10px; font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+    .project-box { background: #f8f9fa; border-left: 4px solid #1a3c5e; border-radius: 0 4px 4px 0; padding: 12px 16px; margin: 16px 0; }
+    .project-box strong { display: block; font-size: 15px; }
+    .project-box span { color: #666; font-size: 13px; }
+    .btn { display: inline-block; background: #1a3c5e; color: #fff !important; text-decoration: none; padding: 14px 28px; border-radius: 6px; font-size: 15px; font-weight: 600; margin: 20px 0; }
+    .footer { padding: 16px 32px; background: #f8f9fa; color: #888; font-size: 12px; border-top: 1px solid #eee; }
+    .warning { background: #fff8e1; border: 1px solid #ffe082; border-radius: 4px; padding: 10px 14px; font-size: 13px; color: #f57c00; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>PV de Réception à signer</h1>
+      <p>Procès-Verbal numérique — Ren0vate</p>
+    </div>
+    <div class="body">
+      <p>Bonjour <strong><%= @nom.presence || @role_label %></strong>,</p>
+      <p>Vous êtes invité(e) à signer le Procès-Verbal de Réception du chantier suivant :</p>
+
+      <span class="role-badge">Votre rôle : <%= @role_label %></span>
+
+      <div class="project-box">
+        <strong><%= @project.nom %></strong>
+        <span>
+          <%= [@project.property&.adresse, @project.property&.commune].compact.join(', ') %>
+        </span>
+        <span style="display:block;margin-top:4px;">
+          Date de réception : <strong><%= @pv.date_reception&.strftime('%d/%m/%Y') || 'À confirmer' %></strong>
+        </span>
+      </div>
+
+      <p>Cliquez sur le bouton ci-dessous pour consulter le PV et apposer votre signature :</p>
+
+      <div style="text-align:center;">
+        <a href="<%= @sign_url %>" class="btn">Consulter et signer le PV</a>
+      </div>
+
+      <div class="warning">
+        <strong>⚠ Lien personnel</strong> — Ce lien est uniquement destiné à <%= @nom.presence || @role_label %>.
+        Ne le partagez pas.
+      </div>
+    </div>
+    <div class="footer">
+      Ren0vate · Gestion numérique de projets de rénovation en Belgique<br>
+      Si vous n'étiez pas attendu sur ce PV, vous pouvez ignorer cet email.
+    </div>
+  </div>
+</body>
+</html>

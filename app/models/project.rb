@@ -20,6 +20,12 @@ class Project < ApplicationRecord
   has_many :devis_donnees,             dependent: :nullify
   has_many :bordereau_chassis_donnees, dependent: :nullify
 
+  # Réserves de réception (punch list)
+  has_many :reserves, class_name: 'Reserve', dependent: :destroy
+
+  # PV de réception numérique
+  has_one :pv_reception, dependent: :destroy
+
   validates :nom, presence: true
   validates :property_id, presence: true
   validates :project_type, presence: true, inclusion: { in: %w[renovation investment],

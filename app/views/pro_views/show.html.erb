@@ -121,33 +121,44 @@
             <% entrepreneur_factures = @factures&.select { |f| f.type_facture == 'devis' } || [] %>
             <% if entrepreneur_factures.any? %>
               <% entrepreneur_factures.each do |f| %>
-                <div class="d-flex align-items-center gap-2 mb-2 p-2 bg-light rounded">
-                  <i class="bi bi-file-earmark-pdf text-danger" style="font-size:1.2rem;"></i>
-                  <div class="flex-grow-1">
-                    <div class="fw-medium" style="font-size:0.85rem;"><%= f.nom_fichier || "Devis" %></div>
-                    <div class="text-muted" style="font-size:0.75rem;">
-                      <%= f.montant_ttc ? number_to_currency(f.montant_ttc, unit: "€", format: "%n %u") : "" %>
-                      · Uploadé le <%= f.created_at.strftime("%d/%m/%Y") %>
+                <div class="d-flex align-items-center gap-2 mb-2 p-2 rounded
+                     <%= f.validated_by_client_at ? 'bg-success-subtle' : 'bg-light' %>">
+                  <i class="bi bi-file-earmark-pdf text-danger flex-shrink-0" style="font-size:1.1rem;"></i>
+                  <div class="flex-grow-1 min-width-0">
+                    <div class="fw-medium text-truncate" style="font-size:0.83rem;">
+                      <%= f.nom_entreprise.presence || "Mon devis" %>
+                    </div>
+                    <div class="text-muted" style="font-size:0.73rem;">
+                      <% if f.montant.to_f > 0 %>
+                        <%= number_to_currency(f.montant, unit: "€", format: "%n %u", separator: ',', delimiter: '.', precision: 0) %> ·
+                      <% end %>
+                      Envoyé le <%= f.created_at.strftime("%d/%m/%Y") %>
                     </div>
                   </div>
+                  <% if f.validated_by_client_at %>
+                    <span class="badge bg-success" style="font-size:0.65rem;">Validé ✓</span>
+                  <% else %>
+                    <span class="badge bg-warning text-dark" style="font-size:0.65rem;">En attente</span>
+                  <% end %>
                 </div>
               <% end %>
             <% end %>
 
-            <%= form_with url: project_upload_facture_path(@project), method: :post,
+            <%= form_with url: upload_facture_pro_project_path(@project), method: :post,
                           multipart: true, class: "mt-2" do |f| %>
               <%= hidden_field_tag :type_facture, 'devis' %>
               <div class="row g-2 align-items-end">
                 <div class="col-md-5">
-                  <%= label_tag :facture_pdf, "Fichier PDF / image", class: "form-label", style: "font-size:0.82rem;" %>
-                  <%= file_field_tag :facture_pdf, class: "form-control form-control-sm", accept: ".pdf,.jpg,.jpeg,.png" %>
+                  <%= label_tag :facture_pdf, "Fichier PDF / image", class: "form-label mb-0", style: "font-size:0.8rem;" %>
+                  <%= file_field_tag :facture_pdf, class: "form-control form-control-sm mt-1", accept: ".pdf,.jpg,.jpeg,.png" %>
                 </div>
                 <div class="col-md-3">
-                  <%= label_tag :montant_ttc, "Montant TTC (€)", class: "form-label", style: "font-size:0.82rem;" %>
-                  <%= number_field_tag :montant_ttc, nil, class: "form-control form-control-sm", placeholder: "Ex: 12500", min: 0, step: 0.01 %>
+                  <%= label_tag :montant_ttc, "Montant TTC (€)", class: "form-label mb-0", style: "font-size:0.8rem;" %>
+                  <%= number_field_tag :montant_ttc, nil, class: "form-control form-control-sm mt-1",
+                        placeholder: "Ex: 12500", min: 0, step: 0.01 %>
                 </div>
                 <div class="col-md-4">
-                  <%= f.submit "Envoyer mon devis", class: "btn btn-warning btn-sm w-100", style: "font-size:0.82rem;" %>
+                  <%= f.submit "Envoyer mon devis", class: "btn btn-warning btn-sm w-100", style: "font-size:0.8rem;" %>
                 </div>
               </div>
             <% end %>
@@ -155,46 +166,51 @@
         </div>
       <% end %>
 
-      <%# VALIDATION ÉTAPES (architecte) ── %>
-      <% if @membership.can_validate_step? && @membership.role == 'architect' %>
-        <div class="card border-0 shadow-sm rounded-3 mb-3">
-          <div class="card-header bg-white border-bottom pt-3 pb-2 px-4">
-            <h5 class="mb-0 fw-semibold" style="font-size:0.95rem;">
-              <i class="bi bi-check2-square me-2 text-success"></i>Validation des étapes chantier
-            </h5>
-          </div>
-          <div class="card-body px-4 py-3">
-            <%
-              phases = [
-                { key: 'phase_preparation',  label: 'Phase 1 — Préparation' },
-                { key: 'phase_demolition',   label: 'Phase 2 — Démolition' },
-                { key: 'phase_installation', label: 'Phase 3 — Installation / Travaux' },
-                { key: 'phase_finition',     label: 'Phase 4 — Finition' },
-                { key: 'phase_reception',    label: 'Phase 5 — Réception des travaux' }
-              ]
-            %>
-            <% phases.each do |phase| %>
-              <% validated = @project.try(phase[:key]) %>
-              <div class="d-flex align-items-center justify-content-between mb-2 p-2 rounded
-                           <%= validated ? 'bg-success-subtle' : 'bg-light' %>">
-                <div class="d-flex align-items-center gap-2">
-                  <% if validated %>
-                    <i class="bi bi-check-circle-fill text-success"></i>
-                  <% else %>
-                    <i class="bi bi-circle text-muted"></i>
+      <%# VALIDATION DEVIS ENTREPRENEUR (propriétaire uniquement) ── %>
+      <% if @project.user_id == current_user.id %>
+        <%
+          devis_a_valider = @project.factures
+                                    .entrepreneur
+                                    .devis
+                                    .where(validated_by_client_at: nil)
+                                    .includes(:document)
+        %>
+        <% if devis_a_valider.any? %>
+          <div class="card border-0 shadow-sm rounded-3 mb-3"
+               style="border:1px solid #ffc107 !important;">
+            <div class="card-header pt-3 pb-2 px-4"
+                 style="background:#fff8e1;border-bottom:1px solid #ffc107;">
+              <h5 class="mb-0 fw-semibold" style="font-size:0.95rem;color:#856404;">
+                <i class="bi bi-exclamation-circle me-2"></i>Devis à valider (<%= devis_a_valider.count %>)
+              </h5>
+            </div>
+            <div class="card-body px-4 py-3">
+              <% devis_a_valider.each do |f| %>
+                <div class="d-flex align-items-center gap-2 p-2 rounded mb-2 bg-warning-subtle">
+                  <i class="bi bi-file-earmark-pdf text-danger flex-shrink-0" style="font-size:1.1rem;"></i>
+                  <div class="flex-grow-1">
+                    <div class="fw-medium" style="font-size:0.83rem;">
+                      <%= f.nom_entreprise.presence || "Devis entrepreneur" %>
+                    </div>
+                    <div class="text-muted" style="font-size:0.73rem;">
+                      <% if f.montant.to_f > 0 %>
+                        <%= number_to_currency(f.montant, unit: "€", format: "%n %u", separator: ',', delimiter: '.', precision: 0) %> ·
+                      <% end %>
+                      Reçu le <%= f.created_at.strftime("%d/%m/%Y") %>
+                    </div>
+                  </div>
+                  <%= button_to validate_by_client_facture_path(f),
+                        method: :patch,
+                        class: "btn btn-success btn-sm flex-shrink-0",
+                        style: "font-size:0.75rem;",
+                        data: { turbo_confirm: "Valider ce devis de #{f.nom_entreprise.presence || 'l\'entrepreneur'} ?" } do %>
+                    <i class="bi bi-check2 me-1"></i>Valider
                   <% end %>
-                  <span style="font-size:0.85rem;" class="<%= validated ? 'text-success fw-medium' : '' %>">
-                    <%= phase[:label] %>
-                  </span>
                 </div>
-                <%# Future action : patch project phase via PATCH %>
-              </div>
-            <% end %>
-            <p class="text-muted mb-0 mt-2" style="font-size:0.78rem;">
-              <i class="bi bi-info-circle me-1"></i>La validation interactive des étapes sera activée prochainement.
-            </p>
+              <% end %>
+            </div>
           </div>
-        </div>
+        <% end %>
       <% end %>
 
     </div>
@@ -237,44 +253,185 @@
         </div>
       <% end %>
 
-      <%# PHOTOS ── %>
+      <%# SUIVI CHANTIER VISUEL ── photos par phase + validation client ── %>
       <div class="card border-0 shadow-sm rounded-3 mb-3">
         <div class="card-header bg-white border-bottom pt-3 pb-2 px-4 d-flex justify-content-between align-items-center">
           <h5 class="mb-0 fw-semibold" style="font-size:0.9rem;">
-            <i class="bi bi-images me-2 text-info"></i>Photos (<%= @photos.count %>)
+            <i class="bi bi-camera-video me-2 text-info"></i>Suivi chantier visual
           </h5>
-          <%= link_to project_documents_path(@project), class: "btn btn-outline-secondary btn-sm py-0",
-                      style: "font-size:0.75rem;" do %>
-            Voir tout
-          <% end %>
+          <%
+            nb_phases_validees = (@phases_avancement || {}).values.count(&:present?)
+            pct = (nb_phases_validees * 100.0 / 5).round
+          %>
+          <span class="badge bg-info-subtle text-info border border-info-subtle" style="font-size:0.72rem;">
+            <%= nb_phases_validees %>/5 phases
+          </span>        </div>
+
+        <%# Barre d'avancement globale %>
+        <div class="px-4 pt-2 pb-1">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span class="text-muted" style="font-size:0.72rem;">Avancement global</span>
+            <span class="fw-semibold" style="font-size:0.72rem;"><%= pct %>%</span>
+          </div>
+          <div class="progress mb-0" style="height:6px;border-radius:4px;">
+            <div class="progress-bar bg-info" role="progressbar" style="width:<%= pct %>%;"></div>
+          </div>
         </div>
+
         <div class="card-body px-3 py-2">
-          <% if @photos.any? %>
-            <div class="row g-1">
-              <% @photos.first(6).each do |photo| %>
-                <div class="col-4">
-                  <div class="rounded overflow-hidden" style="aspect-ratio:1;background:#eee;">
-                    <% has_photo = begin; photo.respond_to?(:blob) ? photo.blob.present? : photo.attachment.present?; rescue; false; end %>
-                    <% if has_photo %>
-                      <%= image_tag rails_blob_path(photo, only_path: true), class: "w-100 h-100", style: "object-fit:cover;" rescue nil %>
-                    <% else %>
-                      <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-light">
-                        <i class="bi bi-image text-muted"></i>
-                      </div>
-                    <% end %>
-                  </div>
+          <%
+            chantier_phases = [
+              { key: 'phase_preparation',  label: 'Préparation',  icon: 'bi-tools',         color: '#6c757d' },
+              { key: 'phase_demolition',   label: 'Démolition',   icon: 'bi-hammer',        color: '#dc3545' },
+              { key: 'phase_installation', label: 'Installation', icon: 'bi-wrench-adjustable', color: '#fd7e14' },
+              { key: 'phase_finition',     label: 'Finitions',    icon: 'bi-brush',         color: '#0dcaf0' },
+              { key: 'phase_reception',    label: 'Réception',    icon: 'bi-check2-circle', color: '#198754' }
+            ]
+            # Rôle du visiteur actuel
+            current_role = if @project.user_id == current_user.id
+                             'owner'
+                           elsif @project.project_members.active.where(user: current_user, role: 'architect').exists?
+                             'architect'
+                           elsif @project.project_members.active.where(user: current_user, role: 'entrepreneur').exists?
+                             'entrepreneur'
+                           end
+            can_validate = current_role.present?
+
+            # Rôles présents sur le projet = ceux qu'on attend pour une validation complète
+            required_roles = ['owner']
+            required_roles << 'architect'    if @project.project_members.active.where(role: 'architect').exists?
+            required_roles << 'entrepreneur' if @project.project_members.active.where(role: 'entrepreneur').exists?
+
+            role_labels = { 'owner' => 'Propriétaire', 'architect' => 'Architecte', 'entrepreneur' => 'Entrepreneur' }
+            role_icons  = { 'owner' => 'bi-house', 'architect' => 'bi-pencil-ruler', 'entrepreneur' => 'bi-tools' }
+            role_colors = { 'owner' => 'primary', 'architect' => 'info', 'entrepreneur' => 'warning' }
+          %>
+
+          <% chantier_phases.each do |phase| %>
+            <%
+              raw_data     = (@phases_avancement || {})[phase[:key]]
+              # Rétrocompatibilité : ancienne structure à plat
+              phase_data = if raw_data.is_a?(Hash) && raw_data['validated_at'].present? && raw_data['owner'].nil?
+                             { 'owner' => { 'validated_at' => raw_data['validated_at'], 'validated_by' => raw_data['validated_by'] } }
+                           else
+                             raw_data || {}
+                           end
+              all_validated = required_roles.all? { |r| phase_data[r].present? }
+              user_validated = current_role && phase_data[current_role].present?
+              phase_photos   = (@photos_by_phase || {})[phase[:key]] || []
+            %>
+            <div class="mb-3 rounded-2 p-2 <%= all_validated ? 'bg-success-subtle' : 'bg-light' %>"
+                 style="border:1px solid <%= all_validated ? '#a3cfbb' : '#e9ecef' %>;">
+
+              <%# En-tête phase %>
+              <div class="d-flex align-items-center justify-content-between mb-1">
+                <div class="d-flex align-items-center gap-2">
+                  <% if all_validated %>
+                    <i class="bi bi-check-circle-fill text-success" style="font-size:0.9rem;"></i>
+                  <% elsif phase_data.any? %>
+                    <i class="bi bi-clock-history text-warning" style="font-size:0.9rem;"></i>
+                  <% else %>
+                    <i class="bi bi-circle text-muted" style="font-size:0.9rem;"></i>
+                  <% end %>
+                  <span style="font-size:0.82rem;" class="fw-medium <%= all_validated ? 'text-success' : 'text-dark' %>">
+                    <%= phase[:label] %>
+                  </span>
+                  <% if phase_photos.any? %>
+                    <span class="badge bg-secondary-subtle text-secondary" style="font-size:0.65rem;">
+                      <%= phase_photos.count %> photo<%= phase_photos.count > 1 ? 's' : '' %>
+                    </span>
+                  <% end %>
+                </div>
+
+                <% if user_validated %>
+                  <span class="text-success" style="font-size:0.7rem;">
+                    ✓ votre validation enregistrée
+                  </span>
+                <% elsif can_validate %>
+                  <%= button_to validate_phase_project_path(@project),
+                      method: :patch,
+                      params: { phase_key: phase[:key] },
+                      class: "btn btn-outline-success btn-sm py-0 px-2",
+                      style: "font-size:0.7rem;" do %>
+                    <i class="bi bi-check2 me-1"></i>Valider
+                  <% end %>
+                <% end %>
+              </div>
+
+              <%# Badges de validation 3-parties %>
+              <% if phase_data.any? %>
+                <div class="d-flex gap-1 flex-wrap mb-1">
+                  <% required_roles.each do |r| %>
+                    <% vdata = phase_data[r] %>
+                    <span class="badge bg-<%= vdata ? role_colors[r] : 'light text-muted border' %>-subtle
+                                 text-<%= vdata ? role_colors[r] : 'muted' %> border border-<%= vdata ? role_colors[r] : 'secondary-subtle' %>"
+                          style="font-size:0.6rem;"
+                          title="<%= vdata ? "#{role_labels[r]} — #{Time.zone.parse(vdata['validated_at']).strftime('%d/%m/%Y à %H:%M') rescue vdata['validated_at']}" : "#{role_labels[r]} : en attente" %>">
+                      <i class="bi <%= role_icons[r] %> me-1"></i>
+                      <%= role_labels[r] %>
+                      <% if vdata %><i class="bi bi-check ms-1"></i><% else %><i class="bi bi-clock ms-1 text-muted"></i><% end %>
+                    </span>
+                  <% end %>
+                </div>
+              <% end %>
+
+              <%# Miniatures photos de la phase %>
+              <% if phase_photos.any? %>
+                <div class="d-flex gap-1 flex-wrap">
+                  <% phase_photos.first(4).each do |photo| %>
+                    <div class="rounded overflow-hidden" style="width:48px;height:48px;background:#dee2e6;flex-shrink:0;">
+                      <% begin %>
+                        <%= image_tag rails_blob_path(photo, only_path: true),
+                              style: "width:48px;height:48px;object-fit:cover;",
+                              alt: phase[:label] %>
+                      <% rescue %>
+                        <div class="w-100 h-100 d-flex align-items-center justify-content-center">
+                          <i class="bi bi-image text-muted" style="font-size:0.7rem;"></i>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% end %>
+                  <% if phase_photos.count > 4 %>
+                    <div class="rounded d-flex align-items-center justify-content-center bg-secondary-subtle text-secondary"
+                         style="width:48px;height:48px;font-size:0.7rem;flex-shrink:0;">
+                      +<%= phase_photos.count - 4 %>
+                    </div>
+                  <% end %>
                 </div>
               <% end %>
             </div>
-          <% else %>
-            <p class="text-muted mb-0" style="font-size:0.82rem;">Aucune photo pour l'instant.</p>
           <% end %>
-          <div class="mt-2">
+
+          <%# Ajouter une photo avec sélection de phase (entrepreneur) %>
+          <% if @membership.role == 'entrepreneur' %>
+            <%= form_with url: upload_facture_pro_project_path(@project), method: :post,
+                          multipart: true, class: "mt-2" do |f| %>
+              <input type="hidden" name="type_facture" value="photo">
+              <div class="row g-1 align-items-end">
+                <div class="col-5">
+                  <select name="phase_photo" class="form-select form-select-sm" style="font-size:0.78rem;">
+                    <option value="">Phase...</option>
+                    <% chantier_phases.each do |ph| %>
+                      <option value="<%= ph[:key] %>"><%= ph[:label] %></option>
+                    <% end %>
+                  </select>
+                </div>
+                <div class="col-5">
+                  <input type="file" name="photo_file" class="form-control form-control-sm" accept="image/*" capture="environment" style="font-size:0.78rem;">
+                </div>
+                <div class="col-2">
+                  <button type="submit" class="btn btn-info btn-sm w-100 py-1" style="font-size:0.78rem;">
+                    <i class="bi bi-camera"></i>
+                  </button>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
             <%= link_to new_project_document_path(@project, type_document: 'photo_pendant'),
-                  class: "btn btn-outline-info btn-sm w-100", style: "font-size:0.8rem;" do %>
+                  class: "btn btn-outline-info btn-sm w-100 mt-1", style: "font-size:0.8rem;" do %>
               <i class="bi bi-camera me-1"></i>+ Ajouter une photo
             <% end %>
-          </div>
+          <% end %>
         </div>
       </div>
 

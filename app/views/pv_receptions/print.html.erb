@@ -1,0 +1,224 @@
+<% content_for :title, "PV de Réception — #{@project.nom}" %>
+
+<style>
+  .pv-section { margin-bottom: 24px; }
+  .pv-section h3 { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+                   color: #1e3a5f; border-bottom: 2px solid #1e3a5f; padding-bottom: 4px; margin-bottom: 12px; }
+  .sig-box { border: 1px solid #ccc; border-radius: 6px; padding: 14px; margin-bottom: 8px; }
+  .sig-box .role-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #666; margin-bottom: 4px; }
+  .sig-box .sig-name { font-size: 15px; font-weight: 600; }
+  .sig-box .sig-date { font-size: 12px; color: #555; margin-top: 4px; }
+  .sig-box .sig-commentaire { font-style: italic; color: #666; font-size: 12px; margin-top: 4px; }
+  .sig-box .sig-pending { color: #aaa; font-style: italic; font-size: 12px; margin-top: 8px; border-top: 1px dashed #ddd; padding-top: 8px; }
+  .reserve-row { font-size: 12px; padding: 6px 0; border-bottom: 1px solid #f0f0f0; }
+  .badge-statut { font-size: 10px; padding: 2px 6px; border-radius: 3px; background: #e9ecef; color: #555; }
+  @media print { .no-print { display: none !important; } }
+</style>
+
+<!-- Bouton imprimer (pas imprimé) -->
+<div class="no-print container py-3 d-flex gap-2">
+  <button onclick="window.print()" class="btn btn-primary btn-sm">
+    <i class="bi bi-printer me-1"></i>Imprimer / Enregistrer en PDF
+  </button>
+  <%= link_to project_pv_reception_path(@project), class: "btn btn-outline-secondary btn-sm" do %>
+    <i class="bi bi-arrow-left me-1"></i>Retour
+  <% end %>
+</div>
+
+<div class="container py-3" style="max-width:860px;">
+
+  <!-- En-tête officiel -->
+  <div class="print-header mb-4 d-flex align-items-center gap-3">
+    <div>
+      <div style="font-size:11px;opacity:0.8;text-transform:uppercase;letter-spacing:1px;">Document officiel</div>
+      <div style="font-size:22px;font-weight:700;">Procès-Verbal de Réception</div>
+      <div style="font-size:13px;opacity:0.85;">Ren0vate — Gestion numérique de projets de rénovation</div>
+    </div>
+    <div class="ms-auto text-end" style="font-size:12px;opacity:0.8;">
+      Référence PV n°<%= @pv.id %><br>
+      Généré le <%= Date.today.strftime('%d/%m/%Y') %>
+    </div>
+  </div>
+
+  <!-- 1. Informations générales -->
+  <div class="pv-section">
+    <h3>1. Informations générales</h3>
+    <table class="table table-sm" style="font-size:13px;">
+      <tbody>
+        <tr>
+          <td class="text-muted" style="width:35%;">Projet</td>
+          <td><strong><%= @project.nom %></strong></td>
+        </tr>
+        <tr>
+          <td class="text-muted">Adresse du bien</td>
+          <td><%= @project.property&.adresse.presence || "—" %></td>
+        </tr>
+        <tr>
+          <td class="text-muted">Date de réception</td>
+          <td><strong><%= @pv.date_reception ? @pv.date_reception.strftime('%d/%m/%Y') : '—' %></strong></td>
+        </tr>
+        <tr>
+          <td class="text-muted">Statut PV</td>
+          <td><span class="badge bg-<%= @pv.statut_color %>"><%= @pv.statut_label %></span></td>
+        </tr>
+        <% if @pv.observations.present? %>
+          <tr>
+            <td class="text-muted align-top">Observations</td>
+            <td><%= @pv.observations %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 2. Parties -->
+  <div class="pv-section">
+    <h3>2. Identification des parties</h3>
+    <div class="row g-2">
+      <div class="col-sm-4">
+        <div class="sig-box">
+          <div class="role-label">Maître d'ouvrage</div>
+          <div class="sig-name"><%= @pv.nom_owner.presence || "—" %></div>
+          <div style="font-size:12px;color:#555;"><%= @pv.email_owner %></div>
+        </div>
+      </div>
+      <% if @pv.email_architect.present? %>
+        <div class="col-sm-4">
+          <div class="sig-box">
+            <div class="role-label">Architecte</div>
+            <div class="sig-name"><%= @pv.nom_architect.presence || "—" %></div>
+            <div style="font-size:12px;color:#555;"><%= @pv.email_architect %></div>
+          </div>
+        </div>
+      <% end %>
+      <% if @pv.email_entrepreneur.present? %>
+        <div class="col-sm-4">
+          <div class="sig-box">
+            <div class="role-label">Entrepreneur</div>
+            <div class="sig-name"><%= @pv.nom_entrepreneur.presence || "—" %></div>
+            <div style="font-size:12px;color:#555;"><%= @pv.email_entrepreneur %></div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- 3. Réserves -->
+  <% reserves = @pv.reserves_liste %>
+  <div class="pv-section">
+    <h3>3. Réserves constatées (<%= reserves.size %>)</h3>
+    <% if reserves.any? %>
+      <table class="table table-sm" style="font-size:12px;">
+        <thead class="table-light">
+          <tr>
+            <th>#</th>
+            <th>Description</th>
+            <th>Responsable</th>
+            <th>Statut</th>
+            <th>Délai</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% reserves.each_with_index do |r, i| %>
+            <tr>
+              <td><%= i + 1 %></td>
+              <td><%= r["description"] %></td>
+              <td><%= r["responsable"].presence || "—" %></td>
+              <td><span class="badge-statut"><%= r["statut"] %></span></td>
+              <td><%= r["date_limite"].presence || "—" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% else %>
+      <div class="alert alert-success py-2 small">
+        <i class="bi bi-check-circle me-1"></i>
+        <strong>Réception sans réserve</strong> — Le chantier est accepté sans observation particulière.
+      </div>
+    <% end %>
+  </div>
+
+  <!-- 4. Signatures -->
+  <div class="pv-section">
+    <h3>4. Signatures des parties</h3>
+    <div class="row g-3">
+
+      <!-- Owner -->
+      <div class="col-sm-4">
+        <div class="sig-box">
+          <div class="role-label">Maître d'ouvrage</div>
+          <div class="sig-name"><%= @pv.nom_owner.presence || "—" %></div>
+          <% if @pv.signed_owner? %>
+            <div class="sig-date">
+              <i class="bi bi-check-circle-fill text-success me-1"></i>
+              Signé le <%= @pv.signed_owner_at.strftime('%d/%m/%Y à %H:%M') %>
+            </div>
+            <% if @pv.commentaire_owner.present? %>
+              <div class="sig-commentaire">"<%= @pv.commentaire_owner %>"</div>
+            <% end %>
+          <% else %>
+            <div class="sig-pending">
+              <i class="bi bi-clock me-1"></i>Signature en attente
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Architecte -->
+      <% if @pv.email_architect.present? %>
+        <div class="col-sm-4">
+          <div class="sig-box">
+            <div class="role-label">Architecte</div>
+            <div class="sig-name"><%= @pv.nom_architect.presence || "—" %></div>
+            <% if @pv.signed_architect? %>
+              <div class="sig-date">
+                <i class="bi bi-check-circle-fill text-success me-1"></i>
+                Signé le <%= @pv.signed_architect_at.strftime('%d/%m/%Y à %H:%M') %>
+              </div>
+              <% if @pv.commentaire_architect.present? %>
+                <div class="sig-commentaire">"<%= @pv.commentaire_architect %>"</div>
+              <% end %>
+            <% else %>
+              <div class="sig-pending">
+                <i class="bi bi-clock me-1"></i>Signature en attente
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- Entrepreneur -->
+      <% if @pv.email_entrepreneur.present? %>
+        <div class="col-sm-4">
+          <div class="sig-box">
+            <div class="role-label">Entrepreneur</div>
+            <div class="sig-name"><%= @pv.nom_entrepreneur.presence || "—" %></div>
+            <% if @pv.signed_entrepreneur? %>
+              <div class="sig-date">
+                <i class="bi bi-check-circle-fill text-success me-1"></i>
+                Signé le <%= @pv.signed_entrepreneur_at.strftime('%d/%m/%Y à %H:%M') %>
+              </div>
+              <% if @pv.commentaire_entrepreneur.present? %>
+                <div class="sig-commentaire">"<%= @pv.commentaire_entrepreneur %>"</div>
+              <% end %>
+            <% else %>
+              <div class="sig-pending">
+                <i class="bi bi-clock me-1"></i>Signature en attente
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+    </div><!-- /row signatures -->
+  </div>
+
+  <!-- Pied de page légal -->
+  <div style="font-size:11px;color:#888;border-top:1px solid #ddd;margin-top:24px;padding-top:12px;">
+    Ce document constitue un Procès-Verbal de réception contradictoire entre les parties identifiées ci-dessus.
+    Les signatures électroniques sont horodatées et traçables via la plateforme Ren0vate.
+    En droit belge, la réception des travaux (art. 1792 et 2270 C.civ.) constitue le point de départ
+    des garanties décennale et biennale.
+  </div>
+
+</div>

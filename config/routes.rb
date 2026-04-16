@@ -201,6 +201,7 @@ Rails.application.routes.draw do
     resources :factures, except: [:create] do
       member do
         patch :validate_facture
+        patch :validate_by_client
       end
     end
 
@@ -231,6 +232,7 @@ Rails.application.routes.draw do
 
     # Garanties (7.2)
     get  :garanties,                    on: :member
+    post :check_contrat,                on: :member
 
     # Carnet d'entretien / DIU (7.3)
     get  :carnet_entretien,             on: :member
@@ -249,6 +251,26 @@ Rails.application.routes.draw do
     get  :pro_view,       to: 'pro_views#show',         on: :member
     post :invite,         to: 'pro_views#invite',        on: :member
     delete 'members/:member_id', to: 'pro_views#remove_member', on: :member, as: :remove_member
+
+    # Suivi chantier — validation 3-parties (owner, architecte, entrepreneur)
+    patch :validate_phase, on: :member
+
+    # Upload facture côté entrepreneur (pro_view)
+    post :upload_facture_pro, to: 'pro_views#upload_facture_pro', on: :member
+
+    # Comparateur de devis reçus par email (OCR)
+    get  :compare_devis, on: :member
+
+    # Réserves de réception (punch list)
+    resources :reserves, only: %i[create update destroy]
+
+    # PV de réception numérique
+    resource :pv_reception, only: %i[show create destroy] do
+      member do
+        post :send_signatures
+        get  :print
+      end
+    end
   end
 
   # Comparateur Produits & Matériaux (lié ou non à un projet)
@@ -259,6 +281,10 @@ Rails.application.routes.draw do
       get  :recommendation # recommandation IA seule (lazy)
     end
   end
+
+  # PV de réception — liens de signature publics (sans authentification)
+  get  'pv/:token', to: 'pv_signatures#show', as: :pv_signature
+  post 'pv/:token', to: 'pv_signatures#sign', as: :sign_pv
 
   # Acceptation invitations (lien email, sans authentification requise)
   get  'invitations/:token',            to: 'invitations#show',            as: :invitation

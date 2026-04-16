@@ -1,7 +1,7 @@
 class FacturesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_project, only: [:index, :dashboard, :upload_facture, :validate_facture]
-  before_action :set_facture, only: [:show, :edit, :update, :destroy]
+  before_action :set_facture, only: [:show, :edit, :update, :destroy, :validate_by_client]
 
   # GET /projects/:project_id/factures
   def index
@@ -98,6 +98,26 @@ class FacturesController < ApplicationController
         error: 'Erreur lors de la validation',
         details: @facture.errors.full_messages
       }, status: :unprocessable_entity
+    end
+  end
+
+  # PATCH /factures/:id/validate_by_client
+  # Le propriétaire du projet valide le devis/facture uploadé par l'entrepreneur
+  def validate_by_client
+    # Seul le propriétaire du projet peut valider
+    unless @facture.project.user_id == current_user.id
+      redirect_back fallback_location: root_path, alert: "Vous n'êtes pas autorisé à valider ce document." and return
+    end
+
+    if @facture.validated_by_client_at.present?
+      redirect_back fallback_location: root_path, notice: "Ce document est déjà validé." and return
+    end
+
+    if @facture.update(validated_by_client_at: Time.current, validated_by_client_id: current_user.id)
+      redirect_back fallback_location: pro_view_project_path(@facture.project),
+                    notice: "Devis validé ✓ — #{@facture.nom_entreprise.presence || 'Entrepreneur'} a été notifié."
+    else
+      redirect_back fallback_location: root_path, alert: "Erreur lors de la validation."
     end
   end
 

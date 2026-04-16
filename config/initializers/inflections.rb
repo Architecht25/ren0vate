@@ -14,3 +14,8 @@
 # ActiveSupport::Inflector.inflections(:en) do |inflect|
 #   inflect.acronym "RESTful"
 # end
+
+# Fix: 'reserves' singularizes incorrectly to 'reserf' via the rves→rf rule
+ActiveSupport::Inflector.inflections(:en) do |inflect|
+  inflect.irregular 'reserve', 'reserves'
+end

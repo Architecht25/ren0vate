@@ -321,6 +321,286 @@
         </div>
       </div>
 
+      <!-- ─── Réserves de réception (punch list) ───────────────────────────── -->
+      <div class="card border-0 shadow-sm mb-4" id="reserves">
+        <div class="card-header bg-transparent border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="mb-0 text-primary-custom fw-normal">
+              <i class="bi bi-list-check me-2"></i>Réserves de réception
+            </h5>
+            <% actives = @project.reserves.actives.count %>
+            <% if actives > 0 %>
+              <small class="text-warning">
+                <i class="bi bi-exclamation-triangle me-1"></i><%= actives %> réserve<%= 's' if actives > 1 %> en attente
+              </small>
+            <% else %>
+              <small class="text-success">
+                <i class="bi bi-check-circle me-1"></i>Aucune réserve ouverte
+              </small>
+            <% end %>
+          </div>
+          <button class="btn btn-sm btn-outline-primary rounded-3" type="button"
+                  data-bs-toggle="collapse" data-bs-target="#form-reserve-<%= @project.id %>">
+            <i class="bi bi-plus me-1"></i>Ajouter
+          </button>
+        </div>
+
+        <%# Formulaire d'ajout de réserve %>
+        <div class="collapse" id="form-reserve-<%= @project.id %>">
+          <%= form_with url: project_reserves_path(@project), method: :post,
+                        data: { turbo: false } do |f| %>
+            <div class="p-3 border-bottom bg-light">
+              <div class="row g-2">
+                <div class="col-12">
+                  <%= f.text_area :description, class: "form-control form-control-sm rounded-3",
+                      rows: 2, placeholder: "Description du défaut constaté (ex : fissure au plafond chambre 2, joint douche non posé…)", required: true %>
+                </div>
+                <div class="col-sm-6">
+                  <%= f.text_field :responsable, class: "form-control form-control-sm rounded-3",
+                      placeholder: "Responsable (entrepreneur ou corps de métier)" %>
+                </div>
+                <div class="col-sm-3">
+                  <%= f.date_field :date_constat, class: "form-control form-control-sm rounded-3",
+                      value: Date.current %>
+                </div>
+                <div class="col-sm-3">
+                  <%= f.date_field :date_limite, class: "form-control form-control-sm rounded-3",
+                      placeholder: "Délai levée" %>
+                </div>
+                <div class="col-12 d-flex justify-content-end gap-2">
+                  <button type="button" class="btn btn-sm btn-outline-secondary rounded-3"
+                          data-bs-toggle="collapse" data-bs-target="#form-reserve-<%= @project.id %>">
+                    Annuler
+                  </button>
+                  <%= f.submit "Ajouter la réserve", class: "btn btn-sm btn-primary rounded-3" %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <%# Liste des réserves %>
+        <% reserves_all = @project.reserves.order(statut: :asc, created_at: :desc) %>
+        <% if reserves_all.any? %>
+          <div class="list-group list-group-flush">
+            <% reserves_all.each do |reserve| %>
+              <div class="list-group-item px-4 py-3 <%= 'bg-success-subtle' if reserve.levee? %>">
+                <div class="d-flex align-items-start gap-3">
+                  <%# Icône statut %>
+                  <div class="flex-shrink-0 mt-1">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-<%= reserve.statut_color %>-subtle"
+                         style="width:32px;height:32px;">
+                      <i class="bi <%= reserve.statut_icon %> text-<%= reserve.statut_color %>" style="font-size:1rem;"></i>
+                    </div>
+                  </div>
+                  <%# Contenu %>
+                  <div class="flex-grow-1">
+                    <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                      <span class="badge bg-<%= reserve.statut_color %>-subtle text-<%= reserve.statut_color %> border border-<%= reserve.statut_color %>"
+                            style="font-size:0.65rem;"><%= reserve.statut_label %></span>
+                      <% if reserve.responsable.present? %>
+                        <span class="small text-muted">
+                          <i class="bi bi-person me-1"></i><%= reserve.responsable %>
+                        </span>
+                      <% end %>
+                      <% if reserve.date_limite.present? %>
+                        <% overdue = !reserve.levee? && reserve.date_limite < Date.current %>
+                        <span class="small <%= overdue ? 'text-danger fw-semibold' : 'text-muted' %>">
+                          <i class="bi bi-calendar3 me-1"></i>
+                          Délai : <%= reserve.date_limite.strftime('%d/%m/%Y') %>
+                          <% if overdue %><i class="bi bi-exclamation-triangle ms-1"></i><% end %>
+                        </span>
+                      <% end %>
+                    </div>
+                    <p class="mb-0 small <%= reserve.levee? ? 'text-decoration-line-through text-muted' : '' %>">
+                      <%= reserve.description %>
+                    </p>
+                    <% if reserve.notes.present? %>
+                      <p class="mb-0 text-muted fst-italic mt-1" style="font-size:0.75rem;"><%= reserve.notes %></p>
+                    <% end %>
+                    <div class="text-muted mt-1" style="font-size:0.68rem;">
+                      Constatée le <%= reserve.date_constat&.strftime('%d/%m/%Y') || reserve.created_at.strftime('%d/%m/%Y') %>
+                    </div>
+                  </div>
+                  <%# Actions %>
+                  <div class="flex-shrink-0 d-flex flex-column gap-1 align-items-end">
+                    <% unless reserve.levee? %>
+                      <%# Bouton Marquer levée %>
+                      <%= button_to project_reserve_path(@project, reserve),
+                          method: :patch,
+                          params: { reserve: { statut: 'levee' } },
+                          class: "btn btn-xs btn-outline-success rounded-3 py-0 px-2",
+                          title: "Marquer comme levée",
+                          style: "font-size:0.7rem;" do %>
+                        <i class="bi bi-check2-circle me-1"></i>Levée
+                      <% end %>
+                      <%# Bouton En cours %>
+                      <% if reserve.ouverte? %>
+                        <%= button_to project_reserve_path(@project, reserve),
+                            method: :patch,
+                            params: { reserve: { statut: 'en_cours' } },
+                            class: "btn btn-xs btn-outline-warning rounded-3 py-0 px-2",
+                            title: "Marquer en cours",
+                            style: "font-size:0.7rem;" do %>
+                          <i class="bi bi-clock me-1"></i>En cours
+                        <% end %>
+                      <% end %>
+                    <% else %>
+                      <%# Rouvrir %>
+                      <%= button_to project_reserve_path(@project, reserve),
+                          method: :patch,
+                          params: { reserve: { statut: 'ouverte' } },
+                          class: "btn btn-xs btn-outline-secondary rounded-3 py-0 px-2",
+                          style: "font-size:0.7rem;" do %>
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>Rouvrir
+                      <% end %>
+                    <% end %>
+                    <%# Supprimer %>
+                    <%= button_to project_reserve_path(@project, reserve),
+                        method: :delete,
+                        form: { data: { turbo_confirm: "Supprimer cette réserve ?" } },
+                        class: "btn btn-xs btn-outline-danger rounded-3 py-0 px-2",
+                        style: "font-size:0.7rem;" do %>
+                      <i class="bi bi-trash3"></i>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="card-body p-4 text-center text-muted small">
+            <i class="bi bi-clipboard-check fs-4 d-block mb-2 text-success"></i>
+            Aucune réserve enregistrée pour ce chantier.
+            <div class="mt-2 text-muted" style="font-size:0.78rem;">
+              Ajoutez les défauts constatés lors de la visite de réception pour en assurer le suivi.
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- ─── PV de réception numérique ─────────────────────────────────────── -->
+      <% pv = @project.pv_reception %>
+      <div class="card border-0 shadow-sm mb-4" id="pv-reception">
+        <div class="card-header bg-transparent border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="mb-0 text-primary-custom fw-normal">
+              <i class="bi bi-patch-check me-2"></i>PV de Réception
+              <span class="badge bg-primary ms-1" style="font-size:0.6rem;vertical-align:middle;">Numérique</span>
+            </h5>
+            <% if pv %>
+              <small class="text-<%= pv.statut_color %>">
+                <i class="bi <%= pv.statut_icon %> me-1"></i><%= pv.statut_label %>
+                <% if pv.envoye? %>— <%= pv.nb_signatures %>/<%= pv.nb_signatures_attendues %> signatures<% end %>
+              </small>
+            <% else %>
+              <small class="text-muted">Procès-Verbal 3-parties horodaté</small>
+            <% end %>
+          </div>
+          <div class="d-flex gap-2">
+            <% if pv %>
+              <%= link_to project_pv_reception_path(@project), class: "btn btn-sm btn-outline-primary" do %>
+                <i class="bi bi-eye me-1"></i>Voir le PV
+              <% end %>
+            <% elsif @project.user_id == current_user.id %>
+              <button class="btn btn-sm btn-primary" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#form-pv-<%= @project.id %>">
+                <i class="bi bi-plus me-1"></i>Créer le PV
+              </button>
+            <% end %>
+          </div>
+        </div>
+
+        <%# Formulaire de création du PV (owner seulement) %>
+        <% if pv.nil? && @project.user_id == current_user.id %>
+          <div class="collapse" id="form-pv-<%= @project.id %>">
+            <%= form_with url: project_pv_reception_path(@project), method: :post,
+                          data: { turbo: false } do |f| %>
+              <div class="p-3 border-bottom bg-light">
+                <div class="row g-2">
+                  <div class="col-sm-6">
+                    <%= f.label :date_reception, "Date de réception", class: "form-label small fw-semibold" %>
+                    <%= f.date_field :date_reception, class: "form-control form-control-sm rounded-3",
+                        value: Date.current, name: "pv_reception[date_reception]" %>
+                  </div>
+                  <div class="col-12">
+                    <%= f.label :observations, "Observations générales (facultatif)", class: "form-label small fw-semibold" %>
+                    <%= f.text_area :observations, class: "form-control form-control-sm rounded-3",
+                        rows: 2, placeholder: "Travaux réalisés conformément aux plans. Réserves listées ci-dessus…",
+                        name: "pv_reception[observations]" %>
+                  </div>
+                  <div class="col-12 small text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Les parties identifiées (maître d'ouvrage, architecte, entrepreneur) seront détectées
+                    depuis les membres actifs du projet.
+                  </div>
+                  <div class="col-12 d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-3"
+                            data-bs-toggle="collapse" data-bs-target="#form-pv-<%= @project.id %>">
+                      Annuler
+                    </button>
+                    <%= f.submit "Créer le PV de réception", class: "btn btn-sm btn-primary rounded-3" %>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
+        <%# Aperçu condensé si PV existant %>
+        <% if pv %>
+          <div class="card-body p-4">
+            <div class="row g-3 align-items-center">
+              <div class="col-sm-6">
+                <div class="small text-muted">Date de réception</div>
+                <div class="fw-semibold">
+                  <%= pv.date_reception ? pv.date_reception.strftime('%d/%m/%Y') : '—' %>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="small text-muted">Signatures</div>
+                <div class="d-flex gap-1 flex-wrap mt-1">
+                  <% [
+                    { nom: pv.nom_owner,        signed: pv.signed_owner?,        label: "MO",   skip: false },
+                    { nom: pv.nom_architect,    signed: pv.signed_architect?,    label: "Arch", skip: pv.email_architect.blank? },
+                    { nom: pv.nom_entrepreneur, signed: pv.signed_entrepreneur?, label: "Entr", skip: pv.email_entrepreneur.blank? }
+                  ].each do |s| %>
+                    <% next if s[:skip] %>
+                    <span class="badge bg-<%= s[:signed] ? 'success' : 'secondary' %>-subtle text-<%= s[:signed] ? 'success' : 'secondary' %> border"
+                          title="<%= s[:nom] %>" style="font-size:0.65rem;">
+                      <i class="bi bi-<%= s[:signed] ? 'check2' : 'clock' %> me-1"></i><%= s[:label] %>
+                    </span>
+                  <% end %>
+                </div>
+              </div>
+              <% if pv.finalise? %>
+                <div class="col-12">
+                  <div class="alert alert-success py-2 px-3 small mb-0 d-flex align-items-center gap-2">
+                    <i class="bi bi-patch-check-fill"></i>
+                    <strong>PV finalisé</strong> — Toutes les signatures ont été recueillies.
+                    <%= link_to print_project_pv_reception_path(@project), target: "_blank",
+                        class: "ms-auto btn btn-sm btn-outline-success" do %>
+                      <i class="bi bi-printer me-1"></i>PDF
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% else %>
+          <div class="card-body p-4 text-center text-muted small">
+            <i class="bi bi-patch-check fs-4 d-block mb-2 text-secondary"></i>
+            Aucun PV créé pour ce chantier.
+            <% if @project.user_id == current_user.id %>
+              <div class="mt-2" style="font-size:0.78rem;">
+                Créez le PV pour recueillir les signatures des 3 parties (maître d'ouvrage, architecte, entrepreneur).
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
+      </div><!-- /card PV -->
+
       <!-- ─── Décompte par entrepreneur ─────────────────────────────────────── -->
       <div class="card border-0 shadow-sm mb-4">
         <div class="card-header bg-transparent border-bottom py-3 px-4">

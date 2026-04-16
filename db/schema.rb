@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_15_071750) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_16_125117) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -276,6 +276,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_15_071750) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.json "donnees_extraites"
+    t.string "phase_chantier"
     t.index ["project_id"], name: "index_documents_on_project_id"
     t.index ["property_id"], name: "index_documents_on_property_id"
     t.index ["request_id"], name: "index_documents_on_request_id"
@@ -313,6 +314,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_15_071750) do
     t.text "adresse_entreprise", comment: "Adresse extraite par OCR"
     t.string "telephone_entreprise", comment: "Téléphone extrait par OCR"
     t.string "email_entreprise", comment: "Email extrait par OCR"
+    t.datetime "validated_by_client_at"
+    t.bigint "validated_by_client_id"
     t.index ["date_facture"], name: "index_factures_on_date_facture"
     t.index ["date_limite_prime"], name: "index_factures_on_date_limite_prime"
     t.index ["document_id"], name: "index_factures_on_document_id"
@@ -549,6 +552,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_15_071750) do
     t.string "permis_urbanisme_autorite"
     t.text "permis_urbanisme_notes"
     t.jsonb "phases_avancement", default: {}, null: false
+    t.datetime "entrepreneur_bce_verifie_at"
+    t.string "entrepreneur_bce_statut"
+    t.jsonb "permis_urbanisme_historique", default: [], null: false
     t.index ["property_id"], name: "index_projects_on_property_id"
     t.index ["user_id"], name: "index_projects_on_user_id"
   end
@@ -614,6 +620,38 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_15_071750) do
     t.text "elements_petit_patrimoine"
     t.index ["latitude", "longitude"], name: "index_properties_on_latitude_and_longitude"
     t.index ["user_id"], name: "index_properties_on_user_id"
+  end
+
+  create_table "pv_receptions", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.string "statut", default: "draft", null: false
+    t.date "date_reception"
+    t.text "observations"
+    t.text "reserves_snapshot"
+    t.string "token_owner"
+    t.string "nom_owner"
+    t.string "email_owner"
+    t.datetime "sent_owner_at"
+    t.datetime "signed_owner_at"
+    t.text "commentaire_owner"
+    t.string "token_architect"
+    t.string "nom_architect"
+    t.string "email_architect"
+    t.datetime "sent_architect_at"
+    t.datetime "signed_architect_at"
+    t.text "commentaire_architect"
+    t.string "token_entrepreneur"
+    t.string "nom_entrepreneur"
+    t.string "email_entrepreneur"
+    t.datetime "sent_entrepreneur_at"
+    t.datetime "signed_entrepreneur_at"
+    t.text "commentaire_entrepreneur"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_pv_receptions_on_project_id", unique: true
+    t.index ["token_architect"], name: "index_pv_receptions_on_token_architect", unique: true, where: "(token_architect IS NOT NULL)"
+    t.index ["token_entrepreneur"], name: "index_pv_receptions_on_token_entrepreneur", unique: true, where: "(token_entrepreneur IS NOT NULL)"
+    t.index ["token_owner"], name: "index_pv_receptions_on_token_owner", unique: true, where: "(token_owner IS NOT NULL)"
   end
 
   create_table "quote_items", force: :cascade do |t|
@@ -753,6 +791,20 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_15_071750) do
     t.index ["property_id"], name: "index_requests_on_property_id"
     t.index ["simulation_id"], name: "index_requests_on_simulation_id"
     t.index ["user_id"], name: "index_requests_on_user_id"
+  end
+
+  create_table "reserves", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.text "description"
+    t.string "responsable"
+    t.date "date_constat"
+    t.date "date_limite"
+    t.string "statut", default: "ouverte", null: false
+    t.text "notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id", "statut"], name: "index_reserves_on_project_id_and_statut"
+    t.index ["project_id"], name: "index_reserves_on_project_id"
   end
 
   create_table "rib_donnees", force: :cascade do |t|
@@ -923,6 +975,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_15_071750) do
   add_foreign_key "projects", "properties"
   add_foreign_key "projects", "users"
   add_foreign_key "properties", "users"
+  add_foreign_key "pv_receptions", "projects"
   add_foreign_key "quote_items", "quotes"
   add_foreign_key "quotes", "properties"
   add_foreign_key "quotes", "users"
@@ -932,6 +985,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_15_071750) do
   add_foreign_key "requests", "properties"
   add_foreign_key "requests", "simulations"
   add_foreign_key "requests", "users"
+  add_foreign_key "reserves", "projects"
   add_foreign_key "rib_donnees", "documents"
   add_foreign_key "rib_donnees", "users"
   add_foreign_key "simulations", "projects"

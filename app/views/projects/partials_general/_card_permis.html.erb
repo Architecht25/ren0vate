@@ -96,22 +96,99 @@
       <% end %>
     </div>
 
-    <%# —— Récapitulatif statut permis —— %>
-    <div class="d-flex align-items-center gap-2 mb-3 p-2 rounded-3" style="background:rgba(0,0,0,0.03);">
-      <i class="bi <%= current_statut[:icon] %> text-<%= current_statut[:color].split.first %>" style="font-size:1.1rem;"></i>
-      <div class="flex-grow-1">
-        <div class="fw-semibold" style="font-size:0.82rem;">
-          Permis d'urbanisme :
-          <span class="badge bg-<%= current_statut[:color].split.first %>-subtle text-<%= current_statut[:color].split.first %> ms-1"><%= current_statut[:label] %></span>
+    <%# —— Stepper visuel permis —— %>
+    <%
+      historique = (@project.permis_urbanisme_historique || []).sort_by { |h| h['changed_at'] || '' }
+      statut_date = historique.group_by { |h| h['statut'] }.transform_values { |arr| arr.last['changed_at'] }
+
+      stepper_steps = [
+        { key: 'a_deposer',  label: 'À déposer',  icon: 'bi-send',             color: 'info'    },
+        { key: 'en_cours',   label: 'En cours',    icon: 'bi-hourglass-split',  color: 'warning' },
+        { key: 'obtenu',     label: 'Obtenu',       icon: 'bi-check-circle-fill', color: 'success' },
+      ]
+      current = @project.permis_urbanisme_statut.to_s
+      current_idx = stepper_steps.index { |s| s[:key] == current }
+
+      # Pipeline : à déposer(0) → en cours(1) → obtenu(2)
+      # Refusé et non_requis = états terminaux hors pipeline
+    %>
+
+    <% if current == 'non_requis' %>
+      <div class="d-flex align-items-center gap-2 mb-3 px-2 py-2 rounded-3"
+           style="background:rgba(108,117,125,0.08);">
+        <i class="bi bi-slash-circle text-secondary" style="font-size:1rem;"></i>
+        <span class="text-muted fw-semibold" style="font-size:0.82rem;">Permis non requis pour ce chantier</span>
+      </div>
+    <% elsif current == 'refuse' %>
+      <div class="d-flex align-items-center gap-2 mb-3 px-2 py-2 rounded-3"
+           style="background:rgba(220,53,69,0.07);">
+        <i class="bi bi-x-circle-fill text-danger" style="font-size:1rem;"></i>
+        <div>
+          <span class="text-danger fw-semibold" style="font-size:0.82rem;">Permis refusé</span>
+          <% if statut_date['refuse'].present? %>
+            <div class="text-muted" style="font-size:0.7rem;">
+              le <%= Time.zone.parse(statut_date['refuse']).strftime('%d/%m/%Y') rescue statut_date['refuse'] %>
+            </div>
+          <% end %>
         </div>
-        <% if @project.permis_urbanisme_number.present? || @project.permis_urbanisme_date.present? %>
-          <div class="text-muted" style="font-size:0.72rem;">
-            <% if @project.permis_urbanisme_number.present? %>
-              N° <strong><%= @project.permis_urbanisme_number %></strong>
+      </div>
+    <% else %>
+      <%# Pipeline stepper %>
+      <div class="mb-3">
+        <div class="d-flex align-items-center" style="gap:0;">
+          <% stepper_steps.each_with_index do |step, idx| %>
+            <%
+              is_done    = current_idx && idx < current_idx
+              is_current = current_idx && idx == current_idx
+              step_date  = statut_date[step[:key]]
+            %>
+            <%# Cercle étape %>
+            <div class="d-flex flex-column align-items-center flex-shrink-0" style="min-width:60px;">
+              <div class="rounded-circle d-flex align-items-center justify-content-center
+                          <%= is_done ? "bg-#{step[:color]}" : is_current ? "bg-#{step[:color]}" : 'bg-light border' %>"
+                   style="width:32px;height:32px;border:<%= is_current ? "2px solid var(--bs-#{step[:color]})" : '' %>;">
+                <% if is_done %>
+                  <i class="bi bi-check2 text-white" style="font-size:0.85rem;"></i>
+                <% elsif is_current %>
+                  <i class="bi <%= step[:icon] %> text-white" style="font-size:0.75rem;"></i>
+                <% else %>
+                  <i class="bi <%= step[:icon] %> text-secondary" style="font-size:0.75rem;"></i>
+                <% end %>
+              </div>
+              <div class="text-center mt-1" style="font-size:0.62rem; line-height:1.2;
+                           color:<%= is_current ? "var(--bs-#{step[:color]})" : is_done ? '#6c757d' : '#adb5bd' %>;
+                           font-weight:<%= is_current ? '600' : '400' %>;">
+                <%= step[:label] %>
+                <% if step_date.present? %>
+                  <div style="font-size:0.58rem; color:#adb5bd;">
+                    <%= Time.zone.parse(step_date).strftime('%d/%m') rescue '' %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+            <%# Trait de connexion entre étapes %>
+            <% if idx < stepper_steps.size - 1 %>
+              <div class="flex-grow-1" style="height:2px; margin-bottom:22px;
+                           background:<%= is_done ? "var(--bs-#{step[:color]})" : '#dee2e6' %>;"></div>
             <% end %>
-            <% if @project.permis_urbanisme_date.present? %>
-              &nbsp;·&nbsp;délivré le <%= @project.permis_urbanisme_date.strftime("%d/%m/%Y") %>
-            <% end %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <%# —— Infos détaillées permis —— %>
+    <% if [@project.permis_urbanisme_number, @project.permis_urbanisme_date, @project.permis_urbanisme_autorite].any?(&:present?) %>
+      <div class="mb-3 p-2 rounded-3" style="background:rgba(0,0,0,0.03);">
+        <% if @project.permis_urbanisme_number.present? %>
+          <div style="font-size:0.75rem;">
+            <span class="text-muted">N° permis :</span>
+            <strong class="ms-1"><%= @project.permis_urbanisme_number %></strong>
+          </div>
+        <% end %>
+        <% if @project.permis_urbanisme_date.present? %>
+          <div style="font-size:0.75rem;">
+            <span class="text-muted">Délivré le :</span>
+            <span class="ms-1"><%= @project.permis_urbanisme_date.strftime("%d/%m/%Y") %></span>
           </div>
         <% end %>
         <% if @project.permis_urbanisme_autorite.present? %>
@@ -121,7 +198,29 @@
           <div class="text-muted fst-italic mt-1" style="font-size:0.72rem;"><%= truncate(@project.permis_urbanisme_notes, length: 80) %></div>
         <% end %>
       </div>
-    </div>
+    <% end %>
+
+    <%# —— Historique des changements de statut —— %>
+    <% if historique.size > 1 %>
+      <details class="mb-3">
+        <summary class="text-muted" style="font-size:0.72rem; cursor:pointer;">
+          <i class="bi bi-clock-history me-1"></i>Historique (<%= historique.size %> entrées)
+        </summary>
+        <div class="mt-2 ps-2 border-start border-2 border-secondary-subtle">
+          <% historique.reverse.first(5).each do |h| %>
+            <% sc = statut_config[h['statut']] || { label: h['statut'], color: 'secondary', icon: 'bi-circle' } %>
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <i class="bi <%= sc[:icon] %> text-<%= sc[:color].split.first %>" style="font-size:0.7rem;"></i>
+              <span class="badge bg-<%= sc[:color].split.first %>-subtle text-<%= sc[:color].split.first %>"
+                    style="font-size:0.6rem;"><%= sc[:label] %></span>
+              <span class="text-muted" style="font-size:0.68rem;">
+                <%= Time.zone.parse(h['changed_at']).strftime('%d/%m/%Y à %H:%M') rescue h['changed_at'] %>
+              </span>
+            </div>
+          <% end %>
+        </div>
+      </details>
+    <% end %>
 
     <%# —— Section documents permis —— %>
     <div class="d-flex align-items-center justify-content-between mb-2">

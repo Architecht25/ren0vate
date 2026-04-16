@@ -2030,7 +2030,7 @@ Ren0vate : **3 killer features en 3 mois**.
   - ✅ ~~Sprint M2 (Avril S4) : UX mobile polish (sidebar swipe, tabs mobile, typography)~~ **LIVRÉ**
   - ✅ ~~Sprint PWA-1 (Mai S1) : Manifest JSON + Service Worker + offline page~~ **LIVRÉ — manifest.json, service worker, icônes PWA 512/192/apple-touch**
   - ✅ ~~Sprint PWA-2 (Mai S2) : Install prompt iOS/Android + Lighthouse PWA score > 90~~ **LIVRÉ — bottom nav bar iOS/Android, safe-area, install prompt**
-- 🔜 Dashboard analytics pros
+- ~~✅ Dashboard analytics pros~~ ✅ **LIVRÉ — avril 2026 — KPIs multi-chantiers (facturé/en attente/photos), barre avancement phases, total global paiements en attente (member_projects)**
 
 **Milestone** : 500 users, 50 payants, 25 pros freemium
 
@@ -2039,20 +2039,20 @@ Ren0vate : **3 killer features en 3 mois**.
 ### Q3 2026 (Juin-Août) : COLLABORATION PROS
 
 #### Juin 2026
-- ✅ Outil #1 Entrepreneurs (Générateur devis collaboratif)
+- ~~✅ Outil #1 Entrepreneurs (Générateur devis collaboratif)~~ ✅ **LIVRÉ — avril 2026 — flow collaboratif client/entrepreneur, upload PDF, validation 1 clic `validated_by_client_at`**
 - ~~✅ Système invitations + rôles permissions~~ ✅ **LIVRÉ — avril 2026**
 - ~~✅ Upload factures + OCR extraction~~ ✅ **LIVRÉ — avril 2026**
-- ✅ Signature électronique DocuSign
+- ~~✅ Signature électronique DocuSign~~ **REPORTÉ — remplacé par validation horodatée en DB (`validated_by_client_at`) — suffisant juridiquement pour TVA 6% et primes. DocuSign réservé aux contrats formels > 50K€ (phase ultérieure)**
 
 **Milestone** : 150 entrepreneurs freemium testent
 
 ---
 
 #### Juillet 2026
-- ✅ Outil #2 Entrepreneurs (Gestionnaire factures)
-- ✅ Outil #3 Entrepreneurs (Suivi chantier visuel)
+- ~~✅ Outil #2 Entrepreneurs (Gestionnaire factures)~~ ✅ **LIVRÉ — avril 2026 — dashboard KPI par chantier (facturé/en attente/photos), `upload_facture_pro`, relances automatiques**
+- ~~✅ Outil #3 Entrepreneurs (Suivi chantier visuel)~~ ✅ **LIVRÉ — avril 2026 — 5 phases avec validation client horodatée, galerie photos par phase, barre de progression mobile-first**
 - ~~✅ Email parsing ActionMailbox~~ ✅ **LIVRÉ — avril 2026**
-- ✅ Notifications push ActionCable
+- ~~✅ Notifications push ActionCable~~ **REPORTÉ Q3 2026 — NotificationMailer (10 types) couvre tous les cas actuels. ActionCable (Solid Cable déjà configuré) à activer quand chantiers actifs avec collaboration quotidienne entrepreneur↔client (~500 users actifs)**
 
 **Milestone** : 1.000 users, 100 payants, 200 pros
 
@@ -2061,8 +2061,8 @@ Ren0vate : **3 killer features en 3 mois**.
 #### Août 2026
 - ~~✅ IA #3 : Score Santé Projet /10~~ ✅ **LIVRÉ — avril 2026**
 - ✅ IA #4 : Prédicteur Permis (ML 87%)
-- ✅ Comparaison devis automatique
-- ✅ Badge "Partenaire vérifié"
+- ~~✅ Comparaison devis automatique~~ ✅ **LIVRÉ — avril 2026 — comparateur OCR multi-devis : upload PDF entrepreneurs → `DevisOcrService` extrait entreprise/BCE/montant HTVA+TVAC/TVA%/types travaux/validité → tableau côte à côte avec coloration min/max, écart vs estimatif, confiance OCR**
+- ~~✅ Badge "Partenaire vérifié"~~ ✅ **LIVRÉ — avril 2026 — vérification automatique N° TVA entrepreneur via API VIES Europe (`BceVerificationService`), badge ✓ BCE vérifié affiché dans l'équipe projet, job async `BceVerificationJob`**
 
 **Milestone** : ARR 350K€
 
@@ -2073,44 +2073,52 @@ Ren0vate : **3 killer features en 3 mois**.
 #### Septembre 2026
 - ~~✅ IA #5 : Assistant Primes/Prêts optimisation~~ ✅ **LIVRÉ — avril 2026**
 - ~~✅ IA #6 : Chatbot Expert 24/7~~ ✅ **LIVRÉ — avril 2026**
-- ✅ Intégrations comptables (Exact, Yuki)
-- ✅ Marketplace entrepreneurs v1
+- ~~✅ Marketplace entrepreneurs v1~~ ✅ **LIVRÉ — avril 2026 — dropdowns "Trouver architecte" (Ordre des Architectes, Homify.be, Trustup.be) et "Trouver entrepreneur" (Bobex.be, Trustup.be) + boutons invitation directe depuis l'équipe projet + section "Équipe élargie" pour autres pros (ingénieur, auditeur PAE, coordinateur sécurité…)**
 
 **Milestone** : 1.500 users, 200 payants
 
 ---
 
 #### Octobre-Novembre 2026
-- ✅ Outil #1 Architectes (Tracker permis)
-- ✅ Outil #2 Architectes (Validation 3-parties)
-- ✅ Outil #3 Architectes (Réception travaux)
-- ✅ PV numériques + signatures 3-parties
+- ~~✅ Outil #1 Architectes (Tracker permis)~~ **LIVRÉ avril 2026 — stepper visuel horodaté avec historique des changements de statut**
+- ~~✅ Outil #2 Architectes (Validation 3-parties)~~ **LIVRÉ avril 2026 — validate_phase étendu : owner + architecte + entrepreneur, badges par rôle, rétrocompatibilité**
+- ~~✅ Outil #3 Architectes (Réception travaux)~~ **LIVRÉ avril 2026 — punch list réserves (ouverte/en cours/levée), délais, responsable, statut par entrepreneur**
+- ~~✅ PV numériques + signatures 3-parties~~ **LIVRÉ avril 2026 — PvReception model, tokens horodatés 3-parties (owner/architecte/entrepreneur), page signing publique, vue imprimable, finalisation auto à la dernière signature, PvMailer email**
+- ✅ Programme Ambassadors (20 architectes) — accès Pro gratuit en échange de 3 recommandations/mois
+- ~~✅ Notifications push ActionCable~~ **REPORTÉ Q3 2026 — NotificationMailer (10 types) couvre tous les cas actuels. ActionCable (Solid Cable déjà configuré) à activer quand chantiers actifs avec collaboration quotidienne entrepreneur↔client (~500 users actifs)**
 
 **Milestone** : 50 architectes testent, ARR 731K€
 
 ---
 
-### Q1-Q2 2027 : IA #7 + SCALE
+### 2027 : SCALE + IA AVANCÉE
 
-#### Janvier-Mars 2027
-- ✅ IA #7 : Benchmark Marché (transparence totale)
-- ✅ ML training sur 5.000+ projets réels
+#### Q1 2027 (Jan-Mars)
+- ✅ Export UBL/Billit (facturation électronique B2B belge, obligatoire depuis 01/01/2026)
+- ✅ IA #7 : Benchmark Marché (transparence totale) — *prérequis : 300-500 projets avec devis/factures réelles*
 - ~~✅ OCR certificats PEB/Audits énergétiques~~ ✅ **LIVRÉ — avril 2026**
 - ✅ Roadmap évolution labels PEB automatique
 - ~~✅ IA #8 : Comparateur Produits & Matériaux IA (30 produits, calcul ROI, recommandation Claude)~~ ✅ **LIVRÉ — avril 2026**
-- ✅ IA #9 : assistant juridique (contrats, garanties, PV)
+- ~~✅ IA #9 : Assistant juridique (contrats, garanties, PV)~~ ✅ **LIVRÉ V1 — avril 2026** — Calendrier échéances garanties (décennale/biennale/bon fonctionnement) + Checklist contrat 10 clauses légales belges (regex, score 0-10, niveaux excellent/satisfaisant/incomplet/insuffisant)
+- ✅ Notifications push ActionCable (Solid Cable)
 
 **Milestone** : 3.000 users, 500 payants
 
 ---
 
-#### Avril-Juin 2027
+#### Q2 2027 (Avr-Juin)
 - ✅ Campagne acquisition massive
-- ✅ Partenariats ordres professionnels
-- ✅ Batibouw 2027 (stand démonstration)
-- ✅ Programme Ambassadors (20 architectes)
+- ✅ Partenariats ordres professionnels (Ordre des Architectes, EMBUILD, CIB)
+- ✅ Batibouw 2027 — stand démonstration (février/mars 2027)
 
 **Milestone** : 5.000 users, ARR 2,69M€
+
+---
+
+#### 2028+ : DATA MOAT
+- 📅 **Jalon conditionnel** : ML training sur 5.000+ projets réels — remplacera `BudgetEstimatorService` rule-based par modèles ML (RandomForest/XGBoost) — estimation budgets, prédiction délais, détection anomalies prix
+- ✅ IA #7 Benchmark Marché v2 (médiane régionalisée par corps de métier, données anonymisées)
+- ✅ Marketplace pros maison (si 500+ entrepreneurs actifs plateforme)
 
 ---
 

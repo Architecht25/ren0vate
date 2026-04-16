@@ -2,9 +2,18 @@
   <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
     <div>
-      <h1 class="h3 text-primary-custom mb-1 fw-normal">Mes projets</h1>
+      <h1 class="h3 text-primary-custom mb-1 fw-normal">Mes chantiers</h1>
       <p class="text-muted mb-0 small">Projets auxquels vous participez en tant que professionnel</p>
     </div>
+    <% if @memberships.any? %>
+      <div class="text-end d-none d-md-block">
+        <% total_en_attente = @memberships.sum { |m| m.project.factures.entrepreneur.non_payees.sum(:montant).to_f } %>
+        <% if total_en_attente > 0 %>
+          <div class="small text-muted">Total en attente de paiement</div>
+          <div class="fw-bold text-warning fs-5"><%= number_to_currency(total_en_attente, unit: '', separator: ',', delimiter: '.', precision: 0) %> €</div>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 
   <% if @memberships.any? %>
@@ -12,24 +21,42 @@
       <% @memberships.each do |membership| %>
         <% project  = membership.project %>
         <% property = project.property %>
+        <%
+          # Stats factures pour entrepreneurs
+          factures_projet = project.factures.entrepreneur if membership.role == 'entrepreneur'
+          total_facture   = factures_projet&.sum(:montant).to_f || 0
+          total_paye      = factures_projet&.payees&.sum(:montant).to_f || 0
+          total_attente   = factures_projet&.non_payees&.sum(:montant).to_f || 0
+          has_devis_attente = factures_projet&.devis&.where(validated_by_client_at: nil)&.any? || false
+          # Avancement phases chantier
+          phases_json = project.phases_avancement || {}
+          nb_phases_validees = phases_json.values.count(&:present?)
+          pct_avancement = (nb_phases_validees * 100.0 / 5).round
+          # Photos récentes
+          photos_count = project.documents.where(type_document: %w[photo_avant photo_pendant photo_apres photo_chassis]).count
+        %>
         <div class="col-xl-4 col-lg-6 col-md-6">
-          <div class="card border-0 shadow-sm h-100 hover-shadow transition-all" style="border-radius: 12px; overflow: hidden;">
+          <div class="card border-0 shadow-sm h-100" style="border-radius:12px;overflow:hidden;">
             <!-- Bandeau couleur selon rôle -->
             <div class="<%= membership.role == 'entrepreneur' ? 'bg-warning' : 'bg-info' %> py-1 px-3 d-flex align-items-center justify-content-between">
               <span class="small fw-semibold text-white">
                 <i class="bi <%= membership.role == 'entrepreneur' ? 'bi-hammer' : 'bi-compass' %> me-1"></i>
                 <%= membership.role_label %>
               </span>
-              <span class="badge bg-white text-dark small">Actif</span>
+              <% if has_devis_attente %>
+                <span class="badge bg-white text-warning small">Devis en attente validation</span>
+              <% else %>
+                <span class="badge bg-white text-dark small">Actif</span>
+              <% end %>
             </div>
 
-            <div class="card-body p-4">
+            <div class="card-body p-3">
               <!-- Nom du projet -->
-              <h5 class="fw-semibold mb-1 text-dark"><%= project.nom.presence || "Projet sans nom" %></h5>
+              <h5 class="fw-semibold mb-1 text-dark" style="font-size:0.95rem;"><%= project.nom.presence || "Projet sans nom" %></h5>
 
               <!-- Adresse du bien -->
               <% if property %>
-                <p class="text-muted small mb-3">
+                <p class="text-muted small mb-2" style="font-size:0.8rem;">
                   <i class="bi bi-geo-alt me-1"></i>
                   <%= [property.adresse, property.code_postal, property.commune].compact.join(', ') %>
                 </p>
@@ -37,29 +64,56 @@
 
               <!-- Propriétaire -->
               <div class="d-flex align-items-center mb-3">
-                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-2" style="width:32px;height:32px;">
-                  <i class="bi bi-person text-secondary" style="font-size:.9rem;"></i>
+                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-2 flex-shrink-0" style="width:28px;height:28px;">
+                  <i class="bi bi-person text-secondary" style="font-size:.8rem;"></i>
                 </div>
                 <div>
-                  <div class="small text-muted" style="line-height:1.1">Propriétaire</div>
-                  <div class="small fw-medium">
+                  <div class="text-muted" style="font-size:0.73rem;line-height:1.1">Propriétaire</div>
+                  <div class="fw-medium" style="font-size:0.82rem;">
                     <% owner = project.user %>
                     <%= owner&.full_name.presence || owner&.email&.split('@')&.first&.capitalize || "—" %>
                   </div>
                 </div>
               </div>
 
-              <!-- Date d'acceptation -->
-              <% if membership.accepted_at %>
-                <p class="text-muted small mb-3">
-                  <i class="bi bi-calendar-check me-1"></i>
-                  Rejoint le <%= membership.accepted_at.strftime('%d/%m/%Y') %>
-                </p>
+              <% if membership.role == 'entrepreneur' %>
+                <!-- KPIs Factures entrepreneur -->
+                <div class="rounded-2 p-2 mb-3" style="background:#f8f9fa;border:1px solid #e9ecef;">
+                  <div class="row g-0 text-center">
+                    <div class="col-4 border-end">
+                      <div class="text-muted" style="font-size:0.68rem;">Facturé</div>
+                      <div class="fw-bold text-dark" style="font-size:0.85rem;">
+                        <%= total_facture > 0 ? "#{number_with_delimiter(total_facture.to_i, delimiter: '.')} €" : "—" %>
+                      </div>
+                    </div>
+                    <div class="col-4 border-end">
+                      <div class="text-muted" style="font-size:0.68rem;">En attente</div>
+                      <div class="fw-bold <%= total_attente > 0 ? 'text-warning' : 'text-success' %>" style="font-size:0.85rem;">
+                        <%= total_attente > 0 ? "#{number_with_delimiter(total_attente.to_i, delimiter: '.')} €" : "✓ 0 €" %>
+                      </div>
+                    </div>
+                    <div class="col-4">
+                      <div class="text-muted" style="font-size:0.68rem;">Photos</div>
+                      <div class="fw-bold text-info" style="font-size:0.85rem;"><%= photos_count %></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Barre avancement chantier -->
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-muted" style="font-size:0.72rem;">Avancement phases</span>
+                    <span class="fw-medium" style="font-size:0.72rem;"><%= pct_avancement %>%</span>
+                  </div>
+                  <div class="progress" style="height:5px;border-radius:3px;">
+                    <div class="progress-bar bg-warning" role="progressbar" style="width:<%= pct_avancement %>%;"></div>
+                  </div>
+                </div>
               <% end %>
 
               <!-- Lien vers la vue pro du projet -->
-              <%= link_to pro_view_project_path(project), class: "btn btn-sm btn-primary-custom w-100 mt-1" do %>
-                <i class="bi bi-arrow-right-circle me-1"></i> Voir le projet
+              <%= link_to pro_view_project_path(project), class: "btn btn-sm btn-primary-custom w-100" do %>
+                <i class="bi bi-arrow-right-circle me-1"></i> Ouvrir le chantier
               <% end %>
             </div>
           </div>

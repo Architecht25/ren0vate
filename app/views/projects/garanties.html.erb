@@ -193,6 +193,107 @@
         </div>
       </div>
 
+      <!-- ── IA #9 : Calendrier des échéances ──────────────────────────────── -->
+      <% if @date_fin_travaux.present? && @garanties_par_entrepreneur.any? %>
+        <div class="card border-0 shadow-sm mb-4">
+          <div class="card-header bg-transparent border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+            <h5 class="mb-0 text-primary-custom fw-normal">
+              <i class="bi bi-calendar-event me-2 text-primary"></i>Calendrier des échéances
+            </h5>
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size:0.7rem;">
+              <i class="bi bi-stars me-1"></i>Assistant Juridique
+            </span>
+          </div>
+          <div class="card-body p-4">
+            <%
+              today      = Date.today
+              echeances  = []
+              @garanties_par_entrepreneur.each do |g|
+                [
+                  { type: :bon_fonctionnement, label: "Bon fonctionnement (1&nbsp;an)",   color: 'success', icon: 'bi-check-circle',       data: g[:bon_fonctionnement] },
+                  { type: :biennale,           label: "Biennale (2&nbsp;ans)",            color: 'warning', icon: 'bi-shield-half',         data: g[:biennale] },
+                  { type: :decennale,          label: "Décennale (10&nbsp;ans)",           color: 'danger',  icon: 'bi-shield-fill',         data: g[:decennale] }
+                ].each do |t|
+                  next unless t[:data][:fin].present?
+                  jours_restants = (t[:data][:fin] - today).to_i
+                  echeances << t.merge(
+                    nom_affiche:   g[:nom_affiche],
+                    fin:           t[:data][:fin],
+                    jours_restants: jours_restants,
+                    expired:       jours_restants < 0,
+                    urgent:        jours_restants >= 0 && jours_restants < 365
+                  )
+                end
+              end
+              echeances.sort_by! { |e| e[:fin] }
+              alertes = echeances.select { |e| !e[:expired] && e[:urgent] }
+            %>
+
+            <%# Alerte globale si échéances urgentes %>
+            <% if alertes.any? %>
+              <div class="alert alert-warning d-flex align-items-center gap-2 py-2 px-3 mb-4 small">
+                <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+                <div>
+                  <strong><%= alertes.size %> garantie<%= 's' if alertes.size > 1 %></strong>
+                  expire<%= alertes.size > 1 ? 'nt' : '' %> dans moins de 12 mois.
+                  Vérifiez que les réserves sont levées avant l'échéance.
+                </div>
+              </div>
+            <% end %>
+
+            <%# Timeline des échéances %>
+            <div class="row g-2">
+              <% echeances.each do |e| %>
+                <%
+                  pct_ecoule = if e[:expired]
+                                 100
+                               else
+                                 duree_totale = e[:type] == :decennale ? 3650 : (e[:type] == :biennale ? 730 : 365)
+                                 jours_ecoules = duree_totale - e[:jours_restants]
+                                 ((jours_ecoules.to_f / duree_totale) * 100).round.clamp(0, 100)
+                               end
+                  bar_color = e[:expired] ? 'secondary' : e[:urgent] ? 'warning' : e[:color]
+                %>
+                <div class="col-12">
+                  <div class="p-2 rounded-3 border" style="background:<%= e[:expired] ? 'rgba(108,117,125,0.05)' : 'rgba(0,0,0,0.02)' %>;">
+                    <div class="d-flex align-items-center justify-content-between mb-1">
+                      <div class="d-flex align-items-center gap-2">
+                        <i class="bi <%= e[:icon] %> text-<%= bar_color %>" style="font-size:0.85rem;"></i>
+                        <span class="small fw-medium <%= e[:expired] ? 'text-muted text-decoration-line-through' : '' %>">
+                          <%= e[:nom_affiche] %> — <%= e[:label].html_safe %>
+                        </span>
+                        <% if e[:urgent] && !e[:expired] %>
+                          <span class="badge bg-warning text-dark" style="font-size:0.6rem;">
+                            <i class="bi bi-exclamation-circle me-1"></i>Urgent
+                          </span>
+                        <% end %>
+                      </div>
+                      <div class="text-end flex-shrink-0 ms-2">
+                        <% if e[:expired] %>
+                          <span class="badge bg-secondary" style="font-size:0.65rem;">Expiré</span>
+                        <% else %>
+                          <span class="small fw-semibold text-<%= e[:urgent] ? 'warning' : e[:color] %>">
+                            <%= e[:fin].strftime('%d/%m/%Y') %>
+                          </span>
+                          <div class="text-muted" style="font-size:0.65rem;">
+                            <%= (e[:jours_restants] / 365.0).round(1) %> an(s)
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+                    <div class="progress" style="height:4px;border-radius:2px;">
+                      <div class="progress-bar bg-<%= bar_color %>"
+                           role="progressbar" style="width:<%= pct_ecoule %>%;"></div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+
+          </div>
+        </div>
+      <% end %>
+
     </div><!-- /col gauche -->
 
     <!-- ═══════════════════════════════════════════════════════════════════════ -->
@@ -247,6 +348,73 @@
         </div>
       </div>
 
+      <!-- ── IA #9 : Analyse de contrat ─────────────────────────────────────── -->
+      <div class="card border-0 shadow-sm mb-4" id="card-contrat-checklist">
+        <div class="card-header bg-transparent border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="mb-0 text-primary-custom fw-normal">
+              <i class="bi bi-file-earmark-check me-2"></i>Analyse de contrat
+            </h5>
+            <small class="text-muted">Vérification des clauses légales obligatoires (droit belge)</small>
+          </div>
+          <span class="badge bg-primary-subtle text-primary border border-primary-subtle" style="font-size:0.7rem;">
+            <i class="bi bi-stars me-1"></i>Assistant Juridique
+          </span>
+        </div>
+        <div class="card-body p-4">
+
+          <%# Zone d'upload %>
+          <p class="small text-muted mb-3">
+            Uploadez un contrat de travaux (PDF, image) pour vérifier automatiquement la présence
+            des 10 clauses obligatoires selon le droit belge de la construction.
+          </p>
+          <div class="d-flex align-items-center gap-2 mb-3">
+            <button type="button" class="btn btn-outline-primary btn-sm" id="btn-scan-contrat">
+              <i class="bi bi-upload me-1"></i>Analyser un contrat
+            </button>
+            <input type="file" id="file-contrat" accept=".pdf,.jpg,.jpeg,.png" class="d-none">
+            <div id="status-contrat" class="d-none flex-grow-1">
+              <div class="alert border-0 rounded-2 py-1 px-2 mb-0 small d-flex align-items-center gap-2" id="alert-contrat">
+                <div class="spinner-border spinner-border-sm d-none" id="spinner-contrat" role="status"></div>
+                <span id="msg-contrat"></span>
+              </div>
+            </div>
+          </div>
+
+          <%# Résultats de l'analyse %>
+          <div id="result-contrat" class="d-none">
+
+            <%# Score global %>
+            <div class="d-flex align-items-center gap-3 mb-3 p-3 rounded-3 border" id="score-header">
+              <div class="text-center flex-shrink-0">
+                <div class="display-5 fw-bold" id="score-chiffre">—</div>
+                <div class="text-muted small" id="score-total-label">/10</div>
+              </div>
+              <div class="flex-grow-1">
+                <div class="fw-semibold mb-1" id="score-niveau-label">—</div>
+                <div class="progress mb-1" style="height:8px;">
+                  <div class="progress-bar rounded-pill" id="score-bar" role="progressbar" style="width:0%"></div>
+                </div>
+                <small class="text-muted" id="score-obligatoires">— clauses obligatoires présentes</small>
+              </div>
+              <div class="flex-shrink-0">
+                <i class="bi fs-1" id="score-icon"></i>
+              </div>
+            </div>
+
+            <%# Liste des clauses %>
+            <div id="clauses-liste" class="d-flex flex-column gap-1"></div>
+
+            <div class="mt-3 d-flex gap-2">
+              <button class="btn btn-sm btn-outline-secondary" onclick="resetContratChecker()">
+                <i class="bi bi-arrow-counterclockwise me-1"></i>Nouvelle analyse
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
       <!-- ── Informations légales ────────────────────────────────────────────── -->
       <div class="card border-0 shadow-sm bg-light mb-4">
         <div class="card-body p-4">
@@ -264,3 +432,135 @@
     </div><!-- /col droite -->
   </div><!-- /row -->
 </div><!-- /container -->
+
+<%# ═══════════════════════════════════════════════════════════════════════════ %>
+<%# JavaScript — IA #9 Analyse contrat                                         %>
+<%# ═══════════════════════════════════════════════════════════════════════════ %>
+<script>
+(function() {
+  const UPLOAD_URL = "<%= check_contrat_project_path(@project) %>";
+  const CSRF       = document.querySelector('meta[name="csrf-token"]')?.content || '';
+
+  const COLOR_MAP = {
+    'success': { bg: '#f0fdf4', border: '#a3cfbb', text: '#198754' },
+    'primary':  { bg: '#eff6ff', border: '#bdd7f5', text: '#0a58ca' },
+    'warning':  { bg: '#fffbeb', border: '#ffd77a', text: '#856404' },
+    'danger':   { bg: '#fff5f5', border: '#f5c2c7', text: '#842029' }
+  };
+
+  function setupContrat() {
+    const btn  = document.getElementById('btn-scan-contrat');
+    const inp  = document.getElementById('file-contrat');
+    if (!btn || !inp || btn.dataset.bound) return;
+    btn.dataset.bound = '1';
+    btn.addEventListener('click', () => inp.click());
+    inp.addEventListener('change', e => {
+      const f = e.target.files[0];
+      if (f) analyseContrat(f);
+      inp.value = '';
+    });
+  }
+
+  function setStatus(msg, type = 'info', loading = false) {
+    const wrap    = document.getElementById('status-contrat');
+    const alert   = document.getElementById('alert-contrat');
+    const spinner = document.getElementById('spinner-contrat');
+    const msgEl   = document.getElementById('msg-contrat');
+    wrap.classList.remove('d-none');
+    alert.className = `alert border-0 rounded-2 py-1 px-2 mb-0 small d-flex align-items-center gap-2 alert-${type}`;
+    spinner.classList.toggle('d-none', !loading);
+    msgEl.textContent = msg;
+  }
+
+  function analyseContrat(file) {
+    document.getElementById('result-contrat').classList.add('d-none');
+    document.getElementById('btn-scan-contrat').disabled = true;
+    setStatus('Extraction du texte et analyse en cours…', 'info', true);
+
+    const fd = new FormData();
+    fd.append('file', file);
+
+    fetch(UPLOAD_URL, {
+      method: 'POST',
+      headers: { 'X-CSRF-Token': CSRF },
+      body: fd
+    })
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('btn-scan-contrat').disabled = false;
+      if (data.error) {
+        setStatus(data.error, 'danger', false);
+        return;
+      }
+      setStatus('Analyse terminée', 'success', false);
+      afficherResultats(data);
+    })
+    .catch(() => {
+      document.getElementById('btn-scan-contrat').disabled = false;
+      setStatus('Erreur réseau — veuillez réessayer', 'danger', false);
+    });
+  }
+
+  function afficherResultats(data) {
+    const resultDiv = document.getElementById('result-contrat');
+    const pct = Math.round(data.score / data.total * 100);
+
+    // Score header
+    const colorKey = data.niveau_color;
+    const c = COLOR_MAP[colorKey] || COLOR_MAP['primary'];
+    const header = document.getElementById('score-header');
+    header.style.background = c.bg;
+    header.style.borderColor = c.border;
+    document.getElementById('score-chiffre').textContent   = data.score;
+    document.getElementById('score-total-label').textContent = `/ ${data.total} clauses`;
+    document.getElementById('score-niveau-label').innerHTML =
+      `<span style="color:${c.text};">${data.niveau}</span>`;
+    const bar = document.getElementById('score-bar');
+    bar.style.width = pct + '%';
+    bar.className = `progress-bar rounded-pill bg-${colorKey}`;
+    document.getElementById('score-obligatoires').textContent =
+      `${data.score_obligatoires}/${data.total_obligatoires} clauses obligatoires présentes`;
+    document.getElementById('score-icon').className =
+      `bi ${data.niveau_icon} fs-1 text-${colorKey}`;
+
+    // Liste des clauses
+    const liste = document.getElementById('clauses-liste');
+    liste.innerHTML = '';
+    data.clauses.forEach(cl => {
+      const ok      = cl.detected;
+      const bgColor = ok ? '#f0fdf4' : '#fff5f5';
+      const bdColor = ok ? '#a3cfbb' : '#f5c2c7';
+      const iconCl  = ok ? 'bi-check-circle-fill text-success' : 'bi-x-circle text-danger';
+
+      const item = document.createElement('div');
+      item.className = 'p-2 rounded-3 border';
+      item.style.cssText = `background:${bgColor};border-color:${bdColor}!important;`;
+      item.innerHTML = `
+        <div class="d-flex align-items-start gap-2">
+          <i class="bi ${iconCl} flex-shrink-0 mt-1" style="font-size:0.9rem;"></i>
+          <div class="flex-grow-1">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+              <span class="fw-medium small">${cl.label}</span>
+              ${!ok && cl.obligatoire ? '<span class="badge bg-danger-subtle text-danger border border-danger" style="font-size:0.6rem;">Obligatoire</span>' : ''}
+              ${!ok && !cl.obligatoire ? '<span class="badge bg-secondary-subtle text-secondary border" style="font-size:0.6rem;">Recommandé</span>' : ''}
+            </div>
+            <p class="text-muted mb-0 mt-1" style="font-size:0.72rem;">${cl.description}</p>
+            ${cl.extrait ? `<details class="mt-1"><summary class="text-success" style="font-size:0.68rem;cursor:pointer;">Extrait détecté</summary><p class="text-muted mt-1 mb-0 fst-italic" style="font-size:0.68rem;">${cl.extrait}</p></details>` : ''}
+          </div>
+        </div>`;
+      liste.appendChild(item);
+    });
+
+    resultDiv.classList.remove('d-none');
+  }
+
+  window.resetContratChecker = function() {
+    document.getElementById('result-contrat').classList.add('d-none');
+    document.getElementById('status-contrat').classList.add('d-none');
+    document.getElementById('btn-scan-contrat').disabled = false;
+  };
+
+  document.addEventListener('DOMContentLoaded', setupContrat);
+  document.addEventListener('turbo:load', setupContrat);
+})();
+</script>

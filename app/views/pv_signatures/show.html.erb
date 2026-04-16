@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PV de Réception à signer — Ren0vate</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <style>
+    body { background: #f5f7fa; font-family: Arial, sans-serif; color: #222; min-height: 100vh; }
+    .pv-header { background: #1e3a5f; color: #fff; padding: 28px 0; }
+    .card { border-radius: 10px; }
+    .sig-box { border: 2px solid #dee2e6; border-radius: 8px; padding: 16px; }
+    .sig-box.signed { border-color: #198754; background: #f0fdf4; }
+    .sig-box.pending { border-color: #ced4da; background: #fafafa; }
+    .role-badge { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .legal-note { font-size: 12px; color: #6c757d; border-top: 1px solid #dee2e6; padding-top: 12px; margin-top: 12px; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="pv-header">
+    <div class="container">
+      <div class="d-flex align-items-center gap-3">
+        <div class="rounded-circle bg-white d-flex align-items-center justify-content-center flex-shrink-0"
+             style="width:48px;height:48px;">
+          <i class="bi bi-patch-check fs-4 text-primary"></i>
+        </div>
+        <div>
+          <div style="font-size:12px;opacity:0.7;text-transform:uppercase;letter-spacing:1px;">Ren0vate · Document officiel</div>
+          <div style="font-size:20px;font-weight:700;">Procès-Verbal de Réception</div>
+          <div style="font-size:13px;opacity:0.8;">
+            Projet : <strong><%= @pv.project.nom %></strong>
+            <% if @pv.date_reception %>
+              — Réception du <%= @pv.date_reception.strftime('%d/%m/%Y') %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container py-4" style="max-width: 720px;">
+
+    <% if flash[:notice] %>
+      <div class="alert alert-success d-flex align-items-center gap-2 mb-4">
+        <i class="bi bi-check-circle-fill fs-5"></i>
+        <strong><%= flash[:notice] %></strong>
+      </div>
+    <% end %>
+    <% if flash[:alert] %>
+      <div class="alert alert-warning d-flex align-items-center gap-2 mb-4">
+        <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+        <%= flash[:alert] %>
+      </div>
+    <% end %>
+
+    <!-- Carte : votre rôle -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body p-4">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center flex-shrink-0"
+               style="width:44px;height:44px;">
+            <i class="bi bi-person-check fs-4 text-primary"></i>
+          </div>
+          <div>
+            <div class="small text-muted">Vous êtes invité(e) en tant que</div>
+            <div class="fw-bold fs-5">
+              <%= case @role
+                  when :owner        then "Maître d'ouvrage"
+                  when :architect    then "Architecte"
+                  when :entrepreneur then "Entrepreneur"
+                  end %>
+            </div>
+            <div class="small text-muted">
+              <%= @pv.nom_pour_role(@role).presence || "" %>
+            </div>
+          </div>
+          <div class="ms-auto">
+            <% if @pv.deja_signe_avec_token?(params[:token]) %>
+              <span class="badge bg-success fs-6">
+                <i class="bi bi-check2-all me-1"></i>Signé
+              </span>
+            <% elsif @pv.finalise? %>
+              <span class="badge bg-secondary fs-6">PV finalisé</span>
+            <% else %>
+              <span class="badge bg-warning fs-6">
+                <i class="bi bi-clock me-1"></i>En attente
+              </span>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carte : contenu du PV -->
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-header bg-transparent border-bottom py-3 px-4">
+        <h5 class="mb-0 fw-normal" style="color:#1e3a5f;">
+          <i class="bi bi-file-text me-2"></i>Contenu du PV
+        </h5>
+      </div>
+      <div class="card-body p-4">
+
+        <!-- Infos projet -->
+        <div class="row g-2 mb-3 small">
+          <div class="col-6">
+            <span class="text-muted">Projet :</span>
+            <strong class="ms-1"><%= @pv.project.nom %></strong>
+          </div>
+          <div class="col-6">
+            <span class="text-muted">Adresse :</span>
+            <span class="ms-1"><%= @pv.project.property&.adresse.presence || "—" %></span>
+          </div>
+          <div class="col-6">
+            <span class="text-muted">Date réception :</span>
+            <strong class="ms-1"><%= @pv.date_reception ? @pv.date_reception.strftime('%d/%m/%Y') : '—' %></strong>
+          </div>
+        </div>
+
+        <% if @pv.observations.present? %>
+          <div class="bg-light rounded-3 p-3 small mb-3">
+            <div class="text-muted mb-1 fw-semibold">Observations</div>
+            <%= simple_format @pv.observations %>
+          </div>
+        <% end %>
+
+        <!-- Réserves -->
+        <% reserves = @pv.reserves_liste %>
+        <% if reserves.any? %>
+          <div class="mb-3">
+            <div class="fw-semibold small mb-2">
+              <i class="bi bi-list-check me-1 text-warning"></i>
+              <%= reserves.size %> réserve<%= 's' if reserves.size > 1 %> constatée<%= 's' if reserves.size > 1 %>
+            </div>
+            <% reserves.each_with_index do |r, i| %>
+              <div class="d-flex align-items-start gap-2 py-2 <%= 'border-top' if i > 0 %> small">
+                <span class="badge bg-secondary-subtle text-secondary border flex-shrink-0 mt-1" style="font-size:0.65rem;">
+                  <%= r["statut"] %>
+                </span>
+                <div class="flex-grow-1">
+                  <%= r["description"] %>
+                  <% if r["responsable"].present? %>
+                    <span class="text-muted ms-1">(<%= r["responsable"] %>)</span>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="alert alert-success-subtle border border-success py-2 px-3 small mb-3 rounded-3 d-flex align-items-center gap-2">
+            <i class="bi bi-check-circle-fill text-success"></i>
+            Réception sans réserve — Chantier accepté sans observation particulière.
+          </div>
+        <% end %>
+
+        <!-- Signatures en cours -->
+        <div class="row g-2 small">
+          <div class="col-12">
+            <div class="fw-semibold mb-2 text-muted">
+              État des signatures (<%= @pv.nb_signatures %>/<%= @pv.nb_signatures_attendues %>) :
+            </div>
+          </div>
+          <% [
+            { role: :owner,        nom: @pv.nom_owner,        signed: @pv.signed_owner?,        at: @pv.signed_owner_at,        label: "Maître d'ouvrage" },
+            { role: :architect,    nom: @pv.nom_architect,    signed: @pv.signed_architect?,    at: @pv.signed_architect_at,    label: "Architecte",   skip: @pv.email_architect.blank? },
+            { role: :entrepreneur, nom: @pv.nom_entrepreneur, signed: @pv.signed_entrepreneur?, at: @pv.signed_entrepreneur_at, label: "Entrepreneur", skip: @pv.email_entrepreneur.blank? }
+          ].each do |s| %>
+            <% next if s[:skip] %>
+            <div class="col-sm-4">
+              <div class="sig-box <%= s[:signed] ? 'signed' : 'pending' %>">
+                <div class="role-badge text-<%= s[:signed] ? 'success' : 'secondary' %> mb-1"><%= s[:label] %></div>
+                <div class="fw-medium"><%= s[:nom].presence || "—" %></div>
+                <% if s[:signed] %>
+                  <div class="text-success" style="font-size:0.75rem;">
+                    <i class="bi bi-check-circle-fill me-1"></i>
+                    <%= s[:at].strftime('%d/%m/%Y %H:%M') %>
+                  </div>
+                <% else %>
+                  <div class="text-muted" style="font-size:0.75rem;">
+                    <i class="bi bi-clock me-1"></i>En attente
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Zone de signature -->
+    <% unless @pv.deja_signe_avec_token?(params[:token]) || @pv.finalise? %>
+      <div class="card shadow-sm border-0 border-primary mb-4" style="border-width:2px !important;">
+        <div class="card-header bg-primary text-white py-3 px-4">
+          <h5 class="mb-0 fw-normal">
+            <i class="bi bi-pen me-2"></i>Apposer votre signature
+          </h5>
+        </div>
+        <div class="card-body p-4">
+          <p class="small text-muted mb-3">
+            En cliquant sur "Je signe ce PV", vous confirmez avoir pris connaissance du contenu
+            du Procès-Verbal de Réception et l'acceptez. Votre accord est enregistré avec
+            horodatage et adresse IP.
+          </p>
+          <%= form_with url: sign_pv_path(params[:token]), method: :post, local: true do |f| %>
+            <div class="mb-3">
+              <%= f.label :commentaire, "Commentaire (facultatif)", class: "form-label small fw-semibold" %>
+              <%= f.text_area :commentaire, class: "form-control form-control-sm rounded-3",
+                  rows: 3, placeholder: "Observations, réserves complémentaires, ou acceptation sans réserve…",
+                  maxlength: 500 %>
+              <div class="form-text">Maximum 500 caractères</div>
+            </div>
+            <div class="d-grid">
+              <%= f.submit "✓ Je signe ce PV — #{case @role when :owner then "Maître d'ouvrage" when :architect then "Architecte" when :entrepreneur then "Entrepreneur" end}",
+                  class: "btn btn-primary btn-lg",
+                  data: { turbo_confirm: "Confirmer votre signature ? Cette action est définitive." } %>
+            </div>
+          <% end %>
+          <div class="legal-note">
+            <i class="bi bi-shield-check me-1"></i>
+            Signature électronique simple, horodatée, traçable. Conforme à la pratique courante
+            en droit belge pour les documents de chantier.
+          </div>
+        </div>
+      </div>
+    <% elsif @pv.deja_signe_avec_token?(params[:token]) %>
+      <div class="card shadow-sm border-success border-2 mb-4">
+        <div class="card-body p-4 text-center">
+          <i class="bi bi-patch-check-fill text-success fs-1 d-block mb-3"></i>
+          <h5 class="text-success">Vous avez déjà signé ce PV</h5>
+          <p class="text-muted small mb-0">
+            Votre signature a été enregistrée.
+            <% at = case @role
+                    when :owner        then @pv.signed_owner_at
+                    when :architect    then @pv.signed_architect_at
+                    when :entrepreneur then @pv.signed_entrepreneur_at
+                    end %>
+            <% if at %>
+              Le <%= at.strftime('%d/%m/%Y à %H:%M') %>.
+            <% end %>
+          </p>
+        </div>
+      </div>
+    <% elsif @pv.finalise? %>
+      <div class="card shadow-sm border-0 mb-4">
+        <div class="card-body p-4 text-center">
+          <i class="bi bi-patch-check-fill text-primary fs-1 d-block mb-3"></i>
+          <h5 class="text-primary">PV finalisé</h5>
+          <p class="text-muted small mb-0">Toutes les signatures ont été recueillies. Ce PV est finalisé.</p>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Pied de page -->
+    <div class="text-center text-muted" style="font-size:12px;">
+      Ren0vate · Gestion numérique de projets de rénovation · Belgique<br>
+      Ce document est sécurisé — lien à usage unique et personnel
+    </div>
+
+  </div>
+
+</body>
+</html>
