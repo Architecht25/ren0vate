@@ -69,7 +69,8 @@ class ProViewsController < ApplicationController
 
   # POST /projects/:id/upload_facture_pro
   # Entrepreneur uploade une facture/devis depuis sa vue pro — partagé automatiquement avec le client
-  def upload_facture_pro    unless @membership&.role == 'entrepreneur'
+  def upload_facture_pro
+    unless @membership&.role == 'entrepreneur'
       redirect_back fallback_location: root_path, alert: "Seul un entrepreneur peut utiliser cette action." and return
     end
     unless params[:facture_pdf].present?
