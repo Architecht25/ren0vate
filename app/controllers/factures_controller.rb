@@ -81,6 +81,9 @@ class FacturesController < ApplicationController
   # PATCH /factures/:id/validate
   def validate_facture
     @facture = Facture.find(params[:id])
+    unless @facture.project_id == @project.id
+      render json: { error: "Accès non autorisé" }, status: :forbidden and return
+    end
 
     if @facture.update(facture_params.merge(valide_manuellement: true))
       # Recalculer les analyses après validation

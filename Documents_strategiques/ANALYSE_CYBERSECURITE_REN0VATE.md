@@ -77,7 +77,7 @@ Could not parse app/views/pv_signatures/show.html.erb
 |---|---|---|
 | Authentification globale | ✅ | `before_action :authenticate_user!` dans `ApplicationController` |
 | Vérification admin | ✅ | `ensure_admin_or_moderator` sur les routes admin |
-| Autorisation au niveau ressource | 🟠 | Vérifier que tous les `find(params[:id])` sont scoped à `current_user` |
+| Autorisation au niveau ressource | ✅ | IDOR corrigés le 18 avril 2026 — `requests#show/edit/update` et `factures#validate_facture` scopés à `current_user` |
 | Mass assignment | ✅ | Strong parameters partout, `:role` protégé admin-only |
 
 ### A02 — Cryptographic Failures
@@ -245,7 +245,7 @@ Internet
 - [ ] **Migrer `script-src` vers nonces** — infrastructure déjà en place, impact sécurité maximal
 - [ ] **Restreindre `script-src :https`** vers une liste explicite de CDNs
 - [ ] **Mettre à jour `brakeman` 7.0.2 → 8.0.4** — meilleures détections pour Rails 8.1
-- [ ] **Vérifier les `find(params[:id])`** — s'assurer que les ressources sont scopées à `current_user` (ex. : `current_user.simulations.find(params[:id])`)
+- [x] **Corriger les IDOR `find(params[:id])`** ✅ *(fait le 18 avril 2026)* — `requests#show/edit/update` → `current_user.requests.find(params[:id])` ; `factures#validate_facture` → vérification `@facture.project_id == @project.id`
 
 ### Priorité 3 — Dans les 3 mois
 

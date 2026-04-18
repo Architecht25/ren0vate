@@ -46,7 +46,7 @@ class RequestsController < ApplicationController
       redirect_to new_request_path and return
     end
 
-    @request = Request.find(params[:id])
+    @request = current_user.requests.find(params[:id])
   end
 
   def new
@@ -232,7 +232,7 @@ class RequestsController < ApplicationController
   end
 
   def edit
-    @request = Request.find(params[:id])
+    @request = current_user.requests.find(params[:id])
 
     # Restaurer les données temporaires de la session si elles existent (après erreur CSRF)
     if session[:pending_request_data].present? && session[:pending_request_id].to_s == params[:id].to_s
@@ -352,7 +352,7 @@ class RequestsController < ApplicationController
   end
 
   def update
-    @request = Request.find(params[:id])
+    @request = current_user.requests.find(params[:id])
 
     # DÉBOGAGE SIMPLE - Écrire dans un fichier pour être sûr de voir les données
     debug_file = Rails.root.join('log', 'wallonie_debug.log')
