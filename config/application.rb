@@ -35,6 +35,9 @@ module Ren0vate
       config.active_record.encryption.primary_key        = ENV["AR_ENCRYPTION_PRIMARY_KEY"]
       config.active_record.encryption.deterministic_key  = ENV["AR_ENCRYPTION_DETERMINISTIC_KEY"]
       config.active_record.encryption.key_derivation_salt = ENV["AR_ENCRYPTION_KEY_DERIVATION_SALT"]
+      # Permet de lire les valeurs existantes en clair (migration progressive)
+      # Une fois toutes les données chiffrées, remettre à false
+      config.active_record.encryption.support_unencrypted_data = true
     end
   end
 end
