@@ -6,10 +6,10 @@
       <h1 class="mb-4">Politique de confidentialité</h1>
 
       <div class="alert alert-info">
-        <strong>Version April 2026</strong> — Cette politique a été substantiellement mise à jour pour le
-        lancement commercial de Ren0vate, notamment pour documenter les traitements liés aux
-        outils d'intelligence artificielle, aux sous-traitants tiers et au régime des transferts
-        internationaux de données.
+        <strong>Version Avril 2026 — v5.0</strong> — Cette politique a été mise à jour pour refléter
+        l'intégralité des modules de la plateforme : simulateur de primes (y compris communales),
+        hub de crédit, estimateur de devis, OCR Vision, gestion de clôture de chantier (PV, réserves,
+        garanties, carnet d'entretien), PWA, comparateur de produits et checklists de chantier.
       </div>
 
       <div class="card">
@@ -84,12 +84,56 @@
             <li>Données relatives aux intervenants (nom, BCE, assurance des entrepreneurs)</li>
           </ul>
 
-          <h5>2.5 Données spécifiques aux simulations</h5>
+          <h5>2.5 Données spécifiques aux simulations et calculs</h5>
           <ul>
             <li>Données PEB (label initial, label cible, type de ventilation, type de logement)</li>
             <li>Données amiante (surfaces de toiture et de murs concernées)</li>
-            <li>Paramètres d'éligibilité aux primes (catégorie, seuils de revenus appliqués,
-                montants simulés)</li>
+            <li>Paramètres d'éligibilité aux primes régionales et communales (catégorie, seuils
+                de revenus appliqués, montants simulés par prime)</li>
+            <li>Paramètres de simulation de crédit / prêts (montant emprunté, durée, taux,
+                type de prêt : classique, Verbouwlening, RenoPass, Éco-Prêt)</li>
+            <li>Données de devis estimatifs (types de travaux, quantités, montants par poste)</li>
+            <li>Résultats du calculateur ROI (coût total travaux, économies d'énergie estimées,
+                plus-value immobilière estimée)</li>
+          </ul>
+
+          <h5>2.6 Données extraites par OCR Vision</h5>
+          <div class="alert alert-light border">
+            <strong>Données issues de la lecture automatique de documents :</strong> la fonctionnalité
+            OCR Vision extrait automatiquement des informations structurées à partir de documents
+            uploadés par l'utilisateur. Ces données sont strictement nécessaires à l'automatisation
+            des formulaires de demande de primes et de simulation.
+          </div>
+          <ul>
+            <li><strong>AER (avertissement-extrait de rôle) :</strong> revenus imposables globaux,
+                revenus du demandeur et du conjoint, année fiscale de référence — données fiscales
+                personnelles particulièrement sensibles</li>
+            <li><strong>RIB (relevé d'identité bancaire) :</strong> IBAN belge (7 premiers caractères
+                masqués après extraction), titulaire du compte</li>
+            <li><strong>Certificat PEB :</strong> label énergétique actuel, consommation en kWh/m²,
+                référence du certificat</li>
+            <li><strong>Devis d'entrepreneur :</strong> poste de travaux, montants HT/TTC, identité
+                et BCE de l'entrepreneur</li>
+            <li><strong>Bordereau de châssis :</strong> type de vitrage, Uw, valeur de performance
+                thermique</li>
+            <li><strong>Label énergétique (appareils) :</strong> classe énergétique, consommation</li>
+          </ul>
+
+          <h5>2.7 Données de clôture de chantier</h5>
+          <ul>
+            <li>Procès-verbaux de réception (provisoire/définitive) : contenu, date, signataires</li>
+            <li>Réserves : description, photos, statut de résolution, responsable</li>
+            <li>Garanties contractuelles : type (décennale, biennale, RC), dates de début/fin,
+                numéros de police d'assurance</li>
+            <li>Carnet d'entretien / DIU : interventions planifiées, fréquences, équipements concernés</li>
+            <li>Signatures numériques des PV : identité des signataires, horodatage</li>
+          </ul>
+
+          <h5>2.8 Données de support et notifications</h5>
+          <ul>
+            <li>Tickets de support : description du problème, captures d'écran, échanges</li>
+            <li>Token de notification push (PWA) : identifiant de dispositif, pas de données personnelles
+                directement liées — utilisé uniquement pour l'envoi de notifications de service</li>
           </ul>
 
           <h5>2.6 Données techniques et de navigation</h5>
@@ -160,6 +204,36 @@
                   <td>Amélioration et entraînement des modèles IA internes</td>
                   <td>Consentement explicite (art. 6.1.a)</td>
                   <td>Données de projet anonymisées/pseudonymisées</td>
+                </tr>
+                <tr>
+                  <td>Lecture OCR de documents (AER, RIB, PEB, devis, bordereau, label)</td>
+                  <td>Exécution du contrat (art. 6.1.b)</td>
+                  <td>Documents uploadés, données extraites</td>
+                </tr>
+                <tr>
+                  <td>Simulation de crédit / prêts à la rénovation</td>
+                  <td>Exécution du contrat (art. 6.1.b)</td>
+                  <td>Données financières, revenus, paramètres de prêt</td>
+                </tr>
+                <tr>
+                  <td>Gestion de clôture (PV, réserves, garanties, carnet d'entretien)</td>
+                  <td>Exécution du contrat (art. 6.1.b) + obligation légale (art. 6.1.c)</td>
+                  <td>Données de réception, garanties, signatures</td>
+                </tr>
+                <tr>
+                  <td>Comparateur de produits / matériaux</td>
+                  <td>Intérêt légitime (art. 6.1.f)</td>
+                  <td>Préférences de matériaux, données de projet</td>
+                </tr>
+                <tr>
+                  <td>Notifications push (PWA)</td>
+                  <td>Consentement explicite (art. 6.1.a)</td>
+                  <td>Token de dispositif push</td>
+                </tr>
+                <tr>
+                  <td>Gestion des tickets de support</td>
+                  <td>Intérêt légitime (art. 6.1.f)</td>
+                  <td>Identification, échanges support, captures</td>
                 </tr>
                 <tr>
                   <td>Envoi de notifications de service (alertes chantier, garanties)</td>
@@ -417,6 +491,21 @@
                   <td>Obligation légale — garantie décennale (art. 1792 Code Civil)</td>
                 </tr>
                 <tr>
+                  <td>Données extraites par OCR (AER, RIB, PEB, devis)</td>
+                  <td>Durée du projet + 1 an (données structurées en DB) ; documents bruts : identique aux documents associés</td>
+                  <td>Exécution du contrat</td>
+                </tr>
+                <tr>
+                  <td>Données de clôture (PV, réserves, garanties, DIU)</td>
+                  <td>10 ans à compter de la réception provisoire</td>
+                  <td>Obligation légale — garantie décennale + garantie biennale</td>
+                </tr>
+                <tr>
+                  <td>Tokens push PWA</td>
+                  <td>Jusqu'au retrait du consentement ou désinstallation de l'application</td>
+                  <td>Consentement</td>
+                </tr>
+                <tr>
                   <td>Données de facturation et comptables</td>
                   <td>10 ans</td>
                   <td>Obligation légale — Code des sociétés + TVA belge</td>
@@ -526,7 +615,7 @@
             <li><strong>Authentification :</strong> hachage bcrypt (coût 12) pour les mots de passe</li>
             <li><strong>Gestion des sessions :</strong> tokens de session sécurisés avec expiration automatique</li>
             <li><strong>Contrôle d'accès :</strong> système de rôles (utilisateur, modérateur, administrateur)</li>
-            <li><strong>Pseudonymisation :</strong> avant transmission aux services IA tiers (Anthropic, OpenAI)</li>
+            <li><strong>Pseudonymisation :</strong> avant transmission aux services IA tiers (Anthropic)</li>
             <li><strong>Sauvegardes :</strong> sauvegardes automatiques quotidiennes chiffrées</li>
             <li><strong>Audit de sécurité :</strong> évaluations régulières de vulnérabilités (OWASP)</li>
           </ul>
@@ -659,7 +748,7 @@
           <hr class="my-4">
           <p class="text-muted small">
             <strong>Dernière mise à jour :</strong> Avril 2026<br>
-            <strong>Version :</strong> Ren0vate SaaS v4.0 — Lancement commercial<br>
+            <strong>Version :</strong> Ren0vate SaaS v5.0 — Plateforme complète<br>
             <strong>Base réglementaire :</strong> RGPD (UE) 2016/679 · Loi belge 30 juillet 2018 ·
             Directive ePrivacy 2002/58/CE · AI Act (UE) 2024/1689
           </p>
