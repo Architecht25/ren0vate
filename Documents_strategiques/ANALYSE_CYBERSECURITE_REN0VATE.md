@@ -116,13 +116,13 @@ Could not parse app/views/pv_signatures/show.html.erb
 ### A06 — Vulnerable and Outdated Components
 | Point | Statut | Détail |
 |---|---|---|
+| stripe gem 15.5.0 → **19.0.0** | ✅ | Mis à jour le 18 avril 2026 |
 | Rails 8.0.2 → 8.1.3 disponible | 🟠 | Mise à jour mineure recommandée (pas de CVE critique connue à ce jour) |
 | Devise 4.9.4 → 5.0.3 | 🟠 | Version majeure disponible — lire changelog avant mise à jour |
 | loofah 2.24.1 → 2.25.1 | 🟠 | Librairie HTML sanitization — mise à jour conseillée |
+| rubyzip 2.4.1 → 3.2.2 | 🟠 | Version majeure — CVE potentielles sur extraction ZIP |
 | Brakeman 7.0.2 → 8.0.4 | 🟡 | Outil d'audit — mettre à jour pour de meilleures détections |
 | nokogiri 1.18.8 → 1.19.2 | 🟡 | XML parsing — surveiller CVEs |
-| rubyzip 2.4.1 → 3.2.2 | 🟠 | Version majeure — CVE potentielles sur extraction ZIP |
-| stripe gem 15.5.0 → 19.0.0 | 🔴 | 4 versions majeures de retard — API Stripe évolue, risque de dépréciation |
 
 ### A07 — Identification and Authentication Failures
 | Point | Statut | Détail |
