@@ -1,0 +1,231 @@
+<!-- JavaScript pour la gestion des données techniques -->
+<script>
+
+// ── OCR label CET — défini en global pour survivre aux remplacements innerHTML ──
+window.cetLabelScanHandler = function(input) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const propertyId   = input.dataset.propertyId;
+  const projectId    = input.dataset.projectId;
+  const simulationId = input.dataset.simulationId;
+  const scanUrl      = input.dataset.scanUrl;
+
+  const statusEl = document.getElementById('cet-label-scan-status');
+  const btnEl    = document.getElementById('cet-label-scan-btn');
+
+  if (statusEl) {
+    statusEl.style.display = 'block';
+    statusEl.innerHTML = '<span class="spinner-border spinner-border-sm text-primary me-1"></span><small class="text-muted">Analyse du label en cours…</small>';
+  }
+  if (btnEl) btnEl.disabled = true;
+
+  const formData = new FormData();
+  formData.append('file', file);
+  if (propertyId)   formData.append('property_id', propertyId);
+  if (projectId)    formData.append('project_id',  projectId);
+
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+  fetch(scanUrl, {
+    method: 'POST',
+    headers: { 'X-CSRF-Token': csrfToken },
+    body: formData
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (btnEl) btnEl.disabled = false;
+    input.value = '';
+
+    if (data.success) {
+      if (data.label_classe) {
+        const labelSelect = document.querySelector('[name="cet_label_classe"]');
+        if (labelSelect) labelSelect.value = data.label_classe;
+      }
+      if (data.cop) {
+        const copField = document.querySelector('[name="cet_cop"]');
+        if (copField && !copField.value) copField.value = data.cop;
+      }
+      if (data.capacite) {
+        const capField = document.querySelector('[name="cet_capacite"]');
+        if (capField && !capField.value) capField.value = data.capacite;
+      }
+      const confClass = data.confiance_ocr >= 70 ? 'text-success' : 'text-warning';
+      if (statusEl) statusEl.innerHTML = `<small class="${confClass}"><i class="bi bi-check-circle me-1"></i>${data.message}</small>`;
+      cetRefreshDocumentsSection(simulationId);
+    } else {
+      if (statusEl) statusEl.innerHTML = `<small class="text-danger"><i class="bi bi-exclamation-triangle me-1"></i>${data.error || 'Échec du scan'}</small>`;
+    }
+  })
+  .catch(() => {
+    if (btnEl) btnEl.disabled = false;
+    input.value = '';
+    if (statusEl) statusEl.innerHTML = '<small class="text-danger"><i class="bi bi-exclamation-triangle me-1"></i>Erreur réseau lors du scan.</small>';
+  });
+};
+
+window.cetRefreshDocumentsSection = function(simulationId) {
+  if (!simulationId) return;
+  const hubEl  = document.querySelector('[data-controller~="decision-hub"]');
+  if (!hubEl) return;
+  const loadUrl = hubEl.dataset.decisionHubLoadSimulationUrlValue;
+  if (!loadUrl) return;
+  fetch(loadUrl.replace('SIMULATION_ID', simulationId), {
+    headers: { 'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content }
+  })
+  .then(r => r.json())
+  .then(resp => {
+    if (resp.success && resp.data?.documents) {
+      const docSection = hubEl.querySelector('[data-decision-hub-target="documentsSection"]');
+      if (docSection) docSection.innerHTML = resp.data.documents;
+    }
+  })
+  .catch(() => {});
+};
+
+// ── Statut de complétion ──
+window.updateTechCompletionStatus = function() {
+  const isolationFields = document.querySelectorAll('[name^="isolation_"]');
+  const isolationComplete = Array.from(isolationFields).some(f => f.value.trim() !== '');
+  const isolationStatus = document.getElementById('isolation-status');
+  if (isolationStatus) isolationStatus.textContent = isolationComplete ? 'En cours' : 'Non renseigné';
+
+  const energieFields = document.querySelectorAll('[name^="pac_"], [name^="cet_"]');
+  const energieComplete = Array.from(energieFields).some(f => f.value.trim() !== '');
+  const energieStatus = document.getElementById('energie-status');
+  if (energieStatus) energieStatus.textContent = energieComplete ? 'En cours' : 'Non renseigné';
+
+  const menuiseriesFields = document.querySelectorAll('[name^="fenetres_"], [name^="portes_"]');
+  const menuiseriesComplete = Array.from(menuiseriesFields).some(f => f.value.trim() !== '');
+  const menuiseriesStatus = document.getElementById('menuiseries-status');
+  if (menuiseriesStatus) menuiseriesStatus.textContent = menuiseriesComplete ? 'En cours' : 'Non renseigné';
+
+  const techniquesFields = document.querySelectorAll('[name^="ventilation_"], [name^="conformite_elec_"], [name^="conformite_gaz_"]');
+  const techniquesComplete = Array.from(techniquesFields).some(f => f.value.trim() !== '');
+  const techniquesStatus = document.getElementById('techniques-status');
+  if (techniquesStatus) techniquesStatus.textContent = techniquesComplete ? 'En cours' : 'Non renseigné';
+};
+
+// ── Sauvegarde des données techniques ──
+window.saveTechnicalPreparation = function(btn) {
+  const simulationId = btn.dataset.simulationId;
+
+  const technicalData = {
+    isolation: {
+      toiture: {
+        marque:       document.querySelector('[name="isolation_toiture_marque"]')?.value,
+        modele:       document.querySelector('[name="isolation_toiture_modele"]')?.value,
+        type:         document.querySelector('[name="isolation_toiture_type"]')?.value,
+        superficie:   document.querySelector('[name="isolation_toiture_superficie"]')?.value,
+        epaisseur:    document.querySelector('[name="isolation_toiture_epaisseur"]')?.value,
+        conductivite: document.querySelector('[name="isolation_toiture_conductivite"]')?.value,
+        rd:           document.querySelector('[name="isolation_toiture_rd"]')?.value
+      },
+      murs: {
+        marque:       document.querySelector('[name="isolation_murs_marque"]')?.value,
+        modele:       document.querySelector('[name="isolation_murs_modele"]')?.value,
+        type:         document.querySelector('[name="isolation_murs_type"]')?.value,
+        facade_type:  document.querySelector('[name="isolation_murs_facade_type"]')?.value,
+        superficie:   document.querySelector('[name="isolation_murs_superficie"]')?.value,
+        epaisseur:    document.querySelector('[name="isolation_murs_epaisseur"]')?.value,
+        conductivite: document.querySelector('[name="isolation_murs_conductivite"]')?.value,
+        rd:           document.querySelector('[name="isolation_murs_rd"]')?.value
+      },
+      sols: {
+        marque:       document.querySelector('[name="isolation_sols_marque"]')?.value,
+        modele:       document.querySelector('[name="isolation_sols_modele"]')?.value,
+        type:         document.querySelector('[name="isolation_sols_type"]')?.value,
+        localisation: document.querySelector('[name="isolation_sols_localisation"]')?.value,
+        superficie:   document.querySelector('[name="isolation_sols_superficie"]')?.value,
+        epaisseur:    document.querySelector('[name="isolation_sols_epaisseur"]')?.value,
+        conductivite: document.querySelector('[name="isolation_sols_conductivite"]')?.value,
+        rd:           document.querySelector('[name="isolation_sols_rd"]')?.value
+      }
+    },
+    systemes_energie: {
+      pac: {
+        type:      document.querySelector('[name="pac_type"]')?.value,
+        puissance: document.querySelector('[name="pac_puissance"]')?.value,
+        cop:       document.querySelector('[name="pac_cop"]')?.value
+      },
+      cet: {
+        capacite:     document.querySelector('[name="cet_capacite"]')?.value,
+        cop:          document.querySelector('[name="cet_cop"]')?.value,
+        source:       document.querySelector('[name="cet_source"]')?.value,
+        label_classe: document.querySelector('[name="cet_label_classe"]')?.value
+      }
+    },
+    menuiseries: {
+      fenetres: {
+        uw:      document.querySelector('[name="fenetres_uw"]')?.value,
+        vitrage: document.querySelector('[name="fenetres_vitrage"]')?.value,
+        chassis: document.querySelector('[name="fenetres_chassis"]')?.value
+      },
+      portes: {
+        ud:       document.querySelector('[name="portes_ud"]')?.value,
+        type:     document.querySelector('[name="portes_type"]')?.value,
+        materiau: document.querySelector('[name="portes_materiau"]')?.value
+      }
+    },
+    techniques: {
+      ventilation: {
+        type:      document.querySelector('[name="ventilation_type"]')?.value,
+        debit:     document.querySelector('[name="ventilation_debit"]')?.value,
+        rendement: document.querySelector('[name="ventilation_rendement"]')?.value
+      },
+      conformite: {
+        elec: {
+          tableau:      document.querySelector('[name="conformite_elec_tableau"]')?.value,
+          differentiel: document.querySelector('[name="conformite_elec_differentiel"]')?.value,
+          mise_a_terre: document.querySelector('[name="conformite_elec_mise_a_terre"]')?.value
+        },
+        gaz: {
+          present:     document.querySelector('[name="conformite_gaz_present"]')?.value,
+          chaudiere:   document.querySelector('[name="conformite_gaz_chaudiere"]')?.value,
+          attestation: document.querySelector('[name="conformite_gaz_attestation"]')?.value
+        }
+      }
+    }
+  };
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Sauvegarde en cours…';
+
+  fetch('/decision_hub/save_technical_preparation', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
+    },
+    body: JSON.stringify({ simulation_id: simulationId, technical_preparation: technicalData })
+  })
+  .then(r => r.json())
+  .then(data => {
+    btn.disabled = false;
+    if (data.success) {
+      btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Données sauvegardées !';
+      btn.className = 'btn btn-outline-success btn-lg px-5';
+      const s1 = document.getElementById('isolation-status');
+      const s2 = document.getElementById('energie-status');
+      const s3 = document.getElementById('techniques-status');
+      const s4 = document.getElementById('menuiseries-status');
+      if (s1) s1.textContent = 'Complété';
+      if (s2) s2.textContent = 'Complété';
+      if (s3) s3.textContent = 'Complété';
+      if (s4) s4.textContent = 'Complété';
+    } else {
+      btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Sauvegarder mes données techniques';
+      alert('Erreur lors de la sauvegarde : ' + (data.error || 'inconnue'));
+    }
+  })
+  .catch(err => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Sauvegarder mes données techniques';
+    console.error('Erreur:', err);
+    alert('Erreur lors de la sauvegarde');
+  });
+};
+
+// Initialiser le statut au chargement
+window.updateTechCompletionStatus();
+</script>

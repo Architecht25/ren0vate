@@ -1,0 +1,97 @@
+<%# locals: (technical_data:) %>
+
+<!-- Section 4: Menuiseries -->
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);">
+    <div class="d-flex align-items-center">
+      <i class="bi bi-window me-2"></i>
+      <h6 class="mb-0 fw-semibold">4. Menuiseries</h6>
+      <div class="ms-auto">
+        <span class="badge bg-white text-dark" id="menuiseries-status">
+          <% if technical_data.dig(:menuiseries).present? %>À compléter<% else %>Non renseigné<% end %>
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row g-3">
+
+      <!-- Fenêtres -->
+      <div class="col-md-6">
+        <div class="form-section">
+          <h6 class="fw-semibold mb-2"><i class="bi bi-window-dock me-1"></i> Fenêtres</h6>
+          <div class="mb-2">
+            <label class="form-label small">Coefficient Uw (W/m²K)</label>
+            <input type="number" step="0.1" class="form-control" name="fenetres_uw"
+                   value="<%= technical_data.dig(:menuiseries, :fenetres, :uw) %>" placeholder="Ex: 1.1">
+          </div>
+          <div class="mb-2">
+            <label class="form-label small">Type de vitrage</label>
+            <select class="form-select" name="fenetres_vitrage">
+              <option value="">Sélectionner...</option>
+              <option value="double" <%= 'selected' if technical_data.dig(:menuiseries, :fenetres, :vitrage) == 'double' %>>Double vitrage</option>
+              <option value="triple" <%= 'selected' if technical_data.dig(:menuiseries, :fenetres, :vitrage) == 'triple' %>>Triple vitrage</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label small">Matériau châssis</label>
+            <select class="form-select" name="fenetres_chassis">
+              <option value="">Sélectionner...</option>
+              <option value="pvc" <%= 'selected' if technical_data.dig(:menuiseries, :fenetres, :chassis) == 'pvc' %>>PVC</option>
+              <option value="bois" <%= 'selected' if technical_data.dig(:menuiseries, :fenetres, :chassis) == 'bois' %>>Bois</option>
+              <option value="aluminium" <%= 'selected' if technical_data.dig(:menuiseries, :fenetres, :chassis) == 'aluminium' %>>Aluminium</option>
+              <option value="mixte" <%= 'selected' if technical_data.dig(:menuiseries, :fenetres, :chassis) == 'mixte' %>>Mixte</option>
+            </select>
+          </div>
+          <% if @default_simulation&.region&.downcase == 'flandre' %>
+          <div class="mt-3 rounded-2 p-2" style="background: linear-gradient(135deg, #f0f7ff 0%, #e8f4f8 100%); border: 1px solid #bee3f8;">
+            <p class="small fw-semibold text-primary mb-2"><i class="bi bi-file-earmark-arrow-down me-1"></i>Attestation officielle</p>
+            <a href="https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/v1764575806/Attest_Ramen_en_deuren_fswqel.pdf" target="_blank" class="btn btn-outline-primary btn-sm w-100 text-start">
+              <i class="bi bi-file-earmark-pdf me-2"></i>Ramen en deuren
+            </a>
+          </div>
+          <% end %>
+          <% if @default_simulation&.region&.downcase == 'wallonie' %>
+          <div class="mt-3 rounded-2 p-2" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #86efac;">
+            <p class="small fw-semibold text-success mb-2"><i class="bi bi-file-earmark-arrow-down me-1"></i>Annexe officielle Wallonie</p>
+            <a href="https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/13-03-2025_pdf-annexe-4-menuiseries-exterieures-primes-habitation_uymsbn.pdf" target="_blank" class="btn btn-outline-success btn-sm w-100 text-start">
+              <i class="bi bi-file-earmark-pdf me-2"></i>Annexe 4 — Menuiseries extérieures
+            </a>
+          </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Portes -->
+      <div class="col-md-6">
+        <div class="form-section">
+          <h6 class="fw-semibold mb-2"><i class="bi bi-door-open me-1"></i> Portes</h6>
+          <div class="mb-2">
+            <label class="form-label small">Coefficient Ud (W/m²K)</label>
+            <input type="number" step="0.1" class="form-control" name="portes_ud"
+                   value="<%= technical_data.dig(:menuiseries, :portes, :ud) %>" placeholder="Ex: 1.3">
+          </div>
+          <div class="mb-2">
+            <label class="form-label small">Type</label>
+            <select class="form-select" name="portes_type">
+              <option value="">Sélectionner...</option>
+              <option value="entree" <%= 'selected' if technical_data.dig(:menuiseries, :portes, :type) == 'entree' %>>Porte d'entrée</option>
+              <option value="terrasse" <%= 'selected' if technical_data.dig(:menuiseries, :portes, :type) == 'terrasse' %>>Porte-fenêtre/terrasse</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label small">Matériau</label>
+            <select class="form-select" name="portes_materiau">
+              <option value="">Sélectionner...</option>
+              <option value="bois" <%= 'selected' if technical_data.dig(:menuiseries, :portes, :materiau) == 'bois' %>>Bois</option>
+              <option value="pvc" <%= 'selected' if technical_data.dig(:menuiseries, :portes, :materiau) == 'pvc' %>>PVC</option>
+              <option value="aluminium" <%= 'selected' if technical_data.dig(:menuiseries, :portes, :materiau) == 'aluminium' %>>Aluminium</option>
+              <option value="acier" <%= 'selected' if technical_data.dig(:menuiseries, :portes, :materiau) == 'acier' %>>Acier</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

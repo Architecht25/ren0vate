@@ -1,0 +1,258 @@
+<%# Partial : Réserves de réception + Vue Plan %>
+
+<div class="card border-0 shadow-sm mb-4" id="reserves">
+  <div class="card-header bg-transparent border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+    <div>
+      <h5 class="mb-0 text-primary-custom fw-normal">
+        <i class="bi bi-list-check me-2"></i>Réserves de réception
+      </h5>
+      <% actives = @project.reserves.actives.count %>
+      <% if actives > 0 %>
+        <small class="text-warning">
+          <i class="bi bi-exclamation-triangle me-1"></i><%= actives %> réserve<%= 's' if actives > 1 %> en attente
+        </small>
+      <% else %>
+        <small class="text-success">
+          <i class="bi bi-check-circle me-1"></i>Aucune réserve ouverte
+        </small>
+      <% end %>
+    </div>
+    <button class="btn btn-sm btn-outline-primary rounded-3" type="button"
+            data-bs-toggle="collapse" data-bs-target="#form-reserve-<%= @project.id %>">
+      <i class="bi bi-plus me-1"></i>Ajouter
+    </button>
+  </div>
+
+  <%# Formulaire d'ajout de réserve %>
+  <div class="collapse" id="form-reserve-<%= @project.id %>">
+    <%= form_with url: project_reserves_path(@project), method: :post,
+                  data: { turbo: false }, multipart: true do |f| %>
+      <div class="p-3 border-bottom bg-light">
+        <div class="row g-2">
+          <div class="col-12">
+            <%= f.text_area :description, class: "form-control form-control-sm rounded-3",
+                rows: 2, placeholder: "Description du défaut constaté (ex : fissure au plafond chambre 2, joint douche non posé…)", required: true %>
+          </div>
+          <div class="col-sm-6">
+            <%= f.text_field :responsable, class: "form-control form-control-sm rounded-3",
+                placeholder: "Responsable (entrepreneur ou corps de métier)" %>
+          </div>
+          <div class="col-sm-3">
+            <%= f.date_field :date_constat, class: "form-control form-control-sm rounded-3",
+                value: Date.current %>
+          </div>
+          <div class="col-sm-3">
+            <%= f.date_field :date_limite, class: "form-control form-control-sm rounded-3",
+                placeholder: "Délai levée" %>
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label small text-muted mb-1">Photo du défaut (optionnel)</label>
+            <%= f.file_field :photo, class: "form-control form-control-sm rounded-3",
+                accept: "image/*", capture: "environment" %>
+          </div>
+          <div class="col-sm-6">
+            <%= f.text_field :etage, class: "form-control form-control-sm rounded-3",
+                placeholder: "Étage / localisation (ex: RdC, Cuisine)" %>
+          </div>
+          <% if @plan_documents.any? %>
+            <div class="col-12">
+              <label class="form-label small text-muted mb-1">
+                <i class="bi bi-geo-alt me-1"></i>Épingler sur un plan
+              </label>
+              <div class="d-flex gap-2 align-items-center flex-wrap">
+                <%= f.select :plan_document_id,
+                    options_for_select([['— Choisir un plan —', '']] + @plan_documents.map { |d| [d.notes.presence || "Plan #{d.id}", d.id] }),
+                    {}, { class: "form-select form-select-sm rounded-3 w-auto", id: "reserve-plan-select" } %>
+                <span class="small text-muted" id="pin-status-text">Cliquez sur le plan pour épingler</span>
+              </div>
+              <div id="plan-pin-container" class="d-none mt-2 position-relative border rounded-3 overflow-hidden"
+                   style="cursor:crosshair;max-height:300px;">
+                <img id="plan-pin-img" src="" alt="Plan" class="img-fluid w-100" style="display:block;">
+                <div id="plan-pin-marker" class="d-none position-absolute"
+                     style="width:24px;height:24px;margin-left:-12px;margin-top:-24px;pointer-events:none;">
+                  <i class="bi bi-geo-alt-fill text-danger" style="font-size:24px;"></i>
+                </div>
+              </div>
+              <%= f.hidden_field :pin_x, id: "reserve-pin-x" %>
+              <%= f.hidden_field :pin_y, id: "reserve-pin-y" %>
+            </div>
+          <% end %>
+
+          <div class="col-12 d-flex justify-content-end gap-2">
+            <button type="button" class="btn btn-sm btn-outline-secondary rounded-3"
+                    data-bs-toggle="collapse" data-bs-target="#form-reserve-<%= @project.id %>">
+              Annuler
+            </button>
+            <%= f.submit "Ajouter la réserve", class: "btn btn-sm btn-primary rounded-3" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <%# Liste des réserves %>
+  <% reserves_all = @project.reserves.order(statut: :asc, created_at: :desc) %>
+  <% if reserves_all.any? %>
+    <div class="list-group list-group-flush">
+      <% reserves_all.each do |reserve| %>
+        <div class="list-group-item px-4 py-3 <%= 'bg-success-subtle' if reserve.levee? %>">
+          <div class="d-flex align-items-start gap-3">
+            <%# Icône statut %>
+            <div class="flex-shrink-0 mt-1">
+              <div class="rounded-circle d-flex align-items-center justify-content-center bg-<%= reserve.statut_color %>-subtle"
+                   style="width:32px;height:32px;">
+                <i class="bi <%= reserve.statut_icon %> text-<%= reserve.statut_color %>" style="font-size:1rem;"></i>
+              </div>
+            </div>
+            <%# Contenu %>
+            <div class="flex-grow-1">
+              <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                <span class="badge bg-<%= reserve.statut_color %>-subtle text-<%= reserve.statut_color %> border border-<%= reserve.statut_color %>"
+                      style="font-size:0.65rem;"><%= reserve.statut_label %></span>
+                <% if reserve.responsable.present? %>
+                  <span class="small text-muted">
+                    <i class="bi bi-person me-1"></i><%= reserve.responsable %>
+                  </span>
+                <% end %>
+                <% if reserve.date_limite.present? %>
+                  <% overdue = !reserve.levee? && reserve.date_limite < Date.current %>
+                  <span class="small <%= overdue ? 'text-danger fw-semibold' : 'text-muted' %>">
+                    <i class="bi bi-calendar3 me-1"></i>
+                    Délai : <%= reserve.date_limite.strftime('%d/%m/%Y') %>
+                    <% if overdue %><i class="bi bi-exclamation-triangle ms-1"></i><% end %>
+                  </span>
+                <% end %>
+              </div>
+              <p class="mb-0 small <%= reserve.levee? ? 'text-decoration-line-through text-muted' : '' %>">
+                <%= reserve.description %>
+              </p>
+              <% if reserve.notes.present? %>
+                <p class="mb-0 text-muted fst-italic mt-1" style="font-size:0.75rem;"><%= reserve.notes %></p>
+              <% end %>
+              <div class="d-flex align-items-center gap-2 flex-wrap mt-1">
+                <span class="text-muted" style="font-size:0.68rem;">
+                  Constatée le <%= reserve.date_constat&.strftime('%d/%m/%Y') || reserve.created_at.strftime('%d/%m/%Y') %>
+                </span>
+                <% if reserve.etage.present? %>
+                  <span class="badge bg-secondary-subtle text-secondary" style="font-size:0.6rem;">
+                    <i class="bi bi-layers me-1"></i><%= reserve.etage %>
+                  </span>
+                <% end %>
+                <% if reserve.has_pin? %>
+                  <span class="badge bg-info-subtle text-info" style="font-size:0.6rem;">
+                    <i class="bi bi-geo-alt me-1"></i>Épinglée sur plan
+                  </span>
+                <% end %>
+                <% if reserve.photo.attached? %>
+                  <a href="<%= rails_blob_url(reserve.photo) %>" target="_blank" rel="noopener"
+                     class="badge bg-primary-subtle text-primary text-decoration-none" style="font-size:0.6rem;">
+                    <i class="bi bi-camera me-1"></i>Photo
+                  </a>
+                <% end %>
+              </div>
+            </div>
+            <%# Actions %>
+            <div class="flex-shrink-0 d-flex flex-column gap-1 align-items-end">
+              <% unless reserve.levee? %>
+                <%= button_to project_reserve_path(@project, reserve),
+                    method: :patch,
+                    params: { reserve: { statut: 'levee' } },
+                    class: "btn btn-xs btn-outline-success rounded-3 py-0 px-2",
+                    title: "Marquer comme levée",
+                    style: "font-size:0.7rem;" do %>
+                  <i class="bi bi-check2-circle me-1"></i>Levée
+                <% end %>
+                <% if reserve.ouverte? %>
+                  <%= button_to project_reserve_path(@project, reserve),
+                      method: :patch,
+                      params: { reserve: { statut: 'en_cours' } },
+                      class: "btn btn-xs btn-outline-warning rounded-3 py-0 px-2",
+                      title: "Marquer en cours",
+                      style: "font-size:0.7rem;" do %>
+                    <i class="bi bi-clock me-1"></i>En cours
+                  <% end %>
+                <% end %>
+              <% else %>
+                <%= button_to project_reserve_path(@project, reserve),
+                    method: :patch,
+                    params: { reserve: { statut: 'ouverte' } },
+                    class: "btn btn-xs btn-outline-secondary rounded-3 py-0 px-2",
+                    style: "font-size:0.7rem;" do %>
+                  <i class="bi bi-arrow-counterclockwise me-1"></i>Rouvrir
+                <% end %>
+              <% end %>
+              <%= button_to project_reserve_path(@project, reserve),
+                  method: :delete,
+                  form: { data: { turbo_confirm: "Supprimer cette réserve ?" } },
+                  class: "btn btn-xs btn-outline-danger rounded-3 py-0 px-2",
+                  style: "font-size:0.7rem;" do %>
+                <i class="bi bi-trash3"></i>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="card-body p-4 text-center text-muted small">
+      <i class="bi bi-clipboard-check fs-4 d-block mb-2 text-success"></i>
+      Aucune réserve enregistrée pour ce chantier.
+      <div class="mt-2 text-muted" style="font-size:0.78rem;">
+        Ajoutez les défauts constatés lors de la visite de réception pour en assurer le suivi.
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<%# Vue Plan : annotations épinglées %>
+<% pinned = @project.reserves.where.not(pin_x: nil).where.not(plan_document_id: nil) %>
+<% if @plan_documents.any? || pinned.any? %>
+  <div class="card border-0 shadow-sm mb-4" id="vue-plan">
+    <div class="card-header bg-transparent border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+      <h5 class="mb-0 text-primary-custom fw-normal">
+        <i class="bi bi-map me-2"></i>Vue Plan — Réserves épinglées
+      </h5>
+      <% if @plan_documents.many? %>
+        <select class="form-select form-select-sm rounded-3 w-auto" id="plan-viewer-select"
+                onchange="switchPlanViewer(this.value)">
+          <% @plan_documents.each do |doc| %>
+            <option value="<%= doc.id %>"
+                    data-url="<%= doc.file.attached? ? rails_blob_url(doc.file) : '' %>">
+              <%= doc.notes.presence || "Plan #{doc.id}" %>
+            </option>
+          <% end %>
+        </select>
+      <% end %>
+    </div>
+    <div class="card-body p-3">
+      <% first_plan = @plan_documents.first %>
+      <% if first_plan&.file&.attached? %>
+        <div class="position-relative border rounded-3 overflow-hidden" id="plan-viewer-container">
+          <img id="plan-viewer-img"
+               src="<%= rails_blob_url(first_plan.file) %>"
+               alt="Plan" class="img-fluid w-100" style="display:block;">
+          <% pinned.select { |r| r.plan_document_id == first_plan.id }.each do |reserve| %>
+            <div class="position-absolute" title="<%= reserve.description %>"
+                 style="left:<%= reserve.pin_x %>%;top:<%= reserve.pin_y %>%;
+                        transform:translate(-50%,-100%);pointer-events:none;">
+              <i class="bi bi-geo-alt-fill text-<%= reserve.statut_color %>" style="font-size:20px;
+                 filter:drop-shadow(0 1px 2px rgba(0,0,0,.5));"></i>
+            </div>
+          <% end %>
+        </div>
+        <p class="small text-muted mt-2 mb-0">
+          <i class="bi bi-info-circle me-1"></i>
+          <%= pinned.count %> réserve<%= 's' if pinned.count != 1 %> épinglée<%= 's' if pinned.count != 1 %> sur ce projet.
+        </p>
+      <% else %>
+        <div class="text-center text-muted py-4 small">
+          <i class="bi bi-map fs-3 d-block mb-2"></i>
+          Uploadez un plan (type « Plan ») dans la GED pour épingler les réserves dessus.
+          <%= link_to project_documents_path(@project), class: "btn btn-sm btn-outline-primary mt-2" do %>
+            <i class="bi bi-upload me-1"></i>Uploader un plan
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

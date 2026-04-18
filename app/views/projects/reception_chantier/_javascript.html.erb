@@ -1,0 +1,59 @@
+<%# Partial : JavaScript — Plan annotations (épingler une réserve sur un plan) %>
+<script>
+(function() {
+  const planSelect    = document.getElementById('reserve-plan-select');
+  const pinContainer  = document.getElementById('plan-pin-container');
+  const pinImg        = document.getElementById('plan-pin-img');
+  const pinMarker     = document.getElementById('plan-pin-marker');
+  const pinXField     = document.getElementById('reserve-pin-x');
+  const pinYField     = document.getElementById('reserve-pin-y');
+  const pinStatusText = document.getElementById('pin-status-text');
+
+  if (!planSelect || !pinContainer) return;
+
+  const planDocs = {
+    <% @plan_documents.each do |doc| %>
+      "<%= doc.id %>": "<%= doc.file.attached? ? rails_blob_url(doc.file) : '' %>",
+    <% end %>
+  };
+
+  planSelect.addEventListener('change', function() {
+    const docId = this.value;
+    const url   = planDocs[docId];
+    if (docId && url) {
+      pinImg.src = url;
+      pinContainer.classList.remove('d-none');
+      pinMarker.classList.add('d-none');
+      pinXField.value = '';
+      pinYField.value = '';
+      if (pinStatusText) pinStatusText.textContent = 'Cliquez sur le plan pour épingler';
+    } else {
+      pinContainer.classList.add('d-none');
+    }
+  });
+
+  pinContainer.addEventListener('click', function(evt) {
+    const rect = pinImg.getBoundingClientRect();
+    const x = ((evt.clientX - rect.left) / rect.width  * 100).toFixed(2);
+    const y = ((evt.clientY - rect.top)  / rect.height * 100).toFixed(2);
+
+    pinXField.value = x;
+    pinYField.value = y;
+
+    pinMarker.style.left = x + '%';
+    pinMarker.style.top  = y + '%';
+    pinMarker.classList.remove('d-none');
+
+    if (pinStatusText) pinStatusText.textContent = `📍 Épinglée (${x}%, ${y}%)`;
+  });
+})();
+
+function switchPlanViewer(docId) {
+  const select = document.getElementById('plan-viewer-select');
+  if (!select) return;
+  const opt = select.querySelector(`option[value="${docId}"]`);
+  const url = opt?.dataset?.url;
+  const img = document.getElementById('plan-viewer-img');
+  if (img && url) img.src = url;
+}
+</script>

@@ -1,0 +1,133 @@
+<%# locals: (technical_data:) %>
+
+<!-- Section 3: Techniques -->
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);">
+    <div class="d-flex align-items-center">
+      <i class="bi bi-gear me-2"></i>
+      <h6 class="mb-0 fw-semibold">3. Techniques</h6>
+      <div class="ms-auto">
+        <span class="badge bg-white text-dark" id="techniques-status">
+          <% if technical_data.dig(:techniques).present? %>À compléter<% else %>Non renseigné<% end %>
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="row g-3">
+
+      <!-- Ventilation -->
+      <div class="col-md-6">
+        <div class="form-section">
+          <h6 class="fw-semibold mb-3"><i class="bi bi-wind me-1"></i> Ventilation</h6>
+          <div class="mb-2">
+            <label class="form-label small">Type de système</label>
+            <select class="form-select" name="ventilation_type">
+              <option value="">Sélectionner...</option>
+              <option value="vmc_simple_flux" <%= 'selected' if technical_data.dig(:techniques, :ventilation, :type) == 'vmc_simple_flux' %>>VMC Simple flux</option>
+              <option value="vmc_double_flux" <%= 'selected' if technical_data.dig(:techniques, :ventilation, :type) == 'vmc_double_flux' %>>VMC Double flux</option>
+              <option value="naturelle" <%= 'selected' if technical_data.dig(:techniques, :ventilation, :type) == 'naturelle' %>>Ventilation naturelle</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label small">Débit (m³/h)</label>
+            <input type="number" class="form-control" name="ventilation_debit"
+                   value="<%= technical_data.dig(:techniques, :ventilation, :debit) %>" placeholder="Ex: 300">
+          </div>
+          <div>
+            <label class="form-label small">Rendement (%)</label>
+            <input type="number" class="form-control" name="ventilation_rendement"
+                   value="<%= technical_data.dig(:techniques, :ventilation, :rendement) %>"
+                   placeholder="Ex: 85" max="100">
+          </div>
+          <% if @default_simulation&.region&.downcase == 'wallonie' %>
+          <div class="mt-3 rounded-2 p-2" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #86efac;">
+            <p class="small fw-semibold text-success mb-2"><i class="bi bi-file-earmark-arrow-down me-1"></i>Annexe officielle Wallonie</p>
+            <a href="https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/13-03-2025_pdf-annexe-7-ventilation-primes-habitation_oxxorf.pdf" target="_blank" class="btn btn-outline-success btn-sm w-100 text-start">
+              <i class="bi bi-file-earmark-pdf me-2"></i>Annexe 7 — Ventilation
+            </a>
+          </div>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Mise en conformité électricité & gaz -->
+      <div class="col-md-6">
+        <div class="form-section">
+          <h6 class="fw-semibold mb-3"><i class="bi bi-plug me-1"></i> Mise en conformité électricité &amp; gaz</h6>
+
+          <!-- Électricité -->
+          <div class="mb-3 pb-3 border-bottom">
+            <p class="small fw-semibold mb-2 text-muted"><i class="bi bi-lightning-charge me-1"></i>Électricité</p>
+            <div class="mb-2">
+              <label class="form-label small">État du tableau électrique</label>
+              <select class="form-select" name="conformite_elec_tableau">
+                <option value="">Sélectionner...</option>
+                <option value="conforme" <%= 'selected' if technical_data.dig(:techniques, :conformite, :elec, :tableau) == 'conforme' %>>Conforme</option>
+                <option value="a_mettre_a_jour" <%= 'selected' if technical_data.dig(:techniques, :conformite, :elec, :tableau) == 'a_mettre_a_jour' %>>À mettre à jour</option>
+                <option value="non_conforme" <%= 'selected' if technical_data.dig(:techniques, :conformite, :elec, :tableau) == 'non_conforme' %>>Non conforme</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small">Présence différentiel 30mA</label>
+              <select class="form-select" name="conformite_elec_differentiel">
+                <option value="">Sélectionner...</option>
+                <option value="oui" <%= 'selected' if technical_data.dig(:techniques, :conformite, :elec, :differentiel) == 'oui' %>>Oui</option>
+                <option value="non" <%= 'selected' if technical_data.dig(:techniques, :conformite, :elec, :differentiel) == 'non' %>>Non</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label small">Mise à la terre</label>
+              <select class="form-select" name="conformite_elec_mise_a_terre">
+                <option value="">Sélectionner...</option>
+                <option value="oui" <%= 'selected' if technical_data.dig(:techniques, :conformite, :elec, :mise_a_terre) == 'oui' %>>Oui</option>
+                <option value="non" <%= 'selected' if technical_data.dig(:techniques, :conformite, :elec, :mise_a_terre) == 'non' %>>Non</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Gaz -->
+          <div>
+            <p class="small fw-semibold mb-2 text-muted"><i class="bi bi-fire me-1"></i>Gaz</p>
+            <div class="mb-2">
+              <label class="form-label small">Installation gaz présente</label>
+              <select class="form-select" name="conformite_gaz_present">
+                <option value="">Sélectionner...</option>
+                <option value="oui" <%= 'selected' if technical_data.dig(:techniques, :conformite, :gaz, :present) == 'oui' %>>Oui</option>
+                <option value="non" <%= 'selected' if technical_data.dig(:techniques, :conformite, :gaz, :present) == 'non' %>>Non</option>
+              </select>
+            </div>
+            <div class="mb-2">
+              <label class="form-label small">État de la chaudière</label>
+              <select class="form-select" name="conformite_gaz_chaudiere">
+                <option value="">Sélectionner...</option>
+                <option value="conforme" <%= 'selected' if technical_data.dig(:techniques, :conformite, :gaz, :chaudiere) == 'conforme' %>>Conforme</option>
+                <option value="a_verifier" <%= 'selected' if technical_data.dig(:techniques, :conformite, :gaz, :chaudiere) == 'a_verifier' %>>À vérifier</option>
+                <option value="non_conforme" <%= 'selected' if technical_data.dig(:techniques, :conformite, :gaz, :chaudiere) == 'non_conforme' %>>Non conforme</option>
+                <option value="sans_objet" <%= 'selected' if technical_data.dig(:techniques, :conformite, :gaz, :chaudiere) == 'sans_objet' %>>Sans objet</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label small">Attestation de contrôle</label>
+              <select class="form-select" name="conformite_gaz_attestation">
+                <option value="">Sélectionner...</option>
+                <option value="disponible" <%= 'selected' if technical_data.dig(:techniques, :conformite, :gaz, :attestation) == 'disponible' %>>Disponible</option>
+                <option value="a_obtenir" <%= 'selected' if technical_data.dig(:techniques, :conformite, :gaz, :attestation) == 'a_obtenir' %>>À obtenir</option>
+                <option value="non_applicable" <%= 'selected' if technical_data.dig(:techniques, :conformite, :gaz, :attestation) == 'non_applicable' %>>Non applicable</option>
+              </select>
+            </div>
+          </div>
+          <% if @default_simulation&.region&.downcase == 'wallonie' %>
+          <div class="mt-3 rounded-2 p-2" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #86efac;">
+            <p class="small fw-semibold text-success mb-2"><i class="bi bi-file-earmark-arrow-down me-1"></i>Annexe officielle Wallonie</p>
+            <a href="https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/13-03-2025_pdf-annexe-5-gaz-electricite-radon-merule-primes-habitation_imn92l.pdf" target="_blank" class="btn btn-outline-success btn-sm w-100 text-start">
+              <i class="bi bi-file-earmark-pdf me-2"></i>Annexe 5 — Gaz, électricité, radon, mérule
+            </a>
+          </div>
+          <% end %>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

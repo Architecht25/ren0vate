@@ -1,0 +1,122 @@
+<%# Partial : PV de réception numérique %>
+
+<% pv = @project.pv_reception %>
+<div class="card border-0 shadow-sm mb-4" id="pv-reception">
+  <div class="card-header bg-transparent border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+    <div>
+      <h5 class="mb-0 text-primary-custom fw-normal">
+        <i class="bi bi-patch-check me-2"></i>PV de Réception
+        <span class="badge bg-primary ms-1" style="font-size:0.6rem;vertical-align:middle;">Numérique</span>
+      </h5>
+      <% if pv %>
+        <small class="text-<%= pv.statut_color %>">
+          <i class="bi <%= pv.statut_icon %> me-1"></i><%= pv.statut_label %>
+          <% if pv.envoye? %>— <%= pv.nb_signatures %>/<%= pv.nb_signatures_attendues %> signatures<% end %>
+        </small>
+      <% else %>
+        <small class="text-muted">Procès-Verbal 3-parties horodaté</small>
+      <% end %>
+    </div>
+    <div class="d-flex gap-2">
+      <% if pv %>
+        <%= link_to project_pv_reception_path(@project), class: "btn btn-sm btn-outline-primary" do %>
+          <i class="bi bi-eye me-1"></i>Voir le PV
+        <% end %>
+      <% elsif @project.user_id == current_user.id %>
+        <button class="btn btn-sm btn-primary" type="button"
+                data-bs-toggle="collapse" data-bs-target="#form-pv-<%= @project.id %>">
+          <i class="bi bi-plus me-1"></i>Créer le PV
+        </button>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Formulaire de création du PV (owner seulement) %>
+  <% if pv.nil? && @project.user_id == current_user.id %>
+    <div class="collapse" id="form-pv-<%= @project.id %>">
+      <%= form_with url: project_pv_reception_path(@project), method: :post,
+                    data: { turbo: false } do |f| %>
+        <div class="p-3 border-bottom bg-light">
+          <div class="row g-2">
+            <div class="col-sm-6">
+              <%= f.label :date_reception, "Date de réception", class: "form-label small fw-semibold" %>
+              <%= f.date_field :date_reception, class: "form-control form-control-sm rounded-3",
+                  value: Date.current, name: "pv_reception[date_reception]" %>
+            </div>
+            <div class="col-12">
+              <%= f.label :observations, "Observations générales (facultatif)", class: "form-label small fw-semibold" %>
+              <%= f.text_area :observations, class: "form-control form-control-sm rounded-3",
+                  rows: 2, placeholder: "Travaux réalisés conformément aux plans. Réserves listées ci-dessus…",
+                  name: "pv_reception[observations]" %>
+            </div>
+            <div class="col-12 small text-muted">
+              <i class="bi bi-info-circle me-1"></i>
+              Les parties identifiées (maître d'ouvrage, architecte, entrepreneur) seront détectées
+              depuis les membres actifs du projet.
+            </div>
+            <div class="col-12 d-flex justify-content-end gap-2">
+              <button type="button" class="btn btn-sm btn-outline-secondary rounded-3"
+                      data-bs-toggle="collapse" data-bs-target="#form-pv-<%= @project.id %>">
+                Annuler
+              </button>
+              <%= f.submit "Créer le PV de réception", class: "btn btn-sm btn-primary rounded-3" %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%# Aperçu condensé si PV existant %>
+  <% if pv %>
+    <div class="card-body p-4">
+      <div class="row g-3 align-items-center">
+        <div class="col-sm-6">
+          <div class="small text-muted">Date de réception</div>
+          <div class="fw-semibold">
+            <%= pv.date_reception ? pv.date_reception.strftime('%d/%m/%Y') : '—' %>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="small text-muted">Signatures</div>
+          <div class="d-flex gap-1 flex-wrap mt-1">
+            <% [
+              { nom: pv.nom_owner,        signed: pv.signed_owner?,        label: "MO",   skip: false },
+              { nom: pv.nom_architect,    signed: pv.signed_architect?,    label: "Arch", skip: pv.email_architect.blank? },
+              { nom: pv.nom_entrepreneur, signed: pv.signed_entrepreneur?, label: "Entr", skip: pv.email_entrepreneur.blank? }
+            ].each do |s| %>
+              <% next if s[:skip] %>
+              <span class="badge bg-<%= s[:signed] ? 'success' : 'secondary' %>-subtle text-<%= s[:signed] ? 'success' : 'secondary' %> border"
+                    title="<%= s[:nom] %>" style="font-size:0.65rem;">
+                <i class="bi bi-<%= s[:signed] ? 'check2' : 'clock' %> me-1"></i><%= s[:label] %>
+              </span>
+            <% end %>
+          </div>
+        </div>
+        <% if pv.finalise? %>
+          <div class="col-12">
+            <div class="alert alert-success py-2 px-3 small mb-0 d-flex align-items-center gap-2">
+              <i class="bi bi-patch-check-fill"></i>
+              <strong>PV finalisé</strong> — Toutes les signatures ont été recueillies.
+              <%= link_to print_project_pv_reception_path(@project), target: "_blank",
+                  class: "ms-auto btn btn-sm btn-outline-success" do %>
+                <i class="bi bi-printer me-1"></i>PDF
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% else %>
+    <div class="card-body p-4 text-center text-muted small">
+      <i class="bi bi-patch-check fs-4 d-block mb-2 text-secondary"></i>
+      Aucun PV créé pour ce chantier.
+      <% if @project.user_id == current_user.id %>
+        <div class="mt-2" style="font-size:0.78rem;">
+          Créez le PV pour recueillir les signatures des 3 parties (maître d'ouvrage, architecte, entrepreneur).
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+</div>
