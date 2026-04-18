@@ -2,7 +2,7 @@
 **Date de l'analyse : 18 avril 2026**
 **Rédigée par : GitHub Copilot (IA) — à valider par un auditeur sécurité humain**
 **Société : ArchiTecht SRL — BCE BE 1020.345.473**
-**Outil principal : Brakeman 7.0.2 + revue manuelle OWASP Top 10**
+**Outil principal : Brakeman 8.0.4 + revue manuelle OWASP Top 10**
 
 ---
 
@@ -12,44 +12,36 @@
 |---|---|
 | **Warnings Brakeman actifs** | ✅ 0 (zéro) |
 | **Warnings ignorés** | 6 (tous justifiés — voir §3) |
-| **Erreurs de parsing** | ⚠️ 1 fichier template non analysé |
+| **Erreurs de parsing** | ✅ 0 — `pv_signatures/show.html.erb` corrigé le 18 avril 2026 |
 | **Headers de sécurité HTTP** | ✅ Bonne couverture |
 | **CSP (Content Security Policy)** | 🟠 Présente mais affaiblie (`unsafe-inline`, `unsafe-eval`) |
 | **Authentification** | ✅ Devise + `authenticate_user!` global |
 | **CSRF** | ✅ `protect_from_forgery with: :exception` |
-| **Dépendances outdated critiques** | 🟠 3 à surveiller (Devise, loofah, Rails) |
+| **Dépendances outdated critiques** | ✅ Toutes mises à jour le 18 avril 2026 |
 | **Pseudonymisation Anthropic** | ✅ Implémentée |
 
 ---
 
 ## 2. Brakeman — Rapport complet (scan du 18 avril 2026)
 
-**Version Brakeman :** 7.0.2
-**Version Rails :** 8.0.2
+**Version Brakeman :** 8.0.4
+**Version Rails :** 8.1.3
 **Durée du scan :** 8,2 secondes
-**Contrôleurs analysés :** 50 | **Modèles :** 38 | **Templates :** 401
+**Contrôleurs analysés :** 50 | **Modèles :** 38 | **Templates :** 402
 
 ### 2.1 Résultat
 
 ```
 Security Warnings: 0
 Ignored Warnings:  6
-Errors:            1
+Errors:            0
 ```
 
 ✅ **Aucun warning de sécurité actif.** Le code ne présente pas de vulnérabilité détectable par analyse statique.
 
-### 2.2 Erreur de parsing — action requise
+### 2.2 Erreur de parsing — ✅ résolue
 
-```
-Error: app/views/pv_signatures/show.html.erb:228
-Parse error on value "elsif" (kELSIF)
-Could not parse app/views/pv_signatures/show.html.erb
-```
-
-⚠️ **Ce template n'est PAS analysé par Brakeman.** Une erreur de syntaxe ERB à la ligne 228 empêche l'analyse. Si ce template contient des interpolations de données utilisateur non échappées, elles passeraient inaperçues.
-
-**Action requise :** Corriger la syntaxe ERB dans `app/views/pv_signatures/show.html.erb` ligne 228 pour s'assurer que ce fichier est inclus dans les futurs scans.
+> La syntaxe ERB de `app/views/pv_signatures/show.html.erb` ligne 228 a été corrigée le 18 avril 2026 (`unless…||` → `if/elsif`). Le template est désormais inclus dans l'analyse — **402 templates** couverts (contre 401 précédemment).
 
 ---
 
@@ -122,13 +114,13 @@ Could not parse app/views/pv_signatures/show.html.erb
 | loofah 2.24.1 → **2.25.1** | ✅ | Mis à jour le 18 avril 2026 |
 | rails-html-sanitizer 1.6.2 → **1.7.0** | ✅ | Mis à jour le 18 avril 2026 |
 | rubyzip 2.4.1 → **3.2.2** | ✅ | Mis à jour le 18 avril 2026 — API `Zip::File.open` compatible v3 |
-| Brakeman 7.0.2 → 8.0.4 | 🟡 | Outil d'audit — mettre à jour pour de meilleures détections |
-| nokogiri 1.18.8 → 1.19.2 | 🟡 | XML parsing — surveiller CVEs |
+| Brakeman 7.0.2 → **8.0.4** | ✅ | Mis à jour le 18 avril 2026 — 0 warnings, 0 erreurs, 402 templates |
+| nokogiri 1.18.8 → **1.19.2** | ✅ | Mis à jour le 18 avril 2026 |
 
 ### A07 — Identification and Authentication Failures
 | Point | Statut | Détail |
 |---|---|---|
-| Authentification | ✅ | Devise 4.9.4 — sessions sécurisées |
+| Authentification | ✅ | Devise 5.0.3 — sessions sécurisées |
 | CSRF | ✅ | `protect_from_forgery with: :exception` |
 | Brute force | ✅ | Devise Lockable activé le 18 avril 2026 — verrouillage après 10 tentatives, déverrouillage par email + 1h automatique |
 | 2FA | 🔴 | Non implémentée — recommandée pour les comptes admin et clients payants |
@@ -200,8 +192,8 @@ La CSP est configurée dans `config/initializers/content_security_policy.rb` et 
 ### 🟡 Maintenance normale
 | Gem | Version actuelle | Version disponible | Action |
 |---|---|---|---|
-| `nokogiri` | 1.18.8 | 1.19.2 | Surveiller CVEs — mettre à jour prochainement |
-| `brakeman` | 7.0.2 | 8.0.4 | Mettre à jour pour de meilleures détections |
+| `nokogiri` | ~~1.18.8~~ **1.19.2** | 1.19.2 | ✅ Mis à jour le 18 avril 2026 |
+| `brakeman` | ~~7.0.2~~ **8.0.4** | 8.0.4 | ✅ Mis à jour le 18 avril 2026 |
 
 ---
 
@@ -234,7 +226,7 @@ Internet
 
 ### Priorité 1 — Avant lancement commercial (bloquant)
 
-- [ ] **Corriger `pv_signatures/show.html.erb:228`** — template non analysé par Brakeman, risque de XSS non détecté
+- [x] **Corriger `pv_signatures/show.html.erb:228`** ✅ *(fait le 18 avril 2026)* — syntaxe ERB corrigée, template inclus dans l'analyse Brakeman
 - [x] **`stripe` gem mise à jour 15.5.0 → 19.0.0** ✅ *(fait le 18 avril 2026)*
 - [x] **Signature webhook Stripe** ✅ — `Stripe::Webhook.construct_event` + `Stripe::SignatureVerificationError` déjà implémenté dans `webhooks_controller.rb`
 - [x] **Activer Devise Lockable ou rate limiting** ✅ *(fait le 18 avril 2026)* — `:lockable` activé dans `User`, 10 tentatives max, déverrouillage `:both` (email + 1h)
@@ -247,7 +239,7 @@ Internet
 - [x] **Mettre à jour `Devise` 4.9.4 → 5.0.3** ✅ *(fait le 18 avril 2026)* — inclut CVE-2026-32700 ; `data-turbo-temporary` migré
 - [ ] **Migrer `script-src` vers nonces** — infrastructure déjà en place, impact sécurité maximal
 - [ ] **Restreindre `script-src :https`** vers une liste explicite de CDNs
-- [ ] **Mettre à jour `brakeman` 7.0.2 → 8.0.4** — meilleures détections pour Rails 8.1
+- [x] **Mettre à jour `brakeman` 7.0.2 → 8.0.4** ✅ *(fait le 18 avril 2026)* — 0 warnings, 0 erreurs, 402 templates couverts
 - [x] **Corriger les IDOR `find(params[:id])`** ✅ *(fait le 18 avril 2026)* — `requests#show/edit/update` → `current_user.requests.find(params[:id])` ; `factures#validate_facture` → vérification `@facture.project_id == @project.id`
 
 ### Priorité 3 — Dans les 3 mois
@@ -255,7 +247,7 @@ Internet
 - [ ] **Chiffrer les revenus et OCR brut** — `aer_donnees.revenu_*` (decimal → string/text + migration données), `aer_donnees.texte_ocr_brut`, `rib_donnees.texte_ocr_brut` — nécessite migration des données existantes
 - [ ] **2FA pour les comptes admin et Expert/Platform** — via `devise-two-factor` ou OTP par email
 - [ ] **Monitoring des logs** — intégrer Papertrail ou Datadog pour alerting sur erreurs 5xx et patterns suspects
-- [ ] **Planifier migration Devise 4 → 5** — lire le guide de migration avant la mise à jour
+- [x] **Planifier migration Devise 4 → 5** ✅ *(fait le 18 avril 2026)* — migration effectuée directement vers 5.0.3
 - [x] **Chiffrement at-rest national_number + IBAN** ✅ *(fait le 18 avril 2026, migration production appliquée)* — AR Encryption sur `users.national_number`, `users.iban`, `rib_donnees.iban`, `rib_donnees.nom_titulaire`. Clés `AR_ENCRYPTION_*` actives sur Heroku
 - [ ] **Chiffrement at-rest revenus + OCR brut** — déplacé en Priorité 3 (migration données nécessaire)
 - [ ] **Restreindre la clé Mapbox par domaine** — dans la console Mapbox, limiter l'usage aux domaines ren0vate.be
