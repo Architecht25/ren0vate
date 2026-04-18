@@ -117,10 +117,11 @@ Could not parse app/views/pv_signatures/show.html.erb
 | Point | Statut | Détail |
 |---|---|---|
 | stripe gem 15.5.0 → **19.0.0** | ✅ | Mis à jour le 18 avril 2026 |
-| Rails 8.0.2 → 8.1.3 disponible | 🟠 | Mise à jour mineure recommandée (pas de CVE critique connue à ce jour) |
-| Devise 4.9.4 → 5.0.3 | 🟠 | Version majeure disponible — lire changelog avant mise à jour |
-| loofah 2.24.1 → 2.25.1 | 🟠 | Librairie HTML sanitization — mise à jour conseillée |
-| rubyzip 2.4.1 → 3.2.2 | 🟠 | Version majeure — CVE potentielles sur extraction ZIP |
+| Rails 8.0.2 → **8.1.3** | ✅ | Mis à jour le 18 avril 2026 — fixture `simulations.yml` corrigée (colonne stale `categorie`) |
+| Devise 4.9.4 → **5.0.3** | ✅ | Mis à jour le 18 avril 2026 — inclut CVE-2026-32700 (race condition confirmable). Vue `_error_messages` migrée vers `data-turbo-temporary` |
+| loofah 2.24.1 → **2.25.1** | ✅ | Mis à jour le 18 avril 2026 |
+| rails-html-sanitizer 1.6.2 → **1.7.0** | ✅ | Mis à jour le 18 avril 2026 |
+| rubyzip 2.4.1 → **3.2.2** | ✅ | Mis à jour le 18 avril 2026 — API `Zip::File.open` compatible v3 |
 | Brakeman 7.0.2 → 8.0.4 | 🟡 | Outil d'audit — mettre à jour pour de meilleures détections |
 | nokogiri 1.18.8 → 1.19.2 | 🟡 | XML parsing — surveiller CVEs |
 
@@ -190,15 +191,15 @@ La CSP est configurée dans `config/initializers/content_security_policy.rb` et 
 ### 🟠 Haute priorité
 | Gem | Version actuelle | Version disponible | Action |
 |---|---|---|---|
-| `rubyzip` | 2.4.1 | 3.2.2 | Mettre à jour — CVE potentielles sur extraction d'archives ZIP |
-| `devise` | 4.9.4 | 5.0.3 | Planifier migration — lire guide de migration Devise 5 |
-| `loofah` | 2.24.1 | 2.25.1 | Mettre à jour dès que possible (sanitization HTML) |
-| `rails-html-sanitizer` | 1.6.2 | 1.7.0 | Lié à loofah — mettre à jour ensemble |
+| `rails` | ~~8.0.2~~ **8.1.3** | 8.1.3 | ✅ Mis à jour le 18 avril 2026 |
+| `devise` | ~~4.9.4~~ **5.0.3** | 5.0.3 | ✅ Mis à jour le 18 avril 2026 |
+| `loofah` | ~~2.24.1~~ **2.25.1** | 2.25.1 | ✅ Mis à jour le 18 avril 2026 |
+| `rails-html-sanitizer` | ~~1.6.2~~ **1.7.0** | 1.7.0 | ✅ Mis à jour le 18 avril 2026 |
+| `rubyzip` | ~~2.4.1~~ **3.2.2** | 3.2.2 | ✅ Mis à jour le 18 avril 2026 |
 
 ### 🟡 Maintenance normale
 | Gem | Version actuelle | Version disponible | Action |
 |---|---|---|---|
-| `rails` | 8.0.2 | 8.1.3 | Mise à jour mineure recommandée dans le prochain cycle |
 | `nokogiri` | 1.18.8 | 1.19.2 | Surveiller CVEs — mettre à jour prochainement |
 | `brakeman` | 7.0.2 | 8.0.4 | Mettre à jour pour de meilleures détections |
 
@@ -240,8 +241,10 @@ Internet
 
 ### Priorité 2 — Dans le mois suivant le lancement
 
-- [ ] **Mettre à jour `rubyzip` 2.4.1 → 3.2.2** — risque CVE sur extraction ZIP
-- [ ] **Mettre à jour `loofah` + `rails-html-sanitizer`** — librairies de sanitization HTML critiques
+- [x] **Mettre à jour `rubyzip` 2.4.1 → 3.2.2** ✅ *(fait le 18 avril 2026)* — CVE potentielles sur extraction ZIP
+- [x] **Mettre à jour `loofah` + `rails-html-sanitizer`** ✅ *(fait le 18 avril 2026)* — librairies de sanitization HTML
+- [x] **Mettre à jour `Rails` 8.0.2 → 8.1.3** ✅ *(fait le 18 avril 2026)* — fixture `simulations.yml` nettoyée
+- [x] **Mettre à jour `Devise` 4.9.4 → 5.0.3** ✅ *(fait le 18 avril 2026)* — inclut CVE-2026-32700 ; `data-turbo-temporary` migré
 - [ ] **Migrer `script-src` vers nonces** — infrastructure déjà en place, impact sécurité maximal
 - [ ] **Restreindre `script-src :https`** vers une liste explicite de CDNs
 - [ ] **Mettre à jour `brakeman` 7.0.2 → 8.0.4** — meilleures détections pour Rails 8.1
