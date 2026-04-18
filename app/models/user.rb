@@ -2,7 +2,8 @@ class User < ApplicationRecord
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable
+         :recoverable, :rememberable, :validatable,
+         :lockable
          # Confirmable temporairement désactivé jusqu'à configuration complète SMTP
 
   # Chiffrement at-rest des données personnelles sensibles (RGPD A02)

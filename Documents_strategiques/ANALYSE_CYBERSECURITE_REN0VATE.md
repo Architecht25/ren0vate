@@ -129,7 +129,7 @@ Could not parse app/views/pv_signatures/show.html.erb
 |---|---|---|
 | Authentification | ✅ | Devise 4.9.4 — sessions sécurisées |
 | CSRF | ✅ | `protect_from_forgery with: :exception` |
-| Brute force | 🟠 | Vérifier si `devise-security` ou Lockable est activé |
+| Brute force | ✅ | Devise Lockable activé le 18 avril 2026 — verrouillage après 10 tentatives, déverrouillage par email + 1h automatique |
 | 2FA | 🔴 | Non implémentée — recommandée pour les comptes admin et clients payants |
 
 ### A08 — Software and Data Integrity Failures
@@ -236,7 +236,7 @@ Internet
 - [ ] **Corriger `pv_signatures/show.html.erb:228`** — template non analysé par Brakeman, risque de XSS non détecté
 - [x] **`stripe` gem mise à jour 15.5.0 → 19.0.0** ✅ *(fait le 18 avril 2026)*
 - [x] **Signature webhook Stripe** ✅ — `Stripe::Webhook.construct_event` + `Stripe::SignatureVerificationError` déjà implémenté dans `webhooks_controller.rb`
-- [ ] **Activer Devise Lockable ou rate limiting** — protéger les formulaires d'authentification contre le brute force
+- [x] **Activer Devise Lockable ou rate limiting** ✅ *(fait le 18 avril 2026)* — `:lockable` activé dans `User`, 10 tentatives max, déverrouillage `:both` (email + 1h)
 
 ### Priorité 2 — Dans le mois suivant le lancement
 
