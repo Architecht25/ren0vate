@@ -5,6 +5,11 @@ class User < ApplicationRecord
          :recoverable, :rememberable, :validatable
          # Confirmable temporairement désactivé jusqu'à configuration complète SMTP
 
+  # Chiffrement at-rest des données personnelles sensibles (RGPD A02)
+  # Actif uniquement si AR_ENCRYPTION_* env vars configurées (production Heroku)
+  encrypts :national_number
+  encrypts :iban
+
   # Auto-confirmer les utilisateurs à la création (solution temporaire)
   # Commenté car :confirmable est désactivé
   # after_create :auto_confirm_user

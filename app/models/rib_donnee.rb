@@ -2,6 +2,10 @@ class RibDonnee < ApplicationRecord
   belongs_to :document
   belongs_to :user
 
+  # Chiffrement at-rest des données bancaires sensibles (RGPD A02)
+  encrypts :iban
+  encrypts :nom_titulaire
+
   validates :iban, format: {
     with: /\ABE\d{2}\d{12}\z/,
     message: "doit être un IBAN belge valide (BE + 2 chiffres clé + 12 chiffres)"

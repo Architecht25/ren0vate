@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_04_16_130001) do
+ActiveRecord::Schema[8.0].define(version: 2026_04_18_162952) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -855,9 +855,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_16_130001) do
   create_table "rib_donnees", force: :cascade do |t|
     t.bigint "document_id", null: false
     t.bigint "user_id", null: false
-    t.string "iban"
+    t.text "iban"
     t.string "bic"
-    t.string "nom_titulaire"
+    t.text "nom_titulaire"
     t.string "nom_banque"
     t.decimal "confiance_ocr", precision: 5, scale: 2
     t.boolean "valide_manuellement", default: false, null: false
@@ -941,7 +941,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_16_130001) do
     t.string "postal_code"
     t.string "city"
     t.string "region"
-    t.string "iban"
+    t.text "iban"
     t.string "protected_client"
     t.string "situation_familiale"
     t.integer "revenu_demandeur"
@@ -965,7 +965,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_04_16_130001) do
     t.datetime "confirmation_sent_at"
     t.string "unconfirmed_email"
     t.integer "role", default: 0, null: false
-    t.string "national_number"
+    t.text "national_number"
     t.integer "personnes_60_ans_et_plus"
     t.boolean "femme_enceinte"
     t.string "stripe_customer_id"
