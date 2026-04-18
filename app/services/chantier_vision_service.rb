@@ -8,6 +8,15 @@ class ChantierVisionService
   MAX_PHOTOS        = 6   # limite pour garder le coût raisonnable
   MAX_TOKENS        = 1500
 
+  # Hôtes autorisés pour le fetch d'images (prévention SSRF)
+  TRUSTED_IMAGE_HOSTS = %w[
+    res.cloudinary.com
+    res-1.cloudinary.com
+    res-2.cloudinary.com
+    res-3.cloudinary.com
+    res-4.cloudinary.com
+  ].freeze
+
   PHOTO_TYPES = {
     'photo_avant'   => 'avant travaux',
     'photo_pendant' => 'en cours de travaux',
@@ -78,6 +87,8 @@ class ChantierVisionService
     if doc.file.attached?
       Base64.strict_encode64(doc.file.download)
     elsif doc.file_url.present?
+      return nil unless trusted_image_url?(doc.file_url)
+
       response = HTTParty.get(doc.file_url, timeout: 15)
       return nil unless response.success?
       Base64.strict_encode64(response.body)
@@ -85,6 +96,14 @@ class ChantierVisionService
   rescue => e
     Rails.logger.warn "ChantierVisionService base64 encode failed: #{e.message}"
     nil
+  end
+
+  def trusted_image_url?(url)
+    uri = URI.parse(url)
+    uri.scheme == 'https' &&
+      TRUSTED_IMAGE_HOSTS.any? { |host| uri.host == host || uri.host&.end_with?(".cloudinary.com") }
+  rescue URI::InvalidURIError
+    false
   end
 
   def call_claude(image_blocks, photos)

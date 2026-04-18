@@ -150,7 +150,7 @@ Could not parse app/views/pv_signatures/show.html.erb
 ### A10 — Server-Side Request Forgery (SSRF)
 | Point | Statut | Détail |
 |---|---|---|
-| Requêtes HTTP sortantes | 🟠 | HTTParty et Faraday utilisés — vérifier que les URLs sont validées avant appel |
+| Requêtes HTTP sortantes | ✅ | SSRF corrigé le 18 avril 2026 — `chantier_vision_service#encode_image_base64` : whitelist `TRUSTED_IMAGE_HOSTS` (Cloudinary uniquement) avant tout `HTTParty.get(file_url)`. Les 3 autres services utilisent des constantes `ANTHROPIC_API_URL` |
 | Anthropic API | ✅ | URL fixe définie dans le service, pas d'URL utilisateur |
 | Mapbox / APIs externes | ✅ | URLs fixes dans le CSP `connect_src` |
 
@@ -256,7 +256,7 @@ Internet
 - [x] **Chiffrement at-rest national_number + IBAN** ✅ *(fait le 18 avril 2026, migration production appliquée)* — AR Encryption sur `users.national_number`, `users.iban`, `rib_donnees.iban`, `rib_donnees.nom_titulaire`. Clés `AR_ENCRYPTION_*` actives sur Heroku
 - [ ] **Chiffrement at-rest revenus + OCR brut** — déplacé en Priorité 3 (migration données nécessaire)
 - [ ] **Restreindre la clé Mapbox par domaine** — dans la console Mapbox, limiter l'usage aux domaines ren0vate.be
-- [ ] **Vérifier la validation des URLs** dans HTTParty/Faraday — prévention SSRF
+- [x] **Vérifier la validation des URLs** dans HTTParty/Faraday — SSRF corrigé *(18 avril 2026)* : `chantier_vision_service` valide `file_url` contre `TRUSTED_IMAGE_HOSTS` avant fetch
 - [ ] **Audit annuel complet** — Brakeman + revue manuelle OWASP + test de pénétration
 
 ---
