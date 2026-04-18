@@ -1,5 +1,5 @@
 # Analyse juridique Ren0vate — Lancement commercial
-**Date de l'analyse : 8 avril 2026**
+**Date de l'analyse : 18 avril 2026** *(mise à jour)*
 **Rédigée par : GitHub Copilot (IA), à valider par un conseiller juridique humain)**
 **Société : ArchiTecht SRL — BCE BE 1020.345.473**
 
@@ -143,7 +143,7 @@ Le service `ContextualBotService` envoie à chaque message le contexte complet s
   - **Option B** : créer un nouveau compte console Anthropic au nom d'ArchiTecht SRL, générer une nouvelle clé API et mettre à jour `ANTHROPIC_API_KEY` dans les credentials Rails / variables Heroku
   - À faire **avant le premier client payant** — risque faible en pratique mais réel en cas de contrôle
 - [ ] **DPA Anthropic — vérification** — le DPA est automatiquement inclus dans les Commercial Terms of Service Anthropic (effectif 24/02/2025) pour tout compte enregistré au nom d'une société. Une fois le transfert vers ArchiTecht effectué, le DPA s'applique de plein droit sans démarche supplémentaire.
-- [ ] **Checkbox consentement chatbot** ✅ *Implémentée dans `_contextual_bot.html.erb` + `contextual_bot_controller.js`* — panneau de consentement affiché à la première ouverture, consentement stocké en `localStorage` (`rn0_ia_consent_v1`).
+- [x] **Checkbox consentement chatbot** ✅ *Implémentée dans `_contextual_bot.html.erb` + `contextual_bot_controller.js`* — panneau de consentement affiché à la première ouverture, consentement stocké en `localStorage` (`rn0_ia_consent_v1`).
 - [ ] **Nommer un DPO** ou au minimum désigner une personne de contact RGPD interne et la déclarer auprès de l'APD belge si le volume de traitement l'exige.
 
 ### 5.2 Priorité haute (avant lancement ou rapidement après)
@@ -176,8 +176,8 @@ Le service `ContextualBotService` envoie à chaque message le contexte complet s
 Utilisateur
     │
     ├─ Chat IA ──────────────────────► Anthropic API (Claude Haiku/Sonnet)
-    │   Données : profil complet,      USA — SCC — données NON pseudonymisées
-    │   AER, revenus, BIM, IBAN
+    │   Données : profil complet,      USA — SCC — données pseudonymisées ✅
+    │   AER, revenus, BIM, IBAN        (tranches revenus, hash ID, CP seul)
     │
     ├─ Photos chantier ──────────────► Anthropic API (Claude Sonnet Vision)
     │   Données : photos brutes        USA — SCC — max 6 photos
@@ -201,8 +201,8 @@ Utilisateur
 
 | Risque | Probabilité | Impact | Mitigation |
 |---|---|---|---|
-| Fuite via API Anthropic | Faible | Très élevé | DPA + pseudonymisation |
-| Plainte APD (données AER sans consentement explicite) | Modérée | Élevé | Checkbox consentement chatbot |
+| Fuite via API Anthropic | Faible | Très élevé | DPA + pseudonymisation ✅ |
+| Plainte APD (données AER sans consentement explicite) | Faible | Élevé | Checkbox consentement chatbot ✅ |
 | Exercice droit d'effacement par utilisateur | Modérée | Modéré | Procédure documentée (30j) |
 | Photos avec personnes identifiables (art. 9) | Modérée | Élevé | Avertissement avant upload |
 | Non-conformité clause médiation | Faible | Modéré | Affiliation organisme ODR |
@@ -218,6 +218,17 @@ Utilisateur
 - **Décision SCC** 2021/914/UE — clauses contractuelles types transferts hors UE
 - **EU-US Data Privacy Framework** — décision d'adéquation 10 juillet 2023 (Stripe)
 - **Loi belge du 30 juillet 2018** — protection des données à caractère personnel
+
+---
+
+---
+
+## 9. Historique des mises à jour
+
+| Date | Auteur | Modifications |
+|---|---|---|
+| 8 avril 2026 | GitHub Copilot (IA) | Création initiale — mentions légales, CGV, privacy, RGPD IA |
+| 18 avril 2026 | GitHub Copilot (IA) | Mise à jour statuts : pseudonymisation Anthropic ✅, checkbox consentement ✅, flux IA corrigé, risques mis à jour |
 
 ---
 

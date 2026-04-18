@@ -191,7 +191,7 @@
     </div>
 
     <!-- Zone de signature -->
-    <% unless @pv.deja_signe_avec_token?(params[:token]) || @pv.finalise? %>
+    <% if !@pv.deja_signe_avec_token?(params[:token]) && !@pv.finalise? %>
       <div class="card shadow-sm border-0 border-primary mb-4" style="border-width:2px !important;">
         <div class="card-header bg-primary text-white py-3 px-4">
           <h5 class="mb-0 fw-normal">
