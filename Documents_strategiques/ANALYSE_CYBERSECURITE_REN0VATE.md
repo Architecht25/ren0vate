@@ -86,7 +86,7 @@ Could not parse app/views/pv_signatures/show.html.erb
 | HTTPS / HSTS | ✅ | `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload` (production) |
 | Mots de passe | ✅ | bcrypt 3.1.20 via Devise |
 | Credentials Rails | ✅ | `credentials.yml.enc` — clés non exposées en repo |
-| Données sensibles en clair en BDD | � | `users.national_number` + `iban` et `rib_donnees.iban` + `nom_titulaire` chiffrés via AR Encryption (18 avril 2026). Revenus (`decimal`) et OCR brut (`text`) restent en clair — migration plus complexe, priorité 3 |
+| Données sensibles en clair en BDD | ✅ | `users.national_number` + `iban` et `rib_donnees.iban` + `nom_titulaire` chiffrés via AR Encryption. Migration appliquée en production le 18 avril 2026. Revenus (`decimal`) et OCR brut : Priorité 3 |
 | Données en transit vers Anthropic | ✅ | HTTPS TLS, pseudonymisation activée |
 
 ### A03 — Injection
@@ -253,7 +253,7 @@ Internet
 - [ ] **2FA pour les comptes admin et Expert/Platform** — via `devise-two-factor` ou OTP par email
 - [ ] **Monitoring des logs** — intégrer Papertrail ou Datadog pour alerting sur erreurs 5xx et patterns suspects
 - [ ] **Planifier migration Devise 4 → 5** — lire le guide de migration avant la mise à jour
-- [x] **Chiffrement at-rest national_number + IBAN** ✅ *(fait le 18 avril 2026)* — AR Encryption sur `users.national_number`, `users.iban`, `rib_donnees.iban`, `rib_donnees.nom_titulaire`. Actif en prod avec `AR_ENCRYPTION_*` env vars (Heroku)
+- [x] **Chiffrement at-rest national_number + IBAN** ✅ *(fait le 18 avril 2026, migration production appliquée)* — AR Encryption sur `users.national_number`, `users.iban`, `rib_donnees.iban`, `rib_donnees.nom_titulaire`. Clés `AR_ENCRYPTION_*` actives sur Heroku
 - [ ] **Chiffrement at-rest revenus + OCR brut** — déplacé en Priorité 3 (migration données nécessaire)
 - [ ] **Restreindre la clé Mapbox par domaine** — dans la console Mapbox, limiter l'usage aux domaines ren0vate.be
 - [ ] **Vérifier la validation des URLs** dans HTTParty/Faraday — prévention SSRF
