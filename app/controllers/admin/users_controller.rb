@@ -64,7 +64,7 @@ class Admin::UsersController < ApplicationController
 
   # Action pour voir tous les documents d'un utilisateur
   def documents
-    @documents = @user.documents.includes(:property, :project)
+    @documents = @user.documents.includes(:property, :project, file_attachment: :blob)
                      .order(created_at: :desc)
 
     # Filtrer par propriété si demandé

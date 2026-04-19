@@ -92,9 +92,9 @@
 
               <!-- Actions -->
               <div class="d-grid gap-2">
-                <button class="btn btn-outline-primary btn-sm" onclick="alert('Projet: <%= project.nom %> - Propriété: <%= truncate(project.property.adresse, length: 30) %>')">
-                  <i class="bi bi-eye me-2"></i>Voir les détails
-                </button>
+                <%= link_to admin_property_path(project.property), class: "btn btn-outline-primary btn-sm" do %>
+                  <i class="bi bi-eye me-2"></i>Voir la propriété
+                <% end %>
 
                 <% if project.documents.any? %>
                   <%= link_to documents_admin_user_path(@user, project_filter: project.id), class: "btn btn-outline-dark btn-sm" do %>

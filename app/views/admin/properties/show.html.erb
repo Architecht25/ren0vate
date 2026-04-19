@@ -1,0 +1,489 @@
+<% content_for :title, "Propriété ##{@property.id} — Admin" %>
+
+<div class="container-fluid px-4 py-4">
+
+  <!-- En-tête -->
+  <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2">
+    <div>
+      <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-1">
+          <li class="breadcrumb-item"><%= link_to "Dashboard", admin_dashboard_path %></li>
+          <li class="breadcrumb-item"><%= link_to @user.email, admin_user_path(@user) %></li>
+          <li class="breadcrumb-item"><%= link_to "Propriétés", properties_admin_user_path(@user) %></li>
+          <li class="breadcrumb-item active">Propriété #<%= @property.id %></li>
+        </ol>
+      </nav>
+      <h1 class="h3 text-primary-custom mb-1">
+        <i class="bi bi-house-fill me-2"></i><%= @property.full_address %>
+      </h1>
+      <p class="text-muted mb-0">
+        Propriétaire : <strong><%= @user.email %></strong>
+        <% if @property.geocoded? %>
+          &bull; <span class="text-success"><i class="bi bi-geo-alt-fill me-1"></i>Géolocalisée</span>
+        <% end %>
+      </p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <%= link_to properties_admin_user_path(@user), class: "btn btn-outline-secondary btn-sm" do %>
+        <i class="bi bi-arrow-left me-1"></i>Retour aux propriétés
+      <% end %>
+      <%= link_to admin_user_path(@user), class: "btn btn-outline-primary btn-sm" do %>
+        <i class="bi bi-person me-1"></i>Profil utilisateur
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Onglets -->
+  <ul class="nav nav-tabs mb-4" id="propertyTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-identite" type="button">
+        <i class="bi bi-house me-1"></i>Identité
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-technique" type="button">
+        <i class="bi bi-tools me-1"></i>Données techniques
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-projets" type="button">
+        <i class="bi bi-hammer me-1"></i>Chantiers (<%= @property.projects.count %>)
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-simulations" type="button">
+        <i class="bi bi-calculator me-1"></i>Simulations (<%= @property.simulations.count %>)
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-documents" type="button">
+        <i class="bi bi-file-earmark me-1"></i>Documents (<%= @property.documents.count %>)
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-primes" type="button">
+        <i class="bi bi-cash me-1"></i>Demandes de primes (<%= @property.requests.count %>)
+      </button>
+    </li>
+  </ul>
+
+  <div class="tab-content" id="propertyTabsContent">
+
+    <!-- ===================== ONGLET IDENTITÉ ===================== -->
+    <div class="tab-pane fade show active" id="tab-identite">
+      <div class="row g-4">
+
+        <!-- Adresse & identification -->
+        <div class="col-lg-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-primary bg-opacity-10">
+              <h6 class="mb-0 text-primary"><i class="bi bi-geo-alt me-2"></i>Adresse & Identification</h6>
+            </div>
+            <div class="card-body">
+              <table class="table table-sm table-borderless mb-0">
+                <tr><td class="text-muted" width="40%">Adresse</td><td><strong><%= @property.adresse.presence || @property.full_address %></strong></td></tr>
+                <tr><td class="text-muted">Rue</td><td><%= @property.rue || "—" %></td></tr>
+                <tr><td class="text-muted">Numéro</td><td><%= @property.numero || "—" %></td></tr>
+                <tr><td class="text-muted">Code postal</td><td><%= @property.code_postal || "—" %></td></tr>
+                <tr><td class="text-muted">Commune</td><td><%= @property.commune || "—" %></td></tr>
+                <tr><td class="text-muted">Région</td><td>
+                  <% if @property.region.present? %>
+                    <span class="badge bg-<%= @property.region == 'wallonie' ? 'success' : @property.region == 'bruxelles' ? 'primary' : 'warning' %>">
+                      <%= @property.region.capitalize %>
+                    </span>
+                  <% else %>
+                    <span class="text-muted">—</span>
+                  <% end %>
+                </td></tr>
+                <tr><td class="text-muted">N° cadastre</td><td><%= @property.numero_cadastre || "—" %></td></tr>
+                <tr><td class="text-muted">N° EAN</td><td><%= @property.numero_ean || "—" %></td></tr>
+                <tr><td class="text-muted">Ajoutée le</td><td><%= @property.created_at.strftime("%d/%m/%Y à %H:%M") %></td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Type & occupation -->
+        <div class="col-lg-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-success bg-opacity-10">
+              <h6 class="mb-0 text-success"><i class="bi bi-building me-2"></i>Type & Occupation</h6>
+            </div>
+            <div class="card-body">
+              <table class="table table-sm table-borderless mb-0">
+                <tr><td class="text-muted" width="40%">Type propriété</td><td><%= @property.type_propriete || "—" %></td></tr>
+                <tr><td class="text-muted">Type (wallonie)</td><td><%= @property.type_bien_wallonie || @property.type_propriete_wallonie || "—" %></td></tr>
+                <tr><td class="text-muted">Type (flandre)</td><td><%= @property.type_bien_flandre || @property.type_propriete_flandre || "—" %></td></tr>
+                <tr><td class="text-muted">Type (bruxelles)</td><td><%= @property.type_bien_bruxelles || "—" %></td></tr>
+                <tr><td class="text-muted">Occupation</td><td><%= @property.occupation || "—" %></td></tr>
+                <tr><td class="text-muted">Usage</td><td><%= @property.usage || "—" %></td></tr>
+                <tr><td class="text-muted">Profil demandeur</td><td><%= @property.profil_demandeur || "—" %></td></tr>
+                <tr><td class="text-muted">Domiciliation</td><td><%= @property.domiciliation ? "Oui" : "Non" %></td></tr>
+                <tr><td class="text-muted">Nouvelle construction</td><td><%= @property.nouvelle_construction ? "Oui" : "Non" %></td></tr>
+                <tr><td class="text-muted">Valeur d'achat</td><td>
+                  <%= @property.valeur_achat.present? ? number_to_currency(@property.valeur_achat, unit: "€", separator: ",", delimiter: " ", format: "%n %u") : "—" %>
+                </td></tr>
+                <tr><td class="text-muted">Date d'achat</td><td><%= @property.date_achat&.strftime("%d/%m/%Y") || "—" %></td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Géolocalisation -->
+        <% if @property.geocoded? %>
+          <div class="col-12">
+            <div class="card border-0 shadow-sm">
+              <div class="card-header bg-info bg-opacity-10">
+                <h6 class="mb-0 text-info"><i class="bi bi-map me-2"></i>Géolocalisation</h6>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-4">
+                    <small class="text-muted">Latitude</small>
+                    <div class="fw-bold"><%= @property.latitude %></div>
+                  </div>
+                  <div class="col-md-4">
+                    <small class="text-muted">Longitude</small>
+                    <div class="fw-bold"><%= @property.longitude %></div>
+                  </div>
+                  <div class="col-md-4">
+                    <small class="text-muted">Géocodée le</small>
+                    <div class="fw-bold"><%= @property.geocoded_at&.strftime("%d/%m/%Y") || "—" %></div>
+                  </div>
+                </div>
+                <div class="mt-3">
+                  <a href="https://www.google.com/maps?q=<%= @property.latitude %>,<%= @property.longitude %>"
+                     target="_blank" class="btn btn-sm btn-outline-info">
+                    <i class="bi bi-map me-1"></i>Ouvrir dans Google Maps
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+
+      </div>
+    </div>
+
+    <!-- ===================== ONGLET TECHNIQUE ===================== -->
+    <div class="tab-pane fade" id="tab-technique">
+      <div class="row g-4">
+
+        <!-- PEB & énergie -->
+        <div class="col-lg-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-warning bg-opacity-10">
+              <h6 class="mb-0 text-warning"><i class="bi bi-lightning me-2"></i>PEB & Énergie</h6>
+            </div>
+            <div class="card-body">
+              <table class="table table-sm table-borderless mb-0">
+                <tr><td class="text-muted" width="45%">PEB (général)</td><td><%= @property.peb || "—" %></td></tr>
+                <tr><td class="text-muted">PEB Wallonie</td><td><%= @property.certificat_peb_wallonie || "—" %></td></tr>
+                <tr><td class="text-muted">PEB Flandre</td><td><%= @property.certificat_peb_flandre || "—" %></td></tr>
+                <tr><td class="text-muted">PEB Bruxelles</td><td><%= @property.certificat_peb_bruxelles || "—" %></td></tr>
+                <tr><td class="text-muted">Date PEB avant travaux</td><td><%= @property.date_peb_avant_travaux&.strftime("%d/%m/%Y") || "—" %></td></tr>
+                <tr><td class="text-muted">Date PEB après travaux</td><td><%= @property.date_peb_apres_travaux&.strftime("%d/%m/%Y") || "—" %></td></tr>
+                <tr><td class="text-muted">Mode chauffage principal</td><td><%= @property.mode_chauffage_principal || @property.mode_chauffage_wallonie || "—" %></td></tr>
+                <tr><td class="text-muted">Chauffage post-rénov (Flandre)</td><td><%= @property.chauffage_post_renovation_flandre || "—" %></td></tr>
+                <tr><td class="text-muted">Audit énergétique</td><td><%= @property.audit_energetique ? "Oui" : "Non" %></td></tr>
+                <tr><td class="text-muted">N° EAN Flandre</td><td><%= @property.ean_flandre || "—" %></td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Surfaces & construction -->
+        <div class="col-lg-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-secondary bg-opacity-10">
+              <h6 class="mb-0 text-secondary"><i class="bi bi-rulers me-2"></i>Surfaces & Construction</h6>
+            </div>
+            <div class="card-body">
+              <table class="table table-sm table-borderless mb-0">
+                <tr><td class="text-muted" width="45%">Année construction</td><td><%= @property.annee_construction || "—" %></td></tr>
+                <tr><td class="text-muted">Surface habitable</td><td><%= @property.surface_habitable.present? ? "#{@property.surface_habitable} m²" : "—" %></td></tr>
+                <tr><td class="text-muted">Surface habitable (Wallonie)</td><td><%= @property.surface_habitable_wallonie.present? ? "#{@property.surface_habitable_wallonie} m²" : "—" %></td></tr>
+                <tr><td class="text-muted">Surface totale</td><td><%= @property.surface_totale.present? ? "#{@property.surface_totale} m²" : "—" %></td></tr>
+                <tr><td class="text-muted">% habitation</td><td><%= @property.habitation_percentage.present? ? "#{@property.habitation_percentage}%" : "—" %></td></tr>
+                <tr><td class="text-muted">% propriété</td><td><%= @property.pourcentage_propriete.present? ? "#{@property.pourcentage_propriete}%" : "—" %></td></tr>
+                <tr><td class="text-muted">Date raccordement électrique</td><td><%= @property.date_raccordement_electrique || "—" %></td></tr>
+                <tr><td class="text-muted">Reconstruit</td><td><%= @property.reconstruit || "—" %></td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Caractéristiques Flandre -->
+        <div class="col-lg-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header" style="background: rgba(255,193,7,0.15)">
+              <h6 class="mb-0" style="color: #b45309"><i class="bi bi-flag me-2"></i>Spécifique Flandre</h6>
+            </div>
+            <div class="card-body">
+              <table class="table table-sm table-borderless mb-0">
+                <tr><td class="text-muted" width="55%">Domicilié en Flandre</td><td><%= @property.domicilie_flandre ? "Oui" : "Non" %></td></tr>
+                <tr><td class="text-muted">Client protégé Flandre</td><td><%= @property.client_protege_flandre ? "Oui" : "Non" %></td></tr>
+                <tr><td class="text-muted">Usage Flandre</td><td><%= @property.usage_flandre || "—" %></td></tr>
+                <tr><td class="text-muted">Parcelle Flandre</td><td><%= @property.parcelle_flandre || "—" %></td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Patrimoine -->
+        <div class="col-lg-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-header" style="background: rgba(139,92,246,0.1)">
+              <h6 class="mb-0" style="color: #6d28d9"><i class="bi bi-bank me-2"></i>Patrimoine & Spécificités</h6>
+            </div>
+            <div class="card-body">
+              <table class="table table-sm table-borderless mb-0">
+                <tr><td class="text-muted" width="55%">Bien classé</td><td><%= @property.bien_classe ? "Oui" : "Non" %></td></tr>
+                <tr><td class="text-muted">Petit patrimoine</td><td><%= @property.petit_patrimoine ? "Oui" : "Non" %></td></tr>
+                <tr><td class="text-muted">Façade patrimoine</td><td><%= @property.facade_patrimoine ? "Oui" : "Non" %></td></tr>
+                <tr><td class="text-muted">Éléments petit patrimoine</td><td><%= @property.elements_petit_patrimoine.presence || "—" %></td></tr>
+                <tr><td class="text-muted">Primes déjà reçues</td><td><%= @property.primes_recues ? "Oui" : "Non" %></td></tr>
+                <tr><td class="text-muted">Autre bien</td><td><%= @property.autre_bien || "—" %></td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ===================== ONGLET CHANTIERS ===================== -->
+    <div class="tab-pane fade" id="tab-projets">
+      <% if @property.projects.any? %>
+        <% @property.projects.order(created_at: :desc).each do |project| %>
+          <div class="card border-0 shadow-sm mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h6 class="mb-0">
+                <i class="bi bi-hammer me-2"></i><%= project.nom %>
+              </h6>
+              <span class="badge bg-<%= project.statut == 'en_cours' ? 'warning' : project.statut == 'termine' ? 'success' : 'secondary' %>">
+                <%= project.statut&.humanize || "Non défini" %>
+              </span>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <table class="table table-sm table-borderless mb-0">
+                    <tr><td class="text-muted" width="45%">Type travaux</td><td><%= project.type_travaux || "—" %></td></tr>
+                    <tr><td class="text-muted">Date début</td><td><%= project.date_début&.strftime("%d/%m/%Y") || "—" %></td></tr>
+                    <tr><td class="text-muted">Date fin</td><td><%= project.date_fin&.strftime("%d/%m/%Y") || "—" %></td></tr>
+                    <tr><td class="text-muted">Type projet</td><td><%= project.project_type || "—" %></td></tr>
+                    <tr><td class="text-muted">Permis urbanisme</td><td><%= project.permis_urbanisme_number || "—" %></td></tr>
+                    <tr><td class="text-muted">Statut permis</td><td><%= project.permis_urbanisme_statut || "—" %></td></tr>
+                  </table>
+                </div>
+                <div class="col-md-6">
+                  <table class="table table-sm table-borderless mb-0">
+                    <tr><td class="text-muted" width="45%">Architecte</td><td><%= [project.architecte_prenom, project.architecte_nom].compact.join(" ").presence || "—" %></td></tr>
+                    <tr><td class="text-muted">Entreprise architecte</td><td><%= project.architecte_entreprise || "—" %></td></tr>
+                    <tr><td class="text-muted">Entrepreneur principal</td><td><%= project.entrepreneur_principal_nom || "—" %></td></tr>
+                    <tr><td class="text-muted">Entreprise entrepreneur</td><td><%= project.entrepreneur_principal_entreprise || "—" %></td></tr>
+                    <tr><td class="text-muted">N° TVA entrepreneur</td><td><%= project.entrepreneur_principal_numero_tva || "—" %></td></tr>
+                    <tr><td class="text-muted">Devis entrepreneur</td><td><%= project.contractor_devis_montant.present? ? number_to_currency(project.contractor_devis_montant, unit: "€", separator: ",", delimiter: " ", format: "%n %u") : "—" %></td></tr>
+                  </table>
+                </div>
+                <% if project.description.present? %>
+                  <div class="col-12">
+                    <small class="text-muted">Description</small>
+                    <p class="mb-0"><%= project.description %></p>
+                  </div>
+                <% end %>
+                <div class="col-12">
+                  <small class="text-muted">Documents liés : <strong><%= project.documents.count %></strong></small>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="text-center text-muted py-5">
+          <i class="bi bi-hammer" style="font-size: 3rem"></i>
+          <p class="mt-3">Aucun chantier pour cette propriété</p>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- ===================== ONGLET SIMULATIONS ===================== -->
+    <div class="tab-pane fade" id="tab-simulations">
+      <% if @property.simulations.any? %>
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead class="table-light">
+              <tr>
+                <th>ID</th>
+                <th>Titre / Catégorie</th>
+                <th>Région</th>
+                <th>Montant simulé</th>
+                <th>Éligible</th>
+                <th>Source</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @property.simulations.order(created_at: :desc).each do |sim| %>
+                <tr>
+                  <td><small class="text-muted">#<%= sim.id %></small></td>
+                  <td>
+                    <strong><%= sim.titre.presence || sim.category || "—" %></strong>
+                    <% if sim.category_description.present? %>
+                      <br><small class="text-muted"><%= truncate(sim.category_description, length: 60) %></small>
+                    <% end %>
+                  </td>
+                  <td><%= sim.region || "—" %></td>
+                  <td>
+                    <% if sim.total_simule.present? %>
+                      <strong class="text-success"><%= number_to_currency(sim.total_simule, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %></strong>
+                    <% else %>
+                      <span class="text-muted">—</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <% if sim.eligible == true %>
+                      <span class="badge bg-success">Éligible</span>
+                    <% elsif sim.eligible == false %>
+                      <span class="badge bg-danger">Non éligible</span>
+                    <% else %>
+                      <span class="badge bg-secondary">?</span>
+                    <% end %>
+                  </td>
+                  <td><small class="text-muted"><%= sim.source || "—" %></small></td>
+                  <td><small class="text-muted"><%= sim.created_at.strftime("%d/%m/%Y") %></small></td>
+                </tr>
+                <% if sim.ineligibility_reason.present? %>
+                  <tr class="table-light">
+                    <td></td>
+                    <td colspan="6"><small class="text-danger"><i class="bi bi-x-circle me-1"></i><%= sim.ineligibility_reason %></small></td>
+                  </tr>
+                <% end %>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+        <div class="mt-3">
+          <span class="badge bg-success fs-6">Total simulé : <%= number_to_currency(@property.simulations.sum(:total_simule), unit: "€", separator: ",", delimiter: " ", format: "%n %u") %></span>
+        </div>
+      <% else %>
+        <div class="text-center text-muted py-5">
+          <i class="bi bi-calculator" style="font-size: 3rem"></i>
+          <p class="mt-3">Aucune simulation pour cette propriété</p>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- ===================== ONGLET DOCUMENTS ===================== -->
+    <div class="tab-pane fade" id="tab-documents">
+      <% docs = @property.documents.includes(file_attachment: :blob).order(created_at: :desc) %>
+      <% if docs.any? %>
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead class="table-light">
+              <tr>
+                <th>Fichier</th>
+                <th>Type</th>
+                <th>Statut</th>
+                <th>Taille</th>
+                <th>Ajouté le</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% docs.each do |doc|
+                   ext = doc.file.attached? ? doc.file.filename.extension.downcase : File.extname(doc.file_url.to_s).delete('.').downcase
+                   ext = ext.presence || '?'
+                   is_pdf = ext == 'pdf'
+                   is_img = %w[jpg jpeg png gif webp].include?(ext)
+              %>
+                <tr>
+                  <td>
+                    <i class="bi bi-<%= is_pdf ? 'file-earmark-pdf text-danger' : is_img ? 'file-earmark-image text-info' : 'file-earmark text-secondary' %> me-2"></i>
+                    <small><%= doc.file_name.to_s.presence || "—" %></small>
+                  </td>
+                  <td><span class="badge bg-secondary"><%= doc.type_document %></span></td>
+                  <td>
+                    <span class="badge bg-<%= doc.approved? ? 'success' : doc.rejected? ? 'danger' : 'warning' %>">
+                      <%= doc.status %>
+                    </span>
+                  </td>
+                  <td><small class="text-muted"><%= doc.file.attached? ? number_to_human_size(doc.file.byte_size) : "—" %></small></td>
+                  <td><small class="text-muted"><%= doc.created_at.strftime("%d/%m/%Y") %></small></td>
+                  <td>
+                    <% if doc.file.attached? %>
+                      <%= link_to url_for(doc.file), class: "btn btn-sm btn-outline-primary", target: "_blank", title: "Télécharger" do %>
+                        <i class="bi bi-download"></i>
+                      <% end %>
+                    <% end %>
+                    <%= link_to document_path(doc), class: "btn btn-sm btn-outline-info", title: "Détails" do %>
+                      <i class="bi bi-eye"></i>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="text-center text-muted py-5">
+          <i class="bi bi-file-earmark-x" style="font-size: 3rem"></i>
+          <p class="mt-3">Aucun document pour cette propriété</p>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- ===================== ONGLET PRIMES ===================== -->
+    <div class="tab-pane fade" id="tab-primes">
+      <% if @property.requests.any? %>
+        <% @property.requests.includes(:request_progresses).order(created_at: :desc).each do |req| %>
+          <div class="card border-0 shadow-sm mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <h6 class="mb-0">Demande #<%= req.id %></h6>
+              <small class="text-muted"><%= req.created_at.strftime("%d/%m/%Y") %></small>
+            </div>
+            <div class="card-body">
+              <% if req.request_progresses.any? %>
+                <div class="table-responsive">
+                  <table class="table table-sm mb-0">
+                    <thead class="table-light">
+                      <tr>
+                        <th>Organisme</th>
+                        <th>Statut administratif</th>
+                        <th>Montant accordé</th>
+                        <th>Mise à jour</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% req.request_progresses.each do |rp| %>
+                        <tr>
+                          <td><%= rp.try(:organisme) || rp.try(:prime_name) || "—" %></td>
+                          <td>
+                            <span class="badge bg-<%= rp.try(:status_administratif) == 'accorde' ? 'success' : rp.try(:status_administratif)&.in?(['soumis', 'en_cours']) ? 'primary' : 'secondary' %>">
+                              <%= rp.try(:status_administratif) || "—" %>
+                            </span>
+                          </td>
+                          <td><%= rp.try(:montant_accorde).present? ? number_to_currency(rp.montant_accorde, unit: "€", separator: ",", delimiter: " ", format: "%n %u") : "—" %></td>
+                          <td><small class="text-muted"><%= rp.updated_at.strftime("%d/%m/%Y") %></small></td>
+                        </tr>
+                      <% end %>
+                    </tbody>
+                  </table>
+                </div>
+              <% else %>
+                <small class="text-muted">Aucun suivi de prime associé</small>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="text-center text-muted py-5">
+          <i class="bi bi-cash" style="font-size: 3rem"></i>
+          <p class="mt-3">Aucune demande de prime pour cette propriété</p>
+        </div>
+      <% end %>
+    </div>
+
+  </div><!-- /.tab-content -->
+</div>

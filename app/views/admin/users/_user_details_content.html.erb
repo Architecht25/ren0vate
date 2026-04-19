@@ -1,10 +1,10 @@
 <div class="row">
-  <!-- Profil utilisateur -->
+  <!-- Profil utilisateur complet -->
   <div class="col-lg-4">
     <div class="card border-0 shadow-sm">
       <div class="card-header bg-primary bg-opacity-10">
         <h6 class="mb-0 text-primary">
-          <i class="bi bi-person-circle me-2"></i>Informations Personnelles
+          <i class="bi bi-person-circle me-2"></i>Identité & Contact
         </h6>
       </div>
       <div class="card-body">
@@ -19,66 +19,102 @@
           </div>
         </div>
 
-        <table class="table table-sm table-borderless">
-          <tr>
-            <td><strong>Email :</strong></td>
-            <td><%= user.email %></td>
-          </tr>
-          <tr>
-            <td><strong>Nom :</strong></td>
-            <td><%= user.first_name.present? ? "#{user.first_name} #{user.last_name}" : "Non renseigné" %></td>
-          </tr>
-          <tr>
-            <td><strong>Téléphone :</strong></td>
-            <td><%= user.phone.present? ? user.phone : "Non renseigné" %></td>
-          </tr>
-          <tr>
-            <td><strong>Région :</strong></td>
-            <td>
-              <% if user.region.present? %>
-                <span class="badge bg-<%= user.region == 'wallonie' ? 'success' : user.region == 'bruxelles' ? 'primary' : 'warning' %>">
-                  <%= user.region.capitalize %>
-                </span>
-              <% else %>
-                <span class="badge bg-secondary">Non définie</span>
-              <% end %>
-            </td>
-          </tr>
-          <tr>
-            <td><strong>Rôle :</strong></td>
-            <td>
-              <span class="badge bg-<%= user.admin? ? 'danger' : user.moderator? ? 'info' : 'secondary' %>">
-                <%= user.admin? ? 'Administrateur' : user.moderator? ? 'Modérateur' : 'Utilisateur' %>
-              </span>
-            </td>
-          </tr>
-          <tr>
-            <td><strong>Profil :</strong></td>
-            <td>
-              <div class="progress" style="height: 8px;">
-                <div class="progress-bar bg-<%= stats[:profile_completion] >= 75 ? 'success' : stats[:profile_completion] >= 50 ? 'warning' : 'danger' %>"
-                     style="width: <%= stats[:profile_completion] %>%"></div>
-              </div>
-              <small class="text-muted"><%= stats[:profile_completion] %>% complet</small>
-            </td>
-          </tr>
+        <table class="table table-sm table-borderless mb-0">
+          <tr><td class="text-muted" width="40%">Email</td><td><strong><%= user.email %></strong></td></tr>
+          <tr><td class="text-muted">Prénom</td><td><%= user.first_name.presence || "—" %></td></tr>
+          <tr><td class="text-muted">Nom</td><td><%= user.last_name.presence || "—" %></td></tr>
+          <tr><td class="text-muted">Téléphone</td><td><%= user.phone.presence || "—" %></td></tr>
+          <tr><td class="text-muted">Région</td><td>
+            <% if user.region.present? %>
+              <span class="badge bg-<%= user.region == 'wallonie' ? 'success' : user.region == 'bruxelles' ? 'primary' : 'warning' %>"><%= user.region.capitalize %></span>
+            <% else %>
+              <span class="badge bg-secondary">Non définie</span>
+            <% end %>
+          </td></tr>
+          <tr><td class="text-muted">Rôle</td><td>
+            <span class="badge bg-<%= user.admin? ? 'danger' : user.moderator? ? 'info' : 'secondary' %>">
+              <%= user.admin? ? 'Administrateur' : user.moderator? ? 'Modérateur' : 'Utilisateur' %>
+            </span>
+          </td></tr>
+          <tr><td class="text-muted">Locale préférée</td><td><%= user.preferred_locale&.upcase || "FR" %></td></tr>
+          <tr><td class="text-muted">Profil</td><td>
+            <div class="progress mb-1" style="height: 6px;">
+              <div class="progress-bar bg-<%= stats[:profile_completion] >= 75 ? 'success' : stats[:profile_completion] >= 50 ? 'warning' : 'danger' %>" style="width: <%= stats[:profile_completion] %>%"></div>
+            </div>
+            <small class="text-muted"><%= stats[:profile_completion] %>% complet</small>
+          </td></tr>
         </table>
       </div>
     </div>
 
-    <!-- Activité récente -->
+    <!-- Adresse -->
     <div class="card border-0 shadow-sm mt-3">
-      <div class="card-header bg-info bg-opacity-10">
-        <h6 class="mb-0 text-info">
-          <i class="bi bi-activity me-2"></i>Activité
-        </h6>
+      <div class="card-header bg-secondary bg-opacity-10">
+        <h6 class="mb-0 text-secondary"><i class="bi bi-geo-alt me-2"></i>Adresse personnelle</h6>
       </div>
       <div class="card-body">
-        <small class="text-muted d-block">Inscription : <%= stats[:created_at] %></small>
-        <small class="text-muted d-block">Dernière connexion : <%= stats[:last_sign_in] || "Jamais" %></small>
-        <small class="text-muted d-block">Email confirmé : <%= stats[:confirmed_at] || "Non confirmé" %></small>
-        <hr class="my-2">
-        <small class="text-primary"><%= stats[:recent_activity] %> notifications cette semaine</small>
+        <table class="table table-sm table-borderless mb-0">
+          <tr><td class="text-muted" width="40%">Rue</td><td><%= user.street.presence || "—" %></td></tr>
+          <tr><td class="text-muted">Numéro</td><td><%= user.number.presence || "—" %></td></tr>
+          <tr><td class="text-muted">Code postal</td><td><%= user.postal_code.presence || "—" %></td></tr>
+          <tr><td class="text-muted">Ville</td><td><%= user.city.presence || "—" %></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Situation familiale & revenus -->
+    <div class="card border-0 shadow-sm mt-3">
+      <div class="card-header" style="background: rgba(16,185,129,0.1)">
+        <h6 class="mb-0" style="color: #047857"><i class="bi bi-people me-2"></i>Situation & Revenus</h6>
+      </div>
+      <div class="card-body">
+        <table class="table table-sm table-borderless mb-0">
+          <tr><td class="text-muted" width="55%">Type demandeur</td><td><%= user.type_demandeur.presence || "—" %></td></tr>
+          <tr><td class="text-muted">Situation familiale</td><td><%= user.situation_familiale.presence || "—" %></td></tr>
+          <tr><td class="text-muted">Statut professionnel</td><td><%= user.statut_professionnel.presence || "—" %></td></tr>
+          <tr><td class="text-muted">Indépendant</td><td><%= user.independant ? "Oui" : "Non" %></td></tr>
+          <tr><td class="text-muted">Nombre d'enfants</td><td><%= user.nombre_enfants || "—" %></td></tr>
+          <tr><td class="text-muted">≥60 ans</td><td><%= user.personnes_60_ans_et_plus || "—" %></td></tr>
+          <tr><td class="text-muted">Femme enceinte</td><td><%= user.femme_enceinte ? "Oui" : "Non" %></td></tr>
+          <tr><td class="text-muted">Revenu demandeur</td><td>
+            <%= user.revenu_demandeur.present? ? "#{number_with_delimiter(user.revenu_demandeur, delimiter: " ")} € (#{user.annee_revenus_demandeur})" : "—" %>
+          </td></tr>
+          <tr><td class="text-muted">Revenu conjoint</td><td>
+            <%= user.revenu_conjoint.present? ? "#{number_with_delimiter(user.revenu_conjoint, delimiter: " ")} € (#{user.annee_revenus_conjoint})" : "—" %>
+          </td></tr>
+          <tr><td class="text-muted">BIM / RIS</td><td>
+            <%= user.bim ? '<span class="badge bg-warning me-1">BIM</span>'.html_safe : "" %>
+            <%= user.ris ? '<span class="badge bg-warning">RIS</span>'.html_safe : "" %>
+            <%= (!user.bim && !user.ris) ? "Non" : "" %>
+          </td></tr>
+          <tr><td class="text-muted">Client protégé Bruxelles</td><td><%= user.client_protege_bruxelles ? "Oui" : "Non" %></td></tr>
+          <tr><td class="text-muted">TVA déductible</td><td><%= user.tva_deductible ? "Oui" : "Non" %></td></tr>
+          <tr><td class="text-muted">Compte bancaire belge</td><td><%= user.compte_bancaire_belge ? "Oui" : "Non" %></td></tr>
+          <tr><td class="text-muted">Vente prévue &lt;5 ans</td><td><%= user.vente_prevue_5_ans ? "Oui" : "Non" %></td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- Stripe & sécurité -->
+    <div class="card border-0 shadow-sm mt-3">
+      <div class="card-header bg-danger bg-opacity-10">
+        <h6 class="mb-0 text-danger"><i class="bi bi-shield me-2"></i>Sécurité & Facturation</h6>
+      </div>
+      <div class="card-body">
+        <table class="table table-sm table-borderless mb-0">
+          <tr><td class="text-muted" width="55%">Stripe ID</td><td><small><%= user.stripe_customer_id.presence || "—" %></small></td></tr>
+          <tr><td class="text-muted">Compte verrouillé</td><td>
+            <% if user.locked_at.present? %>
+              <span class="badge bg-danger">Verrouillé le <%= user.locked_at.strftime("%d/%m/%Y") %></span>
+            <% else %>
+              <span class="badge bg-success">Actif</span>
+            <% end %>
+          </td></tr>
+          <tr><td class="text-muted">Tentatives échouées</td><td><%= user.failed_attempts %></td></tr>
+          <tr><td class="text-muted">Inscription</td><td><%= stats[:created_at] %></td></tr>
+          <tr><td class="text-muted">Email confirmé</td><td><%= stats[:confirmed_at] %></td></tr>
+          <tr><td class="text-muted">Consentement contrôles</td><td><%= user.consentement_controles ? "Oui" : "Non" %></td></tr>
+        </table>
       </div>
     </div>
   </div>

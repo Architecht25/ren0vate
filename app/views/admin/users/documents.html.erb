@@ -8,7 +8,7 @@
       </h1>
       <p class="text-muted mb-0">
         <%= @documents.count %> document(s) •
-        <span class="text-info"><%= number_to_human_size(@documents.sum(:file_size)) %></span> total
+        <span class="text-info"><%= number_to_human_size(@documents.sum { |d| d.file.attached? ? d.file.byte_size : 0 }) %></span> total
       </p>
     </div>
     <div>
@@ -32,16 +32,19 @@
               </tr>
             </thead>
             <tbody>
-              <% @documents.each do |document| %>
+              <% @documents.each do |document|
+                   ext = document.file.attached? ? document.file.filename.extension.downcase : File.extname(document.file_url.to_s).delete('.').downcase
+                   ext = ext.presence || 'fichier'
+                   is_pdf = ext == 'pdf'
+                   is_img = %w[jpg jpeg png gif webp].include?(ext)
+                %>
                 <tr>
                   <td>
                     <div class="d-flex align-items-center">
-                      <i class="bi bi-<%= document.file_extension == 'pdf' ? 'file-earmark-pdf' : 'file-earmark' %> me-2 text-<%= document.file_extension == 'pdf' ? 'danger' : 'primary' %>"></i>
+                      <i class="bi bi-<%= is_pdf ? 'file-earmark-pdf' : is_img ? 'file-earmark-image' : 'file-earmark' %> me-2 text-<%= is_pdf ? 'danger' : is_img ? 'info' : 'primary' %>"></i>
                       <div>
-                        <strong><%= truncate(document.file_name, length: 40) %></strong>
-                        <% if document.description.present? %>
-                          <br><small class="text-muted"><%= truncate(document.description, length: 60) %></small>
-                        <% end %>
+                        <strong><%= truncate(document.file_name.to_s, length: 40) %></strong>
+                        <br><small class="text-muted"><%= document.type_document&.humanize %></small>
                       </div>
                     </div>
                   </td>
@@ -49,20 +52,20 @@
                     <% if document.property.present? %>
                       <strong><%= truncate(document.property.address, length: 30) %></strong>
                       <% if document.project.present? %>
-                        <br><small class="text-muted">Projet: <%= truncate(document.project.title, length: 25) %></small>
+                        <br><small class="text-muted">Projet: <%= truncate(document.project.nom.to_s, length: 25) %></small>
                       <% end %>
                     <% else %>
                       <span class="text-muted">Non rattaché</span>
                     <% end %>
                   </td>
                   <td>
-                    <span class="badge bg-<%= document.file_extension == 'pdf' ? 'danger' : document.file_extension.in?(['jpg', 'jpeg', 'png']) ? 'info' : 'secondary' %>">
-                      <%= document.file_extension&.upcase || 'N/A' %>
+                    <span class="badge bg-<%= is_pdf ? 'danger' : is_img ? 'info' : 'secondary' %>">
+                      <%= ext.upcase %>
                     </span>
                   </td>
                   <td>
                     <span class="text-muted">
-                      <%= number_to_human_size(document.file_size) if document.file_size %>
+                      <%= document.file.attached? ? number_to_human_size(document.file.byte_size) : "—" %>
                     </span>
                   </td>
                   <td>
@@ -106,6 +109,9 @@
   <% end %>
 
   <!-- Résumé statistiques -->
+  <% docs_pdf   = @documents.select { |d| d.file.attached? && d.file.filename.extension.casecmp?('pdf') } %>
+  <% docs_img   = @documents.select { |d| d.file.attached? && %w[jpg jpeg png gif webp].include?(d.file.filename.extension.downcase) } %>
+  <% total_size = @documents.sum { |d| d.file.attached? ? d.file.byte_size : 0 } %>
   <div class="row mt-4">
     <div class="col-md-3">
       <div class="card border-0 shadow-sm bg-primary bg-opacity-10">
@@ -118,7 +124,7 @@
     <div class="col-md-3">
       <div class="card border-0 shadow-sm bg-danger bg-opacity-10">
         <div class="card-body text-center">
-          <h4 class="text-danger mb-0"><%= @documents.where("file_name LIKE ?", "%.pdf").count %></h4>
+          <h4 class="text-danger mb-0"><%= docs_pdf.count %></h4>
           <small class="text-muted">Documents PDF</small>
         </div>
       </div>
@@ -126,7 +132,7 @@
     <div class="col-md-3">
       <div class="card border-0 shadow-sm bg-info bg-opacity-10">
         <div class="card-body text-center">
-          <h4 class="text-info mb-0"><%= @documents.where("file_name LIKE ? OR file_name LIKE ? OR file_name LIKE ?", "%.jpg", "%.jpeg", "%.png").count %></h4>
+          <h4 class="text-info mb-0"><%= docs_img.count %></h4>
           <small class="text-muted">Images</small>
         </div>
       </div>
@@ -134,7 +140,7 @@
     <div class="col-md-3">
       <div class="card border-0 shadow-sm bg-success bg-opacity-10">
         <div class="card-body text-center">
-          <h4 class="text-success mb-0"><%= number_to_human_size(@documents.sum(:file_size)) %></h4>
+          <h4 class="text-success mb-0"><%= number_to_human_size(total_size) %></h4>
           <small class="text-muted">Taille totale</small>
         </div>
       </div>

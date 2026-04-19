@@ -344,6 +344,9 @@ Rails.application.routes.draw do
       end
     end
 
+    # Propriétés — vue détaillée admin
+    resources :properties, only: [:show]
+
     # Support tickets — admin
     resources :support_tickets, only: [:index, :show] do
       member do
