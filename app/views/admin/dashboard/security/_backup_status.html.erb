@@ -1,8 +1,15 @@
 <!-- Section Backups et Récupération de Données -->
 <div class="col-lg-6 mb-4">
   <div class="card border-0 shadow-sm h-100">
-    <div class="card-header bg-<%= @backup_status[:backup_health][:status] == 'excellent' ? 'success' : @backup_status[:backup_health][:status] == 'good' ? 'primary' : @backup_status[:backup_health][:status] == 'average' ? 'warning' : 'danger' %> text-white">
-      <h5 class="mb-0">
+    <% _bg_class = case @backup_status[:backup_health][:status]
+                   when 'excellent' then 'text-bg-success'
+                   when 'good'      then 'text-bg-primary'
+                   when 'average'   then 'text-bg-warning'
+                   else                  'text-bg-danger'
+                   end %>
+    <% _title_color = @backup_status[:backup_health][:status] == 'average' ? 'text-dark' : 'text-white' %>
+    <div class="card-header <%= _bg_class %>">
+      <h5 class="mb-0 <%= _title_color %>">
         <i class="bi bi-hdd-stack me-2"></i>Backups et Récupération de Données
         <span class="badge bg-light text-dark ms-2">
           Score: <%= @backup_status[:backup_health][:percentage] %>%
@@ -10,7 +17,7 @@
       </h5>
     </div>
     <div class="card-body">
-      <% if @backup_status[:heroku_backup][:simulated] %>
+      <% if @backup_status[:heroku_backup][:simulated] && !Rails.env.development? %>
         <div class="alert alert-warning alert-sm py-2 mb-3">
           <i class="bi bi-exclamation-triangle me-1"></i>
           <small><strong>Données estimées</strong> — Statut Heroku non connecté à l'API en temps réel. Exécutez <code>heroku pg:backups:info --app ren0vate</code> pour vérifier.</small>

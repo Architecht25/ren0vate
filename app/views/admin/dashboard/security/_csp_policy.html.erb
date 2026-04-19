@@ -1,32 +1,50 @@
 <!-- Content Security Policy -->
 <div class="col-lg-2 col-md-6 mb-4">
   <div class="card border-0 shadow-sm h-100">
-    <div class="card-header bg-warning text-dark">
-      <h6 class="mb-0"><i class="bi bi-eye-slash me-2"></i>Content Security Policy</h6>
+    <div class="card-header text-bg-warning">
+      <h6 class="mb-0 text-dark"><i class="bi bi-eye-slash me-2"></i>Content Security Policy</h6>
     </div>
     <div class="card-body">
-      <div class="row mb-3">
-        <div class="col-6">
-          <small class="text-muted">Mode</small>
-          <div class="fw-bold">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <div class="small text-muted">Mode</div>
+          <span class="badge text-bg-<%= Rails.env.production? ? 'success' : 'secondary' %>">
+            <i class="bi bi-<%= Rails.env.production? ? 'shield-fill-check' : 'shield-exclamation' %> me-1"></i>
             <%= Rails.env.production? ? 'Enforcement' : 'Report-only' %>
-            <i class="bi bi-<%= Rails.env.production? ? 'shield-fill-check text-success' : 'shield-exclamation text-warning' %>"></i>
-          </div>
+          </span>
         </div>
-        <div class="col-6">
-          <small class="text-muted">Environment</small>
-          <div class="fw-bold"><%= Rails.env.upcase %></div>
+        <div class="text-end">
+          <div class="small text-muted">Env.</div>
+          <span class="badge text-bg-dark"><%= Rails.env.upcase %></span>
         </div>
       </div>
 
-      <div class="csp-directives">
-        <small class="text-muted d-block mb-2">Directives principales :</small>
-        <div class="mb-1"><code class="small">default-src 'self'</code></div>
-        <div class="mb-1"><code class="small">script-src 'self' https: CDNs</code></div>
-        <div class="mb-1"><code class="small">style-src 'self' https: 'unsafe-inline'</code></div>
-        <div class="mb-1"><code class="small">img-src 'self' https: data: cloudinary</code></div>
-        <div class="mb-1"><code class="small">connect-src 'self' APIs</code></div>
-        <div><code class="small">object-src 'none'</code></div>
+      <div class="small text-muted mb-2">Directives :</div>
+      <div class="d-flex flex-column gap-1">
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="small">default-src</span>
+          <span class="badge text-bg-success" style="font-size:10px;">self ✓</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="small">script-src</span>
+          <span class="badge text-bg-warning" style="font-size:10px;">unsafe-inline ⚠</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="small">style-src</span>
+          <span class="badge text-bg-secondary" style="font-size:10px;">unsafe-inline</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="small">object-src</span>
+          <span class="badge text-bg-success" style="font-size:10px;">none ✓</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="small">form-action</span>
+          <span class="badge text-bg-success" style="font-size:10px;">self ✓</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="small">base-uri</span>
+          <span class="badge text-bg-success" style="font-size:10px;">self ✓</span>
+        </div>
       </div>
     </div>
   </div>

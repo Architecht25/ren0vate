@@ -1,0 +1,254 @@
+<div class="tab-pane fade" id="projets-panel" role="tabpanel">
+
+  <!-- Résumé statuts & réserves -->
+  <div class="row g-3 mb-4">
+
+    <div class="col-lg-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="text-muted fw-semibold text-uppercase mb-3" style="font-size: 11px; letter-spacing: 0.5px;">
+            <i class="bi bi-pie-chart me-1"></i>Répartition par statut
+          </h6>
+          <% statuts = @projects.group_by(&:statut) %>
+          <% statut_colors = { 'preparation' => '#667eea', 'en_cours' => '#ea580c', 'pause' => '#f59e0b', 'termine' => '#10b981', 'annule' => '#6b7280', nil => '#9ca3af' } %>
+          <% statut_labels = { 'preparation' => 'Préparation', 'en_cours' => 'En cours', 'pause' => 'En pause', 'termine' => 'Terminé', 'annule' => 'Annulé' } %>
+          <% if @projects.empty? %>
+            <p class="text-muted small">Aucun projet</p>
+          <% else %>
+            <% statuts.sort_by { |s, _| statut_colors.keys.index(s) || 99 }.each do |statut, projs| %>
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="d-flex align-items-center gap-2">
+                  <div class="rounded-circle flex-shrink-0" style="width: 10px; height: 10px; background: <%= statut_colors[statut] || '#9ca3af' %>;"></div>
+                  <span class="small"><%= statut_labels[statut] || statut&.humanize || 'Non défini' %></span>
+                </div>
+                <span class="badge bg-light text-dark"><%= projs.count %></span>
+              </div>
+              <div class="progress mb-2" style="height: 4px;">
+                <div class="progress-bar" style="width: <%= (projs.count.to_f / @projects.count * 100).round %>%; background: <%= statut_colors[statut] || '#9ca3af' %>;"></div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="text-muted fw-semibold text-uppercase mb-3" style="font-size: 11px; letter-spacing: 0.5px;">
+            <i class="bi bi-exclamation-triangle me-1"></i>Réserves (punch list)
+          </h6>
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="text-center">
+              <div class="fw-bold fs-4 text-danger"><%= @reserves_stats[:ouvertes] %></div>
+              <div class="text-muted" style="font-size: 11px;">Ouvertes</div>
+            </div>
+            <div class="text-center">
+              <div class="fw-bold fs-4 text-warning"><%= @reserves_stats[:en_cours] %></div>
+              <div class="text-muted" style="font-size: 11px;">En cours</div>
+            </div>
+            <div class="text-center">
+              <div class="fw-bold fs-4 text-success"><%= @reserves_stats[:levees] %></div>
+              <div class="text-muted" style="font-size: 11px;">Levées</div>
+            </div>
+          </div>
+          <% total_reserves = @reserves_stats.values.sum %>
+          <% if total_reserves > 0 %>
+            <div class="progress" style="height: 8px;">
+              <div class="progress-bar bg-danger" style="width: <%= (@reserves_stats[:ouvertes].to_f / total_reserves * 100).round %>%;"></div>
+              <div class="progress-bar bg-warning" style="width: <%= (@reserves_stats[:en_cours].to_f / total_reserves * 100).round %>%;"></div>
+              <div class="progress-bar bg-success" style="width: <%= (@reserves_stats[:levees].to_f / total_reserves * 100).round %>%;"></div>
+            </div>
+            <div class="text-muted mt-1" style="font-size: 11px;"><%= total_reserves %> réserves au total</div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="text-muted fw-semibold text-uppercase mb-3" style="font-size: 11px; letter-spacing: 0.5px;">
+            <i class="bi bi-people me-1"></i>Membres pros
+          </h6>
+          <% pros_active = ProjectMember.where(status: 'active').where(role: ['architect', 'entrepreneur']).count %>
+          <% pros_pending = @project_members_pending.count %>
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="text-center">
+              <div class="fw-bold fs-4 text-success"><%= pros_active %></div>
+              <div class="text-muted" style="font-size: 11px;">Actifs</div>
+            </div>
+            <div class="text-center">
+              <div class="fw-bold fs-4 text-warning"><%= pros_pending %></div>
+              <div class="text-muted" style="font-size: 11px;">En attente</div>
+            </div>
+          </div>
+          <% if pros_pending > 0 %>
+            <div class="alert alert-warning py-1 px-2 mb-0" style="font-size: 12px;">
+              <i class="bi bi-clock me-1"></i><%= pros_pending %> invitation(s) non acceptée(s)
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="text-muted fw-semibold text-uppercase mb-3" style="font-size: 11px; letter-spacing: 0.5px;">
+            <i class="bi bi-tools me-1"></i>Types de travaux
+          </h6>
+          <% type_counts = @projects.flat_map { |p| p.type_travaux_array rescue [] }.tally.sort_by { |_, c| -c }.first(5) %>
+          <% if type_counts.empty? %>
+            <p class="text-muted small">Aucune donnée</p>
+          <% else %>
+            <% max = type_counts.first&.last || 1 %>
+            <% type_counts.each do |type, count| %>
+              <div class="mb-2">
+                <div class="d-flex justify-content-between mb-1">
+                  <span class="small text-truncate me-2"><%= type.humanize %></span>
+                  <span class="small text-muted"><%= count %></span>
+                </div>
+                <div class="progress" style="height: 4px;">
+                  <div class="progress-bar bg-primary" style="width: <%= (count.to_f / max * 100).round %>%;"></div>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Table des projets récents -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 pt-4 pb-2 d-flex align-items-center justify-content-between">
+      <h5 class="mb-0 fw-semibold"><i class="bi bi-list-ul text-primary me-2"></i>Projets récents</h5>
+      <span class="badge bg-light text-secondary"><%= @projects_recent.count %> affichés sur <%= @projects.count %></span>
+    </div>
+    <div class="card-body pt-0">
+      <% if @projects_recent.empty? %>
+        <div class="text-center text-muted py-5">
+          <i class="bi bi-hammer fs-1 d-block mb-2"></i>
+          Aucun projet enregistré
+        </div>
+      <% else %>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">PROJET</th>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">PROPRIÉTÉ</th>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">UTILISATEUR</th>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">STATUT</th>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">RÉSERVES</th>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">TYPE</th>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">CRÉÉ LE</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% statut_badge = { 'preparation' => 'bg-secondary', 'en_cours' => 'bg-warning text-dark', 'pause' => 'bg-info text-dark', 'termine' => 'bg-success', 'annule' => 'bg-danger' } %>
+              <% @projects_recent.each do |project| %>
+                <tr>
+                  <td>
+                    <div class="fw-semibold small"><%= project.nom.presence || "Projet ##{project.id}" %></div>
+                    <% if project.architecte_nom.present? %>
+                      <div class="text-muted" style="font-size: 11px;"><i class="bi bi-person me-1"></i>Arch. <%= project.architecte_nom %></div>
+                    <% end %>
+                  </td>
+                  <td>
+                    <% if project.property %>
+                      <div class="small"><%= project.property.full_address rescue "#{project.property.rue}, #{project.property.commune}" %></div>
+                      <div class="text-muted" style="font-size: 11px;"><%= project.property.region %></div>
+                    <% else %>
+                      <span class="text-muted small">—</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <% if project.user %>
+                      <%= link_to admin_user_path(project.user), class: "text-decoration-none" do %>
+                        <div class="small"><%= project.user.email %></div>
+                      <% end %>
+                    <% else %>
+                      <span class="text-muted small">—</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <span class="badge <%= statut_badge[project.statut] || 'bg-secondary' %>">
+                      <%= statut_labels[project.statut] || project.statut&.humanize || 'N/A' %>
+                    </span>
+                  </td>
+                  <td>
+                    <% reserves = project.reserves %>
+                    <% if reserves.any? %>
+                      <span class="text-danger small"><%= reserves.select { |r| r.statut == 'ouverte' }.count %> ouv.</span>
+                      <span class="text-muted small mx-1">/</span>
+                      <span class="text-success small"><%= reserves.select { |r| r.statut == 'levee' }.count %> lev.</span>
+                    <% else %>
+                      <span class="text-muted small">—</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <span class="badge <%= project.project_type == 'investment' ? 'bg-info text-dark' : 'bg-primary' %>" style="font-size: 10px;">
+                      <%= project.project_type == 'investment' ? 'Investissement' : 'Rénovation' %>
+                    </span>
+                  </td>
+                  <td class="text-muted small"><%= project.created_at.strftime('%d/%m/%Y') %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Invitations pros en attente -->
+  <% if @project_members_pending.any? %>
+    <div class="card border-0 shadow-sm mt-4">
+      <div class="card-header bg-white border-0 pt-4 pb-2">
+        <h5 class="mb-0 fw-semibold text-warning">
+          <i class="bi bi-clock me-2"></i>Invitations professionnels en attente
+        </h5>
+      </div>
+      <div class="card-body pt-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">PROFESSIONNEL</th>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">RÔLE</th>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">PROJET</th>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">INVITÉ LE</th>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">EXPIRE LE</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @project_members_pending.each do |pm| %>
+                <tr>
+                  <td class="small"><%= pm.user&.email || '—' %></td>
+                  <td><span class="badge bg-light text-dark"><%= pm.role&.humanize %></span></td>
+                  <td class="small"><%= pm.project&.nom || "Projet ##{pm.project_id}" %></td>
+                  <td class="text-muted small"><%= pm.created_at.strftime('%d/%m/%Y') %></td>
+                  <td>
+                    <% if pm.invite_expires_at %>
+                      <% expired = pm.invite_expires_at < Time.current %>
+                      <span class="<%= expired ? 'text-danger' : 'text-muted' %> small">
+                        <%= pm.invite_expires_at.strftime('%d/%m/%Y') %>
+                        <%= '(expiré)' if expired %>
+                      </span>
+                    <% else %>
+                      <span class="text-muted small">—</span>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+</div>

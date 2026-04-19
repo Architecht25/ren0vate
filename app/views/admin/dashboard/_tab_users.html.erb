@@ -1,244 +1,248 @@
     <!-- ========== ONGLET UTILISATEURS ========== -->
-    <div class="tab-pane fade show active" id="users-panel" role="tabpanel">
+    <div class="tab-pane fade" id="users-panel" role="tabpanel">
       <div class="row">
         <div class="col-md-12">
-          <!-- Liste des utilisateurs -->
           <div class="card border-0 shadow-sm">
-            <div class="card-header bg-light d-flex justify-content-between align-items-center">
-              <h5 class="mb-0"><i class="bi bi-list me-2"></i>Utilisateurs récents</h5>
-              <small class="text-muted">Derniers inscrits avec analytics avancées</small>
+            <div class="card-header bg-white border-0 pt-4 pb-2 d-flex justify-content-between align-items-center">
+              <h5 class="mb-0 fw-semibold"><i class="bi bi-people text-primary me-2"></i>Utilisateurs</h5>
+              <small class="text-muted"><%= @users.count %> au total · <%= User.where('created_at >= ?', 30.days.ago).count %> inscrits ce mois</small>
             </div>
-            <div class="card-body">
+            <div class="card-body pt-2">
 
-              <!-- Filtres et Analytics rapides -->
+              <!-- Filtres -->
               <div class="mb-3 p-3 bg-light rounded">
-                <div class="row g-3 align-items-center">
+                <div class="row g-2 align-items-end">
                   <div class="col-md-3">
-                    <label class="form-label small">Filtre par région :</label>
-                    <select class="form-select form-select-sm" id="regionFilter">
-                      <option value="">Toutes les régions</option>
+                    <label class="form-label small mb-1">Recherche</label>
+                    <input type="text" class="form-control form-control-sm" id="searchFilter"
+                           placeholder="Nom, prénom ou email…" oninput="applyFilters()">
+                  </div>
+                  <div class="col-md-2">
+                    <label class="form-label small mb-1">Type</label>
+                    <select class="form-select form-select-sm" id="userTypeFilter" onchange="applyFilters()">
+                      <option value="">Tous</option>
+                      <option value="client">Client</option>
+                      <option value="entrepreneur">Entrepreneur</option>
+                      <option value="architecte">Architecte</option>
+                      <option value="autre">Autre</option>
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <label class="form-label small mb-1">Région</label>
+                    <select class="form-select form-select-sm" id="regionFilter" onchange="applyFilters()">
+                      <option value="">Toutes</option>
                       <option value="wallonie">Wallonie</option>
                       <option value="bruxelles">Bruxelles</option>
                       <option value="flandre">Flandre</option>
                     </select>
                   </div>
-                  <div class="col-md-3">
-                    <label class="form-label small">Score d'engagement :</label>
-                    <select class="form-select form-select-sm" id="engagementFilter">
-                      <option value="">Tous les scores</option>
+                  <div class="col-md-2">
+                    <label class="form-label small mb-1">Engagement</label>
+                    <select class="form-select form-select-sm" id="engagementFilter" onchange="applyFilters()">
+                      <option value="">Tous</option>
                       <option value="excellent">Excellent</option>
                       <option value="bon">Bon</option>
                       <option value="moyen">Moyen</option>
                       <option value="faible">Faible</option>
                     </select>
                   </div>
-                  <div class="col-md-3">
-                    <label class="form-label small">Potentiel revenue :</label>
-                    <select class="form-select form-select-sm" id="potentialFilter">
-                      <option value="">Tous</option>
-                      <option value="haute">Priorité haute (>50k€)</option>
-                      <option value="moyenne">Priorité moyenne (20-50k€)</option>
-                      <option value="basse">Opportunités (<20k€)</option>
+                  <div class="col-md-2">
+                    <label class="form-label small mb-1">Abonnement</label>
+                    <select class="form-select form-select-sm" id="tierFilter" onchange="applyFilters()">
+                      <option value="">Tous les tiers</option>
+                      <option value="freemium">Découverte</option>
+                      <option value="individual">Propriétaire</option>
+                      <option value="portfolio">Investisseur</option>
+                      <option value="professional">Expert</option>
+                      <option value="enterprise">Platform</option>
                     </select>
                   </div>
-                  <div class="col-md-3">
-                    <button class="btn btn-outline-primary btn-sm" onclick="applyFilters()">
-                      <i class="bi bi-funnel me-1"></i>Appliquer filtres
+                  <div class="col-md-1 d-flex align-items-end">
+                    <button class="btn btn-outline-secondary btn-sm w-100" onclick="clearFilters()" title="Effacer les filtres">
+                      <i class="bi bi-x-circle"></i>
                     </button>
-                    <button class="btn btn-outline-secondary btn-sm ms-1" onclick="clearFilters()">
-                      <i class="bi bi-x-circle me-1"></i>Effacer
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Analytics rapides -->
-                <div class="row mt-3">
-                  <div class="col-12">
-                    <small class="text-muted">
-                      <i class="bi bi-info-circle me-1"></i>
-                      <strong>Analytics rapides:</strong>
-                      Cliquez sur les en-têtes de colonnes pour trier •
-                      Utilisez les filtres pour cibler des segments spécifiques •
-                      Focus sur les priorités hautes pour maximiser le ROI
-                    </small>
                   </div>
                 </div>
               </div>
 
               <div class="table-responsive">
-                <table class="table table-hover" id="usersTable"  >
+                <table class="table table-hover align-middle" id="usersTable">
                   <thead class="table-light">
                     <tr>
-                      <th style="cursor: pointer;" onclick="sortTable(0)">Utilisateur <i class="bi bi-arrow-down-up small"></i></th>
-                      <th style="cursor: pointer;" onclick="sortTable(1)">Région <i class="bi bi-arrow-down-up small"></i></th>
-                      <th style="cursor: pointer;" onclick="sortTable(2)">Inscription <i class="bi bi-arrow-down-up small"></i></th>
-                      <th style="cursor: pointer;" onclick="sortTable(3)">Dernière Activité <i class="bi bi-arrow-down-up small"></i></th>
-                      <th style="cursor: pointer;" onclick="sortTable(4)">Valeur Simulations <i class="bi bi-arrow-down-up small"></i></th>
-                      <th style="cursor: pointer;" onclick="sortTable(5)">Performance Primes <i class="bi bi-arrow-down-up small"></i></th>
-                      <th style="cursor: pointer;" onclick="sortTable(6)">Potentiel Revenue <i class="bi bi-arrow-down-up small"></i></th>
-                      <th style="cursor: pointer;" onclick="sortTable(7)">Engagement <i class="bi bi-arrow-down-up small"></i></th>
-                      <th>Statistiques d'activité</th>
-                      <th>Statut</th>
+                      <th style="cursor:pointer;" onclick="sortTable(0)">Utilisateur <i class="bi bi-arrow-down-up small"></i></th>
+                      <th style="cursor:pointer;" onclick="sortTable(1)">Région <i class="bi bi-arrow-down-up small"></i></th>
+                      <th style="cursor:pointer;" onclick="sortTable(2)">Inscription <i class="bi bi-arrow-down-up small"></i></th>
+                      <th style="cursor:pointer;" onclick="sortTable(3)">Dernière activité <i class="bi bi-arrow-down-up small"></i></th>
+                      <th style="cursor:pointer;" onclick="sortTable(4)">Simulations <i class="bi bi-arrow-down-up small"></i></th>
+                      <th style="cursor:pointer;" onclick="sortTable(5)">Conversion <i class="bi bi-arrow-down-up small"></i></th>
+                      <th style="cursor:pointer;" onclick="sortTable(6)">Abonnement <i class="bi bi-arrow-down-up small"></i></th>
+                      <th style="cursor:pointer;" onclick="sortTable(7)">Engagement <i class="bi bi-arrow-down-up small"></i></th>
+                      <th>Activité</th>
+                      <th>Profil</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <% @users.order(created_at: :desc).each do |user| %>
-                      <tr>
+                    <% @users.includes(:simulations, :properties, :projects, :requests, :documents, :subscriptions, :project_members).order(created_at: :desc).each do |user| %>
+                      <%
+                        # Détecter le type utilisateur selon son activité
+                        is_architect    = user.project_members.any? { |pm| pm.role == 'architect' && pm.status == 'active' }
+                        is_entrepreneur = user.project_members.any? { |pm| pm.role == 'entrepreneur' && pm.status == 'active' }
+                        user_type = if is_architect then 'architecte'
+                                    elsif is_entrepreneur then 'entrepreneur'
+                                    elsif user.properties.any? || user.simulations.any? then 'client'
+                                    else 'autre'
+                                    end
+                      %>
+                      <%
+                        sim_count      = user.simulations.size
+                        req_count      = user.requests.size
+                        proj_count     = user.projects.size
+                        prop_count     = user.properties.size
+                        doc_count      = user.documents.size
+                        sim_total      = user.simulations.sum { |s| s.total_simule.to_f }
+                        total_actions  = prop_count + sim_count + proj_count + req_count + doc_count
+                        days_signup    = [(Date.current - user.created_at.to_date).to_i, 1].max
+                        engagement     = case total_actions
+                                         when 0..2 then { level: 'Faible',    color: 'danger'  }
+                                         when 3..7 then { level: 'Moyen',     color: 'warning' }
+                                         when 8..15 then { level: 'Bon',      color: 'info'    }
+                                         else            { level: 'Excellent', color: 'success' }
+                                         end
+                        last_activity  = [
+                          user.simulations.map(&:updated_at).max,
+                          user.properties.map(&:updated_at).max,
+                          user.requests.map(&:updated_at).max,
+                          user.projects.map(&:updated_at).max
+                        ].compact.max
+                        sub = user.subscriptions.find { |s| s.status == 'active' }
+                      %>
+                      <tr data-user-type="<%= user_type %>" data-user-search="<%= [user.email, user.first_name, user.last_name].compact.join(' ').downcase %>">
+                        <%# Utilisateur %>
                         <td>
-                          <div>
-                            <strong>
-                              <%= link_to user.email, admin_user_path(user), class: "text-decoration-none", target: "_blank" %>
-                            </strong>
-                            <% if user.first_name.present? || user.last_name.present? %>
-                              <br><small class="text-muted"><%= "#{user.first_name} #{user.last_name}".strip %></small>
+                          <strong class="small">
+                            <%= link_to user.email, admin_user_path(user), class: "text-decoration-none" %>
+                          </strong>
+                          <% if user.first_name.present? || user.last_name.present? %>
+                            <div class="text-muted" style="font-size: 11px;"><%= "#{user.first_name} #{user.last_name}".strip %></div>
+                          <% end %>
+                          <div class="d-flex flex-wrap gap-1 mt-1">
+                            <% type_badge = { 'client' => ['bg-primary', 'person'], 'entrepreneur' => ['bg-warning text-dark', 'tools'], 'architecte' => ['bg-info text-dark', 'pencil-ruler'], 'autre' => ['bg-secondary', 'three-dots'] } %>
+                            <span class="badge <%= type_badge[user_type][0] %>" style="font-size: 10px;">
+                              <i class="bi bi-<%= type_badge[user_type][1] %> me-1"></i><%= user_type.capitalize %>
+                            </span>
+                            <% if user.admin? %>
+                              <span class="badge bg-danger" style="font-size: 10px;">Admin</span>
+                            <% elsif user.moderator? %>
+                              <span class="badge bg-danger bg-opacity-50" style="font-size: 10px;">Modérateur</span>
                             <% end %>
                           </div>
                         </td>
+
+                        <%# Région %>
                         <td>
                           <% if user.region.present? %>
-                            <span class="badge bg-<%= user.region == 'wallonie' ? 'success' : user.region == 'bruxelles' ? 'primary' : 'warning' %>">
+                            <span class="badge bg-<%= user.region == 'wallonie' ? 'success' : user.region == 'bruxelles' ? 'primary' : 'warning text-dark' %>">
                               <%= user.region.capitalize %>
                             </span>
                           <% else %>
                             <span class="badge bg-secondary">Non définie</span>
                           <% end %>
                         </td>
+
+                        <%# Inscription %>
                         <td>
-                          <small class="text-muted"><%= user.created_at.strftime("%d/%m/%Y") %></small>
-                          <br><small class="text-success">Il y a <%= time_ago_in_words(user.created_at) %></small>
+                          <div class="small"><%= user.created_at.strftime("%d/%m/%Y") %></div>
+                          <div class="text-muted" style="font-size: 11px;"><%= time_ago_in_words(user.created_at) %></div>
+                          <% unless user.confirmed_at %>
+                            <span class="badge bg-warning text-dark" style="font-size: 10px;">Non confirmé</span>
+                          <% end %>
                         </td>
+
+                        <%# Dernière activité %>
                         <td>
-                          <% last_activity = [
-                            user.simulations.maximum(:updated_at),
-                            user.properties.maximum(:updated_at),
-                            user.requests.maximum(:updated_at),
-                            user.projects.maximum(:updated_at)
-                          ].compact.max %>
                           <% if last_activity %>
-                            <small class="text-primary fw-bold"><%= last_activity.strftime("%d/%m/%Y") %></small>
-                            <br><small class="text-muted">Il y a <%= time_ago_in_words(last_activity) %></small>
+                            <div class="small fw-semibold"><%= last_activity.strftime("%d/%m/%Y") %></div>
+                            <div class="text-muted" style="font-size: 11px;"><%= time_ago_in_words(last_activity) %></div>
                             <% if last_activity > 7.days.ago %>
-                              <span class="badge bg-success">Actif</span>
+                              <span class="badge bg-success" style="font-size: 10px;">Actif</span>
                             <% elsif last_activity > 30.days.ago %>
-                              <span class="badge bg-warning">Modéré</span>
+                              <span class="badge bg-warning text-dark" style="font-size: 10px;">Modéré</span>
                             <% else %>
-                              <span class="badge bg-danger">Inactif</span>
+                              <span class="badge bg-danger" style="font-size: 10px;">Inactif</span>
                             <% end %>
                           <% else %>
-                            <small class="text-muted">Aucune activité</small>
+                            <span class="text-muted small">Aucune</span>
                           <% end %>
                         </td>
+
+                        <%# Simulations %>
                         <td>
-                          <% total_simulation_value = user.simulations.sum { |s| s.try(:total_estimated_amount) || 0 } %>
-                          <% if total_simulation_value > 0 %>
-                            <strong class="text-success">€<%= number_with_delimiter(total_simulation_value.round) %></strong>
-                            <br><small class="text-muted"><%= user.simulations.count %> simulation<%= 's' if user.simulations.count > 1 %></small>
-                            <% avg_sim_value = total_simulation_value / user.simulations.count if user.simulations.count > 0 %>
-                            <br><small class="text-info">Moy: €<%= number_with_delimiter(avg_sim_value.round) if avg_sim_value %></small>
+                          <% if sim_count > 0 %>
+                            <div class="small fw-semibold text-success"><%= number_to_currency(sim_total, unit: '€', format: '%n %u', precision: 0) %></div>
+                            <div class="text-muted" style="font-size: 11px;"><%= sim_count %> simulation<%= 's' if sim_count > 1 %></div>
                           <% else %>
-                            <small class="text-muted">Aucune simulation</small>
+                            <span class="text-muted small">—</span>
                           <% end %>
                         </td>
+
+                        <%# Conversion sim → demande %>
                         <td>
-                          <% total_progresses = user.requests.joins(:request_progresses).count %>
-                          <% total_requests = user.requests.count %>
-                          <% total_simulations = user.simulations.count %>
-
-                          <% if total_progresses > 0 %>
-                            <span class="badge bg-info"><%= total_progresses %> Suivi<%= 's' if total_progresses > 1 %></span>
-
-                            <!-- Délai moyen de traitement -->
-                            <% if total_requests > 0 %>
-                              <% avg_delay = user.requests.joins(:request_progresses).average('EXTRACT(epoch FROM (request_progresses.created_at - requests.created_at))/86400') %>
-                              <% if avg_delay %>
-                                <br><small class="text-primary">⏱ <%= avg_delay.round(1) %> jours moy.</small>
-                              <% end %>
-                            <% end %>
-
-                          <% elsif total_requests > 0 %>
-                            <span class="badge bg-warning">En attente</span>
+                          <% if sim_count > 0 %>
+                            <% rate = (req_count.to_f / sim_count * 100).round %>
+                            <div class="small fw-semibold"><%= rate %>%</div>
+                            <div class="progress mt-1" style="height: 4px; width: 60px;">
+                              <div class="progress-bar <%= rate >= 80 ? 'bg-success' : rate >= 40 ? 'bg-warning' : 'bg-danger' %>"
+                                   style="width: <%= [rate, 100].min %>%;"></div>
+                            </div>
+                            <div class="text-muted" style="font-size: 11px;"><%= req_count %> demande<%= 's' if req_count > 1 %></div>
+                          <% elsif req_count > 0 %>
+                            <span class="badge bg-info text-dark" style="font-size: 10px;"><%= req_count %> demande<%= 's' if req_count > 1 %></span>
                           <% else %>
-                            <small class="text-muted">Aucune demande</small>
-                          <% end %>
-
-                          <!-- Ratio de conversion Simulations → Demandes -->
-                          <% if total_simulations > 0 %>
-                            <% conversion_rate = (total_requests.to_f / total_simulations * 100) %>
-                            <br><small class="text-success">📊 <%= conversion_rate.round(1) %>% conversion</small>
+                            <span class="text-muted small">—</span>
                           <% end %>
                         </td>
+
+                        <%# Abonnement %>
                         <td>
-                          <% total_simulation_value = user.simulations.sum { |s| s.try(:total_estimated_amount) || 0 } %>
-                          <% simulation_count = user.simulations.count %>
-                          <% request_count = user.requests.count %>
-                          <% unconverted_simulations = [simulation_count - request_count, 0].max %>
-
-                          <% if unconverted_simulations > 0 && total_simulation_value > 0 %>
-                            <% potential_value = (total_simulation_value / simulation_count) * unconverted_simulations %>
-                            <strong class="text-warning">💰 €<%= number_with_delimiter(potential_value.round) %></strong>
-                            <br><small class="text-muted"><%= unconverted_simulations %> simulation<%= 's' if unconverted_simulations > 1 %> non exploitée<%= 's' if unconverted_simulations > 1 %></small>
-
-                            <!-- Priorité de contact -->
-                            <% if potential_value > 50000 %>
-                              <br><span class="badge bg-danger">🔥 PRIORITÉ HAUTE</span>
-                            <% elsif potential_value > 20000 %>
-                              <br><span class="badge bg-warning">⚡ PRIORITÉ MOYENNE</span>
-                            <% else %>
-                              <br><span class="badge bg-info">💡 Opportunité</span>
-                            <% end %>
-
-                          <% elsif simulation_count == 0 %>
-                            <small class="text-muted">Aucune simulation</small>
+                          <% tier_colors = { 'freemium' => 'secondary', 'individual' => 'primary', 'portfolio' => 'warning text-dark', 'professional' => 'purple', 'enterprise' => 'dark' } %>
+                          <% if sub %>
+                            <span class="badge bg-<%= tier_colors[sub.tier] || 'secondary' %>" style="font-size: 10px;">
+                              <%= sub.tier_name %>
+                            </span>
+                            <div class="text-muted" style="font-size: 11px;"><%= sub.monthly_price %>€/mois</div>
                           <% else %>
-                            <span class="badge bg-success">✓ Toutes converties</span>
-                            <br><small class="text-muted">Excellent suivi</small>
+                            <span class="text-muted small">Gratuit</span>
                           <% end %>
                         </td>
+
+                        <%# Engagement %>
                         <td>
-                          <% total_actions = user.properties.count + user.simulations.count + user.projects.count + user.requests.count + user.documents.count %>
-                          <% engagement_score = case total_actions
-                               when 0..2 then { level: 'Faible', color: 'danger' }
-                               when 3..7 then { level: 'Moyen', color: 'warning' }
-                               when 8..15 then { level: 'Bon', color: 'info' }
-                               else { level: 'Excellent', color: 'success' }
-                               end %>
-                          <span class="badge bg-<%= engagement_score[:color] %>"><%= engagement_score[:level] %></span>
-                          <br><small class="text-muted"><%= total_actions %> actions totales</small>
-                          <% days_since_signup = (Date.current - user.created_at.to_date).to_i %>
-                          <% if days_since_signup > 0 %>
-                            <br><small class="text-info"><%= (total_actions.to_f / days_since_signup * 7).round(1) %> actions/semaine</small>
-                          <% end %>
+                          <span class="badge bg-<%= engagement[:color] %>"><%= engagement[:level] %></span>
+                          <div class="text-muted" style="font-size: 11px;"><%= total_actions %> actions</div>
+                          <div class="text-muted" style="font-size: 11px;"><%= (total_actions.to_f / days_signup * 7).round(1) %>/sem.</div>
                         </td>
+
+                        <%# Badges activité %>
                         <td>
-                          <div class="d-flex flex-wrap gap-1 align-items-center">
-                            <span class="badge bg-primary text-white px-2 py-1" title="Propriétés">
-                              <i class="bi bi-house me-1"></i><%= user.properties.count %>
-                            </span>
-                            <span class="badge bg-warning text-dark px-2 py-1" title="Chantiers">
-                              <i class="bi bi-hammer me-1"></i><%= user.projects.count %>
-                            </span>
-                            <span class="badge bg-success text-white px-2 py-1" title="Simulations">
-                              <i class="bi bi-calculator me-1"></i><%= user.simulations.count %>
-                            </span>
-                            <span class="badge bg-dark text-white px-2 py-1" title="Demandes">
-                              <i class="bi bi-list-check me-1"></i><%= user.requests.count %>
-                            </span>
-                            <span class="badge bg-info text-white px-2 py-1" title="Documents">
-                              <i class="bi bi-file-earmark me-1"></i><%= user.documents.count %>
-                            </span>
-                            <span class="badge text-white px-2 py-1" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" title="Suivis de primes">
-                              <i class="bi bi-clipboard-check me-1"></i><%= user.requests.joins(:request_progresses).count %>
-                            </span>
-                            <span class="badge bg-secondary text-white px-2 py-1" title="Notifications">
-                              <i class="bi bi-bell me-1"></i><%= user.notifications.count %>
-                            </span>
+                          <div class="d-flex flex-wrap gap-1">
+                            <span class="badge bg-primary px-2 py-1" title="Propriétés"><i class="bi bi-house me-1"></i><%= prop_count %></span>
+                            <span class="badge bg-warning text-dark px-2 py-1" title="Projets"><i class="bi bi-hammer me-1"></i><%= proj_count %></span>
+                            <span class="badge bg-success px-2 py-1" title="Simulations"><i class="bi bi-calculator me-1"></i><%= sim_count %></span>
+                            <span class="badge bg-dark px-2 py-1" title="Demandes"><i class="bi bi-list-check me-1"></i><%= req_count %></span>
+                            <span class="badge bg-info px-2 py-1" title="Documents"><i class="bi bi-file-earmark me-1"></i><%= doc_count %></span>
                           </div>
                         </td>
+
+                        <%# Profil %>
                         <td>
-                          <% if user.first_name.present? && user.last_name.present? && user.region.present? %>
-                            <span class="badge bg-success">✓ Complet</span>
+                          <% complete = user.first_name.present? && user.last_name.present? && user.region.present? %>
+                          <% if complete %>
+                            <span class="badge bg-success" style="font-size: 10px;"><i class="bi bi-check me-1"></i>Complet</span>
                           <% else %>
-                            <span class="badge bg-warning">⚠ Incomplet</span>
+                            <span class="badge bg-warning text-dark" style="font-size: 10px;"><i class="bi bi-pencil me-1"></i>Incomplet</span>
+                          <% end %>
+                          <%= link_to admin_user_path(user), class: "btn btn-outline-secondary btn-sm d-block mt-1", style: "font-size: 11px;" do %>
+                            <i class="bi bi-eye me-1"></i>Voir
                           <% end %>
                         </td>
                       </tr>
@@ -251,4 +255,3 @@
         </div>
       </div>
     </div>
-

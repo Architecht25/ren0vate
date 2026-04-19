@@ -1,0 +1,184 @@
+<div class="tab-pane fade" id="support-panel" role="tabpanel">
+
+  <!-- KPI Support -->
+  <div class="row g-3 mb-4">
+    <div class="col-lg-3">
+      <div class="card border-0 shadow-sm text-center">
+        <div class="card-body py-4">
+          <div class="fw-bold mb-1" style="font-size: 32px; color: #0ea5e9;"><%= @support_stats[:open] %></div>
+          <div class="text-muted small">Tickets ouverts</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3">
+      <div class="card border-0 shadow-sm text-center <%= @support_stats[:overdue] > 0 ? 'border-danger border-2' : '' %>">
+        <div class="card-body py-4">
+          <div class="fw-bold mb-1" style="font-size: 32px; color: <%= @support_stats[:overdue] > 0 ? '#dc2626' : '#6b7280' %>;"><%= @support_stats[:overdue] %></div>
+          <div class="text-muted small">SLA dépassé (&gt;22h)</div>
+          <% if @support_stats[:overdue] > 0 %>
+            <span class="badge bg-danger mt-1" style="font-size: 10px;">Action requise</span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3">
+      <div class="card border-0 shadow-sm text-center">
+        <div class="card-body py-4">
+          <div class="fw-bold mb-1" style="font-size: 32px; color: #f59e0b;"><%= @support_stats[:in_progress] %></div>
+          <div class="text-muted small">En cours de traitement</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3">
+      <div class="card border-0 shadow-sm text-center">
+        <div class="card-body py-4">
+          <div class="fw-bold mb-1" style="font-size: 32px; color: #10b981;"><%= @support_stats[:resolved_this_week] %></div>
+          <div class="text-muted small">Résolus ce mois</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tickets overdue en priorité -->
+  <% overdue_tickets = SupportTicket.overdue.includes(:user, :support_messages).order(created_at: :asc) %>
+  <% if overdue_tickets.any? %>
+    <div class="card border-0 shadow-sm border-start border-danger border-3 mb-4">
+      <div class="card-header bg-danger bg-opacity-10 border-0 pt-3 pb-2">
+        <h6 class="mb-0 text-danger fw-semibold">
+          <i class="bi bi-exclamation-octagon-fill me-2"></i>Tickets SLA dépassé — réponse urgente requise
+        </h6>
+      </div>
+      <div class="card-body pt-0">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">SUJET</th>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">UTILISATEUR</th>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">PRIORITÉ</th>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">OUVERT DEPUIS</th>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">MESSAGES</th>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">ACTION</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% overdue_tickets.each do |ticket| %>
+                <tr class="table-danger">
+                  <td>
+                    <div class="fw-semibold small"><%= ticket.subject %></div>
+                    <div class="text-muted" style="font-size: 11px;"><%= truncate(ticket.description, length: 60) %></div>
+                  </td>
+                  <td>
+                    <% if ticket.user %>
+                      <%= link_to admin_user_path(ticket.user), class: "text-decoration-none small" do %>
+                        <%= ticket.user.email %>
+                      <% end %>
+                    <% else %>
+                      <span class="text-muted small">—</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <span class="badge <%= ticket.priority == 'urgent' ? 'bg-danger' : 'bg-secondary' %>">
+                      <%= ticket.priority&.humanize %>
+                    </span>
+                  </td>
+                  <td>
+                    <span class="text-danger small fw-semibold">
+                      <%= (ticket.hours_since_creation rescue ((Time.current - ticket.created_at) / 3600).round) %>h
+                    </span>
+                  </td>
+                  <td class="small"><%= ticket.support_messages.count %></td>
+                  <td>
+                    <%= link_to admin_support_ticket_path(ticket), class: "btn btn-danger btn-sm" do %>
+                      <i class="bi bi-reply me-1"></i>Répondre
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Tous les tickets récents -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 pt-4 pb-2 d-flex align-items-center justify-content-between">
+      <h5 class="mb-0 fw-semibold"><i class="bi bi-headset text-primary me-2"></i>Tickets récents</h5>
+      <%= link_to admin_support_tickets_path, class: "btn btn-outline-primary btn-sm" do %>
+        <i class="bi bi-list-ul me-1"></i>Voir tous
+      <% end %>
+    </div>
+    <div class="card-body pt-0">
+      <% if @support_tickets_recent.empty? %>
+        <div class="text-center text-muted py-5">
+          <i class="bi bi-headset fs-1 d-block mb-2"></i>
+          Aucun ticket de support
+        </div>
+      <% else %>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">SUJET</th>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">UTILISATEUR</th>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">STATUT</th>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">PRIORITÉ</th>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">SLA</th>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">CRÉÉ LE</th>
+                <th class="border-0 text-muted fw-semibold" style="font-size: 12px;">ACTION</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% status_badge = { 'open' => 'bg-primary', 'in_progress' => 'bg-warning text-dark', 'resolved' => 'bg-success', 'closed' => 'bg-secondary' } %>
+              <% @support_tickets_recent.each do |ticket| %>
+                <tr>
+                  <td>
+                    <div class="fw-semibold small"><%= ticket.subject %></div>
+                  </td>
+                  <td>
+                    <% if ticket.user %>
+                      <%= link_to admin_user_path(ticket.user), class: "text-decoration-none small" do %>
+                        <%= ticket.user.email %>
+                      <% end %>
+                    <% else %>
+                      <span class="text-muted small">—</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <span class="badge <%= status_badge[ticket.status] || 'bg-secondary' %>">
+                      <%= ticket.status&.humanize %>
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge <%= ticket.priority == 'urgent' ? 'bg-danger' : 'bg-secondary bg-opacity-50 text-dark' %>">
+                      <%= ticket.priority&.humanize %>
+                    </span>
+                  </td>
+                  <td>
+                    <% sla_ok = ticket.respond_to?(:within_sla?) ? ticket.within_sla? : (ticket.responded_at.present? || (Time.current - ticket.created_at) < 24.hours) %>
+                    <% if ['resolved', 'closed'].include?(ticket.status) %>
+                      <span class="text-muted small">—</span>
+                    <% elsif sla_ok %>
+                      <span class="text-success small"><i class="bi bi-check-circle me-1"></i>OK</span>
+                    <% else %>
+                      <span class="text-danger small fw-semibold"><i class="bi bi-exclamation-circle me-1"></i>Dépassé</span>
+                    <% end %>
+                  </td>
+                  <td class="text-muted small"><%= ticket.created_at.strftime('%d/%m %H:%M') %></td>
+                  <td>
+                    <%= link_to admin_support_ticket_path(ticket), class: "btn btn-outline-secondary btn-sm" do %>
+                      <i class="bi bi-eye me-1"></i>Voir
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+</div>

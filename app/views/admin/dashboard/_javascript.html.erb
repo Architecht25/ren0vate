@@ -712,15 +712,11 @@ function updateSortIndicators(activeColumn) {
 
 // Application des filtres
 function applyFilters() {
-  const regionFilter = document.getElementById('regionFilter').value;
-  const engagementFilter = document.getElementById('engagementFilter').value;
-  const potentialFilter = document.getElementById('potentialFilter').value;
-
-  currentFilters = {
-    region: regionFilter,
-    engagement: engagementFilter,
-    potential: potentialFilter
-  };
+  const searchFilter    = (document.getElementById('searchFilter')?.value || '').toLowerCase().trim();
+  const userTypeFilter  = (document.getElementById('userTypeFilter')?.value || '').toLowerCase();
+  const regionFilter    = (document.getElementById('regionFilter')?.value || '').toLowerCase();
+  const engagementFilter = (document.getElementById('engagementFilter')?.value || '').toLowerCase();
+  const tierFilter      = (document.getElementById('tierFilter')?.value || '').toLowerCase();
 
   const tbody = document.querySelector('#usersTable tbody');
   const rows = Array.from(tbody.querySelectorAll('tr'));
@@ -730,55 +726,52 @@ function applyFilters() {
   rows.forEach(row => {
     let shouldShow = true;
 
-    // Filtre région
+    // Filtre recherche (email, nom, prénom via data-attribute)
+    if (searchFilter) {
+      const searchData = (row.dataset.userSearch || '').toLowerCase();
+      shouldShow = shouldShow && searchData.includes(searchFilter);
+    }
+
+    // Filtre type utilisateur via data-attribute
+    if (userTypeFilter) {
+      shouldShow = shouldShow && (row.dataset.userType || '') === userTypeFilter;
+    }
+
+    // Filtre région (colonne 1)
     if (regionFilter) {
-      const regionCell = row.cells[1].textContent.toLowerCase();
-      shouldShow = shouldShow && regionCell.includes(regionFilter.toLowerCase());
+      const regionCell = row.cells[1]?.textContent.toLowerCase() || '';
+      shouldShow = shouldShow && regionCell.includes(regionFilter);
     }
 
-    // Filtre engagement
+    // Filtre engagement (colonne 7)
     if (engagementFilter) {
-      const engagementCell = row.cells[7].textContent.toLowerCase();
-      shouldShow = shouldShow && engagementCell.includes(engagementFilter.toLowerCase());
+      const engagementCell = row.cells[7]?.textContent.toLowerCase() || '';
+      shouldShow = shouldShow && engagementCell.includes(engagementFilter);
     }
 
-    // Filtre potentiel
-    if (potentialFilter) {
-      const potentialCell = row.cells[6].textContent;
-      switch(potentialFilter) {
-        case 'haute':
-          shouldShow = shouldShow && potentialCell.includes('PRIORITÉ HAUTE');
-          break;
-        case 'moyenne':
-          shouldShow = shouldShow && potentialCell.includes('PRIORITÉ MOYENNE');
-          break;
-        case 'basse':
-          shouldShow = shouldShow && potentialCell.includes('Opportunité');
-          break;
-      }
+    // Filtre abonnement (colonne 6)
+    if (tierFilter) {
+      const tierCell = row.cells[6]?.textContent.toLowerCase() || '';
+      shouldShow = shouldShow && tierCell.includes(tierFilter);
     }
 
     row.style.display = shouldShow ? '' : 'none';
     if (shouldShow) visibleCount++;
   });
 
-  // Mettre à jour le compteur
   updateFilterCount(visibleCount, rows.length);
 }
 
 // Effacer tous les filtres
 function clearFilters() {
-  document.getElementById('regionFilter').value = '';
-  document.getElementById('engagementFilter').value = '';
-  document.getElementById('potentialFilter').value = '';
+  ['searchFilter', 'userTypeFilter', 'regionFilter', 'engagementFilter', 'tierFilter'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
 
   const tbody = document.querySelector('#usersTable tbody');
   const rows = Array.from(tbody.querySelectorAll('tr'));
-
-  rows.forEach(row => {
-    row.style.display = '';
-  });
-
+  rows.forEach(row => { row.style.display = ''; });
   updateFilterCount(rows.length, rows.length);
 }
 

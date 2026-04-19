@@ -1,0 +1,129 @@
+<div class="tab-pane fade show active" id="activite-panel" role="tabpanel">
+
+  <div class="row g-4">
+
+    <!-- Feed d'activité récente -->
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 pt-4 pb-2">
+          <div class="d-flex align-items-center justify-content-between">
+            <h5 class="mb-0 fw-semibold"><i class="bi bi-activity text-primary me-2"></i>Activité des 7 derniers jours</h5>
+            <span class="badge bg-light text-secondary"><%= @recent_activity.count %> événements</span>
+          </div>
+        </div>
+        <div class="card-body pt-2" style="max-height: 600px; overflow-y: auto;">
+          <% if @recent_activity.empty? %>
+            <div class="text-center text-muted py-5">
+              <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+              Aucune activité ces 7 derniers jours
+            </div>
+          <% else %>
+            <% prev_date = nil %>
+            <% @recent_activity.each do |event| %>
+              <% current_date = event[:at].to_date %>
+              <% if current_date != prev_date %>
+                <div class="text-muted small fw-semibold mt-3 mb-2 text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">
+                  <%= current_date == Date.current ? "Aujourd'hui" : (current_date == Date.yesterday ? "Hier" : l(current_date, format: "%A %d %B")) %>
+                </div>
+                <% prev_date = current_date %>
+              <% end %>
+              <div class="d-flex align-items-start gap-3 py-2 border-bottom border-light">
+                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                     style="width: 34px; height: 34px; background: <%= event[:color] %>22;">
+                  <i class="bi bi-<%= event[:icon] %>" style="color: <%= event[:color] %>; font-size: 15px;"></i>
+                </div>
+                <div class="flex-grow-1 min-w-0">
+                  <div class="text-dark small"><%= event[:label] %></div>
+                  <div class="text-muted" style="font-size: 11px;"><%= event[:at].strftime('%H:%M') %></div>
+                </div>
+                <% if event[:link] %>
+                  <%= link_to event[:link], class: "text-muted flex-shrink-0" do %>
+                    <i class="bi bi-arrow-right-short fs-5"></i>
+                  <% end %>
+                <% end %>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Résumé rapide -->
+    <div class="col-lg-4">
+
+      <!-- Nouveaux inscrits 7j -->
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+          <h6 class="text-muted fw-semibold mb-3 text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">
+            <i class="bi bi-person-plus me-1"></i>Inscriptions cette semaine
+          </h6>
+          <% new_users = User.where('created_at >= ?', 7.days.ago).order(created_at: :desc).limit(5) %>
+          <% if new_users.empty? %>
+            <p class="text-muted small mb-0">Aucune inscription</p>
+          <% else %>
+            <% new_users.each do |u| %>
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="rounded-circle bg-primary bg-opacity-10 d-flex align-items-center justify-content-center flex-shrink-0"
+                     style="width: 30px; height: 30px;">
+                  <span class="text-primary fw-bold" style="font-size: 12px;"><%= u.email.first.upcase %></span>
+                </div>
+                <div class="flex-grow-1 min-w-0">
+                  <div class="small text-truncate"><%= u.email %></div>
+                  <div class="text-muted" style="font-size: 11px;"><%= time_ago_in_words(u.created_at) %></div>
+                </div>
+                <%= link_to admin_user_path(u), class: "text-muted" do %>
+                  <i class="bi bi-eye-fill" style="font-size: 13px;"></i>
+                <% end %>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Dernières simulations 7j -->
+      <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+          <h6 class="text-muted fw-semibold mb-3 text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">
+            <i class="bi bi-calculator me-1"></i>Simulations récentes
+          </h6>
+          <% recent_sims = Simulation.where('created_at >= ?', 7.days.ago).includes(:user).order(created_at: :desc).limit(5) %>
+          <% if recent_sims.empty? %>
+            <p class="text-muted small mb-0">Aucune simulation</p>
+          <% else %>
+            <% recent_sims.each do |s| %>
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="min-w-0">
+                  <div class="small text-truncate"><%= s.user&.email || '—' %></div>
+                  <div class="text-muted" style="font-size: 11px;"><%= s.region %> · <%= time_ago_in_words(s.created_at) %></div>
+                </div>
+                <span class="badge bg-success bg-opacity-10 text-success fw-semibold">
+                  <%= number_to_currency(s.total_simule, unit: '€', format: '%n %u', precision: 0) %>
+                </span>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Tickets overdue -->
+      <% if @support_stats[:overdue] > 0 %>
+        <div class="card border-0 shadow-sm border-start border-danger border-3">
+          <div class="card-body">
+            <h6 class="text-danger fw-semibold mb-2 text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">
+              <i class="bi bi-exclamation-triangle-fill me-1"></i><%= @support_stats[:overdue] %> ticket(s) SLA dépassé
+            </h6>
+            <% SupportTicket.overdue.includes(:user).limit(3).each do |t| %>
+              <div class="d-flex align-items-center justify-content-between mb-1">
+                <span class="small text-truncate me-2"><%= t.subject %></span>
+                <%= link_to admin_support_ticket_path(t), class: "text-danger flex-shrink-0" do %>
+                  <i class="bi bi-arrow-right-short fs-5"></i>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+    </div>
+  </div>
+</div>

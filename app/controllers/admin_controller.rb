@@ -36,6 +36,50 @@ class AdminController < ApplicationController
 
     # Analytics des pages visitées hors connexion
     @page_visits_stats = calculate_page_visits_stats
+
+    # --- Nouvelles données dashboard ---
+
+    # Onglet Activité : feed des 7 derniers jours
+    @recent_activity = build_recent_activity
+
+    # Onglet Projets & Chantiers
+    @projects_recent = Project.includes(:user, :property, :reserves).order(created_at: :desc).limit(20)
+    @reserves_stats = {
+      ouvertes:   Reserve.where(statut: 'ouverte').count,
+      en_cours:   Reserve.where(statut: 'en_cours').count,
+      levees:     Reserve.where(statut: 'levee').count,
+    }
+    @project_members_pending = ProjectMember.includes(:user, :project).where(status: 'pending').order(created_at: :desc).limit(10)
+
+    # Onglet Finances
+    @factures_recent = Facture.includes(:project, document: :property).order(created_at: :desc).limit(30)
+    @factures_expiration_critique = Facture.expiration_critique.includes(:project).order(jours_avant_expiration: :asc).limit(10)
+    @factures_expiration_proche   = Facture.expiration_proche.where('jours_avant_expiration > 30').includes(:project).order(jours_avant_expiration: :asc).limit(10)
+    @finance_stats = {
+      total_devis:           Facture.devis.count,
+      total_factures:        Facture.factures.count,
+      non_payees:            Facture.non_payees.count,
+      ocr_confiance_moyenne: Facture.where.not(confiance_ocr: nil).average(:confiance_ocr)&.round(1) || 0,
+      validees_manuellement: Facture.extraction_validee.count,
+    }
+
+    # Onglet Finances : abonnements Stripe
+    @subscriptions_active = Subscription.active.includes(:user)
+    @subscriptions_by_tier = Subscription::TIERS.each_with_object({}) do |tier, h|
+      subs = Subscription.active.by_tier(tier)
+      price = Subscription.new(tier: tier).monthly_price
+      h[tier] = { count: subs.count, mrr: subs.count * price }
+    end
+    @mrr_total = @subscriptions_by_tier.values.sum { |v| v[:mrr] }
+
+    # Onglet Support
+    @support_tickets_recent = SupportTicket.includes(:user, :support_messages).order(created_at: :desc).limit(20)
+    @support_stats = {
+      open:      SupportTicket.open_tickets.count,
+      overdue:   SupportTicket.overdue.count,
+      in_progress: SupportTicket.where(status: 'in_progress').count,
+      resolved_this_week: SupportTicket.where(status: 'resolved').where('updated_at >= ?', 7.days.ago).count,
+    }
   end
 
   def geocode_properties
@@ -93,6 +137,33 @@ class AdminController < ApplicationController
       flash[:alert] = "Accès non autorisé. Vous devez être administrateur."
       redirect_to root_path
     end
+  end
+
+  # Feed d'activité récente cross-entités (7 derniers jours)
+  def build_recent_activity
+    since = 7.days.ago
+    events = []
+
+    User.where('created_at >= ?', since).order(created_at: :desc).limit(20).each do |u|
+      events << { type: :user, icon: 'person-plus', color: '#667eea', label: "Nouvel utilisateur : #{u.email}", at: u.created_at, link: admin_user_path(u) }
+    end
+    Project.where('created_at >= ?', since).includes(:user, :property).order(created_at: :desc).limit(20).each do |p|
+      events << { type: :project, icon: 'hammer', color: '#ea580c', label: "Projet créé : #{p.nom || 'Sans nom'} (#{p.user&.email})", at: p.created_at }
+    end
+    Simulation.where('created_at >= ?', since).includes(:user).order(created_at: :desc).limit(20).each do |s|
+      events << { type: :simulation, icon: 'calculator', color: '#43e97b', label: "Simulation : #{s.titre || s.region} — #{number_to_currency(s.total_simule, unit: '€', format: '%n %u')} (#{s.user&.email})", at: s.created_at }
+    end
+    Document.where('created_at >= ?', since).order(created_at: :desc).limit(20).each do |d|
+      events << { type: :document, icon: 'file-earmark-arrow-up', color: '#fd9644', label: "Document uploadé : #{d.type_document&.humanize}", at: d.created_at }
+    end
+    SupportTicket.where('created_at >= ?', since).includes(:user).order(created_at: :desc).limit(20).each do |t|
+      events << { type: :ticket, icon: 'headset', color: '#0ea5e9', label: "Ticket support : #{t.subject} (#{t.user&.email})", at: t.created_at, link: admin_support_ticket_path(t) }
+    end
+    RequestProgress.where('created_at >= ?', since).order(created_at: :desc).limit(20).each do |rp|
+      events << { type: :prime, icon: 'clipboard-check', color: '#8b5cf6', label: "Suivi prime : #{rp.status_administratif&.humanize}", at: rp.created_at }
+    end
+
+    events.sort_by { |e| e[:at] }.reverse
   end
 
   # Calcul des statistiques des visites de pages
