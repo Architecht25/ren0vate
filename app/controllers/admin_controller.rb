@@ -1,4 +1,6 @@
 class AdminController < ApplicationController
+  include ActionView::Helpers::NumberHelper
+
   before_action :authenticate_user!
   before_action :ensure_admin
 

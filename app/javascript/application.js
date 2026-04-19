@@ -61,6 +61,8 @@ import LoanSimulatorController from "controllers/loan_simulator_controller"
 import PwaInstallController from "controllers/pwa_install_controller"
 import SidebarController from "controllers/sidebar_controller"
 import HealthScoreController from "controllers/health_score_controller"
+import ArchitecturalParallaxController from "controllers/architectural_parallax_controller"
+import ConversationFixController from "controllers/conversation_fix_controller"
 
 application.register("user_type", UserTypeController)
 application.register("test-eligibilite", TestEligibiliteController)
@@ -107,5 +109,7 @@ application.register("loan-simulator", LoanSimulatorController)
 application.register("pwa-install", PwaInstallController)
 application.register("sidebar", SidebarController)
 application.register("health-score", HealthScoreController)
+application.register("architectural-parallax", ArchitecturalParallaxController)
+application.register("conversation-fix", ConversationFixController)
 
 export { application }
