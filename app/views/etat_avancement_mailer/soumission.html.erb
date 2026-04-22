@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { background: linear-gradient(135deg, #1e3a5f, #2a5298); color: white; padding: 24px 20px; text-align: center; border-radius: 8px 8px 0 0; }
+      .badge { display: inline-block; background: #d97706; color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.8em; font-weight: bold; margin-bottom: 8px; }
+      .content { background: #f8f9fa; padding: 28px; border-radius: 0 0 8px 8px; }
+      .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+      .kpi { background: white; border-radius: 6px; padding: 14px 16px; border-left: 4px solid #1e3a5f; }
+      .kpi-value { font-size: 1.3em; font-weight: bold; color: #1e3a5f; }
+      .kpi-label { font-size: 0.78em; color: #6c757d; margin-top: 2px; }
+      .btn { display: inline-block; padding: 12px 28px; background: #1e3a5f; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 18px; }
+      .resume-ia { background: #f0eeff; border-left: 3px solid #6f42c1; padding: 12px 16px; border-radius: 0 6px 6px 0; font-size: 0.88em; color: #333; margin: 18px 0; }
+      .footer { text-align: center; margin-top: 22px; font-size: 0.82em; color: #6c757d; }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="badge">⏳ EN ATTENTE D'APPROBATION</div>
+      <h2 style="margin: 0;">État d'avancement n°<%= @etat.numero %> soumis</h2>
+      <p style="margin: 6px 0 0; opacity: 0.85; font-size: 0.9em;"><%= @project.nom %></p>
+    </div>
+
+    <div class="content">
+      <p>Bonjour,</p>
+      <p>
+        <strong><%= @entrepreneur.full_name %></strong> vient de soumettre un nouveau bordereau de paiement
+        pour le projet <strong><%= @project.nom %></strong>. Ce document nécessite votre approbation.
+      </p>
+
+      <div class="kpi-grid">
+        <div class="kpi">
+          <div class="kpi-value"><%= @etat.avancement_global_pct %> %</div>
+          <div class="kpi-label">Avancement global</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-value"><%= number_to_currency(@etat.montant_reclame_periode, unit: "€", format: "%n %u", delimiter: " ", precision: 2) %></div>
+          <div class="kpi-label">Montant réclamé (période)</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-value"><%= number_to_currency(@etat.montant_cumule_actuel, unit: "€", format: "%n %u", delimiter: " ", precision: 2) %></div>
+          <div class="kpi-label">Cumul actuel</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-value"><%= @etat.lignes.count %></div>
+          <div class="kpi-label">Postes de travaux</div>
+        </div>
+      </div>
+
+      <% if @etat.resume_ia.present? %>
+        <div class="resume-ia">
+          <strong style="color: #6f42c1; font-size: 0.8em;">🤖 SYNTHÈSE IA</strong><br>
+          <%= @etat.resume_ia.truncate(300) %>
+        </div>
+      <% end %>
+
+      <p>Connectez-vous à Ren0vate pour consulter le détail, télécharger le PDF et prendre votre décision :</p>
+
+      <center>
+        <%= link_to "Voir l'état d'avancement →",
+              project_etats_avancement_url(@project, @etat),
+              class: "btn" %>
+      </center>
+
+      <p style="margin-top: 24px; font-size: 0.88em; color: #6c757d;">
+        Soumis le <%= l(@etat.soumis_at, format: :long) rescue @etat.soumis_at&.strftime("%d/%m/%Y à %H:%M") %> —
+        Source : <%= @etat.source_label %>
+      </p>
+
+      <p>Cordialement,<br><strong>L'équipe Ren0vate</strong></p>
+    </div>
+
+    <div class="footer">
+      Ren0vate · Votre assistant rénovation intelligent en Belgique
+    </div>
+  </body>
+</html>

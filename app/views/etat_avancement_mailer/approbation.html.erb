@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { background: linear-gradient(135deg, #198754, #146c43); color: white; padding: 24px 20px; text-align: center; border-radius: 8px 8px 0 0; }
+      .badge { display: inline-block; background: rgba(255,255,255,0.25); color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.8em; font-weight: bold; margin-bottom: 8px; }
+      .content { background: #f8f9fa; padding: 28px; border-radius: 0 0 8px 8px; }
+      .success-box { background: #d1e7dd; border-radius: 8px; padding: 16px 20px; margin: 18px 0; border-left: 4px solid #198754; }
+      .kpi-row { display: flex; gap: 12px; margin: 18px 0; }
+      .kpi { flex: 1; background: white; border-radius: 6px; padding: 12px; text-align: center; }
+      .kpi-value { font-size: 1.2em; font-weight: bold; color: #198754; }
+      .kpi-label { font-size: 0.75em; color: #6c757d; }
+      .btn { display: inline-block; padding: 12px 28px; background: #198754; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 18px; }
+      .footer { text-align: center; margin-top: 22px; font-size: 0.82em; color: #6c757d; }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="badge">✅ APPROUVÉ</div>
+      <h2 style="margin: 0;">État d'avancement n°<%= @etat.numero %> approuvé !</h2>
+      <p style="margin: 6px 0 0; opacity: 0.85; font-size: 0.9em;"><%= @project.nom %></p>
+    </div>
+
+    <div class="content">
+      <p>Bonjour <%= @entrepreneur.first_name || @entrepreneur.full_name %>,</p>
+
+      <div class="success-box">
+        <strong>Bonne nouvelle !</strong> Votre état d'avancement n°<%= @etat.numero %> a été
+        <strong>approuvé</strong>. Le paiement peut être déclenché conformément aux conditions du contrat.
+      </div>
+
+      <div class="kpi-row">
+        <div class="kpi">
+          <div class="kpi-value"><%= number_to_currency(@etat.montant_reclame_periode, unit: "€", format: "%n %u", delimiter: " ", precision: 2) %></div>
+          <div class="kpi-label">Montant approuvé</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-value"><%= @etat.avancement_global_pct %> %</div>
+          <div class="kpi-label">Avancement global</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-value"><%= number_to_currency(@etat.montant_cumule_actuel, unit: "€", format: "%n %u", delimiter: " ", precision: 2) %></div>
+          <div class="kpi-label">Cumul actuel</div>
+        </div>
+      </div>
+
+      <% if @etat.commentaire_approbateur.present? %>
+        <p><strong>Commentaire :</strong><br><%= @etat.commentaire_approbateur %></p>
+      <% end %>
+
+      <p>Téléchargez le bordereau approuvé en PDF depuis votre espace Ren0vate :</p>
+
+      <center>
+        <%= link_to "Télécharger le bordereau PDF →",
+              pdf_project_etats_avancement_url(@project, @etat),
+              class: "btn" %>
+      </center>
+
+      <p style="margin-top: 24px; font-size: 0.88em; color: #6c757d;">
+        Approuvé le <%= @etat.approuve_at&.strftime("%d/%m/%Y à %H:%M") %> —
+        Projet : <%= @project.nom %>
+      </p>
+
+      <p>Cordialement,<br><strong>L'équipe Ren0vate</strong></p>
+    </div>
+
+    <div class="footer">
+      Ren0vate · Votre assistant rénovation intelligent en Belgique
+    </div>
+  </body>
+</html>

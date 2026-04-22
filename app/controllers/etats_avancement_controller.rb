@@ -1,7 +1,7 @@
 class EtatsAvancementController < ApplicationController
   before_action :authenticate_user!
   before_action :set_project
-  before_action :set_etat_avancement, only: [:show, :edit, :update, :destroy, :soumettre, :approuver, :rejeter]
+  before_action :set_etat_avancement, only: [:show, :edit, :update, :destroy, :soumettre, :approuver, :rejeter, :pdf]
   before_action :ensure_can_create,   only: [:new, :create, :analyze_devis]
   before_action :ensure_can_approve,  only: [:approuver, :rejeter]
 
@@ -34,6 +34,16 @@ class EtatsAvancementController < ApplicationController
   def show
     @lignes_par_thematique = @etat.lignes_par_thematique
     @avancement_pct        = @etat.avancement_global_pct
+  end
+
+  # GET /projects/:project_id/etats_avancement/:id/pdf
+  def pdf
+    pdf_doc = EtatAvancementPdfService.new(@etat).generate
+    filename = "bordereau_#{@etat.numero}_#{@project.nom.parameterize}.pdf"
+    send_data pdf_doc.render,
+              filename:    filename,
+              type:        "application/pdf",
+              disposition: params[:inline] ? "inline" : "attachment"
   end
 
   # GET /projects/:project_id/etats_avancement/:id/edit
@@ -88,22 +98,25 @@ class EtatsAvancementController < ApplicationController
                          alert: "Cet état ne peut pas être soumis."
     end
     @etat.soumettre!
+    EtatAvancementMailer.soumission(@etat).deliver_later
     redirect_to project_etats_avancement_path(@project, @etat),
-                notice: "État d'avancement soumis pour validation."
+                notice: "État d'avancement soumis pour validation. Le propriétaire et l'architecte ont été notifiés."
   end
 
   # POST /projects/:project_id/etats_avancement/:id/approuver
   def approuver
     @etat.approuver!(commentaire: params[:commentaire])
+    EtatAvancementMailer.approbation(@etat).deliver_later
     redirect_to project_etats_avancement_path(@project, @etat),
-                notice: "État d'avancement approuvé."
+                notice: "État d'avancement approuvé. L'entrepreneur a été notifié."
   end
 
   # POST /projects/:project_id/etats_avancement/:id/rejeter
   def rejeter
     @etat.rejeter!(commentaire: params[:commentaire])
+    EtatAvancementMailer.rejet(@etat).deliver_later
     redirect_to project_etats_avancement_path(@project, @etat),
-                alert: "État d'avancement rejeté."
+                alert: "État d'avancement refusé. L'entrepreneur a été notifié."
   end
 
   # POST /projects/:project_id/etats_avancement/analyze_devis

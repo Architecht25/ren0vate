@@ -285,6 +285,7 @@ Rails.application.routes.draw do
         post :soumettre
         post :approuver
         post :rejeter
+        get  :pdf
       end
       collection do
         post :analyze_devis
