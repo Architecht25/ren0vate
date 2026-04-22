@@ -548,7 +548,7 @@
   <!-- FIN SECTION FORMULAIRES ENTREPRISES -->
 
   <!-- Script pour gérer l'affichage des formulaires d'entreprise -->
-  <script>
+  <script nonce="<%= content_security_policy_nonce %>">
     function selectFormType(formType) {
       console.log('🏢 Sélection du formulaire:', formType);
 
@@ -678,12 +678,12 @@
 <% end %>
 
 <% if @request.form_type.present? %>
-  <script>
+  <script nonce="<%= content_security_policy_nonce %>">
     console.log('✅ Formulaire directement affiché via ERB pour form_type:', '<%= @request.form_type %>');
     // JavaScript désactivé - affichage géré côté serveur
   </script>
 <% else %>
-  <script>
+  <script nonce="<%= content_security_policy_nonce %>">
     console.log('❌ @request.form_type est vide ou non défini');
   </script>
 <% end %>

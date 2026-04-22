@@ -9,10 +9,10 @@ Rails.application.configure do
     # Sources de base
     policy.default_src :self
 
-    # Scripts : permettre nos scripts + CDNs de confiance + nonces pour inline + eval pour Turbo
+    # Scripts : nos scripts + CDNs de confiance + nonces pour inline + eval pour Turbo
+    # 'unsafe-inline' supprimé le 22 avril 2026 — tous les <script> utilisent désormais des nonces
+    # :https générique supprimé — CDNs listés explicitement ci-dessous
     policy.script_src  :self,
-                       :https,
-                       "'unsafe-inline'", # Temporaire pour les onclick handlers
                        "'unsafe-eval'",   # Nécessaire pour Turbo Rails
                        "https://cdn.jsdelivr.net",
                        "https://cdnjs.cloudflare.com",
@@ -38,9 +38,9 @@ Rails.application.configure do
     policy.style_src_attr "'unsafe-inline'" # Pour les attributs style="" nécessaires aux composants UI
 
     # Directive spécifique pour les éléments <script>
+    # 'unsafe-inline' supprimé le 22 avril 2026 — nonces utilisés sur tous les éléments <script>
+    # :https générique supprimé — CDNs listés explicitement ci-dessous
     policy.script_src_elem :self,
-                           :https,
-                           "'unsafe-inline'",
                            "'unsafe-eval'",   # Nécessaire pour Turbo Rails
                            "https://cdn.jsdelivr.net",
                            "https://cdnjs.cloudflare.com",

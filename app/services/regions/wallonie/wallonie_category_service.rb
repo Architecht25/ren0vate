@@ -105,7 +105,7 @@ module Regions
           Rails.logger.info "🤰 Déduction femme enceinte: 5.000€"
         end
 
-        Rails.logger.info "📊 Total déductions: #{deductions}€ (revenu de base: #{base_income}€)"
+        Rails.logger.info "📊 Total déductions: [masqué]€ (calcul catégorie revenus)"
 
         [base_income - deductions, 0].max
       end

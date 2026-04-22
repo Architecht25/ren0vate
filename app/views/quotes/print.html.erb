@@ -155,7 +155,7 @@
 </div>
 
 <% content_for :scripts do %>
-  <script>
+  <script nonce="<%= content_security_policy_nonce %>">
     // Auto-print si paramètre ?autoprint=1
     if (new URLSearchParams(window.location.search).get('autoprint') === '1') {
       window.addEventListener('load', function() { window.print(); });

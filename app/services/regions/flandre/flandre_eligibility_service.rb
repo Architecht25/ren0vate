@@ -610,7 +610,7 @@ module Regions
         revenus = @user.revenu_demandeur.to_i
         plafond_tres_eleve = 500_000 # Plafond symbolique très élevé
 
-        Rails.logger.info "Revenus: #{revenus}, Plafond symbolique: #{plafond_tres_eleve}"
+        Rails.logger.info "Vérification plafond revenus: OK (plafond symbolique: #{plafond_tres_eleve})"
         revenus <= plafond_tres_eleve
       end
 

@@ -2,6 +2,19 @@ class AerDonnee < ApplicationRecord
   belongs_to :document
   belongs_to :user
 
+  # Chiffrement at-rest des données fiscales sensibles (RGPD A02) — 22 avril 2026
+  # Les colonnes revenu_* ont été converties de decimal à text (migration 20260422100000).
+  # attribute pré-déclaré pour préserver le comportement numérique (à la lecture, la valeur est un Decimal).
+  # support_unencrypted_data: true permet la lecture des enregistrements antérieurs non chiffrés.
+  attribute :revenu_imposable_global, :decimal, precision: 12, scale: 2
+  attribute :revenu_demandeur,        :decimal, precision: 12, scale: 2
+  attribute :revenu_conjoint,         :decimal, precision: 12, scale: 2
+
+  encrypts :revenu_imposable_global, support_unencrypted_data: true
+  encrypts :revenu_demandeur,        support_unencrypted_data: true
+  encrypts :revenu_conjoint,         support_unencrypted_data: true
+  encrypts :texte_ocr_brut,          support_unencrypted_data: true
+
   TYPES_DECLARATION = %w[isole couple isole_avec_enfant].freeze
 
   validates :confiance_ocr, numericality: { in: 0..100 }, allow_nil: true

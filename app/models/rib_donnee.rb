@@ -5,6 +5,8 @@ class RibDonnee < ApplicationRecord
   # Chiffrement at-rest des données bancaires sensibles (RGPD A02)
   encrypts :iban
   encrypts :nom_titulaire
+  # texte_ocr_brut peut contenir les coordonnées bancaires brutes de l’OCR — 22 avril 2026
+  encrypts :texte_ocr_brut, support_unencrypted_data: true
 
   validates :iban, format: {
     with: /\ABE\d{2}\d{12}\z/,
