@@ -1,0 +1,113 @@
+<%# Édition des pourcentages d'un état d'avancement %>
+
+<div class="container-fluid px-3 px-md-4 py-4" style="max-width:900px;">
+  <div class="mb-4">
+    <%= link_to project_etats_avancement_path(@project, @etat), class: "text-muted text-decoration-none small d-flex align-items-center gap-1 mb-1" do %>
+      <i class="bi bi-arrow-left"></i> État n°<%= @etat.numero %>
+    <% end %>
+    <h4 class="mb-0 fw-semibold" style="color:var(--ren0vate-navy);">
+      <i class="bi bi-pencil-square me-2" style="color:var(--ren0vate-accent);"></i>
+      Saisir les pourcentages réalisés
+    </h4>
+    <small class="text-muted">Indiquez le % cumulé réalisé pour chaque poste à la date de cet état</small>
+  </div>
+
+  <%= form_tag project_etats_avancement_path(@project, @etat), method: :patch, id: "form-edit-etat" do %>
+
+    <% @lignes_par_thematique.each do |code, lignes| %>
+      <% thematique_label = lignes.first.thematique_label %>
+      <div class="card border rounded-4 mb-3">
+        <div class="card-header border-0 py-2 px-3 fw-semibold small"
+             style="background:rgba(15,23,42,0.04); border-radius: 1rem 1rem 0 0 !important;">
+          <%= thematique_label %>
+          <span class="text-muted fw-normal ms-2" style="font-size:0.72rem;"><%= lignes.count %> postes</span>
+        </div>
+        <div class="card-body p-0">
+          <% lignes.sort_by(&:position).each_with_index do |ligne, idx| %>
+            <div class="p-3 <%= idx < lignes.size - 1 ? 'border-bottom' : '' %>">
+              <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+                <div class="flex-grow-1">
+                  <div class="fw-medium" style="font-size:0.85rem;">
+                    <% if ligne.reference.present? %>
+                      <span class="text-muted me-1" style="font-size:0.75rem;"><%= ligne.reference %></span>
+                    <% end %>
+                    <%= ligne.designation %>
+                  </div>
+                  <% if ligne.sous_secteur.present? %>
+                    <div class="text-muted" style="font-size:0.75rem;"><%= ligne.sous_secteur %></div>
+                  <% end %>
+                  <div class="text-muted" style="font-size:0.75rem;">
+                    Montant marché :
+                    <strong><%= ligne.montant_marche ? number_to_currency(ligne.montant_marche, unit: '€', format: '%n %u', separator: ',', delimiter: '.') : '—' %></strong>
+                    · % précédent : <strong><%= ligne.pct_cumule_precedent %>%</strong>
+                  </div>
+                </div>
+                <!-- Slider -->
+                <div class="flex-shrink-0" style="min-width:240px;">
+                  <div class="d-flex align-items-center justify-content-between mb-1">
+                    <small class="text-muted">% réalisé cumulé</small>
+                    <span class="fw-bold badge rounded-pill"
+                          id="lbl-pct-<%= ligne.id %>"
+                          style="background:rgba(217,119,6,0.12);color:var(--ren0vate-accent);">
+                      <%= ligne.pct_cumule_actuel %>%
+                    </span>
+                  </div>
+                  <input type="range" class="form-range"
+                         name="lignes[<%= ligne.id %>][pct_cumule_actuel]"
+                         min="<%= ligne.pct_cumule_precedent %>"
+                         max="100"
+                         step="5"
+                         value="<%= ligne.pct_cumule_actuel %>"
+                         oninput="document.getElementById('lbl-pct-<%= ligne.id %>').textContent = this.value + '%'; updateMontant('<%= ligne.id %>', <%= ligne.montant_marche&.to_f || 0 %>, <%= ligne.pct_cumule_precedent %>);"
+                         id="range-<%= ligne.id %>">
+                  <div class="d-flex justify-content-between" style="font-size:0.65rem;color:#aaa;">
+                    <span><%= ligne.pct_cumule_precedent %>% (min)</span><span>100%</span>
+                  </div>
+                  <div class="mt-1 text-end">
+                    <small class="text-muted">Réclamé : </small>
+                    <span class="fw-semibold small" id="montant-<%= ligne.id %>"
+                          style="color:var(--ren0vate-navy);">
+                      <%= ligne.montant_marche ? number_to_currency(ligne.montant_marche.to_f * (ligne.pct_cumule_actuel.to_i - ligne.pct_cumule_precedent.to_i) / 100.0, unit: '€', format: '%n %u', separator: ',', delimiter: '.') : '—' %>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Commentaire entrepreneur -->
+    <div class="card border-0 rounded-4 shadow-sm mb-4">
+      <div class="card-body p-4">
+        <label class="form-label fw-medium small">Commentaire entrepreneur (optionnel)</label>
+        <textarea name="etat_avancement[commentaire_entrepreneur]"
+                  class="form-control rounded-3" rows="3"
+                  placeholder="Travaux réalisés, difficultés rencontrées, observations…"><%= @etat.commentaire_entrepreneur %></textarea>
+      </div>
+    </div>
+
+    <div class="d-flex gap-2 flex-wrap">
+      <button type="submit" class="btn rounded-3 px-4"
+              style="background:var(--ren0vate-accent);color:#fff;border:none;">
+        <i class="bi bi-check2 me-2"></i>Enregistrer les pourcentages
+      </button>
+      <%= link_to project_etats_avancement_path(@project, @etat), class: "btn btn-outline-secondary rounded-3" do %>
+        Annuler
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+<script>
+function updateMontant(ligneId, montantMarche, pctPrecedent) {
+  const range = document.getElementById('range-' + ligneId);
+  if (!range) return;
+  const pctActuel = parseInt(range.value);
+  const delta     = Math.max(0, pctActuel - pctPrecedent);
+  const montant   = (montantMarche * delta / 100).toFixed(2);
+  const el        = document.getElementById('montant-' + ligneId);
+  if (el) el.textContent = parseFloat(montant).toLocaleString('fr-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
+}
+</script>

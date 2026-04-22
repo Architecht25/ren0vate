@@ -170,7 +170,8 @@ class PricingController < ApplicationController
           "📋 Import & analyse PEB / Audit énergie",
           "🏛️ Prédicteur permis urbanisme IA (87%)",
           "👷 Comparateur entrepreneurs (3/mois)",
-          "📁 Dossier documentaire de base",
+          "� Bordereaux d'avancement IA — suivi structuré",
+          "�📁 Dossier documentaire de base",
           "📞 Support prioritaire (24h)"
         ],
         roi: "Économisez 40h d'admin • +25% d'aides détectées • ROI moyen : 15 000€ sur projet 50K€",
@@ -238,6 +239,7 @@ class PricingController < ApplicationController
           "♾️ Projets clients illimités",
           "� Tableau de bord multi-clients",
           "🤖 Expert IA illimité pour vos clients",
+          "📋 Bordereaux d'avancement IA par chantier",
           "📄 Rapports clients PDF automatisés",
           "📈 Analytics multi-clients",
           "📞 Support prioritaire expert (4h)",

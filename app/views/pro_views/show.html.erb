@@ -744,6 +744,75 @@
         </div>
       </div>
 
+      <%# ÉTATS D'AVANCEMENT ── bordereaux de paiement %>
+      <div class="card border-0 shadow-sm rounded-3 mb-3" style="border-left:3px solid var(--ren0vate-accent) !important;">
+        <div class="card-header bg-white border-bottom pt-3 pb-2 px-4 d-flex align-items-center justify-content-between">
+          <h5 class="mb-0 fw-semibold" style="font-size:0.9rem;">
+            <i class="bi bi-receipt-cutoff me-2" style="color:var(--ren0vate-accent);"></i>États d'avancement
+          </h5>
+          <% if @membership.role == 'entrepreneur' || @project.user_id == current_user.id %>
+            <%= link_to new_project_etats_avancement_path(@project),
+                        class: "btn btn-sm rounded-3",
+                        style: "background:var(--ren0vate-accent);color:#fff;border:none;font-size:0.75rem;" do %>
+              <i class="bi bi-plus me-1"></i>Nouvel état
+            <% end %>
+          <% end %>
+        </div>
+        <div class="card-body px-4 py-3">
+          <% etats = @project.etats_avancement.chronologique.includes(:lignes) %>
+          <% if etats.any? %>
+            <% etats.last(3).reverse.each do |etat| %>
+              <div class="d-flex align-items-center gap-2 py-2 <%= 'border-bottom' if etat != etats.last %>">
+                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 text-white fw-bold"
+                     style="width:28px;height:28px;background:var(--ren0vate-navy);font-size:0.72rem;">
+                  <%= etat.numero %>
+                </div>
+                <div class="flex-grow-1 overflow-hidden">
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="fw-medium" style="font-size:0.82rem;">État n°<%= etat.numero %></span>
+                    <span class="badge rounded-pill bg-<%= etat.statut_color %>" style="font-size:0.65rem;">
+                      <%= etat.statut_label %>
+                    </span>
+                  </div>
+                  <div class="text-muted" style="font-size:0.72rem;">
+                    <%= etat.date_emission&.strftime("%d/%m/%Y") || etat.created_at.strftime("%d/%m/%Y") %>
+                    · <%= etat.lignes.count %> postes
+                    · <%= etat.avancement_global_pct %>%
+                  </div>
+                </div>
+                <div class="text-end flex-shrink-0">
+                  <div class="fw-bold" style="font-size:0.85rem;color:var(--ren0vate-accent);">
+                    <%= number_to_currency(etat.montant_reclame_periode, unit: '€', format: '%n %u', separator: ',', delimiter: '.') %>
+                  </div>
+                  <%= link_to project_etats_avancement_path(@project, etat), class: "btn btn-sm btn-outline-secondary rounded-3 mt-1", style: "font-size:0.65rem;" do %>
+                    <i class="bi bi-eye"></i>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+            <% if etats.count > 3 %>
+              <div class="text-center mt-2">
+                <%= link_to project_etats_avancement_index_path(@project), class: "text-muted small text-decoration-none" do %>
+                  Voir tous (<%= etats.count %>) <i class="bi bi-chevron-right"></i>
+                <% end %>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="text-center py-3">
+              <i class="bi bi-receipt-cutoff fs-4 text-muted d-block mb-2"></i>
+              <p class="text-muted small mb-2">Aucun état d'avancement</p>
+              <% if @membership.role == 'entrepreneur' %>
+                <%= link_to new_project_etats_avancement_path(@project),
+                            class: "btn btn-sm rounded-3",
+                            style: "background:var(--ren0vate-accent);color:#fff;border:none;font-size:0.75rem;" do %>
+                  <i class="bi bi-stars me-1"></i>Créer avec l'IA
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
       <%# MEMBRES DU PROJET ── %>
       <div class="card border-0 shadow-sm rounded-3 mb-3">
         <div class="card-header bg-white border-bottom pt-3 pb-2 px-4">

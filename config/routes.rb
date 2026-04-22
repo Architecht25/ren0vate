@@ -279,6 +279,19 @@ Rails.application.routes.draw do
     # Comparateur de devis reçus par email (OCR)
     get  :compare_devis, on: :member
 
+    # États d'avancement structurés (bordereaux de paiement)
+    resources :etats_avancement do
+      member do
+        post :soumettre
+        post :approuver
+        post :rejeter
+      end
+      collection do
+        post :analyze_devis
+        post :create_from_analysis
+      end
+    end
+
     # Réserves de réception (punch list)
     resources :reserves, only: %i[create update destroy]
 

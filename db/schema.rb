@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_22_100000) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_22_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -301,6 +301,60 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_22_100000) do
     t.index ["request_id"], name: "index_documents_on_request_id"
     t.index ["simulation_id"], name: "index_documents_on_simulation_id"
     t.index ["user_id"], name: "index_documents_on_user_id"
+  end
+
+  create_table "etat_avancement_lignes", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "designation", null: false, comment: "Description du poste"
+    t.bigint "etat_avancement_id", null: false
+    t.string "ia_confiance", comment: "haute | moyenne | faible"
+    t.boolean "ia_suggere", default: false, comment: "Ligne proposée par l'IA (non encore validée)"
+    t.decimal "montant_marche", precision: 12, scale: 2, comment: "Montant contractuel = qté × PU"
+    t.decimal "montant_reclame", precision: 12, scale: 2, comment: "Montant réclamé = montant_marche × Δ% / 100"
+    t.integer "pct_cumule_actuel", default: 0, comment: "% réalisé déclaré dans cet état (saisi par entrepreneur)"
+    t.integer "pct_cumule_precedent", default: 0, comment: "% réalisé dans les états précédents"
+    t.integer "position", default: 0, comment: "Ordre d'affichage"
+    t.decimal "prix_unitaire", precision: 10, scale: 2
+    t.decimal "quantite", precision: 10, scale: 3
+    t.string "reference", comment: "Référence poste contrat (1.1, 2.3…)"
+    t.string "sous_secteur", comment: "Sous-secteur (ex: charpente, couverture)"
+    t.string "thematique_code", null: false, comment: "Code de la thématique principale (ex: toiture, electricite)"
+    t.string "thematique_label", null: false, comment: "Libellé affiché de la thématique"
+    t.string "unite", default: "forfait"
+    t.datetime "updated_at", null: false
+    t.index ["etat_avancement_id", "position"], name: "idx_on_etat_avancement_id_position_edb49cf4ff"
+    t.index ["etat_avancement_id"], name: "index_etat_avancement_lignes_on_etat_avancement_id"
+    t.index ["thematique_code"], name: "index_etat_avancement_lignes_on_thematique_code"
+  end
+
+  create_table "etats_avancement", force: :cascade do |t|
+    t.datetime "approuve_at"
+    t.text "commentaire_architecte"
+    t.text "commentaire_entrepreneur"
+    t.datetime "created_at", null: false
+    t.bigint "created_by_id", null: false
+    t.date "date_emission"
+    t.bigint "devis_donnee_id"
+    t.boolean "genere_par_ia", default: false, comment: "Architecture initiale générée par IA"
+    t.decimal "montant_cumule_actuel", precision: 12, scale: 2, default: "0.0", comment: "Cumul actuel (précédent + période)"
+    t.decimal "montant_cumule_precedent", precision: 12, scale: 2, default: "0.0", comment: "Cumul approuvé des états précédents"
+    t.decimal "montant_reclame_periode", precision: 12, scale: 2, default: "0.0", comment: "Montant réclamé sur cette période (calculé)"
+    t.decimal "montant_total_marche", precision: 12, scale: 2, comment: "Total du marché (contrat)"
+    t.integer "numero", default: 1, null: false, comment: "État n°1, n°2…"
+    t.date "periode_debut", comment: "Début de la période couverte par cet état"
+    t.date "periode_fin", comment: "Fin de la période couverte"
+    t.bigint "project_id", null: false
+    t.datetime "rejete_at"
+    t.text "resume_ia", comment: "Résumé textuel généré par Claude"
+    t.datetime "soumis_at"
+    t.string "source_type", default: "manuel", null: false, comment: "devis_entrepreneur | metre_architecte | manuel"
+    t.string "statut", default: "brouillon", null: false, comment: "brouillon | soumis | approuve | rejete"
+    t.datetime "updated_at", null: false
+    t.index ["created_by_id"], name: "index_etats_avancement_on_created_by_id"
+    t.index ["devis_donnee_id"], name: "index_etats_avancement_on_devis_donnee_id"
+    t.index ["project_id", "numero"], name: "index_etats_avancement_on_project_id_and_numero", unique: true
+    t.index ["project_id"], name: "index_etats_avancement_on_project_id"
+    t.index ["statut"], name: "index_etats_avancement_on_statut"
   end
 
   create_table "factures", force: :cascade do |t|
@@ -1005,6 +1059,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_22_100000) do
   add_foreign_key "documents", "requests"
   add_foreign_key "documents", "simulations"
   add_foreign_key "documents", "users"
+  add_foreign_key "etat_avancement_lignes", "etats_avancement", column: "etat_avancement_id"
+  add_foreign_key "etats_avancement", "devis_donnees"
+  add_foreign_key "etats_avancement", "projects"
+  add_foreign_key "etats_avancement", "users", column: "created_by_id"
   add_foreign_key "factures", "documents"
   add_foreign_key "factures", "projects"
   add_foreign_key "factures", "properties"
