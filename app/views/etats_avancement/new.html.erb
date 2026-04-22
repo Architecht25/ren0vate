@@ -1,5 +1,8 @@
 <%# Création d'un état d'avancement — choix de source + analyse IA %>
 <%= content_for :title, "Nouvel état d'avancement — #{@project.nom}" %>
+<% content_for :head do %>
+  <meta name="turbo-cache-control" content="no-store">
+<% end %>
 
 <div class="container-fluid px-3 px-md-4 py-4" style="max-width:900px;">
   <!-- En-tête -->
@@ -150,6 +153,18 @@
             </div>
           </div>
         </div>
+
+        <!-- Bouton analyse IA — en bas du tab, s'active dès qu'un devis est sélectionné -->
+        <div class="mt-3 pt-3 border-top">
+          <button type="button" id="btn-analyze"
+                  class="btn rounded-3 d-flex align-items-center gap-2"
+                  style="background:var(--ren0vate-accent);color:#fff;border:none;opacity:0.4;pointer-events:none;"
+                  disabled>
+            <i class="bi bi-stars"></i>
+            <span id="btn-analyze-label">Sélectionnez un devis pour analyser</span>
+          </button>
+        </div>
+
       <% else %>
         <div class="alert border-0 rounded-3 mb-3" style="background:rgba(217,119,6,0.07);">
           <i class="bi bi-info-circle me-2" style="color:var(--ren0vate-accent);"></i>
@@ -171,6 +186,15 @@
           <div class="tab-pane fade show active" id="pane-libre">
             <textarea id="texte_libre" class="form-control rounded-3" rows="8"
                       placeholder="Collez le texte du devis ici…" style="font-size:0.82rem;font-family:monospace;"></textarea>
+            <div class="mt-3">
+              <button type="button" id="btn-analyze"
+                      class="btn rounded-3 d-flex align-items-center gap-2"
+                      style="background:var(--ren0vate-accent);color:#fff;border:none;opacity:0.4;pointer-events:none;"
+                      disabled>
+                <i class="bi bi-stars"></i>
+                <span id="btn-analyze-label">Collez du texte pour analyser</span>
+              </button>
+            </div>
           </div>
           <div class="tab-pane fade" id="pane-manuel">
             <div class="alert border-0 rounded-3" style="background:rgba(217,119,6,0.07);">
@@ -180,25 +204,6 @@
           </div>
         </div>
       <% end %>
-    </div>
-  </div>
-
-  <!-- Étape 2 — Bouton d'analyse IA -->
-  <div id="analyze-section" class="card border-0 rounded-4 shadow-sm mb-4" style="display:none!important;">
-    <div class="card-body px-4 py-3">
-      <h6 class="fw-semibold mb-1 d-flex align-items-center gap-2">
-        <span class="badge rounded-circle d-flex align-items-center justify-content-center"
-              style="width:24px;height:24px;background:var(--ren0vate-accent);color:#fff;font-size:0.75rem;">2</span>
-        Analyse IA
-      </h6>
-      <p class="text-muted small mb-3">
-        Claude va analyser le document et proposer une architecture de bordereau structurée en 15 thématiques.
-      </p>
-      <button type="button" id="btn-analyze" class="btn rounded-3 d-flex align-items-center gap-2"
-              style="background:var(--ren0vate-accent);color:#fff;border:none;">
-        <i class="bi bi-stars"></i>
-        <span id="btn-analyze-label">Analyser le devis avec l'IA</span>
-      </button>
     </div>
   </div>
 
@@ -220,25 +225,29 @@
         <!-- Stats rapides -->
         <div class="row g-3 mb-4" id="ia-stats"></div>
 
-        <!-- Thématiques -->
-        <div id="ia-thematiques"></div>
-
-        <!-- Formulaire caché pour création -->
-        <%= form_tag create_from_analysis_project_etats_avancement_index_path(@project), method: :post, id: "form-create" do %>
-          <input type="hidden" name="analysis_json" id="hidden-analysis-json">
-          <input type="hidden" name="devis_donnee_id" id="hidden-devis-donnee-id">
-          <input type="hidden" name="source_type" id="hidden-source-type">
-        <% end %>
-
-        <div class="d-flex gap-2 flex-wrap mt-4">
-          <button type="submit" form="form-create" class="btn rounded-3 px-4"
-                  style="background:var(--ren0vate-navy);color:#fff;border:none;">
+        <!-- Boutons d'action -->
+        <div class="d-flex gap-2 flex-wrap mb-4">
+          <button type="button" id="btn-create" class="btn rounded-3 px-4 fw-semibold"
+                  style="background:#1e3a5f;color:#fff;border:none;">
             <i class="bi bi-check2-circle me-2"></i>Créer ce bordereau
           </button>
           <button type="button" id="btn-retry" class="btn btn-outline-secondary rounded-3">
             <i class="bi bi-arrow-clockwise me-1"></i>Ré-analyser
           </button>
         </div>
+
+        <!-- Formulaire caché pour création (soumis par JS) -->
+        <form action="<%= create_from_analysis_project_etats_avancement_index_path(@project) %>"
+              method="post" id="form-create" style="display:none;">
+          <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
+          <input type="hidden" name="analysis_json" id="hidden-analysis-json">
+          <input type="hidden" name="devis_donnee_id" id="hidden-devis-donnee-id">
+          <input type="hidden" name="source_type" id="hidden-source-type">
+        </form>
+
+        <!-- Thématiques -->
+        <div id="ia-thematiques"></div>
+
       </div>
     </div>
   </div>
@@ -285,8 +294,21 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-  const analyzeSection  = document.getElementById('analyze-section');
+  // Réinitialiser avant que Turbo ne snapshote la page (évite l'affichage du résultat au retour)
+  document.addEventListener('turbo:before-cache', function () {
+    var r = document.getElementById('analysis-result');
+    var m = document.getElementById('manual-form-section');
+    if (r) r.style.display = 'none';
+    if (m) m.style.display = 'none';
+    var btn = document.getElementById('btn-analyze');
+    if (btn) { btn.disabled = true; btn.style.opacity = '0.4'; btn.style.pointerEvents = 'none'; }
+    var lbl = document.getElementById('btn-analyze-label');
+    if (lbl) lbl.textContent = 'Sélectionnez un devis pour analyser';
+    document.querySelectorAll('.devis-radio').forEach(function(r) { r.checked = false; });
+    document.querySelectorAll('.devis-card').forEach(function(c) { c.style.borderColor = ''; c.style.background = ''; });
+  });
+
+document.addEventListener('turbo:load', function () {
   const resultSection   = document.getElementById('analysis-result');
   const manualSection   = document.getElementById('manual-form-section');
   const btnAnalyze      = document.getElementById('btn-analyze');
@@ -294,63 +316,78 @@ document.addEventListener('DOMContentLoaded', function () {
   const btnLabel        = document.getElementById('btn-analyze-label');
   const radios          = document.querySelectorAll('.devis-radio');
   const texteLibre      = document.getElementById('texte_libre');
-  const tabLibre        = document.getElementById('tab-libre');
-  const tabManuel       = document.getElementById('tab-manuel');
 
-  let selectedDevisId   = null;
+  let selectedDevisId    = null;
   let selectedSourceType = null;
 
-  function showAnalyzeButton() {
-    analyzeSection.style.removeProperty('display');
-    analyzeSection.style.display = 'block';
-    resultSection.style.display = 'none';
-    manualSection.style.display = 'none';
+  function enableButton(label) {
+    if (!btnAnalyze) return;
+    btnAnalyze.disabled = false;
+    btnAnalyze.style.opacity = '1';
+    btnAnalyze.style.pointerEvents = 'auto';
+    if (label && btnLabel) btnLabel.textContent = label;
   }
 
-  function showManualForm() {
-    manualSection.style.display = 'block';
-    analyzeSection.style.display = 'none';
-    resultSection.style.display = 'none';
+  function resetButton() {
+    if (!btnAnalyze) return;
+    btnAnalyze.disabled = true;
+    btnAnalyze.style.opacity = '0.4';
+    btnAnalyze.style.pointerEvents = 'none';
+    if (btnLabel) btnLabel.textContent = 'Analyser le devis avec l\'IA';
   }
 
-  // Sélection d'un devis radio
+  // Sélection d'un devis radio — écoute click ET change pour fiabilité
   radios.forEach(function(radio) {
-    radio.addEventListener('change', function() {
-      selectedDevisId    = this.value;
-      selectedSourceType = this.dataset.sourceType;
-      showAnalyzeButton();
+    ['change', 'click'].forEach(function(evt) {
+      radio.addEventListener(evt, function() {
+        selectedDevisId    = this.value;
+        selectedSourceType = this.dataset.sourceType;
+        // Highlight card sélectionnée
+        document.querySelectorAll('.devis-card').forEach(function(c) {
+          c.style.borderColor = '';
+          c.style.background  = '';
+        });
+        var card = this.closest('.devis-card');
+        if (card) {
+          card.style.borderColor = 'var(--ren0vate-accent)';
+          card.style.background  = 'rgba(217,119,6,0.04)';
+        }
+        if (resultSection) resultSection.style.display = 'none';
+        enableButton('Analyser avec l\'IA');
+      });
     });
   });
 
-  // Texte libre — afficher bouton analyse quand du texte est saisi
+  // Clic sur la label card elle-même (redondant mais très fiable)
+  document.querySelectorAll('.devis-card').forEach(function(card) {
+    card.addEventListener('click', function() {
+      var radio = this.querySelector('.devis-radio');
+      if (radio && !radio.checked) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change'));
+      }
+    });
+  });
+
+  // Texte libre
   if (texteLibre) {
     texteLibre.addEventListener('input', function() {
       selectedDevisId    = null;
       selectedSourceType = 'manuel';
       if (this.value.trim().length > 50) {
-        showAnalyzeButton();
+        enableButton('Analyser le texte avec l\'IA');
       } else {
-        analyzeSection.style.display = 'none';
+        resetButton();
+        if (btnLabel) btnLabel.textContent = 'Collez du texte pour analyser';
       }
     });
   }
 
-  // Tab manuel direct
-  if (tabManuel) {
-    tabManuel.addEventListener('shown.bs.tab', function() {
-      showManualForm();
-    });
-    // Quitter le tab manuel cache le formulaire
-    document.querySelectorAll('[data-bs-toggle="pill"]:not(#tab-manuel)').forEach(function(tab) {
-      tab.addEventListener('shown.bs.tab', function() { manualSection.style.display = 'none'; });
-    });
-  }
-
-  // Analyse IA
   function doAnalyze() {
-    btnLabel.textContent = 'Analyse en cours…';
+    if (!btnAnalyze || !btnLabel) return;
+    btnLabel.textContent = 'Analyse en cours\u2026';
     btnAnalyze.disabled  = true;
-    btnAnalyze.classList.add('opacity-75');
+    btnAnalyze.style.opacity = '0.7';
 
     const body = new URLSearchParams({
       authenticity_token: document.querySelector('meta[name="csrf-token"]')?.content || ''
@@ -369,10 +406,7 @@ document.addEventListener('DOMContentLoaded', function () {
     })
     .then(function(r) { return r.json(); })
     .then(function(data) {
-      btnLabel.textContent = 'Analyser le devis avec l'IA';
-      btnAnalyze.disabled  = false;
-      btnAnalyze.classList.remove('opacity-75');
-
+      enableButton('Analyser de nouveau');
       if (!data.success) {
         alert('Erreur IA : ' + (data.error || 'Inconnue'));
         return;
@@ -380,17 +414,22 @@ document.addEventListener('DOMContentLoaded', function () {
       renderResult(data);
     })
     .catch(function(err) {
-      btnLabel.textContent = 'Analyser le devis avec l'IA';
-      btnAnalyze.disabled  = false;
-      btnAnalyze.classList.remove('opacity-75');
-      alert('Erreur réseau : ' + err.message);
+      enableButton('Analyser avec l\'IA');
+      alert('Erreur r\u00e9seau : ' + err.message);
     });
   }
 
-  btnAnalyze.addEventListener('click', doAnalyze);
+  if (btnAnalyze) btnAnalyze.addEventListener('click', doAnalyze);
+
+  var btnCreate = document.getElementById('btn-create');
+  if (btnCreate) btnCreate.addEventListener('click', function() {
+    var form = document.getElementById('form-create');
+    if (form) form.submit();
+  });
+
   if (btnRetry) btnRetry.addEventListener('click', function() {
-    resultSection.style.display = 'none';
-    showAnalyzeButton();
+    if (resultSection) resultSection.style.display = 'none';
+    enableButton('Analyser de nouveau');
   });
 
   // Rendu du résultat IA
@@ -421,7 +460,6 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById('hidden-source-type').value    = selectedSourceType || 'devis_entrepreneur';
 
     resultSection.style.display = 'block';
-    analyzeSection.style.display = 'none';
     resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
