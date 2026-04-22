@@ -7,9 +7,10 @@ class User < ApplicationRecord
          # Confirmable temporairement désactivé jusqu'à configuration complète SMTP
 
   # Chiffrement at-rest des données personnelles sensibles (RGPD A02)
-  # Actif uniquement si AR_ENCRYPTION_* env vars configurées (production Heroku)
-  encrypts :national_number
-  encrypts :iban
+  # support_unencrypted_data: true permet de lire les valeurs stockées en clair
+  # avant l'activation du chiffrement (migration transparente)
+  encrypts :national_number, support_unencrypted_data: true
+  encrypts :iban, support_unencrypted_data: true
 
   # Auto-confirmer les utilisateurs à la création (solution temporaire)
   # Commenté car :confirmable est désactivé
@@ -174,19 +175,29 @@ class User < ApplicationRecord
 
     case feature
     when :unlimited_properties
-      %w[individual portfolio professional enterprise].include?(tier)
+      %w[individual portfolio premium_mixed professional enterprise].include?(tier)
     when :ren0chat
-      %w[individual portfolio professional enterprise].include?(tier)
+      %w[individual portfolio premium_mixed professional enterprise].include?(tier)
     when :ren0bot
-      %w[portfolio professional enterprise].include?(tier)
+      %w[portfolio premium_mixed professional enterprise].include?(tier)
     when :decision_hub
-      %w[portfolio professional enterprise].include?(tier)
+      %w[portfolio premium_mixed professional enterprise].include?(tier)
     when :analytics
-      %w[individual portfolio professional enterprise].include?(tier)
+      %w[individual portfolio premium_mixed professional enterprise].include?(tier)
     when :priority_support
-      %w[individual portfolio professional enterprise].include?(tier)
+      %w[individual portfolio premium_mixed professional enterprise].include?(tier)
     when :api_access
-      %w[portfolio professional enterprise].include?(tier)
+      %w[premium_mixed portfolio professional enterprise].include?(tier)
+    when :suivi_chantier
+      %w[portfolio premium_mixed professional enterprise].include?(tier)
+    when :comparateur_entrepreneurs
+      %w[individual portfolio premium_mixed professional enterprise].include?(tier)
+    when :dossier_documentaire
+      %w[individual portfolio premium_mixed professional enterprise].include?(tier)
+    when :export_comptable
+      %w[enterprise].include?(tier)
+    when :rapport_pdf
+      %w[professional enterprise].include?(tier)
     else
       false
     end
@@ -197,8 +208,15 @@ class User < ApplicationRecord
     when 'freemium' then 1
     when 'individual' then 3
     when 'portfolio' then 10
-    when 'professional', 'enterprise' then Float::INFINITY
+    when 'premium_mixed', 'professional', 'enterprise' then Float::INFINITY
     else 1
+    end
+  end
+
+  def project_limit
+    case subscription_tier
+    when 'freemium' then 1
+    else Float::INFINITY
     end
   end
 
@@ -213,7 +231,7 @@ class User < ApplicationRecord
     case subscription_tier
     when 'individual' then 50
     when 'portfolio' then 150
-    when 'professional', 'enterprise' then Float::INFINITY
+    when 'premium_mixed', 'professional', 'enterprise' then Float::INFINITY
     else 0
     end
   end

@@ -119,6 +119,14 @@ class SimulationsController < ApplicationController
   end
 
   def create
+    unless plan_exempt?
+      limit = current_user.simulation_limit
+      if limit != Float::INFINITY && current_user.simulations.count >= limit
+        redirect_to simulations_path, alert: "Votre formule #{current_user.subscription_tier_name} est limitée à #{limit} simulation(s). Passez à une offre supérieure pour en lancer davantage."
+        return
+      end
+    end
+
     @simulation = current_user.simulations.build(simulation_params)
 
     if @simulation.save

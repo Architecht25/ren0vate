@@ -162,6 +162,13 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  PLAN_EXEMPT_EMAIL = 'robin@primes-services.be'.freeze
+
+  def plan_exempt?
+    user_signed_in? && current_user.email == PLAN_EXEMPT_EMAIL
+  end
+  helper_method :plan_exempt?
+
   # Valider qu'une URL externe pointe vers un hôte de confiance avant redirection
   TRUSTED_REDIRECT_HOSTS = %w[
     res.cloudinary.com

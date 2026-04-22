@@ -1,6 +1,7 @@
 <% content_for :title, "Choisissez votre formule - Ren0vate" %>
+<% content_for :full_width_page, true %>
 
-<div class="container py-4">
+<div class="container-fluid px-2 px-md-3 py-4">
   <div class="row justify-content-center text-center">
     <div class="col-lg-8">
       <h1 class="display-4 fw-bold mb-3 text-primary">
@@ -17,7 +18,7 @@
   </div>
 </div>
 
-<div class="container py-5"
+<div class="container-fluid px-2 px-md-3 py-5"
      data-controller="pricing"
      data-pricing-user-context-value="<%= (@current_user_context || {}).to_json %>">
 
@@ -43,11 +44,11 @@
   </div>
 
   <!-- Pricing Cards B2C -->
-  <div data-pricing-target="b2cTiers" class="row g-4 mb-5 pricing-tiers active">
+  <div data-pricing-target="b2cTiers" class="row g-2 mb-5 pricing-tiers active">
     <!-- Freemium -->
-    <div class="col-lg-3 col-md-6">
+    <div class="col-xl-3 col-lg-6">
       <div class="card h-100 border-0 shadow-sm">
-        <div class="card-header bg-light text-center py-3">
+        <div class="card-header bg-light text-center py-2">
           <h3 class="card-title mb-0">
             <span class="badge bg-secondary mb-2">Gratuit</span><br>
             <%= @pricing_tiers[:freemium][:name] %>
@@ -58,13 +59,10 @@
           </div>
           <p class="text-muted small"><%= @pricing_tiers[:freemium][:description] %></p>
         </div>
-        <div class="card-body">
-          <ul class="list-unstyled">
+        <div class="card-body p-2 p-xl-3">
+          <ul class="list-unstyled mb-0" style="font-size:0.75rem;">
             <% @pricing_tiers[:freemium][:features].each do |feature| %>
-              <li class="mb-2">
-                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                <%= feature %>
-              </li>
+              <%= render_pricing_feature(feature, small: true) %>
             <% end %>
           </ul>
 
@@ -98,7 +96,7 @@
     </div>
 
     <!-- Individual (Popular) -->
-    <div class="col-lg-3 col-md-6">
+    <div class="col-xl-3 col-lg-6">
       <div class="card h-100 border-primary shadow position-relative pricing-card"
            data-tier="individual"
            data-price="<%= @pricing_tiers[:individual][:price] %>"
@@ -122,18 +120,15 @@
             <%= @pricing_tiers[:individual][:name] %>
           </h3>
           <div class="pricing-price">
-            <span class="h2 fw-bold"><%= @pricing_tiers[:individual][:price] %>€</span>
-            <span>/mois</span>
+            <span class="display-4 fw-bold" style="color: #ffffff !important;"><%= @pricing_tiers[:individual][:price] %>€</span>
+            <span class="fs-5" style="color: rgba(255,255,255,0.8);">/mois</span>
           </div>
           <p class="small mb-0"><%= @pricing_tiers[:individual][:description] %></p>
         </div>
-        <div class="card-body">
-          <ul class="list-unstyled">
+        <div class="card-body p-2 p-xl-3">
+          <ul class="list-unstyled mb-0" style="font-size:0.75rem;">
             <% @pricing_tiers[:individual][:features].each do |feature| %>
-              <li class="mb-2">
-                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                <%= feature %>
-              </li>
+              <%= render_pricing_feature(feature, small: true) %>
             <% end %>
           </ul>
 
@@ -159,9 +154,9 @@
     </div>
 
     <!-- Portfolio -->
-    <div class="col-lg-3 col-md-6">
+    <div class="col-xl-3 col-lg-6">
       <div class="card h-100 border-0 shadow-sm">
-        <div class="card-header bg-warning text-dark text-center py-3">
+        <div class="card-header bg-warning text-dark text-center py-2">
           <h3 class="card-title mb-0">
             <%= @pricing_tiers[:portfolio][:name] %>
           </h3>
@@ -171,13 +166,10 @@
           </div>
           <p class="small mb-0"><%= @pricing_tiers[:portfolio][:description] %></p>
         </div>
-        <div class="card-body">
-          <ul class="list-unstyled">
+        <div class="card-body p-2 p-xl-3">
+          <ul class="list-unstyled mb-0" style="font-size:0.75rem;">
             <% @pricing_tiers[:portfolio][:features].take(6).each do |feature| %>
-              <li class="mb-2">
-                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                <%= feature %>
-              </li>
+              <%= render_pricing_feature(feature, small: true) %>
             <% end %>
             <li class="text-muted">
               <small>+ <%= @pricing_tiers[:portfolio][:features].length - 6 %> autres fonctionnalités</small>
@@ -205,45 +197,54 @@
       </div>
     </div>
 
-    <!-- Contact Enterprise -->
-    <div class="col-lg-3 col-md-6">
-      <div class="card h-100 border-0 shadow-sm">
-        <div class="card-header bg-dark text-white text-center py-3">
-          <h3 class="card-title mb-0">Enterprise</h3>
-          <div class="pricing-price">
-            <span class="h4">Sur mesure</span>
+    <!-- Premium (premium_mixed) -->
+    <div class="col-xl-3 col-lg-6">
+      <div class="card h-100 border-danger shadow-sm">
+        <% if @pricing_tiers[:premium_mixed][:new_badge].present? %>
+          <div class="position-absolute top-0 end-0 m-2">
+            <span class="badge bg-danger">
+              <i class="bi bi-sparkles me-1"></i>
+              <%= @pricing_tiers[:premium_mixed][:new_badge] %>
+            </span>
           </div>
-          <p class="small mb-0">Solutions personnalisées</p>
+        <% end %>
+        <div class="card-header bg-danger text-white text-center py-2">
+          <h3 class="card-title mb-0">
+            <%= @pricing_tiers[:premium_mixed][:name] %>
+          </h3>
+          <div class="pricing-price">
+            <span class="display-4 fw-bold" style="color: #ffffff !important;"><%= @pricing_tiers[:premium_mixed][:price] %>€</span>
+            <span class="fs-5" style="color: rgba(255,255,255,0.8);">/mois</span>
+          </div>
+          <p class="small mb-0"><%= @pricing_tiers[:premium_mixed][:description] %></p>
         </div>
-        <div class="card-body">
-          <ul class="list-unstyled">
-            <li class="mb-2">
-              <i class="bi bi-check-circle-fill text-success me-2"></i>
-              Propriétés illimitées
-            </li>
-            <li class="mb-2">
-              <i class="bi bi-check-circle-fill text-success me-2"></i>
-              IA consultant dédié
-            </li>
-            <li class="mb-2">
-              <i class="bi bi-check-circle-fill text-success me-2"></i>
-              Intégrations sur-mesure
-            </li>
-            <li class="mb-2">
-              <i class="bi bi-check-circle-fill text-success me-2"></i>
-              Support 24/7 humain
-            </li>
-            <li class="mb-2">
-              <i class="bi bi-check-circle-fill text-success me-2"></i>
-              SLA garantie 99.9%
+        <div class="card-body p-2 p-xl-3">
+          <ul class="list-unstyled mb-0" style="font-size:0.75rem;">
+            <% @pricing_tiers[:premium_mixed][:features].take(6).each do |feature| %>
+              <%= render_pricing_feature(feature, small: true) %>
+            <% end %>
+            <li class="text-muted">
+              <small>+ <%= @pricing_tiers[:premium_mixed][:features].length - 6 %> autres fonctionnalités</small>
             </li>
           </ul>
+
+          <div class="alert alert-danger bg-light border-danger">
+            <small><strong>ROI :</strong> <%= @pricing_tiers[:premium_mixed][:roi] %></small>
+          </div>
         </div>
         <div class="card-footer bg-transparent text-center">
-          <a href="mailto:hello@ren0vate.be" class="btn btn-dark btn-lg w-100">
-            <i class="bi bi-envelope me-2"></i>
-            Nous contacter
-          </a>
+          <% if user_signed_in? %>
+            <%= link_to pricing_summary_path(tier: :premium_mixed),
+                class: "btn btn-danger btn-lg w-100" do %>
+              <i class="bi bi-credit-card me-2"></i>
+              <%= @pricing_tiers[:premium_mixed][:cta] %>
+            <% end %>
+          <% else %>
+            <%= link_to new_user_registration_path, class: "btn btn-danger btn-lg w-100" do %>
+              <i class="bi bi-person-plus me-2"></i>
+              Créer un compte
+            <% end %>
+          <% end %>
         </div>
       </div>
     </div>
@@ -252,11 +253,11 @@
 
 
   <!-- Pricing Cards B2B (Hidden by default) -->
-  <div data-pricing-target="b2bTiers" class="row g-4 mb-5 pricing-tiers">
+  <div data-pricing-target="b2bTiers" class="row g-2 mb-5 pricing-tiers">
     <!-- Professional -->
-    <div class="col-lg-4 col-md-6">
+    <div class="col-xl-4 col-lg-6">
       <div class="card h-100 border-success shadow">
-        <div class="card-header bg-success text-white text-center py-3">
+        <div class="card-header bg-success text-white text-center py-2">
           <h3 class="card-title mb-0">
             <%= @pricing_tiers[:professional][:name] %>
           </h3>
@@ -266,13 +267,10 @@
           </div>
           <p class="small mb-0"><%= @pricing_tiers[:professional][:description] %></p>
         </div>
-        <div class="card-body">
-          <ul class="list-unstyled">
+        <div class="card-body p-2 p-xl-3">
+          <ul class="list-unstyled mb-0" style="font-size:0.75rem;">
             <% @pricing_tiers[:professional][:features].take(7).each do |feature| %>
-              <li class="mb-2">
-                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                <%= feature %>
-              </li>
+              <%= render_pricing_feature(feature, small: true) %>
             <% end %>
             <li class="text-muted">
               <small>+ <%= @pricing_tiers[:professional][:features].length - 7 %> autres fonctionnalités</small>
@@ -301,25 +299,22 @@
     </div>
 
     <!-- Enterprise -->
-    <div class="col-lg-4 col-md-6">
+    <div class="col-xl-4 col-lg-6">
       <div class="card h-100 border-dark shadow">
-        <div class="card-header bg-dark text-white text-center py-3">
+        <div class="card-header bg-dark text-white text-center py-2">
           <h3 class="card-title mb-0">
             <%= @pricing_tiers[:enterprise][:name] %>
           </h3>
           <div class="pricing-price">
-            <span class="h2 fw-bold"><%= @pricing_tiers[:enterprise][:price] %>€</span>
-            <span>/mois</span>
+            <span class="display-4 fw-bold" style="color: #ffffff !important;"><%= @pricing_tiers[:enterprise][:price] %>€</span>
+            <span class="fs-5" style="color: rgba(255,255,255,0.8);">/mois</span>
           </div>
           <p class="small mb-0"><%= @pricing_tiers[:enterprise][:description] %></p>
         </div>
-        <div class="card-body">
-          <ul class="list-unstyled">
+        <div class="card-body p-2 p-xl-3">
+          <ul class="list-unstyled mb-0" style="font-size:0.75rem;">
             <% @pricing_tiers[:enterprise][:features].take(7).each do |feature| %>
-              <li class="mb-2">
-                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                <%= feature %>
-              </li>
+              <%= render_pricing_feature(feature, small: true) %>
             <% end %>
             <li class="text-muted">
               <small>+ <%= @pricing_tiers[:enterprise][:features].length - 7 %> autres fonctionnalités</small>
@@ -350,7 +345,7 @@
     <!-- Contact Custom -->
     <div class="col-lg-4 col-md-12">
       <div class="card h-100 border-info shadow">
-        <div class="card-header bg-info text-white text-center py-3">
+        <div class="card-header bg-info text-white text-center py-2">
           <h3 class="card-title mb-0">Sur mesure</h3>
           <div class="pricing-price">
             <span class="h4">Devis personnalisé</span>
@@ -440,6 +435,11 @@
 <style nonce="<%= content_security_policy_nonce %>">
 .pricing-price {
   margin: 1rem 0;
+}
+
+.bg-primary .pricing-price span,
+.bg-dark .pricing-price span {
+  color: #ffffff !important;
 }
 
 .card {

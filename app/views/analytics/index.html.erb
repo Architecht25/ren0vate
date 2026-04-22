@@ -1,0 +1,185 @@
+<% content_for :title, "Analytics — #{current_user.first_name}" %>
+
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h1 class="h3 fw-bold mb-1">
+        <i class="bi bi-bar-chart-line text-primary me-2"></i>Analytics
+      </h1>
+      <p class="text-muted mb-0">Vue d'ensemble de vos projets et finances</p>
+    </div>
+    <% if current_user.can_access_feature?(:export_comptable) || plan_exempt? %>
+      <%= link_to export_comptable_path(format: :csv), class: "btn btn-outline-success" do %>
+        <i class="bi bi-download me-2"></i>Export CSV comptable
+      <% end %>
+    <% end %>
+  </div>
+
+  <!-- KPI globaux -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3 col-sm-6">
+      <div class="card border-0 shadow-sm text-center py-3">
+        <div class="h2 fw-bold text-primary mb-1"><%= @total_projects %></div>
+        <div class="text-muted small">Projets totaux</div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <div class="card border-0 shadow-sm text-center py-3">
+        <div class="h2 fw-bold text-warning mb-1"><%= @active_projects %></div>
+        <div class="text-muted small">Projets actifs</div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <div class="card border-0 shadow-sm text-center py-3">
+        <div class="h2 fw-bold text-success mb-1"><%= number_to_currency(@budget_total, unit: '€', format: '%n %u', delimiter: ' ') %></div>
+        <div class="text-muted small">Factures totales</div>
+      </div>
+    </div>
+    <div class="col-md-3 col-sm-6">
+      <div class="card border-0 shadow-sm text-center py-3">
+        <div class="h2 fw-bold text-info mb-1"><%= number_to_currency(@total_primes_potentielles, unit: '€', format: '%n %u', delimiter: ' ') %></div>
+        <div class="text-muted small">Primes potentielles</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 mb-4">
+
+    <!-- Avancement moyen -->
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body text-center">
+          <h6 class="fw-semibold mb-3">Avancement chantiers actifs</h6>
+          <div class="position-relative d-inline-flex align-items-center justify-content-center"
+               style="width:120px; height:120px;">
+            <svg viewBox="0 0 36 36" class="w-100 h-100" style="transform:rotate(-90deg)">
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e9ecef" stroke-width="3"/>
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#0d6efd" stroke-width="3"
+                      stroke-dasharray="<%= @avancement_moyen %>, 100"
+                      stroke-linecap="round"/>
+            </svg>
+            <span class="position-absolute fw-bold fs-5"><%= @avancement_moyen %>%</span>
+          </div>
+          <p class="text-muted small mt-2 mb-0">Basé sur la dernière analyse IA</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statut paiements -->
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="fw-semibold mb-3">Statut des paiements</h6>
+          <% statuts = { 'paye' => ['Payé', 'success'], 'non_paye' => ['Non payé', 'danger'], 'partiel' => ['Partiel', 'warning'] } %>
+          <% statuts.each do |key, (label, color)| %>
+            <% montant = @budget_par_statut[key] || 0 %>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span class="badge bg-<%= color %> me-2"><%= label %></span>
+              <span class="fw-semibold"><%= number_to_currency(montant, unit: '€', format: '%n %u', delimiter: ' ') %></span>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top types de travaux -->
+    <div class="col-md-4">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <h6 class="fw-semibold mb-3">Types de travaux (devis)</h6>
+          <% if @repartition_travaux.any? %>
+            <% max = @repartition_travaux.values.max.to_f %>
+            <% @repartition_travaux.each do |type, count| %>
+              <div class="mb-2">
+                <div class="d-flex justify-content-between small mb-1">
+                  <span><%= type.humanize %></span>
+                  <span class="text-muted"><%= count %></span>
+                </div>
+                <div class="progress" style="height:6px;">
+                  <div class="progress-bar bg-primary" style="width:<%= (count / max * 100).round %>%"></div>
+                </div>
+              </div>
+            <% end %>
+          <% else %>
+            <p class="text-muted small">Aucun devis scanné pour l'instant.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Évolution mensuelle -->
+  <% if @depenses_mensuelles.any? %>
+    <div class="card border-0 shadow-sm mb-4">
+      <div class="card-body">
+        <h6 class="fw-semibold mb-3">Dépenses mensuelles — 12 derniers mois</h6>
+        <% max_depense = @depenses_mensuelles.map { |d| d[:total] }.max.to_f %>
+        <div class="d-flex align-items-end gap-2" style="height:100px;">
+          <% @depenses_mensuelles.each do |d| %>
+            <% hauteur = max_depense > 0 ? ((d[:total] / max_depense) * 90).round : 0 %>
+            <div class="flex-fill text-center" title="<%= d[:mois] %> : <%= number_to_currency(d[:total], unit: '€', format: '%n %u') %>">
+              <div class="bg-primary rounded-top mx-auto" style="width:80%;height:<%= hauteur %>px;min-height:4px;"></div>
+              <div class="text-muted" style="font-size:0.6rem;"><%= d[:mois].last(5) %></div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Tableau par projet -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-body">
+      <h6 class="fw-semibold mb-3">Synthèse par projet</h6>
+      <% if @projet_stats.any? %>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Projet</th>
+                <th>Bien</th>
+                <th>Statut</th>
+                <th class="text-end">Avancement</th>
+                <th class="text-end">Devis (€)</th>
+                <th class="text-end">Factures (€)</th>
+                <th class="text-end">Nb factures</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @projet_stats.each do |s| %>
+                <tr>
+                  <td class="fw-semibold"><%= s[:project].nom %></td>
+                  <td class="text-muted small"><%= s[:project].property&.full_address %></td>
+                  <td>
+                    <span class="badge bg-<%= s[:project].statut == 'termine' ? 'success' : 'primary' %>">
+                      <%= s[:project].statut&.humanize || 'En cours' %>
+                    </span>
+                  </td>
+                  <td class="text-end">
+                    <div class="d-flex align-items-center justify-content-end gap-2">
+                      <div class="progress flex-fill" style="height:6px;min-width:60px;">
+                        <div class="progress-bar bg-success" style="width:<%= s[:avancement] %>%"></div>
+                      </div>
+                      <small><%= s[:avancement] %>%</small>
+                    </div>
+                  </td>
+                  <td class="text-end"><%= number_to_currency(s[:total_devis], unit: '€', format: '%n %u', delimiter: ' ') %></td>
+                  <td class="text-end"><%= number_to_currency(s[:total_facture], unit: '€', format: '%n %u', delimiter: ' ') %></td>
+                  <td class="text-end"><%= s[:nb_factures] %></td>
+                  <td>
+                    <%= link_to s[:project], class: "btn btn-sm btn-outline-primary" do %>
+                      <i class="bi bi-arrow-right"></i>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <p class="text-muted text-center py-4">Aucun projet pour l'instant.</p>
+      <% end %>
+    </div>
+  </div>
+</div>

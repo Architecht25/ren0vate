@@ -31,6 +31,14 @@ class PropertiesController < ApplicationController
   end
 
   def create
+    unless plan_exempt?
+      limit = current_user.property_limit
+      if limit != Float::INFINITY && current_user.properties.count >= limit
+        redirect_to properties_path, alert: "Votre formule #{current_user.subscription_tier_name} est limitée à #{limit} bien(s). Passez à une offre supérieure pour en ajouter davantage."
+        return
+      end
+    end
+
     @property = current_user.properties.new(property_params)
 
     Rails.logger.info "Creating property with params: #{property_params.inspect}"

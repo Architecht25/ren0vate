@@ -74,8 +74,12 @@
       <%= render 'shared/sidebar' %>
     <% end %>
 
-    <div class="main-content<%= ' no-sidebar' unless user_signed_in? %>">
-      <%= render "shared/flashes" %>
+    <div class="main-content<%= ' no-sidebar' unless user_signed_in? %><%= ' p-0' if content_for?(:full_width_page) %>">
+      <% if content_for?(:full_width_page) %>
+        <div class="px-2"><%= render "shared/flashes" %></div>
+      <% else %>
+        <%= render "shared/flashes" %>
+      <% end %>
       <%= yield %>
     </div>
 

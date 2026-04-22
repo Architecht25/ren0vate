@@ -28,6 +28,12 @@ Rails.application.routes.draw do
 
     root "pages#home"
 
+  # Export comptable CSV (Entreprise+)
+  get '/exports/comptable', to: 'exports#comptable', as: :export_comptable, defaults: { format: :csv }
+
+  # Analytics multi-projets (Individual+)
+  get '/analytics', to: 'analytics#index', as: :analytics
+
   # Pricing routes
   get '/pricing', to: 'pricing#index'
   get '/pricing/select', to: 'pricing#select'
@@ -217,6 +223,9 @@ Rails.application.routes.draw do
     # Budget
     get  :edit_budget,   on: :member
     patch :update_budget, on: :member
+
+    # Rapport PDF (Professional+)
+    get :rapport_pdf, on: :member, defaults: { format: :pdf }
 
     # Professionnels
     get  :edit_professionals,   on: :member

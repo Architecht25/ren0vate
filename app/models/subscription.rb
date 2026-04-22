@@ -5,7 +5,7 @@ class Subscription < ApplicationRecord
   STATUSES = %w[active canceled incomplete_expired trialing unpaid past_due].freeze
 
   # Tier constants
-  TIERS = %w[freemium individual portfolio professional enterprise].freeze
+  TIERS = %w[freemium individual portfolio premium_mixed professional enterprise].freeze
 
   validates :stripe_subscription_id, presence: true, uniqueness: true
   validates :tier, presence: true, inclusion: { in: TIERS }
@@ -35,11 +35,12 @@ class Subscription < ApplicationRecord
 
   def tier_name
     case tier
-    when 'freemium' then 'Découverte'
+    when 'freemium' then 'Starter'
     when 'individual' then 'Propriétaire'
     when 'portfolio' then 'Investisseur'
-    when 'professional' then 'Expert'
-    when 'enterprise' then 'Platform'
+    when 'premium_mixed' then 'Premium'
+    when 'professional' then 'Pro'
+    when 'enterprise' then 'Entreprise'
     else tier.humanize
     end
   end
@@ -49,7 +50,8 @@ class Subscription < ApplicationRecord
     when 'freemium' then 0
     when 'individual' then 39
     when 'portfolio' then 89
-    when 'professional' then 149
+    when 'premium_mixed' then 149
+    when 'professional' then 99
     when 'enterprise' then 299
     else 0
     end

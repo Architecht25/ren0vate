@@ -31,6 +31,8 @@ gem "geocoder"  # Pour le géocodage d'adresses
 gem "rtesseract"  # Pour l'OCR avec Tesseract
 gem "pdf-reader"  # Pour l'extraction de texte des PDF
 gem "mini_magick" # Pour la manipulation d'images
+gem "prawn"       # Génération PDF côté serveur
+gem "prawn-table" # Tables dans les PDFs Prawn
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"

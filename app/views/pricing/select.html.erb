@@ -1,6 +1,6 @@
 <% content_for :title, "Choisissez votre formule - Ren0vate" %>
 
-<div class="container py-5">
+<div class="container-xl py-5">
   <!-- Header -->
   <div class="row mb-5">
     <div class="col-lg-8 mx-auto text-center">
@@ -132,7 +132,7 @@
         <div class="card-body">
           <ul class="list-unstyled">
             <% @pricing_tiers[:freemium][:features].each do |f| %>
-              <li class="mb-2"><i class="bi bi-check text-success me-2"></i><small><%= f %></small></li>
+              <%= render_pricing_feature(f, icon_class: "bi-check text-success", small: true) %>
             <% end %>
           </ul>
           <hr>
@@ -182,7 +182,7 @@
           </div>
           <ul class="list-unstyled">
             <% individual[:features].each do |f| %>
-              <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><small><%= f %></small></li>
+              <%= render_pricing_feature(f, small: true) %>
             <% end %>
           </ul>
         </div>
@@ -225,7 +225,7 @@
           </div>
           <ul class="list-unstyled">
             <% portfolio[:features].each do |f| %>
-              <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><small><%= f %></small></li>
+              <%= render_pricing_feature(f, small: true) %>
             <% end %>
           </ul>
         </div>
@@ -266,7 +266,7 @@
           </div>
           <ul class="list-unstyled">
             <% premium[:features].each do |f| %>
-              <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><small><%= f %></small></li>
+              <%= render_pricing_feature(f, small: true) %>
             <% end %>
           </ul>
         </div>
@@ -302,7 +302,7 @@
   <div class="row g-4 justify-content-center mb-5 pt-4">
 
     <!-- PRO (99€) -->
-    <div class="col-lg-5 col-md-6">
+    <div class="col-xl-5 col-lg-6">
       <% pro = @pricing_tiers[:professional] %>
       <div class="card h-100 border-success position-relative
         <%= 'shadow-lg' if @current_user_context[:recommended_tier] == :professional %>">
@@ -326,14 +326,14 @@
             <div class="col-6">
               <ul class="list-unstyled">
                 <% pro[:features].first((pro[:features].length / 2.0).ceil).each do |f| %>
-                  <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><small><%= f %></small></li>
+                  <%= render_pricing_feature(f, small: true) %>
                 <% end %>
               </ul>
             </div>
             <div class="col-6">
               <ul class="list-unstyled">
                 <% pro[:features].last(pro[:features].length / 2).each do |f| %>
-                  <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><small><%= f %></small></li>
+                  <%= render_pricing_feature(f, small: true) %>
                 <% end %>
               </ul>
             </div>
@@ -354,7 +354,7 @@
     </div>
 
     <!-- ENTREPRISE (299€) -->
-    <div class="col-lg-5 col-md-6">
+    <div class="col-xl-5 col-lg-6">
       <% ent = @pricing_tiers[:enterprise] %>
       <div class="card h-100 border-dark position-relative
         <%= 'shadow-lg' if @current_user_context[:recommended_tier] == :enterprise %>">
@@ -378,14 +378,14 @@
             <div class="col-6">
               <ul class="list-unstyled">
                 <% ent[:features].first((ent[:features].length / 2.0).ceil).each do |f| %>
-                  <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><small><%= f %></small></li>
+                  <%= render_pricing_feature(f, small: true) %>
                 <% end %>
               </ul>
             </div>
             <div class="col-6">
               <ul class="list-unstyled">
                 <% ent[:features].last(ent[:features].length / 2).each do |f| %>
-                  <li class="mb-2"><i class="bi bi-check-circle-fill text-success me-2"></i><small><%= f %></small></li>
+                  <%= render_pricing_feature(f, small: true) %>
                 <% end %>
               </ul>
             </div>

@@ -52,6 +52,14 @@ class ProjectsController < ApplicationController
   end
 
   def create
+    unless plan_exempt?
+      limit = current_user.project_limit
+      if limit != Float::INFINITY && current_user.projects.count >= limit
+        redirect_to projects_path, alert: "Votre formule #{current_user.subscription_tier_name} est limitée à #{limit} projet(s). Passez à une offre supérieure pour en créer davantage."
+        return
+      end
+    end
+
     @project = Project.new(project_params)
     @project.user = current_user
 
@@ -72,6 +80,20 @@ class ProjectsController < ApplicationController
     @devis_donnees        = @project.devis_donnees.includes(:document).order(created_at: :desc)
     @bordereaux_chassis   = @project.bordereau_chassis_donnees.includes(:document).order(created_at: :desc)
     @factures             = @project.factures.includes(:document).order(date_facture: :desc)
+  end
+
+  def rapport_pdf
+    unless plan_exempt? || current_user.can_access_feature?(:rapport_pdf)
+      redirect_back fallback_location: project_path(@project),
+                    alert: "Les rapports PDF sont disponibles à partir de l'offre Pro."
+      return
+    end
+
+    pdf_data = PdfReportService.new(@project, current_user).generate
+    send_data pdf_data,
+              filename: "rapport_#{@project.id}_#{Date.current.strftime('%Y%m%d')}.pdf",
+              type: 'application/pdf',
+              disposition: 'attachment'
   end
 
   def edit_professionals
