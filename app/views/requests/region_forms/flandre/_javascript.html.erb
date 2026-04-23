@@ -4,9 +4,7 @@ function initializeTravauxToggle() {
   // Vérification préliminaire avant toute exécution
   if (document.querySelector('#wallonie-section') ||
       document.querySelector('input[name="request[region]"][value="Wallonie"]') ||
-      document.querySelector('select[name="request[region]"] option[value="Wallonie"]:checked') ||
-      window.location.href.includes('wallonie') ||
-      document.body.textContent.includes('Wallonie')) {
+      document.querySelector('select[name="request[region]"] option[value="Wallonie"]:checked')) {
     console.log('🏠 WALLONIE DETECTÉ - Fonction initializeTravauxToggle() complètement ignorée');
     return;
   }
@@ -241,7 +239,7 @@ function copyTrackingEmail() {
 }
 
 // Exécuter immédiatement et aussi au chargement du DOM avec vérification
-if (!document.querySelector('#wallonie-section') && !document.body.textContent.includes('Wallonie')) {
+if (!document.querySelector('#wallonie-section')) {
   initializeTravauxToggle();
 }
 
@@ -305,7 +303,10 @@ function initializeFlandreCheckboxes() {
     'travaux_boiler',
     'travaux_amiante',
     'travaux_complementaires',
-    'travaux_ventilation'
+    'travaux_ventilation',
+    'vitrage_remplacement_seul',
+    'vitrage_depose_pose',
+    'vitrage_supprimer_parapets'
   ];
 
   console.log(`🎯 Tentative d'activation de ${checkboxes.length} checkboxes`);
@@ -353,4 +354,9 @@ function initializeFlandreCheckboxes() {
 document.addEventListener('DOMContentLoaded', initializeFlandreCheckboxes);
 document.addEventListener('turbo:load', initializeFlandreCheckboxes);
 document.addEventListener('turbo:render', initializeFlandreCheckboxes);
+
+// Appel immédiat si le DOM est déjà prêt (script chargé après DOMContentLoaded)
+if (document.readyState !== 'loading') {
+  initializeFlandreCheckboxes();
+}
 </script>

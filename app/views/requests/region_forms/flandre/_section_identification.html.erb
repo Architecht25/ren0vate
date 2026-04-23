@@ -1,25 +1,233 @@
-  <!-- SECTION 1 – Identification du demandeur -->
+  <!-- SECTION 1 – Informations générales (étape 1 MVP) -->
   <div class="card mb-4">
     <div class="card-header bg-success text-white">
       <h5 class="mb-0">
-        <i class="bi bi-person-circle me-2"></i>Identification du demandeur
-        <% if @form_data.present? %>
-          <%= indicateur_section_complete(@form_data, [:nom, :prenom, :email, :telephone, :registre_national]) %>
-        <% end %>
+        <i class="bi bi-person-circle me-2"></i>Informations générales
       </h5>
     </div>
     <div class="card-body">
+
+      <!-- Destination du bâtiment -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Le bâtiment pour lequel je souhaite solliciter une subvention est principalement destiné à : <span class="text-danger">*</span></label>
+        <div class="form-check">
+          <input class="form-check-input" type="radio"
+                 name="request[destination_batiment]"
+                 id="dest_habiter" value="habiter"
+                 <%= 'checked' if @form_data&.dig('destination_batiment') == 'habiter' || @form_data&.dig('destination_batiment').nil? %>>
+          <label class="form-check-label" for="dest_habiter">habiter (maison, appartement, immeuble d'appartements...).</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio"
+                 name="request[destination_batiment]"
+                 id="dest_autres" value="autres_usages"
+                 <%= 'checked' if @form_data&.dig('destination_batiment') == 'autres_usages' %>>
+          <label class="form-check-label" for="dest_autres">pour d'autres usages (bureaux, commerces, entrepôts, locaux commerciaux...).</label>
+        </div>
+      </div>
+
+      <!-- Type de bien (prime pour) -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Je sollicite cette prime pour : <span class="text-danger">*</span></label>
+        <div class="form-text mb-2">
+          <i class="bi bi-info-circle me-1"></i>
+          Sélectionnez « Appartement » si vous sollicitez une subvention pour des travaux dans les parties privatives d'un appartement ou une subvention complémentaire pour des travaux dans les parties communes. Choisissez « Immeuble » si vous sollicitez une subvention de base pour des travaux dans les parties communes, soit en tant que représentant de l'Association des copropriétaires (VME), soit en tant qu'investisseur dans l'immeuble.
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio"
+                 name="request[type_bien]"
+                 id="bien_maison" value="maison_unifamiliale"
+                 <%= 'checked' if @form_data&.dig('type_bien') == 'maison_unifamiliale' || @form_data&.dig('type_bien').nil? %>>
+          <label class="form-check-label" for="bien_maison">une maison unifamiliale</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio"
+                 name="request[type_bien]"
+                 id="bien_appartement" value="appartement"
+                 <%= 'checked' if @form_data&.dig('type_bien') == 'appartement' %>>
+          <label class="form-check-label" for="bien_appartement">un appartement</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio"
+                 name="request[type_bien]"
+                 id="bien_immeuble" value="immeuble_appartements"
+                 <%= 'checked' if @form_data&.dig('type_bien') == 'immeuble_appartements' %>>
+          <label class="form-check-label" for="bien_immeuble">immeuble d'appartements</label>
+        </div>
+      </div>
+
+      <!-- Acheteur protégé -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Je suis un acheteur protégé : <span class="text-danger">*</span></label>
+        <div class="form-text mb-2">
+          <i class="bi bi-info-circle me-1"></i>
+          Pour en savoir plus, consultez <a href="https://www.mijnverbouwpremie.be/nl/beschermde-afnemer" target="_blank" rel="noopener noreferrer">les conditions générales</a>.
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio"
+                 name="request[acheteur_protege]"
+                 id="acheteur_oui" value="oui"
+                 <%= 'checked' if @form_data&.dig('acheteur_protege') == 'oui' %>>
+          <label class="form-check-label" for="acheteur_oui">Oui</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio"
+                 name="request[acheteur_protege]"
+                 id="acheteur_non" value="non"
+                 <%= 'checked' if @form_data&.dig('acheteur_protege') == 'non' || @form_data&.dig('acheteur_protege').nil? %>>
+          <label class="form-check-label" for="acheteur_non">Non</label>
+        </div>
+      </div>
+
+      <!-- Propriétaire -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Je suis le propriétaire : <span class="text-danger">*</span></label>
+        <div class="form-check">
+          <input class="form-check-input" type="radio"
+                 name="request[proprietaire]"
+                 id="proprio_oui" value="oui"
+                 <%= 'checked' if @form_data&.dig('proprietaire') == 'oui' || @form_data&.dig('proprietaire').nil? %>>
+          <label class="form-check-label" for="proprio_oui">Oui</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio"
+                 name="request[proprietaire]"
+                 id="proprio_non" value="non"
+                 <%= 'checked' if @form_data&.dig('proprietaire') == 'non' %>>
+          <label class="form-check-label" for="proprio_non">Non</label>
+        </div>
+      </div>
+
+      <!-- Domicilié ici -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Je suis domicilié ici : <span class="text-danger">*</span></label>
+        <div class="form-check">
+          <input class="form-check-input" type="radio"
+                 name="request[domicile_ici]"
+                 id="domicile_oui" value="oui"
+                 <%= 'checked' if @form_data&.dig('domicile_ici') == 'oui' || @form_data&.dig('domicile_ici').nil? %>>
+          <label class="form-check-label" for="domicile_oui">Oui</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio"
+                 name="request[domicile_ici]"
+                 id="domicile_non" value="non"
+                 <%= 'checked' if @form_data&.dig('domicile_ici') == 'non' %>>
+          <label class="form-check-label" for="domicile_non">Non</label>
+        </div>
+      </div>
+
+      <!-- Autre bien immobilier -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Possédez-vous, outre le logement pour lequel vous sollicitez cette prime, un autre bien immobilier (maison, terrain constructible) en pleine propriété, éventuellement à l'étranger ? <span class="text-warning">?</span></label>
+        <div class="form-text mb-2">
+          <i class="bi bi-info-circle me-1"></i>
+          <a href="https://www.mijnverbouwpremie.be/nl/eigendomsvoorwaarden" target="_blank" rel="noopener noreferrer">Pour en savoir plus sur les conditions du titre, cliquez ici</a>.
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox"
+                 name="request[autre_bien_belgique]"
+                 id="autre_bien_be" value="oui"
+                 <%= 'checked' if @form_data&.dig('autre_bien_belgique') == 'oui' %>>
+          <label class="form-check-label" for="autre_bien_be">Oui, en Belgique</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox"
+                 name="request[autre_bien_etranger]"
+                 id="autre_bien_etr" value="oui"
+                 <%= 'checked' if @form_data&.dig('autre_bien_etranger') == 'oui' %>>
+          <label class="form-check-label" for="autre_bien_etr">Oui, à l'étranger</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox"
+                 name="request[aucune_autre_propriete]"
+                 id="aucune_propriete" value="oui"
+                 <%= 'checked' if @form_data&.dig('aucune_autre_propriete') == 'oui' || (@form_data&.dig('autre_bien_belgique').nil? && @form_data&.dig('autre_bien_etranger').nil?) %>>
+          <label class="form-check-label" for="aucune_propriete">Non, aucune autre propriété</label>
+        </div>
+      </div>
+
+      <!-- Membres de la famille -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Membres de la famille (minimum 1)</label>
+        <div class="form-text mb-3">
+          <i class="bi bi-info-circle me-1"></i>
+          La composition familiale ci-dessous est extraite du Registre national. L'une des personnes est-elle atteinte d'un handicap grave ? Cochez cette case.
+          Vous pouvez ajouter des enfants qui ne sont pas domiciliés chez vous mais qui séjournent régulièrement avec vous.
+          Sur la base de ces données, un contrôle des revenus est effectué. Le revenu détermine le montant de la prime.
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-bordered" id="famille-table">
+            <thead class="table-light">
+              <tr>
+                <th>Numéro d'enregistrement national <span class="text-danger">*</span></th>
+                <th>Nom <span class="text-danger">*</span></th>
+                <th>Membre de la famille souffrant d'un handicap grave</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="famille-tbody">
+              <% membres = @form_data&.dig('membres_famille') %>
+              <% membres = [{'nrn' => preremplir_champ(@form_data, :registre_national, current_user.national_number), 'nom' => "#{preremplir_champ(@form_data, :prenom, current_user.first_name)} #{preremplir_champ(@form_data, :nom, current_user.last_name)}".strip, 'handicap' => 'non'}] if membres.blank? %>
+              <% membres.each_with_index do |membre, i| %>
+                <tr>
+                  <td>
+                    <% if i == 0 %>
+                      <span class="form-control-plaintext fw-semibold"><%= membre['nrn'] %></span>
+                      <input type="hidden" name="request[membres_famille][<%= i %>][nrn]" value="<%= membre['nrn'] %>">
+                    <% else %>
+                      <input type="text" class="form-control" name="request[membres_famille][<%= i %>][nrn]" value="<%= membre['nrn'] %>" placeholder="XX.XX.XX-XXX.XX">
+                    <% end %>
+                  </td>
+                  <td>
+                    <% if i == 0 %>
+                      <span class="form-control-plaintext fw-semibold"><%= membre['nom'] %></span>
+                      <input type="hidden" name="request[membres_famille][<%= i %>][nom]" value="<%= membre['nom'] %>">
+                    <% else %>
+                      <input type="text" class="form-control" name="request[membres_famille][<%= i %>][nom]" value="<%= membre['nom'] %>" placeholder="Prénom Nom">
+                    <% end %>
+                  </td>
+                  <td class="text-center">
+                    <input type="checkbox" class="form-check-input"
+                           name="request[membres_famille][<%= i %>][handicap]"
+                           value="oui"
+                           <%= 'checked' if membre['handicap'] == 'oui' %>>
+                    <input type="hidden" name="request[membres_famille][<%= i %>][handicap_hidden]" value="non">
+                  </td>
+                  <td>
+                    <% if i > 0 %>
+                      <button type="button" class="btn btn-sm btn-outline-danger" onclick="supprimerMembre(this)">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+        <button type="button" class="btn btn-outline-primary btn-sm" onclick="ajouterMembre()">
+          <i class="bi bi-plus me-1"></i>Ajouter un résident
+        </button>
+      </div>
+
+      <hr class="my-4">
+
+      <!-- Identité du demandeur -->
+      <h6 class="fw-semibold mb-3">Coordonnées du demandeur</h6>
+
       <div class="row">
         <div class="col-md-6">
           <div class="mb-3">
             <%= form.label :registre_national, class: "form-label" do %>
-              Numéro de registre national ou BCE *
+              Numéro de registre national *
               <%= badge_prerempli_avec_fallback(@form_data, :registre_national, current_user.national_number) if @form_data.present? %>
             <% end %>
             <%= form.text_field :registre_national,
                 value: preremplir_champ(@form_data, :registre_national, current_user.national_number),
                 class: "form-control",
-                placeholder: "XX.XX.XX-XXX.XX ou BE0123456789",
+                placeholder: "XX.XX.XX-XXX.XX",
                 required: true %>
           </div>
         </div>
@@ -29,20 +237,20 @@
         <div class="col-md-6">
           <div class="mb-3">
             <%= form.label :nom, class: "form-label" do %>
-              Nom du demandeur *
+              Nom *
               <%= badge_prerempli_avec_fallback(@form_data, :nom, current_user.last_name) if @form_data.present? %>
             <% end %>
             <%= form.text_field :nom,
                 value: preremplir_champ(@form_data, :nom, current_user.last_name),
                 class: "form-control",
-                placeholder: "Nom complet",
+                placeholder: "Nom de famille",
                 required: true %>
           </div>
         </div>
         <div class="col-md-6">
           <div class="mb-3">
             <%= form.label :prenom, class: "form-label" do %>
-              Prénom du demandeur *
+              Prénom *
               <%= badge_prerempli_avec_fallback(@form_data, :prenom, current_user.first_name) if @form_data.present? %>
             <% end %>
             <%= form.text_field :prenom,
@@ -64,7 +272,7 @@
             <%= form.telephone_field :telephone,
                 value: preremplir_champ(@form_data, :telephone, current_user.phone),
                 class: "form-control",
-                placeholder: "0x/xxx.xx.xx",
+                placeholder: "+32 xxx xx xx xx",
                 required: true %>
           </div>
         </div>
@@ -82,6 +290,30 @@
           </div>
         </div>
       </div>
+
     </div>
   </div>
 
+  <script nonce="<%= content_security_policy_nonce %>">
+    var familleIndex = <%= (@form_data&.dig('membres_famille')&.size || 1) %>;
+
+    function ajouterMembre() {
+      var tbody = document.getElementById('famille-tbody');
+      var row = document.createElement('tr');
+      row.innerHTML = `
+        <td><input type="text" class="form-control" name="request[membres_famille][${familleIndex}][nrn]" placeholder="XX.XX.XX-XXX.XX"></td>
+        <td><input type="text" class="form-control" name="request[membres_famille][${familleIndex}][nom]" placeholder="Prénom Nom"></td>
+        <td class="text-center">
+          <input type="checkbox" class="form-check-input" name="request[membres_famille][${familleIndex}][handicap]" value="oui">
+          <input type="hidden" name="request[membres_famille][${familleIndex}][handicap_hidden]" value="non">
+        </td>
+        <td><button type="button" class="btn btn-sm btn-outline-danger" onclick="supprimerMembre(this)"><i class="bi bi-trash"></i></button></td>
+      `;
+      tbody.appendChild(row);
+      familleIndex++;
+    }
+
+    function supprimerMembre(btn) {
+      btn.closest('tr').remove();
+    }
+  </script>

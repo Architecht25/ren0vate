@@ -373,118 +373,229 @@
                 <%= form.label :travaux_vitrage, "Pose de vitrage", class: "form-check-label fw-semibold" %>
               </div>
               <div class="travaux-details ms-4 mb-4 <%= 'd-none' unless (@form_data&.dig('travaux_vitrage') == true || @form_data&.dig('travaux_vitrage') == 'true') %>">
-                <!-- Type de vitrage -->
+                <!-- Type de travaux de vitrage -->
                 <div class="mb-3">
-                  <%= form.label :type_vitrage_original, "Type de vitrage remplacé", class: "form-label d-block mb-2" %>
-                  <div class="row g-2">
-                    <div class="col-md-4">
-                      <div class="form-check">
-                        <%= form.check_box :vitrage_simple,
-                                           { class: "form-check-input", checked: (@form_data&.dig('vitrage_simple') == true || @form_data&.dig('vitrage_simple') == 'true') },
-                                           "true", "" %>
-                        <%= form.label :vitrage_simple, "Vitrage simple", class: "form-check-label" %>
-                      </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="form-check">
-                        <%= form.check_box :vitrage_double,
-                                           { class: "form-check-input", checked: (@form_data&.dig('vitrage_double') == true || @form_data&.dig('vitrage_double') == 'true') },
-                                           "true", "" %>
-                        <%= form.label :vitrage_double, "Double vitrage", class: "form-check-label" %>
-                      </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="form-check">
-                        <%= form.check_box :vitrage_simple_double,
-                                           { class: "form-check-input", checked: (@form_data&.dig('vitrage_simple_double') == true || @form_data&.dig('vitrage_simple_double') == 'true') },
-                                           "true", "" %>
-                        <%= form.label :vitrage_simple_double, "Simple et double", class: "form-check-label" %>
-                      </div>
-                    </div>
+                  <label class="form-label d-block mb-2 fw-semibold">J'ai effectué les travaux suivants : <span class="text-danger">*</span></label>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :vitrage_remplacement_seul,
+                                       { class: "form-check-input", checked: (@form_data&.dig('vitrage_remplacement_seul') == true || @form_data&.dig('vitrage_remplacement_seul') == 'true') },
+                                       "true", "" %>
+                    <%= form.label :vitrage_remplacement_seul,
+                        "l'installation de vitrages à haute performance énergétique, de plaques de plastique transparent ou de puits de lumière, où seul le vitrage est remplacé et non les profilés/cadres.",
+                        class: "form-check-label" %>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :vitrage_depose_pose,
+                                       { class: "form-check-input", checked: (@form_data&.dig('vitrage_depose_pose') == true || @form_data&.dig('vitrage_depose_pose') == 'true') },
+                                       "true", "" %>
+                    <%= form.label :vitrage_depose_pose,
+                        "la dépose et la pose de fenêtres, de puits de lumière et/ou de portes extérieures avec vitrage haute performance, impliquant le remplacement du vitrage et des profilés/cadres.",
+                        class: "form-check-label" %>
+                  </div>
+                  <div class="form-check mb-2">
+                    <%= form.check_box :vitrage_supprimer_parapets,
+                                       { class: "form-check-input", checked: (@form_data&.dig('vitrage_supprimer_parapets') == true || @form_data&.dig('vitrage_supprimer_parapets') == 'true') },
+                                       "true", "" %>
+                    <%= form.label :vitrage_supprimer_parapets,
+                        "Supprimer les parapets ou balustrades aux fenêtres basses et installer de nouveaux parapets ou balustrades aux fenêtres basses.",
+                        class: "form-check-label" %>
                   </div>
                 </div>
 
-                <!-- Données techniques du vitrage -->
-                <div class="row g-2">
-                  <div class="col-md-3">
-                    <%= form.label :surface_vitrage, "Surface verre (m²)", class: "form-label" %>
-                    <%= form.number_field :surface_vitrage,
-                                         value: @form_data&.dig('surface_vitrage'),
-                                         class: "form-control",
-                                         min: 0, step: 0.1,
-                                         placeholder: "Sans cadre" %>
-                  </div>
-                  <div class="col-md-3">
-                    <%= form.label :date_placement_vitrage, "Date de placement", class: "form-label" %>
-                    <%= form.date_field :date_placement_vitrage,
-                                       value: @form_data&.dig('date_placement_vitrage'),
-                                       class: "form-control" %>
-                  </div>
-                  <div class="col-md-3">
-                    <%= form.label :valeur_ug_vitrage, "Valeur Ug (W/m²K)", class: "form-label" %>
-                    <%= form.number_field :valeur_ug_vitrage,
-                                         value: @form_data&.dig('valeur_ug_vitrage'),
-                                         class: "form-control",
-                                         min: 0, step: 0.01, max: 1.0,
-                                         placeholder: "Max 1.0" %>
-                  </div>
-                  <div class="col-md-3">
-                    <%= form.label :type_vitrage, "Type vitrage", class: "form-label" %>
-                    <%= form.text_field :type_vitrage,
-                                       value: @form_data&.dig('type_vitrage'),
-                                       class: "form-control",
-                                       maxlength: 60,
-                                       placeholder: "Ex: Super 68" %>
-                  </div>
-                  <div class="col-md-6">
-                    <%= form.label :marque_vitrage, "Marque", class: "form-label" %>
-                    <%= form.text_field :marque_vitrage,
-                                       value: @form_data&.dig('marque_vitrage'),
-                                       class: "form-control",
-                                       maxlength: 60,
-                                       placeholder: "Ex: ENGELS" %>
-                  </div>
-                  <div class="col-md-6">
-                    <%= form.label :nouvelles_fenetres_pieces_seches, "Nouvelles fenêtres dans pièces sèches ?", class: "form-label" %>
-                    <%= form.select :nouvelles_fenetres_pieces_seches,
-                                   options_for_select([
-                                     ['-- Sélectionnez --', ''],
-                                     ['Oui', 'oui'],
-                                     ['Non', 'non']
-                                   ], @form_data&.dig('nouvelles_fenetres_pieces_seches')),
-                                   {},
-                                   { class: "form-select" } %>
-                  </div>
-                </div>
+                <!-- Spécifications du vitrage -->
+                <div class="card border-0 bg-white mt-3 p-3">
+                  <h6 class="fw-semibold mb-3">Spécifications du vitrage</h6>
 
-                <!-- Champs supplémentaires pour correspondance MVP -->
-                <div class="row g-2 mt-2">
-                  <div class="col-md-12">
-                    <div class="mb-3">
-                      <div class="form-check">
-                        <%= form.check_box :hoogrendement_bevestiging,
-                                           { class: "form-check-input", checked: (@form_data&.dig('hoogrendement_bevestiging') == true || @form_data&.dig('hoogrendement_bevestiging') == 'true') },
-                                           "true", "" %>
-                        <%= form.label :hoogrendement_bevestiging,
-                            "Après ces travaux, toutes les fenêtres du logement auront un vitrage haute performance (Ug ≤ 1,0 W/m²K) *",
-                            class: "form-check-label" %>
-                      </div>
-                      <div class="form-text">Confirmation que l'ensemble des châssis sera aux normes haute performance</div>
+                  <div class="row g-3">
+                    <div class="col-md-4">
+                      <%= form.label :date_publication_vitrage, "Date de publication *", class: "form-label" %>
+                      <%= form.date_field :date_publication_vitrage,
+                                         value: @form_data&.dig('date_publication_vitrage'),
+                                         class: "form-control" %>
                     </div>
                   </div>
-                  <div class="col-md-6">
-                    <div class="mb-3">
-                      <%= form.label :vergunningsplichtig, "Les travaux nécessitent-ils un permis d'urbanisme ?", class: "form-label" %>
-                      <%= form.select :vergunningsplichtig,
+
+                  <!-- Permis / notification -->
+                  <div class="mt-3 mb-3">
+                    <label class="form-label fw-semibold">Les travaux ont-ils fait l'objet d'un permis/d'une notification ? <span class="text-danger">*</span></label>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio"
+                             name="request[permis_notification_vitrage]"
+                             id="permis_vitrage_oui" value="oui"
+                             <%= 'checked' if @form_data&.dig('permis_notification_vitrage') == 'oui' %>>
+                      <label class="form-check-label" for="permis_vitrage_oui">Oui</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio"
+                             name="request[permis_notification_vitrage]"
+                             id="permis_vitrage_non" value="non"
+                             <%= 'checked' if @form_data&.dig('permis_notification_vitrage') == 'non' || @form_data&.dig('permis_notification_vitrage').nil? %>>
+                      <label class="form-check-label" for="permis_vitrage_non">Non</label>
+                    </div>
+                  </div>
+
+                  <!-- Zones sèches -->
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Des fenêtres ou des portes extérieures vitrées ont-elles été installées dans les zones sèches de la maison ? <span class="text-warning">?</span></label>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio"
+                             name="request[fenetres_zones_seches]"
+                             id="zones_seches_oui" value="oui"
+                             <%= 'checked' if @form_data&.dig('fenetres_zones_seches') == 'oui' %>>
+                      <label class="form-check-label" for="zones_seches_oui">Oui</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio"
+                             name="request[fenetres_zones_seches]"
+                             id="zones_seches_non" value="non"
+                             <%= 'checked' if @form_data&.dig('fenetres_zones_seches') == 'non' %>>
+                      <label class="form-check-label" for="zones_seches_non">Non</label>
+                    </div>
+                  </div>
+
+                  <!-- Grilles de ventilation -->
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Respectez-vous les exigences en matière de ventilation et pouvez-vous fournir la preuve de la présence de grilles de ventilation suffisantes dans les fenêtres neuves ou existantes, dans les coffres des volets roulants ou dans les murs des pièces sèches où de nouvelles fenêtres ont été installées ? <span class="text-warning">?</span></label>
+                    <div class="form-text mb-2">
+                      <i class="bi bi-info-circle me-1"></i>
+                      Vous trouverez <a href="https://www.vlaanderen.be/premies-voor-renovatie/mijn-verbouwpremie/mijn-verbouwpremie-voor-ramen-en-deuren/ventilatievoorwaarden-mijn-verbouwpremie" target="_blank" rel="noopener noreferrer">ici</a> des informations complémentaires concernant les exigences en matière de ventilation.
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio"
+                             name="request[grilles_ventilation_vitrage]"
+                             id="grilles_vent_oui" value="oui"
+                             <%= 'checked' if @form_data&.dig('grilles_ventilation_vitrage') == 'oui' %>>
+                      <label class="form-check-label" for="grilles_vent_oui">Oui</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio"
+                             name="request[grilles_ventilation_vitrage]"
+                             id="grilles_vent_non" value="non"
+                             <%= 'checked' if @form_data&.dig('grilles_ventilation_vitrage') == 'non' %>>
+                      <label class="form-check-label" for="grilles_vent_non">Non</label>
+                    </div>
+                    <% if @form_data&.dig('grilles_ventilation_vitrage') == 'oui' %>
+                      <div class="text-warning small mt-1">
+                        <i class="bi bi-exclamation-triangle me-1"></i>Vous devrez fournir une preuve de la présence de ces grilles de ventilation à la fin de votre demande.
+                      </div>
+                    <% end %>
+                  </div>
+
+                  <!-- Système de ventilation -->
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Respectez-vous les exigences en matière de ventilation et pouvez-vous démontrer la présence d'un système de ventilation ? <span class="text-warning">?</span></label>
+                    <div class="form-text mb-2">
+                      <i class="bi bi-info-circle me-1"></i>
+                      Vous trouverez <a href="https://www.vlaanderen.be/bouwen-wonen-en-energie/veilig-gezond-en-kwaliteitsvol-wonen/verluchting-en-ventilatie/ventilatiesystemen#sb-nav-4-ventilatiesystemen-a-b-c-of-d-b404c190-c522-4123-84e5-2e6281a0f59d" target="_blank" rel="noopener noreferrer">ici</a> des informations complémentaires sur les systèmes de ventilation.
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio"
+                             name="request[systeme_ventilation_vitrage]"
+                             id="syst_vent_oui" value="oui"
+                             <%= 'checked' if @form_data&.dig('systeme_ventilation_vitrage') == 'oui' %>>
+                      <label class="form-check-label" for="syst_vent_oui">Oui</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio"
+                             name="request[systeme_ventilation_vitrage]"
+                             id="syst_vent_non" value="non"
+                             <%= 'checked' if @form_data&.dig('systeme_ventilation_vitrage') == 'non' %>>
+                      <label class="form-check-label" for="syst_vent_non">Non</label>
+                    </div>
+                  </div>
+
+                  <!-- CPE ventilation -->
+                  <div class="mb-3">
+                    <label class="form-label fw-semibold">Êtes-vous en mesure de satisfaire aux exigences en matière de ventilation et pouvez-vous présenter un certificat de performance énergétique (CPE) daté après le 1er janvier 2024, indiquant en page 2 que des dispositions suffisantes en matière de ventilation sont en place ? <span class="text-danger">*</span></label>
+                    <div class="form-text mb-2">
+                      <i class="bi bi-info-circle me-1"></i>
+                      Vous trouverez <a href="https://www.vlaanderen.be/premies-voor-renovatie/mijn-verbouwpremie/mijn-verbouwpremie-voor-ramen-en-deuren/ventilatievoorwaarden-mijn-verbouwpremie" target="_blank" rel="noopener noreferrer">ici des informations complémentaires concernant les exigences en matière de ventilation.</a>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio"
+                             name="request[cpe_ventilation_vitrage]"
+                             id="cpe_vent_oui" value="oui"
+                             <%= 'checked' if @form_data&.dig('cpe_ventilation_vitrage') == 'oui' %>>
+                      <label class="form-check-label" for="cpe_vent_oui">Oui</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio"
+                             name="request[cpe_ventilation_vitrage]"
+                             id="cpe_vent_non" value="non"
+                             <%= 'checked' if @form_data&.dig('cpe_ventilation_vitrage') == 'non' %>>
+                      <label class="form-check-label" for="cpe_vent_non">Non</label>
+                    </div>
+                  </div>
+
+                  <!-- Remplacement pour -->
+                  <div class="row g-3 mt-1">
+                    <div class="col-md-6">
+                      <%= form.label :remplacement_pour_vitrage, "Remplacement pour : *", class: "form-label" %>
+                      <%= form.select :remplacement_pour_vitrage,
                                      options_for_select([
-                                       ["Sélectionnez...", ""],
-                                       ["Oui, un permis est requis", "true"],
-                                       ["Non, pas de permis nécessaire", "false"]
-                                     ], @form_data&.dig('vergunningsplichtig')),
+                                       ['-- sélectionnez une option --', ''],
+                                       ['vitrage simple.', 'simple'],
+                                       ['double vitrage.', 'double'],
+                                       ['vitrage simple et double.', 'simple_double']
+                                     ], @form_data&.dig('remplacement_pour_vitrage')),
                                      {},
                                      { class: "form-select" } %>
                     </div>
+                    <div class="col-md-6">
+                      <%= form.label :marque_vitrage, "Marque *", class: "form-label" %>
+                      <%= form.text_field :marque_vitrage,
+                                         value: @form_data&.dig('marque_vitrage'),
+                                         class: "form-control",
+                                         maxlength: 60,
+                                         placeholder: "Ex: Drutex Iglo 5 classique" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :type_vitrage, "Taper *", class: "form-label" %>
+                      <%= form.text_field :type_vitrage,
+                                         value: @form_data&.dig('type_vitrage'),
+                                         class: "form-control",
+                                         maxlength: 60,
+                                         placeholder: "Ex: PVC, Aluminium, Bois" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :valeur_ug_vitrage, "Valeur Ug (max. 1,0 W/m²K) *", class: "form-label" %>
+                      <%= form.number_field :valeur_ug_vitrage,
+                                           value: @form_data&.dig('valeur_ug_vitrage'),
+                                           class: "form-control",
+                                           min: 0, step: 0.01, max: 1.0,
+                                           placeholder: "Ex: 1.0" %>
+                    </div>
+                    <div class="col-md-4">
+                      <%= form.label :surface_vitrage, "Surface vitrée sans cadre (m²) *", class: "form-label" %>
+                      <%= form.number_field :surface_vitrage,
+                                           value: @form_data&.dig('surface_vitrage'),
+                                           class: "form-control",
+                                           min: 0, step: 0.01,
+                                           placeholder: "Ex: 13.04" %>
+                    </div>
                   </div>
+
+                  <!-- Confirmation haute performance -->
+                  <div class="mt-3">
+                    <label class="form-label fw-semibold">
+                      <span class="text-warning">Après ces travaux ,</span> toutes les fenêtres de la maison seront équipées de vitrages à haute efficacité énergétique avec une valeur Ug maximale de 1,0 W/m²K.
+                    </label>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio"
+                             name="request[hoogrendement_bevestiging]"
+                             id="hoog_oui" value="oui"
+                             <%= 'checked' if @form_data&.dig('hoogrendement_bevestiging') == 'oui' || @form_data&.dig('hoogrendement_bevestiging') == true || @form_data&.dig('hoogrendement_bevestiging') == 'true' %>>
+                      <label class="form-check-label" for="hoog_oui">Oui</label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio"
+                             name="request[hoogrendement_bevestiging]"
+                             id="hoog_non" value="non"
+                             <%= 'checked' if @form_data&.dig('hoogrendement_bevestiging') == 'non' || @form_data&.dig('hoogrendement_bevestiging') == false || @form_data&.dig('hoogrendement_bevestiging') == 'false' %>>
+                      <label class="form-check-label" for="hoog_non">Non</label>
+                    </div>
+                  </div>
+
                 </div>
               </div>
 
@@ -1001,4 +1112,3 @@
       </div>
     </div>
   </div>
-

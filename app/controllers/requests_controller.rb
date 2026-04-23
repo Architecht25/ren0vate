@@ -633,24 +633,24 @@ class RequestsController < ApplicationController
     if property.nil?
       # Formulaires Bruxelles
       forms += [
-        { id: :monuments_bruxelles, name: 'Monuments & Sites classés', region: 'bruxelles', category: 'Patrimoine' },
-        { id: :patrimoine_bruxelles, name: 'Petit patrimoine populaire', region: 'bruxelles', category: 'Patrimoine' },
-        { id: :communal_bruxelles, name: 'Primes communales', region: 'bruxelles', category: 'Communal' }
+        { id: :monuments_bruxelles, name: 'Monuments & Sites classés', subtitle: 'Monument.brussels', region: 'bruxelles', category: 'Patrimoine' },
+        { id: :patrimoine_bruxelles, name: 'Petit patrimoine populaire', subtitle: 'Bruxelles Environnement', region: 'bruxelles', category: 'Patrimoine' },
+        { id: :communal_bruxelles, name: 'Primes communales', subtitle: 'Commune', region: 'bruxelles', category: 'Communal' }
       ]
 
       # Formulaires Wallonie
       forms += [
-        { id: :regional_wallonie, name: 'Prime régionale habitation', region: 'wallonie', category: 'Rénovation' },
-        { id: :audit_wallonie, name: 'Audit énergétique', region: 'wallonie', category: 'Audit' },
-        { id: :monuments_wallonie, name: 'Monuments & Sites classés', region: 'wallonie', category: 'Patrimoine' },
-        { id: :communal_wallonie, name: 'Primes communales', region: 'wallonie', category: 'Communal' }
+        { id: :regional_wallonie, name: 'Prime régionale habitation', subtitle: 'MyRenovation – SPW', region: 'wallonie', category: 'Rénovation' },
+        { id: :audit_wallonie, name: 'Audit énergétique', subtitle: 'Audit logement – SPW', region: 'wallonie', category: 'Audit' },
+        { id: :monuments_wallonie, name: 'Monuments & Sites classés', subtitle: 'AWaP – Patrimoine', region: 'wallonie', category: 'Patrimoine' },
+        { id: :communal_wallonie, name: 'Primes communales', subtitle: 'Commune', region: 'wallonie', category: 'Communal' }
       ]
 
       # Formulaires Flandre
       forms += [
-        { id: :regional_flandre, name: 'Prime régionale habitation', region: 'flandre', category: 'Rénovation' },
-        { id: :monuments_flandre, name: 'Monuments & Sites', region: 'flandre', category: 'Patrimoine' },
-        { id: :communal_flandre, name: 'Primes communales', region: 'flandre', category: 'Communal' }
+        { id: :regional_flandre, name: 'Prime régionale habitation', subtitle: 'Mijn VerbouwPremie', region: 'flandre', category: 'Rénovation' },
+        { id: :monuments_flandre, name: 'Monuments & Sites', subtitle: 'Onroerend Erfgoed', region: 'flandre', category: 'Patrimoine' },
+        { id: :communal_flandre, name: 'Primes communales', subtitle: 'Gemeente', region: 'flandre', category: 'Communal' }
       ]
 
       return forms
@@ -680,23 +680,23 @@ class RequestsController < ApplicationController
       else
         # Formulaires particuliers Bruxelles - les 3 formulaires de rénovation
         forms += [
-          { id: :monuments_bruxelles, name: 'Monuments & Sites classés', region: 'bruxelles', category: 'Patrimoine', eligible: true },
-          { id: :patrimoine_bruxelles, name: 'Petit patrimoine populaire', region: 'bruxelles', category: 'Patrimoine', eligible: true },
-          { id: :communal_bruxelles, name: 'Primes communales', region: 'bruxelles', category: 'Communal', eligible: true }
+          { id: :monuments_bruxelles, name: 'Monuments & Sites classés', subtitle: 'Monument.brussels', region: 'bruxelles', category: 'Patrimoine', eligible: true },
+          { id: :patrimoine_bruxelles, name: 'Petit patrimoine populaire', subtitle: 'Bruxelles Environnement', region: 'bruxelles', category: 'Patrimoine', eligible: true },
+          { id: :communal_bruxelles, name: 'Primes communales', subtitle: 'Commune', region: 'bruxelles', category: 'Communal', eligible: true }
         ]
       end
     when 'wallonie'
       forms += [
-        { id: :regional_wallonie, name: 'Prime régionale habitation', region: 'wallonie', category: 'Rénovation', eligible: true },
-        { id: :audit_wallonie, name: 'Audit énergétique', region: 'wallonie', category: 'Audit', eligible: true },
-        { id: :monuments_wallonie, name: 'Monuments & Sites classés', region: 'wallonie', category: 'Patrimoine', eligible: true },
-        { id: :communal_wallonie, name: 'Primes communales', region: 'wallonie', category: 'Communal', eligible: true }
+        { id: :regional_wallonie, name: 'Prime régionale habitation', subtitle: 'MyRenovation – SPW', region: 'wallonie', category: 'Rénovation', eligible: true },
+        { id: :audit_wallonie, name: 'Audit énergétique', subtitle: 'Audit logement – SPW', region: 'wallonie', category: 'Audit', eligible: true },
+        { id: :monuments_wallonie, name: 'Monuments & Sites classés', subtitle: 'AWaP – Patrimoine', region: 'wallonie', category: 'Patrimoine', eligible: true },
+        { id: :communal_wallonie, name: 'Primes communales', subtitle: 'Commune', region: 'wallonie', category: 'Communal', eligible: true }
       ]
     when 'flandre'
       forms += [
-        { id: :regional_flandre, name: 'Prime régionale habitation', region: 'flandre', category: 'Rénovation', eligible: true },
-        { id: :monuments_flandre, name: 'Monuments & Sites', region: 'flandre', category: 'Patrimoine', eligible: true },
-        { id: :communal_flandre, name: 'Primes communales', region: 'flandre', category: 'Communal', eligible: true }
+        { id: :regional_flandre, name: 'Prime régionale habitation', subtitle: 'Mijn VerbouwPremie', region: 'flandre', category: 'Rénovation', eligible: true },
+        { id: :monuments_flandre, name: 'Monuments & Sites', subtitle: 'Onroerend Erfgoed', region: 'flandre', category: 'Patrimoine', eligible: true },
+        { id: :communal_flandre, name: 'Primes communales', subtitle: 'Gemeente', region: 'flandre', category: 'Communal', eligible: true }
       ]
     end
 
@@ -795,6 +795,16 @@ class RequestsController < ApplicationController
                                    :surface_vitrage, :type_vitrage, :date_placement_vitrage, :marque_vitrage,
                                    :valeur_ug_vitrage, :vitrage_simple, :vitrage_double, :vitrage_simple_double,
                                    :nouvelles_fenetres_pieces_seches, :hoogrendement_bevestiging, :vergunningsplichtig,
+                                   # Nouveaux champs vitrage MVP (Mijn Verbouwpremie)
+                                   :vitrage_remplacement_seul, :vitrage_depose_pose, :vitrage_supprimer_parapets,
+                                   :date_publication_vitrage, :permis_notification_vitrage,
+                                   :fenetres_zones_seches, :grilles_ventilation_vitrage,
+                                   :systeme_ventilation_vitrage, :cpe_ventilation_vitrage,
+                                   :remplacement_pour_vitrage,
+                                   # Champs administratifs MVP Flandre
+                                   :destination_batiment, :acheteur_protege, :proprietaire, :domicile_ici,
+                                   :autre_bien_belgique, :autre_bien_etranger, :aucune_autre_propriete,
+                                   :travaux_a_domicile, :verbouwloning, :pas_iban_belge,
                                    # Champs détaillés pour portes
                                    :travaux_portes, :surface_portes, :date_placement_portes, :type_portes, :marque_portes,
                                    :valeur_u_portes, :ouvertures_pieces_humides,
@@ -826,6 +836,7 @@ class RequestsController < ApplicationController
                                    # Support pour les fichiers
                                    :document_devis, :document_factures, :document_aer, :document_peb,
                                    :document_attestations, :document_photos, :document_autres,
+                                   membres_famille: [:nrn, :nom, :handicap, :handicap_hidden],
                                    document_devis: [], document_factures: [], document_attestations: [], document_photos: [], document_autres: [], documents: [])
 
     Rails.logger.info "=== REQUEST_PARAMS DEBUG ==="
@@ -853,6 +864,20 @@ class RequestsController < ApplicationController
     # Champs de fichiers (ne vont pas dans form_data)
     file_fields = [:document_devis, :document_factures, :document_aer, :document_peb,
                    :document_attestations, :document_photos, :document_autres]
+
+    # Convertir membres_famille (hash indexé) en tableau si présent
+    if permitted_params[:membres_famille].present?
+      membres = permitted_params[:membres_famille]
+      membres_array = membres.keys.sort_by(&:to_i).map do |k|
+        membre = membres[k]
+        {
+          'nrn' => membre[:nrn].to_s,
+          'nom' => membre[:nom].to_s,
+          'handicap' => (membre[:handicap] == 'oui') ? 'oui' : 'non'
+        }
+      end
+      permitted_params[:membres_famille] = membres_array
+    end
 
     # Extraire les données de formulaire (tous les autres champs)
     # IMPORTANT: Ne pas rejeter les valeurs "0" (checkbox non cochées) ni les chaînes vides pour certains champs

@@ -1,145 +1,127 @@
-  <!-- SECTION 2 – Données du logement -->
+  <!-- SECTION 2 – Détails du bâtiment (étape 2 MVP) -->
   <div class="card mb-4">
     <div class="card-header bg-info text-white">
       <h5 class="mb-0">
-        <i class="bi bi-house-door me-2"></i>Données du logement concerné
-        <% if @form_data.present? && @property.present? %>
-          <%= indicateur_section_complete(@form_data, [:adresse, :code_postal, :commune, :type_bien, :usage]) %>
-        <% end %>
+        <i class="bi bi-house-door me-2"></i>Détails du bâtiment
       </h5>
     </div>
     <div class="card-body">
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :ean, class: "form-label" do %>
-              Code EAN (optionnel)
+
+      <!-- Code EAN -->
+      <div class="mb-4">
+        <div class="row">
+          <div class="col-md-8">
+            <%= form.label :ean, class: "form-label fw-semibold" do %>
+              Adresse d'exécution du code EAN <span class="text-danger">*</span>
               <%= badge_prerempli_avec_fallback(@form_data, :ean, @property&.ean_flandre || @property&.numero_ean) if @form_data.present? %>
             <% end %>
+            <div class="form-text mb-2">
+              <i class="bi bi-info-circle me-1"></i>
+              Vous trouverez le code EAN sur votre facture d'électricité ou votre compteur électrique.
+            </div>
             <%= form.text_field :ean,
                 value: preremplir_champ(@form_data, :ean, @property&.ean_flandre || @property&.numero_ean),
                 class: "form-control",
-                placeholder: "Ex: 54144..." %>
-            <div class="form-text">Code EAN de votre compteur électrique</div>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :date_raccordement_electricite, class: "form-label" do %>
-              Année de raccordement électrique *
-              <%= badge_prerempli_avec_fallback(@form_data, :date_raccordement_electricite, @property&.date_raccordement_electrique) if @form_data.present? %>
-            <% end %>
-            <%= form.number_field :date_raccordement_electricite,
-                value: preremplir_champ(@form_data, :date_raccordement_electricite, @property&.date_raccordement_electrique),
-                class: "form-control",
-                min: 1900,
-                max: Date.current.year,
-                placeholder: "Ex: 2005",
+                placeholder: "Ex: 541448820073125417",
                 required: true %>
-            <div class="form-text">Année de première connexion au réseau électrique</div>
           </div>
         </div>
       </div>
 
-      <div class="row">
-        <div class="col-md-4">
-          <div class="mb-3">
-            <%= form.label :rue, class: "form-label" do %>
-              Rue *
-              <%= badge_prerempli_intelligent(@form_data, :rue, @property&.rue) if @form_data.present? %>
-            <% end %>
+      <!-- Travaux à domicile -->
+      <div class="mb-4">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox"
+                 name="request[travaux_a_domicile]"
+                 id="travaux_domicile" value="oui"
+                 <%= 'checked' if @form_data&.dig('travaux_a_domicile') == 'oui' || @form_data&.dig('travaux_a_domicile').nil? %>>
+          <label class="form-check-label fw-semibold" for="travaux_domicile">Les travaux sont effectués à mon domicile.</label>
+        </div>
+      </div>
+
+      <!-- Adresse d'exécution -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold">Adresse d'exécution</label>
+        <div class="row g-2">
+          <div class="col-md-5">
+            <%= form.label :rue, "Rue *", class: "form-label" %>
             <%= form.text_field :rue,
                 value: @form_data&.dig('rue') || @property&.rue,
                 class: "form-control",
                 placeholder: "Nom de la rue",
                 required: true %>
           </div>
-        </div>
-        <div class="col-md-2">
-          <div class="mb-3">
-            <%= form.label :numero, class: "form-label" do %>
-              Numéro *
-              <%= badge_prerempli_intelligent(@form_data, :numero, @property&.numero) if @form_data.present? %>
-            <% end %>
+          <div class="col-md-2">
+            <%= form.label :numero, "Numéro *", class: "form-label" %>
             <%= form.text_field :numero,
                 value: @form_data&.dig('numero') || @property&.numero,
                 class: "form-control",
-                placeholder: "Ex: 123",
+                placeholder: "Ex: 20",
                 required: true %>
           </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :code_postal, class: "form-label" do %>
-              Code postal *
-              <%= badge_prerempli_avec_fallback(@form_data, :code_postal, @property&.code_postal) if @form_data.present? %>
-            <% end %>
+          <div class="col-md-2">
+            <%= form.label :code_postal, "Code postal *", class: "form-label" %>
             <%= form.text_field :code_postal,
                 value: preremplir_champ(@form_data, :code_postal, @property&.code_postal),
                 class: "form-control",
-                placeholder: "Ex: 1000",
+                placeholder: "Ex: 1800",
                 required: true %>
           </div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :commune, class: "form-label" do %>
-              Commune *
-              <%= badge_prerempli_avec_fallback(@form_data, :commune, @property&.commune) if @form_data.present? %>
-            <% end %>
+          <div class="col-md-3">
+            <%= form.label :commune, "Commune *", class: "form-label" %>
             <%= form.text_field :commune,
                 value: preremplir_champ(@form_data, :commune, @property&.commune),
                 class: "form-control",
-                placeholder: "Nom de la commune",
+                placeholder: "Ex: Vilvorde",
                 required: true %>
           </div>
         </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :type_bien, class: "form-label" do %>
-              Type de bien *
-              <%= badge_prerempli_intelligent(@form_data, :type_bien, @property&.type_bien_flandre) if @form_data.present? %>
+      </div>
+
+      <!-- Date raccordement — avant/après 2006 -->
+      <div class="mb-4">
+        <label class="form-label fw-semibold">
+          La date de raccordement au réseau de distribution d'électricité ou de première mise en service du bâtiment est (la date la plus ancienne fait foi) : <span class="text-danger">*</span>
+        </label>
+        <div class="form-check">
+          <input class="form-check-input" type="radio"
+                 name="request[date_raccordement_electricite]"
+                 id="raccord_avant_2006" value="avant_2006"
+                 <%= 'checked' if @form_data&.dig('date_raccordement_electricite') == 'avant_2006' || @form_data&.dig('date_raccordement_electricite').nil? %>>
+          <label class="form-check-label" for="raccord_avant_2006">avant le 1er janvier 2006.</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio"
+                 name="request[date_raccordement_electricite]"
+                 id="raccord_apres_2006" value="apres_2006"
+                 <%= 'checked' if @form_data&.dig('date_raccordement_electricite') == 'apres_2006' %>>
+          <label class="form-check-label" for="raccord_apres_2006">à compter du 1er janvier 2006.</label>
+        </div>
+      </div>
+
+      <!-- Mode de chauffage -->
+      <div class="mb-4">
+        <div class="row">
+          <div class="col-md-6">
+            <%= form.label :chauffage_post_renovation, class: "form-label fw-semibold" do %>
+              Je chauffe le bâtiment avec : <span class="text-danger">*</span>
             <% end %>
-            <%= form.text_field :type_bien,
-                value: @form_data&.dig('type_bien') || @property&.type_bien_flandre,
-                class: "form-control",
-                required: true,
-                placeholder: "Ex: Maison unifamiliale, Appartement, etc." %>
+            <%= form.select :chauffage_post_renovation,
+                options_for_select([
+                  ['-- Sélectionnez --', ''],
+                  ['gaz naturel', 'gaz_naturel'],
+                  ['mazout', 'mazout'],
+                  ['électricité', 'electricite'],
+                  ['pompe à chaleur', 'pompe_chaleur'],
+                  ['chauffage au bois / biomasse', 'bois_biomasse'],
+                  ['réseau de chaleur', 'reseau_chaleur'],
+                  ['autre', 'autre']
+                ], preremplir_champ(@form_data, :chauffage_post_renovation, @property&.chauffage_post_renovation_flandre)),
+                { prompt: '-- Sélectionnez --' },
+                { class: "form-select", required: true } %>
           </div>
         </div>
       </div>
 
-      <div class="row">
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :usage, class: "form-label" do %>
-              Usage du bien *
-              <%= badge_prerempli_intelligent(@form_data, :usage, @property&.usage_flandre) if @form_data.present? %>
-            <% end %>
-            <%= form.text_field :usage,
-                value: @form_data&.dig('usage') || @property&.usage_flandre,
-                class: "form-control",
-                required: true,
-                placeholder: "Ex: Résidence principale, Bien en location, Autre" %>
-          </div>
-        </div>
-        <div class="col-md-6">
-          <div class="mb-3">
-            <%= form.label :chauffage_post_renovation, class: "form-label" do %>
-              Système de chauffage après rénovation *
-              <%= badge_prerempli_intelligent(@form_data, :chauffage_post_renovation, @property&.chauffage_post_renovation_flandre) if @form_data.present? %>
-            <% end %>
-            <%= form.text_field :chauffage_post_renovation,
-                value: @form_data&.dig('chauffage_post_renovation') || @property&.chauffage_post_renovation_flandre,
-                class: "form-control",
-                required: true,
-                placeholder: "Ex: Chauffage au gaz, Pompe à chaleur, etc." %>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
-
