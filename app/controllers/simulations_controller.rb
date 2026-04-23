@@ -1287,7 +1287,7 @@ class SimulationsController < ApplicationController
     when 'flandre'
       check_flandre_real_eligibility(user)
     when 'bruxelles'
-      check_bruxelles_real_eligibility(user)
+      { eligible: false, reason: "Primes Renolution supprimées à Bruxelles" }
     else
       { eligible: false, reason: "Région non supportée" }
     end
@@ -1342,8 +1342,4 @@ class SimulationsController < ApplicationController
     { eligible: true }
   end
 
-  def check_bruxelles_real_eligibility(user)
-    # TODO: Implémenter la logique Bruxelles si nécessaire
-    { eligible: true }
-  end
 end
