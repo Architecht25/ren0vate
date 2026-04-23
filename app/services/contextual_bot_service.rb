@@ -174,8 +174,6 @@ class ContextualBotService
     lines << "Prénom      : #{@user.first_name}"
     lines << "ID interne  : USR-#{Digest::SHA256.hexdigest(@user.id.to_s)[0..7]}"
     lines << "Localisation: #{[@user.postal_code, @user.city].compact.join(' ')} — #{@user.region&.capitalize || 'N/A'}"
-    lines << "Type demandeur : #{@user.type_demandeur || 'N/A'}"
-    lines << "Statut prof.: #{@user.statut_professionnel || 'N/A'} | Indépendant: #{bool_fr(@user.independant)} | TVA déductible: #{bool_fr(@user.tva_deductible)}"
 
     # Situation familiale et sociale
     lines << "\n── Situation familiale & sociale ──"
@@ -183,8 +181,6 @@ class ContextualBotService
     lines << "  Nb enfants : #{@user.nombre_enfants || 0}"
     lines << "  Personnes 60+ ans : #{bool_fr(@user.personnes_60_ans_et_plus)}"
     lines << "  Femme enceinte    : #{bool_fr(@user.femme_enceinte)}"
-    lines << "  BIM/RIS    : #{bool_fr(@user.bim || @user.ris)}"
-    lines << "  Client protégé Bxl: #{bool_fr(@user.client_protege_bruxelles)}"
 
     # Revenus — transmis en tranche (pas de montant exact)
     lines << "\n── Tranche de revenus ──"
@@ -194,16 +190,12 @@ class ContextualBotService
     if @user.revenu_conjoint.present?
       lines << "  Revenu conjoint   : #{revenue_bracket(@user.revenu_conjoint)} (année #{@user.annee_revenus_conjoint || 'N/A'})"
     end
-    lines << "  IBAN belge : #{@user.compte_bancaire_belge ? 'Oui' : 'Non'}"
 
     # AER (avertissement-extrait de rôle) — tranche uniquement
     aer = @user.aer_donnees.order(created_at: :desc).first
     if aer
       lines << "  AER officiel: Revenu imposable #{revenue_bracket(aer.revenu_imposable_global)} | Année #{aer.annee_revenus} | #{aer.valide_manuellement ? '✅ validé' : '⏳ en attente'}"
     end
-
-    # Vente prévue dans 5 ans — impacte l'éligibilité Wallonie
-    lines << "  Vente prévue 5 ans : #{bool_fr(@user.vente_prevue_5_ans)}"
 
     if @property
       # ══ BIEN SÉLECTIONNÉ — contexte focal ════════════════════════════════
@@ -242,6 +234,7 @@ class ContextualBotService
     # Localisation : commune + code postal uniquement (pas rue/numéro)
     lines << "  Localisation: #{[p.code_postal, p.commune].compact.join(' ')} — #{p.region&.capitalize}"
     lines << "  Type bien : #{type_bien || 'N/A'}"
+    lines << "  Type demandeur: #{p.type_demandeur || 'N/A'}"
     lines << "  Occupation: #{p.occupation || p.usage || p.usage_flandre || 'N/A'}"
     lines << "  Surface   : #{p.surface_habitable || p.surface_habitable_wallonie || p.surface_totale || 'N/A'} m²"
 

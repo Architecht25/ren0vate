@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_22_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_23_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -704,6 +704,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_22_120000) do
     t.string "type_bien_bruxelles"
     t.string "type_bien_flandre"
     t.string "type_bien_wallonie"
+    t.string "type_demandeur"
     t.string "type_propriete"
     t.string "type_propriete_flandre"
     t.string "type_propriete_wallonie"
@@ -981,14 +982,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_22_120000) do
   create_table "users", force: :cascade do |t|
     t.string "annee_revenus_conjoint"
     t.string "annee_revenus_demandeur"
-    t.boolean "bim", default: false
     t.string "city"
-    t.boolean "client_protege_bruxelles", default: false
-    t.boolean "compte_bancaire_belge", default: false
     t.datetime "confirmation_sent_at"
     t.string "confirmation_token"
     t.datetime "confirmed_at"
-    t.boolean "consentement_controles", default: false
     t.datetime "created_at", null: false
     t.string "email"
     t.string "encrypted_password", default: "", null: false
@@ -996,7 +993,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_22_120000) do
     t.boolean "femme_enceinte"
     t.string "first_name"
     t.text "iban"
-    t.boolean "independant", default: false
     t.string "last_name"
     t.datetime "locked_at"
     t.text "national_number"
@@ -1014,18 +1010,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_22_120000) do
     t.string "reset_password_token"
     t.integer "revenu_conjoint"
     t.integer "revenu_demandeur"
-    t.boolean "ris", default: false
     t.integer "role", default: 0, null: false
     t.string "situation_familiale"
-    t.string "statut_professionnel"
     t.string "street"
     t.string "stripe_customer_id"
-    t.boolean "tva_deductible", default: false
-    t.string "type_demandeur"
     t.string "unconfirmed_email"
     t.string "unlock_token"
     t.datetime "updated_at", null: false
-    t.boolean "vente_prevue_5_ans", default: false
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["preferred_locale"], name: "index_users_on_preferred_locale"

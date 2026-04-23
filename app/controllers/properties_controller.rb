@@ -521,7 +521,7 @@ class PropertiesController < ApplicationController
       :type_bien_flandre, :usage_flandre, :chauffage_post_renovation_flandre,
       :ean_flandre, :certificat_peb_flandre,
       :type_propriete_flandre, :pourcentage_propriete, :domicilie_flandre, :client_protege_flandre,
-      :profil_demandeur,
+      :profil_demandeur, :type_demandeur,
 
       # Champs spécifiques Bruxelles
       :type_bien_bruxelles, :certificat_peb_bruxelles,

@@ -238,6 +238,24 @@
                         } %>
                   </div>
                   <div class="col-12">
+                    <%= f.input :type_demandeur,
+                        label: '<i class="bi bi-person-badge me-2 text-secondary"></i>Type de demandeur'.html_safe,
+                        collection: [
+                          ["Particulier", "particulier"],
+                          ["Société", "societe"],
+                          ["Syndicat de copropriété", "syndic"],
+                          ["Bailleur social", "bailleur_social"],
+                          ["ASBL ou Coopérative", "asbl_cooperative"]
+                        ],
+                        include_blank: "Sélectionnez le type",
+                        wrapper_html: { class: "mb-3" },
+                        label_html: { class: "form-label text-dark fw-medium mb-1" },
+                        input_html: {
+                          class: "form-select border-2 rounded-3 px-3",
+                          style: "background: #f8f9fa; border-color: #e9ecef !important;"
+                        } %>
+                  </div>
+                  <div class="col-12">
                     <%= f.input :profil_demandeur,
                         label: '<i class="bi bi-person me-2 text-secondary"></i>Profil du demandeur'.html_safe,
                         collection: [

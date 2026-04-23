@@ -69,10 +69,7 @@
       </div>
       <div class="card-body">
         <table class="table table-sm table-borderless mb-0">
-          <tr><td class="text-muted" width="55%">Type demandeur</td><td><%= user.type_demandeur.presence || "—" %></td></tr>
-          <tr><td class="text-muted">Situation familiale</td><td><%= user.situation_familiale.presence || "—" %></td></tr>
-          <tr><td class="text-muted">Statut professionnel</td><td><%= user.statut_professionnel.presence || "—" %></td></tr>
-          <tr><td class="text-muted">Indépendant</td><td><%= user.independant ? "Oui" : "Non" %></td></tr>
+          <tr><td class="text-muted" width="55%">Situation familiale</td><td><%= user.situation_familiale.presence || "—" %></td></tr>
           <tr><td class="text-muted">Nombre d'enfants</td><td><%= user.nombre_enfants || "—" %></td></tr>
           <tr><td class="text-muted">≥60 ans</td><td><%= user.personnes_60_ans_et_plus || "—" %></td></tr>
           <tr><td class="text-muted">Femme enceinte</td><td><%= user.femme_enceinte ? "Oui" : "Non" %></td></tr>
@@ -82,15 +79,6 @@
           <tr><td class="text-muted">Revenu conjoint</td><td>
             <%= user.revenu_conjoint.present? ? "#{number_with_delimiter(user.revenu_conjoint, delimiter: " ")} € (#{user.annee_revenus_conjoint})" : "—" %>
           </td></tr>
-          <tr><td class="text-muted">BIM / RIS</td><td>
-            <%= user.bim ? '<span class="badge bg-warning me-1">BIM</span>'.html_safe : "" %>
-            <%= user.ris ? '<span class="badge bg-warning">RIS</span>'.html_safe : "" %>
-            <%= (!user.bim && !user.ris) ? "Non" : "" %>
-          </td></tr>
-          <tr><td class="text-muted">Client protégé Bruxelles</td><td><%= user.client_protege_bruxelles ? "Oui" : "Non" %></td></tr>
-          <tr><td class="text-muted">TVA déductible</td><td><%= user.tva_deductible ? "Oui" : "Non" %></td></tr>
-          <tr><td class="text-muted">Compte bancaire belge</td><td><%= user.compte_bancaire_belge ? "Oui" : "Non" %></td></tr>
-          <tr><td class="text-muted">Vente prévue &lt;5 ans</td><td><%= user.vente_prevue_5_ans ? "Oui" : "Non" %></td></tr>
         </table>
       </div>
     </div>
@@ -113,7 +101,6 @@
           <tr><td class="text-muted">Tentatives échouées</td><td><%= user.failed_attempts %></td></tr>
           <tr><td class="text-muted">Inscription</td><td><%= stats[:created_at] %></td></tr>
           <tr><td class="text-muted">Email confirmé</td><td><%= stats[:confirmed_at] %></td></tr>
-          <tr><td class="text-muted">Consentement contrôles</td><td><%= user.consentement_controles ? "Oui" : "Non" %></td></tr>
         </table>
       </div>
     </div>
