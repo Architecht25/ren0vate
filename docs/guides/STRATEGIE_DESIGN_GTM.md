@@ -42,7 +42,7 @@ Le plus efficace pour une app Rails existante — pas besoin de passer par Figma
 ### Prompt type (à adapter par page)
 
 ```
-Rewrite [NOM_PAGE].html.erb. 
+Rewrite [NOM_PAGE].html.erb.
 Keep the Bootstrap 5 + ERB structure.
 Keep all existing CSS variables (--ren0vate-primary, --ren0vate-accent, --ren0vate-success...).
 Goal: modern SaaS landing that converts.
@@ -213,7 +213,7 @@ app/assets/stylesheets/base/_variables.scss and components/.
 
 Build the landing page (home.html.erb replacement) for Ren0vate:
 - Belgian renovation project management SaaS
-- Sections: navbar, hero, problem/solution, features grid (6), 
+- Sections: navbar, hero, problem/solution, features grid (6),
   social proof (3 testimonials), pricing teaser (3 tiers), CTA, footer
 - Use the existing CSS variables (--ren0vate-primary, --ren0vate-accent, etc.)
 - Bootstrap 5. Mobile responsive. Entrance animations.
@@ -240,7 +240,7 @@ Pour une exploration rapide sans onboarding — utile pour tester une idée en 5
 Prompt minimal pour l'artifact :
 ```
 Generate a modern SaaS landing page for "Ren0vate" — Belgian renovation management platform.
-Color palette: primary #334155 (slate blue), accent #D97706 (terracotta), success #84A98C 
+Color palette: primary #334155 (slate blue), accent #D97706 (terracotta), success #84A98C
 (sage green), background #E6DDD3 (sand). Stack: Bootstrap 5 + vanilla CSS variables. No Tailwind.
 Include: hero, 3-feature grid, social proof, pricing teaser, footer.
 Target: Belgian homeowners managing renovation projects.
