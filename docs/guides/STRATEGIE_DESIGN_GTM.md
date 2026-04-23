@@ -171,19 +171,77 @@ Sur la card du plan recommandé :
 
 ---
 
-## Option B : prototypage avec Claude.ai web (artifacts)
+## Option B : Claude Design (recommandé pour le prototypage)
 
-Pour valider visuellement avant de coder — utile si tu veux voir le rendu avant de modifier le code.
+Lancé le 17 avril 2026 par Anthropic Labs. Disponible sur **Claude Pro, Max, Team, Enterprise** — inclus dans l'abonnement existant.
+Accès : [claude.ai/design](https://claude.ai/design)
 
-1. **Claude.ai** → générer un artifact HTML/CSS statique de la page cible
-2. Valider le look dans le browser (artifact s'affiche en live)
+### Avantage clé pour ren0vate
+
+Claude Design lit le codebase lors de l'onboarding et extrait automatiquement le design system :
+- `app/assets/stylesheets/base/_variables.scss` → palette complète
+- `app/assets/stylesheets/base/_typography.scss` → typographie
+- `app/assets/stylesheets/components/_buttons.scss`, `_cards.scss`, etc.
+
+Chaque prototype produit ensuite respecte les variables `--ren0vate-primary`, `--ren0vate-accent`, `--ren0vate-background` **sans les réécrire dans chaque prompt**.
+
+### Cas d'usage ren0vate
+
+| Objectif | Ce que Claude Design produit | Suite |
+|---------|------------------------------|-------|
+| Landing page GTM | Prototype interactif HTML complet | Handoff → Claude Code → `home.html.erb` |
+| Vue entrepreneur mobile | Wireframe mobile-first de `pro_views/show.html.erb` | Claude Code → ERB responsive |
+| Pricing page | Cards, toggle mensuel/annuel, plan highlighted | Claude Code → `pricing/index.html.erb` |
+| Deck commercial / pitch | PPTX ou PDF exportable | Direct (pas de code) |
+| Screenshots marketing | Prototype réaliste de l'app | Visuels pour site, réseaux, investisseurs |
+
+### Workflow
+
+```
+1. claude.ai/design → onboarding → pointer le repo ren0vate/
+2. Claude extrait le design system depuis _variables.scss + composants SCSS
+3. Prototyper la page cible par conversation + commentaires inline
+4. "Handoff to Claude Code" → bundle généré automatiquement
+5. Claude Code : "Convert this to ERB, keep all Rails helpers and routes"
+```
+
+### Prompt de démarrage pour la landing
+
+```
+I'm pointing you at the ren0vate Rails codebase. Read the design system from
+app/assets/stylesheets/base/_variables.scss and components/.
+
+Build the landing page (home.html.erb replacement) for Ren0vate:
+- Belgian renovation project management SaaS
+- Sections: navbar, hero, problem/solution, features grid (6), 
+  social proof (3 testimonials), pricing teaser (3 tiers), CTA, footer
+- Use the existing CSS variables (--ren0vate-primary, --ren0vate-accent, etc.)
+- Bootstrap 5. Mobile responsive. Entrance animations.
+- Tone: professional, warm — Belgian homeowners & contractors
+```
+
+### Note sur la vue entrepreneur (`pro_views/show.html.erb`)
+
+860 lignes avec logique métier complexe (rôles, accès financier conditionnel, upload).
+Claude Design peut prototyper la version mobile-first visuellement, mais la conversion ERB
+doit passer par Claude Code qui connaît la logique Rails — **ne pas laisser Claude Design
+toucher directement à ce fichier**.
+
+---
+
+## Option C : prototypage avec Claude.ai web (artifacts)
+
+Pour une exploration rapide sans onboarding — utile pour tester une idée en 5 minutes.
+
+1. **Claude.ai** → générer un artifact HTML/CSS statique
+2. Valider le rendu dans le browser (artifact s'affiche en live)
 3. **Claude Code** → convertir l'HTML en ERB avec les helpers Rails
 
-Prompt pour l'artifact :
+Prompt minimal pour l'artifact :
 ```
 Generate a modern SaaS landing page for "Ren0vate" — Belgian renovation management platform.
-Color palette: primary #334155 (slate blue), accent #D97706 (terracotta), success #84A98C (sage green), background #E6DDD3 (sand).
-Stack: Bootstrap 5 + vanilla CSS variables. No Tailwind.
+Color palette: primary #334155 (slate blue), accent #D97706 (terracotta), success #84A98C 
+(sage green), background #E6DDD3 (sand). Stack: Bootstrap 5 + vanilla CSS variables. No Tailwind.
 Include: hero, 3-feature grid, social proof, pricing teaser, footer.
 Target: Belgian homeowners managing renovation projects.
 ```
@@ -202,9 +260,12 @@ Target: Belgian homeowners managing renovation projects.
 ## Ordre d'exécution
 
 ```
-Jour 1 : home.html.erb  (landing — acquisition)
-Jour 2 : pricing/index.html.erb  (conversion)
-Jour 3 : AOS.js + navbar scroll + pricing highlight  (polish rapide)
+Jour 1 : Claude Design onboarding → pointer repo → design system extrait
+Jour 1 : Prototype landing page (home.html.erb) dans Claude Design
+Jour 2 : Handoff → Claude Code → injection ERB home.html.erb
+Jour 2 : pricing/index.html.erb dans Claude Design → Claude Code
+Jour 3 : AOS.js + navbar scroll + pricing highlight  (polish rapide, Claude Code direct)
 Jour 4 : dashboard/index.html.erb  (screenshots marketing)
 Jour 5 : pricing/select.html.erb  (checkout)
+Jour 6+ : vue entrepreneur mobile-first (pro_views/show.html.erb)
 ```
