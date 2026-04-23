@@ -109,7 +109,7 @@ Rails.application.configure do
   }
 
   # Appliquer les nonces aux directives script-src et style-src
-  config.content_security_policy_nonce_directives = %w(script-src style-src)
+  config.content_security_policy_nonce_directives = %w(script-src script-src-elem style-src)
 
   # Configuration environment-specific
   if Rails.env.development?
