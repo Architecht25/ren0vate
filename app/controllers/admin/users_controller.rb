@@ -40,8 +40,6 @@ class Admin::UsersController < ApplicationController
   end
 
   def edit
-    # Pour l'instant, rediriger vers show avec un message
-    redirect_to admin_user_path(@user), notice: "Modification utilisateur à implémenter"
   end
 
   def update
