@@ -4,13 +4,14 @@ Fichier de contexte pour Claude Code. Lire avant toute session.
 
 ## Domaine métier
 
-Application SaaS belge d'aide à la rénovation. Permet aux particuliers et professionnels de :
-- Simuler les primes disponibles pour leur bien (Wallonie / Bruxelles / Flandre)
-- Gérer leurs dossiers de demande de primes (requests)
-- Uploader et faire analyser leurs factures, devis, PV via OCR
-- Accéder à un chatbot IA contextuel (Claude Anthropic)
+Application SaaS belge de **gestion de chantiers de rénovation**. Permet aux particuliers et professionnels de :
+- Piloter leurs chantiers de rénovation de A à Z (devis, factures, PV, avancement)
+- Gérer les entrepreneurs, contrats et documents liés aux travaux
+- Uploader et faire analyser leurs factures, devis, PV de réception via OCR
+- Accéder à un chatbot IA contextuel (Claude Anthropic) pour conseils et suivi
+- Simuler les primes disponibles (fonctionnalité secondaire — Wallonie et Flandre uniquement)
 
-**Régions supportées :** Wallonie (Renov'Habitat), Flandre (Mijn VerbouwPremie), Bruxelles (Renolution **supprimé** — primes discontinuées)
+**Régions supportées :** Wallonie, Flandre, Bruxelles (primes Renolution supprimées — `eligible: false`)
 
 ## Stack technique
 
