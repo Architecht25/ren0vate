@@ -224,3 +224,108 @@ Migrer **avant le lancement commercial**, pendant que le volume est gérable (7,
 ### Actions déjà réalisées (avril 2026)
 
 - [x] Clé `OPENAI_API_KEY` supprimée de Heroku (v806) et révoquée côté OpenAI — migration vers Claude complète, aucun appel résiduel dans le code
+
+---
+
+## Plan d'implémentation — 3 tunnels d'onboarding
+
+### Vue d'ensemble architecturale
+
+Onboarding en mini-wizard **serveur-side** piloté par Turbo Drive (navigation page entière entre étapes), sans gem additionnelle. État de progression via `session[:onboarding]`. Après la dernière étape, l'utilisateur arrive sur son dashboard métier.
+
+```
+POST /users/inscription (Devise)
+  └─> after_sign_up_path_for → /onboarding/profil
+        └─> POST choisit "proprietaire" / "architecte" / "entrepreneur"
+              ├─> /onboarding/proprietaire/bien
+              │     └─> /onboarding/proprietaire/projet
+              │           └─> dashboard_path
+              ├─> /onboarding/architecte/profil-pro
+              │     └─> dashboard_path
+              └─> /onboarding/entrepreneur/invitation
+                    └─> member_projects_path
+```
+
+---
+
+### Migration à créer
+
+**Fichier :** `db/migrate/TIMESTAMP_add_user_profile_to_users.rb`
+
+Colonnes à ajouter :
+- `user_profile:integer, default: 0` — enum `proprietaire(0) / architecte(1) / entrepreneur(2)`
+- `onboarding_completed_at:datetime` — nil = onboarding non fait
+- `nom_cabinet:string` — pour les architectes
+- `num_bce:string` — pour les entrepreneurs/architectes (optionnel)
+- Index sur `user_profile`
+- **Backfill obligatoire** : `User.update_all(onboarding_completed_at: Time.current)` pour les anciens comptes
+
+---
+
+### Fichiers à créer / modifier
+
+| Fichier | Action | Rôle |
+|---------|--------|------|
+| `db/migrate/TIMESTAMP_add_user_profile_to_users.rb` | Créer | Migration + backfill |
+| `app/models/user.rb` | Modifier | Ajouter enum `user_profile` + `onboarding_done?` |
+| `app/controllers/onboarding_controller.rb` | Créer | 9 actions (sélection + 2 par tunnel) |
+| `app/controllers/application_controller.rb` | Modifier | `after_sign_up/in_path_for` → `onboarding_profile_selection_path` |
+| `app/controllers/users/sessions_controller.rb` | Modifier | Idem (surcharge Devise) |
+| `app/controllers/dashboard_controller.rb` | Modifier | `ensure_onboarding_done` before_action |
+| `config/routes.rb` | Modifier | Bloc `namespace :onboarding` dans `scope "(:locale)"` |
+| `app/views/layouts/onboarding.html.erb` | Créer | Layout épuré sans sidebar |
+| `app/views/onboarding/profile_selection.html.erb` | Créer | 3 cartes cliquables |
+| `app/views/onboarding/proprietaire_bien.html.erb` | Créer | Formulaire simplifié (rue + région uniquement) |
+| `app/views/onboarding/proprietaire_projet.html.erb` | Créer | Nom chantier + type |
+| `app/views/onboarding/architecte_profil.html.erb` | Créer | nom_cabinet + num_bce (optionnel) |
+| `app/views/onboarding/entrepreneur_invitation.html.erb` | Créer | Token invitation + "passer" |
+| `app/javascript/controllers/onboarding_profile_controller.js` | Créer | Animation sélection carte (facultatif) |
+
+---
+
+### Ordre d'implémentation (4 jours)
+
+**Jour 1 — Socle**
+1. Migration (colonnes + backfill + rollback safe)
+2. Enum `user_profile` + `onboarding_done?` dans `User`
+3. Routes `namespace :onboarding`
+4. Layout `onboarding.html.erb`
+
+**Jour 2 — Contrôleur + redirections**
+5. `OnboardingController` (9 actions + strong params)
+6. `after_sign_up/in_path_for` dans `ApplicationController` ET `Users::SessionsController`
+7. `ensure_onboarding_done` dans `DashboardController`
+
+**Jour 3 — Vues**
+8. `profile_selection.html.erb` (étape 1 commune)
+9. Vues tunnel Propriétaire (étapes 2 et 3)
+10. Vue tunnel Architecte (étape 2)
+11. Vue tunnel Entrepreneur (étape 2)
+
+**Jour 4 — Intégration + tests manuels**
+12. Factoriser la logique token invitation (`InvitationAcceptor` service)
+13. Stimulus controller animation (facultatif)
+14. Badge profil dans `shared/_sidebar.html.erb`
+15. Parcours des 3 tunnels complets + reconnexion + anciens comptes
+
+---
+
+### Points d'attention critiques
+
+**1. Double surcharge `after_sign_up_path_for`**
+Définie dans `ApplicationController` ET `Users::SessionsController` — modifier les **deux** ou extraire en concern `OnboardingRedirection`.
+
+**2. Locale dans les helpers de routes**
+Les routes sont dans `scope "(:locale)"`. Utiliser `locale: I18n.locale` explicitement dans les redirections post-inscription si le locale n'est pas inféré automatiquement.
+
+**3. Validations Property trop strictes**
+`Property` valide des champs régionaux non collectés dans l'onboarding simplifié. Ajouter `attr_accessor :skip_onboarding_validation` sur `Property` et conditionner les validations régionales dessus.
+
+**4. Anciens comptes sans `onboarding_completed_at`**
+Le backfill dans la migration est **obligatoire** pour éviter de rediriger tous les utilisateurs existants vers l'onboarding au prochain déploiement.
+
+**5. Abandon à l'étape 3 (propriétaire)**
+Si l'utilisateur crée le bien mais abandonne avant le projet, il a une `Property` orpheline. À la reconnexion, `after_sign_in_path_for` doit inspecter `current_user.properties.none?` pour reprendre à la bonne étape.
+
+**6. Token invitation entrepreneur déjà traité**
+Factoriser la logique de `InvitationsController#accept` en service réutilisable — ne pas dupliquer le code.
