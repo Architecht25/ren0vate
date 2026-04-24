@@ -45,6 +45,9 @@ export default class extends Controller {
       }
     }
 
+    // Ne pas déclencher le calcul si la carte est masquée (catégorie non éligible)
+    if (this.element.style.display === 'none') return;
+
     // 🧮 Déclenchement du calcul de prime
     this.element.dispatchEvent(new CustomEvent("prime:input", {
       bubbles: true,

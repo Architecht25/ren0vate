@@ -103,9 +103,13 @@ Rails.application.configure do
   end
 
   # Générer des nonces pour les scripts et styles inline autorisés
+  # Nonce par session (pas par requête) pour assurer la compatibilité avec Turbo Drive :
+  # lors d'une navigation Turbo, le navigateur conserve le nonce CSP de la page initiale.
+  # Si on génère un nouveau nonce à chaque requête, les scripts inline des pages suivantes
+  # ont un nonce différent → bloqués. En utilisant un nonce par session, le nonce reste
+  # cohérent durant toute la navigation Turbo.
   config.content_security_policy_nonce_generator = ->(request) {
-    # Utiliser un générateur de nonce sécurisé
-    SecureRandom.base64(16)
+    request.session[:csp_nonce] ||= SecureRandom.base64(16)
   }
 
   # Appliquer les nonces aux directives script-src et style-src

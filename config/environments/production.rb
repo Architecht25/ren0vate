@@ -54,6 +54,7 @@ Rails.application.configure do
 
   # Replace the default in-process and non-durable queuing backend for Active Job.
   config.active_job.queue_adapter = :solid_queue
+  config.solid_queue.connects_to = { database: { writing: :queue } }
   # config.solid_queue.connects_to = { database: { writing: :queue } }
 
   # Enable email delivery and configure for production
