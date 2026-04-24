@@ -4,7 +4,7 @@ class Request < ApplicationRecord
   belongs_to :project, optional: true
   belongs_to :simulation, optional: true
 
-  has_many :request_progresses
+  has_many :request_progresses, dependent: :destroy
   has_many :documents
 
   # Support pour les fichiers Flandre

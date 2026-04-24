@@ -163,3 +163,64 @@ Semaine 2-3 : implémentation tests (couches 1→2→3)
 En continu : /review sur PRs features
 Après stabilisation : fewer-permission-prompts
 ```
+
+---
+
+## Chantier infrastructure — Migration Cloudinary → Cloud européen
+
+### Contexte & état actuel (avril 2026)
+
+| Métrique Cloudinary | Valeur |
+|---------------------|--------|
+| Stockage | 7,15 GB |
+| Fichiers | 8 354 ressources (11 979 avec dérivés) |
+| Bande passante (mois) | ~2,97 GB |
+| Transformations (mois) | 2 189 |
+| Crédits utilisés | 12,3 / 25 (49%) — **plan gratuit** |
+
+**Déclencheur économique :** le plan payant Cloudinary commence à $89/mois. À 7,15 GB sur Scaleway/OVH, le coût serait ~0,07€/mois de stockage pur.
+
+### Complexité réelle
+
+Le code n'utilise pas uniquement Active Storage — il appelle le SDK Cloudinary directement en 93 endroits :
+
+| Fichier | Usage direct |
+|---------|-------------|
+| `app/helpers/cloudinary_helper.rb` | Transformations (resize, crop, qualité) |
+| `app/services/cloudinary_pdf_service.rb` | Previews PDF |
+| `app/models/document.rb` | `cloudinary_url` + `cloudinary_preview_url` |
+| `app/controllers/documents_controller.rb` | Construction d'URLs directes |
+
+### Alternatives européennes recommandées
+
+| Provider | Siège | Compatibilité | Prix stockage | Avantage |
+|----------|-------|---------------|--------------|----------|
+| **Scaleway Object Storage** | France (Amsterdam) | S3 ✅ | ~0,01€/GB/mois | Recommandé — RGPD natif, S3-compatible |
+| OVHcloud Object Storage | France (infras BE) | S3 ✅ | ~0,01€/GB/mois | Présence belge |
+| Hetzner Object Storage | Allemagne | S3 ✅ | ~0,006€/GB/mois | Le moins cher |
+
+**Recommandation : Scaleway Object Storage (région nl-ams, Amsterdam)** — meilleur équilibre souveraineté/coût/simplicité pour une app belge. Le `storage.yml` est déjà pré-câblé pour S3 (commenté, région eu-west-1 à adapter).
+
+### Plan de migration en 3 phases
+
+**Phase 1 — Swapper le backend Active Storage** (~1 journée)
+- Modifier `storage.yml` pour pointer vers Scaleway (S3-compatible)
+- Les nouveaux uploads vont sur Scaleway ; l'existant reste sur Cloudinary
+
+**Phase 2 — Migrer les fichiers existants** (~2h)
+- Script Ruby itérant sur tous les `ActiveStorage::Blob`
+- Recopie vers le nouveau provider via l'API S3
+- Cloudinary reste en lecture pendant la transition
+
+**Phase 3 — Remplacer les appels SDK Cloudinary directs** (~2-3 jours)
+- Transformations images (`cloudinary_helper`) → Active Storage variants + `image_processing` (déjà dans le Gemfile)
+- Previews PDF (`cloudinary_pdf_service`) → Active Storage previews natifs (Rails 8 + poppler ou mupdf sur le dyno)
+- Nettoyage des 93 références restantes
+
+### Timing recommandé
+
+Migrer **avant le lancement commercial**, pendant que le volume est gérable (7,15 GB). Attendre = migrer 50+ GB sous pression avec des clients actifs.
+
+### Actions déjà réalisées (avril 2026)
+
+- [x] Clé `OPENAI_API_KEY` supprimée de Heroku (v806) et révoquée côté OpenAI — migration vers Claude complète, aucun appel résiduel dans le code
