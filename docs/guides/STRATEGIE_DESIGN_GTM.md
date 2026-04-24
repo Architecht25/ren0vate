@@ -28,10 +28,15 @@ Ren0vate a déjà :
 | 1 | Landing | `app/views/pages/home.html.erb` | Première impression, acquisition | 🔴 Critique |
 | 2 | Pricing | `app/views/pricing/index.html.erb` | Conversion | 🔴 Critique |
 | 3 | Checkout | `app/views/pricing/select.html.erb` | Conversion | 🔴 Critique |
-| 4 | Dashboard | `app/views/dashboard/index.html.erb` | Screenshots marketing + rétention | 🟠 Important |
-| 5 | Wizard simulation | `app/views/simulations/` | Demo produit | 🟠 Important |
+| 4 | Onboarding tunnels | `app/views/onboarding/` | Réduction friction post-inscription | 🔴 Critique |
+| 5 | Dashboards (×3) | `app/views/dashboard/` | Screenshots marketing + rétention | 🟠 Important |
+| 6 | Wizard simulation | `app/views/simulations/` | Demo produit | 🟠 Important |
 
-Les 411 autres vues (formulaires CRUD, admin) : ne pas toucher sauf blocage commercial.
+**Note — Dashboard ×3 (avril 2026) :** suite à la décision de créer 3 tunnels d'onboarding (propriétaire / architecte / entrepreneur), le dashboard générique `dashboard/index.html.erb` va éclater en 3 variantes adaptées à chaque profil. Le redesign du dashboard doit tenir compte de cette évolution — ne pas investir dans une refonte du dashboard générique avant que les 3 variantes soient définies.
+
+**Note — Vue entrepreneur :** `app/views/pro_views/show.html.erb` (860 lignes) est directement liée au tunnel Entrepreneur. Son redesign mobile-first doit être coordonné avec l'implémentation du tunnel — voir `STRATEGIE_TESTS_ET_AGENTS.md` section "3 tunnels".
+
+Les autres vues (formulaires CRUD, admin) : ne pas toucher sauf blocage commercial.
 
 ---
 
@@ -260,12 +265,21 @@ Target: Belgian homeowners managing renovation projects.
 ## Ordre d'exécution
 
 ```
-Jour 1 : Claude Design onboarding → pointer repo → design system extrait
-Jour 1 : Prototype landing page (home.html.erb) dans Claude Design
-Jour 2 : Handoff → Claude Code → injection ERB home.html.erb
-Jour 2 : pricing/index.html.erb dans Claude Design → Claude Code
-Jour 3 : AOS.js + navbar scroll + pricing highlight  (polish rapide, Claude Code direct)
-Jour 4 : dashboard/index.html.erb  (screenshots marketing)
-Jour 5 : pricing/select.html.erb  (checkout)
-Jour 6+ : vue entrepreneur mobile-first (pro_views/show.html.erb)
+Phase 1 — Tunnels d'abord (prérequis au design des dashboards)
+  Semaine 1-2 : Implémenter les 3 tunnels d'onboarding (voir STRATEGIE_TESTS_ET_AGENTS.md)
+  → Bloquer le redesign des dashboards tant que les 3 variantes ne sont pas définies
+
+Phase 2 — Pages d'acquisition (indépendantes des tunnels)
+  Jour 1 : Claude Design onboarding → pointer repo → design system extrait
+  Jour 1 : Prototype landing page (home.html.erb) dans Claude Design
+  Jour 2 : Handoff → Claude Code → injection ERB home.html.erb
+  Jour 2 : pricing/index.html.erb dans Claude Design → Claude Code
+  Jour 3 : AOS.js + navbar scroll + pricing highlight  (polish rapide, Claude Code direct)
+  Jour 4 : pricing/select.html.erb  (checkout)
+
+Phase 3 — Dashboards et vues métier (après tunnels implémentés)
+  Jour 5 : dashboard propriétaire (home.html.erb post-login)
+  Jour 6 : dashboard architecte (vue portefeuille multi-projets)
+  Jour 7 : dashboard entrepreneur (chantiers assignés)
+  Jour 8 : vue entrepreneur mobile-first (pro_views/show.html.erb)
 ```

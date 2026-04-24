@@ -69,13 +69,17 @@ end
 
 ### Couche 3 — Smoke tests de parcours (non-régression)
 
-Un test de bout en bout par région qui vérifie que le wizard de simulation ne plante pas. Pas besoin de tester chaque champ.
+Un test de bout en bout par parcours critique. Pas besoin de tester chaque champ — juste que le flux passe sans crash.
 
 | Parcours | Fichier test à créer | Assertion minimale |
 |----------|---------------------|-------------------|
 | Simulation Flandre | `test/system/simulation_flandre_test.rb` | Wizard complété → page résultats affichée (status 200) |
 | Simulation Wallonie | `test/system/simulation_wallonie_test.rb` | idem |
 | Simulation Bruxelles | `test/system/simulation_bruxelles_test.rb` | Affiche message "primes non disponibles" |
+| Tunnel Propriétaire | `test/system/onboarding_proprietaire_test.rb` | Inscription → sélection profil → bien créé → projet créé → dashboard |
+| Tunnel Architecte | `test/system/onboarding_architecte_test.rb` | Inscription → sélection profil → profil pro → dashboard |
+| Tunnel Entrepreneur | `test/system/onboarding_entrepreneur_test.rb` | Inscription → sélection profil → "passer invitation" → dashboard |
+| Reconnexion après onboarding | (dans chaque fichier tunnel) | `sign_in` → dashboard direct, pas re-demander le profil |
 
 **Stack :** Capybara + Selenium (déjà dans Gemfile).
 
@@ -96,8 +100,8 @@ Un test de bout en bout par région qui vérifie que le wizard de simulation ne 
 |--------|----------|-------|
 | Revenus (Stripe) | ~3 fichiers, ~20 tests | 1 jour |
 | Services métier | ~4 fichiers, ~30 tests | 1 jour |
-| Smoke tests système | ~3 fichiers, ~9 tests | 0.5 jour |
-| **Total** | **~10 fichiers, ~60 tests** | **~2.5 jours** |
+| Smoke tests système (simulations + tunnels) | ~7 fichiers, ~18 tests | 1 jour |
+| **Total** | **~14 fichiers, ~68 tests** | **~3 jours** |
 
 ---
 
@@ -223,7 +227,21 @@ Migrer **avant le lancement commercial**, pendant que le volume est gérable (7,
 
 ### Actions déjà réalisées (avril 2026)
 
-- [x] Clé `OPENAI_API_KEY` supprimée de Heroku (v806) et révoquée côté OpenAI — migration vers Claude complète, aucun appel résiduel dans le code
+- [x] Clé `OPENAI_API_KEY` supprimée de Heroku et révoquée côté OpenAI — migration vers Claude complète
+- [x] Clé API Anthropic vérifiée : jamais committée, non présente dans l'historique git
+- [x] SMTP configuré en production : Resend sur `smtp.resend.com`, domaine `ren0vate.be`
+- [x] Solid Queue activé en production (`queue_adapter = :solid_queue` + `SOLID_QUEUE_IN_PUMA=true`)
+- [x] `image_processing` gem décommentée dans le Gemfile (Active Storage variants)
+- [x] Bug Bruxelles simulation corrigé : `'bruxelles'` ajouté dans la guard clause `perform_category_determination`
+- [x] i18n `nl.yml` complétée partiellement : types de documents manquants ajoutés (`photo_avant/pendant/apres/chassis`, `plan_diu`, `attestation_conformite`, `certificat_label`, `bordereau_chassis`, `fiche_technique`, `notice_equipement`, `fiche_securite_materiaux`, `certificat_garantie`, `instruction_entretien`, `aer`)
+
+### Actions restantes avant lancement commercial
+
+- [ ] **Stripe** : créer compte Business (ArchiTecht SRL, BCE BE 1020.345.473) + injecter `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` dans Heroku — prévu lundi
+- [ ] **`:confirmable` Devise** : confirmer les 55 comptes existants (`User.update_all(confirmed_at: Time.now)`) puis activer le module
+- [ ] **i18n `nl.yml`** : compléter les sections `timeline` et `request_progress` (statuts de suivi)
+- [ ] **3 tunnels d'onboarding** : voir plan d'implémentation ci-dessous (~4 jours)
+- [ ] **Migration Cloudinary → Scaleway** : à planifier avant dépassement plan gratuit (49% utilisé)
 
 ---
 
