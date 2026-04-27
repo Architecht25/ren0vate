@@ -93,7 +93,9 @@ Rails.application.configure do
     policy.base_uri    :self
 
     # Form actions : limiter où les formulaires peuvent envoyer des données
-    policy.form_action :self
+    # checkout.stripe.com autorisé car Rails redirige (302) vers Stripe après le POST /pricing/checkout
+    # Chrome applique form-action aux redirects aussi, pas seulement à l'URL d'action initiale
+    policy.form_action :self, "https://checkout.stripe.com"
 
     # Web Workers : pour Mapbox GL JS
     policy.worker_src  :self, :blob
