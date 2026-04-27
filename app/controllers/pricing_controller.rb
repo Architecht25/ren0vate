@@ -113,6 +113,8 @@ class PricingController < ApplicationController
         success_url: pricing_success_url(tier: tier, session_id: '{CHECKOUT_SESSION_ID}'),
         cancel_url: pricing_cancel_url,
 
+        automatic_tax: { enabled: true },
+
         subscription_data: {
           metadata: {
             user_id: current_user&.id,
