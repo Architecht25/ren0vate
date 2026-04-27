@@ -210,7 +210,7 @@
               </div>
             <% end %>
 
-            <%= form_with url: pricing_checkout_path, method: :post, class: "d-grid" do |form| %>
+            <%= form_with url: pricing_checkout_path, method: :post, class: "d-grid", data: { turbo: false } do |form| %>
               <%= form.hidden_field :tier, value: @tier %>
               <%= form.hidden_field :billing_cycle, value: "monthly", class: "billing-cycle-input" %>
               <%= form.hidden_field :total_amount, value: (@selected_tier[:price] * 1.21).round(2), class: "total-amount-input" %>
