@@ -264,6 +264,20 @@ class ContextualBotService
       lines << "  Chauffage post-rénov: #{p.chauffage_post_renovation_flandre || 'N/A'}"
     when 'bruxelles'
       lines << "  Type bien Bruxelles: #{p.type_bien_bruxelles || 'N/A'}"
+      peb_label = p.peb_certificate_value
+      if peb_label.present?
+        deadline_info = peb_brussels_deadline_info(peb_label)
+        lines << "  ⚠️ Conformité PEB Bruxelles : Label #{peb_label} → #{deadline_info}"
+      end
+      lines << "\n── Réglementation PEB Bruxelles 2026-2050 ──"
+      lines << "  2026       : Certificat PEB obligatoire pour chaque unité résidentielle et non-résidentielle"
+      lines << "  2026-2030  : Validité et transmission des PEB au représentant légal de l'ACP"
+      lines << "  2031-2033  : Contrôles automatisés par l'État — listing ACP conformes/non conformes"
+      lines << "  2031-2033  : Début rénovation obligatoire pour les labels F et G"
+      lines << "  2033       : FIN DES PASSOIRES F/G — label minimum E obligatoire pour toutes les unités"
+      lines << "  2033→2045  : Progression obligatoire de E vers D"
+      lines << "  2045→2050  : Objectif intermédiaire : label C"
+      lines << "  2050       : Objectif final : label C+/B/A"
     end
 
     # Certificats PEB scannés (OCR) — données techniques conservées, pas d'identifiant
@@ -424,6 +438,23 @@ class ContextualBotService
     val ? 'Oui' : 'Non'
   end
 
+  def peb_brussels_deadline_info(label)
+    case label.to_s.upcase
+    when 'F', 'G'
+      "🔴 PASSOIRE ÉNERGÉTIQUE — Rénovation obligatoire avant 2033 (label E minimum requis)"
+    when 'E'
+      "🟠 Conforme jusqu'en 2033 — Progression vers D requise entre 2033 et 2045"
+    when 'D'
+      "🟡 Conforme jusqu'en 2045 — Progression vers C requise entre 2045 et 2050"
+    when 'C'
+      "🟢 Conforme jusqu'en 2050 — Objectif final C+/B/A"
+    when 'B', 'A', 'A+'
+      "✅ Excellent — Conforme à tous les objectifs PEB 2050"
+    else
+      "Vérifier le label PEB — calendrier Bruxelles 2026-2050 applicable"
+    end
+  end
+
   def fallback_message
     "🔄 Je rencontre un problème technique momentané. Réessayez dans quelques secondes, ou utilisez le simulateur directement !"
   end
@@ -444,6 +475,7 @@ class ContextualBotService
     '🧠 Quelle est la meilleure stratégie pour mon bien ?',
     '💰 Comment maximiser mes primes énergétiques ?',
     '⚡ Quels travaux sont les plus rentables pour moi ?',
-    '🏛️ Quelles réglementations 2025/2026 me concernent ?'
+    '🏛️ Quelles réglementations 2025/2026 me concernent ?',
+    '🏛️ Quelles sont mes obligations PEB Bruxelles 2026-2050 ?'
   ].freeze
 end

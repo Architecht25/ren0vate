@@ -31,6 +31,9 @@ class Notification < ApplicationRecord
     verification_requise: 'verification_requise',
     suivi_projet: 'suivi_projet',
 
+    # Conformité réglementaire
+    alerte_conformite_peb: 'alerte_conformite_peb',
+
     # Notifications admin
     admin_info: 'admin_info',
     admin_legal: 'admin_legal',
@@ -102,6 +105,7 @@ class Notification < ApplicationRecord
     when 'prime_eligible' then 'bi-gift'
     when 'verification_requise' then 'bi-shield-check'
     when 'suivi_projet' then 'bi-kanban'
+    when 'alerte_conformite_peb' then 'bi-house-exclamation'
     when 'admin_info' then 'bi-info-circle'
     when 'admin_legal' then 'bi-book'
     when 'admin_maintenance' then 'bi-tools'
@@ -238,6 +242,34 @@ class Notification < ApplicationRecord
         message: "⚠️ Veuillez vérifier #{element}. #{reason}",
         priority: :haute,
         expires_at: 10.days.from_now
+      )
+    end
+
+    # PEB Bruxelles — alerte passoire énergétique
+    def create_alerte_peb_bruxelles(user, property, peb_label)
+      deadline_year = %w[F G].include?(peb_label.to_s.upcase) ? 2033 : 2045
+      urgency = %w[F G].include?(peb_label.to_s.upcase) ? :critique : :haute
+
+      # Ne pas dupliquer si une alerte non-lue existe déjà pour ce bien
+      return nil if where(
+        user: user,
+        property: property,
+        type: 'alerte_conformite_peb',
+        read: false
+      ).where('created_at > ?', 6.months.ago).exists?
+
+      create!(
+        user: user,
+        property: property,
+        type: :alerte_conformite_peb,
+        category: :legal,
+        title: "⚠️ Passoire énergétique PEB #{peb_label} — obligation Bruxelles",
+        message: "Votre bien (#{property.titre.presence || property.commune}) est classé PEB #{peb_label}. " \
+                 "La réglementation bruxelloise impose un label minimum E avant #{deadline_year}. " \
+                 "Des travaux de rénovation énergétique sont nécessaires — lancez une simulation pour planifier.",
+        action_url: "/fr/properties/#{property.id}",
+        priority: urgency,
+        expires_at: Date.new(deadline_year, 1, 1).to_datetime
       )
     end
 
