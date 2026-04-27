@@ -20,12 +20,12 @@ class Users::SessionsController < Devise::SessionsController
   protected
 
   def after_sign_in_path_for(resource)
-    stored_location_for(resource) || dashboard_path
+    return stored_location_for(resource) if stored_location_for(resource).present?
+    resource.onboarding_done? ? dashboard_path : onboarding_profile_selection_path(locale: I18n.locale)
   end
 
   def after_sign_up_path_for(resource)
-    # Rediriger vers le dashboard après inscription aussi
-    dashboard_path
+    onboarding_profile_selection_path(locale: I18n.locale)
   end
 
   def after_sign_out_path_for(resource_or_scope)

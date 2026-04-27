@@ -1,0 +1,50 @@
+<div class="row justify-content-center">
+  <div class="col-12 col-md-7 col-lg-6">
+
+    <div class="d-flex align-items-center gap-2 mb-4">
+      <span class="badge rounded-pill px-3 py-2" style="background: var(--ren0vate-primary, #334155); color: white;">Étape 1/1</span>
+      <span class="text-muted small">Votre cabinet</span>
+    </div>
+
+    <h2 class="fw-bold mb-1" style="color: var(--ren0vate-primary, #334155);">
+      Présentez votre cabinet
+    </h2>
+    <p class="text-muted mb-4">Ces informations seront visibles par vos clients. Vous pourrez les compléter plus tard.</p>
+
+    <%= form_with url: onboarding_create_architecte_profil_path(locale: I18n.locale), method: :post do |f| %>
+      <% if current_user.errors.any? %>
+        <div class="alert alert-danger mb-4">
+          <ul class="mb-0 ps-3">
+            <% current_user.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label fw-semibold">Nom du cabinet <span class="text-danger">*</span></label>
+          <input type="text" name="user[nom_cabinet]" class="form-control form-control-lg"
+                 placeholder="Architecture & Associés" value="<%= current_user.nom_cabinet %>" required>
+        </div>
+        <div class="col-12">
+          <label class="form-label fw-semibold">Numéro BCE <span class="text-muted fw-normal">(optionnel)</span></label>
+          <input type="text" name="user[num_bce]" class="form-control form-control-lg"
+                 placeholder="BE 0123.456.789" value="<%= current_user.num_bce %>">
+          <div class="form-text">Le numéro d'entreprise belge à 10 chiffres</div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mt-4">
+        <%= link_to "← Retour", onboarding_profile_selection_path(locale: I18n.locale),
+              class: "text-muted text-decoration-none" %>
+        <button type="submit" class="btn btn-lg px-4 fw-semibold"
+                style="background: var(--ren0vate-primary, #334155); color: white; border: none; border-radius: 10px;">
+          Accéder à mon espace →
+        </button>
+      </div>
+    <% end %>
+
+  </div>
+</div>

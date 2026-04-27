@@ -81,7 +81,10 @@
               <i class="bi bi-person-workspace fs-1 text-success mb-3"></i>
               <h5 class="fw-bold text-success">Architecte</h5>
               <p class="text-muted small mb-0">Collaborez avec vos clients sur une plateforme unique, pilotez leurs projets</p>
-              <span class="badge bg-success mt-3">Pro 99€/mois</span>
+              <div class="mt-3 d-flex justify-content-center gap-2 flex-wrap">
+                <span class="badge bg-success">Pro 99€/mois</span>
+                <span class="badge" style="background: #D97706;"><i class="bi bi-robot me-1"></i>IA incluse</span>
+              </div>
             </div>
           </a>
         </div>
@@ -91,7 +94,10 @@
               <i class="bi bi-hammer fs-1 text-warning mb-3"></i>
               <h5 class="fw-bold text-warning">Entrepreneur</h5>
               <p class="text-muted small mb-0">Recevez des dossiers clients complets, gérez vos chantiers sans friction</p>
-              <span class="badge bg-warning text-dark mt-3">Pro 99€/mois</span>
+              <div class="mt-3 d-flex justify-content-center gap-2 flex-wrap">
+                <span class="badge bg-warning text-dark">Pro 99€/mois</span>
+                <span class="badge" style="background: #D97706;"><i class="bi bi-robot me-1"></i>IA incluse</span>
+              </div>
             </div>
           </a>
         </div>
@@ -161,14 +167,14 @@
     <div class="col-xl-3 col-lg-6 col-md-6">
       <% individual = @pricing_tiers[:individual] %>
       <% is_rec_ind = @current_user_context[:recommended_tier] == :individual %>
-      <div class="card h-100 border-primary <%= 'shadow-lg' if is_rec_ind %>">
-        <div class="card-header bg-primary text-white text-center py-3">
+      <div class="card h-100 position-relative shadow-lg" style="border: 2px solid var(--ren0vate-accent) !important; transform: scale(1.02); z-index: 1;">
+        <div class="card-header text-white text-center py-3" style="background: var(--ren0vate-primary);">
           <% if is_rec_ind %>
-            <div class="mb-2"><span class="badge bg-white text-primary px-3 py-1 fw-bold"><i class="bi bi-star-fill me-1"></i>Recommandé pour vous</span></div>
+            <div class="mb-2"><span class="badge px-3 py-1 fw-bold" style="background: var(--ren0vate-accent); border: 2px solid white; border-radius: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.25);"><i class="bi bi-star-fill me-1"></i>Recommandé pour vous</span></div>
           <% elsif @current_user_context[:current_tier] == :individual %>
-            <div class="mb-2"><span class="badge bg-white text-primary px-3 py-1"><i class="bi bi-check-circle me-1"></i>Formule actuelle</span></div>
+            <div class="mb-2"><span class="badge px-3 py-1" style="background: var(--ren0vate-accent); border: 2px solid white; border-radius: 20px;"><i class="bi bi-check-circle me-1"></i>Formule actuelle</span></div>
           <% else %>
-            <div class="mb-2"><span class="badge bg-white text-primary px-3 py-1"><i class="bi bi-star me-1"></i>Le plus populaire</span></div>
+            <div class="mb-2"><span class="badge px-3 py-1 fw-bold" style="background: var(--ren0vate-accent); border: 2px solid white; border-radius: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.25);"><i class="bi bi-star-fill me-1"></i>Le plus populaire</span></div>
           <% end %>
           <h4 class="card-title mb-1"><%= individual[:name] %></h4>
           <div class="pricing-price my-2">
@@ -296,6 +302,69 @@
         Offres Professionnels
       </h2>
       <p class="text-muted">Pour architectes, entrepreneurs et bureaux d'études</p>
+    </div>
+  </div>
+
+  <!-- Bannière IA Pro — nouveau différenciateur clé -->
+  <div class="row mb-4">
+    <div class="col-lg-10 mx-auto">
+      <div class="rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #1e293b 0%, #334155 60%, #065f46 100%); box-shadow: 0 8px 32px rgba(0,0,0,0.18);">
+        <div class="p-4 p-md-5 text-white d-flex flex-column flex-md-row align-items-center gap-4">
+
+          <!-- Icône -->
+          <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+               style="width: 80px; height: 80px; background: rgba(255,255,255,0.12); font-size: 2.4rem; min-width: 80px;">
+            <i class="bi bi-robot"></i>
+          </div>
+
+          <!-- Texte -->
+          <div class="flex-grow-1 text-center text-md-start">
+            <div class="mb-2">
+              <span class="badge px-3 py-1 fw-semibold" style="background: #D97706; border-radius: 20px; font-size: 0.78rem; letter-spacing: 0.05em;">
+                <i class="bi bi-stars me-1"></i>NOUVEAU · Inclus dans toutes les offres Pro
+              </span>
+            </div>
+            <h3 class="fw-bold mb-3" style="font-size: 1.5rem; color: #fff;">
+              Expert IA dédié à vos chantiers
+            </h3>
+            <div class="d-flex flex-column gap-2" style="font-size: 0.95rem; max-width: 560px;">
+              <div class="d-flex align-items-start gap-2">
+                <i class="bi bi-chat-dots-fill flex-shrink-0 mt-1" style="color: #D97706;"></i>
+                <span class="opacity-90">
+                  Posez toutes vos questions sur vos projets clients — primes, avancement, documents, réglementations —
+                  et obtenez des réponses <strong style="color:#fff;">contextualisées à chaque dossier</strong>.
+                </span>
+              </div>
+              <div class="d-flex align-items-start gap-2">
+                <i class="bi bi-file-earmark-check-fill flex-shrink-0 mt-1" style="color: #34d399;"></i>
+                <span class="opacity-90">
+                  Générez des <strong style="color:#fff;">bordereaux d'avancement IA</strong> par chantier — suivi travaux,
+                  état des factures et primes déclenchées en un clic.
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mini-démo visuelle -->
+          <div class="flex-shrink-0 d-none d-lg-block" style="min-width: 220px;">
+            <div class="rounded-3 p-3" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); font-size: 0.82rem;">
+              <div class="d-flex align-items-start gap-2 mb-3">
+                <span class="rounded-circle bg-primary d-flex align-items-center justify-content-center flex-shrink-0" style="width:26px;height:26px;font-size:0.75rem;min-width:26px;"><i class="bi bi-person-fill"></i></span>
+                <div class="rounded-3 px-3 py-2" style="background: rgba(255,255,255,0.12);">
+                  « Quelles primes pour le projet Dupont à Liège ? »
+                </div>
+              </div>
+              <div class="d-flex align-items-start gap-2">
+                <span class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:26px;height:26px;font-size:0.75rem;min-width:26px;background:#065f46;"><i class="bi bi-robot"></i></span>
+                <div class="rounded-3 px-3 py-2" style="background: rgba(6,95,70,0.45);">
+                  Prime Énergie + RénoWall : ~8 400 € estimés ✓
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
   </div>
 

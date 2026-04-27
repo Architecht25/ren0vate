@@ -36,7 +36,7 @@ class AnalyticsController < ApplicationController
   def check_analytics_access!
     return if plan_exempt?
     unless current_user.can_access_feature?(:analytics)
-      redirect_to pricing_path,
+      redirect_to pricing_select_path,
                   alert: "Les analytics sont disponibles à partir de l'offre Propriétaire."
     end
   end

@@ -19,6 +19,9 @@ class User < ApplicationRecord
   # Enum pour les rôles
   enum :role, { user: 0, moderator: 1, admin: 2 }, default: :user
 
+  # Enum pour le profil utilisateur (tunnel onboarding)
+  enum :user_profile, { proprietaire: 0, architecte: 1, entrepreneur: 2, intermediaire: 3 }, default: :proprietaire
+
   # Validation pour s'assurer qu'il y ait toujours au moins un admin
   validate :ensure_at_least_one_admin, on: :update, if: :role_changed?
 
@@ -76,6 +79,10 @@ class User < ApplicationRecord
 
   def professional_entrepreneur?
     professional_type == 'entrepreneur'
+  end
+
+  def onboarding_done?
+    onboarding_completed_at.present?
   end
 
   # Génère (ou retourne) le token de parrainage pour inviter des clients

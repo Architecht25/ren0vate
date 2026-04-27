@@ -1,0 +1,227 @@
+<%
+  set_seo_meta(
+    title: "Tableau de bord — Entrepreneur · Ren0vate",
+    description: "Gérez vos chantiers assignés et consultez l'Expert IA Ren0vate"
+  )
+  company_name = current_user.nom_cabinet.presence || current_user.first_name.presence || current_user.email.split('@').first.capitalize
+  has_projects = @project_count > 0
+  pending_count = @pending_members.size
+%>
+
+<!-- Widget Notifications -->
+<div class="notification-widget position-fixed d-none d-md-block" style="top: 80px; right: 20px; z-index: 2000;">
+  <% unread_count = current_user.respond_to?(:notifications) ? current_user.notifications.unread.count : 0 %>
+  <%= link_to notifications_path, class: "btn btn-outline-primary position-relative notification-widget-btn", style: "border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);" do %>
+    <i class="bi bi-bell fs-4"></i>
+    <% if unread_count > 0 %>
+      <span class="badge bg-danger position-absolute" style="top: -5px; right: -5px; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem;"><%= unread_count %></span>
+    <% end %>
+  <% end %>
+</div>
+
+<!-- Hero Section -->
+<div class="architectural-hero position-relative" style="min-height: 100vh;">
+  <img src="<%= asset_path('arcliine.jpg') %>" alt=""
+       class="architectural-bg-image"
+       style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.2; z-index: 0;">
+  <div class="architectural-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.3); z-index: 1;"></div>
+  <div class="sketch-overlay position-absolute w-100 h-100" style="top: 0; left: 0; z-index: 2;">
+    <div class="blueprint-grid"></div>
+    <div class="technical-lines"></div>
+  </div>
+
+  <div class="container position-relative d-flex flex-column justify-content-center align-items-center py-5" style="z-index: 3; min-height: 100vh;">
+
+    <!-- Greeting -->
+    <div class="text-center mb-4">
+      <div class="mb-2">
+        <span class="badge px-3 py-2" style="background: var(--ren0vate-accent); border-radius: 20px; font-size: 0.8rem;">
+          <i class="bi bi-hammer me-1"></i>Entrepreneur
+        </span>
+      </div>
+      <h1 class="architectural-title display-4 mb-2">
+        <i class="bi bi-tools me-3"></i>
+        Bonjour <span class="highlight-watercolor"><%= company_name %></span>
+      </h1>
+      <p class="text-muted" style="font-size: 1.05rem;">
+        <% if has_projects %>
+          Vous intervenez sur <strong><%= @project_count %> chantier<%= @project_count > 1 ? 's' : '' %></strong>
+        <% else %>
+          Vous avez reçu une invitation ? Entrez votre code pour rejoindre un chantier
+        <% end %>
+      </p>
+    </div>
+
+    <!-- KPIs -->
+    <% if has_projects %>
+      <div class="row g-3 mb-4 w-100" style="max-width: 780px;">
+        <div class="col-4">
+          <div class="rounded-3 text-center p-3" style="background: rgba(255,255,255,0.9); box-shadow: var(--ren0vate-shadow-sm);">
+            <div class="h3 fw-bold mb-0" style="color: var(--ren0vate-primary);"><%= @project_count %></div>
+            <small class="text-muted">Chantier<%= @project_count > 1 ? 's' : '' %></small>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="rounded-3 text-center p-3" style="background: rgba(255,255,255,0.9); box-shadow: var(--ren0vate-shadow-sm);">
+            <div class="h3 fw-bold mb-0" style="color: var(--ren0vate-success-dark);"><%= @active_members.size %></div>
+            <small class="text-muted">Actif<%= @active_members.size > 1 ? 's' : '' %></small>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="rounded-3 text-center p-3" style="background: rgba(255,255,255,0.9); box-shadow: var(--ren0vate-shadow-sm);">
+            <div class="h3 fw-bold mb-0" style="color: var(--ren0vate-accent);"><%= pending_count %></div>
+            <small class="text-muted">En attente</small>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Main IA Card -->
+    <div class="mx-auto w-100 mb-4" style="max-width: 780px;">
+      <div class="rounded-4 overflow-hidden" style="background: var(--ren0vate-white); box-shadow: var(--ren0vate-shadow-lg); border: 1px solid var(--ren0vate-border);">
+
+        <!-- Header gradient -->
+        <div class="p-4 text-white" style="background: linear-gradient(135deg, var(--ren0vate-primary) 0%, var(--ren0vate-success-dark) 100%);">
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                 style="width:56px; height:56px; background: rgba(255,255,255,0.2); font-size: 1.7rem;">
+              <i class="bi bi-robot"></i>
+            </div>
+            <div class="flex-grow-1">
+              <h4 class="mb-1 fw-bold" style="color: var(--ren0vate-accent);">Expert IA Ren0vate</h4>
+              <p class="mb-0 opacity-90" style="font-size: 0.9rem;">
+                Consultez l'avancement des chantiers, les documents requis et les réglementations
+              </p>
+            </div>
+            <span class="badge fs-6 fw-normal px-3 py-2 flex-shrink-0" style="background: rgba(255,255,255,0.2);">
+              <i class="bi bi-<%= has_projects ? 'check2-circle' : 'clock' %> me-1"></i><%= has_projects ? 'Prêt' : 'En attente' %>
+            </span>
+          </div>
+        </div>
+
+        <!-- Card body -->
+        <div class="p-4">
+          <% if has_projects %>
+            <p class="mb-4" style="font-size: 0.95rem; color: var(--ren0vate-text-secondary);">
+              L'assistant connaît vos <strong>chantiers assignés</strong>, les <strong>maîtres d'ouvrage</strong> et les <strong>travaux en cours</strong>.
+              Interrogez-le sur les procédures, les PV de réception, les primes déclenchées ou l'état d'avancement.
+            </p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <div class="rounded-3 p-3 h-100 d-flex flex-column"
+                     style="background: rgba(var(--ren0vate-success-rgb), 0.1); border: 1.5px solid rgba(var(--ren0vate-success-rgb), 0.45);">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-layers fs-5" style="color: var(--ren0vate-primary);"></i>
+                    <span class="fw-semibold" style="color: var(--ren0vate-primary);">Tous mes chantiers</span>
+                  </div>
+                  <p class="small mb-3 flex-grow-1" style="color: var(--ren0vate-text-muted);">
+                    Vue d'ensemble : planification, priorités, suivi global de votre activité.
+                  </p>
+                  <%= link_to expert_decision_hub_index_path(all: 1), class: "btn btn-ren0vate fw-semibold w-100" do %>
+                    <i class="bi bi-chat-dots-fill me-2"></i>Tous mes chantiers
+                  <% end %>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="rounded-3 p-3 h-100 d-flex flex-column"
+                     style="background: rgba(var(--ren0vate-primary-rgb), 0.05); border: 1.5px solid rgba(var(--ren0vate-primary-rgb), 0.2);">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-house-door fs-5" style="color: var(--ren0vate-info);"></i>
+                    <span class="fw-semibold" style="color: var(--ren0vate-info);">Chantier spécifique</span>
+                  </div>
+                  <p class="small mb-3 flex-grow-1" style="color: var(--ren0vate-text-muted);">
+                    Questions ciblées : avancement, documents, PV, exigences d'un chantier précis.
+                  </p>
+                  <%= link_to expert_decision_hub_index_path, class: "btn btn-primary fw-semibold w-100" do %>
+                    <i class="bi bi-arrow-right-circle me-2"></i>Choisir un chantier
+                  <% end %>
+                </div>
+              </div>
+            </div>
+
+          <% else %>
+            <!-- État zéro -->
+            <div class="text-center py-3">
+              <div class="mb-4" style="font-size: 3rem; opacity: 0.3;">
+                <i class="bi bi-hammer"></i>
+              </div>
+              <h5 class="fw-semibold mb-2" style="color: var(--ren0vate-primary);">Aucun chantier assigné pour l'instant</h5>
+              <p class="text-muted mb-4" style="font-size: 0.9rem; max-width: 420px; margin: 0 auto 1.5rem;">
+                Un maître d'ouvrage ou architecte doit vous inviter à rejoindre son projet.
+                Vous avez reçu un lien d'invitation ? Suivez-le pour accéder au chantier.
+              </p>
+
+              <% if @referral_url %>
+                <div class="rounded-3 p-3 mb-4 text-start" style="background: rgba(var(--ren0vate-accent-rgb), 0.07); border: 1.5px solid rgba(var(--ren0vate-accent-rgb), 0.3);">
+                  <div class="small fw-semibold mb-1" style="color: var(--ren0vate-accent);">
+                    <i class="bi bi-info-circle me-1"></i>Vous pouvez aussi partager votre profil
+                  </div>
+                  <div class="d-flex gap-2 align-items-center">
+                    <code class="flex-grow-1 small text-break" style="color: var(--ren0vate-text-secondary);"><%= @referral_url %></code>
+                    <button class="btn btn-sm btn-outline-secondary flex-shrink-0"
+                            onclick="navigator.clipboard.writeText('<%= @referral_url %>').then(() => this.innerHTML = '<i class=\\'bi bi-check2\\'></i>'); setTimeout(() => this.innerHTML = '<i class=\\'bi bi-clipboard\\'></i>', 2000)">
+                      <i class="bi bi-clipboard"></i>
+                    </button>
+                  </div>
+                </div>
+              <% end %>
+
+              <%= link_to member_projects_path, class: "btn btn-ren0vate fw-semibold px-4" do %>
+                <i class="bi bi-key me-2"></i>Entrer un code d'invitation
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Liste chantiers -->
+    <% if has_projects %>
+      <div class="w-100 mb-4" style="max-width: 780px;">
+        <h5 class="fw-semibold mb-3" style="color: var(--ren0vate-primary);">
+          <i class="bi bi-wrench-adjustable me-2"></i>Mes chantiers
+        </h5>
+        <div class="d-flex flex-column gap-3">
+          <% @active_members.each do |member| %>
+            <% project = member.project %>
+            <% next unless project %>
+            <% property = project.property %>
+            <div class="rounded-3 p-3 d-flex align-items-center gap-3" style="background: rgba(255,255,255,0.9); box-shadow: var(--ren0vate-shadow-sm); border: 1px solid var(--ren0vate-border);">
+              <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                   style="width: 44px; height: 44px; background: rgba(var(--ren0vate-accent-rgb), 0.1);">
+                <i class="bi bi-hammer" style="color: var(--ren0vate-accent);"></i>
+              </div>
+              <div class="flex-grow-1 min-width-0">
+                <div class="fw-semibold text-truncate" style="color: var(--ren0vate-primary);"><%= project.name %></div>
+                <div class="small text-muted text-truncate">
+                  <% if property %>
+                    <i class="bi bi-geo-alt me-1"></i><%= [property.commune, property.region&.capitalize].compact.join(' · ') %>
+                  <% end %>
+                  <% if project.owner %>
+                    · <%= project.owner.first_name.presence || project.owner.email.split('@').first %>
+                  <% end %>
+                </div>
+              </div>
+              <div class="d-flex gap-2 flex-shrink-0">
+                <span class="badge px-2 py-1" style="background: var(--ren0vate-success-dark); font-size: 0.7rem;">Actif</span>
+                <%= link_to project_path(project), class: "btn btn-sm btn-outline-primary" do %>
+                  <i class="bi bi-arrow-right"></i>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+
+          <% if pending_count > 0 %>
+            <div class="rounded-3 p-3 text-center" style="background: rgba(var(--ren0vate-accent-rgb), 0.07); border: 1px dashed rgba(var(--ren0vate-accent-rgb), 0.4);">
+              <small style="color: var(--ren0vate-accent);">
+                <i class="bi bi-clock me-1"></i><%= pending_count %> invitation<%= pending_count > 1 ? 's' : '' %> en attente de confirmation
+              </small>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+
+  </div>
+</div>

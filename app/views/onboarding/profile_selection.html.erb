@@ -1,0 +1,106 @@
+<div class="row justify-content-center">
+  <div class="col-12 col-lg-8">
+
+    <div class="text-center mb-5">
+      <h1 class="fw-bold mb-2" style="color: var(--ren0vate-primary, #334155);">
+        Bienvenue sur Ren0vate
+      </h1>
+      <p class="text-muted fs-5">Quel est votre profil ?</p>
+    </div>
+
+    <%= form_with url: onboarding_set_profile_path(locale: I18n.locale), method: :post do |f| %>
+
+      <div class="row g-4 mb-4">
+
+        <%# Carte Propriétaire %>
+        <div class="col-12 col-sm-6">
+          <label class="onboarding-card-label w-100 h-100" style="cursor:pointer;">
+            <input type="radio" name="profile" value="proprietaire" class="d-none onboarding-radio">
+            <div class="onboarding-card card h-100 border-0 shadow-sm p-4 text-center"
+                 style="border-radius: 16px; transition: all .18s ease; border: 2px solid transparent !important;">
+              <div class="mb-3">
+                <i class="bi bi-house-door-fill fs-1" style="color: var(--ren0vate-accent, #D97706);"></i>
+              </div>
+              <h5 class="fw-bold mb-2" style="color: var(--ren0vate-primary, #334155);">Propriétaire</h5>
+              <p class="text-muted small mb-0">Je gère mes propres travaux de rénovation</p>
+            </div>
+          </label>
+        </div>
+
+        <%# Carte Architecte %>
+        <div class="col-12 col-sm-6">
+          <label class="onboarding-card-label w-100 h-100" style="cursor:pointer;">
+            <input type="radio" name="profile" value="architecte" class="d-none onboarding-radio">
+            <div class="onboarding-card card h-100 border-0 shadow-sm p-4 text-center"
+                 style="border-radius: 16px; transition: all .18s ease; border: 2px solid transparent !important;">
+              <div class="mb-3">
+                <i class="bi bi-pencil-square fs-1" style="color: var(--ren0vate-primary, #334155);"></i>
+              </div>
+              <h5 class="fw-bold mb-2" style="color: var(--ren0vate-primary, #334155);">Architecte</h5>
+              <p class="text-muted small mb-0">Je pilote des projets pour mes clients</p>
+            </div>
+          </label>
+        </div>
+
+        <%# Carte Entrepreneur %>
+        <div class="col-12 col-sm-6">
+          <label class="onboarding-card-label w-100 h-100" style="cursor:pointer;">
+            <input type="radio" name="profile" value="entrepreneur" class="d-none onboarding-radio">
+            <div class="onboarding-card card h-100 border-0 shadow-sm p-4 text-center"
+                 style="border-radius: 16px; transition: all .18s ease; border: 2px solid transparent !important;">
+              <div class="mb-3">
+                <i class="bi bi-tools fs-1" style="color: var(--ren0vate-success, #84A98C);"></i>
+              </div>
+              <h5 class="fw-bold mb-2" style="color: var(--ren0vate-primary, #334155);">Entrepreneur</h5>
+              <p class="text-muted small mb-0">Je réalise des chantiers pour des clients</p>
+            </div>
+          </label>
+        </div>
+
+        <%# Carte Intermédiaire %>
+        <div class="col-12 col-sm-6">
+          <label class="onboarding-card-label w-100 h-100" style="cursor:pointer;">
+            <input type="radio" name="profile" value="intermediaire" class="d-none onboarding-radio">
+            <div class="onboarding-card card h-100 border-0 shadow-sm p-4 text-center"
+                 style="border-radius: 16px; transition: all .18s ease; border: 2px solid transparent !important;">
+              <div class="mb-3">
+                <i class="bi bi-people-fill fs-1" style="color: #8B5CF6;"></i>
+              </div>
+              <h5 class="fw-bold mb-2" style="color: var(--ren0vate-primary, #334155);">Intermédiaire</h5>
+              <p class="text-muted small mb-0">Je gère des dossiers de primes pour plusieurs clients</p>
+            </div>
+          </label>
+        </div>
+
+      </div>
+
+      <div class="text-center">
+        <button type="submit" id="submit_profile"
+                class="btn btn-lg px-5 py-3 fw-semibold"
+                style="background: var(--ren0vate-accent, #D97706); color: white; border: none; border-radius: 12px;">
+          Continuer →
+        </button>
+      </div>
+    <% end %>
+
+  </div>
+</div>
+
+<script nonce="<%= content_security_policy_nonce %>">
+  function initProfileSelection() {
+    document.querySelectorAll('.onboarding-radio').forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        document.querySelectorAll('.onboarding-card').forEach(function(c) {
+          c.style.borderColor = 'transparent';
+          c.style.background = '';
+        });
+        var card = radio.closest('label').querySelector('.onboarding-card');
+        card.style.borderColor = 'var(--ren0vate-accent, #D97706)';
+        card.style.background = 'rgba(217, 119, 6, .06)';
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initProfileSelection);
+  document.addEventListener('turbo:load', initProfileSelection);
+</script>

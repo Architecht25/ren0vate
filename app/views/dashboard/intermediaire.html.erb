@@ -1,0 +1,263 @@
+<%
+  set_seo_meta(
+    title: "Tableau de bord — Intermédiaire · Ren0vate",
+    description: "Gérez votre portefeuille clients et consultez l'Expert IA Ren0vate"
+  )
+  company_name = current_user.nom_cabinet.presence || current_user.first_name.presence || current_user.email.split('@').first.capitalize
+  has_projects = @project_count > 0
+  pending_count = @pending_members.size
+  client_count  = @projects.map { |p| p.property&.user }.compact.uniq.count rescue 0
+%>
+
+<!-- Widget Notifications -->
+<div class="notification-widget position-fixed d-none d-md-block" style="top: 80px; right: 20px; z-index: 2000;">
+  <% unread_count = current_user.respond_to?(:notifications) ? current_user.notifications.unread.count : 0 %>
+  <%= link_to notifications_path, class: "btn btn-outline-primary position-relative notification-widget-btn", style: "border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);" do %>
+    <i class="bi bi-bell fs-4"></i>
+    <% if unread_count > 0 %>
+      <span class="badge bg-danger position-absolute" style="top: -5px; right: -5px; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem;"><%= unread_count %></span>
+    <% end %>
+  <% end %>
+</div>
+
+<!-- Hero Section -->
+<div class="architectural-hero position-relative" style="min-height: 100vh;">
+  <img src="<%= asset_path('arcliine.jpg') %>" alt=""
+       class="architectural-bg-image"
+       style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.2; z-index: 0;">
+  <div class="architectural-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.3); z-index: 1;"></div>
+  <div class="sketch-overlay position-absolute w-100 h-100" style="top: 0; left: 0; z-index: 2;">
+    <div class="blueprint-grid"></div>
+    <div class="technical-lines"></div>
+  </div>
+
+  <div class="container position-relative d-flex flex-column justify-content-center align-items-center py-5" style="z-index: 3; min-height: 100vh;">
+
+    <!-- Greeting -->
+    <div class="text-center mb-4">
+      <div class="mb-2">
+        <span class="badge px-3 py-2" style="background: #6366f1; border-radius: 20px; font-size: 0.8rem;">
+          <i class="bi bi-briefcase me-1"></i>Intermédiaire
+        </span>
+      </div>
+      <h1 class="architectural-title display-4 mb-2">
+        <i class="bi bi-people me-3"></i>
+        Bonjour <span class="highlight-watercolor"><%= company_name %></span>
+      </h1>
+      <p class="text-muted" style="font-size: 1.05rem;">
+        <% if has_projects %>
+          Vous accompagnez <strong><%= client_count %> client<%= client_count > 1 ? 's' : '' %></strong>
+          sur <strong><%= @project_count %> dossier<%= @project_count > 1 ? 's' : '' %></strong>
+        <% else %>
+          Invitez vos clients pour commencer à gérer leurs dossiers de rénovation
+        <% end %>
+      </p>
+    </div>
+
+    <!-- KPIs -->
+    <% if has_projects %>
+      <div class="row g-3 mb-4 w-100" style="max-width: 780px;">
+        <div class="col-4">
+          <div class="rounded-3 text-center p-3" style="background: rgba(255,255,255,0.9); box-shadow: var(--ren0vate-shadow-sm);">
+            <div class="h3 fw-bold mb-0" style="color: #6366f1;"><%= client_count %></div>
+            <small class="text-muted">Client<%= client_count > 1 ? 's' : '' %></small>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="rounded-3 text-center p-3" style="background: rgba(255,255,255,0.9); box-shadow: var(--ren0vate-shadow-sm);">
+            <div class="h3 fw-bold mb-0" style="color: var(--ren0vate-success-dark);"><%= @project_count %></div>
+            <small class="text-muted">Dossier<%= @project_count > 1 ? 's' : '' %> actif<%= @project_count > 1 ? 's' : '' %></small>
+          </div>
+        </div>
+        <div class="col-4">
+          <div class="rounded-3 text-center p-3" style="background: rgba(255,255,255,0.9); box-shadow: var(--ren0vate-shadow-sm);">
+            <div class="h3 fw-bold mb-0" style="color: var(--ren0vate-accent);"><%= pending_count %></div>
+            <small class="text-muted">En attente</small>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Main IA Card -->
+    <div class="mx-auto w-100 mb-4" style="max-width: 780px;">
+      <div class="rounded-4 overflow-hidden" style="background: var(--ren0vate-white); box-shadow: var(--ren0vate-shadow-lg); border: 1px solid var(--ren0vate-border);">
+
+        <!-- Header gradient -->
+        <div class="p-4 text-white" style="background: linear-gradient(135deg, var(--ren0vate-primary) 0%, #4f46e5 100%);">
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                 style="width:56px; height:56px; background: rgba(255,255,255,0.2); font-size: 1.7rem;">
+              <i class="bi bi-robot"></i>
+            </div>
+            <div class="flex-grow-1">
+              <h4 class="mb-1 fw-bold" style="color: var(--ren0vate-accent);">Expert IA Ren0vate</h4>
+              <p class="mb-0 opacity-90" style="font-size: 0.9rem;">
+                Analysez les dossiers clients, détectez les primes éligibles et pilotez leur suivi
+              </p>
+            </div>
+            <span class="badge fs-6 fw-normal px-3 py-2 flex-shrink-0" style="background: rgba(255,255,255,0.2);">
+              <i class="bi bi-<%= has_projects ? 'check2-circle' : 'clock' %> me-1"></i><%= has_projects ? 'Prêt' : 'En attente' %>
+            </span>
+          </div>
+        </div>
+
+        <!-- Card body -->
+        <div class="p-4">
+          <% if has_projects %>
+            <p class="mb-4" style="font-size: 0.95rem; color: var(--ren0vate-text-secondary);">
+              L'assistant connaît vos <strong>clients</strong>, leurs <strong>biens</strong>, les <strong>travaux planifiés</strong> et les <strong>primes potentiellement éligibles</strong>.
+              Interrogez-le pour préparer vos rendez-vous, rédiger des synthèses ou calculer les aides disponibles.
+            </p>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <div class="rounded-3 p-3 h-100 d-flex flex-column"
+                     style="background: rgba(99,102,241,0.07); border: 1.5px solid rgba(99,102,241,0.3);">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-people fs-5" style="color: #6366f1;"></i>
+                    <span class="fw-semibold" style="color: #6366f1;">Tous mes clients</span>
+                  </div>
+                  <p class="small mb-3 flex-grow-1" style="color: var(--ren0vate-text-muted);">
+                    Vue CRM : portefeuille global, priorisation, détection d'opportunités sur l'ensemble des dossiers.
+                  </p>
+                  <%= link_to expert_decision_hub_index_path(all: 1), class: "btn btn-ren0vate fw-semibold w-100" do %>
+                    <i class="bi bi-chat-dots-fill me-2"></i>Tous mes clients
+                  <% end %>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="rounded-3 p-3 h-100 d-flex flex-column"
+                     style="background: rgba(var(--ren0vate-primary-rgb), 0.05); border: 1.5px solid rgba(var(--ren0vate-primary-rgb), 0.2);">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-folder2-open fs-5" style="color: var(--ren0vate-info);"></i>
+                    <span class="fw-semibold" style="color: var(--ren0vate-info);">Client spécifique</span>
+                  </div>
+                  <p class="small mb-3 flex-grow-1" style="color: var(--ren0vate-text-muted);">
+                    Analyse ciblée : primes éligibles, documents manquants, état d'avancement d'un dossier précis.
+                  </p>
+                  <%= link_to expert_decision_hub_index_path, class: "btn btn-primary fw-semibold w-100" do %>
+                    <i class="bi bi-arrow-right-circle me-2"></i>Choisir un dossier
+                  <% end %>
+                </div>
+              </div>
+            </div>
+
+          <% else %>
+            <!-- État zéro -->
+            <div class="text-center py-3">
+              <div class="mb-4" style="font-size: 3rem; opacity: 0.3;">
+                <i class="bi bi-briefcase"></i>
+              </div>
+              <h5 class="fw-semibold mb-2" style="color: var(--ren0vate-primary);">Aucun dossier client pour l'instant</h5>
+              <p class="text-muted mb-4" style="font-size: 0.9rem; max-width: 420px; margin: 0 auto 1.5rem;">
+                Invitez vos clients via votre lien personnel. Dès qu'un client crée son premier projet,
+                vous y aurez accès et pourrez l'accompagner de A à Z.
+              </p>
+
+              <% if @referral_url %>
+                <div class="rounded-3 p-3 mb-4 text-start" style="background: rgba(99,102,241,0.07); border: 1.5px solid rgba(99,102,241,0.25);">
+                  <div class="small fw-semibold mb-2" style="color: #6366f1;">
+                    <i class="bi bi-link-45deg me-1"></i>Votre lien d'invitation
+                  </div>
+                  <div class="d-flex gap-2 align-items-center">
+                    <code class="flex-grow-1 small text-break" style="color: var(--ren0vate-text-secondary);"><%= @referral_url %></code>
+                    <button class="btn btn-sm btn-outline-primary flex-shrink-0"
+                            onclick="navigator.clipboard.writeText('<%= @referral_url %>').then(() => this.innerHTML = '<i class=\\'bi bi-check2\\'></i> Copié'); setTimeout(() => this.innerHTML = '<i class=\\'bi bi-clipboard\\'></i>', 2000)">
+                      <i class="bi bi-clipboard"></i>
+                    </button>
+                  </div>
+                </div>
+              <% end %>
+
+              <%= link_to pro_referral_path(locale: I18n.locale), class: "btn btn-ren0vate fw-semibold px-4" do %>
+                <i class="bi bi-person-plus me-2"></i>Inviter un client
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table clients / dossiers -->
+    <% if has_projects %>
+      <div class="w-100 mb-4" style="max-width: 780px;">
+        <h5 class="fw-semibold mb-3" style="color: var(--ren0vate-primary);">
+          <i class="bi bi-table me-2"></i>Mes dossiers clients
+        </h5>
+
+        <div class="rounded-3 overflow-hidden" style="background: rgba(255,255,255,0.95); box-shadow: var(--ren0vate-shadow-sm); border: 1px solid var(--ren0vate-border);">
+          <table class="table table-hover mb-0" style="font-size: 0.9rem;">
+            <thead style="background: rgba(var(--ren0vate-primary-rgb), 0.06);">
+              <tr>
+                <th class="ps-3 py-2 fw-semibold" style="color: var(--ren0vate-primary); border-bottom: 1px solid var(--ren0vate-border);">Client</th>
+                <th class="py-2 fw-semibold d-none d-md-table-cell" style="color: var(--ren0vate-primary); border-bottom: 1px solid var(--ren0vate-border);">Projet</th>
+                <th class="py-2 fw-semibold d-none d-sm-table-cell" style="color: var(--ren0vate-primary); border-bottom: 1px solid var(--ren0vate-border);">Localité</th>
+                <th class="py-2 fw-semibold text-center" style="color: var(--ren0vate-primary); border-bottom: 1px solid var(--ren0vate-border);">Statut</th>
+                <th class="pe-3 py-2" style="border-bottom: 1px solid var(--ren0vate-border);"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @active_members.each do |member| %>
+                <% project = member.project %>
+                <% next unless project %>
+                <% property = project.property %>
+                <% owner = project.owner %>
+                <tr>
+                  <td class="ps-3 py-2 align-middle">
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                           style="width: 32px; height: 32px; background: rgba(99,102,241,0.1); font-size: 0.75rem; min-width: 32px;">
+                        <i class="bi bi-person" style="color: #6366f1;"></i>
+                      </div>
+                      <span class="fw-semibold text-truncate" style="max-width: 120px;">
+                        <%= owner ? (owner.first_name.presence || owner.email.split('@').first.capitalize) : '—' %>
+                      </span>
+                    </div>
+                  </td>
+                  <td class="py-2 align-middle d-none d-md-table-cell">
+                    <span class="text-truncate d-block" style="max-width: 160px; color: var(--ren0vate-text-secondary);">
+                      <%= project.name %>
+                    </span>
+                  </td>
+                  <td class="py-2 align-middle d-none d-sm-table-cell">
+                    <span class="text-muted small">
+                      <% if property %>
+                        <i class="bi bi-geo-alt me-1"></i><%= property.commune.presence || property.region&.capitalize || '—' %>
+                      <% else %>
+                        —
+                      <% end %>
+                    </span>
+                  </td>
+                  <td class="py-2 align-middle text-center">
+                    <span class="badge px-2 py-1" style="background: var(--ren0vate-success-dark); font-size: 0.7rem;">Actif</span>
+                  </td>
+                  <td class="pe-3 py-2 align-middle text-end">
+                    <%= link_to project_path(project), class: "btn btn-sm btn-outline-primary" do %>
+                      <i class="bi bi-arrow-right"></i>
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+
+        <% if pending_count > 0 %>
+          <div class="rounded-3 p-3 mt-3 text-center" style="background: rgba(var(--ren0vate-accent-rgb), 0.07); border: 1px dashed rgba(var(--ren0vate-accent-rgb), 0.4);">
+            <small style="color: var(--ren0vate-accent);">
+              <i class="bi bi-clock me-1"></i><%= pending_count %> invitation<%= pending_count > 1 ? 's' : '' %> en attente de confirmation
+            </small>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- CTA inviter -->
+    <div class="w-100 text-center" style="max-width: 780px;">
+      <%= link_to pro_referral_path(locale: I18n.locale), class: "btn btn-outline-primary" do %>
+        <i class="bi bi-person-plus me-2"></i><%= has_projects ? 'Inviter un autre client' : 'Inviter un client' %>
+      <% end %>
+    </div>
+
+  </div>
+</div>

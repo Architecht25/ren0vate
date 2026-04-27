@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_27_101950) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_27_122049) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1118,8 +1118,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_27_101950) do
     t.datetime "locked_at"
     t.text "national_number"
     t.string "nom"
+    t.string "nom_cabinet"
     t.integer "nombre_enfants"
+    t.string "num_bce"
     t.string "number"
+    t.datetime "onboarding_completed_at"
     t.integer "personnes_60_ans_et_plus"
     t.string "phone"
     t.string "postal_code"
@@ -1140,6 +1143,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_27_101950) do
     t.string "unconfirmed_email"
     t.string "unlock_token"
     t.datetime "updated_at", null: false
+    t.integer "user_profile", default: 0, null: false
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["preferred_locale"], name: "index_users_on_preferred_locale"
@@ -1148,6 +1152,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_27_101950) do
     t.index ["role"], name: "index_users_on_role"
     t.index ["stripe_customer_id"], name: "index_users_on_stripe_customer_id", unique: true
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
+    t.index ["user_profile"], name: "index_users_on_user_profile"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

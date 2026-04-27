@@ -1,0 +1,62 @@
+<div class="row justify-content-center">
+  <div class="col-12 col-md-7 col-lg-6">
+
+    <%# Indicateur de progression %>
+    <div class="d-flex align-items-center gap-2 mb-4">
+      <span class="badge rounded-pill px-3 py-2" style="background: var(--ren0vate-accent, #D97706); color: white;">Étape 1/2</span>
+      <span class="text-muted small">Votre bien immobilier</span>
+    </div>
+
+    <h2 class="fw-bold mb-1" style="color: var(--ren0vate-primary, #334155);">
+      Où se situe votre bien ?
+    </h2>
+    <p class="text-muted mb-4">Ces informations permettront d'identifier les primes disponibles dans votre région.</p>
+
+    <%= form_with model: @property, url: onboarding_create_proprietaire_bien_path(locale: I18n.locale), method: :post do |f| %>
+      <% if @property.errors.any? %>
+        <div class="alert alert-danger mb-4">
+          <ul class="mb-0 ps-3">
+            <% @property.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="row g-3">
+        <div class="col-8">
+          <%= f.label :rue, "Rue", class: "form-label fw-semibold" %>
+          <%= f.text_field :rue, class: "form-control form-control-lg", placeholder: "Rue de l'Église" %>
+        </div>
+        <div class="col-4">
+          <%= f.label :numero, "N°", class: "form-label fw-semibold" %>
+          <%= f.text_field :numero, class: "form-control form-control-lg", placeholder: "12" %>
+        </div>
+        <div class="col-4">
+          <%= f.label :code_postal, "Code postal", class: "form-label fw-semibold" %>
+          <%= f.text_field :code_postal, class: "form-control form-control-lg", placeholder: "1000" %>
+        </div>
+        <div class="col-8">
+          <%= f.label :commune, "Commune", class: "form-label fw-semibold" %>
+          <%= f.text_field :commune, class: "form-control form-control-lg", placeholder: "Bruxelles" %>
+        </div>
+        <div class="col-12">
+          <%= f.label :region, "Région", class: "form-label fw-semibold" %>
+          <%= f.select :region,
+                [["Wallonie", "wallonie"], ["Bruxelles", "bruxelles"], ["Flandre", "flandre"]],
+                { include_blank: "Sélectionner une région..." },
+                class: "form-select form-select-lg" %>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mt-4">
+        <%= link_to "← Retour", onboarding_profile_selection_path(locale: I18n.locale),
+              class: "text-muted text-decoration-none" %>
+        <%= f.submit "Étape suivante →",
+              class: "btn btn-lg px-4 fw-semibold",
+              style: "background: var(--ren0vate-accent, #D97706); color: white; border: none; border-radius: 10px;" %>
+      </div>
+    <% end %>
+
+  </div>
+</div>

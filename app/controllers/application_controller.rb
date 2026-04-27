@@ -115,7 +115,7 @@ class ApplicationController < ActionController::Base
     response.headers['Permissions-Policy'] = [
       'camera=(), microphone=(), geolocation=(self)',
       'payment=(), usb=(), magnetometer=(), gyroscope=()',
-      'accelerometer=(), ambient-light-sensor=(), autoplay=()',
+      'accelerometer=(), autoplay=()',
       'encrypted-media=(), fullscreen=(self), picture-in-picture=()'
     ].join(', ')
 
@@ -153,12 +153,12 @@ class ApplicationController < ActionController::Base
   end
 
   def after_sign_in_path_for(resource)
-    stored_location_for(resource) || dashboard_path
+    return stored_location_for(resource) if stored_location_for(resource).present?
+    resource.onboarding_done? ? dashboard_path : onboarding_profile_selection_path(locale: I18n.locale)
   end
 
   def after_sign_up_path_for(resource)
-    # Rediriger vers le dashboard après inscription
-    dashboard_path
+    onboarding_profile_selection_path(locale: I18n.locale)
   end
 
   def ensure_admin_or_moderator

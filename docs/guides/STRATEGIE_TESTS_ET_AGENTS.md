@@ -241,12 +241,12 @@ Migrer **avant le lancement commercial**, pendant que le volume est gérable (7,
 - [ ] **Stripe** : créer compte Business (ArchiTecht SRL, BCE BE 1020.345.473) + injecter `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET` dans Heroku — prévu lundi
 - [ ] **`:confirmable` Devise** : confirmer les 55 comptes existants (`User.update_all(confirmed_at: Time.now)`) puis activer le module
 - [ ] **i18n `nl.yml`** : compléter les sections `timeline` et `request_progress` (statuts de suivi)
-- [ ] **3 tunnels d'onboarding** : voir plan d'implémentation ci-dessous (~4 jours)
+- [x] **4 tunnels d'onboarding** : ✅ implémentés le 27/04/2026 (propriétaire / architecte / entrepreneur / intermédiaire)
 - [ ] **Migration Cloudinary → Scaleway** : à planifier avant dépassement plan gratuit (49% utilisé)
 
 ---
 
-## Plan d'implémentation — 3 tunnels d'onboarding
+## Plan d'implémentation — 4 tunnels d'onboarding ✅ RÉALISÉ
 
 ### Vue d'ensemble architecturale
 

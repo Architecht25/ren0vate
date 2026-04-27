@@ -1,0 +1,46 @@
+<div class="row justify-content-center">
+  <div class="col-12 col-md-7 col-lg-6">
+
+    <div class="d-flex align-items-center gap-2 mb-4">
+      <span class="badge rounded-pill px-3 py-2" style="background: var(--ren0vate-success, #84A98C); color: white;">Étape 1/1</span>
+      <span class="text-muted small">Rejoindre un chantier</span>
+    </div>
+
+    <h2 class="fw-bold mb-1" style="color: var(--ren0vate-primary, #334155);">
+      Avez-vous un lien d'invitation ?
+    </h2>
+    <p class="text-muted mb-4">
+      Un maître d'ouvrage peut vous inviter à rejoindre son chantier.
+      Si vous n'avez pas encore de lien, vous pouvez passer cette étape.
+    </p>
+
+    <%= form_with url: onboarding_create_entrepreneur_invitation_path(locale: I18n.locale), method: :post do |f| %>
+
+      <div class="card border-0 shadow-sm p-4 mb-4" style="border-radius: 12px;">
+        <label class="form-label fw-semibold">Token d'invitation</label>
+        <input type="text" name="invitation_token" class="form-control form-control-lg"
+               placeholder="Collez votre token ici...">
+        <div class="form-text mt-2">
+          <i class="bi bi-info-circle me-1"></i>
+          Le token vous a été transmis par le propriétaire ou l'architecte du projet.
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center">
+        <%= link_to "← Retour", onboarding_profile_selection_path(locale: I18n.locale),
+              class: "text-muted text-decoration-none" %>
+        <div class="d-flex gap-2">
+          <button type="submit" name="invitation_token" value="" class="btn btn-outline-secondary px-4"
+                  style="border-radius: 10px;">
+            Passer cette étape
+          </button>
+          <button type="submit" class="btn btn-lg px-4 fw-semibold"
+                  style="background: var(--ren0vate-success, #84A98C); color: white; border: none; border-radius: 10px;">
+            Rejoindre →
+          </button>
+        </div>
+      </div>
+    <% end %>
+
+  </div>
+</div>

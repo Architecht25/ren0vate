@@ -82,7 +82,7 @@
 | 5.1 | **Landing page** — hero fort, social proof, CTA above fold, tone belge rénovation | `app/views/pages/home.html.erb` | 🔴 |
 | 5.2 | **Pricing page** — toggle mensuel/annuel, plan mis en avant, bullets iconifiés, FAQ | `app/views/pricing/index.html.erb` | 🔴 |
 | 5.3 | **Page checkout/select** — sticky récap plan, réassurance Stripe, étapes claires | `app/views/pricing/select.html.erb` | 🔴 |
-| 5.4 | **Tunnels d'onboarding ×3** — propriétaire / architecte / entrepreneur | `app/views/onboarding/` | 🔴 |
+| 5.4 | **Tunnels d'onboarding ×4** — propriétaire / architecte / entrepreneur / intermédiaire | `app/views/onboarding/` | ✅ |
 | 5.5 | **Dashboards ×3 variantes** — un par profil (ne pas refaire le générique avant) | `app/views/dashboard/` | 🟠 |
 | 5.6 | **Vue entrepreneur mobile-first** — 860 lignes à coordonner avec tunnel Entrepreneur | `app/views/pro_views/show.html.erb` | 🟠 |
 | 5.7 | **Dashboard IA** — col-4 biens + col-8 Expert IA (clic bien → charge chat) | `app/views/dashboard/index.html.erb` | 🟡 |

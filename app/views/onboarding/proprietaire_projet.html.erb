@@ -1,0 +1,50 @@
+<div class="row justify-content-center">
+  <div class="col-12 col-md-7 col-lg-6">
+
+    <div class="d-flex align-items-center gap-2 mb-4">
+      <span class="badge rounded-pill px-3 py-2" style="background: var(--ren0vate-accent, #D97706); color: white;">Étape 2/2</span>
+      <span class="text-muted small">Votre premier projet</span>
+    </div>
+
+    <h2 class="fw-bold mb-1" style="color: var(--ren0vate-primary, #334155);">
+      Quel chantier planifiez-vous ?
+    </h2>
+    <p class="text-muted mb-4">Vous pourrez affiner tous les détails une fois dans votre espace.</p>
+
+    <%= form_with model: @project, url: onboarding_create_proprietaire_projet_path(locale: I18n.locale), method: :post do |f| %>
+      <% if @project.errors.any? %>
+        <div class="alert alert-danger mb-4">
+          <ul class="mb-0 ps-3">
+            <% @project.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="row g-3">
+        <div class="col-12">
+          <%= f.label :nom, "Nom du projet", class: "form-label fw-semibold" %>
+          <%= f.text_field :nom, class: "form-control form-control-lg",
+                placeholder: "Ex. Rénovation cuisine, Isolation toiture..." %>
+        </div>
+        <div class="col-12">
+          <%= f.label :project_type, "Type de projet", class: "form-label fw-semibold" %>
+          <%= f.select :project_type,
+                [["Rénovation", "renovation"], ["Investissement", "investment"]],
+                { include_blank: "Sélectionner..." },
+                class: "form-select form-select-lg" %>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center mt-4">
+        <%= link_to "← Retour", onboarding_proprietaire_bien_path(locale: I18n.locale),
+              class: "text-muted text-decoration-none" %>
+        <%= f.submit "Accéder à mon espace →",
+              class: "btn btn-lg px-4 fw-semibold",
+              style: "background: var(--ren0vate-accent, #D97706); color: white; border: none; border-radius: 10px;" %>
+      </div>
+    <% end %>
+
+  </div>
+</div>

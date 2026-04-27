@@ -1,6 +1,8 @@
 class Property < ApplicationRecord
   self.inheritance_column = nil  # Désactiver l'héritage STI pour la colonne 'type'
 
+  attr_accessor :skip_onboarding_validation
+
   serialize :elements_petit_patrimoine, coder: JSON
 
   belongs_to :user
@@ -37,11 +39,11 @@ class Property < ApplicationRecord
   validates :rue, :numero, :code_postal, :commune, :region, presence: true
 
   # Validations régionales conditionnelles - temporairement assouplies pour debugging
-  validates :type_bien_flandre, presence: true, if: -> { region == 'flandre' && new_record? }
-  validates :usage_flandre, presence: true, if: -> { region == 'flandre' && new_record? }
+  validates :type_bien_flandre, presence: true, if: -> { region == 'flandre' && new_record? && !skip_onboarding_validation }
+  validates :usage_flandre, presence: true, if: -> { region == 'flandre' && new_record? && !skip_onboarding_validation }
   # validates :ean_flandre, presence: true, if: -> { region == 'flandre' } # Temporairement désactivé
-  validates :type_propriete_wallonie, presence: true, if: -> { region == 'wallonie' && new_record? }
-  validates :type_bien_bruxelles, presence: true, if: -> { region == 'bruxelles' && new_record? }
+  validates :type_propriete_wallonie, presence: true, if: -> { region == 'wallonie' && new_record? && !skip_onboarding_validation }
+  validates :type_bien_bruxelles, presence: true, if: -> { region == 'bruxelles' && new_record? && !skip_onboarding_validation }
 
   # Validations optionnelles - à réactiver plus tard selon les besoins
   # validates :type, :occupation, presence: true

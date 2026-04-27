@@ -267,16 +267,20 @@ Target: Belgian homeowners managing renovation projects.
 ## Ordre d'exécution
 
 ```
-Phase 1 — Tunnels d'abord (prérequis au design des dashboards)
-  Semaine 1-2 : Implémenter les 3 tunnels d'onboarding (voir STRATEGIE_TESTS_ET_AGENTS.md)
-  → Bloquer le redesign des dashboards tant que les 3 variantes ne sont pas définies
+Phase 1 — Tunnels d'abord (prérequis au design des dashboards) ✅ RÉALISÉ (27/04/2026)
+  4 tunnels d'onboarding implémentés : propriétaire / architecte / entrepreneur / intermédiaire
+  → Redesign des dashboards débloqué
 
 Phase 2 — Pages d'acquisition (indépendantes des tunnels)
   Jour 1 : Claude Design onboarding → pointer repo → design system extrait
   Jour 1 : Prototype landing page (home.html.erb) dans Claude Design
   Jour 2 : Handoff → Claude Code → injection ERB home.html.erb
   Jour 2 : pricing/index.html.erb dans Claude Design → Claude Code
-  Jour 3 : AOS.js + navbar scroll + pricing highlight  (polish rapide, Claude Code direct)
+  Jour 3 : AOS.js + navbar scroll + pricing highlight  ✅ RÉALISÉ (27/04/2026)
+            → AOS.js chargé dans le layout (CSS + JS + init Turbo-compatible)
+            → Navbar glassmorphism .scrolled en place dans _navbar.scss
+            → Card "Propriétaire" highlighted dans pricing/select.html.erb (ardoise + badge terracotta)
+            → pricing_path remplacé par pricing_select_path dans support_tickets + analytics controllers
   Jour 4 : pricing/select.html.erb  (checkout)
 
 Phase 3 — Dashboards et vues métier (après tunnels implémentés)

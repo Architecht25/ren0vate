@@ -68,7 +68,7 @@ class SupportTicketsController < ApplicationController
 
   def require_paid_plan!
     unless current_user.has_active_subscription?
-      redirect_to pricing_path,
+      redirect_to pricing_select_path,
                   alert: "Le support prioritaire est disponible à partir du plan Propriétaire (39€/mois)."
     end
   end
