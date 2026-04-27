@@ -2,6 +2,7 @@
 
 *Date de création : 12 décembre 2025*
 *Révision majeure : 8 février 2026*
+*Mise à jour : 27 avril 2026 — Comptes professionnels + flux referral architecte*
 
 ---
 
@@ -38,8 +39,29 @@ Tagline : "Un projet, une app, trois acteurs, zéro friction"
 
 👥 ÉCOSYSTÈME 3-PARTIES DÈS LE DÉBUT
    • Propriétaire (Payant 39-89€) crée projet
-   • Architecte (Freemium) invité par client
-   • Entrepreneur (Freemium) invité par client
+   • Architecte (Freemium) invité par client — OU invite son client via lien referral
+   • Entrepreneur (Freemium) invité par client — OU invite son client via lien referral
+   • Intermédiaire (Freemium) : agent, courtier, gestionnaire de patrimoine
+
+### ✅ Implémenté le 27 avril 2026 — Flux Pro Standalone
+
+**Inscription différenciée** : Le formulaire `/inscription` permet désormais de choisir
+son profil dès la création du compte (4 cartes visuelles : Propriétaire / Architecte /
+Entrepreneur / Intermédiaire). La colonne `professional_type` (string) est enregistrée.
+
+**Flux referral Pro → Client** :
+1. L'architecte accède à `/pro/inviter-client` depuis son dashboard
+2. Il copie son lien unique `/?ref=TOKEN` ou envoie l'email directement
+3. Le client s'inscrit via ce lien (profil Propriétaire pré-sélectionné)
+4. À la création de son premier projet, un `ProjectMember` (status: pending, role: architect)
+   est automatiquement créé pour l'architecte référent
+5. Le client active l'accès → l'architecte reçoit une notification email
+
+**Règles métier** :
+- Un pro sans bien et sans membership actif atterrit sur `member_projects` (vue chantiers)
+- Un pro sans bien mais avec `professional_type` atterrit aussi sur `member_projects`
+  (état "en attente de premier client" avec CTA referral)
+- `referral_token` : généré à la demande via `user.referral_token!`, indexé unique en DB
 ```
 
 ### 📊 Validation Marché (Février 2026)

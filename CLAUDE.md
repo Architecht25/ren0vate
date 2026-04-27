@@ -65,11 +65,15 @@ app/
     api/             # Endpoints JSON (chatbot, PDF preview, IA)
     users/           # Sessions Devise custom
   models/
-    user.rb          # Devise + rôles (user/moderator/admin)
+    user.rb          # Devise + rôles (user/moderator/admin) + professional_type + referral_token
     property.rb      # Bien immobilier (appartient à user)
     project.rb       # Dossier de travaux (appartient à property)
+    project_member.rb # Collaboration pro (architect/entrepreneur) sur un projet
     request.rb       # Demande de prime (appartient à project)
     simulation.rb    # Calcul de primes (appartient à property)
+  controllers/
+    pro_referrals_controller.rb  # Lien d'invitation pro → client (/pro/inviter-client)
+    invitations_controller.rb    # Acceptation invitation token par les pros
   services/
     contextual_bot_service.rb    # Contexte IA pour le chatbot
     bce_verification_service.rb  # Vérification TVA via VIES (API gratuite EU)
@@ -77,9 +81,14 @@ app/
   jobs/
     facture_alert_job.rb         # Alertes factures (recurring: 9h daily + /6h)
     bce_verification_job.rb      # Vérification TVA asynchrone
+  mailers/
+    pro_referral_mailer.rb       # Email invitation client par un pro
+    project_mailer.rb            # Invitations projet + pro_referral_pending
   views/
     properties/                  # Formulaires par région (_form_wallonie/bruxelles/flandre)
     admin/users/                 # Interface admin utilisateurs
+    pro_referrals/show.html.erb  # Page lien referral pro → client
+    devise/registrations/new     # Formulaire inscription avec sélecteur de profil (4 cartes)
 ```
 
 ## Modèle de données clé
@@ -90,11 +99,24 @@ User → Properties → Projects → Requests → Factures/Devis
                   → Simulations
 ```
 
-- `User` : compte, revenus, situation familiale, région
+- `User` : compte, revenus, situation familiale, région, **`professional_type`** (nil=propriétaire / architect / entrepreneur / intermediary), **`referral_token`** (unique, généré à la demande)
 - `Property` : bien immobilier, adresse, type_bien, **type_demandeur** (Particulier/Société/Syndic...)
 - `Project` : dossier de travaux, entrepreneur (N° BCE), état d'avancement
+- `ProjectMember` : lien pro ↔ project (roles: owner/architect/entrepreneur, status: pending/active, invite_token)
 - `Request` : demande de prime officielle, statut, montant
 - `Simulation` : calcul estimatif des primes éligibles
+
+## Flux compte professionnel (architecte / entrepreneur)
+
+1. Inscription via `/inscription` → sélection profil → `professional_type` sauvegardé
+2. Login → `professional_guest?` retourne `true` → redirect `member_projects_path`
+3. Dashboard vide → CTA "Inviter un client" → `/pro/inviter-client`
+4. L'archi copie/envoie son lien `/?ref=TOKEN`
+5. Le client s'inscrit → crée son premier projet → `handle_referral_after_project_create` crée `ProjectMember(pending)`
+6. Email envoyé au pro via `ProjectMailer#pro_referral_pending`
+7. Le client active l'accès (via `pro_views#invite` ou manuellement) → archi rejoint le projet
+
+**`professional_guest?`** : `true` si `professional_type.present? && properties.none?` OU `properties.none? && project_members.active.pros.any?`
 
 ## Conventions
 

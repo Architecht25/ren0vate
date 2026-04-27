@@ -1,8 +1,35 @@
 # 🏠 Guide d'utilisation Ren0vate
 
-## 📋 Parcours utilisateur étape par étape
+*Dernière mise à jour : 27 avril 2026 — v3.0 (comptes professionnels)*
 
-Ren0vate vous accompagne dans votre projet de rénovation en 5 étapes simples. Suivez ce guide pour optimiser votre expérience et maximiser vos chances d'obtenir des primes.
+---
+
+## 👤 Choisissez votre profil à l'inscription
+
+Dès la création de votre compte sur `/inscription`, vous choisissez votre profil parmi 4 options :
+
+| Profil | Description | Accès après login |
+|--------|-------------|------------------|
+| **Propriétaire** | Je gère mes rénovations | Dashboard biens + projets |
+| **Architecte** | Je pilote les projets clients | Vue "Mes chantiers" + lien d'invitation client |
+| **Entrepreneur** | J'exécute les travaux | Vue "Mes chantiers" + lien d'invitation client |
+| **Intermédiaire** | Agent, courtier, gestionnaire | Vue "Mes chantiers" |
+
+### 🔗 Flux Architecte / Entrepreneur — Inviter un client
+
+Un architecte ou entrepreneur peut **inviter ses clients** à rejoindre la plateforme sans attendre qu'ils le fassent eux-mêmes :
+
+1. Accédez à **"Mes chantiers"** → bouton **"Inviter un client"**
+2. Copiez votre lien personnel ou saisissez l'email de votre client
+3. Votre client s'inscrit via ce lien → crée son bien et son projet
+4. Vous êtes automatiquement proposé comme architecte/entrepreneur sur ce projet
+5. Votre client valide votre accès → vous rejoignez le chantier
+
+---
+
+## 📋 Parcours propriétaire — étape par étape
+
+Ren0vate vous accompagne dans votre projet de rénovation en 5 étapes simples.
 
 ### 🎯 Vue d'ensemble du processus
 
@@ -120,7 +147,7 @@ Votre profil détermine votre éligibilité aux différentes primes régionales 
 ### 🆘 Besoin d'aide ?
 - **Support intégré** : bouton d'aide dans chaque section
 - **Documentation** : guides détaillés par région
-- **Contact** : équipe support disponible
+- **Contact** : equipe support disponible
 
 ---
 
@@ -143,5 +170,5 @@ Votre profil détermine votre éligibilité aux différentes primes régionales 
 
 ---
 
-*Dernière mise à jour : 29 novembre 2025*
-*Version de la plateforme : Beta v2.1*
+*Dernière mise à jour : 27 avril 2026*
+*Version de la plateforme : v3.0 — Comptes professionnels*
