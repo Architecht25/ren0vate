@@ -1,6 +1,6 @@
 <div class="auth-container">
   <div class="row justify-content-center">
-    <div class="col-auto" style="min-width: 320px; max-width: 400px;">
+    <div class="col-auto" style="min-width: 320px; max-width: 460px;">
       <div class="auth-card">
         <!-- Header avec logo -->
         <div class="auth-header text-center mb-4">
@@ -9,17 +9,45 @@
           </div>
           <h2 class="auth-title">Rejoignez Ren0vate</h2>
           <p class="auth-subtitle text-muted">Créez votre compte pour commencer</p>
-
-          <!-- Notification temporaire -->
-          <div class="alert alert-success alert-sm mt-3" style="font-size: 0.9rem;">
-            <i class="bi bi-check-circle me-2"></i>
-            <strong>Info :</strong> Votre compte sera activé immédiatement après création.
-          </div>
         </div>
 
         <!-- Formulaire -->
         <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { class: "auth-form" }) do |f| %>
           <%= f.error_notification %>
+
+          <%# Sélecteur de profil utilisateur %>
+          <div class="mb-4">
+            <label class="form-label fw-semibold mb-2">Je suis…</label>
+            <div class="row g-2" id="profile-selector">
+              <%
+                preselected = params[:ref].present? ? '' : (resource.professional_type || '')
+                profiles = [
+                  { value: '',             icon: 'bi-house-heart',     label: 'Propriétaire',   desc: 'Je gère mes rénovations' },
+                  { value: 'architect',    icon: 'bi-compass',         label: 'Architecte',     desc: 'Je pilote les projets clients' },
+                  { value: 'entrepreneur', icon: 'bi-hammer',          label: 'Entrepreneur',   desc: 'J\'exécute les travaux' },
+                  { value: 'intermediary', icon: 'bi-people',          label: 'Intermédiaire',  desc: 'Agent, courtier, gestionnaire' },
+                ]
+              %>
+              <% profiles.each do |p| %>
+                <div class="col-6">
+                  <label class="profile-card w-100 h-100 <%= preselected == p[:value] ? 'selected' : '' %>"
+                         for="profile_<%= p[:value].presence || 'owner' %>">
+                    <input type="radio"
+                           name="user[professional_type]"
+                           id="profile_<%= p[:value].presence || 'owner' %>"
+                           value="<%= p[:value] %>"
+                           class="d-none profile-radio"
+                           <%= preselected == p[:value] ? 'checked' : '' %>>
+                    <div class="text-center py-2 px-1">
+                      <i class="bi <%= p[:icon] %> d-block mb-1" style="font-size:1.4rem;"></i>
+                      <div class="fw-semibold" style="font-size:0.85rem;"><%= p[:label] %></div>
+                      <div class="text-muted" style="font-size:0.72rem;line-height:1.2;"><%= p[:desc] %></div>
+                    </div>
+                  </label>
+                </div>
+              <% end %>
+            </div>
+          </div>
 
           <div class="form-group mb-3">
             <%= f.input :email,
@@ -84,3 +112,35 @@
     </div>
   </div>
 </div>
+
+<style>
+  .profile-card {
+    border: 2px solid #dee2e6;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    background: #fff;
+  }
+  .profile-card:hover {
+    border-color: #0d6efd;
+    background: #f0f6ff;
+  }
+  .profile-card.selected {
+    border-color: #0d6efd;
+    background: #e7f1ff;
+    box-shadow: 0 0 0 3px rgba(13,110,253,.15);
+  }
+  .profile-card.selected i {
+    color: #0d6efd;
+  }
+</style>
+
+<script>
+  document.querySelectorAll('.profile-radio').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+      document.querySelectorAll('.profile-card').forEach(function(c) { c.classList.remove('selected'); });
+      radio.closest('.profile-card').classList.add('selected');
+    });
+  });
+</script>
+
