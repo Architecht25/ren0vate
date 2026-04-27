@@ -86,11 +86,17 @@ class WebhooksController < ApplicationController
       stripe_subscription_id: subscription['id']
     )
 
+    # API 2024-09-30+ : current_period_start/end sont dans les items
+    period_start = subscription['current_period_start'] ||
+                   subscription.dig('items', 'data', 0, 'current_period', 'start')
+    period_end   = subscription['current_period_end'] ||
+                   subscription.dig('items', 'data', 0, 'current_period', 'end')
+
     user_subscription.assign_attributes(
       tier: tier,
       status: subscription['status'],
-      current_period_start: Time.at(subscription['current_period_start']),
-      current_period_end: Time.at(subscription['current_period_end'])
+      current_period_start: period_start ? Time.at(period_start) : nil,
+      current_period_end:   period_end   ? Time.at(period_end)   : nil
     )
 
     if user_subscription.save
@@ -110,10 +116,15 @@ class WebhooksController < ApplicationController
     user_subscription = Subscription.find_by(stripe_subscription_id: subscription['id'])
     return unless user_subscription
 
+    period_start = subscription['current_period_start'] ||
+                   subscription.dig('items', 'data', 0, 'current_period', 'start')
+    period_end   = subscription['current_period_end'] ||
+                   subscription.dig('items', 'data', 0, 'current_period', 'end')
+
     user_subscription.update!(
       status: subscription['status'],
-      current_period_start: Time.at(subscription['current_period_start']),
-      current_period_end: Time.at(subscription['current_period_end'])
+      current_period_start: period_start ? Time.at(period_start) : nil,
+      current_period_end:   period_end   ? Time.at(period_end)   : nil
     )
 
     Rails.logger.info "✅ Subscription updated for user #{user_subscription.user.email}"
