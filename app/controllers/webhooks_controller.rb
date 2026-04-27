@@ -65,6 +65,8 @@ class WebhooksController < ApplicationController
   end
 
   def handle_subscription_created(subscription)
+    # Convert Stripe object to plain Hash for uniform access (dig, etc.)
+    subscription = JSON.parse(subscription.to_json)
     Rails.logger.info "🆕 Subscription created: #{subscription['id']}"
 
     customer_id = subscription['customer']
@@ -111,6 +113,7 @@ class WebhooksController < ApplicationController
   end
 
   def handle_subscription_updated(subscription)
+    subscription = JSON.parse(subscription.to_json)
     Rails.logger.info "🔄 Subscription updated: #{subscription['id']}"
 
     user_subscription = Subscription.find_by(stripe_subscription_id: subscription['id'])
