@@ -328,4 +328,5 @@ class PricingController < ApplicationController
     stripe_key = ENV['STRIPE_SECRET_KEY'] || Rails.application.credentials.stripe_secret_key
     stripe_key.present? && stripe_key != 'sk_test_dummy_key_for_development' && !stripe_key.include?('dummy')
   end
+  helper_method :stripe_configured?
 end

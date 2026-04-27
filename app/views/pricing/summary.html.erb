@@ -215,11 +215,9 @@
               <%= form.hidden_field :billing_cycle, value: "monthly", class: "billing-cycle-input" %>
               <%= form.hidden_field :total_amount, value: (@selected_tier[:price] * 1.21).round(2), class: "total-amount-input" %>
 
-              <%= form.submit class: "btn btn-primary btn-lg shadow",
-                  data: { disable_with: stripe_configured ? "Redirection vers Stripe..." : "Simulation paiement..." } do %>
-                <i class="bi bi-shield-check me-2"></i>
-                <%= stripe_configured ? "Procéder au paiement sécurisé" : "Simuler le paiement (Démo)" %>
-              <% end %>
+              <%= form.submit stripe_configured? ? "Procéder au paiement sécurisé" : "Simuler le paiement (Démo)",
+                  class: "btn btn-primary btn-lg shadow",
+                  data: { disable_with: stripe_configured? ? "Redirection vers Stripe..." : "Simulation paiement..." } %>
             <% end %>
 
             <div class="text-center mt-3">
