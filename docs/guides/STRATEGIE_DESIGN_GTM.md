@@ -32,7 +32,9 @@ Ren0vate a déjà :
 | 5 | Dashboards (×3) | `app/views/dashboard/` | Screenshots marketing + rétention | 🟠 Important |
 | 6 | Wizard simulation | `app/views/simulations/` | Demo produit | 🟠 Important |
 
-**Note — Dashboard ×3 (avril 2026) :** suite à la décision de créer 3 tunnels d'onboarding (propriétaire / architecte / entrepreneur), le dashboard générique `dashboard/index.html.erb` va éclater en 3 variantes adaptées à chaque profil. Le redesign du dashboard doit tenir compte de cette évolution — ne pas investir dans une refonte du dashboard générique avant que les 3 variantes soient définies.
+**Note — Dashboard ×4 (avril 2026) :** suite à la décision de créer 4 tunnels d'onboarding (propriétaire / architecte / entrepreneur / intermédiaire), le dashboard générique `dashboard/index.html.erb` va éclater en 4 variantes adaptées à chaque profil. Le redesign du dashboard doit tenir compte de cette évolution — ne pas investir dans une refonte du dashboard générique avant que les 4 variantes soient définies.
+
+**Profil Intermédiaire** (ajout avril 2026) : courtier en primes, energy advisor, gestionnaire de dossiers — profil issu de la clientèle Primes-Services ("je délègue"). Dashboard type CRM léger : portefeuille multi-clients, statut de chaque dossier, notifications vers le client final. Tier naturel : Enterprise.
 
 **Note — Vue entrepreneur :** `app/views/pro_views/show.html.erb` (860 lignes) est directement liée au tunnel Entrepreneur. Son redesign mobile-first doit être coordonné avec l'implémentation du tunnel — voir `STRATEGIE_TESTS_ET_AGENTS.md` section "3 tunnels".
 
@@ -281,5 +283,6 @@ Phase 3 — Dashboards et vues métier (après tunnels implémentés)
   Jour 5 : dashboard propriétaire (home.html.erb post-login)
   Jour 6 : dashboard architecte (vue portefeuille multi-projets)
   Jour 7 : dashboard entrepreneur (chantiers assignés)
-  Jour 8 : vue entrepreneur mobile-first (pro_views/show.html.erb)
+  Jour 8 : dashboard intermédiaire (CRM léger — portefeuille clients)
+  Jour 9 : vue entrepreneur mobile-first (pro_views/show.html.erb)
 ```

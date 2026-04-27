@@ -79,6 +79,7 @@ Un test de bout en bout par parcours critique. Pas besoin de tester chaque champ
 | Tunnel Propriétaire | `test/system/onboarding_proprietaire_test.rb` | Inscription → sélection profil → bien créé → projet créé → dashboard |
 | Tunnel Architecte | `test/system/onboarding_architecte_test.rb` | Inscription → sélection profil → profil pro → dashboard |
 | Tunnel Entrepreneur | `test/system/onboarding_entrepreneur_test.rb` | Inscription → sélection profil → "passer invitation" → dashboard |
+| Tunnel Intermédiaire | `test/system/onboarding_intermediaire_test.rb` | Inscription → sélection profil → structure → dashboard multi-clients |
 | Reconnexion après onboarding | (dans chaque fichier tunnel) | `sign_in` → dashboard direct, pas re-demander le profil |
 
 **Stack :** Capybara + Selenium (déjà dans Gemfile).
@@ -251,17 +252,21 @@ Migrer **avant le lancement commercial**, pendant que le volume est gérable (7,
 
 Onboarding en mini-wizard **serveur-side** piloté par Turbo Drive (navigation page entière entre étapes), sans gem additionnelle. État de progression via `session[:onboarding]`. Après la dernière étape, l'utilisateur arrive sur son dashboard métier.
 
+**4 tunnels** — ajout du profil Intermédiaire suite à l'analyse de la clientèle Primes-Services (profil "je délègue") :
+
 ```
 POST /users/inscription (Devise)
   └─> after_sign_up_path_for → /onboarding/profil
-        └─> POST choisit "proprietaire" / "architecte" / "entrepreneur"
+        └─> POST choisit "proprietaire" / "architecte" / "entrepreneur" / "intermediaire"
               ├─> /onboarding/proprietaire/bien
               │     └─> /onboarding/proprietaire/projet
               │           └─> dashboard_path
               ├─> /onboarding/architecte/profil-pro
               │     └─> dashboard_path
-              └─> /onboarding/entrepreneur/invitation
-                    └─> member_projects_path
+              ├─> /onboarding/entrepreneur/invitation
+              │     └─> member_projects_path
+              └─> /onboarding/intermediaire/structure
+                    └─> intermediaire_dashboard_path
 ```
 
 ---
@@ -271,10 +276,10 @@ POST /users/inscription (Devise)
 **Fichier :** `db/migrate/TIMESTAMP_add_user_profile_to_users.rb`
 
 Colonnes à ajouter :
-- `user_profile:integer, default: 0` — enum `proprietaire(0) / architecte(1) / entrepreneur(2)`
+- `user_profile:integer, default: 0` — enum `proprietaire(0) / architecte(1) / entrepreneur(2) / intermediaire(3)`
 - `onboarding_completed_at:datetime` — nil = onboarding non fait
-- `nom_cabinet:string` — pour les architectes
-- `num_bce:string` — pour les entrepreneurs/architectes (optionnel)
+- `nom_cabinet:string` — pour les architectes et intermédiaires
+- `num_bce:string` — pour les entrepreneurs/architectes/intermédiaires (optionnel)
 - Index sur `user_profile`
 - **Backfill obligatoire** : `User.update_all(onboarding_completed_at: Time.current)` pour les anciens comptes
 
@@ -285,18 +290,19 @@ Colonnes à ajouter :
 | Fichier | Action | Rôle |
 |---------|--------|------|
 | `db/migrate/TIMESTAMP_add_user_profile_to_users.rb` | Créer | Migration + backfill |
-| `app/models/user.rb` | Modifier | Ajouter enum `user_profile` + `onboarding_done?` |
-| `app/controllers/onboarding_controller.rb` | Créer | 9 actions (sélection + 2 par tunnel) |
+| `app/models/user.rb` | Modifier | Ajouter enum `user_profile` (4 valeurs) + `onboarding_done?` |
+| `app/controllers/onboarding_controller.rb` | Créer | 11 actions (sélection + 2 par tunnel) |
 | `app/controllers/application_controller.rb` | Modifier | `after_sign_up/in_path_for` → `onboarding_profile_selection_path` |
 | `app/controllers/users/sessions_controller.rb` | Modifier | Idem (surcharge Devise) |
 | `app/controllers/dashboard_controller.rb` | Modifier | `ensure_onboarding_done` before_action |
 | `config/routes.rb` | Modifier | Bloc `namespace :onboarding` dans `scope "(:locale)"` |
 | `app/views/layouts/onboarding.html.erb` | Créer | Layout épuré sans sidebar |
-| `app/views/onboarding/profile_selection.html.erb` | Créer | 3 cartes cliquables |
+| `app/views/onboarding/profile_selection.html.erb` | Créer | **4 cartes cliquables** |
 | `app/views/onboarding/proprietaire_bien.html.erb` | Créer | Formulaire simplifié (rue + région uniquement) |
 | `app/views/onboarding/proprietaire_projet.html.erb` | Créer | Nom chantier + type |
 | `app/views/onboarding/architecte_profil.html.erb` | Créer | nom_cabinet + num_bce (optionnel) |
 | `app/views/onboarding/entrepreneur_invitation.html.erb` | Créer | Token invitation + "passer" |
+| `app/views/onboarding/intermediaire_structure.html.erb` | Créer | Nom structure + type activité + num_bce |
 | `app/javascript/controllers/onboarding_profile_controller.js` | Créer | Animation sélection carte (facultatif) |
 
 ---

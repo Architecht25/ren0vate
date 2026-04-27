@@ -62,10 +62,27 @@ class User < ApplicationRecord
   end
 
   # Returns true if the user has no owned properties and is actively
-  # a member (entrepreneur or architect) on at least one project.
+  # a member (entrepreneur or architect) on at least one project,
+  # OR is a registered professional (architect/entrepreneur) awaiting their first client.
   # These users get a simplified "guest pro" sidebar instead of the owner sidebar.
   def professional_guest?
+    return true if professional_type.present? && properties.none?
     properties.none? && project_members.active.pros.any?
+  end
+
+  def architect?
+    professional_type == 'architect'
+  end
+
+  def professional_entrepreneur?
+    professional_type == 'entrepreneur'
+  end
+
+  # Génère (ou retourne) le token de parrainage pour inviter des clients
+  def referral_token!
+    return referral_token if referral_token.present?
+    update_column(:referral_token, SecureRandom.urlsafe_base64(16))
+    referral_token
   end
 
   def full_name

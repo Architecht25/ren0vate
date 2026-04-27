@@ -1,0 +1,58 @@
+<%# app/views/pro_referrals/show.html.erb %>
+<div class="container py-5" style="max-width:560px;">
+  <div class="card border-0 shadow-sm rounded-3">
+    <div class="card-header bg-white border-bottom pt-4 pb-3 px-4">
+      <div class="text-center">
+        <div class="rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+             style="width:56px;height:56px;background:linear-gradient(135deg,#0d6efd,#6610f2);">
+          <i class="bi bi-person-plus text-white" style="font-size:1.4rem;"></i>
+        </div>
+        <h4 class="fw-semibold mb-1">Invitez votre client sur Ren0vate</h4>
+        <p class="text-muted mb-0" style="font-size:0.88rem;">
+          Partagez ce lien à votre client. Il créera son compte et pourra vous ajouter à son projet.
+        </p>
+      </div>
+    </div>
+
+    <div class="card-body px-4 py-4">
+      <label class="form-label fw-semibold small">Votre lien personnel</label>
+      <div class="input-group mb-3">
+        <input type="text" id="referral-url" class="form-control form-control-sm"
+               value="<%= @referral_url %>" readonly>
+        <button class="btn btn-outline-secondary btn-sm" type="button"
+                onclick="copyReferral()" id="copy-btn">
+          <i class="bi bi-clipboard me-1"></i>Copier
+        </button>
+      </div>
+      <p class="text-muted" style="font-size:0.8rem;">
+        <i class="bi bi-info-circle me-1"></i>
+        Quand votre client crée son premier projet, vous serez automatiquement proposé comme architecte à ajouter.
+      </p>
+
+      <hr class="my-3">
+
+      <p class="fw-semibold small mb-2">Ou envoyez directement par email</p>
+      <%= form_with url: create_pro_referral_path, method: :post, local: true do |f| %>
+        <div class="input-group">
+          <%= f.email_field :client_email,
+                placeholder: "email@client.be",
+                class: "form-control form-control-sm",
+                required: true %>
+          <%= f.submit "Envoyer l'invitation",
+                class: "btn btn-primary btn-sm" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+function copyReferral() {
+  const input = document.getElementById('referral-url');
+  input.select();
+  document.execCommand('copy');
+  const btn = document.getElementById('copy-btn');
+  btn.innerHTML = '<i class="bi bi-check2 me-1"></i>Copié !';
+  setTimeout(() => { btn.innerHTML = '<i class="bi bi-clipboard me-1"></i>Copier'; }, 2000);
+}
+</script>

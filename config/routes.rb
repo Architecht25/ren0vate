@@ -112,6 +112,10 @@ Rails.application.routes.draw do
     get '/dashboard', to: 'dashboard#index', as: :dashboard
     get '/mes-projets-pro', to: 'projects#member_projects', as: :member_projects
 
+    # Parrainage pro → client
+    get  '/pro/inviter-client', to: 'pro_referrals#show',  as: :pro_referral
+    post '/pro/inviter-client', to: 'pro_referrals#create', as: :create_pro_referral
+
   resources :primes
   resources :categories
 

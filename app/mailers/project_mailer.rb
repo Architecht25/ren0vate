@@ -25,4 +25,18 @@ class ProjectMailer < ApplicationMailer
       subject: "#{member.user.full_name} a rejoint votre projet « #{@project.name} » — Ren0vate"
     )
   end
+
+  # Notifie le pro (architecte/entrepreneur) qu'un client qui a utilisé son lien
+  # de parrainage vient de créer un projet — accès en attente de validation client.
+  def pro_referral_pending(member, client)
+    @member  = member
+    @project = member.project
+    @client  = client
+    @pro     = member.user
+
+    mail(
+      to:      @pro.email,
+      subject: "#{@client.full_name.presence || @client.email} a créé un projet sur Ren0vate — en attente de votre accès"
+    )
+  end
 end

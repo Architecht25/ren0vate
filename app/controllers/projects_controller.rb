@@ -65,6 +65,7 @@ class ProjectsController < ApplicationController
 
     if @project.save
       message = @project.investment? ? 'Investissement créé avec succès.' : 'Chantier créé avec succès.'
+      handle_referral_after_project_create(@project)
       redirect_to @project, notice: message
     else
       Rails.logger.error "Project validation errors: #{@project.errors.full_messages}"
@@ -836,6 +837,25 @@ class ProjectsController < ApplicationController
   end
 
   private
+
+  # Si le client s'est inscrit via un lien de parrainage pro, on crée le ProjectMember
+  # (pending) pour l'architecte référent dès que son premier projet est créé.
+  def handle_referral_after_project_create(project)
+    token = session.delete(:referral_token)
+    return unless token.present?
+
+    referrer = User.find_by(referral_token: token)
+    return unless referrer&.professional_type.present?
+
+    # Ne pas créer en doublon si déjà membre
+    return if project.project_members.where(user: referrer).exists?
+
+    role = referrer.professional_type == 'architect' ? 'architect' : 'entrepreneur'
+    member = project.project_members.build(user: referrer, role: role, status: 'pending')
+    if member.save
+      ProjectMailer.pro_referral_pending(member, current_user).deliver_later rescue nil
+    end
+  end
 
   def determine_required_roles
     roles = ['owner']
