@@ -97,6 +97,7 @@ class PricingController < ApplicationController
               description: pricing_tiers_data[tier][:description],
             },
             unit_amount: (pricing_tiers_data[tier][:price] * 100).to_i, # Stripe utilise les centimes
+            tax_behavior: 'inclusive', # Prix TTC — TVA incluse dans le montant affiché
             recurring: {
               interval: billing_cycle == 'yearly' ? 'year' : 'month',
             }
