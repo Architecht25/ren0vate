@@ -125,3 +125,13 @@ SOLID_QUEUE_IN_PUMA=true  # Active Solid Queue dans le processus Puma
 - **`config.assets.compile = true`** en production — warning Heroku connu, non bloquant
 - **Ruby 3.3.9** sur Heroku (3.3.11 disponible — à upgrader)
 - **BCE** : vérification via API VIES publique (`ec.europa.eu/taxation_customs/vies`) — gratuit, pas de clé
+
+## Stripe — État au 27 avril 2026
+
+- **Mode** : Live (clés `sk_live_` / `pk_live_` sur Heroku)
+- **Webhook** : `POST /webhooks/stripe` — endpoint "ren0vate-production", 6 events configurés
+- **CSP** : `form_action :self, "https://checkout.stripe.com"` — nécessaire car Chrome bloque les redirects 302 vers Stripe
+- **Turbo** : désactivé sur le form checkout (`data: { turbo: false }`) — sinon fetch() intercepte et échoue CORS
+- **API Stripe version** : `2026-04-22.dahlia` — `current_period_start/end` désormais dans `items.data[0].current_period`, pas au root de la subscription. Les handlers webhook convertissent l'objet Stripe en Hash via `JSON.parse(subscription.to_json)` avant d'utiliser `dig`.
+- **Pricing** : `tax_behavior: 'inclusive'` — les prix affichés (39€, 89€…) sont TTC, TVA 21% incluse
+- **Early adopters** : 124 comptes existants, 0 subscription active. Ne pas forcer les gates sur les données existantes avant communication.
