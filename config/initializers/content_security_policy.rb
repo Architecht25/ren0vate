@@ -44,7 +44,8 @@ Rails.application.configure do
                            "'unsafe-eval'",   # Nécessaire pour Turbo Rails
                            "https://cdn.jsdelivr.net",
                            "https://cdnjs.cloudflare.com",
-                           "https://unpkg.com"
+                           "https://unpkg.com",
+                           "https://api.mapbox.com"
 
     policy.script_src_attr "'unsafe-inline'" # Pour les event handlers onclick, onload, etc. dans les attributs
 
