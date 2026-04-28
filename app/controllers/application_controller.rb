@@ -153,7 +153,8 @@ class ApplicationController < ActionController::Base
   end
 
   def after_sign_in_path_for(resource)
-    return stored_location_for(resource) if stored_location_for(resource).present?
+    stored = stored_location_for(resource)
+    return stored if stored.present?
     resource.onboarding_done? ? dashboard_path : onboarding_profile_selection_path(locale: I18n.locale)
   end
 
