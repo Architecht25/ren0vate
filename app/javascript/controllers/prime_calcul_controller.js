@@ -6,6 +6,13 @@ export default class extends Controller {
     this.primes = window.primes || [];
     this.categorie = window.categorieId || "3";
 
+    // Réinitialiser après navigation Turbo (les scripts inline s'exécutent après connect())
+    this._onTurboLoad = () => {
+      if (window.primes?.length) this.primes = window.primes;
+      if (window.categorieId) this.categorie = window.categorieId;
+    };
+    document.addEventListener('turbo:load', this._onTurboLoad);
+
     this.groupesPlafond = {
       toiture: ["isolation_toiture", "renovation_toiture"],
       murs: ["isolation_murs", "renovation_murs"],
@@ -30,18 +37,21 @@ export default class extends Controller {
 
   disconnect() {
     document.removeEventListener("category:changed", this._onCategoryChanged)
+    document.removeEventListener("turbo:load", this._onTurboLoad)
   }
 
   calculer(event) {
 
     const { slug, valeur, type } = event.detail;
-    const prime = this.primes.find(p => p.slug === slug);
+    // Lire window.primes en live pour éviter les problèmes de timing Turbo Drive
+    const primes = (window.primes?.length ? window.primes : this.primes) || [];
+    const prime = primes.find(p => p.slug === slug);
     if (!prime) return console.warn(`❌ Prime inconnue : ${slug}`);
 
     // Toujours utiliser la valeur live de window.categorieId si disponible
     const categorie = window.categorieId || this.categorie;
     const categorieData = prime.valeurs_par_categorie?.[categorie];
-    if (!categorieData) return console.warn(`❌ Catégorie ${categorie} non éligible pour ${slug}`);
+    if (!categorieData) return; // prime non éligible pour cette catégorie — comportement normal
 
     const val = parseFloat(valeur || 0);
 
