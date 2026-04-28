@@ -272,6 +272,22 @@ class RequestsController < ApplicationController
       Rails.logger.info "=== EDIT - PAS DE FORM_DATA EXISTANTE ==="
     end
 
+    # Normaliser les champs Flandre qui peuvent avoir des valeurs héritées de la propriété
+    # (ex: type_bien stocké comme 'maison' mais les radio buttons attendent 'maison_unifamiliale')
+    if @request.region == 'flandre'
+      case @form_data['type_bien']
+      when 'maison' then @form_data['type_bien'] = 'maison_unifamiliale'
+      when 'appartement_copro' then @form_data['type_bien'] = 'appartement'
+      when 'immeuble_appartements' then @form_data['type_bien'] = 'immeuble'
+      end
+
+      dre = @form_data['date_raccordement_electricite']
+      if dre.present? && !['avant_2006', 'apres_2006'].include?(dre.to_s)
+        year = dre.to_i
+        @form_data['date_raccordement_electricite'] = year < 2006 ? 'avant_2006' : 'apres_2006' if year > 0
+      end
+    end
+
     # CRUCIAL: Créer un objet virtuel qui combine @request avec les données de form_data
     # pour que Rails puisse pré-remplir les champs du formulaire
     form_data_safe = @form_data || {}
@@ -824,7 +840,10 @@ class RequestsController < ApplicationController
                                    :marque_pac_hybride, :type_pac_hybride, :puissance_thermique_hybride, :puissance_electrique_hybride,
                                    :puissance_gaz_hybride, :label_europeen_hybride,
                                    # Champs boiler thermodynamique
+                                   :travaux_boiler, :marque_boiler, :type_boiler,
                                    :puissance_electrique_boiler, :puissance_thermique_boiler, :label_europeen_boiler,
+                                   # Champs efficacité énergétique PAC
+                                   :efficacite_energetique_air_air, :efficacite_energetique_hybride,
                                    # Champs détaillés pour ventilation
                                    :type_systeme_ventilation, :date_placement_ventilation, :marque_ventilation,
                                    # Champs détaillés pour travaux complémentaires
@@ -959,7 +978,12 @@ class RequestsController < ApplicationController
 
       # Données du bien
       ean: property.ean_flandre || property.numero_ean,
-      date_raccordement_electricite: property.date_raccordement_electrique,
+      # Normaliser la date de raccordement : l'entité property stocke une année (integer),
+      # mais les radio buttons Flandre attendent 'avant_2006' ou 'apres_2006'
+      date_raccordement_electricite: (begin
+                                        year = property.date_raccordement_electrique.to_i
+                                        year > 0 ? (year < 2006 ? 'avant_2006' : 'apres_2006') : nil
+                                      end),
       adresse: "#{property.numero} #{property.rue}",
       numero: property.numero,
       rue: property.rue,
@@ -971,7 +995,17 @@ class RequestsController < ApplicationController
       heritage_city: property.commune,
 
       # Type et usage selon la région
-      type_bien: map_property_type(property),
+      # Normaliser les valeurs property → valeurs attendues par les radio buttons Flandre
+      type_bien: (if property.region&.downcase == 'flandre'
+                    case property.type_bien_flandre
+                    when 'maison' then 'maison_unifamiliale'
+                    when 'appartement_copro' then 'appartement'
+                    when 'immeuble_appartements' then 'immeuble'
+                    else property.type_bien_flandre
+                    end
+                  else
+                    map_property_type(property)
+                  end),
       usage: map_property_usage(property),
       parcelle: property.numero_cadastre,
       chauffage_post_renovation: property.chauffage_post_renovation_flandre,
