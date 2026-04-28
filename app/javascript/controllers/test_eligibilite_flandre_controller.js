@@ -339,29 +339,32 @@ export default class extends Controller {
     const cat = categorie.toString()
     const cat1Only = ['warmtepomp', 'warmtepompboiler']
     const isCat1 = cat === '1'
-    const isCat12 = ['1', '2'].includes(cat)
+    const isCat2 = cat === '2'
+    const isCat34 = ['3', '4'].includes(cat)
 
     document.querySelectorAll('[data-controller*="prime-card"]').forEach(card => {
       const slug = card.dataset.slug
 
-      // Catégorie 1 : uniquement pompe à chaleur et chauffe-eau thermodynamique,
-      // quelle que soit la raison (autre bien, appartement, revenus élevés, etc.)
+      // Catégorie 1 : uniquement pompe à chaleur et chauffe-eau thermodynamique
       if (isCat1) {
         card.style.display = cat1Only.includes(slug) ? '' : 'none'
         return
       }
 
-      const prime = window.primes?.find(p => p.slug === slug)
-      // Si la prime n'est pas trouvée dans les données, on la cache par sécurité
-      if (!prime) {
-        card.style.display = 'none'
+      // Catégorie 2 : uniquement pompe à chaleur et chauffe-eau thermodynamique
+      if (isCat2) {
+        card.style.display = cat1Only.includes(slug) ? '' : 'none'
         return
       }
 
-      const isEligible = prime.eligible_categories?.includes(cat)
-      const isAllowed = isCat12 ? cat1Only.includes(slug) : true
+      // Catégorie 3 ou 4 : toutes les cartes sont visibles
+      if (isCat34) {
+        card.style.display = ''
+        return
+      }
 
-      card.style.display = (isEligible && isAllowed) ? '' : 'none'
+      // Fallback : cacher
+      card.style.display = 'none'
     });
 
     // Mettre à jour le label de catégorie affiché en étape 4
