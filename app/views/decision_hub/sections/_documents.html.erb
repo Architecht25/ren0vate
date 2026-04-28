@@ -26,21 +26,74 @@
       <div class="row">
         <div class="col-md-6">
           <ul class="list-unstyled">
-            <li><i class="bi bi-check-circle text-success me-2"></i><strong>Devis</strong> des travaux visés par la demande de prime</li>
-            <li><i class="bi bi-check-circle text-success me-2"></i><strong>Factures</strong> des travaux visés par la demande de prime</li>
-            <li><i class="bi bi-check-circle text-success me-2"></i><strong>Annexes techniques</strong> complétées de l'entrepreneur</li>
-            <li><i class="bi bi-check-circle text-success me-2"></i>Le <strong>RIB</strong> (Relevé d'Identité Bancaire) délivré avec une signature de la banque</li>
-            <li><i class="bi bi-check-circle text-success me-2"></i>Des <strong>photos</strong> représentatives des travaux avant chantier, pendant les travaux et une fois les travaux terminés</li>
-            <li><i class="bi bi-check-circle text-success me-2"></i><strong>Références de l'audit énergétique </strong>(si travaux applicable)</li>
+            <li class="mb-3">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              <strong>Devis</strong> des travaux visés par la demande de prime
+              <div class="text-muted ms-4 mt-1" style="font-size: 0.78rem;">
+                <i class="bi bi-lightbulb me-1 text-warning"></i>
+                Le devis doit être le plus détaillé possible avec un <strong>prix par ligne de poste de travaux</strong>. Un devis global sans détail est généralement refusé.
+              </div>
+            </li>
+            <li class="mb-3">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              <strong>Factures</strong> des travaux visés par la demande de prime
+              <div class="text-muted ms-4 mt-1" style="font-size: 0.78rem;">
+                <i class="bi bi-lightbulb me-1 text-warning"></i>
+                Doivent mentionner le <strong>numéro de TVA de l'entrepreneur</strong>, la description précise des travaux et le montant HTVA.
+              </div>
+              <div class="text-muted ms-4 mt-1" style="font-size: 0.78rem;">
+                <i class="bi bi-exclamation-circle me-1 text-danger"></i>
+                <strong>Important :</strong> la <strong>facture de solde</strong> (dernière facture clôturant le chantier) est obligatoire. La demande ne peut être soumise qu'<strong>après la date d'émission</strong> de cette facture.
+              </div>
+            </li>
+            <li class="mb-3">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              <strong>Annexes techniques</strong> complétées de l'entrepreneur
+              <div class="text-muted ms-4 mt-1" style="font-size: 0.78rem;">
+                <i class="bi bi-lightbulb me-1 text-warning"></i>
+                Les annexes techniques doivent être complétées par l'entrepreneur et fournir toutes les informations nécessaires pour évaluer la conformité des travaux. Il est essentiel que les résistances thermiques soient conformes aux prérequis demandés. Un document générique sans détails est insuffisant. Vous les trouverez ici: <%= link_to "Préparation technique", decision_hub_index_path(simulation_id: @default_simulation&.id, section: "preparation-technique", locale: I18n.locale) %>
+              </div>
+            </li>
+            <li class="mb-3">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              Le <strong>RIB</strong> (Relevé d'Identité Bancaire) délivré avec une signature de la banque
+              <div class="text-muted ms-4 mt-1" style="font-size: 0.78rem;">
+                Le RIB doit être au nom du demandeur de prime.
+              </div>
+            </li>
+            <li class="mb-3">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              Des <strong>photos</strong> représentatives des travaux
+              <div class="text-muted ms-4 mt-1" style="font-size: 0.78rem;">
+                Avant chantier, pendant les travaux et après réalisation. Les photos doivent être datées et suffisamment explicites pour identifier les travaux réalisés.
+              </div>
+            </li>
+            <li class="mb-3">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              <strong>Références de l'audit énergétique</strong> (si applicable)
+              <div class="text-muted ms-4 mt-1" style="font-size: 0.78rem;">
+                Obligatoire pour certaines primes conditionnées à la réalisation préalable d'un audit. Vérifiez si votre prime l'exige.
+              </div>
+            </li>
           </ul>
         </div>
         <div class="col-md-6">
           <ul class="list-unstyled">
-            <li><i class="bi bi-check-circle text-success me-2"></i><strong>Certificat de conformité électricité</strong> postérieur à la réalisation des travaux (si travaux concernés)</li>
-            <li><i class="bi bi-check-circle text-success me-2"></i><strong>Certificat de conformité de l'installation de gaz</strong> postérieur à la réalisation des travaux (si travaux concernés)</li>
+            <li class="mb-3">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              <strong>Certificat de conformité électricité</strong> postérieur à la réalisation des travaux (si concerné)
+              <div class="text-muted ms-4 mt-1" style="font-size: 0.78rem;">
+                Délivré par un organisme agréé (ACEG, APAVE…). Doit être postérieur à la fin des travaux électriques.
+              </div>
+            </li>
+            <li class="mb-3">
+              <i class="bi bi-check-circle text-success me-2"></i>
+              <strong>Certificat de conformité de l'installation de gaz</strong> postérieur à la réalisation des travaux (si concerné)
+              <div class="text-muted ms-4 mt-1" style="font-size: 0.78rem;">
+                Obligatoire pour tout remplacement ou installation d'une chaudière gaz. Doit être établi par un technicien certifié.
+              </div>
+            </li>
           </ul>
-
-
         </div>
       </div>
     </div>
@@ -134,17 +187,33 @@
             <i class="bi bi-exclamation-triangle me-2"></i>Documents obligatoires
           </h6>
           <ul class="list-unstyled">
-            <li class="mb-2">
+            <li class="mb-3">
               <i class="bi bi-<%= has_devis ? 'check-circle-fill text-success' : 'x-circle text-danger' %> me-2"></i>
-              Devis des travaux
+              <strong>Devis des travaux</strong>
+              <div class="text-muted ms-4 mt-1" style="font-size: 0.78rem;">
+                <i class="bi bi-lightbulb me-1 text-warning"></i>
+                Le devis doit être le plus détaillé possible avec un <strong>prix par ligne de poste de travaux</strong>. Un devis global sans détail est généralement refusé.
+              </div>
             </li>
-            <li class="mb-2">
+            <li class="mb-3">
               <i class="bi bi-<%= has_factures ? 'check-circle-fill text-success' : 'x-circle text-danger' %> me-2"></i>
-              Factures des travaux
+              <strong>Factures des travaux</strong>
+              <div class="text-muted ms-4 mt-1" style="font-size: 0.78rem;">
+                <i class="bi bi-lightbulb me-1 text-warning"></i>
+                Doivent mentionner le numéro de TVA de l'entrepreneur, <strong>la description précise des travaux</strong> et le <strong>montant HTVA</strong>.
+              </div>
+              <div class="text-muted ms-4 mt-1" style="font-size: 0.78rem;">
+                <i class="bi bi-exclamation-circle me-1 text-danger"></i>
+                <strong>Important :</strong> la <strong>facture de solde</strong> (dernière facture clôturant le chantier) est obligatoire pour introduire la demande de prime. La demande ne peut être soumise qu'<strong>après la date d'émission</strong> de cette facture.
+              </div>
             </li>
-            <li class="mb-2">
+            <li class="mb-3">
               <i class="bi bi-<%= has_attestations ? 'check-circle-fill text-success' : 'x-circle text-danger' %> me-2"></i>
-              Attestations techniques des entrepreneurs
+              <strong>Attestations techniques des entrepreneurs</strong>
+              <div class="text-muted ms-4 mt-1" style="font-size: 0.78rem;">
+                <i class="bi bi-lightbulb me-1 text-warning"></i>
+                Les attestations doivent être complétées et signées par l'entrepreneur, mentionnant les travaux réalisés et les matériaux utilisés. Un document générique sans détails est insuffisant. Vous les trouverez ici: <%= link_to "Préparation technique", decision_hub_index_path(simulation_id: @default_simulation&.id, section: "preparation-technique", locale: I18n.locale) %>
+              </div>
             </li>
           </ul>
         </div>
@@ -154,25 +223,52 @@
             <i class="bi bi-plus-circle me-2"></i>Documents complémentaires
           </h6>
           <ul class="list-unstyled">
-            <li class="mb-2">
+            <li class="mb-3">
               <i class="bi bi-<%= has_photos ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
-              Photos des châssis (prises par l'intérieur)
+              <strong>Photos des châssis</strong>
+              <div class="text-muted ms-4 mt-1" style="font-size: 0.78rem;">
+                Prises <strong>depuis l'intérieur</strong>, après pose, pour prouver le remplacement effectif. il est essentiel de renseigner les pièces dans lesquels ils se trouvent et d'indiquer si une gille de ventilation est présente au dessus du châssis. Les photos génériques de catalogue ne sont pas acceptées. Vous les trouverez ici: <%= link_to "Préparation technique", decision_hub_index_path(simulation_id: @default_simulation&.id, section: "preparation-technique", locale: I18n.locale) %>
+              </div>
             </li>
-            <li class="mb-2">
+            <li class="mb-3">
               <i class="bi bi-<%= has_conformite_elec ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
-              Attestation de conformité électrique
+              <strong>Attestation de conformité électrique</strong>
+              <div class="text-muted ms-4 mt-1" style="font-size: 0.78rem;">
+                Obligatoire si les travaux concernent l'installation électrique. Délivrée par un organisme agréé (ACEG, APAVE…).
+              </div>
             </li>
-            <li class="mb-2">
+            <li class="mb-3">
               <i class="bi bi-<%= has_label_europeen ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
-              Label européen
+              <strong>Label européen (ErP)</strong>
+              <div class="text-muted ms-4 mt-1" style="font-size: 0.78rem;">
+                Requis pour les pompes à chaleur et boiler thermodynamique.
+              </div>
             </li>
-            <li class="mb-2">
+            <li class="mb-3">
               <i class="bi bi-<%= has_peb_avant ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
-              Certificat PEB avant travaux
+              <strong>Certificat PEB avant travaux</strong>
+              <div class="text-muted ms-4 mt-1" style="font-size: 0.78rem;">
+                Exigé pour justifier le <strong>niveau PEB initial</strong>. Consultez un certificateur agréé (Étape 2.6). Il est utile uniquement dans le cadre de la demande de primes PEB.
+              </div>
+              <div class="ms-4 mt-1">
+                <span class="badge bg-danger">
+                  <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                  Attention : la prime PEB disparaît le 30 juin 2026 — introduisez votre demande avant cette date !
+                </span>
+              </div>
             </li>
-            <li class="mb-2">
+            <li class="mb-3">
               <i class="bi bi-<%= has_peb_apres ? 'check-circle-fill text-success' : 'circle text-muted' %> me-2"></i>
-              Certificat PEB après travaux
+              <strong>Certificat PEB après travaux</strong>
+              <div class="text-muted ms-4 mt-1" style="font-size: 0.78rem;">
+                Requis pour les primes conditionnées à une <strong>amélioration du niveau PEB</strong>. À établir après la fin des travaux.
+              </div>
+              <div class="ms-4 mt-1">
+                <span class="badge bg-danger">
+                  <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                  Le certificat doit être commandé et enregistré avant le 30 juin 2026 pour être pris en compte dans votre demande de prime.
+                </span>
+              </div>
             </li>
           </ul>
         </div>

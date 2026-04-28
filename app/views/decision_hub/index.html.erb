@@ -116,6 +116,8 @@
             <div class="card border-0 shadow-sm">
               <div class="card-body p-0">
                 <div class="steps-tabs-wrapper">
+                <% is_wallonie = @default_simulation&.region&.downcase == 'wallonie' %>
+                <% is_flandre = @default_simulation&.region&.downcase == 'flandre' %>
                 <div class="row g-0 flex-nowrap steps-tabs-row">
                   <!-- Étape 1: Résumé -->
                   <div class="col-md-2 steps-tab-col">
@@ -126,12 +128,44 @@
                       <div class="step-number bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
                         <i class="bi bi-clipboard-check fs-5"></i>
                       </div>
+                      <small class="text-muted d-block mb-1" style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em;">Étape 2.1</small>
                       <h6 class="mb-2">Résumé</h6>
                       <small class="text-muted d-block">Résumé simple de votre simulation</small>
                     </div>
                   </div>
 
-                  <!-- Étape 2: Planning -->
+                  <!-- Étape 2.2 Wallonie: Audit Logement / Flandre: Certificat PEB -->
+                  <% if is_wallonie %>
+                    <div class="col-md-2 steps-tab-col">
+                      <div class="p-3 text-center border-end position-relative step-tab"
+                           data-section="audit-logement-wallonie"
+                           data-action="click->decision-hub#switchSection"
+                           style="cursor: pointer;">
+                        <div class="step-number text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px; background-color: var(--ren0vate-accent);">
+                          <i class="bi bi-house-check fs-5"></i>
+                        </div>
+                        <small class="text-muted d-block mb-1" style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em;">Étape 2.2</small>
+                        <h6 class="mb-2">Audit Logement Wallonie</h6>
+                        <small class="text-muted d-block">Pour bien comprendre la nécessité d'un audit énergétique</small>
+                      </div>
+                    </div>
+                  <% elsif is_flandre %>
+                    <div class="col-md-2 steps-tab-col">
+                      <div class="p-3 text-center border-end position-relative step-tab"
+                           data-section="certificat-peb-flandre"
+                           data-action="click->decision-hub#switchSection"
+                           style="cursor: pointer;">
+                        <div class="step-number text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px; background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
+                          <i class="bi bi-award fs-5"></i>
+                        </div>
+                        <small class="text-muted d-block mb-1" style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em;">Étape 2.2</small>
+                        <h6 class="mb-2">Certificat PEB Flandre</h6>
+                        <small class="text-muted d-block">Accédez aux certificateurs agréés en Flandre</small>
+                      </div>
+                    </div>
+                  <% end %>
+
+                  <!-- Étape Planning -->
                   <div class="col-md-2 steps-tab-col">
                     <div class="p-3 text-center border-end position-relative step-tab"
                          data-section="planning"
@@ -140,6 +174,7 @@
                       <div class="step-number bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
                         <i class="bi bi-calendar-event fs-5"></i>
                       </div>
+                      <small class="text-muted d-block mb-1" style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em;">Étape 2.3</small>
                       <h6 class="mb-2">Délais à respecter</h6>
                       <small class="text-muted d-block">Échéances à tenir pour bien introduire sa demande dans les temps</small>
                     </div>
@@ -154,6 +189,7 @@
                       <div class="step-number bg-warning text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
                         <i class="bi bi-file-earmark-text fs-5"></i>
                       </div>
+                      <small class="text-muted d-block mb-1" style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em;">Étape 2.4</small>
                       <h6 class="mb-2">Documents à collecter</h6>
                       <small class="text-muted d-block">Liste des documents à collecter pour préparer votre demande de primes</small>
                     </div>
@@ -168,6 +204,7 @@
                       <div class="step-number bg-secondary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
                         <i class="bi bi-gear fs-5"></i>
                       </div>
+                      <small class="text-muted d-block mb-1" style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em;">Étape 2.5</small>
                       <h6 class="mb-2">Contraintes techniques</h6>
                       <small class="text-muted d-block">Contraintes techniques à respecter pour bénéficier des primes</small>
                     </div>
@@ -182,42 +219,13 @@
                       <div class="step-number bg-info text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px;">
                         <i class="bi bi-clipboard-data fs-5"></i>
                       </div>
+                      <small class="text-muted d-block mb-1" style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em;">Étape 2.6</small>
                       <h6 class="mb-2">Préparation technique</h6>
                       <small class="text-muted d-block">Collectez et enregistrez vos données techniques réelles</small>
                     </div>
                   </div>
 
-                  <!-- Étape 6: Audit Logement Wallonie -->
-                  <% if @default_simulation&.region&.downcase == 'wallonie' %>
-                    <div class="col-md-2 steps-tab-col">
-                      <div class="p-3 text-center border-end position-relative step-tab"
-                           data-section="audit-logement-wallonie"
-                           data-action="click->decision-hub#switchSection"
-                           style="cursor: pointer;">
-                        <div class="step-number text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px; background-color: var(--ren0vate-accent);">
-                          <i class="bi bi-house-check fs-5"></i>
-                        </div>
-                        <h6 class="mb-2">Audit Logement Wallonie</h6>
-                        <small class="text-muted d-block">Pour bien comprendre la nécessité d'un audit énergétique</small>
-                      </div>
-                    </div>
-                  <% end %>
 
-                  <!-- Étape 7: Certificat PEB Flandre -->
-                  <% if @default_simulation&.region&.downcase == 'flandre' %>
-                    <div class="col-md-2 steps-tab-col">
-                      <div class="p-3 text-center border-end position-relative step-tab"
-                           data-section="certificat-peb-flandre"
-                           data-action="click->decision-hub#switchSection"
-                           style="cursor: pointer;">
-                        <div class="step-number text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 50px; height: 50px; background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
-                          <i class="bi bi-award fs-5"></i>
-                        </div>
-                        <h6 class="mb-2">Certificat PEB Flandre</h6>
-                        <small class="text-muted d-block">Accédez aux certificateurs agréés en Flandre</small>
-                      </div>
-                    </div>
-                  <% end %>
                 </div> <!-- /steps-tabs-row -->
                 </div> <!-- /steps-tabs-wrapper -->
               </div>
