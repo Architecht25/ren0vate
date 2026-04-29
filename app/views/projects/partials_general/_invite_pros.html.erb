@@ -42,7 +42,8 @@
             <%= select_tag :role,
                   options_for_select([
                     ["🔨 Entrepreneur", "entrepreneur"],
-                    ["🏛️ Architecte",   "architect"]
+                    ["🏛️ Architecte",   "architect"],
+                    ["🤝 Intermédiaire", "intermediary"]
                   ]),
                   class: "form-select form-select-sm" %>
           </div>
@@ -86,9 +87,21 @@
                   <div class="text-muted" style="font-size:0.75rem;"><%= member.invited_email %></div>
                 </td>
                 <td>
-                  <% badge_color = member.role == 'entrepreneur' ? 'warning' : 'info' %>
-                  <span class="badge bg-<%= badge_color %>-subtle text-<%= badge_color %>-emphasis fw-normal">
-                    <%= member.role == 'entrepreneur' ? '🔨' : '🏛️' %> <%= member.role_label %>
+                  <%
+                     badge_emoji  = case member.role
+                                    when 'entrepreneur' then '🔨'
+                                    when 'architect'    then '🏛️'
+                                    when 'intermediary' then '🤝'
+                                    else '👤'
+                                    end
+                     badge_style  = member.role == 'intermediary' ?
+                                      'background:rgba(111,66,193,0.12);color:#6f42c1;' :
+                                      member.role == 'entrepreneur' ?
+                                        'background:rgba(255,193,7,0.15);color:#856404;' :
+                                        'background:rgba(13,202,240,0.15);color:#055160;'
+                  %>
+                  <span class="badge fw-normal" style="<%= badge_style %>">
+                    <%= badge_emoji %> <%= member.role_label %>
                   </span>
                 </td>
                 <td>

@@ -6,46 +6,47 @@ module ProjectPermissions
   end
 
   def can_upload_quote?
-    role == 'entrepreneur'
+    %w[entrepreneur intermediary].include?(role)
   end
 
   def can_validate_step?
-    %w[owner architect].include?(role)
+    %w[owner architect intermediary].include?(role)
   end
 
   def full_financial_access?
-    role == 'owner'
+    %w[owner intermediary].include?(role)
   end
 
   def can_post_message?
-    %w[owner entrepreneur architect].include?(role)
+    %w[owner entrepreneur architect intermediary].include?(role)
   end
 
   def can_upload_photos?
-    %w[owner entrepreneur architect].include?(role)
+    %w[owner entrepreneur architect intermediary].include?(role)
   end
 
   def can_edit_project?
-    role == 'owner'
+    %w[owner intermediary].include?(role)
   end
 
   def can_manage_permis?
-    %w[owner architect].include?(role)
+    %w[owner architect intermediary].include?(role)
   end
 
   def can_upload_metre?
-    %w[owner architect].include?(role)
+    %w[owner architect intermediary].include?(role)
   end
 
   def can_view_metre?
-    %w[owner architect entrepreneur].include?(role)
+    %w[owner architect entrepreneur intermediary].include?(role)
   end
 
   def role_label
     case role
-    when 'owner'       then 'Propriétaire'
+    when 'owner'        then 'Propriétaire'
     when 'entrepreneur' then 'Entrepreneur'
-    when 'architect'   then 'Architecte'
+    when 'architect'    then 'Architecte'
+    when 'intermediary' then 'Intermédiaire'
     else role.humanize
     end
   end

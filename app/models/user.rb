@@ -81,6 +81,10 @@ class User < ApplicationRecord
     professional_type == 'entrepreneur'
   end
 
+  def intermediary?
+    professional_type == 'intermediary'
+  end
+
   def onboarding_done?
     onboarding_completed_at.present?
   end
@@ -252,6 +256,7 @@ class User < ApplicationRecord
   end
 
   def ren0chat_monthly_limit
+    return Float::INFINITY if professional_type.present?
     case subscription_tier
     when 'individual' then 50
     when 'portfolio' then 150

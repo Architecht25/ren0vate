@@ -2,8 +2,12 @@
   <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
     <div>
-      <h1 class="h3 text-primary-custom mb-1 fw-normal">Mes chantiers</h1>
-      <p class="text-muted mb-0 small">Projets auxquels vous participez en tant que professionnel</p>
+      <h1 class="h3 text-primary-custom mb-1 fw-normal">
+        <%= current_user.intermediary? ? 'Mon portefeuille clients' : 'Mes chantiers' %>
+      </h1>
+      <p class="text-muted mb-0 small">
+        <%= current_user.intermediary? ? 'Dossiers clients dont vous êtes le mandataire' : 'Projets auxquels vous participez en tant que professionnel' %>
+      </p>
     </div>
     <div class="d-flex align-items-center gap-2">
       <% if current_user.professional_type.present? %>
@@ -11,9 +15,9 @@
           <i class="bi bi-person-plus"></i> Inviter un client
         <% end %>
       <% end %>
-      <% if @memberships.any? %>
+      <% if @memberships.any? && !current_user.intermediary? %>
         <div class="text-end d-none d-md-block">
-          <% total_en_attente = @memberships.sum { |m| m.project.factures.entrepreneur.non_payees.sum(:montant).to_f } %>
+          <% total_en_attente = @memberships.select { |m| m.role == 'entrepreneur' }.sum { |m| m.project.factures.entrepreneur.non_payees.sum(:montant).to_f } %>
           <% if total_en_attente > 0 %>
             <div class="small text-muted">Total en attente de paiement</div>
             <div class="fw-bold text-warning fs-5"><%= number_to_currency(total_en_attente, unit: '', separator: ',', delimiter: '.', precision: 0) %> €</div>
@@ -45,9 +49,24 @@
         <div class="col-xl-4 col-lg-6 col-md-6">
           <div class="card border-0 shadow-sm h-100" style="border-radius:12px;overflow:hidden;">
             <!-- Bandeau couleur selon rôle -->
-            <div class="<%= membership.role == 'entrepreneur' ? 'bg-warning' : 'bg-info' %> py-1 px-3 d-flex align-items-center justify-content-between">
+            <%
+              bandeau_class = case membership.role
+                              when 'entrepreneur' then 'bg-warning'
+                              when 'architect'    then 'bg-info'
+                              when 'intermediary' then 'bg-purple'
+                              else 'bg-secondary'
+                              end
+              bandeau_icon  = case membership.role
+                              when 'entrepreneur' then 'bi-hammer'
+                              when 'architect'    then 'bi-compass'
+                              when 'intermediary' then 'bi-people'
+                              else 'bi-person'
+                              end
+            %>
+            <div class="<%= bandeau_class %> py-1 px-3 d-flex align-items-center justify-content-between"
+                 style="<%= membership.role == 'intermediary' ? 'background:linear-gradient(90deg,#6f42c1,#9d6bde)!important' : '' %>">
               <span class="small fw-semibold text-white">
-                <i class="bi <%= membership.role == 'entrepreneur' ? 'bi-hammer' : 'bi-compass' %> me-1"></i>
+                <i class="bi <%= bandeau_icon %> me-1"></i>
                 <%= membership.role_label %>
               </span>
               <% if has_devis_attente %>
@@ -116,6 +135,34 @@
                     <div class="progress-bar bg-warning" role="progressbar" style="width:<%= pct_avancement %>%;"></div>
                   </div>
                 </div>
+              <% elsif membership.role == 'intermediary' %>
+                <!-- KPIs intermédiaire : avancement + docs -->
+                <% docs_count = project.documents.count %>
+                <div class="rounded-2 p-2 mb-3" style="background:#f5f0ff;border:1px solid #d8b4fe;">
+                  <div class="row g-0 text-center">
+                    <div class="col-4 border-end">
+                      <div class="text-muted" style="font-size:0.68rem;">Avancement</div>
+                      <div class="fw-bold text-dark" style="font-size:0.85rem;"><%= pct_avancement %>%</div>
+                    </div>
+                    <div class="col-4 border-end">
+                      <div class="text-muted" style="font-size:0.68rem;">Documents</div>
+                      <div class="fw-bold text-dark" style="font-size:0.85rem;"><%= docs_count %></div>
+                    </div>
+                    <div class="col-4">
+                      <div class="text-muted" style="font-size:0.68rem;">Photos</div>
+                      <div class="fw-bold text-dark" style="font-size:0.85rem;"><%= photos_count %></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="text-muted" style="font-size:0.72rem;">Avancement global</span>
+                    <span class="fw-medium" style="font-size:0.72rem;"><%= pct_avancement %>%</span>
+                  </div>
+                  <div class="progress" style="height:5px;border-radius:3px;">
+                    <div class="progress-bar" role="progressbar" style="width:<%= pct_avancement %>%;background:linear-gradient(90deg,#6f42c1,#9d6bde);"></div>
+                  </div>
+                </div>
               <% end %>
 
               <!-- Lien vers la vue pro du projet -->
@@ -158,3 +205,208 @@
     </div>
   <% end %>
 </div>
+
+<% if current_user.intermediary? %>
+<%# ── Assistant IA Intermédiaire ─────────────────────────────────────────── %>
+<div class="container-fluid px-4 pb-5">
+  <div class="border-top pt-4 mt-2">
+    <div class="d-flex align-items-center gap-2 mb-3">
+      <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+           style="width:38px;height:38px;background:linear-gradient(135deg,#6f42c1,#9d6bde);">
+        <i class="bi bi-robot text-white" style="font-size:1rem;"></i>
+      </div>
+      <div>
+        <h2 class="h5 mb-0 fw-semibold">Assistant IA — Vue portefeuille</h2>
+        <p class="text-muted mb-0 small">Posez vos questions sur l'ensemble de vos dossiers clients</p>
+      </div>
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <span class="badge rounded-pill" style="background:rgba(111,66,193,0.12);color:#6f42c1;">
+          <i class="bi bi-people me-1"></i><%= @memberships.size %> dossier<%= @memberships.size > 1 ? 's' : '' %>
+        </span>
+        <span class="badge rounded-pill bg-light text-muted small">
+          <i class="bi bi-circle-fill me-1" style="color:#84a98c;font-size:0.4rem;"></i>Claude Sonnet
+        </span>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <%# Suggestions rapides %>
+      <div class="col-lg-3 d-none d-lg-block">
+        <div class="card border-0 h-100" style="background:#faf8ff;border:1px solid #e9d8fd!important;">
+          <div class="card-body p-3">
+            <div class="small fw-semibold text-muted mb-2 text-uppercase" style="font-size:0.68rem;letter-spacing:.06em;">
+              Questions fréquentes
+            </div>
+            <div id="proIaSuggestions" class="d-flex flex-column gap-2">
+              <% [
+                   "Quel client a le dossier le plus avancé ?",
+                   "Quels dossiers sont en retard ou bloqués ?",
+                   "Synthèse des primes éligibles par client",
+                   "Prochaines échéances urgentes dans mon portefeuille",
+                   "Quels documents manquent sur l'ensemble des dossiers ?"
+                 ].each do |suggestion| %>
+                <button type="button"
+                        class="btn btn-sm text-start pro-ia-suggestion"
+                        style="background:#fff;border:1px solid #d8b4fe;color:#6f42c1;font-size:0.78rem;border-radius:8px;"
+                        data-suggestion="<%= suggestion %>">
+                  <%= suggestion %>
+                </button>
+              <% end %>
+            </div>
+            <div class="mt-3 pt-2 border-top">
+              <div class="text-muted" style="font-size:0.7rem;">
+                <i class="bi bi-shield-lock me-1"></i>
+                Cloisonnement RGPD actif — données limitées à votre périmètre
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <%# Zone de chat %>
+      <div class="col-lg-9">
+        <div class="card border-0 shadow-sm d-flex flex-column" style="border-radius:12px;min-height:400px;max-height:520px;">
+          <%# Messages %>
+          <div class="flex-grow-1 overflow-auto p-3" id="proIaMessages" style="min-height:300px;">
+            <div class="d-flex mb-3 pro-ia-msg-bot">
+              <div class="flex-shrink-0 rounded-circle d-flex align-items-center justify-content-center me-2"
+                   style="width:32px;height:32px;background:linear-gradient(135deg,#6f42c1,#9d6bde);flex-shrink:0;">
+                <i class="bi bi-robot text-white" style="font-size:0.8rem;"></i>
+              </div>
+              <div class="rounded-3 px-3 py-2 small" style="background:#f5f0ff;max-width:85%;font-size:0.85rem;">
+                <p class="mb-1"><strong>Bonjour <%= current_user.first_name || current_user.email.split('@').first.capitalize %> !</strong></p>
+                <p class="mb-1">Je connais votre portefeuille de <strong><%= @memberships.size %> dossier<%= @memberships.size > 1 ? 's' : '' %> clients</strong> et leurs données de chantier : avancement, documents, permis, primes éligibles.</p>
+                <p class="mb-0 text-muted" style="font-size:0.78rem;">Posez une question sur un dossier spécifique ou sur l'ensemble du portefeuille.</p>
+              </div>
+            </div>
+          </div>
+
+          <%# Saisie %>
+          <div class="border-top p-3" style="border-radius:0 0 12px 12px;background:#faf8ff;">
+            <form id="proIaForm">
+              <div class="input-group">
+                <input type="text" class="form-control" id="proIaInput"
+                       placeholder="Ex : Quels dossiers nécessitent une action urgente ?"
+                       autocomplete="off"
+                       style="border-color:#d8b4fe;font-size:0.9rem;">
+                <button class="btn fw-semibold" type="submit" id="proIaSendBtn"
+                        style="background:linear-gradient(135deg,#6f42c1,#9d6bde);color:#fff;border:none;">
+                  <i class="bi bi-send"></i>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script nonce="<%= content_security_policy_nonce %>">
+(function() {
+  const form        = document.getElementById('proIaForm');
+  const input       = document.getElementById('proIaInput');
+  const messages    = document.getElementById('proIaMessages');
+  const sendBtn     = document.getElementById('proIaSendBtn');
+  const suggestions = document.querySelectorAll('.pro-ia-suggestion');
+  if (!form || !input || !messages) return;
+
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+  function appendMsg(text, isUser) {
+    const wrap = document.createElement('div');
+    wrap.className = 'd-flex mb-3 ' + (isUser ? 'justify-content-end' : 'pro-ia-msg-bot');
+    if (isUser) {
+      wrap.innerHTML = `<div class="rounded-3 px-3 py-2 small text-white" style="background:linear-gradient(135deg,#6f42c1,#9d6bde);max-width:80%;font-size:0.85rem;">${escHtml(text)}</div>`;
+    } else {
+      wrap.innerHTML = `
+        <div class="flex-shrink-0 rounded-circle d-flex align-items-center justify-content-center me-2"
+             style="width:32px;height:32px;background:linear-gradient(135deg,#6f42c1,#9d6bde);flex-shrink:0;">
+          <i class="bi bi-robot text-white" style="font-size:0.8rem;"></i>
+        </div>
+        <div class="rounded-3 px-3 py-2 small" style="background:#f5f0ff;max-width:85%;font-size:0.85rem;">${renderMd(text)}</div>`;
+    }
+    messages.appendChild(wrap);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function appendLoading() {
+    const el = document.createElement('div');
+    el.id = 'proIaLoading';
+    el.className = 'd-flex mb-3 pro-ia-msg-bot';
+    el.innerHTML = `
+      <div class="flex-shrink-0 rounded-circle d-flex align-items-center justify-content-center me-2"
+           style="width:32px;height:32px;background:linear-gradient(135deg,#6f42c1,#9d6bde);flex-shrink:0;">
+        <i class="bi bi-robot text-white" style="font-size:0.8rem;"></i>
+      </div>
+      <div class="rounded-3 px-3 py-2 small" style="background:#f5f0ff;">
+        <div class="d-flex gap-1 align-items-center">
+          <div class="spinner-grow spinner-grow-sm" style="color:#9d6bde;width:.5rem;height:.5rem;"></div>
+          <div class="spinner-grow spinner-grow-sm" style="color:#9d6bde;width:.5rem;height:.5rem;animation-delay:.15s;"></div>
+          <div class="spinner-grow spinner-grow-sm" style="color:#9d6bde;width:.5rem;height:.5rem;animation-delay:.3s;"></div>
+        </div>
+      </div>`;
+    messages.appendChild(el);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function removeLoading() {
+    document.getElementById('proIaLoading')?.remove();
+  }
+
+  function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function renderMd(text) {
+    return text
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/`(.+?)`/g, '<code>$1</code>')
+      .replace(/^#{1,3} (.+)$/gm, '<p class="fw-semibold mb-1">$1</p>')
+      .replace(/^- (.+)$/gm, '<li style="margin-left:1rem;">$1</li>')
+      .replace(/\n/g, '<br>');
+  }
+
+  async function sendMessage(msg) {
+    if (!msg.trim()) return;
+    input.value = '';
+    sendBtn.disabled = true;
+    appendMsg(msg, true);
+    appendLoading();
+
+    try {
+      const resp = await fetch('/api/contextual_bot/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+        body: JSON.stringify({ message: msg, mode: 'expert' })
+      });
+      const data = await resp.json();
+      removeLoading();
+      if (data.quota_exceeded) {
+        appendMsg(data.response?.content || "Quota atteint.", false);
+      } else {
+        appendMsg(data.response?.content || "Désolé, je n'ai pas pu répondre.", false);
+      }
+    } catch(e) {
+      removeLoading();
+      appendMsg("Une erreur est survenue. Veuillez réessayer.", false);
+    } finally {
+      sendBtn.disabled = false;
+      input.focus();
+    }
+  }
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    sendMessage(input.value);
+  });
+
+  suggestions.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      sendMessage(btn.dataset.suggestion);
+    });
+  });
+})();
+</script>
+<% end %>

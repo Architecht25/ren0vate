@@ -33,6 +33,9 @@ class ProViewsController < ApplicationController
     @photos_by_phase = @photos.group_by do |photo|
       photo.phase_chantier.presence || infer_phase_from_type(photo.type_document)
     end
+
+    # PV de réception
+    @pv_reception = @project.pv_reception
   end
 
   # POST /projects/:id/invite

@@ -4,7 +4,7 @@ class ProjectMember < ApplicationRecord
   belongs_to :project
   belongs_to :user
 
-  ROLES   = %w[owner entrepreneur architect].freeze
+  ROLES   = %w[owner entrepreneur architect intermediary].freeze
   STATUSES = %w[pending active].freeze
 
   validates :role,   inclusion: { in: ROLES }
@@ -17,7 +17,7 @@ class ProjectMember < ApplicationRecord
   scope :active,    -> { where(status: 'active') }
   scope :pending,   -> { where(status: 'pending') }
   scope :owners,    -> { where(role: 'owner') }
-  scope :pros,      -> { where(role: %w[entrepreneur architect]) }
+  scope :pros,      -> { where(role: %w[entrepreneur architect intermediary]) }
 
   def pending?
     status == 'pending'
