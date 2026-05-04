@@ -480,14 +480,14 @@ class OcrController < ApplicationController
     begin
       project = current_user.projects.find(params[:project_id])
 
-      devis_service = DevisOcrService.new(params[:file])
+      categorie = params[:categorie_emetteur].presence_in(%w[architecte entrepreneur autre]) || 'entrepreneur'
+
+      devis_service = DevisClaudeService.new(params[:file], categorie: categorie)
       result        = devis_service.extraire_donnees_devis
 
       unless result[:success]
         return render json: { error: result[:error] }, status: :unprocessable_entity
       end
-
-      categorie = params[:categorie_emetteur].presence_in(%w[architecte entrepreneur autre]) || 'entrepreneur'
 
       document = current_user.documents.create!(
         file:          params[:file],
@@ -564,6 +564,24 @@ class OcrController < ApplicationController
     end
   end
 
+  # POST /ocr/analyser_devis
+  # Analyse comparative IA de tous les devis entrepreneur d'un projet.
+  # Retourne recommandation, points d'attention et conseils de négociation.
+  def analyser_devis
+    return render json: { error: 'project_id requis' }, status: :bad_request unless params[:project_id].present?
+
+    project = current_user.projects.find(params[:project_id])
+    result  = DevisComparateurIaService.new(project).analyser
+
+    if result[:success]
+      render json: result
+    else
+      render json: { error: result[:error] }, status: :unprocessable_entity
+    end
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: 'Chantier introuvable' }, status: :not_found
+  end
+
   # POST /ocr/scan_bordereau_chassis
   # Scanne un bordereau de commande ou fiche technique châssis et persiste les
   # données dans bordereau_chassis_donnees. Lie le document au chantier project_id.
@@ -575,7 +593,7 @@ class OcrController < ApplicationController
     begin
       project = current_user.projects.find(params[:project_id])
 
-      service = BordereauChassisOcrService.new(params[:file])
+      service = BordereauChassisClaudeService.new(params[:file])
       result  = service.extraire_donnees_bordereau
 
       unless result[:success]

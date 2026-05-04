@@ -3,6 +3,7 @@
   tous_devis = (@project.devis_donnees.par_categorie('entrepreneur').avec_montant.includes(:document).order(created_at: :desc) rescue [])
   estimatif  = @project.property&.quotes&.order(created_at: :desc)&.first
   montant_estimatif = estimatif&.total_avg
+  tous_types_union  = tous_devis.flat_map { |d| Array(d.types_travaux_detectes) }.uniq.sort
 %>
 
 <div class="card border border-2 rounded-4 h-100">
@@ -63,12 +64,21 @@
               <th class="fw-normal text-end">Montant HTVA</th>
               <th class="fw-normal text-end">TVAC</th>
               <th class="fw-normal text-center">TVA</th>
+              <% if tous_devis.any?(&:surface_travaux) %>
+                <th class="fw-normal text-end">€/m²</th>
+              <% end %>
               <th class="fw-normal text-center">Travaux détectés</th>
+              <% if tous_types_union.size > 1 %>
+                <th class="fw-normal text-center">Postes manquants</th>
+              <% end %>
               <th class="fw-normal text-center">Validité</th>
               <% if montant_estimatif.to_f > 0 %>
                 <th class="fw-normal text-end">Écart estimatif</th>
               <% end %>
               <th class="fw-normal text-center">Conf.</th>
+              <% if tous_devis.size > 1 %>
+                <th class="fw-normal text-center">Score</th>
+              <% end %>
             </tr>
           </thead>
           <tbody>
@@ -76,6 +86,7 @@
               montants = tous_devis.map { |d| d.montant_total_htva.to_f }.reject(&:zero?)
               min_montant = montants.min
               max_montant = montants.max
+              has_surface_col = tous_devis.any?(&:surface_travaux)
             %>
             <% tous_devis.each do |d| %>
               <%
@@ -83,12 +94,25 @@
                 is_min  = montants.size > 1 && montant == min_montant
                 is_max  = montants.size > 1 && montant == max_montant
                 ecart_pct = montant_estimatif.to_f > 0 ? ((montant - montant_estimatif.to_f) / montant_estimatif.to_f * 100).round(1) : nil
+                anomalie  = d.anomalie_prix(tous_devis)
+                score     = tous_devis.size > 1 ? d.score_composite(tous_devis) : nil
+                manquants = tous_types_union.size > 1 ? d.types_travaux_manquants(tous_types_union) : []
+                prix_m2   = (d.surface_travaux.to_f > 0 && montant > 0) ? (montant / d.surface_travaux.to_f).round(0) : nil
               %>
               <tr class="<%= is_min ? 'table-success' : is_max ? 'table-danger' : '' %>">
                 <td>
-                  <div class="fw-medium"><%= d.nom_entreprise.presence || "—" %></div>
+                  <div class="fw-medium">
+                    <%= d.nom_entreprise.presence || "—" %>
+                    <% if anomalie == :high %>
+                      <span class="badge bg-danger ms-1" style="font-size:0.58rem;" title="Prix anormalement élevé vs les autres devis">⚠️ élevé</span>
+                    <% elsif anomalie == :low %>
+                      <span class="badge bg-info ms-1" style="font-size:0.58rem;" title="Prix anormalement bas — vérifiez le périmètre">⚠️ bas</span>
+                    <% end %>
+                  </div>
                   <% if d.numero_bce_entreprise.present? %>
                     <div class="text-muted" style="font-size:0.68rem;">BCE <%= d.numero_bce_entreprise %></div>
+                  <% else %>
+                    <div class="text-warning" style="font-size:0.68rem;">BCE absent</div>
                   <% end %>
                   <% if d.date_devis.present? %>
                     <div class="text-muted" style="font-size:0.68rem;"><%= d.date_devis.strftime('%d/%m/%Y') %></div>
@@ -113,6 +137,15 @@
                 <td class="text-center text-muted">
                   <%= d.taux_tva.present? ? "#{d.taux_tva.to_i}%" : "—" %>
                 </td>
+                <% if has_surface_col %>
+                  <td class="text-end text-muted">
+                    <% if prix_m2 %>
+                      <%= number_to_currency(prix_m2, unit: '', separator: ',', delimiter: '.', precision: 0) %> €/m²
+                    <% else %>
+                      —
+                    <% end %>
+                  </td>
+                <% end %>
                 <td class="text-center">
                   <% travaux = d.types_travaux_detectes.presence || [] %>
                   <% if travaux.any? %>
@@ -129,6 +162,24 @@
                     <span class="text-muted">—</span>
                   <% end %>
                 </td>
+                <% if tous_types_union.size > 1 %>
+                  <td class="text-center">
+                    <% if manquants.any? %>
+                      <% manquants.first(2).each do |t| %>
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle d-block mb-1"
+                              style="font-size:0.6rem;white-space:normal;"
+                              title="Ce poste est présent dans d'autres devis mais absent ici">
+                          <%= t.gsub('_', ' ').capitalize %>
+                        </span>
+                      <% end %>
+                      <% if manquants.size > 2 %>
+                        <span class="text-muted" style="font-size:0.63rem;">+<%= manquants.size - 2 %></span>
+                      <% end %>
+                    <% else %>
+                      <span class="text-success" style="font-size:0.72rem;">✓</span>
+                    <% end %>
+                  </td>
+                <% end %>
                 <td class="text-center">
                   <% if d.validite_devis.present? %>
                     <% expired = d.validite_devis < Date.current %>
@@ -159,16 +210,40 @@
                     <%= conf.round %>%
                   </span>
                 </td>
+                <% if tous_devis.size > 1 %>
+                  <td class="text-center">
+                    <% if score %>
+                      <%
+                        score_color = score >= 70 ? 'success' : score >= 45 ? 'warning' : 'danger'
+                      %>
+                      <span class="badge bg-<%= score_color %>-subtle text-<%= score_color %> border border-<%= score_color %>-subtle fw-semibold"
+                            style="font-size:0.68rem;"
+                            title="Score composite : prix (40%), confiance (20%), complétude (15%), BCE (10%), validité (15%)">
+                        <%= score %>/100
+                      </span>
+                    <% else %>
+                      <span class="text-muted">—</span>
+                    <% end %>
+                  </td>
+                <% end %>
               </tr>
             <% end %>
           </tbody>
           <% if tous_devis.size > 1 && montants.size > 1 %>
             <tfoot style="background:#f8f9fa;">
               <tr>
-                <td class="text-muted py-2" style="font-size:0.72rem;">
-                  Écart min/max
-                </td>
-                <td colspan="<%= montant_estimatif.to_f > 0 ? 6 : 5 %>" class="text-end fw-semibold py-2">
+                <td class="text-muted py-2" style="font-size:0.72rem;">Écart min/max</td>
+                <%
+                  tfoot_colspan = 3  # HTVA, TVAC, TVA
+                  tfoot_colspan += 1 if has_surface_col
+                  tfoot_colspan += 1  # Travaux
+                  tfoot_colspan += 1 if tous_types_union.size > 1  # Postes manquants
+                  tfoot_colspan += 1  # Validité
+                  tfoot_colspan += 1 if montant_estimatif.to_f > 0  # Écart estimatif
+                  tfoot_colspan += 1  # Confiance
+                  tfoot_colspan += 1 if tous_devis.size > 1  # Score
+                %>
+                <td colspan="<%= tfoot_colspan %>" class="text-end fw-semibold py-2">
                   <% ecart_abs = max_montant - min_montant %>
                   <% ecart_rel = (ecart_abs / min_montant * 100).round(1) %>
                   <span class="<%= ecart_rel > 20 ? 'text-danger' : 'text-muted' %>">
@@ -181,6 +256,22 @@
           <% end %>
         </table>
       </div>
+
+      <%# ── Bouton recommandation IA ──────────────────────────── %>
+      <% if tous_devis.size >= 2 %>
+        <div class="mt-3 pt-3 border-top">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="text-muted" style="font-size:0.75rem;">Analyse comparative IA</span>
+            <button type="button" id="devis-ia-btn"
+                    class="btn btn-sm btn-outline-warning"
+                    data-project-id="<%= @project.id %>"
+                    style="font-size:0.75rem;">
+              <i class="bi bi-stars me-1"></i>Recommandation IA
+            </button>
+          </div>
+          <div id="devis-ia-result" style="display:none;"></div>
+        </div>
+      <% end %>
 
     <% else %>
       <div class="text-center py-3 text-muted" style="font-size:0.82rem;">
@@ -239,6 +330,65 @@ document.getElementById('devis-scan-btn')?.addEventListener('click', function() 
     status.textContent = 'Erreur réseau — réessayez.';
     btn.disabled = false;
     btn.innerHTML = '<i class="bi bi-magic me-1"></i>Analyser';
+  });
+});
+
+// Recommandation IA comparateur
+document.getElementById('devis-ia-btn')?.addEventListener('click', function() {
+  const btn    = this;
+  const result = document.getElementById('devis-ia-result');
+  const csrf   = document.querySelector('meta[name="csrf-token"]').content;
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Analyse…';
+  result.style.display = 'none';
+
+  fetch('<%= ocr_analyser_devis_path %>', {
+    method: 'POST',
+    headers: {
+      'X-CSRF-Token': csrf,
+      'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    body: new URLSearchParams({ project_id: btn.dataset.projectId })
+  })
+  .then(r => r.json())
+  .then(data => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-stars me-1"></i>Recommandation IA';
+    result.style.display = 'block';
+
+    if (!data.success) {
+      result.innerHTML = `<div class="alert alert-warning py-2 mb-0" style="font-size:0.78rem;">${data.error || 'Erreur'}</div>`;
+      return;
+    }
+
+    const anomalieHtml = data.alerte_anomalie
+      ? `<div class="alert alert-danger py-2 mb-2" style="font-size:0.75rem;"><i class="bi bi-exclamation-triangle me-1"></i>Anomalie de prix détectée — vérifiez le périmètre des offres.</div>`
+      : '';
+
+    const attentionHtml = (data.points_attention || []).length
+      ? `<ul class="mb-2 ps-3" style="font-size:0.75rem;">${data.points_attention.map(p => `<li>${p}</li>`).join('')}</ul>`
+      : '';
+
+    const negoHtml = (data.conseils_nego || []).length
+      ? `<div class="text-muted mb-1" style="font-size:0.72rem;">Conseils de négociation :</div><ul class="mb-0 ps-3" style="font-size:0.75rem;">${data.conseils_nego.map(c => `<li>${c}</li>`).join('')}</ul>`
+      : '';
+
+    result.innerHTML = `
+      <div class="rounded-3 p-3" style="background:#fffbeb;border:1px solid #fbbf24;font-size:0.78rem;">
+        ${anomalieHtml}
+        ${ data.meilleur_devis ? `<div class="fw-semibold text-success mb-2">✓ Recommandé : ${data.meilleur_devis}</div>` : '' }
+        <p class="mb-2">${data.recommandation || ''}</p>
+        ${attentionHtml}
+        ${negoHtml}
+      </div>
+    `;
+  })
+  .catch(() => {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="bi bi-stars me-1"></i>Recommandation IA';
+    result.style.display = 'block';
+    result.innerHTML = '<div class="alert alert-danger py-2 mb-0" style="font-size:0.78rem;">Erreur réseau — réessayez.</div>';
   });
 });
 </script>

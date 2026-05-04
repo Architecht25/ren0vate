@@ -93,6 +93,63 @@ class DevisDonnee < ApplicationRecord
       validite_devis <= Date.current + 30.days
   end
 
+  # ── Score composite (0-100) ────────────────────────────────────────────────
+  # tous_devis : collection de DevisDonnee pour le contexte de comparaison
+  def score_composite(tous_devis)
+    montants = tous_devis.map { |d| d.montant_total_htva.to_f }.reject(&:zero?)
+    return nil if montants.empty? || montant_total_htva.to_f.zero?
+
+    min_m = montants.min
+    max_m = montants.max
+    montant = montant_total_htva.to_f
+
+    # Prix (40 pts) : position linéaire entre min (40) et max (0)
+    score_prix = if max_m == min_m
+      20.0
+    else
+      40.0 * (max_m - montant) / (max_m - min_m)
+    end
+
+    # Confiance OCR (20 pts)
+    score_conf = (confiance_ocr.to_f / 100.0) * 20.0
+
+    # Complétude extraction (15 pts)
+    score_complete = extraction_complete? ? 15.0 : 7.5
+
+    # N° BCE présent (10 pts)
+    score_bce = numero_bce_entreprise.present? ? 10.0 : 0.0
+
+    # Validité (15 pts) : non expirée ou non renseignée
+    score_validite = devis_expire? ? 0.0 : 15.0
+
+    (score_prix + score_conf + score_complete + score_bce + score_validite).round
+  end
+
+  # ── Anomalie de prix ───────────────────────────────────────────────────────
+  # Retourne :high, :low ou nil selon l'écart à la moyenne (seuil 1.5× écart-type)
+  def anomalie_prix(tous_devis)
+    montants = tous_devis.map { |d| d.montant_total_htva.to_f }.reject(&:zero?)
+    return nil if montants.size < 3 || montant_total_htva.to_f.zero?
+
+    mean = montants.sum / montants.size
+    variance = montants.sum { |m| (m - mean)**2 } / montants.size
+    std_dev = Math.sqrt(variance)
+    return nil if std_dev.zero?
+
+    z = (montant_total_htva.to_f - mean) / std_dev
+    if z > 1.5
+      :high
+    elsif z < -1.5
+      :low
+    end
+  end
+
+  # ── Types de travaux manquants vs un ensemble de référence ─────────────────
+  # tous_types : tableau des types présents dans tous les devis
+  def types_travaux_manquants(tous_types)
+    (Array(tous_types) - Array(types_travaux_detectes)).uniq
+  end
+
   def types_travaux_libelles
     labels = {
       'isolation_toit'              => "Isolation toiture",
