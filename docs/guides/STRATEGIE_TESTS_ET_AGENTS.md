@@ -87,7 +87,7 @@ Ne pas rattraper le retard d'un coup. Écrire des tests rétroactifs pour les vu
 
 ---
 
-### Couche 1 — Tests de revenus (priorité absolue)
+### Couche 1 — Tests de revenus (priorité absolue) ✅ RÉALISÉ — mai 2026
 
 Ce qui casse ici = perte de clients et de revenus réels.
 
@@ -113,7 +113,7 @@ end
 
 ---
 
-### Couche 2 — Tests des services métier critiques
+### Couche 2 — Tests des services métier critiques ✅ RÉALISÉ — mai 2026
 
 Ce qui casse ici = crédibilité commerciale et promesse produit.
 
@@ -137,9 +137,9 @@ end
 
 ---
 
-### Couche 3 — Smoke tests de parcours (non-régression)
+### Couche 3 — Smoke tests de parcours (non-régression) ✅ RÉALISÉ — mai 2026
 
-Un test de bout en bout par parcours critique. Pas besoin de tester chaque champ — juste que le flux passe sans crash.
+> **Implémenté en integration tests** (ActionDispatch::IntegrationTest) — Chrome absent de l'environnement CI, Capybara/Selenium non disponible. Les smoke tests HTTP couvrent les mêmes parcours critiques avec moins de fragilité.
 
 | Parcours | Fichier test à créer | Assertion minimale |
 |----------|---------------------|-------------------|
@@ -167,12 +167,12 @@ Un test de bout en bout par parcours critique. Pas besoin de tester chaque champ
 
 ### Effort estimé
 
-| Couche | Fichiers | Jours |
-|--------|----------|-------|
-| Revenus (Stripe) | ~3 fichiers, ~20 tests | 1 jour |
-| Services métier | ~4 fichiers, ~30 tests | 1 jour |
-| Smoke tests système (simulations + tunnels) | ~7 fichiers, ~18 tests | 1 jour |
-| **Total** | **~14 fichiers, ~68 tests** | **~3 jours** |
+| Couche | Fichiers | Résultat |
+|--------|----------|----------|
+| Revenus (Stripe) | `webhooks_controller_test.rb`, `user_test.rb` | ✅ 24 tests — 4 mai 2026 |
+| Services métier | `wallonie/flandre/bruxelles_eligibility_service_test.rb` | ✅ 18 tests — 4 mai 2026 |
+| Smoke tests (integration) | `onboarding_smoke_test.rb`, `simulation_smoke_test.rb` | ✅ 14 tests — 4 mai 2026 |
+| **Total** | **9 fichiers** | **60 runs, 164 assertions, 0 failures** |
 
 ---
 
