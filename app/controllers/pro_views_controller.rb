@@ -70,6 +70,32 @@ class ProViewsController < ApplicationController
     redirect_to project_path(@project), notice: "#{member.role_label} retiré du projet."
   end
 
+  # POST /projects/:id/notify_client
+  # Intermédiaire envoie une notification au client sans accès complet au dossier
+  def notify_client
+    message = params[:message].to_s.strip
+    if message.blank?
+      redirect_back fallback_location: dashboard_path, alert: "Le message ne peut pas être vide." and return
+    end
+
+    owner = @project.user
+    Notification.create!(
+      user:     owner,
+      project:  @project,
+      type:     :suivi_projet,
+      category: :projets,
+      title:    "Message de #{current_user.full_name || current_user.email.split('@').first}",
+      message:  message,
+      priority: :normale,
+      action_url: project_path(@project)
+    )
+
+    redirect_back fallback_location: dashboard_path, notice: "Notification envoyée au client ✓"
+  rescue => e
+    Rails.logger.error "notify_client error: #{e.message}"
+    redirect_back fallback_location: dashboard_path, alert: "Erreur lors de l'envoi de la notification."
+  end
+
   # POST /projects/:id/upload_facture_pro
   # Entrepreneur uploade une facture/devis depuis sa vue pro — partagé automatiquement avec le client
   def upload_facture_pro

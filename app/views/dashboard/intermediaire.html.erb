@@ -229,12 +229,50 @@
                     </span>
                   </td>
                   <td class="py-2 align-middle text-center">
-                    <span class="badge px-2 py-1" style="background: var(--ren0vate-success-dark); font-size: 0.7rem;">Actif</span>
+                    <%
+                      pct = project.avancement_global_pct
+                      statut_label, statut_color = if pct == 100
+                        ['Clôturé',      'var(--ren0vate-success-dark)']
+                      elsif pct > 0
+                        ['En cours',     'var(--ren0vate-primary)']
+                      elsif project.statut == 'preparation' || project.statut.blank?
+                        ['Préparation',  '#6b7280']
+                      else
+                        [project.statut.humanize, '#6b7280']
+                      end
+                    %>
+                    <span class="badge px-2 py-1" style="background: <%= statut_color %>; font-size: 0.7rem;"><%= statut_label %></span>
+                    <% if pct > 0 && pct < 100 %>
+                      <div class="progress mt-1" style="height: 3px; border-radius: 2px;">
+                        <div class="progress-bar" style="width: <%= pct %>%; background: var(--ren0vate-primary);"></div>
+                      </div>
+                    <% end %>
                   </td>
                   <td class="pe-3 py-2 align-middle text-end">
-                    <%= link_to project_path(project), class: "btn btn-sm btn-outline-primary" do %>
-                      <i class="bi bi-arrow-right"></i>
-                    <% end %>
+                    <div class="d-flex gap-1 justify-content-end">
+                      <!-- Notifier le client sans accès complet -->
+                      <button class="btn btn-sm btn-outline-secondary"
+                              type="button"
+                              title="Notifier le client"
+                              data-bs-toggle="collapse"
+                              data-bs-target="#notify-form-<%= project.id %>">
+                        <i class="bi bi-bell"></i>
+                      </button>
+                      <%= link_to project_path(project), class: "btn btn-sm btn-outline-primary", title: "Ouvrir le dossier" do %>
+                        <i class="bi bi-arrow-right"></i>
+                      <% end %>
+                    </div>
+                    <!-- Formulaire inline de notification -->
+                    <div class="collapse mt-2" id="notify-form-<%= project.id %>">
+                      <%= form_with url: notify_client_project_path(project), method: :post, local: true do |f| %>
+                        <div class="input-group input-group-sm">
+                          <%= f.text_field :message, placeholder: "Message au client…",
+                              class: "form-control form-control-sm",
+                              maxlength: 200, required: true %>
+                          <%= f.submit "Envoyer", class: "btn btn-sm btn-primary" %>
+                        </div>
+                      <% end %>
+                    </div>
                   </td>
                 </tr>
               <% end %>
@@ -254,7 +292,22 @@
 
     <!-- CTA inviter -->
     <div class="w-100 text-center" style="max-width: 780px;">
-      <%= link_to pro_referral_path(locale: I18n.locale), class: "btn btn-outline-primary" do %>
+      <% at_limit = current_user.at_client_limit? %>
+      <% if at_limit %>
+        <div class="alert alert-warning d-flex align-items-center gap-3 mb-3 text-start" style="border-radius: 12px;">
+          <i class="bi bi-lock fs-4 flex-shrink-0"></i>
+          <div>
+            <strong>Limite de <%= current_user.client_limit %> clients atteinte</strong><br>
+            <small>Passez au plan <strong>Entreprise</strong> (299€/mois) pour des clients illimités et un accès CRM complet.</small>
+          </div>
+          <%= link_to pricing_path(locale: I18n.locale), class: "btn btn-sm btn-warning ms-auto flex-shrink-0" do %>
+            <i class="bi bi-arrow-up-circle me-1"></i>Upgrader
+          <% end %>
+        </div>
+      <% end %>
+      <%= link_to pro_referral_path(locale: I18n.locale),
+            class: "btn btn-outline-primary #{at_limit ? 'disabled' : ''}",
+            aria: { disabled: at_limit.to_s } do %>
         <i class="bi bi-person-plus me-2"></i><%= has_projects ? 'Inviter un autre client' : 'Inviter un client' %>
       <% end %>
     </div>

@@ -1,9 +1,11 @@
 <%# IA #3 — Score Santé Projet /10
-    Chargement async via Stimulus : fetch GET /projects/:id/score_sante %>
+    Chargement async via Stimulus : fetch GET /projects/:id/score_sante
+    Accepte une variable locale `project` (sinon utilise @project) %>
+<% _project = local_assigns.fetch(:project, @project) %>
 
 <div class="card border-0 shadow-sm rounded-4 mb-4"
      data-controller="health-score"
-     data-health-score-url-value="<%= score_sante_project_path(@project) %>">
+     data-health-score-url-value="<%= score_sante_project_path(_project) %>">
 
   <!-- En-tête card -->
   <div class="card-header border-0 rounded-top-4 d-flex align-items-center justify-content-between py-3 px-4"

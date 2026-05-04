@@ -245,6 +245,7 @@ class DocumentsController < ApplicationController
           redirect_url: documents_path
         }
       else
+        flash[:next_action] = next_action_after_document_upload(created_documents.last)
         redirect_to_context_or_default(notice: "#{created_documents.size} document(s) ajouté(s) avec succès")
       end
     else
@@ -550,6 +551,44 @@ class DocumentsController < ApplicationController
       created_at: document.created_at.strftime("%d/%m/%Y à %H:%M"),
       download_url: download_document_path(document)
     }
+  end
+
+  def next_action_after_document_upload(document)
+    return nil unless document
+    project = document.project || @project
+
+    case document.type_document
+    when 'facture'
+      if project
+        "Facture enregistrée. <strong>Prochaine étape :</strong> vérifiez les données extraites et validez la facture. " \
+        "<a href=\"#{project_factures_path(project)}\" class=\"alert-link\">Voir les factures →</a>"
+      else
+        "Facture enregistrée. Associez-la à un projet pour suivre votre budget."
+      end
+    when 'devis'
+      if project
+        "Devis ajouté. <strong>Prochaine étape :</strong> comparez les devis et sélectionnez votre entrepreneur. " \
+        "<a href=\"#{project_path(project)}\" class=\"alert-link\">Voir le projet →</a>"
+      else
+        "Devis ajouté. Associez-le à un projet pour démarrer le suivi."
+      end
+    when 'pv_reception', 'attestation_conformite'
+      if project
+        "Document de réception ajouté. <strong>Prochaine étape :</strong> clôturez la réception de chantier. " \
+        "<a href=\"#{reception_chantier_project_path(project)}\" class=\"alert-link\">Réception de chantier →</a>"
+      end
+    when 'photo_avant', 'photo_pendant', 'photo_apres'
+      labels = { 'photo_avant' => 'avant travaux', 'photo_pendant' => 'en cours', 'photo_apres' => 'après travaux' }
+      "Photo #{labels[document.type_document]} enregistrée. Ces photos documentent l'avancement et facilitent les démarches de primes."
+    when 'aer'
+      "Attestation de revenu ajoutée — document requis pour les primes Wallonie et Flandre. " \
+      "Ren0chat peut vous aider à vérifier votre éligibilité."
+    else
+      if project
+        "Document ajouté. <strong>Consultez votre score de santé</strong> pour voir l'impact sur votre dossier. " \
+        "<a href=\"#{score_sante_project_path(project)}\" class=\"alert-link\">Score de santé →</a>"
+      end
+    end
   end
 
   def redirect_to_context_or_default(options = {})

@@ -1,4 +1,5 @@
 <% flash.each do |type, message| %>
+  <% next if type.to_sym == :next_action %>
   <% bs_class = case type.to_sym
     when :notice then "info"
     when :alert  then "warning"
@@ -8,6 +9,15 @@
 
   <div class="alert alert-<%= bs_class %> alert-dismissible fade show" role="alert">
     <%= message %>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
+  </div>
+<% end %>
+
+<% if flash[:next_action].present? %>
+  <div class="alert alert-primary alert-dismissible fade show border-0 d-flex align-items-center gap-2" role="alert"
+       style="background: linear-gradient(90deg, #e7f1ff 0%, #f0f6ff 100%); border-left: 4px solid #0d6efd !important;">
+    <i class="bi bi-arrow-right-circle-fill text-primary flex-shrink-0" style="font-size:1.1rem;"></i>
+    <span><%= flash[:next_action].html_safe %></span>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
   </div>
 <% end %>

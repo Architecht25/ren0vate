@@ -28,15 +28,15 @@ Ren0vate a déjà :
 | 1 | Landing | `app/views/pages/home.html.erb` | Première impression, acquisition | 🔴 Critique |
 | 2 | Pricing | `app/views/pricing/index.html.erb` | Conversion | 🔴 Critique |
 | 3 | Checkout | `app/views/pricing/select.html.erb` | Conversion | 🔴 Critique |
-| 4 | Onboarding tunnels | `app/views/onboarding/` | Réduction friction post-inscription | 🔴 Critique |
-| 5 | Dashboards (×3) | `app/views/dashboard/` | Screenshots marketing + rétention | 🟠 Important |
+| 4 | Onboarding tunnels | `app/views/onboarding/` | Réduction friction post-inscription | ✅ RÉALISÉ |
+| 5 | Dashboards (×4) | `app/views/dashboard/` | Screenshots marketing + rétention | ✅ RÉALISÉ (architecte/entrepreneur/intermediaire) — index générique ❌ |
 | 6 | Wizard simulation | `app/views/simulations/` | Demo produit | 🟠 Important |
 
-**Note — Dashboard ×4 (avril 2026) :** suite à la décision de créer 4 tunnels d'onboarding (propriétaire / architecte / entrepreneur / intermédiaire), le dashboard générique `dashboard/index.html.erb` va éclater en 4 variantes adaptées à chaque profil. Le redesign du dashboard doit tenir compte de cette évolution — ne pas investir dans une refonte du dashboard générique avant que les 4 variantes soient définies.
+**Note — Dashboard ×4 ✅ RÉALISÉ (27/04/2026) :** `dashboard/architecte.html.erb`, `dashboard/entrepreneur.html.erb`, `dashboard/intermediaire.html.erb` créés. `dashboard/index.html.erb` (346 lignes) reste générique — redesign post-login restant à faire (propriétaires sans tunnel actif).
 
 **Profil Intermédiaire** (ajout avril 2026) : courtier en primes, energy advisor, gestionnaire de dossiers — profil issu de la clientèle Primes-Services ("je délègue"). Dashboard type CRM léger : portefeuille multi-clients, statut de chaque dossier, notifications vers le client final. Tier naturel : Enterprise.
 
-**Note — Vue entrepreneur :** `app/views/pro_views/show.html.erb` (860 lignes) est directement liée au tunnel Entrepreneur. Son redesign mobile-first doit être coordonné avec l'implémentation du tunnel — voir `STRATEGIE_TESTS_ET_AGENTS.md` section "3 tunnels".
+**Note — Vue entrepreneur :** `app/views/pro_views/show.html.erb` (1103 lignes — a grandi depuis l'ajout des tunnels) est directement liée au tunnel Entrepreneur. Son redesign mobile-first doit être coordonné — voir `STRATEGIE_TESTS_ET_AGENTS.md` section "3 tunnels".
 
 Les autres vues (formulaires CRUD, admin) : ne pas toucher sauf blocage commercial.
 
@@ -80,22 +80,30 @@ Do NOT change the Rails/ERB logic, only the HTML structure and classes.
 
 ### 2. `pricing/index.html.erb` — Page tarifs (521 lignes)
 
-**Needs à ajouter au prompt :**
-- Highlighted plan (anneau coloré `--ren0vate-accent` sur le plan recommandé)
-- Toggle switch mensuel / annuel avec réduction affichée
-- Bullet points iconifiés par tier (pas de tableaux)
-- CTA distinct par plan
-- FAQ section courte en bas (3-4 questions)
+**État (29/04/2026) :**
+- ✅ Toggle B2C / B2B (Stimulus controller `pricing`)
+- ✅ FAQ Bootstrap accordion (3 questions)
+- ✅ CTA distinct par plan
+- ❌ Toggle mensuel / annuel avec réduction affichée — **À FAIRE**
+- ❌ `data-aos` sur les cards — **À FAIRE**
+
+**Needs restants :**
+- Toggle switch mensuel / annuel avec réduction affichée (ex : -20% annuel)
 
 ---
 
-### 3. `pricing/select.html.erb` — Checkout (481 lignes)
+### 3. `pricing/select.html.erb` — Checkout (550 lignes)
 
-**Needs à ajouter au prompt :**
-- Résumé du plan choisi visible à droite (sticky)
-- Réassurance visuelle (sécurité Stripe, pas d'engagement)
-- Étapes claires (1 → 2 → 3)
-- Pas de distractions — supprimer tout ce qui n'est pas lié au paiement
+**État (29/04/2026) :**
+- ✅ Plan highlighted (border terracotta + badge "Recommandé")
+- ✅ Cards par profil (Propriétaire / Architecte / Entrepreneur)
+- ❌ Résumé du plan choisi sticky à droite — **À FAIRE**
+- ❌ Bloc réassurance Stripe (cadenas, pas d'engagement) — **À FAIRE**
+- ❌ Étapes claires (1 → 2 → 3) — **À FAIRE**
+
+**Needs restants :**
+- Colonne droite sticky : résumé du plan sélectionné + prix + réassurance ("Paiement sécurisé Stripe · Résiliable à tout moment")
+- Indicateur d'étapes en haut du formulaire
 
 ---
 
@@ -229,7 +237,7 @@ Build the landing page (home.html.erb replacement) for Ren0vate:
 
 ### Note sur la vue entrepreneur (`pro_views/show.html.erb`)
 
-860 lignes avec logique métier complexe (rôles, accès financier conditionnel, upload).
+1103 lignes avec logique métier complexe (rôles, accès financier conditionnel, upload).
 Claude Design peut prototyper la version mobile-first visuellement, mais la conversion ERB
 doit passer par Claude Code qui connaît la logique Rails — **ne pas laisser Claude Design
 toucher directement à ce fichier**.
@@ -281,12 +289,14 @@ Phase 2 — Pages d'acquisition (indépendantes des tunnels)
             → Navbar glassmorphism .scrolled en place dans _navbar.scss
             → Card "Propriétaire" highlighted dans pricing/select.html.erb (ardoise + badge terracotta)
             → pricing_path remplacé par pricing_select_path dans support_tickets + analytics controllers
-  Jour 4 : pricing/select.html.erb  (checkout)
+  Jour 4 : pricing/index.html.erb — toggle mensuel/annuel  ❌ À FAIRE
+  Jour 4 : pricing/select.html.erb — sticky résumé + réassurance Stripe + étapes  ❌ À FAIRE
+  Jour 5 : home.html.erb redesign (social proof + data-aos + feature grid)  ❌ À FAIRE
 
-Phase 3 — Dashboards et vues métier (après tunnels implémentés)
-  Jour 5 : dashboard propriétaire (home.html.erb post-login)
-  Jour 6 : dashboard architecte (vue portefeuille multi-projets)
-  Jour 7 : dashboard entrepreneur (chantiers assignés)
-  Jour 8 : dashboard intermédiaire (CRM léger — portefeuille clients)
-  Jour 9 : vue entrepreneur mobile-first (pro_views/show.html.erb)
+Phase 3 — Dashboards et vues métier
+  Jour 6 : dashboard architecte  ✅ RÉALISÉ (27/04/2026) — dashboard/architecte.html.erb
+  Jour 7 : dashboard entrepreneur  ✅ RÉALISÉ (27/04/2026) — dashboard/entrepreneur.html.erb
+  Jour 8 : dashboard intermédiaire  ✅ RÉALISÉ (27/04/2026) — dashboard/intermediaire.html.erb
+  Jour 9 : dashboard/index.html.erb redesign (propriétaires — post-login générique)  ❌ À FAIRE
+  Jour 10 : vue entrepreneur mobile-first (pro_views/show.html.erb — 1103 lignes)  ❌ À FAIRE
 ```

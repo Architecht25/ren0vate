@@ -234,6 +234,10 @@ class DecisionHubController < ApplicationController
                                       @property.type_bien_bruxelles      ||
                                       @property.type_propriete
     end
+
+    # Quota Ren0chat pour affichage dans la vue
+    @ren0chat_limit = current_user.ren0chat_monthly_limit
+    @ren0chat_used  = Rails.cache.read("ren0chat:#{current_user.id}:#{Date.current.strftime('%Y-%m')}").to_i
   end
 
   private

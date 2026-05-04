@@ -64,6 +64,18 @@
                     Type de document : <strong><%= @document.type_document.humanize %></strong>
                   </div>
                 </div>
+                <% if @document.type_document == 'aer' %>
+                  <div class="alert d-flex align-items-start gap-2 mb-4" style="background:#f0f9f4;border:1px solid #bbdfcc;border-left:4px solid #198754;">
+                    <i class="bi bi-shield-lock-fill text-success flex-shrink-0" style="font-size:1.1rem;margin-top:2px;"></i>
+                    <div>
+                      <strong class="text-success d-block mb-1" style="font-size:0.85rem;">Données fiscales protégées</strong>
+                      <span class="text-muted" style="font-size:0.82rem;">
+                        Votre attestation de revenus est chiffrée en transit (TLS) et au repos. Elle n'est jamais partagée avec des tiers.
+                        Stockage sur serveurs européens &mdash; conforme RGPD.
+                      </span>
+                    </div>
+                  </div>
+                <% end %>
               <% end %>
             <% else %>
               <!-- Sélection du type -->
@@ -181,8 +193,9 @@
                 </div>
                 <%= form.file_field :file,
                     class: "upload-input",
-                    accept: ".pdf,.jpg,.jpeg,.png,.gif,.webp,.doc,.docx,.xls,.xlsx",
-                    multiple: true,
+                    accept: is_photo_context ? "image/*" : ".pdf,.jpg,.jpeg,.png,.gif,.webp,.doc,.docx,.xls,.xlsx",
+                    capture: (is_photo_context ? "environment" : nil),
+                    multiple: !is_photo_context,
                     required: true %>
                 <div class="invalid-feedback">
                   Veuillez sélectionner au moins un fichier.
@@ -323,14 +336,25 @@
       </div>
 
       <!-- Sécurité -->
-      <div class="card border-0 bg-warning-subtle mb-4">
+      <div class="card border-0 bg-success-subtle mb-4">
         <div class="card-body p-4">
-          <h6 class="card-title text-warning-emphasis mb-3">
-            <i class="bi bi-shield-check me-2"></i>Sécurité & Confidentialité
+          <h6 class="card-title text-success-emphasis mb-3">
+            <i class="bi bi-shield-lock-fill me-2"></i>Sécurité & Confidentialité
           </h6>
-          <p class="text-warning-emphasis small mb-0">
-            Vos documents sont stockés de manière sécurisée et ne sont accessibles qu'à vous et aux personnes autorisées.
-          </p>
+          <ul class="list-unstyled mb-0" style="font-size:0.82rem;">
+            <li class="d-flex align-items-start gap-2 mb-2 text-success-emphasis">
+              <i class="bi bi-lock-fill flex-shrink-0 mt-1"></i>
+              <span>Chiffrement TLS en transit + chiffrement au repos</span>
+            </li>
+            <li class="d-flex align-items-start gap-2 mb-2 text-success-emphasis">
+              <i class="bi bi-geo-alt-fill flex-shrink-0 mt-1"></i>
+              <span>Stockage sur serveurs européens — conforme RGPD</span>
+            </li>
+            <li class="d-flex align-items-start gap-2 text-success-emphasis">
+              <i class="bi bi-person-lock flex-shrink-0 mt-1"></i>
+              <span>Accessible uniquement par vous et les personnes que vous autorisez</span>
+            </li>
+          </ul>
         </div>
       </div>
     </div>

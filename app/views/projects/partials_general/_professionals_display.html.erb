@@ -187,9 +187,23 @@
               <% archi_member = invited_map[@project.architecte_email.downcase] %>
               <div class="mt-2">
                 <% if archi_member %>
-                  <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size:0.72rem;">
-                    <i class="bi bi-check-circle me-1"></i><%= archi_member.active? ? 'Actif sur le projet' : 'Invitation envoyée' %>
-                  </span>
+                  <% if archi_member.active? %>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size:0.72rem;">
+                      <i class="bi bi-check-circle me-1"></i>Actif sur le projet
+                    </span>
+                  <% else %>
+                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle" style="font-size:0.72rem;">
+                      <i class="bi bi-clock me-1"></i>En attente
+                      <% if archi_member.invite_sent_at.present? %>
+                        · depuis <%= time_ago_in_words(archi_member.invite_sent_at) %>
+                      <% end %>
+                    </span>
+                    <% if archi_member.reminder_sent_at.present? %>
+                      <span class="badge bg-secondary-subtle text-secondary" style="font-size:0.68rem;">
+                        <i class="bi bi-bell me-1"></i>Rappel envoyé <%= archi_member.reminder_sent_at.strftime("%d/%m") %>
+                      </span>
+                    <% end %>
+                  <% end %>
                 <% else %>
                   <%= button_to invite_project_path(@project), method: :post,
                         params: { email: @project.architecte_email, role: 'architect' },
@@ -293,9 +307,23 @@
               <% entr_member = invited_map[@project.entrepreneur_principal_email.downcase] %>
               <div class="mt-2">
                 <% if entr_member %>
-                  <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size:0.72rem;">
-                    <i class="bi bi-check-circle me-1"></i><%= entr_member.active? ? 'Actif sur le projet' : 'Invitation envoyée' %>
-                  </span>
+                  <% if entr_member.active? %>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size:0.72rem;">
+                      <i class="bi bi-check-circle me-1"></i>Actif sur le projet
+                    </span>
+                  <% else %>
+                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle" style="font-size:0.72rem;">
+                      <i class="bi bi-clock me-1"></i>En attente
+                      <% if entr_member.invite_sent_at.present? %>
+                        · depuis <%= time_ago_in_words(entr_member.invite_sent_at) %>
+                      <% end %>
+                    </span>
+                    <% if entr_member.reminder_sent_at.present? %>
+                      <span class="badge bg-secondary-subtle text-secondary" style="font-size:0.68rem;">
+                        <i class="bi bi-bell me-1"></i>Rappel envoyé <%= entr_member.reminder_sent_at.strftime("%d/%m") %>
+                      </span>
+                    <% end %>
+                  <% end %>
                 <% else %>
                   <%= button_to invite_project_path(@project), method: :post,
                         params: { email: @project.entrepreneur_principal_email, role: 'entrepreneur' },

@@ -301,6 +301,9 @@ Rails.application.routes.draw do
     post  :upload_document_pro, to: 'pro_views#upload_document_pro',  on: :member
     patch :update_permis_pro,   to: 'pro_views#update_permis_pro',    on: :member
 
+    # Notification client depuis le dashboard intermédiaire (sans accès complet)
+    post :notify_client, to: 'pro_views#notify_client', on: :member
+
     # Comparateur de devis reçus par email (OCR)
     get  :compare_devis, on: :member
 

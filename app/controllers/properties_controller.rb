@@ -34,7 +34,9 @@ class PropertiesController < ApplicationController
     unless plan_exempt?
       limit = current_user.property_limit
       if limit != Float::INFINITY && current_user.properties.count >= limit
-        redirect_to properties_path, alert: "Votre formule #{current_user.subscription_tier_name} est limitée à #{limit} bien(s). Passez à une offre supérieure pour en ajouter davantage."
+        redirect_to pricing_path,
+          notice: "Vous avez atteint la limite de #{limit} bien(s) de votre offre #{current_user.subscription_tier_name}. " \
+                  "Passez à l'offre Individuel (3 biens) ou Portfolio (10 biens) pour gérer tous vos projets."
         return
       end
     end

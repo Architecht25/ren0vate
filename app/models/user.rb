@@ -248,6 +248,22 @@ class User < ApplicationRecord
     end
   end
 
+  # Nombre max de clients actifs pour les profils intermédiaire/architecte/entrepreneur
+  def client_limit
+    case subscription_tier
+    when 'freemium'    then 3
+    when 'individual'  then 3
+    when 'professional', 'portfolio', 'premium_mixed' then 20
+    when 'enterprise'  then Float::INFINITY
+    else 3
+    end
+  end
+
+  def at_client_limit?
+    return false if client_limit == Float::INFINITY
+    project_members.active.count >= client_limit
+  end
+
   def simulation_limit
     case subscription_tier
     when 'freemium' then 1
@@ -261,7 +277,7 @@ class User < ApplicationRecord
     when 'individual' then 50
     when 'portfolio' then 150
     when 'premium_mixed', 'professional', 'enterprise' then Float::INFINITY
-    else 0
+    else 5  # freemium — 5 messages/mois pour découvrir la valeur
     end
   end
 

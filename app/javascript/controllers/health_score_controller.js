@@ -66,9 +66,9 @@ export default class extends Controller {
     this.errorStateTarget.classList.add("d-none")
     this.resultStateTarget.classList.remove("d-none")
 
-    // Animation refresh icon
-    this.refreshIconTarget.classList.remove("spin")
-    this.refreshBtnTarget.disabled = false
+    // Animation refresh icon (optionnel — absent en mode compact)
+    if (this.hasRefreshIconTarget) this.refreshIconTarget.classList.remove("spin")
+    if (this.hasRefreshBtnTarget) this.refreshBtnTarget.disabled = false
   }
 
   renderIndicators(indicators) {
@@ -113,16 +113,16 @@ export default class extends Controller {
     this.loadingStateTarget.classList.remove("d-none")
     this.errorStateTarget.classList.add("d-none")
     this.resultStateTarget.classList.add("d-none")
-    this.refreshIconTarget.classList.add("spin")
-    this.refreshBtnTarget.disabled = true
+    if (this.hasRefreshIconTarget) this.refreshIconTarget.classList.add("spin")
+    if (this.hasRefreshBtnTarget) this.refreshBtnTarget.disabled = true
   }
 
   showError() {
     this.loadingStateTarget.classList.add("d-none")
     this.errorStateTarget.classList.remove("d-none")
     this.resultStateTarget.classList.add("d-none")
-    this.refreshIconTarget.classList.remove("spin")
-    this.refreshBtnTarget.disabled = false
+    if (this.hasRefreshIconTarget) this.refreshIconTarget.classList.remove("spin")
+    if (this.hasRefreshBtnTarget) this.refreshBtnTarget.disabled = false
   }
 
   colorForScore(score) {

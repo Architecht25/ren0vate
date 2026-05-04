@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_28_051803) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_04_105558) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -575,6 +575,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_28_051803) do
     t.string "invite_token"
     t.string "invited_email"
     t.bigint "project_id", null: false
+    t.datetime "reminder_sent_at"
     t.string "role", null: false
     t.string "status", default: "pending", null: false
     t.datetime "updated_at", null: false
@@ -1115,6 +1116,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_28_051803) do
     t.string "first_name"
     t.text "iban"
     t.string "last_name"
+    t.datetime "last_project_alert_at"
     t.datetime "locked_at"
     t.text "national_number"
     t.string "nom"

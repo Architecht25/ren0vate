@@ -7,6 +7,76 @@ Objectif : couverture utile, pas exhaustive. Protéger ce qui casse, pas tester 
 
 ---
 
+## Principes de design produit (avril 2026)
+
+Issus de l'analyse des 4 personas (Marie/Kevin/Jean-Marc/Sophie) et de l'expérience beta.
+Ces principes guident toutes les décisions d'interface et de priorisation.
+
+### 1. Mobile-first pour l'entrepreneur ✅ RÉALISÉ — mai 2026
+
+Jean-Marc est sur chantier, GSM en main. Chaque vue du tunnel Entrepreneur se teste d'abord sur mobile.
+
+- Boutons larges (tap targets 48px minimum)
+- Upload photo = 1 geste (caméra directe, OCR fait le reste)
+- Pas de formulaires longs côté entrepreneur
+- PWA en priorité — Turbo Native si PWA insuffisant après tests lundi
+
+### 2. Dashboard multi-clients pour l'intermédiaire ✅ RÉALISÉ — mai 2026
+
+Sophie gère 20 dossiers. Son dashboard ne partage aucune vue avec le dashboard propriétaire.
+
+- Liste clients + statut par dossier (préparation / en cours / en attente / clôturé)
+- Accès dossier client en 1 clic
+- Notifications vers le client sans accès complet
+- Tier Enterprise — à construire en priorité (profil le plus rentable)
+
+### 3. Progression digestive par phases de chantier
+
+4 phases naturelles : **Préparation → Suivi → Réception → Documents**
+L'app ne met en avant que la phase active. Les autres restent accessibles mais en arrière-plan.
+
+```
+Projet créé          →  Préparation mise en avant
+Travaux démarrés     →  Suivi devient active
+Travaux terminés     →  Réception mise en avant
+Tout signé           →  Documents / Clôture
+```
+
+**Règle absolue : on peut toujours revenir en arrière.** Une phase franchie reste consultable et modifiable — la progression est un guidage, jamais une contrainte.
+
+✅ Ren0chat guide la phase active : *"Vous êtes en préparation. Voici les 3 choses à faire maintenant."* — RÉALISÉ mai 2026
+
+---
+
+## Frictions identifiées et améliorations de rétention (avril 2026)
+
+Issues de l'analyse des 4 personas et de l'expérience beta. À traiter par ordre de priorité.
+
+### Priorité immédiate (fort impact, faible effort)
+
+| # | Friction | Solution |
+|---|---|---|
+| 1 | **État vide sans direction** — dashboard vide = abandon | ✅ RÉALISÉ — mai 2026 — Chaque dashboard a un état vide actif avec 1 action unique et concrète |
+| 2 | **Upload document sans type connu** — l'utilisateur ne sait pas classer | ~~Non applicable — l'upload est toujours contextualisé (facture, devis…), l'utilisateur sait ce qu'il charge~~ |
+| 3 | **Progression invisible** — l'utilisateur ne sait pas où il en est | ✅ RÉALISÉ — mai 2026 — `ProjectHealthScore` visible sur le dashboard principal pour chaque chantier (widget compact async) |
+| 4 | **Ren0chat inaccessible en freemium** — utilisateur bloqué = départ silencieux | ✅ RÉALISÉ — mai 2026 — Freemium : 5 messages/mois (au lieu de 0) + compteur "X restants" visible + lien upsell au dépassement |
+
+### Court terme (impact moyen à élevé)
+
+| # | Friction | Solution |
+|---|---|---|
+| 5 | **Mur freemium punitif** — blocage avant valeur suffisante | ✅ RÉALISÉ — mai 2026 — Redirect vers `pricing_path` (au lieu de retour arrière) + message contextuel expliquant ce que l'offre supérieure débloque |
+| 6 | **Invitation qui refroidit** — client n'accepte pas sous 24h | ✅ RÉALISÉ — mai 2026 — `PendingInvitationReminderJob` (relance auto à 48h) + `reminder_sent_at` en DB + statut visible ("En attente · depuis X · Rappel envoyé le JJ/MM") |
+| 7 | **Pas de "prochaine action"** — après chaque étape, silence | ✅ RÉALISÉ — mai 2026 — `flash[:next_action]` HTML contextuel après upload document (7 types) + création projet. Affiché en bannière bleue distincte sous la notice principale |
+| 8 | **Confiance sur documents sensibles** — hésitation à l'upload AER/IBAN | ✅ RÉALISÉ — mai 2026 — Signal contextuel AER dans `documents/new` (apparaît uniquement pour `type_document=aer`) + micro-signal IBAN sous les champs Wallonie et Flandre + sidebar sécurité renforcée (3 points précis : chiffrement, serveurs EU, accès restreint) |
+| 9 | **Dormants sans réactivation** — inactifs depuis 7j ne reviennent pas | ✅ RÉALISÉ — mai 2026 — `DormantProjectAlertJob` (hebdo lundi 9h) : déclencheur **événement projet** (prime < 30j ou travaux terminés sans PV), jamais surveillance d'inactivité. Garde-fou `last_project_alert_at` : 1 email max/14j/user |
+
+### Règle de rétention centrale
+
+> Un utilisateur qui **voit sa progression**, **sait quoi faire ensuite** et **trouve de l'aide quand il bloque** ne part pas. Tout le reste est secondaire.
+
+---
+
 ## Partie 1 — Stratégie de tests "haute valeur"
 
 ### Règle de base

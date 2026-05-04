@@ -122,7 +122,9 @@ class SimulationsController < ApplicationController
     unless plan_exempt?
       limit = current_user.simulation_limit
       if limit != Float::INFINITY && current_user.simulations.count >= limit
-        redirect_to simulations_path, alert: "Votre formule #{current_user.subscription_tier_name} est limitée à #{limit} simulation(s). Passez à une offre supérieure pour en lancer davantage."
+        redirect_to pricing_path,
+          notice: "Vous avez atteint la limite de #{limit} simulation(s) de votre offre #{current_user.subscription_tier_name}. " \
+                  "Passez à l'offre Individuel pour lancer des simulations illimitées et comparer les scénarios de primes sur tous vos biens."
         return
       end
     end

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Action requise sur vos projets</title>
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { background: linear-gradient(135deg, #0d6efd, #0a58ca); color: white; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0; }
+      .header h1 { margin: 0; font-size: 1.3em; }
+      .content { background-color: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+      .alert-card { background: white; border-radius: 8px; padding: 18px 20px; margin: 16px 0; }
+      .alert-card.prime { border-left: 4px solid #fd7e14; }
+      .alert-card.reception { border-left: 4px solid #6f42c1; }
+      .alert-type { font-size: 0.75rem; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+      .alert-type.prime { color: #fd7e14; }
+      .alert-type.reception { color: #6f42c1; }
+      .btn { display: inline-block; padding: 12px 24px; background-color: #0d6efd; color: white !important; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px; font-size: 1em; }
+      .footer { text-align: center; margin-top: 20px; font-size: 0.82em; color: #6c757d; }
+      .divider { border: none; border-top: 1px solid #dee2e6; margin: 20px 0; }
+      .unsub { font-size: 0.75rem; color: #adb5bd; }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>⚠️ Action requise sur vos chantiers</h1>
+    </div>
+
+    <div class="content">
+      <p>Bonjour <%= @user.first_name.presence || @user.nom.presence || "," %>,</p>
+
+      <p>Ren0vate a détecté <strong><%= @alerts.size %> point<%= @alerts.size > 1 ? 's' : '' %> nécessitant votre attention</strong> sur vos chantiers en cours :</p>
+
+      <% @alerts.each do |alert| %>
+        <% css_type = alert[:type] == :prime_expiry ? 'prime' : 'reception' %>
+        <div class="alert-card <%= css_type %>">
+          <div class="alert-type <%= css_type %>">
+            <% if alert[:type] == :prime_expiry %>
+              ⏰ Délai de prime
+            <% else %>
+              📋 Réception de chantier
+            <% end %>
+          </div>
+          <strong><%= alert[:project].name %></strong><br>
+          <span style="font-size:0.9rem;color:#555;"><%= alert[:detail] %></span>
+        </div>
+      <% end %>
+
+      <center>
+        <%= link_to "Accéder à mon tableau de bord", @dashboard_url, class: "btn" %>
+      </center>
+
+      <hr class="divider">
+      <p style="font-size:0.85rem;color:#666;">
+        Ren0vate surveille automatiquement les délais de vos dossiers pour vous éviter de manquer des primes ou des étapes administratives critiques.
+      </p>
+    </div>
+
+    <div class="footer">
+      <p>Ren0vate — Votre assistant rénovation intelligent en Belgique</p>
+      <p class="unsub">Vous recevez cet email car des actions sont requises sur vos dossiers actifs.</p>
+    </div>
+  </body>
+</html>

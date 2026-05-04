@@ -155,9 +155,9 @@ class ContextualBotService
     PROMPT
 
     if mode == 'guide'
-      base + "\nMODE GUIDE : Accompagne l'utilisateur pas à pas sur la page '#{current_page}'."
+      base + "\nMODE GUIDE : Accompagne l'utilisateur pas \u00e0 pas sur la page '#{current_page}'.\nSi un chantier est mentionn\u00e9 dans le contexte, commence par \"Vous \u00eates en phase [PHASE_ACTIVE]. Voici les 3 choses \u00e0 faire maintenant :\" puis liste les prochaines actions concrètes. La progression est un guidage, jamais une contrainte : l'utilisateur peut toujours revenir en arri\u00e8re."
     else
-      base + "\nMODE EXPERT : Analyse financière complète, stratégie d'optimisation maximale des primes, risques et pièges."
+      base + "\nMODE EXPERT : Analyse financi\u00e8re compl\u00e8te, strat\u00e9gie d'optimisation maximale des primes, risques et pi\u00e8ges.\nSi un chantier figure dans le contexte, mentionne syst\u00e9matiquement la phase active et les actions prioritaires pour maximiser l'\u00e9ligibilit\u00e9 aux primes."
     end
   end
 
@@ -295,12 +295,15 @@ class ContextualBotService
     if projects.any?
       lines << "\n── Chantiers liés (#{projects.count}) ──"
       projects.each do |pr|
-        lines << "  ▸ Chantier [#{pr.statut || 'en cours'}]"
+        pct = pr.avancement_global_pct
+        phase_active = active_phase_label(pr)
+        lines << "  ▸ Chantier [#{pr.statut || 'en cours'}] | Avancement global: #{pct}% | Phase active: #{phase_active}"
         lines << "    Type travaux    : #{pr.type_travaux || 'N/A'}"
         lines << "    Période         : #{pr.date_début&.strftime('%m/%Y') || '?'} → #{pr.date_fin&.strftime('%m/%Y') || '?'}"
         lines << "    Permis urbanisme: #{pr.permis_urbanisme_number.present? ? 'Oui' : 'Non'}"
         lines << "    Budget architecte: #{pr.architecte_devis_montant ? amount_bracket(pr.architecte_devis_montant) : 'N/A'}"
         lines << "    Budget entrepreneur: #{pr.contractor_devis_montant ? amount_bracket(pr.contractor_devis_montant) : 'N/A'}"
+        lines << "    Prochaines actions: #{next_actions_for_phase(pr).join(' / ')}"
 
         # Architecte — rôle + certifications uniquement, pas d'identité
         if pr.architecte_nom.present? || pr.architecte_entreprise.present?
@@ -457,6 +460,57 @@ class ContextualBotService
 
   def fallback_message
     "🔄 Je rencontre un problème technique momentané. Réessayez dans quelques secondes, ou utilisez le simulateur directement !"
+  end
+
+  # ─── Phase active du chantier ───────────────────────────────────────────────
+
+  PHASE_LABELS = {
+    'preparation' => 'Préparation',
+    'demolition'  => 'Démolition / Dépose',
+    'installation'=> 'Installation / Pose',
+    'finitions'   => 'Finitions',
+    'reception'   => 'Réception'
+  }.freeze
+
+  def active_phase_label(project)
+    phases = project.phases_avancement || {}
+    # La phase active = première phase non à 100%, en partant du début
+    Project::PHASES_CHANTIER.each do |p|
+      return PHASE_LABELS[p[:key]] || p[:key] if phases[p[:key].to_s].to_i < 100
+    end
+    'Clôturé'
+  end
+
+  def next_actions_for_phase(project)
+    phases = project.phases_avancement || {}
+    active_key = Project::PHASES_CHANTIER.find { |p| phases[p[:key].to_s].to_i < 100 }&.dig(:key)
+
+    case active_key
+    when 'preparation'
+      actions = []
+      actions << "Compléter le devis entrepreneur" unless project.contractor_devis_montant.to_f > 0
+      actions << "Renseigner l'architecte" unless project.architecte_nom.present? || project.architecte_entreprise.present?
+      actions << "Vérifier le permis d'urbanisme" unless project.permis_urbanisme_number.present?
+      actions << "Lancer la simulation de primes" if project.property&.simulations&.none?
+      actions << "Ajouter les photos 'avant travaux'" if project.documents.where(type_document: 'photo_avant').none?
+      actions.first(3).presence || ["Préparer le dossier de travaux", "Obtenir 3 devis d'entrepreneurs agréés", "Contacter un auditeur PAE si requis"]
+    when 'demolition', 'installation'
+      actions = []
+      actions << "Uploader les factures d'acompte" if project.factures.where(type_facture: 'acompte').none?
+      actions << "Prendre des photos 'pendant travaux'" if project.documents.where(type_document: 'photo_pendant').none?
+      actions << "Valider l'état d'avancement entrepreneur" if project.etats_avancement.where(statut: 'soumis').any?
+      actions.first(3).presence || ["Suivre l'avancement avec l'entrepreneur", "Documenter les travaux en photos", "Vérifier la conformité au devis"]
+    when 'finitions'
+      ["Préparer la liste de réserves", "Uploader les factures de solde", "Prendre les photos 'après travaux'"]
+    when 'reception'
+      actions = []
+      actions << "Établir le PV de réception" unless project.pv_reception.present?
+      actions << "Scanner l'attestation de conformité" if project.documents.where(type_document: 'attestation_conformite').none?
+      actions << "Déposer la demande de prime officielle" if project.property&.requests&.none?
+      actions.first(3).presence || ["Finaliser le PV de réception", "Collecter les attestations", "Soumettre la demande de prime"]
+    else
+      ["Constituer le dossier final", "Archiver les documents", "Soumettre les demandes de primes en attente"]
+    end
   end
 
   # ─── Suggestions ─────────────────────────────────────────────────────────────

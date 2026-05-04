@@ -114,7 +114,23 @@
 
         <!-- Zone de saisie -->
         <div class="expert-ia-input-zone">
-          <form id="aiExpertForm">
+          <% if @ren0chat_limit != Float::INFINITY %>
+            <div id="quotaBanner" class="mb-2 d-flex align-items-center gap-2 px-1" style="font-size:0.82rem;">
+              <% remaining = [@ren0chat_limit - @ren0chat_used, 0].max %>
+              <% if remaining <= 1 %>
+                <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                <span style="color: #d97706;"><strong><%= remaining %></strong> message<%= remaining > 1 ? 's' : '' %> restant<%= remaining > 1 ? 's' : '' %> ce mois-ci &mdash;
+                  <%= link_to "Passer à une offre supérieure", pricing_path, class: "fw-semibold", style: "color: var(--ren0vate-accent);" %>
+                </span>
+              <% else %>
+                <i class="bi bi-chat-dots" style="color: var(--ren0vate-text-muted);"></i>
+                <span class="text-muted"><strong><%= remaining %></strong> messages restants ce mois-ci</span>
+              <% end %>
+            </div>
+          <% end %>
+          <form id="aiExpertForm"
+                data-quota-limit="<%= @ren0chat_limit == Float::INFINITY ? '' : @ren0chat_limit %>"
+                data-quota-used="<%= @ren0chat_used %>">
             <div class="input-group">
               <input type="text" class="form-control" id="aiExpertInput"
                      placeholder="Posez votre question sur l'ensemble de vos biens..." autocomplete="off">
@@ -301,7 +317,23 @@
 
         <!-- Zone de saisie -->
         <div class="expert-ia-input-zone">
-          <form id="aiExpertForm" data-property-id="<%= @property.id %>">
+          <% if @ren0chat_limit != Float::INFINITY %>
+            <div id="quotaBanner" class="mb-2 d-flex align-items-center gap-2 px-1" style="font-size:0.82rem;">
+              <% remaining = [@ren0chat_limit - @ren0chat_used, 0].max %>
+              <% if remaining <= 1 %>
+                <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                <span style="color: #d97706;"><strong><%= remaining %></strong> message<%= remaining > 1 ? 's' : '' %> restant<%= remaining > 1 ? 's' : '' %> ce mois-ci &mdash;
+                  <%= link_to "Passer à une offre supérieure", pricing_path, class: "fw-semibold", style: "color: var(--ren0vate-accent);" %>
+                </span>
+              <% else %>
+                <i class="bi bi-chat-dots" style="color: var(--ren0vate-text-muted);"></i>
+                <span class="text-muted"><strong><%= remaining %></strong> messages restants ce mois-ci</span>
+              <% end %>
+            </div>
+          <% end %>
+          <form id="aiExpertForm" data-property-id="<%= @property.id %>"
+                data-quota-limit="<%= @ren0chat_limit == Float::INFINITY ? '' : @ren0chat_limit %>"
+                data-quota-used="<%= @ren0chat_used %>">
             <div class="input-group">
               <input type="text" class="form-control" id="aiExpertInput"
                      placeholder="Posez votre question à l'expert IA..." autocomplete="off">
@@ -384,12 +416,30 @@ function initExpertIA() {
 
       const data = await response.json();
 
-      if (data.response && data.response.content) {
-        addAIMessage(data.response.content, data.response.timestamp);
-      } else if (data.error) {
-        addAIMessage("⚠️ " + data.error);
+      if (data.quota_exceeded) {
+        addAIMessage(
+          (data.response?.content || "Quota atteint.") +
+          ` <a href="<%= pricing_path %>" class="fw-semibold" style="color:var(--ren0vate-accent);">Passer à une offre supérieure →</a>`
+        );
+        if (sendBtn) sendBtn.disabled = true;
       } else {
-        addAIMessage("Désolé, je n'ai pas pu générer une réponse. Veuillez réessayer.");
+        if (data.response && data.response.content) {
+          addAIMessage(data.response.content, data.response.timestamp);
+        } else if (data.error) {
+          addAIMessage("⚠️ " + data.error);
+        } else {
+          addAIMessage("Désolé, je n'ai pas pu générer une réponse. Veuillez réessayer.");
+        }
+        // Mise à jour du compteur après envoi réussi
+        if (data.quota_used != null && data.quota_limit != null) {
+          const banner = document.getElementById('quotaBanner');
+          if (banner) {
+            const remaining = Math.max(data.quota_limit - data.quota_used, 0);
+            const urgentColor = remaining <= 1 ? '#d97706' : 'inherit';
+            banner.querySelector('strong') && (banner.querySelector('strong').textContent = remaining);
+            banner.style.color = urgentColor;
+          }
+        }
       }
 
     } catch (error) {

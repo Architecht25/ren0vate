@@ -55,7 +55,9 @@ class ProjectsController < ApplicationController
     unless plan_exempt?
       limit = current_user.project_limit
       if limit != Float::INFINITY && current_user.projects.count >= limit
-        redirect_to projects_path, alert: "Votre formule #{current_user.subscription_tier_name} est limitée à #{limit} projet(s). Passez à une offre supérieure pour en créer davantage."
+        redirect_to pricing_path,
+          notice: "Vous avez atteint la limite de #{limit} chantier(s) de votre offre #{current_user.subscription_tier_name}. " \
+                  "Passez à l'offre Individuel pour gérer des chantiers illimités, le suivi d'état d'avancement et les alertes de délais de primes."
         return
       end
     end
@@ -66,6 +68,14 @@ class ProjectsController < ApplicationController
     if @project.save
       message = @project.investment? ? 'Investissement créé avec succès.' : 'Chantier créé avec succès.'
       handle_referral_after_project_create(@project)
+      next_step = if @project.investment?
+        "Prochaine étape : <strong>définissez le budget prévisionnel</strong> pour suivre votre ROI. " \
+        "<a href=\"#{edit_budget_project_path(@project)}\" class=\"alert-link\">Ajouter un budget →</a>"
+      else
+        "Prochaine étape : <strong>invitez votre entrepreneur</strong> ou <strong>uploadez votre premier devis</strong> pour démarrer le suivi. " \
+        "<a href=\"#{project_path(@project)}\" class=\"alert-link\">Voir le projet →</a>"
+      end
+      flash[:next_action] = next_step
       redirect_to @project, notice: message
     else
       Rails.logger.error "Project validation errors: #{@project.errors.full_messages}"
