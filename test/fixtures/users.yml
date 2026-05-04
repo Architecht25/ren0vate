@@ -1,9 +1,28 @@
 # Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
-one:
-  nom: MyString
-  email: MyString
+# Utilisateur sans abonnement actif (tier freemium par défaut)
+freemium_user:
+  email: freemium@example.com
+  encrypted_password: <%= BCrypt::Password.create('password123') %>
+  nom: "Marie Dupont"
+  role: 0
+  user_profile: 0
+  stripe_customer_id: "cus_freemium_test"
 
-two:
-  nom: MyString
-  email: MyString
+# Utilisateur avec abonnement individual actif
+individual_user:
+  email: individual@example.com
+  encrypted_password: <%= BCrypt::Password.create('password123') %>
+  nom: "Kevin Martin"
+  role: 0
+  user_profile: 0
+  stripe_customer_id: "cus_individual_test"
+
+# Utilisateur avec abonnement portfolio actif
+portfolio_user:
+  email: portfolio@example.com
+  encrypted_password: <%= BCrypt::Password.create('password123') %>
+  nom: "Jean-Marc Lejeune"
+  role: 0
+  user_profile: 0
+  stripe_customer_id: "cus_portfolio_test"
