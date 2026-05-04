@@ -145,24 +145,39 @@ class AerOcrService < OcrService
   # ── Revenus colonnes demandeur / conjoint ─────────────────────────────────────
   # Sur un AER commun, les montants apparaissent sur la même ligne, séparés
   # par un ou plusieurs espaces, TABULATIONS ou pipes.
+  # On cherche ligne par ligne pour éviter les contaminations inter-lignes.
   def extraire_revenus_colonnes(texte, couple)
-    patterns_globaux = REVENU_GLOBAL_FR + REVENU_GLOBAL_NL
+    lignes = texte.split("\n")
 
-    patterns_globaux.each do |pattern|
-      # Chercher une ligne contenant 1 ou 2 montants après le libellé
-      texte.scan(/#{pattern.source}(?:\s+(?:[\d\s.,]+))?/im) do |m|
+    # Patterns de lignes contenant le revenu imposable (FR + NL), du plus spécifique au plus large
+    line_patterns_fr = [
+      /revenu\s+imposable\s+globalement/i,
+      /revenu\s+net\s+imposable/i,
+      /revenus?\s+nets?\s+imposables?/i,
+      /base\s+imposable/i,
+    ]
+    line_patterns_nl = [
+      /gezamenlijk\s+belastbaar\s+inkomen/i,
+      /netto\s+belastbaar\s+inkomen/i,
+      /belastbare\s+basis/i,
+    ]
+    line_patterns = line_patterns_fr + line_patterns_nl
+
+    # Chercher de bas en haut : la dernière occurrence correspond au total résumé
+    line_patterns.each do |pattern|
+      matching_lines = lignes.select { |l| l.match?(pattern) }.reverse
+
+      matching_lines.each do |ligne|
+        montants = ligne.scan(/[\d]{1,3}(?:[\s.,]\d{3})*(?:[.,]\d{2})?/)
+                        .map { |v| parse_montant(v) }
+                        .compact
+                        .select { |v| v > 500 }
+
         if couple
-          # On tente d'attraper 2 montants alignés sur la même ligne
-          ligne_match = $~&.pre_match&.split("\n")&.last.to_s + $~.to_s
-          montants = ligne_match.scan(/[\d]{1,3}(?:[\s.,]\d{3})*(?:[.,]\d{2})?/)
-                                 .map { |v| parse_montant(v) }
-                                 .compact
-                                 .select { |v| v > 500 }
           return montants[0], montants[1] if montants.size >= 2
-          return montants[0], nil if montants.size == 1
+          return montants[0], nil         if montants.size == 1
         else
-          montant = parse_montant(m.first.to_s)
-          return montant, nil if montant && montant > 500
+          return montants[0], nil if montants.size >= 1
         end
       end
     end

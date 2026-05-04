@@ -267,7 +267,7 @@ class Notification < ApplicationRecord
         message: "Votre bien (#{property.titre.presence || property.commune}) est classé PEB #{peb_label}. " \
                  "La réglementation bruxelloise impose un label minimum E avant #{deadline_year}. " \
                  "Des travaux de rénovation énergétique sont nécessaires — lancez une simulation pour planifier.",
-        action_url: "/fr/properties/#{property.id}",
+        action_url: "/properties/#{property.id}",
         priority: urgency,
         expires_at: Date.new(deadline_year, 1, 1).to_datetime
       )

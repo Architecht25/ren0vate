@@ -27,15 +27,9 @@ document.addEventListener('DOMContentLoaded', function() {
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          // Mettre à jour l'UI sans recharger
-          this.innerHTML = '<i class="bi bi-check-circle me-2"></i>Éligibilité vérifiée';
-          this.disabled = true;
-          this.classList.remove('btn-primary');
-          this.classList.add('btn-success');
-
-          // Déclencher automatiquement la détermination de catégorie
-          console.log('🎯 Éligibilité confirmée, déclenchement automatique de la catégorie...');
-          setTimeout(() => triggerCategoryDetermination(), 500);
+          // Recharger la page pour afficher le résultat à jour (éligible ou non)
+          console.log('✅ Vérification éligibilité terminée, rechargement de la page...');
+          window.location.reload();
         } else {
           console.error('Erreur lors de la vérification:', data);
           this.innerHTML = '<i class="bi bi-exclamation-triangle me-2"></i>Erreur - Réessayer';
