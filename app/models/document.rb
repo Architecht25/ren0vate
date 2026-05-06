@@ -21,6 +21,7 @@ class Document < ApplicationRecord
   validate :file_or_url_present
   validate :file_size_limit_debug # Validation avec debug
   validate :file_format_validation
+  validate :file_magic_bytes_validation
 
   # Validations techniques spécifiques - DÉSACTIVÉES
   # validate :check_audit_conformity, if: :should_validate_technical_documents_strict?
@@ -411,8 +412,36 @@ class Document < ApplicationRecord
       'text/plain'
     ]
 
+    # Vérifie le content-type déclaré (UX : message d'erreur lisible)
     unless allowed_formats.include?(file.content_type)
       errors.add(:file, 'format non supporté. Formats acceptés : PDF, images, Word, Excel, texte.')
+    end
+  end
+
+  def file_magic_bytes_validation
+    return unless file.attached? && file.blob.persisted?
+
+    begin
+      # Lire les 4 premiers Ko — suffisant pour tous les magic bytes connus
+      raw = file.blob.download.byteslice(0, 4096)
+      return unless raw.present?
+
+      detected = Marcel::MimeType.for(StringIO.new(raw), name: file.blob.filename.to_s)
+
+      # Marcel renvoie 'application/zip' pour les formats Office Open XML (DOCX, XLSX)
+      # car ils partagent la même signature ZIP — on accepte si le content_type déclaré est cohérent
+      office_ooxml = %w[
+        application/vnd.openxmlformats-officedocument.wordprocessingml.document
+        application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+      ]
+      return if detected == 'application/zip' && office_ooxml.include?(file.blob.content_type)
+
+      unless ALL_ALLOWED_FORMATS.include?(detected)
+        errors.add(:file, "le contenu du fichier ne correspond pas à un format autorisé (détecté : #{detected})")
+      end
+    rescue => e
+      Rails.logger.warn "[Security] Vérification magic bytes échouée pour #{file.blob.filename}: #{e.message}"
+      # Fail open — ne pas bloquer l'upload si la vérification technique échoue
     end
   end
 

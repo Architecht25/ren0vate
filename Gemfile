@@ -21,12 +21,13 @@ gem "dotenv-rails"
 # OpenAI remplacé par Claude (Anthropic) — appels via httparty
 gem "cloudinary"
 gem "devise"
-gem "httparty"
+gem "httparty", ">= 0.24.0"  # CVE-2025-68696 SSRF → fuite API keys (< 0.24.0)
 gem "rubyzip"
 gem "http_accept_language"  # Pour la détection automatique de langue
 gem "stripe"  # Pour les paiements et abonnements SaaS
 gem "geocoder"  # Pour le géocodage d'adresses
 gem "lograge"   # Structured single-line logs (compatible Papertrail/Datadog)
+gem "rack-attack"  # Rate limiting et protection brute-force
 
 # OCR capabilities
 gem "rtesseract"  # Pour l'OCR avec Tesseract

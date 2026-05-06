@@ -82,7 +82,7 @@ class Api::SecurityController < ApplicationController
   private
 
   def ensure_admin
-    unless current_user&.email == 'robin@primes-services.be'
+    unless current_user&.admin?
       render json: { error: 'Access denied' }, status: :forbidden
     end
   end

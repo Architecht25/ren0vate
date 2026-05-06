@@ -40,7 +40,33 @@ class OcrService
       return error_result('Fichier trop volumineux (max 10MB)')
     end
 
+    # Vérification par magic bytes (Marcel) — protège contre le spoofing du content-type
+    magic_result = validate_magic_bytes
+    return magic_result unless magic_result[:success]
+
     { success: true }
+  end
+
+  def validate_magic_bytes
+    io = if file.respond_to?(:tempfile)
+      file.tempfile          # UploadedFile (form upload) — lecture locale, sans réseau
+    elsif file.respond_to?(:download)
+      StringIO.new(file.download.byteslice(0, 4096) || "")  # Active Storage blob
+    end
+
+    return { success: true } unless io
+
+    detected = Marcel::MimeType.for(io, name: file.respond_to?(:original_filename) ? file.original_filename.to_s : "")
+
+    unless ALLOWED_CONTENT_TYPES.include?(detected)
+      Rails.logger.warn "[Security] OcrService: content-type déclaré=#{file.content_type}, magic bytes détectés=#{detected}"
+      return error_result("Contenu du fichier invalide (type réel détecté : #{detected})")
+    end
+
+    { success: true }
+  rescue => e
+    Rails.logger.warn "[Security] OcrService: vérification magic bytes échouée: #{e.message}"
+    { success: true } # Fail open
   end
 
   def process_ocr

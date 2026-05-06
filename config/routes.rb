@@ -392,9 +392,11 @@ Rails.application.routes.draw do
         get :documents      # Voir tous les documents d'un utilisateur
         get :properties     # Voir toutes les propriétés d'un utilisateur
         get :projects       # Voir tous les projets d'un utilisateur
-        post :impersonate   # Se connecter en tant qu'utilisateur (avec Pundit)
+        post :impersonate   # Se connecter en tant qu'utilisateur (loggé dans AdminAuditLog)
       end
     end
+
+    delete "stop_impersonating", to: "users#stop_impersonating", as: :stop_impersonating
 
     # Propriétés — vue détaillée admin
     resources :properties, only: [:show]

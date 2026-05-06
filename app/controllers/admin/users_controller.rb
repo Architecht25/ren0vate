@@ -1,7 +1,7 @@
 class Admin::UsersController < ApplicationController
   before_action :authenticate_user!
-  before_action :ensure_admin
-  before_action :find_user, only: [:show, :details, :edit, :update, :destroy, :properties, :documents, :projects]
+  before_action :ensure_admin, except: [:stop_impersonating]
+  before_action :find_user, only: [:show, :details, :edit, :update, :destroy, :properties, :documents, :projects, :impersonate]
 
   def index
     @users = User.includes(:properties, :projects, :simulations, :requests, :documents, :notifications)
@@ -43,7 +43,14 @@ class Admin::UsersController < ApplicationController
   end
 
   def update
+    previous_role = @user.role
     if @user.update(user_params)
+      if previous_role != @user.role
+        AdminAuditLog.log(admin: current_user, action: "role_change", target_user: @user, request: request,
+                          metadata: { from: previous_role, to: @user.role })
+      else
+        AdminAuditLog.log(admin: current_user, action: "user_update", target_user: @user, request: request)
+      end
       redirect_to admin_user_path(@user), notice: 'Utilisateur mis à jour avec succès'
     else
       render :edit
@@ -56,8 +63,40 @@ class Admin::UsersController < ApplicationController
       return
     end
 
+    AdminAuditLog.log(admin: current_user, action: "user_destroy", target_user: @user, request: request,
+                      metadata: { email: @user.email })
     @user.destroy
     redirect_to admin_users_path, notice: 'Utilisateur supprimé avec succès'
+  end
+
+  def impersonate
+    if @user.admin?
+      redirect_to admin_user_path(@user), alert: "Impossible d'emprunter l'identité d'un administrateur."
+      return
+    end
+
+    AdminAuditLog.log(admin: current_user, action: "impersonate", target_user: @user, request: request)
+    session[:impersonating_admin_id] = current_user.id
+    sign_in(:user, @user, bypass: true)
+    redirect_to root_path, notice: "Vous naviguez en tant que #{@user.email}. Déconnectez-vous pour revenir à votre compte admin."
+  end
+
+  def stop_impersonating
+    admin_id = session.delete(:impersonating_admin_id)
+    unless admin_id
+      redirect_to root_path, alert: "Aucune session d'impersonation active."
+      return
+    end
+
+    admin = User.find_by(id: admin_id)
+    unless admin&.admin?
+      redirect_to root_path, alert: "Session invalide."
+      return
+    end
+
+    AdminAuditLog.log(admin: admin, action: "stop_impersonating", target_user: current_user, request: request)
+    sign_in(:user, admin, bypass: true)
+    redirect_to admin_users_path, notice: "Vous êtes revenu sur votre compte administrateur."
   end
 
   # Action pour voir tous les documents d'un utilisateur

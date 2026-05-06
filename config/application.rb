@@ -35,9 +35,12 @@ module Ren0vate
       config.active_record.encryption.primary_key        = ENV["AR_ENCRYPTION_PRIMARY_KEY"]
       config.active_record.encryption.deterministic_key  = ENV["AR_ENCRYPTION_DETERMINISTIC_KEY"]
       config.active_record.encryption.key_derivation_salt = ENV["AR_ENCRYPTION_KEY_DERIVATION_SALT"]
-      # Permet de lire les valeurs existantes en clair (migration progressive)
-      # Une fois toutes les données chiffrées, remettre à false
-      config.active_record.encryption.support_unencrypted_data = true
+      # Piloté par AR_ENCRYPTION_SUPPORT_UNENCRYPTED (Heroku config var)
+      # Procédure sans redéploiement :
+      #   1. heroku run rake security:encrypt_plaintext_data --app ren0vate
+      #   2. heroku config:set AR_ENCRYPTION_SUPPORT_UNENCRYPTED=false --app ren0vate
+      support_unencrypted = ENV.fetch("AR_ENCRYPTION_SUPPORT_UNENCRYPTED", "true") == "true"
+      config.active_record.encryption.support_unencrypted_data = support_unencrypted
     end
   end
 end

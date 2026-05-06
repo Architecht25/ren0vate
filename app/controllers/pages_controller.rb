@@ -2,7 +2,9 @@ class PagesController < ApplicationController
   include PageTracking  # Ajout du concern de tracking
 
   skip_before_action :authenticate_user!, only: [:home, :flandre, :wallonie, :bruxelles, :select_profile_wallonie, :test_eligibility_wallonie, :estimate_category_wallonie, :select_profile_bruxelles, :test_eligibility_bruxelles, :estimate_category_bruxelles, :legal, :privacy, :terms]
-  skip_before_action :verify_authenticity_token, only: [:select_profile_wallonie, :test_eligibility_wallonie, :estimate_category_wallonie, :select_profile_bruxelles, :test_eligibility_bruxelles, :estimate_category_bruxelles]
+  # Ces endpoints publics reçoivent des requêtes Turbo Stream (qui incluent le token CSRF) depuis des pages
+  # non authentifiées. Le skip est justifié : aucune mutation de données en base, résultats purement calculés.
+  skip_before_action :verify_authenticity_token, only: [:select_profile_wallonie, :test_eligibility_wallonie, :estimate_category_wallonie]
 
   def home
     track_page_visit('home', page_type: 'accueil')

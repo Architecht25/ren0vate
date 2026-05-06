@@ -8,6 +8,9 @@ class BordereauChassisOcrService < OcrService
 
   # ── Valeur Uw (coeff global fenêtre) ─────────────────────────────────────────
   UW_PATTERNS = [
+    # Pattern prioritaire : Uw global dans un tableau récapitulatif (ex WinPro/Lemmens)
+    # Cherche une ligne finale de total : "<surface_total_m2> <uw_global>" hors contexte d'un châssis individuel
+    /^\s*\d+[.,]\d+\s+\d+[.,]\d+\s*m[²2]\s+(\d+[.,]\d+)\s*$/m,
     /\bUw\s*[=:≤≥]\s*(\d+[.,]\d+)\s*(?:W\s*[\/\\]?\s*m[²2][.,]?K?)?/i,
     /\bU(?:w|fenêtre|window)\s*[=:]\s*(\d+[.,]\d+)/i,
     /\bvaleur\s+Uw?\s*[=:]\s*(\d+[.,]\d+)/i,
@@ -65,7 +68,8 @@ class BordereauChassisOcrService < OcrService
     Reynaers Technal Schüco Schueco Veka Internorm AGC Velux
     Roto Winkhaus Siegenia Deceuninck Cortizo SAPA Hydro
     Nordan Unilux Jansen Alumil Heroal Aluk
-    Kommerling Trocal Profine
+    Kommerling Kömmerling Trocal Profine
+    Belisol Lemmens Menuiserie Alumil Aliplast
   ].freeze
 
   # ── Patterns surface et unités ───────────────────────────────────────────────
