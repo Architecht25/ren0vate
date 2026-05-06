@@ -64,6 +64,7 @@ class DevisAvancementService
       headers: {
         'x-api-key'         => @api_key,
         'anthropic-version' => ANTHROPIC_VERSION,
+        'anthropic-beta'    => 'prompt-caching-2024-07-31',
         'content-type'      => 'application/json'
       },
       body: {
@@ -90,9 +91,11 @@ class DevisAvancementService
   def system_prompt
     thematiques_list = THEMATIQUES.map { |t| "  - #{t[:code]} : #{t[:label]}" }.join("\n")
 
-    <<~PROMPT
-      Tu es un expert en gestion de chantier et en états d'avancement (bordereaux de paiement)
-      pour la construction et la rénovation résidentielle en Belgique.
+    [{
+      type: 'text',
+      text: <<~PROMPT,
+        Tu es un expert en gestion de chantier et en états d'avancement (bordereaux de paiement)
+        pour la construction et la rénovation résidentielle en Belgique.
 
       Ton rôle est d'analyser le texte brut d'un devis d'entrepreneur ou d'un métré d'architecte
       et de proposer une architecture structurée d'état d'avancement.
@@ -146,6 +149,8 @@ class DevisAvancementService
       }
       Ne renvoie QUE le JSON, sans texte avant ni après.
     PROMPT
+      cache_control: { type: 'ephemeral' }
+    }]
   end
 
   # ── Prompt utilisateur ───────────────────────────────────────────────────────

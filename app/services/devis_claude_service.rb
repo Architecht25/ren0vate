@@ -86,6 +86,7 @@ class DevisClaudeService < OcrService
       headers: {
         'x-api-key'         => api_key,
         'anthropic-version' => ANTHROPIC_VERSION,
+        'anthropic-beta'    => 'prompt-caching-2024-07-31',
         'content-type'      => 'application/json'
       },
       body: {
@@ -116,9 +117,11 @@ class DevisClaudeService < OcrService
   def system_prompt
     types_liste = TYPES_TRAVAUX_VALIDES.join(', ')
 
-    <<~PROMPT
-      Tu es un expert en marchés de travaux de rénovation résidentielle en Belgique.
-      Tu analyses des devis d'entrepreneurs, métrés de travaux et contrats/devis d'architectes.
+    [{
+      type: 'text',
+      text: <<~PROMPT,
+        Tu es un expert en marchés de travaux de rénovation résidentielle en Belgique.
+        Tu analyses des devis d'entrepreneurs, métrés de travaux et contrats/devis d'architectes.
 
       RÈGLES D'EXTRACTION :
 
@@ -171,6 +174,8 @@ class DevisClaudeService < OcrService
         "confiance": entier 0-100
       }
     PROMPT
+      cache_control: { type: 'ephemeral' }
+    }]
   end
 
   # ── Parsing réponse Claude ───────────────────────────────────────────────────

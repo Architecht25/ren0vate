@@ -84,6 +84,7 @@ class ContextualBotService
       headers: {
         'x-api-key'         => @api_key,
         'anthropic-version' => ANTHROPIC_VERSION,
+        'anthropic-beta'    => 'prompt-caching-2024-07-31',
         'content-type'      => 'application/json'
       },
       body: {
@@ -127,38 +128,58 @@ class ContextualBotService
 
   # ─── Prompt système ─────────────────────────────────────────────────────────
 
+  # Retourne un Array de blocs system pour l'API Anthropic.
+  # Bloc 1 (cache_control: ephemeral) : instructions statiques identiques pour tous.
+  # Bloc 2 : contexte dynamique propre à la session (utilisateur, bien, page, mode).
+  # Dans une conversation multi-tours, le système est mis en cache
+  # entre les turns successifs (TTL 5 min) → réduction de coût jusqu'à 90%.
   def build_system_prompt(mode, current_page)
-    user_ctx = build_user_context
+    user_ctx     = build_user_context
     property_ctx = @property ? "Bien focal : #{@property.titre.presence || @property.full_address} (#{@property.region&.capitalize})" : "Aucun bien sélectionné"
 
-    base = <<~PROMPT
-      Tu es l'assistant IA de Ren0vate, expert en primes énergétiques belges (Wallonie, Bruxelles, Flandre).
-      Tu as une mémoire complète de la conversation en cours — utilise-la pour des réponses personnalisées et cohérentes.
-
-      CONTEXTE ACTIF : #{property_ctx}
-
-      DONNÉES COMPLÈTES DU DOSSIER :
-      #{user_ctx}
-
-      PAGE ACTUELLE DE L'APP : #{current_page}
-
-      RÈGLES ABSOLUES :
-      - Réponds toujours en français (sauf si l'utilisateur écrit en néerlandais → réponds en néerlandais)
-      - Utilise les données réelles ci-dessus — ne généralise pas quand la donnée est disponible
-      - Si une donnée manque (N/A), signale-le et suggère comment la compléter dans l'app
-      - Format markdown avec émojis thématiques
-      - Sois concret, actionnable, précis
-      - Maximum 500 mots par réponse
-      - Toujours indiquer la région pour les montants de primes
-      - Terminologie belge : "entrepreneur agréé", "avertissement-extrait de rôle", "primes énergétiques"
-      - Pour les délais de factures (date_limite_prime), signale toujours l'urgence si < 60 jours
-    PROMPT
-
-    if mode == 'guide'
-      base + "\nMODE GUIDE : Accompagne l'utilisateur pas \u00e0 pas sur la page '#{current_page}'.\nSi un chantier est mentionn\u00e9 dans le contexte, commence par \"Vous \u00eates en phase [PHASE_ACTIVE]. Voici les 3 choses \u00e0 faire maintenant :\" puis liste les prochaines actions concrètes. La progression est un guidage, jamais une contrainte : l'utilisateur peut toujours revenir en arri\u00e8re."
+    mode_instruction = if mode == 'guide'
+      "MODE GUIDE : Accompagne l'utilisateur pas à pas sur la page '#{current_page}'.\nSi un chantier est mentionné dans le contexte, commence par \"Vous êtes en phase [PHASE_ACTIVE]. Voici les 3 choses à faire maintenant :\" puis liste les prochaines actions concrètes. La progression est un guidage, jamais une contrainte : l'utilisateur peut toujours revenir en arrière."
     else
-      base + "\nMODE EXPERT : Analyse financi\u00e8re compl\u00e8te, strat\u00e9gie d'optimisation maximale des primes, risques et pi\u00e8ges.\nSi un chantier figure dans le contexte, mentionne syst\u00e9matiquement la phase active et les actions prioritaires pour maximiser l'\u00e9ligibilit\u00e9 aux primes."
+      "MODE EXPERT : Analyse financière complète, stratégie d'optimisation maximale des primes, risques et pièges.\nSi un chantier figure dans le contexte, mentionne systématiquement la phase active et les actions prioritaires pour maximiser l'éligibilité aux primes."
     end
+
+    # ── Bloc statique — mis en cache Anthropic (TTL 5 min) ─────────────────
+    static_block = {
+      type: 'text',
+      text: <<~INSTRUCTIONS,
+        Tu es l'assistant IA de Ren0vate, expert en primes énergétiques belges (Wallonie, Bruxelles, Flandre).
+        Tu as une mémoire complète de la conversation en cours — utilise-la pour des réponses personnalisées et cohérentes.
+
+        RÈGLES ABSOLUES :
+        - Réponds toujours en français (sauf si l'utilisateur écrit en néerlandais → réponds en néerlandais)
+        - Utilise les données réelles fournies ci-dessous — ne généralise pas quand la donnée est disponible
+        - Si une donnée manque (N/A), signale-le et suggère comment la compléter dans l'app
+        - Format markdown avec émojis thématiques
+        - Sois concret, actionnable, précis
+        - Maximum 500 mots par réponse
+        - Toujours indiquer la région pour les montants de primes
+        - Terminologie belge : "entrepreneur agréé", "avertissement-extrait de rôle", "primes énergétiques"
+        - Pour les délais de factures (date_limite_prime), signale toujours l'urgence si < 60 jours
+      INSTRUCTIONS
+      cache_control: { type: 'ephemeral' }
+    }
+
+    # ── Bloc dynamique — contexte utilisateur (spécifique à la session) ────
+    dynamic_block = {
+      type: 'text',
+      text: <<~CTX
+        CONTEXTE ACTIF : #{property_ctx}
+
+        DONNÉES COMPLÈTES DU DOSSIER :
+        #{user_ctx}
+
+        PAGE ACTUELLE DE L'APP : #{current_page}
+
+        #{mode_instruction}
+      CTX
+    }
+
+    [static_block, dynamic_block]
   end
 
   def build_user_context

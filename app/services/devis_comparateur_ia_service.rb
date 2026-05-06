@@ -40,6 +40,7 @@ class DevisComparateurIaService
       headers: {
         'x-api-key'         => api_key,
         'anthropic-version' => ANTHROPIC_VERSION,
+        'anthropic-beta'    => 'prompt-caching-2024-07-31',
         'content-type'      => 'application/json'
       },
       body: {
@@ -112,10 +113,12 @@ class DevisComparateurIaService
   end
 
   def system_prompt
-    <<~PROMPT
-      Tu es un expert belge en marchés de travaux de rénovation résidentielle.
-      Tu aides des particuliers à comparer des devis d'entrepreneurs.
-      Sois direct, pratique et concis. Réponds en français.
+    [{
+      type: 'text',
+      text: <<~PROMPT,
+        Tu es un expert belge en marchés de travaux de rénovation résidentielle.
+        Tu aides des particuliers à comparer des devis d'entrepreneurs.
+        Sois direct, pratique et concis. Réponds en français.
 
       Analyse les devis fournis et réponds UNIQUEMENT avec un objet JSON valide :
       {
@@ -130,6 +133,8 @@ class DevisComparateurIaService
       Pour "points_attention" : max 4 points, focus sur postes manquants, validités expirées, BCE absent, écarts de TVA.
       Pour "conseils_negociation" : max 3 conseils concrets à donner au client.
     PROMPT
+      cache_control: { type: 'ephemeral' }
+    }]
   end
 
   def parse_response(raw)

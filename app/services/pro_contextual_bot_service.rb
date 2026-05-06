@@ -97,36 +97,54 @@ class ProContextualBotService
 
   # ─── Prompt système ──────────────────────────────────────────────────────────
 
+  # Retourne un Array de blocs system pour l'API Anthropic.
+  # Bloc 1 (cache_control: ephemeral) : instructions statiques identiques par rôle.
+  # Bloc 2 : contexte dynamique (projet ou portfolio, mode).
   def build_system_prompt(mode)
     role_label = { architecte: 'architecte', entrepreneur: 'entrepreneur en construction', intermediaire: 'intermédiaire / conseiller en rénovation' }[@pro_role]
     context    = @project ? build_project_context : build_portfolio_context
 
-    base = <<~PROMPT
-      Tu es l'assistant IA Ren0vate, spécialisé pour un #{role_label}.
-      Tu as une mémoire complète de la conversation — utilise-la pour des réponses cohérentes et personnalisées.
-
-      RÔLE PROFESSIONNEL : #{role_label.upcase}
-      CABINET / ENTREPRISE : #{@user.nom_cabinet.presence || @user.first_name}
-
-      DONNÉES DE TON PÉRIMÈTRE :
-      #{context}
-
-      RÈGLES ABSOLUES :
-      - Réponds en français (ou en néerlandais si l'utilisateur écrit en néerlandais)
-      - Tu ne vois QUE les données de ton périmètre — ne spécule pas sur d'autres intervenants
-      - Si une donnée manque, signale-le et suggère où la renseigner dans l'app
-      - Format markdown avec émojis thématiques
-      - Sois concret et actionnable
-      - Maximum 500 mots par réponse
-      - Terminologie belge : "entrepreneur agréé", "PV de réception", "primes énergétiques", "avertissement-extrait de rôle"
-      - Pour les délais de primes ou de paiement, signale toujours l'urgence si < 60 jours
-    PROMPT
-
-    if mode == 'guide'
-      base + "\nMODE GUIDE : Accompagne pas à pas, questions courtes et précises."
+    mode_instruction = if mode == 'guide'
+      "MODE GUIDE : Accompagne pas à pas, questions courtes et précises."
     else
-      base + "\nMODE EXPERT : Analyse approfondie, stratégie optimale, risques et opportunités."
+      "MODE EXPERT : Analyse approfondie, stratégie optimale, risques et opportunités."
     end
+
+    # ── Bloc statique — mis en cache Anthropic (TTL 5 min) ─────────────────
+    static_block = {
+      type: 'text',
+      text: <<~INSTRUCTIONS,
+        Tu es l'assistant IA Ren0vate, spécialisé pour les professionnels du bâtiment.
+        Tu as une mémoire complète de la conversation — utilise-la pour des réponses cohérentes et personnalisées.
+
+        RÈGLES ABSOLUES :
+        - Réponds en français (ou en néerlandais si l'utilisateur écrit en néerlandais)
+        - Tu ne vois QUE les données de ton périmètre — ne spécule pas sur d'autres intervenants
+        - Si une donnée manque, signale-le et suggère où la renseigner dans l'app
+        - Format markdown avec émojis thématiques
+        - Sois concret et actionnable
+        - Maximum 500 mots par réponse
+        - Terminologie belge : "entrepreneur agréé", "PV de réception", "primes énergétiques", "avertissement-extrait de rôle"
+        - Pour les délais de primes ou de paiement, signale toujours l'urgence si < 60 jours
+      INSTRUCTIONS
+      cache_control: { type: 'ephemeral' }
+    }
+
+    # ── Bloc dynamique — rôle, contexte, mode (spécifique à la session) ────
+    dynamic_block = {
+      type: 'text',
+      text: <<~CTX
+        RÔLE PROFESSIONNEL : #{role_label.upcase}
+        CABINET / ENTREPRISE : #{@user.nom_cabinet.presence || @user.first_name}
+
+        DONNÉES DE TON PÉRIMÈTRE :
+        #{context}
+
+        #{mode_instruction}
+      CTX
+    }
+
+    [static_block, dynamic_block]
   end
 
   # ─── Contexte : vue d'un seul projet ─────────────────────────────────────────
@@ -392,6 +410,7 @@ class ProContextualBotService
       headers: {
         'x-api-key'         => @api_key,
         'anthropic-version' => ANTHROPIC_VERSION,
+        'anthropic-beta'    => 'prompt-caching-2024-07-31',
         'content-type'      => 'application/json'
       },
       body: {

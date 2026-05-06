@@ -23,7 +23,8 @@ Rails.application.routes.draw do
       sign_out: 'deconnexion',
       sign_up: 'inscription'
     }, controllers: {
-      sessions: 'users/sessions'
+      sessions: 'users/sessions',
+      registrations: 'users/registrations'
     }
 
     root "pages#home"

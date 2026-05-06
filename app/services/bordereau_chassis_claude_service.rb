@@ -76,6 +76,7 @@ class BordereauChassisClaudeService < OcrService
       headers: {
         'x-api-key'         => api_key,
         'anthropic-version' => ANTHROPIC_VERSION,
+        'anthropic-beta'    => 'prompt-caching-2024-07-31',
         'content-type'      => 'application/json'
       },
       body: {
@@ -104,9 +105,11 @@ class BordereauChassisClaudeService < OcrService
   # ── Prompt système ────────────────────────────────────────────────────────────
 
   def system_prompt
-    <<~PROMPT
-      Tu es un expert en menuiserie extérieure et en primes énergie belges.
-      Tu analyses des devis et bordereaux de commande châssis/fenêtres et extrais les données techniques clés.
+    [{
+      type: 'text',
+      text: <<~PROMPT,
+        Tu es un expert en menuiserie extérieure et en primes énergie belges.
+        Tu analyses des devis et bordereaux de commande châssis/fenêtres et extrais les données techniques clés.
 
       RÈGLES IMPORTANTES :
       - Pour "valeur_uw" : retourne la valeur Uw GLOBALE/MOYENNE PONDÉRÉE du projet, pas la valeur d'un châssis individuel.
@@ -149,7 +152,8 @@ class BordereauChassisClaudeService < OcrService
         "confiance": entier 0-100
       }
     PROMPT
-  end
+      cache_control: { type: 'ephemeral' }
+    }]  end
 
   # ── Parsing réponse Claude ───────────────────────────────────────────────────
 

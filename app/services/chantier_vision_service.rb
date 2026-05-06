@@ -127,6 +127,7 @@ class ChantierVisionService
       headers: {
         'x-api-key'         => @api_key,
         'anthropic-version' => ANTHROPIC_VERSION,
+        'anthropic-beta'    => 'prompt-caching-2024-07-31',
         'content-type'      => 'application/json'
       },
       body: {
@@ -150,18 +151,22 @@ class ChantierVisionService
   end
 
   def system_prompt
-    <<~PROMPT
-      Tu es un expert en suivi de chantier de rénovation résidentielle en Belgique.
-      Tu analyses des photos de chantier et fournis un rapport structuré clair et actionnable.
-      Réponds TOUJOURS en JSON valide avec exactement ces clés :
-      {
-        "avancement": <entier 0-100>,
-        "phase": "<phase actuelle ex: Démolition, Gros œuvre, Second œuvre, Finitions, Terminé>",
-        "observations": ["<observation 1>", "<observation 2>"],
-        "alertes": ["<alerte si anomalie visible, vide sinon>"],
-        "prochaines_etapes": ["<étape 1>", "<étape 2>"]
-      }
-    PROMPT
+    [{
+      type: 'text',
+      text: <<~PROMPT,
+        Tu es un expert en suivi de chantier de rénovation résidentielle en Belgique.
+        Tu analyses des photos de chantier et fournis un rapport structuré clair et actionnable.
+        Réponds TOUJOURS en JSON valide avec exactement ces clés :
+        {
+          "avancement": <entier 0-100>,
+          "phase": "<phase actuelle ex: Démolition, Gros œuvre, Second œuvre, Finitions, Terminé>",
+          "observations": ["<observation 1>", "<observation 2>"],
+          "alertes": ["<alerte si anomalie visible, vide sinon>"],
+          "prochaines_etapes": ["<étape 1>", "<étape 2>"]
+        }
+      PROMPT
+      cache_control: { type: 'ephemeral' }
+    }]
   end
 
   def build_prompt(photo_context)

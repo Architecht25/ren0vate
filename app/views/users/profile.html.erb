@@ -323,14 +323,22 @@
                 </div>
               </div>
 
-              <!-- Zone d'info AER (masquée par défaut) -->
-              <div id="aer-info-banner" class="d-none mx-4 mb-0">
+              <!-- Zone d'info AER (toujours visible) -->
+              <div id="aer-info-banner" class="mx-4 mb-0">
                 <div class="alert alert-warning border-0 rounded-3 py-2 mb-0">
                   <div class="d-flex align-items-start gap-2">
                     <i class="bi bi-lightbulb-fill text-warning mt-1 flex-shrink-0"></i>
-                    <div class="small">
-                      <strong>Qu'est-ce que l'AER ?</strong> L'Avertissement-Extrait de Rôle est le document fiscal que le SPF Finances vous envoie chaque année. Il récapitule votre imposition et mentionne vos <strong>revenus nets imposables globalement</strong> — la donnée clé pour le calcul des primes et prêts rénovation. Vous le trouverez aussi sur <a href="https://www.myminfin.be" target="_blank" rel="noopener" class="text-warning fw-medium">MyMinfin.be</a>.
-                      <br><em class="text-muted">Formats acceptés : PDF, JPEG, PNG (max 10 MB).</em>
+                    <div class="small flex-grow-1">
+                      <strong>Qu'est-ce que l'AER ?</strong> L'<strong>Avertissement-Extrait de Rôle</strong> est le document fiscal annuel du SPF Finances. Il mentionne vos <strong>revenus nets imposables globalement</strong> (ligne 1250/2250) — la donnée clé pour le calcul des primes rénovation.
+                      <div class="d-flex flex-wrap gap-2 mt-2">
+                        <a href="https://www.minfin.fgov.be/myminfin-web/pages/public" target="_blank" rel="noopener noreferrer" class="btn btn-warning btn-sm rounded-3 py-1 px-3 fw-medium">
+                          <i class="bi bi-box-arrow-up-right me-1"></i>Accéder à MyMinfin
+                        </a>
+                        <button type="button" class="btn btn-outline-warning btn-sm rounded-3 py-1 px-3" data-bs-toggle="modal" data-bs-target="#aerGuideModal">
+                          <i class="bi bi-image me-1"></i>Où trouver mon revenu imposable ?
+                        </button>
+                      </div>
+                      <div class="mt-1"><em class="text-muted">Formats acceptés pour le scan : PDF, JPEG, PNG (max 10 MB).</em></div>
                     </div>
                   </div>
                 </div>
@@ -355,7 +363,15 @@
                       <h6 class="text-dark mb-3">
                         <i class="bi bi-person-check me-2 text-warning"></i>Vos revenus
                       </h6>
-                      <label class="form-label text-dark fw-medium mb-1">Revenus Imposables Globalement</label>
+                      <label class="form-label text-dark fw-medium mb-1">
+                        Revenus Imposables Globalement
+                        <button type="button" class="btn btn-link p-0 ms-1 text-muted" style="font-size: 0.8rem; vertical-align: middle;"
+                          data-bs-toggle="popover" data-bs-placement="top" data-bs-trigger="focus"
+                          data-bs-title="Revenu imposable globalement"
+                          data-bs-content="C'est le total de vos revenus (salaire, remplacement, immobilier) après déductions fiscales, avant impôt. Sur votre AER : section 'Calcul de l'impôt', ligne 1250. Sur MyMinfin : onglet 'Mes données fiscales' → Revenus.">
+                          <i class="bi bi-question-circle-fill"></i>
+                        </button>
+                      </label>
                       <div class="row g-2">
                         <div class="col-8">
                           <%= f.number_field :revenu_demandeur,
@@ -384,7 +400,15 @@
                       <h6 class="text-dark mb-3">
                         <i class="bi bi-people me-2 text-warning"></i>Revenus du conjoint
                       </h6>
-                      <label class="form-label text-dark fw-medium mb-1">Revenus Imposables Globalement</label>
+                      <label class="form-label text-dark fw-medium mb-1">
+                        Revenus Imposables Globalement
+                        <button type="button" class="btn btn-link p-0 ms-1 text-muted" style="font-size: 0.8rem; vertical-align: middle;"
+                          data-bs-toggle="popover" data-bs-placement="top" data-bs-trigger="focus"
+                          data-bs-title="Revenu imposable globalement — conjoint"
+                          data-bs-content="Le revenu de votre partenaire ou conjoint. Sur l'AER commun : ligne 2250. Chaque conjoint a sa propre colonne sur le document. Sur MyMinfin, consultez les données fiscales du foyer.">
+                          <i class="bi bi-question-circle-fill"></i>
+                        </button>
+                      </label>
                       <div class="mb-2">
                         <small class="text-muted">Si vous êtes en couple</small>
                       </div>
@@ -712,10 +736,17 @@
               </div>
               <div class="card-body px-4 py-3">
                 <div class="d-grid gap-2">
-                  <button type="button" class="btn btn-outline-success rounded-3 py-2" disabled>
-                    <i class="bi bi-stripe me-2"></i>Configurer Stripe
-                    <small class="d-block text-muted mt-1">Bientôt disponible</small>
-                  </button>
+                  <% if current_user.has_active_subscription? %>
+                    <%= button_to pricing_portal_path, method: :post, class: "btn btn-outline-success rounded-3 py-2", data: { turbo: false } do %>
+                      <i class="bi bi-credit-card me-2"></i>Gérer mon abonnement
+                      <small class="d-block text-muted mt-1">Factures, carte, résiliation</small>
+                    <% end %>
+                  <% else %>
+                    <%= link_to pricing_select_path, class: "btn btn-outline-success rounded-3 py-2" do %>
+                      <i class="bi bi-arrow-up-circle me-2"></i>Passer à un abonnement
+                      <small class="d-block text-muted mt-1">Découvrez nos offres</small>
+                    <% end %>
+                  <% end %>
                   <button type="button" class="btn btn-outline-info rounded-3 py-2" disabled>
                     <i class="bi bi-receipt me-2"></i>Historique des paiements
                     <small class="d-block text-muted mt-1">Bientôt disponible</small>
@@ -733,6 +764,14 @@
 </div>
 
 <!-- CSS personnalisé pour le design professionnel -->
+<script>
+  document.addEventListener('turbo:load', function() {
+    // Initialiser les popovers Bootstrap (revenus imposables)
+    document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function(el) {
+      new bootstrap.Popover(el, { html: false, sanitize: true });
+    });
+  });
+</script>
 <style>
   .form-control:focus, .form-select:focus {
     border-color: #0d6efd !important;
@@ -761,6 +800,92 @@
 </style>
 
 <!-- Modal Supprimer compte avec design moderne -->
+<!-- Modal guide AER -->
+<div class="modal fade" id="aerGuideModal" tabindex="-1" aria-labelledby="aerGuideModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-normal" id="aerGuideModalLabel">
+          <i class="bi bi-file-earmark-ruled me-2 text-warning"></i>Où trouver mon revenu imposable sur l'AER ?
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body px-4 py-3">
+
+        <!-- Étape 1 : Obtenir le document -->
+        <div class="mb-4">
+          <h6 class="fw-medium text-dark mb-2"><span class="badge bg-warning text-dark me-2">1</span>Obtenir votre AER</h6>
+          <div class="row g-2">
+            <div class="col-md-6">
+              <div class="bg-light rounded-3 p-3 h-100">
+                <div class="fw-medium text-dark mb-1"><i class="bi bi-envelope me-2 text-warning"></i>Par courrier</div>
+                <p class="small text-muted mb-0">Le SPF Finances vous l'envoie chaque automne (octobre–novembre) pour les revenus de l'année précédente.</p>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="bg-light rounded-3 p-3 h-100">
+                <div class="fw-medium text-dark mb-1"><i class="bi bi-globe me-2 text-warning"></i>En ligne sur MyMinfin</div>
+                <p class="small text-muted mb-2">Tous vos AER des dernières années sont disponibles immédiatement.</p>
+                <a href="https://www.minfin.fgov.be/myminfin-web/pages/public" target="_blank" rel="noopener noreferrer" class="btn btn-warning btn-sm rounded-3">
+                  <i class="bi bi-box-arrow-up-right me-1"></i>Ouvrir MyMinfin
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Étape 2 : Trouver la bonne ligne -->
+        <div class="mb-4">
+          <h6 class="fw-medium text-dark mb-2"><span class="badge bg-warning text-dark me-2">2</span>Repérer votre revenu imposable sur le document</h6>
+          <div class="alert alert-warning border-0 rounded-3">
+            <p class="small mb-2">Dans le tableau <strong>«&nbsp;Calcul de l'impôt des personnes physiques&nbsp;»</strong> (généralement en page 2 ou 3), repérez la ligne intitulée :</p>
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+              <div class="bg-white rounded-3 px-3 py-2 border border-warning">
+                <div class="small text-muted">Par contribuable (vous, ou vous + partenaire)</div>
+                <div class="fw-bold text-dark">Revenus nets <span class="text-warning">globalement imposables</span></div>
+              </div>
+            </div>
+            <p class="small text-muted mt-2 mb-0">Si votre ménage est imposé ensemble, l'AER affiche deux colonnes — une par personne. Prenez le montant de la colonne qui vous correspond.</p>
+          </div>
+        </div>
+
+        <!-- Étape 3 : Ce que c'est -->
+        <div>
+          <h6 class="fw-medium text-dark mb-2"><span class="badge bg-warning text-dark me-2">3</span>Ce que ce chiffre représente</h6>
+          <p class="small text-muted mb-2">C'est le montant final que le SPF Finances a retenu comme base de calcul de l'impôt — vos revenus bruts <strong>après déduction des frais professionnels et charges</strong>, tel que récapitulé sur votre AER. C'est ce chiffre que les régions utilisent pour déterminer votre éligibilité aux primes majorées.</p>
+          <div class="row g-2 text-center">
+            <div class="col-md-4">
+              <div class="bg-light rounded-3 p-2">
+                <div class="small fw-medium text-dark">Wallonie</div>
+                <div class="small text-muted">Seuils modestes / moyens basés sur ce montant</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="bg-light rounded-3 p-2">
+                <div class="small fw-medium text-dark">Flandre (Mijn VerbouwPremie)</div>
+                <div class="small text-muted">Calcul du taux de prime (30%, 40%, 50%)</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="bg-light rounded-3 p-2">
+                <div class="small fw-medium text-dark">Prêts à taux zéro</div>
+                <div class="small text-muted">Condition d'accès au prêt rénovation</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">Fermer</button>
+        <a href="https://www.minfin.fgov.be/myminfin-web/pages/public" target="_blank" rel="noopener noreferrer" class="btn btn-warning rounded-3">
+          <i class="bi bi-box-arrow-up-right me-1"></i>Accéder à MyMinfin
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow-lg rounded-4">
@@ -791,13 +916,10 @@
           <p class="text-muted mb-3">
             <strong>Êtes-vous absolument certain de vouloir continuer ?</strong>
           </p>
-          <%= link_to cancel_user_registration_path,
+          <%= button_to user_registration_path,
+              method: :delete,
               class: "btn btn-danger btn-lg rounded-3 px-4",
-              method: :get,
-              data: {
-                confirm: "⚠️ DERNIÈRE CONFIRMATION ⚠️\n\nVous êtes sur le point de supprimer définitivement votre compte.\n\nCette action ne peut PAS être annulée.\n\nTapez 'SUPPRIMER' pour confirmer définitivement :",
-                turbo_confirm: "SUPPRIMER"
-              } do %>
+              data: { turbo_confirm: "Supprimer définitivement mon compte et toutes mes données ? Cette action est irréversible.", turbo: false } do %>
             <i class="bi bi-person-x me-2"></i>Oui, supprimer mon compte définitivement
           <% end %>
         </div>

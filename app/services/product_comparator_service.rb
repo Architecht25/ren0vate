@@ -244,11 +244,17 @@ class ProductComparatorService
       headers: {
         'Content-Type'    => 'application/json',
         'x-api-key'       => @api_key,
-        'anthropic-version' => ANTHROPIC_VERSION
+        'anthropic-version' => ANTHROPIC_VERSION,
+        'anthropic-beta'  => 'prompt-caching-2024-07-31'
       },
       body: {
         model:      MODEL,
         max_tokens: 200,
+        system: [{
+          type: 'text',
+          text: "Tu es expert en rénovation énergétique belge. Réponds en français, maximum 80 mots, ton direct et rassurant.",
+          cache_control: { type: 'ephemeral' }
+        }],
         messages:   [{ role: 'user', content: prompt }]
       }.to_json,
       timeout: 15

@@ -270,11 +270,17 @@ class ProjectHealthScoreService
       headers: {
         'Content-Type'        => 'application/json',
         'x-api-key'           => @api_key,
-        'anthropic-version'   => ANTHROPIC_VERSION
+        'anthropic-version'   => ANTHROPIC_VERSION,
+        'anthropic-beta'      => 'prompt-caching-2024-07-31'
       },
       body: {
-        model: MODEL,
+        model:      MODEL,
         max_tokens: MAX_TOKENS,
+        system: [{
+          type: 'text',
+          text: "Tu es un expert en gestion de chantiers de rénovation belge.",
+          cache_control: { type: 'ephemeral' }
+        }],
         messages: [{ role: 'user', content: prompt }]
       }.to_json,
       timeout: 15
@@ -303,7 +309,6 @@ class ProjectHealthScoreService
     end.join("\n")
 
     <<~PROMPT
-      Tu es un expert en gestion de chantiers de rénovation belge.
       Voici le score santé d'un projet de rénovation :
 
       Contexte : #{project_context}
