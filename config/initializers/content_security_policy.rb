@@ -45,7 +45,8 @@ Rails.application.configure do
                            "https://cdn.jsdelivr.net",
                            "https://cdnjs.cloudflare.com",
                            "https://unpkg.com",
-                           "https://api.mapbox.com"
+                           "https://api.mapbox.com",
+                           "https://plausible.io"
 
     policy.script_src_attr "'unsafe-inline'" # Pour les event handlers onclick, onload, etc. dans les attributs
 
@@ -77,7 +78,8 @@ Rails.application.configure do
                        "https://www.premiezoeker.be",      # API primes communales
                        "https://api.mapbox.com",           # API Mapbox pour tiles et géocodage
                        "https://events.mapbox.com",        # Télémétrie Mapbox
-                       "https://*.tiles.mapbox.com"        # Tiles Mapbox
+                       "https://*.tiles.mapbox.com",       # Tiles Mapbox
+                       "https://plausible.io"              # Plausible Analytics hits
 
     # Medias : sources locales + Cloudinary si utilisé pour vidéos
     policy.media_src   :self,

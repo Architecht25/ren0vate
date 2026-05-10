@@ -7,6 +7,7 @@ class PvReception < ApplicationRecord
   validate  :date_reception_coherente
 
   before_create :generate_tokens
+  before_destroy :prevent_deletion_during_legal_hold
 
   # ── Scopes ──────────────────────────────────────────────────────────────────
   scope :finalises, -> { where(statut: "finalise") }
@@ -74,7 +75,7 @@ class PvReception < ApplicationRecord
   # ── Finalisation auto après dernière signature ───────────────────────────────
   def check_and_finalise!
     if toutes_signatures_recues? && !finalise?
-      update!(statut: "finalise")
+      update!(statut: "finalise", legal_archive_until: Date.today + 10.years)
     end
   end
 
@@ -145,6 +146,16 @@ class PvReception < ApplicationRecord
     return unless date_reception.present? && project&.date_début.present?
     if date_reception < project.date_début
       errors.add(:date_reception, "ne peut pas être antérieure au début du chantier")
+    end
+  end
+
+  # Archivage légal 10 ans (garantie décennale) — art. 1792 C.civ.
+  # Empêche la suppression d'un PV finalisé encore sous obligation légale d'archivage.
+  def prevent_deletion_during_legal_hold
+    if finalise? && legal_archive_until.present? && legal_archive_until > Date.today
+      errors.add(:base, "Ce PV de réception est archivé légalement jusqu'au #{legal_archive_until.strftime('%d/%m/%Y')} " \
+                        "(garantie décennale). Il ne peut pas être supprimé.")
+      throw :abort
     end
   end
 end

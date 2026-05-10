@@ -26,10 +26,18 @@ class ApplicationController < ActionController::Base
   before_action :set_locale
   around_action :switch_locale
 
+  # Sentry — identifier l'utilisateur connecté dans les rapports d'erreur
+  before_action :set_sentry_user
+
   # Headers de sécurité
   before_action :set_security_headers
 
   private
+
+  def set_sentry_user
+    return unless user_signed_in?
+    Sentry.set_user(id: current_user.id, email: current_user.email, role: current_user.role)
+  end
 
   def set_locale
     # 1. Paramètre URL (?locale=nl)

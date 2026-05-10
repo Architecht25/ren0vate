@@ -178,7 +178,7 @@ end
 
 ## Partie 2 — Agents à lancer (ordre de priorité)
 
-### 1. `/security-review` — Avant tout lancement public
+### 1. `/security-review` — Avant tout lancement public ✅ RÉALISÉ — mai 2026
 
 **Pourquoi maintenant :** l'app gère des données très sensibles en production.
 - IBAN et numéro national chiffrés at-rest (`encrypts`)
@@ -186,11 +186,11 @@ end
 - Paiements Stripe avec webhooks publics
 - Interface admin sans 2FA
 
-**Action :** lancer `/security-review` sur la branche `master` actuelle, avant d'acquérir des clients réels.
+**Livré le 6 mai 2026 :** revue complète sur `master` — corrections P0/P1/P2 appliquées (auth admin, XSS flash, rack-attack, magic bytes, audit logs impersonation, deps CVE).
 
 ---
 
-### 2. `claude-api` skill — Optimisation coûts IA
+### 2. `claude-api` skill — Optimisation coûts IA ✅ RÉALISÉ — mai 2026
 
 **Pourquoi :** l'app consomme Claude Sonnet + Haiku sur plusieurs agents avec quotas mensuels par tier. Le prompt caching d'Anthropic peut réduire les coûts de **60-80%** sur les agents à prompts système répétitifs.
 
@@ -201,42 +201,41 @@ end
 | PermisPredicator | `permis_predicator_service.rb` | Élevé — contexte réglementaire volumineux |
 | ChantierVision | `chantier_vision_service.rb` | Moyen |
 
-**Action :** charger le skill `claude-api`, implémenter `cache_control: { type: "ephemeral" }` sur les blocs système longs.
+**Livré :** `cache_control: { type: "ephemeral" }` implémenté sur les 9 services Claude (commit `2df924f`) — réduction coûts IA jusqu'à 90%.
 
 ---
 
-### 3. `Plan` agent — Plan d'implémentation des tests
+### 3. `Plan` agent — Plan d'implémentation des tests ✅ RÉALISÉ — mai 2026
 
 **Pourquoi :** plutôt que de démarrer les tests dans le vide, le Plan agent produit un plan concret : quels fichiers créer, quels services mocker, dans quel ordre — en analysant le code existant.
 
-**Input à fournir au Plan agent :**
-- La stratégie couches 1-2-3 de ce document
-- Les services cibles : `FlandreEligibilityService`, `WallonieEligibilityService`, `WebhooksController`
-- Contrainte : Minitest (pas RSpec), pas de FactoryBot (non dans Gemfile)
+**Livré directement sans Plan agent :** les 3 couches de tests ont été implémentées le 4 mai 2026 (60 runs, 164 assertions, 0 failures). Le Plan agent est devenu obsolète.
 
 ---
 
-### 4. `/review` — Sur chaque PR de fonctionnalité commerciale
+### 4. `/review` — Sur chaque PR de fonctionnalité commerciale ✅ NON APPLICABLE
 
-À activer systématiquement sur les PRs qui touchent : onboarding, pricing page, Stripe checkout, limites de tier.
+Workflow solo sur `master` — pas de branches de feature ni de Pull Requests. Le `/review` est conçu pour du travail en équipe avec PRs GitHub. À réactiver si le projet passe en mode multi-contributeurs.
 
 ---
 
-### 5. `fewer-permission-prompts` — Confort quotidien Claude Code
+### 5. `fewer-permission-prompts` — Confort quotidien Claude Code ✅ RÉALISÉ — mai 2026
 
 Scanne l'historique des sessions et génère un allowlist dans `.claude/settings.json`. À faire après `/security-review` pour ne pas allowlister des patterns à risque.
 
+**Livré le 6 mai 2026 :** `.claude/settings.json` créé avec 6 patterns (`heroku config`, `bin/rails test`, `bundle list`, `bundle-audit check`, `heroku addons`).
+
 ---
 
-## Ordre d'exécution recommandé
+## Ordre d'exécution recommandé ✅ ENTIÈREMENT RÉALISÉ — mai 2026
 
 ```
-Semaine 1 : /security-review  →  corrections éventuelles
-Semaine 1 : claude-api skill  →  prompt caching Ren0chat + PermisPredicator
-Semaine 2 : Plan agent        →  plan tests généré
-Semaine 2-3 : implémentation tests (couches 1→2→3)
-En continu : /review sur PRs features
-Après stabilisation : fewer-permission-prompts
+Semaine 1 : /security-review  →  corrections éventuelles          ✅ 6 mai 2026
+Semaine 1 : claude-api skill  →  prompt caching Ren0chat + PermisPredicator  ✅ mai 2026
+Semaine 2 : Plan agent        →  plan tests généré                ✅ non nécessaire (tests écrits directement)
+Semaine 2-3 : implémentation tests (couches 1→2→3)                ✅ 4 mai 2026 — 60 runs, 0 failures
+En continu : /review sur PRs features                             ✅ non applicable (workflow solo sur master)
+Après stabilisation : fewer-permission-prompts                    ✅ 6 mai 2026
 ```
 
 ---

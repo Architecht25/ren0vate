@@ -28,6 +28,8 @@ gem "stripe"  # Pour les paiements et abonnements SaaS
 gem "geocoder"  # Pour le géocodage d'adresses
 gem "lograge"   # Structured single-line logs (compatible Papertrail/Datadog)
 gem "rack-attack"  # Rate limiting et protection brute-force
+gem "sentry-ruby"        # Error tracking
+gem "sentry-rails"       # Intégration Rails (breadcrumbs, transactions)
 
 # OCR capabilities
 gem "rtesseract"  # Pour l'OCR avec Tesseract

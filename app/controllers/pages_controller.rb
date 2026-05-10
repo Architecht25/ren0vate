@@ -231,6 +231,10 @@ class PagesController < ApplicationController
     # Conditions générales de vente et d'utilisation
   end
 
+  def dpa
+    # Accord de traitement des données (Data Processing Agreement) — B2B
+  end
+
   private
 
 end

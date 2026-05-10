@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  # Health-check — utilisé par UptimeRobot / load balancers (hors locale, sans auth)
+  get "/up", to: "health#show", as: :health_check
+
   # PWA — manifest et service worker (hors locale scope pour URL propre)
   get "manifest" => "pwa#manifest", as: :pwa_manifest, defaults: { format: :json }
   get "service-worker" => "pwa#service_worker", as: :pwa_service_worker
@@ -486,6 +489,7 @@ Rails.application.routes.draw do
   get    "/profile",          to: redirect("/profil")  # Redirection EN -> FR
   get    "/profil/edition",   to: "users#edit",    as: :edit_profile
   patch  "/profil",           to: "users#update"
+  get    "/profil/mes-donnees", to: "users#export_data", as: :export_user_data, defaults: { format: :json }
 
   get '/flandre', to: 'pages#flandre', as: :flandre
   get '/wallonie', to: 'pages#wallonie', as: :wallonie
@@ -501,6 +505,7 @@ Rails.application.routes.draw do
   get '/mentions-legales', to: 'pages#legal', as: :legal
   get '/politique-de-confidentialite', to: 'pages#privacy', as: :privacy
   get '/conditions-generales', to: 'pages#terms', as: :terms
+  get '/accord-de-traitement-des-donnees', to: 'pages#dpa', as: :dpa
 
   # Routes globales pour les gestionnaires (admin/modérateur)
   # complement_requests sont gérées uniquement via request_progresses (nested)

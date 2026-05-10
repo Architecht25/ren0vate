@@ -124,6 +124,23 @@ namespace :users do
     end
     puts "  #{purged} fichier(s) Cloudinary purgé(s)."
 
+    # ── Archivage légal 10 ans — vérification des PV finalisés ──────────────
+    project_ids = user.projects.pluck(:id)
+    pv_en_archivage = PvReception.where(project_id: project_ids)
+                                  .where(statut: "finalise")
+                                  .where("legal_archive_until > ?", Date.today)
+    if pv_en_archivage.any?
+      puts ""
+      puts "  ⚠️  ATTENTION — PV de réception en archivage légal :"
+      pv_en_archivage.each do |pv|
+        puts "     - PV ##{pv.id} (projet ##{pv.project_id}) archivé jusqu'au #{pv.legal_archive_until.strftime('%d/%m/%Y')} (garantie décennale)"
+      end
+      puts "  La suppression en cascade va supprimer ces projets et PV."
+      puts "  Si vous devez conserver ces PV pour obligation légale, abandonnez cette procédure"
+      puts "  et traitez manuellement les projets concernés avant de relancer."
+      puts ""
+    end
+
     puts "  Suppression du compte en cascade..."
     user.destroy!
 
