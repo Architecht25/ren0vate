@@ -73,6 +73,24 @@
       </div>
     </div>
 
+    <!-- CTA prochaine étape — apparaît dès qu'une prime est sélectionnée -->
+    <div id="cta_communales_brx" style="display:none;" class="mt-2">
+      <hr class="my-2">
+      <p class="small text-muted mb-2"><i class="bi bi-arrow-right-circle me-1"></i><strong>Prochaine étape</strong></p>
+      <div class="d-grid gap-2">
+        <% if @simulation.property_id.present? %>
+        <a href="<%= new_request_path(form_type: 'communal_bruxelles', property_id: @simulation.property_id, simulation_id: @simulation.id) %>"
+           class="btn btn-warning btn-sm fw-semibold">
+          <i class="bi bi-file-earmark-text me-1"></i>Créer ma demande de prime
+        </a>
+        <% end %>
+        <a href="#" id="link_commune_site_brx" target="_blank" rel="noopener noreferrer"
+           class="btn btn-outline-secondary btn-sm" style="display:none;">
+          <i class="bi bi-box-arrow-up-right me-1"></i>Site officiel de la commune
+        </a>
+      </div>
+    </div>
+
   </div>
 </div>
 
@@ -105,112 +123,124 @@
     'bruxelles': {
       nom: 'Bruxelles-Ville',
       primes: [
-        { id: 'brx_facade',      nom: 'Prime rénovation façade',   montant: 5000, desc: "Jusqu'à 75% des travaux de façade" },
-        { id: 'brx_energie',     nom: 'Prime énergie',             montant: 3000, desc: 'Isolation, chauffage écologique' },
-        { id: 'brx_patrimoine',  nom: 'Prime patrimoine',          montant: 2500, desc: 'Conservation éléments remarquables' },
-        { id: 'brx_pmr',         nom: 'Prime accessibilité PMR',   montant: 1500, desc: 'Adaptation logement PMR' },
-        { id: 'brx_commerce',    nom: 'Prime commerce',            montant: 2000, desc: 'Embellissement façade commerciale' }
-      ]
-    },
-    'anderlecht': {
-      nom: 'Anderlecht',
-      primes: [
-        { id: 'and_facade',      nom: 'Prime rénovation façade',   montant: 5000, desc: "Jusqu'à 80% des travaux" },
-        { id: 'and_energie',     nom: 'Prime énergie',             montant: 3000, desc: 'Isolation, chauffage, solaire' },
-        { id: 'and_pmr',         nom: 'Prime accessibilité PMR',   montant: 1500, desc: 'Adaptation PMR' },
-        { id: 'and_embelliss',   nom: 'Prime embellissement',      montant: 1000, desc: 'Espaces verts privés' }
+        { id: 'brx_facade_b',    nom: 'Prime embellissement façade avant', montant: 6000, desc: '40% des travaux, max 6 000 € (50%/10 000 € si façade >10 m — 60%/14 000 € si >20 m) — bâtiment >10 ans' },
+        { id: 'brx_facade_com',  nom: 'Prime façade commerciale',                  montant: 5000, desc: '50% des travaux, max 5 000 € — propriétaire ou locataire commercial' },
+        { id: 'brx_acces_sep',   nom: 'Prime accès séparé',                        montant: 3000, desc: 'Création d’une entrée indépendante vers les étages au-dessus d’un commerce' }
       ]
     },
     'auderghem': {
       nom: 'Auderghem',
       primes: [
-        { id: 'aud_facade',      nom: 'Prime façade',              montant: 3000, desc: 'Rénovation et embellissement' },
-        { id: 'aud_energie',     nom: 'Prime énergie',             montant: 2500, desc: 'Efficacité énergétique' },
-        { id: 'aud_verdur',      nom: 'Prime verdurisation',       montant: 1000, desc: 'Toitures vertes et espaces verts' }
-      ]
-    },
-    'ixelles': {
-      nom: 'Ixelles',
-      primes: [
-        { id: 'ixl_artnouv',     nom: 'Prime façade Art Nouveau',  montant: 4000, desc: 'Conservation patrimoine architectural' },
-        { id: 'ixl_isolation',   nom: 'Prime isolation',           montant: 2500, desc: 'Amélioration énergétique' },
-        { id: 'ixl_verdur',      nom: 'Prime verdurisation',       montant: 1000, desc: 'Création espaces verts' },
-        { id: 'ixl_pmr',         nom: 'Prime accessibilité PMR',   montant: 1500, desc: 'Adaptation PMR' }
+        { id: 'aud_compost', nom: 'Prime compostière', montant: 75, desc: '75% du prix d’achat, max 75 € — une fois par ménage, dans les 4 mois suivant l’achat' }
       ]
     },
     'schaerbeek': {
       nom: 'Schaerbeek',
       primes: [
-        { id: 'sch_embelliss',   nom: 'Prime embellissement façade', montant: 3500, desc: 'Rénovation et peinture' },
-        { id: 'sch_energie',     nom: 'Prime énergie',               montant: 2500, desc: 'Isolation et chauffage' },
-        { id: 'sch_commerce',    nom: 'Prime commerce',              montant: 2000, desc: 'Façades commerciales' },
-        { id: 'sch_verdur',      nom: 'Prime verdurisation',         montant: 1000, desc: 'Espaces verts privés' }
+        { id: 'sch_plantation',  nom: 'Soutien plantation de façade', montant: 150, desc: 'Jardinière + câbles tuteurs installés par la commune' },
+        { id: 'sch_compostiere', nom: 'Prime compostière',            montant: 75,  desc: "Jusqu'à 75% du prix d'achat, max 75 €" },
+        { id: 'sch_velo_elec',   nom: 'Prime vélo électrique',        montant: 250, desc: '250 € (400 € si revenus nets < 25 000 €/an)' }
       ]
     },
     'saint-gilles': {
       nom: 'Saint-Gilles',
       primes: [
-        { id: 'stg_facade',      nom: 'Prime façade',              montant: 3500, desc: 'Rénovation façade' },
-        { id: 'stg_energie',     nom: 'Prime énergie',             montant: 2500, desc: 'Efficacité énergétique' },
-        { id: 'stg_verdur',      nom: 'Prime verdurisation',       montant: 1000, desc: 'Espaces verts' }
+        { id: 'stg_secu_hab',  nom: 'Prime sécurisation habitation', montant: 250, desc: '50% des dépenses anti-intrusion, max 250 € — sur avis conseiller en prévention vol' },
+        { id: 'stg_secu_com',  nom: 'Prime sécurisation commerce',  montant: 400, desc: '50% des frais (alarmes, volets, serrures…), max 400 €' },
+        { id: 'stg_behome',    nom: 'Prime Be Home',                montant: 100, desc: '100 € sur précompte immobilier — propriétaires domiciliés à Saint-Gilles' },
+        { id: 'stg_facade',    nom: 'Prime rénovation façade/toit', montant: 0,   desc: 'Montant variable — travaux façade avant ou toit, occupation domaine public requise' }
       ]
     },
     'etterbeek': {
       nom: 'Etterbeek',
       primes: [
-        { id: 'ett_facade',      nom: 'Prime façade',              montant: 3000, desc: 'Rénovation façade' },
-        { id: 'ett_energie',     nom: 'Prime énergie',             montant: 2000, desc: 'Efficacité énergétique' }
+        { id: 'ett_compostiere',  nom: 'Prime compostière',                montant: 50,   desc: '50% du prix d’achat, max 50 € — une fois par ménage' },
+        { id: 'ett_transition',   nom: 'Subside transition écologique', montant: 1000, desc: 'Projets durables : ASBL, groupes d’habitants (≥3 pers.), écoles' }
       ]
     },
     'uccle': {
       nom: 'Uccle',
       primes: [
-        { id: 'ucc_facade',      nom: 'Prime façade',              montant: 3500, desc: 'Rénovation façade' },
-        { id: 'ucc_energie',     nom: 'Prime énergie',             montant: 2500, desc: 'Efficacité énergétique' },
-        { id: 'ucc_verdur',      nom: 'Prime verdurisation',       montant: 1500, desc: 'Jardin et espaces verts' }
+        { id: 'ucc_mare',      nom: 'Prime mare naturelle',              montant: 150, desc: '50% du prix total, max 150 € (+50 € si entreprise d’économie sociale)' },
+        { id: 'ucc_ces',       nom: 'Prime chauffe-eau solaire',          montant: 500, desc: '500 € (entrepreneur) ou 250 € (travaux soi-même) — cumulable avec primes régionales' },
+        { id: 'ucc_citerne',   nom: 'Prime citerne eau de pluie',        montant: 500, desc: '500 € (entrepreneur) ou 250 € (travaux soi-même) — installation, rénovation ou remise en service' },
+        { id: 'ucc_toiture_v', nom: 'Prime toiture végétale',             montant: 500, desc: '200 € pour 10 m² + 15 €/m² (intensive) ou 10 €/m² (extensive), max 500 € — cumulable avec prime régionale' },
+        { id: 'ucc_infiltr',   nom: 'Prime infiltration eaux de pluie',  montant: 500, desc: '200 € pour 25 m² raccordés + 4 €/m² suppl., max 500 €' }
       ]
     },
-    'forest': {
-      nom: 'Forest',
-      primes: [
-        { id: 'for_facade',      nom: 'Prime façade',              montant: 3000, desc: 'Rénovation façade' },
-        { id: 'for_energie',     nom: 'Prime énergie',             montant: 2000, desc: 'Efficacité énergétique' }
-      ]
-    },
-    'molenbeek': {
-      nom: 'Molenbeek-Saint-Jean',
-      primes: [
-        { id: 'mol_facade',      nom: 'Prime façade',              montant: 3500, desc: 'Rénovation façade' },
-        { id: 'mol_energie',     nom: 'Prime énergie',             montant: 2500, desc: 'Efficacité énergétique' },
-        { id: 'mol_pmr',         nom: 'Prime accessibilité PMR',   montant: 1500, desc: 'Adaptation PMR' }
-      ]
-    },
+
     'woluwe-lambert': {
       nom: 'Woluwe-Saint-Lambert',
       primes: [
-        { id: 'wsl_facade',      nom: 'Prime façade',              montant: 3000, desc: 'Rénovation façade' },
-        { id: 'wsl_energie',     nom: 'Prime énergie',             montant: 2500, desc: 'Efficacité énergétique' },
-        { id: 'wsl_verdur',      nom: 'Prime verdurisation',       montant: 1000, desc: 'Espaces verts' }
+        { id: 'wsl_compost',    nom: 'Fût à compost',                           montant: 50,  desc: '50% du prix d’achat, max 50 € — une fois par ménage' },
+        { id: 'wsl_toiture_v',  nom: 'Toiture verte',                          montant: 250, desc: '250 € pour 10 m² + 10-15 €/m² suppl., max 550 €' },
+        { id: 'wsl_energie',    nom: 'Amélioration énergétique du logement', montant: 500, desc: '20% de la taxe d’occupation du domaine public, max 500 €' },
+        { id: 'wsl_citerne',    nom: 'Citerne d’eau de pluie',               montant: 500, desc: '20% du coût des travaux, max 500 € — cap. min. 2 000 L' },
+        { id: 'wsl_solaire',    nom: 'Chauffe-eau solaire',                    montant: 500, desc: '10% des frais d’installation, max 500 € (5 000 € si collectif)' },
+        { id: 'wsl_mare',       nom: 'Mare naturelle',                         montant: 150, desc: '50% du coût total, max 150 € (+50 € si matériaux durables)' }
       ]
     },
-    'woluwe-pierre': {
-      nom: 'Woluwe-Saint-Pierre',
+    'jette': {
+      nom: 'Jette',
       primes: [
-        { id: 'wsp_facade',      nom: 'Prime façade',              montant: 3000, desc: 'Rénovation façade' },
-        { id: 'wsp_energie',     nom: 'Prime énergie',             montant: 2500, desc: 'Efficacité énergétique' },
-        { id: 'wsp_verdur',      nom: 'Prime verdurisation',       montant: 1000, desc: 'Espaces verts' }
+        { id: 'jet_behome2',    nom: 'Prime Be Home 2',   montant: 100, desc: '100 € complément communal — propriétaires occupants à faibles revenus (≤10 659 € isolé / ≤16 269 € ménage)' },
+        { id: 'jet_compost',    nom: 'Prime compostage',  montant: 100, desc: '75% du prix d’achat d’un composteur individuel, max 100 €' }
       ]
-    }
+    },
+    'evere': {
+      nom: 'Evere',
+      primes: [
+        { id: 'eve_behome',  nom: 'Prime Be Home communale', montant: 150, desc: '150 € complément automatique à la prime régionale (total 303 € déduits du précompte immobilier) — aucune démarche requise' }
+      ]
+    },
+    'watermael': {
+      nom: 'Watermael-Boitsfort',
+      primes: [
+        { id: 'wtm_eau',      nom: 'Prime communale Eau',       montant: 0,  desc: 'Gestion rationnelle de l’eau (citerne, récupération…) — montant selon règlement 2021' },
+        { id: 'wtm_compost',  nom: 'Prime compostage individuel', montant: 0,  desc: 'Achat d’un composteur individuel — montant selon règlement 2023' }
+      ]
+    },
+    'saint-josse': {
+      nom: 'Saint-Josse-ten-Noode',
+      primes: [
+        { id: 'stj_behome', nom: 'Prime Be Home communale', montant: 150, desc: '150 € annuels — propriétaires tennoodois occupants (complément à la prime régionale de 160 €)' }
+      ]
+    },
   };
 
-  const GENERIC_COMMUNES = {
-    'koekelberg':    'Koekelberg',
-    'berchem':       'Berchem-Sainte-Agathe',
-    'ganshoren':     'Ganshoren',
-    'jette':         'Jette',
-    'evere':         'Evere',
-    'watermael':     'Watermael-Boitsfort',
-    'saint-josse':   'Saint-Josse-ten-Noode'
+  const GENERIC_COMMUNES = {};
+
+  const NO_PRIMES_COMMUNES = {
+    'woluwe-pierre': { nom: 'Woluwe-Saint-Pierre', contact: 'https://www.woluwe1150.be/contact/' },
+    'ixelles':       { nom: 'Ixelles', contact: 'https://www.ixelles.be/site/803-Primes-energie-regionales-et-communales' },
+    'anderlecht':    { nom: 'Anderlecht', contact: 'https://www.anderlecht.be' },
+    'molenbeek':     { nom: 'Molenbeek-Saint-Jean', contact: 'https://www.molenbeek.be' },
+    'koekelberg':    { nom: 'Koekelberg', contact: 'https://www.koekelberg.be' },
+    'berchem':       { nom: 'Berchem-Sainte-Agathe', contact: 'https://www.berchem-sainte-agathe.be' },
+    'ganshoren':     { nom: 'Ganshoren', contact: 'https://www.ganshoren.be' },
+    'forest':        { nom: 'Forest', contact: 'https://www.forest.be' }
+  };
+
+  const COMMUNE_SITES = {
+    'bruxelles':      'https://www.bruxelles.be/prime-facades',
+    'schaerbeek':     'https://www.1030.be',
+    'etterbeek':      'https://etterbeek.brussels/fr/demarches/primes-et-subsides',
+    'ixelles':        'https://www.ixelles.be/site/803-Primes-energie-regionales-et-communales',
+    'saint-gilles':   'https://stgilles.brussels/services/primes/consulter-lensemble-des-primes-disponibles/',
+    'anderlecht':     'https://www.anderlecht.be',
+    'molenbeek':      'https://www.molenbeek.be',
+    'koekelberg':     'https://www.koekelberg.be',
+    'berchem':        'https://www.berchem-sainte-agathe.be',
+    'ganshoren':      'https://www.ganshoren.be',
+    'jette':          'https://jette.brussels/fr/ma-commune/primes-communales',
+    'evere':          'https://evere.brussels/fr/demarches/urbanisme-et-environnement/prime-citoyen-be-home',
+    'woluwe-pierre':  'https://www.woluwe1150.be',
+    'auderghem':      'https://www.auderghem.be/labels/premie',
+    'watermael':      'https://www.watermael-boitsfort.be/fr/vivre-a-watermael-boitsfort/taxes-et-reglements/primes',
+    'uccle':          'https://www.uccle.be/fr/vie-pratique/environnement/primes-environnementales-communales',
+    'forest':         'https://www.forest.be',
+    'woluwe-lambert': 'https://www.woluwe1200.be/demarches/connaitre-les-primes-octroyees-par-la-commune/',
+    'saint-josse':    'https://sjtn.brussels/fr/actualites/prime-communale-be-home-2026'
   };
 
   // ─── Éléments DOM ──────────────────────────────────────────────────────────
@@ -224,6 +254,8 @@
   const recapDiv      = document.getElementById('recap_communales_brx');
   const totalSpan     = document.getElementById('total_communales_brx');
   const resultHidden  = document.getElementById('result_communales_bruxelles');
+  const ctaDiv        = document.getElementById('cta_communales_brx');
+  const linkSite      = document.getElementById('link_commune_site_brx');
 
   // sélections actives { primeId: montant }
   const selected = {};
@@ -258,9 +290,27 @@
       listDiv.style.display = 'block';
       // Mettre à jour le total si des sélections ont été restaurées
       if (Object.keys(selected).length > 0) updateTotal();
+    } else if (NO_PRIMES_COMMUNES[key]) {
+      const data = NO_PRIMES_COMMUNES[key];
+      communeName.textContent = data.nom;
+      genericDiv.innerHTML = `
+        <div class="alert alert-secondary mb-2 p-2">
+          <small><i class="bi bi-slash-circle me-1"></i><strong>Aucune prime communale disponible</strong> en matière d'environnement et de rénovation à l'heure actuelle.</small>
+        </div>
+        <a href="${data.contact}" target="_blank" rel="noopener noreferrer" class="btn btn-outline-secondary btn-sm w-100">
+          <i class="bi bi-envelope me-1"></i>Contacter la commune
+        </a>`;
+      genericDiv.style.display = 'block';
     } else if (GENERIC_COMMUNES[key]) {
       communeName.textContent = GENERIC_COMMUNES[key];
+      genericDiv.innerHTML = '<div class="alert alert-info alert-sm mb-0 p-2"><small><i class="bi bi-info-circle me-1"></i>Contactez directement votre administration communale pour connaître les primes disponibles.</small></div>';
       genericDiv.style.display = 'block';
+    }
+    // Mettre à jour le lien vers le site officiel de la commune
+    const siteUrl = COMMUNE_SITES[key];
+    if (linkSite && siteUrl) {
+      linkSite.href = siteUrl;
+      linkSite.style.display = '';
     }
   }
 
@@ -313,6 +363,7 @@
     resultHidden.textContent = total;  // entier sans décimales pour compatibilité avec updateTotalImmediate
     totalSpan.textContent    = total.toLocaleString('fr-BE') + ' €';
     recapDiv.style.display   = total > 0 ? 'block' : 'none';
+    if (ctaDiv) ctaDiv.style.display = total > 0 ? 'block' : 'none';
     saveSelections(total);
   }
 
