@@ -8,6 +8,7 @@ class PagesController < ApplicationController
 
   def home
     track_page_visit('home', page_type: 'accueil')
+    @household_count = Project.count
   end
 
   def flandre

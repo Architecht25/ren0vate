@@ -46,6 +46,14 @@
             <li>Numéro de téléphone (optionnel)</li>
             <li>Statut : particulier, architecte, entrepreneur, investisseur</li>
             <li>Préférence de langue (français, néerlandais, anglais)</li>
+            <li>
+              <strong>Pour les Comptes Professionnels uniquement :</strong>
+              <ul>
+                <li>Type professionnel déclaré : architecte / entrepreneur / intermédiaire-courtier en primes</li>
+                <li>Numéro d'entreprise belge (BCE), vérifié via l'API VIES de la Commission européenne (traitement automatisé non conservé)</li>
+                <li>Token d'invitation unique (<em>referral_token</em>) — identifiant pseudonymisé généré à la demande, permettant de lier un client à son professionnel référent</li>
+              </ul>
+            </li>
           </ul>
 
           <h5>2.2 Données relatives au(x) bien(s) immobilier(s)</h5>
@@ -260,6 +268,16 @@
                   <td>Intérêt légitime (art. 6.1.f) — données agrégées non personnelles</td>
                   <td>Données agrégées/anonymisées</td>
                 </tr>
+                <tr>
+                  <td>Vérification du numéro BCE via API VIES (UE) lors de l'inscription professionnelle</td>
+                  <td>Exécution du contrat (art. 6.1.b) + intérêt légitime — prévention fraude (art. 6.1.f)</td>
+                  <td>Numéro BCE saisi, résultat de validité (valide/invalide) — les données VIES ne sont pas stockées</td>
+                </tr>
+                <tr>
+                  <td>Gestion des invitations professionnelles — création de lien referral, rattachement client/pro (ProjectMember)</td>
+                  <td>Exécution du contrat (art. 6.1.b)</td>
+                  <td>Token d'invitation, identifiant projet, identifiant professionnel, statut de collaboration</td>
+                </tr>
               </tbody>
             </table>
           </div>
@@ -420,7 +438,25 @@
             <li>Les données de revenus et de catégorie d'éligibilité figurent dans ces prompts.</li>
           </ul>
 
-          <p><strong>d) Générateur de devis et agents contractuels :</strong></p>
+          <p><strong>d) Assistant IA Professionnel (Compte Pro) :</strong></p>
+          <p>
+            Les Comptes Professionnels disposent d'un assistant IA distinct dont le contexte
+            transmis à l'API Anthropic inclut :
+          </p>
+          <ul>
+            <li>Le profil professionnel : type de métier, nombre de projets clients actifs ;</li>
+            <li>Le portefeuille de projets clients : noms de projets, régions, types de travaux,
+                avancement global — sans inclure les données personnelles des clients finaux ;</li>
+            <li>Les données agrégées de simulation et d'avancement disponibles pour les projets
+                sur lesquels le professionnel est membre actif.</li>
+          </ul>
+          <div class="alert alert-light border">
+            Le contexte du chatbot Pro ne contient <strong>jamais</strong> les revenus,
+            le numéro national, l'IBAN, ni les données fiscales AER des clients.
+            Ces données restent strictement dans le contexte du chatbot Propriétaire.
+          </div>
+
+          <p><strong>e) Générateur de devis et agents contractuels :</strong></p>
           <ul>
             <li>Les devis et contrats PDF uploadés par les utilisateurs sont analysés par Claude ;
                 leur contenu textuel (montants, conditions, identité des parties, BCE entrepreneur,
@@ -676,10 +712,13 @@
             louées ou échangées à des fins commerciales.
           </p>
           <p>
-            <strong>Intervenants du chantier :</strong> lorsque vous invitez un architecte ou
-            un entrepreneur sur un projet, les informations relatives à ce projet leur sont
-            accessibles dans la stricte limite de leur mission. Chaque intervenant invité
-            accepte les CGV de Ren0vate lors de son inscription.
+            <strong>Intervenants du chantier :</strong> lorsque vous invitez un architecte,
+            un entrepreneur ou un intermédiaire sur un projet — ou lorsque vous vous inscrivez
+            via le lien d'invitation d'un professionnel — les informations relatives à ce projet
+            sont accessibles au professionnel concerné dans la stricte limite de sa mission et
+            des projets pour lesquels il est membre actif. L'accès est révocable à tout moment
+            par le Propriétaire. Chaque intervenant accepte les CGV de Ren0vate lors de son
+            inscription et s'engage à ne pas utiliser les données du projet à d'autres fins.
           </p>
           <p>
             <strong>Sous-traitants techniques :</strong> voir section 5 ci-dessus. Chaque
@@ -747,8 +786,8 @@
 
           <hr class="my-4">
           <p class="text-muted small">
-            <strong>Dernière mise à jour :</strong> Avril 2026<br>
-            <strong>Version :</strong> Ren0vate SaaS v5.0 — Plateforme complète<br>
+            <strong>Dernière mise à jour :</strong> Mai 2026 (v5.1 — Comptes Professionnels, chatbot Pro, API VIES)<br>
+            <strong>Version :</strong> Ren0vate SaaS v5.1 — Plateforme complète + onboarding pro<br>
             <strong>Base réglementaire :</strong> RGPD (UE) 2016/679 · Loi belge 30 juillet 2018 ·
             Directive ePrivacy 2002/58/CE · AI Act (UE) 2024/1689
           </p>

@@ -1,0 +1,558 @@
+<%# V2 Landing — Ren0vate %>
+<% hc = local_assigns.fetch(:household_count, 0).to_i %>
+
+<%# ═══════════════════════════════════════════════════════════ %>
+<%# HERO — dark slate + dashboard mockup                        %>
+<%# ═══════════════════════════════════════════════════════════ %>
+<div class="ren-hero-dark">
+  <nav class="ren-landing-nav">
+    <div class="container d-flex justify-content-between align-items-center">
+      <%= link_to root_path, class: "ren-landing-logo text-decoration-none d-flex align-items-center gap-2" do %>
+        <span class="ren-logo-mark">R</span>
+        <span class="ren-landing-logo-text">Ren0vate</span>
+      <% end %>
+      <div class="d-flex align-items-center gap-3">
+        <%= link_to "Tarifs", pricing_path, class: "ren-nav-link" %>
+        <%= link_to "Connexion", new_user_session_path, class: "ren-nav-link" %>
+        <%= link_to new_user_registration_path, class: "btn btn-accent-ren0vate btn-sm" do %>
+          <i class="bi bi-bar-chart-steps me-1"></i>Démarrer mon chantier
+        <% end %>
+      </div>
+    </div>
+  </nav>
+
+  <section class="py-5">
+    <div class="container">
+      <div class="row align-items-center g-5 py-4">
+
+        <div class="col-lg-6">
+          <span class="ren-eyebrow-on-dark mb-3 d-inline-block">
+            <i class="bi bi-bar-chart-steps me-1"></i>Pilotage de chantier
+          </span>
+          <h1 class="display-5 fw-bold mt-3 mb-3 text-white">
+            Tout votre chantier,<br>
+            <em class="ren-em-accent">de bout en bout</em>.
+          </h1>
+          <p class="lead mb-4" style="color: rgba(241,237,231,.80);">
+            Lots, devis, échéances, documents, prêt à taux 0 — Ren0vate tient le
+            chantier pendant que vous gardez la main sur le projet.
+          </p>
+          <ul class="ren-checks-on-dark list-unstyled mb-4">
+            <li><i class="bi bi-check-circle-fill"></i>Tous vos lots — toiture, isolation, châssis, électricité</li>
+            <li><i class="bi bi-check-circle-fill"></i>Prêt 0 % régional + primes résiduelles, calculés ensemble</li>
+            <li><i class="bi bi-check-circle-fill"></i>Tranches du prêt synchronisées sur l'avancement</li>
+          </ul>
+          <div class="d-flex flex-wrap gap-2 mb-3">
+            <%= link_to new_user_registration_path, class: "btn btn-accent-ren0vate btn-lg px-4" do %>
+              <i class="bi bi-bar-chart-steps me-2"></i>Démarrer mon chantier
+            <% end %>
+            <%= link_to pricing_path, class: "btn btn-ghost-on-dark btn-lg px-4" do %>
+              <i class="bi bi-cash-coin me-2"></i>Calculer mon financement
+            <% end %>
+          </div>
+          <div class="ren-trust ren-trust-on-dark">
+            <i class="bi bi-shield-check"></i>
+            <% if hc > 0 %>
+              <span>Déjà <strong><%= number_with_delimiter(hc) %> chantiers</strong> pilotés sur Ren0vate</span>
+            <% else %>
+              <span>Soyez parmi les premiers à piloter votre chantier ici</span>
+            <% end %>
+          </div>
+        </div>
+
+        <%# Dashboard mockup %>
+        <div class="col-lg-6">
+          <div class="ren-dash-frame">
+            <div class="ren-dash-chrome">
+              <span class="ren-dash-dot ren-dash-dot-r"></span>
+              <span class="ren-dash-dot ren-dash-dot-y"></span>
+              <span class="ren-dash-dot ren-dash-dot-g"></span>
+              <div class="ren-dash-url">
+                <i class="bi bi-lock-fill"></i>
+                <span>app.ren0vate.be / chantier / maison-liege-1965</span>
+              </div>
+            </div>
+            <div class="ren-dash-body">
+              <div class="ren-dash-head">
+                <div>
+                  <div class="ren-dash-title">Maison Liège 1965 · Wallonie</div>
+                  <div class="ren-dash-sub">Toiture · Isolation · Châssis · Électricité</div>
+                </div>
+                <div class="ren-dash-status">
+                  <span class="ren-dash-status-dot"></span>Chantier en cours
+                </div>
+              </div>
+              <div class="ren-dash-stats">
+                <div class="ren-dash-stat ren-dash-stat-primary">
+                  <i class="bi bi-bar-chart-steps ren-dash-stat-icon"></i>
+                  <div class="ren-dash-stat-label">Avancement chantier</div>
+                  <div class="ren-dash-stat-value">62 %</div>
+                  <div class="ren-dash-stat-sub">5 lots sur 8 validés</div>
+                </div>
+                <div class="ren-dash-stat ren-dash-stat-accent">
+                  <i class="bi bi-cash-coin ren-dash-stat-icon"></i>
+                  <div class="ren-dash-stat-label">Prêt 0 % débloqué</div>
+                  <div class="ren-dash-stat-value">18 200 €</div>
+                  <div class="ren-dash-stat-sub">sur 32 400 € validés</div>
+                </div>
+                <div class="ren-dash-stat ren-dash-stat-neutral">
+                  <i class="bi bi-folder2-open ren-dash-stat-icon"></i>
+                  <div class="ren-dash-stat-label">Documents</div>
+                  <div class="ren-dash-stat-value">47</div>
+                  <div class="ren-dash-stat-sub">3 pièces manquantes</div>
+                </div>
+                <div class="ren-dash-stat ren-dash-stat-warning">
+                  <i class="bi bi-bell ren-dash-stat-icon"></i>
+                  <div class="ren-dash-stat-label">Prochaine échéance</div>
+                  <div class="ren-dash-stat-value">12 j</div>
+                  <div class="ren-dash-stat-sub">Tranche 3 · facture isolation</div>
+                </div>
+              </div>
+              <div class="ren-dash-section">
+                <div class="ren-dash-section-head">
+                  <span class="ren-dash-section-title">Lots & avancement</span>
+                  <span class="ren-dash-section-meta">4 lots</span>
+                </div>
+                <div class="ren-dash-lots">
+                  <div class="ren-dash-lot">
+                    <div class="ren-dash-lot-name">Toiture</div>
+                    <div class="ren-dash-lot-bar"><div class="ren-dash-lot-fill ren-dash-lot-fill-success" style="width:100%"></div></div>
+                    <div class="ren-dash-lot-status ren-dash-lot-status-success">Réceptionné</div>
+                  </div>
+                  <div class="ren-dash-lot">
+                    <div class="ren-dash-lot-name">Isolation</div>
+                    <div class="ren-dash-lot-bar"><div class="ren-dash-lot-fill ren-dash-lot-fill-primary" style="width:80%"></div></div>
+                    <div class="ren-dash-lot-status ren-dash-lot-status-primary">En cours</div>
+                  </div>
+                  <div class="ren-dash-lot">
+                    <div class="ren-dash-lot-name">Châssis</div>
+                    <div class="ren-dash-lot-bar"><div class="ren-dash-lot-fill ren-dash-lot-fill-accent" style="width:45%"></div></div>
+                    <div class="ren-dash-lot-status ren-dash-lot-status-accent">En cours</div>
+                  </div>
+                  <div class="ren-dash-lot">
+                    <div class="ren-dash-lot-name">Électricité</div>
+                    <div class="ren-dash-lot-bar"><div class="ren-dash-lot-fill ren-dash-lot-fill-muted" style="width:0%"></div></div>
+                    <div class="ren-dash-lot-status ren-dash-lot-status-muted">Planifié</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</div>
+
+<%# ═══════════════════════════════════════════════════════════ %>
+<%# TROIS PHASES — cream background                             %>
+<%# ═══════════════════════════════════════════════════════════ %>
+<section class="py-5">
+  <div class="container">
+    <div class="row mb-5 justify-content-center text-center">
+      <div class="col-lg-8">
+        <span class="ren-eyebrow ren-eyebrow-accent">
+          <i class="bi bi-diagram-3 me-1"></i>Du devis à la réception
+        </span>
+        <h2 class="mt-3 mb-2">Trois phases, un seul outil</h2>
+        <p class="text-muted-ren0vate mb-0">
+          De la première décision jusqu'au dernier procès-verbal — Ren0vate vous accompagne à chaque étape.
+        </p>
+      </div>
+    </div>
+    <div class="row g-4 ren-phases-row">
+
+      <div class="col-lg-4">
+        <div class="ren-phase ren-phase-primary">
+          <div class="ren-phase-head">
+            <div class="ren-phase-num"><i class="bi bi-pencil-square"></i></div>
+            <div>
+              <span class="ren-phase-eyebrow">01 · Préparation</span>
+              <h3 class="ren-phase-title">Préparer le chantier</h3>
+            </div>
+          </div>
+          <p class="ren-phase-body">Cadrer le projet, comparer les devis, sécuriser le financement.</p>
+          <ul class="ren-phase-feats">
+            <li class="ren-phase-feat">
+              <i class="bi bi-clipboard-data"></i>
+              <div>
+                <p class="ren-phase-feat-title">Cahier des charges & lots</p>
+                <p class="ren-phase-feat-body">Découpez en lots (toiture, isolation, électricité…) et fixez les priorités.</p>
+              </div>
+            </li>
+            <li class="ren-phase-feat">
+              <i class="bi bi-files"></i>
+              <div>
+                <p class="ren-phase-feat-title">Devis comparés</p>
+                <p class="ren-phase-feat-body">Format normalisé, écarts visibles en un coup d'œil.</p>
+              </div>
+            </li>
+            <li class="ren-phase-feat">
+              <i class="bi bi-cash-coin"></i>
+              <div>
+                <p class="ren-phase-feat-title">Prêt à taux 0 + primes</p>
+                <p class="ren-phase-feat-body">Rénopack, Mijn VerbouwLening, Prêt Vert — montant calculé, dossier prêt.</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="ren-phase ren-phase-accent">
+          <div class="ren-phase-head">
+            <div class="ren-phase-num"><i class="bi bi-bar-chart-steps"></i></div>
+            <div>
+              <span class="ren-phase-eyebrow">02 · Suivi</span>
+              <h3 class="ren-phase-title">Piloter & suivre</h3>
+            </div>
+          </div>
+          <p class="ren-phase-body">Avancement par lot, échéances, factures, photos — tout en un seul endroit.</p>
+          <ul class="ren-phase-feats">
+            <li class="ren-phase-feat">
+              <i class="bi bi-list-check"></i>
+              <div>
+                <p class="ren-phase-feat-title">Vue par lot</p>
+                <p class="ren-phase-feat-body">Jalons, retards, dépendances entre corps de métier.</p>
+              </div>
+            </li>
+            <li class="ren-phase-feat">
+              <i class="bi bi-folder2-open"></i>
+              <div>
+                <p class="ren-phase-feat-title">Documents au fil</p>
+                <p class="ren-phase-feat-body">Factures, photos, attestations classées par lot, alertes si une pièce manque.</p>
+              </div>
+            </li>
+            <li class="ren-phase-feat">
+              <i class="bi bi-bell"></i>
+              <div>
+                <p class="ren-phase-feat-title">Échéances & tranches</p>
+                <p class="ren-phase-feat-body">Déblocages du prêt 0 % et factures synchronisés sur l'avancement.</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="ren-phase ren-phase-success">
+          <div class="ren-phase-head">
+            <div class="ren-phase-num"><i class="bi bi-house-check"></i></div>
+            <div>
+              <span class="ren-phase-eyebrow">03 · Réception</span>
+              <h3 class="ren-phase-title">Réceptionner & clôturer</h3>
+            </div>
+          </div>
+          <p class="ren-phase-body">PV, garanties, factures finales, archivage du dossier.</p>
+          <ul class="ren-phase-feats">
+            <li class="ren-phase-feat">
+              <i class="bi bi-clipboard-check"></i>
+              <div>
+                <p class="ren-phase-feat-title">Procès-verbal</p>
+                <p class="ren-phase-feat-body">Génération du PV de réception lot par lot, signatures intégrées.</p>
+              </div>
+            </li>
+            <li class="ren-phase-feat">
+              <i class="bi bi-shield-check"></i>
+              <div>
+                <p class="ren-phase-feat-title">Garanties trackées</p>
+                <p class="ren-phase-feat-body">Décennale, biennale, parfait achèvement — chaque garantie liée à son lot.</p>
+              </div>
+            </li>
+            <li class="ren-phase-feat">
+              <i class="bi bi-archive"></i>
+              <div>
+                <p class="ren-phase-feat-title">Dossier archivé</p>
+                <p class="ren-phase-feat-body">Export PDF complet pour banque, assurance, ou revente future du bien.</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<%# ═══════════════════════════════════════════════════════════ %>
+<%# INTERVENANTS — sand background                              %>
+<%# ═══════════════════════════════════════════════════════════ %>
+<section class="py-5 bg-sand-ren0vate">
+  <div class="container">
+    <div class="row mb-5 justify-content-center text-center">
+      <div class="col-lg-8">
+        <span class="ren-eyebrow ren-eyebrow-accent">
+          <i class="bi bi-people-fill me-1"></i>Une plateforme, plusieurs rôles
+        </span>
+        <h2 class="mt-3 mb-2">Pour chaque intervenant du chantier</h2>
+        <p class="text-muted-ren0vate mb-0">
+          Vous pilotez. Votre équipe rejoint le dossier d'un clic — chacun avec sa vue, ses droits, ses notifications.
+        </p>
+      </div>
+    </div>
+    <div class="row g-4 ren-intervenants">
+
+      <div class="col-lg-6">
+        <div class="ren-int-card ren-int-card-primary h-100">
+          <div class="ren-int-badge"><i class="bi bi-star-fill me-1"></i>Votre rôle</div>
+          <div class="ren-int-head">
+            <div class="ren-int-icon ren-int-icon-accent">
+              <i class="bi bi-house-heart-fill"></i>
+            </div>
+            <div>
+              <h3 class="ren-int-title mb-1">Propriétaire</h3>
+              <p class="ren-int-sub mb-0">Vous, au centre du chantier</p>
+            </div>
+          </div>
+          <p class="ren-int-body">
+            Tout votre chantier de bout en bout : devis comparés, échéances, tranches de prêt
+            débloquées, photos archivées. Vous gardez la main, Ren0vate tient le dossier.
+          </p>
+          <ul class="ren-int-feats">
+            <li><i class="bi bi-check-circle-fill"></i>Dashboard chantier complet</li>
+            <li><i class="bi bi-check-circle-fill"></i>Prêt 0 % + primes calculés ensemble</li>
+            <li><i class="bi bi-check-circle-fill"></i>Invitations équipe en un clic</li>
+            <li><i class="bi bi-check-circle-fill"></i>Archive RGPD-ready à la réception</li>
+          </ul>
+          <%= link_to new_user_registration_path, class: "btn btn-accent-ren0vate btn-lg px-4" do %>
+            <i class="bi bi-bar-chart-steps me-2"></i>Démarrer mon chantier
+          <% end %>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="row g-3 h-100">
+          <div class="col-12">
+            <div class="ren-int-card ren-int-card-secondary">
+              <div class="ren-int-head ren-int-head-compact">
+                <div class="ren-int-icon ren-int-icon-muted"><i class="bi bi-hammer"></i></div>
+                <div>
+                  <h4 class="ren-int-title-sm mb-0">Entrepreneur</h4>
+                  <p class="ren-int-sub mb-1">Le chef de chantier</p>
+                  <p class="ren-int-body-sm mb-0">Reçoit les bons de commande, met à jour l'avancement, dépose ses factures.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="ren-int-card ren-int-card-secondary">
+              <div class="ren-int-head ren-int-head-compact">
+                <div class="ren-int-icon ren-int-icon-muted"><i class="bi bi-clipboard-data"></i></div>
+                <div>
+                  <h4 class="ren-int-title-sm mb-0">Architecte / bureau d'études</h4>
+                  <p class="ren-int-sub mb-1">Le coordinateur</p>
+                  <p class="ren-int-body-sm mb-0">Suit la conformité, valide les étapes clés, archive les plans et permis.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12">
+            <div class="ren-int-card ren-int-card-secondary">
+              <div class="ren-int-head ren-int-head-compact">
+                <div class="ren-int-icon ren-int-icon-muted"><i class="bi bi-bank2"></i></div>
+                <div>
+                  <h4 class="ren-int-title-sm mb-0">Intermédiaire / Courtier en primes</h4>
+                  <p class="ren-int-sub mb-1">Le gestionnaire</p>
+                  <p class="ren-int-body-sm mb-0">Gérez les dossiers de vos clients en un coup d'œil — primes, avancement, documents — sans jongler entre les mails.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<%# ═══════════════════════════════════════════════════════════ %>
+<%# TÉMOIGNAGES                                                 %>
+<%# ═══════════════════════════════════════════════════════════ %>
+<section class="py-5">
+  <div class="container">
+    <div class="row mb-4 justify-content-center text-center">
+      <div class="col-lg-7">
+        <h2 class="mb-2">Ils ont rénové avec Ren0vate</h2>
+      </div>
+    </div>
+    <div class="row g-3 g-lg-4">
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="ren-stars mb-2">
+              <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+            </div>
+            <p class="mb-3 small">« Trois entrepreneurs, six mois, 22 000 € via le Rénopack. Ren0vate a tenu le chantier pendant que je gardais ma santé mentale. »</p>
+            <div class="d-flex align-items-center gap-2">
+              <div class="ren-avatar">M</div>
+              <div>
+                <div class="fw-semibold small">Marie L.</div>
+                <div class="text-muted-ren0vate" style="font-size:.75rem">Liège, maison 1965</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="ren-stars mb-2">
+              <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+            </div>
+            <p class="mb-3 small">« Le découpage en lots m'a fait comprendre par où commencer. Toiture d'abord, châssis ensuite. Le Prêt Vert a couvert les deux. »</p>
+            <div class="d-flex align-items-center gap-2">
+              <div class="ren-avatar">T</div>
+              <div>
+                <div class="fw-semibold small">Thomas D.</div>
+                <div class="text-muted-ren0vate" style="font-size:.75rem">Bruxelles, appart 1978</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <div class="ren-stars mb-2">
+              <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i>
+            </div>
+            <p class="mb-3 small">« On a basculé du tableur Excel à Ren0vate au mois 2 du chantier. Les entrepreneurs reçoivent les bons docs, on suit l'avancement. »</p>
+            <div class="d-flex align-items-center gap-2">
+              <div class="ren-avatar">S</div>
+              <div>
+                <div class="fw-semibold small">Sophie & Jan</div>
+                <div class="text-muted-ren0vate" style="font-size:.75rem">Anvers, maison 1995</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%# ═══════════════════════════════════════════════════════════ %>
+<%# FAQ                                                         %>
+<%# ═══════════════════════════════════════════════════════════ %>
+<section class="py-5 bg-sand-ren0vate">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <h2 class="mb-4 text-center">Questions fréquentes</h2>
+        <div class="accordion" id="faq-landing">
+          <div class="accordion-item border-0 mb-2 rounded overflow-hidden">
+            <h2 class="accordion-header">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq-landing-0">
+                Les primes ont disparu — qu'est-ce que je peux toucher en 2026 ?
+              </button>
+            </h2>
+            <div id="faq-landing-0" class="accordion-collapse collapse show" data-bs-parent="#faq-landing">
+              <div class="accordion-body text-muted-ren0vate">
+                Le cadre belge a basculé sur les prêts à taux 0 : Rénopack/Rénoprêt en Wallonie,
+                Mijn VerbouwLening en Flandre, Prêt Vert à Bruxelles. Quelques primes résiduelles
+                subsistent (audit énergétique, public spécifique). Ren0vate calcule les deux côte à
+                côte et suit les déblocages.
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item border-0 mb-2 rounded overflow-hidden">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-landing-1">
+                Combien ça coûte d'utiliser Ren0vate ?
+              </button>
+            </h2>
+            <div id="faq-landing-1" class="accordion-collapse collapse" data-bs-parent="#faq-landing">
+              <div class="accordion-body text-muted-ren0vate">
+                Le pilotage d'un premier chantier est gratuit. Multi-biens et fonctionnalités pro sur
+                abonnement — <%= link_to "voir la page tarifs", pricing_path %>.
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item border-0 mb-2 rounded overflow-hidden">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-landing-2">
+                Mes données restent-elles confidentielles ?
+              </button>
+            </h2>
+            <div id="faq-landing-2" class="accordion-collapse collapse" data-bs-parent="#faq-landing">
+              <div class="accordion-body text-muted-ren0vate">
+                Hébergement européen (Belgique), aucun partage avec des tiers commerciaux, conformité
+                RGPD. Vous pouvez exporter ou supprimer votre dossier à tout moment.
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item border-0 rounded overflow-hidden">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq-landing-3">
+                Je n'ai pas encore de devis. Je peux quand même commencer ?
+              </button>
+            </h2>
+            <div id="faq-landing-3" class="accordion-collapse collapse" data-bs-parent="#faq-landing">
+              <div class="accordion-body text-muted-ren0vate">
+                Oui — vous démarrez par décrire le chantier (lots envisagés, ordre des priorités).
+                Les devis et factures se rangent au fur et à mesure qu'ils arrivent.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%# ═══════════════════════════════════════════════════════════ %>
+<%# CTA FINAL — dark slate                                      %>
+<%# ═══════════════════════════════════════════════════════════ %>
+<section class="py-5 ren-cta-final">
+  <div class="container">
+    <div class="row justify-content-center text-center">
+      <div class="col-lg-8">
+        <h2 class="text-white mb-2">Prêt·e à piloter votre chantier ?</h2>
+        <p class="mb-4" style="color:rgba(255,255,255,.65);">Deux minutes, et votre chantier démarre.</p>
+        <%= link_to new_user_registration_path, class: "btn btn-accent-ren0vate btn-lg px-4" do %>
+          <i class="bi bi-bar-chart-steps me-2"></i>Démarrer mon chantier
+        <% end %>
+        <%= link_to new_user_session_path, class: "btn btn-link text-white ms-2", style: "text-decoration:none" do %>
+          J'ai déjà un compte
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="ren-landing-footer">
+  <div class="container">
+    <div class="ren-foot-grid">
+      <div class="ren-foot-brand">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <span class="ren-logo-mark">R</span>
+          <span class="ren-landing-logo-text">Ren0vate</span>
+        </div>
+        <p class="small mb-0" style="color:rgba(255,255,255,.55)">La plateforme qui suit votre rénovation, des primes aux factures.</p>
+      </div>
+      <div>
+        <h6 class="ren-foot-heading">Simulation de vos primes</h6>
+        <ul class="ren-foot-links">
+          <li><%= link_to "Wallonie", wallonie_path %></li>
+          <li><%= link_to "Flandre", flandre_path %></li>
+          <li><%= link_to "Bruxelles", bruxelles_path %></li>
+        </ul>
+      </div>
+      <div>
+        <h6 class="ren-foot-heading">Société</h6>
+        <ul class="ren-foot-links">
+          <li><%= link_to "À propos", root_path %></li>
+          <li><%= link_to "Contact", "mailto:robin@architecht.be" %></li>
+          <li><%= link_to "RGPD", privacy_path %></li>
+          <li><%= link_to "Mentions légales", legal_path %></li>
+          <li><%= link_to "Conditions générales", terms_path %></li>
+        </ul>
+      </div>
+    </div>
+    <div class="ren-foot-bottom">
+      <span>© 2026 Ren0vate SA — Bruxelles</span>
+      <span>v1.0 · Rails 8</span>
+    </div>
+  </div>
+</footer>

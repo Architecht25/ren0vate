@@ -20,6 +20,7 @@
             <li><a href="#art1">Parties contractantes et définitions</a></li>
             <li><a href="#art2">Objet et champ d'application</a></li>
             <li><a href="#art3">Accès au service — inscription</a></li>
+            <li><a href="#art3bis">Comptes Professionnels et système d'invitation</a></li>
             <li><a href="#art4">Offres et tarification</a></li>
             <li><a href="#art5">Modalités de paiement</a></li>
             <li><a href="#art6">Droit de rétractation (consommateurs)</a></li>
@@ -68,6 +69,21 @@
                 <a href="https://ren0vate.be">ren0vate.be</a> et ses sous-domaines.</li>
             <li><strong>Propriétaire :</strong> utilisateur qui crée un projet de rénovation
                 pour son bien immobilier.</li>
+            <li><strong>Compte Professionnel :</strong> compte dont le titulaire a déclaré lors
+                de l'inscription exercer une activité professionnelle dans le secteur de la
+                rénovation — architecte, entrepreneur, ou intermédiaire/courtier en primes.
+                Le compte professionnel donne accès à des fonctionnalités spécifiques
+                (tableau de bord multi-clients, lien d'invitation, offres B2B).</li>
+            <li><strong>Intermédiaire / Courtier en primes :</strong> professionnel dont l'activité
+                consiste à accompagner des propriétaires dans la constitution et le suivi de
+                dossiers de primes à la rénovation, sans nécessairement intervenir sur le chantier.</li>
+            <li><strong>Lien d'invitation Pro (referral token) :</strong> URL unique générée par
+                un Compte Professionnel permettant à un client de s'inscrire sur la plateforme
+                en étant automatiquement rattaché au dossier de ce professionnel.</li>
+            <li><strong>Membre de projet (ProjectMember) :</strong> lien de collaboration entre
+                un Compte Professionnel et un projet d'un Propriétaire, créé soit par invitation
+                directe du Propriétaire, soit via un Lien d'invitation Pro. L'accès du
+                Professionnel est strictement limité aux projets auxquels il est membre.</li>
             <li><strong>Professionnel invité :</strong> architecte ou entrepreneur invité à
                 rejoindre un projet par un Propriétaire.</li>
             <li><strong>Abonnement :</strong> souscription payante donnant accès à des
@@ -139,11 +155,65 @@
           </p>
 
           <%# ─────────────────────────────────────────
+              ART. 3BIS — COMPTES PROFESSIONNELS
+          ───────────────────────────────────────── %>
+          <h3 id="art3bis">Article 3bis — Comptes Professionnels et système d'invitation</h3>
+
+          <h5>3bis.1 Inscription d'un professionnel</h5>
+          <p>
+            Toute personne exerçant une activité professionnelle dans le secteur de la rénovation
+            (architecte, entrepreneur, intermédiaire/courtier en primes) peut créer un
+            <strong>Compte Professionnel</strong> en sélectionnant son type de profil lors
+            de l'inscription. L'Utilisateur s'engage à :
+          </p>
+          <ul>
+            <li>Indiquer un numéro d'entreprise belge (BCE) valide, susceptible d'être vérifié
+                automatiquement via l'API VIES de la Commission européenne ;</li>
+            <li>Disposer des assurances professionnelles requises par la réglementation applicable
+                à son activité (RC professionnelle, décennale le cas échéant) ;</li>
+            <li>N'utiliser les fonctionnalités professionnelles qu'à des fins légitimes dans le
+                cadre de sa mission auprès de ses clients.</li>
+          </ul>
+
+          <h5>3bis.2 Lien d'invitation Pro (referral token)</h5>
+          <p>
+            Tout Compte Professionnel peut générer un <strong>Lien d'invitation unique</strong>
+            (URL de type <code>ren0vate.be/?ref=TOKEN</code>) à partager avec ses clients.
+            Lorsqu'un client s'inscrit via ce lien et crée son premier projet, un lien de
+            collaboration (<em>ProjectMember</em>) en statut <em>en attente</em> est automatiquement
+            créé entre le professionnel et ce projet. Le professionnel est notifié par email et
+            doit être activé sur le projet par le client avant d'y accéder.
+          </p>
+          <p>
+            Le Lien d'invitation ne confère aucun droit d'accès automatique aux données du
+            client. L'activation reste une décision exclusive du Propriétaire.
+          </p>
+
+          <h5>3bis.3 Périmètre d'accès du professionnel</h5>
+          <p>
+            Un Compte Professionnel membre d'un projet accède exclusivement aux données
+            du ou des projets pour lesquels il a été activé. Il ne peut pas accéder aux
+            autres biens, projets ou données personnelles du Propriétaire sans invitation
+            explicite. Cet accès est révocable à tout moment par le Propriétaire.
+          </p>
+
+          <h5>3bis.4 Responsabilité du professionnel envers ses clients</h5>
+          <p>
+            Le professionnel utilisant Ren0vate dans le cadre d'une mission pour un client
+            reste seul responsable de la qualité de ses conseils et prestations.
+            Ren0vate fournit un outil de collaboration et de gestion documentaire ; il n'est
+            pas partie à la relation contractuelle entre le professionnel et son client.
+            Le professionnel s'engage à informer son client de l'utilisation de la plateforme
+            et à recueillir son consentement préalable au partage de ses données de projet
+            sur Ren0vate.
+          </p>
+
+          <%# ─────────────────────────────────────────
               ART. 4 — OFFRES ET TARIFICATION
           ───────────────────────────────────────── %>
           <h3 id="art4">Article 4 — Offres et tarification</h3>
 
-          <h5>4.1 Plans disponibles</h5>
+          <h5>4.1 Plans disponibles — Particuliers (B2C)</h5>
           <div class="table-responsive">
             <table class="table table-bordered table-sm">
               <thead class="table-light">
@@ -156,32 +226,54 @@
               </thead>
               <tbody>
                 <tr>
-                  <td><strong>Découverte (Freemium)</strong></td>
+                  <td><strong>Starter (Freemium)</strong></td>
                   <td>Tous utilisateurs</td>
                   <td>0 €</td>
                   <td>—</td>
                 </tr>
                 <tr>
                   <td><strong>Propriétaire</strong></td>
-                  <td>Propriétaire particulier</td>
+                  <td>Propriétaire particulier (1–3 biens)</td>
                   <td>39 € TTC</td>
                   <td>Mensuelle ou annuelle</td>
                 </tr>
                 <tr>
                   <td><strong>Investisseur</strong></td>
-                  <td>Multi-propriétés</td>
+                  <td>Multi-propriétés (jusqu'à 10 biens)</td>
                   <td>89 € TTC</td>
                   <td>Mensuelle ou annuelle</td>
                 </tr>
                 <tr>
-                  <td><strong>Expert</strong></td>
-                  <td>Architectes / Pros</td>
+                  <td><strong>Premium</strong></td>
+                  <td>Usage patrimonial intensif + profil mixte</td>
                   <td>149 € TTC</td>
                   <td>Mensuelle ou annuelle</td>
                 </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h5>4.2 Plans disponibles — Professionnels (B2B)</h5>
+          <div class="table-responsive">
+            <table class="table table-bordered table-sm">
+              <thead class="table-light">
                 <tr>
-                  <td><strong>Platform</strong></td>
-                  <td>Entreprises / Portfolios</td>
+                  <th>Plan</th>
+                  <th>Cible</th>
+                  <th>Prix mensuel</th>
+                  <th>Facturation</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Pro</strong></td>
+                  <td>Architectes, entrepreneurs, bureaux d'études, intermédiaires</td>
+                  <td>99 € TTC</td>
+                  <td>Mensuelle ou annuelle</td>
+                </tr>
+                <tr>
+                  <td><strong>Entreprise</strong></td>
+                  <td>Syndics, promoteurs, grandes équipes — solution sur mesure</td>
                   <td>299 € TTC</td>
                   <td>Mensuelle ou annuelle</td>
                 </tr>
@@ -194,7 +286,7 @@
             la facturation mensuelle (voir page tarifs).
           </p>
 
-          <h5>4.2 Modifications tarifaires</h5>
+          <h5>4.3 Modifications tarifaires</h5>
           <p>
             Ren0vate se réserve le droit de modifier ses tarifs. Toute modification sera
             notifiée à l'Utilisateur <strong>au moins 30 jours avant son entrée en vigueur</strong>
@@ -202,7 +294,7 @@
             modification s'il ne souhaite pas l'accepter.
           </p>
 
-          <h5>4.3 Accès Freemium</h5>
+          <h5>4.4 Accès Freemium</h5>
           <p>
             L'accès Freemium est fourni sans engagement de durée ni garantie de maintien permanent.
             Ren0vate peut modifier les fonctionnalités incluses dans l'offre gratuite avec un préavis
@@ -614,8 +706,8 @@
 
           <hr class="my-4">
           <p class="text-muted small">
-            <strong>Entrée en vigueur :</strong> Avril 2026<br>
-            <strong>Version :</strong> Ren0vate CGV v1.1 — Plateforme complète<br>
+            <strong>Entrée en vigueur :</strong> Avril 2026 — <strong>Mise à jour :</strong> Mai 2026 (v1.2 — Comptes Professionnels)<br>
+            <strong>Version :</strong> Ren0vate CGV v1.2 — Plateforme complète + onboarding pro<br>
             <strong>Éditeur :</strong> Architecht SRL — robin@architecht.be
           </p>
         </div>
