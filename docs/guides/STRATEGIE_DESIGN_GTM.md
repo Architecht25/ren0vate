@@ -25,14 +25,14 @@ Ren0vate a déjà :
 
 | # | Page | Fichier | Rôle | Priorité |
 |---|------|---------|------|---------|
-| 1 | Landing | `app/views/pages/home.html.erb` | Première impression, acquisition | 🔴 Critique |
+| 1 | Landing | `app/views/pages/home.html.erb` | Première impression, acquisition | ✅ RÉALISÉ (11/05/2026) |
 | 2 | Pricing | `app/views/pricing/index.html.erb` | Conversion | 🔴 Critique |
 | 3 | Checkout | `app/views/pricing/select.html.erb` | Conversion | 🔴 Critique |
 | 4 | Onboarding tunnels | `app/views/onboarding/` | Réduction friction post-inscription | ✅ RÉALISÉ |
-| 5 | Dashboards (×4) | `app/views/dashboard/` | Screenshots marketing + rétention | ✅ RÉALISÉ (architecte/entrepreneur/intermediaire) — index générique ❌ |
+| 5 | Dashboards (×4) | `app/views/dashboard/` | Screenshots marketing + rétention | ✅ RÉALISÉ (11/05/2026) |
 | 6 | Wizard simulation | `app/views/simulations/` | Demo produit | 🟠 Important |
 
-**Note — Dashboard ×4 ✅ RÉALISÉ (27/04/2026) :** `dashboard/architecte.html.erb`, `dashboard/entrepreneur.html.erb`, `dashboard/intermediaire.html.erb` créés. `dashboard/index.html.erb` (346 lignes) reste générique — redesign post-login restant à faire (propriétaires sans tunnel actif).
+**Note — Dashboards ×4 ✅ RÉALISÉ (11/05/2026) :** `dashboard/architecte.html.erb`, `dashboard/entrepreneur.html.erb`, `dashboard/intermediaire.html.erb` + `dashboard/index.html.erb` redesigné en cockpit propriétaire : KPIs financiers (budget, primes, factures en attente, chantiers actifs), bandeau alertes urgentes contextuel, Expert IA Ren0vate. Scores santé supprimés du dashboard (restent sur la page projet).
 
 **Profil Intermédiaire** (ajout avril 2026) : courtier en primes, energy advisor, gestionnaire de dossiers — profil issu de la clientèle Primes-Services ("je délègue"). Dashboard type CRM léger : portefeuille multi-clients, statut de chaque dossier, notifications vers le client final. Tier naturel : Enterprise.
 

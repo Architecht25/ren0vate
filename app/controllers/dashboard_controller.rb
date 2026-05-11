@@ -38,6 +38,7 @@ class DashboardController < ApplicationController
 
     @completion_stats = calculate_completion_stats
     @request_stats = calculate_request_stats
+    calculate_cockpit_data
   rescue => e
     Rails.logger.error "Dashboard error: #{e.message}"
     @properties = []
@@ -46,6 +47,10 @@ class DashboardController < ApplicationController
     @active_requests = 0
     @completion_stats = { average: 0, completed: 0, eligible: 0, in_progress: 0 }
     @request_stats = { total: 0, pending: 0, in_progress: 0, submitted: 0, validated: 0, estimated_amount: 0 }
+    @budget_total = 0
+    @primes_attendues = 0
+    @factures_en_attente_count = 0
+    @alerts = []
   end
 
   private
@@ -91,6 +96,45 @@ class DashboardController < ApplicationController
       validated: user_requests.where(status: 'validated').count,
       estimated_amount: calculate_estimated_amount(user_requests.where(status: ['pending', 'in_progress', 'submitted']))
     }
+  end
+
+  def calculate_cockpit_data
+    user_projects = current_user.projects
+
+    @budget_total = (user_projects.sum(:architecte_devis_montant).to_f +
+                     user_projects.sum(:contractor_devis_montant).to_f).round
+
+    @primes_attendues = current_user.simulations.sum(:total_simule).to_f.round
+
+    factures_pending = Facture.joins(:project)
+                              .where(projects: { user_id: current_user.id })
+                              .where(statut_paiement: 'non_paye')
+                              .where(type_facture: %w[facture acompte solde etat_avancement])
+                              .includes(:project)
+                              .order(created_at: :asc)
+    @factures_en_attente_count = factures_pending.count
+
+    @alerts = []
+
+    user_projects.where.not(date_fin: nil).where('date_fin < ?', Date.current)
+                 .order(date_fin: :asc).limit(3).each do |project|
+      days = (Date.current - project.date_fin).to_i
+      @alerts << { level: :urgent, message: "Date fin dépassée de #{days}j — #{project.name}", project: project }
+    end
+
+    factures_pending.where('factures.created_at < ?', 7.days.ago).limit(3).each do |facture|
+      days = (Date.current - facture.created_at.to_date).to_i
+      amount = facture.montant ? "#{facture.montant.round} €" : "montant inconnu"
+      @alerts << { level: :warning, message: "Facture #{amount} en attente depuis #{days}j — #{facture.project.name}", project: facture.project }
+    end
+
+    @alerts = @alerts.sort_by { |a| a[:level] == :urgent ? 0 : 1 }.first(3)
+  rescue => e
+    Rails.logger.error "Cockpit data error: #{e.message}"
+    @budget_total = 0
+    @primes_attendues = 0
+    @factures_en_attente_count = 0
+    @alerts = []
   end
 
   def calculate_estimated_amount(requests)

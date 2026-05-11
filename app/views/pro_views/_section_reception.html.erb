@@ -1,0 +1,141 @@
+      <div id="section-reception" class="mb-4">
+        <div class="d-flex align-items-center gap-2 mb-3 pb-2" style="border-bottom:2px solid rgba(25,135,84,0.2);">
+          <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white flex-shrink-0"
+               style="width:28px;height:28px;background:#198754;font-size:0.78rem;">3</div>
+          <h2 class="mb-0 fw-semibold" style="font-size:1.05rem;">Réception</h2>
+          <span class="badge bg-success-subtle text-success border border-success-subtle ms-auto" style="font-size:0.68rem;">Clôture du chantier</span>
+        </div>
+
+        <%# Phase réception ── %>
+        <%
+          reception_d      = phase_data_for.call('phase_reception')
+          reception_done   = required_roles.all? { |r| reception_d[r].present? }
+          reception_me     = current_role && reception_d[current_role].present?
+          reception_photos = (@photos_by_phase || {})['phase_reception'] || []
+        %>
+        <div class="card border-0 shadow-sm rounded-3 mb-3"
+             style="border:1px solid <%= reception_done ? '#a3cfbb' : '#e9ecef' %> !important;background:<%= reception_done ? '#f0faf4' : 'white' %>;">
+          <div class="card-header border-bottom pt-3 pb-2 px-4 d-flex align-items-center justify-content-between"
+               style="background:<%= reception_done ? '#d1e7dd' : 'white' %>;">
+            <h5 class="mb-0 fw-semibold" style="font-size:0.95rem;">
+              <i class="bi bi-check2-circle me-2 text-success"></i>Phase réception
+              <% if reception_done %>
+                <span class="badge bg-success ms-1" style="font-size:0.62rem;">Complète ✓</span>
+              <% end %>
+            </h5>
+            <% if reception_me %>
+              <span class="text-success" style="font-size:0.72rem;">✓ votre validation enregistrée</span>
+            <% elsif can_validate && !reception_done %>
+              <%= button_to validate_phase_project_path(@project),
+                  method: :patch,
+                  params: { phase_key: 'phase_reception' },
+                  class: "btn btn-success btn-sm",
+                  style: "font-size:0.75rem;" do %>
+                <i class="bi bi-check2 me-1"></i>Valider la réception
+              <% end %>
+            <% end %>
+          </div>
+          <div class="card-body px-4 py-3">
+            <div class="d-flex gap-2 flex-wrap mb-3">
+              <% required_roles.each do |r| %>
+                <% vdata = reception_d[r] %>
+                <div class="d-flex align-items-center gap-1 px-2 py-1 rounded-2 <%= vdata ? 'bg-success-subtle' : 'bg-light' %>"
+                     style="font-size:0.8rem;">
+                  <i class="bi <%= role_icons[r] %> text-<%= vdata ? 'success' : 'secondary' %>"></i>
+                  <span class="<%= vdata ? 'text-success fw-medium' : 'text-muted' %>"><%= role_labels[r] %></span>
+                  <% if vdata %>
+                    <i class="bi bi-check-circle-fill text-success" style="font-size:0.68rem;"></i>
+                    <span class="text-muted" style="font-size:0.68rem;"><%= Time.zone.parse(vdata['validated_at']).strftime('%d/%m') rescue '' %></span>
+                  <% else %>
+                    <i class="bi bi-clock text-muted" style="font-size:0.68rem;"></i>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+            <% if reception_photos.any? %>
+              <div class="d-flex gap-2 flex-wrap">
+                <% reception_photos.first(6).each do |photo| %>
+                  <div class="rounded overflow-hidden flex-shrink-0" style="width:56px;height:56px;background:#dee2e6;">
+                    <% begin %>
+                      <%= image_tag rails_blob_path(photo, only_path: true),
+                            style: "width:56px;height:56px;object-fit:cover;", alt: "Réception" %>
+                    <% rescue %>
+                      <div class="w-100 h-100 d-flex align-items-center justify-content-center">
+                        <i class="bi bi-image text-muted"></i>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <%# PV DE RÉCEPTION ── %>
+        <div class="card border-0 shadow-sm rounded-3">
+          <div class="card-header bg-white border-bottom pt-3 pb-2 px-4 d-flex align-items-center justify-content-between">
+            <h5 class="mb-0 fw-semibold" style="font-size:0.95rem;">
+              <i class="bi bi-file-earmark-check me-2 text-success"></i>Procès-verbal de réception
+            </h5>
+            <% if @pv_reception %>
+              <span class="badge bg-<%= @pv_reception.statut == 'finalise' ? 'success' : 'warning text-dark' %>" style="font-size:0.68rem;">
+                <%= @pv_reception.statut == 'finalise' ? 'Finalisé' : 'En cours' %>
+              </span>
+            <% end %>
+          </div>
+          <div class="card-body px-4 py-3">
+            <% if @pv_reception %>
+              <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                  <div class="text-muted mb-1" style="font-size:0.72rem;">Date de réception</div>
+                  <div class="fw-medium" style="font-size:0.88rem;">
+                    <%= @pv_reception.date_reception&.strftime("%d/%m/%Y") || "—" %>
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <div class="text-muted mb-1" style="font-size:0.72rem;">Signatures</div>
+                  <div class="d-flex gap-1 flex-wrap">
+                    <% [['Propriétaire', @pv_reception.signed_owner_at],
+                        ['Architecte',   @pv_reception.signed_architect_at],
+                        ['Entrepreneur', @pv_reception.signed_entrepreneur_at]].each do |label, signed_at| %>
+                      <% next if label == 'Architecte' && @pv_reception.nom_architect.blank? %>
+                      <span class="badge <%= signed_at ? 'bg-success' : 'bg-light text-muted border' %>" style="font-size:0.65rem;">
+                        <%= label %> <%= signed_at ? '✓' : '⏳' %>
+                      </span>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
+              <div class="d-flex gap-2 flex-wrap">
+                <%= link_to project_pv_reception_path(@project), class: "btn btn-sm btn-outline-success", style: "font-size:0.8rem;" do %>
+                  <i class="bi bi-eye me-1"></i>Voir le PV
+                <% end %>
+                <% if !@pv_reception.finalise? && @membership.role == 'entrepreneur' && @pv_reception.token_entrepreneur.present? %>
+                  <%= link_to pv_signature_path(@pv_reception.token_entrepreneur),
+                        class: "btn btn-sm btn-success", style: "font-size:0.8rem;" do %>
+                    <i class="bi bi-pen me-1"></i>Signer le PV
+                  <% end %>
+                <% end %>
+              </div>
+            <% else %>
+              <div class="text-center py-4">
+                <i class="bi bi-file-earmark-check text-muted d-block mb-2" style="font-size:2rem;"></i>
+                <p class="text-muted mb-3" style="font-size:0.85rem;">
+                  <% if @project.user_id == current_user.id %>
+                    Le chantier est terminé ? Créez le procès-verbal de réception.
+                  <% else %>
+                    Le PV sera créé par le propriétaire en fin de chantier.
+                  <% end %>
+                </p>
+                <% if @project.user_id == current_user.id %>
+                  <%= button_to project_pv_reception_path(@project), method: :post,
+                        class: "btn btn-success btn-sm", style: "font-size:0.8rem;" do %>
+                    <i class="bi bi-plus me-1"></i>Créer le PV de réception
+                  <% end %>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+      </div><%# /section-reception %>

@@ -1,0 +1,130 @@
+      <div style="position:sticky;top:1rem;">
+
+        <%# FICHE BIEN ── %>
+      <% if @property %>
+        <div class="card border-0 shadow-sm rounded-3 mb-3">
+          <div class="card-header bg-white border-bottom pt-3 pb-2 px-4">
+            <h5 class="mb-0 fw-semibold" style="font-size:0.9rem;">
+              <i class="bi bi-house me-2 text-primary"></i>Fiche bien
+            </h5>
+          </div>
+          <div class="card-body px-4 py-3" style="font-size:0.82rem;">
+            <dl class="row mb-0">
+              <% if @property.try(:type_bien).present? %>
+                <dt class="col-6 text-muted fw-normal">Type</dt>
+                <dd class="col-6"><%= @property.type_bien.humanize rescue @property.type_bien %></dd>
+              <% end %>
+              <% if @property.try(:annee_construction).present? %>
+                <dt class="col-6 text-muted fw-normal">Année</dt>
+                <dd class="col-6"><%= @property.annee_construction %></dd>
+              <% end %>
+              <% if @property.try(:superficie).present? %>
+                <dt class="col-6 text-muted fw-normal">Surface</dt>
+                <dd class="col-6"><%= @property.superficie %> m²</dd>
+              <% end %>
+              <% if @property.try(:region).present? %>
+                <dt class="col-6 text-muted fw-normal">Région</dt>
+                <dd class="col-6"><%= @property.region.capitalize %></dd>
+              <% end %>
+              <% if @property.try(:code_postal).present? %>
+                <dt class="col-6 text-muted fw-normal">Code postal</dt>
+                <dd class="col-6"><%= @property.code_postal %></dd>
+              <% end %>
+            </dl>
+          </div>
+        </div>
+      <% end %>
+
+        <%# STEPPER AVANCEMENT GLOBAL ── %>
+        <div class="card border-0 shadow-sm rounded-3 mb-3">
+          <div class="card-header bg-white border-bottom pt-3 pb-2 px-4">
+            <h5 class="mb-0 fw-semibold" style="font-size:0.85rem;">
+              <i class="bi bi-bar-chart-steps me-2 text-info"></i>Avancement chantier
+            </h5>
+          </div>
+          <div class="card-body px-3 py-3">
+            <%# Barre globale %>
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <span class="text-muted" style="font-size:0.72rem;">Global</span>
+              <span class="fw-semibold" style="font-size:0.72rem;color:var(--ren0vate-accent);"><%= pct_global %>%</span>
+            </div>
+            <div class="progress mb-3" style="height:6px;border-radius:4px;">
+              <div class="progress-bar" role="progressbar"
+                   style="width:<%= pct_global %>%;background:var(--ren0vate-accent);"></div>
+            </div>
+            <%# Mini-stepper vertical %>
+            <% chantier_phases_all.each_with_index do |phase, idx| %>
+              <%
+                pd       = phase_data_for.call(phase[:key])
+                done     = required_roles.all? { |r| pd[r].present? }
+                partial  = pd.any? && !done
+                anchor   = phase[:section]
+              %>
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="d-flex flex-column align-items-center flex-shrink-0" style="width:16px;">
+                  <div class="rounded-circle d-flex align-items-center justify-content-center"
+                       style="width:16px;height:16px;background:<%= done ? '#198754' : partial ? '#fd7e14' : '#dee2e6' %>;">
+                    <% if done %>
+                      <i class="bi bi-check2 text-white" style="font-size:0.55rem;"></i>
+                    <% elsif partial %>
+                      <i class="bi bi-clock text-white" style="font-size:0.5rem;"></i>
+                    <% else %>
+                      <div style="width:5px;height:5px;border-radius:50%;background:#adb5bd;"></div>
+                    <% end %>
+                  </div>
+                  <% if idx < 4 %>
+                    <div style="width:1px;height:12px;background:<%= done ? '#19875440' : '#dee2e6' %>;margin-top:1px;"></div>
+                  <% end %>
+                </div>
+                <a href="#<%= anchor %>"
+                   class="text-decoration-none <%= done ? 'text-success' : partial ? 'text-warning' : 'text-muted' %>"
+                   style="font-size:0.78rem;<%= done ? 'font-weight:500;' : '' %>">
+                  <%= phase[:label] %>
+                </a>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <%# ÉQUIPE PROJET ── %>
+        <div class="card border-0 shadow-sm rounded-3 mb-3">
+          <div class="card-header bg-white border-bottom pt-3 pb-2 px-4">
+            <h5 class="mb-0 fw-semibold" style="font-size:0.85rem;">
+              <i class="bi bi-people me-2 text-secondary"></i>Équipe
+            </h5>
+          </div>
+          <div class="card-body px-3 py-2">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center flex-shrink-0"
+                   style="width:28px;height:28px;">
+                <i class="bi bi-house-fill text-primary" style="font-size:0.65rem;"></i>
+              </div>
+              <div>
+                <div class="fw-medium" style="font-size:0.8rem;"><%= @project.user.full_name %></div>
+                <div class="text-muted" style="font-size:0.68rem;">Propriétaire</div>
+              </div>
+            </div>
+            <% @members.each do |m| %>
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center flex-shrink-0 border"
+                     style="width:28px;height:28px;">
+                  <i class="bi bi-person text-muted" style="font-size:0.65rem;"></i>
+                </div>
+                <div>
+                  <div class="fw-medium" style="font-size:0.8rem;"><%= m.user.full_name.presence || m.invited_email %></div>
+                  <div class="text-muted" style="font-size:0.68rem;"><%= m.role_label %></div>
+                </div>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <%# RETOUR VUE PROPRIÉTAIRE %>
+        <% if @project.user_id == current_user.id %>
+          <%= link_to project_path(@project), class: "btn btn-outline-secondary btn-sm w-100 mb-2",
+                      style: "font-size:0.78rem;" do %>
+            <i class="bi bi-arrow-left me-1"></i>Vue propriétaire complète
+          <% end %>
+        <% end %>
+
+      </div><%# /sticky %>

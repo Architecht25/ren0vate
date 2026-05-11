@@ -1,0 +1,224 @@
+      <div id="section-suivi" class="mb-5">
+        <div class="d-flex align-items-center gap-2 mb-3 pb-2" style="border-bottom:2px solid rgba(253,126,20,0.2);">
+          <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white flex-shrink-0"
+               style="width:28px;height:28px;background:#fd7e14;font-size:0.78rem;">2</div>
+          <h2 class="mb-0 fw-semibold" style="font-size:1.05rem;">Suivi d'exécution</h2>
+          <span class="badge bg-warning-subtle text-warning border border-warning-subtle ms-auto" style="font-size:0.68rem;">
+            <%= nb_phases_validees %>/4 phases · <%= pct_global %>%
+          </span>
+        </div>
+
+        <%# Phases 1–4 en grille 2×2 %>
+        <div class="row g-3 mb-3">
+          <% chantier_phases_all.first(4).each do |phase| %>
+            <%
+              phase_d      = phase_data_for.call(phase[:key])
+              all_val      = required_roles.all? { |r| phase_d[r].present? }
+              user_val     = current_role && phase_d[current_role].present?
+              phase_photos = (@photos_by_phase || {})[phase[:key]] || []
+            %>
+            <div class="col-md-6">
+              <div class="card border-0 shadow-sm rounded-3 h-100"
+                   style="border:1px solid <%= all_val ? '#a3cfbb' : '#e9ecef' %> !important;background:<%= all_val ? '#f0faf4' : 'white' %>;">
+                <div class="card-body p-3">
+                  <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div class="d-flex align-items-center gap-2">
+                      <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                           style="width:26px;height:26px;background:<%= all_val ? '#19875420' : phase[:color] + '20' %>;">
+                        <i class="bi <%= phase[:icon] %>" style="font-size:0.68rem;color:<%= all_val ? '#198754' : phase[:color] %>;"></i>
+                      </div>
+                      <span class="fw-semibold <%= all_val ? 'text-success' : '' %>" style="font-size:0.88rem;">
+                        <%= phase[:label] %>
+                      </span>
+                      <% if phase_photos.any? %>
+                        <span class="badge bg-secondary-subtle text-secondary" style="font-size:0.6rem;">
+                          <%= phase_photos.count %> <i class="bi bi-image"></i>
+                        </span>
+                      <% end %>
+                    </div>
+                    <% if all_val %>
+                      <i class="bi bi-check-circle-fill text-success flex-shrink-0" style="font-size:1rem;"></i>
+                    <% elsif user_val %>
+                      <span class="text-success flex-shrink-0" style="font-size:0.65rem;">✓ validé</span>
+                    <% elsif can_validate %>
+                      <%= button_to validate_phase_project_path(@project),
+                          method: :patch,
+                          params: { phase_key: phase[:key] },
+                          class: "btn btn-outline-success btn-sm py-0 px-2 flex-shrink-0",
+                          style: "font-size:0.7rem;" do %>
+                        <i class="bi bi-check2 me-1"></i>Valider
+                      <% end %>
+                    <% end %>
+                  </div>
+                  <%# Badges signatures %>
+                  <% if phase_d.any? %>
+                    <div class="d-flex gap-1 flex-wrap mb-2">
+                      <% required_roles.each do |r| %>
+                        <% vdata = phase_d[r] %>
+                        <span class="badge"
+                              style="font-size:0.58rem;background:<%= vdata ? 'rgba(25,135,84,0.12)' : 'rgba(108,117,125,0.08)' %>;color:<%= vdata ? '#198754' : '#6c757d' %>;"
+                              title="<%= vdata ? "#{role_labels[r]} — #{Time.zone.parse(vdata['validated_at']).strftime('%d/%m/%Y') rescue ''}" : "#{role_labels[r]} : en attente" %>">
+                          <i class="bi <%= role_icons[r] %> me-1"></i><%= role_labels[r] %>
+                          <% if vdata %><i class="bi bi-check ms-1"></i><% else %><i class="bi bi-clock ms-1"></i><% end %>
+                        </span>
+                      <% end %>
+                    </div>
+                  <% end %>
+                  <%# Miniatures photos %>
+                  <% if phase_photos.any? %>
+                    <div class="d-flex gap-1 flex-wrap">
+                      <% phase_photos.first(5).each do |photo| %>
+                        <div class="rounded overflow-hidden flex-shrink-0" style="width:40px;height:40px;background:#dee2e6;">
+                          <% begin %>
+                            <%= image_tag rails_blob_path(photo, only_path: true),
+                                  style: "width:40px;height:40px;object-fit:cover;", alt: phase[:label] %>
+                          <% rescue %>
+                            <div class="w-100 h-100 d-flex align-items-center justify-content-center">
+                              <i class="bi bi-image text-muted" style="font-size:0.6rem;"></i>
+                            </div>
+                          <% end %>
+                        </div>
+                      <% end %>
+                      <% if phase_photos.count > 5 %>
+                        <div class="rounded d-flex align-items-center justify-content-center bg-secondary-subtle text-secondary flex-shrink-0"
+                             style="width:40px;height:40px;font-size:0.62rem;">
+                          +<%= phase_photos.count - 5 %>
+                        </div>
+                      <% end %>
+                    </div>
+                  <% else %>
+                    <p class="text-muted mb-0" style="font-size:0.72rem;"><i class="bi bi-camera me-1"></i>Aucune photo</p>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
+        <%# Upload photo (entrepreneur) %>
+        <% if @membership.role == 'entrepreneur' %>
+          <div class="card border-0 shadow-sm rounded-3 mb-3" style="border-left:3px solid #fd7e14 !important;">
+            <div class="card-body px-4 py-3">
+              <%= form_with url: upload_facture_pro_project_path(@project), method: :post,
+                            multipart: true do |f| %>
+                <input type="hidden" name="type_facture" value="photo">
+                <label class="form-label text-muted mb-2" style="font-size:0.8rem;">
+                  <i class="bi bi-camera me-1 text-warning"></i>Ajouter une photo de chantier
+                </label>
+                <div class="row g-2 align-items-end">
+                  <div class="col-md-4 col-6">
+                    <select name="phase_photo" class="form-select form-select-sm" style="font-size:0.78rem;">
+                      <option value="">Phase...</option>
+                      <% chantier_phases_all.first(4).each do |ph| %>
+                        <option value="<%= ph[:key] %>"><%= ph[:label] %></option>
+                      <% end %>
+                    </select>
+                  </div>
+                  <div class="col-md-6 col">
+                    <input type="file" name="photo_file" class="form-control form-control-sm"
+                           accept="image/*" capture="environment" style="font-size:0.78rem;">
+                  </div>
+                  <div class="col-md-2 col-auto">
+                    <button type="submit" class="btn btn-warning btn-sm w-100">
+                      <i class="bi bi-camera"></i>
+                    </button>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% else %>
+          <div class="mb-3">
+            <%= link_to new_project_document_path(@project, type_document: 'photo_pendant'),
+                  class: "btn btn-outline-warning btn-sm", style: "font-size:0.8rem;" do %>
+              <i class="bi bi-camera me-1"></i>+ Ajouter une photo
+            <% end %>
+          </div>
+        <% end %>
+
+        <%# ÉTATS D'AVANCEMENT ── %>
+        <div class="card border-0 shadow-sm rounded-3" style="border-left:3px solid var(--ren0vate-accent) !important;">
+          <div class="card-header bg-white border-bottom pt-3 pb-2 px-4 d-flex align-items-center justify-content-between">
+            <h5 class="mb-0 fw-semibold" style="font-size:0.9rem;">
+              <i class="bi bi-receipt-cutoff me-2" style="color:var(--ren0vate-accent);"></i>États d'avancement
+            </h5>
+            <% if @membership.role == 'entrepreneur' || @project.user_id == current_user.id %>
+              <%= link_to new_project_etats_avancement_path(@project),
+                          class: "btn btn-sm rounded-3",
+                          style: "background:var(--ren0vate-accent);color:#fff;border:none;font-size:0.75rem;" do %>
+                <i class="bi bi-plus me-1"></i>Nouvel état
+              <% end %>
+            <% end %>
+          </div>
+          <div class="card-body px-4 py-3">
+            <% etats = @project.etats_avancement.chronologique.includes(:lignes) %>
+            <% if etats.any? %>
+              <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0" style="font-size:0.83rem;">
+                  <thead style="font-size:0.75rem;" class="text-muted">
+                    <tr>
+                      <th class="fw-normal">N°</th>
+                      <th class="fw-normal">Date</th>
+                      <th class="fw-normal">Statut</th>
+                      <th class="fw-normal text-center">Avancement</th>
+                      <th class="fw-normal text-end">Montant</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% etats.each do |etat| %>
+                      <tr>
+                        <td>
+                          <div class="rounded-circle d-inline-flex align-items-center justify-content-center text-white fw-bold"
+                               style="width:24px;height:24px;background:var(--ren0vate-navy);font-size:0.68rem;">
+                            <%= etat.numero %>
+                          </div>
+                        </td>
+                        <td class="text-muted">
+                          <%= etat.date_emission&.strftime("%d/%m/%Y") || etat.created_at.strftime("%d/%m/%Y") %>
+                        </td>
+                        <td>
+                          <span class="badge rounded-pill bg-<%= etat.statut_color %>" style="font-size:0.65rem;">
+                            <%= etat.statut_label %>
+                          </span>
+                        </td>
+                        <td class="text-center">
+                          <div class="d-flex align-items-center gap-1 justify-content-center">
+                            <div class="progress" style="height:4px;width:50px;">
+                              <div class="progress-bar" style="width:<%= etat.avancement_global_pct %>%;background:var(--ren0vate-accent);"></div>
+                            </div>
+                            <span style="font-size:0.68rem;color:var(--ren0vate-accent);"><%= etat.avancement_global_pct %>%</span>
+                          </div>
+                        </td>
+                        <td class="text-end fw-bold" style="color:var(--ren0vate-accent);">
+                          <%= number_to_currency(etat.montant_reclame_periode, unit: '€', format: '%n %u', separator: ',', delimiter: '.') %>
+                        </td>
+                        <td>
+                          <%= link_to project_etats_avancement_path(@project, etat),
+                                class: "btn btn-sm btn-outline-secondary rounded-3 py-0 px-2",
+                                style: "font-size:0.65rem;" do %>
+                            <i class="bi bi-eye"></i>
+                          <% end %>
+                        </td>
+                      </tr>
+                    <% end %>
+                  </tbody>
+                </table>
+              </div>
+            <% else %>
+              <div class="text-center py-3">
+                <i class="bi bi-receipt-cutoff fs-4 text-muted d-block mb-2"></i>
+                <p class="text-muted small mb-2">Aucun état d'avancement</p>
+                <% if @membership.role == 'entrepreneur' %>
+                  <%= link_to new_project_etats_avancement_path(@project),
+                              class: "btn btn-sm rounded-3",
+                              style: "background:var(--ren0vate-accent);color:#fff;border:none;font-size:0.75rem;" do %>
+                    <i class="bi bi-stars me-1"></i>Créer avec l'IA
+                  <% end %>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+      </div><%# /section-suivi %>

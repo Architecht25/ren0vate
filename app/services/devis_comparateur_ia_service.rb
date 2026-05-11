@@ -104,7 +104,7 @@ class DevisComparateurIaService
     ref_line  = estimatif ? "Montant estimatif de référence : #{estimatif.total_avg&.round(0)} € HTVA" : nil
 
     [
-      "Projet : #{@project.title.presence || 'Rénovation'}",
+      "Projet : #{@project.name.presence || 'Rénovation'}",
       ref_line,
       "Nombre de devis : #{devis.count}",
       "",

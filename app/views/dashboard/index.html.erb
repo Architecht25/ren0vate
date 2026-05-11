@@ -63,6 +63,95 @@
       </p>
     </div>
 
+    <!-- ===== SITUATION ACTUELLE ===== -->
+    <div class="mx-auto w-100 mb-4" style="max-width: 780px;">
+      <div class="rounded-4 overflow-hidden" style="background: var(--ren0vate-white); box-shadow: var(--ren0vate-shadow-lg); border: 1px solid var(--ren0vate-border);">
+
+        <!-- Header -->
+        <div class="p-4 text-white" style="background: linear-gradient(135deg, var(--ren0vate-primary) 0%, var(--ren0vate-success-dark) 100%);">
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                 style="width:56px; height:56px; background: rgba(255,255,255,0.2); font-size: 1.7rem;">
+              <i class="bi bi-speedometer2"></i>
+            </div>
+            <div class="flex-grow-1">
+              <h4 class="mb-1 fw-bold" style="color: var(--ren0vate-accent);">Situation actuelle</h4>
+              <p class="mb-0 opacity-90" style="font-size: 0.9rem;">
+                Budget engagé, primes attendues et alertes en cours sur vos chantiers
+              </p>
+            </div>
+            <% if @alerts.any? %>
+              <span class="badge fs-6 fw-normal px-3 py-2 flex-shrink-0" style="background: rgba(255,255,255,0.2);">
+                <i class="bi bi-bell-fill me-1"></i><%= @alerts.count %> alerte<%= @alerts.count > 1 ? 's' : '' %>
+              </span>
+            <% end %>
+          </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="px-4 py-3">
+          <div class="row g-2">
+
+            <div class="col-6 col-md-3">
+              <div class="rounded-3 p-3 text-center" style="background: var(--ren0vate-light); border: 1px solid var(--ren0vate-border);">
+                <div class="small mb-1" style="color: var(--ren0vate-text-muted); font-size: 0.75rem;"><i class="bi bi-hammer me-1"></i>Budget engagé</div>
+                <div class="fw-bold" style="font-size: 1.1rem; color: var(--ren0vate-primary);">
+                  <% if @budget_total > 0 %><%= number_with_delimiter(@budget_total, delimiter: ' ') %> €<% else %>—<% end %>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <div class="rounded-3 p-3 text-center" style="background: rgba(var(--ren0vate-success-rgb), 0.08); border: 1px solid rgba(var(--ren0vate-success-rgb), 0.25);">
+                <div class="small mb-1" style="color: var(--ren0vate-text-muted); font-size: 0.75rem;"><i class="bi bi-gift me-1"></i>Primes attendues</div>
+                <div class="fw-bold" style="font-size: 1.1rem; color: var(--ren0vate-success-dark);">
+                  <% if @primes_attendues > 0 %><%= number_with_delimiter(@primes_attendues, delimiter: ' ') %> €<% else %>—<% end %>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <div class="rounded-3 p-3 text-center" style="background: <%= @factures_en_attente_count > 0 ? 'rgba(var(--ren0vate-accent-rgb), 0.07)' : 'var(--ren0vate-light)' %>; border: 1px solid <%= @factures_en_attente_count > 0 ? 'rgba(var(--ren0vate-accent-rgb), 0.3)' : 'var(--ren0vate-border)' %>;">
+                <div class="small mb-1" style="color: var(--ren0vate-text-muted); font-size: 0.75rem;"><i class="bi bi-receipt me-1"></i>Factures en attente</div>
+                <div class="fw-bold d-flex align-items-center justify-content-center gap-1" style="font-size: 1.1rem; color: <%= @factures_en_attente_count > 0 ? 'var(--ren0vate-accent)' : 'var(--ren0vate-primary)' %>;">
+                  <%= @factures_en_attente_count %>
+                  <% if @factures_en_attente_count > 0 %><i class="bi bi-exclamation-circle-fill" style="font-size: 0.75rem;"></i><% end %>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <div class="rounded-3 p-3 text-center" style="background: var(--ren0vate-light); border: 1px solid var(--ren0vate-border);">
+                <div class="small mb-1" style="color: var(--ren0vate-text-muted); font-size: 0.75rem;"><i class="bi bi-buildings me-1"></i>Chantiers actifs</div>
+                <div class="fw-bold" style="font-size: 1.1rem; color: var(--ren0vate-primary);"><%= project_count %></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Alertes -->
+        <% if @alerts.any? %>
+          <div class="mx-4 mb-3" style="border-top: 1px solid var(--ren0vate-border);"></div>
+          <div class="px-4 pb-3 d-flex flex-column gap-2">
+            <% @alerts.each do |alert| %>
+              <% urgent = alert[:level] == :urgent %>
+              <div class="d-flex align-items-center gap-3 px-3 py-2 rounded-3"
+                   style="background: <%= urgent ? 'rgba(239,68,68,0.05)' : 'rgba(249,115,22,0.05)' %>; border-left: 3px solid <%= urgent ? '#ef4444' : '#f97316' %>; border: 1px solid <%= urgent ? 'rgba(239,68,68,0.2)' : 'rgba(249,115,22,0.2)' %>; border-left: 3px solid <%= urgent ? '#ef4444' : '#f97316' %>;">
+                <i class="bi bi-<%= urgent ? 'exclamation-circle-fill' : 'exclamation-triangle-fill' %> flex-shrink-0"
+                   style="color: <%= urgent ? '#ef4444' : '#f97316' %>; font-size: 0.95rem;"></i>
+                <span class="flex-grow-1 small" style="color: var(--ren0vate-text-secondary);"><%= alert[:message] %></span>
+                <%= link_to project_path(alert[:project]), class: "btn btn-sm flex-shrink-0 fw-semibold", style: "color: var(--ren0vate-primary); font-size: 0.75rem; padding: 2px 10px; background: rgba(var(--ren0vate-primary-rgb), 0.07); border: 1px solid rgba(var(--ren0vate-primary-rgb), 0.2);" do %>
+                  Voir <i class="bi bi-arrow-right ms-1"></i>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+
+      </div>
+    </div>
+
     <!-- ===== MAIN IA CARD ===== -->
     <div class="mx-auto w-100 mb-4" style="max-width: 780px;">
       <div class="rounded-4 overflow-hidden" style="background: var(--ren0vate-white); box-shadow: var(--ren0vate-shadow-lg); border: 1px solid var(--ren0vate-border);">
@@ -194,69 +283,6 @@
 
             </div>
 
-            <!-- Santé de vos chantiers -->
-            <% user_projects = current_user.projects.order(updated_at: :desc).limit(5) %>
-            <% if user_projects.any? %>
-              <div class="mt-4">
-                <h6 class="fw-semibold mb-3 d-flex align-items-center gap-2" style="color: var(--ren0vate-text-secondary);">
-                  <i class="bi bi-heart-pulse-fill" style="color: #d97706;"></i>
-                  Santé de vos chantiers
-                </h6>
-                <div class="row g-3">
-                  <% user_projects.each do |pr| %>
-                    <div class="col-md-6">
-                      <div class="rounded-3 p-0 overflow-hidden" style="border: 1px solid #e2e8f0;">
-                        <div class="px-3 py-2 d-flex align-items-center justify-content-between"
-                             style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);">
-                          <span class="text-white fw-semibold small text-truncate me-2"><%= pr.display_name.presence || "Chantier" %></span>
-                          <%= link_to project_path(pr), class: "btn btn-sm text-white flex-shrink-0",
-                                style: "background:rgba(255,255,255,0.12); border:1px solid rgba(255,255,255,0.2); font-size:0.75rem; padding:2px 8px;" do %>
-                            Voir <i class="bi bi-arrow-right ms-1"></i>
-                          <% end %>
-                        </div>
-                        <div data-controller="health-score"
-                             data-health-score-url-value="<%= score_sante_project_path(pr) %>"
-                             class="p-3">
-                          <div data-health-score-target="loadingState" class="text-center py-2">
-                            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-                            <span class="ms-2 small text-muted">Analyse…</span>
-                          </div>
-                          <div data-health-score-target="errorState" class="text-center py-2 d-none">
-                            <span class="small text-muted"><i class="bi bi-exclamation-circle me-1"></i>Score indisponible</span>
-                          </div>
-                          <div data-health-score-target="resultState" class="d-none d-flex align-items-center gap-3">
-                            <div class="position-relative flex-shrink-0" style="width:56px;height:56px;">
-                              <svg viewBox="0 0 36 36" class="w-100 h-100" style="transform:rotate(-90deg);">
-                                <circle cx="18" cy="18" r="15.5" fill="none" stroke="#e2e8f0" stroke-width="3.5"/>
-                                <circle cx="18" cy="18" r="15.5" fill="none" stroke-width="3.5"
-                                        stroke-linecap="round"
-                                        data-health-score-target="scoreCircle"
-                                        stroke-dasharray="97.4 97.4"
-                                        style="transition:stroke-dashoffset 1s ease;"/>
-                              </svg>
-                              <div class="position-absolute top-50 start-50 translate-middle text-center">
-                                <div class="fw-bold lh-1" style="font-size:1rem;" data-health-score-target="scoreValue">—</div>
-                                <div class="text-muted" style="font-size:0.55rem;">/10</div>
-                              </div>
-                            </div>
-                            <div>
-                              <div class="d-flex align-items-center gap-1 mb-1">
-                                <span data-health-score-target="scoreGrade"></span>
-                                <span class="fw-semibold small" data-health-score-target="scoreLabel"></span>
-                              </div>
-                              <div data-health-score-target="indicators"></div>
-                              <div data-health-score-target="recommendations" class="d-none"></div>
-                              <small class="text-muted d-none" data-health-score-target="scoreDate"></small>
-                              <small class="text-muted d-none" data-health-score-target="computedAt"></small>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  <% end %>
-                </div>
-              </div>
-            <% end %>
 
           <% else %>
             <%# Données manquantes - afficher la checklist %>

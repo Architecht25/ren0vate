@@ -44,6 +44,24 @@ Opérations à effectuer le jour de la mise en vente (commercialisation publique
 
 ---
 
+## RGPD — Conformité administrative
+
+### DPO / Contact RGPD → APD belge
+- [ ] Se déclarer comme contact RGPD sur [apd-gba.be](https://www.apd-gba.be) → "Responsables de traitement" → formulaire de notification
+  - Nom : Robin Dupont
+  - Email : robin@architecht.be
+  - Entité : ArchiTecht SRL — BCE BE 1020.345.473
+  - *(Pas d'obligation stricte art. 37 à ce stade, mais recommandé dès la commercialisation)*
+
+### Médiation consommateur (CPMA / ODR belge)
+- [ ] S'inscrire au Service de Médiation pour le Consommateur via [mediationconsommateur.be](https://www.mediationconsommateur.be)
+  - Coût : ~150 €/an
+  - Obligation légale avant d'accepter des consommateurs B2C
+- [ ] Ajouter le lien ODR dans les CGU / footer : `https://ec.europa.eu/consumers/odr/`
+
+---
+
 ## Notes
 - Le health-check endpoint `/up` est déjà en prod — UptimeRobot peut être configuré dès maintenant si souhaité
 - Sentry et Plausible sont entièrement prêts côté code, ils attendent juste leurs comptes externes
+- Transfert compte Anthropic → ArchiTecht SRL : email envoyé le 11 mai 2026 à privacy@anthropic.com — attendre confirmation écrite
