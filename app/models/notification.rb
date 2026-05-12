@@ -247,8 +247,10 @@ class Notification < ApplicationRecord
 
     # PEB Bruxelles — alerte passoire énergétique
     def create_alerte_peb_bruxelles(user, property, peb_label)
-      deadline_year = %w[F G].include?(peb_label.to_s.upcase) ? 2033 : 2045
-      urgency = %w[F G].include?(peb_label.to_s.upcase) ? :critique : :haute
+      is_fg = %w[F G].include?(peb_label.to_s.upcase)
+      deadline_year  = is_fg ? 2033 : 2045
+      target_label   = is_fg ? 'E'  : 'D'
+      urgency = is_fg ? :critique : :haute
 
       # Ne pas dupliquer si une alerte non-lue existe déjà pour ce bien
       return nil if where(
@@ -265,7 +267,7 @@ class Notification < ApplicationRecord
         category: :legal,
         title: "⚠️ Passoire énergétique PEB #{peb_label} — obligation Bruxelles",
         message: "Votre bien (#{property.titre.presence || property.commune}) est classé PEB #{peb_label}. " \
-                 "La réglementation bruxelloise impose un label minimum E avant #{deadline_year}. " \
+                 "La réglementation bruxelloise impose un label minimum #{target_label} avant #{deadline_year}. " \
                  "Des travaux de rénovation énergétique sont nécessaires — lancez une simulation pour planifier.",
         action_url: "/properties/#{property.id}",
         priority: urgency,
