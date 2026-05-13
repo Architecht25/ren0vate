@@ -45,6 +45,26 @@
     </div>
   </div>
 
+  <%# ── Toggle mensuel / annuel ── %>
+  <div class="row mb-4" id="billing-toggle-row">
+    <div class="col-auto mx-auto">
+      <div class="d-flex align-items-center gap-3 bg-light rounded-pill px-4 py-2">
+        <span class="fw-semibold text-dark billing-label-monthly">Mensuel</span>
+        <div class="form-check form-switch mb-0">
+          <input class="form-check-input" type="checkbox" role="switch" id="billingToggle"
+                 style="width:3rem;height:1.5rem;cursor:pointer;">
+          <label class="form-check-label visually-hidden" for="billingToggle">Annuel</label>
+        </div>
+        <span class="fw-semibold text-muted billing-label-annual">
+          Annuel <span class="badge bg-success ms-1">-17%</span>
+        </span>
+      </div>
+      <p class="text-center text-muted small mt-1 mb-0 annual-savings-note d-none">
+        <i class="bi bi-piggy-bank me-1 text-success"></i>2 mois offerts par rapport à la facturation mensuelle
+      </p>
+    </div>
+  </div>
+
   <hr class="my-4">
 
   <%# ── Offres Propriétaires ── %>
@@ -102,7 +122,13 @@
         </div>
         <div class="card-header text-white text-center py-2 mt-2" style="background:var(--ren0vate-primary);">
           <h5 class="card-title mb-1"><%= @pricing_tiers[:individual][:name] %></h5>
-          <div class="my-1"><span class="h3 fw-bold"><%= @pricing_tiers[:individual][:price] %>€</span><span class="small">/mois</span></div>
+          <div class="my-1">
+            <span class="price-monthly"><span class="h3 fw-bold"><%= @pricing_tiers[:individual][:price] %>€</span><span class="small">/mois</span></span>
+            <span class="price-annual d-none">
+              <span class="h3 fw-bold"><%= (@pricing_tiers[:individual][:annual_total] / 12.0).round %>€</span><span class="small">/mois</span>
+              <div class="small opacity-75" style="font-size:.75rem;">facturé <%= @pricing_tiers[:individual][:annual_total] %>€/an</div>
+            </span>
+          </div>
           <small class="opacity-75"><%= @pricing_tiers[:individual][:description] %></small>
         </div>
         <div class="card-body p-2">
@@ -117,7 +143,10 @@
         </div>
         <div class="card-footer bg-transparent text-center py-2">
           <% if user_signed_in? %>
-            <%= link_to pricing_summary_path(tier: :individual), class: "btn btn-primary btn-sm w-100" do %>
+            <%= link_to pricing_summary_path(tier: :individual, billing_cycle: :monthly),
+                class: "btn btn-primary btn-sm w-100 cta-link",
+                data: { monthly_href: pricing_summary_path(tier: :individual, billing_cycle: :monthly),
+                        annual_href: pricing_summary_path(tier: :individual, billing_cycle: :yearly) } do %>
               <i class="bi bi-rocket-takeoff me-1"></i><%= @pricing_tiers[:individual][:cta] %>
             <% end %>
           <% else %>
@@ -134,7 +163,13 @@
       <div class="card h-100 border-warning">
         <div class="card-header bg-warning text-dark text-center py-2">
           <h5 class="card-title mb-1"><%= @pricing_tiers[:portfolio][:name] %></h5>
-          <div class="my-1"><span class="h3 fw-bold"><%= @pricing_tiers[:portfolio][:price] %>€</span><span class="small">/mois</span></div>
+          <div class="my-1">
+            <span class="price-monthly"><span class="h3 fw-bold"><%= @pricing_tiers[:portfolio][:price] %>€</span><span class="small">/mois</span></span>
+            <span class="price-annual d-none">
+              <span class="h3 fw-bold"><%= (@pricing_tiers[:portfolio][:annual_total] / 12.0).round %>€</span><span class="small">/mois</span>
+              <div class="small opacity-75" style="font-size:.75rem;">facturé <%= @pricing_tiers[:portfolio][:annual_total] %>€/an</div>
+            </span>
+          </div>
           <small><%= @pricing_tiers[:portfolio][:description] %></small>
         </div>
         <div class="card-body p-2">
@@ -150,7 +185,10 @@
         </div>
         <div class="card-footer bg-transparent text-center py-2">
           <% if user_signed_in? %>
-            <%= link_to pricing_summary_path(tier: :portfolio), class: "btn btn-warning btn-sm w-100 text-dark" do %>
+            <%= link_to pricing_summary_path(tier: :portfolio, billing_cycle: :monthly),
+                class: "btn btn-warning btn-sm w-100 text-dark cta-link",
+                data: { monthly_href: pricing_summary_path(tier: :portfolio, billing_cycle: :monthly),
+                        annual_href: pricing_summary_path(tier: :portfolio, billing_cycle: :yearly) } do %>
               <i class="bi bi-crown me-1"></i><%= @pricing_tiers[:portfolio][:cta] %>
             <% end %>
           <% else %>
@@ -167,7 +205,13 @@
       <div class="card h-100 border-danger">
         <div class="card-header bg-danger text-white text-center py-2">
           <h5 class="card-title mb-1"><%= @pricing_tiers[:premium_mixed][:name] %></h5>
-          <div class="my-1"><span class="h3 fw-bold"><%= @pricing_tiers[:premium_mixed][:price] %>€</span><span class="small">/mois</span></div>
+          <div class="my-1">
+            <span class="price-monthly"><span class="h3 fw-bold"><%= @pricing_tiers[:premium_mixed][:price] %>€</span><span class="small">/mois</span></span>
+            <span class="price-annual d-none">
+              <span class="h3 fw-bold"><%= (@pricing_tiers[:premium_mixed][:annual_total] / 12.0).round %>€</span><span class="small">/mois</span>
+              <div class="small opacity-75" style="font-size:.75rem;">facturé <%= @pricing_tiers[:premium_mixed][:annual_total] %>€/an</div>
+            </span>
+          </div>
           <small class="opacity-75"><%= @pricing_tiers[:premium_mixed][:description] %></small>
         </div>
         <div class="card-body p-2">
@@ -183,7 +227,10 @@
         </div>
         <div class="card-footer bg-transparent text-center py-2">
           <% if user_signed_in? %>
-            <%= link_to pricing_summary_path(tier: :premium_mixed), class: "btn btn-danger btn-sm w-100" do %>
+            <%= link_to pricing_summary_path(tier: :premium_mixed, billing_cycle: :monthly),
+                class: "btn btn-danger btn-sm w-100 cta-link",
+                data: { monthly_href: pricing_summary_path(tier: :premium_mixed, billing_cycle: :monthly),
+                        annual_href: pricing_summary_path(tier: :premium_mixed, billing_cycle: :yearly) } do %>
               <i class="bi bi-gem me-1"></i><%= @pricing_tiers[:premium_mixed][:cta] %>
             <% end %>
           <% else %>
@@ -234,8 +281,19 @@
     <div class="col-xl-4 col-lg-6">
       <div class="card h-100 border-success">
         <div class="card-header bg-success text-white text-center py-2">
+          <div class="mb-1">
+            <span class="badge px-2 py-1 fw-semibold" style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);border-radius:20px;font-size:.68rem;">
+              <i class="bi bi-gift me-1"></i>14 jours gratuits &middot; sans CB
+            </span>
+          </div>
           <h5 class="card-title mb-1"><%= @pricing_tiers[:professional][:name] %></h5>
-          <div class="my-1"><span class="h3 fw-bold"><%= @pricing_tiers[:professional][:price] %>€</span><span class="small">/mois</span></div>
+          <div class="my-1">
+            <span class="price-monthly"><span class="h3 fw-bold"><%= @pricing_tiers[:professional][:price] %>€</span><span class="small">/mois</span></span>
+            <span class="price-annual d-none">
+              <span class="h3 fw-bold"><%= (@pricing_tiers[:professional][:annual_total] / 12.0).round %>€</span><span class="small">/mois</span>
+              <div class="small opacity-75" style="font-size:.75rem;">facturé <%= @pricing_tiers[:professional][:annual_total] %>€/an</div>
+            </span>
+          </div>
           <small class="opacity-75"><%= @pricing_tiers[:professional][:description] %></small>
         </div>
         <div class="card-body p-2">
@@ -261,8 +319,11 @@
         </div>
         <div class="card-footer bg-transparent text-center py-2">
           <% if user_signed_in? %>
-            <%= link_to pricing_summary_path(tier: :professional), class: "btn btn-success btn-sm w-100" do %>
-              <i class="bi bi-briefcase me-1"></i><%= @pricing_tiers[:professional][:cta] %>
+            <%= link_to pricing_summary_path(tier: :professional, billing_cycle: :monthly),
+                class: "btn btn-success btn-sm w-100 cta-link",
+                data: { monthly_href: pricing_summary_path(tier: :professional, billing_cycle: :monthly),
+                        annual_href: pricing_summary_path(tier: :professional, billing_cycle: :yearly) } do %>
+              <i class="bi bi-play-circle me-1"></i>Démarrer mon essai gratuit
             <% end %>
           <% else %>
             <%= link_to new_user_registration_path, class: "btn btn-success btn-sm w-100" do %>
@@ -278,7 +339,13 @@
       <div class="card h-100 border-dark">
         <div class="card-header bg-dark text-white text-center py-2">
           <h5 class="card-title mb-1"><%= @pricing_tiers[:enterprise][:name] %></h5>
-          <div class="my-1"><span class="h3 fw-bold"><%= @pricing_tiers[:enterprise][:price] %>€</span><span class="small">/mois</span></div>
+          <div class="my-1">
+            <span class="price-monthly"><span class="h3 fw-bold"><%= @pricing_tiers[:enterprise][:price] %>€</span><span class="small">/mois</span></span>
+            <span class="price-annual d-none">
+              <span class="h3 fw-bold"><%= (@pricing_tiers[:enterprise][:annual_total] / 12.0).round %>€</span><span class="small">/mois</span>
+              <div class="small opacity-75" style="font-size:.75rem;">facturé <%= @pricing_tiers[:enterprise][:annual_total] %>€/an</div>
+            </span>
+          </div>
           <small class="opacity-75"><%= @pricing_tiers[:enterprise][:description] %></small>
         </div>
         <div class="card-body p-2">
@@ -408,4 +475,45 @@
 @media (max-width: 768px) {
   .card { transform: none !important; margin-bottom: 1.5rem; }
 }
+/* Billing toggle */
+#billingToggle { transition: background-color .2s; }
+.billing-label-annual .badge { font-size: .65rem; }
+#billing-toggle-row .bg-light { box-shadow: 0 1px 4px rgba(0,0,0,.06); }
 </style>
+
+<script nonce="<%= content_security_policy_nonce %>">
+document.addEventListener('DOMContentLoaded', function () {
+  const toggle = document.getElementById('billingToggle');
+  if (!toggle) return;
+
+  const monthlyLabel = document.querySelector('.billing-label-monthly');
+  const annualLabel  = document.querySelector('.billing-label-annual');
+  const annualNote   = document.querySelector('.annual-savings-note');
+
+  function applyBilling(isAnnual) {
+    // Afficher/masquer les prix
+    document.querySelectorAll('.price-monthly').forEach(el => el.classList.toggle('d-none', isAnnual));
+    document.querySelectorAll('.price-annual').forEach(el => el.classList.toggle('d-none', !isAnnual));
+
+    // Mettre à jour les labels du toggle
+    monthlyLabel.classList.toggle('text-muted', isAnnual);
+    monthlyLabel.classList.toggle('text-dark', !isAnnual);
+    monthlyLabel.classList.toggle('fw-semibold', !isAnnual);
+    annualLabel.classList.toggle('text-muted', !isAnnual);
+    annualLabel.classList.toggle('text-dark', isAnnual);
+    annualLabel.classList.toggle('fw-semibold', isAnnual);
+
+    // Note d'économies
+    if (annualNote) annualNote.classList.toggle('d-none', !isAnnual);
+
+    // Mettre à jour les URLs des CTAs
+    document.querySelectorAll('a.cta-link').forEach(function (link) {
+      const href = isAnnual ? link.dataset.annualHref : link.dataset.monthlyHref;
+      if (href) link.href = href;
+    });
+  }
+
+  toggle.addEventListener('change', function () { applyBilling(this.checked); });
+  applyBilling(false); // État initial : mensuel
+});
+</script>

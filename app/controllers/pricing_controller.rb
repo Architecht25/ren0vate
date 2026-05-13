@@ -21,6 +21,7 @@ class PricingController < ApplicationController
       return
     end
 
+    @billing_cycle = %w[monthly yearly].include?(params[:billing_cycle]) ? params[:billing_cycle] : 'monthly'
     @pricing_tiers = pricing_tiers_data
     @selected_tier = @pricing_tiers[@tier]
     @current_user_context = build_user_context if user_signed_in?
@@ -83,11 +84,37 @@ class PricingController < ApplicationController
         { customer_email: current_user&.email }
       end
 
+      # Montant à facturer : annuel = annual_total, mensuel = price (en centimes)
+      billable_amount = if billing_cycle == 'yearly'
+        (pricing_tiers_data[tier][:annual_total] || pricing_tiers_data[tier][:price] * 10) * 100
+      else
+        pricing_tiers_data[tier][:price] * 100
+      end
+
+      # Tiers Pro : trial 14j sans CB requise — conversion automatique à J+14
+      pro_tiers = %i[professional]
+      is_pro_tier = pro_tiers.include?(tier)
+
       # Configuration de la session Stripe
-      session = Stripe::Checkout::Session.create(
+      session_params = {
         payment_method_types: ['card'],
         mode: 'subscription',
         **customer_params,
+
+        # Collecte adresse de facturation — requis pour auto_tax et conformité TVA belge
+        billing_address_collection: 'required',
+        # Mise à jour du profil Stripe customer (adresse, nom)
+        customer_update: { address: 'auto', name: 'auto' },
+        # Collecte numéro TVA (B2B) — optionnel, aucun blocage si absent
+        tax_id_collection: { enabled: true },
+
+        # Consentement CGV affiché dans la page Stripe — preuve de consentement côté Stripe
+        consent_collection: { terms_of_service: 'required' },
+        custom_text: {
+          terms_of_service_acceptance: {
+            message: "J'accepte les <a href=\"https://ren0vate.be/conditions-generales\">CGV d'ArchiTecht SRL</a> (BCE BE 1020.345.473) et reconnais avoir été informé de mon droit de rétractation de 14 jours calendrier (art. VI.47 Code de droit économique belge)."
+          }
+        },
 
         line_items: [{
           price_data: {
@@ -96,7 +123,7 @@ class PricingController < ApplicationController
               name: pricing_tiers_data[tier][:name],
               description: pricing_tiers_data[tier][:description],
             },
-            unit_amount: (pricing_tiers_data[tier][:price] * 100).to_i, # Stripe utilise les centimes
+            unit_amount: billable_amount.to_i,
             tax_behavior: 'inclusive', # Prix TTC — TVA incluse dans le montant affiché
             recurring: {
               interval: billing_cycle == 'yearly' ? 'year' : 'month',
@@ -122,7 +149,15 @@ class PricingController < ApplicationController
             tier: tier.to_s
           }
         }
-      )
+      }
+
+      if is_pro_tier
+        # Trial 14j sans CB — CB collectée uniquement si l'utilisateur confirme après le trial
+        session_params[:payment_method_collection] = 'if_required'
+        session_params[:subscription_data][:trial_period_days] = 14
+      end
+
+      session = Stripe::Checkout::Session.create(session_params)
 
       redirect_to session.url, allow_other_host: true
 
@@ -161,6 +196,7 @@ class PricingController < ApplicationController
       individual: {
         name: "Propriétaire",
         price: 39,
+        annual_total: 390,
         period: "mois",
         description: "Gérez votre rénovation de A à Z — 1 à 3 biens",
         features: [
@@ -185,6 +221,7 @@ class PricingController < ApplicationController
       portfolio: {
         name: "Investisseur",
         price: 89,
+        annual_total: 890,
         period: "mois",
         description: "Multi-biens + suivi de chantier en temps réel",
         features: [
@@ -212,6 +249,7 @@ class PricingController < ApplicationController
       premium_mixed: {
         name: "Premium",
         price: 149,
+        annual_total: 1490,
         period: "mois",
         description: "Multi-biens + usage professionnel mixte",
         features: [
@@ -234,6 +272,7 @@ class PricingController < ApplicationController
       professional: {
         name: "Pro",
         price: 99,
+        annual_total: 990,
         period: "mois",
         description: "Architectes, entrepreneurs, bureaux d'études",
         features: [
@@ -258,6 +297,7 @@ class PricingController < ApplicationController
       enterprise: {
         name: "Entreprise",
         price: 299,
+        annual_total: 2990,
         period: "mois",
         description: "Syndics, promoteurs, grandes équipes — solution sur-mesure",
         features: [

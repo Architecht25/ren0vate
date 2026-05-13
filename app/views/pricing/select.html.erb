@@ -1,6 +1,37 @@
 <% content_for :title, "Choisissez votre formule - Ren0vate" %>
 
 <div class="container-xl py-5">
+
+  <%# ── Étapes ── %>
+  <div class="row mb-5">
+    <div class="col-lg-10 mx-auto">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="text-center">
+          <div class="step-circle-sel active-step mx-auto">1</div>
+          <div class="step-label-sel text-primary fw-semibold mt-1">Sélection</div>
+        </div>
+        <div class="flex-grow-1 mx-2 bg-light" style="height:2px;"></div>
+        <div class="text-center">
+          <div class="step-circle-sel mx-auto">2</div>
+          <div class="step-label-sel text-muted mt-1">Résumé</div>
+        </div>
+        <div class="flex-grow-1 mx-2 bg-light" style="height:2px;"></div>
+        <div class="text-center">
+          <div class="step-circle-sel mx-auto">3</div>
+          <div class="step-label-sel text-muted mt-1">Paiement</div>
+        </div>
+        <div class="flex-grow-1 mx-2 bg-light" style="height:2px;"></div>
+        <div class="text-center">
+          <div class="step-circle-sel mx-auto">4</div>
+          <div class="step-label-sel text-muted mt-1">Confirmation</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4 align-items-start">
+  <div class="col-lg-8">
+
   <!-- Header -->
   <div class="row mb-5">
     <div class="col-lg-8 mx-auto text-center">
@@ -121,7 +152,7 @@
   <div class="row g-4 justify-content-center mb-5">
 
     <!-- STARTER (0€) -->
-    <div class="col-xl-3 col-lg-6 col-md-6">
+    <div class="col-xl-3 col-lg-6 col-md-6" data-tier-key="freemium">
       <div class="card h-100 border-secondary position-relative">
         <% if @current_user_context[:current_tier] == :freemium %>
           <div class="position-absolute top-0 end-0 m-2">
@@ -164,7 +195,7 @@
     </div>
 
     <!-- PROPRIÉTAIRE (39€) -->
-    <div class="col-xl-3 col-lg-6 col-md-6">
+    <div class="col-xl-3 col-lg-6 col-md-6" data-tier-key="individual">
       <% individual = @pricing_tiers[:individual] %>
       <% is_rec_ind = @current_user_context[:recommended_tier] == :individual %>
       <div class="card h-100 position-relative shadow-lg" style="border: 2px solid var(--ren0vate-accent) !important; transform: scale(1.02); z-index: 1;">
@@ -207,7 +238,7 @@
     </div>
 
     <!-- INVESTISSEUR (89€) -->
-    <div class="col-xl-3 col-lg-6 col-md-6">
+    <div class="col-xl-3 col-lg-6 col-md-6" data-tier-key="portfolio">
       <% portfolio = @pricing_tiers[:portfolio] %>
       <% is_rec_port = @current_user_context[:recommended_tier] == :portfolio %>
       <div class="card h-100 border-warning <%= 'shadow-lg' if is_rec_port %>">
@@ -250,7 +281,7 @@
     </div>
 
     <!-- PREMIUM (149€) -->
-    <div class="col-xl-3 col-lg-6 col-md-6">
+    <div class="col-xl-3 col-lg-6 col-md-6" data-tier-key="premium_mixed">
       <% premium = @pricing_tiers[:premium_mixed] %>
       <% is_rec_prem = @current_user_context[:recommended_tier] == :premium_mixed %>
       <div class="card h-100 border-danger <%= 'shadow-lg' if is_rec_prem %>">
@@ -371,7 +402,7 @@
   <div class="row g-4 justify-content-center mb-5 pt-4">
 
     <!-- PRO (99€) -->
-    <div class="col-xl-5 col-lg-6">
+    <div class="col-xl-5 col-lg-6" data-tier-key="professional">
       <% pro = @pricing_tiers[:professional] %>
       <div class="card h-100 border-success position-relative
         <%= 'shadow-lg' if @current_user_context[:recommended_tier] == :professional %>">
@@ -381,6 +412,11 @@
           </div>
         <% end %>
         <div class="card-header bg-success text-white text-center py-3">
+          <div class="mb-2">
+            <span class="badge px-2 py-1 fw-semibold" style="background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);border-radius:20px;font-size:.72rem;">
+              <i class="bi bi-gift me-1"></i>14 jours gratuits &middot; sans carte bancaire
+            </span>
+          </div>
           <h4 class="card-title mb-1"><%= pro[:name] %></h4>
           <div class="pricing-price my-2">
             <span class="h2 fw-bold"><%= pro[:price] %>€</span><span>/mois</span>
@@ -415,7 +451,7 @@
             </button>
           <% else %>
             <%= link_to pricing_summary_path(tier: :professional), class: "btn btn-success btn-lg w-100" do %>
-              <i class="bi bi-briefcase me-2"></i><%= pro[:cta] %>
+              <i class="bi bi-play-circle me-2"></i>Démarrer mon essai gratuit
             <% end %>
           <% end %>
         </div>
@@ -423,7 +459,7 @@
     </div>
 
     <!-- ENTREPRISE (299€) -->
-    <div class="col-xl-5 col-lg-6">
+    <div class="col-xl-5 col-lg-6" data-tier-key="enterprise">
       <% ent = @pricing_tiers[:enterprise] %>
       <div class="card h-100 border-dark position-relative
         <%= 'shadow-lg' if @current_user_context[:recommended_tier] == :enterprise %>">
@@ -519,32 +555,180 @@
       </div>
     </div>
   </div>
-</div>
+
+  </div><%# /col-lg-8 %>
+
+  <%# ── Sticky sidebar ── %>
+  <div class="col-lg-4 d-none d-lg-block">
+    <div style="position:sticky;top:80px;">
+
+      <%# Sélection en cours %>
+      <div class="card shadow-sm mb-3">
+        <div class="card-header py-2" id="sticky-sel-header" style="background:var(--ren0vate-primary,#0d6efd);">
+          <h6 class="mb-0 text-white"><i class="bi bi-cursor-fill me-2"></i>Votre sélection</h6>
+        </div>
+        <div class="card-body px-3 py-3">
+          <div class="d-flex align-items-center gap-3 mb-3">
+            <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                 style="width:44px;height:44px;min-width:44px;background:rgba(13,110,253,.1);">
+              <i class="fs-5" id="sticky-sel-icon" style="color:var(--ren0vate-primary,#0d6efd);"></i>
+            </div>
+            <div>
+              <div class="fw-bold" id="sticky-sel-name">Survolez une offre</div>
+              <div class="text-muted small" id="sticky-sel-desc">pour la voir ici</div>
+            </div>
+          </div>
+          <div class="d-flex align-items-baseline gap-1 mb-3">
+            <span class="h4 fw-bold mb-0" id="sticky-sel-price" style="color:var(--ren0vate-primary,#0d6efd);">—</span>
+            <span class="text-muted small" id="sticky-sel-period"></span>
+          </div>
+          <a href="#" class="btn btn-primary w-100 d-none" id="sticky-sel-cta">
+            <i class="bi bi-arrow-right me-2"></i>Choisir cette formule
+          </a>
+          <div id="sticky-sel-placeholder" class="text-center text-muted py-1 small">
+            <i class="bi bi-hand-index-thumb me-2"></i>Survolez ou cliquez sur une offre
+          </div>
+        </div>
+      </div>
+
+      <%# Réassurance Stripe %>
+      <div class="card border-0 mb-3" style="background:#f8f9fa;">
+        <div class="card-body px-3 py-3">
+          <h6 class="fw-bold mb-3 text-center">
+            <i class="bi bi-shield-lock-fill me-2 text-success"></i>Paiement 100% sécurisé
+          </h6>
+          <div class="d-flex justify-content-center gap-3 mb-3">
+            <div class="text-center">
+              <div class="bg-white rounded-2 px-2 py-1 shadow-sm">
+                <span class="fw-bold" style="color:#635bff;font-size:1.05rem;letter-spacing:-1px;font-family:sans-serif;">stripe</span>
+              </div>
+              <div class="text-muted mt-1" style="font-size:.72rem;">Stripe</div>
+            </div>
+            <div class="text-center">
+              <div class="bg-white rounded-2 px-2 py-1 shadow-sm">
+                <i class="bi bi-lock-fill text-success" style="font-size:1.1rem;"></i>
+              </div>
+              <div class="text-muted mt-1" style="font-size:.72rem;">SSL 256-bit</div>
+            </div>
+            <div class="text-center">
+              <div class="bg-white rounded-2 px-2 py-1 shadow-sm">
+                <i class="bi bi-credit-card-2-front text-primary" style="font-size:1.1rem;"></i>
+              </div>
+              <div class="text-muted mt-1" style="font-size:.72rem;">CB / SEPA</div>
+            </div>
+          </div>
+          <ul class="list-unstyled mb-0" style="font-size:.82rem;">
+            <li class="mb-2 d-flex align-items-center gap-2">
+              <i class="bi bi-check-circle-fill text-success flex-shrink-0"></i>
+              <span>Annulation à tout moment</span>
+            </li>
+            <li class="mb-2 d-flex align-items-center gap-2">
+              <i class="bi bi-check-circle-fill text-success flex-shrink-0"></i>
+              <span>Remboursement garanti 30 jours</span>
+            </li>
+            <li class="mb-2 d-flex align-items-center gap-2">
+              <i class="bi bi-check-circle-fill text-success flex-shrink-0"></i>
+              <span>Prix TTC · TVA belge 21% incluse</span>
+            </li>
+            <li class="d-flex align-items-center gap-2">
+              <i class="bi bi-check-circle-fill text-success flex-shrink-0"></i>
+              <span>Starter gratuit · aucune CB requise</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <%# Support %>
+      <p class="text-center text-muted small mb-0">
+        <i class="bi bi-envelope me-1"></i>Une question ?
+        <a href="mailto:hello@ren0vate.be" class="text-decoration-none">hello@ren0vate.be</a>
+      </p>
+
+    </div>
+  </div><%# /col-lg-4 %>
+
+  </div><%# /row g-4 %>
+
+</div><%# /container-xl %>
 
 <style nonce="<%= content_security_policy_nonce %>">
-.card {
-  transition: all 0.3s ease;
+.card { transition: all 0.3s ease; }
+.card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+.actor-card { cursor: pointer; }
+.actor-card:hover { border-width: 2px !important; }
+.pricing-price { margin: 0.75rem 0; }
+/* Steps */
+.step-circle-sel {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 2px solid #dee2e6; background: #f8f9fa;
+  color: #6c757d; display: flex; align-items: center;
+  justify-content: center; font-weight: 700; font-size: .9rem;
 }
-.card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+.step-circle-sel.active-step {
+  background: var(--ren0vate-primary, #0d6efd);
+  border-color: var(--ren0vate-primary, #0d6efd);
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(13,110,253,.15);
 }
-.actor-card {
-  cursor: pointer;
-}
-.actor-card:hover {
-  border-width: 2px !important;
-}
-.pricing-price {
-  margin: 0.75rem 0;
-}
+.step-label-sel { font-size: .8rem; }
 @media (max-width: 768px) {
-  .card {
-    transform: none !important;
-    margin-bottom: 2rem;
-  }
-  .card:hover {
-    transform: translateY(-2px);
-  }
+  .card { transform: none !important; margin-bottom: 2rem; }
+  .card:hover { transform: translateY(-2px); }
 }
 </style>
+
+<script nonce="<%= content_security_policy_nonce %>">
+document.addEventListener('DOMContentLoaded', function () {
+  const tiers = {
+    freemium:     { name: 'Starter',       price: '0€',    period: '/mois', desc: 'Découverte gratuite — sans engagement',   href: null,    icon: 'bi bi-gift',       color: '#6c757d' },
+    individual:   { name: 'Propriétaire',  price: '39€',   period: '/mois', desc: 'Gérez votre rénovation de A à Z',       href: '<%= pricing_summary_path(tier: :individual) %>',   icon: 'bi bi-house',      color: 'var(--ren0vate-primary,#0d6efd)' },
+    portfolio:    { name: 'Investisseur',  price: '89€',   period: '/mois', desc: 'Multi-biens + suivi chantier IA',       href: '<%= pricing_summary_path(tier: :portfolio) %>',    icon: 'bi bi-buildings',  color: '#ca8a04' },
+    premium_mixed:{ name: 'Premium',       price: '149€',  period: '/mois', desc: 'Multi-biens + usage professionnel',     href: '<%= pricing_summary_path(tier: :premium_mixed) %>', icon: 'bi bi-gem',        color: '#dc3545' },
+    professional: { name: 'Pro',           price: '99€',   period: '/mois', desc: 'Architectes & entrepreneurs',           href: '<%= pricing_summary_path(tier: :professional) %>', icon: 'bi bi-briefcase',  color: '#198754' },
+    enterprise:   { name: 'Entreprise',    price: '299€',  period: '/mois', desc: 'Syndics, promoteurs & grandes équipes', href: 'mailto:hello@ren0vate.be', icon: 'bi bi-building', color: '#212529' }
+  };
+
+  const elHeader   = document.getElementById('sticky-sel-header');
+  const elIcon     = document.getElementById('sticky-sel-icon');
+  const elName     = document.getElementById('sticky-sel-name');
+  const elDesc     = document.getElementById('sticky-sel-desc');
+  const elPrice    = document.getElementById('sticky-sel-price');
+  const elPeriod   = document.getElementById('sticky-sel-period');
+  const elCta      = document.getElementById('sticky-sel-cta');
+  const elPlaceholder = document.getElementById('sticky-sel-placeholder');
+
+  if (!elName) return;
+
+  function updateSidebar(tierKey) {
+    const t = tiers[tierKey];
+    if (!t) return;
+    elHeader.style.background = t.color;
+    elIcon.className           = t.icon + ' fs-5';
+    elIcon.style.color         = t.color;
+    elName.textContent         = t.name;
+    elDesc.textContent         = t.desc;
+    elPrice.textContent        = t.price;
+    elPrice.style.color        = t.color;
+    elPeriod.textContent       = t.period;
+    if (t.href) {
+      elCta.href = t.href;
+      elCta.style.background   = t.color;
+      elCta.style.borderColor  = t.color;
+      elCta.classList.remove('d-none');
+      elPlaceholder.classList.add('d-none');
+    } else {
+      elCta.classList.add('d-none');
+      elPlaceholder.innerHTML = '<i class="bi bi-check-circle-fill text-success me-2"></i>Starter gratuit — aucun paiement requis';
+      elPlaceholder.classList.remove('d-none');
+    }
+  }
+
+  document.querySelectorAll('[data-tier-key]').forEach(function (col) {
+    col.addEventListener('mouseenter', function () { updateSidebar(this.dataset.tierKey); });
+    col.addEventListener('click',      function () { updateSidebar(this.dataset.tierKey); });
+  });
+
+  // Init avec la formule recommandée
+  updateSidebar('<%= @current_user_context[:recommended_tier] %>');
+});
+</script>

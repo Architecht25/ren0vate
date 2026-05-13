@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votre essai gratuit Ren0vate <%= @tier_name %></title>
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { background: linear-gradient(135deg, #198754, #0f5132); color: white; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0; }
+      .content { background-color: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+      .trial-box { background: #d1e7dd; border: 1px solid #a3cfbb; border-radius: 8px; padding: 16px 20px; margin: 20px 0; }
+      .trial-box strong { color: #0f5132; }
+      .btn { display: inline-block; padding: 12px 24px; background-color: #198754; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px; }
+      .footer { text-align: center; margin-top: 20px; font-size: 0.85em; color: #6c757d; }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>🚀 Votre essai gratuit commence !</h1>
+      <p style="margin:0;opacity:.9;">Ren0vate <%= @tier_name %> — 14 jours offerts</p>
+    </div>
+    <div class="content">
+      <p>Bonjour <%= @user.first_name.presence || @user.email %>,</p>
+
+      <p>Votre période d'essai gratuite de <strong>14 jours</strong> sur la formule <strong><%= @tier_name %></strong> vient de démarrer. Vous avez accès à toutes les fonctionnalités Pro dès maintenant.</p>
+
+      <div class="trial-box">
+        <strong>⏳ Votre essai se termine le <%= (Time.current + 14.days).strftime('%d/%m/%Y') %></strong><br>
+        <small>Aucun prélèvement avant cette date. Vous recevrez un rappel 3 jours avant la fin.</small>
+      </div>
+
+      <p>Pendant votre essai, vous pouvez :</p>
+      <ul>
+        <li>🤖 Utiliser l'Expert IA illimité sur vos projets clients</li>
+        <li>📋 Générer des bordereaux d'avancement IA</li>
+        <li>📊 Accéder au tableau de bord multi-clients</li>
+        <li>📄 Créer des rapports clients PDF automatisés</li>
+      </ul>
+
+      <center>
+        <%= link_to "Découvrir mon espace Pro", root_url, class: "btn" %>
+      </center>
+
+      <p style="margin-top: 30px; font-size: 0.9em; color: #6c757d;">
+        Une question avant la fin de votre essai ? Répondez à cet email, notre équipe vous répond sous 4h.
+      </p>
+      <p>À bientôt,<br><strong>L'équipe Ren0vate</strong></p>
+    </div>
+    <div class="footer">
+      <p>Ren0vate — Votre assistant rénovation intelligent en Belgique</p>
+      <p style="font-size:0.8em;">ArchiTecht SRL · BCE BE 1020.345.473 · hello@ren0vate.be</p>
+    </div>
+  </body>
+</html>

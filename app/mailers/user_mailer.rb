@@ -36,6 +36,29 @@ class UserMailer < Devise::Mailer
     )
   end
 
+  def welcome_trial(user, tier)
+    @user = user
+    @tier = tier
+    @tier_name = Subscription.new(tier: tier).tier_name
+
+    mail(
+      to: user.email,
+      subject: "🚀 Votre essai gratuit Ren0vate #{@tier_name} commence !"
+    )
+  end
+
+  def trial_ending_soon(user, tier, days_remaining)
+    @user = user
+    @tier = tier
+    @tier_name = Subscription.new(tier: tier).tier_name
+    @days_remaining = days_remaining
+
+    mail(
+      to: user.email,
+      subject: "⏳ Votre essai Ren0vate #{@tier_name} se termine dans #{days_remaining} jour#{'s' if days_remaining > 1}"
+    )
+  end
+
   def payment_failed(user)
     @user = user
 

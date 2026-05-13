@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votre essai Ren0vate se termine bientôt</title>
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+      .header { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 30px 20px; text-align: center; border-radius: 8px 8px 0 0; }
+      .content { background-color: #f8f9fa; padding: 30px; border-radius: 0 0 8px 8px; }
+      .alert-box { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 16px 20px; margin: 20px 0; }
+      .alert-box strong { color: #856404; }
+      .btn { display: inline-block; padding: 12px 24px; background-color: #198754; color: white; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px; }
+      .btn-secondary { display: inline-block; padding: 10px 20px; background: transparent; color: #6c757d; text-decoration: none; border: 1px solid #dee2e6; border-radius: 6px; margin-top: 10px; font-size: 0.9em; }
+      .footer { text-align: center; margin-top: 20px; font-size: 0.85em; color: #6c757d; }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>⏳ Votre essai se termine dans <%= @days_remaining %> jour<%= 's' if @days_remaining > 1 %></h1>
+      <p style="margin:0;opacity:.9;">Ren0vate <%= @tier_name %></p>
+    </div>
+    <div class="content">
+      <p>Bonjour <%= @user.first_name.presence || @user.email %>,</p>
+
+      <p>Votre période d'essai gratuite sur la formule <strong><%= @tier_name %></strong> se termine dans <strong><%= @days_remaining %> jour<%= 's' if @days_remaining > 1 %></strong>.</p>
+
+      <div class="alert-box">
+        <strong>💳 Que se passe-t-il à la fin de l'essai ?</strong><br>
+        <small>Si vous avez renseigné votre carte, votre abonnement <%= @tier_name %> (<%= Subscription.new(tier: @tier).monthly_price %>€/mois) sera activé automatiquement. Sinon, vous repasserez sur le plan Starter gratuit.</small>
+      </div>
+
+      <p>Continuez à profiter de :</p>
+      <ul>
+        <li>🤖 L'Expert IA illimité pour vos chantiers clients</li>
+        <li>📋 Les bordereaux d'avancement IA</li>
+        <li>📊 Le tableau de bord multi-clients</li>
+      </ul>
+
+      <center>
+        <%= link_to "Confirmer mon abonnement #{@tier_name}", pricing_select_url, class: "btn" %><br>
+        <small style="color:#6c757d;margin-top:8px;display:block;">ou <a href="<%= pricing_select_url %>" style="color:#6c757d;">rester sur le plan Starter gratuit</a></small>
+      </center>
+
+      <p style="margin-top: 30px; font-size: 0.9em; color: #6c757d;">
+        Des questions ? Répondez à cet email — nous sommes là pour vous aider.
+      </p>
+      <p>À bientôt,<br><strong>L'équipe Ren0vate</strong></p>
+    </div>
+    <div class="footer">
+      <p>Ren0vate — Votre assistant rénovation intelligent en Belgique</p>
+      <p style="font-size:0.8em;">ArchiTecht SRL · BCE BE 1020.345.473 · hello@ren0vate.be</p>
+      <p style="font-size:0.8em;">
+        Pour annuler votre essai avant la fin, <a href="<%= pricing_portal_url %>">gérez votre abonnement ici</a>.
+      </p>
+    </div>
+  </body>
+</html>

@@ -35,6 +35,8 @@ class WebhooksController < ApplicationController
       handle_payment_succeeded(event['data']['object'])
     when 'invoice.payment_failed'
       handle_payment_failed(event['data']['object'])
+    when 'customer.subscription.trial_will_end'
+      handle_trial_will_end(event['data']['object'])
     else
       Rails.logger.info "🔔 Unhandled event type: #{event['type']}"
     end
@@ -80,6 +82,18 @@ class WebhooksController < ApplicationController
     end
     return unless user
 
+    # Conformité TVA belge : footer + BCE sur toutes les factures futures de ce customer
+    begin
+      Stripe::Customer.update(customer_id, {
+        invoice_settings: {
+          footer: 'ArchiTecht SRL · BCE BE 1020.345.473 · TVA BE 1020.345.473 · Clos Charles Bailly 16, 1310 La Hulpe, Belgique · robin@architecht.be',
+          custom_fields: [{ name: 'N° TVA vendeur', value: 'BE 1020.345.473' }]
+        }
+      })
+    rescue Stripe::StripeError => e
+      Rails.logger.error "⚠️ Could not update customer invoice settings: #{e.message}"
+    end
+
     # Extraire le tier des metadata ou du nom du produit
     tier = extract_tier_from_subscription(subscription)
 
@@ -103,7 +117,11 @@ class WebhooksController < ApplicationController
 
     if user_subscription.save
       Rails.logger.info "✅ Subscription saved for user #{user.email}"
-      UserMailer.welcome_premium(user, tier).deliver_later
+      if subscription['status'] == 'trialing'
+        UserMailer.welcome_trial(user, tier).deliver_later
+      else
+        UserMailer.welcome_premium(user, tier).deliver_later
+      end
     else
       Rails.logger.error "❌ Failed to save subscription: #{user_subscription.errors.full_messages}"
     end
@@ -119,6 +137,7 @@ class WebhooksController < ApplicationController
     user_subscription = Subscription.find_by(stripe_subscription_id: subscription['id'])
     return unless user_subscription
 
+    old_status = user_subscription.status
     period_start = subscription['current_period_start'] ||
                    subscription.dig('items', 'data', 0, 'current_period', 'start')
     period_end   = subscription['current_period_end'] ||
@@ -129,6 +148,12 @@ class WebhooksController < ApplicationController
       current_period_start: period_start ? Time.at(period_start) : nil,
       current_period_end:   period_end   ? Time.at(period_end)   : nil
     )
+
+    # Trial → active : envoyer l'email de bienvenue payant
+    if old_status == 'trialing' && subscription['status'] == 'active'
+      tier = user_subscription.tier
+      UserMailer.welcome_premium(user_subscription.user, tier).deliver_later
+    end
 
     Rails.logger.info "✅ Subscription updated for user #{user_subscription.user.email}"
 
@@ -184,6 +209,24 @@ class WebhooksController < ApplicationController
 
   rescue => e
     Rails.logger.error "❌ Error handling payment failed: #{e.message}"
+  end
+
+  def handle_trial_will_end(subscription)
+    subscription = JSON.parse(subscription.to_json)
+    Rails.logger.info "⏳ Trial will end: #{subscription['id']}"
+
+    user_subscription = Subscription.find_by(stripe_subscription_id: subscription['id'])
+    return unless user_subscription
+    return unless user_subscription.status == 'trialing'
+
+    trial_end_ts = subscription['trial_end']
+    days_remaining = trial_end_ts ? ((Time.at(trial_end_ts) - Time.current) / 1.day).ceil : 3
+
+    UserMailer.trial_ending_soon(user_subscription.user, user_subscription.tier, days_remaining).deliver_later
+    Rails.logger.info "📧 Trial ending soon email sent to #{user_subscription.user.email}"
+
+  rescue => e
+    Rails.logger.error "❌ Error handling trial_will_end: #{e.message}"
   end
 
   def extract_tier_from_subscription(subscription)

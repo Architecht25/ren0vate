@@ -150,17 +150,19 @@
           <div class="billing-cycle mb-4">
             <label class="form-label fw-bold">Cycle de facturation :</label>
             <div class="btn-group w-100" role="group">
-              <input type="radio" class="btn-check" name="billing_cycle" id="monthly" value="monthly" checked>
+              <input type="radio" class="btn-check" name="billing_cycle" id="monthly" value="monthly"
+                     <%= 'checked' if @billing_cycle == 'monthly' %>>
               <label class="btn btn-outline-primary" for="monthly">
                 <div>Mensuel</div>
                 <small class="text-muted"><%= @selected_tier[:price] %>€/mois</small>
               </label>
 
-              <input type="radio" class="btn-check" name="billing_cycle" id="yearly" value="yearly">
+              <input type="radio" class="btn-check" name="billing_cycle" id="yearly" value="yearly"
+                     <%= 'checked' if @billing_cycle == 'yearly' %>>
               <label class="btn btn-outline-success" for="yearly">
                 <div>Annuel</div>
                 <small class="text-success">
-                  <%= (@selected_tier[:price] * 10).to_i %>€/an
+                  <%= @selected_tier[:annual_total] || @selected_tier[:price] * 10 %>€/an
                   <span class="badge bg-success ms-1">-17%</span>
                 </small>
               </label>
@@ -196,6 +198,30 @@
             <div class="input-group">
               <input type="text" class="form-control" placeholder="Code promo (optionnel)" id="promoCode">
               <button class="btn btn-outline-secondary" type="button">Appliquer</button>
+            </div>
+          </div>
+
+          <!-- Consentements légaux — CGV + droit de rétractation (art. VI.47 CDE belge) -->
+          <div class="legal-consents border rounded p-3 mb-3 bg-light">
+            <p class="small fw-bold mb-2"><i class="bi bi-shield-check me-1 text-success"></i>Avant de procéder au paiement</p>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" id="consent_cgv" required>
+              <label class="form-check-label small" for="consent_cgv">
+                J'accepte les <a href="<%= terms_path %>" target="_blank" rel="noopener">Conditions Générales de Vente</a>
+                d'ArchiTecht SRL (BCE BE 1020.345.473). <span class="text-danger">*</span>
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="consent_immediate" required>
+              <label class="form-check-label small" for="consent_immediate">
+                <% if @tier.to_sym == :professional %>
+                  Je comprends que l'essai gratuit de 14 jours débutera immédiatement. En cas de conversion, je reconnais avoir été informé de mon
+                  <strong>droit de rétractation de 14 jours</strong> sur le premier prélèvement (art.&nbsp;VI.47 CDE).
+                <% else %>
+                  Je demande l'<strong>accès immédiat au service</strong> et reconnais que mon droit de rétractation de 14 jours
+                  sera perdu dès que le service sera entièrement fourni (art.&nbsp;VI.53, 1° du Code de droit économique belge). <span class="text-danger">*</span>
+                <% end %>
+              </label>
             </div>
           </div>
 
@@ -398,11 +424,12 @@ document.addEventListener('DOMContentLoaded', function() {
   const billingCycleInput = document.querySelector('.billing-cycle-input');
   const totalAmountInput = document.querySelector('.total-amount-input');
 
-  const basePrice = <%= @selected_tier[:price] %>;
+  const basePrice   = <%= @selected_tier[:price] %>;
+  const annualTotal = <%= @selected_tier[:annual_total] || @selected_tier[:price] * 10 %>;
 
   function updatePricing() {
     const isYearly = yearlyRadio.checked;
-    const price = isYearly ? basePrice * 10 : basePrice;
+    const price = isYearly ? annualTotal : basePrice;
     const tax = (price * 0.21).toFixed(2);
     const total = (price * 1.21).toFixed(2);
 
@@ -417,6 +444,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
   monthlyRadio.addEventListener('change', updatePricing);
   yearlyRadio.addEventListener('change', updatePricing);
+  // Appliquer l'état initial si annuel pré-sélectionné
+  if (yearlyRadio.checked) updatePricing();
 
   // Promo code
   const promoInput = document.getElementById('promoCode');
@@ -429,5 +458,24 @@ document.addEventListener('DOMContentLoaded', function() {
       console.log('Applying promo code:', code);
     }
   });
+  // Validation des consentements légaux avant soumission du formulaire checkout
+  const checkoutForm = document.querySelector('form[action*="checkout"]');
+  if (checkoutForm) {
+    checkoutForm.addEventListener('submit', function(e) {
+      const cgv = document.getElementById('consent_cgv');
+      const imm = document.getElementById('consent_immediate');
+      if (!cgv.checked || !imm.checked) {
+        e.preventDefault();
+        cgv.closest('.legal-consents').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (!cgv.checked) cgv.classList.add('is-invalid');
+        if (!imm.checked) imm.classList.add('is-invalid');
+        return false;
+      }
+    });
+    ['consent_cgv', 'consent_immediate'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('change', function() { this.classList.remove('is-invalid'); });
+    });
+  }
 });
 </script>
