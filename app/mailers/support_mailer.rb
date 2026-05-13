@@ -43,10 +43,6 @@ class SupportMailer < ApplicationMailer
     )
   end
 
-  # Alerte admin — SLA bientôt dépassé (< 2h restantes)
-  def sla_approaching(ticket)
-    @ticket = ticket
-    @user   = ticket.user
   # Notification résolution
   def ticket_resolved(ticket)
     @ticket = ticket
