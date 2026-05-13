@@ -63,7 +63,7 @@ class SupportTicketsController < ApplicationController
   end
 
   def ticket_params
-    params.require(:support_ticket).permit(:subject, :priority)
+    params.require(:support_ticket).permit(:subject, :priority, :category)
   end
 
   def require_paid_plan!

@@ -1,0 +1,80 @@
+<%# Guide "Premiers pas" — visible pendant les 7 premiers jours pour les propriétaires
+   sans onboarding complet. Affiché uniquement sur les pages connectées. %>
+
+<% if user_signed_in? &&
+     current_user.professional_type.nil? &&
+     current_user.created_at > 7.days.ago &&
+     controller_name != 'onboarding' %>
+
+<%
+  steps = [
+    {
+      key:  :profile,
+      done: current_user.first_name.present? && current_user.region.present?,
+      icon: 'bi-person-fill',
+      label: 'Compléter mon profil',
+      path:  edit_user_registration_path
+    },
+    {
+      key:  :property,
+      done: defined?(@properties) ? @properties.any? : current_user.properties.any?,
+      icon: 'bi-house-fill',
+      label: 'Ajouter mon bien',
+      path:  new_property_path
+    },
+    {
+      key:  :project,
+      done: current_user.properties.flat_map(&:projects).any?,
+      icon: 'bi-hammer',
+      label: 'Créer un projet',
+      path:  dashboard_path
+    },
+    {
+      key:  :pro,
+      done: current_user.properties.flat_map { |p| p.projects.flat_map(&:project_members) }.any?,
+      icon: 'bi-people-fill',
+      label: 'Inviter un pro',
+      path:  dashboard_path
+    }
+  ]
+  done_count = steps.count { |s| s[:done] }
+  total = steps.size
+  pct = (done_count * 100 / total).round
+  all_done = done_count == total
+%>
+
+<% unless all_done %>
+<div id="first-steps-guide"
+     class="border-bottom py-2 px-3 d-flex align-items-center gap-3 flex-wrap"
+     style="background:#fffbeb;border-color:#fde68a!important;font-size:13px;">
+  <span class="fw-semibold text-nowrap">
+    <i class="bi bi-stars text-warning me-1"></i>Premiers pas
+  </span>
+
+  <div class="d-flex gap-2 flex-wrap align-items-center">
+    <% steps.each do |step| %>
+      <% if step[:done] %>
+        <span class="badge bg-success" data-bs-toggle="tooltip" title="<%= step[:label] %> — fait !">
+          <i class="bi <%= step[:icon] %> me-1"></i><i class="bi bi-check2"></i>
+        </span>
+      <% else %>
+        <%= link_to step[:path], class: "badge bg-warning text-dark text-decoration-none",
+              data: { 'bs-toggle': 'tooltip', 'bs-title': step[:label] } do %>
+          <i class="bi <%= step[:icon] %> me-1"></i><%= step[:label] %>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="d-flex align-items-center gap-2 ms-auto text-nowrap">
+    <div class="progress flex-shrink-0" style="height:8px;width:80px;">
+      <div class="progress-bar bg-warning" style="width:<%= pct %>%"></div>
+    </div>
+    <span class="text-muted"><%= done_count %>/<%= total %></span>
+    <button type="button" class="btn-close btn-close-sm ms-1"
+            onclick="document.getElementById('first-steps-guide').remove()"
+            aria-label="Fermer"></button>
+  </div>
+</div>
+<% end %>
+<% end %>

@@ -14,6 +14,7 @@ window.Stimulus = application
 // Import des logiques spécifiques
 import "./logic/flandre_calculations"
 import "./logic/prime_inputs_handlers"
+import "./logic/tooltips"
 import "./password_toggle"
 
 // Import et register tous les contrôleurs manuellement et simplement
@@ -64,6 +65,7 @@ import HealthScoreController from "controllers/health_score_controller"
 import ArchitecturalParallaxController from "controllers/architectural_parallax_controller"
 import ConversationFixController from "controllers/conversation_fix_controller"
 import CookieConsentController from "controllers/cookie_consent_controller"
+import NpsController from "controllers/nps_controller"
 
 application.register("user_type", UserTypeController)
 application.register("test-eligibilite", TestEligibiliteController)
@@ -113,5 +115,6 @@ application.register("health-score", HealthScoreController)
 application.register("architectural-parallax", ArchitecturalParallaxController)
 application.register("conversation-fix", ConversationFixController)
 application.register("cookie-consent", CookieConsentController)
+application.register("nps", NpsController)
 
 export { application }

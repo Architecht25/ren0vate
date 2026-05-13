@@ -84,6 +84,8 @@
     <% end %>
 
     <div class="main-content<%= ' no-sidebar' unless user_signed_in? %><%= ' p-0' if content_for?(:full_width_page) %>">
+      <%# Guide premiers pas — 7 jours post-inscription %>
+      <%= render 'shared/first_steps_guide' %>
       <% if content_for?(:full_width_page) %>
         <div class="px-2"><%= render "shared/flashes" %></div>
       <% else %>
@@ -94,6 +96,9 @@
 
     <!-- Widget de Support (toujours visible) -->
     <%= render 'shared/support_widget' %>
+
+    <%# Modale NPS — feedback utilisateur (J+14) %>
+    <%= render 'shared/nps_modal' %>
 
     <%# Bottom navigation bar — mobile PWA (d-md-none) %>
     <%= render 'shared/bottom_nav' %>

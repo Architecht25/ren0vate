@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<body style="font-family:sans-serif;color:#333;max-width:600px;margin:0 auto;padding:20px;">
+  <div style="background:#dc3545;color:white;padding:16px 20px;border-radius:8px 8px 0 0;">
+    <h2 style="margin:0;">⚠️ Alerte SLA Support</h2>
+  </div>
+  <div style="background:#fff8f8;border:1px solid #dc3545;border-top:none;padding:20px;border-radius:0 0 8px 8px;">
+    <p>Le ticket <strong>#<%= @ticket.id %></strong> va dépasser le SLA 24h dans moins de 2 heures.</p>
+
+    <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+      <tr><td style="padding:6px;color:#666;">Utilisateur</td><td><strong><%= @user.email %></strong></td></tr>
+      <tr><td style="padding:6px;color:#666;">Plan</td><td><%= @user.subscription_tier_name %></td></tr>
+      <tr><td style="padding:6px;color:#666;">Sujet</td><td><%= @ticket.subject %></td></tr>
+      <tr><td style="padding:6px;color:#666;">Catégorie</td><td><%= @ticket.category_label %></td></tr>
+      <tr><td style="padding:6px;color:#666;">Priorité</td><td><%= @ticket.priority %></td></tr>
+      <tr><td style="padding:6px;color:#666;">Créé le</td><td><%= @ticket.created_at.strftime('%d/%m/%Y à %Hh%M') %></td></tr>
+      <tr><td style="padding:6px;color:#666;">Heures écoulées</td><td style="color:#dc3545;font-weight:bold;"><%= @ticket.hours_since_creation %>h / 24h</td></tr>
+    </table>
+
+    <p style="text-align:center;margin-top:20px;">
+      <a href="<%= Rails.application.routes.url_helpers.admin_support_ticket_url(@ticket, host: 'www.ren0vate.be') %>"
+         style="background:#dc3545;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:bold;">
+        Répondre maintenant
+      </a>
+    </p>
+  </div>
+</body>
+</html>

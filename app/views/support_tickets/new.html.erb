@@ -30,6 +30,14 @@
             </div>
 
             <div class="mb-3">
+              <%= f.label :category, "Catégorie", class: "form-label fw-semibold" %>
+              <%= f.select :category,
+                    SupportTicket::CATEGORY_LABELS.map { |v, l| [l, v] },
+                    { selected: 'general' },
+                    class: "form-select" %>
+            </div>
+
+            <div class="mb-3">
               <%= f.label :priority, "Priorité", class: "form-label fw-semibold" %>
               <%= f.select :priority,
                     [["Normal", "normal"], ["Urgent", "urgent"]],

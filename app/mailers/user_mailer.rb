@@ -80,4 +80,30 @@ class UserMailer < Devise::Mailer
       )
     end
   end
+
+  # --- Séquence onboarding post-inscription ---
+
+  def onboarding_j1(user)
+    @user = user
+    mail(
+      to:      user.email,
+      subject: "🏠 Créez votre premier projet de rénovation sur Ren0vate"
+    )
+  end
+
+  def onboarding_j3(user)
+    @user = user
+    mail(
+      to:      user.email,
+      subject: "👷 Invitez votre architecte ou entrepreneur sur Ren0vate"
+    )
+  end
+
+  def onboarding_j7(user)
+    @user = user
+    mail(
+      to:      user.email,
+      subject: "💶 Découvrez les primes disponibles pour vos travaux"
+    )
+  end
 end

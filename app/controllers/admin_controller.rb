@@ -73,6 +73,7 @@ class AdminController < ApplicationController
       h[tier] = { count: subs.count, mrr: subs.count * price }
     end
     @mrr_total = @subscriptions_by_tier.values.sum { |v| v[:mrr] }
+    @saas_metrics = SaasMetricsService.call
 
     # Onglet Support
     @support_tickets_recent = SupportTicket.includes(:user, :support_messages).order(created_at: :desc).limit(20)

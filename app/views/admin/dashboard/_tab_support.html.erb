@@ -102,6 +102,54 @@
     </div>
   <% end %>
 
+  <!-- NPS Score -->
+  <% nps = NpsResponse.nps_score %>
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-0 pt-3 pb-2">
+      <h6 class="mb-0 fw-semibold"><i class="bi bi-star-fill text-warning me-2"></i>NPS — Net Promoter Score</h6>
+    </div>
+    <div class="card-body pt-0">
+      <% if nps.nil? %>
+        <p class="text-muted small mb-0">Pas encore assez de réponses (&lt; 5). Les données s'afficheront dès que vous aurez des feedbacks.</p>
+      <% else %>
+        <div class="row g-3 align-items-center">
+          <div class="col-auto">
+            <div class="display-5 fw-bold <%= nps >= 50 ? 'text-success' : nps >= 0 ? 'text-warning' : 'text-danger' %>">
+              <%= nps > 0 ? "+#{nps}" : nps %>
+            </div>
+            <div class="text-muted small">Score NPS</div>
+          </div>
+          <div class="col">
+            <% total = NpsResponse.count %>
+            <% promoters  = NpsResponse.where('score >= 9').count %>
+            <% passives   = NpsResponse.where(score: 7..8).count %>
+            <% detractors = NpsResponse.where('score <= 6').count %>
+            <div class="d-flex gap-3 flex-wrap">
+              <div class="text-center"><span class="fw-bold text-success"><%= promoters %></span><br><small class="text-muted">Promoteurs (9-10)</small></div>
+              <div class="text-center"><span class="fw-bold text-warning"><%= passives %></span><br><small class="text-muted">Passifs (7-8)</small></div>
+              <div class="text-center"><span class="fw-bold text-danger"><%= detractors %></span><br><small class="text-muted">Détracteurs (0-6)</small></div>
+              <div class="text-center"><span class="fw-bold"><%= total %></span><br><small class="text-muted">Total réponses</small></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Derniers commentaires -->
+        <% comments = NpsResponse.where.not(comment: [nil, '']).order(created_at: :desc).limit(5) %>
+        <% if comments.any? %>
+          <hr class="my-3">
+          <p class="fw-semibold small mb-2">Derniers commentaires :</p>
+          <% comments.each do |r| %>
+            <div class="mb-2 p-2 bg-light rounded small">
+              <span class="badge <%= r.promoter? ? 'bg-success' : r.passive? ? 'bg-warning text-dark' : 'bg-danger' %> me-2"><%= r.score %>/10</span>
+              <%= r.comment %>
+              <span class="text-muted ms-2" style="font-size:11px;"><%= r.created_at.strftime('%d/%m/%Y') %></span>
+            </div>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+
   <!-- Tous les tickets récents -->
   <div class="card border-0 shadow-sm">
     <div class="card-header bg-white border-0 pt-4 pb-2 d-flex align-items-center justify-content-between">

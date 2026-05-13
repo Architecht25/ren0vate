@@ -2,12 +2,23 @@ class SupportTicket < ApplicationRecord
   belongs_to :user
   has_many :support_messages, dependent: :destroy
 
-  STATUSES   = %w[open in_progress resolved closed].freeze
-  PRIORITIES = %w[normal urgent].freeze
+  STATUSES    = %w[open in_progress resolved closed].freeze
+  PRIORITIES  = %w[normal urgent].freeze
+  CATEGORIES  = %w[general technique facturation prime compte autre].freeze
 
-  validates :subject, presence: true, length: { minimum: 5, maximum: 200 }
+  CATEGORY_LABELS = {
+    'general'     => 'Question générale',
+    'technique'   => 'Problème technique',
+    'facturation' => 'Facturation / abonnement',
+    'prime'       => 'Primes & subventions',
+    'compte'      => 'Mon compte',
+    'autre'       => 'Autre'
+  }.freeze
+
+  validates :subject,  presence: true, length: { minimum: 5, maximum: 200 }
   validates :status,   inclusion: { in: STATUSES }
   validates :priority, inclusion: { in: PRIORITIES }
+  validates :category, inclusion: { in: CATEGORIES }
 
   scope :open_tickets,     -> { where(status: %w[open in_progress]) }
   scope :recent,           -> { order(created_at: :desc) }
@@ -31,6 +42,10 @@ class SupportTicket < ApplicationRecord
     when 'resolved'    then 'success'
     when 'closed'      then 'secondary'
     end
+  end
+
+  def category_label
+    CATEGORY_LABELS[category] || category.humanize
   end
 
   def hours_since_creation

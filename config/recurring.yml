@@ -36,6 +36,21 @@ production:
     queue: default
     schedule: at 9am every monday
 
+  data_retention_quarterly:
+    class: DataRetentionJob
+    queue: default
+    schedule: at 3am on the 1st of january, april, july, october
+
+  sla_alerts_support:
+    class: SlaAlertJob
+    queue: default
+    schedule: every hour
+
+  onboarding_sequence_emails:
+    class: OnboardingSequenceJob
+    queue: default
+    schedule: at 10am every day
+
 development:
   facture_alerts_dev:
     class: FactureAlertJob

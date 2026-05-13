@@ -36,6 +36,7 @@ class User < ApplicationRecord
   has_many :rib_donnees, dependent: :destroy
   has_many :peb_donnees, dependent: :destroy
   has_many :support_tickets, dependent: :destroy
+  has_many :nps_responses, dependent: :destroy
 
   # Collaboration — projets dont l'utilisateur est membre (pro invité)
   has_many :project_members, dependent: :destroy

@@ -8,8 +8,21 @@ class DocumentsController < ApplicationController
     @documents = current_user.documents.includes(:property, :project, :request, :simulation)
 
     # Filtrage par contexte
-    @documents = @documents.where(property: @property) if @property
-    @documents = @documents.where(project: @project) if @project
+    if @project
+      # Inclure les docs du projet ET les docs de la même propriété sans projet assigné
+      # (ex: docs uploadés hors contexte projet mais liés au même bien)
+      property_id = @project.property_id
+      if property_id
+        @documents = @documents.where(
+          "documents.project_id = :project_id OR (documents.project_id IS NULL AND documents.property_id = :property_id)",
+          project_id: @project.id, property_id: property_id
+        )
+      else
+        @documents = @documents.where(project: @project)
+      end
+    elsif @property
+      @documents = @documents.where(property: @property)
+    end
     @documents = @documents.where(request: @request) if @request
 
     # Filtrage par phase si demandé
@@ -219,7 +232,7 @@ class DocumentsController < ApplicationController
 
     # Réponse basée sur le succès/échec
     if errors.empty? && created_documents.any?
-      # Envoyer une notification par email à l'administrateur
+      # Envoyer une notification par email à l'administrateur (synchrone pour garantir la livraison)
       begin
         AdminMailer.document_uploaded(
           current_user,
@@ -230,9 +243,9 @@ class DocumentsController < ApplicationController
             request: @request,
             simulation: @simulation
           }
-        ).deliver_later
+        ).deliver_now
       rescue => e
-        Rails.logger.error "Erreur lors de l'envoi de notification admin: #{e.message}"
+        Rails.logger.error "[AdminMailer] ÉCHEC notification document_uploaded (user:#{current_user.id}): #{e.class} — #{e.message}"
         # On continue même si l'email échoue
       end
 

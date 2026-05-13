@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_10_172302) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_13_113659) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -435,6 +435,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_10_172302) do
     t.index ["property_id"], name: "index_notifications_on_property_id"
     t.index ["simulation_id"], name: "index_notifications_on_simulation_id"
     t.index ["user_id"], name: "index_notifications_on_user_id"
+  end
+
+  create_table "nps_responses", force: :cascade do |t|
+    t.text "comment"
+    t.datetime "created_at", null: false
+    t.integer "score", null: false
+    t.string "trigger", default: "day14"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_nps_responses_on_user_id"
   end
 
   create_table "page_visits", force: :cascade do |t|
@@ -1106,6 +1116,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_10_172302) do
   end
 
   create_table "support_tickets", force: :cascade do |t|
+    t.string "category", default: "general", null: false
     t.datetime "created_at", null: false
     t.string "priority"
     t.datetime "responded_at"
@@ -1137,9 +1148,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_10_172302) do
     t.string "nom"
     t.string "nom_cabinet"
     t.integer "nombre_enfants"
+    t.datetime "nps_prompted_at"
     t.string "num_bce"
     t.string "number"
     t.datetime "onboarding_completed_at"
+    t.datetime "onboarding_j1_sent_at"
+    t.datetime "onboarding_j3_sent_at"
+    t.datetime "onboarding_j7_sent_at"
     t.integer "personnes_60_ans_et_plus"
     t.string "phone"
     t.string "postal_code"
@@ -1207,6 +1222,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_10_172302) do
   add_foreign_key "notifications", "properties"
   add_foreign_key "notifications", "simulations"
   add_foreign_key "notifications", "users"
+  add_foreign_key "nps_responses", "users"
   add_foreign_key "page_visits", "users"
   add_foreign_key "peb_donnees", "documents"
   add_foreign_key "peb_donnees", "projects", on_delete: :nullify

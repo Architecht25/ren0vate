@@ -4,10 +4,15 @@ class Admin::SupportTicketsController < ApplicationController
   before_action :set_ticket, only: [:show, :reply, :resolve, :close]
 
   def index
-    @tickets = SupportTicket.includes(:user, :support_messages)
-                             .recent
-    @open_count     = @tickets.count { |t| t.status == 'open' }
-    @overdue_count  = @tickets.count { |t| !t.within_sla? && t.status == 'open' }
+    scope = SupportTicket.includes(:user, :support_messages).recent
+    scope = scope.where(status: params[:status])   if params[:status].present?
+    scope = scope.where(priority: params[:priority]) if params[:priority].present?
+
+    @tickets       = scope
+    @total_count   = SupportTicket.count
+    @by_status     = SupportTicket.group(:status).count
+    @open_count    = @by_status.slice('open', 'in_progress').values.sum
+    @overdue_count = SupportTicket.overdue.count
   end
 
   def show

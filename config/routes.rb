@@ -131,6 +131,9 @@ Rails.application.routes.draw do
       # API Calculs Flandre
       post 'flandre/calculate_prime', to: 'flandre_calculations#calculate_prime'
       post 'flandre/calculate_all', to: 'flandre_calculations#calculate_all'
+
+      # NPS / feedback utilisateur
+      post 'nps', to: 'nps#create'
     end
 
     # Dashboard routes
@@ -505,6 +508,8 @@ Rails.application.routes.draw do
   get '/mentions-legales', to: 'pages#legal', as: :legal
   get '/politique-de-confidentialite', to: 'pages#privacy', as: :privacy
   get '/conditions-generales', to: 'pages#terms', as: :terms
+  get '/faq', to: 'pages#faq', as: :faq
+  get '/aide', to: 'pages#aide', as: :aide
   get '/accord-de-traitement-des-donnees', to: 'pages#dpa', as: :dpa
 
   # Routes globales pour les gestionnaires (admin/modérateur)

@@ -1,6 +1,6 @@
 # Analyse juridique Ren0vate — Lancement commercial
-**Date de l'analyse : 18 avril 2026** *(mise à jour)*
-**Rédigée par : GitHub Copilot (IA), à valider par un conseiller juridique humain)**
+**Date de l'analyse : 11 mai 2026** *(mise à jour)*
+**Rédigée par : GitHub Copilot / Claude Sonnet (IA), à valider par un conseiller juridique humain)**
 **Société : ArchiTecht SRL — BCE BE 1020.345.473**
 
 ---
@@ -23,16 +23,17 @@
 ## 2. Fichiers légaux — état après mise à jour
 
 ### 2.1 Mentions légales (`/app/views/pages/legal.html.erb`)
-✅ **Complété** — 10 articles couvrant :
+✅ **Complété** — v5.1 (mai 2026) — 10 articles couvrant :
 - Identité complète de l'éditeur (BCE, TVA, siège, administrateur)
 - Hébergeur : Heroku (Salesforce) — Irlande (Dublin)
 - Disclaimer IA — alerte rouge : les agents IA ne sont pas des avocats
 - Section AI Act : classification système IA à haut risque (secteur immobilier/financier)
 - Compétence : tribunaux du Brabant wallon
 - Droit applicable : droit belge
+- **§3 mis à jour (mai 2026)** : mention de l'espace collaboratif intermédiaires/courtiers, système de referral token, tableau de bord multi-client professionnel
 
 ### 2.2 Politique de confidentialité (`/app/views/pages/privacy.html.erb`)
-✅ **Complétée** — 14 sections couvrant :
+✅ **Complétée** — v5.1 (mai 2026) — 14 sections couvrant :
 - Responsable du traitement (ArchiTecht SRL, coordonnées complètes)
 - Table des finalités avec base légale (art. 6 RGPD) par traitement
 - **Section 5.2 — données réellement envoyées à Anthropic** (voir §4 ci-dessous)
@@ -43,16 +44,38 @@
 - Cookies Stripe
 - Rétention granulaire par catégorie de données
 - Contact DPO : robin@architecht.be
+- **Mises à jour mai 2026** :
+  - §2.1 : ajout de `professional_type`, N° BCE/TVA (vérification VIES), `referral_token` dans les données collectées
+  - §3 table : 2 nouvelles lignes (vérification BCE/VIES, gestion invitations ProjectMember)
+  - §5.2 (d) : section "Assistant IA Professionnel" — contexte portefeuille sans données personnelles client, jamais d'AER/revenus/IBAN
+  - §10 : mis à jour pour couvrir le flux referral et l'accès bidirectionnel pro ↔ client
 
 ### 2.3 Conditions générales de vente (`/app/views/pages/terms.html.erb`)
-✅ **Créées de zéro** — 16 articles couvrant :
-- Table des 5 plans tarifaires (Freemium 0€ / Propriétaire 39€ / Investisseur 89€ / Expert 149€ / Platform 299€ TTC)
+✅ **v1.2** (mai 2026) — 17 articles couvrant :
+
+**Plans tarifaires :**
+| Segment | Plan | Prix TTC/mois |
+|---|---|---|
+| B2C | Starter | 0 € |
+| B2C | Propriétaire | 39 € |
+| B2C | Investisseur | 89 € |
+| B2C | Premium | 149 € |
+| B2B | Pro | 99 € |
+| B2B | Entreprise | 299 € |
+
+**Contenu :**
 - Droit de rétractation 14 jours (B2C) + formulaire type annexé
 - Résiliation et export des données (délai 30 jours)
 - **Article 10 — Intelligence Artificielle** (6 sous-sections) : disclaimer conseil non-avocat, alerte rouge, limites de responsabilité IA
 - Licences Contenu Utilisateur
 - SLA 99,5 % disponibilité
 - Médiation consommateur
+- **Art. 3bis (ajouté mai 2026) — Comptes Professionnels** :
+  - §3bis.1 : inscription et `professional_type` (architect/entrepreneur/intermediary)
+  - §3bis.2 : système de referral token — génération, utilisation, lien d'invitation client
+  - §3bis.3 : périmètre d'accès du pro (projets acceptés uniquement, sans données financières client)
+  - §3bis.4 : responsabilité du professionnel vis-à-vis de ses clients
+- **Définitions enrichies** : Compte Professionnel, Intermédiaire/Courtier en primes, Lien d'invitation Pro, ProjectMember
 
 ### 2.4 Routes et contrôleur
 ✅ Route ajoutée : `GET /conditions-generales → pages#terms`
@@ -136,17 +159,14 @@ Le service `ContextualBotService` envoie à chaque message le contexte complet s
 
 ## 5. Actions restantes avant lancement commercial
 
+> **Synthèse (mai 2026)** — Le transfert Anthropic est le seul vrai bloquant dur avant le premier client payant. La notice AER est simple à ajouter (une ligne dans le formulaire d'upload). Le DPO peut être l'administrateur (Robin) dans un premier temps — à formaliser avant de dépasser ~250 clients actifs.
+
 ### 5.1 Priorité immédiate (bloquant lancement)
 
-- [ ] **Transférer le compte Anthropic vers ArchiTecht SRL** ⚠️ *Situation actuelle : le compte console Anthropic est enregistré au nom de "Primes-Services", pas d'ArchiTecht SRL. Le DPA Anthropic lie l'entité signataire — donc actuellement Primes-Services est le controller déclaré, pas ArchiTecht. En cas de contrôle APD ou de litige client, ce décalage est une vulnérabilité.*
-  - **Option A (recommandée)** : envoyer un email à privacy@anthropic.com pour demander le transfert du compte vers ArchiTecht SRL (BCE BE 1020.345.473) — conserver la confirmation écrite dans le dossier conformité
-  - **Option B** : créer un nouveau compte console Anthropic au nom d'ArchiTecht SRL, générer une nouvelle clé API et mettre à jour `ANTHROPIC_API_KEY` dans les credentials Rails / variables Heroku
-  - À faire **avant le premier client payant** — risque faible en pratique mais réel en cas de contrôle
-- [ ] **DPA Anthropic — vérification** — le DPA est automatiquement inclus dans les Commercial Terms of Service Anthropic (effectif 24/02/2025) pour tout compte enregistré au nom d'une société. Une fois le transfert vers ArchiTecht effectué, le DPA s'applique de plein droit sans démarche supplémentaire.
-- [x] **Checkbox consentement chatbot** ✅ *Implémentée dans `_contextual_bot.html.erb` + `contextual_bot_controller.js`* — panneau de consentement affiché à la première ouverture, consentement stocké en `localStorage` (`rn0_ia_consent_v1`).
-- [ ] **Nommer un DPO** ou au minimum désigner une personne de contact RGPD interne et la déclarer auprès de l'APD belge si le volume de traitement l'exige.
+- [~] **Transférer le compte Anthropic vers ArchiTecht SRL** — Email envoyé à privacy@anthropic.com le 11 mai 2026 — ⏳ *En attente de confirmation écrite à conserver dans le dossier conformité*
+- [ ] **Nommer un DPO / contact RGPD + déclaration APD belge** — à faire le jour de la commercialisation (voir `docs/CHECKLIST_LANCEMENT.md`)
 
-### 5.2 Priorité haute (avant lancement ou rapidement après)
+### 5.2 Priorité haute (avant ou juste après lancement)
 
 - [x] **Pseudonymiser les données avant envoi à Anthropic** ✅ *Implémenté dans `contextual_bot_service.rb`*
   - Revenus exacts → tranches calées sur seuils belges (9 tranches de `< 15 000 €` à `> 80 000 €`)
@@ -157,23 +177,24 @@ Le service `ContextualBotService` envoie à chaque message le contexte complet s
   - EAN + numéro cadastre → `Renseigné/Non renseigné`
   - Noms architecte/entrepreneur → `Renseigné` + certifications uniquement
   - N° TVA entrepreneur → boolean `Enregistrée: Oui/Non`
-- [ ] **Notice à l'upload AER** — informer l'utilisateur au moment du dépôt du document que le revenu imposable extrait sera utilisé dans les prompts IA
-- [ ] **Information RGPD dans ChantierVision** — avertir avant l'upload photo que les images sont envoyées à Anthropic USA
+- [x] **Checkbox consentement chatbot** ✅ *Implémentée dans `_contextual_bot.html.erb` + `contextual_bot_controller.js`* — panneau de consentement affiché à la première ouverture, consentement stocké en `localStorage` (`rn0_ia_consent_v1`).
+- [x] **Notice à l'upload AER** ✅ *Implémentée dans `documents/new.html.erb`* — l'utilisateur est informé que le revenu extrait sera utilisé en tranche anonymisée dans l'assistant IA, avec lien vers la politique de confidentialité.
+- [x] **Avertissement avant upload photo ChantierVision** ✅ *Modal de consentement ajouté dans `_vision_analysis.html.erb`* — affiché à la première analyse, consentement stocké en `localStorage` (`rn0_vision_consent_v1`), information sur le transfert USA + SCC.
 
-### 5.3 Priorité normale (3 mois après lancement)
+### 5.3 Priorité normale (dans les 3 mois post-lancement)
 
-- [ ] Registre des activités de traitement (art. 30 RGPD) — document interne obligatoire
-- [ ] Analyse d'impact (AIPD / DPIA) sur le traitement des données AER et fiscales (art. 35 RGPD — données financières à grande échelle)
-- [ ] Politique de conservation et suppression automatique des données inactives (> 2 ans sans connexion)
+- [x] **Registre des activités de traitement** (art. 30 RGPD) ✅ *Rédigé dans `Documents_strategiques/RGPD_REGISTRE_ACTIVITES.md`* — 7 traitements documentés.
+- [x] **Analyse d'impact (AIPD / DPIA)** (art. 35 RGPD) ✅ *Ébauche initiale dans `Documents_strategiques/RGPD_DPIA.md`* — à réviser avant 250 utilisateurs actifs.
+- [x] **Politique de conservation et suppression automatique** ✅ *`DataRetentionJob` créé* — anonymisation trimestrielle des comptes inactifs > 2 ans (1er janv., avr., juil., oct. à 3h).
 - [ ] Audit de sécurité annuel (OWASP Top 10 — déjà partiellement couvert par Brakeman)
-- [ ] Médiation consommateur — s'affilier à un organisme agréé (ex. : CPMA / ODR belge)
+- [ ] Affiliation organisme de médiation consommateur (CPMA / ODR belge)
 
 ---
 
 ## 6. Architecture IA — récapitulatif des flux de données
 
 ```
-Utilisateur
+Utilisateur (propriétaire)
     │
     ├─ Chat IA ──────────────────────► Anthropic API (Claude Haiku/Sonnet)
     │   Données : profil complet,      USA — SCC — données pseudonymisées ✅
@@ -193,6 +214,16 @@ Utilisateur
     │
     └─ Paiements ────────────────────► Stripe (EU-US DPF)
         Données : identité, facturation  Infrastructure UE disponible
+
+Utilisateur professionnel (architect / entrepreneur / intermediary)
+    │
+    └─ Chat IA Pro ──────────────────► Anthropic API (Claude Haiku/Sonnet)
+        Données : portefeuille projets  USA — SCC — ⚠️ JAMAIS de données
+        acceptés (état avancement,      personnelles client (pas d'AER,
+        types de travaux, communes),    pas de revenus, pas d'IBAN)
+        professional_type, N° BCE       Contexte limité au niveau projet
+        ✅ Séparation stricte : le pro ne voit jamais les données financières
+           ou fiscales des clients via le chatbot
 ```
 
 ---
@@ -229,6 +260,7 @@ Utilisateur
 |---|---|---|
 | 8 avril 2026 | GitHub Copilot (IA) | Création initiale — mentions légales, CGV, privacy, RGPD IA |
 | 18 avril 2026 | GitHub Copilot (IA) | Mise à jour statuts : pseudonymisation Anthropic ✅, checkbox consentement ✅, flux IA corrigé, risques mis à jour |
+| 11 mai 2026 | Claude Sonnet (IA) | CGV v1.2 — Art. 3bis (comptes pro), tarifs B2B corrects (Pro 99€ / Entreprise 299€), noms plans B2C corrigés ; RGPD v5.1 — données BCE/VIES, referral_token, Pro chatbot section 5.2(d) ; Mentions légales v5.1 — §3 intermédiaires/courtiers ; §6 flux IA Pro ajouté (portefeuille sans PII client) |
 
 ---
 

@@ -33,8 +33,46 @@
       </span>
     </button>
   </div>
+</div>
 
-  <div id="vision-result">
+<%# ── Modal consentement RGPD ChantierVision ────────────────────────────── %>
+<div class="modal fade" id="modal-rgpd-vision" tabindex="-1" aria-labelledby="modal-rgpd-vision-label" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h6 class="modal-title fw-semibold" id="modal-rgpd-vision-label">
+          <i class="bi bi-camera-video me-2 text-primary"></i>Analyse IA des photos de chantier
+        </h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+      </div>
+      <div class="modal-body pt-2">
+        <div class="alert alert-info d-flex align-items-start gap-2 mb-3 py-2" style="font-size:0.82rem;">
+          <i class="bi bi-info-circle-fill flex-shrink-0 mt-1"></i>
+          <div>
+            <strong class="d-block mb-1">Information RGPD — transfert hors UE</strong>
+            Vos photos de chantier seront transmises à <strong>Anthropic</strong> (États-Unis) pour analyse par
+            intelligence artificielle (Claude Vision). Ce transfert est encadré par des Clauses Contractuelles Types
+            (SCC — art. 46 RGPD). Anthropic ne les utilise pas pour entraîner ses modèles.
+          </div>
+        </div>
+        <ul class="small text-muted ps-3 mb-0">
+          <li>Maximum 6 photos analysées par session</li>
+          <li>Les photos ne sont pas conservées par Anthropic après traitement</li>
+          <li>Résultat stocké uniquement sur nos serveurs européens</li>
+          <li>Vous pouvez consulter notre <a href="<%= privacy_path %>" target="_blank">politique de confidentialité</a></li>
+        </ul>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-primary btn-sm" id="btn-vision-consent-confirm">
+          <i class="bi bi-check2 me-1"></i>J'accepte &amp; lance l'analyse
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="vision-result">
     <% if analysis %>
       <%# ── Barre de progression ── %>
       <% pct = analysis['avancement'].to_i %>
@@ -129,73 +167,97 @@
 
 <script nonce="<%= content_security_policy_nonce %>">
 (function() {
+  const CONSENT_KEY = 'rn0_vision_consent_v1';
+
+  function launchAnalysis(btn) {
+    const label   = document.getElementById('btn-analyze-label');
+    const spinner = document.getElementById('btn-analyze-spinner');
+    const result  = document.getElementById('vision-result');
+
+    btn.disabled = true;
+    label.classList.add('d-none');
+    spinner.classList.remove('d-none');
+
+    fetch(btn.dataset.analyzeUrl, {
+      method: 'POST',
+      headers: {
+        'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        pollVisionStatus(btn.dataset.statusUrl, btn, label, spinner, result);
+      } else {
+        showError(result, data.error || 'Erreur inconnue');
+        resetBtn(btn, label, spinner);
+      }
+    })
+    .catch(() => { showError(result, 'Erreur réseau'); resetBtn(btn, label, spinner); });
+  }
+
   function initVisionAnalysis() {
     const btn = document.getElementById('btn-analyze');
     if (!btn || btn.dataset.initialized) return;
     btn.dataset.initialized = 'true';
 
-    const label   = document.getElementById('btn-analyze-label');
-    const spinner = document.getElementById('btn-analyze-spinner');
-    const result  = document.getElementById('vision-result');
-
     btn.addEventListener('click', function () {
-      btn.disabled = true;
-      label.classList.add('d-none');
-      spinner.classList.remove('d-none');
-
-      fetch(btn.dataset.analyzeUrl, {
-        method: 'POST',
-        headers: {
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      })
-      .then(r => r.json())
-      .then(data => {
-        if (data.success) {
-          pollVisionStatus(btn.dataset.statusUrl);
-        } else {
-          showError(data.error || 'Erreur inconnue');
-          resetBtn();
-        }
-      })
-      .catch(() => { showError('Erreur réseau'); resetBtn(); });
+      if (localStorage.getItem(CONSENT_KEY)) {
+        // Consentement déjà donné — lancer directement
+        launchAnalysis(btn);
+      } else {
+        // Premier usage — afficher le modal de consentement RGPD
+        const modal = new bootstrap.Modal(document.getElementById('modal-rgpd-vision'));
+        modal.show();
+      }
     });
 
-    function pollVisionStatus(url) {
-      let attempts = 0;
-      const max = 45; // ~90s max
-      const interval = setInterval(function () {
-        attempts++;
-        if (attempts > max) {
-          clearInterval(interval);
-          showError('Délai dépassé — relancez l\'analyse');
-          resetBtn();
-          return;
-        }
-
-        fetch(url, { headers: { 'Accept': 'application/json' } })
-          .then(r => r.json())
-          .then(data => {
-            if (data.success && data.analysis) {
-              clearInterval(interval);
-              location.reload();
-            }
-          })
-          .catch(() => { /* retry silencieux */ });
-      }, 2000);
+    // Bouton "J'accepte" dans le modal
+    const confirmBtn = document.getElementById('btn-vision-consent-confirm');
+    if (confirmBtn && !confirmBtn.dataset.initialized) {
+      confirmBtn.dataset.initialized = 'true';
+      confirmBtn.addEventListener('click', function () {
+        localStorage.setItem(CONSENT_KEY, '1');
+        bootstrap.Modal.getInstance(document.getElementById('modal-rgpd-vision')).hide();
+        launchAnalysis(btn);
+      });
     }
+  }
 
-    function showError(msg) {
-      result.innerHTML = `<div class="alert alert-danger py-2 small">${msg}</div>`;
-    }
+  function pollVisionStatus(url, btn, label, spinner, result) {
+    let attempts = 0;
+    const max = 45; // ~90s max
+    const interval = setInterval(function () {
+      attempts++;
+      if (attempts > max) {
+        clearInterval(interval);
+        showError(result, 'Délai dépassé — relancez l\'analyse');
+        resetBtn(btn, label, spinner);
+        return;
+      }
 
-    function resetBtn() {
-      btn.disabled = false;
-      label.classList.remove('d-none');
-      spinner.classList.add('d-none');
-    }
+      fetch(url, { headers: { 'Accept': 'application/json' } })
+        .then(r => r.json())
+        .then(data => {
+          if (data.success && data.analysis) {
+            clearInterval(interval);
+            location.reload();
+          }
+        })
+        .catch(() => { /* retry silencieux */ });
+    }, 2000);
+  }
+
+  function showError(result, msg) {
+    result.innerHTML = `<div class="alert alert-danger py-2 small">${msg}</div>`;
+  }
+
+  function resetBtn(btn, label, spinner) {
+    btn.disabled = false;
+    label.classList.remove('d-none');
+    spinner.classList.add('d-none');
   }
 
   // Fonctionne avec Turbo et sans

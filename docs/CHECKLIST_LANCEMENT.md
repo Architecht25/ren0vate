@@ -65,3 +65,11 @@ Opérations à effectuer le jour de la mise en vente (commercialisation publique
 - Le health-check endpoint `/up` est déjà en prod — UptimeRobot peut être configuré dès maintenant si souhaité
 - Sentry et Plausible sont entièrement prêts côté code, ils attendent juste leurs comptes externes
 - Transfert compte Anthropic → ArchiTecht SRL : email envoyé le 11 mai 2026 à privacy@anthropic.com — attendre confirmation écrite
+
+---
+
+## Post-lancement (hors scope octobre 2026)
+
+- **Export UBL/Billit** (facturation électronique B2B belge) — concerne uniquement les clients B2B assujettis TVA. Majoritairement B2C au lancement, à intégrer quand les premiers clients entreprises arrivent.
+- Ruby 3.3.11 — upgrade mineur, non bloquant
+- LogRocket — session replay, après stabilisation

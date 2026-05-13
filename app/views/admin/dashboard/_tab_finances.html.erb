@@ -1,5 +1,72 @@
 <div class="tab-pane fade" id="finances-panel" role="tabpanel">
 
+  <!-- KPIs SaaS clés -->
+  <div class="row g-3 mb-4">
+    <!-- ARR -->
+    <div class="col-6 col-lg-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body text-center py-3">
+          <div class="text-muted fw-semibold text-uppercase mb-1" style="font-size: 11px; letter-spacing: 0.5px;">ARR</div>
+          <div class="fw-bold" style="font-size: 22px;"><%= number_to_currency(@saas_metrics[:arr], unit: '€', format: '%n %u', precision: 0, delimiter: ' ') %></div>
+          <% if @saas_metrics[:mrr_growth] %>
+            <% growth = @saas_metrics[:mrr_growth] %>
+            <div class="mt-1 small <%= growth >= 0 ? 'text-success' : 'text-danger' %>">
+              <i class="bi bi-arrow-<%= growth >= 0 ? 'up' : 'down' %>"></i> <%= growth.abs %>% vs mois préc.
+            </div>
+          <% else %>
+            <div class="text-muted small mt-1">— données insuffisantes</div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Churn mensuel -->
+    <div class="col-6 col-lg-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body text-center py-3">
+          <div class="text-muted fw-semibold text-uppercase mb-1" style="font-size: 11px; letter-spacing: 0.5px;">Churn mensuel</div>
+          <div class="fw-bold <%= @saas_metrics[:churn_rate] > 5 ? 'text-danger' : (@saas_metrics[:churn_rate] > 2 ? 'text-warning' : 'text-success') %>" style="font-size: 22px;">
+            <%= @saas_metrics[:churn_rate] %>%
+          </div>
+          <div class="text-muted small mt-1"><%= @saas_metrics[:canceled_this_month] %> annulation(s) ce mois</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LTV -->
+    <div class="col-6 col-lg-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body text-center py-3">
+          <div class="text-muted fw-semibold text-uppercase mb-1" style="font-size: 11px; letter-spacing: 0.5px;">LTV estimée</div>
+          <div class="fw-bold text-primary" style="font-size: 22px;">
+            <% if @saas_metrics[:ltv] == 999 %>
+              <span title="Churn 0% — LTV non calculable">∞</span>
+            <% elsif @saas_metrics[:ltv] == 0 %>
+              —
+            <% else %>
+              <%= number_to_currency(@saas_metrics[:ltv], unit: '€', format: '%n %u', precision: 0) %>
+            <% end %>
+          </div>
+          <div class="text-muted small mt-1">ARPU <%= @saas_metrics[:arpu] %>€/mois</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conversion & nouveaux -->
+    <div class="col-6 col-lg-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body text-center py-3">
+          <div class="text-muted fw-semibold text-uppercase mb-1" style="font-size: 11px; letter-spacing: 0.5px;">Ce mois-ci</div>
+          <div class="fw-bold text-success" style="font-size: 22px;">+<%= @saas_metrics[:new_this_month] %></div>
+          <div class="text-muted small mt-1">
+            nouv. sub · <%= @saas_metrics[:conversion_rate] %>% conv.
+          </div>
+          <div class="text-muted" style="font-size: 11px;"><%= @saas_metrics[:new_users_this_month] %> inscriptions</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- KPI finances -->
   <div class="row g-3 mb-4">
 

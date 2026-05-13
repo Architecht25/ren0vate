@@ -43,6 +43,10 @@ class SupportMailer < ApplicationMailer
     )
   end
 
+  # Alerte admin — SLA bientôt dépassé (< 2h restantes)
+  def sla_approaching(ticket)
+    @ticket = ticket
+    @user   = ticket.user
   # Notification résolution
   def ticket_resolved(ticket)
     @ticket = ticket
@@ -50,6 +54,16 @@ class SupportMailer < ApplicationMailer
     mail(
       to:      @user.email,
       subject: "[Ren0vate Support] Votre demande ##{ticket.id} a été résolue"
+    )
+  end
+
+  # Alerte admin — SLA bientôt dépassé (< 2h restantes)
+  def sla_approaching(ticket)
+    @ticket = ticket
+    @user   = ticket.user
+    mail(
+      to:      ADMIN_EMAIL,
+      subject: "⚠️ [Support SLA] Ticket ##{ticket.id} expire dans ~2h — #{ticket.user.email}"
     )
   end
 end

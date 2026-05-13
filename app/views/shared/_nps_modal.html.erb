@@ -1,0 +1,81 @@
+<%# Modale NPS — affichée après 14 jours si l'utilisateur n'a pas encore répondu %>
+<% if user_signed_in? &&
+     current_user.created_at < 14.days.ago &&
+     current_user.nps_responses.where(trigger: 'day14').none? &&
+     (current_user.nps_prompted_at.nil? || current_user.nps_prompted_at < 7.days.ago) %>
+
+<div class="modal fade" id="npsModal" tabindex="-1"
+     data-controller="nps"
+     data-nps-url-value="<%= api_nps_path %>"
+     data-nps-csrf-value="<%= form_authenticity_token %>">
+  <div class="modal-dialog modal-dialog-centered" style="max-width:480px;">
+    <div class="modal-content border-0 shadow-lg rounded-4">
+      <div class="modal-header border-0 pb-0">
+        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                data-action="click->nps#dismiss"></button>
+      </div>
+      <div class="modal-body px-4 pt-2 pb-4">
+        <div class="text-center mb-4">
+          <div class="fs-1">⭐</div>
+          <h5 class="fw-bold mt-2">Votre avis compte !</h5>
+          <p class="text-muted small">En quelques secondes, aidez-nous à améliorer Ren0vate.</p>
+        </div>
+
+        <p class="fw-semibold text-center mb-3">
+          Sur 10, quelle est la probabilité que vous recommandiez Ren0vate à un ami ?
+        </p>
+
+        <!-- Score selector -->
+        <div class="d-flex justify-content-between gap-1 mb-1" data-nps-target="scores">
+          <% (0..10).each do |n| %>
+            <button type="button"
+                    class="btn btn-sm btn-outline-secondary rounded-2 nps-score-btn"
+                    data-score="<%= n %>"
+                    data-action="click->nps#selectScore"
+                    style="min-width:36px;padding:4px 0;font-size:13px;">
+              <%= n %>
+            </button>
+          <% end %>
+        </div>
+        <div class="d-flex justify-content-between text-muted" style="font-size:11px;">
+          <span>Pas du tout probable</span>
+          <span>Très probable</span>
+        </div>
+
+        <div class="mt-3 d-none" data-nps-target="commentBox">
+          <textarea class="form-control form-control-sm" rows="3"
+                    placeholder="Partagez vos impressions (optionnel)"
+                    data-nps-target="comment"></textarea>
+        </div>
+
+        <div class="mt-3 d-none" data-nps-target="submitArea">
+          <button type="button" class="btn btn-primary w-100"
+                  data-action="click->nps#submit">
+            Envoyer mon avis
+          </button>
+        </div>
+
+        <div class="text-center mt-3 d-none" data-nps-target="thanks">
+          <div class="text-success fs-4">✓</div>
+          <p class="fw-bold mb-1">Merci pour votre retour !</p>
+          <p class="text-muted small">Votre avis nous aide à améliorer la plateforme.</p>
+          <button class="btn btn-sm btn-outline-secondary mt-1" data-bs-dismiss="modal">Fermer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script nonce="<%= content_security_policy_nonce %>">
+  document.addEventListener('turbo:load', function() {
+    var npsKey = 'nps_modal_shown_<%= current_user.id %>';
+    if (!sessionStorage.getItem(npsKey)) {
+      sessionStorage.setItem(npsKey, '1');
+      setTimeout(function() {
+        var modal = new bootstrap.Modal(document.getElementById('npsModal'));
+        modal.show();
+      }, 3000);
+    }
+  });
+</script>
+<% end %>

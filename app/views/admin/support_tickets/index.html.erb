@@ -13,6 +13,30 @@
     </div>
   </div>
 
+  <!-- Filtres -->
+  <div class="mb-3 d-flex gap-2 flex-wrap">
+    <%= link_to admin_support_tickets_path,
+          class: "btn btn-sm #{params[:status].blank? && params[:priority].blank? ? 'btn-dark' : 'btn-outline-secondary'}" do %>
+      Tous (<%= @total_count %>)
+    <% end %>
+    <%= link_to admin_support_tickets_path(status: 'open'),
+          class: "btn btn-sm #{params[:status] == 'open' ? 'btn-warning' : 'btn-outline-warning'}" do %>
+      Ouverts (<%= @by_status['open'] || 0 %>)
+    <% end %>
+    <%= link_to admin_support_tickets_path(status: 'in_progress'),
+          class: "btn btn-sm #{params[:status] == 'in_progress' ? 'btn-primary' : 'btn-outline-primary'}" do %>
+      En cours (<%= @by_status['in_progress'] || 0 %>)
+    <% end %>
+    <%= link_to admin_support_tickets_path(status: 'resolved'),
+          class: "btn btn-sm #{params[:status] == 'resolved' ? 'btn-success' : 'btn-outline-success'}" do %>
+      Résolus (<%= @by_status['resolved'] || 0 %>)
+    <% end %>
+    <%= link_to admin_support_tickets_path(priority: 'urgent'),
+          class: "btn btn-sm #{params[:priority] == 'urgent' ? 'btn-danger' : 'btn-outline-danger'}" do %>
+      Urgents
+    <% end %>
+  </div>
+
   <div class="card border-0 shadow-sm">
     <div class="table-responsive">
       <table class="table table-hover mb-0 align-middle">
@@ -21,6 +45,7 @@
             <th>#</th>
             <th>Utilisateur</th>
             <th>Sujet</th>
+            <th>Catégorie</th>
             <th>Priorité</th>
             <th>Statut</th>
             <th>SLA</th>
@@ -38,6 +63,7 @@
                 <div class="text-muted" style="font-size:11px;"><%= ticket.user.subscription_tier_name %></div>
               </td>
               <td><%= ticket.subject %></td>
+              <td><span class="badge bg-light text-dark border"><%= ticket.category_label %></span></td>
               <td>
                 <span class="badge bg-<%= ticket.priority == 'urgent' ? 'danger' : 'secondary' %>">
                   <%= ticket.priority %>
@@ -65,7 +91,7 @@
             </tr>
           <% end %>
           <% if @tickets.empty? %>
-            <tr><td colspan="9" class="text-center py-4 text-muted">Aucun ticket de support.</td></tr>
+            <tr><td colspan="10" class="text-center py-4 text-muted">Aucun ticket de support.</td></tr>
           <% end %>
         </tbody>
       </table>
