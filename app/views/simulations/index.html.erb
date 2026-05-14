@@ -1,98 +1,117 @@
 <div class="container-fluid px-4 py-4">
-  <!-- Header épuré -->
+
+  <!-- Header -->
   <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-    <h1 class="h3 text-primary-custom mb-0 fw-normal">Mes Simulations de Primes</h1>
+    <h1 class="h3 text-primary-custom mb-0 fw-normal">Mes simulations</h1>
     <div class="d-flex gap-2">
       <%= link_to new_simulation_path, class: "btn btn-primary-custom px-4" do %>
         <i class="bi bi-plus-lg me-2"></i>Nouvelle simulation
       <% end %>
       <% if @property %>
-        <%= link_to dashboard_property_path(@property), class: "btn btn-outline-secondary" do %>
+        <%= link_to dashboard_property_path(@property), class: "btn btn-outline-secondary btn-sm" do %>
           <i class="bi bi-arrow-left me-1"></i>Dashboard bien
         <% end %>
       <% end %>
-      <%= link_to properties_path, class: "btn btn-outline-secondary" do %>
-          <i class="bi bi-arrow-left me-1"></i>Mes biens
+      <%= link_to properties_path, class: "btn btn-outline-secondary btn-sm" do %>
+        <i class="bi bi-arrow-left me-1"></i>Mes biens
       <% end %>
     </div>
   </div>
 
-  <!-- Message d'information -->
-  <div class="alert alert-info border-0 mb-4" style="background-color: #e8f4f8;">
-    <div class="d-flex align-items-start">
-      <i class="bi bi-info-circle me-3 mt-1" style="font-size: 1.2rem;"></i>
-      <p class="mb-0">
-        Une bonne préparation de demande de primes commence par une bonne analyse de ce que vous pouvez récupérer. Grâce à nos simulations, vous pouvez tester différents scénarios d'investissement et voir quelles primes sont disponibles pour votre projet. N'hésitez pas à créer plusieurs simulations pour comparer les options et maximiser vos chances d'obtenir les aides auxquelles vous avez droit.
-        une fois que vous aurez terminer, passez à l'étape suivante et commencer à préparer votre dossier en faisant attention aux délais à respecter, aux documents à collecter ainsi qu'aux contraintes techniques à respecter
-      </p>
-      <p class="mb-0">
-
-      </p>
-    </div>
-  </div>
-
-  <!-- Liste des simulations -->
   <% if @simulations.any? %>
+    <!-- Bandeau métriques -->
     <%
-      # Grouper les simulations par région pour afficher les séparateurs
-      grouped_simulations = @simulations.group_by { |s| s.region&.downcase || 'autre' }
-      region_order = ['flandre', 'bruxelles', 'wallonie', 'autre']
-      region_names = {
-        'flandre' => 'Flandre',
-        'bruxelles' => 'Bruxelles',
-        'wallonie' => 'Wallonie',
-        'autre' => 'Autres régions'
-      }
+      total_primes  = @simulations.sum { |s| s.total_simule || s.total_complet_amount || 0 }
+      regions_count = @simulations.filter_map(&:region).uniq.count
     %>
-
-    <% region_order.each do |region_key| %>
-      <% if grouped_simulations[region_key]&.any? %>
-        <!-- Séparateur de région -->
-        <div class="row mb-3">
-          <div class="col-12">
-            <div class="d-flex align-items-center">
-              <h5 class="text-muted mb-0 me-3">
-                <i class="bi bi-geo-alt me-2"></i><%= region_names[region_key] %>
-              </h5>
-              <hr class="flex-grow-1 my-0 text-muted">
-              <span class="badge bg-light text-dark ms-3"><%= grouped_simulations[region_key].count %> simulation<%= 's' if grouped_simulations[region_key].count > 1 %></span>
-            </div>
-          </div>
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="card border-0 text-center py-3 bg-primary-light-ren0vate" style="border-radius:12px;">
+          <div class="fw-bold fs-3 text-primary-ren0vate"><%= @simulations.count %></div>
+          <div class="text-muted small"><i class="bi bi-calculator me-1"></i>Simulation<%= 's' if @simulations.count > 1 %></div>
         </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 text-center py-3 bg-success-light-ren0vate" style="border-radius:12px;">
+          <div class="fw-bold fs-3 text-success-ren0vate"><%= number_to_currency(total_primes, unit: '€', format: '%n %u', precision: 0, delimiter: '.') %></div>
+          <div class="text-muted small"><i class="bi bi-piggy-bank me-1"></i>Primes simulées</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 text-center py-3 bg-accent-light-ren0vate" style="border-radius:12px;">
+          <div class="fw-bold fs-3 text-accent-ren0vate"><%= regions_count %></div>
+          <div class="text-muted small"><i class="bi bi-geo-alt me-1"></i>Région<%= 's' if regions_count != 1 %></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 text-center py-3 bg-danger-light-ren0vate" style="border-radius:12px;">
+          <% sims_with_primes = @simulations.count { |s| (s.total_simule || s.total_complet_amount || 0) > 0 } %>
+          <div class="fw-bold fs-3 text-danger-ren0vate"><%= sims_with_primes %></div>
+          <div class="text-muted small"><i class="bi bi-award me-1"></i>Avec primes</div>
+        </div>
+      </div>
+    </div>
 
-        <div class="row g-3 mb-5">
-          <% grouped_simulations[region_key].each do |simulation| %>
+    <!-- Grille simulations -->
+    <div class="row g-3">
+      <% @simulations.each do |simulation| %>
+        <% total = simulation.total_simule || simulation.total_complet_amount || 0 %>
         <div class="col-xl-3 col-lg-4 col-md-6">
-          <div class="card border-0 h-100 property-card position-relative overflow-hidden<%= ' property-card-entreprise' if simulation.property&.is_entreprise? %>" style="min-height: 200px;">
+          <div class="card border-0 h-100 property-card position-relative overflow-hidden" style="min-height:220px; border-radius:12px;">
 
-            <!-- Image de fond sur toute la carte -->
+            <!-- COUCHE 1 : fond -->
             <div class="position-absolute w-100 h-100"
-                 style="background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_200,q_auto,f_auto/<%= simulation.property&.is_entreprise? ? 'fiduciaire-maenhout-subsides-en-wallonie-aides-a-l-investissements_oh2wkk' : 'shutterstock_2235115125_nry60u' %>');
-                        background-size: cover;
-                        background-position: center;
-                        background-repeat: no-repeat;
-                        top: 0;
-                        left: 0;
-                        z-index: 1;">
-            </div>            <!-- Overlay sombre pour la lisibilité -->
-            <div class="position-absolute w-100 h-100" style="background: rgba(0,0,0,0.15); top: 0; left: 0; z-index: 2;"></div>
+                 style="background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_220,q_auto,f_auto/<%= simulation.property&.is_entreprise? ? 'fiduciaire-maenhout-subsides-en-wallonie-aides-a-l-investissements_oh2wkk' : 'shutterstock_2235115125_nry60u' %>');
+                        background-size:cover; background-position:center;
+                        top:0; left:0; z-index:1;"></div>
 
-            <!-- Badge région en haut à gauche -->
+            <!-- COUCHE 2 : overlay -->
+            <div class="position-absolute w-100 h-100" style="background:rgba(0,0,0,0.45); top:0; left:0; z-index:2;"></div>
+
+            <!-- COUCHE 3 : lien cliquable (sauf barre du bas) -->
+            <%= link_to simulation_path(simulation),
+                class: "position-absolute w-100 d-flex flex-column justify-content-center align-items-center text-decoration-none text-white",
+                style: "z-index:3; top:0; left:0; bottom:36px;" do %>
+              <h5 class="fw-bold mb-2 text-center px-3 text-arch-orange" style="text-shadow:2px 2px 8px rgba(0,0,0,1);">
+                <i class="bi bi-<%= simulation.property&.is_entreprise? ? 'building' : 'calculator' %> me-1"></i>
+                <%= simulation.titre %>
+              </h5>
+              <% if simulation.region.present? %>
+                <div class="text-center" style="font-size:0.85rem; text-shadow:1px 1px 3px rgba(0,0,0,0.9); opacity:0.9;">
+                  <i class="bi bi-geo-alt me-1"></i><%= simulation.region.capitalize %>
+                </div>
+              <% end %>
+            <% end %>
+
+            <!-- COUCHE 4 : barre inférieure -->
+            <div class="position-absolute w-100" style="bottom:0; left:0; z-index:4; background:rgba(0,0,0,0.55); padding:6px 10px;">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="text-white" style="font-size:0.68rem; opacity:0.85;">
+                  <i class="bi bi-award me-1"></i><%= simulation.primes.count %> prime<%= 's' if simulation.primes.count != 1 %>
+                </span>
+                <span class="text-white fw-semibold" style="font-size:0.72rem;">
+                  <%= number_to_currency(total, unit: '€', separator: ',', delimiter: '.', format: '%n %u', precision: 0) %>
+                </span>
+              </div>
+            </div>
+
+            <!-- COUCHE 5 : badge région (haut gauche) -->
             <% if simulation.region %>
-              <div class="position-absolute top-0 start-0 m-2" style="z-index: 4;">
-                <span class="badge bg-<%= simulation.region == 'wallonie' ? 'danger' : simulation.region == 'flandre' ? 'dark' : 'warning' %>" style="font-size: 0.7rem;">
+              <div class="position-absolute top-0 start-0 m-2" style="z-index:5;">
+                <span class="badge bg-<%= simulation.region == 'wallonie' ? 'danger' : simulation.region == 'flandre' ? 'dark' : 'warning' %>" style="font-size:0.65rem;">
                   <%= simulation.region.humanize %>
                 </span>
               </div>
             <% end %>
 
-            <!-- Menu actions trois points en haut à droite -->
-            <div class="position-absolute top-0 end-0 m-2" style="z-index: 4;" onclick="event.stopPropagation()">
-              <div class="dropdown dropup">
-                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="opacity: 0.9;">
+            <!-- COUCHE 5 : menu actions (haut droite) -->
+            <div class="position-absolute top-0 end-0 m-2" style="z-index:5;" onclick="event.stopPropagation()">
+              <div class="dropdown">
+                <button class="btn btn-sm btn-dark opacity-75 dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown" aria-expanded="false" style="padding:2px 7px;">
                   <i class="bi bi-three-dots-vertical"></i>
                 </button>
-                <ul class="dropdown-menu dropdown-menu-end shadow" style="z-index: 1050;">
+                <ul class="dropdown-menu dropdown-menu-end shadow" style="z-index:1050;">
                   <li>
                     <%= link_to simulation_path(simulation), class: "dropdown-item" do %>
                       <i class="bi bi-eye me-2"></i>Voir les détails
@@ -106,9 +125,9 @@
                   <li><hr class="dropdown-divider"></li>
                   <li>
                     <%= button_to simulation_path(simulation),
-                        method: :delete,
-                        form: { data: { turbo_confirm: "Êtes-vous sûr de vouloir supprimer la simulation '#{simulation.titre}' ? Cette action est irréversible." } },
-                        class: "dropdown-item text-danger border-0 bg-transparent text-start w-100" do %>
+                          method: :delete,
+                          form: { data: { turbo_confirm: "Supprimer la simulation '#{simulation.titre}' ? Cette action est irréversible." } },
+                          class: "dropdown-item text-danger border-0 bg-transparent text-start w-100" do %>
                       <i class="bi bi-trash me-2"></i>Supprimer
                     <% end %>
                   </li>
@@ -116,45 +135,13 @@
               </div>
             </div>
 
-            <!-- Contenu centré avec le titre de la simulation -->
-            <%= link_to simulation_path(simulation), class: "text-decoration-none position-absolute w-100 h-100 d-flex align-items-center justify-content-center", style: "z-index: 3;" do %>
-              <div class="text-center text-white">
-                <!-- Titre de la simulation -->
-                <h5 class="fw-bold mb-3 text-arch-orange">
-                  <i class="bi bi-<%= simulation.property&.is_entreprise? ? 'building' : 'calculator' %> me-2"></i>
-                  <%= simulation.titre %>
-                </h5>
-
-                <!-- Région -->
-                <% if simulation.region.present? %>
-                  <div class="text-white mb-3" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">
-                    <div style="font-size: 0.95rem; font-weight: 400;">
-                      <i class="bi bi-geo-alt me-2"></i>
-                      <%= simulation.region.capitalize %>
-                    </div>
-                  </div>
-                <% end %>
-
-                <!-- Informations supplémentaires en bas -->
-                <div class="d-flex justify-content-center align-items-center gap-3">
-                  <span class="badge bg-light text-dark px-2 py-1" style="font-size: 0.75rem;">
-                    <%= simulation.primes.count %> prime<%= 's' if simulation.primes.count > 1 %>
-                  </span>
-                  <% total = simulation.total_simule || simulation.total_complet_amount || 0 %>
-                  <span class="text-white fw-bold" style="font-size: 0.85rem;">
-                    <%= number_to_currency(total, unit: "€", separator: ",", delimiter: " ", format: "%n %u") %>
-                  </span>
-                </div>
-              </div>
-            <% end %>
           </div>
         </div>
-          <% end %>
-        </div>
       <% end %>
-    <% end %>
+    </div>
+
   <% else %>
-    <!-- État vide minimaliste -->
+    <!-- État vide -->
     <div class="text-center py-5 mt-5">
       <div class="icon-circle-large mx-auto mb-4">
         <i class="bi bi-calculator"></i>
@@ -166,4 +153,5 @@
       <% end %>
     </div>
   <% end %>
+
 </div>

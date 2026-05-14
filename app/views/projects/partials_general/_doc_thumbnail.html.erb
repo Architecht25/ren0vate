@@ -1,0 +1,72 @@
+<%# Thumbnail réutilisable pour document (image ou PDF) %>
+<%# Locals: doc (Document), color (string Bootstrap color, default 'secondary') %>
+<% color ||= 'secondary' %>
+<%
+  preview_src = if doc.is_image? && doc.file_url.present?
+    doc.file_url
+  elsif doc.is_pdf?
+    begin
+      doc.cloudinary_preview_url
+    rescue
+      nil
+    end
+  end
+
+  open_url = doc.cloudinary_url.presence || doc.file_url.presence || '#'
+%>
+
+<div class="rounded overflow-hidden position-relative"
+     style="aspect-ratio: 3/4; background: #f1f3f5; border: 1px solid #e9ecef;">
+
+  <% if preview_src.present? %>
+    <%# Image ou PDF preview Cloudinary %>
+    <a href="<%= open_url %>" target="_blank" rel="noopener noreferrer"
+       title="<%= doc.file_name %>">
+      <img src="<%= preview_src %>"
+           class="w-100 h-100"
+           style="object-fit: cover;"
+           alt="<%= doc.file_name %>"
+           loading="lazy"
+           onerror="this.closest('.doc-thumb-img').style.display='none'; this.closest('.position-relative').querySelector('.doc-thumb-fallback').style.display='flex';">
+    </a>
+    <%# Badge type en bas %>
+    <span class="position-absolute bottom-0 start-0 m-1 badge bg-<%= color %>"
+          style="font-size:0.55rem; opacity:0.9; max-width:90%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+      <%= doc.is_pdf? ? 'PDF' : 'IMG' %>
+    </span>
+  <% else %>
+    <%# Fallback : icône selon le type de fichier %>
+    <a href="<%= open_url %>" target="_blank" rel="noopener noreferrer"
+       class="w-100 h-100 d-flex flex-column align-items-center justify-content-center text-decoration-none p-1"
+       style="gap:4px;" title="<%= doc.file_name %>">
+      <% if doc.is_pdf? %>
+        <i class="bi bi-file-earmark-pdf text-danger" style="font-size:1.8rem;"></i>
+      <% elsif doc.file_url&.match?(/\.(xlsx?|csv)/i) %>
+        <i class="bi bi-file-earmark-spreadsheet text-success" style="font-size:1.8rem;"></i>
+      <% elsif doc.file_url&.match?(/\.docx?/i) %>
+        <i class="bi bi-file-earmark-word text-primary" style="font-size:1.8rem;"></i>
+      <% else %>
+        <i class="bi bi-file-earmark text-<%= color %>" style="font-size:1.8rem;"></i>
+      <% end %>
+      <span class="text-muted text-center" style="font-size:0.58rem; line-height:1.2; word-break:break-all; overflow:hidden; max-height:2.5em;">
+        <%= doc.file_name&.truncate(20) %>
+      </span>
+    </a>
+  <% end %>
+
+  <%# Bouton suppression %>
+  <%= button_to document_path(doc),
+        method: :delete,
+        data: { turbo_confirm: "Supprimer ce document ?" },
+        form: { style: "position:absolute;top:2px;right:2px;" },
+        class: "btn btn-danger btn-sm p-0 d-flex align-items-center justify-content-center",
+        style: "width:18px;height:18px;font-size:0.6rem;opacity:0.8;border-radius:50%;" do %>
+    <i class="bi bi-x"></i>
+  <% end %>
+
+</div>
+
+<%# Date sous le thumbnail %>
+<div class="text-muted text-center mt-1" style="font-size:0.6rem;">
+  <%= doc.created_at.strftime("%d/%m/%y") %>
+</div>

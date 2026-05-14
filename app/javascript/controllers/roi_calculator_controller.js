@@ -6,7 +6,7 @@ export default class extends Controller {
     "coutTravaux", "primesObtenues", "gainMensuelEnergie",
     "valeurBien", "horizonAns", "tauxValorisation",
     "coutNet", "economiesEnergie", "valorisationBien",
-    "gainTotal", "roi", "delaiRemboursement", "resultsSection"
+    "gainTotal", "roi", "delaiRemboursement", "resultsSection", "emptyState"
   ]
 
   connect() {
@@ -39,13 +39,22 @@ export default class extends Controller {
     this.gainTotalTarget.textContent       = this.format(gainTotal)
     this.roiTarget.textContent             = roiPct.toFixed(0) + "%"
 
+    const delaiEl = this.delaiRemboursementTarget
+    delaiEl.classList.remove("text-danger", "text-warning", "text-success")
     if (delaiMois !== null && delaiMois <= horizon * 12) {
       const annees = Math.floor(delaiMois / 12)
       const mois   = delaiMois % 12
-      this.delaiRemboursementTarget.textContent =
-        annees > 0 ? `${annees} an${annees > 1 ? "s" : ""} ${mois > 0 ? mois + " mois" : ""}` : `${mois} mois`
+      delaiEl.textContent = annees > 0
+        ? `${annees} an${annees > 1 ? "s" : ""}${mois > 0 ? " " + mois + " mois" : ""}`
+        : `${mois} mois`
+      delaiEl.classList.add(annees < 10 ? "text-success" : "text-warning")
+    } else if (gainAnnuel > 0) {
+      const anneesReel = Math.round(coutNet / gainAnnuel)
+      delaiEl.textContent = `> ${horizon} ans (≈ ${anneesReel} ans)`
+      delaiEl.classList.add("text-danger")
     } else {
-      this.delaiRemboursementTarget.textContent = "> horizon"
+      delaiEl.textContent = "Non calculable"
+      delaiEl.classList.add("text-danger")
     }
 
     // Couleur ROI
@@ -56,6 +65,7 @@ export default class extends Controller {
     else                  roiEl.classList.add("text-success")
 
     this.resultsSectionTarget.classList.remove("d-none")
+    if (this.hasEmptyStateTarget) this.emptyStateTarget.classList.add("d-none")
   }
 
   format(val) {

@@ -1,28 +1,30 @@
 <% content_for :title, "Nouveau suivi de demande" %>
 
-<div class="container-fluid">
+<div class="container-fluid px-4 py-4">
   <div class="row justify-content-center">
-    <div class="col-lg-8">
-      <div class="card">
-        <div class="card-header">
-          <h4 class="mb-0">Nouveau suivi de demande</h4>
-          <% if @request %>
-            <p class="text-muted mb-0">
-              Demande pour :
-              <% if @request.property %>
-                <%= @request.property.address %>
-              <% else %>
-                <em>Aucune propriété associée</em>
-              <% end %>
-            </p>
+    <div class="col-lg-7">
+
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+        <div>
+          <h1 class="h3 text-primary-custom mb-0 fw-normal">Nouveau suivi</h1>
+          <% if @request&.property %>
+            <small class="text-muted"><i class="bi bi-geo-alt me-1"></i><%= @request.property.address %></small>
           <% end %>
         </div>
-        <div class="card-body">
+        <%= link_to @request ? request_request_progresses_path(@request) : request_progresses_path,
+              class: "btn btn-outline-secondary btn-sm" do %>
+          <i class="bi bi-arrow-left me-1"></i>Retour
+        <% end %>
+      </div>
+
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4">
+
           <%= form_with model: @request ? [@request, @request_progress] : @request_progress, local: true do |form| %>
             <% if @request_progress.errors.any? %>
-              <div class="alert alert-danger">
-                <h6>Erreurs détectées :</h6>
-                <ul class="mb-0">
+              <div class="alert alert-danger py-2 mb-3">
+                <ul class="mb-0 small">
                   <% @request_progress.errors.full_messages.each do |message| %>
                     <li><%= message %></li>
                   <% end %>
@@ -30,212 +32,129 @@
               </div>
             <% end %>
 
-            <div class="row">
-              <!-- Sélection de la demande/formulaire si pas de @request -->
-              <% unless @request %>
-                <div class="col-12">
-                  <div class="mb-3">
-                    <%= form.label :request_id, "Demande / Formulaire associé", class: "form-label required" %>
-                    <%= form.select :request_id,
-                                    options_from_collection_for_select(@user_requests, :id, ->(r) { "#{r.property&.name || 'Bien non spécifié'} - #{r.project&.nom || r.title || 'Projet non défini'}" }, @request_progress.request_id),
-                                    { prompt: "Sélectionnez une demande" },
-                                    { class: "form-select", required: true } %>
-                    <div class="form-text">
-                      Sélectionnez la demande de primes à laquelle ce suivi est lié.
-                    </div>
-                  </div>
-                </div>
-              <% end %>
+            <%# Sélection demande (si pas de @request) %>
+            <% unless @request %>
+              <div class="mb-3">
+                <%= form.label :request_id, "Demande associée", class: "form-label small fw-semibold" %>
+                <%= form.select :request_id,
+                                options_from_collection_for_select(@user_requests, :id,
+                                  ->(r) { "#{r.property&.name || 'Bien non spécifié'} — #{r.project&.nom || r.title || 'Projet non défini'}" },
+                                  @request_progress.request_id),
+                                { prompt: "Sélectionnez une demande" },
+                                { class: "form-select form-select-sm", required: true } %>
+              </div>
+            <% end %>
 
-              <!-- Type de formulaire -->
-              <div class="col-12">
-                <div class="mb-3">
-                  <%= form.label :form_type, "Type de formulaire", class: "form-label" %>
-                  <%= form.select :form_type,
-                                  options_for_select(@available_forms.map { |f| [f[:name], f[:id]] }, @request_progress.form_type),
-                                  { prompt: "Sélectionnez un type de formulaire" },
-                                  { class: "form-select", required: true } %>
-                  <div class="form-text">
-                    Choisissez le type de formulaire qui regroupe plusieurs primes.
-                  </div>
+            <%# Ligne 1 : Type formulaire + Date soumission %>
+            <div class="row g-3 mb-3">
+              <div class="col-md-8">
+                <%= form.label :form_type, "Type de formulaire", class: "form-label small fw-semibold" %>
+                <%= form.select :form_type,
+                                options_for_select(@available_forms.map { |f| [f[:name], f[:id]] }, @request_progress.form_type),
+                                { prompt: "Sélectionnez un formulaire" },
+                                { class: "form-select form-select-sm", required: true } %>
+              </div>
+              <div class="col-md-4">
+                <%= form.label :date_soumission, "Date de soumission", class: "form-label small fw-semibold" %>
+                <%= form.date_field :date_soumission,
+                                    class: "form-control form-control-sm",
+                                    value: @request_progress.date_soumission || Date.current %>
+              </div>
+            </div>
+
+            <%# Ligne 2 : Nom du suivi + N° dossier %>
+            <div class="row g-3 mb-3">
+              <div class="col-md-8">
+                <%= form.label :form_name, "Nom du suivi", class: "form-label small fw-semibold" %>
+                <%= form.text_field :form_name,
+                                    class: "form-control form-control-sm",
+                                    placeholder: "ex : Rénovation toiture 2026",
+                                    required: true %>
+              </div>
+              <div class="col-md-4">
+                <%= form.label :numero_dossier, "N° de dossier", class: "form-label small fw-semibold" %>
+                <%= form.text_field :numero_dossier,
+                                    class: "form-control form-control-sm",
+                                    placeholder: "ex : 2026/12345" %>
+              </div>
+            </div>
+
+            <%# Ligne 3 : Étape + Montants %>
+            <div class="row g-3 mb-3">
+              <div class="col-md-4">
+                <%= form.label :step, "Étape", class: "form-label small fw-semibold" %>
+                <%= form.text_field :step,
+                                    class: "form-control form-control-sm",
+                                    placeholder: "ex : Dépôt initial" %>
+              </div>
+              <div class="col-md-4">
+                <%= form.label :montant_demande, "Montant demandé", class: "form-label small fw-semibold" %>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text">€</span>
+                  <%= form.number_field :montant_demande,
+                                        class: "form-control",
+                                        min: 0, step: 1,
+                                        placeholder: "0" %>
                 </div>
               </div>
-
-              <!-- Nom du suivi -->
-              <div class="col-12">
-                <div class="mb-3">
-                  <%= form.label :form_name, "Nom du suivi", class: "form-label" %>
-                  <%= form.text_field :form_name,
-                                      class: "form-control",
-                                      placeholder: "Ex: Rénovation toiture 2026, Isolation complète...",
-                                      required: true %>
-                  <div class="form-text">
-                    Donnez un nom personnalisé à ce suivi pour le retrouver facilement.
-                  </div>
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <%= form.label :status_administratif, "Statut administratif", class: "form-label" %>
-                  <%= form.select :status_administratif,
-                                  options_from_collection_for_select(
-                                    RequestProgress.status_administratifs.keys.map { |k| [k, t("request_progress.status.#{k}")] },
-                                    :first, :second, @request_progress.status_administratif
-                                  ),
-                                  { prompt: "Sélectionnez un statut" },
-                                  { class: "form-select", required: true } %>
+              <div class="col-md-4">
+                <%= form.label :montant_accorde, "Montant accordé", class: "form-label small fw-semibold" %>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text">€</span>
+                  <%= form.number_field :montant_accorde,
+                                        class: "form-control",
+                                        min: 0, step: 1,
+                                        placeholder: "—" %>
                 </div>
               </div>
             </div>
 
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <%= form.label :step, "Étape", class: "form-label" %>
-                  <%= form.text_field :step,
-                                      class: "form-control",
-                                      placeholder: "Ex: Dépôt initial, Instruction, Décision..." %>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <%= form.label :pourcentage, "Pourcentage d'avancement", class: "form-label" %>
-                  <div class="input-group">
-                    <%= form.number_field :pourcentage,
-                                          class: "form-control",
-                                          min: 0,
-                                          max: 100,
-                                          step: 5,
-                                          value: @request_progress.pourcentage || 0 %>
-                    <span class="input-group-text">%</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <%= form.label :montant_demande, "Montant demandé", class: "form-label" %>
-                  <div class="input-group">
-                    <span class="input-group-text">€</span>
-                    <%= form.number_field :montant_demande,
-                                          class: "form-control",
-                                          min: 0,
-                                          step: 0.01,
-                                          placeholder: "0.00" %>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <%= form.label :montant_accorde, "Montant accordé", class: "form-label" %>
-                  <div class="input-group">
-                    <span class="input-group-text">€</span>
-                    <%= form.number_field :montant_accorde,
-                                          class: "form-control",
-                                          min: 0,
-                                          step: 0.01,
-                                          placeholder: "0.00" %>
-                  </div>
-                  <div class="form-text">Laisser vide si pas encore connu</div>
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <%= form.label :date_soumission, "Date de soumission", class: "form-label" %>
-                  <%= form.date_field :date_soumission,
-                                      class: "form-control",
-                                      value: @request_progress.date_soumission || Date.current %>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <%= form.label :numero_dossier, "N° de dossier administratif", class: "form-label" %>
-                  <%= form.text_field :numero_dossier,
-                                      class: "form-control",
-                                      placeholder: "Ex: 2024/12345" %>
-                  <div class="form-text">Optionnel - à remplir quand reçu de l'administration</div>
-                </div>
-              </div>
-            </div>
-
+            <%# Notes %>
             <div class="mb-3">
-              <%= form.label :commentaires_admin, "Commentaire administratif", class: "form-label" %>
+              <%= form.label :commentaires_admin, "Notes / observations", class: "form-label small fw-semibold" %>
               <%= form.text_area :commentaires_admin,
-                                 class: "form-control",
-                                 rows: 4,
-                                 placeholder: "Commentaires, observations, notes..." %>
+                                 class: "form-control form-control-sm",
+                                 rows: 2,
+                                 placeholder: "Commentaires, remarques, conditions…" %>
             </div>
 
-            <div class="mb-3">
+            <%# Documents %>
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <%= form.label :document_suivi_pdf, "Document PDF", class: "form-label small fw-semibold" %>
+                <%= form.file_field :document_suivi_pdf,
+                                    class: "form-control form-control-sm",
+                                    accept: ".pdf" %>
+                <div class="form-text" style="font-size:0.72rem;">PDF reçu de l'administration</div>
+              </div>
+              <div class="col-md-6">
+                <%= form.label :document_suivi_photo, "Photo du courrier", class: "form-label small fw-semibold" %>
+                <%= form.file_field :document_suivi_photo,
+                                    class: "form-control form-control-sm",
+                                    accept: "image/*" %>
+                <div class="form-text" style="font-size:0.72rem;">Photo du courrier papier</div>
+              </div>
+            </div>
+
+            <%# Checkbox document reçu %>
+            <div class="mb-4">
               <div class="form-check">
                 <%= form.check_box :document_recu, class: "form-check-input" %>
-                <%= form.label :document_recu, "Document de suivi reçu", class: "form-check-label" %>
+                <%= form.label :document_recu, "Document de suivi reçu", class: "form-check-label small" %>
               </div>
             </div>
 
-            <!-- Upload de documents -->
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <%= form.label :document_suivi_pdf, "Document PDF de suivi", class: "form-label" %>
-                  <%= form.file_field :document_suivi_pdf,
-                                      class: "form-control",
-                                      accept: ".pdf" %>
-                  <div class="form-text">PDF reçu de l'administration</div>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <%= form.label :document_suivi_photo, "Photo du courrier", class: "form-label" %>
-                  <%= form.file_field :document_suivi_photo,
-                                      class: "form-control",
-                                      accept: "image/*" %>
-                  <div class="form-text">Photo du courrier papier (Wallonie)</div>
-                </div>
-              </div>
-            </div>
-
-            <hr>
-
-            <div class="d-flex justify-content-between">
+            <div class="d-flex justify-content-end gap-2 pt-2 border-top">
               <%= link_to "Annuler",
-                          @request ? request_request_progresses_path(@request) : request_progresses_path,
-                          class: "btn btn-outline-secondary" %>
-              <%= form.submit "Créer le suivi",
-                              class: "btn btn-primary" %>
+                    @request ? request_request_progresses_path(@request) : request_progresses_path,
+                    class: "btn btn-outline-secondary btn-sm" %>
+              <%= form.submit "Créer le suivi", class: "btn btn-primary-custom btn-sm px-4" %>
             </div>
+
           <% end %>
         </div>
       </div>
+
     </div>
   </div>
 </div>
-
-<script nonce="<%= content_security_policy_nonce %>">
-// Auto-calcul du pourcentage basé sur le statut
-document.getElementById('request_progress_status_administratif').addEventListener('change', function() {
-  const status = this.value;
-  const pourcentageField = document.getElementById('request_progress_pourcentage');
-
-  const statusPercentages = {
-    'en_preparation': 10,
-    'soumis': 25,
-    'en_cours': 50,
-    'complet': 75,
-    'incomplet': 40,
-    'accorde': 100,
-    'refuse': 100,
-    'annule': 0
-  };
-
-  if (statusPercentages[status] !== undefined) {
-    pourcentageField.value = statusPercentages[status];
-  }
-});
-</script>

@@ -1,33 +1,34 @@
 <% content_for :title, "Modifier le suivi" %>
 
-<div class="container-fluid">
+<div class="container-fluid px-4 py-4">
   <div class="row justify-content-center">
-    <div class="col-lg-8">
-      <div class="card">
-        <div class="card-header">
-          <h4 class="mb-0">Modifier le suivi #<%= @request_progress.id %></h4>
-          <p class="text-muted mb-0">
-            Demande pour :
+    <div class="col-lg-7">
+
+      <!-- Header -->
+      <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+        <div>
+          <h1 class="h3 text-primary-custom mb-0 fw-normal">Modifier le suivi</h1>
+          <small class="text-muted">
             <% if @request.property %>
-              <%= @request.property.address %>
-            <% else %>
-              <em>Aucune propriété associée</em>
-            <% end %> -
-            <% if @request_progress.prime %>
-              Prime : <%= @request_progress.prime&.titre || @request_progress.prime&.name || "Prime non spécifiée" %>
-            <% elsif @request_progress.form_type.present? %>
-              Formulaire : <%= @request_progress.form_type.humanize %>
-            <% else %>
-              <em>Type non défini</em>
+              <i class="bi bi-geo-alt me-1"></i><%= @request.property.address %>
             <% end %>
-          </p>
+            <% if @request_progress.form_type.present? %>
+              &nbsp;·&nbsp;<%= @request_progress.form_type.humanize %>
+            <% end %>
+          </small>
         </div>
-        <div class="card-body">
+        <%= link_to @request_progress, class: "btn btn-outline-secondary btn-sm" do %>
+          <i class="bi bi-arrow-left me-1"></i>Retour
+        <% end %>
+      </div>
+
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-4">
+
           <%= form_with model: @request_progress, local: true do |form| %>
             <% if @request_progress.errors.any? %>
-              <div class="alert alert-danger">
-                <h6>Erreurs détectées :</h6>
-                <ul class="mb-0">
+              <div class="alert alert-danger py-2 mb-3">
+                <ul class="mb-0 small">
                   <% @request_progress.errors.full_messages.each do |message| %>
                     <li><%= message %></li>
                   <% end %>
@@ -35,280 +36,187 @@
               </div>
             <% end %>
 
-            <div class="row">
-              <!-- Sélection du type de suivi -->
-              <div class="col-12">
-                <div class="mb-3">
-                  <label class="form-label">Type de suivi</label>
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" name="suivi_type" id="suivi_formulaire" value="formulaire" <%= @request_progress.form_type.present? ? 'checked' : '' %>>
-                    <label class="form-check-label" for="suivi_formulaire">
-                      <strong>Formulaire de primes</strong> <small class="text-muted">(recommandé)</small>
-                    </label>
-                  </div>
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" name="suivi_type" id="suivi_prime" value="prime" <%= @request_progress.prime_id.present? ? 'checked' : '' %>>
-                    <label class="form-check-label" for="suivi_prime">
-                      Prime individuelle
-                    </label>
-                  </div>
+            <%# Type de suivi : formulaire ou prime individuelle %>
+            <div class="mb-3 p-3 rounded-3 border bg-light">
+              <p class="small fw-semibold mb-2">Type de suivi</p>
+              <div class="d-flex gap-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="suivi_type" id="suivi_formulaire" value="formulaire"
+                         <%= @request_progress.form_type.present? ? 'checked' : '' %>>
+                  <label class="form-check-label small" for="suivi_formulaire">
+                    Formulaire de primes <span class="text-muted">(recommandé)</span>
+                  </label>
                 </div>
-              </div>
-
-              <!-- Sélection du formulaire -->
-              <div class="col-12" id="formulaire_section" style="<%= @request_progress.form_type.present? ? '' : 'display: none;' %>">
-                <div class="row">
-                  <div class="col-md-6">
-                    <div class="mb-3">
-                      <%= form.label :form_type, "Formulaire de primes", class: "form-label" %>
-                      <%= form.select :form_type,
-                                      options_for_select(@available_forms.map { |f| [f[:name], f[:id]] }, @request_progress.form_type),
-                                      { prompt: "Sélectionnez un formulaire" },
-                                      { class: "form-select", id: "form_type_select" } %>
-                      <div class="form-text">
-                        Choisissez le type de formulaire qui regroupe plusieurs primes.
-                      </div>
-                    </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="mb-3">
-                      <%= form.label :form_name, "Nom du formulaire", class: "form-label" %>
-                      <%= form.text_field :form_name,
-                                          class: "form-control",
-                                          placeholder: "Ex: Rénovation complète 2024",
-                                          id: "form_name_input" %>
-                      <div class="form-text">
-                        Donnez un nom personnalisé à ce formulaire pour le retrouver facilement.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Sélection de prime individuelle -->
-              <div class="col-md-6" id="prime_section" style="<%= @request_progress.prime_id.present? ? '' : 'display: none;' %>">
-                <div class="mb-3">
-                  <%= form.label :prime_id, "Prime", class: "form-label" %>
-                  <%= form.select :prime_id,
-                                  options_from_collection_for_select(@primes, :id, :titre, @request_progress.prime_id),
-                                  { prompt: "Sélectionnez une prime" },
-                                  { class: "form-select" } %>
-                </div>
-              </div>
-
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <%= form.label :status_administratif, "Statut administratif", class: "form-label" %>
-                  <%= form.select :status_administratif,
-                                  options_from_collection_for_select(
-                                    RequestProgress.status_administratifs.keys.map { |k| [k, t("request_progress.status.#{k}")] },
-                                    :first, :second, @request_progress.status_administratif
-                                  ),
-                                  { prompt: "Sélectionnez un statut" },
-                                  { class: "form-select", required: true } %>
+                <div class="form-check">
+                  <input class="form-check-input" type="radio" name="suivi_type" id="suivi_prime" value="prime"
+                         <%= @request_progress.prime_id.present? ? 'checked' : '' %>>
+                  <label class="form-check-label small" for="suivi_prime">Prime individuelle</label>
                 </div>
               </div>
             </div>
 
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <%= form.label :step, "Étape", class: "form-label" %>
-                  <%= form.text_field :step,
-                                      class: "form-control",
-                                      placeholder: "Ex: Dépôt initial, Instruction, Décision..." %>
+            <%# Section formulaire %>
+            <div id="formulaire_section" style="<%= @request_progress.form_type.present? ? '' : 'display:none;' %>">
+              <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                  <%= form.label :form_type, "Formulaire", class: "form-label small fw-semibold" %>
+                  <%= form.select :form_type,
+                                  options_for_select(@available_forms.map { |f| [f[:name], f[:id]] }, @request_progress.form_type),
+                                  { prompt: "Sélectionnez un formulaire" },
+                                  { class: "form-select form-select-sm", id: "form_type_select" } %>
                 </div>
-              </div>
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <%= form.label :pourcentage, "Pourcentage d'avancement", class: "form-label" %>
-                  <div class="input-group">
-                    <%= form.number_field :pourcentage,
-                                          class: "form-control",
-                                          min: 0,
-                                          max: 100,
-                                          step: 5 %>
-                    <span class="input-group-text">%</span>
-                  </div>
+                <div class="col-md-6">
+                  <%= form.label :form_name, "Nom du suivi", class: "form-label small fw-semibold" %>
+                  <%= form.text_field :form_name,
+                                      class: "form-control form-control-sm",
+                                      placeholder: "ex : Rénovation complète 2026",
+                                      id: "form_name_input" %>
                 </div>
               </div>
             </div>
 
-            <div class="row">
+            <%# Section prime individuelle %>
+            <div id="prime_section" class="mb-3" style="<%= @request_progress.prime_id.present? ? '' : 'display:none;' %>">
+              <%= form.label :prime_id, "Prime", class: "form-label small fw-semibold" %>
+              <%= form.select :prime_id,
+                              options_from_collection_for_select(@primes, :id, :titre, @request_progress.prime_id),
+                              { prompt: "Sélectionnez une prime" },
+                              { class: "form-select form-select-sm" } %>
+            </div>
+
+            <%# Ligne : Date soumission + N° dossier %>
+            <div class="row g-3 mb-3">
+              <div class="col-md-4">
+                <%= form.label :date_soumission, "Date de soumission", class: "form-label small fw-semibold" %>
+                <%= form.date_field :date_soumission, class: "form-control form-control-sm" %>
+              </div>
+              <div class="col-md-4">
+                <%= form.label :numero_dossier, "N° de dossier", class: "form-label small fw-semibold" %>
+                <%= form.text_field :numero_dossier,
+                                    class: "form-control form-control-sm",
+                                    placeholder: "ex : 2026/12345" %>
+              </div>
+              <div class="col-md-4">
+                <%= form.label :step, "Étape", class: "form-label small fw-semibold" %>
+                <%= form.text_field :step,
+                                    class: "form-control form-control-sm",
+                                    placeholder: "ex : Instruction" %>
+              </div>
+            </div>
+
+            <%# Montants %>
+            <div class="row g-3 mb-3">
               <div class="col-md-6">
-                <div class="mb-3">
-                  <%= form.label :montant_demande, "Montant demandé", class: "form-label" %>
-                  <div class="input-group">
-                    <span class="input-group-text">€</span>
-                    <%= form.number_field :montant_demande,
-                                          class: "form-control",
-                                          min: 0,
-                                          step: 0.01,
-                                          placeholder: "0.00" %>
-                  </div>
+                <%= form.label :montant_demande, "Montant demandé", class: "form-label small fw-semibold" %>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text">€</span>
+                  <%= form.number_field :montant_demande, class: "form-control", min: 0, step: 1, placeholder: "0" %>
                 </div>
               </div>
               <div class="col-md-6">
-                <div class="mb-3">
-                  <%= form.label :montant_accorde, "Montant accordé", class: "form-label" %>
-                  <div class="input-group">
-                    <span class="input-group-text">€</span>
-                    <%= form.number_field :montant_accorde,
-                                          class: "form-control",
-                                          min: 0,
-                                          step: 0.01,
-                                          placeholder: "0.00" %>
-                  </div>
-                  <div class="form-text">Laisser vide si pas encore connu</div>
+                <%= form.label :montant_accorde, "Montant accordé", class: "form-label small fw-semibold" %>
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text">€</span>
+                  <%= form.number_field :montant_accorde, class: "form-control", min: 0, step: 1, placeholder: "—" %>
                 </div>
               </div>
             </div>
 
-            <div class="row">
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <%= form.label :date_soumission, "Date de soumission", class: "form-label" %>
-                  <%= form.date_field :date_soumission, class: "form-control" %>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="mb-3">
-                  <%= form.label :numero_dossier, "N° de dossier administratif", class: "form-label" %>
-                  <%= form.text_field :numero_dossier,
-                                      class: "form-control",
-                                      placeholder: "Ex: 2024/12345" %>
-                  <div class="form-text">Optionnel - à remplir quand reçu de l'administration</div>
-                </div>
-              </div>
-            </div>
-
+            <%# Notes %>
             <div class="mb-3">
-              <%= form.label :commentaires_admin, "Commentaire administratif", class: "form-label" %>
+              <%= form.label :commentaires_admin, "Notes / observations", class: "form-label small fw-semibold" %>
               <%= form.text_area :commentaires_admin,
-                                 class: "form-control",
-                                 rows: 4,
-                                 placeholder: "Commentaires, observations, notes..." %>
+                                 class: "form-control form-control-sm",
+                                 rows: 2,
+                                 placeholder: "Commentaires, remarques, conditions…" %>
             </div>
 
+            <%# Documents %>
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <%= form.label :document_suivi_pdf, "Document PDF", class: "form-label small fw-semibold" %>
+                <% if @request_progress.document_suivi_pdf.attached? %>
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <i class="bi bi-file-earmark-pdf text-danger"></i>
+                    <%= link_to @request_progress.document_suivi_pdf.filename,
+                                rails_blob_path(@request_progress.document_suivi_pdf, disposition: :attachment),
+                                target: "_blank", class: "small text-truncate" %>
+                  </div>
+                <% end %>
+                <%= form.file_field :document_suivi_pdf, class: "form-control form-control-sm", accept: ".pdf" %>
+                <div class="form-text" style="font-size:0.72rem;">Laisser vide pour conserver</div>
+              </div>
+              <div class="col-md-6">
+                <%= form.label :document_suivi_photo, "Photo du courrier", class: "form-label small fw-semibold" %>
+                <% if @request_progress.document_suivi_photo.attached? %>
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <i class="bi bi-image text-primary"></i>
+                    <%= link_to @request_progress.document_suivi_photo.filename,
+                                rails_blob_path(@request_progress.document_suivi_photo, disposition: :attachment),
+                                target: "_blank", class: "small text-truncate" %>
+                  </div>
+                <% end %>
+                <%= form.file_field :document_suivi_photo, class: "form-control form-control-sm", accept: "image/*" %>
+                <div class="form-text" style="font-size:0.72rem;">Laisser vide pour conserver</div>
+              </div>
+            </div>
+
+            <%# Checkbox %>
             <div class="mb-3">
               <div class="form-check">
                 <%= form.check_box :document_recu, class: "form-check-input" %>
-                <%= form.label :document_recu, "Document de suivi reçu", class: "form-check-label" %>
+                <%= form.label :document_recu, "Document de suivi reçu", class: "form-check-label small" %>
               </div>
             </div>
 
-            <!-- Affichage des documents existants -->
-            <div class="row mb-4">
-              <div class="col-md-6">
-                <h6>Document PDF actuel</h6>
-                <% if @request_progress.document_suivi_pdf.attached? %>
-                  <div class="d-flex align-items-center mb-2">
-                    <i class="fas fa-file-pdf text-danger me-2"></i>
-                    <%= link_to @request_progress.document_suivi_pdf.filename,
-                                @request_progress.document_suivi_pdf,
-                                target: "_blank",
-                                class: "text-decoration-none" %>
-                  </div>
-                <% end %>
-                <%= form.label :document_suivi_pdf, "Nouveau document PDF", class: "form-label" %>
-                <%= form.file_field :document_suivi_pdf,
-                                    class: "form-control",
-                                    accept: ".pdf" %>
-                <div class="form-text">Laissez vide pour conserver le document actuel</div>
-              </div>
-              <div class="col-md-6">
-                <h6>Photo actuelle</h6>
-                <% if @request_progress.document_suivi_photo.attached? %>
-                  <div class="d-flex align-items-center mb-2">
-                    <i class="fas fa-image text-primary me-2"></i>
-                    <%= link_to @request_progress.document_suivi_photo.filename,
-                                @request_progress.document_suivi_photo,
-                                target: "_blank",
-                                class: "text-decoration-none" %>
-                  </div>
-                <% end %>
-                <%= form.label :document_suivi_photo, "Nouvelle photo", class: "form-label" %>
-                <%= form.file_field :document_suivi_photo,
-                                    class: "form-control",
-                                    accept: "image/*" %>
-                <div class="form-text">Laissez vide pour conserver la photo actuelle</div>
-              </div>
-            </div>
-
-            <!-- Informations de suivi automatique -->
-            <div class="alert alert-info">
-              <h6><i class="fas fa-info-circle"></i> Informations de suivi</h6>
-              <p class="mb-1"><strong>Email de suivi :</strong> <code><%= @request_progress.email_suivi %></code></p>
-              <p class="mb-1"><strong>Créé le :</strong> <%= l(@request_progress.created_at, format: :long) %></p>
+            <%# Méta-infos discrètes %>
+            <div class="text-muted mb-4" style="font-size:0.75rem;">
+              <i class="bi bi-clock me-1"></i>Créé le <%= l(@request_progress.created_at, format: :short) %>
               <% if @request_progress.date_derniere_maj %>
-                <p class="mb-0"><strong>Dernière modification :</strong> <%= l(@request_progress.date_derniere_maj, format: :long) %></p>
+                &nbsp;·&nbsp;Mis à jour le <%= l(@request_progress.date_derniere_maj, format: :short) %>
+              <% end %>
+              <% if @request_progress.email_suivi.present? %>
+                &nbsp;·&nbsp;<i class="bi bi-envelope me-1"></i><code style="font-size:0.7rem;"><%= @request_progress.email_suivi %></code>
               <% end %>
             </div>
 
-            <hr>
-
-            <div class="d-flex justify-content-between">
-              <%= link_to "Annuler",
-                          @request_progress,
-                          class: "btn btn-outline-secondary" %>
-              <%= form.submit "Mettre à jour",
-                              class: "btn btn-primary" %>
+            <div class="d-flex justify-content-end gap-2 pt-2 border-top">
+              <%= link_to "Annuler", @request_progress, class: "btn btn-outline-secondary btn-sm" %>
+              <%= form.submit "Enregistrer", class: "btn btn-primary-custom btn-sm px-4" %>
             </div>
+
           <% end %>
         </div>
       </div>
+
     </div>
   </div>
 </div>
 
 <script nonce="<%= content_security_policy_nonce %>">
-// Gestion du type de suivi (formulaire vs prime)
 document.addEventListener('DOMContentLoaded', function() {
-  const suiviFormulaireRadio = document.getElementById('suivi_formulaire');
-  const suiviPrimeRadio = document.getElementById('suivi_prime');
+  const radioFormulaire = document.getElementById('suivi_formulaire');
+  const radioPrime      = document.getElementById('suivi_prime');
   const formulaireSection = document.getElementById('formulaire_section');
-  const primeSection = document.getElementById('prime_section');
+  const primeSection      = document.getElementById('prime_section');
+  if (!radioFormulaire) return;
 
-  function toggleSections() {
-    if (suiviFormulaireRadio.checked) {
-      formulaireSection.style.display = 'block';
-      primeSection.style.display = 'none';
-      // Vider les champs prime
-      const primeSelect = document.getElementById('request_progress_prime_id');
-      if (primeSelect) primeSelect.value = '';
-    } else if (suiviPrimeRadio.checked) {
-      formulaireSection.style.display = 'none';
-      primeSection.style.display = 'block';
-      // Vider les champs formulaire
-      const formTypeSelect = document.getElementById('form_type_select');
-      const formNameInput = document.getElementById('form_name_input');
-      if (formTypeSelect) formTypeSelect.value = '';
-      if (formNameInput) formNameInput.value = '';
+  function toggle() {
+    const isFormulaire = radioFormulaire.checked;
+    formulaireSection.style.display = isFormulaire ? 'block' : 'none';
+    primeSection.style.display      = isFormulaire ? 'none'  : 'block';
+    if (isFormulaire) {
+      const sel = document.getElementById('request_progress_prime_id');
+      if (sel) sel.value = '';
+    } else {
+      const fts = document.getElementById('form_type_select');
+      const fni = document.getElementById('form_name_input');
+      if (fts) fts.value = '';
+      if (fni) fni.value = '';
     }
   }
 
-  suiviFormulaireRadio.addEventListener('change', toggleSections);
-  suiviPrimeRadio.addEventListener('change', toggleSections);
-});
-
-// Auto-calcul du pourcentage basé sur le statut
-document.getElementById('request_progress_status_administratif').addEventListener('change', function() {
-  const status = this.value;
-  const pourcentageField = document.getElementById('request_progress_pourcentage');
-
-  const statusPercentages = {
-    'en_preparation': 10,
-    'soumis': 25,
-    'en_cours': 50,
-    'complet': 75,
-    'incomplet': 40,
-    'accorde': 100,
-    'refuse': 100,
-    'annule': 0
-  };
-
-  if (statusPercentages[status] !== undefined && pourcentageField.value == '') {
-    pourcentageField.value = statusPercentages[status];
-  }
+  radioFormulaire.addEventListener('change', toggle);
+  radioPrime.addEventListener('change', toggle);
 });
 </script>

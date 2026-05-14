@@ -118,6 +118,7 @@ export default class extends Controller {
 
       rows += `<tr>
         <td class="fw-semibold">Année ${year}</td>
+        <td class="fw-semibold" style="color:var(--ren0vate-accent);">${this.formatCurrency(monthly)}</td>
         <td>${this.formatCurrency(yearlyPaid)}</td>
         <td>${this.formatCurrency(yearPrincipal)}</td>
         <td class="${r > 0 ? 'text-danger' : 'text-muted'}">${this.formatCurrency(yearInterest)}</td>

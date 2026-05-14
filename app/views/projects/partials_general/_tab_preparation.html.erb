@@ -1,7 +1,7 @@
 <%# Tab 1 — Préparation de chantier %>
 
 <!-- Banner -->
-<div class="row mb-4 mt-2">
+<div class="row mb-3 mt-2">
   <div class="col-12">
     <div class="d-flex align-items-center gap-3 py-3 px-4 rounded-3" style="background: rgba(51,65,85,0.06); border-left: 4px solid var(--ren0vate-primary);">
       <span class="d-flex align-items-center justify-content-center rounded-circle text-white fw-bold flex-shrink-0" style="width:34px;height:34px;background:var(--ren0vate-primary);font-size:0.85rem;">1</span>
@@ -9,61 +9,108 @@
         <h5 class="mb-0 fw-semibold" style="color:var(--ren0vate-primary); font-size:1rem;">
           <i class="bi bi-clipboard-check me-2"></i>Préparation de chantier
         </h5>
-        <small style="color:var(--ren0vate-text-muted);">Informations, équipe &amp; éligibilité aux primes</small>
+        <small style="color:var(--ren0vate-text-muted);">Informations, équipe, budget, primes &amp; permis</small>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ROW 1 : Informations générales + Équipe & Invitations -->
-<div class="row g-3 mb-4">
-  <div class="col-lg-4">
-    <%= render 'projects/partials_general/card_infos_generales' %>
-  </div>
-  <div class="col-lg-8 d-flex flex-column gap-3">
-    <%= render 'projects/partials_general/professionals_display' %>
-    <%= render 'projects/partials_general/invite_pros', project: @project %>
-  </div>
-</div>
+<!-- Sous-onglets -->
+<ul class="nav nav-pills nav-fill mb-4 gap-1 p-1 rounded-3" style="background: rgba(0,0,0,0.04);" id="prepTabs" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active w-100" id="prep-equipe-tab"
+            data-bs-toggle="tab" data-bs-target="#prep-equipe"
+            type="button" role="tab" aria-selected="true">
+      <i class="bi bi-people me-1"></i>Équipe & Infos
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link w-100" id="prep-budget-tab"
+            data-bs-toggle="tab" data-bs-target="#prep-budget"
+            type="button" role="tab" aria-selected="false">
+      <i class="bi bi-currency-euro me-1"></i>Budget & Devis
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link w-100" id="prep-primes-tab"
+            data-bs-toggle="tab" data-bs-target="#prep-primes"
+            type="button" role="tab" aria-selected="false">
+      <i class="bi bi-award me-1"></i>Primes & PEB
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link w-100" id="prep-permis-tab"
+            data-bs-toggle="tab" data-bs-target="#prep-permis"
+            type="button" role="tab" aria-selected="false">
+      <i class="bi bi-file-earmark-ruled me-1"></i>Permis
+    </button>
+  </li>
+</ul>
 
-<!-- ROW 2 : Devis estimatifs + Comparateur de devis + Suivi budgétaire -->
-<div class="row g-3 mb-4">
-  <div class="col-lg-4">
-    <%= render 'projects/partials_general/card_devis_estimatifs' %>
-  </div>
-  <div class="col-lg-4">
-    <%= render 'projects/partials_general/card_comparateur_devis' %>
-  </div>
-  <div class="col-lg-4">
-    <%= render 'projects/partials_general/card_suivi_budgetaire' %>
-  </div>
-</div>
+<div class="tab-content" id="prepTabsContent">
 
-<!-- ROW 3 : Éligibilité primes + Recommandations PEB + Permis d'urbanisme -->
-<div class="row g-3 mb-4">
-  <div class="col-lg-4">
-    <%= render 'projects/partials_general/card_eligibilite_primes' %>
+  <!-- ── Sous-onglet 1 : Équipe & Infos ── -->
+  <div class="tab-pane fade show active" id="prep-equipe" role="tabpanel" aria-labelledby="prep-equipe-tab">
+    <div class="row g-3 mb-4">
+      <div class="col-lg-4">
+        <%= render 'projects/partials_general/card_infos_generales' %>
+      </div>
+      <div class="col-lg-8 d-flex flex-column gap-3">
+        <%= render 'projects/partials_general/professionals_display' %>
+        <%= render 'projects/partials_general/invite_pros', project: @project %>
+      </div>
+    </div>
   </div>
-  <div class="col-lg-4">
-    <%= render 'projects/partials_general/card_peb_recommandations' %>
-  </div>
-  <div class="col-lg-4">
-    <%= render 'projects/partials_general/card_permis' %>
-  </div>
-</div>
 
-<!-- ROW 4 : Comparateur Matériaux -->
-<div class="row g-3 mb-4">
-  <div class="col-12">
-    <%= render 'projects/partials_general/card_comparateur_materiaux' %>
+  <!-- ── Sous-onglet 2 : Budget & Devis ── -->
+  <div class="tab-pane fade" id="prep-budget" role="tabpanel" aria-labelledby="prep-budget-tab">
+    <div class="row g-3 mb-4">
+      <div class="col-lg-4">
+        <%= render 'projects/partials_general/card_devis_estimatifs' %>
+      </div>
+      <div class="col-lg-4">
+        <%= render 'projects/partials_general/card_comparateur_devis' %>
+      </div>
+      <div class="col-lg-4">
+        <%= render 'projects/partials_general/card_suivi_budgetaire' %>
+      </div>
+    </div>
+    <div class="row g-3 mb-4">
+      <div class="col-12">
+        <%= render 'projects/partials_general/card_comparateur_materiaux' %>
+      </div>
+    </div>
   </div>
-</div>
 
-<% if @project.property&.region == 'wallonie' %>
-<!-- ROW 5 (Wallonie) : Audit énergétique Walloreno -->
-<div class="row g-3 mb-4">
-  <div class="col-12">
-    <%= render 'projects/partials_wallonie/card_audit_energetique' %>
+  <!-- ── Sous-onglet 3 : Primes & PEB ── -->
+  <div class="tab-pane fade" id="prep-primes" role="tabpanel" aria-labelledby="prep-primes-tab">
+    <div class="row g-3 mb-4">
+      <div class="col-lg-6">
+        <%= render 'projects/partials_general/card_eligibilite_primes' %>
+      </div>
+      <div class="col-lg-6">
+        <%= render 'projects/partials_general/card_peb_recommandations' %>
+      </div>
+    </div>
+    <% if @project.property&.region == 'wallonie' %>
+      <div class="row g-3 mb-4">
+        <div class="col-12">
+          <%= render 'projects/partials_wallonie/card_audit_energetique' %>
+        </div>
+      </div>
+    <% end %>
   </div>
+
+  <!-- ── Sous-onglet 4 : Permis ── -->
+  <div class="tab-pane fade" id="prep-permis" role="tabpanel" aria-labelledby="prep-permis-tab">
+    <div class="row g-3 mb-4">
+      <div class="col-lg-5">
+        <%= render 'projects/partials_general/card_permis' %>
+      </div>
+      <div class="col-lg-7">
+        <%= render 'projects/partials_general/card_permis_documents' %>
+      </div>
+    </div>
+  </div>
+
 </div>
-<% end %>
