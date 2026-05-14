@@ -29,12 +29,10 @@
     </div>
   </div>
 
-  <div class="row g-4 align-items-start">
-  <div class="col-lg-8">
 
   <!-- Header -->
   <div class="row mb-5">
-    <div class="col-lg-8 mx-auto text-center">
+    <div class="col-12 text-center">
       <h1 class="display-5 fw-bold mb-3">
         <i class="bi bi-tools text-primary me-3"></i>
         Bonjour <%= current_user.first_name.presence || 'cher utilisateur' %> !
@@ -94,7 +92,7 @@
       <h2 class="fw-bold">Vous êtes…</h2>
       <p class="text-muted">Ren0vate s'adapte à chaque acteur du projet de rénovation</p>
     </div>
-    <div class="col-lg-10 mx-auto">
+    <div class="col-12">
       <div class="row g-3 text-center">
         <div class="col-md-4">
           <a href="#offres-proprietaires" class="text-decoration-none">
@@ -338,7 +336,7 @@
 
   <!-- Bannière IA Pro — nouveau différenciateur clé -->
   <div class="row mb-4">
-    <div class="col-lg-10 mx-auto">
+    <div class="col-12">
       <div class="rounded-4 overflow-hidden" style="background: linear-gradient(135deg, #1e293b 0%, #334155 60%, #065f46 100%); box-shadow: 0 8px 32px rgba(0,0,0,0.18);">
         <div class="p-4 p-md-5 text-white d-flex flex-column flex-md-row align-items-center gap-4">
 
@@ -514,7 +512,7 @@
 
   <!-- Garantie -->
   <div class="row mt-5">
-    <div class="col-lg-8 mx-auto text-center">
+    <div class="col-12 text-center">
       <div class="bg-light p-4 rounded-3">
         <h4 class="mb-3">
           <i class="bi bi-shield-check text-success me-2"></i>
@@ -543,7 +541,7 @@
 
   <!-- Questions -->
   <div class="row mt-5 mb-4">
-    <div class="col-lg-8 mx-auto text-center">
+    <div class="col-12 text-center">
       <h5 class="mb-3">Une question sur votre formule ?</h5>
       <div class="btn-group" role="group">
         <a href="mailto:hello@ren0vate.be" class="btn btn-outline-primary">
@@ -554,13 +552,9 @@
         <% end %>
       </div>
     </div>
-  </div>
-
-  </div><%# /col-lg-8 %>
-
-  <%# ── Sticky sidebar ── %>
-  <div class="col-lg-4 d-none d-lg-block">
-    <div style="position:sticky;top:80px;">
+  <%# ── Floating sidebar (≥1640px only, outside normal flow) ── %>
+  <div id="pricing-floating-sidebar">
+    <div>
 
       <%# Sélection en cours %>
       <div class="card shadow-sm mb-3">
@@ -645,9 +639,7 @@
       </p>
 
     </div>
-  </div><%# /col-lg-4 %>
-
-  </div><%# /row g-4 %>
+  </div><%# /pricing-floating-sidebar %>
 
 </div><%# /container-xl %>
 
@@ -657,6 +649,23 @@
 .actor-card { cursor: pointer; }
 .actor-card:hover { border-width: 2px !important; }
 .pricing-price { margin: 0.75rem 0; }
+
+/* Sidebar flottant — visible uniquement si assez de place hors container-xl */
+#pricing-floating-sidebar {
+  display: none;
+}
+@media (min-width: 1640px) {
+  #pricing-floating-sidebar {
+    display: block;
+    position: fixed;
+    right: 1.25rem;
+    top: 80px;
+    width: 268px;
+    z-index: 400;
+    max-height: calc(100vh - 96px);
+    overflow-y: auto;
+  }
+}
 /* Steps */
 .step-circle-sel {
   width: 36px; height: 36px; border-radius: 50%;

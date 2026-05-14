@@ -172,24 +172,24 @@
           <!-- Résumé de prix -->
           <div class="price-breakdown">
             <div class="d-flex justify-content-between mb-2">
-              <span>Abonnement <%= @selected_tier[:name] %></span>
-              <span class="billing-price"><%= @selected_tier[:price] %>€</span>
+              <span>Abonnement <%= @selected_tier[:name] %> <small class="text-muted">(HT)</small></span>
+              <span class="billing-price"><%= (@selected_tier[:price] / 1.21).round(2) %>€</span>
             </div>
 
             <div class="d-flex justify-content-between text-muted mb-2">
               <small>TVA (21% - Belgique)</small>
-              <small class="tax-amount"><%= (@selected_tier[:price] * 0.21).round(2) %>€</small>
+              <small class="tax-amount"><%= (@selected_tier[:price] * (0.21 / 1.21)).round(2) %>€</small>
             </div>
 
             <hr>
 
             <div class="d-flex justify-content-between fw-bold fs-5">
-              <span>Total <span class="billing-period">mensuel</span></span>
-              <span class="total-amount text-primary"><%= (@selected_tier[:price] * 1.21).round(2) %>€</span>
+              <span>Total <span class="billing-period">mensuel</span> <small class="text-muted fw-normal" style="font-size:0.75rem;">TTC</small></span>
+              <span class="total-amount text-primary"><%= @selected_tier[:price] %>€</span>
             </div>
 
             <small class="text-muted d-block mt-2">
-              Facturation automatique chaque mois. Annulation possible à tout moment.
+              Facturation automatique <span id="billing-frequency">chaque mois</span>. Annulation possible à tout moment.
             </small>
           </div>
 
@@ -413,51 +413,59 @@
 </style>
 
 <script nonce="<%= content_security_policy_nonce %>">
-document.addEventListener('DOMContentLoaded', function() {
-  // Billing cycle toggle
-  const monthlyRadio = document.getElementById('monthly');
-  const yearlyRadio = document.getElementById('yearly');
-  const billingPrice = document.querySelector('.billing-price');
-  const taxAmount = document.querySelector('.tax-amount');
-  const totalAmount = document.querySelector('.total-amount');
-  const billingPeriod = document.querySelector('.billing-period');
-  const billingCycleInput = document.querySelector('.billing-cycle-input');
-  const totalAmountInput = document.querySelector('.total-amount-input');
-
-  const basePrice   = <%= @selected_tier[:price] %>;
-  const annualTotal = <%= @selected_tier[:annual_total] || @selected_tier[:price] * 10 %>;
+(function() {
+  const BASE_PRICE   = <%= @selected_tier[:price] %>;
+  const ANNUAL_TOTAL = <%= @selected_tier[:annual_total] || @selected_tier[:price] * 10 %>;
 
   function updatePricing() {
+    const monthlyRadio    = document.getElementById('monthly');
+    const yearlyRadio     = document.getElementById('yearly');
+    if (!monthlyRadio || !yearlyRadio) return;
+
+    const billingPrice    = document.querySelector('.billing-price');
+    const taxAmount       = document.querySelector('.tax-amount');
+    const totalAmount     = document.querySelector('.total-amount');
+    const billingPeriod   = document.querySelector('.billing-period');
+    const billingCycleInput  = document.querySelector('.billing-cycle-input');
+    const totalAmountInput   = document.querySelector('.total-amount-input');
+    const billingFrequency   = document.getElementById('billing-frequency');
+
     const isYearly = yearlyRadio.checked;
-    const price = isYearly ? annualTotal : basePrice;
-    const tax = (price * 0.21).toFixed(2);
-    const total = (price * 1.21).toFixed(2);
+    const price    = isYearly ? ANNUAL_TOTAL : BASE_PRICE;
+    const ht       = (price / 1.21).toFixed(2);
+    const tva      = (price * (0.21 / 1.21)).toFixed(2);
 
-    billingPrice.textContent = price + '€';
-    taxAmount.textContent = tax + '€';
-    totalAmount.textContent = total + '€';
-    billingPeriod.textContent = isYearly ? 'annuel' : 'mensuel';
-
-    billingCycleInput.value = isYearly ? 'yearly' : 'monthly';
-    totalAmountInput.value = total;
+    if (billingPrice)   billingPrice.textContent  = ht + '€';
+    if (taxAmount)      taxAmount.textContent      = tva + '€';
+    if (totalAmount)    totalAmount.textContent    = price + '€';
+    if (billingPeriod)  billingPeriod.textContent  = isYearly ? 'annuel' : 'mensuel';
+    if (billingFrequency) billingFrequency.textContent = isYearly ? 'chaque année' : 'chaque mois';
+    if (billingCycleInput)  billingCycleInput.value  = isYearly ? 'yearly' : 'monthly';
+    if (totalAmountInput)   totalAmountInput.value   = price;
   }
 
-  monthlyRadio.addEventListener('change', updatePricing);
-  yearlyRadio.addEventListener('change', updatePricing);
-  // Appliquer l'état initial si annuel pré-sélectionné
-  if (yearlyRadio.checked) updatePricing();
+  function initBillingCycle() {
+    const monthlyRadio = document.getElementById('monthly');
+    const yearlyRadio  = document.getElementById('yearly');
+    if (!monthlyRadio || !yearlyRadio) return;
+
+    monthlyRadio.addEventListener('change', updatePricing);
+    yearlyRadio.addEventListener('change', updatePricing);
+    updatePricing(); // sync initial state
+  }
+
+  document.addEventListener('DOMContentLoaded', initBillingCycle);
+  document.addEventListener('turbo:load', initBillingCycle);
 
   // Promo code
-  const promoInput = document.getElementById('promoCode');
-  const applyPromoBtn = promoInput.nextElementSibling;
-
-  applyPromoBtn.addEventListener('click', function() {
-    const code = promoInput.value.trim();
-    if (code) {
-      // TODO: Implement promo code logic
-      console.log('Applying promo code:', code);
-    }
-  });
+  const promoInput    = document.getElementById('promoCode');
+  const applyPromoBtn = promoInput && promoInput.nextElementSibling;
+  if (applyPromoBtn) {
+    applyPromoBtn.addEventListener('click', function() {
+      const code = promoInput.value.trim();
+      if (code) console.log('Applying promo code:', code);
+    });
+  }
   // Validation des consentements légaux avant soumission du formulaire checkout
   const checkoutForm = document.querySelector('form[action*="checkout"]');
   if (checkoutForm) {
@@ -477,5 +485,5 @@ document.addEventListener('DOMContentLoaded', function() {
       if (el) el.addEventListener('change', function() { this.classList.remove('is-invalid'); });
     });
   }
-});
+}());
 </script>

@@ -11,7 +11,7 @@ class QuotesController < ApplicationController
   def start
     if params[:property_id].present?
       property = current_user.properties.find_by(id: params[:property_id])
-      return redirect_to new_property_quote_path(property) if property
+      return redirect_to property_quotes_path(property) if property
 
       return redirect_to select_property_quotes_path, alert: "Bien introuvable."
     end
@@ -21,7 +21,7 @@ class QuotesController < ApplicationController
     if properties.none?
       redirect_to properties_path, alert: "Créez d'abord un bien pour utiliser l'estimateur de devis."
     elsif properties.one?
-      redirect_to new_property_quote_path(properties.first)
+      redirect_to property_quotes_path(properties.first)
     else
       redirect_to select_property_quotes_path
     end
@@ -34,7 +34,7 @@ class QuotesController < ApplicationController
     if @properties.none?
       redirect_to properties_path, alert: "Créez d'abord un bien pour utiliser l'estimateur de devis."
     elsif @properties.one?
-      redirect_to new_property_quote_path(@properties.first)
+      redirect_to property_quotes_path(@properties.first)
     end
   end
 
