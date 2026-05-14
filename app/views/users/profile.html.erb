@@ -1,4 +1,5 @@
 <div class="container-fluid px-4 py-3">
+
   <!-- Header compact avec avatar -->
   <div class="row justify-content-center mb-3">
     <div class="col-lg-10">
@@ -12,125 +13,140 @@
     </div>
   </div>
 
-  <!-- Message d'information -->
-  <div class="row justify-content-center mb-3">
+  <!-- Navigation tabs -->
+  <div class="row justify-content-center mb-4">
     <div class="col-lg-10">
-      <div class="alert alert-info border-0" style="background-color: #e8f4f8;">
-        <div class="d-flex align-items-start">
-          <i class="bi bi-info-circle me-3 mt-1" style="font-size: 1.2rem;"></i>
-          <p class="mb-0">
-            Commencez par le début ! Renseigner vos données personnelles est essentiel pour profiter pleinement de Ren0vate. Ces informations seront utilisées pour les aspects financiers de votre projet, notamment pour le calcul des primes auxquelles vous avez droit et pour vos demandes de prêts. Un profil complet vous permettra également de recevoir des conseils personnalisés adaptés à votre situation.
-          </p>
-        </div>
-      </div>
+      <ul class="nav nav-pills gap-2" id="profileTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active px-4 py-2 rounded-3" id="tab-profil-btn"
+                  data-bs-toggle="pill" data-bs-target="#tab-profil"
+                  type="button" role="tab">
+            <i class="bi bi-person me-2"></i>Profil
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link px-4 py-2 rounded-3" id="tab-finances-btn"
+                  data-bs-toggle="pill" data-bs-target="#tab-finances"
+                  type="button" role="tab">
+            <i class="bi bi-currency-euro me-2"></i>Finances & Famille
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link px-4 py-2 rounded-3" id="tab-compte-btn"
+                  data-bs-toggle="pill" data-bs-target="#tab-compte"
+                  type="button" role="tab">
+            <i class="bi bi-gear me-2"></i>Mon compte
+          </button>
+        </li>
+      </ul>
     </div>
   </div>
 
-  <!-- Formulaire avec design moderne -->
   <%= form_with model: current_user, url: profile_path, method: :patch, local: true, class: "needs-validation", novalidate: true do |f| %>
 
-    <!-- Première rangée: Informations principales -->
-    <div class="row justify-content-center mb-3">
-      <div class="col-lg-10">
-        <div class="row g-3">
+    <div class="tab-content" id="profileTabsContent">
 
-          <!-- Carte 1: Informations personnelles -->
-          <div class="col-lg-6">
-            <div class="card h-100">
-              <div class="card-header bg-white border-0 py-3">
-                <div class="d-flex align-items-center">
-                  <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                    <i class="bi bi-person text-white fs-6"></i>
-                  </div>
-                  <div>
-                    <h5 class="card-title mb-0 text-dark fw-normal">Informations personnelles</h5>
-                    <p class="text-muted small mb-0">Vos données d'identité</p>
-                  </div>
-                </div>
-              </div>
-              <div class="card-body px-4 py-3">
-                <div class="row g-2">
-                  <div class="col-md-4">
-                    <label class="form-label text-dark fw-medium mb-1">
-                      <i class="bi bi-person-badge me-2 text-primary"></i>Prénom
-                    </label>
-                    <%= f.text_field :first_name,
-                        class: "form-control border-2 rounded-3 px-3",
-                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                        placeholder: "Votre prénom" %>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label text-dark fw-medium mb-1">
-                      <i class="bi bi-person-badge me-2 text-primary"></i>Nom
-                    </label>
-                    <%= f.text_field :last_name,
-                        class: "form-control border-2 rounded-3 px-3",
-                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                        placeholder: "Votre nom de famille" %>
-                  </div>
-                  <div class="col-4">
-                    <label class="form-label text-dark fw-medium mb-1">
-                      <i class="bi bi-envelope me-2 text-primary"></i>Adresse email
-                    </label>
-                    <%= f.email_field :email,
-                        class: "form-control border-2 rounded-3 px-3",
-                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                        placeholder: "votre@email.com" %>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label text-dark fw-medium mb-1">
-                      <i class="bi bi-telephone me-2 text-primary"></i>Téléphone
-                    </label>
-                    <%= f.telephone_field :phone,
-                        class: "form-control border-2 rounded-3 px-3",
-                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                        placeholder: "+32 xxx xx xx xx" %>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label text-dark fw-medium mb-1">
-                      <i class="bi bi-bank me-2 text-primary"></i>Numéro de registre national
-                    </label>
-                    <%= f.text_field :national_number,
-                        class: "form-control border-2 rounded-3 px-3",
-                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                        placeholder: "Ex: 77.15.06.123.88" %>
-                  </div>
-                  <% rib_derniere = current_user.rib_donnees.order(created_at: :desc).first %>
-                  <div class="col-md-4">
-                    <label class="form-label text-dark fw-medium mb-1">
-                      <i class="bi bi-bank me-2 text-primary"></i>IBAN
-                    </label>
-                    <div class="d-flex gap-2 align-items-start">
-                      <%= f.text_field :iban,
-                          id: 'user_iban',
-                          class: "form-control border-2 rounded-3 px-3",
-                          style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                          placeholder: "Ex: BE68 5390 0754 7034" %>
-                      <button type="button"
-                              id="btn-scan-rib"
-                              class="btn btn-outline-primary btn-sm rounded-3 flex-shrink-0"
-                              style="height: 38px; white-space: nowrap;"
-                              data-bs-toggle="tooltip"
-                              title="Scanner votre RIB pour remplir automatiquement l'IBAN">
-                        <i class="bi bi-upc-scan"></i>
-                      </button>
-                      <input type="file" id="rib-file-input" accept=".pdf,image/jpeg,image/png" class="d-none">
-                    </div>
-                    <!-- Nom de la banque -->
-                    <small id="rib-nom-banque" class="text-muted mt-1 ms-1<%= rib_derniere&.nom_banque ? '' : ' d-none' %>">
-                      <i class="bi bi-building me-1"></i><span id="rib-nom-banque-text"><%= rib_derniere&.nom_banque %></span>
-                    </small>
-                    <!-- Zone statut OCR RIB -->
-                    <div id="rib-ocr-status" class="d-none mt-1">
-                      <div class="alert border-0 rounded-2 py-1 px-2 mb-0 small" id="rib-ocr-alert">
-                        <div class="d-flex align-items-center gap-2">
-                          <div id="rib-ocr-spinner" class="spinner-border spinner-border-sm text-primary d-none" role="status"></div>
-                          <i id="rib-ocr-icon" class="bi d-none"></i>
-                          <span id="rib-ocr-message"></span>
-                        </div>
+      <!-- ===== TAB 1 : PROFIL ===== -->
+      <div class="tab-pane fade show active" id="tab-profil" role="tabpanel">
+        <div class="row justify-content-center mb-3">
+          <div class="col-lg-10">
+            <div class="row g-3">
+
+              <!-- Carte 1: Informations personnelles -->
+              <div class="col-lg-6">
+                <div class="card h-100">
+                  <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex align-items-center">
+                      <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                        <i class="bi bi-person text-white fs-6"></i>
+                      </div>
+                      <div>
+                        <h5 class="card-title mb-0 text-dark fw-normal">Informations personnelles</h5>
+                        <p class="text-muted small mb-0">Vos données d'identité</p>
                       </div>
                     </div>
                   </div>
+                  <div class="card-body px-4 py-3">
+                    <div class="row g-2">
+                      <div class="col-md-4">
+                        <label class="form-label text-dark fw-medium mb-1">
+                          <i class="bi bi-person-badge me-2 text-primary"></i>Prénom
+                        </label>
+                        <%= f.text_field :first_name,
+                            class: "form-control border-2 rounded-3 px-3",
+                            style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                            placeholder: "Votre prénom" %>
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label text-dark fw-medium mb-1">
+                          <i class="bi bi-person-badge me-2 text-primary"></i>Nom
+                        </label>
+                        <%= f.text_field :last_name,
+                            class: "form-control border-2 rounded-3 px-3",
+                            style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                            placeholder: "Votre nom de famille" %>
+                      </div>
+                      <div class="col-4">
+                        <label class="form-label text-dark fw-medium mb-1">
+                          <i class="bi bi-envelope me-2 text-primary"></i>Adresse email
+                        </label>
+                        <%= f.email_field :email,
+                            class: "form-control border-2 rounded-3 px-3",
+                            style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                            placeholder: "votre@email.com" %>
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label text-dark fw-medium mb-1">
+                          <i class="bi bi-telephone me-2 text-primary"></i>Téléphone
+                        </label>
+                        <%= f.telephone_field :phone,
+                            class: "form-control border-2 rounded-3 px-3",
+                            style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                            placeholder: "+32 xxx xx xx xx" %>
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label text-dark fw-medium mb-1">
+                          <i class="bi bi-bank me-2 text-primary"></i>Registre national
+                        </label>
+                        <%= f.text_field :national_number,
+                            class: "form-control border-2 rounded-3 px-3",
+                            style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                            placeholder: "Ex: 77.15.06.123.88" %>
+                      </div>
+                      <% rib_derniere = current_user.rib_donnees.order(created_at: :desc).first %>
+                      <div class="col-md-4">
+                        <label class="form-label text-dark fw-medium mb-1">
+                          <i class="bi bi-bank me-2 text-primary"></i>IBAN
+                        </label>
+                        <div class="d-flex gap-2 align-items-start">
+                          <%= f.text_field :iban,
+                              id: 'user_iban',
+                              class: "form-control border-2 rounded-3 px-3",
+                              style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                              placeholder: "Ex: BE68 5390 0754 7034" %>
+                          <button type="button"
+                                  id="btn-scan-rib"
+                                  class="btn btn-outline-primary btn-sm rounded-3 flex-shrink-0"
+                                  style="height: 38px; white-space: nowrap;"
+                                  data-bs-toggle="tooltip"
+                                  title="Scanner votre RIB pour remplir automatiquement l'IBAN">
+                            <i class="bi bi-upc-scan"></i>
+                          </button>
+                          <input type="file" id="rib-file-input" accept=".pdf,image/jpeg,image/png" class="d-none">
+                        </div>
+                        <small id="rib-nom-banque" class="text-muted mt-1 ms-1<%= rib_derniere&.nom_banque ? '' : ' d-none' %>">
+                          <i class="bi bi-building me-1"></i><span id="rib-nom-banque-text"><%= rib_derniere&.nom_banque %></span>
+                        </small>
+                        <div id="rib-ocr-status" class="d-none mt-1">
+                          <div class="alert border-0 rounded-2 py-1 px-2 mb-0 small" id="rib-ocr-alert">
+                            <div class="d-flex align-items-center gap-2">
+                              <div id="rib-ocr-spinner" class="spinner-border spinner-border-sm text-primary d-none" role="status"></div>
+                              <i id="rib-ocr-icon" class="bi d-none"></i>
+                              <span id="rib-ocr-message"></span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
 <script nonce="<%= content_security_policy_nonce %>">
 (function () {
@@ -170,34 +186,14 @@
     .then(function (data) {
       spinner.classList.add('d-none');
       btnScan.disabled = false;
-
-      if (!data.success) {
-        showStatus('danger', 'bi-exclamation-triangle-fill', data.error || 'Extraction échouée.');
-        return;
-      }
-
-      if (data.iban) {
-        // Insérer l'IBAN formaté avec les espaces (BE68 5390 0754 7034)
-        fieldIban.value = data.iban_formate || data.iban;
-        fieldIban.classList.add('border-primary');
-      }
-
-      if (data.nom_banque) {
-        nomBanqueText.textContent = data.nom_banque;
-        nomBanqueEl.classList.remove('d-none');
-      } else {
-        nomBanqueEl.classList.add('d-none');
-      }
-
+      if (!data.success) { showStatus('danger', 'bi-exclamation-triangle-fill', data.error || 'Extraction échouée.'); return; }
+      if (data.iban) { fieldIban.value = data.iban_formate || data.iban; fieldIban.classList.add('border-primary'); }
+      if (data.nom_banque) { nomBanqueText.textContent = data.nom_banque; nomBanqueEl.classList.remove('d-none'); } else { nomBanqueEl.classList.add('d-none'); }
       var type = data.extraction_complete ? 'success' : 'warning';
       var ic   = data.extraction_complete ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill';
       showStatus(type, ic, data.message);
     })
-    .catch(function () {
-      spinner.classList.add('d-none');
-      btnScan.disabled = false;
-      showStatus('danger', 'bi-exclamation-triangle-fill', 'Erreur réseau. Veuillez réessayer.');
-    });
+    .catch(function () { spinner.classList.add('d-none'); btnScan.disabled = false; showStatus('danger', 'bi-exclamation-triangle-fill', 'Erreur réseau. Veuillez réessayer.'); });
 
     fileInput.value = '';
   });
@@ -210,242 +206,238 @@
   }
 })();
 </script>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <!-- Carte 2: Adresse et localisation -->
-          <div class="col-lg-6">
-            <div class="card h-100">
-              <div class="card-header bg-white border-0 py-3">
-                <div class="d-flex align-items-center">
-                  <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                    <i class="bi bi-geo-alt text-white fs-6"></i>
+              <!-- Carte 2: Adresse et localisation -->
+              <div class="col-lg-6">
+                <div class="card h-100">
+                  <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex align-items-center">
+                      <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                        <i class="bi bi-geo-alt text-white fs-6"></i>
+                      </div>
+                      <div>
+                        <h5 class="card-title mb-0 text-dark fw-normal">Adresse et localisation</h5>
+                        <p class="text-muted small mb-0">Votre lieu de résidence</p>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <h5 class="card-title mb-0 text-dark fw-normal">Adresse et localisation</h5>
-                    <p class="text-muted small mb-0">Votre lieu de résidence</p>
+                  <div class="card-body px-4 py-3">
+                    <div class="row g-2">
+                      <div class="col-md-8">
+                        <label class="form-label text-dark fw-medium mb-1">
+                          <i class="bi bi-signpost me-2 text-success"></i>Rue
+                        </label>
+                        <%= f.text_field :street,
+                            class: "form-control border-2 rounded-3 px-3",
+                            style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                            placeholder: "Nom de la rue" %>
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label text-dark fw-medium mb-1">
+                          <i class="bi bi-hash me-2 text-success"></i>Numéro
+                        </label>
+                        <%= f.text_field :number,
+                            class: "form-control border-2 rounded-3 px-3",
+                            style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                            placeholder: "N°" %>
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label text-dark fw-medium mb-1">
+                          <i class="bi bi-mailbox me-2 text-success"></i>Code postal
+                        </label>
+                        <%= f.text_field :postal_code,
+                            class: "form-control border-2 rounded-3 px-3",
+                            style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                            placeholder: "1000" %>
+                      </div>
+                      <div class="col-md-4">
+                        <label class="form-label text-dark fw-medium mb-1">
+                          <i class="bi bi-building me-2 text-success"></i>Ville
+                        </label>
+                        <%= f.text_field :city,
+                            class: "form-control border-2 rounded-3 px-3",
+                            style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                            placeholder: "Bruxelles" %>
+                      </div>
+                      <div class="col-4">
+                        <label class="form-label text-dark fw-medium mb-1">
+                          <i class="bi bi-map me-2 text-success"></i>Région
+                        </label>
+                        <%= f.select :region,
+                            options_for_select([
+                              ['Bruxelles-Capitale', 'bruxelles'],
+                              ['Wallonie', 'wallonie'],
+                              ['Flandre', 'flandre']
+                            ], current_user.region),
+                            { prompt: 'Sélectionnez votre région...' },
+                            { class: "form-select border-2 rounded-3 px-3",
+                              style: "background: #f8f9fa; border-color: #e9ecef !important;" } %>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="card-body px-4 py-3">
-                <div class="row g-2">
-                  <div class="col-md-8">
-                    <label class="form-label text-dark fw-medium mb-1">
-                      <i class="bi bi-signpost me-2 text-success"></i>Rue
-                    </label>
-                    <%= f.text_field :street,
-                        class: "form-control border-2 rounded-3 px-3",
-                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                        placeholder: "Nom de la rue" %>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label text-dark fw-medium mb-1">
-                      <i class="bi bi-hash me-2 text-success"></i>Numéro
-                    </label>
-                    <%= f.text_field :number,
-                        class: "form-control border-2 rounded-3 px-3",
-                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                        placeholder: "N°" %>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label text-dark fw-medium mb-1">
-                      <i class="bi bi-mailbox me-2 text-success"></i>Code postal
-                    </label>
-                    <%= f.text_field :postal_code,
-                        class: "form-control border-2 rounded-3 px-3",
-                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                        placeholder: "1000" %>
-                  </div>
-                  <div class="col-md-4">
-                    <label class="form-label text-dark fw-medium mb-1">
-                      <i class="bi bi-building me-2 text-success"></i>Ville
-                    </label>
-                    <%= f.text_field :city,
-                        class: "form-control border-2 rounded-3 px-3",
-                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                        placeholder: "Bruxelles" %>
-                  </div>
-                  <div class="col-4">
-                    <label class="form-label text-dark fw-medium mb-1">
-                      <i class="bi bi-map me-2 text-success"></i>Région
-                    </label>
-                    <%= f.select :region,
-                        options_for_select([
-                          ['Bruxelles-Capitale', 'bruxelles'],
-                          ['Wallonie', 'wallonie'],
-                          ['Flandre', 'flandre']
-                        ], current_user.region),
-                        { prompt: 'Sélectionnez votre région...' },
-                        { class: "form-select border-2 rounded-3 px-3",
-                          style: "background: #f8f9fa; border-color: #e9ecef !important;" } %>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
 
+            </div>
+
+            <!-- Bouton sauvegarder Tab 1 -->
+            <div class="text-end mt-3">
+              <%= f.button type: 'submit', class: 'btn btn-primary rounded-3 py-2 px-4 fw-medium' do %>
+                <i class="bi bi-check2-circle me-2"></i>Sauvegarder
+              <% end %>
+            </div>
+
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Deuxième rangée: Revenus et famille -->
-    <div class="row justify-content-center mb-3">
-      <div class="col-lg-10">
-        <div class="row g-3">
+      <!-- ===== TAB 2 : FINANCES & FAMILLE ===== -->
+      <div class="tab-pane fade" id="tab-finances" role="tabpanel">
+        <div class="row justify-content-center mb-3">
+          <div class="col-lg-10">
+            <div class="row g-3">
 
-          <!-- Carte 3: Revenus -->
-          <div class="col-lg-8">
-            <div class="card h-100">
-              <div class="card-header bg-white border-0 py-3">
-                <div class="d-flex align-items-center justify-content-between">
-                  <div class="d-flex align-items-center">
-                    <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                      <i class="bi bi-currency-euro text-white fs-6"></i>
-                    </div>
-                    <div>
-                      <h5 class="card-title mb-0 text-dark fw-normal">Informations fiscales</h5>
-                      <p class="text-muted small mb-0">Vos revenus pour le calcul des primes</p>
+              <!-- Carte 3: Revenus -->
+              <div class="col-lg-8">
+                <div class="card h-100">
+                  <div class="card-header bg-white border-0 py-3">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <div class="d-flex align-items-center">
+                        <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                          <i class="bi bi-currency-euro text-white fs-6"></i>
+                        </div>
+                        <div>
+                          <h5 class="card-title mb-0 text-dark fw-normal">Informations fiscales</h5>
+                          <p class="text-muted small mb-0">Vos revenus pour le calcul des primes</p>
+                        </div>
+                      </div>
+                      <div>
+                        <button type="button"
+                                id="btn-scan-aer"
+                                class="btn btn-outline-warning btn-sm rounded-3 px-3"
+                                data-bs-toggle="tooltip"
+                                title="Uploadez votre Avertissement-Extrait de Rôle pour remplir automatiquement ces champs">
+                          <i class="bi bi-file-earmark-text me-1"></i>Scanner mon AER
+                        </button>
+                        <input type="file" id="aer-file-input" accept=".pdf,image/jpeg,image/png" class="d-none">
+                      </div>
                     </div>
                   </div>
-                  <!-- Bouton scan AER -->
-                  <div>
-                    <button type="button"
-                            id="btn-scan-aer"
-                            class="btn btn-outline-warning btn-sm rounded-3 px-3"
-                            data-bs-toggle="tooltip"
-                            title="Uploadez votre Avertissement-Extrait de Rôle pour remplir automatiquement ces champs">
-                      <i class="bi bi-file-earmark-text me-1"></i>Scanner mon AER
-                    </button>
-                    <input type="file" id="aer-file-input" accept=".pdf,image/jpeg,image/png" class="d-none">
+
+                  <div id="aer-info-banner" class="mx-4 mb-0">
+                    <div class="alert alert-warning border-0 rounded-3 py-2 mb-0">
+                      <div class="d-flex align-items-start gap-2">
+                        <i class="bi bi-lightbulb-fill text-warning mt-1 flex-shrink-0"></i>
+                        <div class="small flex-grow-1">
+                          <strong>Qu'est-ce que l'AER ?</strong> L'<strong>Avertissement-Extrait de Rôle</strong> est le document fiscal annuel du SPF Finances. Il mentionne vos <strong>revenus nets imposables globalement</strong> (ligne 1250/2250) — la donnée clé pour le calcul des primes rénovation.
+                          <div class="d-flex flex-wrap gap-2 mt-2">
+                            <a href="https://www.minfin.fgov.be/myminfin-web/pages/public" target="_blank" rel="noopener noreferrer" class="btn btn-warning btn-sm rounded-3 py-1 px-3 fw-medium">
+                              <i class="bi bi-box-arrow-up-right me-1"></i>Accéder à MyMinfin
+                            </a>
+                            <button type="button" class="btn btn-outline-warning btn-sm rounded-3 py-1 px-3" data-bs-toggle="modal" data-bs-target="#aerGuideModal">
+                              <i class="bi bi-image me-1"></i>Où trouver mon revenu imposable ?
+                            </button>
+                          </div>
+                          <div class="mt-1"><em class="text-muted">Formats acceptés pour le scan : PDF, JPEG, PNG (max 10 MB).</em></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div id="aer-ocr-status" class="d-none mx-4 mt-2">
+                    <div class="alert border-0 rounded-3 py-2 mb-0" id="aer-ocr-alert">
+                      <div class="d-flex align-items-center gap-2">
+                        <div id="aer-ocr-spinner" class="spinner-border spinner-border-sm text-warning d-none" role="status"></div>
+                        <i id="aer-ocr-icon" class="bi d-none"></i>
+                        <span id="aer-ocr-message" class="small"></span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="card-body px-4 py-3">
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <div class="bg-light rounded-3 p-3">
+                          <h6 class="text-dark mb-3">
+                            <i class="bi bi-person-check me-2 text-warning"></i>Vos revenus
+                          </h6>
+                          <label class="form-label text-dark fw-medium mb-1">
+                            Revenus Imposables Globalement
+                            <button type="button" class="btn btn-link p-0 ms-1 text-muted" style="font-size: 0.8rem; vertical-align: middle;"
+                              data-bs-toggle="popover" data-bs-placement="top" data-bs-trigger="focus"
+                              data-bs-title="Revenu imposable globalement"
+                              data-bs-content="C'est le total de vos revenus (salaire, remplacement, immobilier) après déductions fiscales, avant impôt. Sur votre AER : section 'Calcul de l'impôt', ligne 1250. Sur MyMinfin : onglet 'Mes données fiscales' → Revenus.">
+                              <i class="bi bi-question-circle-fill"></i>
+                            </button>
+                          </label>
+                          <div class="row g-2">
+                            <div class="col-8">
+                              <%= f.number_field :revenu_demandeur,
+                                  id: 'user_revenu_demandeur',
+                                  class: 'form-control border-2 rounded-3 px-3',
+                                  style: "background: white; border-color: #e9ecef !important;",
+                                  placeholder: 'Ex 21 374', min: 0, step: 1 %>
+                            </div>
+                            <div class="col-4">
+                              <%= f.select :annee_revenus_demandeur,
+                                  [[2025, '2025'], [2024, '2024'], [2023, '2023'], [2022, '2022'], [2021, '2021']],
+                                  { prompt: 'Année' },
+                                  id: 'user_annee_revenus_demandeur',
+                                  class: 'form-select border-2 rounded-3',
+                                  style: "background: white; border-color: #e9ecef !important;" %>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-md-6">
+                        <div class="bg-light rounded-3 p-3">
+                          <h6 class="text-dark mb-3">
+                            <i class="bi bi-people me-2 text-warning"></i>Revenus du conjoint
+                          </h6>
+                          <label class="form-label text-dark fw-medium mb-1">
+                            Revenus Imposables Globalement
+                            <button type="button" class="btn btn-link p-0 ms-1 text-muted" style="font-size: 0.8rem; vertical-align: middle;"
+                              data-bs-toggle="popover" data-bs-placement="top" data-bs-trigger="focus"
+                              data-bs-title="Revenu imposable globalement — conjoint"
+                              data-bs-content="Le revenu de votre partenaire ou conjoint. Sur l'AER commun : ligne 2250. Chaque conjoint a sa propre colonne sur le document. Sur MyMinfin, consultez les données fiscales du foyer.">
+                              <i class="bi bi-question-circle-fill"></i>
+                            </button>
+                          </label>
+                          <div class="mb-2"><small class="text-muted">Si vous êtes en couple</small></div>
+                          <div class="row g-2">
+                            <div class="col-8">
+                              <%= f.number_field :revenu_conjoint,
+                                  id: 'user_revenu_conjoint',
+                                  class: 'form-control border-2 rounded-3 px-3',
+                                  style: "background: white; border-color: #e9ecef !important;",
+                                  placeholder: 'Ex: 19 671', min: 0, step: 1 %>
+                            </div>
+                            <div class="col-4">
+                              <%= f.select :annee_revenus_conjoint,
+                                  [[2025, '2025'], [2024, '2024'], [2023, '2023'], [2022, '2022'], [2021, '2021']],
+                                  { prompt: 'Année' },
+                                  id: 'user_annee_revenus_conjoint',
+                                  class: 'form-select border-2 rounded-3',
+                                  style: "background: white; border-color: #e9ecef !important;" %>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div id="aer-scanned-badge" class="d-none mt-3">
+                      <div class="d-flex align-items-center gap-2 text-success small">
+                        <i class="bi bi-patch-check-fill"></i>
+                        <span>Données pré-remplies depuis votre AER — vérifiez et sauvegardez.</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-
-              <!-- Zone d'info AER (toujours visible) -->
-              <div id="aer-info-banner" class="mx-4 mb-0">
-                <div class="alert alert-warning border-0 rounded-3 py-2 mb-0">
-                  <div class="d-flex align-items-start gap-2">
-                    <i class="bi bi-lightbulb-fill text-warning mt-1 flex-shrink-0"></i>
-                    <div class="small flex-grow-1">
-                      <strong>Qu'est-ce que l'AER ?</strong> L'<strong>Avertissement-Extrait de Rôle</strong> est le document fiscal annuel du SPF Finances. Il mentionne vos <strong>revenus nets imposables globalement</strong> (ligne 1250/2250) — la donnée clé pour le calcul des primes rénovation.
-                      <div class="d-flex flex-wrap gap-2 mt-2">
-                        <a href="https://www.minfin.fgov.be/myminfin-web/pages/public" target="_blank" rel="noopener noreferrer" class="btn btn-warning btn-sm rounded-3 py-1 px-3 fw-medium">
-                          <i class="bi bi-box-arrow-up-right me-1"></i>Accéder à MyMinfin
-                        </a>
-                        <button type="button" class="btn btn-outline-warning btn-sm rounded-3 py-1 px-3" data-bs-toggle="modal" data-bs-target="#aerGuideModal">
-                          <i class="bi bi-image me-1"></i>Où trouver mon revenu imposable ?
-                        </button>
-                      </div>
-                      <div class="mt-1"><em class="text-muted">Formats acceptés pour le scan : PDF, JPEG, PNG (max 10 MB).</em></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Zone de progression OCR (masquée par défaut) -->
-              <div id="aer-ocr-status" class="d-none mx-4 mt-2">
-                <div class="alert border-0 rounded-3 py-2 mb-0" id="aer-ocr-alert">
-                  <div class="d-flex align-items-center gap-2">
-                    <div id="aer-ocr-spinner" class="spinner-border spinner-border-sm text-warning d-none" role="status"></div>
-                    <i id="aer-ocr-icon" class="bi d-none"></i>
-                    <span id="aer-ocr-message" class="small"></span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="card-body px-4 py-3">
-                <div class="row g-3">
-                  <!-- Revenus demandeur -->
-                  <div class="col-md-6">
-                    <div class="bg-light rounded-3 p-3">
-                      <h6 class="text-dark mb-3">
-                        <i class="bi bi-person-check me-2 text-warning"></i>Vos revenus
-                      </h6>
-                      <label class="form-label text-dark fw-medium mb-1">
-                        Revenus Imposables Globalement
-                        <button type="button" class="btn btn-link p-0 ms-1 text-muted" style="font-size: 0.8rem; vertical-align: middle;"
-                          data-bs-toggle="popover" data-bs-placement="top" data-bs-trigger="focus"
-                          data-bs-title="Revenu imposable globalement"
-                          data-bs-content="C'est le total de vos revenus (salaire, remplacement, immobilier) après déductions fiscales, avant impôt. Sur votre AER : section 'Calcul de l'impôt', ligne 1250. Sur MyMinfin : onglet 'Mes données fiscales' → Revenus.">
-                          <i class="bi bi-question-circle-fill"></i>
-                        </button>
-                      </label>
-                      <div class="row g-2">
-                        <div class="col-8">
-                          <%= f.number_field :revenu_demandeur,
-                              id: 'user_revenu_demandeur',
-                              class: 'form-control border-2 rounded-3 px-3',
-                              style: "background: white; border-color: #e9ecef !important;",
-                              placeholder: 'Ex 21 374',
-                              min: 0,
-                              step: 1 %>
-                        </div>
-                        <div class="col-4">
-                          <%= f.select :annee_revenus_demandeur,
-                              [[2025, '2025'], [2024, '2024'], [2023, '2023'], [2022, '2022'], [2021, '2021']],
-                              { prompt: 'Année' },
-                              id: 'user_annee_revenus_demandeur',
-                              class: 'form-select border-2 rounded-3',
-                              style: "background: white; border-color: #e9ecef !important;" %>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Revenus conjoint -->
-                  <div class="col-md-6">
-                    <div class="bg-light rounded-3 p-3">
-                      <h6 class="text-dark mb-3">
-                        <i class="bi bi-people me-2 text-warning"></i>Revenus du conjoint
-                      </h6>
-                      <label class="form-label text-dark fw-medium mb-1">
-                        Revenus Imposables Globalement
-                        <button type="button" class="btn btn-link p-0 ms-1 text-muted" style="font-size: 0.8rem; vertical-align: middle;"
-                          data-bs-toggle="popover" data-bs-placement="top" data-bs-trigger="focus"
-                          data-bs-title="Revenu imposable globalement — conjoint"
-                          data-bs-content="Le revenu de votre partenaire ou conjoint. Sur l'AER commun : ligne 2250. Chaque conjoint a sa propre colonne sur le document. Sur MyMinfin, consultez les données fiscales du foyer.">
-                          <i class="bi bi-question-circle-fill"></i>
-                        </button>
-                      </label>
-                      <div class="mb-2">
-                        <small class="text-muted">Si vous êtes en couple</small>
-                      </div>
-                      <div class="row g-2">
-                        <div class="col-8">
-                          <%= f.number_field :revenu_conjoint,
-                              id: 'user_revenu_conjoint',
-                              class: 'form-control border-2 rounded-3 px-3',
-                              style: "background: white; border-color: #e9ecef !important;",
-                              placeholder: 'Ex: 19 671',
-                              min: 0,
-                              step: 1 %>
-                        </div>
-                        <div class="col-4">
-                          <%= f.select :annee_revenus_conjoint,
-                              [[2025, '2025'], [2024, '2024'], [2023, '2023'], [2022, '2022'], [2021, '2021']],
-                              { prompt: 'Année' },
-                              id: 'user_annee_revenus_conjoint',
-                              class: 'form-select border-2 rounded-3',
-                              style: "background: white; border-color: #e9ecef !important;" %>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div><!-- /row revenus -->
-
-                <!-- Badge confirmation AER scanné -->
-                <div id="aer-scanned-badge" class="d-none mt-3">
-                  <div class="d-flex align-items-center gap-2 text-success small">
-                    <i class="bi bi-patch-check-fill"></i>
-                    <span>Données pré-remplies depuis votre AER — vérifiez et sauvegardez.</span>
-                  </div>
-                </div>
-
-              </div><!-- /card-body -->
-            </div><!-- /card -->
-          </div><!-- /col-lg-8 -->
 
 <script nonce="<%= content_security_policy_nonce %>">
 (function () {
@@ -458,30 +450,21 @@
   const icon       = document.getElementById('aer-ocr-icon');
   const msgEl      = document.getElementById('aer-ocr-message');
   const badge      = document.getElementById('aer-scanned-badge');
-
-  // Champs cibles à pré-remplir
   const fieldRevenuDemandeur  = document.getElementById('user_revenu_demandeur');
   const fieldRevenuConjoint   = document.getElementById('user_revenu_conjoint');
   const fieldAnneeDemandeur   = document.getElementById('user_annee_revenus_demandeur');
   const fieldAnneeConjoint    = document.getElementById('user_annee_revenus_conjoint');
 
-  // ── Formatage belge : 41691.27 → "41.691,27" (nl-BE : point milliers, virgule déc.)
   function formatBE(num) {
     if (num == null) return '—';
     return Number(num).toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
-  // Premier clic → afficher la bannière pédagogique + ouvrir le sélecteur
-  btnScan.addEventListener('click', function () {
-    infoBanner.classList.remove('d-none');
-    fileInput.click();
-  });
+  btnScan.addEventListener('click', function () { infoBanner.classList.remove('d-none'); fileInput.click(); });
 
   fileInput.addEventListener('change', function () {
     const file = fileInput.files[0];
     if (!file) return;
-
-    // UI : démarrage
     statusZone.classList.remove('d-none');
     alertBox.className = 'alert border-0 rounded-3 py-2 mb-0 alert-secondary';
     spinner.classList.remove('d-none');
@@ -501,51 +484,21 @@
     .then(function (data) {
       spinner.classList.add('d-none');
       btnScan.disabled = false;
-
-      if (!data.success) {
-        showStatus('danger', 'bi-exclamation-triangle-fill', data.error || 'Extraction échouée.');
-        return;
-      }
-
-      // Pré-remplir les champs avec la valeur entière arrondie (colonnes integer du profil)
-      if (data.revenu_demandeur) {
-        fieldRevenuDemandeur.value = Math.round(data.revenu_demandeur);
-        fieldRevenuDemandeur.classList.add('border-warning');
-      }
-      if (data.revenu_conjoint) {
-        fieldRevenuConjoint.value = Math.round(data.revenu_conjoint);
-        fieldRevenuConjoint.classList.add('border-warning');
-      }
-      if (data.annee_revenus) {
-        setSelectValue(fieldAnneeDemandeur, data.annee_revenus);
-        if (data.revenu_conjoint) setSelectValue(fieldAnneeConjoint, data.annee_revenus);
-      }
-
-      // Message de retour avec montants formatés en nl-BE
+      if (!data.success) { showStatus('danger', 'bi-exclamation-triangle-fill', data.error || 'Extraction échouée.'); return; }
+      if (data.revenu_demandeur) { fieldRevenuDemandeur.value = Math.round(data.revenu_demandeur); fieldRevenuDemandeur.classList.add('border-warning'); }
+      if (data.revenu_conjoint)  { fieldRevenuConjoint.value  = Math.round(data.revenu_conjoint);  fieldRevenuConjoint.classList.add('border-warning'); }
+      if (data.annee_revenus) { setSelectValue(fieldAnneeDemandeur, data.annee_revenus); if (data.revenu_conjoint) setSelectValue(fieldAnneeConjoint, data.annee_revenus); }
       var lignesMontants = [];
-      if (data.revenu_demandeur)  lignesMontants.push('Vous : ' + formatBE(data.revenu_demandeur) + ' €');
-      if (data.revenu_conjoint)   lignesMontants.push('Conjoint : ' + formatBE(data.revenu_conjoint) + ' €');
+      if (data.revenu_demandeur) lignesMontants.push('Vous : ' + formatBE(data.revenu_demandeur) + ' €');
+      if (data.revenu_conjoint)  lignesMontants.push('Conjoint : ' + formatBE(data.revenu_conjoint) + ' €');
       var suffixeMontants = lignesMontants.length ? ' (' + lignesMontants.join(' · ') + ')' : '';
-
-      const alertClass = data.revenus_potentiellement_perimes ? 'alert-warning'
-                       : data.extraction_complete            ? 'alert-success'
-                                                             : 'alert-warning';
-      const iconClass  = data.revenus_potentiellement_perimes ? 'bi-clock-history'
-                       : data.extraction_complete            ? 'bi-check-circle-fill'
-                                                             : 'bi-exclamation-circle-fill';
+      const alertClass = data.revenus_potentiellement_perimes ? 'alert-warning' : data.extraction_complete ? 'alert-success' : 'alert-warning';
+      const iconClass  = data.revenus_potentiellement_perimes ? 'bi-clock-history' : data.extraction_complete ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill';
       showStatus(alertClass.replace('alert-', ''), iconClass, data.message + suffixeMontants);
-
-      if (data.revenu_demandeur || data.revenu_conjoint) {
-        badge.classList.remove('d-none');
-      }
+      if (data.revenu_demandeur || data.revenu_conjoint) badge.classList.remove('d-none');
     })
-    .catch(function (err) {
-      spinner.classList.add('d-none');
-      btnScan.disabled = false;
-      showStatus('danger', 'bi-exclamation-triangle-fill', 'Erreur réseau. Veuillez réessayer.');
-    });
+    .catch(function () { spinner.classList.add('d-none'); btnScan.disabled = false; showStatus('danger', 'bi-exclamation-triangle-fill', 'Erreur réseau. Veuillez réessayer.'); });
 
-    // Réinitialiser l'input pour permettre un nouvel upload du même fichier
     fileInput.value = '';
   });
 
@@ -558,220 +511,199 @@
 
   function setSelectValue(selectEl, value) {
     if (!selectEl) return;
-    Array.from(selectEl.options).forEach(function (opt) {
-      opt.selected = (opt.value === String(value));
-    });
+    Array.from(selectEl.options).forEach(function (opt) { opt.selected = (opt.value === String(value)); });
   }
 })();
 </script>
 
-          <!-- Carte 4: Situation familiale -->
-          <div class="col-lg-4">
-            <div class="card h-100">
-              <div class="card-header bg-white border-0 pt-4">
-                <div class="d-flex align-items-center">
-                  <div class="bg-info bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                    <i class="bi bi-people text-white fs-5"></i>
-                  </div>
-                  <div>
-                    <h5 class="card-title mb-1 text-dark fw-normal">Famille</h5>
-                    <p class="text-muted small mb-0">Votre situation</p>
-                  </div>
-                </div>
-              </div>
-              <div class="card-body px-4 pb-4">
-                <div class="row g-3">
-                  <div class="col-6">
-                    <label class="form-label text-dark fw-medium mb-1">
-                      <i class="bi bi-heart me-2 text-info"></i>Situation familiale
-                    </label>
-                    <%= f.select :situation_familiale,
-                        [['Couple', 'couple'], ['Isolé', 'isole'], ['Isolé avec enfant à charge', 'isole_avec_enfant']],
-                        { prompt: 'Sélectionnez...' },
-                        class: 'form-select border-2 rounded-3 px-3',
-                        style: "background: #f8f9fa; border-color: #e9ecef !important;" %>
-                  </div>
-                  <div class="col-6">
-                    <label class="form-label text-dark fw-medium mb-1">
-                      <i class="bi bi-person-hearts me-2 text-info"></i>Enfants à charge
-                    </label>
-                    <%= f.number_field :nombre_enfants,
-                        class: 'form-control border-2 rounded-3 px-3',
-                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                        placeholder: '0',
-                        min: 0 %>
-                  </div>
-                </div>
-
-                <!-- Nouveaux champs pour déductions fiscales Wallonie -->
-                <div class="row g-3 mt-2">
-                  <div class="col-12">
-                    <div class="alert alert-info border-0 rounded-3 mb-0">
-                      <small><i class="bi bi-info-circle me-1"></i><strong>Wallonie:</strong> Ces informations permettent des déductions de 5.000€ chacune sur vos revenus imposables.</small>
+              <!-- Carte 4: Situation familiale -->
+              <div class="col-lg-4">
+                <div class="card h-100">
+                  <div class="card-header bg-white border-0 pt-4">
+                    <div class="d-flex align-items-center">
+                      <div class="bg-info bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                        <i class="bi bi-people text-white fs-5"></i>
+                      </div>
+                      <div>
+                        <h5 class="card-title mb-1 text-dark fw-normal">Famille</h5>
+                        <p class="text-muted small mb-0">Votre situation</p>
+                      </div>
                     </div>
                   </div>
-                  <div class="col-6">
-                    <label class="form-label text-dark fw-medium mb-1">
-                      <i class="bi bi-person-badge me-2 text-info"></i>Personnes de 60 ans et plus
-                    </label>
-                    <%= f.number_field :personnes_60_ans_et_plus,
-                        class: 'form-control border-2 rounded-3 px-3',
-                        style: "background: #f8f9fa; border-color: #e9ecef !important;",
-                        placeholder: '0',
-                        min: 0 %>
-                    <small class="text-muted">Nombre de personnes de 60 ans et plus dans le ménage</small>
-                  </div>
-                  <div class="col-6">
-                    <label class="form-label text-dark fw-medium mb-1">
-                      <i class="bi bi-heart-pulse me-2 text-info"></i>Femme enceinte
-                    </label>
-                    <%= f.select :femme_enceinte,
-                        [['Non', false], ['Oui', true]],
-                        { include_blank: 'Sélectionnez...' },
-                        class: 'form-select border-2 rounded-3 px-3',
-                        style: "background: #f8f9fa; border-color: #e9ecef !important;" %>
-                    <small class="text-muted">Y a-t-il une femme enceinte dans le ménage ?</small>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-    <!-- Troisième rangée: Actions et sécurité -->
-    <div class="row justify-content-center mb-5">
-      <div class="col-lg-10">
-        <div class="row g-4">
-
-          <!-- Carte 5: Actions principales -->
-          <div class="col-lg-4">
-            <div class="card h-100">
-              <div class="card-header bg-white border-0 py-2">
-                <div class="d-flex align-items-center">
-                  <div class="bg-primary bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px;">
-                    <i class="bi bi-gear text-white"></i>
-                  </div>
-                  <div>
-                    <h6 class="card-title mb-0 text-dark fw-normal">Actions</h6>
-                    <small class="text-muted">Gérer votre profil</small>
-                  </div>
-                </div>
-              </div>
-              <div class="card-body px-4 py-3">
-                <div class="d-grid gap-2">
-                  <%= f.button type: 'submit', class: 'btn btn-primary rounded-3 py-2 fw-medium' do %>
-                    <i class="bi bi-check2-circle me-2"></i>Sauvegarder les modifications
-                  <% end %>
-                  <%= link_to dashboard_path, class: "btn btn-outline-secondary rounded-3 py-2" do %>
-                    <i class="bi bi-arrow-left me-2"></i>Retour au tableau de bord
-                  <% end %>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Carte 6: Sécurité -->
-          <div class="col-lg-4">
-            <div class="card h-100">
-              <div class="card-header bg-white border-0 py-2">
-                <div class="d-flex align-items-center">
-                  <div class="bg-danger bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px;">
-                    <i class="bi bi-shield-lock text-white"></i>
-                  </div>
-                  <div>
-                    <h6 class="card-title mb-0 text-dark fw-normal">Sécurité</h6>
-                    <small class="text-muted">Protéger votre compte</small>
-                  </div>
-                </div>
-              </div>
-              <div class="card-body px-4 py-3">
-                <div class="d-grid gap-2">
-                  <%= link_to edit_user_registration_path, class: "btn btn-outline-danger rounded-3 py-2" do %>
-                    <i class="bi bi-key me-2"></i>Changer le mot de passe
-                  <% end %>
-                  <button type="button" class="btn btn-outline-warning rounded-3 py-2" disabled>
-                    <i class="bi bi-shield-check me-2"></i>Double authentification
-                    <small class="d-block text-muted mt-1">Bientôt disponible</small>
-                  </button>
-
-                  <!-- Export RGPD -->
-                  <%= link_to export_user_data_path, class: "btn btn-outline-secondary rounded-3 py-2" do %>
-                    <i class="bi bi-download me-2"></i>Exporter mes données (RGPD)
-                  <% end %>
-
-                  <!-- Séparateur pour zone dangereuse -->
-                  <hr class="my-2">
-
-                  <!-- Zone dangereuse intégrée -->
-                  <div class="border border-danger rounded-3 p-2 bg-light bg-opacity-50">
-                    <div class="d-flex align-items-start">
-                      <div class="bg-danger bg-gradient rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0" style="width: 25px; height: 25px;">
-                        <i class="bi bi-exclamation-triangle text-white small"></i>
+                  <div class="card-body px-4 pb-4">
+                    <div class="row g-3">
+                      <div class="col-6">
+                        <label class="form-label text-dark fw-medium mb-1">
+                          <i class="bi bi-heart me-2 text-info"></i>Situation familiale
+                        </label>
+                        <%= f.select :situation_familiale,
+                            [['Couple', 'couple'], ['Isolé', 'isole'], ['Isolé avec enfant à charge', 'isole_avec_enfant']],
+                            { prompt: 'Sélectionnez...' },
+                            class: 'form-select border-2 rounded-3 px-3',
+                            style: "background: #f8f9fa; border-color: #e9ecef !important;" %>
                       </div>
-                      <div class="flex-grow-1">
-                        <h6 class="text-danger mb-1 fw-medium small">Zone dangereuse</h6>
-                        <p class="text-muted small mb-2">Suppression définitive et irréversible.</p>
-                        <button type="button" class="btn btn-outline-danger btn-sm rounded-3" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
-                          <i class="bi bi-person-x me-1"></i>Supprimer mon compte
-                        </button>
+                      <div class="col-6">
+                        <label class="form-label text-dark fw-medium mb-1">
+                          <i class="bi bi-person-hearts me-2 text-info"></i>Enfants à charge
+                        </label>
+                        <%= f.number_field :nombre_enfants,
+                            class: 'form-control border-2 rounded-3 px-3',
+                            style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                            placeholder: '0', min: 0 %>
+                      </div>
+                    </div>
+                    <div class="row g-3 mt-2">
+                      <div class="col-12">
+                        <div class="alert alert-info border-0 rounded-3 mb-0">
+                          <small><i class="bi bi-info-circle me-1"></i><strong>Wallonie:</strong> Ces informations permettent des déductions de 5.000€ chacune sur vos revenus imposables.</small>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <label class="form-label text-dark fw-medium mb-1">
+                          <i class="bi bi-person-badge me-2 text-info"></i>Personnes de 60 ans et plus
+                        </label>
+                        <%= f.number_field :personnes_60_ans_et_plus,
+                            class: 'form-control border-2 rounded-3 px-3',
+                            style: "background: #f8f9fa; border-color: #e9ecef !important;",
+                            placeholder: '0', min: 0 %>
+                        <small class="text-muted">Nombre de personnes de 60 ans et plus dans le ménage</small>
+                      </div>
+                      <div class="col-6">
+                        <label class="form-label text-dark fw-medium mb-1">
+                          <i class="bi bi-heart-pulse me-2 text-info"></i>Femme enceinte
+                        </label>
+                        <%= f.select :femme_enceinte,
+                            [['Non', false], ['Oui', true]],
+                            { include_blank: 'Sélectionnez...' },
+                            class: 'form-select border-2 rounded-3 px-3',
+                            style: "background: #f8f9fa; border-color: #e9ecef !important;" %>
+                        <small class="text-muted">Y a-t-il une femme enceinte dans le ménage ?</small>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <!-- Carte 7: Paiements -->
-          <div class="col-lg-4">
-            <div class="card h-100">
-              <div class="card-header bg-white border-0 py-2">
-                <div class="d-flex align-items-center">
-                  <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px;">
-                    <i class="bi bi-credit-card text-white"></i>
-                  </div>
-                  <div>
-                    <h6 class="card-title mb-0 text-dark fw-normal">Paiements</h6>
-                    <small class="text-muted">Moyens de paiement</small>
-                  </div>
-                </div>
-              </div>
-              <div class="card-body px-4 py-3">
-                <div class="d-grid gap-2">
-                  <% if current_user.has_active_subscription? %>
-                    <%= button_to pricing_portal_path, method: :post, class: "btn btn-outline-success rounded-3 py-2", data: { turbo: false } do %>
-                      <i class="bi bi-credit-card me-2"></i>Gérer mon abonnement
-                      <small class="d-block text-muted mt-1">Factures, carte, résiliation</small>
-                    <% end %>
-                  <% else %>
-                    <%= link_to pricing_select_path, class: "btn btn-outline-success rounded-3 py-2" do %>
-                      <i class="bi bi-arrow-up-circle me-2"></i>Passer à un abonnement
-                      <small class="d-block text-muted mt-1">Découvrez nos offres</small>
-                    <% end %>
-                  <% end %>
-                  <button type="button" class="btn btn-outline-info rounded-3 py-2" disabled>
-                    <i class="bi bi-receipt me-2"></i>Historique des paiements
-                    <small class="d-block text-muted mt-1">Bientôt disponible</small>
-                  </button>
-                </div>
-              </div>
             </div>
-          </div>
 
+            <!-- Bouton sauvegarder Tab 2 -->
+            <div class="text-end mt-3">
+              <%= f.button type: 'submit', class: 'btn btn-primary rounded-3 py-2 px-4 fw-medium' do %>
+                <i class="bi bi-check2-circle me-2"></i>Sauvegarder
+              <% end %>
+            </div>
+
+          </div>
         </div>
       </div>
-    </div>
+
+      <!-- ===== TAB 3 : MON COMPTE ===== -->
+      <div class="tab-pane fade" id="tab-compte" role="tabpanel">
+        <div class="row justify-content-center mb-5">
+          <div class="col-lg-10">
+            <div class="row g-4">
+
+              <!-- Carte 6: Sécurité -->
+              <div class="col-lg-6">
+                <div class="card h-100">
+                  <div class="card-header bg-white border-0 py-2">
+                    <div class="d-flex align-items-center">
+                      <div class="bg-danger bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px;">
+                        <i class="bi bi-shield-lock text-white"></i>
+                      </div>
+                      <div>
+                        <h6 class="card-title mb-0 text-dark fw-normal">Sécurité</h6>
+                        <small class="text-muted">Protéger votre compte</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-body px-4 py-3">
+                    <div class="d-grid gap-2">
+                      <%= link_to edit_user_registration_path, class: "btn btn-outline-danger rounded-3 py-2" do %>
+                        <i class="bi bi-key me-2"></i>Changer le mot de passe
+                      <% end %>
+                      <button type="button" class="btn btn-outline-warning rounded-3 py-2" disabled>
+                        <i class="bi bi-shield-check me-2"></i>Double authentification
+                        <small class="d-block text-muted mt-1">Bientôt disponible</small>
+                      </button>
+                      <%= link_to export_user_data_path, class: "btn btn-outline-secondary rounded-3 py-2" do %>
+                        <i class="bi bi-download me-2"></i>Exporter mes données (RGPD)
+                      <% end %>
+                      <hr class="my-2">
+                      <div class="border border-danger rounded-3 p-2 bg-light bg-opacity-50">
+                        <div class="d-flex align-items-start">
+                          <div class="bg-danger bg-gradient rounded-circle d-flex align-items-center justify-content-center me-2 flex-shrink-0" style="width: 25px; height: 25px;">
+                            <i class="bi bi-exclamation-triangle text-white small"></i>
+                          </div>
+                          <div class="flex-grow-1">
+                            <h6 class="text-danger mb-1 fw-medium small">Zone dangereuse</h6>
+                            <p class="text-muted small mb-2">Suppression définitive et irréversible.</p>
+                            <button type="button" class="btn btn-outline-danger btn-sm rounded-3" data-bs-toggle="modal" data-bs-target="#deleteAccountModal">
+                              <i class="bi bi-person-x me-1"></i>Supprimer mon compte
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Carte 7: Paiements -->
+              <div class="col-lg-6">
+                <div class="card h-100">
+                  <div class="card-header bg-white border-0 py-2">
+                    <div class="d-flex align-items-center">
+                      <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px;">
+                        <i class="bi bi-credit-card text-white"></i>
+                      </div>
+                      <div>
+                        <h6 class="card-title mb-0 text-dark fw-normal">Paiements</h6>
+                        <small class="text-muted">Moyens de paiement</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-body px-4 py-3">
+                    <div class="d-grid gap-2">
+                      <% if current_user.has_active_subscription? %>
+                        <%= button_to pricing_portal_path, method: :post, class: "btn btn-outline-success rounded-3 py-2", data: { turbo: false } do %>
+                          <i class="bi bi-credit-card me-2"></i>Gérer mon abonnement
+                          <small class="d-block text-muted mt-1">Factures, carte, résiliation</small>
+                        <% end %>
+                      <% else %>
+                        <%= link_to pricing_select_path, class: "btn btn-outline-success rounded-3 py-2" do %>
+                          <i class="bi bi-arrow-up-circle me-2"></i>Passer à un abonnement
+                          <small class="d-block text-muted mt-1">Découvrez nos offres</small>
+                        <% end %>
+                      <% end %>
+                      <button type="button" class="btn btn-outline-info rounded-3 py-2" disabled>
+                        <i class="bi bi-receipt me-2"></i>Historique des paiements
+                        <small class="d-block text-muted mt-1">Bientôt disponible</small>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            <!-- Bouton sauvegarder Tab 3 -->
+            <div class="text-end mt-3">
+              <%= f.button type: 'submit', class: 'btn btn-primary rounded-3 py-2 px-4 fw-medium' do %>
+                <i class="bi bi-check2-circle me-2"></i>Sauvegarder
+              <% end %>
+            </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /tab-content -->
 
   <% end %>
 </div>
 
-<!-- CSS personnalisé pour le design professionnel -->
 <script>
   document.addEventListener('turbo:load', function() {
-    // Initialiser les popovers Bootstrap (revenus imposables)
     document.querySelectorAll('[data-bs-toggle="popover"]').forEach(function(el) {
       new bootstrap.Popover(el, { html: false, sanitize: true });
     });
@@ -782,29 +714,13 @@
     border-color: #0d6efd !important;
     box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15) !important;
   }
-
-  .card {
-    transition: all 0.3s ease;
-  }
-
-  .card:hover {
-    transform: translateY(-2px);
-  }
-
-  .btn {
-    transition: all 0.2s ease;
-  }
-
-  .btn:hover:not(:disabled) {
-    transform: translateY(-1px);
-  }
-
-  .bg-light {
-    background-color: #f8f9fa !important;
-  }
+  .card { transition: all 0.3s ease; }
+  .card:hover { transform: translateY(-2px); }
+  .btn { transition: all 0.2s ease; }
+  .btn:hover:not(:disabled) { transform: translateY(-1px); }
+  .bg-light { background-color: #f8f9fa !important; }
 </style>
 
-<!-- Modal Supprimer compte avec design moderne -->
 <!-- Modal guide AER -->
 <div class="modal fade" id="aerGuideModal" tabindex="-1" aria-labelledby="aerGuideModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -816,8 +732,6 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body px-4 py-3">
-
-        <!-- Étape 1 : Obtenir le document -->
         <div class="mb-4">
           <h6 class="fw-medium text-dark mb-2"><span class="badge bg-warning text-dark me-2">1</span>Obtenir votre AER</h6>
           <div class="row g-2">
@@ -838,8 +752,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Étape 2 : Trouver la bonne ligne -->
         <div class="mb-4">
           <h6 class="fw-medium text-dark mb-2"><span class="badge bg-warning text-dark me-2">2</span>Repérer votre revenu imposable sur le document</h6>
           <div class="alert alert-warning border-0 rounded-3">
@@ -853,8 +765,6 @@
             <p class="small text-muted mt-2 mb-0">Si votre ménage est imposé ensemble, l'AER affiche deux colonnes — une par personne. Prenez le montant de la colonne qui vous correspond.</p>
           </div>
         </div>
-
-        <!-- Étape 3 : Ce que c'est -->
         <div>
           <h6 class="fw-medium text-dark mb-2"><span class="badge bg-warning text-dark me-2">3</span>Ce que ce chiffre représente</h6>
           <p class="small text-muted mb-2">C'est le montant final que le SPF Finances a retenu comme base de calcul de l'impôt — vos revenus bruts <strong>après déduction des frais professionnels et charges</strong>, tel que récapitulé sur votre AER. C'est ce chiffre que les régions utilisent pour déterminer votre éligibilité aux primes majorées.</p>
@@ -879,7 +789,6 @@
             </div>
           </div>
         </div>
-
       </div>
       <div class="modal-footer border-0 pt-0">
         <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">Fermer</button>
@@ -891,6 +800,7 @@
   </div>
 </div>
 
+<!-- Modal suppression compte -->
 <div class="modal fade" id="deleteAccountModal" tabindex="-1" aria-labelledby="deleteAccountModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content border-0 shadow-lg rounded-4">
@@ -918,9 +828,7 @@
           </ul>
         </div>
         <div class="text-center">
-          <p class="text-muted mb-3">
-            <strong>Êtes-vous absolument certain de vouloir continuer ?</strong>
-          </p>
+          <p class="text-muted mb-3"><strong>Êtes-vous absolument certain de vouloir continuer ?</strong></p>
           <%= button_to user_registration_path,
               method: :delete,
               class: "btn btn-danger btn-lg rounded-3 px-4",

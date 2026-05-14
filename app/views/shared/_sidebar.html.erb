@@ -30,7 +30,7 @@
               <i class="bi bi-gem me-1"></i> <%= upgrade_badge_text %>
             <% end %>
           <% else %>
-            <span class="badge bg-primary"><i class="bi bi-gem me-1"></i> Premium</span>
+            <span class="badge bg-primary"><i class="bi bi-gem me-1"></i> <%= current_user.subscription_tier_name %></span>
           <% end %>
         </div>
       </div>
@@ -92,8 +92,8 @@
         <li class="nav-section">
           <div class="section-header" data-bs-toggle="collapse" data-bs-target="#configSection" aria-expanded="true">
             <div class="section-title">
-              <i class="bi bi-gear-fill section-icon"></i>
-              <span>1. Configuration</span>
+              <i class="bi bi-grid-fill section-icon"></i>
+              <span>1. Mon espace</span>
             </div>
             <i class="bi bi-chevron-down toggle-icon"></i>
           </div>
@@ -115,35 +115,36 @@
                 <i class="bi bi-sliders"></i>
                 <span>Mes chantiers</span>
               <% end %>
+            </li>
+            <li class="nav-item">
+              <%= link_to start_quotes_path, class: "nav-link" do %>
+                <i class="bi bi-hammer"></i>
+                <span>Chiffrer mes travaux</span>
+              <% end %>
+            </li>
           </ul>
         </li>
 
-        <!-- ÉTAPE 2: FINANCEMENT -->
+        <!-- ÉTAPE 2: PRÊTS & PRIMES -->
         <li class="nav-section">
           <div class="section-header" data-bs-toggle="collapse" data-bs-target="#financementSection" aria-expanded="true">
             <div class="section-title">
               <i class="bi bi-currency-euro section-icon"></i>
-              <span>2. Financement</span>
+              <span>2. Aides & financements</span>
             </div>
             <i class="bi bi-chevron-down toggle-icon"></i>
           </div>
           <ul class="collapse show nav-submenu" id="financementSection">
             <li class="nav-item">
-              <%= link_to start_quotes_path, class: "nav-link" do %>
-                <i class="bi bi-hammer"></i>
-                <span>Estimer mes travaux</span>
-              <% end %>
-            </li>
-            <li class="nav-item">
               <%= link_to loans_hub_path, class: "nav-link" do %>
                 <i class="bi bi-bank"></i>
-                <span>Estimer mes prêts</span>
+                <span>Simuler mon prêt</span>
               <% end %>
             </li>
             <li class="nav-item">
               <%= link_to primes_hub_path, class: "nav-link" do %>
-                <i class="bi bi-calculator"></i>
-                <span>Estimer mes primes</span>
+                <i class="bi bi-award"></i>
+                <span>Gérer mes primes</span>
               <% end %>
             </li>
           </ul>
@@ -151,21 +152,12 @@
 
         <!-- ÉTAPE 3: CHAT IA -->
         <li class="nav-section">
-          <div class="section-header" data-bs-toggle="collapse" data-bs-target="#chatSection" aria-expanded="true">
+          <%= link_to expert_decision_hub_index_path, class: "section-header text-decoration-none" do %>
             <div class="section-title">
-              <i class="bi bi-chat-dots-fill section-icon"></i>
-              <span>3. Chat IA</span>
+              <i class="bi bi-robot section-icon"></i>
+              <span>3. Mon chat IA</span>
             </div>
-            <i class="bi bi-chevron-down toggle-icon"></i>
-          </div>
-          <ul class="collapse show nav-submenu" id="chatSection">
-            <li class="nav-item">
-              <%= link_to expert_decision_hub_index_path, class: "nav-link" do %>
-                <i class="bi bi-robot"></i>
-                <span>Assistant IA</span>
-              <% end %>
-            </li>
-          </ul>
+          <% end %>
         </li>
 
       </ul>

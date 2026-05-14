@@ -68,10 +68,12 @@ export default class extends Controller {
     const sectionHeaders = document.querySelectorAll('.sidebar .section-header')
     sectionHeaders.forEach(header => {
       header.addEventListener('click', (e) => {
+        const targetId = header.getAttribute('data-bs-target')
+        if (!targetId) return
+
         e.preventDefault()
         e.stopPropagation()
 
-        const targetId = header.getAttribute('data-bs-target')
         const target = document.querySelector(targetId)
 
         if (target) {
