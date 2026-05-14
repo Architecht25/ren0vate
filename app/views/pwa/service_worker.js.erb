@@ -6,7 +6,7 @@
 //              Fallback sur /offline pour les pages hors connexion
 // ============================================================
 
-const CACHE_NAME      = "ren0vate-v2";
+const CACHE_NAME      = "ren0vate-v3";
 const OFFLINE_URL     = "/offline.html";
 const SYNC_TAG        = "ren0vate-offline-queue";
 const IDB_NAME        = "ren0vate-offline";
@@ -62,9 +62,11 @@ self.addEventListener("fetch", (event) => {
   // Ignorer hors-domaine
   if (url.origin !== self.location.origin) return;
 
-  // Ignorer les routes Rails sensibles
-  const skipPaths = ["/api/", "/rails/", "/admin/", "/webhooks/", "/users/"];
+  // Ignorer les routes Rails sensibles (auth, admin, API)
+  const skipPaths = ["/api/", "/rails/", "/admin/", "/webhooks/"];
   if (skipPaths.some((p) => url.pathname.startsWith(p))) return;
+  // Ignorer toutes les routes Devise (avec ou sans préfixe locale /fr/, /nl/, /en/)
+  if (url.pathname.includes("/users/")) return;
 
   // Mutations (POST/PATCH/DELETE) → Background Sync queue quand offline
   if (["POST", "PATCH", "DELETE"].includes(request.method)) {
