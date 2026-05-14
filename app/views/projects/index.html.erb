@@ -1,84 +1,129 @@
 <div class="container-fluid px-4 py-4">
   <!-- Header épuré -->
   <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-    <h1 class="h3 text-primary-custom mb-0 fw-normal">Mes Projets</h1>
+    <h1 class="h3 text-primary-custom mb-0 fw-normal">Mes chantiers</h1>
     <div class="d-flex flex-wrap gap-2">
       <%= link_to new_project_path(project_type: 'renovation'), class: "btn btn-primary-custom btn-sm px-3" do %>
-        <i class="bi bi-hammer me-2"></i>Ajouter un chantier de rénovation résidentiel
+        <i class="bi bi-plus-lg me-2"></i>Ajouter un chantier
       <% end %>
       <% if @property %>
-        <%= link_to dashboard_property_path(@property), class: "btn btn-outline-secondary" do %>
+        <%= link_to dashboard_property_path(@property), class: "btn btn-outline-secondary btn-sm" do %>
           <i class="bi bi-arrow-left me-1"></i>Dashboard bien
         <% end %>
       <% end %>
-      <%= link_to properties_path, class: "btn btn-outline-secondary" do %>
-          <i class="bi bi-arrow-left me-1"></i>Mes biens
+      <%= link_to properties_path, class: "btn btn-outline-secondary btn-sm" do %>
+        <i class="bi bi-arrow-left me-1"></i>Mes biens
       <% end %>
     </div>
   </div>
 
-
-  <!-- Liste des chantiers -->
+  <!-- Bandeau métriques -->
   <% if @projects.any? %>
     <%
-      # Grouper les projets par région de leur propriété pour afficher les séparateurs
-      grouped_projects = @projects.group_by { |p| p.property&.region&.downcase || 'autre' }
-      region_order = ['flandre', 'bruxelles', 'wallonie', 'autre']
-      region_names = {
-        'flandre' => 'Flandre',
-        'bruxelles' => 'Bruxelles',
-        'wallonie' => 'Wallonie',
-        'autre' => 'Autres régions'
-      }
+      total_simulations = @projects.sum { |p| p.simulations.count }
+      projets_en_cours  = @projects.count { |p| p.statut.to_s.in?(%w[en_cours actif]) }
+      regions_count     = @projects.filter_map { |p| p.property&.region }.uniq.count
     %>
-
-    <% region_order.each do |region_key| %>
-      <% if grouped_projects[region_key]&.any? %>
-        <!-- Séparateur de région -->
-        <div class="row mb-3">
-          <div class="col-12">
-            <div class="d-flex align-items-center">
-              <h5 class="text-muted mb-0 me-3">
-                <i class="bi bi-geo-alt me-2"></i><%= region_names[region_key] %>
-              </h5>
-              <hr class="flex-grow-1 my-0 text-muted">
-              <span class="badge bg-light text-dark ms-3"><%= grouped_projects[region_key].count %> projet<%= 's' if grouped_projects[region_key].count > 1 %></span>
-            </div>
-          </div>
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-md-3">
+        <div class="card border-0 text-center py-3 bg-primary-light-ren0vate" style="border-radius: 12px;">
+          <div class="fw-bold fs-3 text-primary-ren0vate"><%= @projects.count %></div>
+          <div class="text-muted small"><i class="bi bi-hammer me-1"></i>Chantier<%= 's' if @projects.count > 1 %></div>
         </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 text-center py-3 bg-success-light-ren0vate" style="border-radius: 12px;">
+          <div class="fw-bold fs-3 text-success-ren0vate"><%= projets_en_cours %></div>
+          <div class="text-muted small"><i class="bi bi-play-circle me-1"></i>En cours</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 text-center py-3 bg-accent-light-ren0vate" style="border-radius: 12px;">
+          <div class="fw-bold fs-3 text-accent-ren0vate"><%= total_simulations %></div>
+          <div class="text-muted small"><i class="bi bi-calculator me-1"></i>Simulation<%= 's' if total_simulations != 1 %></div>
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <div class="card border-0 text-center py-3 bg-danger-light-ren0vate" style="border-radius: 12px;">
+          <div class="fw-bold fs-3 text-danger-ren0vate"><%= regions_count %></div>
+          <div class="text-muted small"><i class="bi bi-geo-alt me-1"></i>Région<%= 's' if regions_count != 1 %></div>
+        </div>
+      </div>
+    </div>
+  <% end %>
 
-        <div class="row g-3 mb-5">
-          <% grouped_projects[region_key].each do |project| %>
+  <!-- Grille chantiers -->
+  <% if @projects.any? %>
+    <div class="row g-3">
+      <% @projects.each do |project| %>
         <div class="col-xl-3 col-lg-4 col-md-6">
-          <div class="card border-0 h-100 property-card position-relative overflow-hidden" style="min-height: 200px;">
+          <div class="card border-0 h-100 property-card position-relative overflow-hidden" style="min-height: 220px; border-radius: 12px;">
 
-            <!-- Image de fond sur toute la carte -->
+            <!-- COUCHE 1 : image de fond -->
             <div class="position-absolute w-100 h-100"
-                 style="background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_200,q_auto,f_auto/renovation-interieure-a-bruxelles-CfiLU_qtwkug');
+                 style="background-image: url('https://res.cloudinary.com/<%= ENV['CLOUDINARY_CLOUD_NAME'] %>/image/upload/c_fill,w_400,h_220,q_auto,f_auto/renovation-interieure-a-bruxelles-CfiLU_qtwkug');
                         background-size: cover;
                         background-position: center;
-                        background-repeat: no-repeat;
-                        top: 0;
-                        left: 0;
-                        z-index: 1;">
+                        top: 0; left: 0; z-index: 1;">
             </div>
 
-            <!-- Overlay sombre pour la lisibilité -->
-            <div class="position-absolute w-100 h-100" style="background: rgba(0,0,0,0.1); top: 0; left: 0; z-index: 2;"></div>
+            <!-- COUCHE 2 : overlay sombre -->
+            <div class="position-absolute w-100 h-100" style="background: rgba(0,0,0,0.45); top: 0; left: 0; z-index: 2;"></div>
 
-            <!-- Badge région en haut à gauche -->
+            <!-- COUCHE 3 : lien cliquable (toute la carte sauf barre du bas) -->
+            <%= link_to project_path(project),
+                class: "position-absolute w-100 d-flex flex-column justify-content-center align-items-center text-decoration-none text-white",
+                style: "z-index: 3; top: 0; left: 0; bottom: 36px;" do %>
+              <h5 class="fw-bold mb-2 text-center px-3 text-arch-orange" style="text-shadow: 2px 2px 8px rgba(0,0,0,1);">
+                <i class="bi bi-hammer me-1"></i><%= project.nom %>
+              </h5>
+              <% if project.property.present? %>
+                <div class="text-center" style="text-shadow: 1px 1px 3px rgba(0,0,0,0.9);">
+                  <% if project.property.rue && project.property.numero && project.property.commune %>
+                    <div style="font-size: 0.9rem; font-weight: 500;">
+                      <i class="bi bi-geo-alt me-1"></i><%= project.property.rue %> <%= project.property.numero %>
+                    </div>
+                    <div style="font-size: 0.82rem; opacity: 0.85;">
+                      <%= project.property.code_postal %> <%= project.property.commune %>
+                    </div>
+                  <% else %>
+                    <div class="text-warning" style="font-size: 0.82rem;">
+                      <i class="bi bi-exclamation-triangle me-1"></i>Adresse incomplète
+                    </div>
+                  <% end %>
+                </div>
+              <% else %>
+                <div class="text-warning text-center" style="font-size: 0.82rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.9);">
+                  <i class="bi bi-exclamation-triangle me-1"></i>Bien non associé
+                </div>
+              <% end %>
+            <% end %>
+
+            <!-- COUCHE 4 : barre inférieure (simulations + date) -->
+            <div class="position-absolute w-100" style="bottom: 0; left: 0; z-index: 4; background: rgba(0,0,0,0.55); padding: 6px 10px;">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="text-white" style="font-size: 0.68rem; opacity: 0.85;">
+                  <i class="bi bi-calculator me-1"></i><%= project.simulations.count %> simulation<%= 's' if project.simulations.count != 1 %>
+                </span>
+                <span class="text-white" style="font-size: 0.68rem; opacity: 0.75;">
+                  <i class="bi bi-calendar me-1"></i><%= project.created_at.strftime("%d/%m/%Y") %>
+                </span>
+              </div>
+            </div>
+
+            <!-- COUCHE 5 : badge région (haut gauche) -->
             <% if project.property&.region %>
-              <div class="position-absolute top-0 start-0 m-2" style="z-index: 4;">
-                <span class="badge bg-<%= project.property.region == 'wallonie' ? 'danger' : project.property.region == 'flandre' ? 'dark' : 'warning' %>" style="font-size: 0.7rem;">
+              <div class="position-absolute top-0 start-0 m-2" style="z-index: 5;">
+                <span class="badge bg-<%= project.property.region == 'wallonie' ? 'danger' : project.property.region == 'flandre' ? 'dark' : 'warning' %>" style="font-size: 0.65rem;">
                   <%= project.property.region.humanize %>
                 </span>
               </div>
             <% end %>
 
-            <!-- Menu actions trois points en haut à droite -->
-            <div class="position-absolute top-0 end-0 m-2" style="z-index: 4;">
-              <div class="dropdown dropup">
-                <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="opacity: 0.9;">
+            <!-- COUCHE 5 : menu actions (haut droite) -->
+            <div class="position-absolute top-0 end-0 m-2" style="z-index: 5;">
+              <div class="dropdown">
+                <button class="btn btn-sm btn-dark opacity-75 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="padding: 2px 7px;">
                   <i class="bi bi-three-dots-vertical"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end shadow" style="z-index: 1050;">
@@ -112,71 +157,22 @@
               </div>
             </div>
 
-            <!-- Contenu centré avec le titre du projet -->
-            <%= link_to project_path(project), class: "text-decoration-none position-absolute w-100 h-100 d-flex align-items-center justify-content-center", style: "z-index: 3;" do %>
-              <div class="text-center text-white">
-                <!-- Titre du projet -->
-                <h5 class="fw-bold mb-3 text-arch-orange" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.7);">
-                  <i class="bi bi-hammer me-2"></i>
-                  <%= project.nom %>
-                </h5>
-
-                <!-- Adresse de la propriété associée -->
-                <% if project.property.present? %>
-                  <div class="text-white mb-3" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);">
-                    <% if project.property.rue && project.property.numero && project.property.commune %>
-                      <div style="font-size: 0.95rem; font-weight: 400;">
-                        <i class="bi bi-geo-alt me-2"></i>
-                        <%= project.property.rue %> <%= project.property.numero %>
-                      </div>
-                      <div style="font-size: 0.85rem; opacity: 0.9;">
-                        <%= project.property.code_postal %> <%= project.property.commune %>
-                      </div>
-                    <% else %>
-                      <div class="text-warning" style="font-size: 0.9rem;">
-                        <i class="bi bi-exclamation-triangle me-2"></i>
-                        Adresse incomplète
-                      </div>
-                    <% end %>
-                  </div>
-                <% else %>
-                  <div class="text-warning mb-3" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8); font-size: 0.9rem;">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    Bien non associé
-                  </div>
-                <% end %>
-
-                <!-- Informations supplémentaires en bas -->
-                <div class="d-flex justify-content-center align-items-center gap-3">
-                  <span class="badge bg-light text-dark px-2 py-1" style="font-size: 0.75rem;">
-                    <%= project.simulations.count %> simulation<%= 's' if project.simulations.count > 1 %>
-                  </span>
-                  <span class="text-white" style="font-size: 0.75rem; opacity: 0.8;">
-                    <i class="bi bi-calendar-check me-1"></i>
-                    <%= project.created_at.strftime("%d/%m/%Y") %>
-                  </span>
-                </div>
-              </div>
-            <% end %>
           </div>
         </div>
-          <% end %>
-        </div>
       <% end %>
-    <% end %>
+    </div>
+
   <% else %>
     <!-- État vide minimaliste -->
     <div class="text-center py-5 mt-5">
       <div class="icon-circle-large mx-auto mb-4">
-        <i class="bi bi-folder-plus"></i>
+        <i class="bi bi-hammer"></i>
       </div>
-      <h4 class="text-muted-custom mb-3 fw-normal">Aucun projet enregistré</h4>
-      <p class="text-muted-custom mb-4">Commencez par créer votre premier projet</p>
-      <div class="d-flex justify-content-center gap-3 flex-wrap">
-        <%= link_to new_project_path(project_type: 'renovation'), class: "btn btn-primary-custom px-4" do %>
-          <i class="bi bi-hammer me-2"></i>Créer un chantier de rénovation
-        <% end %>
-      </div>
+      <h4 class="text-muted-custom mb-3 fw-normal">Aucun chantier enregistré</h4>
+      <p class="text-muted-custom mb-4">Commencez par créer votre premier chantier de rénovation</p>
+      <%= link_to new_project_path(project_type: 'renovation'), class: "btn btn-primary-custom px-4" do %>
+        <i class="bi bi-plus-lg me-2"></i>Créer mon premier chantier
+      <% end %>
     </div>
   <% end %>
 </div>
