@@ -42,18 +42,18 @@ class UsersController < ApplicationController
       properties: user.properties.map { |p|
         {
           id: p.id,
-          adresse: "#{p.street} #{p.number}, #{p.postal_code} #{p.city}",
-          type_bien: p.type_bien,
+          adresse: [p.rue || p.adresse, p.numero, p.code_postal, p.commune].compact.join(', '),
+          titre: p.titre,
+          type_bien: p.type_bien_wallonie || p.type_bien_flandre || p.type_bien_bruxelles,
           region: p.region,
           annee_construction: p.annee_construction,
           created_at: p.created_at.iso8601,
           projects: p.projects.map { |pr|
             {
               id: pr.id,
-              title: pr.title,
+              nom: pr.nom,
               description: pr.description,
               statut: pr.statut,
-              budget_total: pr.budget_total,
               created_at: pr.created_at.iso8601
             }
           }
@@ -70,7 +70,7 @@ class UsersController < ApplicationController
         {
           id: d.id,
           filename: d.file.attached? ? d.file.filename.to_s : nil,
-          document_type: d.document_type,
+          type_document: d.type_document,
           created_at: d.created_at.iso8601
         }
       }

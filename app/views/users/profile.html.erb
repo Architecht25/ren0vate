@@ -603,6 +603,95 @@
           <div class="col-lg-10">
             <div class="row g-4">
 
+              <!-- Carte A: Mon abonnement -->
+              <div class="col-lg-6">
+                <div class="card h-100">
+                  <div class="card-header bg-white border-0 py-2">
+                    <div class="d-flex align-items-center">
+                      <div class="bg-warning bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px;">
+                        <i class="bi bi-gem text-white"></i>
+                      </div>
+                      <div>
+                        <h6 class="card-title mb-0 text-dark fw-normal">Mon abonnement</h6>
+                        <small class="text-muted">Plan actuel et fonctionnalités</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-body px-4 py-3">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                      <span class="badge bg-primary fs-6 px-3 py-2">
+                        <i class="bi bi-gem me-1"></i><%= current_user.subscription_tier_name %>
+                      </span>
+                      <% if current_user.subscription_days_remaining > 0 %>
+                        <small class="text-muted">Renouvellement dans <%= current_user.subscription_days_remaining %> jours</small>
+                      <% end %>
+                    </div>
+                    <ul class="list-unstyled small mb-3">
+                      <li class="mb-1"><i class="bi bi-<%= current_user.can_access_feature?(:ren0chat) ? 'check-circle-fill text-success' : 'x-circle text-muted' %> me-2"></i>Chat IA (<%= current_user.ren0chat_monthly_limit == Float::INFINITY ? '∞' : current_user.ren0chat_monthly_limit %> messages/mois)</li>
+                      <li class="mb-1"><i class="bi bi-<%= current_user.can_access_feature?(:dossier_documentaire) ? 'check-circle-fill text-success' : 'x-circle text-muted' %> me-2"></i>Dossier documentaire</li>
+                      <li class="mb-1"><i class="bi bi-<%= current_user.can_access_feature?(:suivi_chantier) ? 'check-circle-fill text-success' : 'x-circle text-muted' %> me-2"></i>Suivi de chantier avancé</li>
+                      <li class="mb-1"><i class="bi bi-<%= current_user.can_access_feature?(:rapport_pdf) ? 'check-circle-fill text-success' : 'x-circle text-muted' %> me-2"></i>Rapport PDF</li>
+                      <li><i class="bi bi-<%= current_user.can_access_feature?(:priority_support) ? 'check-circle-fill text-success' : 'x-circle text-muted' %> me-2"></i>Support prioritaire</li>
+                    </ul>
+                    <div class="d-grid">
+                      <% if current_user.has_active_subscription? %>
+                        <%= button_to pricing_portal_path, method: :post, class: "btn btn-outline-warning rounded-3 py-2", data: { turbo: false } do %>
+                          <i class="bi bi-arrow-up-right-circle me-2"></i>Gérer mon abonnement
+                        <% end %>
+                      <% else %>
+                        <%= link_to pricing_select_path, class: "btn btn-warning rounded-3 py-2 fw-medium" do %>
+                          <i class="bi bi-rocket-takeoff me-2"></i>Passer à Pro — 14 jours gratuits
+                        <% end %>
+                      <% end %>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Carte B: Mon lien de parrainage -->
+              <div class="col-lg-6">
+                <div class="card h-100">
+                  <div class="card-header bg-white border-0 py-2">
+                    <div class="d-flex align-items-center">
+                      <div class="bg-success bg-gradient rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 35px; height: 35px;">
+                        <i class="bi bi-share text-white"></i>
+                      </div>
+                      <div>
+                        <h6 class="card-title mb-0 text-dark fw-normal">Mon lien de parrainage</h6>
+                        <small class="text-muted">Invitez vos contacts sur Ren0vate</small>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card-body px-4 py-3">
+                    <p class="small text-muted mb-3">Partagez votre lien personnel pour inviter des amis ou collègues à découvrir Ren0vate.</p>
+                    <% referral_url = root_url(ref: current_user.referral_token!, host: 'www.ren0vate.be') %>
+                    <div class="input-group mb-3">
+                      <input type="text" class="form-control form-control-sm border-2 rounded-start-3"
+                             id="referral-link-input"
+                             value="<%= referral_url %>"
+                             readonly
+                             style="background: #f8f9fa; border-color: #e9ecef !important; font-size: 0.8rem;">
+                      <button class="btn btn-outline-success btn-sm rounded-end-3"
+                              type="button"
+                              onclick="navigator.clipboard.writeText('<%= referral_url %>'); this.innerHTML='<i class=\'bi bi-check-lg\'></i> Copié !'; setTimeout(() => this.innerHTML='<i class=\'bi bi-clipboard\'></i> Copier', 2000);">
+                        <i class="bi bi-clipboard"></i> Copier
+                      </button>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <a href="mailto:?subject=Découvrez Ren0vate&body=Je vous invite à découvrir Ren0vate, la plateforme de gestion de chantiers de rénovation en Belgique : <%= referral_url %>"
+                         class="btn btn-outline-secondary btn-sm rounded-3 flex-fill">
+                        <i class="bi bi-envelope me-1"></i>Email
+                      </a>
+                      <a href="https://www.linkedin.com/sharing/share-offsite/?url=<%= CGI.escape(referral_url) %>"
+                         target="_blank" rel="noopener noreferrer"
+                         class="btn btn-outline-secondary btn-sm rounded-3 flex-fill">
+                        <i class="bi bi-linkedin me-1"></i>LinkedIn
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <!-- Carte 6: Sécurité -->
               <div class="col-lg-6">
                 <div class="card h-100">
