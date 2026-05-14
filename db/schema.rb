@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_13_113659) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_14_100000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -90,6 +90,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_13_113659) do
     t.index ["document_id"], name: "index_aer_donnees_on_document_id"
     t.index ["user_id", "annee_revenus"], name: "index_aer_donnees_on_user_id_and_annee_revenus"
     t.index ["user_id"], name: "index_aer_donnees_on_user_id"
+  end
+
+  create_table "articles", force: :cascade do |t|
+    t.string "author", default: "L'équipe Ren0vate"
+    t.string "category", default: "conseils", null: false
+    t.text "content", null: false
+    t.datetime "created_at", null: false
+    t.text "excerpt", null: false
+    t.string "meta_description"
+    t.datetime "published_at"
+    t.integer "reading_time_minutes", default: 3
+    t.string "slug", null: false
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category"], name: "index_articles_on_category"
+    t.index ["published_at"], name: "index_articles_on_published_at"
+    t.index ["slug"], name: "index_articles_on_slug", unique: true
   end
 
   create_table "audit_energ_donnees", force: :cascade do |t|
@@ -1151,6 +1168,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_13_113659) do
     t.datetime "nps_prompted_at"
     t.string "num_bce"
     t.string "number"
+    t.datetime "nurturing_n14_sent_at"
+    t.datetime "nurturing_n30_sent_at"
+    t.datetime "nurturing_n60_sent_at"
     t.datetime "onboarding_completed_at"
     t.datetime "onboarding_j1_sent_at"
     t.datetime "onboarding_j3_sent_at"

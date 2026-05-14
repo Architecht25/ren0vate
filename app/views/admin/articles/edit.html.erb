@@ -1,0 +1,12 @@
+<div class="container-fluid px-4 py-4">
+  <div class="d-flex align-items-center gap-3 mb-4">
+    <%= link_to "← Articles", admin_articles_path, class: "text-muted text-decoration-none" %>
+    <h1 class="h3 fw-bold mb-0" style="color: var(--ren0vate-primary);">Éditer : <%= @article.title %></h1>
+    <% if @article.published? %>
+      <span class="badge bg-success ms-auto">Publié</span>
+    <% else %>
+      <span class="badge bg-secondary ms-auto">Brouillon</span>
+    <% end %>
+  </div>
+  <%= render "form", article: @article %>
+</div>

@@ -15,6 +15,7 @@ gem "jbuilder"
 
 gem 'importmap-rails'
 gem "simple_form"
+gem "redcarpet"
 gem "sassc-rails"
 gem "turbo-rails"
 gem "dotenv-rails"

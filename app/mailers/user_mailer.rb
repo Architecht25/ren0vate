@@ -106,4 +106,30 @@ class UserMailer < Devise::Mailer
       subject: "💶 Découvrez les primes disponibles pour vos travaux"
     )
   end
+
+  # --- Séquence nurturing freemium → payant ---
+
+  def nurturing_n14(user)
+    @user = user
+    mail(
+      to:      user.email,
+      subject: "🔓 Ce que vous ne pouvez pas encore faire sur Ren0vate"
+    )
+  end
+
+  def nurturing_n30(user)
+    @user = user
+    mail(
+      to:      user.email,
+      subject: "📊 1 mois sur Ren0vate — vous avez fait le plus dur"
+    )
+  end
+
+  def nurturing_n60(user)
+    @user = user
+    mail(
+      to:      user.email,
+      subject: "⚠️ Votre chantier avance — vos documents sont-ils en ordre ?"
+    )
+  end
 end

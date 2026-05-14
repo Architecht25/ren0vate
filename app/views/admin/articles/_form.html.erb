@@ -1,0 +1,43 @@
+<%= simple_form_for [:admin, article] do |f| %>
+  <%= f.error_notification %>
+
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm p-4 mb-4">
+        <h5 class="fw-semibold mb-3">Contenu</h5>
+
+        <%= f.input :title, label: "Titre", input_html: { class: "form-control" } %>
+        <%= f.input :slug, label: "Slug (URL)", hint: "Généré automatiquement depuis le titre",
+            input_html: { class: "form-control font-monospace" } %>
+        <%= f.input :excerpt, label: "Résumé (affiché en listing)", as: :text,
+            input_html: { class: "form-control", rows: 3 } %>
+        <%= f.input :content, label: "Contenu (Markdown)", as: :text,
+            hint: "Supports : **gras**, *italique*, # Titre, ## Sous-titre, - liste, [lien](url), > citation",
+            input_html: { class: "form-control font-monospace", rows: 25, style: "font-size: 0.875rem;" } %>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm p-4 mb-4">
+        <h5 class="fw-semibold mb-3">Paramètres</h5>
+
+        <%= f.input :category, label: "Catégorie", as: :select,
+            collection: Article::CATEGORIES.map { |k, v| [v, k] },
+            input_html: { class: "form-select" } %>
+        <%= f.input :author, label: "Auteur", input_html: { class: "form-control" } %>
+        <%= f.input :reading_time_minutes, label: "Durée de lecture (min)",
+            input_html: { class: "form-control", type: "number", min: 1 },
+            hint: "Estimée automatiquement si laissé à 0" %>
+        <%= f.input :meta_description, label: "Meta description (SEO)",
+            hint: "160 caractères max", as: :text,
+            input_html: { class: "form-control", rows: 3, maxlength: 160 } %>
+      </div>
+
+      <div class="d-grid gap-2">
+        <%= f.button :submit, article.persisted? ? "Enregistrer" : "Créer le brouillon",
+            class: "btn btn-primary" %>
+        <%= link_to "Annuler", admin_articles_path, class: "btn btn-outline-secondary" %>
+      </div>
+    </div>
+  </div>
+<% end %>

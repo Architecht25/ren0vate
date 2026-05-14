@@ -1,0 +1,67 @@
+<%
+  set_seo_meta(
+    title: "Guides & Conseils Rénovation — Blog Ren0vate",
+    description: "Primes Wallonie et Flandre 2026, permis d'urbanisme, conseils chantier : tous les guides pratiques pour rénover en Belgique.",
+    keywords: "rénovation belgique, primes rénovation 2026, permis urbanisme, conseils chantier, blog rénovation",
+    canonical_url: canonical_url_for(blog_index_path)
+  )
+%>
+
+<div class="container py-5">
+
+  <%# Header %>
+  <div class="row mb-5">
+    <div class="col-lg-8">
+      <h1 class="fw-bold" style="color: var(--ren0vate-primary);">Guides & Conseils Rénovation</h1>
+      <p class="lead text-muted">Primes, permis, chantier : tout ce que vous devez savoir pour rénover en Belgique.</p>
+    </div>
+  </div>
+
+  <%# Filtres catégories %>
+  <div class="d-flex flex-wrap gap-2 mb-5">
+    <%= link_to "Tous", blog_index_path,
+        class: "btn btn-sm #{@current_category.blank? ? 'btn-primary' : 'btn-outline-secondary'}" %>
+    <% Article::CATEGORIES.each do |key, label| %>
+      <%= link_to label, blog_index_path(category: key),
+          class: "btn btn-sm #{@current_category == key ? 'btn-primary' : 'btn-outline-secondary'}" %>
+    <% end %>
+  </div>
+
+  <%# Grille articles %>
+  <% if @articles.any? %>
+    <div class="row g-4">
+      <% @articles.each do |article| %>
+        <div class="col-md-6 col-lg-4" data-aos="fade-up">
+          <article class="card h-100 border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
+            <div class="card-body d-flex flex-column p-4">
+              <div class="mb-3">
+                <span class="badge rounded-pill" style="background: var(--ren0vate-accent); font-size: 0.75rem;">
+                  <%= article.category_label %>
+                </span>
+              </div>
+              <h2 class="h5 fw-semibold mb-2" style="color: var(--ren0vate-primary);">
+                <%= link_to article.title, blog_show_path(slug: article.slug),
+                    class: "stretched-link text-decoration-none", style: "color: inherit;" %>
+              </h2>
+              <p class="text-muted small flex-grow-1"><%= article.excerpt %></p>
+              <div class="d-flex align-items-center gap-2 mt-3 pt-3 border-top">
+                <i class="bi bi-clock text-muted" style="font-size: 0.8rem;"></i>
+                <small class="text-muted"><%= article.reading_time_minutes %> min de lecture</small>
+                <span class="text-muted ms-auto" style="font-size: 0.75rem;">
+                  <%= article.published_at.strftime("%-d %b %Y") %>
+                </span>
+              </div>
+            </div>
+          </article>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-journal-text" style="font-size: 3rem;"></i>
+      <p class="mt-3">Aucun article dans cette catégorie pour le moment.</p>
+      <%= link_to "Voir tous les articles", blog_index_path, class: "btn btn-outline-primary btn-sm" %>
+    </div>
+  <% end %>
+
+</div>

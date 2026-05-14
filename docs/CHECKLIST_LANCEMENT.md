@@ -73,3 +73,5 @@ Opérations à effectuer le jour de la mise en vente (commercialisation publique
 - **Export UBL/Billit** (facturation électronique B2B belge) — concerne uniquement les clients B2B assujettis TVA. Majoritairement B2C au lancement, à intégrer quand les premiers clients entreprises arrivent.
 - Ruby 3.3.11 — upgrade mineur, non bloquant
 - LogRocket — session replay, après stabilisation
+- **Google Ads / Meta Ads** — à activer au lancement octobre 2026, une fois la base utilisateurs et le contenu établis.
+- **Partenariats (Ordre des Architectes, EMBUILD, CIB)** — prospection à lancer octobre 2026.
