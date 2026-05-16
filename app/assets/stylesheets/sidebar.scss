@@ -25,6 +25,8 @@ body {
   top: 0 !important;
   width: var(--sidebar-width) !important;
   height: 100vh !important;
+  height: 100dvh !important; /* fallback dynamique — iOS 15.4+ */
+  padding-top: env(safe-area-inset-top, 0px); /* notch iOS en PWA standalone */
   background: var(--sidebar-bg) !important;
   color: var(--sidebar-text) !important;
   overflow-y: auto;
@@ -392,7 +394,7 @@ body {
 /* Bouton mobile pour ouvrir la sidebar */
 .mobile-sidebar-trigger {
   position: fixed;
-  top: 1rem;
+  top: calc(1rem + env(safe-area-inset-top, 0px));
   left: 1rem;
   z-index: 1028;
   width: 45px;
@@ -443,6 +445,8 @@ body {
   .main-content {
     margin-left: 0;
     width: 100%;
+    // Décaler sous le notch iOS en PWA standalone, sans réduire le padding normal
+    padding-top: max(2rem, calc(env(safe-area-inset-top, 0px) + 0.5rem));
   }
 
   .mobile-sidebar-trigger {

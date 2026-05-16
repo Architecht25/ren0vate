@@ -1,18 +1,25 @@
-<div class="container-fluid px-4 py-4">
+<div class="container-fluid px-3 px-md-4 py-3 py-md-4">
 
-  <!-- Header -->
-  <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-    <div class="d-flex align-items-center">
-      <div class="icon-circle me-3">
+  <!-- Header — responsive mobile/desktop -->
+  <div class="d-flex align-items-center mb-3 mb-md-4 pb-3 border-bottom gap-2">
+
+    <!-- Retour — mobile : icône seule, desktop : caché (boutons dédiés à droite) -->
+    <%= link_to projects_path, class: "btn btn-outline-secondary btn-sm d-md-none flex-shrink-0", aria: { label: "Retour" } do %>
+      <i class="bi bi-arrow-left"></i>
+    <% end %>
+
+    <!-- Icône + Titre + Sous-titre -->
+    <div class="d-flex align-items-center flex-grow-1 min-width-0">
+      <div class="icon-circle me-3 flex-shrink-0 d-none d-sm-flex">
         <% if @project.investment? %>
           <i class="bi bi-building"></i>
         <% else %>
           <i class="bi bi-hammer"></i>
         <% end %>
       </div>
-      <div>
-        <h1 class="h3 text-primary-custom mb-0 fw-normal"><%= @project.nom %></h1>
-        <small class="text-muted">
+      <div class="min-width-0">
+        <h1 class="h5 h3-md text-primary-custom mb-0 fw-semibold text-truncate"><%= @project.nom %></h1>
+        <small class="text-muted d-none d-sm-block">
           <i class="bi bi-tag me-1"></i><%= @project.type_display %>
           <% if @project.property.present? %>
             &nbsp;·&nbsp;<i class="bi bi-geo-alt me-1"></i><%= @project.property.rue %> <%= @project.property.numero %>, <%= @project.property.commune %>
@@ -20,54 +27,80 @@
         </small>
       </div>
     </div>
-    <div class="d-flex gap-2">
+
+    <!-- Actions desktop -->
+    <div class="d-none d-md-flex gap-2 flex-shrink-0">
       <%= link_to project_path(@project),
-            class: "btn btn-outline-danger",
-            data: {
-              turbo_method: :delete,
-              turbo_confirm: "Supprimer définitivement '#{@project.nom}' ?\n\nCette action est IRRÉVERSIBLE."
-            } do %>
-        <i class="bi bi-trash me-1"></i>Supprimer ce chantier
+            class: "btn btn-outline-danger btn-sm",
+            data: { turbo_method: :delete, turbo_confirm: "Supprimer définitivement '#{@project.nom}' ?\n\nCette action est IRRÉVERSIBLE." } do %>
+        <i class="bi bi-trash me-1"></i>Supprimer
       <% end %>
-      <%= link_to projects_path, class: "btn btn-outline-secondary" do %>
+      <%= link_to projects_path, class: "btn btn-outline-secondary btn-sm" do %>
         <i class="bi bi-arrow-left me-1"></i>Retour
       <% end %>
     </div>
+
+    <!-- Actions mobile — dropdown trois points -->
+    <div class="d-md-none flex-shrink-0">
+      <div class="dropdown">
+        <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Actions">
+          <i class="bi bi-three-dots-vertical"></i>
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end shadow">
+          <li>
+            <%= link_to edit_project_path(@project), class: "dropdown-item" do %>
+              <i class="bi bi-pencil me-2"></i>Modifier
+            <% end %>
+          </li>
+          <li><hr class="dropdown-divider"></li>
+          <li>
+            <%= link_to project_path(@project),
+                  class: "dropdown-item text-danger",
+                  data: { turbo_method: :delete, turbo_confirm: "Supprimer définitivement '#{@project.nom}' ?\n\nCette action est IRRÉVERSIBLE." } do %>
+              <i class="bi bi-trash me-2"></i>Supprimer le chantier
+            <% end %>
+          </li>
+        </ul>
+      </div>
+    </div>
+
   </div>
 
   <!-- ─── KPI chips ───────────────────────────────────────────────────── -->
   <%= render 'projects/partials_general/kpi_chips' %>
 
-  <!-- ─── Navigation par onglets ─────────────────────────────────────── -->
-  <ul class="nav nav-pills mb-4 gap-1 border-bottom pb-3">
-    <li class="nav-item">
-      <%= link_to project_path(@project, tab: :preparation),
-            class: "nav-link #{'active' if @current_tab == 'preparation'}",
-            data: { turbo_frame: "project_content", turbo_action: "advance" } do %>
-        <i class="bi bi-clipboard-check me-2"></i>Préparation
-      <% end %>
-    </li>
-    <li class="nav-item">
-      <%= link_to project_path(@project, tab: :suivi),
-            class: "nav-link #{'active' if @current_tab == 'suivi'}",
-            data: { turbo_frame: "project_content", turbo_action: "advance" } do %>
-        <i class="bi bi-hammer me-2"></i>Suivi
-      <% end %>
-    </li>
-    <li class="nav-item">
-      <%= link_to project_path(@project, tab: :reception),
-            class: "nav-link #{'active' if @current_tab == 'reception'}",
-            data: { turbo_frame: "project_content", turbo_action: "advance" } do %>
-        <i class="bi bi-file-earmark-check me-2"></i>Réception
-      <% end %>
-    </li>
-    <li class="nav-item">
-      <%= link_to project_documents_path(@project),
-            class: "nav-link #{'active' if controller_name == 'documents' && action_name == 'index'}" do %>
-        <i class="bi bi-folder2-open me-2"></i>Documents
-      <% end %>
-    </li>
-  </ul>
+  <!-- ─── Navigation par onglets — scrollable sur mobile ──────────────── -->
+  <div class="project-tabs-wrapper mb-4 border-bottom pb-3">
+    <ul class="nav nav-pills gap-1 project-tabs">
+      <li class="nav-item">
+        <%= link_to project_path(@project, tab: :preparation),
+              class: "nav-link #{'active' if @current_tab == 'preparation'}",
+              data: { turbo_frame: "project_content", turbo_action: "advance" } do %>
+          <i class="bi bi-clipboard-check me-1 me-md-2"></i><span class="tab-label">Préparation</span>
+        <% end %>
+      </li>
+      <li class="nav-item">
+        <%= link_to project_path(@project, tab: :suivi),
+              class: "nav-link #{'active' if @current_tab == 'suivi'}",
+              data: { turbo_frame: "project_content", turbo_action: "advance" } do %>
+          <i class="bi bi-hammer me-1 me-md-2"></i><span class="tab-label">Suivi</span>
+        <% end %>
+      </li>
+      <li class="nav-item">
+        <%= link_to project_path(@project, tab: :reception),
+              class: "nav-link #{'active' if @current_tab == 'reception'}",
+              data: { turbo_frame: "project_content", turbo_action: "advance" } do %>
+          <i class="bi bi-file-earmark-check me-1 me-md-2"></i><span class="tab-label">Réception</span>
+        <% end %>
+      </li>
+      <li class="nav-item">
+        <%= link_to project_documents_path(@project),
+              class: "nav-link #{'active' if controller_name == 'documents' && action_name == 'index'}" do %>
+          <i class="bi bi-folder2-open me-1 me-md-2"></i><span class="tab-label">Documents</span>
+        <% end %>
+      </li>
+    </ul>
+  </div>
 
   <!-- ─── Contenu de la section active (Turbo Frame) ─────────────────── -->
   <%= turbo_frame_tag "project_content", target: "_top" do %>
@@ -98,4 +131,40 @@
 .nav-pills .nav-link:not(.active) {
   color: var(--ren0vate-text-light);
 }
+
+/* Tabs scrollables sur mobile */
+.project-tabs-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+}
+.project-tabs-wrapper::-webkit-scrollbar { display: none; }
+.project-tabs {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+/* Taille réduite des tabs sur mobile */
+@media (max-width: 575.98px) {
+  .project-tabs .nav-link {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.8rem;
+  }
+  .tab-label { display: none; }
+}
+@media (min-width: 576px) {
+  .tab-label { display: inline; }
+}
+
+/* min-width-0 pour text-truncate dans flexbox */
+.min-width-0 { min-width: 0; }
 </style>
+
+<script nonce="<%= content_security_policy_nonce %>">
+  // Pré-cache cette page projet dans le service worker
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.controller.postMessage({
+      type: 'CACHE_PROJECT',
+      url: window.location.href
+    });
+  }
+</script>

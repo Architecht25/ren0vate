@@ -428,9 +428,37 @@
 // ─── Responsive ───────────────────────────────────────────────────────────────
 
 @media (max-width: 768px) {
-  .expert-ia-page { padding: 0.75rem; margin: -1rem; }
-  .expert-ia-chat-panel { min-height: 500px; }
-  .expert-ia-messages { max-height: 50vh; }
+  .expert-ia-page {
+    padding: 0.75rem;
+    margin: -1rem;
+    // ajouter padding-bottom pour le bottom nav
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  }
+
+  // Chat en premier sur mobile, sidebar contexte ensuite
+  .expert-ia-row {
+    flex-direction: column-reverse;
+  }
+
+  .expert-ia-chat-panel {
+    min-height: 0;
+    order: 1;
+  }
+
+  // Hauteur messages tenant compte du bottom nav (62px) + safe-area
+  .expert-ia-messages {
+    max-height: calc(55dvh - 80px);
+    max-height: calc(55vh - 80px); // fallback
+  }
+
+  // Input zone sticky en bas (au-dessus du clavier sur mobile)
+  .expert-ia-input-zone {
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.07);
+  }
+
   .contextual-bot-widget { right: 15px; }
   .bot-chat-container { width: calc(100vw - 30px); }
 }
