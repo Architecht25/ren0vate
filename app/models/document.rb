@@ -200,15 +200,12 @@ class Document < ApplicationRecord
         Rails.logger.info "📄 URL PDF Cloudinary générée: #{url}"
         url
       else
-        # URL standard Cloudinary pour les autres fichiers
-        url = rails_blob_url(file)
-        Rails.logger.info "📎 URL standard générée: #{url}"
-        url
+        # URL standard Cloudinary pour les autres fichiers (non-PDF)
+        file.url
       end
     rescue => e
       Rails.logger.error "❌ Erreur génération URL Cloudinary pour document #{id}: #{e.message}"
-      Rails.logger.error "🔄 Fallback vers Rails blob URL"
-      rails_blob_url(file) # Fallback
+      nil
     end
   end
 

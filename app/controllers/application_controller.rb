@@ -100,11 +100,19 @@ class ApplicationController < ActionController::Base
     { locale: I18n.locale }
   end
 
+  before_action :redirect_old_heroku_host
   before_action :authenticate_user!
   before_action :configure_permitted_parameters, if: :devise_controller?
   before_action :store_referral_token
 
   private
+
+  def redirect_old_heroku_host
+    return unless Rails.env.production?
+    if request.host.include?('herokuapp.com')
+      redirect_to "https://www.ren0vate.be#{request.fullpath}", status: :moved_permanently, allow_other_host: true
+    end
+  end
 
   def set_security_headers
     # X-Frame-Options : Protection contre le clickjacking
