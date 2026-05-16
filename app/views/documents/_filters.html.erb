@@ -1,53 +1,29 @@
-<!-- Filtres par phases (toujours visibles quand des phases existent) -->
+<!-- Sous-onglets de phases -->
 <% if @phases_data&.any? %>
-  <div class="row mb-4">
-    <div class="col-12">
-      <div class="card border-0 shadow-sm">
-        <div class="card-body p-3">
-          <div class="d-flex align-items-center justify-content-between">
-            <div>
-              <h6 class="mb-0">Filtrer par phase</h6>
-              <small class="text-muted-custom">
-                <% if params[:type_document].present? %>
-                  Filtrer les documents par phases de travaux
-                <% else %>
-                  Organisez vos documents par phases de travaux
-                <% end %>
-              </small>
-            </div>
-            <div class="btn-group" role="group">
-              <%= link_to documents_path(
-                    property_id: @property&.id,
-                    project_id: @project&.id
-                  ),
-                         class: "btn #{'btn-primary-custom' if @selected_phase.nil?} #{'btn-outline-primary-custom' unless @selected_phase.nil?} btn-sm" do %>
-                <i class="bi bi-grid me-1"></i>Toutes
-              <% end %>
-              <% @phases_data.each do |phase_data| %>
-                <% phase = phase_data[:phase] %>
-                <%= link_to documents_path(
-                              property_id: @property&.id,
-                              project_id: @project&.id,
-                              filter_phase: phase.id
-                            ),
-                           class: "btn #{'btn-primary-custom' if @selected_phase == phase} #{'btn-outline-primary-custom' unless @selected_phase == phase} btn-sm" do %>
-                  <%
-                    btn_label = case phase.name
-                    when 'Phase Administrative' then 'Docs Administratifs'
-                    when 'Phase Technique'      then 'Préparation de chantier'
-                    when 'Phase Exécution'      then 'Suivi de chantier'
-                    when 'Phase Réception'      then 'Réception de chantier'
-                    else phase.name.gsub('Phase ', '')
-                    end
-                  %>
-                  <%= phase.icon %> <%= btn_label %>
-                  <span class="badge bg-light text-dark ms-1"><%= phase_data[:count] %></span>
-                <% end %>
-              <% end %>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <ul class="nav nav-pills nav-fill mb-4 gap-1 p-1 rounded-3" style="background: rgba(0,0,0,0.04);">
+    <% @phases_data.each do |phase_data| %>
+      <% phase = phase_data[:phase] %>
+      <% is_active = @selected_phase == phase || (@selected_phase.nil? && phase == @phases_data.first[:phase]) %>
+      <%
+        btn_label = case phase.name
+        when 'Phase Administrative' then 'Docs Administratifs'
+        when 'Phase Technique'      then 'Préparation de chantier'
+        when 'Phase Exécution'      then 'Suivi de chantier'
+        when 'Phase Réception'      then 'Réception de chantier'
+        else phase.name.gsub('Phase ', '')
+        end
+      %>
+      <li class="nav-item">
+        <%= link_to documents_path(
+                      property_id: @property&.id,
+                      project_id: @project&.id,
+                      filter_phase: phase.id
+                    ),
+                   class: "nav-link w-100 #{'active' if is_active}" do %>
+          <%= phase.icon %> <%= btn_label %>
+          <span class="badge ms-1 <%= is_active ? 'bg-white text-dark' : 'bg-light text-dark' %>"><%= phase_data[:count] %></span>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
 <% end %>

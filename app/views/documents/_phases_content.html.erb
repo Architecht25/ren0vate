@@ -1,8 +1,5 @@
 <!-- Vue par phases - affichée dans tous les contextes sauf quand on filtre directement par type -->
 <% if @phases_data&.any? && !params[:type_document].present? %>
-  <% if @selected_phase.present? %>
-    <%= render 'phase_detail', phase: @selected_phase %>
-  <% else %>
-    <%= render 'phases_overview' %>
-  <% end %>
+  <% active_phase = @selected_phase || @phases_data.first&.dig(:phase) %>
+  <%= render 'phase_detail', phase: active_phase %>
 <% end %>

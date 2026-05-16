@@ -129,11 +129,24 @@
 
 
 
-  <!-- Sections principales épurées -->
-  <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-4">
+  <!-- Tabs navigation -->
+  <div data-controller="dashboard-tabs">
+    <div class="d-flex gap-2 mb-4 pb-3 border-bottom">
+      <button class="btn btn-sm px-4" data-dashboard-tabs-target="tab" data-tab="mon-bien" data-action="click->dashboard-tabs#switch">
+        <i class="bi bi-house me-2"></i>Mon bien
+      </button>
+      <button class="btn btn-sm px-4" data-dashboard-tabs-target="tab" data-tab="mes-travaux" data-action="click->dashboard-tabs#switch">
+        <i class="bi bi-hammer me-2"></i>Mes travaux
+      </button>
+      <button class="btn btn-sm px-4" data-dashboard-tabs-target="tab" data-tab="finances-primes" data-action="click->dashboard-tabs#switch">
+        <i class="bi bi-bank me-2"></i>Finances &amp; primes
+      </button>
+    </div>
+
+  <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
 
     <!-- État des données du bien -->
-    <div class="col order-1">
+    <div class="col" data-dashboard-tabs-target="panel" data-tab="mon-bien">
       <div class="card border-0 shadow h-100 dashboard-module">
         <div class="card-body p-4 d-flex flex-column">
           <div class="d-flex align-items-center mb-3">
@@ -198,7 +211,7 @@
     </div>
 
     <!-- État des chantiers -->
-    <div class="col order-2">
+    <div class="col" data-dashboard-tabs-target="panel" data-tab="mes-travaux">
       <div class="card border-0 shadow h-100 dashboard-module">
         <div class="card-body p-4 d-flex flex-column">
           <div class="d-flex align-items-center mb-3">
@@ -378,7 +391,7 @@
       prime_pct = (prime_steps_done.to_f / prime_steps.count * 100).round
       prime_bar_color = prime_steps_done == prime_steps.count ? '#10b981' : prime_steps_done >= 2 ? '#f59e0b' : '#ef4444'
     %>
-    <div class="col order-4">
+    <div class="col" data-dashboard-tabs-target="panel" data-tab="finances-primes">
       <div class="card border-0 shadow h-100 dashboard-module">
         <div class="card-body p-4 d-flex flex-column">
           <div class="d-flex align-items-center mb-3">
@@ -476,108 +489,8 @@
         </div>
       </div>
     </div>
-    <!-- État des documents -->
-    <%
-      all_docs      = @property.documents.order(created_at: :desc)
-      docs_total    = all_docs.count
-      docs_approved = all_docs.where(status: 'approved').count
-      docs_pending  = all_docs.where(status: 'pending').count
-      docs_pct      = docs_total > 0 ? (docs_approved.to_f / docs_total * 100).round : 0
-      docs_bar_color = docs_pct == 100 ? '#10b981' : docs_pct >= 50 ? '#f59e0b' : '#ef4444'
-
-      doc_categories = {
-        'Chantier' => { icon: 'bi-hammer',           types: %w[facture etat_avancement attestation_entrepreneur attestation_conformite plan plan_diu dossier_prime] },
-        'Photos'   => { icon: 'bi-camera',           types: %w[photo photo_avant photo_pendant photo_apres photo_chassis] },
-        'PEB'      => { icon: 'bi-lightning-charge', types: %w[certificat_peb certificat_peb_avant certificat_peb_apres rapport_audit_energetique preuve_paiement_audit] },
-        'Admin'    => { icon: 'bi-folder2',          types: %w[acte_notarial compromis copie_carte_identite rib aer permis_urbanisme devis fiche_technique assurance_decennale assurance_rc_pro] }
-      }
-      cat_counts = doc_categories.transform_values { |v| all_docs.where(type_document: v[:types]).count }
-      latest_doc = all_docs.first
-    %>
-    <div class="col" style="order: 7;">
-      <div class="card border-0 shadow h-100 dashboard-module">
-        <div class="card-body p-4 d-flex flex-column">
-          <div class="d-flex align-items-center mb-3">
-            <div class="icon-circle me-3">
-              <i class="bi bi-file-earmark-text"></i>
-            </div>
-            <div>
-              <h5 class="card-title mb-0 fw-normal">État des documents <span class="badge text-bg-primary ms-1">P7</span></h5>
-              <small class="text-muted-custom">Gestion documentaire</small>
-            </div>
-          </div>
-
-          <% if docs_total > 0 %>
-            <!-- Barre approuvés / total -->
-            <div class="mb-3">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <small class="text-dark fw-medium">Documents approuvés</small>
-                <span class="badge bg-<%= docs_pct == 100 ? 'success' : docs_pct >= 50 ? 'warning text-dark' : 'danger' %> fw-normal">
-                  <%= docs_approved %>/<%= docs_total %>
-                </span>
-              </div>
-              <div class="progress mb-2" style="height: 8px; border-radius:10px; background-color:#e5e7eb;">
-                <div class="progress-bar" style="width:<%= docs_pct %>%; background-color:<%= docs_bar_color %>; border-radius:10px; transition:width 0.4s;"></div>
-              </div>
-              <% if docs_pending > 0 %>
-                <small class="text-muted-custom"><i class="bi bi-hourglass-split me-1 text-warning"></i><%= docs_pending %> en attente de validation</small>
-              <% end %>
-            </div>
-
-            <!-- 4 catégories -->
-            <div class="d-flex flex-wrap gap-2 mb-3">
-              <% doc_categories.each do |label, cat| %>
-                <% count = cat_counts[label] %>
-                <span class="badge <%= count > 0 ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-light text-muted border' %>" style="font-size:0.72rem;">
-                  <i class="bi <%= cat[:icon] %> me-1"></i><%= label %> (<%= count %>)
-                </span>
-              <% end %>
-            </div>
-
-            <!-- Dernier document -->
-            <% if latest_doc %>
-              <div class="d-flex align-items-center py-2 border-bottom">
-                <i class="bi bi-file-earmark me-2 text-primary-custom flex-shrink-0"></i>
-                <div class="flex-grow-1">
-                  <div class="fw-medium small"><%= latest_doc.type_document&.humanize || "Document" %></div>
-                  <small class="text-muted-custom"><%= latest_doc.created_at.strftime("%d/%m/%Y") %></small>
-                </div>
-                <% status_color = { 'approved' => 'success', 'pending' => 'warning', 'rejected' => 'danger' }[latest_doc.status] || 'secondary' %>
-                <% status_label = { 'approved' => 'Approuvé', 'pending' => 'En attente', 'rejected' => 'Refusé' }[latest_doc.status] %>
-                <% if status_label %>
-                  <span class="badge bg-<%= status_color %>-subtle text-<%= status_color %> border border-<%= status_color %>-subtle ms-2" style="font-size:0.65rem;">
-                    <%= status_label %>
-                  </span>
-                <% end %>
-              </div>
-            <% end %>
-          <% else %>
-            <div class="text-center py-4 text-muted-custom">
-              <i class="bi bi-file-earmark-plus fs-3 mb-2 d-block"></i>
-              <p class="mb-0">Aucun document</p>
-            </div>
-          <% end %>
-
-          <div class="mt-auto pt-3 border-top">
-            <div class="row g-2">
-              <div class="col-6">
-                <%= link_to property_documents_path(@property), class: "btn btn-outline-secondary btn-sm w-100" do %>
-                  <i class="bi bi-eye me-1"></i>Voir tous
-                <% end %>
-              </div>
-              <div class="col-6">
-                <%= link_to new_property_document_path(@property), class: "btn btn-outline-primary-custom btn-sm w-100" do %>
-                  <i class="bi bi-plus-lg me-1"></i>Nouveau
-                <% end %>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Devis estimatifs -->
-    <div class="col order-3">
+    <div class="col" data-dashboard-tabs-target="panel" data-tab="mes-travaux">
       <div class="card border-0 shadow h-100 dashboard-module">
         <div class="card-body p-4 d-flex flex-column">
           <div class="d-flex align-items-center mb-3">
@@ -675,6 +588,106 @@
       </div>
     </div>
 
+    <!-- État des documents -->
+    <%
+      all_docs      = @property.documents.order(created_at: :desc)
+      docs_total    = all_docs.count
+      docs_approved = all_docs.where(status: 'approved').count
+      docs_pending  = all_docs.where(status: 'pending').count
+      docs_pct      = docs_total > 0 ? (docs_approved.to_f / docs_total * 100).round : 0
+      docs_bar_color = docs_pct == 100 ? '#10b981' : docs_pct >= 50 ? '#f59e0b' : '#ef4444'
+
+      doc_categories = {
+        'Chantier' => { icon: 'bi-hammer',           types: %w[facture etat_avancement attestation_entrepreneur attestation_conformite plan plan_diu dossier_prime] },
+        'Photos'   => { icon: 'bi-camera',           types: %w[photo photo_avant photo_pendant photo_apres photo_chassis] },
+        'PEB'      => { icon: 'bi-lightning-charge', types: %w[certificat_peb certificat_peb_avant certificat_peb_apres rapport_audit_energetique preuve_paiement_audit] },
+        'Admin'    => { icon: 'bi-folder2',          types: %w[acte_notarial compromis copie_carte_identite rib aer permis_urbanisme devis fiche_technique assurance_decennale assurance_rc_pro] }
+      }
+      cat_counts = doc_categories.transform_values { |v| all_docs.where(type_document: v[:types]).count }
+      latest_doc = all_docs.first
+    %>
+    <div class="col" data-dashboard-tabs-target="panel" data-tab="mes-travaux">
+      <div class="card border-0 shadow h-100 dashboard-module">
+        <div class="card-body p-4 d-flex flex-column">
+          <div class="d-flex align-items-center mb-3">
+            <div class="icon-circle me-3">
+              <i class="bi bi-file-earmark-text"></i>
+            </div>
+            <div>
+              <h5 class="card-title mb-0 fw-normal">État des documents <span class="badge text-bg-primary ms-1">P7</span></h5>
+              <small class="text-muted-custom">Gestion documentaire</small>
+            </div>
+          </div>
+
+          <% if docs_total > 0 %>
+            <!-- Barre approuvés / total -->
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <small class="text-dark fw-medium">Documents approuvés</small>
+                <span class="badge bg-<%= docs_pct == 100 ? 'success' : docs_pct >= 50 ? 'warning text-dark' : 'danger' %> fw-normal">
+                  <%= docs_approved %>/<%= docs_total %>
+                </span>
+              </div>
+              <div class="progress mb-2" style="height: 8px; border-radius:10px; background-color:#e5e7eb;">
+                <div class="progress-bar" style="width:<%= docs_pct %>%; background-color:<%= docs_bar_color %>; border-radius:10px; transition:width 0.4s;"></div>
+              </div>
+              <% if docs_pending > 0 %>
+                <small class="text-muted-custom"><i class="bi bi-hourglass-split me-1 text-warning"></i><%= docs_pending %> en attente de validation</small>
+              <% end %>
+            </div>
+
+            <!-- 4 catégories -->
+            <div class="d-flex flex-wrap gap-2 mb-3">
+              <% doc_categories.each do |label, cat| %>
+                <% count = cat_counts[label] %>
+                <span class="badge <%= count > 0 ? 'bg-primary-subtle text-primary border border-primary-subtle' : 'bg-light text-muted border' %>" style="font-size:0.72rem;">
+                  <i class="bi <%= cat[:icon] %> me-1"></i><%= label %> (<%= count %>)
+                </span>
+              <% end %>
+            </div>
+
+            <!-- Dernier document -->
+            <% if latest_doc %>
+              <div class="d-flex align-items-center py-2 border-bottom">
+                <i class="bi bi-file-earmark me-2 text-primary-custom flex-shrink-0"></i>
+                <div class="flex-grow-1">
+                  <div class="fw-medium small"><%= latest_doc.type_document&.humanize || "Document" %></div>
+                  <small class="text-muted-custom"><%= latest_doc.created_at.strftime("%d/%m/%Y") %></small>
+                </div>
+                <% status_color = { 'approved' => 'success', 'pending' => 'warning', 'rejected' => 'danger' }[latest_doc.status] || 'secondary' %>
+                <% status_label = { 'approved' => 'Approuvé', 'pending' => 'En attente', 'rejected' => 'Refusé' }[latest_doc.status] %>
+                <% if status_label %>
+                  <span class="badge bg-<%= status_color %>-subtle text-<%= status_color %> border border-<%= status_color %>-subtle ms-2" style="font-size:0.65rem;">
+                    <%= status_label %>
+                  </span>
+                <% end %>
+              </div>
+            <% end %>
+          <% else %>
+            <div class="text-center py-4 text-muted-custom">
+              <i class="bi bi-file-earmark-plus fs-3 mb-2 d-block"></i>
+              <p class="mb-0">Aucun document</p>
+            </div>
+          <% end %>
+
+          <div class="mt-auto pt-3 border-top">
+            <div class="row g-2">
+              <div class="col-6">
+                <%= link_to property_documents_path(@property), class: "btn btn-outline-secondary btn-sm w-100" do %>
+                  <i class="bi bi-eye me-1"></i>Voir tous
+                <% end %>
+              </div>
+              <div class="col-6">
+                <%= link_to new_property_document_path(@property), class: "btn btn-outline-primary-custom btn-sm w-100" do %>
+                  <i class="bi bi-plus-lg me-1"></i>Nouveau
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Loans Hub -->
     <%
       regional_loan = case @property.region&.downcase
@@ -684,7 +697,7 @@
                       else                  nil
                       end
     %>
-    <div class="col order-5">
+    <div class="col" data-dashboard-tabs-target="panel" data-tab="finances-primes">
       <div class="card border-0 shadow h-100 dashboard-module">
         <div class="card-body p-4 d-flex flex-column">
           <div class="d-flex align-items-center mb-3">
@@ -759,7 +772,7 @@
       # Progression label : score_label_numerique (A++=9 … G=1)
       gain_label = peb_avant && peb_apres ? (peb_apres.score_label_numerique - peb_avant.score_label_numerique) : nil
     %>
-    <div class="col" style="order: 6;">
+    <div class="col" data-dashboard-tabs-target="panel" data-tab="mon-bien">
       <div class="card border-0 shadow h-100 dashboard-module">
         <div class="card-body p-4 d-flex flex-column">
           <div class="d-flex align-items-center mb-3">
@@ -859,7 +872,7 @@
 
     <!-- Woningpas (Flandre uniquement) -->
     <% if @property.region == 'flandre' %>
-    <div class="col" style="order: 8;">
+    <div class="col" data-dashboard-tabs-target="panel" data-tab="mon-bien">
       <div class="card border-0 shadow h-100 dashboard-module">
         <div class="card-body p-4 d-flex flex-column">
           <div class="d-flex align-items-center mb-3">
@@ -884,7 +897,8 @@
       </div>
     </div>
     <% end %>
-  </div>
+  </div><!-- end row -->
+  </div><!-- end dashboard-tabs -->
 
 <style>
 .card {

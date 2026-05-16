@@ -66,6 +66,7 @@ import ArchitecturalParallaxController from "controllers/architectural_parallax_
 import ConversationFixController from "controllers/conversation_fix_controller"
 import CookieConsentController from "controllers/cookie_consent_controller"
 import NpsController from "controllers/nps_controller"
+import DashboardTabsController from "controllers/dashboard_tabs_controller"
 
 application.register("user_type", UserTypeController)
 application.register("test-eligibilite", TestEligibiliteController)
@@ -116,5 +117,6 @@ application.register("architectural-parallax", ArchitecturalParallaxController)
 application.register("conversation-fix", ConversationFixController)
 application.register("cookie-consent", CookieConsentController)
 application.register("nps", NpsController)
+application.register("dashboard-tabs", DashboardTabsController)
 
 export { application }

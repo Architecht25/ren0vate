@@ -3,56 +3,38 @@
 <div class="container-fluid px-4 py-4">
   <%= render 'header' %>
 
-  <!-- Message d'information contextuel -->
-  <% if @phases_data&.any? && !params[:type_document].present? && !@selected_phase %>
-    <%
-      total_missing = @phases_data.sum { |pd| pd[:missing_required].to_a.count }
-      first_incomplete = @phases_data.find { |pd| pd[:missing_required].to_a.any? }
-      overall_pct = @phases_data.any? ? (@phases_data.sum { |pd| pd[:completion_percentage] } / @phases_data.count).round : 0
-    %>
-    <% if total_missing == 0 %>
-      <div class="alert border-0 mb-4 py-3" style="background:#f0fdf4; border-left:4px solid #10b981 !important; border-radius:8px;">
-        <div class="d-flex align-items-center gap-3">
-          <i class="bi bi-patch-check-fill text-success fs-4"></i>
-          <div>
-            <span class="fw-semibold text-success">Dossier complet !</span>
-            <span class="text-muted small ms-2">Tous les documents requis sont présents. Votre dossier est prêt à être utilisé.</span>
-          </div>
-        </div>
-      </div>
-    <% elsif first_incomplete %>
-      <%
-        phase_label = case first_incomplete[:phase].name
-        when 'Phase Administrative' then 'Documents Administratifs'
-        when 'Phase Technique' then 'Préparation de chantier'
-        when 'Phase Exécution' then 'Suivi de chantier'
-        when 'Phase Réception' then 'Réception de chantier'
-        else first_incomplete[:phase].name
-        end
-      %>
-      <div class="alert border-0 mb-4 py-3" style="background:#fffbeb; border-left:4px solid #f59e0b !important; border-radius:8px;">
-        <div class="d-flex align-items-center justify-content-between gap-3">
-          <div class="d-flex align-items-center gap-3">
-            <i class="bi bi-exclamation-circle-fill fs-4" style="color:#f59e0b;"></i>
-            <div>
-              <span class="fw-semibold" style="color:#92400e;">
-                <%= total_missing %> document<%= total_missing > 1 ? 's requis manquants' : ' requis manquant' %>
-              </span>
-              <span class="text-muted small ms-2">— Commencez par <strong><%= phase_label %></strong></span>
-            </div>
-          </div>
-          <div class="d-flex align-items-center gap-3 flex-shrink-0">
-            <div class="small text-muted">Progression globale</div>
-            <div class="d-flex align-items-center gap-2">
-              <div class="progress" style="width:100px; height:6px;">
-                <div class="progress-bar bg-warning" style="width:<%= overall_pct %>%"></div>
-              </div>
-              <span class="small fw-semibold" style="color:#92400e;"><%= overall_pct %>%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    <% end %>
+  <% if @project %>
+    <%= render 'projects/partials_general/kpi_chips' %>
+
+    <ul class="nav nav-pills mb-4 gap-1 border-bottom pb-3">
+      <li class="nav-item">
+        <%= link_to project_path(@project, tab: :preparation),
+              class: "nav-link",
+              data: { turbo_frame: "project_content", turbo_action: "advance" } do %>
+          <i class="bi bi-clipboard-check me-2"></i>Préparation
+        <% end %>
+      </li>
+      <li class="nav-item">
+        <%= link_to project_path(@project, tab: :suivi),
+              class: "nav-link",
+              data: { turbo_frame: "project_content", turbo_action: "advance" } do %>
+          <i class="bi bi-hammer me-2"></i>Suivi
+        <% end %>
+      </li>
+      <li class="nav-item">
+        <%= link_to project_path(@project, tab: :reception),
+              class: "nav-link",
+              data: { turbo_frame: "project_content", turbo_action: "advance" } do %>
+          <i class="bi bi-file-earmark-check me-2"></i>Réception
+        <% end %>
+      </li>
+      <li class="nav-item">
+        <%= link_to project_documents_path(@project),
+              class: "nav-link active" do %>
+          <i class="bi bi-folder2-open me-2"></i>Documents
+        <% end %>
+      </li>
+    </ul>
   <% end %>
 
   <%= render 'filters' %>
