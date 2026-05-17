@@ -304,6 +304,7 @@ Rails.application.routes.draw do
 
     # Upload facture côté entrepreneur (pro_view)
     post :upload_facture_pro,   to: 'pro_views#upload_facture_pro',   on: :member
+    post :upload_photo_pro,     to: 'pro_views#upload_photo_pro',     on: :member
 
     # Upload document côté architecte (plan, métré, permis)
     post  :upload_document_pro, to: 'pro_views#upload_document_pro',  on: :member

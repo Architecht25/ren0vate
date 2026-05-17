@@ -140,6 +140,36 @@ class ProViewsController < ApplicationController
                 notice: "#{type_facture == 'devis' ? 'Devis' : 'Facture'} envoyé#{type_facture == 'devis' ? '' : 'e'} au client ✓"
   end
 
+  # POST /projects/:id/upload_photo_pro
+  # Entrepreneur uploade une photo de chantier par phase depuis sa vue pro
+  def upload_photo_pro
+    unless @membership&.role == 'entrepreneur'
+      redirect_back fallback_location: root_path, alert: "Seul un entrepreneur peut utiliser cette action." and return
+    end
+    unless params[:photo_file].present?
+      redirect_back fallback_location: pro_view_project_path(@project), alert: "Veuillez joindre une photo." and return
+    end
+
+    phase_chantier = params[:phase_photo].presence
+
+    document = Document.new(
+      user:           current_user,
+      project:        @project,
+      property:       @project.property,
+      type_document:  'photo_pendant',
+      phase_chantier: phase_chantier,
+      status:         'approved'
+    )
+    document.file.attach(params[:photo_file])
+
+    if document.save
+      redirect_to pro_view_project_path(@project), notice: "Photo ajoutée ✓"
+    else
+      redirect_back fallback_location: pro_view_project_path(@project),
+                    alert: "Erreur : #{document.errors.full_messages.join(', ')}"
+    end
+  end
+
   # POST /projects/:id/upload_document_pro
   # Architecte uploade un plan, un métré ou un document permis depuis sa vue pro
   def upload_document_pro

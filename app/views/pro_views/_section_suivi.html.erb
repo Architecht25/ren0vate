@@ -91,8 +91,7 @@
                   <% end %>
                   <%# Mini upload photo par phase (entrepreneur) %>
                   <% if @membership.role == 'entrepreneur' %>
-                    <%= form_with url: upload_facture_pro_project_path(@project), method: :post, multipart: true, class: "mt-2" do |f| %>
-                      <input type="hidden" name="type_facture" value="photo">
+                    <%= form_with url: upload_photo_pro_project_path(@project), method: :post, multipart: true, class: "mt-2" do |f| %>
                       <input type="hidden" name="phase_photo" value="<%= phase[:key] %>">
                       <div class="d-flex gap-1 align-items-center">
                         <input type="file" name="photo_file" class="form-control form-control-sm" accept="image/*" capture="environment" style="font-size:0.7rem;">
@@ -120,29 +119,38 @@
                 <div class="d-flex flex-column gap-1 mb-2">
                   <% factures_travaux.each do |f| %>
                     <div class="d-flex align-items-center gap-2 p-1 rounded" style="background:rgba(253,126,20,0.06);font-size:0.75rem;">
-                      <i class="bi bi-file-earmark-text text-warning"></i>
+                      <i class="bi bi-file-earmark-text text-warning flex-shrink-0"></i>
                       <span class="flex-grow-1 text-truncate"><%= f.nom_entreprise.presence || f.type_facture_display %></span>
-                      <span class="badge bg-warning-subtle text-warning border border-warning-subtle" style="font-size:0.65rem;"><%= f.type_facture_display %></span>
+                      <% if f.montant.to_f > 0 %>
+                        <span class="fw-semibold flex-shrink-0" style="white-space:nowrap;"><%= number_to_currency(f.montant, unit: '€', format: '%n %u', separator: ',', delimiter: ' ') %></span>
+                      <% end %>
+                      <span class="badge bg-warning-subtle text-warning border border-warning-subtle flex-shrink-0" style="font-size:0.65rem;"><%= f.type_facture_display %></span>
                     </div>
                   <% end %>
                 </div>
               <% end %>
               <%= form_with url: upload_facture_pro_project_path(@project), method: :post, multipart: true do |ff| %>
-                <div class="row g-2 align-items-end">
-                  <div class="col-md-4 col-5">
+                <div class="row g-2 mb-2">
+                  <div class="col-6">
                     <select name="type_facture" class="form-select form-select-sm" style="font-size:0.78rem;">
                       <option value="facture">Facture</option>
                       <option value="acompte">Acompte</option>
                       <option value="solde">Solde</option>
                     </select>
                   </div>
-                  <div class="col-md-6 col">
+                  <div class="col-6">
+                    <input type="number" name="montant_ttc" class="form-control form-control-sm"
+                           placeholder="Montant TTC (€)" step="0.01" min="0" style="font-size:0.78rem;">
+                  </div>
+                </div>
+                <div class="row g-2 align-items-end">
+                  <div class="col">
                     <input type="file" name="facture_pdf" class="form-control form-control-sm"
                            accept=".pdf,.jpg,.jpeg,.png" style="font-size:0.78rem;">
                   </div>
-                  <div class="col-md-2 col-auto">
-                    <button type="submit" class="btn btn-warning btn-sm w-100">
-                      <i class="bi bi-upload"></i>
+                  <div class="col-auto">
+                    <button type="submit" class="btn btn-warning btn-sm">
+                      <i class="bi bi-upload me-1"></i>Envoyer
                     </button>
                   </div>
                 </div>
