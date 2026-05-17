@@ -8,7 +8,125 @@
 
 <div class="expert-ia-page">
 
-<% if @properties.none? %>
+<% if @is_pro_mode %>
+  <%# ── Mode pro PM : chat ciblé par rôle (pas de biens propres) ─────────── %>
+  <%
+    pro_role_label = case @pro_role
+                     when 'entrepreneur' then 'Entrepreneur'
+                     when 'architect'    then 'Architecte'
+                     else 'Professionnel'
+                     end
+    pro_role_icon  = @pro_role == 'architect' ? 'bi-compass' : 'bi-hammer'
+    pro_role_color = @pro_role == 'architect' ? '#0dcaf0' : '#ffc107'
+    nb_chantiers   = @pro_memberships.size
+  %>
+  <div class="row g-3 expert-ia-row">
+    <!-- Sidebar chantiers -->
+    <div class="col-lg-3">
+      <div class="panel expert-ia-sidebar-panel">
+        <div class="panel-header">
+          <h3><i class="bi <%= pro_role_icon %> me-2"></i>Mes chantiers</h3>
+        </div>
+        <div class="panel-body">
+          <div class="expert-ia-property-active mb-3">
+            <div class="d-flex align-items-start gap-2 mb-2">
+              <div style="width:32px;height:32px;background:var(--ren0vate-gradient-primary);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="bi <%= pro_role_icon %> text-white" style="font-size:0.85rem;"></i>
+              </div>
+              <div class="flex-grow-1 min-w-0">
+                <div class="fw-semibold" style="font-size:0.9rem;"><%= pro_role_label %></div>
+                <div class="text-muted" style="font-size:0.75rem;">
+                  <i class="bi bi-layers me-1"></i><%= nb_chantiers %> chantier<%= nb_chantiers > 1 ? 's' : '' %> assigné<%= nb_chantiers > 1 ? 's' : '' %>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex flex-wrap gap-1 mb-3">
+              <% @pro_memberships.each do |m| %>
+                <span class="badge bg-light text-dark" style="font-size:0.7rem;">
+                  <i class="bi bi-house-door me-1" style="color:var(--ren0vate-primary);"></i>
+                  <%= m.project.nom.presence || "Projet ##{m.project.id}" %>
+                </span>
+              <% end %>
+            </div>
+            <%= link_to member_projects_path, class: "btn btn-sm btn-outline-secondary w-100", style: "font-size:0.75rem;" do %>
+              <i class="bi bi-arrow-left me-1"></i>Retour au tableau de bord
+            <% end %>
+          </div>
+          <div class="expert-ia-info-badge mt-3">
+            <i class="bi bi-info-circle"></i>
+            L'assistant connaît vos chantiers assignés, les maîtres d'ouvrage et les travaux en cours.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Zone de chat -->
+    <div class="col-lg-9">
+      <div class="panel expert-ia-chat-panel d-flex flex-column">
+        <div class="panel-header">
+          <h3><i class="bi bi-robot me-2"></i>Expert IA — <%= pro_role_label %></h3>
+          <div class="d-flex align-items-center gap-2">
+            <span class="panel-badge"><i class="bi bi-circle-fill me-1" style="color:#84A98C;font-size:0.45rem;"></i>Claude Sonnet</span>
+            <span class="panel-badge" style="background:rgba(var(--ren0vate-primary-rgb),0.15);color:var(--ren0vate-primary);">
+              <i class="bi <%= pro_role_icon %> me-1"></i><%= nb_chantiers %> chantier<%= nb_chantiers > 1 ? 's' : '' %>
+            </span>
+          </div>
+        </div>
+        <div class="expert-ia-messages" id="chatMessages">
+          <div class="d-flex mb-4">
+            <div class="flex-shrink-0"><div class="bot-avatar"><i class="bi bi-robot"></i></div></div>
+            <div class="flex-grow-1 ms-3">
+              <div class="ai-message">
+                <p class="mb-2"><strong>Bonjour <%= current_user.first_name || current_user.email.split('@').first.capitalize %> !</strong></p>
+                <p class="mb-2">Je suis votre assistant IA expert en tant que <strong><%= pro_role_label.downcase %></strong>.
+                  Je connais vos <strong><%= nb_chantiers %> chantier<%= nb_chantiers > 1 ? 's' : '' %> assigné<%= nb_chantiers > 1 ? 's' : '' %></strong> :
+                  <%= @pro_memberships.map { |m| m.project.nom.presence || "Projet ##{m.project.id}" }.to_sentence %>.
+                </p>
+                <p class="mb-0 small text-muted">💡 Posez-moi vos questions sur les chantiers, les documents requis, les délais et les réglementations.</p>
+              </div>
+              <small class="text-muted ms-2">À l'instant</small>
+            </div>
+          </div>
+        </div>
+        <div class="expert-ia-input-zone">
+          <% if @ren0chat_limit != Float::INFINITY %>
+            <div id="quotaBanner" class="mb-2 d-flex align-items-center gap-2 px-1" style="font-size:0.82rem;">
+              <% remaining = [@ren0chat_limit - @ren0chat_used, 0].max %>
+              <% if remaining <= 1 %>
+                <i class="bi bi-exclamation-triangle-fill text-warning"></i>
+                <span style="color:#d97706;"><strong><%= remaining %></strong> message<%= remaining > 1 ? 's' : '' %> restant<%= remaining > 1 ? 's' : '' %> ce mois-ci &mdash;
+                  <%= link_to "Passer à une offre supérieure", pricing_path, class: "fw-semibold", style: "color:var(--ren0vate-accent);" %>
+                </span>
+              <% else %>
+                <i class="bi bi-chat-dots" style="color:var(--ren0vate-text-muted);"></i>
+                <span class="text-muted"><strong><%= remaining %></strong> messages restants ce mois-ci</span>
+              <% end %>
+            </div>
+          <% end %>
+          <form id="aiExpertForm"
+                data-pro-role="<%= @pro_role %>"
+                data-quota-limit="<%= @ren0chat_limit == Float::INFINITY ? '' : @ren0chat_limit %>"
+                data-quota-used="<%= @ren0chat_used %>">
+            <div class="input-group">
+              <input type="text" class="form-control" id="aiExpertInput"
+                     placeholder="Posez votre question sur vos chantiers..." autocomplete="off">
+              <button type="button" class="btn btn-outline-secondary" id="aiVoiceBtn" title="Dicter votre question">
+                <i class="bi bi-mic"></i>
+              </button>
+              <button class="btn btn-ren0vate" type="submit" id="aiExpertSendBtn">
+                <i class="bi bi-send me-1"></i>Envoyer
+              </button>
+            </div>
+            <small class="text-muted mt-2 d-block">
+              <i class="bi bi-shield-check me-1"></i>Vos conversations sont privées et sécurisées
+            </small>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<% elsif @properties.none? %>
   <%# ── Aucun bien : état vide ─────────────────────────────────────────────── %>
   <div class="text-center py-5">
     <div class="icon-circle-large mx-auto mb-3"><i class="bi bi-house-door"></i></div>
@@ -402,7 +520,8 @@ function initExpertIA() {
           message: question,
           current_page: 'decision_hub',
           mode: 'expert',
-          property_id: form.dataset.propertyId || ''
+          property_id: form.dataset.propertyId || '',
+          pro_role: form.dataset.proRole || ''
         })
       });
 

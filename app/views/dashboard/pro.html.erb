@@ -1,0 +1,332 @@
+<%
+  set_seo_meta(
+    title: "Tableau de bord — #{current_user.pro_roles_label} · Ren0vate",
+    description: "Vue d'ensemble de vos chantiers et de votre activité professionnelle"
+  )
+  display_name   = current_user.nom_cabinet.presence || current_user.first_name.presence || current_user.email.split('@').first.capitalize
+  ent_ms         = @active_members.select { |m| m.role == 'entrepreneur' }
+  arch_ms        = @active_members.select { |m| m.role == 'architect' }
+  multi_role     = ent_ms.any? && arch_ms.any?
+
+  # KPIs entrepreneur
+  ent_total_facture = ent_ms.sum { |m| m.project.factures.entrepreneur.sum(:montant).to_f }
+  ent_total_attente = ent_ms.sum { |m| m.project.factures.entrepreneur.non_payees.sum(:montant).to_f }
+  ent_devis_pending = ent_ms.select { |m| m.project.factures.entrepreneur.devis.where(validated_by_client_at: nil).any? }
+
+  # KPIs architecte
+  arch_phases_avg = arch_ms.map { |m|
+    phases = m.project.phases_avancement || {}
+    (phases.values.count(&:present?) * 100.0 / 5).round
+  }.then { |arr| arr.any? ? (arr.sum.to_f / arr.size).round : 0 }
+  arch_docs_total = arch_ms.sum { |m| m.project.documents.count }
+
+  # Alertes urgentes (factures non payées depuis > 30j)
+  alerts = []
+  ent_ms.each do |m|
+    m.project.factures.entrepreneur.non_payees.where("created_at < ?", 30.days.ago).each do |f|
+      alerts << { type: :facture_impayee, project: m.project, facture: f }
+    end
+  end
+  ent_devis_pending.each do |m|
+    alerts << { type: :devis_attente, project: m.project }
+  end
+%>
+
+<!-- Widget Notifications -->
+<div class="notification-widget position-fixed d-none d-md-block" style="top: 80px; right: 20px; z-index: 2000;">
+  <% unread_count = current_user.respond_to?(:notifications) ? current_user.notifications.unread.count : 0 %>
+  <%= link_to notifications_path, class: "btn btn-outline-primary position-relative notification-widget-btn", style: "border-radius: 50%; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);" do %>
+    <i class="bi bi-bell fs-4"></i>
+    <% if unread_count > 0 %>
+      <span class="badge bg-danger position-absolute" style="top: -5px; right: -5px; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem;"><%= unread_count %></span>
+    <% end %>
+  <% end %>
+</div>
+
+<!-- Hero Section -->
+<div class="architectural-hero position-relative" style="min-height: 100vh;">
+  <img src="<%= asset_path('arcliine.jpg') %>" alt=""
+       class="architectural-bg-image"
+       style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.2; z-index: 0;">
+  <div class="architectural-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.3); z-index: 1;"></div>
+  <div class="sketch-overlay position-absolute w-100 h-100" style="top: 0; left: 0; z-index: 2;">
+    <div class="blueprint-grid"></div>
+    <div class="technical-lines"></div>
+  </div>
+
+  <div class="container position-relative d-flex flex-column justify-content-center align-items-center py-5" style="z-index: 3; min-height: 100vh;">
+
+    <!-- Greeting -->
+    <div class="text-center mb-4">
+      <div class="mb-2 d-flex align-items-center justify-content-center gap-2 flex-wrap">
+        <% if ent_ms.any? %>
+          <span class="badge px-3 py-2" style="background: var(--ren0vate-accent); border-radius: 20px; font-size: 0.8rem;">
+            <i class="bi bi-hammer me-1"></i>Entrepreneur
+          </span>
+        <% end %>
+        <% if arch_ms.any? %>
+          <span class="badge px-3 py-2" style="background: var(--ren0vate-primary); border-radius: 20px; font-size: 0.8rem;">
+            <i class="bi bi-compass me-1"></i>Architecte
+          </span>
+        <% end %>
+      </div>
+      <h1 class="architectural-title display-4 mb-2">
+        <i class="bi bi-grid-1x2 me-3"></i>
+        Bonjour <span class="highlight-watercolor"><%= display_name %></span>
+      </h1>
+      <p class="text-muted" style="font-size: 1.05rem;">
+        <% total = @project_count %>
+        Vous intervenez sur <strong><%= total %> chantier<%= total > 1 ? 's' : '' %></strong>
+        <% if multi_role %>
+          (<%= ent_ms.size %> en tant qu'entrepreneur · <%= arch_ms.size %> en tant qu'architecte)
+        <% end %>
+      </p>
+    </div>
+
+    <!-- ── KPIs ── -->
+    <% if @project_count > 0 %>
+      <div class="row g-3 mb-4 w-100" style="max-width: 820px;">
+        <% if multi_role %>
+          <%# KPIs Entrepreneur %>
+          <div class="col-12">
+            <div class="rounded-3 p-3" style="background:rgba(255,255,255,0.9);box-shadow:var(--ren0vate-shadow-sm);border-left:3px solid #ffc107;">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="bi bi-hammer text-warning"></i>
+                <span class="fw-semibold small text-muted">Entrepreneur</span>
+              </div>
+              <div class="row g-2 text-center">
+                <div class="col-4">
+                  <div class="fw-bold text-warning" style="font-size:1.1rem;"><%= ent_ms.size %></div>
+                  <small class="text-muted">Chantier<%= ent_ms.size > 1 ? 's' : '' %></small>
+                </div>
+                <div class="col-4">
+                  <div class="fw-bold <%= ent_total_attente > 0 ? 'text-warning' : 'text-success' %>" style="font-size:1.1rem;">
+                    <%= ent_total_attente > 0 ? "#{number_with_delimiter(ent_total_attente.to_i, delimiter: '.')} €" : "✓" %>
+                  </div>
+                  <small class="text-muted">En attente</small>
+                </div>
+                <div class="col-4">
+                  <div class="fw-bold <%= ent_devis_pending.any? ? 'text-danger' : 'text-success' %>" style="font-size:1.1rem;">
+                    <%= ent_devis_pending.any? ? ent_devis_pending.size : "✓" %>
+                  </div>
+                  <small class="text-muted">Devis à valider</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          <%# KPIs Architecte %>
+          <div class="col-12">
+            <div class="rounded-3 p-3" style="background:rgba(255,255,255,0.9);box-shadow:var(--ren0vate-shadow-sm);border-left:3px solid #0dcaf0;">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="bi bi-compass text-info"></i>
+                <span class="fw-semibold small text-muted">Architecte</span>
+              </div>
+              <div class="row g-2 text-center">
+                <div class="col-4">
+                  <div class="fw-bold text-info" style="font-size:1.1rem;"><%= arch_ms.size %></div>
+                  <small class="text-muted">Projet<%= arch_ms.size > 1 ? 's' : '' %></small>
+                </div>
+                <div class="col-4">
+                  <div class="fw-bold text-info" style="font-size:1.1rem;"><%= arch_phases_avg %>&thinsp;%</div>
+                  <small class="text-muted">Avancement moyen</small>
+                </div>
+                <div class="col-4">
+                  <div class="fw-bold text-info" style="font-size:1.1rem;"><%= arch_docs_total %></div>
+                  <small class="text-muted">Documents</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        <% else %>
+          <%# KPIs mono-rôle %>
+          <div class="col-4">
+            <div class="rounded-3 text-center p-3" style="background: rgba(255,255,255,0.9); box-shadow: var(--ren0vate-shadow-sm);">
+              <div class="h3 fw-bold mb-0" style="color: var(--ren0vate-primary);"><%= @project_count %></div>
+              <small class="text-muted">Chantier<%= @project_count > 1 ? 's' : '' %></small>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="rounded-3 text-center p-3" style="background: rgba(255,255,255,0.9); box-shadow: var(--ren0vate-shadow-sm);">
+              <div class="h3 fw-bold mb-0" style="color: var(--ren0vate-success-dark);"><%= @active_members.size %></div>
+              <small class="text-muted">Actif<%= @active_members.size > 1 ? 's' : '' %></small>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="rounded-3 text-center p-3" style="background: rgba(255,255,255,0.9); box-shadow: var(--ren0vate-shadow-sm);">
+              <div class="h3 fw-bold mb-0" style="color: var(--ren0vate-accent);"><%= @pending_members.size %></div>
+              <small class="text-muted">En attente</small>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <!-- ── Alertes urgentes ── -->
+    <% if alerts.any? %>
+      <div class="w-100 mb-4" style="max-width: 820px;">
+        <div class="rounded-3 p-3" style="background:rgba(220,53,69,0.07);border:1.5px solid rgba(220,53,69,0.3);">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+            <span class="fw-semibold text-danger"><%= alerts.size %> action<%= alerts.size > 1 ? 's' : '' %> requise<%= alerts.size > 1 ? 's' : '' %></span>
+          </div>
+          <ul class="mb-0 ps-3" style="font-size:0.9rem;">
+            <% alerts.first(3).each do |alert| %>
+              <li class="mb-1">
+                <% if alert[:type] == :facture_impayee %>
+                  Facture impayée depuis +30j sur <strong><%= alert[:project].nom.presence || "Projet ##{alert[:project].id}" %></strong>
+                  (<%= number_with_delimiter(alert[:facture].montant.to_i, delimiter: '.') %> €)
+                <% elsif alert[:type] == :devis_attente %>
+                  Devis en attente de validation — <strong><%= alert[:project].nom.presence || "Projet ##{alert[:project].id}" %></strong>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- ── Expert IA ── -->
+    <div class="mx-auto w-100 mb-4" style="max-width: 820px;">
+      <div class="rounded-4 overflow-hidden" style="background: var(--ren0vate-white); box-shadow: var(--ren0vate-shadow-lg); border: 1px solid var(--ren0vate-border);">
+        <div class="p-4 text-white" style="background: linear-gradient(135deg, var(--ren0vate-primary) 0%, var(--ren0vate-success-dark) 100%);">
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                 style="width:56px; height:56px; background: rgba(255,255,255,0.2); font-size: 1.7rem;">
+              <i class="bi bi-robot"></i>
+            </div>
+            <div class="flex-grow-1">
+              <h4 class="mb-1 fw-bold" style="color: var(--ren0vate-accent);">Expert IA Ren0vate</h4>
+              <p class="mb-0 opacity-90" style="font-size: 0.9rem;">
+                Consultez l'avancement des chantiers, les documents requis et les réglementations
+              </p>
+            </div>
+            <span class="badge fs-6 fw-normal px-3 py-2 flex-shrink-0" style="background: rgba(255,255,255,0.2);">
+              <i class="bi bi-check2-circle me-1"></i><%= @project_count > 0 ? 'Prêt' : 'En attente' %>
+            </span>
+          </div>
+        </div>
+        <div class="p-4">
+          <% if multi_role %>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="rounded-3 p-3 h-100 d-flex flex-column"
+                     style="background:rgba(255,193,7,0.07);border:1.5px solid rgba(255,193,7,0.4);">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-hammer text-warning fs-5"></i>
+                    <span class="fw-semibold" style="color:#856404;">IA Entrepreneur</span>
+                  </div>
+                  <p class="small mb-3 flex-grow-1" style="color: var(--ren0vate-text-muted);">
+                    Factures, PV de réception, travaux en cours, certifications.
+                  </p>
+                  <%= link_to expert_decision_hub_index_path(all: 1, pro_role: 'entrepreneur'), class: "btn btn-warning fw-semibold w-100 text-dark" do %>
+                    <i class="bi bi-chat-dots-fill me-2"></i>Ouvrir l'IA Entrepreneur
+                  <% end %>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="rounded-3 p-3 h-100 d-flex flex-column"
+                     style="background:rgba(13,202,240,0.07);border:1.5px solid rgba(13,202,240,0.4);">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="bi bi-compass text-info fs-5"></i>
+                    <span class="fw-semibold" style="color:#087990;">IA Architecte</span>
+                  </div>
+                  <p class="small mb-3 flex-grow-1" style="color: var(--ren0vate-text-muted);">
+                    Permis, primes, réglementations, suivi clients.
+                  </p>
+                  <%= link_to expert_decision_hub_index_path(all: 1, pro_role: 'architect'), class: "btn btn-info fw-semibold w-100 text-dark" do %>
+                    <i class="bi bi-chat-dots-fill me-2"></i>Ouvrir l'IA Architecte
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% else %>
+            <%
+              single_role = ent_ms.any? ? 'entrepreneur' : (arch_ms.any? ? 'architect' : nil)
+            %>
+            <p class="mb-3" style="font-size: 0.95rem; color: var(--ren0vate-text-secondary);">
+              L'assistant connaît vos chantiers assignés, les maîtres d'ouvrage et les travaux en cours.
+            </p>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <%= link_to expert_decision_hub_index_path(all: 1, pro_role: single_role), class: "btn btn-ren0vate fw-semibold w-100" do %>
+                  <i class="bi bi-chat-dots-fill me-2"></i>Tous mes chantiers
+                <% end %>
+              </div>
+              <div class="col-md-6">
+                <%= link_to expert_decision_hub_index_path(pro_role: single_role), class: "btn btn-primary fw-semibold w-100" do %>
+                  <i class="bi bi-arrow-right-circle me-2"></i>Choisir un chantier
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Inviter un client + accès projets ── -->
+    <div class="w-100 mb-4 d-flex align-items-center justify-content-between flex-wrap gap-3" style="max-width: 820px;">
+      <div>
+        <h5 class="fw-semibold mb-0" style="color: var(--ren0vate-primary);">
+          <i class="bi bi-wrench-adjustable me-2"></i>Derniers chantiers actifs
+        </h5>
+        <small class="text-muted">Vue rapide — <%= link_to 'Voir tous les projets →', member_projects_path, style: "color:var(--ren0vate-primary);" %></small>
+      </div>
+      <%= link_to pro_referral_path, class: "btn btn-outline-primary d-inline-flex align-items-center gap-2" do %>
+        <i class="bi bi-person-plus"></i> Inviter un client
+      <% end %>
+    </div>
+
+    <!-- ── Derniers chantiers (3 max par rôle) ── -->
+    <div class="w-100 mb-5" style="max-width: 820px;">
+      <% recent_members = @active_members.sort_by { |m| m.project.updated_at }.reverse.first(6) %>
+      <% if recent_members.any? %>
+        <% if multi_role %>
+          <div class="row g-3">
+            <%# Entrepreneur : 3 derniers %>
+            <div class="col-lg-6">
+              <div class="d-flex align-items-center gap-2 mb-2 pb-1" style="border-bottom:2px solid #ffc107;">
+                <i class="bi bi-hammer text-warning"></i>
+                <span class="fw-semibold small">Entrepreneur</span>
+              </div>
+              <% ent_ms.sort_by { |m| m.project.updated_at }.reverse.first(3).each do |m| %>
+                <%= render 'dashboard/pro_project_card', membership: m %>
+              <% end %>
+            </div>
+            <%# Architecte : 3 derniers %>
+            <div class="col-lg-6">
+              <div class="d-flex align-items-center gap-2 mb-2 pb-1" style="border-bottom:2px solid #0dcaf0;">
+                <i class="bi bi-compass text-info"></i>
+                <span class="fw-semibold small">Architecte</span>
+              </div>
+              <% arch_ms.sort_by { |m| m.project.updated_at }.reverse.first(3).each do |m| %>
+                <%= render 'dashboard/pro_project_card', membership: m %>
+              <% end %>
+            </div>
+          </div>
+        <% else %>
+          <div class="d-flex flex-column gap-2">
+            <% recent_members.first(3).each do |m| %>
+              <%= render 'dashboard/pro_project_card', membership: m %>
+            <% end %>
+          </div>
+        <% end %>
+        <% if @project_count > 3 %>
+          <div class="text-center mt-3">
+            <%= link_to member_projects_path, class: "btn btn-outline-secondary" do %>
+              <i class="bi bi-list-ul me-2"></i>Voir les <%= @project_count %> chantiers
+            <% end %>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="text-center py-4 rounded-3" style="background:rgba(255,255,255,0.8);">
+          <i class="bi bi-hammer fs-1 text-muted opacity-25 mb-2 d-block"></i>
+          <p class="text-muted mb-3">Aucun chantier actif pour l'instant.</p>
+          <%= link_to pro_referral_path, class: "btn btn-ren0vate" do %>
+            <i class="bi bi-person-plus me-2"></i>Inviter un client
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+  </div><!-- /container -->
+</div><!-- /architectural-hero -->

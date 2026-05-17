@@ -1,0 +1,39 @@
+<%
+  project  = membership.project
+  property = project.property
+  phases   = project.phases_avancement || {}
+  pct_av   = (phases.values.count(&:present?) * 100.0 / 5).round
+  owner    = project.user
+  bar_color = membership.role == 'architect' ? 'bg-info' : 'bg-warning'
+%>
+<div class="rounded-3 p-3 d-flex align-items-start gap-3 mb-2"
+     style="background:rgba(255,255,255,0.9);box-shadow:var(--ren0vate-shadow-sm);border:1px solid var(--ren0vate-border);">
+  <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+       style="width:38px;height:38px;background:rgba(var(--ren0vate-accent-rgb),0.1);">
+    <i class="bi bi-<%= membership.role == 'architect' ? 'compass text-info' : 'hammer text-warning' %>" style="font-size:1rem;"></i>
+  </div>
+  <div class="flex-grow-1 min-w-0">
+    <div class="fw-semibold text-truncate" style="color:var(--ren0vate-primary);font-size:0.9rem;">
+      <%= project.nom.presence || "Projet ##{project.id}" %>
+    </div>
+    <% if property %>
+      <div class="text-muted small text-truncate" style="font-size:0.78rem;">
+        <i class="bi bi-geo-alt me-1"></i><%= [property.commune, property.region&.capitalize].compact.join(' · ') %>
+      </div>
+    <% end %>
+    <% if owner %>
+      <div class="text-muted small" style="font-size:0.75rem;">
+        <i class="bi bi-person me-1"></i><%= owner.full_name.presence || owner.email.split('@').first.capitalize %>
+      </div>
+    <% end %>
+    <div class="d-flex align-items-center gap-2 mt-1">
+      <div class="progress flex-grow-1" style="height:4px;border-radius:2px;">
+        <div class="progress-bar <%= bar_color %>" style="width:<%= pct_av %>%;"></div>
+      </div>
+      <span class="text-muted" style="font-size:0.72rem;white-space:nowrap;"><%= pct_av %>%</span>
+    </div>
+  </div>
+  <%= link_to pro_view_project_path(project), class: "btn btn-sm btn-outline-secondary flex-shrink-0 align-self-center" do %>
+    <i class="bi bi-arrow-right"></i>
+  <% end %>
+</div>

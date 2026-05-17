@@ -216,6 +216,22 @@ class DecisionHubController < ApplicationController
     # Mode vue d'ensemble : ?all=1 → chat générique sans bien sélectionné
     @overview = params[:all] == '1'
 
+    # Rôle explicite passé en param (multi-rôle : 'entrepreneur' ou 'architect')
+    @pro_role = params[:pro_role].presence
+
+    # Pros PM-only (pas de biens propres) → mode chat pro dédié
+    if @properties.none? && current_user.professional?
+      @is_pro_mode     = true
+      @overview        = true  # active la zone de chat dans la vue
+      role_filter      = @pro_role  # nil = tous les rôles
+      @pro_memberships = current_user.project_members.active.pros
+                                     .then { |q| role_filter ? q.where(role: role_filter) : q }
+                                     .includes(project: :property)
+      @ren0chat_limit  = current_user.ren0chat_monthly_limit
+      @ren0chat_used   = Rails.cache.read("ren0chat:#{current_user.id}:#{Date.current.strftime('%Y-%m')}").to_i
+      return
+    end
+
     # Sélectionner le bien actif (uniquement si property_id explicite en param)
     # Sans param → @property = nil → affichage de la grille de sélection (sauf si @overview)
     @property = params[:property_id].present? ? current_user.properties.find_by(id: params[:property_id]) : nil

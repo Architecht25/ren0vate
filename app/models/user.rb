@@ -69,21 +69,51 @@ class User < ApplicationRecord
   # a member (entrepreneur or architect) on at least one project,
   # OR is a registered professional (architect/entrepreneur) awaiting their first client.
   # These users get a simplified "guest pro" sidebar instead of the owner sidebar.
+  # Vrai si l'utilisateur est un professionnel, que ce soit via professional_type
+  # (inscription directe) ou via des ProjectMember actifs (invitation sur projet).
+  def professional?
+    professional_type.present? || project_members.active.pros.exists?
+  end
+
   def professional_guest?
     return true if professional_type.present? && properties.none?
     properties.none? && project_members.active.pros.any?
   end
 
   def architect?
-    professional_type == 'architect'
+    return true if professional_type == 'architect'
+    professional_type.blank? && project_members.active.exists?(role: 'architect')
   end
 
   def professional_entrepreneur?
-    professional_type == 'entrepreneur'
+    return true if professional_type == 'entrepreneur'
+    professional_type.blank? && project_members.active.exists?(role: 'entrepreneur')
   end
 
   def intermediary?
-    professional_type == 'intermediary'
+    return true if professional_type == 'intermediary'
+    professional_type.blank? && project_members.active.exists?(role: 'intermediary')
+  end
+
+  # Retourne un label lisible des rôles pro actifs (via professional_type OU ProjectMember).
+  # Exemples : "Entrepreneur", "Architecte", "Entrepreneur · Architecte"
+  def pro_roles_label
+    if professional_type.present?
+      case professional_type
+      when 'architect'    then 'Architecte'
+      when 'entrepreneur' then 'Entrepreneur'
+      when 'intermediary' then 'Intermédiaire'
+      end
+    else
+      roles = project_members.active.where(role: %w[entrepreneur architect intermediary]).pluck(:role).uniq
+      roles.map { |r|
+        case r
+        when 'architect'    then 'Architecte'
+        when 'entrepreneur' then 'Entrepreneur'
+        when 'intermediary' then 'Intermédiaire'
+        end
+      }.join(' · ')
+    end
   end
 
   def onboarding_done?
@@ -273,7 +303,7 @@ class User < ApplicationRecord
   end
 
   def ren0chat_monthly_limit
-    return Float::INFINITY if professional_type.present?
+    return Float::INFINITY if professional?
     case subscription_tier
     when 'individual' then 50
     when 'portfolio' then 150

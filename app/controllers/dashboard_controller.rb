@@ -13,6 +13,20 @@ class DashboardController < ApplicationController
                          end
     end
 
+    # Résoudre aussi via ProjectMember actifs quand professional_type est absent
+    # → single-role PM : aller sur le vrai dashboard (entrepreneur/architecte)
+    # → multi-role PM  : tomber sur member_projects (géré plus bas)
+    if resolved_profile == 'proprietaire' && current_user.professional_type.blank?
+      active_pm_roles = current_user.project_members.active.pros.pluck(:role).uniq
+      if active_pm_roles.size == 1
+        resolved_profile = case active_pm_roles.first
+                           when 'architect'    then 'architecte'
+                           when 'entrepreneur' then 'entrepreneur'
+                           when 'intermediary' then 'intermediaire'
+                           end
+      end
+    end
+
     case resolved_profile
     when 'architecte'
       load_pro_dashboard_data
@@ -27,7 +41,8 @@ class DashboardController < ApplicationController
 
     # Profil propriétaire (défaut)
     if current_user.professional_guest?
-      redirect_to member_projects_path and return
+      load_pro_dashboard_data
+      render 'dashboard/pro' and return
     end
 
     @properties = current_user.properties.includes(:requests, :simulations).limit(10)

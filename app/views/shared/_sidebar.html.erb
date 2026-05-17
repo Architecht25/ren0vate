@@ -25,7 +25,11 @@
       <div class="user-details">
         <div class="user-name"><%= current_user.email.split('@').first.capitalize %></div>
         <div class="user-tier">
-          <% if defined?(tier_upgrade_available?) && tier_upgrade_available? %>
+          <% if current_user.professional_guest? %>
+            <span class="badge bg-secondary">
+              <i class="bi bi-person-badge me-1"></i><%= current_user.pro_roles_label.presence || 'Professionnel' %>
+            </span>
+          <% elsif defined?(tier_upgrade_available?) && tier_upgrade_available? %>
             <%= link_to pricing_select_path, class: "badge bg-warning text-dark" do %>
               <i class="bi bi-gem me-1"></i> <%= upgrade_badge_text %>
             <% end %>
@@ -49,6 +53,12 @@
               <i class="bi bi-chevron-down toggle-icon"></i>
             </div>
             <ul class="collapse show nav-submenu" id="proSection">
+              <li class="nav-item">
+                <%= link_to dashboard_path, class: "nav-link" do %>
+                  <i class="bi bi-grid-1x2"></i>
+                  <span>Tableau de bord</span>
+                <% end %>
+              </li>
               <li class="nav-item">
                 <%= link_to profile_path, class: "nav-link" do %>
                   <i class="bi bi-person-circle"></i>

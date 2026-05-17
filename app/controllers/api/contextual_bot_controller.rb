@@ -102,15 +102,33 @@ class Api::ContextualBotController < ApplicationController
     ContextualBotService.new(current_user, history_cache_key, property: property)
   end
 
-  # Résout le rôle pro en fusionnant user_profile et professional_type
+  # Résout le rôle pro en fusionnant user_profile, professional_type et ProjectMember actifs.
+  # Pour les multi-rôles (entrepreneur + architecte), priorise l'architecte.
   def resolved_pro_role
+    # Param explicite — prioritaire (multi-rôle : l'appelant précise quel rôle utiliser)
+    if params[:pro_role].present?
+      case params[:pro_role].to_s
+      when 'entrepreneur' then return :entrepreneur
+      when 'architect'    then return :architecte
+      when 'intermediary' then return :intermediaire
+      end
+    end
+
     profile = current_user.user_profile
-    if profile == 'proprietaire' && current_user.professional_type.present?
-      profile = case current_user.professional_type
-                when 'architect'    then 'architecte'
-                when 'entrepreneur' then 'entrepreneur'
-                when 'intermediary' then 'intermediaire'
-                end
+    if profile == 'proprietaire'
+      if current_user.professional_type.present?
+        profile = case current_user.professional_type
+                  when 'architect'    then 'architecte'
+                  when 'entrepreneur' then 'entrepreneur'
+                  when 'intermediary' then 'intermediaire'
+                  end
+      elsif current_user.professional?
+        active_roles = current_user.project_members.active.pros.pluck(:role).uniq
+        profile = if active_roles.include?('architect')      then 'architecte'
+                  elsif active_roles.include?('intermediary') then 'intermediaire'
+                  elsif active_roles.include?('entrepreneur') then 'entrepreneur'
+                  end
+      end
     end
     case profile
     when 'architecte'   then :architecte
