@@ -125,3 +125,161 @@
 
   </div>
 </div>
+
+<%# ── Bouton flottant IA ────────────────────────────────────────────────── %>
+<button class="btn rounded-pill shadow-lg d-flex align-items-center gap-2 fw-semibold"
+        type="button"
+        data-bs-toggle="offcanvas"
+        data-bs-target="#proIaDrawer"
+        aria-controls="proIaDrawer"
+        style="position:fixed;bottom:1.5rem;right:1.5rem;z-index:1040;
+               background:linear-gradient(135deg,var(--ren0vate-primary,#1a1a2e) 0%,#0d6efd 100%);
+               color:white;padding:0.6rem 1.1rem;font-size:0.9rem;border:none;">
+  <i class="bi bi-robot" style="font-size:1.1rem;"></i>
+  <span class="d-none d-sm-inline">Assistant IA</span>
+</button>
+
+<%# ── Offcanvas drawer ──────────────────────────────────────────────────── %>
+<div class="offcanvas offcanvas-end" tabindex="-1" id="proIaDrawer"
+     aria-labelledby="proIaDrawerLabel"
+     style="width:min(420px,100vw);">
+  <div class="offcanvas-header border-bottom py-3"
+       style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);color:white;">
+    <div class="d-flex align-items-center gap-2">
+      <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+           style="width:36px;height:36px;background:rgba(255,255,255,0.15);">
+        <i class="bi bi-robot" style="font-size:1rem;"></i>
+      </div>
+      <div>
+        <h5 class="offcanvas-title mb-0 fw-semibold" id="proIaDrawerLabel" style="font-size:0.95rem;">
+          Expert IA — <%= @membership.role == 'entrepreneur' ? 'Entrepreneur' : 'Architecte' %>
+        </h5>
+        <div style="font-size:0.75rem;opacity:0.7;"><%= @project.name %></div>
+      </div>
+    </div>
+    <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="offcanvas" aria-label="Fermer"></button>
+  </div>
+
+  <div class="offcanvas-body d-flex flex-column p-0">
+    <%# ── Suggestions rapides ── %>
+    <div class="px-3 pt-3 pb-2" style="background:#f8f9fa;border-bottom:1px solid #e9ecef;">
+      <div class="small text-muted mb-2" style="font-size:0.75rem;">Suggestions rapides :</div>
+      <div class="d-flex flex-wrap gap-2" id="proIaSuggestions">
+        <% if @membership.role == 'entrepreneur' %>
+          <button class="btn btn-sm btn-outline-warning rounded-pill ia-suggestion" style="font-size:0.75rem;">Factures en retard de paiement</button>
+          <button class="btn btn-sm btn-outline-warning rounded-pill ia-suggestion" style="font-size:0.75rem;">Que manque-t-il pour le PV de réception ?</button>
+          <button class="btn btn-sm btn-outline-warning rounded-pill ia-suggestion" style="font-size:0.75rem;">Comment relancer ce client ?</button>
+          <button class="btn btn-sm btn-outline-warning rounded-pill ia-suggestion" style="font-size:0.75rem;">Délais légaux de paiement en Belgique</button>
+        <% else %>
+          <button class="btn btn-sm btn-outline-info rounded-pill ia-suggestion" style="font-size:0.75rem;">Documents manquants pour le permis</button>
+          <button class="btn btn-sm btn-outline-info rounded-pill ia-suggestion" style="font-size:0.75rem;">Quelles primes pour ce chantier ?</button>
+          <button class="btn btn-sm btn-outline-info rounded-pill ia-suggestion" style="font-size:0.75rem;">Réglementation isolation applicable</button>
+          <button class="btn btn-sm btn-outline-info rounded-pill ia-suggestion" style="font-size:0.75rem;">Phases à valider pour clôturer</button>
+        <% end %>
+      </div>
+    </div>
+
+    <%# ── Historique messages ── %>
+    <div id="proIaMessages" class="flex-grow-1 overflow-auto px-3 py-3 d-flex flex-column gap-2"
+         style="min-height:0;font-size:0.88rem;">
+      <div class="rounded-3 p-3 text-center text-muted" style="background:#f8f9fa;font-size:0.82rem;">
+        <i class="bi bi-stars me-1"></i>
+        Je suis contextualisé sur <strong><%= @project.name %></strong>.
+        Posez-moi vos questions sur ce chantier.
+      </div>
+    </div>
+
+    <%# ── Formulaire ── %>
+    <div class="border-top p-3" style="background:white;">
+      <form id="proIaForm"
+            data-project-id="<%= @project.id %>"
+            data-pro-role="<%= @membership.role %>"
+            data-property-id="<%= @property&.id %>">
+        <div class="d-flex gap-2">
+          <input type="text" id="proIaInput"
+                 class="form-control form-control-sm rounded-pill"
+                 placeholder="Posez votre question sur ce chantier…"
+                 autocomplete="off"
+                 style="font-size:0.85rem;">
+          <button type="submit"
+                  class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                  style="width:34px;height:34px;background:linear-gradient(135deg,#1a1a2e,#0d6efd);color:white;border:none;">
+            <i class="bi bi-send-fill" style="font-size:0.75rem;"></i>
+          </button>
+        </div>
+        <div class="text-muted mt-1 text-end" style="font-size:0.68rem;">Claude Sonnet · ren0vate IA</div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const form      = document.getElementById('proIaForm');
+  const input     = document.getElementById('proIaInput');
+  const messages  = document.getElementById('proIaMessages');
+  const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+  function appendMsg(role, text) {
+    const div = document.createElement('div');
+    div.className = 'd-flex ' + (role === 'user' ? 'justify-content-end' : 'justify-content-start');
+    const bubble = document.createElement('div');
+    bubble.className = 'rounded-3 px-3 py-2';
+    bubble.style.cssText = role === 'user'
+      ? 'background:#0d6efd;color:white;max-width:85%;font-size:0.85rem;'
+      : 'background:#f1f3f5;color:#212529;max-width:90%;font-size:0.85rem;white-space:pre-wrap;';
+    bubble.textContent = text;
+    div.appendChild(bubble);
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function appendTyping() {
+    const div = document.createElement('div');
+    div.id = 'proIaTyping';
+    div.className = 'd-flex justify-content-start';
+    div.innerHTML = '<div class="rounded-3 px-3 py-2" style="background:#f1f3f5;font-size:0.82rem;color:#6c757d;">' +
+      '<span class="spinner-grow spinner-grow-sm me-1" style="width:6px;height:6px;"></span>En réflexion…</div>';
+    messages.appendChild(div);
+    messages.scrollTop = messages.scrollHeight;
+    return div;
+  }
+
+  async function sendQuestion(question) {
+    if (!question.trim()) return;
+    appendMsg('user', question);
+    input.value = '';
+    const typing = appendTyping();
+
+    try {
+      const res = await fetch('/api/contextual_bot/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': csrfToken },
+        body: JSON.stringify({
+          message:      question,
+          current_page: 'pro_view',
+          mode:         'expert',
+          property_id:  form.dataset.projectId  || '',
+          pro_role:     form.dataset.proRole    || ''
+        })
+      });
+      typing.remove();
+      const data = await res.json();
+      appendMsg('bot', data.response || data.message || 'Erreur de réponse.');
+    } catch(e) {
+      typing.remove();
+      appendMsg('bot', 'Une erreur est survenue. Veuillez réessayer.');
+    }
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    sendQuestion(input.value);
+  });
+
+  document.getElementById('proIaSuggestions')?.addEventListener('click', e => {
+    const btn = e.target.closest('.ia-suggestion');
+    if (btn) sendQuestion(btn.textContent.trim());
+  });
+})();
+</script>
